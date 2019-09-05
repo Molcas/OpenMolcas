@@ -190,7 +190,7 @@ c Avoid unused argument warnings
             iOpt_RS=1   ! Activate restricted variance.
             iterAI=iter
             dEner=meAI
-            nRaw=Min(iter,nWndw)
+            nRaw=Min(iter,nWndw/2)
             iFirst = iter - nRaw + 1
             iterK=0
             dqdq=Zero
@@ -240,12 +240,13 @@ c Avoid unused argument warnings
 *           Pick up the coordinates in descending order with the ones
 *           that are the closest to the current structure.
 *
+            iSt=Max(1,iter-nWndw+1)
             Thr_low = 0.0D0
             Thr_high= 99.0D0
             Do iRaw = nRaw-1, 1, -1
 *
                kter=-1
-               Do jter = 1, iter-1
+               Do jter = iSt, iter-1
 *
 *                 Compute the distance in Cartesian coordinates.
 *
@@ -427,7 +428,7 @@ c Avoid unused argument warnings
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
-     &                nWndw,Mode,ipMF,
+     &                nWndw/2,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian,qBeta,Restriction_dispersion,

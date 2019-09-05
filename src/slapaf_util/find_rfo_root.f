@@ -69,10 +69,11 @@
 *       update the other end point
         ELSE
 *
-*         If y2 is very close to y1, or actually lower, just double the step
+*         If y2 is very close to y1, or actually lower, just double the step.
+*         However, don't get too ambitious -- thus the min function.
 *
           IF (y1-y2 .GT. Thr) THEN
-            delta=(Val-y2)*(x1-x2)/(y1-y2)
+            delta=Min(x2,(Val-y2)*(x1-x2)/(y1-y2))
             new=x2+1.5D0*delta
           ELSE
             new=x2+Two*(x2-x1)
@@ -109,7 +110,9 @@
           RETURN
         END IF
         new=xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
-        IF ((new.LE.xx1).OR.(new.GE.xx2)) new=Half*(xx1+xx2)
+        IF ((new.LE.xx1).OR.(new.GE.xx2)) Then
+           new=Half*(xx1+xx2)
+        End If
         nnew=new
 *
 *       Define a quadratic fitting for the 3 points
@@ -134,7 +137,9 @@
           END IF
         END IF
 *       Last check: make sure the new point is in the correct interval
-        IF ((nnew.GT.xx1).AND.(nnew.LT.xx2)) new=nnew
+        IF ((nnew.GT.xx1).AND.(nnew.LT.xx2)) Then
+           new=nnew
+        End If
 *
 *       Update the end points
         x1=xx1

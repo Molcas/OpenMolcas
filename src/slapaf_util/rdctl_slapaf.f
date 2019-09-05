@@ -1387,6 +1387,15 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     In case of Kriging we use a sorting step in update_sl. For this
+*     to work we need the values of the internal coordinates for more
+*     points than the window size. Here we increase it with a factor of
+*     2 temporarily. The sorted list will still be of the orginal size.
+*
+      If (Kriging) nWndw=2*nWndw
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call QExit('RdCtl_Slapaf')
       Return
 *
@@ -1481,6 +1490,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
          Line = Temp_Line
          Call UpCase(Line)
          New_Line=0
+*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
