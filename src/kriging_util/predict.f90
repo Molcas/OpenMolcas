@@ -28,8 +28,8 @@
                     Call mma_allocate(IPIV,m_t,label="IPIV")
                     ! calculations of Energy and dispersion
                     ! ----------------Old calculations --P1
-                    A = full_R
-                    B = CV(:,j,1,1)
+                    A(:,:) = full_R
+                    B(:) = CV(:,j,1,1)
                     CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
                     !-----------------New
                     ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
@@ -40,7 +40,7 @@
                     ! write (6,*) 'size', size(B)
                     var(j) = 1 - dot_product(B,CV(:,j,1,1))
                     tsum = sum(rones(1:iter))
-                    B = cv(:,j,1,1)
+                    B(:) = cv(:,j,1,1)
                     var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
                     sigma(j)=1.96D0*sqrt(abs(var(j)*variance))
                     pred(j) = sb + dot_product(B,Kv)
@@ -56,7 +56,7 @@
                     ! Predicting the gradient gh = 1
                     ! Write (6,*) 'Pred: Kv=',Kv
                     do k=1,nInter
-                        B = cv(:,j,k,1)
+                        B(:) = cv(:,j,k,1)
                         ! Write (6,*) 'Pred: B=',B
                         gpred(j,k) = dot_product(B,Kv)
                         ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
@@ -70,7 +70,7 @@
                     ! Predicting the Hessian gh = 2
                     do k=1,nInter
                        do i=1,nInter
-                          B = cv(:,j,i,k)
+                          B(:) = cv(:,j,i,k)
                           ! write(6,*) 'tcv', i,k,tcv
                           !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
                           hpred(j,k,i) = dot_product(B, Kv)
