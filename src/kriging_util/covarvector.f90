@@ -34,7 +34,7 @@
                 call matderiv(1, dl, cvMatFDer, iter, npx)
                 do i=1,nInter
 !       1st derivatives second part of eq. (4)
-                    diffx = 2.0D0*rl(:,:,i)/l(i)
+                    diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
                     i0 = i*iter + 1
                     i1 = i0 + iter - 1
                     cv(i0:i1,:,1,1) = cvMatFder * diffx
@@ -50,13 +50,13 @@
                 call matderiv(2, dl, cvMatSder, iter, npx)
                 ! Call RecPrt('cvMatSder',' ',cvMatSder,iter,npx)
                 do i=1,nInter
-                    diffx = 2.0D0*rl(:,:,i)/l(i)
+                    diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
                     cv(1:iter,:,i,1) = -cvMatFder * diffx
                     do j = 1,nInter
                         ! if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
-                        diffx0 = -2.0D0*rl(:,:,j)/l(j)
+                        diffx0(:,:) = -2.0D0*rl(:,:,j)/l(j)
                         if (i.eq.j) Then
                            cv(j0:j1,:,i,1) = cvMatSder * diffx*diffx0 - cvMatFder*(2/(l(i)*l(j)))
                         else
@@ -76,10 +76,10 @@
                 call matderiv(2, dl, cvMatSder, iter, npx)
                 call matderiv(3, dl, cvMatTder, iter, npx)
                 do i = 1, nInter
-                    diffx = 2.0D0*rl(:,:,i)/l(i)
+                    diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
                     sdiffx = 2.0D0/l(i)**2
                     do j = 1, nInter
-                        diffx0 = -2.0D0*rl(:,:,j)/l(j)
+                        diffx0(:,:) = -2.0D0*rl(:,:,j)/l(j)
                         sdiffx0 = 2.0D0/l(j)**2
                         if (i.eq.j) Then
                            cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0 - cvMatFder*2.0D0/(l(i)*l(j))
@@ -87,7 +87,7 @@
                            cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0
                         end if
                         do k = 1, nInter
-                            diffxk = - 2.0D0*rl(:,:,k)/l(k)
+                            diffxk(:,:) = - 2.0D0*rl(:,:,k)/l(k)
                             sdiffxk = 2.0D0/l(i)**2
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
@@ -131,7 +131,7 @@
                     enddo
                 enddo
                 !write(6,*) 'CV-rl',i,rl
-                dl = dl + rl(:,:,i)**2
+                dl(:,:) = dl(:,:) + rl(:,:,i)**2
             enddo
             ! write (6,*) 'rl',rl
             !isdefdlrl = .True.
