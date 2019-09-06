@@ -916,7 +916,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
               WRITE(6,*)
               WRITE(6,34) 'From', 'To', 'Raw osc. str.',
-     &                    'Rot. str.','kx','ky','kz'
+     &                    'Red. rot. str.','kx','ky','kz'
               WRITE(6,35)
               NQUAD_=2*NQUAD
               LRAW_=LRAW+6*NQUAD_*(ij_-1)
@@ -942,7 +942,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
               WRITE(6,*)
               WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
-     &                    'Rot. str.','kx','ky','kz'
+     &                    'Red. rot. str.','kx','ky','kz'
               WRITE(6,35)
               NQUAD_=2*NQUAD
               LRAW_=LRAW+6*NQUAD_*(ij_-1)

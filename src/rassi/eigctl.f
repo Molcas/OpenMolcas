@@ -61,7 +61,7 @@
 #endif
       logical TMOgroup
       REAL*8 COMPARE
-      REAL*8 RT(3,3)
+      REAL*8 Rtensor(6)
 
 
 
@@ -1904,13 +1904,13 @@ C And the same for the Dyson amplitudes
              RXYZ=0.0D0
              RXZX=0.0D0
              RXZY=0.0D0
-             RYXY=0.0D0
+             RXYY=0.0D0
              RYYX=0.0D0
              RYYZ=0.0D0
              RYZX=0.0D0
              RYZY=0.0D0
-             RZXZ=0.0D0
-             RZYZ=0.0D0
+             RXZZ=0.0D0
+             RYZZ=0.0D0
              RZZX=0.0D0
              RZZY=0.0D0
              IF((IPRDXD.GT.0).AND.(IPRDYM.GT.0)) THEN
@@ -1950,7 +1950,7 @@ C And the same for the Dyson amplitudes
               RXZY=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQXY.GT.0).AND.(IPRDYD.GT.0)) THEN
-               RYXY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
+               RXYY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQYY.GT.0).AND.(IPRDXD.GT.0)) THEN
                RYYX=PROP(J,I,IPRQYY)*PROP(J,I,IPRDXD)
@@ -1965,10 +1965,10 @@ C And the same for the Dyson amplitudes
                RYZY=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQXZ.GT.0).AND.(IPRDZD.GT.0)) THEN
-               RZXZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
+               RXZZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
              END IF
              IF((IPRQYZ.GT.0).AND.(IPRDZD.GT.0)) THEN
-               RZYZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
+               RYZZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
              END IF
              IF((IPRQZZ.GT.0).AND.(IPRDXD.GT.0)) THEN
                RZZX=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDXD)
@@ -1976,23 +1976,24 @@ C And the same for the Dyson amplitudes
              IF((IPRQZZ.GT.0).AND.(IPRDYD.GT.0)) THEN
                RZZY=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDYD)
              END IF
-             RT(1,1) =  0.75D0 *(RYY+RZZ + (RXYZ-RXZY))
-             RT(1,2) = -0.375D0*(RXY+RYX + (RXXZ+RYZY-RXZX-RYYZ))
-             RT(1,3) = -0.375D0*(RXZ+RZX + (RXYX+RZZY-RXXY-RZYZ))
-             RT(2,1) = RT(1,2)
-             RT(2,2) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
-             RT(2,3) = -0.375D0*(RYZ+RZY + (RYYX+RZXZ-RYXY-RZZX))
-             RT(3,1) = RT(1,3)
-             RT(3,2) = RT(2,3)
-             RT(3,3) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR/EDIFF,RT,1)
+             ! xx, xy, xz, yy, yz, zz
+             Rtensor(1) =  0.75D0 *(RYY+RZZ + (RXYZ-RXZY))
+             Rtensor(2) = -0.375D0*(RXY+RYX + (RXXZ+RYZY-RXZX-RYYZ))
+             Rtensor(3) = -0.375D0*(RXZ+RZX + (RXYX+RZZY-RXXY-RYZZ))
+             Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
+             Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
+             Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
              IF (Do_SK) THEN
-              R = k_vector(1,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,1),1)
-     &           +k_vector(2,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,2),1)
-     &           +k_vector(3,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,3),1)
+              ! k^T R k
+              R = k_vector(1,iVec)**2*Rtensor(1)+
+     &            k_vector(2,iVec)**2*Rtensor(4)+
+     &            k_vector(3,iVec)**2*Rtensor(6)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+     &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
              ELSE
-                WRITE(6,43) 'tensor: ',
-     &                   RT(1,1),RT(1,2),RT(1,3),RT(2,2),RT(2,3),RT(3,3)
+                WRITE(6,43) 'tensor: ',Rtensor(:)
              END IF
             END IF
 *
@@ -2137,13 +2138,13 @@ C And the same for the Dyson amplitudes
              RXYZ=0.0D0
              RXZX=0.0D0
              RXZY=0.0D0
-             RYXY=0.0D0
+             RXYY=0.0D0
              RYYX=0.0D0
              RYYZ=0.0D0
              RYZX=0.0D0
              RYZY=0.0D0
-             RZXZ=0.0D0
-             RZYZ=0.0D0
+             RXZZ=0.0D0
+             RYZZ=0.0D0
              RZZX=0.0D0
              RZZY=0.0D0
              IF((IPRDXD.GT.0).AND.(IPRDYM.GT.0)) THEN
@@ -2183,7 +2184,7 @@ C And the same for the Dyson amplitudes
                RXZY=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQXY.GT.0).AND.(IPRDYD.GT.0)) THEN
-               RYXY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
+               RXYY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQYY.GT.0).AND.(IPRDXD.GT.0)) THEN
                RYYX=PROP(J,I,IPRQYY)*PROP(J,I,IPRDXD)
@@ -2198,10 +2199,10 @@ C And the same for the Dyson amplitudes
                RYZY=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDYD)
              END IF
              IF((IPRQXZ.GT.0).AND.(IPRDZD.GT.0)) THEN
-               RZXZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
+               RXZZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
              END IF
              IF((IPRQYZ.GT.0).AND.(IPRDZD.GT.0)) THEN
-               RZYZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
+               RYZZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
              END IF
              IF((IPRQZZ.GT.0).AND.(IPRDXD.GT.0)) THEN
                RZZX=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDXD)
@@ -2209,23 +2210,24 @@ C And the same for the Dyson amplitudes
              IF((IPRQZZ.GT.0).AND.(IPRDYD.GT.0)) THEN
                RZZY=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDYD)
              END IF
-             RT(1,1) =  0.75D0 *(RYY+RZZ + EDIFF*(RXYZ-RXZY))
-             RT(1,2) = -0.375D0*(RXY+RYX + EDIFF*(RXXZ+RYZY-RXZX-RYYZ))
-             RT(1,3) = -0.375D0*(RXZ+RZX + EDIFF*(RXYX+RZZY-RXXY-RZYZ))
-             RT(2,1) = RT(1,2)
-             RT(2,2) =  0.75D0 *(RXX+RZZ + EDIFF*(RYZX-RXYZ))
-             RT(2,3) = -0.375D0*(RYZ+RZY + EDIFF*(RYYX+RZXZ-RYXY-RZZX))
-             RT(3,1) = RT(1,3)
-             RT(3,2) = RT(2,3)
-             RT(3,3) =  0.75D0 *(RXX+RYY + EDIFF*(RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR,RT,1)
+             ! xx, xy, xz, yy, yz, zz
+             Rtensor(1) =  0.75D0 *(RYY+RZZ+EDIFF*(RXYZ-RXZY))
+             Rtensor(2) = -0.375D0*(RXY+RYX+EDIFF*(RXXZ+RYZY-RXZX-RYYZ))
+             Rtensor(3) = -0.375D0*(RXZ+RZX+EDIFF*(RXYX+RZZY-RXXY-RYZZ))
+             Rtensor(4) =  0.75D0 *(RXX+RZZ+EDIFF*(RYZX-RXYZ))
+             Rtensor(5) = -0.375D0*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
+             Rtensor(6) =  0.75D0 *(RXX+RYY+EDIFF*(RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR,Rtensor,1)
              IF (Do_SK) THEN
-              R = k_vector(1,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,1),1)
-     &           +k_vector(2,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,2),1)
-     &           +k_vector(3,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,3),1)
+              ! k^T R k
+              R = k_vector(1,iVec)**2*Rtensor(1)+
+     &            k_vector(2,iVec)**2*Rtensor(4)+
+     &            k_vector(3,iVec)**2*Rtensor(6)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+     &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
              ELSE
-                WRITE(6,43) 'tensor: ',
-     &                   RT(1,1),RT(1,2),RT(1,3),RT(2,2),RT(2,3),RT(3,3)
+                WRITE(6,43) 'tensor: ',Rtensor(:)
              END IF
             END IF
 *

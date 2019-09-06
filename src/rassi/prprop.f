@@ -69,6 +69,7 @@
       REAL*8 J2CM
       Complex*16 T0(3), TM1
       REAL*8 COMPARE
+      REAL*8 Rtensor(6)
 
 
       CALL QENTER(ROUTINE)
@@ -566,23 +567,20 @@ C printing threshold
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
+            T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
+            T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
+            T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
             If (Do_SK) Then
-               T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
-               T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
-               T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
-     &                              +k_vector(3,iVec)*T0(3)
+               TM1=k_vector(1,iVec)*T0(1)+
+     &             k_vector(2,iVec)*T0(2)+
+     &             k_vector(3,iVec)*T0(3)
                T0(1) = T0(1) - TM1 * k_vector(1,iVec)
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
                T0(3) = T0(3) - TM1 * k_vector(3,iVec)
-               DX2=ABS(DCONJG(T0(1))*T0(1))
-               DY2=ABS(DCONJG(T0(2))*T0(2))
-               DZ2=ABS(DCONJG(T0(3))*T0(3))
-            Else
-               DX2=WORK(LDXR-1+IJSS)**2+WORK(LDXI-1+IJSS)**2
-               DY2=WORK(LDYR-1+IJSS)**2+WORK(LDYI-1+IJSS)**2
-               DZ2=WORK(LDZR-1+IJSS)**2+WORK(LDZI-1+IJSS)**2
             End If
+            DX2=ABS(DCONJG(T0(1))*T0(1))
+            DY2=ABS(DCONJG(T0(2))*T0(2))
+            DZ2=ABS(DCONJG(T0(3))*T0(3))
             FX=Two3rds*EDIFF*(DX2)
             FY=Two3rds*EDIFF*(DY2)
             FZ=Two3rds*EDIFF*(DZ2)
@@ -709,23 +707,20 @@ C printing threshold
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
+            T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
+            T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
+            T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
             If (Do_SK) Then
-               T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
-               T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
-               T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
-     &                              +k_vector(3,iVec)*T0(3)
+               TM1=k_vector(1,iVec)*T0(1)+
+     &             k_vector(2,iVec)*T0(2)+
+     &             k_vector(3,iVec)*T0(3)
                T0(1) = T0(1) - TM1 * k_vector(1,iVec)
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
                T0(3) = T0(3) - TM1 * k_vector(3,iVec)
-               DX2=ABS(DCONJG(T0(1))*T0(1))
-               DY2=ABS(DCONJG(T0(2))*T0(2))
-               DZ2=ABS(DCONJG(T0(3))*T0(3))
-            Else
-               DX2=WORK(LDXR-1+IJSS)**2+WORK(LDXI-1+IJSS)**2
-               DY2=WORK(LDYR-1+IJSS)**2+WORK(LDYI-1+IJSS)**2
-               DZ2=WORK(LDZR-1+IJSS)**2+WORK(LDZI-1+IJSS)**2
             End If
+            DX2=ABS(DCONJG(T0(1))*T0(1))
+            DY2=ABS(DCONJG(T0(2))*T0(2))
+            DZ2=ABS(DCONJG(T0(3))*T0(3))
             FX=Two3rds*(DX2)/EDIFF
             FY=Two3rds*(DY2)/EDIFF
             FZ=Two3rds*(DZ2)/EDIFF
@@ -1999,27 +1994,54 @@ C printing threshold
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
+        IPRDXS=0
+        IPRDYS=0
+        IPRDZS=0
+        IPRQXX=0
+        IPRQXY=0
+        IPRQXZ=0
+        IPRQYX=0
+        IPRQYY=0
+        IPRQYZ=0
+        IPRQZX=0
+        IPRQZY=0
+        IPRQZZ=0
 
         IFANYD=0
         IFANYM=0
+        IFANYS=0
+        IFANYQ=0
         DO ISOPR=1,NSOPR
           IF (SOPRNM(ISOPR).EQ.'VELOCITY') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
-          END IF
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+          ELSE IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
+           IFANYS=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRDXS=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDYS=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDZS=ISOPR
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPV  2') THEN
+           IFANYQ=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRQXX=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRQXY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRQXZ=ISOPR
+           IF(ISOCMP(ISOPR).EQ.4) IPRQYY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.5) IPRQYZ=ISOPR
+           IF(ISOCMP(ISOPR).EQ.6) IPRQZZ=ISOPR
           END IF
         END DO
 
         IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
-! Electric dipole
+! Electric dipole (linear momentum, p)
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
@@ -2046,17 +2068,17 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZR),WORK(LDZI))
          END IF
 
-! Magnetic-Dipole
-         CALL GETMEM('DXR','ALLO','REAL',LMDXR,NSS**2)
-         CALL GETMEM('DXI','ALLO','REAL',LMDXI,NSS**2)
+! Magnetic-Dipole (angular momentum, l = r x p)
+         CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
+         CALL GETMEM('MDXI','ALLO','REAL',LMDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXI),1)
-         CALL GETMEM('DYR','ALLO','REAL',LMDYR,NSS**2)
-         CALL GETMEM('DYI','ALLO','REAL',LMDYI,NSS**2)
+         CALL GETMEM('MDYR','ALLO','REAL',LMDYR,NSS**2)
+         CALL GETMEM('MDYI','ALLO','REAL',LMDYI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYI),1)
-         CALL GETMEM('DZR','ALLO','REAL',LMDZR,NSS**2)
-         CALL GETMEM('DZI','ALLO','REAL',LMDZI,NSS**2)
+         CALL GETMEM('MDZR','ALLO','REAL',LMDZR,NSS**2)
+         CALL GETMEM('MDZI','ALLO','REAL',LMDZI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZI),1)
 
@@ -2073,45 +2095,215 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LMDZR),WORK(LMDZI))
          END IF
 
+! Spin-Magnetic-Dipole
+         CALL GETMEM('SDXR','ALLO','REAL',LSDXR,NSS**2)
+         CALL GETMEM('SDXI','ALLO','REAL',LSDXI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDXI),1)
+         CALL GETMEM('SDYR','ALLO','REAL',LSDYR,NSS**2)
+         CALL GETMEM('SDYI','ALLO','REAL',LSDYI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDYI),1)
+         CALL GETMEM('SDZR','ALLO','REAL',LSDZR,NSS**2)
+         CALL GETMEM('SDZI','ALLO','REAL',LSDZI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDZI),1)
 
+         IF(IPRDXS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDXR),NSS,IPRDXS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDXR),WORK(LSDXI))
+         END IF
+         IF(IPRDYS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDYR),NSS,IPRDYS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDYR),WORK(LSDYI))
+         END IF
+         IF(IPRDZS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDZR),NSS,IPRDZS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDZR),WORK(LSDZI))
+         END IF
+
+! Electric quadrupole (r:p+p:r)
+         IF (IFANYQ.NE.0) THEN
+          CALL GETMEM('QXXR','ALLO','REAL',LQXXR,NSS**2)
+          CALL GETMEM('QXXI','ALLO','REAL',LQXXI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXI),1)
+          CALL GETMEM('QXYR','ALLO','REAL',LQXYR,NSS**2)
+          CALL GETMEM('QXYI','ALLO','REAL',LQXYI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYI),1)
+          CALL GETMEM('QXZR','ALLO','REAL',LQXZR,NSS**2)
+          CALL GETMEM('QXZI','ALLO','REAL',LQXZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZI),1)
+          CALL GETMEM('QYYR','ALLO','REAL',LQYYR,NSS**2)
+          CALL GETMEM('QYYI','ALLO','REAL',LQYYI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYI),1)
+          CALL GETMEM('QYZR','ALLO','REAL',LQYZR,NSS**2)
+          CALL GETMEM('QYZI','ALLO','REAL',LQYZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZI),1)
+          CALL GETMEM('QZZR','ALLO','REAL',LQZZR,NSS**2)
+          CALL GETMEM('QZZI','ALLO','REAL',LQZZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZI),1)
+
+          IF(IPRQXX.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXXR),NSS,IPRQXX,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXXR),WORK(LQXXI))
+          END IF
+          IF(IPRQXY.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXYR),NSS,IPRQXY,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXYR),WORK(LQXYI))
+          END IF
+          IF(IPRQXZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXZR),NSS,IPRQXZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXZR),WORK(LQXZI))
+          END IF
+          IF(IPRQYY.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQYYR),NSS,IPRQYY,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYYR),WORK(LQYYI))
+          END IF
+          IF(IPRQYZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQYZR),NSS,IPRQYZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYZR),WORK(LQYZI))
+          END IF
+          IF(IPRQZZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQZZR),NSS,IPRQZZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQZZR),WORK(LQZZI))
+          END IF
+         END IF
 !
 ! Only print the part calculated
 !
-          WRITE(6,*)
-          Call CollapseOutput(1,
-     &                  'Circular Dichroism - velocity gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
-     &                  'rotatory strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '------------------------------------'//
-     &                  '----------------------------------'//
-     &                  '-------------------------------'
-          WRITE(6,31) 'From','To','Red. rot. str.'
-          WRITE(6,35)
+         WRITE(6,*)
+         Call CollapseOutput(1,
+     &                 'Circular Dichroism - velocity gauge '//
+     &                 'Electric-Dipole - Magnetic-Dipole '//
+     &                 'rotatory strengths (SO states):')
+         WRITE(6,'(3X,A)')
+     &                 '------------------------------------'//
+     &                 '----------------------------------'//
+     &                 '-------------------------------'
+         WRITE(6,*)
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            nVec = nk_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            WRITE(6,*)
+            WRITE(6,'(4x,a,3F8.4)')
+     &         'Direction of the k-vector: ',
+     &          (k_vector(k,iVec),k=1,3)
+            WRITE(6,*)
+            WRITE(6,31) 'From','To','Red. rot. str.'
+         Else
+            WRITE(6,31) 'From','To','Red. rot. str.'
+            IF (IFANYQ.NE.0)
+     &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
+         End If
+         WRITE(6,35)
 !
+         g = FEGVAL
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+           EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
-*           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
-*             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
-*             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
-            R=0.0D0
+! These are all complex quantities, and their products are complex too,
+! but eventually every piece will be:
+!   <I|a|J> <J|b|I> + <I|b|J> <J|b|I>
+! for a and b Hermitian operators, so it will be reduced to:
+!   2*(Re(A_ij)*Re(B_ij)+Im(A_ij)*Im(B_ij))
+! and the imaginary parts of the products can be ignored.
 
-            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
-            END IF
-            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
-            END IF
-            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
-            END IF
+!           Note p = -i*hbar*nabla
+            DXR=WORK(LDXI-1+IJSS)
+            DYR=WORK(LDYI-1+IJSS)
+            DZR=WORK(LDZI-1+IJSS)
+            DXI=-WORK(LDXR-1+IJSS)
+            DYI=-WORK(LDYR-1+IJSS)
+            DZI=-WORK(LDZR-1+IJSS)
+!           Note r x p = -i*hbar * (r x nabla)
+            DMXR=WORK(LMDXI-1+IJSS)+g*WORK(LSDXR-1+IJSS)
+            DMYR=WORK(LMDYI-1+IJSS)+g*WORK(LSDYR-1+IJSS)
+            DMZR=WORK(LMDZI-1+IJSS)+g*WORK(LSDZR-1+IJSS)
+            DMXI=-WORK(LMDXR-1+IJSS)+g*WORK(LSDXI-1+IJSS)
+            DMYI=-WORK(LMDYR-1+IJSS)+g*WORK(LSDYI-1+IJSS)
+            DMZI=-WORK(LMDZR-1+IJSS)+g*WORK(LSDZI-1+IJSS)
 
-            R = R*Half/EDIFF*AU2REDR
-
+*           R = 1/3 tr(Rtensor)
+            RXX=DXR*DMXR+DXI*DMXI
+            RYY=DYR*DMYR+DYI*DMYI
+            RZZ=DZR*DMZR+DZI*DMZI
+            R = Half/EDIFF*AU2REDR*(RXX+RYY+RZZ)
+*
+* Compute full rotatory strength tensor
+* (see Hansen and Bak, 10.1021/jp001899+)
+*
+            IF (IFANYQ.NE.0) THEN
+!            Note r:p+p:r = -i*hbar * (r:nabla+nabla:r)
+             QXXR=WORK(LQXXI-1+IJSS)
+             QXYR=WORK(LQXYI-1+IJSS)
+             QXZR=WORK(LQXZI-1+IJSS)
+             QYYR=WORK(LQYYI-1+IJSS)
+             QYZR=WORK(LQYZI-1+IJSS)
+             QZZR=WORK(LQZZI-1+IJSS)
+             QXXI=-WORK(LQXXR-1+IJSS)
+             QXYI=-WORK(LQXYR-1+IJSS)
+             QXZI=-WORK(LQXZR-1+IJSS)
+             QYYI=-WORK(LQYYR-1+IJSS)
+             QYZI=-WORK(LQYZR-1+IJSS)
+             QZZI=-WORK(LQZZR-1+IJSS)
+             RXY=DXR*DMYR+DXI*DMYI
+             RXZ=DXR*DMZR+DXI*DMZI
+             RYX=DYR*DMXR+DYI*DMXI
+             RYZ=DYR*DMZR+DYI*DMZI
+             RZX=DZR*DMXR+DZI*DMXI
+             RZY=DZR*DMYR+DZI*DMYI
+             RXXY=QXXR*DYR+QXXI*DYI
+             RXXZ=QXXR*DZR+QXXI*DZI
+             RXYX=QXYR*DXR+QXYI*DXI
+             RXYZ=QXYR*DZR+QXYI*DZI
+             RXZX=QXZR*DXR+QXZI*DXI
+             RXZY=QXZR*DYR+QXZI*DYI
+             RXYY=QXYR*DYR+QXYI*DYI
+             RYYX=QYYR*DXR+QYYI*DXI
+             RYYZ=QYYR*DZR+QYYI*DZI
+             RYZX=QYZR*DXR+QYZI*DXI
+             RYZY=QYZR*DYR+QYZI*DYI
+             RXZZ=QXZR*DZR+QXZI*DZI
+             RYZZ=QYZR*DZR+QYZI*DZI
+             RZZX=QZZR*DXR+QZZI*DXI
+             RZZY=QZZR*DYR+QZZI*DYI
+             ! xx, xy, xz, yy, yz, zz
+             Rtensor(1) =  0.75D0 *(RYY+RZZ + (RXYZ-RXZY))
+             Rtensor(2) = -0.375D0*(RXY+RYX + (RXXZ+RYZY-RXZX-RYYZ))
+             Rtensor(3) = -0.375D0*(RXZ+RZX + (RXYX+RZZY-RXXY-RYZZ))
+             Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
+             Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
+             Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+             IF (Do_SK) THEN
+              ! k^T R k
+              R = k_vector(1,iVec)**2*Rtensor(1)+
+     &            k_vector(2,iVec)**2*Rtensor(4)+
+     &            k_vector(3,iVec)**2*Rtensor(6)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+     &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
+             ELSE
+                WRITE(6,43) 'tensor: ',Rtensor(:)
+             END IF
+            END IF
+*
             WRITE(6,33) ISS,JSS,R
 !
             Call Add_Info('CD_V(SO)',[R],1,6)
@@ -2119,23 +2311,41 @@ C printing threshold
           END DO
          END DO
 
-! Electric-Dipole
+         WRITE(6,35)
+         End Do
+
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
          CALL GETMEM('DYR','FREE','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','FREE','REAL',LDYI,NSS**2)
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
-
-! Magnetic-Dipole
-         CALL GETMEM('DXR','FREE','REAL',LMDXR,NSS**2)
-         CALL GETMEM('DXI','FREE','REAL',LMDXI,NSS**2)
-         CALL GETMEM('DYR','FREE','REAL',LMDYR,NSS**2)
-         CALL GETMEM('DYI','FREE','REAL',LMDYI,NSS**2)
-         CALL GETMEM('DZR','FREE','REAL',LMDZR,NSS**2)
-         CALL GETMEM('DZI','FREE','REAL',LMDZI,NSS**2)
-
-         WRITE(6,35)
+         CALL GETMEM('MDXR','FREE','REAL',LMDXR,NSS**2)
+         CALL GETMEM('MDXI','FREE','REAL',LMDXI,NSS**2)
+         CALL GETMEM('MDYR','FREE','REAL',LMDYR,NSS**2)
+         CALL GETMEM('MDYI','FREE','REAL',LMDYI,NSS**2)
+         CALL GETMEM('MDZR','FREE','REAL',LMDZR,NSS**2)
+         CALL GETMEM('MDZI','FREE','REAL',LMDZI,NSS**2)
+         CALL GETMEM('SDXR','FREE','REAL',LSDXR,NSS**2)
+         CALL GETMEM('SDXI','FREE','REAL',LSDXI,NSS**2)
+         CALL GETMEM('SDYR','FREE','REAL',LSDYR,NSS**2)
+         CALL GETMEM('SDYI','FREE','REAL',LSDYI,NSS**2)
+         CALL GETMEM('SDZR','FREE','REAL',LSDZR,NSS**2)
+         CALL GETMEM('SDZI','FREE','REAL',LSDZI,NSS**2)
+         IF (IFANYQ.NE.0) THEN
+          CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
+          CALL GETMEM('QXXI','FREE','REAL',LQXXI,NSS**2)
+          CALL GETMEM('QXYR','FREE','REAL',LQXYR,NSS**2)
+          CALL GETMEM('QXYI','FREE','REAL',LQXYI,NSS**2)
+          CALL GETMEM('QXZR','FREE','REAL',LQXZR,NSS**2)
+          CALL GETMEM('QXZI','FREE','REAL',LQXZI,NSS**2)
+          CALL GETMEM('QYYR','FREE','REAL',LQYYR,NSS**2)
+          CALL GETMEM('QYYI','FREE','REAL',LQYYI,NSS**2)
+          CALL GETMEM('QYZR','FREE','REAL',LQYZR,NSS**2)
+          CALL GETMEM('QYZI','FREE','REAL',LQYZI,NSS**2)
+          CALL GETMEM('QZZR','FREE','REAL',LQZZR,NSS**2)
+          CALL GETMEM('QZZI','FREE','REAL',LQZZI,NSS**2)
+         END IF
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - velocity gauge '//
@@ -2150,9 +2360,23 @@ C printing threshold
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
+        IPRDXS=0
+        IPRDYS=0
+        IPRDZS=0
+        IPRQXX=0
+        IPRQXY=0
+        IPRQXZ=0
+        IPRQYX=0
+        IPRQYY=0
+        IPRQYZ=0
+        IPRQZX=0
+        IPRQZY=0
+        IPRQZZ=0
 
         IFANYD=0
         IFANYM=0
+        IFANYS=0
+        IFANYQ=0
         DO ISOPR=1,NSOPR
           IF (SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
@@ -2160,18 +2384,31 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
-          END IF
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+          ELSE IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
+           IFANYS=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRDXS=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDYS=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDZS=ISOPR
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
+           IFANYQ=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRQXX=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRQXY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRQXZ=ISOPR
+           IF(ISOCMP(ISOPR).EQ.4) IPRQYY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.5) IPRQYZ=ISOPR
+           IF(ISOCMP(ISOPR).EQ.6) IPRQZZ=ISOPR
           END IF
         END DO
 
         IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
-! Electric dipole
+! Electric dipole (r)
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
@@ -2198,17 +2435,17 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZR),WORK(LDZI))
          END IF
 
-! Magnetic-Dipole
-         CALL GETMEM('DXR','ALLO','REAL',LMDXR,NSS**2)
-         CALL GETMEM('DXI','ALLO','REAL',LMDXI,NSS**2)
+! Magnetic-Dipole (angular momentum, l = r x p)
+         CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
+         CALL GETMEM('MDXI','ALLO','REAL',LMDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXI),1)
-         CALL GETMEM('DYR','ALLO','REAL',LMDYR,NSS**2)
-         CALL GETMEM('DYI','ALLO','REAL',LMDYI,NSS**2)
+         CALL GETMEM('MDYR','ALLO','REAL',LMDYR,NSS**2)
+         CALL GETMEM('MDYI','ALLO','REAL',LMDYI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYI),1)
-         CALL GETMEM('DZR','ALLO','REAL',LMDZR,NSS**2)
-         CALL GETMEM('DZI','ALLO','REAL',LMDZI,NSS**2)
+         CALL GETMEM('MDZR','ALLO','REAL',LMDZR,NSS**2)
+         CALL GETMEM('MDZI','ALLO','REAL',LMDZI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZI),1)
 
@@ -2225,75 +2462,260 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LMDZR),WORK(LMDZI))
          END IF
 
+! Spin-Magnetic-Dipole
+         CALL GETMEM('SDXR','ALLO','REAL',LSDXR,NSS**2)
+         CALL GETMEM('SDXI','ALLO','REAL',LSDXI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDXI),1)
+         CALL GETMEM('SDYR','ALLO','REAL',LSDYR,NSS**2)
+         CALL GETMEM('SDYI','ALLO','REAL',LSDYI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDYI),1)
+         CALL GETMEM('SDZR','ALLO','REAL',LSDZR,NSS**2)
+         CALL GETMEM('SDZI','ALLO','REAL',LSDZI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSDZI),1)
 
+         IF(IPRDXS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDXR),NSS,IPRDXS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDXR),WORK(LSDXI))
+         END IF
+         IF(IPRDYS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDYR),NSS,IPRDYS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDYR),WORK(LSDYI))
+         END IF
+         IF(IPRDZS.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSDZR),NSS,IPRDZS,0)
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSDZR),WORK(LSDZI))
+         END IF
+
+! Electric quadrupole (r:r)
+         IF (IFANYQ.NE.0) THEN
+          CALL GETMEM('QXXR','ALLO','REAL',LQXXR,NSS**2)
+          CALL GETMEM('QXXI','ALLO','REAL',LQXXI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXI),1)
+          CALL GETMEM('QXYR','ALLO','REAL',LQXYR,NSS**2)
+          CALL GETMEM('QXYI','ALLO','REAL',LQXYI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYI),1)
+          CALL GETMEM('QXZR','ALLO','REAL',LQXZR,NSS**2)
+          CALL GETMEM('QXZI','ALLO','REAL',LQXZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZI),1)
+          CALL GETMEM('QYYR','ALLO','REAL',LQYYR,NSS**2)
+          CALL GETMEM('QYYI','ALLO','REAL',LQYYI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYI),1)
+          CALL GETMEM('QYZR','ALLO','REAL',LQYZR,NSS**2)
+          CALL GETMEM('QYZI','ALLO','REAL',LQYZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZI),1)
+          CALL GETMEM('QZZR','ALLO','REAL',LQZZR,NSS**2)
+          CALL GETMEM('QZZI','ALLO','REAL',LQZZI,NSS**2)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZR),1)
+          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZI),1)
+
+          IF(IPRQXX.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXXR),NSS,IPRQXX,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXXR),WORK(LQXXI))
+          END IF
+          IF(IPRQXY.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXYR),NSS,IPRQXY,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXYR),WORK(LQXYI))
+          END IF
+          IF(IPRQXZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQXZR),NSS,IPRQXZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXZR),WORK(LQXZI))
+          END IF
+          IF(IPRQYY.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQYYR),NSS,IPRQYY,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYYR),WORK(LQYYI))
+          END IF
+          IF(IPRQYZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQYZR),NSS,IPRQYZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYZR),WORK(LQYZI))
+          END IF
+          IF(IPRQZZ.GT.0) THEN
+           CALL SMMAT(PROP,WORK(LQZZR),NSS,IPRQZZ,0)
+           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQZZR),WORK(LQZZI))
+          END IF
+         END IF
 !
 ! Only print the part calculated
 !
-          WRITE(6,*)
-          Call CollapseOutput(1,
-     &                  'Circular Dichroism - mixed gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
-     &                  'rotatory strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '---------------------------------'//
-     &                  '----------------------------------'//
-     &                  '-------------------------------'
-          WRITE(6,*)
-          WRITE(6,*) ' WARNING WARNING WARNING !!! '
-          WRITE(6,*)
-          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
-          WRITE(6,*) ' is NOT origin independent - check your results '
-          WRITE(6,*)
-          WRITE(6,31) 'From','To','Rot. strength'
-          WRITE(6,35)
+         WRITE(6,*)
+         Call CollapseOutput(1,
+     &                 'Circular Dichroism - mixed gauge '//
+     &                 'Electric-Dipole - Magnetic-Dipole '//
+     &                 'rotatory strengths (SO states):')
+         WRITE(6,'(3X,A)')
+     &                 '---------------------------------'//
+     &                 '----------------------------------'//
+     &                 '-------------------------------'
+         WRITE(6,*)
+         WRITE(6,*) ' WARNING WARNING WARNING !!! '
+         WRITE(6,*)
+         WRITE(6,*) ' Circular Dichroism in the mixed gauge '
+         WRITE(6,*) ' is NOT origin independent - check your results '
+         WRITE(6,*)
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            nVec = nk_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            WRITE(6,*)
+            WRITE(6,'(4x,a,3F8.4)')
+     &         'Direction of the k-vector: ',
+     &          (k_vector(k,iVec),k=1,3)
+            WRITE(6,*)
+            WRITE(6,31) 'From','To','Red. rot. str.'
+         Else
+            WRITE(6,31) 'From','To','Red. rot. str.'
+            IF (IFANYQ.NE.0)
+     &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
+         End If
+         WRITE(6,35)
 !
+         g = FEGVAL
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+           EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
-*           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
-*             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
-*             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
-            R=0.0D0
+! These are all complex quantities, and their products are complex too,
+! but eventually every piece will be:
+!   <I|a|J> <J|b|I> + <I|b|J> <J|b|I>
+! for a and b Hermitian operators, so it will be reduced to:
+!   2*(Re(A_ij)*Re(B_ij)+Im(A_ij)*Im(B_ij))
+! and the imaginary parts of the products can be ignored.
 
-            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
-            END IF
-            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
-            END IF
-            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
-            END IF
+            DXR=WORK(LDXR-1+IJSS)
+            DYR=WORK(LDYR-1+IJSS)
+            DZR=WORK(LDZR-1+IJSS)
+            DXI=WORK(LDXI-1+IJSS)
+            DYI=WORK(LDYI-1+IJSS)
+            DZI=WORK(LDZI-1+IJSS)
+!           Note r x p = -i*hbar * (r x nabla),
+!           but we will need i * (r x p) = hbar * r x nabla
+            DMXI=WORK(LMDXI-1+IJSS)+g*WORK(LSDXR-1+IJSS)
+            DMYI=WORK(LMDYI-1+IJSS)+g*WORK(LSDYR-1+IJSS)
+            DMZI=WORK(LMDZI-1+IJSS)+g*WORK(LSDZR-1+IJSS)
+            DMXR=WORK(LMDXR-1+IJSS)+g*WORK(LSDXI-1+IJSS)
+            DMYR=WORK(LMDYR-1+IJSS)+g*WORK(LSDYI-1+IJSS)
+            DMZR=WORK(LMDZR-1+IJSS)+g*WORK(LSDZI-1+IJSS)
 
-            R = R*Half*AU2REDR
-
+*           R = 1/3 tr(Rtensor)
+            RXX=DXR*DMXR+DXI*DMXI
+            RYY=DYR*DMYR+DYI*DMYI
+            RZZ=DZR*DMZR+DZI*DMZI
+            R = Half*AU2REDR*(RXX+RYY+RZZ)
+*
+* Compute full rotatory strength tensor
+* (see Hansen and Bak, 10.1021/jp001899+)
+*
+            IF (IFANYQ.NE.0) THEN
+             QXXR=WORK(LQXXR-1+IJSS)
+             QXYR=WORK(LQXYR-1+IJSS)
+             QXZR=WORK(LQXZR-1+IJSS)
+             QYYR=WORK(LQYYR-1+IJSS)
+             QYZR=WORK(LQYZR-1+IJSS)
+             QZZR=WORK(LQZZR-1+IJSS)
+             QXXI=WORK(LQXXI-1+IJSS)
+             QXYI=WORK(LQXYI-1+IJSS)
+             QXZI=WORK(LQXZI-1+IJSS)
+             QYYI=WORK(LQYYI-1+IJSS)
+             QYZI=WORK(LQYZI-1+IJSS)
+             QZZI=WORK(LQZZI-1+IJSS)
+             RXY=DXR*DMYR+DXI*DMYI
+             RXZ=DXR*DMZR+DXI*DMZI
+             RYX=DYR*DMXR+DYI*DMXI
+             RYZ=DYR*DMZR+DYI*DMZI
+             RZX=DZR*DMXR+DZI*DMXI
+             RZY=DZR*DMYR+DZI*DMYI
+             RXXY=QXXR*DYR+QXXI*DYI
+             RXXZ=QXXR*DZR+QXXI*DZI
+             RXYX=QXYR*DXR+QXYI*DXI
+             RXYZ=QXYR*DZR+QXYI*DZI
+             RXZX=QXZR*DXR+QXZI*DXI
+             RXZY=QXZR*DYR+QXZI*DYI
+             RXYY=QXYR*DYR+QXYI*DYI
+             RYYX=QYYR*DXR+QYYI*DXI
+             RYYZ=QYYR*DZR+QYYI*DZI
+             RYZX=QYZR*DXR+QYZI*DXI
+             RYZY=QYZR*DYR+QYZI*DYI
+             RXZZ=QXZR*DZR+QXZI*DZI
+             RYZZ=QYZR*DZR+QYZI*DZI
+             RZZX=QZZR*DXR+QZZI*DXI
+             RZZY=QZZR*DYR+QZZI*DYI
+             ! xx, xy, xz, yy, yz, zz
+             Rtensor(1) =  0.75D0 *(RYY+RZZ+EDIFF*(RXYZ-RXZY))
+             Rtensor(2) = -0.375D0*(RXY+RYX+EDIFF*(RXXZ+RYZY-RXZX-RYYZ))
+             Rtensor(3) = -0.375D0*(RXZ+RZX+EDIFF*(RXYX+RZZY-RXXY-RYZZ))
+             Rtensor(4) =  0.75D0 *(RXX+RZZ+EDIFF*(RYZX-RXYZ))
+             Rtensor(5) = -0.375D0*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
+             Rtensor(6) =  0.75D0 *(RXX+RYY+EDIFF*(RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR,Rtensor,1)
+             IF (Do_SK) THEN
+              ! k^T R k
+              R = k_vector(1,iVec)**2*Rtensor(1)+
+     &            k_vector(2,iVec)**2*Rtensor(4)+
+     &            k_vector(3,iVec)**2*Rtensor(6)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+     &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
+             ELSE
+                WRITE(6,43) 'tensor: ',Rtensor(:)
+             END IF
+            END IF
+*
             WRITE(6,33) ISS,JSS,R
 !
             Call Add_Info('CD_M(SO)',[R],1,6)
            END IF
           END DO
          END DO
+         WRITE(6,35)
+         End Do
 
-! Electric-Dipole
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
          CALL GETMEM('DYR','FREE','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','FREE','REAL',LDYI,NSS**2)
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
-
-! Magnetic-Dipole
-         CALL GETMEM('DXR','FREE','REAL',LMDXR,NSS**2)
-         CALL GETMEM('DXI','FREE','REAL',LMDXI,NSS**2)
-         CALL GETMEM('DYR','FREE','REAL',LMDYR,NSS**2)
-         CALL GETMEM('DYI','FREE','REAL',LMDYI,NSS**2)
-         CALL GETMEM('DZR','FREE','REAL',LMDZR,NSS**2)
-         CALL GETMEM('DZI','FREE','REAL',LMDZI,NSS**2)
-
-         WRITE(6,35)
+         CALL GETMEM('MDXR','FREE','REAL',LMDXR,NSS**2)
+         CALL GETMEM('MDXI','FREE','REAL',LMDXI,NSS**2)
+         CALL GETMEM('MDYR','FREE','REAL',LMDYR,NSS**2)
+         CALL GETMEM('MDYI','FREE','REAL',LMDYI,NSS**2)
+         CALL GETMEM('MDZR','FREE','REAL',LMDZR,NSS**2)
+         CALL GETMEM('MDZI','FREE','REAL',LMDZI,NSS**2)
+         CALL GETMEM('SDXR','FREE','REAL',LSDXR,NSS**2)
+         CALL GETMEM('SDXI','FREE','REAL',LSDXI,NSS**2)
+         CALL GETMEM('SDYR','FREE','REAL',LSDYR,NSS**2)
+         CALL GETMEM('SDYI','FREE','REAL',LSDYI,NSS**2)
+         CALL GETMEM('SDZR','FREE','REAL',LSDZR,NSS**2)
+         CALL GETMEM('SDZI','FREE','REAL',LSDZI,NSS**2)
+         IF (IFANYQ.NE.0) THEN
+          CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
+          CALL GETMEM('QXXI','FREE','REAL',LQXXI,NSS**2)
+          CALL GETMEM('QXYR','FREE','REAL',LQXYR,NSS**2)
+          CALL GETMEM('QXYI','FREE','REAL',LQXYI,NSS**2)
+          CALL GETMEM('QXZR','FREE','REAL',LQXZR,NSS**2)
+          CALL GETMEM('QXZI','FREE','REAL',LQXZI,NSS**2)
+          CALL GETMEM('QYYR','FREE','REAL',LQYYR,NSS**2)
+          CALL GETMEM('QYYI','FREE','REAL',LQYYI,NSS**2)
+          CALL GETMEM('QYZR','FREE','REAL',LQYZR,NSS**2)
+          CALL GETMEM('QYZI','FREE','REAL',LQYZI,NSS**2)
+          CALL GETMEM('QZZR','FREE','REAL',LQZZR,NSS**2)
+          CALL GETMEM('QZZI','FREE','REAL',LQZZI,NSS**2)
+         END IF
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - mixed gauge '//
@@ -6639,6 +7061,8 @@ C backtransformation in two steps, -phi and -theta
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
 40    FORMAT (5X,63('-'))
+43    FORMAT (12X,A8,6(1X,ES15.8))
+44    FORMAT (20X,6(1X,A15))
 
       RETURN
       END
