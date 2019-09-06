@@ -21,7 +21,7 @@
         npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
-        nx = x_
+        nx(:,:) = x_
 !
         ! Write(6,*) 'Entro grad'
         call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK

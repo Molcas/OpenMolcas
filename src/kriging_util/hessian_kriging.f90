@@ -22,7 +22,7 @@
         npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
-        nx = x_
+        nx(:,:) = x_
 !
         ! Write(6,*) 'Entro hess'
 ! Analitical Hessian of GEK
