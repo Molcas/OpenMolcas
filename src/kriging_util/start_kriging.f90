@@ -37,10 +37,10 @@
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
 ! subroutine
 !x is the n-dimensional internal coordinates
-          x = x_
+          x(:,:) = x_(:,:)
           ! write(6,*) 'x',x
 !y is the energy
-          y = y_
+          y(:) = y_(:)
           ! write(6,*) 'y',y
 !dy it's a vector of Grad-y (eq. (5)  ref. gradients of
 ! the energy with respect to the internal coordinates
