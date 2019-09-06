@@ -22,7 +22,7 @@
 !
 ! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
 ! and equations (11) and (12) on ref.
-            d0 = sqrt(dh)
+            d0(:,:) = sqrt(dh)
             c = idint(pAI)
             a = Gamma(pAI+1)/Gamma(2*pAI+1)
             m = 0.0D0
@@ -51,8 +51,8 @@
             if (anMd) then
                 p0=int(pAI)
                 t=sqrt(2.0D0*pAI+1)
-                dh = sqrt(d)
-                c=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
+                dh(:,:) = sqrt(d)
+                c(:,:)=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
                 if (pAI.gt.3.or.pAI.lt.1) then
                     Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
                     Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
@@ -102,9 +102,9 @@
                 b = 0.0D0
                 do k = 0, nd
                     kr = dble(k)
-                    dh = d + kr*h
+                    dh(:,:) = d(:,:) + kr*h
                     call matern(dh, m, size(dh,1), size(dh,2))
-                    b = b + DBLE((-1)**(k+1))/(Gamma(nr-kr+1.0D0)*Gamma(kr+1.0D0))*m
+                    b(:,:) = b(:,:) + DBLE((-1)**(k+1))/(Gamma(nr-kr+1.0D0)*Gamma(kr+1.0D0))*m
                 enddo
                 m = a*b*DBLE((-1)**(nr+1))
             endif
