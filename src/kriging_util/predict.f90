@@ -48,11 +48,14 @@
                 else
                     if (gh.eq.1) then
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
+                        ! write(6,*) 'Kv',Kv
                         do k=1,nInter
                             B = cv(:,j,k,1)
                             gpred(j,k) = dot_product(B,Kv)
-                            ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
-                            !     var,variance,sigma, lh,tcv
+                            ! write(6,*) 'partial pred Grad k:',k
+                            ! write(6,*) 'cv(:,j,k,1)',B
+                            ! write(6,*) gpred(j,k)
+                                ! var,variance,sigma, lh,tcv
                         enddo
                     !   write(6,*) 'final cv', cv(:,:,:,1)
                     !   write(6,*) 'final Kv',kv
@@ -64,12 +67,10 @@
                         do k=1,nInter
                             do i=1,nInter
                                 B = cv(:,j,i,k)
-                                ! write(6,*) 'tcv', i,k,tcv
-                                !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
                                 hpred(j,k,i) = dot_product(B, Kv)
-                                !write (6,*) 'partial hpred',hpred(j,k,i)
-                                ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
-                                !     var,variance,sigma, lh, tcv
+                                ! write (6,*) 'partial B hpred i,k',i,k
+                                ! write (6,*) 'B',B
+                                ! write (6,*) hpred(j,k,i)
                             enddo
                         enddo
                         ! write (6,*) 'pred hess(hpred):',hpred

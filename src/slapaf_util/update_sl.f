@@ -182,8 +182,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-*define _DEBUG_
-*#define _DEBUG_
+#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
@@ -199,8 +198,11 @@ c Avoid unused argument warnings
 #ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
+            ! write (6,*) qInt(1:nInter,1:nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
+            ! write (6,*) Energy(1:nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
+            ! write (6,*) Grad(1:nInter,1:nRaw)
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 #endif
 *
@@ -675,7 +677,7 @@ c Avoid unused argument warnings
      &          HUpMet*6, File1*8, File2*8
       Real*8, Allocatable:: Hessian(:,:), difH(:,:)
       Character Hess_type*8
-#define _NUM_HESS_
+*#define _NUM_HESS_
 #ifdef _NUM_HESS_
       Real*8, Allocatable:: dqp(:), dqm(:)
 #endif

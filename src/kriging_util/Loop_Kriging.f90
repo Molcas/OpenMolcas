@@ -23,14 +23,17 @@
 ! subroutine
         nx = x_
 !
-!       Write(6,*) 'Entro predict x_', x_
-!       Write(6,*) 'nx', nx
-!       Write(6,*) 'ndimx', ndimx
-
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
         y_=pred(npx)
 !
+!----------------temp
+        Write(6,*) 'Entro predict x_', x_
+        Write(6,*) 'nx', nx
+        Write(6,*) 'ndimx', ndimx
+        write(6,*) 'l: ', l
+        write(6,*) 'pred: ', y_
+!-------------------
         return
       end
 !
@@ -53,6 +56,13 @@
         call predict(1,nPoints,nInter)
         dy_=gpred(npx,:)
 !
+!----------------temp
+        ! Write(6,*) 'Entro grad x_', x_
+        ! Write(6,*) 'nx', nx
+        ! Write(6,*) 'ndimx', ndimx
+        ! write(6,*) 'l: ', l
+        ! write(6,*) 'grad: ', dy_
+!-------------------
         return
       end
 !
@@ -70,13 +80,14 @@
 ! subroutine
         nx = x_
 !
-        ! Write(6,*) 'Entro hess'
+        Write(6,*) 'Entro hess'
 ! Analitical Hessian of GEK
         if (anHe) then
                 call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                 call predict(2,nPoints,nInter)
         else
 ! Numerical Hessian of GEK
+                write(6,*) 'Begining Numerical Hessian'
                 hpred = 0
                 do i = 1,nInter
                         ! Scale=0.01D0
@@ -93,11 +104,18 @@
                 enddo
         endif
         ddy_=hpred(npx,:,:)
-        ! write(6,*) 'Kriging Hessian, Analitical?', anHe, ddy_
-!--------temp
+        !--------temp---------------------
+        write(6,*) 'x: ', x
+        write(6,*) 'y: ', y
+        write(6,*) 'nx: ', nx
+        write(6,*) 'dy: ', dy
+        write(6,*) 'l: ', l
+        write(6,*) 'Kriging Hessian, Analitical?', anHe, ddy_
+        write(6,*) '-------------------Ana Hess'
         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(2,nPoints,nInter)
-        ! write(6,*) 'Kriging Hessian, Analitical', hpred(npx,:,:)
+        write(6,*) 'Kriging Hessian, Analitical', hpred(npx,:,:)
+!---------------------------------
 !
         return
       end

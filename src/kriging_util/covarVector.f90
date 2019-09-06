@@ -15,7 +15,8 @@
             integer i,i0,i1,j,gh,iter,nInter
             ! real*8 tmat(iter,npx),tmat2(iter,npx), &
             real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
-                diffxk(iter,npx),sdiffx,sdiffx0,sdiffxk!, & dl(iter,npx)
+                diffxk(iter,npx),sdiffx,sdiffx0,sdiffxk, &
+                dxd(iter,npx,nInter)!, & dl(iter,npx)
             ! deallocate (dl,mat)
             ! allocate (dl(iter,npx),mat(iter,npx))
             cv = 0
@@ -82,45 +83,59 @@
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 call defdlrl(iter,nInter)
                 ! anAI = .False.
+                Write (6,*) 'rl: ',rl
                 call matderiv(1, dl, m, iter, npx)
                 cvMatFder = m
+                Write (6,*) 'cvMatFder: ',cvMatFder
                 call matderiv(2, dl, m, iter, npx)
                 cvMatSder = m
-                ! Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
+                Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
                 call matderiv(3, dl, m, iter, npx)
                 cvMatTder = m
-                ! write (6,*) 'dl',dl
-                ! write (6,*) '3th der',cvMatTder
+                write (6,*) 'dl',dl
+                write (6,*) 'cvMatTder',cvMatTder
                 do i = 1, nInter
-                    diffx = 2.0*rl(:,:,i)/l(i)
+                    diffx = (2.0*rl(:,:,i)/l(i))**3
+                    Write (6,*) 'diffx: ',diffx
                     sdiffx = 2.0/l(i)**2
-                    do j = 1, nInter
-                        diffx0 = -2.0*rl(:,:,j)/l(j)
+                    Write (6,*) 'sdiffx: ',sdiffx
+                    do j = i, nInter
+                        diffx0 = 2.0*rl(:,:,j)/l(j)
+                        Write (6,*) 'diffx0: ',diffx0
                         sdiffx0 = 2/l(j)**2
+                        Write (6,*) 'sdiffx0: ',sdiffx0
                         m = cvMatSder * diffx*diffx0
-                        if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
+                        if (i.eq.j) m = m + cvMatFder*2/(l(i)*l(j))
                         cv(1:iter,:,i,j) = m
+                        Write (6,*) 'm0: ',m
                         do k = 1, nInter
+                            write(6,*) 'i,j,k',i,j,k
                             diffxk = - 2.0*rl(:,:,k)/l(k)
+                            Write (6,*) 'diffxk: ',diffxk
                             sdiffxk = 2.0/l(i)**2
+                            Write (6,*) 'sdiffxk: ',sdiffxk
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
+                            m = cvMatTder*diffx
+                            write(6,*) 'cvMatTder*diffx',m
                             if (i.eq.j.and.j.eq.k) then
-                                m = (cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0)
-                                ! write(6,*) 'i=j=k',i,j,k
-                                ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
+                                m = m + 3*cvMatSder*diffx*sdiffx0
+                                write(6,*) 'i=j=k',i,j,k
+                                write(6,*) '3*cvMatSder*diffx*sdiffx0',3*cvMatSder*diffx0*sdiffx0
                             else
                                 if (i.eq.j) then
-                                    m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
-                                    !write(6,*) 'i=j!=k',i,j,k
+                                    diffx = (2.0*rl(:,:,i)/l(i))**2*2.0*rl(:,:,k)/l(k)
+                                    m = m + cvMatSder*diffx*sdiffx
+                                    write(6,*) 'i=j!=k',i,j,k
+                                    write(6,*) 'cvMatSder*diffx*sdiffx',cvMatSder*diffx*sdiffx
                                 else
                                     if (i.eq.k) then
                                         m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
-                                        !write(6,*) 'i=K!=J',i,j,k
+                                        write(6,*) 'i=K!=J',i,j,k
                                     else
                                         if (j.eq.k) then
                                             m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
-                                            !write(6,*) 'i=j!=k',i,j,k
+                                            write(6,*) 'i=j!=k',i,j,k
                                         else
                                             m = cvMatTder*diffx*diffx0*diffxk
                                             ! write(6,*) 'i!=j!=k',i,j,k
@@ -129,10 +144,13 @@
                                     endif
                                 endif
                             endif
-                            !write(6,*) 'm',m
+                            write(6,*) 'm',m
                             ! m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
                             !     4/l(i)**2) + cvMatFder*(4/l(i)**3)
                             cv(k0:k1,:,i,j) = m
+                            cv(k0:k1,:,j,i) = m
+                            ! write (6,*) 'cv i,j,k0,k1 m',i,j, k0,k1
+                            ! write (6,*) m
                         enddo
                     enddo
                 enddo
