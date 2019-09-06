@@ -36,9 +36,9 @@
             ! B = rones
             ! Write (6,*) 'A new ',A
             ! ----------------Old calculations --K1
-            A = full_r
+            A(:,:) = full_r(:,:)
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
-            rones=B
+            rones(:,:)=B(:,:)
             ! Write (6,*) 'A old ',A
             !----------------------------
             If (INFO.ne.0) Then
@@ -74,10 +74,10 @@
 !           Write (6,*) 'K: y=',y
 !           Write (6,*) 'K: dy=',dy
 !
-            B = [y-sb,dy]
-            Kv=B
+            B(:,:) = [y-sb,dy]
+            Kv(:,:)=B
 ! ----------------Old calculations --K2
-            A=full_r
+            A(:,:)=full_r
 !           Write (6,*) 'K: y=',y
 !           Write (6,*) 'K: B=',B
 !           Write (6,*) 'K: A=',A
