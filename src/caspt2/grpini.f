@@ -123,6 +123,19 @@ c Modify the Fock matrix, if needed:
           WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
         END DO
 
+! Compute Fock matrix element couplings to check applicability
+        IF (IPRGLB.GE.USUAL.AND.(.NOT.IFXMS)) THEN
+          WRITE(6,*)
+          WRITE(6,'(A,I2)')' Fock couplings state --- ',IKET
+          DO IBRA=1,NSTATE
+* Compute matrix element and put it into FOPXMS:
+            FOPEL = 0.0D0
+            CALL FOPAB(WORK(LFIFA),IBRA,IKET,FOPEL)
+            WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
+            WRITE(6,'(2x,F16.8)') FOPEL
+          END DO
+        END IF
+
       END DO
 * End of loop over states
 
