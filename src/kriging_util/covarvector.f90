@@ -105,7 +105,7 @@
                         enddo
                     enddo
                 enddo
-                Write (6,*) 'CV - Krig Hessian: ',cv
+                ! Write (6,*) 'CV - Krig Hessian: ',cv
             else
                 Write (6,*) ' Illegal value of gh:',gh
                 Call Abend()
