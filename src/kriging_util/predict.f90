@@ -66,7 +66,7 @@
                     !   write(6,*) 'final Kv',kv
                     !   write (6,*) 'pred grad(gpred):',gpred
                 else if (gh.eq.2) then
-                    write(6,*) 'kv: ',kv
+                    ! write(6,*) 'kv: ',kv
                     ! Predicting the Hessian gh = 2
                     do k=1,nInter
                        do i=k,nInter

@@ -26,6 +26,7 @@
             call defdlrl(iter,nInter)
 !           write(6,*) 'x: ',x
 !           write(6,*) 'nx: ',nx
+            ! write(6,*) 'gh: ',gh
 ! Covariant Vector in kriging - First part of eq (4) in ref.
 !
             if (gh.eq.0) then
@@ -42,7 +43,7 @@
                 ! write (6,*) 'CV-mat',cv
 ! Covariant vector in Gradient Enhanced Kriging
 !
-            else if(gh.ge.1) then
+            else if(gh.eq.1) then
 !
                 ! print *,'covar vector calling deriv(2) for Kriging Gradients'
                 call matderiv(1, dl, cvMatFder, iter, npx)
@@ -70,7 +71,7 @@
 !
             else if(gh.eq.2) then
 !
-!                    print *,'covar vector calling deriv(3) for Kriging Hessian'
+                !    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 ! anAI = .False.
                 call matderiv(1, dl, cvMatFder, iter, npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
