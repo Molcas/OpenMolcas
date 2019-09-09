@@ -32,7 +32,7 @@
             ! forall(j=1:m_t) Full_RInv(j,j)=1
             ! A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
             ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
-            ! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)
+! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)
             ! B = rones
             ! Write (6,*) 'A new ',A
             ! ----------------Old calculations --K1
@@ -83,7 +83,7 @@
 !           Write (6,*) 'K: A=',A
             CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 !-----------------New
-            ! Kv = matmul(B,full_Rinv)
+! Kv = matmul(B,full_Rinv)
 !------------------------------------
 !Likelihood function
             variance = dot_product(B,Kv)/m_t
