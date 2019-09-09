@@ -15,10 +15,10 @@
      &                   Hess,nInter,nIter,iOptC,Mode,ipMF,
      &                   iOptH,HUpMet,jPrint_,Energy,nLambda,
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
-     &                   Beta,nFix,iP,UpMeth,
+     &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
-     &                   Restriction,iOpt_RS)
+     &                   Restriction,iOpt_RS,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -623,14 +623,16 @@ C        Write (6,*) 'xBeta=',xBeta
 *
          If (iOpt_RS.eq.0) Then
             tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
+            Thr_RS=1.0D-7
          Else
-            tBeta=Beta
+            tBeta=Beta_Disp
+            Thr_RS=1.0D-5
          End If
 C        Write (6,*) 'tBeta=',tBeta
          Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
      &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &             Restriction)
+     &             Restriction,Thr_RS)
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *

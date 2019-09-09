@@ -226,7 +226,7 @@
 *     Update geometry
 *
       Call Update_sl(Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,
+     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),

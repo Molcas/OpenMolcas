@@ -10,17 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-subroutine deriv(finder,foutder,nd,d1,d2)
-    use globvar
-    integer d1,d2,nd
-    real*8 finder(d1,d2),foutder(d1,d2),a,b(d1,d2),kr,nr
-    nr=real(nd)
-    a=Gamma(nr+1.0)/h**nd
-    b=0.0
-    do k=0,nd
-        kr=real(k)
-        finder=finder+kr*h
-        b=b+(-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*finder
-    enddo
-    foutder=a*b*(-1)**(nr+1)
-end
+      Subroutine Gradient_Kriging(x_,dy_,ndimx)
+        use globvar
+        Integer nInter,nPoints
+        Real*8 x_(ndimx,1),dy_(ndimx)
+!
+        nPoints=nPoints_save
+        nInter=nInter_save
+!
+        npx = npxAI
+!nx is the n-dimensional vector of the last iteration computed in update_sl
+! subroutine
+        nx(:,:) = x_
+!
+        ! Write(6,*) 'Entro grad'
+        call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(1,nPoints,nInter)
+        dy_=gpred(npx,:)
+!
+        return
+      end

@@ -337,8 +337,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*              We like to avoild the problem with angles that have the
+*              value Pi. We introduce "linear" angles under two o
+*              conditions.
+*              (1) the reference angle is within delta of Pi.
+*              (2) the actual angle is within 1.0D-11 of Pi.(?)
+*              Delta is set to 1.0D-11 if there are 3 atoms.(?)
+*
                delta=(45.0D0/180.0D0)*Pi
-               If (mAtoms.eq.3) delta=1.0D-11
+*              If (mAtoms.eq.3) delta=1.0D-11 ! I do not understand
+*              although it is probably me who introduced it!
+*
                If (Abs(Val_Ref-Pi).lt.Delta .or.
      &             Abs(Val-Pi).lt.1.0D-11) Then
 *

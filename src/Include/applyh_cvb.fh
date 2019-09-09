@@ -8,6 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+      integer :: lw1_cvb,ltuvx_cvb,invec_cvb,
+     &   ldmat_cvb,ldspn_cvb,lpmat_cvb,lpa_cvb,ipfocc_cvb,lfi_cvb,
+     &   lfa_cvb,ld1i_cvb,ld1a_cvb,ld1tot_cvb,loccn_cvb,lcmo_cvb,
+     &   ldiaf_cvb
+
       common /applyhi_comcvb/lw1_cvb,ltuvx_cvb,invec_cvb,
      &   ldmat_cvb,ldspn_cvb,lpmat_cvb,lpa_cvb,ipfocc_cvb,lfi_cvb,
      &   lfa_cvb,ld1i_cvb,ld1a_cvb,ld1tot_cvb,loccn_cvb,lcmo_cvb,

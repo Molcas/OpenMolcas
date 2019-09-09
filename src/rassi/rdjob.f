@@ -165,25 +165,37 @@
       end if
 
 * read the ms-caspt2/qd-nevpt2 effective hamiltonian if it is available
-      If (.not.ifejob.and.mh5_exists_dset(refwfn_id, heff_string)) Then
-        HAVE_HEFF=.TRUE.
+      If (mh5_exists_dset(refwfn_id, heff_string)) Then
         call mma_allocate(ref_Heff,ref_nstates,ref_nstates)
         call mh5_fetch_dset_array_real(refwfn_id,heff_string,ref_Heff)
-        write(6,'(2x,a)')
-     & ' Effective Hamiltonian from MRPT2 in action'
-        write(6,'(2x,a)')
-     & ' ------------------------------------------'
-        DO I=1,NSTAT(JOB)
-          ISTATE=ISTAT(JOB)-1+I
-          DO J=1,NSTAT(JOB)
-            JSTATE=ISTAT(JOB)-1+J
-            iadr=(istate-1)*nstate+jstate-1
-            Work(l_heff+iadr)=ref_Heff(I,J)
-!           write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
-!    &      Work(l_heff+iadr)
-!           call xflush(6)
+        HAVE_HEFF=.TRUE.
+* with ejob, only read diagonal
+        If (ifejob) Then
+          HAVE_DIAG=.TRUE.
+!         call WarningMessage(0,'Effective Hamiltonian found in '//
+!    &    ' reference file, but "EJOB" was requested: off-diagonal '//
+!    &    ' elements will be ignored!')
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
+            Work(LREFENE+istate-1)=ref_Heff(I,I)
           END DO
-        END DO
+        Else
+          write(6,'(2x,a)')
+     &   ' Effective Hamiltonian from MRPT2 in action'
+          write(6,'(2x,a)')
+     &   ' ------------------------------------------'
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
+            DO J=1,NSTAT(JOB)
+              JSTATE=ISTAT(JOB)-1+J
+              iadr=(istate-1)*nstate+jstate-1
+              Work(l_heff+iadr)=ref_Heff(I,J)
+!             write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
+!    &        Work(l_heff+iadr)
+!             call xflush(6)
+            END DO
+          END DO
+        End If
         call mma_deallocate(ref_Heff)
 * read the caspt2/qdnevpt2 reference energies if available
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
@@ -389,6 +401,7 @@ C is added in GETH1.
 
 C Using energy data from JobIph?
       IF(IFEJOB) THEN
+        IF(ITOC15(15).EQ.-1) HAVE_HEFF=.TRUE.
         NEJOB=MXROOT*MXITER
         CALL GETMEM('EJOB','ALLO','REAL',LEJOB,NEJOB)
         IAD=ITOC15(6)
@@ -449,17 +462,31 @@ C Using effective Hamiltonian from JobIph file?
         CALL GETMEM('HEFF','ALLO','REAL',LHEFF,NHEFF)
         IAD15=ITOC15(17)
         CALL DDAFILE(LUIPH,2,WORK(LHEFF),NHEFF,IAD15)
-        DO I=1,NSTAT(JOB)
-          ISTATE=ISTAT(JOB)-1+I
-          ISNUM=iWork(lLROOT+ISTATE-1)
-          DO J=1,NSTAT(JOB)
-            JSTATE=ISTAT(JOB)-1+J
-            JSNUM=iWork(lLROOT+JSTATE-1)
-            HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
-            iadr=(istate-1)*nstate+jstate-1
+C If both EJOB and HEFF are given, read only the diagonal
+        IF(IFEJOB) THEN
+          HAVE_DIAG=.TRUE.
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
+            ISNUM=iWork(lLROOT+ISTATE-1)
+            HIJ=WORK(LHEFF-1+ISNUM+LROT1*(ISNUM-1))
+            Work(LREFENE+istate-1)=HIJ
+            iadr=(istate-1)*nstate+istate-1
             Work(l_heff+iadr)=HIJ
           END DO
-        END DO
+        ELSE
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
+            ISNUM=iWork(lLROOT+ISTATE-1)
+            DO J=1,NSTAT(JOB)
+              JSTATE=ISTAT(JOB)-1+J
+              JSNUM=iWork(lLROOT+JSTATE-1)
+              HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
+              iadr=(istate-1)*nstate+jstate-1
+              Work(l_heff+iadr)=HIJ
+              Work(LREFENE+istate-1)=HIJ
+            END DO
+          END DO
+        END IF
         CALL GETMEM('HEFF','FREE','REAL',LHEFF,NHEFF)
       END IF
 C Read the level to orbital translations

@@ -186,13 +186,28 @@ program \cite{GAUSSIAN94}.
 %%+Enter the value which defines the seed of largest
 %%+change of the internal coordinates which will be accepted. A
 %%+change which is larger is reduced to the max value. The value is dynamically modified each iterations.
-%%%</HELP>
 %%+The default
 %%+value is 0.3 au or rad.
+%%%</HELP>
 This keyword is followed by the value which defines the seed of largest
 change of the internal coordinates which will be accepted. A
 change which is larger is reduced to the max value. The value is dynamically modified each iterations.
 The default value is 0.3 au or rad.
+%%%</KEYWORD>
+%---
+\item[MAXDisp]
+%%%<KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Max Dispersion" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.0005" LEVEL="BASIC">
+%%Keyword: Maxstep <basic>
+%%%<HELP>
+%%+Enter the value which defines the of largest
+%%+accepted variance in a step using a GEK surrogate model.
+%%+If a step results in a too large variance the step length is reduced.
+%%+The default value is 0.0005 au or rad.
+%%%</HELP>
+Enter the value which defines the of largest
+accepted variance in a step using a GEK surrogate model.
+If a step results in a too large variance the step length is reduced.
+The default value is 0.0005 au or rad.
 %%%</KEYWORD>
 %---
 \item[CNWEight]

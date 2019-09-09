@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Kriging_Init()
+      Subroutine Init_Kriging()
       use AI
       Implicit Real*8 (a-h,o-z)
 C
@@ -21,14 +21,14 @@ C
       anGr = .True.
       pAI = 2
       npxAI = 1
-      lb(1) = 20.0
-      lb(2) = 20.0
+      lb(1) = 20.0D0
+      lb(2) = 20.0D0
       lb(3) = 1
-      miAI = 10
+      miAI = 50
       meAI = 1.0D-8
       blAI = .False.
       blaAI = .True.
-      blavAI=10.0D0
+      blavAI=0.04D0
 *
       nInter_save=-1
       nPoints_save=-1

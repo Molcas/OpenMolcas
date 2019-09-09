@@ -12,7 +12,7 @@
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
-     &                  Restriction)
+     &                  Restriction,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -46,6 +46,7 @@
       UpMeth='RS-RFO'
       Lu=6
 *define _DEBUG_
+*define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
@@ -54,7 +55,7 @@
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
-      Write (Lu,*) ' Iter   alpha   Sqrt(dqdq) StepMax   EigVal'
+      Write (Lu,*) ' Iter   alpha     Sqrt(dqdq)   StepMax     EigVal'
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
@@ -62,7 +63,7 @@
       Iter=0
       Iterate=.False.
       Restart=.False.
-      Thr=1.0D-7
+*     Thr_RS=1.0D-7
       NumVal=1
       Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -73,8 +74,10 @@
       Call DZero(Tmp,nInter+1)
  998  Continue
          Iter=Iter+1
-*        Write (Lu,*) 'Iter=',Iter
-*        Write (Lu,*) 'A_RFO=',A_RFO
+#ifdef _DEBUG2_
+         Write (Lu,*) 'Iter=',Iter
+         Write (Lu,*) 'A_RFO=',A_RFO
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -99,7 +102,9 @@
          End Do
          jj = j*(j+1)/2
          Matrix(jj)=Zero
-*        Call TriPrt('R_Tri',' ',Matrix,nInter+1)
+#ifdef _DEBUG2_
+         Call TriPrt('R_Tri',' ',Matrix,nInter+1)
+#endif
 *
 *        Restore the vector from the previous iteration, if any
          call dcopy_(nInter+1,Tmp,1,Vec,1)
@@ -117,7 +122,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Write (Lu,*) ' RF eigenvalue=',Val
+#ifdef _DEBUG2_
+         Write (Lu,*) ' RF eigenvalue=',Val
+#endif
          ZZ=DDot_(nInter+1,Vec,1,Vec,1)
          Call DScal_(nInter+1,One/Sqrt(ZZ),Vec,1)
 *                                                                      *
@@ -134,7 +141,9 @@
 *        Pick v^k_{1,i}
 *
          Fact=Vec(nInter+1)
-*        Write (Lu,*) 'v^k_{1,i}=',Fact
+#ifdef _DEBUG2_
+         Write (Lu,*) 'v^k_{1,i}=',Fact
+#endif
 *
 *        Normalize according to Eq. (5)
 *
@@ -148,9 +157,9 @@
 *        Compute R^2 according to Eq. (8c)
 *
          dqdq=Restriction(q,dq,nInter)
-*        Write (Lu,*) 'dqdq=',dqdq
 #ifdef _DEBUG_
-         Write (Lu,'(I5,4E10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
+         Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,Sqrt(dqdq),StepMax,
+     &                                 EigVal
 #endif
 *                                                                      *
 ************************************************************************
@@ -178,14 +187,16 @@
 *                                                                      *
 *        Procedure if the step length is not equal to the trust radius
 *
-         If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
+         If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr_RS) Then
             Step_Trunc='*'
-*           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+#ifdef _DEBUG2_
+            Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+#endif
 *
 *           Converge if small interval
 *
             If ((dqdq.lt.StepMax**2).and.
-     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
+     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr_RS)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)

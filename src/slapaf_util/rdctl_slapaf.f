@@ -143,6 +143,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'LAST') Go To 9280
       If (Char(1:4).eq.'LINE') Go To 9281
       If (Char(1:4).eq.'MAXS') Go To 915
+      If (Char(1:4).eq.'MAXD') Go To 916
       If (Char(1:4).eq.'MEP-'.or. Char(1:4).eq.'MEP ') Go To 964
       If (Char(1:4).eq.'MEPA'.or. Char(1:4).eq.'IRCA') Go To 322
       If (Char(1:4).eq.'MEPS'.or. Char(1:4).eq.'IRCS') Go To 9971
@@ -448,6 +449,14 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       If (Char.eq.BLine) Go To 915
       If (Char(1:1).eq.'*') Go To 915
       Call Get_F1(1,Beta)
+      Go To 999
+*                                                                      *
+****** MAXD ************************************************************
+*                                                                      *
+ 916  Char=Get_Ln(LuRd)
+      If (Char.eq.BLine) Go To 916
+      If (Char(1:1).eq.'*') Go To 916
+      Call Get_F1(1,Beta_Disp)
       Go To 999
 *                                                                      *
 ****** PRIN ************************************************************
@@ -1378,6 +1387,15 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     In case of Kriging we use a sorting step in update_sl. For this
+*     to work we need the values of the internal coordinates for more
+*     points than the window size. Here we increase it with a factor of
+*     2 temporarily. The sorted list will still be of the orginal size.
+*
+      If (Kriging) nWndw=2*nWndw
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call QExit('RdCtl_Slapaf')
       Return
 *
@@ -1472,6 +1490,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
          Line = Temp_Line
          Call UpCase(Line)
          New_Line=0
+*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE setlkriging(lv,nInter)
+        SUBROUTINE set_l_kriging(lv,nInter)
             use globvar
             integer i, nInter
             real*8 lv(nInter)
@@ -29,12 +29,4 @@
             call covarMatrix(nPoints_Save,nInter_save)
             call k(nPoints_save)
 !           write (6,*) 'set l value, lh:',l(1)
-        END SUBROUTINE setlkriging
-
-        subroutine miden(iden,msize)
-            !use globvar
-            integer j,msize
-            real*8 iden(msize,msize)
-            iden=0
-            forall(j=1:msize) iden(j,j)=1
-        end subroutine
+        END SUBROUTINE set_l_kriging

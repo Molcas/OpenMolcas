@@ -16,7 +16,7 @@
                 rl(:,:,:), dl(:,:), full_Rinv(:,:), &
                 full_R(:,:), nx(:,:), Kv(:), & !Iden(:,:),
                 cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:), &
-                Ys(:), var(:), Rones(:), sigma(:), l(:), &
+                var(:), Rones(:), sigma(:), l(:), &
                 pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
                 cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
         real*8  sb,variance,detR,lh,sbO,sbmev !p
@@ -25,5 +25,4 @@
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
         integer prev_ns, m_t, npx, counttimes
         Integer nInter_save, nPoints_save
-        Real *8, allocatable :: nx_saveG(:,:),nx_saveH(:,:)
       end module globvar

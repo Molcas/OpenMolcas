@@ -123,7 +123,7 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
-        HEFF=INPUT%HEFF
+        HEFF(:,:)=INPUT%HEFF(:,:)
         GOTO 1000
       ELSE
         DO I=1,NSTATE

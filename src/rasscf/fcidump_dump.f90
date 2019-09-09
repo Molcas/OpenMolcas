@@ -75,15 +75,19 @@ contains
     close(LuFCI)
 
 ! ========== For testing purposes FROM HERE =============
-    call Add_Info('core energy', [EMY], 1, 8)
-    call Add_Info('Orbital Energy', orbital_table%values(1), 1, 8)
-    call Add_Info('Fock element', fock_table%values(1), 1, 8)
-    call Add_Info('TwoEl Integral element', two_el_table%values(1), 1, 8)
+    if (length(orbital_table) /= 0 .and. length(fock_table) /=0 &
+        .and. length(two_el_table) /= 0) then
+      call Add_Info('core energy', [EMY], 1, 8)
+      call Add_Info('Orbital Energy', orbital_table%values(1), 1, 8)
+      call Add_Info('Fock element', fock_table%values(1), 1, 8)
+      call Add_Info('TwoEl Integral element', two_el_table%values(1), 1, 8)
+    end if
 ! ========== For testing purposes TO HERE ===============
 
     call FastIO('STATUS')
     ireturn = 0
     call qExit('dump_ascii')
+
     return
   end subroutine dump_ascii
 

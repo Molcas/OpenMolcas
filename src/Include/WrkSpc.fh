@@ -45,7 +45,9 @@
       Common /iWrkSpc/ ip_Dummy,ip_sDummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)
       Integer*2 i2Work(1:IWORKLEN)
+      Integer*4 i4Work(1:IWORKLEN)
       Equivalence (cWork,i1Work)
       Equivalence (cWork,i2Work)
+      Equivalence (cWork,i4Work)
 !$    Integer   MMLck
 !$    Common /MemLck/ MMLck

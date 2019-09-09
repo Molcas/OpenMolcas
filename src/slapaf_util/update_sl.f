@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
      &                     Shift,
-     &                     Grad,iOptC,Beta,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -89,7 +89,7 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner, Dummy(1)
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -100,6 +100,7 @@
 *
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
+      Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
 *define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
@@ -157,8 +158,8 @@ c Avoid unused argument warnings
          call dcopy_(nInter,qInt,1,Work(iptmp2),1)
 *
          Call Update_sl_(iter_,iInt,nFix,nInter,Work(iptmp2),
-     &                   Work(iptmp1),Grad,iOptC,
-     &                   Beta,Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
+     &                   Work(iptmp1),Grad,iOptC,Beta,Beta_Disp,
+     &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,nSym,
      &                   iOper,mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                   rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -186,11 +187,9 @@ c Avoid unused argument warnings
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
-*           The threshold for restricted variance optimization.
-            Beta_Disp=5.0D-4
             iterAI=iter
             dEner=meAI
-            nRaw=Min(iter,nWndw)
+            nRaw=Min(iter,nWndw/2)
             iFirst = iter - nRaw + 1
             iterK=0
             dqdq=Zero
@@ -212,8 +211,9 @@ c Avoid unused argument warnings
 *           Note that we could have some kind of sorting here if we
 *           like!
 *
-*define _DEFAULT_
-#ifdef _DEFAULT_
+*define _UNSORTED_
+#ifdef _UNSORTED_
+            Write (6,*) 'Unsorted'
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
@@ -222,29 +222,46 @@ c Avoid unused argument warnings
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 #else
 *
+*           Sort the data so that it some in an order of the points
+*           closest to the last point. Make sure that the reference
+*           point is the last point such that is always will define
+*           the reference point. This is improtant when the bias is
+*           defined relative to the last points energy.
+*
 *           This code will have to be cleanup up later.
 *
-            ipCx_Ref=ipCx + (iter-1)*3*nsAtom
-            Call GetMem('qInt','ALLO','REAL',ip_qInt,nRaw*nInter)
-            Call GetMem('Grad','ALLO','REAL',ip_Grad,nRaw*nInter)
-            Call GetMem('Energy','ALLO','REAL',ip_Energy,nRaw)
+            ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
+            Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
+            Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
+            Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
 *
-            Call DCopy_(nInter,qInt(1,iter),1,Work(ip_qInt),1)
-            Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad),1)
-            Work(ip_Energy)=Energy(iter)
+            Call DCopy_(nInter,qInt(1,iter),1,qInt_s(1,nRaw),1)
+            Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
+            Energy_s(nRaw)=Energy(iter)
 *
+*           Pick up the coordinates in descending order with the ones
+*           that are the closest to the current structure.
+*
+            iSt=Max(1,iter-nWndw+1)
             Thr_low = 0.0D0
             Thr_high= 99.0D0
-            Do iRaw = 2, nRaw
+            Do iRaw = nRaw-1, 1, -1
+*
                kter=-1
-               Do jter = 1, iter-1
+               Do jter = iSt, iter-1
+*
+*                 Compute the distance in Cartesian coordinates.
+*
                   Distance=Zero
                   Do ix = 1, 3*nsAtom
-                     Distance= Degen(ix) *
+                     Distance= Distance +
+     &                         Degen(ix) *
      &                        (Work(ipCx_ref+ix-1) -
      &                         Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
                   End Do
                   Distance = sqrt(Distance)
+*                 Write (*,*) 'jter,Distance=',jter,Distance
+*
                   If (Distance.gt.Thr_low .and.
      &                Distance.lt.Thr_high) Then
                      kter=jter
@@ -254,48 +271,58 @@ c Avoid unused argument warnings
                If (kter.eq.-1) Then
                   Write (6,*) 'kter not set!'
                Else
-                  Call DCopy_(nInter,qInt(1,kter),1,
-     &                               Work(ip_qInt+(iraw-1)*nInter),1)
-                  Call DCopy_(nInter,Grad(1,kter),1,
-     &                               Work(ip_Grad+(iraw-1)*nInter),1)
-                  Work(ip_Energy+(iraw-1))=Energy(kter)
+                  Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
+                  Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
+                  Energy_s(iRaw)=Energy(kter)
                   Thr_low=Thr_high
                   Thr_high= 99.0D0
                End If
             End Do
+#ifdef _DEBUG_
+            Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
+            Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
+            Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
+#endif
 *
-            Call DScal_(nInter*nRaw,-One,Work(ip_Grad),1)
+            Call DScal_(nInter*nRaw,-One,Grad_s,1)
             Call Start_Kriging(nRaw,nInter,
-     &                            Work(ip_qInt),
-     &                            Work(ip_Grad),
-     &                            Work(ip_Energy))
+     &                            qInt_s,
+     &                            Grad_s,
+     &                            Energy_s)
 *
-            Call GetMem('Energy','FREE','REAL',ip_Energy,nRaw)
-            Call GetMem('Grad','FREE','REAL',ip_Grad,nRaw*nInter)
-            Call GetMem('qInt','FREE','REAL',ip_qInt,nRaw*nInter)
+            Call mma_deAllocate(Energy_s)
+            Call mma_deAllocate(qInt_s)
+            Call mma_deAllocate(Grad_s)
 #endif
 *
 *           Update the l value dynamically. Here we compare the actual,
 *           ab inito value with the GEK prediction of the gradient.
 *
             Call Get_dScalar('Value_l',Value_l)
+*           Write (6,*) 'Pull l value:',Value_l
             If (iter.gt.nspAI) Then
                iOld=iFirst+nRaw-2
                xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-               If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
+*              Write (*,*) 'yyy,xxx=',yyy,xxx
+               If (yyy.gt.xxx) Then
+                  Value_l=Value_l * 0.95D0
+               Else
+                  Value_l=Value_l * 1.05D0
+               End If
 *
 *              Update the restricted variance threshold.
 *
 *              Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
 *    &                       1.0D-6)
             End If
+*           Write (6,*) 'Modified l value:',Value_l
 *
 *           Single_l_value=.True.
             Single_l_value=.False.
             If (Single_l_value) Then
-               Call setlkriging([Value_l],1)
+               Call set_l_kriging([Value_l],1)
             Else
                Call mma_Allocate(Array_l,nInter,Label='Array_l')
 *              Call DCopy_(nInter,[1.0D0],0,Array_l,1)
@@ -304,7 +331,7 @@ c Avoid unused argument warnings
 *              Write (6,*) 'Value_l=',Value_l
                Call DScal_(nInter,Value_l,Array_l,1)
 *              Call RecPrt('l values',' ',Array_l,nInter,1)
-               Call setlkriging(Array_l,nInter)
+               Call set_l_kriging(Array_l,nInter)
                Call mma_DeAllocate(Array_l)
             End If
             Call Put_dScalar('Value_l',Value_l)
@@ -326,7 +353,7 @@ c Avoid unused argument warnings
                   Call Abend()
                End If
                Call Dispersion_Kriging(qInt(1,i),Dummy,nInter)
-               E_Disp = Dummy(1)
+               E_Disp = Dummy
 *              Write (6,*) 'E_Disp=',E_disp
                If (E_disp.gt.ThrT) Then
                   Write (6,*) 'Kriging error in dispersion'
@@ -396,14 +423,14 @@ c Avoid unused argument warnings
                Write (6,*) 'Do iterAI: ',iterAI
 #endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt,Shift,Grad,
-     &                iOptC,Beta_Disp,Lbl,GNrm,Energy,
+     &                qInt,Shift,Grad,iOptC,Beta,Beta_Disp,
+     &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
-     &                nWndw,Mode,ipMF,
+     &                nWndw/2,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian,qBeta,Restriction_dispersion,
@@ -480,7 +507,7 @@ c Avoid unused argument warnings
                Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
                Call Dispersion_Kriging(qInt(1,iterAI+1),Dummy,nInter)
-               E_Disp = Dummy(1)
+               E_Disp = Dummy
 *              Write (6,*) 'E_Disp=',E_disp
                Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
      &                               nInter)
@@ -536,6 +563,7 @@ c Avoid unused argument warnings
             If (Step_trunc.eq.'*') Then
                Call Get_dScalar('Value_l',Value_l)
                Value_l=Value_l * 0.95D0
+*              Write (6,*) ' Set l value to:',Value_l
                Call Put_dScalar('Value_l',Value_l)
             End If
 *
@@ -558,7 +586,7 @@ c Avoid unused argument warnings
 *        ------- AI loop ends here
          Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
-     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
+     &                   Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
@@ -592,7 +620,7 @@ c Avoid unused argument warnings
       Return
       End
       Subroutine Update_sl_(kIter,iInt,nFix,nInter,qInt,Shift,
-     &                     Grad,iOptC,Beta,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -615,7 +643,8 @@ c Avoid unused argument warnings
 *      Shift(*,kIter) : the shift of the internal coordinates          *
 *      Grad(*,kIter)  : the gradient in the internal coordinates       *
 *      iOptC          : option flag for update methods                 *
-*      Beta           : damping factor                                 *
+*      Beta           : damping factor step length                     *
+*      Beta_Disp      : damping factor variance                        *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
 *      GNrm           : the norm of the gradient in each iteration     *
@@ -685,7 +714,8 @@ c Avoid unused argument warnings
       iPrint=nPrint(iRout)
       Lu=6
       If (iPrint.ge.99) Then
-         Write (Lu,*)'Update_:iOpt_RS,Beta=',iOpt_RS,Beta
+         Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
+     &                        iOpt_RS,Beta,Beta_Dispa
          Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
          Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
          Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
@@ -950,24 +980,26 @@ C                 gBeta=gBeta*Sf
 *
             End Do
             tBeta= Max(Beta*Min(xBeta,gBeta),Beta/Ten)
-            qBeta=fCart*tBeta
 C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *----------... Compute updated geometry in Internal coordinates
 *
+*           Select restriction if step or variance.
             If (iOpt_RS.eq.0) Then
                qBeta=fCart*tBeta
+               Thr_RS=1.0D-7
             Else
-               qBeta=Beta
+               qBeta=Beta_Disp
+               Thr_RS=1.0D-5
             End If
             Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
      &                ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                Energy,Line_Search,Step_Trunc,
-     &                Restriction)
+     &                Restriction,Thr_RS)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *
@@ -1237,6 +1269,7 @@ C           Write (*,*) 'tBeta=',tBeta
             Else
               fCart=fCart*0.9D0
             End If
+            qBeta=fCart*Beta
             Call Con_Opt(Work(ipr),Work(ipdrdq),Work(ipT),Grad,
      &                rLambda,qInt,Shift,Work(ipdy),Work(ipdx),
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
@@ -1245,11 +1278,10 @@ C           Write (*,*) 'tBeta=',tBeta
      &                iOptC,Mode_,ipMF,iOptH,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
-     &                Work(ipdg),Work(ipA),nA,ed,fCart*Beta,nFix,
+     &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght,
-     &                Restriction,iOpt_RS)
+     &                IRC,CnstWght,Restriction,iOpt_RS,Thr_RS)
 *
 *           Rough conversion to Cartesians
 *
@@ -1294,6 +1326,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_Deallocate(difH)
       Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)

@@ -15,6 +15,7 @@
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
+#include "constants.fh"
 *
       iRout=3
       iPrint=nPrint(iRout)
@@ -54,8 +55,16 @@
      &      ,ThrGrd
       Write (Lu,'(A,E8.1)')' Convergence criterion on energy change <=:'
      &      ,ThrEne
+      Write (Lu,'(A)')
+     &    ' Parameters for constrained optimization'
       Write (Lu,'(A,E9.2)')
-     &    ' Max change of an internal coordinate:    ',Beta
+     &    ' Max step length (initial seed):          ',Beta
+      Write (Lu,'(A,F9.5,A)')
+     &    ' Max variance accepted:                   ',Beta_disp,' a.u.'
+      Write (Lu,'(A,F9.5,A)')
+     &    '                                          ',
+     &      Beta_disp*CONV_AU_TO_KJ_PER_MOLE_,
+     &    ' kcal/mol'
       Write (Lu,*)
 *                                                                      *
 ************************************************************************
@@ -69,8 +78,8 @@
      &               nWndw
 *      Write (Lu,*) '  Analytical Mat`ern derivatives:            ',anMd
 *      Write (Lu,*) '  Width of Mat`ern: 0.1:6 # of steps:',lb
-       Write (Lu,*) '  Resolution of the predicted path:          ',
-     &               npxAI
+*      Write (Lu,*) '  Resolution of the predicted path:          ',
+*    &               npxAI
        Write (Lu,*) '  Parameter of diff. for Mat`ern (p):        ',pAI
        Write (Lu,*) '  Max inter. for opt on surrogate model:     ',miAI
 *      Write (Lu,*) 'Minimum egergy differences at convergence;',meAI

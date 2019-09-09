@@ -25,13 +25,12 @@ module fcidump
   use fcidump_dump, only : dump_ascii, dump_hdf5
   implicit none
   private
-  public :: make_fcidumps, transform, DumpOnly
+  public :: make_fcidumps, transform, DumpOnly, cleanup
   logical :: DumpOnly = .false.
   save
 contains
 
   subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
-    implicit none
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
@@ -59,7 +58,6 @@ contains
   end subroutine make_fcidumps
 
   subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
-    implicit none
     integer, intent(in) :: iter
     real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
@@ -72,4 +70,9 @@ contains
     call get_orbital_E(iter, DIAF, orbital_E)
     call fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
   end subroutine transform
+
+  subroutine cleanup()
+    use fcidump_reorder, only : fcidump_reorder_cleanup => cleanup
+    call fcidump_reorder_cleanup()
+  end subroutine
 end module fcidump

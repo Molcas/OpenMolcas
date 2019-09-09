@@ -12,15 +12,21 @@
 !***********************************************************************
         SUBROUTINE k(iter)
             use globvar
-            real*8 B(m_t),A(m_t,m_t),diagA(m_t), iden(m_t,m_t)
-            integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+#include "stdalloc.fh"
+            real*8, Allocatable:: B(:), A(:,:)
+            Integer, Allocatable:: IPIV(:)
+            integer INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+!
+            Call mma_Allocate(B,m_t,Label="B")
+            Call mma_Allocate(A,m_t,m_t,Label="A")
+            Call mma_Allocate(IPIV,m_t,Label="IPIV")
 !
 ! Initiate B according to Eq. (6) of ref.
             B=0.0D0
             B(1:iter)=1.0D0
 !
-            call miden(iden,m_t)
-            full_Rinv = iden
+            Full_RInv=0
+            forall(j=1:m_t) Full_RInv(j,j)=1
 ! Initiate A according to Eq. (2) of ref.
 !
             !-----------------New
@@ -30,9 +36,9 @@
             ! B = rones
             ! Write (6,*) 'A new ',A
             ! ----------------Old calculations --K1
-            A = full_r
+            A(:,:) = full_r(:,:)
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
-            rones=B
+            rones(:)=B(:)
             ! Write (6,*) 'A old ',A
             !----------------------------
             If (INFO.ne.0) Then
@@ -40,61 +46,56 @@
                Write (6,*) 'k: INFO=',INFO
                Call Abend()
             End If
-            ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
-            ! Call RecPrt('full_Rinv*full_R = I',  ' ',matmul(full_Rinv,full_r),m_t,m_t)
-            ! Write (6,*) 'rones ',rones
 !
 ! Now A contains the factors L and U from the factorization A = P*L*U as computed by DGESV
 ! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
 ! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
 !
+            detR = 0.0d0
+            sign = 1
             do i=1,m_t
-                diagA(i) = A(i,i)
+                ! if (A(i,i).le.0) sign=sign*(-1)
+                detR = detR + log(abs(A(i,i)))
             enddo
+            ! detR = detR*sign
 !
 !Trend Function (baseline)
             sbO = dot_product(y,B(1:iter))/sum(B(1:iter))
             if (blaAI) then
                 sb = y(iter) + blavAI
+            else if (mblAI) then
+                sb = sbmev
+            else if (blAI) Then
+                sb = blvAI
             else
-                if (mblAI) then
-                    sb = sbmev
-                else
-                    if (blAI) Then
-                        sb = blvAI
-                    else
-                        sb = sbO
-                    endif
-                endif
+                 sb = sbO
             endif
-            ! Write (6,*) 'sb ',sb
+        !   Write (6,*) 'K: sb=',sb
+        !   Write (6,*) 'K: y=',y
+        !   Write (6,*) 'K: dy=',dy
 !
-            B = [y-sb,dy]
-!
-            Ys = B
+            B(:) = [y-sb,dy]
+            Kv(:)=B
 ! ----------------Old calculations --K2
-            A=full_r
-            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
-            Kv=b
+            A(:,:)=full_r
+!           Write (6,*) 'K: y=',y
+        !   Write (6,*) 'K: B(Ys)=',B
+!           Write (6,*) 'K: A=',A
+            CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 !-----------------New
             ! Kv = matmul(B,full_Rinv)
 !------------------------------------
 !Likelihood function
-            variance = dot_product(Ys,Kv)/m_t
-!
-            detR = 0
-            sign = 1
-            do i=1,m_t
-                ! if (diagA(i).le.0) sign=sign*(-1)
-                detR = detR + log(abs(diagA(i)))
-            enddo
-            ! detR = detR*sign
+            variance = dot_product(B,Kv)/m_t
             lh = variance*exp(detR/dble(m_t))
 !
             ! write(6,*) 'detR',detR
-            ! write(6,*) 'Ys:',Ys
-            ! write(6,*) 'Kv:',Kv
+            ! write(6,*) 'Kv orig:',Kv
             ! write(6,*) 'Variance:',variance
             ! write(6,*) 'm_t',m_t
             ! write(6,*) 'lh',lh
+!
+            Call mma_Deallocate(B)
+            Call mma_Deallocate(A)
+            Call mma_Deallocate(IPIV)
         END SUBROUTINE k
