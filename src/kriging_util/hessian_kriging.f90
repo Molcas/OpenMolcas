@@ -52,17 +52,18 @@
         endif
         ddy_=hpred(npx,:,:)
         !--------temp---------------------
-        ! write(6,*) 'x: ', x
-        ! write(6,*) 'y: ', y
-        ! write(6,*) 'nx: ', nx
-        ! write(6,*) 'dy: ', dy
-        ! write(6,*) 'l: ', l
-        ! write(6,*) 'Kriging Hessian, Analitical?', anHe
-        ! Call RecPrt('Hess',' ',ddy_,nInter,nInter)
-        ! write(6,*) '-------------------Ana Hess'
-        ! call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        ! call predict(2,nPoints,nInter)
-        ! Call RecPrt('Anna Hess',' ',hpred(npx,:,:),nInter,nInter)
+        write(6,*) 'x: ', x
+        write(6,*) 'y: ', y
+        write(6,*) 'nx: ', nx
+        write(6,*) 'dy: ', dy
+        write(6,*) 'l: ', l
+        write(6,*) 'Kv: ',Kv
+        write(6,*) 'Kriging Hessian, Analitical?', anHe
+        Call RecPrt('Hess',' ',ddy_,nInter,nInter)
+        write(6,*) '-------------------Ana Hess'
+        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(2,nPoints,nInter)
+        Call RecPrt('Anna Hess',' ',hpred(npx,:,:),nInter,nInter)
 !---------------------------------
 !
         return

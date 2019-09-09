@@ -25,11 +25,11 @@
             B=0.0D0
             B(1:iter)=1.0D0
 !
-            Full_RInv=0
-            forall(j=1:m_t) Full_RInv(j,j)=1
 ! Initiate A according to Eq. (2) of ref.
 !
             !-----------------New
+            ! Full_RInv=0
+            ! forall(j=1:m_t) Full_RInv(j,j)=1
             ! A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
             ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
             ! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)

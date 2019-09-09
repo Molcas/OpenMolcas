@@ -706,7 +706,7 @@ c Avoid unused argument warnings
      &          HUpMet*6, File1*8, File2*8
       Real*8, Allocatable:: Hessian(:,:), difH(:,:)
       Character Hess_type*8
-*#define _NUM_HESS_
+#define _NUM_HESS_
 #ifdef _NUM_HESS_
       Real*8, Allocatable:: dqp(:), dqm(:)
 #endif
