@@ -17,7 +17,7 @@
 #include <time.h>
 
 #include "molcastype.h"
-
+#ifdef _MSYM_
 #include "msym.h"
 
 #ifdef _CAPITALS_
@@ -265,3 +265,4 @@ err:
     *err = ret;
     return ret;
 }
+#endif

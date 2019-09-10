@@ -14,6 +14,10 @@
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
       Call Start('symmetrize')
+#ifdef _MSYM_
       Call fmsym(ireturn)
+#else
+      write(6,*) 'Activate _MSYM_ and recompile'
+#endif
       Call Finish(ireturn)
       end

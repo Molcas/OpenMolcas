@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Marcus Johansson                                 *
 ************************************************************************
+#ifdef _MSYM_
       Subroutine fmsym_create_context(ctx)
       Implicit Real*8 (a-h,o-z)
       Integer ret
@@ -347,3 +348,8 @@
       Call Free_iWork(iTIND)
 
       End
+#else
+      subroutine Dummy_Msym
+      return
+      end
+#endif
