@@ -684,6 +684,7 @@ c Avoid unused argument warnings
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
+      ! Use AI, only: anHe !Temp
       Implicit Real*8 (a-h,o-z)
       External Restriction
       Real*8 Restriction
@@ -756,7 +757,7 @@ c Avoid unused argument warnings
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
-*define _PRINT_
+#define _PRINT_
 #ifdef _PRINT_
          Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
@@ -766,6 +767,7 @@ c Avoid unused argument warnings
             Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
 #ifdef _PRINT_
             Write (6,*) 'iInter,Delta=',iInter,Delta
+            Write (6,*) 'qInt_Save,iInter,kIter',qInt_Save,iInter,kIter
 *
             Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
 #endif
@@ -773,39 +775,47 @@ c Avoid unused argument warnings
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
 #ifdef _PRINT_
-            ! Call RecPrt('dq0',' ',dqp,nInter,1)
+            Call RecPrt('dq0',' ',dqp,nInter,1)
 #endif
 *
-            qInt(iInter,kIter)=qInt_Save+Delta
+            qInt(iInter,kIter) = qInt_Save + Delta
 #ifdef _PRINT_
-            Call RecPrt('qIntp',' ',qInt(1,kIter),nInter,1)
+            Call RecPrt('qIntp_cord+Del',' ',qInt(1,kIter),nInter,1)
 #endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
 #ifdef _PRINT_
-            Call RecPrt('dqp',' ',dqp,nInter,1)
+            Call RecPrt('dqp=Grad(cord+Del)',' ',dqp,nInter,1)
 #endif
 
-            qInt(iInter,kIter)=qInt_Save-Delta
+            qInt(iInter,kIter)=qInt_Save - Delta
 #ifdef _PRINT_
-            Call RecPrt('qIntm',' ',qInt(1,kIter),nInter,1)
+            Call RecPrt('qIntm_Cord-Del',' ',qInt(1,kIter),nInter,1)
 #endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
 #ifdef _PRINT_
-            Call RecPrt('dqm',' ',dqm,nInter,1)
-            Call RecPrt('Hessian(0)',' ',Hessian,nInter,1)
+            Call RecPrt('dqm=Grad(cord-Del)',' ',dqm,nInter,1)
+            Call RecPrt('Hessian(0)',' ',Hessian(iInter,:),1,nInter)
 #endif
 *
             Do jInter = 1, nInter
                Fact = Half
                If (iInter.eq.jInter) Fact = One
+               write(6,*) 'Hess i j',iInter,jInter
+               write(6,*) 'Fact, Delta',Fact, Delta
+               write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
+               write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
+               write(6,*) 'dqp(j)',dqp(jInter)
+               write(6,*) 'dqm(j)',dqm(jInter)
+               write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
+               write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
             End Do
             ! write (6,*) 'Delta: ', Delta
 *
@@ -850,15 +860,16 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-*define _PRINT_HESSIAN_
+#define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
-         Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
+         Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
          if (Kriging_Hessian) then
-            ! Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
             Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
-            Call RecPrt('Hessian Kriging','(6F10.4)',difH,nInter,nInter)
-            difH = difH/Hessian
-            Call RecPrt('Dif Hessians','(6F10.4)',difH,nInter,nInter)
+            ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
+            ! anHe = .False.
+            ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
+            Call RecPrt('Hessian Num Ger',' ',difH,nInter,nInter)
+            Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
 ! Call RecPrt('Hessian Kriging with f','(6F10.4)',Hessian,nInter,nInter)
          endif
 #endif
