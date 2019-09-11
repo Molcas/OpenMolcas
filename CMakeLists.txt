@@ -2340,6 +2340,7 @@ if (NEVPT2)
 endif ()
 
 # activate MSYM support
+#the following code has been suggested by IFG
 if (MSYM AND MSYM_FOUND)
         set (util msym_util)
         find_source(${util})
@@ -2349,7 +2350,10 @@ if (MSYM AND MSYM_FOUND)
                 message (FATAL_ERROR "\"${util}\" not found in source directories")
         endif ()
         list (APPEND ${util}_incs ${MSYM_INCLUDE})
-        list (APPEND progs symmetrize)
+        list (APPEND ${util}_defs "_MSYM_")
+        set (prog symmetrize)
+        list (APPEND progs ${prog})
+        list (APPEND ${prog}_defs "_MSYM_")
 endif ()
 
 if (BLOCK)
