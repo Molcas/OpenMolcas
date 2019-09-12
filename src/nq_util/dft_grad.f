@@ -55,7 +55,9 @@
       R_Grid(1)=Work(ip_Coor(iNQ)  )
       R_Grid(2)=Work(ip_Coor(iNQ)+1)
       R_Grid(3)=Work(ip_Coor(iNQ)+2)
+*define _DEBUG_
 #ifdef _DEBUG_
+      Debug=.True.
       If (Debug) Then
          Call RecPrt('R_Grid',' ',R_Grid,1,3)
          Call RecPrt('Grid',' ',Grid,3,mGrid)
@@ -149,22 +151,24 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr =dF_dRho(ipRa,j)    *dRho_dR(1,j,i_Eff)
+                  dF_dr = dF_dRho(ipRa,j)    *dRho_dR(1,j,i_Eff)
      &                  +dF_dRho(ipRb,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
+                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
+                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
      &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
+                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
      &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
+
+*****************************************************************************************************************
          End If
 *                                                                      *
 ************************************************************************
@@ -191,6 +195,8 @@
                   tmp = tmp  + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
+
+*****************************************************************************************************************
 *
                   OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
@@ -241,11 +247,11 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
+                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
+                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
      &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
+                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
@@ -332,11 +338,11 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
+                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
+                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
      &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
+                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
@@ -395,7 +401,7 @@
                   gzb=rho(8,j)
 
                   Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRa,j)
+                  Temp0b=dF_dRho(ipRb,j)
                   Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
      &                          +dF_dRho(ipGab,j)*gxb )
                   Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
@@ -429,11 +435,11 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
+                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
+                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
      &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
+                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
@@ -488,8 +494,8 @@
                       Temp(iGrad)=Temp(iGrad)-Temp(jGrad)
 *
 #ifdef _DEBUG_
-            If (Debug) Write (6,*) 'jGrad,Fact,Temp(jGrad)=',
-     &                              jGrad,Fact,Temp(jGrad)
+            If (Debug) Write (6,*) 'jGrad,Temp(jGrad)=',
+     &                              jGrad,Temp(jGrad)
 #endif
                   End If
                End Do
@@ -579,6 +585,7 @@
 #ifdef _DEBUG_
       If (Debug) Call RecPrt('Gradient accumulated so far',
      &                     ' ',Grad,1,nGrad)
+      Debug=.False.
 #endif
 *                                                                      *
 ************************************************************************
