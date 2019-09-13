@@ -109,7 +109,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AIMB') Go To 109
       If (Char(1:4).eq.'AIAB') Go To 110
       If (Char(1:4).eq.'L-VA') Go To 112
-      If (Char(1:4).eq.'AIHE') Go To 113
+      If (Char(1:4).eq.'AIAH') Go To 113
       If (Char(1:4).eq.'AIGR') Go To 114
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936

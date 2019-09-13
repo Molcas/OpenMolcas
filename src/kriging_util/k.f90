@@ -27,15 +27,6 @@
 !
 ! Initiate A according to Eq. (2) of ref.
 !
-            !-----------------New
-            ! Full_RInv=0
-            ! forall(j=1:m_t) Full_RInv(j,j)=1
-            ! A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
-            ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
-! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)
-            ! B = rones
-            ! Write (6,*) 'A new ',A
-            ! ----------------Old calculations --K1
             A(:,:) = full_r(:,:)
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
             rones(:)=B(:)
@@ -70,27 +61,25 @@
             else
                  sb = sbO
             endif
-        !   Write (6,*) 'K: sb=',sb
-        !   Write (6,*) 'K: y=',y
-        !   Write (6,*) 'K: dy=',dy
+          Write (6,*) 'K: x=',x
+          Write (6,*) 'K: sb=',sb
+          Write (6,*) 'K: y=',y
+          Write (6,*) 'K: dy=',dy
 !
             B(:) = [y-sb,dy]
             Kv(:)=B
 ! ----------------Old calculations --K2
             A(:,:)=full_r
-!           Write (6,*) 'K: y=',y
-        !   Write (6,*) 'K: B(Ys)=',B
-!           Write (6,*) 'K: A=',A
+          Write (6,*) 'K: B(Ys)[y-sb,dy]=',B
+          Write (6,*) 'K: Full_r=A=',A
             CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
-!-----------------New
-! Kv = matmul(B,full_Rinv)
 !------------------------------------
 !Likelihood function
             variance = dot_product(B,Kv)/m_t
             lh = variance*exp(detR/dble(m_t))
 !
             ! write(6,*) 'detR',detR
-            ! write(6,*) 'Kv orig:',Kv
+            write(6,*) 'Kv orig:',Kv
             ! write(6,*) 'Variance:',variance
             ! write(6,*) 'm_t',m_t
             ! write(6,*) 'lh',lh

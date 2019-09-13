@@ -14,9 +14,9 @@
         use globvar
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),ddy_(ndimx,ndimx),tgrad(ndimx),thgrad(ndimx)
-        Real*8 Scale,Delta,Fact,tempX(nInter_save,nPoints_save)
+        Real*8 Scale,Delta,Fact,tempX(ndimx,1)
 !
-        nPoints=nPoints_save
+        nPoints = nPoints_save
         nInter=nInter_save
 !
         write (6,*) 'nPoints', nPoints
@@ -46,22 +46,24 @@
                 ! Call RecPrt('x = qInt',' ',x,nInter,nPoints)
                 do i = 1,nInter
                         !qInt_Save= x(i,nPoints)
-                        tempx = x
-                        ! Call RecPrt('x = qInt',' ',x,nInter,nPoints)
-                        Delta = Max(Abs(x(i,nPoints)),1.0D-5)*Scale
-                        ! write (6,*) 'x-qsave', i, x(i,nPoints)
+                        tempx = x_
+                        ! Call RecPrt('x = qInt',' ',x_,nInter,1)
+                        Delta = Max(Abs(x_(i,1)),1.0D-5)*Scale
+                        ! write (6,*) 'x-qsave', i, x_(i,1)
                         ! write (6,*) 'Delta', Delta
                         ! write (6,*) 'nx', nx
-                        tempx(i,nPoints) = x(i,nPoints) + Delta
-                        ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,nPoints),nInter,1)
-                        Call Gradient_Kriging(tempx(:,nPoints),tgrad,ndimx)
-                        !
-                        tempx(i,nPoints) = x(i,nPoints) - Delta
-                        ! Call RecPrt('x(1,i) - Delta = qIntm',' ',tempx(:,nPoints),nInter,1)
-                        call Gradient_Kriging(tempx(:,nPoints),thgrad,ndimx)
+                        tempx(i,1) = x_(i,1) + Delta
+                        ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
+!
+                        Call Gradient_Kriging(tempx(:,1),tgrad,ndimx)
+!
+                        tempx(i,1) = x_(i,1) - Delta
+                        Call Gradient_Kriging(tempx(:,1),thgrad,ndimx)
+!
+                        ! Call RecPrt('x(1,i) - Delta = qIntm',' ',tempx(:,1),nInter,1)
                         ! Call RecPrt('tgrad-dqp',' ',tgrad,nInter,1)
                         ! Call RecPrt('thgrad-dqm',' ',thgrad,nInter,1)
-                        do j=i,nInter
+                        do j=1,nInter
                                 Fact = 0.5D0
                                 If (i.eq.j) Fact = 1.0D0
                                 ! write(6,*) 'Hess i j',i,j
@@ -87,15 +89,11 @@
         ! write(6,*) 'l: ', l
         ! write(6,*) 'Kv: ',Kv
         ! write(6,*) 'Kriging Hessian, Analitical?', anHe
-        ! Call RecPrt('Hess',' ',ddy_,nInter,nInter)
+        ! ! Call RecPrt('Hess',' ',ddy_,nInter,nInter)
         ! write(6,*) '-------------------Ana Hess'
         ! call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         ! call predict(2,nPoints,nInter)
         ! Call RecPrt('Anna Hess',' ',hpred(npx,:,:),nInter,nInter)
-        ! do i = 1,nInter
-        !         hpred(npx,i,i) = 2.0*hpred(npx,i,i)
-        ! enddo
-        ! Call RecPrt('Anna Hess w factor',' ',hpred(npx,:,:),nInter,nInter)
 !---------------------------------
 !
         return
