@@ -167,9 +167,17 @@
             Write (Lu,'(A,F10.4)')
      &       '  b) the norm of the gradient is below:',GNrm_Threshold
             If (iAnd(iOptC,512).eq.512) Then
-               Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               If (Kriging) Then
+                  Write (Lu,'(A)') '  TS-search by RV-I-RFO.'
+               Else
+                  Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               End If
             Else
-               Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               If (Kriging) Then
+                  Write (Lu,'(A)') '  TS-search by RV-P-RFO.'
+               Else
+                  Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               End If
             End If
          End If
 *
@@ -186,7 +194,11 @@
             Write (Lu,'(A)') '  Optimization method: C2-DIIS.'
 
          Else If (iAnd(iOptC,8).eq.8) Then
-            Write (Lu,'(A)') '  Optimization method: RS-RFO.'
+            If (Kriging) Then
+               Write (Lu,'(A)') '  Optimization method: RV-RFO.'
+            Else
+               Write (Lu,'(A)') '  Optimization method: RS-RFO.'
+            End If
          Else
             Call WarningMessage(2,' WrInp: Wrong iOptC setting!')
             Write (Lu,*) ' iOptC=',iOptC
@@ -195,9 +207,17 @@
       Else
          Write (Lu,'(1X,A)') '-Optimization for transition state.'
          If (iAnd(iOptC,512).eq.512) Then
-            Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            If (Kriging) Then
+               Write (Lu,'(A)') '  Optimization method: RV-I-RFO'
+            Else
+               Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            End If
          Else
-            Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            If (Kriging) Then
+               Write (Lu,'(A)') '  Optimization method: RV-P-RFO'
+            Else
+               Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            End If
          End If
          If (Mode.gt.0) Then
             Write (Lu,'(A,I2)') '  Original mode to follow:',Mode
@@ -241,11 +261,16 @@
               Write (Lu,'(1X,A)') '-Initial Hessian guessed a'
      &                //' la Schlegel.'
             Else
-              Write (Lu,'(1X,A)') '-Initial Hessian guessed by'
-     &                //' Hessian Model Function (HMF).'
-              If (iAnd(iOptC,1024).eq.1024) Then
-                Write (Lu,'(A)') '  HMF augmented with'
-     &                //' weak interactions.'
+              If (Kriging) Then
+                 Write (Lu,'(1X,A)') '-Hessian guessed by'
+     &                   //' Kriging surrogate surface.'
+              Else
+                 Write (Lu,'(1X,A)') '-Initial Hessian guessed by'
+     &                   //' Hessian Model Function (HMF).'
+                 If (iAnd(iOptC,1024).eq.1024) Then
+                   Write (Lu,'(A)') '  HMF augmented with'
+     &                   //' weak interactions.'
+                 End If
               End If
             End If
          Else If (lOld.and..Not.lNmHss) Then
@@ -268,6 +293,7 @@
 *                                                                      *
 *.....Hessian update method
 *
+      If (.NOT.Kriging) Then
       If (iAnd(iOptH,1).eq.1) Then
          Write (Lu,'(1X,A)')
      &       '-Hessian update method: Fletcher-Meyer'
@@ -303,6 +329,7 @@
      &       '  Hessian update order according to Schlegel'
       End If
       Write (Lu,*)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

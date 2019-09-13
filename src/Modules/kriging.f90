@@ -10,20 +10,29 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-      module globvar
-        use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI, blavAI, anHe
-        use kriging
-        real*8, allocatable ::  &
-                rl(:,:,:), dl(:,:), full_Rinv(:,:), &
-                full_R(:,:), nx(:,:), Kv(:), & !Iden(:,:),
-                cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:), &
-                var(:), Rones(:), sigma(:), l(:), &
-                pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
-                cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
-        real*8  sb,variance,detR,lh,sbO,sbmev !p
-        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, &
-                  eps = 1e-14, eps2 = 1e-14
-! eps avoid to become singular in 1st der & eps2 in 2nd der
-        integer prev_ns, m_t, npx, counttimes
-        Integer nInter_save, nPoints_save
-      end module globvar
+      module kriging
+        real*8, allocatable, protected :: x(:,:), y(:), dy(:)
+        contains
+!
+      Subroutine Setup_Kriging(nPoints,nInter,x_,dy_,y_)
+!
+        Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
+!
+!x is the n-dimensional internal coordinates
+          x(:,:) = x_(:,:)
+          ! write(6,*) 'x',x
+!y is the energy
+          y(:) = y_(:)
+          ! write(6,*) 'y',y
+!dy it's a vector of Grad-y (eq. (5)  ref. gradients of
+! the energy with respect to the internal coordinates
+          do i=1,nInter
+            do j=1,nPoints
+              dy((i-1)*nPoints+j) = dy_(i,j)
+            enddo
+          enddo
+!
+        return
+      end subroutine Setup_kriging
+!
+      end module kriging
