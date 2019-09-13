@@ -35,21 +35,7 @@
         Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
         Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
-! subroutine
-!x is the n-dimensional internal coordinates
-          x(:,:) = x_(:,:)
-          ! write(6,*) 'x',x
-!y is the energy
-          y(:) = y_(:)
-          ! write(6,*) 'y',y
-!dy it's a vector of Grad-y (eq. (5)  ref. gradients of
-! the energy with respect to the internal coordinates
-          do i=1,nInter
-            do j=1,nPoints
-              dy((i-1)*nPoints+j) = dy_(i,j)
-            enddo
-          enddo
-          ! write(6,*) 'dy',dy
+        Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
 !
           If (mblAI) sbmev = y(maxloc(y,dim=1))
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
