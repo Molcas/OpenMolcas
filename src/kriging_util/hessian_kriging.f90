@@ -13,14 +13,19 @@
       Subroutine Hessian_Kriging(x_,ddy_,ndimx)
         use globvar
         Integer nInter,nPoints
-        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx),tgrad(ndimx),thgrad(ndimx)
-        Real*8 Scale,Delta,Fact,tempX(ndimx,1)
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
+#define _Hess_Test
+#ifdef _Hess_Test
+        Real*8 Scale,Delta,Fact,tempX(ndimx,1),tgrad(ndimx),thgrad(ndimx)
+        Real*8 HessT
+        HessT = numHt!1.0D-8
+#endif
         nPoints = nPoints_save
-        nInter=nInter_save
+        nInter = nInter_save
 !
-        write (6,*) 'nPoints', nPoints
-        write (6,*) 'nInter', nInter
+        ! write (6,*) 'nPoints', nPoints
+        ! write (6,*) 'nInter', nInter
         npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
@@ -30,57 +35,74 @@
 ! Analitical Hessian of GEK
         ! Call RecPrt('full_r:',  ' ',full_R,m_t,m_t)
         ! write(6,*) 'Kv:',Kv
-        if (anHe) then
-                call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-                call predict(2,nPoints,nInter)
+        ! if (anHe) then
+        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(2,nPoints,nInter)
+        ddy_ = hpred(npx,:,:)
 !               Factor to compare with Hessian Roland
                 ! do i = 1,nInter
                 !         hpred(npx,i,i) = 2.0D0*hpred(npx,i,i)
                 ! enddo
-        else
+        ! else
+#ifdef _Hess_Test
 ! Numerical Hessian of GEK
-                ! write(6,*) 'Begining Numerical Hessian'
-                ! wrire (6)
-                hpred = 0
-                Scale=0.01D0
-                ! Call RecPrt('x = qInt',' ',x,nInter,nPoints)
-                do i = 1,nInter
-                        !qInt_Save= x(i,nPoints)
-                        tempx = x_
-                        ! Call RecPrt('x = qInt',' ',x_,nInter,1)
-                        Delta = Max(Abs(x_(i,1)),1.0D-5)*Scale
-                        ! write (6,*) 'x-qsave', i, x_(i,1)
-                        ! write (6,*) 'Delta', Delta
-                        ! write (6,*) 'nx', nx
-                        tempx(i,1) = x_(i,1) + Delta
-                        ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
+        write(6,*) 'Begining Numerical Hessian'
 !
-                        Call Gradient_Kriging(tempx(:,1),tgrad,ndimx)
+        hpred = 0
+        Scale=0.01D0
+        write(6,*) 'Hess Treshold',numHt
+        ! Call RecPrt('x = qInt',' ',x,nInter,nPoints)
+        do i = 1,nInter
+                tempx = x_
+                ! Call RecPrt('x = qInt',' ',x_,nInter,1)
+                Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
+                ! write (6,*) 'x-qsave', i, x_(i,1)
+                write (6,*) 'Delta', Delta
+                ! write (6,*) 'nx', nx
+                tempx(i,1) = x_(i,1) + Delta
+                ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
 !
-                        tempx(i,1) = x_(i,1) - Delta
-                        Call Gradient_Kriging(tempx(:,1),thgrad,ndimx)
+                Call Gradient_Kriging(tempx(:,1),tgrad,ndimx)
 !
-                        ! Call RecPrt('x(1,i) - Delta = qIntm',' ',tempx(:,1),nInter,1)
-                        ! Call RecPrt('tgrad-dqp',' ',tgrad,nInter,1)
-                        ! Call RecPrt('thgrad-dqm',' ',thgrad,nInter,1)
-                        do j=1,nInter
-                                Fact = 0.5D0
-                                If (i.eq.j) Fact = 1.0D0
-                                ! write(6,*) 'Hess i j',i,j
-                                ! write(6,*) 'Fact, Delta',Fact, Delta
-                                ! write(6,*) 'Hessian(i,j)',hpred(npx,i,j)
-                                ! write(6,*) 'Hessian(j,i)',hpred(npx,j,i)
-                                hpred(npx,i,j) = hpred(npx,i,j) + Fact*(tgrad(j)-thgrad(j))/(2.0D0*Delta)
-                                hpred(npx,j,i) = hpred(npx,j,i) + Fact*(tgrad(j)-thgrad(j))/(2.0D0*Delta)
-                                ! write(6,*) 'tgrad(j)',tgrad(j)
-                                ! write(6,*) 'thgrad(j,i)',thgrad(j)
-                                ! write(6,*) 'Hessian(i,j)',hpred(npx,i,j)
-                                ! write(6,*) 'Hessian(j,i)',hpred(npx,j,i)
-                        enddo
-                        ! write (6,*) 'hpred(npx,i,:): ', i, hpred(npx,i,:)
+                tempx(i,1) = x_(i,1) - Delta
+                Call Gradient_Kriging(tempx(:,1),thgrad,ndimx)
+!
+                ! Call RecPrt('x(1,i) - Delta = qIntm',' ',tempx(:,1),nInter,1)
+                ! Call RecPrt('tgrad-dqp',' ',tgrad,nInter,1)
+                ! Call RecPrt('thgrad-dqm',' ',thgrad,nInter,1)
+                do j=1,nInter
+                        Fact = 0.5D0
+                        If (i.eq.j) Fact = 1.0D0
+                        ! write(6,*) 'Hess i j',i,j
+                        ! write(6,*) 'Fact, Delta',Fact, Delta
+                        ! write(6,*) 'Hessian(i,j)',hpred(npx,i,j)
+                        ! write(6,*) 'Hessian(j,i)',hpred(npx,j,i)
+                        hpred(npx,i,j) = hpred(npx,i,j) + Fact*(tgrad(j)-thgrad(j))/(2.0D0*Delta)
+                        hpred(npx,j,i) = hpred(npx,j,i) + Fact*(tgrad(j)-thgrad(j))/(2.0D0*Delta)
+                        ! write(6,*) 'tgrad(j)',tgrad(j)
+                        ! write(6,*) 'thgrad(j,i)',thgrad(j)
+                        ! write(6,*) 'Hessian(i,j)',hpred(npx,i,j)
+                        ! write(6,*) 'Hessian(j,i)',hpred(npx,j,i)
+
                 enddo
-        endif
-        ddy_=hpred(npx,:,:)
+        ! write (6,*) 'hpred(npx,i,:): ', i, hpred(npx,i,:)
+        enddo
+        do i = 1,nInter
+                do j = 1,nInter
+                        write(6,*) 'i,j',i,j,HessT
+                        write(6,*) 'hpred, ddy_',hpred(npx,i,j),ddy_(i,j)
+                        if (abs(ddy_(i,j)-hpred(npx,i,j)).gt.HessT) then
+                                Write(6,*) 'Error in entry',i,',',j,'of the hessian matrix'
+                                Call RecPrt('Anna Hess',' ',ddy_,nInter,nInter)
+                                Call RecPrt('Num Hess',' ',hpred,nInter,nInter)
+                                Write(6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+ HessT)
+                                Write(6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)- HessT)
+                                Write(6,*) 'abs(hpred(npx,i,j))',abs(hpred(npx,i,j))
+                                Call Abend()
+                        endif
+                enddo
+        enddo
+#endif
         !--------temp---------------------
         ! write(6,*) 'x: ', x
         ! write(6,*) 'y: ', y

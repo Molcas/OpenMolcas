@@ -833,15 +833,6 @@ c Avoid unused argument warnings
          endif
          Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
-         !--------- Factor correction temp
-         ! Do i = 1, nInter
-         !    Do j = 1, nInter
-         !       Fact = One
-         !       If (i.eq.j) Fact = Two
-         !       Hessian(i,j) = Fact*Hessian(i,j)
-         !       if (i.ne.j) Hessian(j,i) = Fact*Hessian(j,i)
-         !    end do
-         ! enddo
 #endif
          iNeg(1)=0
          iNeg(2)=0
@@ -880,7 +871,7 @@ c Avoid unused argument warnings
             ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
             ! anHe = .False.
             ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
-            write(6,*) 'kIter in PRINT_HESSIAN', kIter,tkIter
+            write(6,*) 'kIter in PRINT_HESSIAN', kIter
             Call RecPrt('Hessian Num Ger',' ',difH,nInter,nInter)
             anHe = OanHe
             Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)

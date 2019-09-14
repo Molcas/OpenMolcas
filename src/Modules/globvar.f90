@@ -11,7 +11,8 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
-        use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI, blavAI, anHe
+        use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI, &
+                        blavAI, anHe, numHt
         use kriging
         real*8, allocatable ::  &
                 rl(:,:,:), dl(:,:), full_Rinv(:,:), &

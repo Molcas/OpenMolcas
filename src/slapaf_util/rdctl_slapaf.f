@@ -111,6 +111,8 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'L-VA') Go To 112
       If (Char(1:4).eq.'AIAH') Go To 113
       If (Char(1:4).eq.'AIGR') Go To 114
+      If (Char(1:4).eq.'AICS') Go To 115
+      If (Char(1:4).eq.'AIHT') Go To 116
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -633,6 +635,29 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Else
             anGr = .True.
       EndIf
+      Go To 999
+*                                                                      *
+****** AICS************************************************************
+*                                                                      *
+*     Analitical and Numerical Hessian Comparison threshold
+*
+*
+115   Char=Get_Ln(LuRd)
+      If (Char.eq.'False'.or.Char.eq.'false') then
+            anHCt = .False.
+      Else
+            anHCt = .True.
+      EndIf
+      Go To 999
+*                                                                      *
+*                                                                      *
+****** AIHT************************************************************
+*                                                                      *
+*     Numerical threshold for the Hessian
+*
+*
+116   Char=Get_Ln(LuRd)
+      Call Get_F1(1,numHt)
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************
