@@ -684,7 +684,7 @@ c Avoid unused argument warnings
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      Use AI, only: anHe
+      Use AI, only: anHe!, numHt
       Implicit Real*8 (a-h,o-z)
       External Restriction
       Real*8 Restriction
@@ -701,7 +701,7 @@ c Avoid unused argument warnings
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear, Kriging_Hessian
+     &        Curvilinear, Kriging_Hessian!, anHet
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -754,7 +754,8 @@ c Avoid unused argument warnings
          Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 #ifdef _NUM_HESS_
          Hess_Type='numHess'
-         write(6,*) 'kIter en NUM_HESS tkIter',kIter
+         ! write(6,*) 'kIter en NUM_HESS tkIter',kIter
+         ! write(6,*) 'anHe',anHe
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
@@ -767,11 +768,11 @@ c Avoid unused argument warnings
             qInt_Save= qInt(iInter,kIter)
             Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
 #ifdef _PRINT_
-            Write (6,*) 'iInter,Delta=',iInter,Delta
-            Write (6,*) 'qInt_Save,iInter,kIter',qInt_Save,iInter,kIter
+            ! Write (6,*) 'iInter,Delta=',iInter,Delta
+            ! Write (6,*) 'qInt_Save,iInter,kIter',qInt_Save,iInter,kIter
 *
             Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
-            write(6,*) 'qint::',shape(qInt)
+            ! write(6,*) 'qint::',shape(qInt)
 #endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
@@ -806,18 +807,18 @@ c Avoid unused argument warnings
             Do jInter = 1, nInter
                Fact = Half
                If (iInter.eq.jInter) Fact = One
-               write(6,*) 'Hess i j',iInter,jInter
-               write(6,*) 'Fact, Delta',Fact, Delta
-               write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
-               write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
+               ! write(6,*) 'Hess i j',iInter,jInter
+               ! write(6,*) 'Fact, Delta',Fact, Delta
+               ! write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
+               ! write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
-               write(6,*) 'dqp(j)',dqp(jInter)
-               write(6,*) 'dqm(j)',dqm(jInter)
-               write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
-               write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
+               ! write(6,*) 'dqp(j)',dqp(jInter)
+               ! write(6,*) 'dqm(j)',dqm(jInter)
+               ! write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
+               ! write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
             End Do
             ! write (6,*) 'Delta: ', Delta
 *
@@ -864,14 +865,31 @@ c Avoid unused argument warnings
          if (Kriging_Hessian) then
             !Call RecPrt('Hessian Num Rol',' ',qInt,nInter,nInter)
             ! write(6,*) 'shape qint::',shape(qInt)
-            Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
+            ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
 
             ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
-            ! anHe = .False.
-            ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
+            anHet = anHe
+            anHe = .False.
+            Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
             write(6,*) 'kIter in PRINT_HESSIAN', kIter
+            anHe = anHet
             Call RecPrt('Hessian Num Ger',' ',difH,nInter,nInter)
             Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
+      do i = 1,nInter
+         do j = 1,nInter
+            write(6,*) 'i,j',i,j,numHt
+            write(6,*) 'difH, Hessian',difH(i,j),Hessian(i,j)
+            if (abs(Hessian(i,j)-difH(i,j)).gt.numHt) then
+               Write(6,*) 'Error in entry',i,',',j,'of the hes matrix'
+               Call RecPrt('Rol Hess',' ',Hessian,nInter,nInter)
+               Call RecPrt('Ger Hess',' ',difH,nInter,nInter)
+               Write(6,*) 'abs(Hes(i,j)+HessT)',abs(Hessian(i,j)+numHt)
+               Write(6,*) 'abs(Hes(i,j)-HessT)',abs(Hessian(i,j)-numHt)
+               Write(6,*) 'abs(difH(i,j))',abs(difH(i,j))
+               ! Call Abend()
+            endif
+         enddo
+       enddo
 ! Call RecPrt('Hessian Kriging with f','(6F10.4)',Hessian,nInter,nInter)
          endif
 #endif
