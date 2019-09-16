@@ -17,27 +17,27 @@
 !
         Integer nInter,nPoints
         Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
-        nInter_save=nInter
-        nPoints_save=nPoints
 !
         Call mma_Allocate(x,nInter,nPoints,Label="x")
         Call mma_Allocate(dy,nInter*nPoints,Label="dy")
         Call mma_Allocate(y,nPoints,Label="y")
+!
+        Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
+!
+!nx is the n-dimensional vector of the last iteration computed in update_sl
         Call mma_Allocate(nx,nInter,1,Label="nx")
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
-          m_t=nPoints*(1+nInter)
+        m_t=nPoints*(1+nInter)
 !npx is the number of new points (Energy and Gradient) to be predict
 ! according to the iteration that was computed in update_sl subroutine
-          npx = 1
+        npx = 1
 !full_R correspond to the gradient of Psi (eq. (2) ref.)
         Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
         Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
-!nx is the n-dimensional vector of the last iteration cumputed in update_sl
-        Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
 !
-          If (mblAI) sbmev = y(maxloc(y,dim=1))
+        If (mblAI) sbmev = y(maxloc(y,dim=1))
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
