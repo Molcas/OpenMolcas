@@ -20,7 +20,7 @@ C
       anHe = .True.
       anGr = .True.
       anHCt = .True.
-      numHt = 1.0D-3
+      numHt = 1.0D-7
       pAI = 2
       npxAI = 1
       lb(1) = 20.0D0

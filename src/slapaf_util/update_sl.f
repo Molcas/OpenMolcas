@@ -701,7 +701,7 @@ c Avoid unused argument warnings
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear, Kriging_Hessian, OanHe
+     &        Curvilinear, Kriging_Hessian
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -858,14 +858,12 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-#define _PRINT_HESSIAN_
+!#define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
          ! Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
          if (Kriging_Hessian) then
             !Call RecPrt('Hessian Num Rol',' ',qInt,nInter,nInter)
             ! write(6,*) 'shape qint::',shape(qInt)
-            OanHe = anHe ! temp
-            anHe = .False.
             Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
 
             ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
@@ -873,7 +871,6 @@ c Avoid unused argument warnings
             ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
             write(6,*) 'kIter in PRINT_HESSIAN', kIter
             Call RecPrt('Hessian Num Ger',' ',difH,nInter,nInter)
-            anHe = OanHe
             Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
 ! Call RecPrt('Hessian Kriging with f','(6F10.4)',Hessian,nInter,nInter)
          endif

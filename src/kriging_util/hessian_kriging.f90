@@ -15,11 +15,12 @@
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
-#define _Hess_Test
+!#define _Hess_Test
 #ifdef _Hess_Test
         Real*8 Scale,Delta,Fact,tempX(ndimx,1),tgrad(ndimx),thgrad(ndimx)
         Real*8 HessT
-        HessT = numHt!1.0D-8
+!       Numerical Hessian threshold numHt from outside parameter
+        HessT = numHt!1.0D-7
 #endif
         nPoints = nPoints_save
         nInter = nInter_save
@@ -50,14 +51,14 @@
 !
         hpred = 0
         Scale=0.01D0
-        write(6,*) 'Hess Treshold',numHt
+        write(6,*) 'Hess Threshold',numHt
         ! Call RecPrt('x = qInt',' ',x,nInter,nPoints)
         do i = 1,nInter
                 tempx = x_
                 ! Call RecPrt('x = qInt',' ',x_,nInter,1)
                 Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
                 ! write (6,*) 'x-qsave', i, x_(i,1)
-                write (6,*) 'Delta', Delta
+                ! write (6,*) 'Delta', Delta
                 ! write (6,*) 'nx', nx
                 tempx(i,1) = x_(i,1) + Delta
                 ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
