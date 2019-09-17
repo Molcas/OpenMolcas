@@ -17,10 +17,10 @@
 !
 !#define _Grad_Test
 #ifdef _Grad_Test
-        Real*8 Scale,Delta,Fact,tempX(ndimx,1),tgrad(ndimx),thgrad(ndimx)
+        Real*8 Delta,tpred,thpred
         Real*8 GradT
         !       Numerical Gradient-Hessian threshold numHt from outside parameter
-        GradT = numHt!1.0D-7
+        GradT = 1.0D-6
 #endif
         nPoints=nPoints_save
         nInter=nInter_save
@@ -37,26 +37,43 @@
 !
 #ifdef _Grad_Test
        ! Numerical Gradient of GEK
+        write(6,*) 'Begining Numerical Gradient'
+        Delta = 1.0D-4!Max(Abs(x_(i,1)),1.0D-5)*Scale
         do i = 1,nInter
+                nx(:,:) = x_
 !
-        ! write (6,*) 'hpred(npx,i,:): ', i, hpred(npx,i,:)
+                nx(i,1) = x_(i,1) + Delta
+                ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
+!
+                call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(0,nPoints,nInter)
+                tpred = pred(npx)
+
+                nx(i,1) = x_(i,1) - Delta
+                ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
+!
+                call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(0,nPoints,nInter)
+                thpred = pred(npx)
+!
+                gpred(npx,i) = (tpred-thpred)/(2.0D0*Delta)
+!
         enddo
+        write(6,*) 'Gradient Threshold',GradT
         do i = 1,nInter
-                do j = 1,nInter
-                        write(6,*) 'i,j',i,j,HessT
-                        write(6,*) 'hpred, ddy_',hpred(npx,i,j),ddy_(i,j)
-                        if (abs(ddy_(i,j)-hpred(npx,i,j)).gt.HessT) then
-                                Write(6,*) 'Error in entry',i,',',j,'of the hessian matrix'
-                                Call RecPrt('Anna Hess',' ',ddy_,nInter,nInter)
-                                Call RecPrt('Num Hess',' ',hpred,nInter,nInter)
-                                Write(6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+ HessT)
-                                Write(6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)- HessT)
-                                Write(6,*) 'abs(hpred(npx,i,j))',abs(hpred(npx,i,j))
-                                Call Abend()
-                        endif
-                enddo
+                write(6,*) 'i',i
+                write(6,*) 'gpred, dy_',gpred(npx,i),dy_(i)
+                if (abs(dy_(i)-gpred(npx,i)).gt.GradT) then
+                        Write(6,*) 'Error in entry',i,'of the gradient vector'
+                        Call RecPrt('Anna Grad',' ',dy_,1,nInter)
+                        Call RecPrt('Num Grad',' ',gpred,1,nInter)
+                        Write(6,*) 'abs(dy_(i,j)+ HessT)',abs(dy_(i)+ GradT)
+                        Write(6,*) 'abs(dy_(i,j)- HessT)',abs(dy_(i)- GradT)
+                        Write(6,*) 'abs(gpred(npx,i))',abs(gpred(npx,i))
+                        Call Abend()
+                endif
         enddo
-        if (anHe.eqv..False.) ddy_ = hpred(npx,:,:)
+        if (anHe.eqv..False.) dy_ = gpred(npx,:)
 #endif
         return
       end
