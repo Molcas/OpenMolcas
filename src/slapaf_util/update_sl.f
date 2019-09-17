@@ -183,7 +183,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-#define _DEBUG_
+!#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
@@ -338,7 +338,7 @@ c Avoid unused argument warnings
 *
 #ifdef _TEST_KRIGING_
 *
-*           Activate code to check that the kriging is doing an exaxt
+*           Activate code to check that the kriging is doing an exact
 *           interpolation.
 *
             Call mma_Allocate(dq,nInter,Label='dq')
@@ -866,7 +866,7 @@ c Avoid unused argument warnings
             !Call RecPrt('Hessian Num Rol',' ',qInt,nInter,nInter)
             ! write(6,*) 'shape qint::',shape(qInt)
             ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
-
+! --------testing numerical solutions (Roland or Gerardo) with analitical solution
             ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
             anHet = anHe
             anHe = .False.

@@ -56,7 +56,7 @@
         do i = 1,nInter
                 tempx = x_
                 ! Call RecPrt('x = qInt',' ',x_,nInter,1)
-                Delta = Max(Abs(x_(i,1)),1.0D-5)*Scale
+                Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
                 ! write (6,*) 'x-qsave', i, x_(i,1)
                 ! write (6,*) 'Delta', Delta
                 ! write (6,*) 'nx', nx
