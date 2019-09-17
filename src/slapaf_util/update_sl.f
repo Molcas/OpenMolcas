@@ -624,7 +624,7 @@ c Avoid unused argument warnings
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
-      Real*8, Allocatable:: Hessian(:,:), difH(:,:)
+      Real*8, Allocatable:: Hessian(:,:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -659,7 +659,6 @@ c Avoid unused argument warnings
 *
 *
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
-      Call mma_Allocate(difH,nInter,nInter,Label='difH')
       If (Kriging_Hessian) Then
 *
 *        Temporary code until we have the 2nd derivatives from the
@@ -1155,7 +1154,6 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_Deallocate(difH)
       Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)

@@ -12,7 +12,7 @@
 !***********************************************************************
       module globvar
         use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI, &
-                        blavAI, anHe, numHt
+                        blavAI
         use kriging
         real*8, allocatable ::  &
                 rl(:,:,:), dl(:,:), full_Rinv(:,:), &

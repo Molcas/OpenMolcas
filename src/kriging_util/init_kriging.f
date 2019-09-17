@@ -17,10 +17,6 @@ C
       Kriging = .False.
       nspAI = 3
       anMd = .True.
-      anHe = .True.
-      anGr = .True.
-      anHCt = .True.
-      numHt = 1.0D-7
       pAI = 2
       npxAI = 1
       lb(1) = 20.0D0

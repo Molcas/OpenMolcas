@@ -19,7 +19,6 @@
 #ifdef _Grad_Test
         Real*8 Delta,tpred,thpred
         Real*8 GradT
-        !       Numerical Gradient-Hessian threshold numHt from outside parameter
         GradT = 1.0D-6
 #endif
         nPoints=nPoints_save
@@ -43,14 +42,12 @@
                 nx(:,:) = x_
 !
                 nx(i,1) = x_(i,1) + Delta
-                ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
 !
                 call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                 call predict(0,nPoints,nInter)
                 tpred = pred(npx)
 
                 nx(i,1) = x_(i,1) - Delta
-                ! Call RecPrt('x(1,i) + Delta = qIntp',' ',tempx(:,1),nInter,1)
 !
                 call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                 call predict(0,nPoints,nInter)
@@ -73,7 +70,6 @@
                         Call Abend()
                 endif
         enddo
-        if (anHe.eqv..False.) dy_ = gpred(npx,:)
 #endif
         return
       end
