@@ -32,8 +32,5 @@ C
       blaAI = .True.
       blavAI=0.04D0
 *
-      nInter_save=-1
-      nPoints_save=-1
-*
       Return
       End

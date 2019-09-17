@@ -101,10 +101,6 @@
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
       Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
-*define _TEST_KRIGING_
-#ifdef _TEST_KRIGING_
-      Real*8, Allocatable:: dq(:), dqvalue(:,:)
-#endif
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -336,82 +332,6 @@ c Avoid unused argument warnings
             End If
             Call Put_dScalar('Value_l',Value_l)
 *
-#ifdef _TEST_KRIGING_
-*
-*           Activate code to check that the kriging is doing an exact
-*           interpolation.
-*
-            Call mma_Allocate(dq,nInter,Label='dq')
-            ThrT=1.0D-5
-            Do i = iFirst, iFirst+nRaw-1
-               Call Energy_Kriging(qInt(1,i),E_test,nInter)
-               Test=Abs(E_test-Energy(i))
-*              Write (*,*) 'Test=',Test
-               If (Test.gt.ThrT) Then
-                  Write (6,*) 'Kriging error in energy'
-                  Write (6,*) E_test,Energy(i)
-                  Call Abend()
-               End If
-               Call Dispersion_Kriging(qInt(1,i),Dummy,nInter)
-               E_Disp = Dummy
-*              Write (6,*) 'E_Disp=',E_disp
-               If (E_disp.gt.ThrT) Then
-                  Write (6,*) 'Kriging error in dispersion'
-                  Write (6,*) E_Disp
-                  Call Abend()
-               End If
-               Call Gradient_Kriging(qInt(1,i),dq,nInter)
-               Call DScal_(nInter,-One,dq,1)
-               Do iInter = 1, nInter
-                  Test=Abs(dq(iInter)-Grad(iInter,i))
-*                 Write (*,*) 'Test(grad)=',Test
-                  If (Test.gt.ThrT) Then
-                     Write (6,*) 'Kriging error in gradient'
-                     Write (6,*) dq(iInter),Grad(iInter,i)
-                     Call Abend()
-                  End If
-               End Do
-               Call DScal_(nInter,-One,dq,1)
-            End Do
-*
-*           Test of gradient
-*
-#ifdef _NOT_TESTED_YET_
-            iNext=iFirst+nRaw
-            Call DCopy_(nInter,[Zero],0,qInt(1,iNext),1)
-            Call Gradient_Kriging(qInt(1,iNext),dq,nInter)
-            Delta = 1.0D-4
-            Do i = 1, nInter
-               q_save=qInt(i,iNext)
-               qInt(i,iNext)=q_save+Delta
-               Call Energy_Kriging(qInt(1,iNext),Ep,nInter)
-               qInt(i,iNext)=q_save-Delta
-               Call Energy_Kriging(qInt(1,iNext),Em,nInter)
-               dEdq=(Ep-Em)/(Two*Delta)
-               If (Abs(dEdq-dq(i)).gt.ThrT) Then
-                  Write (6,*) 'Kriging error in exp. gradient'
-                  Write (6,*) dq(i),dEdq
-                  Call Abend()
-               End If
-               qInt(i,iNext)=q_save
-            End Do
-#endif
-*
-            Call mma_DeAllocate(dq)
-*
-            If (Iter-1.gt.0) Then
-               mIter=Iter-1
-               Call mma_Allocate(dqvalue,mIter,mIter,Label='dqvalue')
-               Do i = 1, mIter
-                  Do j = 1, mIter
-                     dqvalue(i,j) =
-     &                DDot_(nInter,Shift(1,i),1,Shift(1,j),1)
-                  End Do
-               End Do
-               Call RecPrt('dqValue',' ',dqvalue,mIter,mIter)
-               Call mma_DeAllocate(dqvalue)
-            End If
-#endif
 *
 *           Start the Kriging loop.
 *
@@ -684,7 +604,6 @@ c Avoid unused argument warnings
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      Use AI, only: anHe!, numHt
       Implicit Real*8 (a-h,o-z)
       External Restriction
       Real*8 Restriction
@@ -701,16 +620,11 @@ c Avoid unused argument warnings
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear, Kriging_Hessian!, anHet
+     &        Curvilinear, Kriging_Hessian
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
       Real*8, Allocatable:: Hessian(:,:), difH(:,:)
-      Character Hess_type*8
-!#define _NUM_HESS_
-#ifdef _NUM_HESS_
-      Real*8, Allocatable:: dqp(:), dqm(:)
-#endif
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -752,96 +666,14 @@ c Avoid unused argument warnings
 *        kriging code.
 *
          Call DCopy_(nInter**2,[Zero],0,Hessian,1)
-#ifdef _NUM_HESS_
-         Hess_Type='numHess'
-         ! write(6,*) 'kIter en NUM_HESS tkIter',kIter
-         ! write(6,*) 'anHe',anHe
-         Call mma_Allocate(dqp,nInter,Label='dqp')
-         Call mma_Allocate(dqm,nInter,Label='dqm')
-         Scale=0.01D0
-#define _PRINT_
-#ifdef _PRINT_
-         Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
-         Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
-#endif
-         Do iInter = 1, nInter
-            qInt_Save= qInt(iInter,kIter)
-            Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
-#ifdef _PRINT_
-            ! Write (6,*) 'iInter,Delta=',iInter,Delta
-            ! Write (6,*) 'qInt_Save,iInter,kIter',qInt_Save,iInter,kIter
-*
-            Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
-            ! write(6,*) 'qint::',shape(qInt)
-#endif
-*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
-*           Write (6,*) 'Energy=',E_test
-            Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
-#ifdef _PRINT_
-            Call RecPrt('dq0',' ',dqp,nInter,1)
-#endif
-*
-            qInt(iInter,kIter) = qInt_Save + Delta
-#ifdef _PRINT_
-            Call RecPrt('qIntp_cord+Del',' ',qInt(1,kIter),nInter,1)
-#endif
-*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
-*           Write (6,*) 'Energy=',E_test
-            Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
-#ifdef _PRINT_
-            Call RecPrt('dqp=Grad(cord+Del)',' ',dqp,nInter,1)
-#endif
-
-            qInt(iInter,kIter)=qInt_Save - Delta
-#ifdef _PRINT_
-            Call RecPrt('qIntm_Cord-Del',' ',qInt(1,kIter),nInter,1)
-#endif
-*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
-*           Write (6,*) 'Energy=',E_test
-            Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
-#ifdef _PRINT_
-            Call RecPrt('dqm=Grad(cord-Del)',' ',dqm,nInter,1)
-            Call RecPrt('Hessian(0)',' ',Hessian(iInter,:),1,nInter)
-#endif
-*
-            Do jInter = 1, nInter
-               Fact = Half
-               If (iInter.eq.jInter) Fact = One
-               ! write(6,*) 'Hess i j',iInter,jInter
-               ! write(6,*) 'Fact, Delta',Fact, Delta
-               ! write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
-               ! write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
-               Hessian(iInter,jInter) = Hessian(iInter,jInter)
-     &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
-               Hessian(jInter,iInter) = Hessian(jInter,iInter)
-     &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
-               ! write(6,*) 'dqp(j)',dqp(jInter)
-               ! write(6,*) 'dqm(j)',dqm(jInter)
-               ! write(6,*) 'Hessian(i,j)',Hessian(iInter,jInter)
-               ! write(6,*) 'Hessian(j,i)',Hessian(jInter,iInter)
-            End Do
-            ! write (6,*) 'Delta: ', Delta
-*
-            qInt(iInter,kIter)=qInt_Save
-         End Do
-         Call mma_Deallocate(dqp)
-         Call mma_Deallocate(dqm)
-#else
-         If (anHe) then
-            Hess_Type='AnaHeKri'
-         else
-            Hess_Type='NumHeKri'
-         endif
          Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
-#endif
          iNeg(1)=0
          iNeg(2)=0
          HUpMet=' GPR'
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Hessian,nInter**2)
-         Hess_Type = 'NormHess'
 *
 *        Perform the Hessian update
 *
@@ -859,40 +691,6 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-!#define _PRINT_HESSIAN_
-#ifdef _PRINT_HESSIAN_
-         ! Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
-         if (Kriging_Hessian) then
-            !Call RecPrt('Hessian Num Rol',' ',qInt,nInter,nInter)
-            ! write(6,*) 'shape qint::',shape(qInt)
-            ! Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
-! --------testing numerical solutions (Roland or Gerardo) with analitical solution
-            ! Call RecPrt('Hessian Ana','(6F10.4)',difH,nInter,nInter)
-            anHet = anHe
-            anHe = .False.
-            Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
-            write(6,*) 'kIter in PRINT_HESSIAN', kIter
-            anHe = anHet
-            Call RecPrt('Hessian Num Ger',' ',difH,nInter,nInter)
-            Call RecPrt(Hess_Type,' ',Hessian,nInter,nInter)
-      do i = 1,nInter
-         do j = 1,nInter
-            write(6,*) 'i,j',i,j,numHt
-            write(6,*) 'difH, Hessian',difH(i,j),Hessian(i,j)
-            if (abs(Hessian(i,j)-difH(i,j)).gt.numHt) then
-               Write(6,*) 'Error in entry',i,',',j,'of the hes matrix'
-               Call RecPrt('Rol Hess',' ',Hessian,nInter,nInter)
-               Call RecPrt('Ger Hess',' ',difH,nInter,nInter)
-               Write(6,*) 'abs(Hes(i,j)+HessT)',abs(Hessian(i,j)+numHt)
-               Write(6,*) 'abs(Hes(i,j)-HessT)',abs(Hessian(i,j)-numHt)
-               Write(6,*) 'abs(difH(i,j))',abs(difH(i,j))
-               ! Call Abend()
-            endif
-         enddo
-       enddo
-! Call RecPrt('Hessian Kriging with f','(6F10.4)',Hessian,nInter,nInter)
-         endif
-#endif
 *
 *     Save the number of internal coordinates on the runfile.
 *
