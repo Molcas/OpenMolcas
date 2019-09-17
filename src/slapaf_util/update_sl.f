@@ -179,7 +179,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-!#define _DEBUG_
+*#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
@@ -193,11 +193,11 @@ c Avoid unused argument warnings
 #ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
-            ! write (6,*) qInt(1:nInter,1:nRaw)
+*
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
-            ! write (6,*) Energy(1:nRaw)
+*
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
-            ! write (6,*) Grad(1:nInter,1:nRaw)
+*
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 #endif
 *
@@ -295,7 +295,7 @@ c Avoid unused argument warnings
 *           ab inito value with the GEK prediction of the gradient.
 *
             Call Get_dScalar('Value_l',Value_l)
-*           Write (6,*) 'Pull l value:',Value_l
+*
             If (iter.gt.nspAI) Then
                iOld=iFirst+nRaw-2
                xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
@@ -665,7 +665,7 @@ c Avoid unused argument warnings
 *        kriging code.
 *
          Call DCopy_(nInter**2,[Zero],0,Hessian,1)
-         Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
+         Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
          iNeg(1)=0
          iNeg(2)=0

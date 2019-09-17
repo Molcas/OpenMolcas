@@ -45,7 +45,6 @@
             detR = 0.0d0
             sign = 1
             do i=1,m_t
-                ! if (A(i,i).le.0) sign=sign*(-1)
                 detR = detR + log(abs(A(i,i)))
             enddo
             ! detR = detR*sign
@@ -61,28 +60,17 @@
             else
                  sb = sbO
             endif
-        !   Write (6,*) 'K: x=',x
-        !   Write (6,*) 'K: sb=',sb
-        !   Write (6,*) 'K: y=',y
-        !   Write (6,*) 'K: dy=',dy
 !
             B(:) = [y-sb,dy]
             Kv(:)=B
-! ----------------Old calculations --K2
+!
             A(:,:)=full_r
-        !   Write (6,*) 'K: B(Ys)[y-sb,dy]=',B
-        !   Write (6,*) 'K: Full_r=A=',A
+!
             CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
-!------------------------------------
+!
 !Likelihood function
             variance = dot_product(B,Kv)/m_t
             lh = variance*exp(detR/dble(m_t))
-!
-            ! write(6,*) 'detR',detR
-            ! write(6,*) 'Kv orig:',Kv
-            ! write(6,*) 'Variance:',variance
-            ! write(6,*) 'm_t',m_t
-            ! write(6,*) 'lh',lh
 !
             Call mma_Deallocate(B)
             Call mma_Deallocate(A)

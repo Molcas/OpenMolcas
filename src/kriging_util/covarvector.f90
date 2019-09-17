@@ -24,9 +24,7 @@
             cv = 0
             i0 = 0
             call defdlrl(iter,nInter)
-!           write(6,*) 'x: ',x
-!           write(6,*) 'nx: ',nx
-            ! write(6,*) 'gh: ',gh
+!
 ! Covariant Vector in kriging - First part of eq (4) in ref.
 !
             if (gh.eq.0) then
@@ -40,21 +38,16 @@
                     i1 = i0 + iter - 1
                     cv(i0:i1,:,1,1) = cvMatFder * diffx
                 enddo
-                ! write (6,*) 'CV-mat',cv
 ! Covariant vector in Gradient Enhanced Kriging
 !
             else if(gh.eq.1) then
 !
-                ! print *,'covar vector calling deriv(2) for Kriging Gradients'
                 call matderiv(1, dl, cvMatFder, iter, npx)
-                ! Call RecPrt('cvMatFder',' ',cvMatFder,iter,npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
-                ! Call RecPrt('cvMatSder',' ',cvMatSder,iter,npx)
                 do i=1,nInter
                     diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
                     cv(1:iter,:,i,1) = -cvMatFder * diffx
                     do j = 1,nInter
-                        ! if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
                         diffx0(:,:) = -2.0D0*rl(:,:,j)/l(j)
@@ -63,16 +56,12 @@
                         else
                            cv(j0:j1,:,i,1) = cvMatSder * diffx*diffx0
                         end if
-                        ! Write (6,*) 'cvMatSder - Krig Grad: ',cvMatSder
-                        ! write (6,*) 'CV',cv(:,:,:,1)
                     enddo
                 enddo
-                ! Write (6,*) 'CV - Krig Grad: ',cv
 !
             else if(gh.eq.2) then
 !
                 !    print *,'covar vector calling deriv(3) for Kriging Hessian'
-                ! anAI = .False.
                 call matderiv(1, dl, cvMatFder, iter, npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
                 call matderiv(3, dl, cvMatTder, iter, npx)
@@ -106,13 +95,10 @@
                         enddo
                     enddo
                 enddo
-                ! Write (6,*) 'CV - Krig Hessian: ',cv
             else
                 Write (6,*) ' Illegal value of gh:',gh
                 Call Abend()
             endif
-            ! Write (6,*) 'CV shape: ',shape(CV)
-            ! write (6,*) 'CV: ',CV
 !
             Call mma_deallocate(diffx)
             Call mma_deallocate(diffx0)
@@ -128,12 +114,8 @@
                 do j=1,iter
                     do k=1,int(npx)
                         rl(j,k,i) = (x(i,j) - nx(i,k))/l(i)
-                        ! write (6,*) i,j,k,'rl,x,nx',rl(j,k,i),x(i,j),nx(i,k),l(i)
                     enddo
                 enddo
-                !write(6,*) 'CV-rl',i,rl
                 dl(:,:) = dl(:,:) + rl(:,:,i)**2
             enddo
-            ! write (6,*) 'rl',rl
-            !isdefdlrl = .True.
         END Subroutine defdlrl

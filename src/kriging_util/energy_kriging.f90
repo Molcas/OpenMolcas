@@ -23,9 +23,6 @@
 ! subroutine
         nx(:,:) = x_
 !
-!       Write(6,*) 'Entro predict x_', x_
-!       Write(6,*) 'nx', nx
-!       Write(6,*) 'ndimx', ndimx
 
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)

@@ -70,20 +70,13 @@
                         case (2)
                             select case (nd)
                                 case (1)
-                                    ! m = -c*dh*(1.0+t*dh) !New way
                                     m =-c*(1.0D0+t*dh)/2.0d0
-                                    ! write (6,*) '1d m',m
                                 case (2)
-                                    ! m = c*(dh*(5*dh-t)+1) !New way
                                     m = c*5.0D0/4.0D0
-                                    ! write (6,*) '2d m',m
                                 case (3)
-                                    ! m = -c*dh*(5*t*dh-15) !New way
                                     m = merge(-5.0D0/8.0D0*t/dh,dh,dh.ne.0)*c
-                                    ! write (6,*) '3d m',m
                             end select
                         case (3)
-                            ! write (6,*) 'Analitical Matern derivatives num',nd
                             select case (nd)
                                 case (1)
                                     m =-c*(1.0D0+t*dh+dh**2)/2.0D0
@@ -91,7 +84,6 @@
                                     m = c*7.0D0*(1.0D0+t*dh)/12.0D0
                                 case (3)
                                     m = -c*49.0D0/24.0D0
-                                    ! write (6,*) '3th der dh',dh
                             end select
                     end select
                 endif
