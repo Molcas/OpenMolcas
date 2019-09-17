@@ -12,11 +12,15 @@
 !***********************************************************************
       module kriging
         real*8, allocatable, protected :: x(:,:), y(:), dy(:)
+        Integer, protected :: nInter_save, nPoints_save
         contains
 !
       Subroutine Setup_Kriging(nPoints,nInter,x_,dy_,y_)
 !
         Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
+!
+        nInter_save = nInter
+        nPoints_save = nPoints
 !
 !x is the n-dimensional internal coordinates
           x(:,:) = x_(:,:)

@@ -26,5 +26,4 @@
                   eps = 1e-14, eps2 = 1e-14
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
         integer prev_ns, m_t, npx, counttimes
-        Integer nInter_save, nPoints_save
       end module globvar

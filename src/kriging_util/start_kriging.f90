@@ -17,8 +17,6 @@
 !
         Integer nInter,nPoints
         Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
-        nInter_save=nInter
-        nPoints_save=nPoints
 !
         Call mma_Allocate(x,nInter,nPoints,Label="x")
         Call mma_Allocate(dy,nInter*nPoints,Label="dy")
