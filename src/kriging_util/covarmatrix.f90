@@ -91,7 +91,7 @@
 !           definig full_r has srictly possitive define sec. 3 of
 !           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
             ! full_R = abs(full_R)
-        !   Call RecPrt('full_r',  ' ',full_R,m_t,m_t)
+        !   Call RecPrt('full_r Orig:',  ' ',full_R,m_t,m_t)
 !
             Call mma_deallocate(diffx)
             Call mma_deallocate(diffx0)

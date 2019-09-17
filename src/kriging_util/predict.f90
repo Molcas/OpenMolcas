@@ -31,10 +31,6 @@
                     A(:,:) = full_R
                     B(:) = CV(:,j,1,1)
                     CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-                    !-----------------New
-                    ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
-                    ! B = CV(:,j,1,1)
-                    ! B = matmul(B,full_Rinv)
                     !--------------------
                     ! write (6,*) 'R^(-1)*CV', B
                     ! write (6,*) 'size', size(B)
@@ -44,12 +40,6 @@
                     var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
                     sigma(j)=1.96D0*sqrt(abs(var(j)*variance))
                     pred(j) = sb + dot_product(B,Kv)
-                    !   write(6,*) 'pred:',pred(j)
-                    !   write(6,*) 'var:',var
-                    !   write(6,*) 'variance',variance
-                    !   write(6,*) 'sigma',sigma,'lh',lh
-                    !   write(6,*) 'tcv(j,:)',B
-                    !   write(6,*) 'Kv',Kv
                     Call mma_deallocate(A)
                     Call mma_deallocate(IPIV)
                 else if (gh.eq.1) then
@@ -69,16 +59,22 @@
                     ! write(6,*) 'kv: ',kv
                     ! Predicting the Hessian gh = 2
                     do k=1,nInter
-                       do i=1,nInter
+                       do i=k,nInter
                           B(:) = cv(:,j,i,k)
                           ! write(6,*) 'tcv', i,k,tcv
                           !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
                           hpred(j,k,i) = dot_product(B, Kv)
-                          !write (6,*) 'partial hpred',hpred(j,k,i)
+                          if (i.ne.k) then
+                            hpred(j,i,k) = hpred(j,k,i)
+                          else
+                            hpred(j,k,i) = 2.0D0*hpred(j,k,i)
+                          endif
+                        !   write (6,*) 'partial hpred',hpred(j,k,i)
                           ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
                           !     var,variance,sigma, lh, tcv
                        enddo
                     enddo
+                    ! Call RecPrt('Anna Hess',' ',hpred,nInter,nInter)
                     ! write (6,*) 'pred hess(hpred):',hpred
                 endif
             enddo ! j=1, npx

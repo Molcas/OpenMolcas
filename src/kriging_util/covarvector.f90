@@ -26,6 +26,7 @@
             call defdlrl(iter,nInter)
 !           write(6,*) 'x: ',x
 !           write(6,*) 'nx: ',nx
+            ! write(6,*) 'gh: ',gh
 ! Covariant Vector in kriging - First part of eq (4) in ref.
 !
             if (gh.eq.0) then
@@ -42,7 +43,7 @@
                 ! write (6,*) 'CV-mat',cv
 ! Covariant vector in Gradient Enhanced Kriging
 !
-            else if(gh.ge.1) then
+            else if(gh.eq.1) then
 !
                 ! print *,'covar vector calling deriv(2) for Kriging Gradients'
                 call matderiv(1, dl, cvMatFder, iter, npx)
@@ -70,7 +71,7 @@
 !
             else if(gh.eq.2) then
 !
-!                    print *,'covar vector calling deriv(3) for Kriging Hessian'
+                !    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 ! anAI = .False.
                 call matderiv(1, dl, cvMatFder, iter, npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
@@ -79,33 +80,33 @@
                     diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
                     sdiffx = 2.0D0/l(i)**2
                     do j = 1, nInter
-                        diffx0(:,:) = -2.0D0*rl(:,:,j)/l(j)
+                        diffx0(:,:) = 2.0D0*rl(:,:,j)/l(j)
                         sdiffx0 = 2.0D0/l(j)**2
                         if (i.eq.j) Then
-                           cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0 - cvMatFder*2.0D0/(l(i)*l(j))
+                           cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0 + cvMatFder*2.0D0/(l(i)*l(j))
                         else
                            cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0
                         end if
                         do k = 1, nInter
-                            diffxk(:,:) = - 2.0D0*rl(:,:,k)/l(k)
-                            sdiffxk = 2.0D0/l(i)**2
+                            diffxk(:,:) = 2.0D0*rl(:,:,k)/l(k)
+                            sdiffxk = 2.0D0/l(k)**2
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
-                                cv(k0:k1,:,i,j) = (cvMatTder*diffx0**3 + 3.0D0*cvMatSder*diffx0*sdiffx0)
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk + 3.0D0*cvMatSder*diffx*sdiffx0
                             else if (i.eq.j) then
-                                cv(k0:k1,:,i,j) = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk + cvMatSder*diffxk*sdiffx
                             else if (i.eq.k) then
-                                cv(k0:k1,:,i,j) = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk + cvMatSder*diffx0*sdiffx
                             else if (j.eq.k) then
-                                cv(k0:k1,:,i,j) = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk + cvMatSder*diffx*sdiffxk
                             else
                                 cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk
                             endif
                         enddo
                     enddo
                 enddo
-                !Write (6,*) 'CV - Krig Hessian: ',cv
+                ! Write (6,*) 'CV - Krig Hessian: ',cv
             else
                 Write (6,*) ' Illegal value of gh:',gh
                 Call Abend()
