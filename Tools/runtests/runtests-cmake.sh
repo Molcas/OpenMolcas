@@ -10,7 +10,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2013, Steven Vancoillie                                *
-#               2016-2018, Ignacio Fdez. Galván                        *
+#               2016-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # runtests-cmake -- run verification tests
@@ -387,6 +387,8 @@ test_configfile () {
         CACHEDIR=`cmake --version | awk '{print $3}'`
         rm -f $REPO.$BRANCH-build/CMakeCache.txt 2> /dev/null
         rm -f $REPO.$BRANCH-build/CMakeFiles/$CACHEDIR/* 2> /dev/null
+        rm -rf $REPO.$BRANCH-build/CMakeFiles/mod 2> /dev/null
+        rm -rf $REPO.$BRANCH-build/mod 2> /dev/null
     else
         mkdir $REPO.$BRANCH-build
     fi
@@ -420,6 +422,7 @@ test_configfile () {
         echo "### BEGIN ###"            >> $outfile
         cat ../../${testconfig}.cmake   >> $outfile
         echo "#### END ####"            >> $outfile
+        echo "runtests version: 190918" >> $outfile
     done
 
     # if something goes wrong it is useful to have more verbose log files
@@ -450,6 +453,8 @@ test_configfile () {
             (cd ../$REPO.$BRANCH && git checkout $commit && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            rm -rf CMakeFiles/mod 2> /dev/null
+            rm -rf mod 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
             then
                 echo ":: good $commit" >> auto.log
@@ -464,6 +469,8 @@ test_configfile () {
         (cd ../$REPO.$BRANCH && git checkout $BRANCH && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+        rm -rf CMakeFiles/mod 2> /dev/null
+        rm -rf mod 2> /dev/null
         $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
         # end logfiles with the date
@@ -535,6 +542,8 @@ test_configfile () {
             (cd ../$REPO.$BRANCH && git checkout $commit && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            rm -rf CMakeFiles/mod 2> /dev/null
+            rm -rf mod 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good $commit" >> auto.log
@@ -549,6 +558,8 @@ test_configfile () {
         (cd ../$REPO.$BRANCH && git checkout $BRANCH && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+        rm -rf CMakeFiles/mod 2> /dev/null
+        rm -rf mod 2> /dev/null
         $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
     fi

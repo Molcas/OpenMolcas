@@ -10,7 +10,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2013, Steven Vancoillie                                *
-#               2016-2018, Ignacio Fdez. Galván                        *
+#               2016-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # runtests-configure -- run verification tests
@@ -407,6 +407,7 @@ test_configfile () {
         echo "### BEGIN ###"            >> $outfile
         cat ../../${testconfig}.flags   >> $outfile
         echo "#### END ####"            >> $outfile
+        echo "runtests version: 190918" >> $outfile
     done
 
     # run configure and make
