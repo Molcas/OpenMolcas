@@ -248,9 +248,10 @@
       End If
 *
 *     Select between single or multiple l values.
+*     Multiple option still experimental.
 *
-*     Single_l_value=.True.
-      Single_l_value=.False.
+      Single_l_value=.True.
+*     Single_l_value=.False.
       If (Single_l_value) Then
          Call set_l_kriging([Value_l],1)
       Else
