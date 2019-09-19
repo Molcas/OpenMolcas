@@ -24,7 +24,19 @@
 *                                                                      *
       rmax=Zero
       Do i = 1, nInter
-         Array_l(i)=One/Sqrt(Abs(Hessian(i,i)))
+         iCase=1
+         If (iCase.eq.1) Then
+            Array_l(i)=One/Sqrt(Abs(Hessian(i,i)))
+         Else If (iCase.eq.2) Then
+            Array_l(i)=One/Abs(Hessian(i,i))
+         Else If (iCase.eq.3) Then
+            Array_l(i)=Abs(Hessian(i,i))
+         Else If (iCase.eq.4) Then
+            Array_l(i)=Sqrt(Abs(Hessian(i,i)))
+         Else
+            Write (6,*) 'set_l_array: illegal iCase value'
+            Call Abend()
+         End If
          If (Array_l(i).gt.rmax) rmax=Array_l(i)
       End Do
 *     Call RecPrt('Raw',' ',Array_l,1,nInter)
