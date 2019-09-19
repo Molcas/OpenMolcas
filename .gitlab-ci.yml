@@ -134,11 +134,11 @@ include:
     - |
       if [ -n "${CI_NODE_INDEX}" ] ; then
         pymolcas verify --flatlist ${tests} > filelist
-        export subset_size=$(($(wc -l < filelist)/${CI_NODE_TOTAL}))
-        split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
-        if [ -f "fl${CI_NODE_INDEX}" ] ; then
-          pymolcas verify --status --fromfile fl${CI_NODE_INDEX}
+        if ( ! which python && which python3 ) ; then
+          sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
         fi
+        ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        pymolcas verify --status --fromfile fl
       else
         pymolcas verify --status ${tests}
       fi
@@ -230,10 +230,10 @@ test:dummy:
   script:
     - >
       echo "No source code changes"
-  except:
+  only:
     refs:
-      - tags
-      - master@Molcas/OpenMolcas
+      - merge_requests
+  except:
     <<: *sources
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
