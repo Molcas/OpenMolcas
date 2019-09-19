@@ -140,8 +140,17 @@ c Avoid unused argument warnings
 *
       iOpt_RS=0
       Kriging_Hessian =.FALSE.
-      If (iter.eq.NmIter.and.NmIter.ne.1) Then
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*     Select between numerical evaluation of the Hessian or a molcular
+*     geometry optimization.
 *
+      If (iter.eq.NmIter.and.NmIter.ne.1) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
 *------- On the first iteration after a numerical evaluation of the
 *        Hessian we like the step to be relative to the initial
 *        structure.
@@ -165,7 +174,9 @@ c Avoid unused argument warnings
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,Restriction_step,
      &                   iOpt_RS)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
 *
@@ -176,8 +187,15 @@ c Avoid unused argument warnings
 *
          Call GetMem('t_qInt ','Free','Real',iptmp2,nInter*(iter_+1))
          Call GetMem('t_Shift','Free','Real',iptmp1,nInter*iter_)
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Else
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *        ------- AI loop begin here
 *#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
@@ -191,7 +209,6 @@ c Avoid unused argument warnings
             dqdq=Zero
             qBeta=Beta
 #ifdef _DEBUG_
-            Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
 *
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
@@ -200,16 +217,19 @@ c Avoid unused argument warnings
 *
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 #endif
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Pass the data point to the GEK routine. Remember to
 *           change the sign of the gradients.
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Note that we could have some kind of sorting here if we
 *           like!
 *
 *define _UNSORTED_
 #ifdef _UNSORTED_
-            Write (6,*) 'Unsorted'
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
@@ -217,7 +237,9 @@ c Avoid unused argument warnings
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 #else
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Sort the data so that it some in an order of the points
 *           closest to the last point. Make sure that the reference
 *           point is the last point such that is always will define
@@ -256,7 +278,6 @@ c Avoid unused argument warnings
      &                         Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
                   End Do
                   Distance = sqrt(Distance)
-*                 Write (*,*) 'jter,Distance=',jter,Distance
 *
                   If (Distance.gt.Thr_low .and.
      &                Distance.lt.Thr_high) Then
@@ -290,7 +311,9 @@ c Avoid unused argument warnings
             Call mma_deAllocate(qInt_s)
             Call mma_deAllocate(Grad_s)
 #endif
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Update the l value dynamically. Here we compare the actual,
 *           ab inito value with the GEK prediction of the gradient.
 *
@@ -301,7 +324,6 @@ c Avoid unused argument warnings
                xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-*              Write (*,*) 'yyy,xxx=',yyy,xxx
                If (yyy.gt.xxx) Then
                   Value_l=Value_l * 0.95D0
                Else
@@ -313,7 +335,8 @@ c Avoid unused argument warnings
 *              Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
 *    &                       1.0D-6)
             End If
-*           Write (6,*) 'Modified l value:',Value_l
+*
+*           Select between single or multiple l values.
 *
 *           Single_l_value=.True.
             Single_l_value=.False.
@@ -331,17 +354,27 @@ c Avoid unused argument warnings
                Call mma_DeAllocate(Array_l)
             End If
             Call Put_dScalar('Value_l',Value_l)
-*
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Start the Kriging loop.
 *
             Not_Converged = .True.
             do while (Not_Converged)
+
+*                                                                      *
+************************************************************************
+*                                                                      *
                kIter_=iterAI
 #ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'Do iterAI: ',iterAI
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*              Compute the updated structure.
+*
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,iOptC,Beta,Beta_Disp,
      &                Lbl,GNrm,Energy,
@@ -365,22 +398,18 @@ c Avoid unused argument warnings
                Else
                   UpMeth='RV-RFO'
                End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *              Compute the step length from the last ab inito point
 *              to the most recent krining point.
 *
                dqdq=Zero
-*              Write (6,*) 'iterAI+1=',iterAI+1
-*              Write (6,*) 'iFirst+nRaw-1=',iFirst+nRaw-1
                Do iInter=1,nInter
-*                 Write (6,*) qInt(iInter,iterAI+1)
-*    &                 ,qInt(iInter,iFirst+nRaw-1)
                   dqdq=(qInt(iInter,iterAI+1)
      &                 -qInt(iInter,iFirst+nRaw-1))**2
                End Do
                If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
-*              Write (6,*) 'dqdq=',dqdq
-*              Write (6,*) 'qBeta**2=',qBeta**2
 #ifdef _TEST1_
                If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
 *
@@ -395,17 +424,14 @@ c Avoid unused argument warnings
      &                       *(qInt(iInter,iterAI)-
      &                         qInt(iInter,iFirst+nRaw-1))
                   End Do
-*                 Write (6,*) 'Sh2,shD,D2=',sh2,shD,D2
                   D2 = D2 - qBeta**2
                   shD=Two*shD
                   D2=D2/sh2
                   shD=shD/sh2
-*                 Write (6,*) 'shD,D2=',shD,D2
 *
 *                 compute the scaling factor
 *
                   alpha=-shD/Two + Sqrt((shD/Two)**2 - D2)
-*                 Write (6,*) 'alpha=',Alpha
 *
 *                 rescale the step
 *
@@ -417,10 +443,12 @@ c Avoid unused argument warnings
 *
                   dqdq=qBeta**2
                   Step_trunc='*'
-                  Write (6,*) ' Step has been scaled'
+*                 Write (6,*) ' Step has been scaled'
                End If
 #endif
-
+*                                                                      *
+************************************************************************
+*                                                                      *
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
 *
@@ -432,23 +460,29 @@ c Avoid unused argument warnings
                Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
      &                               nInter)
                Call DScal_(nInter,-One,Grad(1,iterAI+1),1)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
                iterK  = iterK  + 1
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)
-*
 #ifdef _DEBUG_
                Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
-*              Write (6,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
-*              Write (6,*) 'dEner=',dEner
+*                                                                      *
+************************************************************************
+*                                                                      *
+*              Check on convergence criterions.
+*
                If (ThrEne.gt.Zero) Then
+*                 Convergence on energy criterions.
                   Not_Converged = Abs(dEner).ge.ThrEne
                   Not_Converged = Not_Converged .and. iterK.lt.miAI
                   Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
                Else
+*                 Use standard convergence criterions
                   FAbs=Sqrt(DDot_(nInter,Grad(1,iterAI),1,
      &                                  Grad(1,iterAI),1)/DBLE(nInter))
                   RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
@@ -460,33 +494,41 @@ c Avoid unused argument warnings
                      RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
                   End Do
 *
-*                 Write (6,*) 'FAbs,GrdMx,RMS,RMSMx:',
-*    &                         FAbs,GrdMx,RMS,RMSMx
                   Not_Converged = FAbs.gt.ThrGrd
-*                 Write (6,*) FAbs.gt.ThrGrd
                   Not_Converged = Not_Converged .or.
      &                            GrdMx.gt.ThrGrd*OneHalf
-*                 Write (6,*)     GrdMx.gt.ThrGrd*OneHalf
                   Not_Converged = Not_Converged .or.
      &                            RMS.gt.ThrGrd*Four
-*                 Write (6,*)     RMS.gt.ThrGrd*Four
                   Not_Converged = Not_Converged .or.
      &                            RMSMx.gt.ThrGrd*Six
-*                 Write (6,*)     RMSMx.gt.ThrGrd*Six
                   Not_Converged = Not_Converged .and. iterK.le.miAI
-*                 Write (6,*)     iterK,miAI
-*                 Write (6,*)     iterK.le.miAI
-*                 Write (6,*)     'Not_Converged=',Not_Converged
-                  If (Step_trunc.eq.'*') Not_Converged=.False.
                End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*              If the step restriction is envoked terminate anyhow.
+*
+               If (Step_trunc.eq.'*') Not_Converged=.False.
+*                                                                      *
+************************************************************************
+*                                                                      *
+*           End of the micro iteration loop
+*
             End Do  ! Do While
+*                                                                      *
+************************************************************************
+*                                                                      *
+*           Reduce the l-value(s) if the step was restricted.
+*
             If (Step_trunc.eq.'*') Then
                Call Get_dScalar('Value_l',Value_l)
                Value_l=Value_l * 0.95D0
 *              Write (6,*) ' Set l value to:',Value_l
                Call Put_dScalar('Value_l',Value_l)
             End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Save the optimized kriging coordinates as the coordinates
 *           for the next macro iteration.
 *
@@ -499,12 +541,20 @@ c Avoid unused argument warnings
             Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
             Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
 #endif
-*
-*           write(6,*) 'finished do iter',iterAI
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           De allocating memory used by Kriging
             Call Finish_Kriging()
-*        ------- AI loop ends here
+*                                                                      *
+************************************************************************
+*                                                                      *
          Else
+*                                                                      *
+************************************************************************
+*                                                                      *
+*           Conventional optimization.
+*
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -517,8 +567,18 @@ c Avoid unused argument warnings
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,Restriction_step,
      &                   iOpt_RS)
-         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+         End If ! kriging v.s. conventional optimization
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *
 *-----Write out the shift in internal coordinates basis.
 *
