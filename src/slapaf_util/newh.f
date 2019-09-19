@@ -12,7 +12,6 @@
 ************************************************************************
       Module NewH_mod
       Implicit None
-#include "stdalloc.fh"
       Integer, Dimension(:), Allocatable, Save :: UpdMask
       Real*8, Save :: DiagMM=1.0d0
 
@@ -38,6 +37,7 @@
 ************************************************************************
 #include "print.fh"
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
       Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing
       Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)

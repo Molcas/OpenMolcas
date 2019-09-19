@@ -21,7 +21,7 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Redundant,Degen,ThrEne,ThrGrd)
+     &                     Degen,ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -77,7 +77,6 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      Use NewH_mod
       Use AI, only: Kriging, miAI, meAI, nspAI
       Implicit Real*8 (a-h,o-z)
       External Restriction_Step, Restriction_Dispersion
@@ -86,6 +85,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
+#include "stdalloc.fh"
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
@@ -93,7 +93,7 @@
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
-     &        FindTS, TSC, HrmFrq_Show, Curvilinear, Redundant
+     &        FindTS, TSC, HrmFrq_Show, Curvilinear
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
@@ -111,32 +111,6 @@
          Call RecPrt('Update: Shift',' ',Shift,nInter,Iter-1)
          Call RecPrt('Update: GNrm',' ',GNrm,Iter,1)
       End If
-*define UNIT_MM
-#ifdef UNIT_MM
-*
-*---- If redundant Cartesians and no symmetry, use unit matrix for MM atoms
-*
-      If (Redundant.and.(.not.Curvilinear).and.
-     &    (3*nsAtom.eq.nInter)) Then
-         Call mma_allocate(UpdMask,nInter,label="UpdMask")
-         Call MMCount(nsAtom,nAtMM,ipIsMM)
-         Do iAtom=1,nsAtom
-            If (iWork(ipIsMM+iAtom-1).eq.1) Then
-               Do i=1,3
-                 UpdMask((iAtom-1)*3+i)=1
-               End Do
-            Else
-               Do i=1,3
-                 UpdMask((iAtom-1)*3+i)=0
-               End Do
-            End If
-         End Do
-         Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,nsAtom)
-      End If
-#else
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(Redundant)
-#endif
 *
       iOpt_RS=0
       Kriging_Hessian =.FALSE.
@@ -594,7 +568,6 @@ c Avoid unused argument warnings
 *---- Remove unneeded fields from the runfile
       Call Put_dArray('BMxOld',Work(ip_Dummy),0)
       Call Put_dArray('TROld',Work(ip_Dummy),0)
-      If (Allocated(UpdMask)) Call mma_deallocate(UpdMask)
 *
       Call QExit('Update')
       Return

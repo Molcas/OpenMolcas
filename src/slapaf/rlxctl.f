@@ -222,6 +222,10 @@
       Step_Trunc=' '
       ed=zero
       If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
+*define UNIT_MM
+#ifdef UNIT_MM
+      Call Setup_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+#endif
 *
 *     Update geometry
 *
@@ -236,8 +240,11 @@
      &               nWndw,Mode,ipMF,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Redundant,Degen,
-     &               ThrEne,ThrGrd)
+     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
+*
+#ifdef UNIT_MM
+      Call Free_UpdMask()
+#endif
 *
  666  Continue
 *                                                                      *
