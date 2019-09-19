@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RlxCtl(iStop)
       Use Chkpnt
+      Use AI, only: Kriging, nspAI
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -229,7 +230,9 @@
 *
 *     Update geometry
 *
-      Call Update_sl(Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+      If (Kriging .and. Iter.ge.nspAI) Then
+         Call Update_Kriging(
+     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
@@ -241,6 +244,21 @@
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
+      Else
+         Call Update_sl(
+     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
+     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
+     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               Smmtrc,nDimBC,Work(ipL),ipCx,GrdMax,
+     &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
+     &               nWndw,Mode,ipMF,
+     &               iOptH,HUpMet,kIter,GNrm_Threshold,
+     &               IRC,Work(ipCM),HrmFrq_Show,
+     &               CnstWght,Curvilinear,Degen)
+      End If
 *
 #ifdef UNIT_MM
       Call Free_UpdMask()
