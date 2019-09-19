@@ -38,6 +38,8 @@
       nq = 0
       mB_Tot = 0
       mdB_Tot = 0
+      If (Process) Call FZero(BM,nB_Tot)
+      If (Proc_dB) Call FZero(dBM,ndB_Tot)
 *                                                                      *
 ************************************************************************
 *                                                                      *

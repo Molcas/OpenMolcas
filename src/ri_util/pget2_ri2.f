@@ -46,7 +46,7 @@
 #include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
-      Logical Shijij
+      Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
       Integer iTwoj(0:7),CumnnP(0:7),CumnnP2(0:7)
@@ -85,6 +85,14 @@
           CumnnP2(i)=CumnnP2(i-1)+nnP(i-1)*nB
         End Do
       End If
+*
+      Call Qpg_iScalar('SCF mode',Found)
+      If (Found) Then
+         Call Get_iScalar('SCF mode',iUHF) ! either 0 or 1
+      Else
+         iUHF=0
+      EndIf
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,7 +176,7 @@
 *                                                                      *
 *     Hybrid DFT and HF
 *
-      Else If (iMP2prpt .ne. 2 .and. .Not.lPSO ) Then
+      Else If (iMP2prpt .ne. 2 .and. .Not.lPSO .and. iUHF.eq.0 ) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -274,6 +282,15 @@
 *
          End Do
       End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Hybrid UDFT and UHF
+*
+      Else If (iMP2prpt .ne. 2 .and. .Not.lPSO .and. iUHF.eq.1 ) Then
+*
+         Write (6,*) 'Pget2_RI2: UDFT/UHF not implemented yet.'
+         Call Abend()
 *                                                                      *
 ************************************************************************
 *                                                                      *

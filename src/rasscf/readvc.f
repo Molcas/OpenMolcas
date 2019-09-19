@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Markus P. Fuelscher                              *
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine ReadVC(CMO,OCC,D,DS,P,PA)
+      Subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -58,6 +58,7 @@
 *                                                                      *
 ************************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use fortran_strings, only : to_upper
 
       use rasscf_data, only : lRoots, nRoots,
      &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
@@ -68,6 +69,9 @@
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
      &  JobIph, nSSH, maxbfn, mXAct
+
+      use orthonormalization, only : t_ON_scheme, ON_scheme_values,
+     &  orthonormalize
 
       implicit none
 
@@ -82,7 +86,8 @@
 #include "raswfn.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
-      real*8, intent(in) :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      type(t_ON_scheme), intent(in) :: scheme
 
       logical :: found, changed
       integer :: iPrlev, nData, ifvb,
@@ -91,8 +96,8 @@
      &    lll, lJobH, ldJobH, lscr, iDisk,
      &    jRoot, kRoot, iDXsX, idXCI,
      &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
-      real*8, allocatable :: CMOO(:)
       real*8 :: Dummy(1), Scal
+      real*8, allocatable :: CMO_copy(:)
 #ifdef _HDF5_
       integer mh5id
       character(Len=maxbfn) typestring
@@ -519,11 +524,12 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMO)
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
-*     orthogonalize the molecular orbitals
-      call mma_allocate(CMOO, nTot2)
-      CMOO(:nTot2) = CMO(:nTot2)
-      CALL ONCMO(CMOO, CMO)
-      call mma_deallocate(CMOO)
+      if (scheme%val /= ON_scheme_values%no_ON) then
+        call mma_allocate(CMO_copy, nTot2)
+        CMO_copy(:) = CMO(:nTot2)
+        call orthonormalize(CMO_copy, scheme, CMO(:nTot2))
+        call mma_deallocate(CMO_copy)
+      end if
 
 *     save start orbitals
 

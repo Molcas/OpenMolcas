@@ -100,7 +100,7 @@ C read the AmatrixV and save in RunFile
      &          ,real_amatrix)
       call mh5_fetch_dset_array_real(restart_fileid,'AmatrixV-I'
      &          ,imag_amatrix)
-      amatrix = DCMPLX(real_amatrix,imag_amatrix)
+      amatrix(:) = DCMPLX(real_amatrix,imag_amatrix)
       CALL Put_zarray('AmatrixV',amatrix,nstates*nstates)
       CALL mma_deallocate(amatrix)
       CALL mma_deallocate(real_amatrix)
