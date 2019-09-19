@@ -3767,7 +3767,7 @@ c
          Write (LuWr,*) '                POINTS, and'
          Write (LuWr,*) '                ROTMAT'
       End If
-      EFP=.True.
+      lEFP=.True.
       Go To 998
 *                                                                      *
 ************************************************************************
