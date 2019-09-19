@@ -213,6 +213,7 @@ if ($opt{pass}) {
         $ENV{'MOLCAS_THR'} = '-1';
         $ENV{'MOLCAS_PASSCHECK'} = '1';
 }
+$ENV{MOLCAS_VALIDATE}='YES' if(! defined($ENV{MOLCAS_VALIDATE}));
 
 #-------------------------------------------
 # generate a list of files from the tasklist

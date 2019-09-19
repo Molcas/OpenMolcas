@@ -42,6 +42,7 @@ from emil_parse import EMIL_Parse, EMILException
 from python_parse import Python_Parse
 from molcas_aux import *
 from check_test import *
+from validate import *
 
 # python2 has no FileNotFoundError, so we will have to check
 # the errno attribute of the raised exception
@@ -97,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.05'
+  version = 'py2.06'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -127,12 +128,14 @@ class Molcas_wrapper(object):
     if ('stamp' in kwargs):
       self.stamp = kwargs['stamp']
     self.licensee = None
+    self.keywords = None
     self.rc = None
     self._ready = False
     self._goto = False
     self._parse_rte()
     self._parse_codes()
     self._parse_alias()
+    self._parse_keywords()
     self._resources = (0,0,0)
     self._check_count = 0
     self._loop_level = 0
@@ -215,6 +218,12 @@ class Molcas_wrapper(object):
             match = pair_match.match(i)
             if (match):
               self.alias[match.group(1)] = match.group(2)
+
+  def _parse_keywords(self):
+    try:
+      self.keywords = read_db(join(self.molcas, 'data', 'keyword.xml'))
+    except:
+      pass
 
   def read_environment(self):
     '''Read environment variables from rc files (in priority order)'''
@@ -995,6 +1004,7 @@ class Molcas_module(object):
     prgm_file = join(self.parent.molcas, 'data', 'global.prgm')
     self._files.update(parse_prgm(prgm_file)[1])
     self._links = []
+    self.rc = 0
     # Pass the input
     if (len(args) >= 2):
       inp = args[1]
@@ -1077,6 +1087,24 @@ class Molcas_module(object):
     if (input_file in self._files):
       self.parent.parallel_task(['c', '1', stdin, self._files[input_file][0]], force=True)
     self.parent.parallel_task(['c', '1', stdin, self.parent.scratch], force=True)
+
+  def _validate_input(self, inp):
+    val = get_utf8('MOLCAS_VALIDATE', default='NO').upper()
+    if (val not in ['YES', 'CHECK']):
+      return
+    if (self.name == 'check'):
+      return
+    rc, result = validate(inp, self.parent.keywords)
+    print('\n-- Input validation for {}'.format(self.name))
+    for line in result:
+      print(line)
+    if (rc == 0):
+      print('\nLooks good!')
+    elif (rc > 0):
+      print('\n*** FAILED! ***')
+    print('--')
+    if (val == 'YES'):
+      self.rc = rc
 
   # Private method to read the return code from the $WorkDir
   def _read_rc(self):
@@ -1206,13 +1234,17 @@ class Molcas_module(object):
     self._make_links()
     print(self.start)
     self._rstart = getrusage(RUSAGE_CHILDREN)
-    self.parent.run_logue('module.prologue')
-    if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
-      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
-      self._read_rc()
+    self._validate_input(join(self.parent.scratch, 'stdin'))
+    if (self.rc):
+      self.rc = '_RC_INPUT_ERROR_'
     else:
-      self.rc = '_RC_NOT_AVAILABLE_'
-    self.parent.run_logue('module.epilogue')
+      self.parent.run_logue('module.prologue')
+      if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
+        teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
+        self._read_rc()
+      else:
+        self.rc = '_RC_NOT_AVAILABLE_'
+      self.parent.run_logue('module.epilogue')
     self._rstop = getrusage(RUSAGE_CHILDREN)
     self._stop = datetime.now()
     print(self.stop)
