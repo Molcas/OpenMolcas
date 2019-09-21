@@ -11,7 +11,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2018, Ignacio Fdez. Galván                        *
+#               2017-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # verify
@@ -35,6 +35,9 @@
 #
 # Add --fromfile option
 # Ignacio Fdez. Galván, May 2018
+#
+# Add --timest and --validate options
+# Ignacio Fdez. Galván, Aug-Sep 2019
 
 # perl modules
 use warnings;
@@ -92,6 +95,7 @@ GetOptions ( \%opt,
              "status",
              "trap",
              "timest",
+             "validate",
              "word=s",
            ) or short_help(1);
 
@@ -214,6 +218,11 @@ if ($opt{pass}) {
         $ENV{'MOLCAS_PASSCHECK'} = '1';
 }
 $ENV{MOLCAS_VALIDATE}='YES' if(! defined($ENV{MOLCAS_VALIDATE}));
+# command-line options
+my $cli_opts = "-ign";
+if ($opt{validate}) {
+  $cli_opts = "$cli_opts --validate";
+}
 
 #-------------------------------------------
 # generate a list of files from the tasklist
@@ -615,9 +624,9 @@ foreach my $file (@filelist) {
                 if ($child_pid == 0) {
                                 #child
                         if ($opt{debug}) {
-                                exec("$MOLCAS_DRIVER -ign $input");
+                                exec("$MOLCAS_DRIVER $cli_opts $input");
                         } else {
-                                exec("$MOLCAS_DRIVER -ign $input -o $out -e $err");
+                                exec("$MOLCAS_DRIVER $cli_opts $input -o $out -e $err");
                         }
                 }
                 $active_pid = $child_pid;
