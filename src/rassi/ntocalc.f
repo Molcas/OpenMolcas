@@ -2,32 +2,15 @@ C       ***************************************************
 C                          Calculating NTO
 C       ****************************************************
 C        Reference: J. Chem. Phys., 2014, 141, 024106
-C        Notation used in the following of the code follows those in the
-C        reference mentioned above, especially between equation 53 and
-C        54 on page 024106-8.
-C        NASHT is the number of active orbitals, originated from this
-C        program.
-C        Umat is the U matrix, which is the eigenvector  matrix
-C        calculated by transition density matrix (TDM) 
-C        multiplied by its transpose. Vmat is the V matrix, the eigen-
-C        vector matrix of a matrix calculated by the transpose 
-C        multiplied by the TDM.
-C        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
-C        that
-C        for the V matrix.
-C        ONTO is the hole NTO, calculated by multiplying MO matrix with
-C        the eigenvector matrix for U matrix. Note that the eigenvector
-C        matrix is still named as U. Similar condition is for the
-C        particle matirx.
-C
-C        However, the sets of particle and hole orbitals are switched
-C        when I examined the results. So I put the data stored in LONTO
-C        as the particle NTO. (Probably the transition density matrix is
-C        stored in the order as its transpose.)
 C
 C                                         -------Jie Bao 
 C                  in Depart. of Chemistry, University of Minnesota, USA
-C                                             2018/08/09
+C                                             2018/09/22
+C       A document is available to explain the code on Minnesota
+C       OpenMolcas Website:
+C       https://comp.chem.umn.edu/openmolcas
+
+
       SUBROUTINE   NTOCalc(ISTATE,JSTATE,LTRAD,LTRASD,ISpin)
 C Include every head file included in the higher level code, namely
 C gtdmctl.f
