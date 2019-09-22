@@ -46,7 +46,7 @@
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
-      LOGICAL IFTWO,TRORB
+      LOGICAL IFTWO,TRORB,DoNTO,dotest
       CHARACTER*8 WFTP1,WFTP2
       CHARACTER*6 STLNE1
       CHARACTER*48 STLNE2
@@ -78,6 +78,7 @@
 #include "SysDef.fh"
 
       CALL QENTER(ROUTINE)
+CJB
 * Avoid compiler warnings about possibly unitialised mstate_1pdens
 * The below can be removed if the file is compiled with
 * -Wno-error=maybe-uninitialized
@@ -162,6 +163,7 @@ C WF parameters for ISTATE and JSTATE
       END IF
 
 C Pick up orbitals of ket and bra states.
+CJB
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
       CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
@@ -823,7 +825,18 @@ C General 1-particle transition density matrix:
      &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            WORK(LTRAD),WORK(LTRASD),WORK(LWERD),ISTATE,
      &            JSTATE,lLROOT,job1,job2,ist,jst)
-
+C Calculate Natural Transition Orbital (NTO):
+        IF (IFNTO) THEN
+         IF (job1.ne.job2) THEN
+           DoNTO=.true.
+         Else
+           DoNTO=.false.
+         End If
+         IF (DoNTO) Then
+          Call NTOCalc(ISTATE,JSTATE,LTRAD,LTRASD,MPLET1)
+         End If
+        End If 
+C End of Calculating NTO
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,WORK(LTRAD),1,WORK(LFMO),1)
