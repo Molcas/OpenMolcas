@@ -41,8 +41,7 @@ C gtdmctl.f
 
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
-      Double Precision Zero,Two
-      Real SumEigVal
+      Double Precision Zero,Two,SumEigVal
 
 C      DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
@@ -437,14 +436,14 @@ C     Loop control
 
 C     Variables needed for judging the symmetry of a NTO
       INTEGER INTO,IUseSym,NNTO,ISym,IOrb
-      REAL,DIMENSION(NUseSym) :: SquareSum               
-      REAL,DIMENSION(NBST) :: EigValArray 
+      REAL*8,DIMENSION(NUseSym) :: SquareSum               
+      REAL*8,DIMENSION(NBST) :: EigValArray 
 C     SquareSum=Sum over square of coefficients for certain symmetry
       INTEGER,DIMENSION(NUseSym) :: NOrbinSym                
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
-      REAL Threshold,Zero,SumEigVal                      
+      REAL*8 Threshold,Zero,SumEigVal                      
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
