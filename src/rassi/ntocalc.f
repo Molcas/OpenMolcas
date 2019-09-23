@@ -26,7 +26,7 @@ C gtdmctl.f
 
       Integer LTRAD, LTRASD,ISpin
       Character,DIMENSION(2) :: Spin
-      INTEGER Iprint Jprint,I,J,isym                        ! Printing or looping contral
+      INTEGER Iprint,Jprint,I,J,isym                        ! Printing or looping contral
       INTEGER IUseSym,NUseSym,NSupBas,icactorb              ! CMO Symmetry Contral
       INTEGER,DIMENSION(NBST)  :: OrbUsedSym                ! CMO Symmetry Contral
       INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              ! CMO Symmetry Contral
@@ -34,7 +34,7 @@ C gtdmctl.f
 ! Nr. of basis functions used prior to this symmetry (NUsedBF) and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
       !IOrb is the index  of orbitals.
-      INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO,LACTMO1,LACTMO2
+      INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig,LEVec
       INTEGER LTDM,LTDMT,LScrq,NScrq
       DIMENSION WGRONK(2)
@@ -46,8 +46,6 @@ C gtdmctl.f
 C      DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
 C     This is to convert active MO sets in any symmetry into a C1 symmetry
-      DIMENSION ScrStr(2)
-      INTEGER NScrch
       INTEGER NAISHT
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
@@ -339,10 +337,10 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
       NTOType='PartNTO'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NSupBas,NTOType,
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NTOType,
      &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
       NTOType='HoleNTO'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NSupBas,NTOType,
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
      &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
 C     End of Printing NTOs     
 
@@ -412,7 +410,7 @@ C     Putting particle-hole pairs in the output
 
 
 
-      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,NSupBas,
+      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
      &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
 #include "rasdim.fh"
 #include "rasdef.fh"
@@ -425,7 +423,7 @@ C     Putting particle-hole pairs in the output
 #include "rassiwfn.fh"
      
 C     input variables
-      INTEGER NUseSym,LNTO,NSupBas,LEigVal
+      INTEGER NUseSym,LNTO,LEigVal
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
@@ -447,13 +445,12 @@ C     OrbSymIndex gives the original orbital index for a orbital in iusesym
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
-      INTEGER,DIMENSION(NASHT) :: SymNTO,IndNTO
       COMMON SumEigVal
 
 
 C     Printing control      
 C     
-      INTEGER iPrintSym,RealSym,OrbNum,IOrbinSym,UseSym,LSym,LInd
+      INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
       CHARACTER (len=14) FILENAME
 
       Logical DoTest
