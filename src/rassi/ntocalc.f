@@ -35,7 +35,7 @@ C gtdmctl.f
       INTEGER   IOrb
       !IOrb is the index  of orbitals.
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
-      INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig,LEVec
+      INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq
       DIMENSION WGRONK(2)
 
