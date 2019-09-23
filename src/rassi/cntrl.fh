@@ -163,8 +163,6 @@ cnf
      &    NOSO,DYSO,DYSEXPORT,DYSEXPSF,DYSEXPSO,LPRPR,LHAMI,
      &    QDPT2SC, QDPT2EV,
      &    PRRAW,PRWEIGHT,NEW_TOLERANCE,REDUCELOOP
-      LOGICAL IFNTO
-      COMMON IFNTO
 C PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
 C PRORB  - PRINT INPUT ORBITALS.
 C PRTRA  - PRINT TRANSFORMATION COEFFICIENTS.
@@ -194,4 +192,3 @@ C HOP    - Switch for Trajectory Surface Hopping Algorithm
 ! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
 ! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
 !           instead we mix the TDMs)
-
