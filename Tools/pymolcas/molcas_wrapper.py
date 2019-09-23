@@ -225,6 +225,8 @@ class Molcas_wrapper(object):
   def _parse_keywords(self):
     try:
       self.keywords = read_db(join(self.molcas, 'data', 'keyword.xml'))
+    except NameError:
+      self.keywords = 'no_lxml'
     except:
       pass
 
@@ -744,7 +746,7 @@ class Molcas_wrapper(object):
       print('*** There were validation errors. ***')
       print('*************************************')
     else:
-      print('\nValidation pased.')
+      print('\nValidation passed.')
     self.rc = final_rc
 
   def auto(self):
@@ -1292,7 +1294,7 @@ class Molcas_module(object):
     print(self.start)
     self._rstart = getrusage(RUSAGE_CHILDREN)
     self._validate_input(join(self.parent.scratch, 'stdin'))
-    if (self.rc):
+    if (self.rc > 0):
       self.rc = '_RC_INPUT_ERROR_'
     else:
       self.parent.run_logue('module.prologue')

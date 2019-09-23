@@ -17,7 +17,10 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 import re
 import shlex
-from lxml import etree as ET
+try:
+  from lxml import etree as ET
+except ImportError:
+  pass
 
 # Global variables
 class gv:
@@ -1279,6 +1282,9 @@ def validate(inp, db):
   if (db is None):
     rc = -1
     return (rc, ['Database not found, no validation possible'])
+  if (db == 'no_lxml'):
+    rc = -2
+    return (rc, ['lxml python module not found, no validation possible'])
   module = db.find('MODULE[@NAME="{0}"]'.format(program))
   if (module is None):
     rc = 3
