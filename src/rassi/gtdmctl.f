@@ -46,7 +46,7 @@
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
-      LOGICAL IFTWO,TRORB
+      LOGICAL IFTWO,TRORB,DoNTO
       CHARACTER*8 WFTP1,WFTP2
       CHARACTER*6 STLNE1
       CHARACTER*48 STLNE2
@@ -824,6 +824,18 @@ C General 1-particle transition density matrix:
      &            WORK(LTRAD),WORK(LTRASD),WORK(LWERD),ISTATE,
      &            JSTATE,lLROOT,job1,job2,ist,jst)
 
+C Calculate Natural Transition Orbital (NTO):
+        IF (IFNTO) THEN
+         IF (job1.ne.job2) THEN
+           DoNTO=.true.
+         Else
+           DoNTO=.false.
+         End If
+         IF (DoNTO) Then
+          Call NTOCalc(ISTATE,JSTATE,LTRAD,LTRASD,MPLET1)
+         End If
+        End If 
+C End of Calculating NTO
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,WORK(LTRAD),1,WORK(LFMO),1)

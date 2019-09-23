@@ -128,6 +128,7 @@ C DEFAULT FLAGS:
       HAVE_HEFF=.FALSE.
       HAVE_DIAG=.FALSE.
       IFSO=.FALSE.
+      IFNTO=.FALSE.
       NATO=.FALSE.
       BINA=.FALSE.
       NONA=.FALSE.
