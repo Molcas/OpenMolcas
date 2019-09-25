@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/qmstat.exe  executable
+ (file)  QMSTAINP "$WorkDir/$Project."Qmstat.Input      rwi
  (file)  ONEINT    "$WorkDir/$Project."OneInt           ro*
  (file)  WRUNFIL   "$Molcas_SolvDir/$Molcas_Solvent."RunFile          ro
  (file)  AVEORB    "$WorkDir/$Project."AveOrb           rw

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/genano.exe             executable
- (file)  PROJ     "$WorkDir/$Project."Proj        rw
- (file)  ANO      "$WorkDir/$Project."Ano         rws
- (file)  FIG      "$WorkDir/$Project."Fig         rws
+ (file)  GENANINP "$WorkDir/$Project."Genano.Input rwi
+ (file)  PROJ     "$WorkDir/$Project."Proj         rw
+ (file)  ANO      "$WorkDir/$Project."Ano          rws
+ (file)  FIG      "$WorkDir/$Project."Fig          rws

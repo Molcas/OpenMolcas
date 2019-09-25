@@ -494,21 +494,22 @@ cperiod
       If (KWord(1:4).eq.'PKTH') Go To 9940
       If (KWord(1:4).eq.'PSOI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
-      If (KWord(1:1).eq.'R' .and.
-     &    (KWord(2:2).ge.'0' .and.
-     &     KWord(2:2).le.'9') .and.
-     &     (KWord(3:3).ge.'0' .and.
-     &      KWord(3:3).le.'9') .and.
-     &      (KWord(4:4).eq.'O' .or.
-     &       KWord(4:4).eq.'E' .or.
-     &       KWord(4:4).eq.'S' .or.
-     &       KWord(4:4).eq.'M' .or.
-     &       KWord(4:4).eq.'C') ) Go To 657
+c     If (KWord(1:1).eq.'R' .and.
+c    &    (KWord(2:2).ge.'0' .and.
+c    &     KWord(2:2).le.'9') .and.
+c    &     (KWord(3:3).ge.'0' .and.
+c    &      KWord(3:3).le.'9') .and.
+c    &      (KWord(4:4).eq.'O' .or.
+c    &       KWord(4:4).eq.'E' .or.
+c    &       KWord(4:4).eq.'S' .or.
+c    &       KWord(4:4).eq.'M' .or.
+c    &       KWord(4:4).eq.'C') ) Go To 657
       If (KWord(1:4).eq.'RA0F') Go To 9012
       If (KWord(1:4).eq.'RA0H') Go To 9011
       If (KWord(1:4).eq.'RADI') Go To 909
       If (KWord(1:4).eq.'RAIH') Go To 9013
       If (KWord(1:4).eq.'RBSS') Go To 9015
+      If (KWord(1:4).eq.'RELA') Go To 657
       If (KWord(1:4).eq.'RELI') Go To 962
       If (KWord(1:4).eq.'RESC') Go To 978
       If (KWord(1:4).eq.'RF-I') Go To 9970
@@ -784,9 +785,10 @@ c     Call Quit_OnUserError()
 *                                                                      *
 ****** BSSH ************************************************************
 *                                                                      *
-*     Allow printing of ECP data
+*     Allow printing of basis set data
 *
  9121 nPrint(2)=Max(6,nPrint(2))
+      GWInput=.True.
       Go To 998
 *                                                                      *
 ****** VERB ************************************************************
@@ -2076,7 +2078,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *     Process only the input.
 *
  991  Test = .TRUE.
-      GWInput=.True.
+      GWInput=Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
 ****** SDIP ************************************************************
@@ -2463,7 +2465,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
      &           'Cholesky is incompatible with RI and Direct keywords')
          Call Quit_OnUserError()
       EndIf
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .False.
       Go To 998
 *                                                                      *
 ***** THRC *************************************************************
@@ -2553,7 +2555,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       Call Get_F1(1,E2)
       Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
       Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .True.
       Go To 998
 *
 **    Files
@@ -2671,7 +2673,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Saddle options
  9081 Key = Get_Ln(LuRd)
       Call Get_F1(1,SadStep)
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .True.
       Go To 998
 *                                                                      *
 ***** CELL *************************************************************
@@ -2832,7 +2834,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
  9100 Do_GuessOrb=.FALSE.
       Go To 998
 *                                                                      *
-***** Rxxyzz ***********************************************************
+***** RELA *************************************************************
 *                                                                      *
 *     DKH option: order and parameterization.
 *     xx: order of Hamiltonian
@@ -2840,6 +2842,21 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     zz: order of properties
 *
  657  Continue
+      kWord = Get_Ln(LuRd)
+      If (KWord(1:1).eq.'R' .and.
+     &    (KWord(2:2).ge.'0' .and.
+     &     KWord(2:2).le.'9') .and.
+     &     (KWord(3:3).ge.'0' .and.
+     &      KWord(3:3).le.'9') .and.
+     &      (KWord(4:4).eq.'O' .or.
+     &       KWord(4:4).eq.'E' .or.
+     &       KWord(4:4).eq.'S' .or.
+     &       KWord(4:4).eq.'M' .or.
+     &       KWord(4:4).eq.'C') ) Then
+      Else
+         Call WarningMessage(2,'Error in RELA keyword')
+         Call Quit_OnUserError()
+      End If
       DKroll=.True.
 *
 *     DKH order in the Hamiltonian
@@ -2997,6 +3014,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *     No computation of AMFI integrals
 *
  8007 NoAMFI=.True.
+      GWInput=.True.
       Go To 998
 *                                                                      *
 ***** RPQM *************************************************************
@@ -3774,7 +3792,7 @@ c
          Write (LuWr,*) '                POINTS, and'
          Write (LuWr,*) '                ROTMAT'
       End If
-      EFP=.True.
+      lEFP=.True.
       Go To 998
 *                                                                      *
 ************************************************************************

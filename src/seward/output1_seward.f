@@ -293,7 +293,7 @@
          Write (LuWr,'(15X,A,F10.5)')
      &     '    - RPQMin: ',RPQMin
       End If
-      If (EFP) Then
+      If (lEFP) Then
 #ifdef _EFP_
          Write (LuWr,'(15X,A)')
      &     '   Effective Fragment potentials added       '

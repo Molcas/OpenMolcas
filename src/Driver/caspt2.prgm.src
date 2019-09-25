@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/caspt2.exe             executable
+ (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input      roi
 #include "aoints.inc"
 #include "choints.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
  (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
- (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input      roi
  (file)  JOBIPH  "$WorkDir/$Project$SubProject."JobIph  ro
  (file)  JOBMIX  "$WorkDir/$Project$SubProject."JobMix  ro
  (file)  LUHLF1  "$WorkDir/"purge.hlf1                  rw*p
