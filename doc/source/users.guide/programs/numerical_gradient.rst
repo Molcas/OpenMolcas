@@ -13,9 +13,12 @@
      :local:
      :backlinks: none
 
-.. xmldoc:: %%Description:
+.. xmldoc:: <MODULE NAME="NUMERICAL_GRADIENT">
+            %%Description:
+            <HELP>
             The Numerical_Gradient module is a program which numerically evaluates the
             gradient of the energy with respect to nuclear perturbations.
+            </HELP>
 
 The :program:`Numerical_Gradient` module is a program which numerically evaluates the gradient
 of the energy with respect to nuclear perturbations.
@@ -60,3 +63,5 @@ The files of the :program:`Numerical_Gradient` module is the union
 of the files of the :program:`SEWARD`, :program:`SCF`, :program:`RASSCF`,
 :program:`MBPT2`, :program:`MOTRA`, :program:`CCSDT`, and
 :program:`CASPT2` modules.
+
+.. xmldoc:: </MODULE>

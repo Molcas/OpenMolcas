@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/mpprop.exe             executable
- (file)  ONEINT  "$WorkDir/$Project."OneInt      ro*
- (file)  ONEINTP "$WorkDir/$Project."OneIntP     ro*
- (file)  MPPROP  "$WorkDir/$Project."MpProp      rw
- (file)  DIFFPR  "$WorkDir/$Project."DiffPr      rw
+ (file)  MPPROINP "$WorkDir/$Project."Mpprop.Input rwi
+ (file)  ONEINT  "$WorkDir/$Project."OneInt        ro*
+ (file)  ONEINTP "$WorkDir/$Project."OneIntP       ro*
+ (file)  MPPROP  "$WorkDir/$Project."MpProp        rw
+ (file)  DIFFPR  "$WorkDir/$Project."DiffPr        rw

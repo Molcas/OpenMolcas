@@ -292,6 +292,8 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
 
   >> END DO
 
+.. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="VV_FIRST" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 .. xmldoc:: </MODULE>
 
 Dynamixtools

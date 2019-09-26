@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  $MOLCAS/bin/mclr.exe             executable
+ (file)  MCLRINP       "$WorkDir/$Project."Mclr.Input           rwi
 #include "aoints.inc"
 #include "choints.inc"
  (file)  TEMPCIV       "$WorkDir/"purge.TempCiv                 rw

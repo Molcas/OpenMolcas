@@ -8,6 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
+ (prgm) "$MOLCAS/bin/dmrgscf.exe"  executable
+ (file)  DMRGSINP "$WorkDir/$Project."Dmrgscf.Input     rwi
 #include "aoints.inc"
 #include "choints.inc"
 #include "rysfiles.inc"
@@ -17,9 +19,6 @@
 #include "moldenfiles.inc"
 #include "espffiles.inc"
 #include "geodata.inc"
- (prgm) "$MOLCAS/bin/dmrgscf.exe"  executable
- (file)  DMRGINP "$WorkDir/$Project."Dmrgscf.Input     rwi
- (file)  DMRGSINP "$WorkDir/$Project."Dmrgscf.Input     rwi
  (file)  JOBOLD   "$WorkDir/$Project$SubProject."JobOld     ro
  (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     rw
  (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw

@@ -180,7 +180,8 @@ orb 6
 endguess
 optim
 report
-maxiter 2
+maxiter
+2
 optim
 orbperm
 1 3 5 2 4 6

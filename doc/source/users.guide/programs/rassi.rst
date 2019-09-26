@@ -352,12 +352,14 @@ Keywords
     the Fock matrix. The loss of speed compared to the default algorithm can be substantial, especially for electron-rich systems.
     Default is to use LK.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NOLK" APPEAR="Turn Off LK screening" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NOLK" APPEAR="Turn Off LK screening" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: NoLK <advanced>
                 <HELP>
                 Deactivates LK screening.
                 </HELP>
                 </KEYWORD>
+
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="LOCK" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
   * :kword:`DMPK`
     Available only within ChoInput. Modifies the thresholds used in the LK screening.
@@ -369,13 +371,15 @@ Keywords
     accuracy of the RASSI energies consistent with the choice of the Cholesky decomposition
     threshold.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DMPK" APPEAR="Damping for LK" LEVEL="ADVANCED" KIND="REAL" EXCLUSIVE="NOLK" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DMPK" APPEAR="Damping for LK" LEVEL="ADVANCED" KIND="REAL" EXCLUSIVE="NOLK">
                 %%Keyword: DMPK <advanced>
                 <HELP>
                 Modifies the thresholds used in the LK screening.
                 The default value is 1.0d-1. A smaller value results in a slower but more accurate calculation.
                 </HELP>
                 </KEYWORD>
+
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ALGORITHM" LEVEL="UNDOCUMENTED" KIND="INT" />
 
   * :kword:`NODEcomposition`
     Available only within ChoInput. The inactive Exchange contribution to the Fock matrix is computed using inactive canonical orbitals
@@ -385,7 +389,7 @@ Keywords
     density type supermatrix :math:`\mat{D}=(\mat{C}_A, \mat{C}_B)(\mat{C}_A, \mat{C}_B)^{\text{T}}` where :math:`\mat{C}` is the corresponding canonical
     MOs matrix for the state :math:`A` and :math:`B`.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NODE" APPEAR="Turn Off density decomposition" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NODE" APPEAR="Turn Off density decomposition" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: NODE <advanced>
                 <HELP>
                 The inactive Exchange contribution to the Fock matrix is computed using inactive canonical orbitals
@@ -399,7 +403,7 @@ Keywords
     is then ensured by rotating the orbitals of B according to the orthogonal matrix defined in A
     through the Cholesky localization. These orbitals used for B are therefore called "pseudo Cholesky MOs".
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PSEU" APPEAR="Use PseudoCholesky orbitals" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PSEU" APPEAR="Use PseudoCholesky orbitals" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: PSEU <advanced>
                 <HELP>
                 The inactive Exchange contribution to the Fock matrix is computed using pseudo Cholesky orbitals.
@@ -488,11 +492,15 @@ Keywords
   component conventions, see
   :program:`SEWARD` program description.
 
-  .. xmldoc:: %%Keyword: Property <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PROPERTY" APPEAR="Properties" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: Property <basic>
+              <HELP>
               Enter a user-supplied selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated. Without
               this keyword and list, the default choice is to use every operator,
               for which the one-electron integral file supplies integrals.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SOCOupling`
   Enter a positive threshold value. Spin--orbit interaction matrix
@@ -501,12 +509,16 @@ Keywords
   The value is given in cm\ :math:`^{-1}` units. The keyword is
   ignored unless an SO hamiltonian is actually computed.
 
-  .. xmldoc:: %%Keyword: SOCoupling <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SOCOUPLING" APPEAR="Spin-orbit coupling threshold" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: SOCoupling <basic>
+              <HELP>
               Enter a positive threshold value. Spin-orbit interaction matrix
               elements over the spin components of the spin-free eigenstates
               will be printed, unless smaller than this threshold.
               The value is given in cm-1 units. The keyword is ignored unless
               an SO hamiltonian is actually computed.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SOPRoperty`
   Enter a user-supplied selection of one-electron operators, for which
@@ -596,7 +608,7 @@ Keywords
   "JOB002", etc. will be used, and all states found on these files will be
   used.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="JOBIPH" APPEAR="Input states from JOBIPHs" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: NrOf <basic>
               <HELP>
               Number of JOBIPH files used as input, followed by a list of
@@ -605,6 +617,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NR OF JOBIPHS" KIND="CUSTOM" LEVEL="UNDOCUMENTED" />
 
 :kword:`REDL`
   In many cases, RASSI is used to compute the transition moments between
@@ -632,11 +645,15 @@ Keywords
   For default :file:`JOBIPH` file names, see the Files section.
   The names will be truncated to 8 characters and converted to uppercase.
 
-  .. xmldoc:: %%Keyword: IPHNames <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IPHNAMES" APPEAR="JobIph names" KIND="STRINGS_LOOKUP" SIZE="NROFJOBIPHS" LEVEL="BASIC">
+              %%Keyword: IPHNames <basic>
+              <HELP>
               Followed by one entry for each JOBIPH file to be used, with the
               name of each file. Note: This keyword presumes that the number of
               JOBIPH files have already been entered using keyword NROF.
               The names will be truncated to 8 characters and converted to uppercase.
+              </HELP>
+              </KEYWORD>
 
   .. :kword:`NACMe`
        Switch from calculations of transition dipole moment to calculation of
@@ -731,8 +748,12 @@ Keywords
   Print out the CI coefficients read from
   :file:`JOBIPH`.
 
-  .. xmldoc:: %%Keyword: CIPrint <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIPRINT" APPEAR="Print input CI coeff." KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CIPrint <advanced>
+              <HELP>
               Print out the CI coefficients read from JOBIPH.
+              </HELP>
+              </KEYWORD>
 
 :kword:`THRS`
   The next line gives the threshold for printing CI coefficients. The
@@ -851,7 +872,7 @@ Keywords
   It is read from the following few lines, as a triangular matrix: One element
   of the first row, two from the next, etc., as list-directed input of reals.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="UNKNOWN" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
               <HELP>
               The spin-free Hamiltonian is read from a file instead of being computed.
@@ -897,10 +918,14 @@ Keywords
   created. This keyword is necessary if :program:`QmStat` is to be run
   afterwards.
 
-  .. xmldoc:: %%Keyword: TOfile <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TOFILE" APPEAR="Data to file" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: TOfile <basic>
+              <HELP>
               Signals that a set of files with data from Rassi should be
               created. This keyword is necessary if QmStat is to be run
               afterwards.
+              </HELP>
+              </KEYWORD>
 
 :kword:`XVIN`
   Demand for printing expectation values of all selected one-electron
@@ -948,7 +973,7 @@ Keywords
   need to be available (use keywords :kword:`SPIN` and :kword:`PROP`).
   For a more detailed description see ref :cite:`EPRG:2008`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRG" APPEAR="EPR g Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN,PROP">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRG" APPEAR="EPR g Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: EPRg <advanced>
               <HELP>
               This computes the g matrix and principal g values for the
@@ -974,7 +999,7 @@ Keywords
   need to be available (use keywords :kword:`SPIN` and :kword:`PROP`).
   For a more detailed description see ref :cite:`MAGN:2009`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MAGN" APPEAR="Magnetism" KIND="REAL" LEVEL="DEV" REQUIRE="SPIN,PROP">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MAGN" APPEAR="Magnetism" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: Magnetic properties <advanced>
               <HELP>
               This computes the magnetic moment and magnetic susceptibility.
@@ -1001,7 +1026,7 @@ Keywords
   is invoked by changing the root for the gradient computation.
   The current implementation is working only with SA-CASSCF.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" LEVEL="DEV">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Hop <advanced>
               <HELP>
               Allows transitions between electronic states during molecular
@@ -1174,5 +1199,13 @@ Input example
   * spanned by the 8 input functions. Assume only the first
   * 4 are of interest, and we want natural orbitals out
   NATO= 4
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FILE" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

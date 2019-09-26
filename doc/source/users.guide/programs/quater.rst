@@ -80,7 +80,7 @@ Keywords
 :kword:`NOTRanslation`
   No translation is performed by the program.
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="NOTRanslation" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="NOTRANSLATION" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NOTRanslation <basic>
               <HELP>
               No translation is performed by the program.
@@ -90,7 +90,7 @@ Keywords
 :kword:`DEBUg`
   Turn on DEBUG printout
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="DEBUg" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="DEBUG" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: DEBUg <basic>
               <HELP>
               Turn on DEBUG printout
@@ -100,7 +100,7 @@ Keywords
 :kword:`AXIS`
   Define the old frame of reference
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="AXIS" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="AXIS" KIND="REALS" SIZE="6" LEVEL="BASIC">
               %%Keyword: AXIS <basic>
               <HELP>
               Define the old frame of reference
@@ -110,7 +110,7 @@ Keywords
 :kword:`NEWAxis`
   Define the new frame of reference
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="NEWAxis" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="NEWAXIS" KIND="REALS" SIZE="6" LEVEL="BASIC">
               %%Keyword: NEWAxis <basic>
               <HELP>
               Define the new frame of reference
@@ -120,7 +120,7 @@ Keywords
 :kword:`GEO1`
   Define the first geometry
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="GEO1" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="GEO1" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: GEO1 <basic>
               <HELP>
               Define the first geometry
@@ -130,7 +130,7 @@ Keywords
 :kword:`GEO2`
   Define the second geometry
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="GEO2" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="GEO2" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: GEO2 <basic>
               <HELP>
               Define the second geometry
@@ -141,7 +141,7 @@ Keywords
   Define the origin and two axes for the orientation of the first geometry by
   the index of three atoms of this geometry.
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="XYZ1" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="XYZ1" KIND="INTS" SIZE="3" LEVEL="BASIC">
               %%Keyword: XYZ1 <basic>
               <HELP>
               Define the origin and two axes for the orientation of the first geometry by
@@ -153,7 +153,7 @@ Keywords
   Define the origin and two axes for the orientation of the second geometry by
   the index of three atoms of this geometry.
 
-  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="XYZ2" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="QUATER" NAME="XYZ2" KIND="INTS" SIZE="3" LEVEL="BASIC">
               %%Keyword: XYZ2 <basic>
               <HELP>
               Define the origin and two axes for the orientation of the second geometry by

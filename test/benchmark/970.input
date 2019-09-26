@@ -24,7 +24,7 @@ Title = FeP singlet, Fe aug-cc-pwCVTZ-DK, C,N,O aug-cc-pVDZ-DK, H cc-pVDZ-DK
 Expert
 MEDI
 Douglas-Kroll
-R02E00
+Relativistic = R02E00
 noamfi
 
 Symmetry
@@ -298,7 +298,6 @@ MAXIter
   50
 IMAG
   0.10
-NOPROP
 MULTi = 1 1 
 NOMULT
 CHEMPS2
