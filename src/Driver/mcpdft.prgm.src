@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/mcpdft.exe             executable
+ (file)  MCPDFINP "$WorkDir/$Project."Mcpdft.Input     rwi
 #include "aoints.inc"
 #include "choints.inc"
  (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
- (file)  MCPDFINP "$WorkDir/$Project."Mcpdft.Input     rwi
 #include "rysfiles.inc"
  (file)  JOBOLD   "$WorkDir/$Project$SubProject."JobOld     ro
  (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     ro

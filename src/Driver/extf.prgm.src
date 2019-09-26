@@ -9,3 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/extf.exe             executable
+ (file)  EXTFINP "$WorkDir/$Project."Extf.Input rwi

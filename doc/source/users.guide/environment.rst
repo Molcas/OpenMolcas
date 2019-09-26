@@ -634,6 +634,21 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_VALIDATE`
+  If set to YES, the input for each module will be validated against the documented syntax,
+  and the calculation will stop if it does not pass. If set to CHECK, the input will be
+  validated, but the calculation will continue, although the program itself may stop.
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_VALIDATE" APPEAR="Validate input" KIND="CHOICE" LIST="----,YES,CHECK" LEVEL="BASIC">
+              %%Keyword: MOLCAS_VALIDATE <basic>
+              <HELP>
+              If set to YES, the input for each module will be validated against the documented syntax,
+              and the calculation will stop if it does not pass. If set to CHECK, the input will be
+              validated, but the calculation will continue, although the program itself may stop.
+              A parent directory for all scratch areas. It can be set to an
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_WORKDIR`
   A parent directory for all scratch areas. It can be set to an
   absolute PATH (recommended), to a relative PATH, or to a special value PWD

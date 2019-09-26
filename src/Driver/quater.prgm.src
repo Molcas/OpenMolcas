@@ -9,3 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/quater.exe             executable
+ (file)  QUATEINP "$WorkDir/$Project."Quater.Input rwi

@@ -143,11 +143,15 @@ Optional keywords
 :kword:`SHOWHessian`
   The Hessian contributions will be printed.
 
-  .. xmldoc:: %%Keyword: ShowHessian <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCKINLEY" NAME="SHOWHESSIAN" APPEAR="Show Hessian" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ShowHessian <basic>
+              <HELP>
               The Hessian contributions will be printed.
+              </HELP>
+              </KEYWORD>
 
 :kword:`PERTurbation`
-  This key word takes one of the arguments HESSian or GEOMetry on the following line.
+  This keyword takes one of the arguments HESSian or GEOMetry on the following line.
   HESSian makes :program:`MCKINLEY` compute the full geometrical Hessian, which is
   required for a subsequent calculation of the vibronic frequencies with the :program:`MCLR` program.
   GEOMetry calculates only those parts of the geometrical Hessian that correspond to symmetry
@@ -156,19 +160,32 @@ Optional keywords
   Note that in the case of numerical differentiation only symmetry allowed displacements
   will be computed regardless of this keyword.
 
-  .. xmldoc:: %%Keyword: Perturbation <basic>
-              This key word takes one of the arguments HESSian or GEOMetry on the following line.
+  .. xmldoc:: <GROUP MODULE="MCKINLEY" NAME="PERTURBATION" APPEAR="Perturbation" KIND="RADIO" LEVEL="BASIC">
+              %%Keyword: Perturbation <basic>
+              This keyword takes one of the arguments HESSian or GEOMetry on the following line.
+              <HELP>
               Hessian makes MCKINLEY compute the full geometrical Hessian, which is
               required for a subsequent calculation of the vibronic frequencies with the MCLR program.
               GEOMetry calculates only those parts of the geometrical Hessian that correspond to symmetry
               allowed displacements (Could be used in a second order geometry optimization).
               The default is to compute the Hessian for vibrational frequency calculations.
+              </HELP>
+
+  .. xmldoc:: <KEYWORD MODULE="MCKINLEY" NAME="HESSIAN" APPEAR="Hessian" KIND="SINGLE" LEVEL="BASIC" />
+
+  .. xmldoc:: <KEYWORD MODULE="MCKINLEY" NAME="GEOMETRY" APPEAR="Geometry" KIND="SINGLE" LEVEL="BASIC" />
+
+  .. xmldoc:: </GROUP>
 
 :kword:`NOMClr`
   Request that this calculation is not followed by the execution of the MCLR module.
 
-  .. xmldoc:: %%Keyword: NoMCLR <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCKINLEY" NAME="NOMCLR" APPEAR="No MCLR" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NoMCLR <basic>
+              <HELP>
               Request that this calculation is not followed by the execution of the MCLR module.
+              </HELP>
+              </KEYWORD>
 
 :kword:`VERBose`
   The output will be a bit more verbose.
