@@ -15,7 +15,7 @@
       Integer(c_int) Coor_Type
 *
       Integer nEFP_fragments, nEFP_Coor
-      Logical EFP
+      Logical lEFP
       Character*180, Dimension(:), Allocatable:: FRAG_Type
       Character*180, Dimension(:,:), Allocatable:: ABC
       Real*8, Dimension(:,:), Allocatable, Target:: EFP_COORS

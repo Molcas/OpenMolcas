@@ -124,7 +124,7 @@ The following keywords are known to the
   of the dipole operator and the perturbation length. The component is
   specified by a single letter (X, Y or Z).
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="DIPO" APPEAR="External Electric Field" KIND="STRINGS" SIZE="3" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="DIPO" APPEAR="External Electric Field" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Add the external electric field. Each line contain the letters X, Y, or Z to indicate
               the component of the electric field followed by a real number to specify the strength.
@@ -152,7 +152,7 @@ The following keywords are known to the
   the origin of the perturbation operator also needs to be specified
   by entering a line starting with the string ORIG followed by the coordinates.
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="QUAD" APPEAR="External Electric Field Gradient" KIND="STRINGS" SIZE="7" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="QUAD" APPEAR="External Electric Field Gradient" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Add the external electric field gradient. Each line contains the letters XX, XY, XZ, YY, YZ, or ZZ to indicate
               the component of the electric field gradient followed by a real number to indicate the value.
@@ -184,7 +184,7 @@ The following keywords are known to the
   the origin of the perturbation operator also needs to be specified
   by entering a line starting with the string ORIG followed by the coordinates.
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="OCTU" APPEAR="External Electric Field Hessian" KIND="STRINGS" SIZE="11" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="OCTU" APPEAR="External Electric Field Hessian" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Add the external electric field Hessian. Each line contains the letters XXX, XXY, XXZ, XYY, XYZ, XZZ, YYY, YYZ, YZZ, or ZZZ to indicate
               the component of the electric field Hessian followed by a real number to indicate the value.
@@ -218,7 +218,7 @@ The following keywords are known to the
 
   .. xmldoc:: <GROUP MODULE="FFPT" NAME="NFIELD" APPEAR="Nuclear charge fields" KIND="BOX" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="EFLD" APPEAR="Nuclear dipole moment" KIND="STRINGS" SIZE="4" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="EFLD" APPEAR="Nuclear dipole moment" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Add contributions due to an nuclear dipole moment. Each line contains the letters X, Y, or Z to indicate
               component of the nuclear dipole moment followed by a real number to indicate the value. Finally a line is added with the
@@ -247,7 +247,7 @@ The following keywords are known to the
   In addition, the origin of the perturbation operator also needs to be specified
   by entering a line starting with the string ORIG followed by the coordinates.
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="EFGR" APPEAR="Nuclear quadrupole moment" KIND="STRINGS" SIZE="7" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="EFGR" APPEAR="Nuclear quadrupole moment" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Add contributions due to an nuclear quadrupole moment. Each line contains the letters XX, XY, XZ, YY, YZ, or ZZ to indicate
               component of the nuclear quadrupole moment followed by a real number to indicate the value. Finally a line is added with the
@@ -312,9 +312,9 @@ The following keywords are known to the
     'Well   2' 1 1.000
     'Well   3' 1 1.000
 
-  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="GLBL" APPEAR="Well-integrals" KIND="STRINGS" SIZE="5" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="GLBL" APPEAR="Well-integrals" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
-              Add so-called well-integrals to the one-electron Hamiltonian. Syntax " 'Well n' 1 x " where
+              Add so-called well-integrals to the one-electron Hamiltonian. Syntax " 'Well   n' 1 x " where
               n is specifying the index of the well-integrals as computed by Seward and x is the coefficient
               used when the term is added (normally the value should be 1.0).
               </HELP>
@@ -383,6 +383,13 @@ The following keywords are known to the
   a group of atoms; :program:`LOPROP` is a way to come close to perfect
   localization. :program:`FFPT` calls :program:`LOPROP` internally and no call to
   :program:`LOPROP` has to specified by the user.
+
+  .. xmldoc:: <KEYWORD MODULE="FFPT" NAME="SELE" APPEAR="Selective perturbation" KIND="CUSTOM" LEVEL="ADVANCED">
+              %%Keyword: SELE <advanced>
+              <HELP>
+              Specify on which basis functions the perturbation should act.
+              </HELP>
+              </KEYWORD>
 
 :kword:`CUMUlative`
   Adds the perturbation to the current H0, enabling many consecutive

@@ -276,6 +276,7 @@ Keywords
   see also :kword:`XMULtistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              <ALTERNATE KIND="CUSTOM" />
               %%Keyword: Multistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
@@ -297,6 +298,7 @@ Keywords
   This keyword is mutually exclusive with :kword:`MULTistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              <ALTERNATE KIND="CUSTOM" />
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
@@ -382,7 +384,9 @@ Keywords
   This input means that inactive orbitals with less than 0.1 of the density on
   the active sites will be frozen, while no virtual orbitals will be deleted.
 
-  .. xmldoc:: %%Keyword: AFREeze <advanced>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="AFREEZE" LEVEL="ADVANCED" KIND="CUSTOM">
+              %%Keyword: AFREeze <advanced>
+              <HELP>
               This keyword is used to select atoms for defining the correlation orbital
               space for the CASPT2 calculation. Inactive orbitals with Mulliken populations
               smaller than a given threshold on the selected atoms will be frozen and
@@ -390,6 +394,8 @@ Keywords
               selection thresholds. An additional line gives the names of the atoms as
               defined in the Seward input. Use with care! Not much tested yet, but is very
               effective in reducing the computational time for CASPT2 in large molecules.
+              </HELP>
+              </KEYWORD>
 
 :kword:`LOVCaspt2`
   "Freeze-and-Delete" type of CASPT2, available only in connection with Cholesky or RI.
@@ -412,7 +418,9 @@ Keywords
   A third possibility is to use the keyword :kword:`DoEnv` to compute the energy of the environment as total MP2 energy
   minus the MP2 energy of the active site.
 
-  .. xmldoc:: %%Keyword: LOVC <advanced>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="LOVCASPT2" APPEAR="Localized occupied-virtual CASPT2" LEVEL="ADVANCED" KIND="REAL">
+              %%Keyword: LOVC <advanced>
+              <HELP>
               "Freeze-and-Delete" type of CASPT2, available only in connection with Cholesky or RI.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword LOVC is the following:
               ||
@@ -432,6 +440,14 @@ Keywords
               occupied orbitals of the active site.
               A third possibility is to use the keyword DoEnv to compute the energy of the environment as total MP2 energy
               minus the MP2 energy of the active site.
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DOMP2" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="VIRALL" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DOENV" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`FNOCaspt2`
   Performs a Frozen Natural Orbital (FNO) CASPT2 calculation, available only in combination with Cholesky or RI integral representation.
@@ -445,7 +461,9 @@ Keywords
   (in each irrep) to be retained in the FNO-CASPT2 calculation.
   The keyword :kword:`DoMP2` is optional and used to compute the (estimated) correction for the truncation error.
 
-  .. xmldoc:: %%Keyword: FNOC <advanced>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FNOCASPT2" APPEAR="Frozen natural orbital CASPT2" LEVEL="ADVANCED" KIND="REAL">
+              %%Keyword: FNOC <advanced>
+              <HELP>
               Performs a Frozen Natural Orbital (FNO) CASPT2 calculation, available only in combination with Cholesky or RI integral representation.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword FNOC is the following:
               ||
@@ -456,6 +474,8 @@ Keywords
               The keyword FNOC has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
               (in each irrep) to be retained in the FNO-CASPT2 calculation.
               The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.
+              </HELP>
+              </KEYWORD>
 
 :kword:`FOCKtype`
   Use an alternative Fock matrix. The default Fock matrix is described in
@@ -553,6 +573,8 @@ Keywords
   .. :kword:`HZERo`
        (No official variants. Perhaps in later versions.)
 
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="HZERO" KIND="STRING" LEVEL="UNDOCUMENTED" />
+
 :kword:`THREsholds`
   On next line, enter two
   thresholds: for removal of zero-norm components in the
@@ -639,7 +661,7 @@ Keywords
   This output will be used in a subsequent calculation, in conjunction
   with the :kword:`EFFE` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="ONLY" APPEAR="Only root" KIND="INT" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="ONLY" APPEAR="Only root" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: ONLY <advanced>
               <HELP>
               This keyword requires the MULTistate or XMULtistate keyword, and is
@@ -666,7 +688,7 @@ Keywords
   couplings of the first computed root, etc.
   The program will then quickly compute the (Extended) Multistate energies.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="EFFE" APPEAR="Effective Hamiltonian couplings" KIND="STRINGS" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="EFFE" APPEAR="Effective Hamiltonian couplings" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: EFFE <advanced>
               <HELP>
               This keyword requires the MULTistate or XMULtistate keyword. It is
@@ -705,7 +727,8 @@ Keywords
               %%Keyword: Properties <basic>
               <HELP>
               Compute (approximate) density matrix, natural orbitals and properties.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`NOTRansform`
   This keyword specifies that the wave function should not be transformed
@@ -739,17 +762,25 @@ Keywords
 
 :kword:`OFEMbedding`
   Adds an Orbital-Free Embedding potential to the Hamiltonian. Available only in combination with Cholesky or RI integral representation.
-  No arguments required. The runfile of the environment subsystem (AUXRFIL) must be available.
+  No arguments required. The runfile of the environment subsystem (:file:`AUXRFIL`) must be available.
 
-  .. xmldoc:: %%Keyword: OFEM <advanced>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="OFEMBEDDING" APPEAR="Orbital-free embedding" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: OFEM <advanced>
+              <HELP>
               Adds an Orbital-Free Embedding potential to the Hamiltonian. Available only in combination with Cholesky or RI integral representation.
               No arguments required. The runfile of the environment subsystem (AUXRFIL) must be available.
+              </HELP>
+              </KEYWORD>
 
 :kword:`GHOStdelete`
   Excludes from PT2 treatment orbitals localized on ghost atoms. A threshold for this selection must be specified.
 
-  .. xmldoc:: %%Keyword: GHOS <advanced>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GHOSTDELETE" APPEAR="Ghost delete" KIND="REAL" LEVEL="ADVANCED">
+              %%Keyword: GHOS <advanced>
+              <HELP>
               Excludes from PT2 treatment orbitals localized on ghost atoms. A threshold for this selection must be specified.
+              </HELP>
+              </KEYWORD>
 
 :kword:`OUTPut`
   Use this keyword, followed by any of the words :kword:`BRIEF`, :kword:`DEFAULT`, or :kword:`LONG`, to
@@ -892,5 +923,15 @@ Input example for SA-DMRG-CASPT2 with |molcas|--CheMPS2 interface
   &CASPT2
   CHEMps2
   MULTistate = 1 2
+
+.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="LROOT" KIND="INT" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FILE" KIND="STRING" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RHSD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="WTHR" KIND="REALS" SIZE="3" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="G1SE" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

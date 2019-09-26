@@ -254,7 +254,7 @@ The first four characters are decoded and the rest are ignored.
   iteration. The default is 1.0d-8. The value is read from the line
   following the keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="Convergence" APPEAR="Convergence threshold" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="CONVERGENCE" APPEAR="Convergence threshold" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
               %%Keyword: Convergence <advanced>
               <HELP>
               Three float numbers to enter energy, ci vector, and residual vector
@@ -278,7 +278,7 @@ The first four characters are decoded and the rest are ignored.
   value is read from the line following the keyword.
   The maximum possible value is 200.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="Maxiterations" APPEAR="Maximum number of CI iterations" KIND="INT" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="MAXITERATIONS" APPEAR="Maximum number of CI iterations" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: Maxiterations <advanced>
               <HELP>
               Set maximum number of iterations. Default is 30. Largest possible is 200.
@@ -318,5 +318,7 @@ Input example
    Water molecule. 1S frozen in transformation.
   Nrroots
    1
+
+.. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="PTHR" KIND="REAL" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

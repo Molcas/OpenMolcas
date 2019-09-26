@@ -39,7 +39,7 @@
 *     Write (*,*) ' Processing:',Key
       KWord = Key
       Call UpCase(KWord)
-      If (KWord(1:4).eq.'THRE') Go To 100
+      If (KWord(1:4).eq.'RTHR') Go To 100
       If (KWord(1:4).eq.'GRID') Go To 101
       If (KWord(1:4).eq.'LMAX') Go To 102
       If (KWord(1:4).eq.'RQUA') Go To 103
@@ -73,7 +73,7 @@
       Write (6,*) ' Error in keyword.'
       Call Quit_OnUserError()
 *                                                                      *
-****** THRE ************************************************************
+****** RTHR ************************************************************
 *                                                                      *
 *     Read the radial threshold
 *

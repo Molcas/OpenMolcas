@@ -220,4 +220,6 @@ Input example
   * This input will compute spinfree and spin-orbit igenstates in the space
   * spanned by the 2 input functions
 
+.. xmldoc:: <INCLUDE MODULE="RASSI" />
+
 .. xmldoc:: </MODULE>

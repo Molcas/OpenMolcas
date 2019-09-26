@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/cpf.exe             executable
+ (file)  CPFINP   "$WorkDir/$Project."Cpf.Input  rwi
 #include "orbitals.inc"
  (file)  TRAINT   "$WorkDir/$Project."TraInt      ro*
  (file)  TRAONE   "$WorkDir/$Project."TraOne      ro

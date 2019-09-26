@@ -9,5 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/averd.exe"  executable
+ (file)  AVERDINP  "$WorkDir/$Project."Averd.Input      rwi
  (file)  ONEINT    "$WorkDir/$Project."OneInt           ro*
  (file)  AVEORB    "$WorkDir/$Project."AveOrb           rwst

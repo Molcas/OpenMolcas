@@ -13,8 +13,8 @@
       Subroutine GET_EFP()
       use EFP_Module
       Integer CoorType
-      Call Get_lScalar('EFP',EFP)
-      If (EFP) Then
+      Call Get_lScalar('EFP',lEFP)
+      If (lEFP) Then
          Call Get_iScalar('nEFP_fragments',nEFP_fragments)
          Call Get_iScalar('nEFP_Coor',nEFP_Coor)
          Call Get_iScalar('Coor_Type',CoorType)

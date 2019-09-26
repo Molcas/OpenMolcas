@@ -19,12 +19,11 @@ print
 
 Grid input
 Lobatto
-Threshold
+RThreshold
 1.D-16
 RQUAD=LMG
 lMax
 24
-Global
 Noro
 Crowding
 5.0
