@@ -13,11 +13,17 @@
 
       Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
       use globvar
+      Implicit None
 #include "stdalloc.fh"
 !
         Integer nInter,nPoints
         Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
 !
+#ifdef _DEBUG_
+        Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints)
+        Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints)
+        Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints)
+#endif
         Call mma_Allocate(x,nInter,nPoints,Label="x")
         Call mma_Allocate(dy,nInter*nPoints,Label="dy")
         Call mma_Allocate(y,nPoints,Label="y")

@@ -13,6 +13,7 @@
 
       Subroutine Finish_Kriging()
       use globvar
+      Implicit None
 #include "stdalloc.fh"
 !
 !       write(6,*) 'Deallocating all kriging variables'

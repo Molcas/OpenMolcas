@@ -12,6 +12,7 @@
 !***********************************************************************
         SUBROUTINE matern(dh, m, d1, d2)
             use globvar
+            Implicit None
 #include "stdalloc.fh"
             integer d1,d2,i
             REAL*8 a,d,dh(d1,d2),m(d1,d2)
@@ -38,6 +39,7 @@
 
         SUBROUTINE matderiv(nd, d, m, d1, d2)
             use globvar
+            Implicit None
 #include "stdalloc.fh"
             integer nd,d1,d2,p0,k
             real*8 nr,kr,a,d(d1,d2),m(d1,d2),t
@@ -50,7 +52,7 @@
             m = 0
             if (anMd) then
                 p0=int(pAI)
-                t=sqrt(2.0D0*pAI+1)
+                t=sqrt(2.0D0*pAI+1.0D0)
                 dh(:,:) = sqrt(d)
                 c(:,:)=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
                 if (pAI.gt.3.or.pAI.lt.1) then

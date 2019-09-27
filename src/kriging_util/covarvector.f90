@@ -12,8 +12,9 @@
 !***********************************************************************
         SUBROUTINE covarVector(gh,iter,nInter)
             use globvar
+            Implicit None
 #include "stdalloc.fh"
-            integer i,i0,i1,j,gh,iter,nInter
+            integer i,i0,i1,j,j0,j1,k,k0,k1,gh,iter,nInter
             real*8 sdiffx,sdiffx0,sdiffxk
             real*8, Allocatable ::  diffx(:,:),diffx0(:,:), diffxk(:,:)
 !

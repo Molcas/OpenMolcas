@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine Init_Kriging()
       use AI
-      Implicit Real*8 (a-h,o-z)
 C
 C     Initiate Kriging parameters.
 C
@@ -25,6 +24,7 @@ C
       miAI = 50
       meAI = 1.0D-8
       blAI = .False.
+      mblAI = .False.
       blaAI = .True.
       blavAI=0.04D0
 *

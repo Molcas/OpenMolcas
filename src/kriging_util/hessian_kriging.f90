@@ -12,13 +12,15 @@
 !***********************************************************************
       Subroutine Hessian_Kriging(x_,ddy_,ndimx)
         use globvar
-        Integer nInter,nPoints
+        Implicit None
+        Integer nInter,nPoints,ndimx
         Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
 !#define _Hess_Test
 #ifdef _Hess_Test
         Real*8 Scale,Delta,Fact,tgrad(ndimx),thgrad(ndimx)
         Real*8 HessT
+        Integer i, j
         HessT = 1.0D-7
 #endif
         nPoints = nPoints_save

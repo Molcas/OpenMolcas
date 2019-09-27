@@ -12,7 +12,8 @@
 !***********************************************************************
       Subroutine Dispersion_Kriging(x_,y_,ndimx)
         use globvar
-        Integer nInter,nPoints
+        Implicit None
+        Integer nInter,nPoints,ndimx
         Real*8 x_(ndimx,1),y_
 !
 !nx is the n-dimensional vector of the last iteration computed in update_sl

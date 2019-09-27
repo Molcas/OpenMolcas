@@ -12,7 +12,8 @@
 !***********************************************************************
       Subroutine Energy_Kriging(x_,y_,ndimx)
         use globvar
-        Integer nInter,nPoints
+        Implicit None
+        Integer nInter,nPoints,nDimx
         Real*8 x_(ndimx,1),y_
 !
         nPoints=nPoints_save

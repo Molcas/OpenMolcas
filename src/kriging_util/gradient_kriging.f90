@@ -12,7 +12,8 @@
 !***********************************************************************
       Subroutine Gradient_Kriging(x_,dy_,ndimx)
         use globvar
-        Integer nInter,nPoints
+        Implicit None
+        Integer nInter,nPoints, ndimx
         Real*8 x_(ndimx,1),dy_(ndimx)
 !
 !#define _Grad_Test
