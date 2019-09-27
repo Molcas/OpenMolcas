@@ -98,10 +98,21 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Different hardwired kriging options
 *
+*     Note that turning of the sorting will result in a poorer
+*     kriging!
+*
+*define _UNSORTED_
+#define _UPDATE_L_
+*                                                                      *
+************************************************************************
+*                                                                      *
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
-*define _UNSORTED_
 #ifndef _UNSORTED_
       Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
 #endif
@@ -237,7 +248,6 @@
          xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
          iNew=iFirst+nRaw-1
          yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-#define _UPDATE_L_
 #ifdef _UPDATE_L_
          If (yyy.gt.xxx) Then
             Value_l=Value_l * 0.95D0

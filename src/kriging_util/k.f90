@@ -20,10 +20,11 @@
 #define _PREDIAG_
 #ifdef _PREDIAG_
             real*8, Allocatable:: U(:,:), HTri(:), UBIG(:,:), C(:,:), D(:)
+            real*8 temp
             integer j,ij
 #endif
             Integer, Allocatable:: IPIV(:)
-            integer i,INFO,nPoints,sign ! ipiv the pivot indices that define the permutation matrix
+            Integer i,INFO,nPoints ! ipiv the pivot indices that define the permutation matrix
 !
             Call mma_Allocate(B,m_t,Label="B")
             Call mma_Allocate(A,m_t,m_t,Label="A")
@@ -37,7 +38,6 @@
 !
 !#define _DEBUG_
 #ifdef _DEBUG_
-            Call RecPrt('PSI',' ',A,m_t,m_t)
             Call RecPrt('f',' ',B,1,m_t)
 #endif
 !
@@ -52,9 +52,19 @@
                   HTri(ij)=Full_R(i,j)
                End Do
             End Do
-            Call Jacob(HTri,U,nPoints,nPoints,0)
-!           Call RecPrt('U',' ',U,nPoints,nPoints)
-!           Call TriPrt('HTri',' ',HTri,nPoints)
+#ifdef _DEBUG_
+            Call RecPrt('U',' ',U,nPoints,nPoints)
+#endif
+            Call Jacob (HTri,U,nPoints,nPoints,0)
+            Call Jacord(HTri,U,nPoints,nPoints)
+            Do i = 1, nPoints
+               Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
+               U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
+            End Do
+#ifdef _DEBUG_
+            Call RecPrt('U',' ',U,nPoints,nPoints)
+            Call TriPrt('HTri',' ',HTri,nPoints)
+#endif
 !
             Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
             UBIG=0.0D0
@@ -72,9 +82,11 @@
                         1.0D0,UBIG,m_t,         &
                               C,m_t,            &
                         0.0D0,A,m_t)
-!           Call RecPrt('U^TAU',' ',A,m_t,m_t)
             A(1:nPoints,1:nPoints)=0.0D0
             forall (i=1:nPoints) A(i,i)=HTri(i*(i+1)/2)
+#ifdef _DEBUG_
+            Call RecPrt('U^TAU',' ',A,m_t,m_t)
+#endif
 
             Call mma_allocate(D,m_t,Label='D')
             D=0.0D0
@@ -84,7 +96,9 @@
                         1.0D0,UBIG,m_t,         &
                               D,m_t,            &
                         0.0D0,B,m_t)
-!           Call RecPrt('U^TB',' ',B,1,m_t)
+#ifdef _DEBUG_
+            Call RecPrt('U^TB',' ',B,1,m_t)
+#endif
 !
             Call mma_deallocate(HTri)
             Call mma_deAllocate(C)
@@ -136,7 +150,6 @@
 ! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
 !
             detR = 0.0d0
-            sign = 1
             do i=1,m_t
 #ifdef _DPOSV_
                 detR = detR + 2.0D0*log(A(i,i))
@@ -144,7 +157,6 @@
                 detR = detR + log(abs(A(i,i)))
 #endif
             enddo
-            ! detR = detR*sign
 !
 !Trend Function (baseline)
             if (blaAI) then
@@ -186,8 +198,15 @@
                End Do
             End Do
             Call Jacob(HTri,U,nPoints,nPoints,0)
-!           Call RecPrt('U',' ',U,nPoints,nPoints)
-!           Call TriPrt('HTri',' ',HTri,nPoints)
+            Call Jacord(HTri,U,nPoints,nPoints)
+            Do i = 1, nPoints
+               Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
+               U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
+            End Do
+#ifdef _DEBUG_
+            Call RecPrt('U',' ',U,nPoints,nPoints)
+            Call TriPrt('HTri',' ',HTri,nPoints)
+#endif
 !
 !           Constructe a a transformation which will transform the
 !           correlation matrix to this new basis.
@@ -210,12 +229,14 @@
                         1.0D0,UBIG,m_t,         &
                               C,m_t,            &
                         0.0D0,A,m_t)
-!           Call RecPrt('U^TAU',' ',A,m_t,m_t)
 !
 !           Cleanup the first block - should be prefectly diagonal.
 !
             A(1:nPoints,1:nPoints)=0.0D0
             forall (i=1:nPoints) A(i,i)=HTri(i*(i+1)/2)
+#ifdef _DEBUG_
+            Call RecPrt('U^TAU',' ',A,m_t,m_t)
+#endif
 !
 !           transform Kv to the new basis
 !
@@ -226,7 +247,9 @@
                         1.0D0,UBIG,m_t,         &
                               D,m_t,            &
                         0.0D0,Kv,m_t)
-!           Call RecPrt('U^TKv',' ',Kv,1,m_t)
+#ifdef _DEBUG_
+            Call RecPrt('U^TKv',' ',Kv,1,m_t)
+#endif
 !
             Call mma_deallocate(HTri)
             Call mma_deAllocate(C)
@@ -246,7 +269,9 @@
             CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 #endif
 #ifdef _PREDIAG_
-!           Call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
+#ifdef _DEBUG_
+            Call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
+#endif
             D=Kv
             Kv=0.0D0
             Call DGEMM_('N','N',m_t,1,m_t,      &
