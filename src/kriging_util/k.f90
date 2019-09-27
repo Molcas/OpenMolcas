@@ -118,7 +118,7 @@
 !
 #ifdef _PREDIAG_
 !           Call RecPrt('(U^TAU)^{-1}U^TB',' ',B,1,m_t)
-            D=B
+            D(:)=B
             B=0.0D0
             Call DGEMM_('N','N',m_t,1,m_t,      &
                         1.0D0,UBIG,m_t,         &
@@ -241,8 +241,8 @@
 !           transform Kv to the new basis
 !
             Call mma_allocate(D,m_t,Label='D')
-            D=B
-            Kv=0
+            D(:)=B
+            Kv=0.0D0
             Call dgemm_('T','N',m_t,1,m_t,      &
                         1.0D0,UBIG,m_t,         &
                               D,m_t,            &
@@ -272,7 +272,7 @@
 #ifdef _DEBUG_
             Call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
 #endif
-            D=Kv
+            D(:)=Kv
             Kv=0.0D0
             Call DGEMM_('N','N',m_t,1,m_t,      &
                         1.0D0,UBIG,m_t,         &

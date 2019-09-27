@@ -1087,6 +1087,65 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
+Optional GEK keywords (...work in progress...)
+
+.. class:: keywordlist
+
+:kword:`AI`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AI" KIND="STRING" LEVEL="ADVANCED">
+              %%Keyword: AI <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+:kword:`AISP`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AISP" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: AISP <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+:kword:`AIAB`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AIAB" KIND="REAL" LEVEL="ADVANCED">
+              %%Keyword: AIAB <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+:kword:`l-value`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="l-value" KIND="REAL" LEVEL="ADVANCED">
+              %%Keyword: l-value <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+:kword:`MAXDisp`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" KIND="REAL" LEVEL="ADVANCED">
+              %%Keyword: MAXDISP <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+:kword:`AIMI`
+  blabla
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AIMI" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: AIMI <advanced>
+              <HELP>
+              Work in progress...
+              </HELP></KEYWORD>
+
+
 Example: A complete set of input decks for a CASSCF geometry
 optimization. These are the input decks for the optimization
 of the enediyne molecule.

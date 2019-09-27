@@ -590,7 +590,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** AIAB ************************************************************
 *                                                                      *
 *     adding energy to the last energy value of the base line
-*     This option superseas any value assigned to blAI and mblAI
+*     This option superseeds any value assigned to blAI and mblAI
 *
 110   Char=Get_Ln(LuRd)
       Call Get_F1(1,blavAI)

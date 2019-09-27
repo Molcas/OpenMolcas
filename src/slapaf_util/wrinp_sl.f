@@ -92,14 +92,23 @@
        Call Get_dScalar('Value_l',Value_l)
        Write (Lu,*) '  Characteristic length scale, l:            ',
      &              Value_l
+*
        If (blaAI) then
-          write (6,*) '  Baseline is last energy plus: ',blavAI
+          write (6,'(A,F9.5,A,/,A,F9.5,A)')
+     &          '   Baseline is last energy plus: ',blavAI,' a.u',
+     &          '                                 ',
+     &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,
+     &              ' kcal/mol'
        Else
           if (mblAI) then
              write (6,*) '  Baseline set to maximum value of the energy'
           else if (blAI) then
-             write (6,*) '  Baseline (Trend Function) changed to value:'
-     &                   , sb
+             write (6,'(A,F9.5,A,/,A,F9.5,A)')
+     &              '  Baseline (Trend Function) changed to value:',
+     &              blvAI, 'a.u.',
+     &              '                                             ',
+     &              blvAI * CONV_AU_TO_KJ_PER_MOLE_,
+     &              ' kcal/mol'
           endif
        Endif
        Write (Lu,*)
