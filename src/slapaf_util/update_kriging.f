@@ -101,7 +101,10 @@
 *
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
+*define _UNSORTED_
+#ifndef _UNSORTED_
       Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
+#endif
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -139,7 +142,6 @@
 *     Note that we could have some kind of sorting here if we
 *     like!
 *
-*define _UNSORTED_
 #ifdef _UNSORTED_
       Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
       Call Start_Kriging(nRaw,nInter,
@@ -235,11 +237,14 @@
          xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
          iNew=iFirst+nRaw-1
          yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
+#define _UPDATE_L_
+#ifdef _UPDATE_L_
          If (yyy.gt.xxx) Then
             Value_l=Value_l * 0.95D0
          Else
             Value_l=Value_l * 1.05D0
          End If
+#endif
 *
 *        Update the restricted variance threshold.
 *
@@ -392,12 +397,14 @@
 *                                                                      *
 *     Reduce the l-value(s) if the step was restricted.
 *
+#ifdef _UPDATE_L_
       If (Step_trunc.eq.'*') Then
          Call Get_dScalar('Value_l',Value_l)
          Value_l=Value_l * 0.95D0
 *        Write (6,*) ' Set l value to:',Value_l
          Call Put_dScalar('Value_l',Value_l)
       End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
