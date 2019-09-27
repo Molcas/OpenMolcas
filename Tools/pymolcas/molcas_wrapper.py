@@ -42,6 +42,7 @@ from emil_parse import EMIL_Parse, EMILException
 from python_parse import Python_Parse
 from molcas_aux import *
 from check_test import *
+from validate import *
 
 # python2 has no FileNotFoundError, so we will have to check
 # the errno attribute of the raised exception
@@ -97,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.05'
+  version = 'py2.06'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -116,6 +117,7 @@ class Molcas_wrapper(object):
     self.allow_shell = True
     self.echo = True
     self.input_filename = ''
+    self.only_validate = False
     if ('allow_shell' in kwargs):
       self.allow_shell = bool(kwargs['allow_shell'])
     if ('echo' in kwargs):
@@ -126,13 +128,17 @@ class Molcas_wrapper(object):
       self.warning = kwargs['warning']
     if ('stamp' in kwargs):
       self.stamp = kwargs['stamp']
+    if ('validate' in kwargs):
+      self.only_validate = kwargs['validate']
     self.licensee = None
+    self.keywords = None
     self.rc = None
     self._ready = False
     self._goto = False
     self._parse_rte()
     self._parse_codes()
     self._parse_alias()
+    self._parse_keywords()
     self._resources = (0,0,0)
     self._check_count = 0
     self._loop_level = 0
@@ -216,6 +222,14 @@ class Molcas_wrapper(object):
             if (match):
               self.alias[match.group(1)] = match.group(2)
 
+  def _parse_keywords(self):
+    try:
+      self.keywords = read_db(join(self.molcas, 'data', 'keyword.xml'))
+    except NameError:
+      self.keywords = 'no_lxml'
+    except:
+      pass
+
   def read_environment(self):
     '''Read environment variables from rc files (in priority order)'''
     rcfiles = [dotmolcas('molcasrc'), join(self.molcas, 'molcasrc')]
@@ -291,8 +305,9 @@ class Molcas_wrapper(object):
     set_utf8('WorkDir',self.scratch)
     if ((self.scratch is None) or (self.scratch == '')):
       raise MolcasException('"WorkDir" is not defined')
-    if (self.parallel_task(['base', self.scratch]) != 0):
-      raise MolcasException('parnell failed to create a WorkDir at {0}'.format(self.scratch))
+    if (not self.only_validate):
+      if (self.parallel_task(['base', self.scratch]) != 0):
+        raise MolcasException('parnell failed to create a WorkDir at {0}'.format(self.scratch))
     # Get output directory
     self.output = get_utf8('MOLCAS_OUTPUT', default=get_utf8('PBS_O_WORKDIR', default=self.currdir))
     if (not isabs(self.output)):
@@ -307,15 +322,16 @@ class Molcas_wrapper(object):
     set_utf8('MOLCAS_OUTPUT', self.output)
     if ((self.output is None) or (self.output == '')):
       raise MolcasException('Output directory is not defined')
-    try:
-      makedirs(self.output)
-    except OSError as e:
-      if ((e.errno == EEXIST) and (isdir(self.output))):
-        pass
-      else:
-        raise
-    if (not isdir(self.output) or not access(self.output, W_OK)):
-      raise MolcasException('"{0}" is not a writable directory'.format(self.output))
+    if (not self.only_validate):
+      try:
+        makedirs(self.output)
+      except OSError as e:
+        if ((e.errno == EEXIST) and (isdir(self.output))):
+          pass
+        else:
+          raise
+      if (not isdir(self.output) or not access(self.output, W_OK)):
+        raise MolcasException('"{0}" is not a writable directory'.format(self.output))
     # Get other variables
     if (get_utf8('MOLCAS_MEM', default='') == ''):
       set_utf8('MOLCAS_MEM', self._rte['DEFMOLCASMEM'])
@@ -504,7 +520,8 @@ class Molcas_wrapper(object):
         self.flow, files = EMIL_Parse(input_file)
       except EMILException as message:
         raise MolcasException('EMIL: {0}'.format(message))
-    self.add_files(files)
+    if (not self.only_validate):
+      self.add_files(files)
 
   def print_input(self):
     if (get_utf8('MOLCAS_ECHO_INPUT', default='YES').upper() != 'NO'):
@@ -617,7 +634,11 @@ class Molcas_wrapper(object):
   def _is_scratch_empty(self):
     # Check if there are any files in $WorkDir, other than those listed
     ignore = re_compile(r'(molcas|paraops|\.input$|\.inp$|\.log$|\.err$)')
-    files = [f for f in listdir(self.scratch) if (not ignore.search(f))]
+    try:
+      files = [f for f in listdir(self.scratch) if (not ignore.search(f))]
+    except FileNotFoundError as e:
+      if (e.errno == ENOENT):
+        files = []
     if (len(files) == 0):
       return True
     else:
@@ -644,7 +665,8 @@ class Molcas_wrapper(object):
 
   def startup(self):
     if (self._ready):
-      self.write_environment()
+      if (not self.only_validate):
+        self.write_environment()
       print('   This run of MOLCAS is using the pymolcas driver')
       if (self.licensee):
         print('   Licensed to: {0}'.format(self.licensee))
@@ -653,8 +675,9 @@ class Molcas_wrapper(object):
       if (hasattr(self, 'warning') and self.warning):
         print(self.warning)
       self.print_environment()
-      print('')
-      self.print_input()
+      if (not self.only_validate):
+        print('')
+        self.print_input()
 
   def end(self):
     if (hasattr(self, 'rc')):
@@ -680,6 +703,51 @@ class Molcas_wrapper(object):
       print('    Timing: Wall={0:.2f} User={1:.2f} System={2:.2f}'.format(*self._resources))
     if (get_utf8('MOLCAS_KEEP_WORKDIR', default='YES').upper() == 'NO'):
       self.delete_scratch()
+
+  def validate(self):
+    import abstract_flow
+    self.startup()
+    self.rc = 0
+    print('\nThe input file will be validated against the documented syntax, no')
+    print('files will be created or modified. Note that there is no guarantee that')
+    print('a validated input will actually run as inteded, but a validation error')
+    print('will most likely result in a run error.')
+    # flatten input to keep only programs (recursively inside groups)
+    flat = self.flow.contents[:]
+    redo = True
+    while (redo):
+      redo = False
+      new = []
+      for item in flat:
+        if (isinstance(item, abstract_flow.Program)):
+          new.append(item)
+        else:
+          redo = True
+          if (isinstance(item, abstract_flow.Group)):
+            new.extend(item.contents)
+      flat = new
+    final_rc = self.rc
+    for item in (flat):
+      inp = '&' + '\n'.join(item.lines[1:])
+      inputlines = sanitize(inp).strip().split('\n')
+      inputlines.append('End of input')
+      rc, result = validate(inputlines, self.keywords)
+      print('\n--')
+      for line in result:
+        print(line)
+      if (rc == 0):
+        print('\nLooks good!')
+      elif (rc > 0):
+        print('\n*** FAILED! ***')
+      print('--')
+      final_rc = max(final_rc, rc)
+    if (final_rc):
+      print('\n*************************************')
+      print('*** There were validation errors. ***')
+      print('*************************************')
+    else:
+      print('\nValidation passed.')
+    self.rc = final_rc
 
   def auto(self):
     self.startup()
@@ -995,6 +1063,7 @@ class Molcas_module(object):
     prgm_file = join(self.parent.molcas, 'data', 'global.prgm')
     self._files.update(parse_prgm(prgm_file)[1])
     self._links = []
+    self.rc = 0
     # Pass the input
     if (len(args) >= 2):
       inp = args[1]
@@ -1077,6 +1146,24 @@ class Molcas_module(object):
     if (input_file in self._files):
       self.parent.parallel_task(['c', '1', stdin, self._files[input_file][0]], force=True)
     self.parent.parallel_task(['c', '1', stdin, self.parent.scratch], force=True)
+
+  def _validate_input(self, inp):
+    val = get_utf8('MOLCAS_VALIDATE', default='NO').upper()
+    if (val not in ['YES', 'CHECK']):
+      return
+    if (self.name == 'check'):
+      return
+    rc, result = validate(inp, self.parent.keywords)
+    print('\n-- Input validation for {}'.format(self.name))
+    for line in result:
+      print(line)
+    if (rc == 0):
+      print('\nLooks good!')
+    elif (rc > 0):
+      print('\n*** FAILED! ***')
+    print('--')
+    if (val == 'YES'):
+      self.rc = rc
 
   # Private method to read the return code from the $WorkDir
   def _read_rc(self):
@@ -1206,13 +1293,17 @@ class Molcas_module(object):
     self._make_links()
     print(self.start)
     self._rstart = getrusage(RUSAGE_CHILDREN)
-    self.parent.run_logue('module.prologue')
-    if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
-      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
-      self._read_rc()
+    self._validate_input(join(self.parent.scratch, 'stdin'))
+    if (self.rc > 0):
+      self.rc = '_RC_INPUT_ERROR_'
     else:
-      self.rc = '_RC_NOT_AVAILABLE_'
-    self.parent.run_logue('module.epilogue')
+      self.parent.run_logue('module.prologue')
+      if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
+        teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
+        self._read_rc()
+      else:
+        self.rc = '_RC_NOT_AVAILABLE_'
+      self.parent.run_logue('module.epilogue')
     self._rstop = getrusage(RUSAGE_CHILDREN)
     self._stop = datetime.now()
     print(self.stop)

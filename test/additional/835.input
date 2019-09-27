@@ -64,13 +64,13 @@ NROFJOBIPHS
 TRD1
 
 &WFA
-H5file  $Project.rassi.h5
-refst 2
-ATLISTS 3
+H5file = $Project.rassi.h5
+refst = 2
+ATLISTS = 3
 1 *
 2 *
 3 4 *
-CTNUmmode 2
+CTNUmmode = 2
 addinfo
 
 >>FILE checkfile

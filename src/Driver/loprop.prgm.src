@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/loprop.exe             executable
+ (file)  LOPROINP "$WorkDir/$Project."Loprop.Input rwi
 #include "aoints.inc"
 #include "choints.inc"
 #include "chotmpfiles.inc"

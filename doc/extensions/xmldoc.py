@@ -22,14 +22,15 @@ import codecs
 import os.path
 
 X_clean = re.compile(r'^%+\+*')
-X_line = re.compile(r'(<\/?(help|key|group|select|module|emil|command).*?>)', flags=re.IGNORECASE)
+X_line = re.compile(r'(<\/?(help|key|group|select|module|emil|command|alternate).*?>)', flags=re.IGNORECASE)
 X_inhelp = re.compile(r'<help>', flags=re.IGNORECASE)
 X_inhelp2 = re.compile(r'<\/help>', flags=re.IGNORECASE)
 X_comment = re.compile(r'\s*<!--.*?-->')
 X_tag = re.compile(r'<')
-X_help = re.compile(r'(<\/?help)', flags=re.IGNORECASE)
+X_help = re.compile(r'\s*(<\/?help)', flags=re.IGNORECASE)
 X_key = re.compile(r'(<\/?(key|command))', flags=re.IGNORECASE)
 X_group = re.compile(r'(<\/?(group|select))', flags=re.IGNORECASE)
+X_alt = re.compile(r'(<\/?alternate)', flags=re.IGNORECASE)
 
 H_head = re.compile(r'%%(keyword|description):', flags=re.IGNORECASE)
 H_remove = re.compile(r'(%|<!--$|-->$)')
@@ -102,6 +103,7 @@ def reformat_XML(piece):
       line = ''
     # Indent XML tags
     line = X_help.sub(r'         \1', line)
+    line = X_alt.sub(r'         \1', line)
     line = X_key.sub(r'      \1', line)
     line = X_group.sub(r'   \1', line)
     text[i] = line

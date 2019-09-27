@@ -281,13 +281,14 @@ Optional keywords
   .. xmldoc:: <KEYWORD MODULE="CHCC" NAME="JOIN" APPEAR="Parallel integral generation" KIND="CHOICE" LIST="0: None (debug),1: Minimal,2: Medium,3: Full" LEVEL="BASIC" DEFAULT_VALUE="2">
               <HELP>
               Choose the type of parallel integral generation
-              </HELP></KEYWORD>
+              </HELP>
               %%Keyword: JOINlkey <basic>
               Sets the type of parallel integral generation
               ||0 - None (debug)
               ||1 - Minimal (low network bandwdith required)
               ||2 - Medium
               ||3 - Full (high network bandwidth required)
+              </KEYWORD>
 
 :kword:`MAXIterations`
   Integer on the following line specifies maximum number of CCSD iteration

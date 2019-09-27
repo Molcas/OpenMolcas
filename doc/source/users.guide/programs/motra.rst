@@ -178,7 +178,8 @@ The following keywords are compulsory.
               Specifies that the molecular orbitals are read from the job
               interface file, called JOBIPH, produced by the RASSCF program.
               MOTRA will in this case read the average orbitals.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 When natural orbitals from a RASSCF (or a state averaged CASSCF)
 calculation are to be used in
@@ -350,5 +351,7 @@ Input example
   * Don't correlate 1s on oxygen
   Frozen =  1 0 0 0
   Lumorb
+
+.. xmldoc:: <KEYWORD MODULE="MOTRA" NAME="HDF5" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

@@ -344,7 +344,7 @@ Optional keywords for analytical gradients
 
   .. xmldoc:: <SELECT MODULE="ALASKA" NAME="PRINTF" APPEAR="Print format" CONTAINS="POLD,PNEW">
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="POLD" APPEAR="Old format" KIND="SINGLE" LEVEL="BASIC" MEMBER="PRINT" EXCLUSIVE="PNEW">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="POLD" APPEAR="Old format" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="PNEW">
               %%Keyword: POLD <basic>
               <HELP>
               The gradient is printed in the old format. Note: by default gradient
@@ -355,7 +355,7 @@ Optional keywords for analytical gradients
 :kword:`PNEW`
   The gradient is printed in the new human-readable format.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="PNEW" APPEAR="New format" KIND="SINGLE" LEVEL="BASIC" MEMBER="PRINT" EXCLUSIVE="POLD">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="PNEW" APPEAR="New format" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="POLD">
               %%Keyword: PNEW <basic>
               <HELP>
               The gradient is printed in the new human-readable format.
@@ -367,7 +367,7 @@ Optional keywords for analytical gradients
 :kword:`VERBose`
   The output will be a bit more verbose.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="VERBOSE" APPEAR="Verbose printout" KIND="SINGLE" MEMBER="PRINT" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="VERBOSE" APPEAR="Verbose printout" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Verbose <basic>
               <HELP>
               The output will be a bit more verbose.
@@ -377,7 +377,7 @@ Optional keywords for analytical gradients
 :kword:`SHOW gradient contributions`
   The gradient contributions will be printed.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="SHOW" APPEAR="Show contributions" KIND="SINGLE" MEMBER="PRINT" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="SHOW" APPEAR="Show contributions" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Show <basic>
               <HELP>
               The gradient contributions will be printed.
@@ -397,7 +397,7 @@ Optional keywords for numerical gradients
 
   .. xmldoc:: <GROUP MODULE="ALASKA" NAME="NUMGRAD" APPEAR="Numerical gradient" KIND="BOX" WINDOW="POPUP" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="NUMERICAL" APPEAR="Force numerical gradient" KIND="SINGLE" MEMBER="NUMGRAD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="NUMERICAL" APPEAR="Force numerical gradient" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Numerical <basic>
               <HELP>
               Forces the use of numerical gradients even if analytical ones
@@ -413,7 +413,7 @@ Optional keywords for numerical gradients
   default is to compute it for root 1. It can be used to override the default
   root in an analytical calculation too.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="ROOT" APPEAR="Root selection" KIND="INT" MEMBER="NUMGRAD" LEVEL="ADVANCED" MIN_VALUE="1">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="ROOT" APPEAR="Root selection" KIND="INT" LEVEL="ADVANCED" MIN_VALUE="1">
               %%Keyword: Root <advanced>
               <HELP>
               Specifies which root to compute the gradient the geometry for, if there is more than
@@ -429,7 +429,7 @@ Optional keywords for numerical gradients
   neighbor, scaled by a factor. This factor can be set through the :kword:`DELTa`
   keyword. The default value is :math:`0.01`.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="DELTA" APPEAR="Displacement value" KIND="REAL" MEMBER="NUMGRAD" LEVEL="ADVANCED" DEFAULT_VALUE="0.01" MIN_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="DELTA" APPEAR="Displacement value" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.01" MIN_VALUE="0.0">
               %%Keyword: Delta <advanced>
               <HELP>
               For use with numerical gradients only!
@@ -461,5 +461,7 @@ this program explicitly. It is usually controlled by the program
 :program:`Slapaf`. ::
 
   &Alaska
+
+.. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="AUTO" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

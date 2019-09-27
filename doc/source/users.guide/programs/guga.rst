@@ -249,9 +249,9 @@ input must be given for a meaningful calculation.
   the active orbitals, read by 80I1 format. Note that
   :kword:`Reference` and :kword:`CIall` are mutually exclusive.
 
-  .. xmldoc:: <GROUP MODULE="GUGA" NAME="REF_SPACE" APPEAR="Reference space" KIND="RADIO" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="GUGA" NAME="REF_SPACE" APPEAR="Reference space" KIND="BOX" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="GUGA" NAME="REFERENCE" APPEAR="Reference occupations" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GUGA" NAME="REFERENCE" APPEAR="Reference occupations" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               A single string like '22010' for occupations.
               </HELP>
@@ -268,7 +268,7 @@ input must be given for a meaningful calculation.
   :kword:`CIall` and :kword:`Reference` are mutually exclusive.
   One of these two alternatives must be chosen for a meaningful calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGA" NAME="CIALL" APPEAR="Full reference" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GUGA" NAME="CIALL" APPEAR="Full reference" KIND="INT" LEVEL="BASIC">
               <HELP>
               Use a full reference.
               </HELP>
@@ -303,6 +303,8 @@ input must be given for a meaningful calculation.
               Include triplet-coupled double excitations from inactive to virtual orbitals.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="GUGA" NAME="INTERACT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 :kword:`PRINt`
   Printlevel of the program. Default printlevel (0) produces very
