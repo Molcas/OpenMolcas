@@ -26,12 +26,16 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
+!define _DEBUG_
+#ifdef _DEBUG_
+#include "stdalloc.fh"
+      Real*8, Dimension(:), Allocatable :: Int_R, Int_I, Temp_Int
+#endif
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "wldata.fh"
 #include "property_label.fh"
 #include "oneswi.fh"
@@ -77,6 +81,86 @@
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
+#ifdef _DEBUG_
+*
+*     This section of the code is for pure debugging and will replace
+*     exact operator with truncated expansions of the operator in
+*     terms of multipole integrals
+*
+      iOpt0=0
+      iOpt1=1
+      iOpt2=2
+      iRc=-1
+      Label='TMOM0'
+      iComp=1
+*     Pick up the size and the symmetry label.
+      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      nInts=idum(1)
+*
+      Call mma_allocate(Int_R,nInts+4,Label='Int_R')
+      Call mma_allocate(Int_I,nInts+4,Label='Int_I')
+      Call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
+*
+      Int_R=0.0D0
+      Int_R(nInts+1:nInts+3)=CoorO
+      Int_I=0.0D0
+      Int_I(nInts+1:nInts+3)=CoorO
+      Temp_Int=0.0D0
+*
+      nMltpl=2
+      iCase=1
+      Phase=1.0D0
+      Do iMltpl= 0, nMltpl
+         Write (Label,'(A,I2)') 'Mltpl ',iMltpl
+         nComp=(iMltpl+1)*(iMltpl+2)/2
+         iComp=0
+         xyz=1.0D0
+         Do ix = iMltpl, 0, -1
+            xyz=xyz*CoorO(1)**ix
+            Do iy = iMltpl-ix, 0, -1
+               xyz=xyz*CoorO(2)**iy
+               iz = iMltpl-ix-iy
+               xyz=xyz*CoorO(3)**iz
+*
+               iComp=iComp+1
+               Call RdOne(iRc,iOpt2,Label,iComp,Temp_Int,iSyLbl)
+*
+               Fact=Phase*Gamma(Dble(iMltpl)+1.0D0)/
+     &                   (Gamma(Dble(ix)+1.0D0)
+     &                   *Gamma(Dble(iy)+1.0D0)
+     &                   *Gamma(Dble(iz)+1.0D0))
+*
+               If (iCase.eq.1) Then
+*                 Contribution to the real part
+                  Call DaXpY_(nInts,Fact,Temp_Int,1,Int_R,1)
+               Else
+*                 Contribution to the imaginary part
+                  Call DaXpY_(nInts,Fact,Temp_Int,1,Int_I,1)
+               End If
+            End Do
+         End Do
+*
+         If (iCase.eq.1) Then
+            iCase=2
+         Else
+            iCase=1
+            Phase=-Phase
+         End If
+      End Do
+*
+*     Overwrite the integrals with a truncated expansion,
+*
+      Label='TMOM0'
+      iComp=1
+      Call WrOne(iRc,iOpt0,Label,iComp,Int_R,iSyLbl)
+      iComp=2
+      Call WrOne(iRc,iOpt0,Label,iComp,Int_I,iSyLbl)
+*
+      Call mma_deallocate(Int_R)
+      Call mma_deallocate(Int_I)
+      Call mma_deallocate(Temp_Int)
+*
+#endif
 *
       Call Deallocate_Aux()
       End If
