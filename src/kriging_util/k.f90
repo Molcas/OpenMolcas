@@ -55,8 +55,8 @@
 #ifdef _DEBUG_
             Call RecPrt('U',' ',U,nPoints,nPoints)
 #endif
-            Call Jacob (HTri,U,nPoints,nPoints,0)
-            Call Jacord(HTri,U,nPoints,nPoints)
+            Call nidiag_new(HTri,U,nPoints,nPoints,0)
+            Call Jacord    (HTri,U,nPoints,nPoints)
             Do i = 1, nPoints
                Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
                U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
@@ -197,8 +197,8 @@
                   HTri(ij)=Full_R(i,j)
                End Do
             End Do
-            Call Jacob(HTri,U,nPoints,nPoints,0)
-            Call Jacord(HTri,U,nPoints,nPoints)
+            Call nidiag_new(HTri,U,nPoints,nPoints,0)
+            Call Jacord    (HTri,U,nPoints,nPoints)
             Do i = 1, nPoints
                Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
                U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
