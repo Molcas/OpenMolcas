@@ -1011,10 +1011,10 @@ C And the same for the Dyson amplitudes
              IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
      &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR).AND.
+             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR+dlt).AND.
      &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR).AND.
+             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR+dlt).AND.
      &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
@@ -1030,7 +1030,7 @@ C And the same for the Dyson amplitudes
                  WRITE(6,40)
                END IF
                IF (COMPARE.GE.0.0D0) THEN
-                 WRITE(6,33) I,J,COMPARE*100D0,
+                 WRITE(6,38) I,J,COMPARE*100D0,
      &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
                ELSE IF (COMPARE.GE.-2.0D0) THEN
                  WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
@@ -3053,6 +3053,7 @@ C                 Why do it when we don't do the L.S-term!
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
+38    FORMAT (5X,2(1X,I4),6X,F15.6,4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),5X,3(1X,A15))
 40    FORMAT (5X,63('-'))
 41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))

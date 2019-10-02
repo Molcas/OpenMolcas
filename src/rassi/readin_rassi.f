@@ -705,7 +705,6 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'TOLE')THEN
 ! Set tolerance for different gauges - currently 10 percent (0.1D0)
 ! Defined as Tolerance = ABS(1-O_r/O_p)
-        NEW_TOLERANCE=.TRUE.
         Read(LuIn,*,ERR=997) TOLERANCE
         LINENR=LINENR+1
         GOTO 100
