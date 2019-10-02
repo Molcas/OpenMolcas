@@ -15,20 +15,7 @@ grid=ultrafine
 end of grid input
 
 &RASSCF
-spin
-1
-symmetry
-1
-nactel
-2 0 0
-inactive
-0
-ras2
-2
-
->>COPY $CurrDir/$Project.RasOrb.1 INPORB
-&RASSCF
-LumOrb
+FileOrb=MCPDFT.InpOrb
 CIONLY
 KSDFT
 ROKS
@@ -43,3 +30,30 @@ inactive
 0
 ras2
 2
+
+>file MCPDFT.InpOrb
+#INPORB 2.2
+#INFO
+* RASSCF natural orbitals for root number  1 E=       -0.933163699115
+       0       1       0
+       2
+       2
+*BC:HOST MacLimanni.local PID 96265 DATE Wed Oct  2 19:14:47 2019
+#ORB
+* ORBITAL    1    1
+ -7.07106781186547E-01  7.07106781186547E-01
+* ORBITAL    1    2
+  7.07106781186547E-01  7.07106781186547E-01
+#OCC
+* OCCUPATION NUMBERS
+  1.00000000000000E+00  9.99999999999999E-01
+#OCHR
+* OCCUPATION NUMBERS (HUMAN-READABLE)
+  1.0000  1.0000
+#ONE
+* ONE ELECTRON ENERGIES
+  0.0000E+00  0.0000E+00
+#INDEX
+* 1234567890
+0 22
+>EOF
