@@ -339,7 +339,7 @@
         call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
         call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
-        call prgmtranslate_master('FCIDMP', fcidmp, L)
+        call prgmtranslate_master('FCIDUMP', fcidmp, L)
         call prgmtranslate_master('FCINP', fcinp, L)
         call prgmtranslate_master('NEWCYCLE', newcycle, L)
 

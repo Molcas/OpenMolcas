@@ -47,7 +47,7 @@ contains
     call qEnter('dump_ascii')
 
     LuFCI = isFreeUnit(38)
-    call molcas_open(LuFCI,'FCIDMP')
+    call molcas_open(LuFCI,'FCIDUMP')
 
     write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh), &
        ',NELEC=',nActEl,',MS2=',int((ISPIN-1.0d0)),','
