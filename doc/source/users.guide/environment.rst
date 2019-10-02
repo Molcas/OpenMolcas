@@ -623,13 +623,13 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_TRAP`
-  If MOLCAS_TRAP set to ``OFF`` |molcas| modules will continue to be executed,
+  If set to OFF |molcas| modules will continue to be executed,
   even if a non-zero return code was produced.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_TRAP" APPEAR="Trap on Error" KIND="CHOICE" LIST="----,OFF" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_TRAP <advanced>
               <HELP>
-              If MOLCAS_TRAP set to 'OFF' molcas modules will continue to be executed,
+              If set to OFF molcas modules will continue to be executed,
               even if a non-zero return code was produced.
               </HELP>
               </KEYWORD>
@@ -638,14 +638,15 @@ The complete list of |molcas|-related environment variables:
   If set to YES, the input for each module will be validated against the documented syntax,
   and the calculation will stop if it does not pass. If set to CHECK, the input will be
   validated, but the calculation will continue, although the program itself may stop.
+  If set to FIRST, the whole input file will be validated prior to the calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_VALIDATE" APPEAR="Validate input" KIND="CHOICE" LIST="----,YES,CHECK" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_VALIDATE" APPEAR="Validate input" KIND="CHOICE" LIST="----,YES,CHECK,FIRST" LEVEL="BASIC">
               %%Keyword: MOLCAS_VALIDATE <basic>
               <HELP>
               If set to YES, the input for each module will be validated against the documented syntax,
               and the calculation will stop if it does not pass. If set to CHECK, the input will be
               validated, but the calculation will continue, although the program itself may stop.
-              A parent directory for all scratch areas. It can be set to an
+              If set to FIRST, the whole input file will be validated prior to the calculation.
               </HELP>
               </KEYWORD>
 
