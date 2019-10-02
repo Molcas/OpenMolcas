@@ -1,0 +1,45 @@
+&GATEWAY
+coord
+2
+Angstrom 
+H 0 0  10
+H 0 0 -10
+basis
+STO-3G
+group
+nosym
+
+&SEWARD
+grid input
+grid=ultrafine
+end of grid input
+
+&RASSCF
+spin
+1
+symmetry
+1
+nactel
+2 0 0
+inactive
+0
+ras2
+2
+
+>>COPY $CurrDir/$Project.RasOrb.1 INPORB
+&RASSCF
+LumOrb
+CIONLY
+KSDFT
+ROKS
+TPBE
+spin
+1
+symmetry
+1
+nactel
+2 0 0
+inactive
+0
+ras2
+2
