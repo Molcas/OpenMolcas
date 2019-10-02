@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
+      USE RASSI_aux
       USE kVectors
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
@@ -2362,7 +2363,7 @@ C And the same for the Dyson amplitudes
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
+      Call iDaFile(LuToM,2,TocM,nState*(nState+1)/2,iDisk)
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
@@ -2389,7 +2390,7 @@ C And the same for the Dyson amplitudes
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=iWork(liTocM+ij-1)
+            iDisk=TocM(ij)
             Get_TDS=.True.
 *
 *           The reading is postponed until it is really needed
@@ -2429,7 +2430,7 @@ C And the same for the Dyson amplitudes
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=iWork(liTocM+ij-1)
+            iDisk=TocM(ij)
             If (iDisk.ge.0) Then
                Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
             Else
@@ -2689,7 +2690,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=iWork(liTocM+ij-1)
+                     iDisk=TocM(ij)
                      If (iDisk.gt.0) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
                      Else

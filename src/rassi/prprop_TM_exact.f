@@ -13,6 +13,7 @@
 *               2019, Ignacio Fdez Galvan                              *
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
+      USE RASSI_AUX
       USE kVectors
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
@@ -197,7 +198,7 @@ C printing threshold
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
+      Call iDaFile(LuToM,2,TocM,nState*(nState+1)/2,iDisk)
 *
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
@@ -530,7 +531,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      ISTATE=max(I,J)
                      JSTATE=min(I,J)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=iWork(liTocM+ij-1)
+                     iDisk=TocM(ij)
                      If (iDisk.gt.0) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
                      Else

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PROPER (PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
+      use RASSI_AUX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -148,9 +149,9 @@ C-------------------------------------------
         Call DaName(LuToM,FnToM)
         If(iCall.eq.0) then  !Make room for table-of-contents
           iDisk=0
-          Call ICOPY(nState*(nState+1)/2,[-1],0,iWork(liTocM),1)
-          Call iDaFile(LuToM,1,iWork(liTocM),nState*(nstate+1)/2,iDisk)
-          iWork(liTocM)=iDisk
+          Call ICOPY(nState*(nState+1)/2,[-1],0,TocM,1)
+          Call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
+          TocM(1)=iDisk
           iDiskSav=iDisk
           iCall=1
         Endif
@@ -164,14 +165,14 @@ C-------------------------------------------
         i=iState
         j=jState
         indCall=i*(i-1)/2+j  !Which call this is
-        iWork(liToCM+indCall-1)=iDiskSav
+        ToCM(indCall)=iDiskSav
         ind=indCall+1
         iDisk=iDiskSav
 *       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
         Call dDaFile(LuToM,1,Work(Lscr),4*nscr,iDisk) !The THING.
         iDiskSav=iDisk  !Save diskaddress.
         iDisk=0
-        Call iDaFile(LuToM,1,iWork(liTocM),nState*(nState+1)/2,iDisk)
+        Call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
                             !Put table of contents.
         Call DaClos(LuToM)
       Endif

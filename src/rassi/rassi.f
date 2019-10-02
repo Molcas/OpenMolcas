@@ -11,6 +11,7 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
+      use rassi_aux
       use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -80,7 +81,7 @@ C Needed matrix elements are computed by PROPER.
       Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
       Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
-      Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
+      Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
       Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
 
       NPROPSZ=NSTATE*NSTATE*NPROP
@@ -302,7 +303,7 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
       Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
-      Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
+      Call mma_deallocate(TocM)
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
