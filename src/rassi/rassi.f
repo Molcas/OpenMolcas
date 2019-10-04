@@ -43,6 +43,7 @@ C RAS state interaction.
       COMMON / CHO_JOBS / Fake_CMO2
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
+      Real*8, Allocatable:: PROP(:,:,:)
 
       IRETURN=20
 
@@ -85,18 +86,20 @@ C Needed matrix elements are computed by PROPER.
       Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
 
       NPROPSZ=NSTATE*NSTATE*NPROP
-      CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
+      Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
+      Prop(:,:,:)=0.0D0
 
 C Number of basis functions
       NZ=0                      ! (NBAS is already used...)
       DO ISY=1,NSYM
          NZ=NZ+NBASF(ISY)
       END DO
+*
       IF (DYSO) THEN
        LSFDYS=0
        CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
       END IF
-      CALL DCOPY_(NPROPSZ,[0.0D0],0,WORK(LPROP),1)
+*
 C Loop over jobiphs JOB1:
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
@@ -104,7 +107,7 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
+          CALL GTDMCTL(PROP,JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
      &          WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1))
         END DO
       END DO
@@ -135,7 +138,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(WORK(LPROP),WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
+      CALL MECTL(PROP,WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
 
 C--------  SI wave function section --------------------------
 C In a second section, if Hamiltonian elements were requested,
@@ -149,7 +152,7 @@ C and perhaps GTDM's.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
+        CALL EIGCTL(PROP,WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
      &              Work(LEIGVEC),WORK(LENERGY))
       END IF
 
@@ -218,7 +221,7 @@ C Nr of spin states and division of loops:
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
-        CALL SOEIG(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
+        CALL SOEIG(PROP,WORK(LUTOTR),WORK(LUTOTI),
      &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
@@ -243,7 +246,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
       END IF
 ! +++
 
-      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
+      CALL PRPROP(PROP,WORK(LUTOTR),WORK(LUTOTI),
      &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
      &            WORK(LENERGY),iWork(lJBNUM))
 
@@ -286,7 +289,7 @@ CIgorS End------------------------------------------------------------C
 
       IF (DQVD) then
         Call StatusLine('RASSI:', 'DQV Diabatization')
-        CALL DQVDiabat(WORK(LPROP),WORK(LHAM))
+        CALL DQVDiabat(PROP,WORK(LHAM))
       END IF
 *                                                                      *
 ************************************************************************
@@ -304,7 +307,7 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
       Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
       Call mma_deallocate(TocM)
-      CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
+      Call mma_deallocate(Prop)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
 

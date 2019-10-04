@@ -20,6 +20,7 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       DIMENSION TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       DIMENSION IOFF(8)
       CHARACTER*8 LABEL
@@ -27,6 +28,7 @@
       Save iDiskSav !(For ToFile)
       SAVE ICALL
       DATA ICALL /0/
+      Real*8, Allocatable:: SCR(:,:)
 
 C COMBINED SYMMETRY OF STATES:
       JOB1=iWork(lJBNUM+ISTATE-1)
@@ -57,8 +59,8 @@ C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-      CALL DCOPY_(4*NSCR,[0.0D00],0,WORK(LSCR),1)
+      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+      SCR(:,:)=0.0D0
 C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
       IF(ISY12.EQ.1) THEN
         IOF=0
@@ -74,16 +76,16 @@ C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
               IF(I.GE.J) THEN
                 IJ=IOF+(I*(I-1))/2+J
                 IF(I.GT.J) THEN
-                  WORK(LSCR-1+IJ+NSCR*(1))=WORK(LSCR-1+IJ+NSCR*(1))+TDM
-                  WORK(LSCR-1+IJ+NSCR*(3))=WORK(LSCR-1+IJ+NSCR*(3))+WDM
+                  SCR(IJ,2)=SCR(IJ,2)+TDM
+                  SCR(IJ,4)=SCR(IJ,4)+WDM
                 END IF
               ELSE
                 IJ=IOF+(J*(J-1))/2+I
-                WORK(LSCR-1+IJ+NSCR*(1))=WORK(LSCR-1+IJ+NSCR*(1))-TDM
-                WORK(LSCR-1+IJ+NSCR*(3))=WORK(LSCR-1+IJ+NSCR*(3))-WDM
+                SCR(IJ,2)=SCR(IJ,2)-TDM
+                SCR(IJ,4)=SCR(IJ,4)-WDM
               END IF
-              WORK(LSCR-1+IJ+NSCR*(0))=WORK(LSCR-1+IJ+NSCR*(0))+TDM
-              WORK(LSCR-1+IJ+NSCR*(2))=WORK(LSCR-1+IJ+NSCR*(2))+WDM
+              SCR(IJ,1)=SCR(IJ,1)+TDM
+              SCR(IJ,3)=SCR(IJ,3)+WDM
 90        CONTINUE
           IOF=IOF+(NB*(NB+1))/2
 100     CONTINUE
@@ -104,10 +106,10 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
                 IJ=IOFF(ISY1)+I+NB1*(J-1)
-                WORK(LSCR-1+IJ       )=WORK(LSCR-1+IJ       )+TDM
-                WORK(LSCR-1+IJ+NSCR  )=WORK(LSCR-1+IJ+NSCR  )+TDM
-                WORK(LSCR-1+IJ+NSCR*2)=WORK(LSCR-1+IJ+NSCR*2)+WDM
-                WORK(LSCR-1+IJ+NSCR*3)=WORK(LSCR-1+IJ+NSCR*3)+WDM
+                SCR(IJ,1)=SCR(IJ,1)+TDM
+                SCR(IJ,2)=SCR(IJ,2)+TDM
+                SCR(IJ,3)=SCR(IJ,3)+WDM
+                SCR(IJ,4)=SCR(IJ,4)+WDM
 180         CONTINUE
           ELSE
             DO 190 J=1,NB2
@@ -116,14 +118,15 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
                 IJ=IOFF(ISY2)+J+NB2*(I-1)
-                WORK(LSCR-1+IJ       )=WORK(LSCR-1+IJ       )+TDM
-                WORK(LSCR-1+IJ+NSCR  )=WORK(LSCR-1+IJ+NSCR  )-TDM
-                WORK(LSCR-1+IJ+NSCR*2)=WORK(LSCR-1+IJ+NSCR*2)+WDM
-                WORK(LSCR-1+IJ+NSCR*3)=WORK(LSCR-1+IJ+NSCR*3)-WDM
+                SCR(IJ,1)=SCR(IJ,1)+TDM
+                SCR(IJ,2)=SCR(IJ,2)-TDM
+                SCR(IJ,3)=SCR(IJ,3)+WDM
+                SCR(IJ,4)=SCR(IJ,4)-WDM
 190         CONTINUE
           END IF
 200     CONTINUE
       END IF
+*
 C AT THIS POINT, THE SYMMETRICALLY AND ANTISYMMETRICALLY FOLDED
 C DENSITY MATRICES, AND WE-REDUCED SPIN DENSITY MATRICES, HAVE BEEN
 C CALCULATED BEGINNING IN WORK(LSCR).
@@ -137,13 +140,13 @@ C-------------------------------------------
 C
 C IF NONADIABATIC COUPLINGS ARE REQUIRED LET'S COMPUTE THEM RIGHT NOW!
 C
-         CALL COMP_NAC(ISTATE, JSTATE, LSCR, ISY12, IOFF, LCI1)
+         CALL COMP_NAC(ISTATE, JSTATE, SCR, 4*nSCR, ISY12, IOFF, LCI1)
       END IF
 C WE CONTINUE WITH THE NORMAL CALCULATION OF PROPERTIES...
 C-------------------------------------------
 CTL2004-end
 C-------------------------------------------
-*If requested by user, put Work(lscr) in an unformatted file for later
+*If requested by user, put SCR in an unformatted file for later
 *use by another program. (A.Ohrn)
       If(ToFile) then
         Call DaName(LuToM,FnToM)
@@ -169,7 +172,7 @@ C-------------------------------------------
         ind=indCall+1
         iDisk=iDiskSav
 *       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
-        Call dDaFile(LuToM,1,Work(Lscr),4*nscr,iDisk) !The THING.
+        Call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.
         iDiskSav=iDisk  !Save diskaddress.
         iDisk=0
         Call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
@@ -178,7 +181,7 @@ C-------------------------------------------
       Endif
 *End of ToFile
 *     Write (*,*) 'ISTATE,JSTATE=',ISTATE,JSTATE
-      DO 300 IPROP=1,NPROP
+      DO IPROP=1,NPROP
         PROP(ISTATE,JSTATE,IPROP)=0.0D00
         LABEL=PNAME(IPROP)
 
@@ -215,10 +218,10 @@ c the EF2 term without the nuclear contribution
         END IF
 *
         Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
-     &               WORK(LIP),NIP,WORK(LSCR),NSCR,MASK,ISY12,IOFF)
+     &               WORK(LIP),NIP,SCR,NSCR,MASK,ISY12,IOFF)
 *
-300   CONTINUE
-      CALL GETMEM('TDMSCR','Free','Real',LSCR,4*NSCR)
+      END DO
+      Call mma_deallocate(SCR)
       CALL GETMEM('      ','FREE','REAL',LIP,NIP)
       RETURN
       END

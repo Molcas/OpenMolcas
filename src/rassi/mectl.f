@@ -27,28 +27,6 @@
 
       CALL QENTER(ROUTINE)
 
-* PAM Sep 2014: this section moved to within GTDMCTL loops
-*C Transition density matrices, TDMZZ, in AO basis.
-*C WDMZZ similar, but WE-reduced 'triplet' densities.
-*      CALL GETMEM('TDMZZ','Allo','Real',LTDMZZ,NTDMZZ)
-*      CALL GETMEM('TSDMZZ','Allo','Real',LTSDMZZ,NTDMZZ)
-*      CALL GETMEM('WDMZZ','Allo','Real',LWDMZZ,NTDMZZ)
-*C Double loop over the states
-*      DO ISTATE=1,NSTATE
-*        DO JSTATE=1,ISTATE
-*C IDTDM: TOC array for transition 1-matrices
-*          IDISK=IDTDM(ISTATE,JSTATE)
-*          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
-*          CALL DDAFILE(LUTDM,2,WORK(LTSDMZZ),NTDMZZ,IDISK)
-*          CALL DDAFILE(LUTDM,2,WORK(LWDMZZ),NTDMZZ,IDISK)
-*          CALL PROPER (PROP,ISTATE,JSTATE,WORK(LTDMZZ),WORK(LWDMZZ))
-*        END DO
-*      END DO
-*      CALL GETMEM('TDMZZ','Free','Real',LTDMZZ,NTDMZZ)
-*      CALL GETMEM('TSDMZZ','Free','Real',LTSDMZZ,NTDMZZ)
-*      CALL GETMEM('WDMZZ','Free','Real',LWDMZZ,NTDMZZ)
-
-
 C Print results:
       NCOL=4
       IF(PRXVR.and.IPGLOB.ge.SILENT) THEN

@@ -12,7 +12,7 @@
   implicit none
 
   integer, intent(in) :: adim, lu, adr
-  real*8 , intent(in) :: array1(*),array2(*),array3(*)
+  real*8 , intent(in) :: array1(adim),array2(adim),array3(adim)
   integer :: idisk
 
     idisk = adr
