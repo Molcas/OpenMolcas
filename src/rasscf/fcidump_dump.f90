@@ -204,6 +204,7 @@ contains
 ! Avoid unused argument warnings
     if (.false.) then
       call unused_real(EMY)
+      call unused_character(path)
       call unused(orbital_table)
       call unused(fock_table)
       call unused(two_el_table)

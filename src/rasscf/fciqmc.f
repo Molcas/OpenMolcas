@@ -356,7 +356,7 @@
         character(*), intent(in) :: molcas_name
         character(:), allocatable :: path
         character(1024) :: buffer
-        integer :: L, err
+        integer :: L
         call prgmtranslate_master(molcas_name, buffer, L)
         path = buffer(:L)
       end function
