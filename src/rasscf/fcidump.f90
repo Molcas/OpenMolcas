@@ -30,9 +30,10 @@ module fcidump
   save
 contains
 
-  subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, &
-                           core_energy, permutation)
+  subroutine make_fcidumps(ascii_path, h5_path, orbital_energies, folded_Fock,&
+                           TUVX, core_energy, permutation)
     use general_data, only : nSym, nAsh
+    character(*), intent(in) :: ascii_path, h5_path
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
@@ -58,8 +59,10 @@ contains
       call reorder(orbital_table, fock_table, two_el_table, orbsym, permutation)
     end if
 
-    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table, orbsym)
-    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table, orbsym)
+    call dump_ascii(ascii_path, core_energy, orbital_table, fock_table, &
+                    & two_el_table, orbsym)
+    call dump_hdf5(h5_path, core_energy, orbital_table, fock_table, &
+                    & two_el_table, orbsym)
 
     call mma_deallocate(fock_table)
     call mma_deallocate(two_el_table)

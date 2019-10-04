@@ -16,7 +16,6 @@ module fcidump_dump
   implicit none
   private
   public :: dump_ascii, dump_hdf5
-  save
 contains
 
 !>  @brief
@@ -34,9 +33,11 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table, orbsym)
+  subroutine dump_ascii(path, EMY, orbital_table, fock_table, &
+                        two_el_table, orbsym)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
+    character(*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
@@ -47,7 +48,7 @@ contains
     call qEnter('dump_ascii')
 
     LuFCI = isFreeUnit(38)
-    call molcas_open(LuFCI,'FCIDUMP')
+    call molcas_open(LuFCI, path)
 
     write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh), &
        ',NELEC=',nActEl,',MS2=',int((ISPIN-1.0d0)),','
@@ -106,7 +107,7 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table, orbsym)
+  subroutine dump_hdf5(path, EMY, orbital_table, fock_table, two_el_table, orbsym)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
@@ -114,6 +115,7 @@ contains
     use mh5
 #endif
     implicit none
+    character(*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
@@ -126,7 +128,7 @@ contains
 
     call qEnter('dump_hdf5')
 
-    file_id = mh5_create_file('H5FCIDMP')
+    file_id = mh5_create_file(path)
 
 !   symmetry information
     call Get_cArray('Irreps', lIrrep, 24)

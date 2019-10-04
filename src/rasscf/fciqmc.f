@@ -43,6 +43,11 @@
         integer function isfreeunit(iseed)
           integer, intent(in) :: iseed
         end function
+
+        subroutine NECImain(fcidmp, input_name, NECIen)
+          character(*), intent(in) :: fcidmp, input_name
+          real*8, intent (out) :: NECIen
+        end subroutine
       end interface
       contains
 
@@ -103,10 +108,16 @@
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 
       parameter(ROUTINE = 'FCIQMC_clt')
+      character(*), parameter ::
+     &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDMP'
 
       call qEnter(routine)
 
-      fake_run_ = merge(fake_run, .false., present(fake_run))
+      if (present(fake_run)) then
+        fake_run_ = fake_run
+      else
+        fake_run_ = .false.
+      end if
 
 ! Local print level (if any)
       iprlev = iprloc(1)
@@ -163,10 +174,11 @@
      &      F_IN, orbital_E, folded_Fock)
 
       if (ReOrFlag /= 0) then
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
-     &                     permutation)
+        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
+     &      orbital_E, folded_Fock, TUVX, EMY, permutation)
       else
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
+        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
+     &      orbital_E, folded_Fock, TUVX, EMY)
       end if
 
       if (iDoGAS) then
@@ -183,8 +195,8 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
 
-      call run_neci(DoEmbdNECI, fake_run_, doGAS=iDoGAS,
-     &  reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
+      call run_neci(DoEmbdNECI, fake_run_, ascii_fcidmp, h5_fcidmp,
+     &  doGAS=iDoGAS, reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
 ! NECIen so far is only the energy for the GS.
@@ -216,17 +228,22 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, fake_run, reuse_pops, NECIen,
-     &                    D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
+      subroutine run_neci(DoEmbdNECI, fake_run,
+     &      ascii_fcidmp, h5_fcidmp,
+     &      reuse_pops,
+     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
         use fciqmc_make_inp, only : make_inp
         use rasscf_data, only : nAcPar, nAcPr2
         implicit none
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
-        logical, intent(in), optional :: doGAS
-        logical :: doGAS_
+        character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+        logical, intent(in), optional :: doGAS
+        logical :: doGAS_
         real*8, save :: previous_NECIen = 0.0d0
+
+        character(*), parameter :: input_name = 'FCINP'
 
         if (present(doGAS)) then
           doGAS_ = doGAS
@@ -238,11 +255,11 @@
           NECIen = previous_NECIen
         else
           if (DoEmbdNECI) then
-            call make_inp(doGAS=doGAS_, readpops=reuse_pops)
+            call make_inp(input_name, doGAS=doGAS_, readpops=reuse_pops)
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
-            call necimain(NECIen)
+            call necimain(ascii_fcidmp, input_name, NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
@@ -251,8 +268,11 @@
      &'for compiling or use an external NECI.')
 #endif
           else
-            call make_inp(doGAS=doGAS_)
-            if (myrank == 0) call write_ExNECI_message()
+            call make_inp(input_name, doGAS=doGAS_)
+            if (myrank == 0) then
+              call write_ExNECI_message(input_name, ascii_fcidmp,
+     &                                  h5_fcidmp)
+            end if
             call wait_and_read(NECIen)
           end if
           previous_NECIen = NECIen
@@ -332,28 +352,28 @@
       end subroutine check_options
 
 
-      subroutine write_ExNECI_message()
-        character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
+      subroutine write_ExNECI_message(
+     &      input_name, ascii_fcidmp, h5_fcidmp)
+        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
+        character(1024) :: h5fcidmp_path, newcycle, WorkDir
         integer :: L, err
 
         call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
-        call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
-        call prgmtranslate_master('FCIDUMP', fcidmp, L)
-        call prgmtranslate_master('FCINP', fcinp, L)
+        call prgmtranslate_master(h5_fcidmp, h5fcidmp_path, L)
         call prgmtranslate_master('NEWCYCLE', newcycle, L)
 
 
         write(6,'(A)')'Run NECI externally.'
         write(6,'(A)')'Get the (example) NECI input:'
         write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcinp), '$NECI_RUN_DIR'
+     &    'cp', trim(WorkDir)//'/'//trim(input_name), '$NECI_RUN_DIR'
         write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
         write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
+     &    'cp', trim(WorkDir)//'/'//trim(ascii_fcidmp), '$NECI_RUN_DIR'
         write(6,'(A)')'Or the HDF5 FCIDUMP:'
         write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
+     &    'cp', trim(h5fcidmp_path), '$NECI_RUN_DIR'
         write(6, *)
         write(6,'(A)') "When finished do:"
         write(6,'(4x, A)')

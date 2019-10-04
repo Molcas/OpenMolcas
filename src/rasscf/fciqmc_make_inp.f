@@ -63,11 +63,12 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(readpops, doGAS)
+      subroutine make_inp(path, readpops, doGAS)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       implicit none
+      character(*), intent(in) :: path
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
       integer :: i, isFreeUnit, file_id, indentlevel
@@ -92,7 +93,7 @@
       call qEnter('make_inp')
 
       file_id = isFreeUnit(39)
-      call Molcas_Open(file_id,'FCINP')
+      call Molcas_Open(file_id, path)
 
       indentlevel = 0
       write(file_id, A_fmt()) 'Title'
