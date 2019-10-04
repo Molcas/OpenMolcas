@@ -109,7 +109,7 @@
 
       parameter(ROUTINE = 'FCIQMC_clt')
       character(*), parameter ::
-     &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDMP'
+     &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
       call qEnter(routine)
 
@@ -259,7 +259,8 @@
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
-            call necimain(ascii_fcidmp, input_name, NECIen)
+            call necimain(
+     &        real_path(ascii_fcidmp), real_path(input_name), NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
@@ -351,35 +352,42 @@
         end if
       end subroutine check_options
 
+      function real_path(molcas_name) result(path)
+        character(*), intent(in) :: molcas_name
+        character(:), allocatable :: path
+        character(1024) :: buffer
+        integer :: L, err
+        call prgmtranslate_master(molcas_name, buffer, L)
+        path = buffer(:L)
+      end function
+
 
       subroutine write_ExNECI_message(
      &      input_name, ascii_fcidmp, h5_fcidmp)
         character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
-        character(1024) :: h5fcidmp_path, newcycle, WorkDir
-        integer :: L, err
+        character(1024) :: WorkDir
+        integer :: err
 
         call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
-        call prgmtranslate_master(h5_fcidmp, h5fcidmp_path, L)
-        call prgmtranslate_master('NEWCYCLE', newcycle, L)
-
 
         write(6,'(A)')'Run NECI externally.'
         write(6,'(A)')'Get the (example) NECI input:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(WorkDir)//'/'//trim(input_name), '$NECI_RUN_DIR'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(input_name), '$NECI_RUN_DIR'
         write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(WorkDir)//'/'//trim(ascii_fcidmp), '$NECI_RUN_DIR'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(ascii_fcidmp), '$NECI_RUN_DIR'
         write(6,'(A)')'Or the HDF5 FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(h5fcidmp_path), '$NECI_RUN_DIR'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(h5_fcidmp), '$NECI_RUN_DIR'
         write(6, *)
         write(6,'(A)') "When finished do:"
         write(6,'(4x, A)')
      &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
      &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
-        write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
+        write(6,'(4x, A)')
+     &    'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
         call xflush(6)
       end subroutine write_ExNECI_message
 
