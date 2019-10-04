@@ -103,10 +103,10 @@
      &            Work(LW2),NCNASM(LSYM),
      &            (NAEL+NBEL),NAEL,NBEL,
      &            NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
-c      IF ( IPRLEV.EQ.INSANE) then
+      IF ( IPRLEV.EQ.INSANE) then
         Call Square(Work(LEXHAM),EXPLV,1,NSEL,NSEL)
         CALL RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
-c      END IF
+      END IF
       CALL GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
       CALL GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
       CALL GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
