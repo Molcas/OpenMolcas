@@ -141,7 +141,7 @@ Optional keywords
   has to be supplied as argument.
   The default value, 0, is recommended for production calculations.
 
-  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="PRINT" APPEAR="Print level" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="0" >
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="PRINT" APPEAR="Print level" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="0">
               %%Keyword: Print <advanced>
               <HELP>
               Specifies the general print level of the calculation. An integer
@@ -309,9 +309,13 @@ Optional keywords
   Singles amplitudes/energy introduced according to Thouless formula.
   An INPORB file containing MOs different from HF orbitals is required.
 
-  .. xmldoc:: %%Keyword: T1AM <advanced>
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="T1AM" APPEAR="Thouless singles amplitudes" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: T1AM <advanced>
+              <HELP>
               Singles amplitudes/energy introduced according to Thouless formula.
               An INPORB file containing MOs different from HF orbitals is required.
+              </HELP>
+              </KEYWORD>
 
 :kword:`LOVMp2`
   "Freeze-and-Delete" type of MP2, available only in connection with Cholesky or RI.
@@ -332,7 +336,9 @@ Optional keywords
   Alternatively, one can specify the keyword :kword:`VirAll` in order to use all virtual orbitals as correlating space for the
   occupied orbitals of the active site.
 
-  .. xmldoc:: %%Keyword: LOVM <advanced>
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="LOVMP2" APPEAR="Localized occupied-virtual MP2" LEVEL="ADVANCED" KIND="CUSTOM">
+              %%Keyword: LOVM <advanced>
+              <HELP>
               "Freeze-and-Delete" type of MP2, available only in connection with Cholesky or RI.
               An example of input for the keyword LOVM is the following:
               ||
@@ -350,6 +356,12 @@ Optional keywords
               the "frozen region" (B).
               Alternatively, one can specify the keyword VirAll in order to use all virtual orbitals as correlating space for the
               occupied orbitals of the active site.
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="DOMP2" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="VIRALL" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`FNOMp2`
   Performs a Frozen Natural Orbital (FNO) MP2 calculation, available only in combination with Cholesky or RI integral representation.
@@ -363,7 +375,9 @@ Optional keywords
   (in each irrep) to be retained in the FNO-MP2 calculation.
   The keyword :kword:`DoMP2` is optional and used to compute the (estimated) correction for the truncation error.
 
-  .. xmldoc:: %%Keyword: FNOM <advanced>
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="FNOMP2" APPEAR="Frozen natural orbital MP2" LEVEL="ADVANCED" KIND="REAL">
+              %%Keyword: FNOM <advanced>
+              <HELP>
               Performs a Frozen Natural Orbital (FNO) MP2 calculation, available only in combination with Cholesky or RI integral representation
               An example of input for the keyword FNOM is the following:
               ||
@@ -374,6 +388,8 @@ Optional keywords
               The keyword FNOM has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
               (in each irrep) to be retained in the FNO-MP2 calculation.
               The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.
+              </HELP>
+              </KEYWORD>
 
 :kword:`PRPT`
   Multipole moments (dipoles and quadrupoles) are calculated and printed. The moments
@@ -444,9 +460,9 @@ are disregarded for algorithm 0 (see below).
   2 [compute integrals on-the-fly, not minimal operation count, level 3 BLAS],
   Default is 2.
 
-  .. xmldoc:: <GROUP MODULE="MBPT2" NAME="CHOINPUT" APPEAR="Cholesky input section" KIND="BLOCK" LEVEL="ADVANCED">
+  .. xmldoc:: <GROUP MODULE="MBPT2" NAME="CHOINPUT" APPEAR="Cholesky input section" KIND="BOX" LEVEL="ADVANCED">
 
-  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="CHOAlGORITHM" APPEAR="CD algorithm" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="2" >
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="CHOALGORITHM" APPEAR="CD algorithm" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="2">
               %%Keyword: ChoAlgorithm <advanced>
               <HELP>
               Specifies the algorithm to use for Cholesky MP2.
@@ -475,7 +491,7 @@ are disregarded for algorithm 0 (see below).
   to that used by :program:`SEWARD` for decomposing the two-electron
   integrals. Default is to not decompose.
 
-  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="DECOMPOSE" APPEAR="MO integrals CD" LEVEL="ADVANCED" KIND="SINGLE" >
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="DECOMPOSE" APPEAR="MO integrals CD" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: Decompose <advanced>
               <HELP>
               Requests Cholesky decomposition of the (ai|bj) integrals.
@@ -488,7 +504,7 @@ are disregarded for algorithm 0 (see below).
   Default is the threshold used by :program:`SEWARD` for decomposing the two-electron
   integrals.
 
-  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="THRCHOLESKY" APPEAR="CD threshold" LEVEL="ADVANCED" KIND="REAL" REQUIRE="DECOMPOSE" >
+  .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="THRCHOLESKY" APPEAR="CD threshold" LEVEL="ADVANCED" KIND="REAL">
               %%Keyword: ThrCholesky <advanced>
               <HELP>
               Specifies the threshold for (ai|bj) Cholesky decomposition.
@@ -574,5 +590,13 @@ Input example
   2 0 1 0   // Gives the number of orbitals to be deleted in each symmetry
   2 3       // Gives the reference numbers of external orbitals in sym. 1
   3         // Gives the reference number of the external orb. in sym. 3
+
+.. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="SOSMP2" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+.. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="FORCEBATCH" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+.. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="OEDTHRESHOLD" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+.. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="OSFACTOR" LEVEL="UNDOCUMENTED" KIND="REAL" />
 
 .. xmldoc:: </MODULE>

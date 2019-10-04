@@ -13,8 +13,8 @@
       Subroutine DMP_EFP()
       use EFP_Module
       Integer CoorType
-      Call Put_lScalar('EFP',EFP)
-      If (EFP) Then
+      Call Put_lScalar('EFP',lEFP)
+      If (lEFP) Then
          Call Put_iScalar('nEFP_fragments',nEFP_fragments)
          CoorType=Coor_Type
          Call Put_iScalar('Coor_Type',CoorType)

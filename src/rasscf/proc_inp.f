@@ -803,6 +803,7 @@ C   No changing about read in orbital information from INPORB yet.
      &            KSDFT(1:8).eq.'FTREVPBE'.or.
      &            KSDFT(1:6).eq.'FTLSDA'  .or.
      &            KSDFT(1:6).eq.'FTBLYP'
+       If (.NOT.l_casdft) GoTo 9920
        If (IPRLOC(1).GE.DEBUG.and.l_casdft)
      &     write(6,*) ' MCPDFT with functional:', KSDFT
 CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
