@@ -2668,19 +2668,7 @@ C THE SYMMETRY CHECK MASK:
                      MASK=2**(ISY12-1)
 C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-                     IOF=0
-                     Call IZERO(IOFF,8)
-                     DO ISY1=1,NSYM
-                       ISY2=MUL(ISY1,ISY12)
-                       IF (ISY1.LT.ISY2) CYCLE
-                       IOFF(ISY1)=IOF
-                       IOFF(ISY2)=IOF
-                       NB1=NBASF(ISY1)
-                       NB2=NBASF(ISY2)
-                       NB12=NB1*NB2
-                       IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-                       IOF=IOF+NB12
-                     END DO ! ISY1
+                     Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *

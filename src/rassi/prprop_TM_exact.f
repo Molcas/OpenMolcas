@@ -511,19 +511,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      MASK=2**(ISY12-1)
 *                    FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF
 *                    TDMSCR
-                     IOF=0
-                     Call IZERO(IOFF,8)
-                     DO ISY1=1,NSYM
-                        ISY2=MUL(ISY1,ISY12)
-                        IF (ISY1.LT.ISY2) CYCLE
-                        IOFF(ISY1)=IOF
-                        IOFF(ISY2)=IOF
-                        NB1=NBASF(ISY1)
-                        NB2=NBASF(ISY2)
-                        NB12=NB1*NB2
-                        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-                        IOF=IOF+NB12
-                     END DO
+                     Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 *
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.

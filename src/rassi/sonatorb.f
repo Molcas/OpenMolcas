@@ -354,20 +354,7 @@ C REQUESTED SPIN STATES
         ISY12=MUL(LSYM1,LSYM2)
 
 C SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
-        IOF=0
-        DO ISY1=1,NSYM
-          ISY2=MUL(ISY1,ISY12)
-          IF(ISY1.LT.ISY2) GOTO 10
-          IOFF(ISY1)=IOF
-          IOFF(ISY2)=IOF
-          NB1=NBASF(ISY1)
-          NB2=NBASF(ISY2)
-          NB12=NB1*NB2
-          IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-          IOF=IOF+NB12
-  10      CONTINUE
-        END DO
-
+        Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 
 c These are going to be zero, so head them off at the pass
         IF(ITYPE.LE.2
@@ -627,26 +614,7 @@ c Free memory
       DIMENSION DENS(6,NBTRI)
       INTEGER ASS,BSS
       CHARACTER*8 CHARPROP, CHARTYPE
-c      DIMENSION IOFF(8)
       DIMENSION IDUM(1)
-
-
-
-
-C SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
-c      IOF=0
-c      DO ISY1=1,NSYM
-c        ISY2=MUL(ISY1,ISY12)
-c        IF(ISY1.LT.ISY2) GOTO 10
-c        IOFF(ISY1)=IOF
-c        IOFF(ISY2)=IOF
-c        NB1=NBASF(ISY1)
-c        NB2=NBASF(ISY2)
-c        NB12=NB1*NB2
-c        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-c        IOF=IOF+NB12
-c10      CONTINUE
-c      END DO
 
 C NOW DO INTEGRATION WITH AO MATRICES
 C FOR THE EXPECTATION VALUE
@@ -701,24 +669,6 @@ c (see misc_util/OneFlags.fh)
       IOPT=1
       CALL iRDONE(IRC,IOPT,CHARPROP,IC,IDUM,ISCHK)
       IF (IRC.EQ.0) NSIZ=IDUM(1)
-
-
-C sanity check?
-c      DO ISS=1,NSS
-c        DO JSS=1,NSS
-c          ISF=IWORK(LMAPST-1+ISS)
-c          JSF=IWORK(LMAPST-1+JSS)
-C COMBINED SYMMETRY OF STATES:
-c          JOB1=JBNUM(ISF)
-c          JOB2=JBNUM(JSF)
-c          LSYM1=IRREP(JOB1)
-c          LSYM2=IRREP(JOB2)
-c          ISY12=MUL(LSYM1,LSYM2)
-C THE SYMMETRY CHECK MASK:
-c          MASK=2**(ISY12-1)
-c          IF(MOD(ISCHK/MASK,2).EQ.0) GOTO ???
-c        END DO
-c      END DO
 
 c Actually read the integral
       IOPT=0
