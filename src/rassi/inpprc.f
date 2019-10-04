@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_aux, Only : iDisk_TDM
+      use rassi_aux, Only : jDisk_TDM
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -37,7 +37,7 @@
 
       CALL QENTER(ROUTINE)
 
-      Call mma_allocate(iDisk_TDM,nState,nState,Label='iDisk_TDM')
+      Call mma_allocate(jDisk_TDM,nState*(nState+1)/2,Label='jDisk_TDM')
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:
@@ -101,7 +101,8 @@ c ... end import from init_rassi
         IDISK=0
         DO ISTATE=1,nstate
           DO JSTATE=1,ISTATE
-             iDisk_TDM(JSTATE,ISTATE)=IDISK
+             IJSTATE=ISTATE*(ISTATE-1)/2+JSTATE
+             jDisk_TDM(IJSTATE)=IDISK
 C Compute next disk address after writing TDMZZ data set..
              CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a TSDMZZ data set

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE BINAT()
-      use rassi_aux, only : idisk_TDM
+      use rassi_aux, only : iDisk_TDM
       IMPLICIT NONE
 
 #include "SysDef.fh"
