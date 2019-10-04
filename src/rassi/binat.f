@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE BINAT()
+      use rassi_aux, only : idisk_TDM
       IMPLICIT NONE
 
 #include "SysDef.fh"
@@ -187,11 +188,11 @@ C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          jket=(j-1)*nstate+KEIG_KET-1
          X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
          IF (I.GT.J) THEN
-           IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
+           IDISK=iDisk_TDM(J,I)
            CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
-           IDISK=iWork(lIDTDM+(J-1)*NSTATE+I-1)
+           IDISK=iDisk_TDM(I,J)
            CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM

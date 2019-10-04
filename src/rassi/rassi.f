@@ -303,7 +303,7 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
       Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
-      Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
+      Call mma_deallocate(iDisk_TDM)
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
       Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
       Call mma_deallocate(TocM)

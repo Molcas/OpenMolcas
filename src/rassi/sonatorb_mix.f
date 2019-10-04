@@ -11,6 +11,7 @@
       SUBROUTINE SONATORBM(CHARTYPE,
      &                   USOR,USOI,ASS,BSS,NSS,
      &                   ROTMAT,DENSOUT)
+      use rassi_aux, only : idisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -173,9 +174,9 @@ C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
         IF(LSF.GT.KSF) THEN
-          IDISK=iWork(lIDTDM+(LSF-1)*NSTATE+KSF-1)
+          IDISK=iDisk_TDM(KSF,LSF)
         ELSE
-          IDISK=iWork(lIDTDM+(KSF-1)*NSTATE+LSF-1)
+          IDISK=iDisk_TDM(LSF,KSF)
         END IF
         CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
 

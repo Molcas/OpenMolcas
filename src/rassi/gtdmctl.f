@@ -20,7 +20,7 @@
       use qcmaquis_info
 #endif
       use mspt2_eigenvectors
-
+      use rassi_aux, only : iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -849,7 +849,7 @@ C             Write density 1-matrices in AO basis to disk.
                 IF((SONATNSTATE.GT.0).OR.NATO) THEN
 *C Transition density matrices, TDMZZ, in AO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
-                  IDISK=iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE-1)
+                  IDISK=iDisk_TDM(JSTATE,ISTATE)
                   CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK)
                 END IF
                 !> calculate property matrix elements
@@ -1160,7 +1160,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                                      istate,
      &                                      jstate,
      &                                      ntdmzz,
-     &                           iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE),
+     &                                      iDisk_TDM(JSTATE,ISTATE),
      &                                      lutdm,
      &                                      (sonatnstate.gt.0),
      &                                      if11.and.(lsym1.eq.lsym2)

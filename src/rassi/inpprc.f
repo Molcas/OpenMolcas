@@ -9,11 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
+      use rassi_aux, Only : iDisk_TDM
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPPRC')
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasdef.fh"
@@ -35,7 +37,7 @@
 
       CALL QENTER(ROUTINE)
 
-      Call GetMem('IDTDM','Allo','Inte',lIDTDM,NSTATE**2)
+      Call mma_allocate(iDisk_TDM,nState,nState,Label='iDisk_TDM')
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:
@@ -99,13 +101,13 @@ c ... end import from init_rassi
         IDISK=0
         DO ISTATE=1,nstate
           DO JSTATE=1,ISTATE
-            iWork(lIDTDM+(iState-1)*Nstate+Jstate-1)=IDISK
+             iDisk_TDM(JSTATE,ISTATE)=IDISK
 C Compute next disk address after writing TDMZZ data set..
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a TSDMZZ data set
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a WDMZZ data set ('Triplet TDM')
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
           END DO
         END DO
       END IF
