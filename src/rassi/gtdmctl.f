@@ -168,8 +168,8 @@ C WF parameters for ISTATE and JSTATE
 C Pick up orbitals of ket and bra states.
       Call mma_allocate(CMO1,nCMO,Label='CMO1')
       Call mma_allocate(CMO2,nCMO,Label='CMO2')
-      LCMO1=ip_of_work(CMO1)
-      LCMO2=ip_of_work(CMO2)
+      LCMO1=ip_of_work(CMO1(1))
+      LCMO2=ip_of_work(CMO2(1))
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 
