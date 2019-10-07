@@ -100,8 +100,10 @@ c These states are stored beginning in IWORK(LSONAT)
         WRITE(6,*)
 
 C Calculate overall density, store in WORK(LDMATTMP)
-        CALL SONATORB('HERMSING',WORK(LUMATR),WORK(LUMATI),
-     &                INATSTATE,INATSTATE,NSS,WORK(LDMATTMP))
+        iOpt=0
+        CALL SONATORBM('HERMSING',WORK(LUMATR),WORK(LUMATI),
+     &                 INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                 WORK(LDMATTMP))
 
 
 C Integrate for the expectation value
@@ -129,8 +131,10 @@ C Create SONATTDENS total density orbital file for this (I,I) state
 
 
 C Calculate spin density, store in LDMATTMP
-        CALL SONATORB('HERMTRIP',WORK(LUMATR),WORK(LUMATI),
-     &                INATSTATE,INATSTATE,NSS,WORK(LDMATTMP))
+        iOpt=0
+        CALL SONATORBM('HERMTRIP',WORK(LUMATR),WORK(LUMATI),
+     &                 INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                 WORK(LDMATTMP))
 
 
 C Integrate for the expectation value
@@ -157,8 +161,10 @@ C Create SONATSDENS spin density orbital file for this (I,I) state
 
 c Type 2 - current density
         IF(IFCURD) THEN
-          CALL SONATORB('ANTISING',WORK(LUMATR),WORK(LUMATI),
-     &                   INATSTATE,INATSTATE,NSS,WORK(LDMATTMP))
+          iOpt=0
+          CALL SONATORBM('ANTISING',WORK(LUMATR),WORK(LUMATI),
+     &                   INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                   WORK(LDMATTMP))
 
 
           IF(IPGLOB.ge.VERBOSE) THEN

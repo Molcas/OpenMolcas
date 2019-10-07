@@ -43,8 +43,12 @@ C RAS state interaction.
       COMMON / CHO_JOBS / Fake_CMO2
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
-      Real*8, Allocatable:: PROP(:,:,:)
-
+      Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Prolouge
+*
       IRETURN=20
 
       Call StatusLine('RASSI:','Starting calculation')
@@ -80,7 +84,7 @@ C Needed matrix elements are computed by PROPER.
       NSTATE2=NSTATE*NSTATE
       Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
       Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
-      Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
+      Call mma_allocate(EigVec,nState,nState,Label='EigVec')
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
       Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
@@ -88,7 +92,9 @@ C Needed matrix elements are computed by PROPER.
       NPROPSZ=NSTATE*NSTATE*NPROP
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
-
+*                                                                      *
+************************************************************************
+*                                                                      *
 C Number of basis functions
       NZ=0                      ! (NBAS is already used...)
       DO ISY=1,NSYM
@@ -139,7 +145,11 @@ C       Print the overlap matrix here, since MECTL is skipped
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
       CALL MECTL(PROP,WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Spin-free section
+*
 C--------  SI wave function section --------------------------
 C In a second section, if Hamiltonian elements were requested,
 C then also a set of secular equations are solved. This gives
@@ -153,7 +163,7 @@ C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
         CALL EIGCTL(PROP,WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
-     &              Work(LEIGVEC),WORK(LENERGY))
+     &              EIGVEC,WORK(LENERGY))
       END IF
 
 
@@ -180,20 +190,24 @@ C CALCULATE AND WRITE OUT NATURAL ORBITALS.
         CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
         CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
         CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),WORK(LEIGVEC))
+     &                    WORK(LOCC),EIGVEC)
         CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),WORK(LEIGVEC))
+     &                    WORK(LOCC),EIGVEC)
         CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
         CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
         CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
         CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
       END IF
 C Bi-natural orbitals, if requested:
-      IF(BINA) THEN
-        CALL BINAT()
-      END IF
+      IF (BINA) CALL BINAT()
+*
       IF(.NOT.IFHAM) GOTO 100
 
+*                                                                      *
+************************************************************************
+*                                                                      *
+*      Spin_Orbit section
+*
 C-------- Spin-Orbit calculations   --------------------------
 C In this third section, if spin-orbit coupling parameters were
 C computed by the previous sections, then additionally the
@@ -265,7 +279,9 @@ C Will also handle mixing of states (sodiag.f)
        CALL GETMEM('SODYSAMPSR','FREE','REAL',LSODYSAMPSR,NSS*NSS)
        CALL GETMEM('SODYSAMPSI','FREE','REAL',LSODYSAMPSI,NSS*NSS)
       END IF
-
+*                                                                      *
+************************************************************************
+*                                                                      *
 CIgorS 02/10-2007  Begin----------------------------------------------C
 C   Trajectory Surface Hopping                                        C
 C                                                                     C
@@ -293,12 +309,16 @@ CIgorS End------------------------------------------------------------C
       END IF
 *                                                                      *
 ************************************************************************
-*
-
+*                                                                      *
+*     EPILOUGE                                                         *
+*                                                                      *
+************************************************************************
+*                                                                      *
  100  CONTINUE
       Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
       Call GetMem('DYSAMPS','Free','Real',LDYSAMPS,NSTATE2)
       Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
+      Call mma_deallocate(EigVec)
       Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
