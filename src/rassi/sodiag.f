@@ -114,8 +114,10 @@ C Only work with one triangle - this is a hermitian matrix
         CALL SONATORB('ANTISING',UMATR,UMATI,
      &       ISTATE,JSTATE,NSS,WORK(LDMATTMP))
 
-        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ','ANTISING',
-     &                    ISTATE,JSTATE,NSS,
+        IC=-1
+        iOpt=1
+        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+     &                    ISTATE,JSTATE,NSS,iOpt,
      &                    IDENTMAT,AXR,AYR,AZR,AXI,AYI,AZI)
 
 
@@ -367,8 +369,10 @@ c store antising density in LDMATTMP
 
 
 c Expectation values of L -> LMAT{R,I}
-        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ','ANTISING',
-     &                    ISTATE,JSTATE,NSS,MAXES,
+        IC=-1
+        iOpt=1
+        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+     &                    ISTATE,JSTATE,NSS,iOpt,MAXES,
      &                    LMATR(I,J,IDIR,1),LMATR(I,J,IDIR,2),
      &                    LMATR(I,J,IDIR,3),
      &                    LMATI(I,J,IDIR,1),LMATI(I,J,IDIR,2),
