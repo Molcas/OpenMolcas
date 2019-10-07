@@ -120,10 +120,10 @@ C Only work with one triangle - this is a hermitian matrix
      &                    ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
      &                    AXR,AYR,AZR,AXI,AYI,AZI)
 
-
+        iOpt=1
         CALL SONATORBM('HERMTRIP',UMATR,UMATI,
-     &       ISTATE,JSTATE,NSS,IDENTMAT,
-     &       WORK(LDMATTMP))
+     &                 ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                 WORK(LDMATTMP))
 
         IC=1
         iOpt=0
@@ -388,8 +388,10 @@ c Plot for generation of current density
 
 
 c store hermtrip density in LDMATTMP
+        iOpt=1
         CALL SONATORBM('HERMTRIP',WORK(LUWR),WORK(LUWI),
-     &       ISTATE,JSTATE,NSS,MAXES,WORK(LDMATTMP))
+     &                 ISTATE,JSTATE,NSS,iOpt,MAXES,
+     &                 WORK(LDMATTMP))
 
 c Expectation values of S -> SMAT{R,I}
         IC=1

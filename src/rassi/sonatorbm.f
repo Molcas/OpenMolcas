@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORBM(CHARTYPE,
-     &                   USOR,USOI,ASS,BSS,NSS,
-     &                   ROTMAT,DENSOUT)
+     &                     USOR,USOI,ASS,BSS,NSS,
+     &                     iOpt,ROTMAT,DENSOUT)
       use rassi_aux, only : idisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -295,6 +295,7 @@ c ie, see how AMFI is processed in soeig.f
      &          .AND.MSPROJK.EQ.MSPROJL) THEN
           CALL DAXPY_(NBTRI,1.0d0,WORK(LSCR),1,WORK(LSDMZR),1)
         ELSE IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
+          If (iOpt.eq.1) Then
           CALL DAXPY_(NBTRI,CGX*ROTMAT(1,1),WORK(LSCR),1,WORK(LSDMXR),1)
           CALL DAXPY_(NBTRI,CGY*ROTMAT(2,1),WORK(LSCR),1,WORK(LSDMXI),1)
           CALL DAXPY_(NBTRI,CG0*ROTMAT(3,1),WORK(LSCR),1,WORK(LSDMXR),1)
@@ -306,6 +307,11 @@ c ie, see how AMFI is processed in soeig.f
           CALL DAXPY_(NBTRI,CGX*ROTMAT(1,3),WORK(LSCR),1,WORK(LSDMZR),1)
           CALL DAXPY_(NBTRI,CGY*ROTMAT(2,3),WORK(LSCR),1,WORK(LSDMZI),1)
           CALL DAXPY_(NBTRI,CG0*ROTMAT(3,3),WORK(LSCR),1,WORK(LSDMZR),1)
+          Else
+          CALL DAXPY_(NBTRI,CGX,WORK(LSCR),1,WORK(LSDMXR),1)
+          CALL DAXPY_(NBTRI,CGY,WORK(LSCR),1,WORK(LSDMYI),1)
+          CALL DAXPY_(NBTRI,CG0,WORK(LSCR),1,WORK(LSDMZR),1)
+          End If
         END IF
 
 

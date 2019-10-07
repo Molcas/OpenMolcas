@@ -564,7 +564,20 @@ c
        END DO
       END IF
 
-C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                      C
+C                                                                      C
+C     TRANSFORM AND PRINT OUT PROPERTY MATRICES:                       C
+C                                                                      C
+C     The matrix elements of Prop refers to the original SF basis. We  C
+C     now transform these to the basis of the eigenvectors of the SF   C
+C     states. Note, for the "exact" operator of the transition moments C
+C     we will have a computation of the TDM of the SF states on the    C
+C     fly. To account for this transformation we will have to transformC
+C     the coefficients of the SO states from a basis of the SF eigen-  C
+C     states to the basis of the original SF states.                   C
+C
       DO IP=1,NPROP
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
@@ -574,7 +587,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
 
-! +++ J. Norell 12/7 - 2018
 C And the same for the Dyson amplitudes
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
@@ -582,7 +594,9 @@ C And the same for the Dyson amplitudes
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
-! +++ J. Norell
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                      C
 
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
 *
