@@ -96,8 +96,8 @@ C BPTST       Storage for some testing
       CALL GETMEM('DMATTMPA','ALLO','REAL',LDMATTMP,3*(NBST*(NBST+1)))
 
       !> identity mat
-      CALL DCOPY_(3*3,[0.0d0],0,IDENTMAT,1)
-      IDENTMAT(1,1)=1.0d0; IDENTMAT(2,2)=1.0d0; IDENTMAT(3,3)=1.0d0
+      IDENTMAT(:,:)=0.0D0
+      FORALL (I=1:3) IDENTMAT(I,I)=1.0D0
 
 C First, we calculate the expectation values of
 C  (L+ge*S)x (L+ge*S)y (L+ge*S)z
@@ -117,17 +117,19 @@ C Only work with one triangle - this is a hermitian matrix
         IC=-1
         iOpt=1
         CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
-     &                    ISTATE,JSTATE,NSS,iOpt,
-     &                    IDENTMAT,AXR,AYR,AZR,AXI,AYI,AZI)
+     &                    ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                    AXR,AYR,AZR,AXI,AYI,AZI)
 
 
         CALL SONATORBM('HERMTRIP',UMATR,UMATI,
      &       ISTATE,JSTATE,NSS,IDENTMAT,
      &       WORK(LDMATTMP))
 
-        CALL SONATORB_INT(WORK(LDMATTMP),'MLTPL  0',1,'HERMTRIP',
-     &                   ISTATE,JSTATE,NSS,
-     &                   SXR,SYR,SZR,SXI,SYI,SZI)
+        IC=1
+        iOpt=0
+        CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
+     &                    ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                    SXR,SYR,SZR,SXI,SYI,SZI)
 
 
 c The first index of PROP is the direction
@@ -360,7 +362,7 @@ c file name for the spin density orb file
 C For L, mix the AO integrals, leave the density alone
 C    -> Call SONATORB then SONATORBM_INT
 C For S, leave AO integrals alone, mix density matrices
-c    -> Call SONATORBM, SONATORB_INT
+c    -> Call SONATORBM, SONATORBM_INT
 
 
 c store antising density in LDMATTMP
@@ -390,12 +392,14 @@ c store hermtrip density in LDMATTMP
      &       ISTATE,JSTATE,NSS,MAXES,WORK(LDMATTMP))
 
 c Expectation values of S -> SMAT{R,I}
-        CALL SONATORB_INT(WORK(LDMATTMP),'MLTPL  0',1,'HERMTRIP',
-     &                    ISTATE,JSTATE,NSS,
-     &                    SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2),
-     &                    SMATR(I,J,IDIR,3),
-     &                    SMATI(I,J,IDIR,1),SMATI(I,J,IDIR,2),
-     &                    SMATI(I,J,IDIR,3))
+        IC=1
+        iOpt=0
+        CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
+     &                     ISTATE,JSTATE,NSS,iOpt,IDENMAT,
+     &                     SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2),
+     &                     SMATR(I,J,IDIR,3),
+     &                     SMATI(I,J,IDIR,1),SMATI(I,J,IDIR,2),
+     &                     SMATI(I,J,IDIR,3))
 
 c plot the rotated density
         CALL SONATORB_PLOT(WORK(LDMATTMP),FILEBASE,'HERMTRIP',

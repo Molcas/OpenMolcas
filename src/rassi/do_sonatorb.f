@@ -17,6 +17,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='DO_SONATORB')
+      Real*8 IDENTMAT(3,3)
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)
@@ -26,7 +27,8 @@ c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*) '*****************************************'
       WRITE(6,*)
 
-
+      IDENTMAT(:,:)=0.0D0
+      FOR ALL (I=1:3) IDENTMAT(I,I)=1.0D0
 
       CALL GETMEM('UMATR2','ALLO','REAL',LUMATR,NSS**2)
       CALL GETMEM('UMATI2','ALLO','REAL',LUMATI,NSS**2)
@@ -104,8 +106,10 @@ C Calculate overall density, store in WORK(LDMATTMP)
 
 C Integrate for the expectation value
         IF(IPGLOB.ge.VERBOSE) THEN
-          CALL SONATORB_INT(WORK(LDMATTMP),'MLTPL  0',1,'HERMSING',
-     &                      INATSTATE,INATSTATE,NSS,
+          IC=1
+          iOpt=0
+          CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMSING',
+     &                      INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
      &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
 C          CALL ADD_INFO('MLTPL0SING_INT3',DUM3,1,6)
@@ -131,8 +135,10 @@ C Calculate spin density, store in LDMATTMP
 
 C Integrate for the expectation value
         IF(IPGLOB.ge.VERBOSE) THEN
-          CALL SONATORB_INT(WORK(LDMATTMP),'MLTPL  0',1,'HERMTRIP',
-     &                      INATSTATE,INATSTATE,NSS,
+          IC=1
+          iOpt=0
+          CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
+     &                      INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
      &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C          CALL ADD_INFO('MLTPL0TRIP_INT3',DUM3,1,6)
 C          CALL ADD_INFO('MLTPL0TRIP_INT6',DUM6,1,6)
@@ -156,21 +162,27 @@ c Type 2 - current density
 
 
           IF(IPGLOB.ge.VERBOSE) THEN
-            CALL SONATORB_INT(WORK(LDMATTMP),'ANGMOM  ',1,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,
+            IC=1
+            iOpt=0
+            CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C            CALL ADD_INFO('CURD1_INT3',DUM3,1,6)
 C            CALL ADD_INFO('CURD1_INT6',DUM6,1,6)
 
-            CALL SONATORB_INT(WORK(LDMATTMP),'ANGMOM  ',2,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,
+            IC=2
+            iOpt=0
+            CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
 C            CALL ADD_INFO('CURD2_INT3',DUM3,1,6)
 C            CALL ADD_INFO('CURD2_INT6',DUM6,1,6)
 
-            CALL SONATORB_INT(WORK(LDMATTMP),'ANGMOM  ',3,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,
+            IC=3
+            iOpt=0
+            CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C            CALL ADD_INFO('CURD3_INT3',DUM3,1,6)
 C            CALL ADD_INFO('CURD3_INT6',DUM6,1,6)
