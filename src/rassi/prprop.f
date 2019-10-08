@@ -421,8 +421,8 @@ C tjd-  BMII: Print out spin-orbit properties to a file
      $                 WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset_array_real(wfn_sos_spini,
      $                 WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-        ENDIF
 #endif
+        ENDIF
         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
         CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
        END DO
