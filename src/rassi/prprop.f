@@ -292,33 +292,9 @@ c#endif
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
-
 *******************************************************
 * printout of properties over the spin-orbit states
 *******************************************************
-* SPIN MATRICES:
-      CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
-      CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
-      DO ISOPR=1,3
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
-         CALL SMMAT(PROP,WORK(LSOPRR),NSS,'SPIN    ',ISOPR)
-         CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
-c If PRPR requested, print the spin matrices
-         IF (LPRPR) THEN
-            CALL PRCMAT3(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
-         END IF
-#ifdef _HDF5_
-         call mh5_put_dset_array_real(wfn_sos_spinr,
-     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOPR-1])
-         call mh5_put_dset_array_real(wfn_sos_spini,
-     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOPR-1])
-#endif
-      END DO
-      CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
-      CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
-
-
       IF(.not.IFSO) GOTO 300
       NPMSIZ=NSOPR
       IF(NSOPR.EQ.0) GOTO 300
@@ -382,7 +358,6 @@ c check for inconsistencies
      &          (SOPRNM(ISOPR),ISOCMP(ISOPR),ISOPR=I,MIN(NSOPR,I+4))
        END DO
 
-
 C Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
        ISOPR=0
        DO I=1,NSOPR
@@ -416,19 +391,36 @@ C tjd-  BMII: Print out spin-orbit properties to a file
           CALL PRCMAT2(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
         ENDIF
 
-#ifdef _HDF5_
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
-         call mh5_put_dset_array_real(wfn_sos_angmomr,
-     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-         call mh5_put_dset_array_real(wfn_sos_angmomi,
-     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           CALL Put_dArray('ANGMR_NSS',WORK(LSOPRR),3*NSS*NSS)
+           CALL Put_dArray('ANGMI_NSS',WORK(LSOPRI),3*NSS*NSS)
+#ifdef _HDF5_
+           Call mh5_put_dset_array_real(wfn_sos_angmomr,
+     $                WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset_array_real(wfn_sos_angmomi,
+     $                WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+#endif
         ENDIF
 
         IF( SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1') THEN
-         call mh5_put_dset_array_real(wfn_sos_edipmomr,
-     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-         call mh5_put_dset_array_real(wfn_sos_edipmomi,
-     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           CALL Put_dArray('EDIPR_NSS',WORK(LSOPRR),3*NSS*NSS)
+           CALL Put_dArray('EDIPI_NSS',WORK(LSOPRI),3*NSS*NSS)
+#ifdef _HDF5_
+           Call mh5_put_dset_array_real(wfn_sos_edipmomr,
+     $                WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset_array_real(wfn_sos_edipmomi,
+     $                WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+#endif
+        ENDIF
+
+        IF( SOPRNM(ISOPR)(1:4) .EQ.'SPIN') THEN
+           CALL Put_dArray('SPINR_NSS',WORK(LSOPRR),3*NSS*NSS)
+           CALL Put_dArray('SPINI_NSS',WORK(LSOPRI),3*NSS*NSS)
+#ifdef _HDF5_
+           Call mh5_put_dset_array_real(wfn_sos_spinr,
+     $                 WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset_array_real(wfn_sos_spini,
+     $                 WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 #endif
         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
