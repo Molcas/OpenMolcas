@@ -1199,7 +1199,7 @@ C------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1268,7 +1268,7 @@ C --------------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
