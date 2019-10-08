@@ -1199,7 +1199,7 @@ C------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1212,7 +1212,7 @@ C------------------------------------------------------------
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
@@ -1241,9 +1241,9 @@ C --------------------------------------------------------------------
 
                                   CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,   1)),
+     &                                    FactXI,Work(ipLab(iaSh,kDen)),
      &                                           nBsa,
-     &                                           Work(ipLab(ibsh,kDen)),
+     &                                           Work(ipLab(ibsh,1   )),
      &                                           nBsb,
      &                                       ONE,Work(ipKI),
      &                                               nBsa)
@@ -1268,7 +1268,7 @@ C --------------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1281,7 +1281,7 @@ C --------------------------------------------------------------------
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
@@ -1309,9 +1309,9 @@ C --------------------------------------------------------------------
 
                                   CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,   1)),
+     &                                    FactXI,Work(ipLab(iaSh,kDen)),
      &                                           JNUM,
-     &                                           Work(ipLab(ibsh,kDen)),
+     &                                           Work(ipLab(ibsh,1   )),
      &                                           JNUM,
      &                                       ONE,Work(ipKI),
      &                                               nBs)
