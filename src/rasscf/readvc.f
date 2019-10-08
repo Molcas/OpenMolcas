@@ -526,7 +526,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
       if (scheme%val /= ON_scheme_values%no_ON) then
         call mma_allocate(CMO_copy, nTot2)
-        CMO_copy(:) = CMO(:nTot2)
+        CMO_copy(:nTot2) = CMO(:nTot2)
         call orthonormalize(CMO_copy, scheme, CMO(:nTot2))
         call mma_deallocate(CMO_copy)
       end if
