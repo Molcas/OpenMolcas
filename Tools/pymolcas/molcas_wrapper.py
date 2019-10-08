@@ -706,12 +706,13 @@ class Molcas_wrapper(object):
 
   def validate(self):
     import abstract_flow
-    self.startup()
+    if (self.only_validate):
+      self.startup()
+      print('\nThe input file will be validated against the documented syntax, no')
+      print('files will be created or modified. Note that there is no guarantee that')
+      print('a validated input will actually run as intended, but a validation error')
+      print('will most likely result in a run error.')
     self.rc = 0
-    print('\nThe input file will be validated against the documented syntax, no')
-    print('files will be created or modified. Note that there is no guarantee that')
-    print('a validated input will actually run as inteded, but a validation error')
-    print('will most likely result in a run error.')
     # flatten input to keep only programs (recursively inside groups)
     flat = self.flow.contents[:]
     redo = True
@@ -726,7 +727,7 @@ class Molcas_wrapper(object):
           if (isinstance(item, abstract_flow.Group)):
             new.extend(item.contents)
       flat = new
-    final_rc = self.rc
+    final_rc = 0
     for item in (flat):
       inp = '&' + '\n'.join(item.lines[1:])
       inputlines = sanitize(inp).strip().split('\n')
@@ -752,6 +753,12 @@ class Molcas_wrapper(object):
   def auto(self):
     self.startup()
     set_utf8('MOLCAS_ITER', '0')
+    if (get_utf8('MOLCAS_VALIDATE') == 'FIRST'):
+      self.validate()
+      if (self.rc > 0):
+        self.rc = '_RC_INPUT_ERROR_'
+        self.end()
+        return
     try:
       self.run_logue('prologue')
       self.rc = self.flow.run(self)
