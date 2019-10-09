@@ -3074,12 +3074,12 @@ C                 Why do it when we don't do the L.S-term!
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       If (Do_Pol) Call mma_deallocate(pol_Vector)
-*ifdef _TEST_TDM_
+#ifdef _TEST_TDM_
       Call mma_deallocate(SCR)
       Call mma_deAllocate(TDMZZ)
       Call mma_deAllocate(TSDMZZ)
       Call mma_deAllocate(WDMZZ)
-*endif
+#endif
 *
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)

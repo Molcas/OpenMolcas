@@ -52,6 +52,11 @@
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
 #endif
+#define _TEST_TDM_
+#ifdef _TEST_TDM_
+      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
+#endif
+
 
       CALL QENTER(ROUTINE)
 
@@ -199,6 +204,14 @@ C printing threshold
       Call DaName(LuToM,FnToM)
       iDisk=0
       Call iDaFile(LuToM,2,TocM,nState*(nState+1)/2,iDisk)
+#ifdef _TEST_TDM_
+      Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+      Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+      Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+      nSCR=(NBST*(NBST+1))/2
+      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+#endif
+
 *
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
@@ -522,6 +535,25 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      iDisk=TocM(ij)
                      If (iDisk.gt.0) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+#ifdef _TEST_TDM_
+                        IDISK=iDisk_TDM(I,J)
+                        iOpt=2
+                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                                 LUTDM,IDISK,iOpt)
+                        Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                               IOFF,NBASF,ISY12)
+                        Do ii = 1, 4
+                           Do jj = 1, nScr
+                              tmp = Work(LSCR-1 + (ii-1)*nScr+jj)-
+     &                              Scr(jj,ii)
+                              If (Abs(tmp).gt.1.0D-10) Then
+                                 Write (6,*)Work(LSCR-1+(ii-1)*nScr+jj),
+     &                                       Scr(jj,ii)
+                                 Call Abend()
+                              End If
+                           End Do
+                        End Do
+#endif
                      Else
                         Call FZero(Work(LSCR),4*NSCR)
                      End If
@@ -1011,6 +1043,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
 *
+#ifdef _TEST_TDM_
+      Call mma_deallocate(SCR)
+      Call mma_deAllocate(TDMZZ)
+      Call mma_deAllocate(TSDMZZ)
+      Call mma_deAllocate(WDMZZ)
+#endif
       Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
