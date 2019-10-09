@@ -197,6 +197,7 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
           WORK(LPOS)=X*WORK(LPOS)
         END DO
       END DO
+
       IJ=0
       DO I=1,MSTATE
         DO J=1,I
@@ -2384,6 +2385,8 @@ C                                                                      C
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+#define _TRANSFORM_
+#ifdef _TRANSFORM_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2406,17 +2409,19 @@ C                                                                      C
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
             JDISK=iDisk_TDM(I,J)
-
             Get_TDS=.True.
 *
 *           Loop over the TDs which will be used in the subsequent part
 *           of the code.
 *
-            Do K = JSTART, NSTATE
+*           Do K = JSTART, NSTATE
+            Do K = 1, NState
                C_ik=EigVec(i,K)
-               Do L = 1, Min(IEND,K)
+*              Do L = 1, Min(IEND,K)
+               Do L = 1, K
                   C_ikjl=C_ik*EigVec(j,L)
-                  If (Abs(C_ikjl).gt.1.0D-14) Then
+*                 If (Abs(C_ikjl).gt.1.0D-14) Then
+                  If (.TRUE.) Then
                      If (Get_TDS) Then
                         iOpt=2
                         CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
@@ -2456,6 +2461,7 @@ C                                                                      C
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#endif
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -2679,29 +2685,93 @@ C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *           Pick up the transition density between the two states from
-*           disc. Generated in PROPER.
+*           disc. Generated in GTDMCTL.
 *
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
+#ifndef _TRANSFORM_
+                     If (Diagonal) Then
+#endif
                      IDISK=iDisk_TDM(I,J)
                      iOpt=2
                      CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
      &                              LUTDM,IDISK,iOpt)
                      Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
      &                            IOFF,NBASF,ISY12)
+                     DO IPRP = 1,12
+                        IPROP=IPRTMOM(IPRP)
+                        ITYPE=0
+                        IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
+                        IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
+                        IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
+                        IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
+                        LABEL=PNAME(IPROP)
+                        Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+     &                               WORK(LIP),NIP,SCR,nSCR,
+     &                               MASK,ISY12,IOFF)
+                     END DO ! IPRP
+#ifndef _TRANSFORM_
+               Else
+
                DO IPRP = 1,12
                   IPROP=IPRTMOM(IPRP)
-                  ITYPE=0
-                  IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
-                  IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
-                  IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
-                  IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
-                  LABEL=PNAME(IPROP)
-                  Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                         WORK(LIP),NIP,SCR,nSCR,
-     &                         MASK,ISY12,IOFF)
-               END DO ! IPRP
+                  Prop(:,:,IPROP)=0.0D0
+               End Do
+               Do k_ = 1, nState
+                  k=IndexE(k_)
+                  JOB3=iWork(lJBNUM+k-1)
+                  LSYM3=IRREP(JOB3)
+                  Do l_ = 1, k
+                     l=IndexE(l_)
+                     JOB4=iWork(lJBNUM+l-1)
+                     LSYM4=IRREP(JOB4)
+                     ISY34=MUL(LSYM3,LSYM4)
+*
+                     MASK34=2**(ISY34-1)
+                     Call mk_IOFF(IOFF,nSYM,NBASF,ISY34)
+*
+                     IDISK=iDisk_TDM(k,l)
+                     iOpt=2
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                              LUTDM,IDISK,iOpt)
+                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                            IOFF,NBASF,ISY34)
+*
+                     DO IPRP = 1,12
+                        IPROP=IPRTMOM(IPRP)
+                        ITYPE=0
+                        IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
+                        IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
+                        IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
+                        IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
+                        LABEL=PNAME(IPROP)
+                        Call MK_PROP(PROP,IPROP,K,L,LABEL,ITYPE,
+     &                               WORK(LIP),NIP,SCR,nSCR,
+     &                               MASK34,ISY34,IOFF)
+                     END DO ! IPRP
+                  End Do
+               End Do
+*
+*              Transform to the new basis, to be modified!
+*
+               CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
+               Call FZero(Work(lSCR),nState**2)
+               DO IP=1,12
+                  IPROP=IPRTMOM(IP)
+                  CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,
+     &                        1.0D0,PROP(1,1,IPROP),NSTATE,
+     &                              EIGVEC,NSTATE,
+     &                        0.0D0,WORK(LSCR),NSTATE)
+                  CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,
+     &                        1.0D0,EIGVEC,NSTATE,
+     &                              WORK(LSCR),NSTATE,
+     &                        0.0D0,PROP(1,1,IPROP),NSTATE)
+               END DO
+               CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
+*
+               End If
+#endif
 *
 *              (1) the oam part
 *
