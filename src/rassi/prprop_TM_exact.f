@@ -52,11 +52,7 @@
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
 #endif
-#define _TEST_TDM_
-#ifdef _TEST_TDM_
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
-#endif
-
 
       CALL QENTER(ROUTINE)
 
@@ -199,18 +195,13 @@ C printing threshold
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 *
-*     Get table of content for density matrices.
+*     Initialize for density matrices.
 *
-      Call DaName(LuToM,FnToM)
-      iDisk=0
-      Call iDaFile(LuToM,2,TocM,nState*(nState+1)/2,iDisk)
-#ifdef _TEST_TDM_
       Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
       Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
       Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
       nSCR=(NBST*(NBST+1))/2
       Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
-#endif
 
 *
 *     Allocate some temporary arrays for handling the
@@ -227,8 +218,6 @@ C printing threshold
 C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-      NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -527,36 +516,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 *
 *                    Pick up the transition density between the two
-*                    states from disc. Generated in PROPER.
+*                    states from disc. Generated in GTDMCTL.
 *
-                     ISTATE=max(I,J)
-                     JSTATE=min(I,J)
-                     ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=TocM(ij)
-                     If (iDisk.gt.0) Then
-                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-#ifdef _TEST_TDM_
-                        IDISK=iDisk_TDM(I,J)
-                        iOpt=2
-                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                 LUTDM,IDISK,iOpt)
-                        Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
-     &                               IOFF,NBASF,ISY12)
-                        Do ii = 1, 4
-                           Do jj = 1, nScr
-                              tmp = Work(LSCR-1 + (ii-1)*nScr+jj)-
-     &                              Scr(jj,ii)
-                              If (Abs(tmp).gt.1.0D-10) Then
-                                 Write (6,*)Work(LSCR-1+(ii-1)*nScr+jj),
-     &                                       Scr(jj,ii)
-                                 Call Abend()
-                              End If
-                           End Do
-                        End Do
-#endif
-                     Else
-                        Call FZero(Work(LSCR),4*NSCR)
-                     End If
+                     IDISK=iDisk_TDM(I,J)
+                     iOpt=2
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                              LUTDM,IDISK,iOpt)
+                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                            IOFF,NBASF,ISY12)
 *
 *                    Compute the transition property of the property
 *                    integrals between the two states.
@@ -569,9 +536,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                         IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                         IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                         LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,
+                        Call MK_PROP(PROP,IPROP,I,J,
      &                               LABEL,ITYPE,
-     &                               WORK(LIP),NIP,WORK(LSCR),NSCR,
+     &                               WORK(LIP),NIP,SCR,nSCR,
      &                               MASK,ISY12,IOFF)
                      END DO
 *
@@ -1026,7 +993,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Do some cleanup
 *
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
-      CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
       CALL GETMEM('DXI','FREE','REAL',LDXI,3*NSS**2)
@@ -1043,13 +1009,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
 *
-#ifdef _TEST_TDM_
       Call mma_deallocate(SCR)
       Call mma_deAllocate(TDMZZ)
       Call mma_deAllocate(TSDMZZ)
       Call mma_deAllocate(WDMZZ)
-#endif
-      Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()

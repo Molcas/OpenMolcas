@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
+      SUBROUTINE MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
       IMPLICIT REAL*8 (A-H,O-Z)
 ***********************************************************************
@@ -29,6 +29,8 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
       INTEGER IOFF(8)
       DIMENSION IDUM(1)
+      ISTATE=Max(ISTATE_,JSTATE_)
+      JSTATE=Min(ISTATE_,JSTATE_)
 *
 *     Write (*,*) 'MK_PROP:',LABEL,ITYPE
 *     Write (*,*) 'IOFF=',IOFF
