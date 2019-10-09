@@ -32,26 +32,6 @@
       ISTATE=Max(ISTATE_,JSTATE_)
       JSTATE=Min(ISTATE_,JSTATE_)
 *
-*     Write (*,*) 'MK_PROP:',LABEL,ITYPE
-*     Write (*,*) 'IOFF=',IOFF
-*     Write (*,*) 'MASK,ISY12=',MASK,ISY12
-*     IF (LABEL(1:4).EQ.'TMOM') THEN
-*        PORIG(1,IPROP)=0.0D0
-*        PORIG(2,IPROP)=0.0D0
-*        PORIG(3,IPROP)=0.0D0
-*        PNUC(IPROP)=0.0D0
-*        PROP(JSTATE,ISTATE,IPROP)=0.0D0
-*        IPUSED(IPROP)=1
-*        GO TO 300 ! Temporary
-*     END IF
-*     Write (*,*) 'DENS1=',DDOT_(NDENS,DENS(1,1),1,DENS(1,1),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,1),1)
-*     Write (*,*) 'DENS2=',DDOT_(NDENS,DENS(1,2),1,DENS(1,2),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,2),1)
-*     Write (*,*) 'DENS3=',DDOT_(NDENS,DENS(1,3),1,DENS(1,3),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,3),1)
-*     Write (*,*) 'DENS4=',DDOT_(NDENS,DENS(1,4),1,DENS(1,4),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
       IC=ICOMP(IPROP)
       IOPT=1
       NSIZ=0
