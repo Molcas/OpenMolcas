@@ -8,17 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-  subroutine dens2file(array1,array2,array3,adim,lu,adr)
+  subroutine dens2file(array1,array2,array3,adim,lu,adr,iOpt)
   implicit none
 
-  integer, intent(in) :: adim, lu, adr
+  integer, intent(in) :: adim, lu, adr, iOpt
   real*8 , intent(in) :: array1(adim),array2(adim),array3(adim)
   integer :: idisk
 
     idisk = adr
     ! note that ddafile modifies idisk
-    call ddafile(lu,1,array1,adim,idisk)
-    call ddafile(lu,1,array2,adim,idisk)
-    call ddafile(lu,1,array3,adim,idisk)
+    call ddafile(lu,iOpt,array1,adim,idisk)
+    call ddafile(lu,iOpt,array2,adim,idisk)
+    call ddafile(lu,iOpt,array3,adim,idisk)
 
   end subroutine dens2file

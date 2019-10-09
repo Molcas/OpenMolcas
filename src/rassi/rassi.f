@@ -85,7 +85,7 @@ C Needed matrix elements are computed by PROPER.
       Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
       Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
-      LEIGVEC=ip_of_work(EigVec)
+      LEIGVEC=ip_of_work(EigVec(1,1))
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
       Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
@@ -357,18 +357,13 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-c jochen 02/15: sonatorb needs LUTDM
-c     we'll make it conditional upon the keyword
-      IF((SONATNSTATE.GT.0).OR.NATO) THEN
-        Call DaClos(LuTDM)
-      end if
-c ... jochen end
+      IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Call DaClos(LuTDM)
       Call DaClos(LuExc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     PRINT I/O STATISTICS:
-      IF ( IPGLOB.GE.USUAL ) CALL FASTIO('STATUS')
+      CALL FASTIO('STATUS')
 
       Call StatusLine('RASSI:','Finished.')
       IRETURN=0

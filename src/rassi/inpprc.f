@@ -86,18 +86,12 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMS=(NTDMZZ+NBST)/2
       NTDMA=NTDMS
       NTDMAB=NTRA
-c jochen 02/15: sonatorb needs LUTDM
-c     we will make it conditional upon the keyword
-      IF((SONATNSTATE.GT.0).OR.NATO) THEN
+      IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
         WRITE(6,*) ' Info: creating TDMFILE'
-c ... the following code used to be in init_rassi. The problem
-c     is that sonatnstate is unknown when that routine is
-c     executed.
         LUTDM=21
         LUTDM=IsFreeUnit(LUTDM)
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
-c ... end import from init_rassi
         IDISK=0
         DO ISTATE=1,nstate
           DO JSTATE=1,ISTATE
@@ -112,7 +106,6 @@ C ..and also a WDMZZ data set ('Triplet TDM')
           END DO
         END DO
       END IF
-c ... jochen end
 
 C Upcase property names in lists of requests:
       DO IPROP=1,NPROP

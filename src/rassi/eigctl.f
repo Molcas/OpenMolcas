@@ -50,6 +50,11 @@
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:)
+#define _TEST_TDM_
+#ifdef _TEST_TDM_
+      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:),
+     &                      XXXX(:,:,:)
+#endif
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -2321,6 +2326,14 @@ C                                                                      C
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
 #endif
+#ifdef _TEST_TDM_
+      Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+      Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+      Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+      nSCR=(NBST*(NBST+1))/2
+      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+#endif
+
 *
 *     Here we will use a Lebedev grid to integrate over all possible
 *     directions of the wave vector, k. The property integrals will be
@@ -2395,6 +2408,10 @@ C                                                                      C
 *
       Call mma_Allocate(TDS,4*nSCR,nState*(nState+1)/2,Label='TDS')
       Call FZero(TDS,4*nSCR*nState*(nState+1)/2)
+#ifdef _TEST_TDM_
+      Call mma_Allocate(XXXX,nTDMZZ,nState*(nState+1)/2,3,Label='XXXX')
+      XXXX(:,:,:)=0.0D0
+#endif
 *
 *     Loop over all unique TDs and distribute their contributions to the
 *     TDs in the new basis.
@@ -2405,6 +2422,10 @@ C                                                                      C
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
             iDisk=TocM(ij)
+#ifdef _TEST_TDM_
+            JDISK=iDisk_TDM(I,J)
+#endif
+
             Get_TDS=.True.
 *
 *           The reading is postponed until it is really needed
@@ -2425,11 +2446,24 @@ C                                                                      C
                         Else
                            Call FZero(Work(LSCR),4*NSCR)
                         End If
+#ifdef _TEST_TDM_
+                        iOpt=2
+                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                                 LUTDM,jDISK,iOpt)
+#endif
                         Get_TDS=.False.
                      End If
                      kl=K*(K-1)/2+L
                      Call DaXpY_(4*NSCR,C_ikjl,Work(LSCR),1,
      &                                         TDS(1,kl),1)
+#ifdef _TEST_TDM_
+                     Call DaXpY_(nTDMZZ,C_ikjl,TDMZZ,1,
+     &                                         XXXX(1,kl,1),1)
+                     Call DaXpY_(nTDMZZ,C_ikjl,TSDMZZ,1,
+     &                                         XXXX(1,kl,2),1)
+                     Call DaXpY_(nTDMZZ,C_ikjl,WDMZZ,1,
+     &                                         XXXX(1,kl,3),1)
+#endif
                   End If
                End Do
             End Do
@@ -2438,7 +2472,7 @@ C                                                                      C
       END DO
 *
 *     Replace the old TDs with the new ones on the file.
-*
+
       DO I=1, IEND
          DO J=JSTART, NSTATE
             ISTATE=MAX(i,j)
@@ -2456,9 +2490,18 @@ C                                                                      C
                   Call AbEnd()
                End If
             End If
+#ifdef _TEST_TDM_
+            JDISK=iDisk_TDM(I,J)
+            iOpt=1
+            CALL dens2file(XXXX(1,ij,1),XXXX(1,ij,2),XXXX(1,ij,3),
+     &                     nTDMZZ,LUTDM,jDISK,iOpt)
+#endif
          END DO
       END DO
       Call mma_DeAllocate(TDS)
+#ifdef _TEST_TDM_
+      Call mma_deAllocate(XXXX)
+#endif
 *
       END IF
 *                                                                      *
@@ -2695,6 +2738,25 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      iDisk=TocM(ij)
                      If (iDisk.gt.0) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+#ifdef _TEST_TDM_
+                        IDISK=iDisk_TDM(JSTATE,ISTATE)
+                        iOpt=2
+                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                                 LUTDM,IDISK,iOpt)
+                        Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                               IOFF,NBASF,ISY12)
+                        Do ii = 1, 4
+                           Do jj = 1, nScr
+                              tmp = Work(LSCR-1 + (ii-1)*nScr+jj)-
+     &                              Scr(jj,ii)
+                              If (Abs(tmp).gt.1.0D-10) Then
+                                 Write (6,*)Work(LSCR-1+(ii-1)*nScr+jj),
+     &                                       Scr(jj,ii)
+                                 Call Abend()
+                              End If
+                           End Do
+                        End Do
+#endif
                      Else
                         Call FZero(Work(LSCR),4*NSCR)
                      End If
@@ -3012,6 +3074,13 @@ C                 Why do it when we don't do the L.S-term!
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       If (Do_Pol) Call mma_deallocate(pol_Vector)
+*ifdef _TEST_TDM_
+      Call mma_deallocate(SCR)
+      Call mma_deAllocate(TDMZZ)
+      Call mma_deAllocate(TSDMZZ)
+      Call mma_deAllocate(WDMZZ)
+*endif
+*
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
@@ -3023,7 +3092,6 @@ C                 Why do it when we don't do the L.S-term!
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
-*
 ************************************************************************
 *                                                                      *
 *     End of section for transition moments                            *

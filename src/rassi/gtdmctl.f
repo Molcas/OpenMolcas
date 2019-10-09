@@ -846,11 +846,13 @@ C             Write density 1-matrices in AO basis to disk.
 
               if(.not.mstate_dens)then
 
-                IF((SONATNSTATE.GT.0).OR.NATO) THEN
+                IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
 *C Transition density matrices, TDMZZ, in AO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   IDISK=iDisk_TDM(JSTATE,ISTATE)
-                  CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK)
+                  iOpt=1
+                  CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
+     &                           iOpt)
                 END IF
                 !> calculate property matrix elements
                 CALL PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
