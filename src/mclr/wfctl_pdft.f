@@ -51,7 +51,7 @@
       Integer nacpar,nacpr2
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
-
+      Logical fix
       Integer ipFT99,iptemp5
 *
       Call QEnter('WfCtl_SA')
@@ -311,7 +311,7 @@
 *            write(6,*) Work(ipin(ipST)-1+iS)
 *          end do
         else 
-        call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)+i*nconf1),1)
+        call dcopy_(nConf1,[Zero],0,Work(ipIn(ipst)+i*nconf1),1)
         end if
       Enddo
 
@@ -467,10 +467,10 @@
        Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
        Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
 *
-      call Dcopy(ndens,Zero,
+      call Dcopy(ndens,[Zero],
      &     0,work(kap_new_temp),1)
 *
-      call Dcopy(ndensc,Zero,
+      call Dcopy(ndensc,[Zero],
      &     0,work(kap_new),1)
 *
 *       call Dcopy(nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
@@ -489,43 +489,42 @@
      & nconf1, work(lmroots),1,0.0d0,
      & work(ipin(ipcid)+(irlxroot-1)*nconf1),1) 
 *
-*      write(*,*) 'ipcd'
-*      do i=1,nroots*nconf1
-*        write(*,*) work(ipin(ipcid)-1+i)
-*      end do
-*
-*        Call daxpy(nconf1,-1.0d0,work(ipin(ipcid)+(irlxroot-1)*nconf1),
-*     &             1,work(ipst_prime),1) 
-*      write(*,*) 'ipst_pime'
-*      do i=1,nconf1
-*        write(*,*) work(ipst_prime-1+i)
-*      end do
 *
 *SA-SA rotations w/in SA space for new lagrange multipliers
+       fix=.FALSE.
        do i=0, nroots-1
        if (i.eq.(irlxroot-1)) then
        work(lmroots_new+i)=0.0d0
        else
          diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
          write(*,*) 'diff',diff
+         diffsq=diff**2
+         if (diffsq.le.1.5d-010**2) then
+             fix=.TRUE. 
+             degen_root= i
+         end if
          wscale = (1.0d0/(2.0d0*diff))*(1.0d0/weight(i+1))
          write(*,*)'wscale',wscale
          write(*,*) 'weight', weight(i+1)        
-        work(lmroots_new+i)= wscale*work(lmroots+i)
+         work(lmroots_new+i)= wscale*work(lmroots+i)
        end if
        end do
 *
-      if(debug) then
+*      if(debug) then
       write(*,*) 'lmroots_new'
        do i=1,nroots
         write(*,*) work(lmroots_new-1+i)
       end do
-      end if
-*SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
-        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     &  nconf1, work(lmroots_new),1,0.0d0,
-     &  work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+*      end if
 *
+*SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
+         write(*,*) 'ipci*lmroots_new'
+          call dgemv_('N',nconf1,nroots,1.0d0,work(ipin(ipci)),
+     &    nconf1,work(lmroots_new),1,0.0d0,
+     &    work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+*
+         if (.false.) then
+        end if
 *First iter of PCG
 *           if (.false.) then
           Call TimesE2_(work(kap_new),ipCId,1,reco,jspin,ipS2,
@@ -536,7 +535,7 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ipst this should be 1lmroots'
+       write(*,*) 'lmroots_ipst this should be lmroots'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
        end do
@@ -547,7 +546,7 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ips1 thisshould be -lmroots'
+       write(*,*) 'lmroots_ips1 this should be -lmroots'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
        end do
@@ -610,7 +609,7 @@
         deltaC=0.0d0
       End If
 !AMS_______________________________________________
-
+*
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
       call dcopy_(nDens,[Zero],0,Work(ipKap),1)
@@ -683,8 +682,8 @@
 *        S=M  Sigma
 *
          irc=opOut(ipcid)
-
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
+*
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rchc,isym,work(ipS))
 
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -712,7 +711,7 @@
      &                             Work(ipIn(ipS2)),1)
 *
 *         write(*,*) 'ipst and ips2'
-
+*
 *
          irc=ipOut(ipST)
 *
@@ -871,7 +870,7 @@
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
-      Dimension rdum(1)
+*      Dimension rdum(1)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)
