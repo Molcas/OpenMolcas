@@ -54,7 +54,7 @@
       Real*8, Pointer :: flatStorage(:)
 #endif
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
-      Integer, Allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+      Integer, Allocatable:: MAPST(:)
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:)
 
       CALL QENTER(ROUTINE)
@@ -69,8 +69,6 @@
 *
 C Mapping from spin states to spin-free state and to spin:
       Call mma_allocate(MAPST,nSS,Label='MAPST')
-      Call mma_allocate(MAPSP,nSS,Label='MAPSP')
-      Call mma_allocate(MAPMS,nSS,Label='MAPMS')
       ISS=0
       DO ISTATE=1,NSTATE
          JOB=iWork(lJBNUM+ISTATE-1)
@@ -78,18 +76,35 @@ C Mapping from spin states to spin-free state and to spin:
          DO MSPROJ=-MPLET+1,MPLET-1,2
             ISS=ISS+1
             MAPST(ISS)=ISTATE
-            MAPSP(ISS)=MPLET
-            MAPMS(ISS)=MSPROJ
        END DO
       END DO
 *
       Call mma_allocate(VSOR,NSS,NSS,Label='VSOR')
       Call mma_allocate(VSOI,NSS,NSS,Label='VSOI')
 *
-*     No transformation yet!
+*     Let us transform the coefficients in USOR and USOI
 *
+*#define _TRANSFORM_
+#ifdef _TRANSFORM_
       VSOR=USOR
       VSOI=USOI
+#else
+      Do iSS = 1, nSS
+         Do JSS = 1, nSS
+            jSS_=MAPST(JSS)
+            tmp_R=0.0D0
+            tmp_I=0.0D0
+            Do kSS = 1, nSS
+               kSS_=MAPST(kSS)
+               tmp_R=tmp_R + USOR(kSS,iSS)*EigVec(kSS_,jSS_)
+               tmp_I=tmp_I + USOI(kSS,iSS)*EigVec(kSS_,jSS_)
+            End Do
+            VSOR(JSS,ISS)=tmp_R
+            VSOI(JSS,ISS)=tmp_I
+         End Do
+      End Do
+#endif
+      Call mma_deallocate(MAPST)
 *
 *                                                                      *
 ************************************************************************
@@ -1058,9 +1073,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
  666  Continue
       Call mma_deallocate(VSOR)
       Call mma_deallocate(VSOI)
-      Call mma_deallocate(MAPST)
-      Call mma_deallocate(MAPSP)
-      Call mma_deallocate(MAPMS)
 *
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),4X,3(1X,A15))

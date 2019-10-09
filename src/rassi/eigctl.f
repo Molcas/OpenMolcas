@@ -2385,7 +2385,7 @@ C                                                                      C
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-#define _TRANSFORM_
+*#define _TRANSFORM_
 #ifdef _TRANSFORM_
 *                                                                      *
 ************************************************************************
