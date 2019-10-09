@@ -116,13 +116,13 @@
           integer :: res(size(A))
 
           integer :: i
-          res = [(size(A(i)%block, 1), i = 1, size(A))]
+          res(:) = [(size(A(i)%block, 1), i = 1, size(A))]
         end function
 
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
+        subroutine abort_(message)
+          character(*), intent(in) :: message
+          call WarningMessage(2, message)
+          call QTrace()
+          call Abend()
+        end subroutine
       end module blockdiagonal_matrices
