@@ -674,7 +674,6 @@ C ------------------------------------------
 ! based on the exact non-relativistic Hamiltonian in the weak field
 ! approximation.
         Do_TMOM=.TRUE.
-        ToFile=.TRUE.
         Linenr=Linenr+1
         GoTo 100
       Endif

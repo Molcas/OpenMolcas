@@ -49,11 +49,8 @@
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:)
-#define _TEST_TDM_
-#ifdef _TEST_TDM_
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:),
      &                      TDS(:,:,:)
-#endif
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -2325,13 +2322,11 @@ C                                                                      C
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
 #endif
-#ifdef _TEST_TDM_
       Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
       Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
       Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
       nSCR=(NBST*(NBST+1))/2
       Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
-#endif
 
 *
 *     Here we will use a Lebedev grid to integrate over all possible
@@ -2385,16 +2380,10 @@ C                                                                      C
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 *
-*     Get table of content for density matrices.
-*
-      Call DaName(LuToM,FnToM)
-      iDisk=0
-      Call iDaFile(LuToM,2,TocM,nState*(nState+1)/2,iDisk)
+*     Scratch for one-electron integrals
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-      NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2419,10 +2408,6 @@ C                                                                      C
             JDISK=iDisk_TDM(I,J)
 
             Get_TDS=.True.
-*
-*           The reading is postponed until it is really needed
-*           (see below).
-*           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
 *           Loop over the TDs which will be used in the subsequent part
 *           of the code.
@@ -3010,7 +2995,6 @@ C                 Why do it when we don't do the L.S-term!
 *     Deallocate some arrays.
 *
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
@@ -3019,12 +3003,10 @@ C                 Why do it when we don't do the L.S-term!
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       If (Do_Pol) Call mma_deallocate(pol_Vector)
-#ifdef _TEST_TDM_
       Call mma_deallocate(SCR)
       Call mma_deAllocate(TDMZZ)
       Call mma_deAllocate(TSDMZZ)
       Call mma_deAllocate(WDMZZ)
-#endif
 *
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
@@ -3033,7 +3015,6 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Do some cleanup
 *
-      Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
