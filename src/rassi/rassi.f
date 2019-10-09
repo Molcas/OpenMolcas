@@ -263,7 +263,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
 
       CALL PRPROP(PROP,WORK(LUTOTR),WORK(LUTOTI),
      &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
-     &            WORK(LENERGY),iWork(lJBNUM))
+     &            WORK(LENERGY),iWork(lJBNUM),EigVec)
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)

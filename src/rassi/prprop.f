@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,SODYSAMPS,
-     &     ENERGY,JBNUM)
+     &                  ENERGY,JBNUM,EigVec)
       USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS),
@@ -27,7 +27,7 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &          ENERGY(NSTATE),JBNUM(NSTATE)
+     &          ENERGY(NSTATE),JBNUM(NSTATE), EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
@@ -2771,7 +2771,7 @@ C printing threshold
 ************************************************************************
 *
       If (Do_TMOM)
-     &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
+     &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
 *
  500  CONTINUE
 

@@ -12,7 +12,7 @@
 *               2019, Mickael G. Delcey                                *
 *               2019, Ignacio Fdez Galvan                              *
 ************************************************************************
-      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
+      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX
       USE kVectors
 #include "compiler_features.h"
@@ -34,7 +34,8 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
 #include "stdalloc.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE),
+     &          EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup
@@ -53,9 +54,46 @@
       Real*8, Pointer :: flatStorage(:)
 #endif
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
+      Integer, Allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+      Real*8, Allocatable:: VSOR(:,:), VSOI(:,:)
 
       CALL QENTER(ROUTINE)
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Before we start we need to backtransform the coefficients of the
+*     SO states from the basis of the SF states which diagonalize the
+*     SF Hamiltonian to the basis of the original SF states. This since
+*     all transition moments, whether or retrived from disk or
+*     recomputed, are in the basis of the original SF states.
+*
+C Mapping from spin states to spin-free state and to spin:
+      Call mma_allocate(MAPST,nSS,Label='MAPST')
+      Call mma_allocate(MAPSP,nSS,Label='MAPSP')
+      Call mma_allocate(MAPMS,nSS,Label='MAPMS')
+      ISS=0
+      DO ISTATE=1,NSTATE
+         JOB=iWork(lJBNUM+ISTATE-1)
+         MPLET=MLTPLT(JOB)
+         DO MSPROJ=-MPLET+1,MPLET-1,2
+            ISS=ISS+1
+            MAPST(ISS)=ISTATE
+            MAPSP(ISS)=MPLET
+            MAPMS(ISS)=MSPROJ
+       END DO
+      END DO
+*
+      Call mma_allocate(VSOR,NSS,NSS,Label='VSOR')
+      Call mma_allocate(VSOI,NSS,NSS,Label='VSOI')
+*
+*     No transformation yet!
+*
+      VSOR=USOR
+      VSOI=USOI
+*
+*                                                                      *
+************************************************************************
+*                                                                      *
       DEBYE=CONV_AU_TO_DEBYE_
       AU2REDR=2.0D2*DEBYE
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
@@ -167,7 +205,7 @@ C printing threshold
             IF (IPRTMOM(14).EQ.-1) IPRTMOM(14)=IPROP
          END IF
       ENDDO
-      IF (ANY(IPRTMOM.EQ.-1)) RETURN
+      IF (ANY(IPRTMOM.EQ.-1)) Go To 666
 *
 *     Initiate the Seward environment
 *
@@ -363,7 +401,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
          ISFLoop: Do ISF=1,NState
            Do ISS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
              Do ISO=istart_,iend_
-               Temp=USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2
+               Temp=VSOR(ISS,ISO)**2 + VSOI(ISS,ISO)**2
                If (Temp.gt.ThrSparse) Then
                  ISM=ISM+1
                  iMask(ISM)=ISF
@@ -398,7 +436,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             JSFLoop: Do JSF=1,NState
               Do JSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
                 Do JSO=jstart_,jend_
-                  Temp=USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2
+                  Temp=VSOR(JSS,JSO)**2 + VSOI(JSS,JSO)**2
                   If (Temp.gt.ThrSparse) Then
                     JSM=JSM+1
                     jMask(JSM)=JSF
@@ -681,7 +719,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                DO iCar=1, 3
                   LR_=LTMR+(iCar-1)*NSS**2
                   LI_=LTMI+(iCar-1)*NSS**2
-                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
+                  CALL ZTRNSF_MASKED(NSS,VSOR,VSOI,
      &                               WORK(LR_),WORK(LI_),
      &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
                END DO
@@ -1016,6 +1054,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
+
+ 666  Continue
+      Call mma_deallocate(VSOR)
+      Call mma_deallocate(VSOI)
+      Call mma_deallocate(MAPST)
+      Call mma_deallocate(MAPSP)
+      Call mma_deallocate(MAPMS)
 *
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),4X,3(1X,A15))
