@@ -67,7 +67,7 @@
 *     all transition moments, whether or retrived from disk or
 *     recomputed, are in the basis of the original SF states.
 *
-C Mapping from spin states to spin-free state and to spin:
+C Mapping from spin states to spin-free state:
       Call mma_allocate(MAPST,nSS,Label='MAPST')
       ISS=0
       DO ISTATE=1,NSTATE
@@ -84,11 +84,6 @@ C Mapping from spin states to spin-free state and to spin:
 *
 *     Let us transform the coefficients in USOR and USOI
 *
-*#define _TRANSFORM_
-#ifdef _TRANSFORM_
-      VSOR=USOR
-      VSOI=USOI
-#else
       Do iSS = 1, nSS
          Do JSS = 1, nSS
             jSS_=MAPST(JSS)
@@ -103,7 +98,6 @@ C Mapping from spin states to spin-free state and to spin:
             VSOI(JSS,ISS)=tmp_I
          End Do
       End Do
-#endif
       Call mma_deallocate(MAPST)
 *
 *                                                                      *

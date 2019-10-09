@@ -36,7 +36,7 @@
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
      &       DYSAMPS(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
-      Logical Get_TDS, Diagonal
+      Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
@@ -49,8 +49,7 @@
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:)
-      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:),
-     &                      TDS(:,:,:)
+      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -2385,83 +2384,6 @@ C                                                                      C
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-*#define _TRANSFORM_
-#ifdef _TRANSFORM_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Transform the transition densities to the new basis.
-*
-*     This procedure is redundant if the Hamiltonian matrix was
-*     diagonal and the energies where in increasing order.
-*
-      If (.NOT.DIAGONAL) Then
-*
-      Call mma_Allocate(TDS,nTDMZZ,nState*(nState+1)/2,3,Label='TDS')
-      TDS(:,:,:)=0.0D0
-*
-*     Loop over all unique TDs and distribute their contributions to the
-*     TDs in the new basis.
-*
-      DO I=1, NSTATE
-         DO J= 1, NSTATE
-            ISTATE=MAX(i,j)
-            JSTATE=MIN(i,j)
-            ij=ISTATE*(ISTATE-1)/2+JSTATE
-            JDISK=iDisk_TDM(I,J)
-            Get_TDS=.True.
-*
-*           Loop over the TDs which will be used in the subsequent part
-*           of the code.
-*
-*           Do K = JSTART, NSTATE
-            Do K = 1, NState
-               C_ik=EigVec(i,K)
-*              Do L = 1, Min(IEND,K)
-               Do L = 1, K
-                  C_ikjl=C_ik*EigVec(j,L)
-*                 If (Abs(C_ikjl).gt.1.0D-14) Then
-                  If (.TRUE.) Then
-                     If (Get_TDS) Then
-                        iOpt=2
-                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                 LUTDM,jDISK,iOpt)
-                        Get_TDS=.False.
-                     End If
-                     kl=K*(K-1)/2+L
-                     Call DaXpY_(nTDMZZ,C_ikjl,TDMZZ,1,
-     &                                         TDS(1,kl,1),1)
-                     Call DaXpY_(nTDMZZ,C_ikjl,TSDMZZ,1,
-     &                                         TDS(1,kl,2),1)
-                     Call DaXpY_(nTDMZZ,C_ikjl,WDMZZ,1,
-     &                                         TDS(1,kl,3),1)
-                  End If
-               End Do
-            End Do
-*
-         END DO
-      END DO
-*
-*     Replace the old TDs with the new ones on the file.
-
-      DO I=1, IEND
-         DO J=JSTART, NSTATE
-            ISTATE=MAX(i,j)
-            JSTATE=MIN(i,j)
-            ij=ISTATE*(ISTATE-1)/2+JSTATE
-            JDISK=iDisk_TDM(I,J)
-            iOpt=1
-            CALL dens2file(TDS(1,ij,1),TDS(1,ij,2),TDS(1,ij,3),
-     &                     nTDMZZ,LUTDM,jDISK,iOpt)
-         END DO
-      END DO
-      Call mma_deAllocate(TDS)
-*
-      END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-#endif
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -2690,88 +2612,83 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-#ifndef _TRANSFORM_
                      If (Diagonal) Then
-#endif
-                     IDISK=iDisk_TDM(I,J)
-                     iOpt=2
-                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                              LUTDM,IDISK,iOpt)
-                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
-     &                            IOFF,NBASF,ISY12)
-                     DO IPRP = 1,12
-                        IPROP=IPRTMOM(IPRP)
-                        ITYPE=0
-                        IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
-                        IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
-                        IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
-                        IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
-                        LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                               WORK(LIP),NIP,SCR,nSCR,
-     &                               MASK,ISY12,IOFF)
-                     END DO ! IPRP
-#ifndef _TRANSFORM_
-               Else
+                        IDISK=iDisk_TDM(I,J)
+                        iOpt=2
+                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                                 LUTDM,IDISK,iOpt)
+                        Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                               IOFF,NBASF,ISY12)
+                        DO IPRP = 1,12
+                           IPROP=IPRTMOM(IPRP)
+                           ITYPE=0
+                           IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
+                           IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
+                           IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
+                           IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
+                           LABEL=PNAME(IPROP)
+                           Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+     &                                  WORK(LIP),NIP,SCR,nSCR,
+     &                                  MASK,ISY12,IOFF)
+                        END DO ! IPRP
+                     Else
 
-               DO IPRP = 1,12
-                  IPROP=IPRTMOM(IPRP)
-                  Prop(:,:,IPROP)=0.0D0
-               End Do
-               Do k_ = 1, nState
-                  k=IndexE(k_)
-                  JOB3=iWork(lJBNUM+k-1)
-                  LSYM3=IRREP(JOB3)
-                  Do l_ = 1, k
-                     l=IndexE(l_)
-                     JOB4=iWork(lJBNUM+l-1)
-                     LSYM4=IRREP(JOB4)
-                     ISY34=MUL(LSYM3,LSYM4)
+                        DO IPRP = 1,12
+                           IPROP=IPRTMOM(IPRP)
+                           Prop(:,:,IPROP)=0.0D0
+                        End Do
+                        Do k_ = 1, nState
+                           k=IndexE(k_)
+                           JOB3=iWork(lJBNUM+k-1)
+                           LSYM3=IRREP(JOB3)
+                           Do l_ = 1, k
+                              l=IndexE(l_)
+                              JOB4=iWork(lJBNUM+l-1)
+                              LSYM4=IRREP(JOB4)
+                              ISY34=MUL(LSYM3,LSYM4)
 *
-                     MASK34=2**(ISY34-1)
-                     Call mk_IOFF(IOFF,nSYM,NBASF,ISY34)
+                              MASK34=2**(ISY34-1)
+                              Call mk_IOFF(IOFF,nSYM,NBASF,ISY34)
 *
-                     IDISK=iDisk_TDM(k,l)
-                     iOpt=2
-                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                              LUTDM,IDISK,iOpt)
-                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
-     &                            IOFF,NBASF,ISY34)
+                              IDISK=iDisk_TDM(k,l)
+                              iOpt=2
+                              CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                                       LUTDM,IDISK,iOpt)
+                              Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,
+     &                                     SCR,nSCR,IOFF,NBASF,ISY34)
 *
-                     DO IPRP = 1,12
-                        IPROP=IPRTMOM(IPRP)
-                        ITYPE=0
-                        IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
-                        IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
-                        IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
-                        IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
-                        LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,K,L,LABEL,ITYPE,
-     &                               WORK(LIP),NIP,SCR,nSCR,
-     &                               MASK34,ISY34,IOFF)
-                     END DO ! IPRP
-                  End Do
-               End Do
+                              DO IPRP = 1,12
+                                 IPROP=IPRTMOM(IPRP)
+                                 ITYPE=0
+                                 IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
+                                 IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
+                                 IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
+                                 IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
+                                 LABEL=PNAME(IPROP)
+                                 Call MK_PROP(PROP,IPROP,K,L,LABEL,ITYPE
+     &                                       ,WORK(LIP),NIP,SCR,nSCR,
+     &                                        MASK34,ISY34,IOFF)
+                              END DO ! IPRP
+                           End Do
+                        End Do
 *
-*              Transform to the new basis, to be modified!
+*                       Transform to the new basis. Do it just for the
+*                       elements we will use.
 *
-               CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
-               Call FZero(Work(lSCR),nState**2)
-               DO IP=1,12
-                  IPROP=IPRTMOM(IP)
-                  CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,
-     &                        1.0D0,PROP(1,1,IPROP),NSTATE,
-     &                              EIGVEC,NSTATE,
-     &                        0.0D0,WORK(LSCR),NSTATE)
-                  CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,
-     &                        1.0D0,EIGVEC,NSTATE,
-     &                              WORK(LSCR),NSTATE,
-     &                        0.0D0,PROP(1,1,IPROP),NSTATE)
-               END DO
-               CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
+                        CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE)
+                        Call FZero(Work(lSCR),nState)
+                        DO IP=1,12
+                           IPROP=IPRTMOM(IP)
+                           CALL DGEMM_('N','N',NSTATE,1,NSTATE,
+     &                                 1.0D0,PROP(1,1,IPROP),NSTATE,
+     &                                       EIGVEC(1,J),NSTATE,
+     &                                 0.0D0,WORK(LSCR),NSTATE)
+                           PROP(I,J,IPROP)=DDot_(NSTATE,WORK(LSCR),1,
+     &                                                  EIGVEC(1,I),1)
+                        END DO
+                        CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE)
 *
-               End If
-#endif
+                     End If
 *
 *              (1) the oam part
 *
