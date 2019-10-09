@@ -36,7 +36,6 @@
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
      &       DYSAMPS(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
-      REAL*8, Dimension(:,:), Allocatable :: TDS
       Logical Get_TDS, Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
 * Short array, just for putting transition dipole values
@@ -53,7 +52,7 @@
 #define _TEST_TDM_
 #ifdef _TEST_TDM_
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:),
-     &                      XXXX(:,:,:)
+     &                      TDS(:,:,:)
 #endif
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
@@ -2406,12 +2405,8 @@ C                                                                      C
 *
       If (.NOT.DIAGONAL) Then
 *
-      Call mma_Allocate(TDS,4*nSCR,nState*(nState+1)/2,Label='TDS')
-      Call FZero(TDS,4*nSCR*nState*(nState+1)/2)
-#ifdef _TEST_TDM_
-      Call mma_Allocate(XXXX,nTDMZZ,nState*(nState+1)/2,3,Label='XXXX')
-      XXXX(:,:,:)=0.0D0
-#endif
+      Call mma_Allocate(TDS,nTDMZZ,nState*(nState+1)/2,3,Label='TDS')
+      TDS(:,:,:)=0.0D0
 *
 *     Loop over all unique TDs and distribute their contributions to the
 *     TDs in the new basis.
@@ -2421,10 +2416,7 @@ C                                                                      C
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=TocM(ij)
-#ifdef _TEST_TDM_
             JDISK=iDisk_TDM(I,J)
-#endif
 
             Get_TDS=.True.
 *
@@ -2441,29 +2433,18 @@ C                                                                      C
                   C_ikjl=C_ik*EigVec(j,L)
                   If (Abs(C_ikjl).gt.1.0D-14) Then
                      If (Get_TDS) Then
-                        If (iDisk.gt.0) Then
-                           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-                        Else
-                           Call FZero(Work(LSCR),4*NSCR)
-                        End If
-#ifdef _TEST_TDM_
                         iOpt=2
                         CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
      &                                 LUTDM,jDISK,iOpt)
-#endif
                         Get_TDS=.False.
                      End If
                      kl=K*(K-1)/2+L
-                     Call DaXpY_(4*NSCR,C_ikjl,Work(LSCR),1,
-     &                                         TDS(1,kl),1)
-#ifdef _TEST_TDM_
                      Call DaXpY_(nTDMZZ,C_ikjl,TDMZZ,1,
-     &                                         XXXX(1,kl,1),1)
+     &                                         TDS(1,kl,1),1)
                      Call DaXpY_(nTDMZZ,C_ikjl,TSDMZZ,1,
-     &                                         XXXX(1,kl,2),1)
+     &                                         TDS(1,kl,2),1)
                      Call DaXpY_(nTDMZZ,C_ikjl,WDMZZ,1,
-     &                                         XXXX(1,kl,3),1)
-#endif
+     &                                         TDS(1,kl,3),1)
                   End If
                End Do
             End Do
@@ -2478,30 +2459,13 @@ C                                                                      C
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=TocM(ij)
-            If (iDisk.ge.0) Then
-               Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
-            Else
-*              This should probably never happen
-               dNorm=dDot_(4*NSCR,TDS(1,ij),1,TDS(1,ij),1)
-               If (dNorm.gt.0.0d0) Then
-                  Write(6,*) 'A transition density matrix should be '//
-     &                       'zero, but it is not.'
-                  Call AbEnd()
-               End If
-            End If
-#ifdef _TEST_TDM_
             JDISK=iDisk_TDM(I,J)
             iOpt=1
-            CALL dens2file(XXXX(1,ij,1),XXXX(1,ij,2),XXXX(1,ij,3),
+            CALL dens2file(TDS(1,ij,1),TDS(1,ij,2),TDS(1,ij,3),
      &                     nTDMZZ,LUTDM,jDISK,iOpt)
-#endif
          END DO
       END DO
-      Call mma_DeAllocate(TDS)
-#ifdef _TEST_TDM_
-      Call mma_deAllocate(XXXX)
-#endif
+      Call mma_deAllocate(TDS)
 *
       END IF
 *                                                                      *
@@ -2735,31 +2699,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=TocM(ij)
-                     If (iDisk.gt.0) Then
-                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-#ifdef _TEST_TDM_
-                        IDISK=iDisk_TDM(JSTATE,ISTATE)
-                        iOpt=2
-                        CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                 LUTDM,IDISK,iOpt)
-                        Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
-     &                               IOFF,NBASF,ISY12)
-                        Do ii = 1, 4
-                           Do jj = 1, nScr
-                              tmp = Work(LSCR-1 + (ii-1)*nScr+jj)-
-     &                              Scr(jj,ii)
-                              If (Abs(tmp).gt.1.0D-10) Then
-                                 Write (6,*)Work(LSCR-1+(ii-1)*nScr+jj),
-     &                                       Scr(jj,ii)
-                                 Call Abend()
-                              End If
-                           End Do
-                        End Do
-#endif
-                     Else
-                        Call FZero(Work(LSCR),4*NSCR)
-                     End If
+                     IDISK=iDisk_TDM(I,J)
+                     iOpt=2
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                              LUTDM,IDISK,iOpt)
+                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                            IOFF,NBASF,ISY12)
                DO IPRP = 1,12
                   IPROP=IPRTMOM(IPRP)
                   ITYPE=0
@@ -2768,8 +2713,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                   IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                   LABEL=PNAME(IPROP)
-                  Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
-     &                         WORK(LIP),NIP,WORK(LSCR),NSCR,
+                  Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+     &                         WORK(LIP),NIP,SCR,nSCR,
      &                         MASK,ISY12,IOFF)
                END DO ! IPRP
 *
