@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/nevpt2.exe"  executable
+ (file)  NEVPTINP "$WorkDir/$Project."Nevpt2.Input rwi
 #include "aoints.inc"
 #include "wfnfiles.inc"
  (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     rw

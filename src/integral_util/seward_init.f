@@ -388,7 +388,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
 *     EFP stuff
 *
-      EFP=.False.
+      lEFP=.False.
       nEFP_fragments=0
 *
       Return

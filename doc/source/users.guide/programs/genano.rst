@@ -13,8 +13,11 @@
      :local:
      :backlinks: none
 
-.. xmldoc:: %%Description:
+.. xmldoc:: <MODULE NAME="GENANO">
+            %%Description:
+            <HELP>
             This program is used to construct ANO type basis sets.
+            </HELP>
 
 :program:`GENANO` is a program for
 determining the contraction coefficients for
@@ -85,7 +88,7 @@ positive charge, thus it may be appropriate to include
   for example a molecular basis set describing Rydberg orbitals,
   see the example in the "Tutorials and Examples" part,
   section :ref:`TUT:sec:make_rydberg_basis_sets`.
-  There is a possibility to create rydberg orbitals
+  There is a possibility to create Rydberg orbitals
   automatically by using the keyword
   :kword:`RYDBERG`. Here all unoccupied orbitals with
   negative orbital energies will be used with the associated
@@ -231,12 +234,16 @@ Input
   an the input parser detects one of the other keywords.
   This keyword is *optional*.
 
-  .. xmldoc:: %%Keyword: title <basic>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="TITLE" APPEAR="Title" LEVEL="BASIC" KIND="STRING">
+              %%Keyword: TITLe <basic>
+              <HELP>
               This keyword starts the reading of title lines,
               with no limit on the number of title lines.
               Reading the input as title lines is stopped as soon
               an the input parser detects one of the other keywords.
+              </HELP>
               This keyword is optional.
+              </KEYWORD>
 
 :kword:`SETS`
   This keyword indicates that the next line of input
@@ -246,13 +253,17 @@ Input
   both are supplied.
   This keyword is *optional*, with one set as the default.
 
-  .. xmldoc:: %%Keyword: sets <basic>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="SETS" APPEAR="Sets" LEVEL="BASIC" KIND="INT">
+              %%Keyword: SETS <basic>
+              <HELP>
               This keyword indicates that the next line of input
               contains the number of sets to be used in the
               averaging procedure.
+              </HELP>
               This keyword must precede keyword WEIGHTS if
               both are supplied.
               This keyword is optional, with one set as the default.
+              </KEYWORD>
 
 :kword:`CENTER`
   This keyword is followed, on the next line, by the atom
@@ -264,15 +275,19 @@ Input
   the case does not matter.
   This keyword is *compulsory*.
 
-  .. xmldoc:: %%Keyword: center <basic>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="CENTER" APPEAR="Center" LEVEL="BASIC" KIND="STRING">
+              %%Keyword: CENTer <basic>
+              <HELP>
               This keyword is followed, on the next line, by the atom
               label for which the basis set is to be generated.
               The label must match the label you supplied to
               SEWARD.
+              </HELP>
               In previous versions of GENANO this label had to
               be in uppercase, but this restriction is now lifted and
               the case does not matter.
               This keyword is compulsory.
+              </KEYWORD>
 
 :kword:`ROWWISE`
   This keyword makes :program:`GENANO` produce the
@@ -280,11 +295,15 @@ Input
   column-wise as is the default.
   This keyword is *optional*.
 
-  .. xmldoc:: %%Keyword: rowwise <advanced>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="ROWWISE" APPEAR="Row-wise" LEVEL="BASIC" KIND="SINGLE">
+              %%Keyword: ROWWise <advanced>
+              <HELP>
               This keyword makes GENANO to produce the
               contraction coefficients row-wise instead of
               column-wise as is the default.
+              </HELP>
               This keyword is optional.
+              </KEYWORD>
 
 :kword:`WEIGHTS`
   This keyword must be subsequent to keyword :kword:`SETS`
@@ -292,11 +311,15 @@ Input
   This keyword is *optional*,
   with equal weight on each of the sets as default.
 
-  .. xmldoc:: %%Keyword: weights <basic>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="WEIGHTS" APPEAR="Weights" LEVEL="BASIC" KIND="REALS_LOOKUP" SIZE="SETS">
+              %%Keyword: WEIGhts <basic>
+              <HELP>
+              </HELP>
               This keyword must be subsequent to keyword SETS
               if both are supplied.
               This keyword is optional,
               with equal weight on each of the sets as default.
+              </KEYWORD>
 
 :kword:`PROJECT`
   This keyword states that you want to project out certain
@@ -308,7 +331,9 @@ Input
   :program:`GENANO` calculation, for instance.
   This keyword is *optional*.
 
-  .. xmldoc:: %%Keyword: project <advanced>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="PROJECT" APPEAR="Project out" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: PROJect <advanced>
+              <HELP>
               This keyword states that you want to project out certain
               degrees of freedom from the density matrix.
               This can be useful for generating, for example,
@@ -316,7 +341,9 @@ Input
               If this keyword is specified, you must supply the file
               PROJ obtained as file ANO from a previous
               GENANO calculation, for instance.
+              </HELP>
               This keyword is optional.
+              </KEYWORD>
 
 :kword:`LIFTDEGENERACY`
   This keyword will modify the occupation numbers read from
@@ -328,7 +355,9 @@ Input
   in its irreducible representation.
   This keyword is *optional*.
 
-  .. xmldoc:: %%Keyword: liftdegeneracy <advanced>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="LIFTDEGENERACY" APPEAR="Lift degeneracy" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: LIFTdegeneracy <advanced>
+              <HELP>
               This keyword will modify the occupation numbers read from
               the orbitals files. The purpose is to lift the
               degeneracy of core orbitals to avoid rotations.
@@ -336,30 +365,36 @@ Input
               o'=o*(1+10^-3/n)
               where n is the sequence number of the orbital
               in its irreducible representation.
+              </HELP>
               This keyword is optional.
+              </KEYWORD>
 
 :kword:`RYDBERG`
-  This keyword enables automatic generation of rydberg
+  This keyword enables automatic generation of Rydberg
   orbitals. With this keyword all occupied orbitals
   will get occupation number zero while the virtual
   orbitals will get a small occupation number
   decreasing with orbital number. Useful with a calculation
   on an cation where the virtual orbitals are near perfect
-  rydberg orbitals.
+  Rydberg orbitals.
   Note that you must use orbitals from the
   :program:`SCF` or
   :program:`RASSCF` program.
   This keyword is *optional*.
 
-  .. xmldoc:: %%Keyword: rydberg <advanced>
-              This keyword enables automatic generation of rydberg orbitals.
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="RYDBERG" APPEAR="Rydberg orbitals" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: RYDBerg <advanced>
+              <HELP>
+              This keyword enables automatic generation of Rydberg orbitals.
               With this keyword all occupied orbitals will get occupation
               number zero while the virtual orbitals will get a small
               occupation number decreasing with orbital number. Useful
               with a calculation on an cation where the virtual orbitals
-              are near perfect rydberg orbitals. Note that you must use
+              are near perfect Rydberg orbitals. Note that you must use
               orbitals from the SCF or RASSCF program.
+              </HELP>
               This keyword is optional.
+              </KEYWORD>
 
 :kword:`NOTHRESHOLD`
   This keyword is used to specify the threshold for
@@ -368,12 +403,17 @@ Input
   discarded. The threshold is read from the line
   following the keyword. Default value is 1.0d-8.
 
-  .. xmldoc:: %%Keyword: nothreshold <advanced>
+  .. xmldoc:: <KEYWORD MODULE="GENANO" NAME="NOTHRESHOLD" APPEAR="Natural orbital threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-8">
+              %%Keyword: NOTHreshold <advanced>
+              <HELP>
               This keyword is used to specify the threshold for
               keeping NO's (natural orbitals). Orbitals with
               occupation numbers less than the threshold are
               discarded. The threshold is read from the line
-              following the keyword. Default value is 1.0d-8.
+              following the keyword.
+              </HELP>
+              Default value is 1.0d-8.
+              </KEYWORD>
 
 Below is a simple input example, where we construct an
 ANO basis set for the carbon atom.
@@ -469,3 +509,5 @@ SDCI wave function for the ground state of the atom.
   >>RM ONE002
   >>RM NAT001
   >>RM NAT002
+
+.. xmldoc:: </MODULE>

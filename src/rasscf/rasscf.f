@@ -796,9 +796,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                   F_IN=work(lFI : lFI + nTot1 - 1),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
-          call make_fcidumps(orbital_E, folded_Fock,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       core_energy=EMY)
+          call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
+     &      orbital_E, folded_Fock,
+     &      TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
           call mma_deallocate(orbital_E)
           call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
@@ -1988,12 +1988,11 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
+      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      end if
-      if(DoNECI) then
-        CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-        call fciqmc_cleanup()
+      else if (DoNECI) then
+          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+          call fciqmc_cleanup()
       end if
 * We better deallocate before it is too late...
 c     if(DoNECI) then
@@ -2046,7 +2045,6 @@ c      End If
      &          .or. DoNECI .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
-
 
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue

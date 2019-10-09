@@ -116,7 +116,7 @@ input must be given for a meaningful calculation.
   The lines following this keyword are treated as title lines, until
   another keyword is encountered.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
               %%Keyword: Title <basic>
               <HELP>
               The lines following this keyword are treated as title lines, until
@@ -130,7 +130,7 @@ input must be given for a meaningful calculation.
   line following the keyword, in free format. The default value is
   1, meaning a singlet wave function.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="SPIN" APPEAR="Spin (2S+1)" KIND="INT" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="SPIN" APPEAR="Spin (2S+1)" KIND="INT" LEVEL="BASIC">
               %%Keyword: SPIN <basic>
               <HELP>
               Enter spin multiplicity, 2S+1. Default 1=Singlet.
@@ -144,7 +144,7 @@ input must be given for a meaningful calculation.
   orbitals. An alternative input specification is NACTEL.
   Default: Twice nr of inactive orbitals.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="ELECTRONS" APPEAR="Number of electrons" KIND="INT" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="ELECTRONS" APPEAR="Number of electrons" KIND="INT" LEVEL="BASIC">
               %%Keyword: Electrons <basic>
               <HELP>
               Enter number of electrons to be correlated.
@@ -158,7 +158,7 @@ input must be given for a meaningful calculation.
   orbitals. An alternative input specification is ELECTRONS.
   Default: Zero.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="NACTEL" APPEAR="Number of active electrons" KIND="INT" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="NACTEL" APPEAR="Number of active electrons" KIND="INT" LEVEL="BASIC">
               %%Keyword: NACTEL <basic>
               <HELP>
               Number of active electrons (if multireference).
@@ -171,7 +171,7 @@ input must be given for a meaningful calculation.
   each of the symmetries. The values are read from the line
   following the keyword, in free format.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="INACTIVE" APPEAR="Inactive orbitals" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="INACTIVE" APPEAR="Inactive orbitals" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC">
               %%Keyword: Inactive <basic>
               <HELP>
               Number of inactive orbitals for each irrep.
@@ -190,7 +190,7 @@ input must be given for a meaningful calculation.
   be present for a meaningful calculation. If one of them is left out,
   the default is 0 in all symmetries.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="ACTIVE" APPEAR="Active orbitals" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="ACTIVE" APPEAR="Active orbitals" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC">
               %%Keyword: Active <basic>
               <HELP>
               Number of active orbitals for each irrep.
@@ -209,7 +209,7 @@ input must be given for a meaningful calculation.
   the active orbitals, read by 80I1 format. Note that
   :kword:`Reference` and :kword:`CIall` are mutually exclusive.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="REFERENCE" APPEAR="Reference occupations" KIND="STRINGS" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="REFERENCE" APPEAR="Reference occupations" KIND="CUSTOM" LEVEL="BASIC" EXCLUSIVE="CIALL">
               %%Keyword: REFERENCE <basic>
               <HELP>
               One way of specifying the reference space -- see manual.
@@ -222,7 +222,22 @@ input must be given for a meaningful calculation.
   as a number between 1 and 8 (see SEWARD). Default is 1, which
   always denote the totally symmetric irrep.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="CIALL" APPEAR="Full reference" KIND="SINGLE" LEVEL="BASIC" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="SYMMETRY" APPEAR="Symmetry of state" KIND="INT" LEVEL="BASIC">
+              %%Keyword: Symmetry <basic>
+              <HELP>
+              Specify symmetry of the state to be calculated.
+              Default value is 1.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CIALl`
+  Use a Full CI within the subspace of the active orbitals as
+  reference configurations. The symmetry of the wavefunction must be
+  specified. Note that
+  :kword:`CIall` and :kword:`Reference` are mutually exclusive.
+  One of these two alternatives must be chosen for a meaningful calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="CIALL" APPEAR="Full reference" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="REFERENCE">
               <HELP>
               Use a full reference.
               </HELP>
@@ -231,29 +246,13 @@ input must be given for a meaningful calculation.
               One of the two keywords REFERENCE and CIALL should be chosen.
               </KEYWORD>
 
-:kword:`CIALl`
-  Use a Full CI within the subspace of the active orbitals as
-  reference configurations. The symmetry of the wavefunction must be
-  specified. The value is read from the line following the keyword, in
-  free format. Note that
-  :kword:`CIall` and :kword:`Reference` are mutually exclusive.
-  One of these two alternatives must be chosen for a meaningful calculation.
-
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="SYMMetry" APPEAR="Symmetry of state" KIND="INT" LEVEL="BASIC" >
-              %%Keyword: Symmetry <basic>
-              <HELP>
-              Specify symmetry of the state to be calculated.
-              Default value is 1.
-              </HELP>
-              </KEYWORD>
-
 :kword:`PRINt`
   Printlevel of the program. Default printlevel (0) produces very
   little output. Printlevel 5 gives some information that may be of
   interest. The value is read from the line following the keyword, in free
   format.
 
-  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="PRINT" APPEAR="Print level" KIND="INT" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="GUGADRT" NAME="PRINT" APPEAR="Print level" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: PrintLevel <advanced>
               <HELP>
               Enter print level, from 0 (default) up to 5.

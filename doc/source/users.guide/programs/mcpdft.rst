@@ -164,4 +164,6 @@ geometry, etc. has to be given. Such information is supplied by the
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding RASSCF run.
 
+.. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRADIENT" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
 .. xmldoc:: </MODULE>

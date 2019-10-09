@@ -115,7 +115,7 @@ The input for each module is preceded by its name like: ::
   however only ten lines will be accepted.
   This keyword is *optional*.
 
-  .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="TITLE" APPEAR="Title" KIND="STRINGS" SIZE="10" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="TITLE" APPEAR="Title" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: TITLe <basic>
               <HELP>
               Enter up to ten title lines. Do not put any keyword in the beginning of a title line.
@@ -146,9 +146,9 @@ The input for each module is preceded by its name like: ::
 
 :kword:`LARGe`
   Integer on the following line specifies the main segmentation of the virtual orbitals
-  used in previous CCSD run. This keyword is *compulsory*. (Default=None)
+  used in previous CCSD run.
 
-  .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="LARG" APPEAR="Large segmentation" KIND="INT" LEVEL="BASIC" MIN_VALUE="1" MAX_VALUE="32" DEFAULT_VALUE="1" INPUT="REQUIRED">
+  .. xmldoc:: <KEYWORD MODULE="CHT3" NAME="LARG" APPEAR="Large segmentation" KIND="INT" LEVEL="BASIC" MIN_VALUE="1" MAX_VALUE="32" DEFAULT_VALUE="1">
               %%Keyword: LARGe <basic>
               <HELP>
               Specifies the segmentation of virtual orbitals

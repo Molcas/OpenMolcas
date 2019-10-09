@@ -34,9 +34,9 @@ RAS2   = 2 3
 CIROOT = 2,2,1
 THRS   = 1.0e-10,1.0e-06,1.0e-06
 
->> SAVE $Project.JobIph JOB001
+>> COPY $Project.JobIph JOB001
 
->> SAVE $Project.rasscf.h5 singlet.h5
+>> COPY $Project.rasscf.h5 singlet.h5
 
 &RASSCF
 SPIN   = 3
@@ -46,7 +46,7 @@ RAS2   = 2 3
 CIROOT = 2,2,1
 THRS   = 1.0e-10,1.0e-06,1.0e-06
 
->> SAVE $Project.JobIph JOB002
+>> COPY $Project.JobIph JOB002
 
 &WFA
 H5file = $Project.rasscf.h5
@@ -54,7 +54,7 @@ mulliken
 lowdin
 addinfo
 
->> SAVE $Project.rasscf.h5 triplet.h5
+>> COPY $Project.rasscf.h5 triplet.h5
 
 &RASSI
 NROFJOBIPHS
@@ -64,13 +64,13 @@ NROFJOBIPHS
 TRD1
 
 &WFA
-H5file  $Project.rassi.h5
-refst 2
-ATLISTS 3
+H5file = $Project.rassi.h5
+refst = 2
+ATLISTS = 3
 1 *
 2 *
 3 4 *
-CTNUmmode 2
+CTNUmmode = 2
 addinfo
 
 >>FILE checkfile

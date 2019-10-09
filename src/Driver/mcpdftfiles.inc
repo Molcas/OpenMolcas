@@ -8,6 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm)  "$MOLCAS"/bin/topmod.exe             executable
- (file)  WFN       "$WorkDir/$Project."wfn        rwm
-#include "orbitals.inc"
+#ifndef _MCPDFTFILES_
+ (file)  MCPDFT        "$WorkDir/$Project$SubProject".McDens rw*st
+ (file)  MCTRUD        "$WorkDir/$Project$SubProject".McTrue rw*st
+#define _MCPDFTFILES_
+#endif
