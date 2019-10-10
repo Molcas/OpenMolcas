@@ -23,24 +23,8 @@ data/find.db
 doc/doxygen/*.log
 doc/doxygen/*tmp
 doc/doxygen/html
-doc/latexdoc/**/*.aux
-doc/latexdoc/**/*.bbl
-doc/latexdoc/**/*.blg
-doc/latexdoc/**/*.fdb_latexmk
-doc/latexdoc/**/*.fls
-doc/latexdoc/**/*.idx
-doc/latexdoc/**/*.ilg
-doc/latexdoc/**/*.ind
-doc/latexdoc/**/*.lof
-doc/latexdoc/**/*.log
-doc/latexdoc/**/*.lot
-doc/latexdoc/**/*.out
-doc/latexdoc/**/*.pdf
-doc/latexdoc/**/*.toc
-doc/latexdoc/**/programs.tex
-!doc/latexdoc/**/fragment.pdf
-!doc/latexdoc/**/ubar.pdf
 # tinker
+/tinker-*.tar.gz
 /tinker-*.tar
 /tinker
 /tinker*/

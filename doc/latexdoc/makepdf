@@ -1,5 +1,0 @@
-#!/bin/sh
-
-./mkdocs
-find . -name "*.eps" -exec sh -c 'ps2pdf -dEPSCrop {} `dirname {}`/`basename {} .eps`.pdf' \;
-cd manual && latexmk -pdf manual.tex && cd ..
