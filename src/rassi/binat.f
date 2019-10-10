@@ -187,23 +187,14 @@ C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          ibra=(i-1)*nstate+KEIG_BRA-1
          jket=(j-1)*nstate+KEIG_KET-1
          X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
+         IDISK=iDisk_TDM(J,I,1)
+         IEMPTY=iDisk_TDM(J,I,2)
+         If (IAND(iEMPTY,1).ne.0) Then
          IF (I.GT.J) THEN
-           IDISK=iDisk_TDM(J,I,1)
-           IEMPTY=iDisk_TDM(J,I,2)
-           If (IAND(iEMPTY,1).ne.0) Then
-              CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
-           Else
-              Call FZero(Work(lTDMAO),NBSQ)
-           End If
+            CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
-           IDISK=iDisk_TDM(I,J,1)
-           IEMPTY=iDisk_TDM(I,J,2)
-           If (IAND(iEMPTY,1).ne.0) Then
-              CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
-           Else
-              Call FZero(Work(lSCR),NBSQ)
-           End If
+           CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM
             ISYM2=MUL(ISYM1,LSYM12)
@@ -218,6 +209,7 @@ C Loop over the receiving side:
            END DO
          END IF
          CALL DAXPY_(NBSQ,X,WORK(LTDMAO),1,WORK(LTDMAT),1)
+         END IF
    91    CONTINUE
         END DO
    92   CONTINUE
