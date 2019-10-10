@@ -829,20 +829,24 @@ C Compute 1-electron contribution to Hamiltonian matrix element:
 C             Write density 1-matrices in AO basis to disk.
             IF(NATO.OR.(NPROP.GT.0))THEN
 
+              iEmpty=0
               !> regular-TDM
-              CALL MKTDAB(SIJ,TRAD,TDMAB)
+              CALL MKTDAB(SIJ,TRAD,TDMAB,iRC)
               !> transform to AO basis
-              CALL MKTDZZ(CMO1,CMO2,TDMAB,TDMZZ)
+              CALL MKTDZZ(CMO1,CMO2,TDMAB,TDMZZ,iRC)
+              iEmpty=iRC
 
               !> spin-TDM
-              CALL MKTDAB(SIJ,TRASD,TSDMAB)
+              CALL MKTDAB(SIJ,TRASD,TSDMAB,iRC)
               !> transform to AO basis
-              CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ)
+              CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
+              iEmpty=iEmpty + 2**iRC
 
               !> WE-reduced TDM''s of triplet type:
-              CALL MKTDAB(0.0D0,WERD,WDMAB)
+              CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)
               !> transform to AO basis
-              CALL MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ)
+              CALL MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ,iRC)
+              iEmpty=iEmpty + 4**iRC
 
               if(.not.mstate_dens)then
 
