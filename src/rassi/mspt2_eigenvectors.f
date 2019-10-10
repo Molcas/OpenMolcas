@@ -26,7 +26,7 @@
         contains
 
         subroutine init_mspt2_eigenvectors(ijob,nstates,tag)
-          integer, intent(in) :: ijob, nstates, tag, iOpt
+          integer, intent(in) :: ijob, nstates, tag
           if(tag == 0)then
             allocate(Heff_evc(ijob))
           else if(tag == 1)then
@@ -73,6 +73,7 @@
         integer, intent(in)    :: ntdmzz
         integer, intent(in)    :: addr
         integer, intent(in)    :: lu
+        integer iOpt
         logical, intent(in)    :: put_so_data
         logical, intent(in)    :: put_h5_data
         real*8,  intent(in)    :: rtdm(ntdmzz)
@@ -95,7 +96,7 @@
      &                     ntdmzz,
      &                     lu,
      &                     addr,
-     &                     iOpt,
+     &                     iOpt
      &                     )
           end if
 
