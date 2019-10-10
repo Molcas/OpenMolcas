@@ -27,7 +27,7 @@
       INTEGER IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
       INTEGER LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
       INTEGER ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
-      INTEGER ISV, LB, LK, NBMIN, ibra,jket
+      INTEGER ISV, LB, LK, NBMIN, ibra,jket, iEmpty
       INTEGER LUNIT, ISFREEUNIT, IDUMMY
       REAL*8  SSEL, SWAP, SEV, X, DUMMY, SUMSNG, DDOT_
       CHARACTER*16 KNUM
@@ -189,11 +189,21 @@ C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
          IF (I.GT.J) THEN
            IDISK=iDisk_TDM(J,I,1)
-           CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
+           IEMPTY=iDisk_TDM(J,I,2)
+           If (IAND(iEMPTY,1).ne.0) Then
+              CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
+           Else
+              Call FZero(Work(lTDMAO),NBSQ)
+           End If
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
            IDISK=iDisk_TDM(I,J,1)
-           CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
+           IEMPTY=iDisk_TDM(I,J,2)
+           If (IAND(iEMPTY,1).ne.0) Then
+              CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
+           Else
+              Call FZero(Work(lSCR),NBSQ)
+           End If
 C Loop over the receiving side:
            DO ISYM1=1,NSYM
             ISYM2=MUL(ISYM1,LSYM12)

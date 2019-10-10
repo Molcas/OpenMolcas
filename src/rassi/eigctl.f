@@ -2614,9 +2614,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      If (Diagonal) Then
                         IDISK=iDisk_TDM(I,J,1)
+                        iEmpty=iDisk_TDM(I,J,2)
                         iOpt=2
                         CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                 LUTDM,IDISK,iOpt)
+     &                                 LUTDM,IDISK,iEmpty,iOpt)
                         Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
      &                               IOFF,NBASF,ISY12)
                         DO IPRP = 1,12
@@ -2651,9 +2652,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                               Call mk_IOFF(IOFF,nSYM,NBASF,ISY34)
 *
                               IDISK=iDisk_TDM(k,l,1)
+                              iEmpty=iDisk_TDM(k,l,2)
                               iOpt=2
                               CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                       LUTDM,IDISK,iOpt)
+     &                                       LUTDM,IDISK,iEmpty,iOpt)
                               Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,
      &                                     SCR,nSCR,IOFF,NBASF,ISY34)
 *

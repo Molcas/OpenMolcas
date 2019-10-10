@@ -173,19 +173,27 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
+        iEmpty=iDisk_TDM(LSF,KSF,2)
         IDISK=iDisk_TDM(LSF,KSF,1)
-        CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+        If (IAND(iEmpty,1).ne.0) Then
+           CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+        Else
+           CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
+        End If
 
 c I Don't know what is stored between TDMZZ and WDMZZ,
 c but store it in TDMZZ then overwrite
 c (see mectl.f)
         IF(ITYPE.GE.3) THEN
           CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
-          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+          If (IAND(iEmpty,2).ne.0)
+     &       CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
           CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
-          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+          If (IAND(iEmpty,4).ne.0) Then
+             CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
 C NOTE-the TD matrix as read in has an incorrect sign
-          CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
+             CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
+          End If
         END IF
 
 

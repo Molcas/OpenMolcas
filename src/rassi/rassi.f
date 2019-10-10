@@ -365,6 +365,7 @@ CIgorS End------------------------------------------------------------C
 ************************************************************************
 *                                                                      *
 *     PRINT I/O STATISTICS:
+      i=iPrintLevel(3)
       CALL FASTIO('STATUS')
 
       Call StatusLine('RASSI:','Finished.')

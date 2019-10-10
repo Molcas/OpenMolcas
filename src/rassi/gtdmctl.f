@@ -834,19 +834,19 @@ C             Write density 1-matrices in AO basis to disk.
               CALL MKTDAB(SIJ,TRAD,TDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TDMAB,TDMZZ,iRC)
-              iEmpty=iRC
+              If (iRC.eq.1) iEmpty=1
 
               !> spin-TDM
               CALL MKTDAB(SIJ,TRASD,TSDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
-              iEmpty=iEmpty + 2**iRC
+              If (iRC.eq.1) iEmpty=iEmpty+2
 
               !> WE-reduced TDM''s of triplet type:
               CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ,iRC)
-              iEmpty=iEmpty + 4**iRC
+              If (iRC.eq.1) iEmpty=iEmpty+4
 
               if(.not.mstate_dens)then
 
@@ -858,7 +858,7 @@ C             Write density 1-matrices in AO basis to disk.
                   jDisk_TDM(2,ij)=iEmpty
                   iOpt=1
                   CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
-     &                           iOpt)
+     &                           iEmpty,iOpt)
                 END IF
                 !> calculate property matrix elements
                 CALL PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
@@ -1169,6 +1169,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                                      jstate,
      &                                      ntdmzz,
      &                                      iDisk_TDM(JSTATE,ISTATE,1),
+     &                                      iDisk_TDM(JSTATE,ISTATE,2),
      &                                      lutdm,
      &                                      (sonatnstate.gt.0),
      &                                      if11.and.(lsym1.eq.lsym2)

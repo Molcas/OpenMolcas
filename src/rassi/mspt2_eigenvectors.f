@@ -61,6 +61,7 @@
      &                                         jstate,
      &                                         ntdmzz,
      &                                         addr,
+     &                                         iempty,
      &                                         lu,
      &                                         put_so_data,
      &                                         put_h5_data
@@ -72,8 +73,9 @@
         integer, intent(in)    :: jstate
         integer, intent(in)    :: ntdmzz
         integer, intent(in)    :: addr
+        integer, intent(in)    :: iempty
         integer, intent(in)    :: lu
-        integer iOpt
+        integer iOpt, iaddr
         logical, intent(in)    :: put_so_data
         logical, intent(in)    :: put_h5_data
         real*8,  intent(in)    :: rtdm(ntdmzz)
@@ -89,13 +91,15 @@
           !> put data to file
           if(put_so_data)then
             iOpt=1
+            iaddr=addr
             call dens2file(
      &                     rtdm,
      &                     stdm,
      &                     wetdm,
      &                     ntdmzz,
      &                     lu,
-     &                     addr,
+     &                     iaddr,
+     &                     iempty,
      &                     iOpt
      &                     )
           end if

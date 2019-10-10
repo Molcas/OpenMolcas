@@ -566,9 +566,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    states from disc. Generated in GTDMCTL.
 *
                      IDISK=iDisk_TDM(I,J,1)
+                     iEmpty=iDisk_TDM(I,J,2)
                      iOpt=2
                      CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                              LUTDM,IDISK,iOpt)
+     &                              LUTDM,IDISK,iEmpty,iOpt)
                      Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
      &                            IOFF,NBASF,ISY12)
 *
