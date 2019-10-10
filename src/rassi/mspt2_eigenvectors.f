@@ -26,7 +26,7 @@
         contains
 
         subroutine init_mspt2_eigenvectors(ijob,nstates,tag)
-          integer, intent(in) :: ijob, nstates, tag
+          integer, intent(in) :: ijob, nstates, tag, iOpt
           if(tag == 0)then
             allocate(Heff_evc(ijob))
           else if(tag == 1)then
@@ -87,13 +87,15 @@
 
           !> put data to file
           if(put_so_data)then
+            iOpt=1
             call dens2file(
      &                     rtdm,
      &                     stdm,
      &                     wetdm,
      &                     ntdmzz,
      &                     lu,
-     &                     addr
+     &                     addr,
+     &                     iOpt,
      &                     )
           end if
 
