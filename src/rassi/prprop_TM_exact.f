@@ -565,7 +565,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in GTDMCTL.
 *
-                     IDISK=iDisk_TDM(I,J)
+                     IDISK=iDisk_TDM(I,J,1)
                      iOpt=2
                      CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
      &                              LUTDM,IDISK,iOpt)

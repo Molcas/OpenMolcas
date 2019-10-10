@@ -173,7 +173,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
-        IDISK=iDisk_TDM(LSF,KSF)
+        IDISK=iDisk_TDM(LSF,KSF,1)
         CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
 
 c I Don't know what is stored between TDMZZ and WDMZZ,

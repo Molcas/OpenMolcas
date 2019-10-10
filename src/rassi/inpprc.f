@@ -37,8 +37,9 @@
 
       CALL QENTER(ROUTINE)
 
-      Call mma_allocate(jDisk_TDM,nState*(nState+1)/2,Label='jDisk_TDM')
-      jDisk_TDM(:)=-1
+      Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,
+     &                  Label='jDisk_TDM')
+      jDisk_TDM(:,:)=-1
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:

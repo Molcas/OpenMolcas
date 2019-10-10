@@ -188,11 +188,11 @@ C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          jket=(j-1)*nstate+KEIG_KET-1
          X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
          IF (I.GT.J) THEN
-           IDISK=iDisk_TDM(J,I)
+           IDISK=iDisk_TDM(J,I,1)
            CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
-           IDISK=iDisk_TDM(I,J)
+           IDISK=iDisk_TDM(I,J,1)
            CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM

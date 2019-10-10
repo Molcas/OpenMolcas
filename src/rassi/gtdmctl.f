@@ -854,7 +854,8 @@ C             Write density 1-matrices in AO basis to disk.
 *C Transition density matrices, TDMZZ, in AO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
-                  jDisk_TDM(ij)=IDISK
+                  jDisk_TDM(1,ij)=IDISK
+                  jDisk_TDM(2,ij)=iEmpty
                   iOpt=1
                   CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
      &                           iOpt)
@@ -1167,7 +1168,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                                      istate,
      &                                      jstate,
      &                                      ntdmzz,
-     &                                      iDisk_TDM(JSTATE,ISTATE),
+     &                                      iDisk_TDM(JSTATE,ISTATE,1),
      &                                      lutdm,
      &                                      (sonatnstate.gt.0),
      &                                      if11.and.(lsym1.eq.lsym2)
