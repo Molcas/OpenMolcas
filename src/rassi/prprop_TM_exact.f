@@ -872,7 +872,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  R=Work(LFIJ+1)
 *
                  Call Add_Info('ITMS(SO)',[F],1,6)
-                 Call Add_Info('ROTS(SO)',[R],1,6)
+                 Call Add_Info('ROTS(SO)',[R],1,4)
 *
                  IF (Do_Pol) THEN
                     LMAX_=LMAX+8*(ij_-1)

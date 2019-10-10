@@ -2833,7 +2833,7 @@ C                 Why do it when we don't do the L.S-term!
                 R=Work(LFIJ+1)
 *
                 Call Add_Info('ITMS(SF)',[F],1,6)
-                Call Add_Info('ROTS(SF)',[R],1,6)
+                Call Add_Info('ROTS(SF)',[R],1,4)
 *
                 IF (Do_Pol) THEN
                    LMAX_=LMAX+8*(ij_-1)
