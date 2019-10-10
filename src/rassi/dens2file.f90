@@ -11,14 +11,12 @@
   subroutine dens2file(array1,array2,array3,adim,lu,adr,iOpt)
   implicit none
 
-  integer, intent(in) :: adim, lu, adr, iOpt
-  real*8 , intent(in) :: array1(adim),array2(adim),array3(adim)
-  integer :: idisk
+  integer, intent(in) :: adim, lu, iOpt
+  integer, intent(inout) :: adr
+  real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
 
-    idisk = adr
-    ! note that ddafile modifies idisk
-    call ddafile(lu,iOpt,array1,adim,idisk)
-    call ddafile(lu,iOpt,array2,adim,idisk)
-    call ddafile(lu,iOpt,array3,adim,idisk)
-
+    call ddafile(lu,iOpt,array1,adim,adr)
+    call ddafile(lu,iOpt,array2,adim,adr)
+    call ddafile(lu,iOpt,array3,adim,adr)
+!
   end subroutine dens2file

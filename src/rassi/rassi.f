@@ -108,6 +108,7 @@ C Number of basis functions
       END IF
 *
 C Loop over jobiphs JOB1:
+      IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
 
@@ -115,7 +116,8 @@ C Loop over jobiphs JOB1:
 
 C Compute generalized transition density matrices, as needed:
           CALL GTDMCTL(PROP,JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
-     &          WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1))
+     &                 WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1),
+     &                 IDISK)
         END DO
       END DO
       Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)

@@ -32,12 +32,13 @@
       Character*3 lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH
-      DIMENSION DUMMY(1),IDUM(1)
+      DIMENSION IDUM(1)
 * Analysing and post-processing the input that was read in readin_rassi.
 
       CALL QENTER(ROUTINE)
 
       Call mma_allocate(jDisk_TDM,nState*(nState+1)/2,Label='jDisk_TDM')
+      jDisk_TDM(:)=-1
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:
@@ -92,19 +93,6 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         LUTDM=IsFreeUnit(LUTDM)
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
-        IDISK=0
-        DO ISTATE=1,nstate
-          DO JSTATE=1,ISTATE
-             IJSTATE=ISTATE*(ISTATE-1)/2+JSTATE
-             jDisk_TDM(IJSTATE)=IDISK
-C Compute next disk address after writing TDMZZ data set..
-             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-C ..and also a TSDMZZ data set
-             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-C ..and also a WDMZZ data set ('Triplet TDM')
-             CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-          END DO
-        END DO
       END IF
 
 C Upcase property names in lists of requests:

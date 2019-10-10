@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,SFDYS,NZ,
-     &                   HAM,IDDET1)
+     &                   HAM,IDDET1,IDISK)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -20,7 +20,7 @@
       use qcmaquis_info
 #endif
       use mspt2_eigenvectors
-      use rassi_aux, only : iDisk_TDM
+      use rassi_aux, only : jDisk_TDM, iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -853,7 +853,8 @@ C             Write density 1-matrices in AO basis to disk.
                 IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
 *C Transition density matrices, TDMZZ, in AO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
-                  IDISK=iDisk_TDM(JSTATE,ISTATE)
+                  ij=ISTATE*(iSTATE-1)/2 + JSTATE
+                  jDisk_TDM(ij)=IDISK
                   iOpt=1
                   CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
      &                           iOpt)

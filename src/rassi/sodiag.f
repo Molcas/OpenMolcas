@@ -401,7 +401,7 @@ c Expectation values of S -> SMAT{R,I}
         IC=1
         iOpt=0
         CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
-     &                     ISTATE,JSTATE,NSS,iOpt,IDENMAT,
+     &                     ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
      &                     SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2),
      &                     SMATR(I,J,IDIR,3),
      &                     SMATI(I,J,IDIR,1),SMATI(I,J,IDIR,2),
