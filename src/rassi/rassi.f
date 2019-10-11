@@ -366,7 +366,7 @@ CIgorS End------------------------------------------------------------C
          If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
          If (Allocated(CMO1)) Call mma_deallocate(CMO1)
          If (Allocated(CMO2)) Call mma_deallocate(CMO2)
-         If (Allocated(SCR)) Call mma_deallocate(SCR)
+         If (Allocated(DMZZ)) Call mma_deallocate(DMZZ)
       End If
       Call DaClos(LuExc)
 *                                                                      *

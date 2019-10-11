@@ -10,7 +10,8 @@
 !***********************************************************************
   subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
                        iState,jState)
-  use rassi_aux, Only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2
+  use rassi_aux, Only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
+                        DMZZ
   implicit none
 
   integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
@@ -19,7 +20,7 @@
   Integer JOB1, JOB2, bdim, IRC
 
     bdim=adim
-    If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2
+    If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2+1
 
     If (IAND(iGo,1).ne.0) Then
        If (IAND(iEmpty,1).ne.0) Then
@@ -62,18 +63,18 @@
        CALL RDCMO_RASSI(JOB2,CMO2)
 !
        If (IAND(iGo,1).ne.0.AND.iAND(iEmpty,1).ne.0) Then
-          SCR(:)=array1(1:NASHT**2)
-          CALL MKTDZZ(CMO1,CMO2,SCR,array1,iRC)
+          CALL MKTDAB(array1(bdim),array1,DMZZ,iRC)
+          CALL MKTDZZ(CMO1,CMO2,DMZZ,array1,iRC)
        End If
 !
        If (IAND(iGo,2).ne.0.AND.iAND(iEmpty,2).ne.0) Then
-          SCR(:)=array2(1:NASHT**2)
-          CALL MKTDZZ(CMO1,CMO2,SCR,array2,iRC)
+          CALL MKTDAB(array2(bdim),array2,DMZZ,iRC)
+          CALL MKTDZZ(CMO1,CMO2,DMZZ,array2,iRC)
        End If
 !
        If (IAND(iGo,4).ne.0.AND.iAND(iEmpty,4).ne.0) Then
-          SCR(:)=array3(1:NASHT**2)
-          CALL MKTDZZ(CMO1,CMO2,SCR,array3,iRC)
+          CALL MKTDAB(array3(bdim),array3,DMZZ,iRC)
+          CALL MKTDZZ(CMO1,CMO2,DMZZ,array3,iRC)
        End If
 !
     End If

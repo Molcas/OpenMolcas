@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE INPPRC
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
-     &                      Scr
+     &                      DMZZ
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -96,12 +96,14 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
         AO_Mode=.True.
+        iByte=8*3*nstate*(nstate-1)/2*nTDMAB
+        WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
         If (.NOT.AO_Mode) Then
            Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
-           Call ICopy_(nState,iWork(lJBNUM),1,JOB_INDEX,1)
+           Call ICopy(nState,iWork(lJBNUM),1,JOB_INDEX,1)
            Call mma_allocate(CMO1,nCOM,Label='CMO1')
            Call mma_allocate(CMO2,nCOM,Label='CMO2')
-           Call mma_allocate(SCR,nasht**2,Label='SCR')
+           Call mma_allocate(DMZZ,nTDMZZ,Label='DMZZ')
         ENd If
       END IF
 
