@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX
+      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -98,6 +98,8 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         If (.NOT.AO_Mode) Then
            Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
            Call ICopy_(nState,iWork(lJBNUM),1,JOB_INDEX,1)
+           Call mma_allocate(CMO1,nCOM,Label='CMO1')
+           Call mma_allocate(CMO2,nCOM,Label='CMO2')
         ENd If
       END IF
 

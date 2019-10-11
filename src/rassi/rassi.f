@@ -364,6 +364,8 @@ CIgorS End------------------------------------------------------------C
       IF ((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Then
          Call DaClos(LuTDM)
          If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
+         If (Allocated(CMO1)) Call mma_deallocate(CMO1)
+         If (Allocated(CMO2)) Call mma_deallocate(CMO2)
       End If
       Call DaClos(LuExc)
 *                                                                      *
