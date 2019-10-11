@@ -44,10 +44,6 @@
 #ifdef _MEMORY_TRACE_
 #include <mcheck.h>
 #endif
-#ifdef _GARBLE_
-#include <limits.h>
-#include <float.h>
-#endif
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -69,7 +65,7 @@
 #define MAXREC    32768 /* 8192 */
 #endif
 
-#if defined (_MEM_PROF_) || defined (_GARBLE_)
+#ifdef _MEM_PROF_
 
 #define FCNST 133679
 #define MEM_THRSHLD 1
@@ -491,15 +487,6 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
     INT    flIcnst=(INT)    FCNST;
     double flRcnst=(double) FCNST;
     float  flScnst=(float)  FCNST;
-#elif defined (_GARBLE_)
-    INT    n,incx=0,incy=1;
-#ifdef _I8_
-    INT    flIcnst=(INT) LONG_MAX;
-#else
-    INT    flIcnst=(INT) INT_MAX;
-#endif
-    double flRcnst= DBL_MAX;
-    float  flScnst= FLT_MAX;
 #endif
 #ifdef _DARWIN_
 #else
@@ -549,25 +536,25 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
 #endif
     newe->addr=(void *) wrkspc;
 
-#if defined (_MEM_PROF_) || defined (_GARBLE_)
+#ifdef _MEM_PROF_
     n=tmp->len/dsize(tmp->etyp);
 #endif
     switch (tmp->etyp[0]) {
         case 'R':
             dist=(double *) wrkspc-dptr;
-#if defined (_MEM_PROF_) || defined (_GARBLE_)
+#ifdef _MEM_PROF_
             dcopy(&n,&flRcnst,&incx,(double *) wrkspc,&incy);
 #endif
             break;
         case 'S':
             dist=(float *)  wrkspc-sptr;
-#if defined (_MEM_PROF_) || defined (_GARBLE_)
+#ifdef _MEM_PROF_
             scopy(&n,&flScnst,&incx,(float *) wrkspc,&incy);
 #endif
             break;
         case 'I':
             dist=(INT *)    wrkspc-iptr;
-#if defined (_MEM_PROF_) || defined (_GARBLE_)
+#ifdef _MEM_PROF_
             icopy(&n,&flIcnst,&incx,(INT *) wrkspc,&incy);
 #endif
             break;
