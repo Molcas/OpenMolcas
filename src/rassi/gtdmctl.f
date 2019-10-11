@@ -179,6 +179,7 @@ C Nr of active spin-orbitals
       NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
+
 ! +++ J. Norell 13/7 - 2018
 C 1D arrays for Dyson orbital coefficients
 C COF = active biorthonormal orbital base
@@ -860,7 +861,7 @@ C             Write density 1-matrices in AO basis to disk.
                   iGo=7
                   If (AO_Mode) Then
                      CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,
-     &                              IDISK,iEmpty,iOpt,iGo)
+     &                              IDISK,iEmpty,iOpt,iGo,IState,jState)
                   Else
                      iEmpty=0
                      TRAD(nTrad+1)=SIJ
@@ -879,7 +880,7 @@ C             Write density 1-matrices in AO basis to disk.
                      If (iRC.eq.1) iEmpty=iEmpty+4
 *
                      CALL dens2file(TRAD,TRASD,WERD,nTRAD+1,LUTDM,
-     &                              IDISK,iEmpty,iOpt,iGo)
+     &                              IDISK,iEmpty,iOpt,iGo,ISTATE,JSTATE)
                   End If
                 END IF
                 !> calculate property matrix elements

@@ -230,11 +230,11 @@ C Nr of spin states and division of loops:
       LOOPDIVIDE = LOOPDIVIDE_TEMP
 
       Call mma_allocate(USOR,NSS,NSS,Label='USOR')
-      LUTOTR=ip_of_Work(USOR)
+      LUTOTR=ip_of_Work(USOR(1,1))
       USOR(:,:)=0.0D0
       For All (i=1:NSS) USOR(i,i)=1.0D0
       Call mma_allocate(USOI,NSS,NSS,Label='USOI')
-      LUTOTI=ip_of_Work(USOI)
+      LUTOTI=ip_of_Work(USOI(1,1))
       USOI(:,:)=0.0D0
       CALL GETMEM('SOENE','ALLO','REAL',LSOENE,NSS)
       CALL DCOPY_(NSS   ,[0.0D0],0,WORK(LSOENE),1)
@@ -361,7 +361,10 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-      IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Call DaClos(LuTDM)
+      IF ((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Then
+         Call DaClos(LuTDM)
+         If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
+      End If
       Call DaClos(LuExc)
 *                                                                      *
 ************************************************************************

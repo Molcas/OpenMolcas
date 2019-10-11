@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine wfnsizes_rassi
+      use rassi_aux, only : nasht_save
       implicit none
 #include "symmul.fh"
 #include "rasdef.fh"
@@ -44,4 +45,5 @@ C The structure of the orbital space:
         NDELT=NDELT+NDEL(ISYM)
         NBST=NBST+NBASF(ISYM)
       END DO
+      nasht_save=nasht
       end

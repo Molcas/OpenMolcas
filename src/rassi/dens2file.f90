@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-  subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo)
-  use rassi_aux, Only : AO_Mode
+  subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
+                       iState,jState)
+  use rassi_aux, Only : AO_Mode, Job_Index
   implicit none
 
-  integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo
+  integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
   integer, intent(inout) :: adr
   real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
+  Integer JOB1, JOB2
 
     If (IAND(iGo,1).ne.0) Then
        If (IAND(iEmpty,1).ne.0) Then
@@ -51,6 +53,9 @@
 !      Expand the TDMs to AO basis.
 !
        Write (6,*) 'Not implemented yet.'
+       JOB1=JOB_Index(iState)
+       JOB2=JOB_Index(jState)
+       Call Abend()
     End If
 !
   end subroutine dens2file

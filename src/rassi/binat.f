@@ -194,11 +194,11 @@ C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          If (IAND(iEMPTY,1).ne.0) Then
          IF (I.GT.J) THEN
             CALL dens2file(Work(LTDMAO),Work(LTDMAO),Work(LTDMAO),
-     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
             CALL dens2file(Work(LSCR),Work(LSCR),Work(LSCR),
-     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM
             ISYM2=MUL(ISYM1,LSYM12)

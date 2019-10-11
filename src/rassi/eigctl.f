@@ -2618,7 +2618,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                         iOpt=2
                         iGo=5
                         CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                                 LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                                 LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
                         Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
      &                               IOFF,NBASF,ISY12)
                         DO IPRP = 1,12
@@ -2658,7 +2658,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                               iGo=5
                               CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
      &                                       LUTDM,IDISK,iEmpty,iOpt,
-     &                                       iGo)
+     &                                       iGo,k,l)
                               Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,
      &                                     SCR,nSCR,IOFF,NBASF,ISY34)
 *

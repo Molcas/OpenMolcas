@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_aux, Only : jDisk_TDM, AO_Mode
+      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -95,6 +95,10 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
         AO_Mode=.True.
+        If (.NOT.AO_Mode) Then
+           Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
+           Call ICopy_(nState,iWork(lJBNUM),1,JOB_INDEX,1)
+        ENd If
       END IF
 
 C Upcase property names in lists of requests:

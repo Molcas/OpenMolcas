@@ -99,7 +99,7 @@ C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
                  iOpt=2
                  iGo=1
                  CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
-     &                          LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                          LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
                  IF(I.EQ.J) X=0.5D00*X
                  CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
               End If

@@ -100,7 +100,9 @@
      &                     lu,
      &                     iaddr,
      &                     iempty,
-     &                     iOpt
+     &                     iOpt,
+     &                     iState,
+     &                     jState
      &                     )
           end if
 

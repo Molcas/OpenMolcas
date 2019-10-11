@@ -173,19 +173,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
-        iEmpty=iDisk_TDM(LSF,KSF,2)
-        IDISK=iDisk_TDM(LSF,KSF,1)
+        iEmpty=iDisk_TDM(KSF,LSF,2)
+        IDISK=iDisk_TDM(KSF,LSF,1)
         iOpt=2
         IF (ITYPE.GE.3) Then
            iGo=4
            CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
-     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
 C NOTE-the TD matrix as read in has an incorrect sign
            CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
         Else
            iGo=1
            CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
-     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
         END IF
 
 

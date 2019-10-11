@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module RASSI_AUX
-      Integer, Allocatable:: TocM(:), jDisk_TDM(:,:)
+      Integer, Allocatable:: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
       Logical AO_Mode
+      Integer NASHT_Save
 
       Contains
 
