@@ -1,5 +1,6 @@
       Module RASSI_AUX
       Integer, Allocatable:: TocM(:), jDisk_TDM(:,:)
+      Logical AO_Mode
 
       Contains
 

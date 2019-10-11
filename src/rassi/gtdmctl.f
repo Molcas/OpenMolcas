@@ -20,7 +20,7 @@
       use qcmaquis_info
 #endif
       use mspt2_eigenvectors
-      use rassi_aux, only : jDisk_TDM, iDisk_TDM
+      use rassi_aux, only : jDisk_TDM, iDisk_TDM, AO_Mode
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -215,11 +215,11 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
         NSPD1=NASORB**2
         CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
         NTRAD=NASHT**2
-        Call mma_allocate(TRAD,nTRAD,Label='TRAD')
         NTRASD=NASHT**2
-        Call mma_allocate(TRASD,nTRASD,Label='TRASD')
         NWERD=NASHT**2
-        Call mma_allocate(WERD,nWERD,Label='WERD')
+        Call mma_allocate(TRAD,nTRAD+1,Label='TRAD')
+        Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
+        Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
       LSPD2=LNILPT
       LTDM2=LNILPT
@@ -851,15 +851,36 @@ C             Write density 1-matrices in AO basis to disk.
               if(.not.mstate_dens)then
 
                 IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
-*C Transition density matrices, TDMZZ, in AO basis.
+*C Transition density matrices, TDMZZ, in AO or MO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
                   jDisk_TDM(1,ij)=IDISK
                   jDisk_TDM(2,ij)=iEmpty
                   iOpt=1
                   iGo=7
-                  CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
-     &                           iEmpty,iOpt,iGo)
+                  If (AO_Mode) Then
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,
+     &                              IDISK,iEmpty,iOpt,iGo)
+                  Else
+                     iEmpty=0
+                     TRAD(nTrad+1)=SIJ
+                     iRC=0
+                     If(DDot_(nTRAD+1,TRAD,1,TRAD,1).gt.0.0D0) iRC=1
+                     If (iRC.eq.1) iEmpty=1
+*
+                     TRASD(nTrad+1)=SIJ
+                     iRC=0
+                     If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
+                     If (iRC.eq.1) iEmpty=iEmpty+2
+*
+                     WERD(nTrad+1)=SIJ
+                     iRC=0
+                     If(DDot_(nTRAD+1,WERD,1,WERD,1).gt.0.0D0) iRC=1
+                     If (iRC.eq.1) iEmpty=iEmpty+4
+*
+                     CALL dens2file(TRAD,TRASD,WERD,nTRAD+1,LUTDM,
+     &                              IDISK,iEmpty,iOpt,iGo)
+                  End If
                 END IF
                 !> calculate property matrix elements
                 CALL PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)

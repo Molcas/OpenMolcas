@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_aux, Only : jDisk_TDM
+      use rassi_aux, Only : jDisk_TDM, AO_Mode
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -94,6 +94,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         LUTDM=IsFreeUnit(LUTDM)
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
+        AO_Mode=.True.
       END IF
 
 C Upcase property names in lists of requests:
