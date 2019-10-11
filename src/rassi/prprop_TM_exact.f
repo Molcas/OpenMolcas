@@ -54,7 +54,6 @@
       Real*8, Pointer :: flatStorage(:)
 #endif
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
-      Integer, Allocatable:: MAPST(:)
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:)
 
       CALL QENTER(ROUTINE)
@@ -67,38 +66,12 @@
 *     all transition moments, whether or retrived from disk or
 *     recomputed, are in the basis of the original SF states.
 *
-C Mapping from spin states to spin-free state:
-      Call mma_allocate(MAPST,nSS,Label='MAPST')
-      ISS=0
-      DO ISTATE=1,NSTATE
-         JOB=iWork(lJBNUM+ISTATE-1)
-         MPLET=MLTPLT(JOB)
-         DO MSPROJ=-MPLET+1,MPLET-1,2
-            ISS=ISS+1
-            MAPST(ISS)=ISTATE
-       END DO
-      END DO
-*
       Call mma_allocate(VSOR,NSS,NSS,Label='VSOR')
       Call mma_allocate(VSOI,NSS,NSS,Label='VSOI')
 *
-*     Let us transform the coefficients in USOR and USOI
-*
-      Do iSS = 1, nSS
-         Do JSS = 1, nSS
-            jSS_=MAPST(JSS)
-            tmp_R=0.0D0
-            tmp_I=0.0D0
-            Do kSS = 1, nSS
-               kSS_=MAPST(kSS)
-               tmp_R=tmp_R + USOR(kSS,iSS)*EigVec(kSS_,jSS_)
-               tmp_I=tmp_I + USOI(kSS,iSS)*EigVec(kSS_,jSS_)
-            End Do
-            VSOR(JSS,ISS)=tmp_R
-            VSOI(JSS,ISS)=tmp_I
-         End Do
-      End Do
-      Call mma_deallocate(MAPST)
+      Call USOTRANS(USOR,USOI,NSS,
+     &              EigVec,NSTATE,
+     &              VSOR,VSOI)
 *
 *                                                                      *
 ************************************************************************

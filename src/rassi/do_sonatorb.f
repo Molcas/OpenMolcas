@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DO_SONATORB(NSS, LUTOTR, LUTOTI)
+      SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -17,6 +17,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='DO_SONATORB')
+      Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
       Real*8 IDENTMAT(3,3)
 
 c Calculates natural orbitals, including spinorbit effects
@@ -72,10 +73,10 @@ c This was taken from smmat.f and modified slightly
 c combine this matrix with the SO eigenvector matrices
       IF(.not.NOSO) THEN
         CALL DGEMM_('N','N',NSS,NSS,NSS,
-     &      1.0d0,WORK(LVMAT),NSS,WORK(LUTOTR),NSS,0.0d0,
+     &      1.0d0,WORK(LVMAT),NSS,USOR,NSS,0.0d0,
      &      WORK(LUMATR),NSS)
         CALL DGEMM_('N','N',NSS,NSS,NSS,
-     &      1.0d0,WORK(LVMAT),NSS,WORK(LUTOTI),NSS,0.0d0,
+     &      1.0d0,WORK(LVMAT),NSS,USOI,NSS,0.0d0,
      &      WORK(LUMATI),NSS)
       ELSE
 c Spinorbit contributions to this are disabled

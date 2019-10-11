@@ -43,7 +43,8 @@ C RAS state interaction.
       COMMON / CHO_JOBS / Fake_CMO2
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
-      Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:)
+      Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
+     &                      USOI(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -228,17 +229,19 @@ C Nr of spin states and division of loops:
       END DO
       LOOPDIVIDE = LOOPDIVIDE_TEMP
 
-      CALL GETMEM('UTOTR','ALLO','REAL',LUTOTR,NSS**2)
-      CALL GETMEM('UTOTI','ALLO','REAL',LUTOTI,NSS**2)
+      Call mma_allocate(USOR,NSS,NSS,Label='USOR')
+      LUTOTR=ip_of_Work(USOR)
+      USOR(:,:)=0.0D0
+      For All (i=1:NSS) USOR(i,i)=1.0D0
+      Call mma_allocate(USOI,NSS,NSS,Label='USOI')
+      LUTOTI=ip_of_Work(USOI)
+      USOI(:,:)=0.0D0
       CALL GETMEM('SOENE','ALLO','REAL',LSOENE,NSS)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTR),1)
-      CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUTOTR),NSS+1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTI),1)
       CALL DCOPY_(NSS   ,[0.0D0],0,WORK(LSOENE),1)
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
-        CALL SOEIG(PROP,WORK(LUTOTR),WORK(LUTOTI),
+        CALL SOEIG(PROP,USOR,USOI,
      &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
@@ -253,7 +256,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
        LSODYSAMPSI=0
        CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
-       CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
+       CALL SODYSORB(NSS,USOR,USOI,WORK(LDYSAMPS),
      &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
      &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
       END IF
@@ -263,19 +266,18 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
       END IF
 ! +++
 
-      CALL PRPROP(PROP,WORK(LUTOTR),WORK(LUTOTI),
+      CALL PRPROP(PROP,USOR,USOI,
      &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
      &            WORK(LENERGY),iWork(lJBNUM),EigVec)
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) THEN
-        CALL DO_SONATORB(NSS, LUTOTR, LUTOTI)
+        CALL DO_SONATORB(NSS,USOR,USOI)
       END IF
 
-
-      CALL GETMEM('UTOTR','FREE','REAL',LUTOTR,NSS**2)
-      CALL GETMEM('UTOTI','FREE','REAL',LUTOTI,NSS**2)
+      Call mma_deallocate(USOR)
+      Call mma_deallocate(USOI)
       CALL GETMEM('SOENE','FREE','REAL',LSOENE,NSS)
       IF (DYSO.AND.IFSO) THEN
        CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)

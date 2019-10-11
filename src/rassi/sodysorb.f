@@ -12,7 +12,7 @@
 *               2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
 ************************************************************************
-      SUBROUTINE SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
+      SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,SFDYS,NZ,
      &                 SODYSAMPS,SODYSAMPSR,SODYSAMPSI,SOENE)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -23,6 +23,7 @@
 #include "symmul.fh"
 #include "Files.fh"
 
+      REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
       ! Arrays, bounds, and indices
       INTEGER   SOTOT,SFTOT,SO2SFNUM
       INTEGER   NZ,LSZZ,ORBNUM
@@ -99,7 +100,7 @@ C (initially all real, therefore put into SODYSAMPSR)
 C Now perform the transformation from SF dysamps to SO dysamps
 C by combining the multiplicity expanded SF dysamps with the
 C SO eigenvector in the ZTRNSF routine.
-      CALL ZTRNSF(NSS,WORK(LUTOTR),WORK(LUTOTI),SODYSAMPSR,SODYSAMPSI)
+      CALL ZTRNSF(NSS,USOR,USOI,SODYSAMPSR,SODYSAMPSI)
 
 C Compute the magnitude of the complex amplitudes as an approximation
       SODYSAMPSR=SODYSAMPSR*SODYSAMPSR
@@ -193,18 +194,16 @@ C SO Dyson orbitals
         DO JEIG=1,NSS
 
          ! Coefficient of first state
-         INDJ=NSS*(JSTATE-1)+JEIG-1
-         CJR=WORK(LUTOTR+INDJ)
-         CJI=WORK(LUTOTI+INDJ)
+         CJR=USOR(JEIG,JSTATE)
+         CJI=USOI(JEIG,JSTATE)
          ! Find the corresponding SF states
          SFJ=IWORK(SO2SFNUM+JEIG-1)
 
          DO IEIG=1,NSS
 
           ! Coefficient of second state
-          INDI=NSS*(ISTATE-1)+IEIG-1
-          CIR=WORK(LUTOTR+INDI)
-          CII=WORK(LUTOTI+INDI)
+          CIR=USOR(IEIG,ISTATE)
+          CII=USOI(IEIG,ISTATE)
           ! Find the corresponding SF states
           SFI=IWORK(SO2SFNUM+IEIG-1)
 
