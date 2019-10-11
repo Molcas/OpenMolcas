@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS/bin/espf.exe"                     executable
- (file)  SEWARINP      "$WorkDir/$Project."Seward.Input     roi
  (file)  ESPFINP       "$WorkDir/$Project."Espf.Input       rwi
+ (file)  SEWARINP      "$WorkDir/$Project."Seward.Input     roi
  (file)  ONEINT        "$WorkDir/$Project."OneInt           rw*
 #include "espffiles.inc"
 #include "rysfiles.inc"

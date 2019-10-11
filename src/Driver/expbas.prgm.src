@@ -9,4 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/expbas.exe"  executable
+ (file)  EXPBAINP "$WorkDir/$Project."Expbas.Input rwi
 #include "orbitals.inc"

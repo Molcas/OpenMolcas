@@ -1465,8 +1465,12 @@ C decomposition of the totally symmetric irrep of Gsub.
 * and write the sum through Add_Info
 *
       If (PrPrt.and.mCnt.gt.0) Then
-        SumEl=Zero
-        SumNuc=Zero
+        Call mma_allocate(PtEl,1,label='PtEl')
+        Call mma_allocate(PtNuc,1,label='PtNuc')
+        Call mma_allocate(SumEl,1,label='SumEl')
+        Call mma_allocate(SumNuc,1,label='SumNuc')
+        SumEl(1)=Zero
+        SumNuc(1)=Zero
 *       Read and sum the values
         LuTmp=10
         Call DaName(LuTmp,'TMPPRP')
@@ -1474,8 +1478,8 @@ C decomposition of the totally symmetric irrep of Gsub.
         Do iCnt=1,mCnt
           Call dDaFile(LuTmp,2,PtEl,1,iDisk)
           Call dDaFile(LuTmp,2,PtNuc,1,iDisk)
-          SumEl=SumEl+PtEl
-          SumNuc=SumNuc+PtNuc
+          SumEl(1)=SumEl(1)+PtEl(1)
+          SumNuc(1)=SumNuc(1)+PtNuc(1)
         End Do
         Call DaClos(LuTmp)
 *       set the tolerance according to the total number of centers
@@ -1486,6 +1490,10 @@ C decomposition of the totally symmetric irrep of Gsub.
         Call Add_Info(label,SumEl,1,iTol)
         Write (label,'(a,a)') 'CNT','  nuc'
         Call Add_Info(label,SumNuc,1,iTol)
+        Call mma_deallocate(PtEl)
+        Call mma_deallocate(PtNuc)
+        Call mma_deallocate(SumEl)
+        Call mma_deallocate(SumNuc)
       End If
 *
 ************************************************************************

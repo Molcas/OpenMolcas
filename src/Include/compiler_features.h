@@ -71,3 +71,16 @@ incomplete.
 #define TRAILING_ZEROS
 #endif
 
+/* c_ptr binding */
+#if (NAGFOR && __NAG_COMPILER_RELEASE < 61 )
+#undef C_PTR_BINDING
+#else
+#define C_PTR_BINDING
+#endif
+
+/* Internal procedures as arguments */
+#if ( __SUNPRO_F90 || __PGI)
+#undef INTERNAL_PROC_ARG
+#else
+#define INTERNAL_PROC_ARG
+#endif

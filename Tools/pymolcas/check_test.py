@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017,2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2017-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -23,6 +23,7 @@ def check_test(infofile, checkfile, count):
   block = re_compile(r'#>>\s*(\d+)')
   reference = re_compile(r'#>\s*(.*)="(.*)"\/(.*)')
   rc = '_RC_ALL_IS_WELL_'
+  last = True
 
   # Read actual values from the calculation
   vals = []
@@ -79,6 +80,7 @@ def check_test(infofile, checkfile, count):
           match = block.match(line)
           if (match):
             if (start):
+              last = False
               break
             if (int(match.group(1)) == count):
               start = True
@@ -164,4 +166,4 @@ def check_test(infofile, checkfile, count):
     elif (rc == '_RC_ALL_IS_WELL_'):
       print('All values match the reference')
 
-  return rc
+  return rc, last

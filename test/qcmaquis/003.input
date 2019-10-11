@@ -24,7 +24,7 @@ Angstrom
  Cr       0.000000  0.000000   0.75000
  basis=Cr.ANO-RCC-MB
 &SEWARD
- R02O02
+ Relativistic=R02O02
 &SCF
 &DMRGSCF &END
 ActiveSpaceOptimizer=QCMaquis

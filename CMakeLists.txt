@@ -29,6 +29,9 @@ endif ()
 if (POLICY CMP0074)
         cmake_policy(SET CMP0074 NEW)
 endif ()
+if (POLICY CMP0004)
+        cmake_policy(SET CMP0004 NEW)
+endif ()
 
 # Prevent in-source builds
 # If an in-source build is attempted, you will still need to clean up a few files manually.
@@ -653,14 +656,13 @@ set (FFLAGS_GNU_FAST "-O3")
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
     (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
-        set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
         set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
 set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
-set (FFLAGS_GNU_BIGOT "-Wall -Werror")
+set (FFLAGS_GNU_BIGOT "-Wall -Wrealloc-lhs -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
@@ -1751,11 +1753,23 @@ endif ()
 set (extprojsdir "${OPENMOLCAS_DIR}/External")
 
 if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
-        set (proj ${extprojsdir}/lapack)
-        if (EXISTS ${proj}/BLAS/SRC/ddot.f)
-                list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
-        else ()
-                message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+        set (have_linalg "YES")
+        foreach (util "blas_m_util" "lapack_m_util")
+                find_source(${util})
+                if (DEFINED ${util}_src)
+                        list (APPEND internal_linalg ${${util}_src})
+                else ()
+                        set (have_linalg "NO")
+                endif ()
+        endforeach ()
+        if (NOT have_linalg)
+                set (proj ${extprojsdir}/lapack)
+                if (EXISTS ${proj}/BLAS/SRC/ddot.f)
+                        unset (internal_linalg)
+                        list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
+                else ()
+                        message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+                endif ()
         endif ()
 endif ()
 
@@ -1960,6 +1974,7 @@ if (WFA)
         if (NOT HDF5)
                 message (FATAL_ERROR "WFA support requires enabling HDF5 too.")
         endif ()
+        set (CMAKE_CXX_STANDARD 11)
 
         message("Configuring libwfa support:")
 
@@ -2736,6 +2751,11 @@ endforeach ()
 # set file-specific flags
 if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
         set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
+endif ()
+
+# compiler wrong warning
+if (BIGOT AND (${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU"))
+        set_property(SOURCE ${rasscf_src}/orthonormalization.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error=maybe-uninitialized")
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux

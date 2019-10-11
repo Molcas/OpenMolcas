@@ -12,8 +12,10 @@
 ***********************************************************************/
 
       module fortran_strings
+        implicit none
+        save
         private
-        public :: str
+        public :: str, to_lower, to_upper, operator(.in.)
 #include "molcastypes.fh"
 
 !>  @brief
@@ -38,6 +40,14 @@
             integer(MOLCAS_C_INT) :: strlen_c
           end function
         end interface
+
+        interface operator(.in.)
+          module procedure contains
+        end interface
+
+        character(*), parameter ::
+     &      UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+     &      lowercase_chars = 'abcdefghijklmnopqrstuvwxyz'
 
         contains
 
@@ -71,6 +81,49 @@
           do i = 1, L
             res(i:i) = string(i)
           end do
+        end function
+
+
+!> Changes a string to upper case
+        pure function to_upper (in_str) result (string)
+          character(*), intent(in) :: in_str
+          character(len(in_str)) :: string
+          integer :: ic, i, L
+
+          L = len_trim(in_str)
+          do i = 1, L
+            ic = index(lowercase_chars, in_str(i:i))
+            if (ic > 0) then
+              string(i:i) = UPPERCASE_chars(ic:ic)
+            else
+              string(i:i) = in_str(i:i)
+            end if
+          end do
+          string(L + 1: ) = ' '
+        end function to_upper
+
+!> Changes a string to lower case
+        pure function to_lower (in_str) result (string)
+          character(*), intent(in) :: in_str
+          character(len(in_str)) :: string
+          integer :: ic, i, L
+
+          L = len_trim(in_str)
+          do i = 1, L
+            ic = index(UPPERCASE_chars, in_str(i:i))
+            if (ic > 0) then
+              string(i:i) = lowercase_chars(ic:ic)
+            else
+              string(i:i) = in_str(i:i)
+            end if
+          end do
+          string(L + 1: ) = ' '
+        end function to_lower
+
+        logical pure function contains(substring, string)
+          character(*), intent(in) :: string, substring
+
+          contains = index(string, substring) /= 0
         end function
 
       end module

@@ -9,5 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/check.exe executable
- (file) CHECKFILE "$WorkDir"/checkfile rw
  (file) CHECKINP "$WorkDir/$Project."Check.Input rwi
+ (file) CHECKFILE "$WorkDir"/checkfile rw

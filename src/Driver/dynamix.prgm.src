@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/dynamix.exe             executable
+ (file)  DYNAMINP       "$WorkDir/$Project."Dynamix.Input  rwi
  (file)  comqum.dat     "$WorkDir/$Project."comqum.dat     rw
  (file)  velocity.xyz   "$WorkDir/$Project."velocity.xyz   rw
  (file)  fixforce.dmx   "$WorkDir/$Project."fixforce.dmx   rw

@@ -8,6 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm)  "$MOLCAS"/bin/topmod.exe             executable
- (file)  WFN       "$WorkDir/$Project."wfn        rwm
-#include "orbitals.inc"
+
+/* This macro exists to properly document the intent of the programmer.
+   Unfortunately intent(out) deallocates allocatables upon entering
+   procedures.
+   Use this intent value if you want to show that a procedure
+   does not depend on existing values in an allocatable,
+   but depends on the fact that it is allocated. */
+#define _OUT_ inout

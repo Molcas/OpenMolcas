@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/last_energy.exe             executable
+ (file)  LAST_INP      "$WorkDir/$Project."Last_energy.Input   rwi
  (file)  SEWARINP      "$WorkDir/$Project."Seward.Input        rwi
  (file)  SCFINP        "$WorkDir/$Project."Scf.Input           rwi
  (file)  RASSCINP      "$WorkDir/$Project."Rasscf.Input        rwi

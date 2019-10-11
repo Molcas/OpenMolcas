@@ -69,6 +69,8 @@
       If (iPrint.ge.99) Then
          Call RecPrt('BRij','(3F24.12)',BRij,3,2)
          Call RecPrt('BRjk','(3F24.12)',BRjk,3,2)
+         Write (6,*) ' Rij1=',Rij1
+         Write (6,*) ' Rjk1=',Rjk1
          Write (6,*) ' Diff=',Abs(ArCos(Co)-Pi)
          Write (6,'(A,F24.16)') ' Co=',Co
          Write (6,'(A,F24.16)') ' Sqrt(Crap)=',Sqrt(Crap)
@@ -84,7 +86,8 @@
          Si=Sqrt(One-Co**2)
       End If
 *
-      If (Abs(Fir-Pi).gt.1.0D-13) Then
+*     If (Abs(Fir-Pi).gt.1.0D-13) Then
+      If (Abs(Si).gt.1.0D-13) Then
          If (iPrint.ge.99)
      &      Write (Lu,*) ' LBend: Use none linear formulae'
          Linear=.False.

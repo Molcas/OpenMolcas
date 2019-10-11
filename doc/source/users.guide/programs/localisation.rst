@@ -166,7 +166,7 @@ Optional general keywords
   orbitals as specified in the :file:`INPORB` input file, except for PAO runs where
   all the virtual orbitals are treated by default.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="NORB" APPEAR="Number of orbitals" LEVEL="BASIC" KIND="INTS_LOOKUP" SIZE="NSYM" >
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="NORB" APPEAR="Number of orbitals" LEVEL="BASIC" KIND="INTS_LOOKUP" SIZE="NSYM">
               <HELP>
               Please, specify the number of orbitals to localise in each irrep.
               </HELP>
@@ -411,7 +411,7 @@ Optional general keywords
   as initial orbitals. The default is to use the orbitals from
   :file:`INPORB` directly.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHOS" APPEAR="Cholesky guess" LEVEL="ADVANCED" KIND="SINGLE" >
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHOS" APPEAR="Cholesky guess" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: CHOS <advanced>
               <HELP>
               Requests that the localisation procedure uses Cholesky orbitals
@@ -427,7 +427,7 @@ Optional general keywords
   ordering is done according to maximum overlap with the
   Cholesky orbitals. The default is not to order.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="ORDE" APPEAR="Orbital reordering" LEVEL="ADVANCED" KIND="SINGLE" >
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="ORDE" APPEAR="Orbital reordering" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: ORDE <advanced>
               <HELP>
               Requests that the localised orbitals are ordered in the same way
@@ -440,7 +440,7 @@ Optional general keywords
   Requests orbital domains and pair domains are set up and analyzed.
   The default is not to set up domains.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="DOMA" APPEAR="Orbital and pair domains analysis" LEVEL="ADVANCED" KIND="SINGLE" >
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="DOMA" APPEAR="Orbital and pair domains analysis" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: DOMA <advanced>
               <HELP>
               Requests orbital domains and pair domains are set up and analyzed.
@@ -521,7 +521,13 @@ Optional general keywords
   and the corresponding (localised) natural orbitals written to :file:`LOCORB` with the proper occupation
   numbers. Note that the two sets of LNOs are mutually non-orthogonal.
 
-  .. xmldoc:: %%Keyword: LOCN <basic>
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCN" APPEAR="Localized natural orbitals" LEVEL="BASIC" KIND="CUSTOM">
+              <HELP>
+              Specify the number of atoms in the region and the threshold.
+              Then the names of the symmetry unique atoms.
+              </HELP>
+              </KEYWORD>
+              %%Keyword: LOCN <basic>
               This keyword is used to select atoms for defining the localised natural
               orbitals (LNOs), thus a set of localised orbitals with well-defined occupation numbers.
               All other options specified in the localisation input apply (e.g., input orbitals,
@@ -538,10 +544,20 @@ Optional general keywords
   (eigenvalues of a local Fock matrix).
   Please, refer to the analogous keyword :kword:`LOCN` in this manual for more details and input examples.
 
-  .. xmldoc:: %%Keyword: LOCC <basic>
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCC" APPEAR="Localized canonical orbitals" LEVEL="BASIC" KIND="CUSTOM">
+              <HELP>
+              Specify the number of atoms in the region and the threshold.
+              Then the names of the symmetry unique atoms.
+              </HELP>
+              </KEYWORD>
+              %%Keyword: LOCC <basic>
               This keyword is used to select atoms for defining the localised canonical
               orbitals (LCOs), thus a set of localised orbitals with well-defined orbital energies.
-              Please, refer to the analogous keyword LOCN in this manual for more details and input examples.
+              All other options specified in the localisation input apply (e.g., input orbitals,
+              localisation method, etc.).
+              On the next line give the number of (symmetry unique) atoms that identify the region of interest
+              and the threshold used to select the localised orbitals belonging to this region.
+              An additional line gives the names of the atoms as defined in the SEWARD input.
 
 Limitations
 ...........

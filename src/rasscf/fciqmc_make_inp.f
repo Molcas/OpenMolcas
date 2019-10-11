@@ -13,11 +13,14 @@
 ************************************************************************
 
       module fciqmc_make_inp
-        integer ::
+        use stdalloc, only : mma_deallocate
+        private
+        public :: make_inp, cleanup
+        integer, public ::
 ! No default value on purpose
      &    totalwalkers,
-     &    calcrdmonfly(2),
-     &    rdmsamplingiters,
+! &    calcrdmonfly(2),
+! &    rdmsamplingiters,
 ! Default value for time per NECI run
      &    Time = 200,
 ! Practically this means no trial_wavefunction by default
@@ -31,9 +34,9 @@
      &    highlypopwrite = 50,
      &    startsinglepart = 10,
      &    pops_core =  10000
-        integer, allocatable ::
+        integer, allocatable, public ::
      &    definedet(:)
-        real*8 ::
+        real*8, public ::
      &    proje_changeref = 1.2d0,
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,
@@ -43,6 +46,13 @@
 ! Default value for NECI diagonal shift value
      &    diagshift = 0.00d0,
      &    shiftdamp = 0.02d0
+
+        type, public :: t_RDMsampling
+          sequence
+          integer :: start, n_samples, step
+        end type t_RDMsampling
+
+        type(t_RDMsampling), public :: RDMsampling
         save
       contains
 
@@ -53,17 +63,27 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(readpops)
+      subroutine make_inp(path, readpops, doGAS)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       implicit none
-      logical, intent(in), optional :: readpops
-      logical :: readpops_
+      character(*), intent(in) :: path
+      logical, intent(in), optional :: readpops, doGAS
+      logical :: readpops_, doGAS_
       integer :: i, isFreeUnit, file_id, indentlevel
       integer, parameter :: indentstep = 4
 
-      readpops_ = merge(readpops, .false., present(readpops))
+      if (present(readpops)) then
+        readpops_ = readpops
+      else
+        readpops_ = .false.
+      end if
+      if (present(doGAS)) then
+        doGAS_ = doGAS
+      else
+        doGAS_ = .false.
+      end if
 
       call add_info('Default number of total walkers',
      &  [dble(totalwalkers)], 1, 6)
@@ -73,7 +93,7 @@
       call qEnter('make_inp')
 
       file_id = isFreeUnit(39)
-      call Molcas_Open(file_id,'FCINP')
+      call Molcas_Open(file_id, path)
 
       indentlevel = 0
       write(file_id, A_fmt()) 'Title'
@@ -87,6 +107,7 @@
           write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
         end if
         write(file_id, A_fmt()) 'freeformat'
+        if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
       call dedent()
       write(file_id, A_fmt()) 'endsys'
       write(file_id, *)
@@ -97,17 +118,18 @@
      &        'definedet', (definedet(i), i = 1,nActEl)
           write(file_id, A_fmt()) ''
         end if
+        write(file_id, *)
+        write(file_id, I_fmt()) 'totalwalkers', totalwalkers
+        write(file_id, A_fmt()) merge(' ', '(', readpops_)//'readpops'
+        write(file_id, A_fmt())merge(' ', '(',readpops_)//'walkcontgrow'
+        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
+        write(file_id, *)
         write(file_id, A_fmt()) 'methods'
         call indent()
           write(file_id, A_fmt()) 'method vertex fcimc'
         call dedent()
         write(file_id, A_fmt()) 'endmethods'
         write(file_id, *)
-        if (readpops_) write(file_id, A_fmt()) 'readpops'
-        if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
-        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
-        write(file_id, *)
-        write(file_id, I_fmt()) 'totalwalkers', totalwalkers
         write(file_id, R_fmt()) 'diagshift', diagshift
         write(file_id, R_fmt()) 'shiftdamp', shiftdamp
         write(file_id, I_fmt()) 'nmcyc', nmcyc
@@ -126,19 +148,23 @@
         write(file_id, I_fmt()) 'time', time
         write(file_id, I_fmt()) 'startsinglepart', startsinglepart
         write(file_id, I_fmt()) 'pops-core', pops_core
-        write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
+        write(file_id, I_fmt())
+     &    'rdmsamplingiters', RDMsampling%start * RDMsampling%n_samples
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, *)
       write(file_id, A_fmt()) 'logging'
       call indent()
-        write(file_id, I_fmt()) 'Highlypopwrite', Highlypopwrite
-        write(file_id, A_fmt()) 'Print-Spin-Resolved-RDMS'
+        write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
+        write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
-        write(file_id, A_fmt()) '(diagflyonerdm'
+! TODO(Oskar): As soon as RDMlinspace is widely used in NECI uncomment.
+!        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
+!     &     'RDMlinspace',
+!     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
         write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-     &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
+     &    'calcrdmonfly', 3, RDMsampling%start, RDMsampling%step
       call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'
@@ -194,5 +220,10 @@
           indentlevel = indentlevel - indentstep
         end subroutine
       end subroutine make_inp
+
+      subroutine cleanup()
+        implicit none
+        if (allocated(definedet)) call mma_deallocate(definedet)
+      end subroutine cleanup
 
       end module fciqmc_make_inp
