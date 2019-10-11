@@ -541,8 +541,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      IDISK=iDisk_TDM(I,J,1)
                      iEmpty=iDisk_TDM(I,J,2)
                      iOpt=2
+                     iGO=5
                      CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                              LUTDM,IDISK,iEmpty,iOpt)
+     &                              LUTDM,IDISK,iEmpty,iOpt,iGo)
                      Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
      &                            IOFF,NBASF,ISY12)
 *

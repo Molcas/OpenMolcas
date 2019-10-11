@@ -99,11 +99,11 @@ C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
               iEmpty=iDisk_TDM(J,I,2)
               If (IAND(iEmpty,2).ne.0) Then
                  iDisk=iDisk_TDM(J,I,1)
-C FIRST READ TRANSITION DENS MATRIX AND THEN TRANSITION SPIN DENS MATRIX
-                 If (IAND(iEmpty,1).ne.0)
-     &               CALL DDAFILE(LUTDM,0,TDMZZ,NTDMZZ,IDISK)
+                 iOpt=2
+                 iGo=2
 C PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
-                 CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
+                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
+     &                          LUTDM,IDISK,iEmpty,iOpt,iGo)
                  IF(I.EQ.J) X=0.5D00*X
                  CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
               End If

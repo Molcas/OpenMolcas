@@ -96,7 +96,10 @@ C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
               iEmpty=iDisk_TDM(I,J,2)
               If (IAND(iEmpty,1).ne.0) Then
                  IDISK=iDisk_TDM(I,J,1)
-                 CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
+                 iOpt=2
+                 iGo=1
+                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
+     &                          LUTDM,IDISK,iEmpty,iOpt,iGo)
                  IF(I.EQ.J) X=0.5D00*X
                  CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
               End If

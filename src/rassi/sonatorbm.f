@@ -175,22 +175,17 @@ c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
         iEmpty=iDisk_TDM(LSF,KSF,2)
         IDISK=iDisk_TDM(LSF,KSF,1)
-
-c I Don't know what is stored between TDMZZ and WDMZZ,
-c but store it in TDMZZ then overwrite
-c (see mectl.f)
-        IF (ITYPE.GE.3.AND.IAND(iEmpty,4).ne.0) THEN
-           If (IAND(iEmpty,1).ne.0)
-     &        CALL DDAFILE(LUTDM,0,WORK(LTDMZZ),NTDMZZ,IDISK)
-           If (IAND(iEmpty,2).ne.0)
-     &        CALL DDAFILE(LUTDM,0,WORK(LTDMZZ),NTDMZZ,IDISK)
-           CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+        iOpt=2
+        IF (ITYPE.GE.3) Then
+           iGo=4
+           CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
 C NOTE-the TD matrix as read in has an incorrect sign
            CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
-        Else If (ITYPE.LT.3.AND.IAND(iEmpty,1).ne.0) Then
-           CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
         Else
-           CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
+           iGo=1
+           CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo)
         END IF
 
 

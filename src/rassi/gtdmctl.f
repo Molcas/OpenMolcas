@@ -857,8 +857,9 @@ C             Write density 1-matrices in AO basis to disk.
                   jDisk_TDM(1,ij)=IDISK
                   jDisk_TDM(2,ij)=iEmpty
                   iOpt=1
+                  iGo=7
                   CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,
-     &                           iEmpty,iOpt)
+     &                           iEmpty,iOpt,iGo)
                 END IF
                 !> calculate property matrix elements
                 CALL PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
