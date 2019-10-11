@@ -16,10 +16,10 @@
   integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
   integer, intent(inout) :: adr
   real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
-  Integer JOB1, JOB2, bdim
+  Integer JOB1, JOB2, bdim, IRC
 
     bdim=adim
-    If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save
+    If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2
 
     If (IAND(iGo,1).ne.0) Then
        If (IAND(iEmpty,1).ne.0) Then
@@ -61,9 +61,21 @@
        CALL RDCMO_RASSI(JOB1,CMO1)
        CALL RDCMO_RASSI(JOB2,CMO2)
 !
-!      CALL MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ,iRC)
+       If (IAND(iGo,1).ne.0.AND.iAND(iEmpty,1).ne.0) Then
+          SCR(:)=array1(1:NASHT**2)
+          CALL MKTDZZ(CMO1,CMO2,SCR,array1,iRC)
+       End If
 !
-       Call Abend()
+       If (IAND(iGo,2).ne.0.AND.iAND(iEmpty,2).ne.0) Then
+          SCR(:)=array2(1:NASHT**2)
+          CALL MKTDZZ(CMO1,CMO2,SCR,array2,iRC)
+       End If
+!
+       If (IAND(iGo,4).ne.0.AND.iAND(iEmpty,4).ne.0) Then
+          SCR(:)=array3(1:NASHT**2)
+          CALL MKTDZZ(CMO1,CMO2,SCR,array3,iRC)
+       End If
+!
     End If
 !
   end subroutine dens2file
