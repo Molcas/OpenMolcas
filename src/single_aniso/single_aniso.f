@@ -268,6 +268,26 @@ c---------------------------------------------------------------------
          mem=mem+nTempMagn*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
+      Else If(nH>0) Then
+         Call mma_allocate(Hexp,nH,'Hexp')
+         mem=mem+nH*RtoB
+         Call dcopy_(nH,[0.0_wp],0,Hexp,1)
+         Call mma_allocate(magn_exp,nH,0,'magn_exp')
+         Call mma_allocate(TempMagn,0,'TempMagn')
+         ! allocated memory counter
+         If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
+      Else If(nTempMagn>0) Then
+         Call mma_allocate(Hexp,0,'Hexp')
+         Call mma_allocate(magn_exp,0,nTempMagn,'magn_exp')
+         Call mma_allocate(TempMagn,nTempMagn,'TempMagn')
+         Call dcopy_(nTempMagn,[0.0_wp],0,TempMagn,1)
+         mem=mem+nTempMagn*RtoB
+         ! allocated memory counter
+         If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
+      Else
+         Call mma_allocate(Hexp,0,'Hexp')
+         Call mma_allocate(magn_exp,0,0,'magn_exp')
+         Call mma_allocate(TempMagn,0,'TempMagn')
       End If
 
       If(nMult>=0) Then
@@ -312,6 +332,9 @@ c---------------------------------------------------------------------
          mem=mem+3*nDirZee*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
+      Else
+         Call mma_allocate(LuZee,0,'LUZee')
+         Call mma_allocate(dir_weight,0,3,'dir_weight')
       End If
 
       If(nDir>=0) Then
@@ -325,6 +348,10 @@ c---------------------------------------------------------------------
          Call dcopy_(nDir,[0.0_wp],0,dirZ,1)
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
+      Else
+         Call mma_allocate(dirX,0,'dirX')
+         Call mma_allocate(dirY,0,'dirY')
+         Call mma_allocate(dirZ,0,'dirZ')
       End If
 
       If(nT>=0) Then
@@ -693,11 +720,9 @@ c---------------------------------------------------------------------
          Call mma_deallocate(DM)
       End If
 
-      If( (nH>=0).and.(nTempMagn>=0) ) Then
-         Call mma_deallocate(Hexp)
-         Call mma_deallocate(magn_exp)
-         Call mma_deallocate(TempMagn)
-      End If
+      Call mma_deallocate(Hexp)
+      Call mma_deallocate(magn_exp)
+      Call mma_deallocate(TempMagn)
 
       If(nMult>=0) Then
          Call mma_deallocate(ndim)
@@ -711,16 +736,12 @@ c---------------------------------------------------------------------
          Call mma_deallocate(XT_no_field)
       End If
 
-      If(nDirZee>=0) Then
-         Call mma_deallocate(LuZee)
-         Call mma_deallocate(dir_weight)
-      End If
+      Call mma_deallocate(LuZee)
+      Call mma_deallocate(dir_weight)
 
-      If(nDir>=0) Then
-         Call mma_deallocate(dirX)
-         Call mma_deallocate(dirY)
-         Call mma_deallocate(dirZ)
-      End If
+      Call mma_deallocate(dirX)
+      Call mma_deallocate(dirY)
+      Call mma_deallocate(dirZ)
 
       If(nT>=0) Then
          Call mma_deallocate(Texp)

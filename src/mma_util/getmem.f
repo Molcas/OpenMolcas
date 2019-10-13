@@ -74,6 +74,10 @@
       Character*4   Key,VarTyp
       Integer       c_getmem
       External      c_getmem
+#ifdef _GARBLE_
+      Character*5   xKey
+      Logical       SkipGarble
+#endif
 
 *----------------------------------------------------------------------*
 *     Initialize the Common / MemCtl / the first time it is referenced *
@@ -119,6 +123,17 @@
       If (MemCtl(ipCheck).eq.ON .or. MemCtl(ipTrace).eq.ON) Then
          iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
       End If
+#ifdef _GARBLE_
+*----------------------------------------------------------------------*
+*     Skip garble                                                      *
+*----------------------------------------------------------------------*
+      Call StdFmt(KeyIn,xKey)
+      If ((xKey.eq.'ALLON').or.(xKey.eq.'RGSTN')) Then
+        SkipGarble = .True.
+      Else
+        SkipGarble = .False.
+      End If
+#endif
 *----------------------------------------------------------------------*
 *     Allocate new memory                                              *
 *----------------------------------------------------------------------*
@@ -149,7 +164,7 @@
 
 #ifdef _GARBLE_
       If ( Key.eq.'ALLO' .or. Key.eq.'RGST') Then
-        Call Garble(iPos,Length,VarTyp)
+        If (.not. SkipGarble) Call Garble(iPos,Length,VarTyp)
       End If
 #endif
 
@@ -179,17 +194,18 @@
 #ifdef _GARBLE_
       subroutine garble(ipos,length,vartyp)
       implicit none
-#include "SysDef.fh"
+*include "SysDef.fh"
 #include "WrkSpc.fh"
       integer :: ipos, length
       character(*) :: vartyp
-      real*8, parameter ::    dgarbage = 0.730432726d308
-      integer, parameter ::   igarbage = 730432726
-      real*4, parameter ::    sgarbage = 0.730432726e38
+      real*8, parameter ::    dgarbage(1) = [0.730432726d308]
+      integer, parameter ::   igarbage(1) = [730432726]
+      real*4, parameter ::    sgarbage(1) = [0.730432726e38]
       character, parameter :: cgarbage = 'x'
 
       integer i
 
+      write(6,*) 'GARBLE',vartyp,length
       select case(vartyp)
       case ('REAL')
         call dcopy_(length,dgarbage,0,work(ipos),1)
