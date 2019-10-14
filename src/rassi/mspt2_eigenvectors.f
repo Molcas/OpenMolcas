@@ -81,7 +81,7 @@
         real*8,  intent(in)    :: stdm(ntdmzz)
         real*8,  intent(in)    :: wetdm(ntdmzz)
         real*8,  intent(inout) :: prop(nstate,nstate,nprop)
-        integer iOpt, iaddr
+        integer iOpt, iaddr, iGo
 #include "rassiwfn.fh"
 
 
@@ -91,6 +91,7 @@
           !> put data to file
           if(put_so_data)then
             iOpt=1
+            iGo=7
             iaddr=addr
             call dens2file(
      &                     rtdm,
@@ -101,6 +102,7 @@
      &                     iaddr,
      &                     iempty,
      &                     iOpt,
+     &                     iGo,
      &                     iState,
      &                     jState
      &                     )
