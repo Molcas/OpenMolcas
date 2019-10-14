@@ -10,8 +10,9 @@
 !***********************************************************************
       Module RASSI_AUX
       Integer, Allocatable:: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
+      Real*8, Allocatable:: CMO1(:), CMO2(:), DMAB(:)
       Logical AO_Mode
-      Integer NASHT_Save
+      Integer NASHT_Save, mTRA
 
       Contains
 

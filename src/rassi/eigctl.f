@@ -2318,7 +2318,7 @@ C                                                                      C
 ************************************************************************
 *
       If (.Not.Do_TMOM) Go To 900
-*define _TIME_TMOM_
+#define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
 #endif
@@ -3002,7 +3002,7 @@ C                 Why do it when we don't do the L.S-term!
 *
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
-      write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
+      write(6,*) 'Time for TMOM (SF) ',TCpu2-TCpu1,TWall2-TWall1
 #endif
 *
 *     Do some cleanup

@@ -82,6 +82,10 @@
 #include "SysDef.fh"
 
       CALL QENTER(ROUTINE)
+#define _TIME_GTDM
+#ifdef _TIME_GTDM_
+      Call CWTime(TCpu1,TWall1)
+#endif
 * Avoid compiler warnings about possibly unitialised mstate_1pdens
 * The below can be removed if the file is compiled with
 * -Wno-error=maybe-uninitialized
@@ -170,6 +174,8 @@ C Pick up orbitals of ket and bra states.
       Call mma_allocate(CMO2,nCMO,Label='CMO2')
       LCMO1=ip_of_work(CMO1(1))
       LCMO2=ip_of_work(CMO2(1))
+      Write (6,*) 'Job1=',Job1
+      Write (6,*) 'Job2=',Job2
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 
@@ -874,7 +880,7 @@ C             Write density 1-matrices in AO basis to disk.
                      If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
 *
-                     WERD(nTrad+1)=SIJ
+                     WERD(nTrad+1)=0.0D0
                      iRC=0
                      If(DDot_(nTRAD+1,WERD,1,WERD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+4
@@ -1287,6 +1293,10 @@ C             Write density 1-matrices in AO basis to disk.
         end do
         if(allocated(mstate_1pdens)) deallocate(mstate_1pdens)
       end if
+#ifdef _TIME_GTDM_
+      Call CWTime(TCpu2,TWall2)
+      write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
 
       CALL QEXIT(ROUTINE)
       RETURN

@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE INPPRC
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
-     &                      DMZZ
+     &                      DMAB, mTRA
       use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -90,6 +90,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMA=NTDMS
       NTDMAB=NTRA
       IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
+        WRITE(6,*)
         WRITE(6,*) ' Info: creating TDMFILE'
         LUTDM=21
         LUTDM=IsFreeUnit(LUTDM)
@@ -97,14 +98,28 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         CALL DANAME_MF(LUTDM,FNTDM)
         AO_Mode=.True.
         iByte=8*3*nstate*(nstate-1)/2*nTDMAB
+        If (iByte.gt.1024**2 * 10) AO_Mode=.False.
+*       AO_Mode=.False. ! Force for debugging purpose.
         WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
+*
+*       For small basis set with symmetry we might not benefit from
+*       doing this.
+*
+        If (NASHT**2+1.gt.nTDMAB) AO_Mode=.True.
+*
         If (.NOT.AO_Mode) Then
+           WRITE(6,*) '       TDMs in reduced format'
            Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
            Call ICopy(nState,iWork(lJBNUM),1,JOB_INDEX,1)
-           Call mma_allocate(CMO1,nCOM,Label='CMO1')
-           Call mma_allocate(CMO2,nCOM,Label='CMO2')
-           Call mma_allocate(DMZZ,nTDMZZ,Label='DMZZ')
-        ENd If
+*          Write (6,*) 'Job_Index=',Job_Index
+           Call mma_allocate(CMO1,nCMO,Label='CMO1')
+           Call mma_allocate(CMO2,nCMO,Label='CMO2')
+           Call mma_allocate(DMAB,nTDMAB,Label='DMAB')
+           mTRA=nTRA
+        Else
+           WRITE(6,*) '       TDMs in AO format'
+        End If
+        WRITE(6,*)
       END IF
 
 C Upcase property names in lists of requests:
@@ -235,7 +250,7 @@ C Not currently in use.
 C        PRPLST(IPRP+ 1)='TMOM2  R'
 C        ICMPLST(IPRP+ 1)=1
 C        IPUSED(IPRP+ 1)=0
-C        PRPLST(IPRP+ 2)='TMOM2  R'
+C        CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)PRPLST(IPRP+ 2)='TMOM2  R'
 C        ICMPLST(IPRP+ 2)=2
 C        IPUSED(IPRP+ 2)=0
 C        PRPLST(IPRP+ 3)='TMOM2  R'
@@ -788,7 +803,7 @@ C Write out various input data:
           END DO
           if (jobmatch) then
             call WarningMessage(1,'HEFF used for a situation where '//
-     &        'posible extra interaction between states is ignored!')
+     &        'possible extra interaction between states is ignored!')
           end if
         else
           call WarningMessage(2,'HEFF used but none is available!')
@@ -797,7 +812,7 @@ C Write out various input data:
       else if (ifejob) then
         if (have_heff) then
           call WarningMessage(1,'EJOB used when HEFF is available, '//
-     &      'posible extra interaction between states is ignored!')
+     &      'possible extra interaction between states is ignored!')
         end if
         if (have_diag) then
           DO I=0,NSTATE-1
@@ -813,7 +828,7 @@ C Write out various input data:
         end if
         if (jobmatch) then
           call WarningMessage(1,'EJOB used for a situation where '//
-     &      'posible extra interaction between states is ignored!')
+     &      'possible extra interaction between states is ignored!')
         end if
       else if (.not.(ifhext.or.ifhdia.or.ifshft.or.ifhcom)) then
 * the user has selected no procedure...

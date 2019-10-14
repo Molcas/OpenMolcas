@@ -57,6 +57,10 @@
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:)
 
       CALL QENTER(ROUTINE)
+#define _TIME_TMOM_
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu1,TWall1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1057,6 +1061,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu2,TWall2)
+      write(6,*) 'Time for TMOM(SO) : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
       RETURN
       END Subroutine PRPROP_TM_Exact
 
