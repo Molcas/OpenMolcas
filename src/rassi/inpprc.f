@@ -97,7 +97,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
         AO_Mode=.True.
-        iByte=8*3*nstate*(nstate-1)/2*nTDMAB
+        iByte=8*3*nstate*(nstate-1)/2*nTDMZZ
 *
 *       For the time we will move over to compact mode if the required
 *       estimate of disk space if more than 1 Gb.
