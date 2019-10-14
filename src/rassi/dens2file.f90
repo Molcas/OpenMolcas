@@ -11,7 +11,7 @@
   subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
                        iState,jState)
   use rassi_aux, Only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
-                        DMAB, mTRA
+                        DMAB, mTRA, Job1_Old, Job2_Old
   implicit none
   External DDot_
   Real*8 DDot_
@@ -21,6 +21,7 @@
   real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
   Integer JOB1, JOB2, bdim, IRC, J1, J2
   Real*8, Allocatable:: TRA1(:), TRA2(:)
+  Logical Redo_binat
 
     bdim=adim
     If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2+1
@@ -69,17 +70,24 @@
 !
        JOB1=JOB_Index(iState)
        JOB2=JOB_Index(jState)
-!      Write (6,*) 'iState,Job1=',iState,Job1
-!      Write (6,*) 'jState,Job2=',jState,Job2
        J1=Max(JOB1,JOB2)
        J2=Min(JOB1,JOB2)
-       CALL RDCMO_RASSI(J1,CMO1)
-       CALL RDCMO_RASSI(J2,CMO2)
-       Call mma_Allocate(TRA1,mTra,Label='TRA1')
-       Call mma_Allocate(TRA2,mTra,Label='TRA2')
-       CALL FINDT(CMO1,CMO2,TRA1,TRA2)
-       Call mma_deallocate(TRA2)
-       Call mma_deallocate(TRA1)
+       Redo_Binat=.False.
+       If (J1.ne.JOB1_Old.or.J2.ne.JOB2_Old) Then
+          CALL RDCMO_RASSI(J1,CMO1)
+          CALL RDCMO_RASSI(J2,CMO2)
+          JOB1_OLD=J1
+          JOB2_OLD=J2
+          Redo_Binat=.True.
+       End If
+!
+       If (Redo_Binat) Then
+          Call mma_Allocate(TRA1,mTra,Label='TRA1')
+          Call mma_Allocate(TRA2,mTra,Label='TRA2')
+          CALL FINDT(CMO1,CMO2,TRA1,TRA2)
+          Call mma_deallocate(TRA2)
+          Call mma_deallocate(TRA1)
+       End If
 
 !
        If (IAND(iGo,1).ne.0.AND.iAND(iEmpty,1).ne.0) Then
