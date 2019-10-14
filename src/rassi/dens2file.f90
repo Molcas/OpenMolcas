@@ -7,6 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
   subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
                        iState,jState)
@@ -23,6 +25,23 @@
   Real*8, Allocatable:: TRA1(:), TRA2(:)
   Logical Redo_binat
 
+!**********************************************************************
+!   This is the generalized disk interface for TDMs.
+!   Some of the parameters and variables are explained here.
+!
+!   AO_Mode: true if TDMs are in the AO basis, otherwise the TDMs are
+!            stored in the basis of the active orbitals only (no sym).
+!   iEmtpy: the three lowest bits are set if the TDMAB, TSDMAB, and
+!           WDMAB, are stored on disk, respectively. That is, for
+!           example, if iEmpty=5 the code will write only the first
+!           and the last matrix. On read of the second matrix the
+!           routine will generate a zero matrix.
+!   iOpt: values are 1, or 2, for write and read, respectively.
+!   iGo: the three lowest bits are set to tell which matrices are
+!        requested. For example, iGo=2, means that only spin-densities
+!        are requested.
+!
+!**********************************************************************
     bdim=adim
     If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2+1
     If (bdim.gt.adim) Then
