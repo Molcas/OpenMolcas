@@ -99,7 +99,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         AO_Mode=.True.
         iByte=8*3*nstate*(nstate-1)/2*nTDMAB
         If (iByte.gt.1024**2 * 10) AO_Mode=.False.
-*       AO_Mode=.False. ! Force for debugging purpose.
+        If (Force_NON_AO_TDM)  AO_Mode=.False. ! Force for debugging purpose.
         WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
 *
 *       For small basis set with symmetry we might not benefit from

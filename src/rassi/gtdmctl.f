@@ -174,8 +174,6 @@ C Pick up orbitals of ket and bra states.
       Call mma_allocate(CMO2,nCMO,Label='CMO2')
       LCMO1=ip_of_work(CMO1(1))
       LCMO2=ip_of_work(CMO2(1))
-      Write (6,*) 'Job1=',Job1
-      Write (6,*) 'Job2=',Job2
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 

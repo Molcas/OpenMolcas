@@ -19,6 +19,7 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
+      Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
       CALL QENTER(ROUTINE)
@@ -177,6 +178,10 @@ C DEFAULT FLAGS:
       L_Eff=5
 C CD - velocity and mixed gauge
       DOCD = .FALSE.
+C Force that TDMs are not stored in the AO basis.
+      Force_NON_AO_TDM=.False.
+      CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
+      If (STRING.eq.'ON') Force_NON_AO_TDM=.True.
 cnf
       IfDCpl = .False.
 cnf
@@ -250,6 +255,7 @@ c BP - Hyperfine tensor and SONATORB initialization
         WRITE(6,*)'     Do_SK:',Do_SK
         WRITE(6,*)'     L_Eff:',L_Eff
         WRITE(6,*)'     CD:',DOCD
+        WRITE(6,*)'     Force_NON_AO_TDM:',Force_NON_AO_TDM
       END IF
 
 C DEFAULT WAVE FUNCTION TYPE:
