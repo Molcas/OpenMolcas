@@ -2635,18 +2635,20 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                         END DO ! IPRP
                      Else
 
-                        DO IPRP = 1,12
-                           IPROP=IPRTMOM(IPRP)
-                           Prop(:,:,IPROP)=0.0D0
-                        End Do
+                        Forall (iprp=1:12) Prop(:,:,IPRTMOM(IPRP))=0.0D0
                         Do k_ = 1, nState
                            k=IndexE(k_)
                            JOB3=iWork(lJBNUM+k-1)
                            LSYM3=IRREP(JOB3)
+                           If (Abs(EigVec(k,I)) .lt. 1.0D-10 .and.
+     &                         Abs(EigVec(k,J)) .lt. 1.0D-10) Cycle
                            Do l_ = 1, k
                               l=IndexE(l_)
                               JOB4=iWork(lJBNUM+l-1)
                               LSYM4=IRREP(JOB4)
+                              If (Abs(EigVec(l,I)) .lt. 1.0D-10 .and.
+     &                            Abs(EigVec(l,J)) .lt. 1.0D-10) Cycle
+*
                               ISY34=MUL(LSYM3,LSYM4)
 *
                               MASK34=2**(ISY34-1)
