@@ -44,7 +44,9 @@ C RAS state interaction.
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
-     &                      USOI(:,:)
+     &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
+     &                      ENERGY(:)
+      Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,13 +85,12 @@ C Needed generalized transition density matrices are computed by
 C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
       NSTATE2=NSTATE*NSTATE
-      Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
-      Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
+      Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
+      Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
       LEIGVEC=ip_of_work(EigVec(1,1))
-      Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
+      Call mma_allocate(ENERGY,nState,Label='Energy')
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
-      Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
 
       NPROPSZ=NSTATE*NSTATE*NPROP
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
@@ -109,6 +110,7 @@ C Number of basis functions
       END IF
 *
 C Loop over jobiphs JOB1:
+      Call mma_allocate(IDDET1,nState,Label='IDDET1')
       IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
@@ -116,21 +118,21 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(PROP,JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,
      &                 WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1),
      &                 IDISK)
         END DO
       END DO
-      Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
+      Call mma_deallocate(IDDET1)
 
 #ifdef _HDF5_
       CALL mh5_put_dset_array_real(wfn_overlap,
-     &     WORK(LOVLP),[NSTATE,NSTATE],[0,0])
+     &     OVLP,[NSTATE,NSTATE],[0,0])
 #endif
-      Call Put_dArray('State Overlaps',Work(LOVLP),
+      Call Put_dArray('State Overlaps',OVLP,
      &                NSTATE*NSTATE)
 
-      IF(TRACK) CALL TRACK_STATE(Work(LOVLP))
+      IF(TRACK) CALL TRACK_STATE(LOVLP)
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
 C       Print the overlap matrix here, since MECTL is skipped
@@ -138,9 +140,8 @@ C       Print the overlap matrix here, since MECTL is skipped
           WRITE(6,*)
           WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
           WRITE(6,*)
-          DO ISTATE=0,NSTATE-1
-            iadr=LOVLP+istate*nstate
-            WRITE(6,'(5(1X,F15.8))')(Work(iadr+j),j=0,istate)
+          DO ISTATE=1,NSTATE
+            WRITE(6,'(5(1X,F15.8))')(Ovlp(j,iState),j=1,istate)
           END DO
         END IF
         GOTO 100
@@ -148,7 +149,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(PROP,WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
+      CALL MECTL(PROP,OVLP,WORK(LHAM),WORK(LESHFT))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -166,8 +167,8 @@ C and perhaps GTDM's.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(PROP,WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
-     &              EIGVEC,WORK(LENERGY))
+        CALL EIGCTL(PROP,OVLP,DYSAMPS,Work(LHAM),
+     &              EIGVEC,ENERGY)
       END IF
 
 
@@ -178,8 +179,7 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
-       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,
-     &        WORK(LENERGY))
+       CALL WRITEDYS(DYSAMPS,WORK(LSFDYS),NZ,ENERGY)
 
       END IF
 ! +++
@@ -241,8 +241,7 @@ C Nr of spin states and division of loops:
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
-        CALL SOEIG(PROP,USOR,USOI,
-     &             WORK(LSOENE),NSS,WORK(LENERGY))
+        CALL SOEIG(PROP,USOR,USOI,WORK(LSOENE),NSS,ENERGY)
       END IF
 
 ! +++ J. Norell - 2018
@@ -256,7 +255,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
        LSODYSAMPSI=0
        CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
-       CALL SODYSORB(NSS,USOR,USOI,WORK(LDYSAMPS),
+       CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
      &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
      &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
       END IF
@@ -267,8 +266,8 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
 ! +++
 
       CALL PRPROP(PROP,USOR,USOI,
-     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
-     &            WORK(LENERGY),iWork(lJBNUM),EigVec)
+     &            WORK(LSOENE),NSS,OVLP,WORK(LSODYSAMPS),
+     &            ENERGY,iWork(lJBNUM),EigVec)
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
@@ -294,7 +293,7 @@ C   Turns on the procedure if the Keyword HOP was specified.          C
 C                                                                     C
       IF (HOP) then
         Call StatusLine('RASSI:','Trajectory Surface Hopping')
-        CALL TSHinit(WORK(LENERGY))
+        CALL TSHinit(ENERGY)
       END IF
 C                                                                     C
 CIgorS End------------------------------------------------------------C
@@ -320,11 +319,11 @@ CIgorS End------------------------------------------------------------C
 ************************************************************************
 *                                                                      *
  100  CONTINUE
-      Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
-      Call GetMem('DYSAMPS','Free','Real',LDYSAMPS,NSTATE2)
+      Call mma_deallocate(Ovlp)
+      Call mma_deallocate(DYSAMPS)
       Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
       Call mma_deallocate(EigVec)
-      Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
+      Call mma_deallocate(Energy)
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
       Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
       Call mma_deallocate(jDisk_TDM)
