@@ -65,10 +65,10 @@ class _Orbitals(metaclass=ABCMeta):
             idx=self.idx.copy())
 
 
-class RasOrb(_Orbitals):
+class SpatialOrbs(_Orbitals):
 
     @classmethod
-    def read_orbfile(cls, path: PathLike) -> RasOrb:
+    def read_orbfile(cls, path: PathLike) -> SpatialOrbs:
         with open(path, 'r') as f:
             version, orbs, spin_orbs = _read_header(f)
 
@@ -79,7 +79,7 @@ class RasOrb(_Orbitals):
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> RasOrb:
+            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> SpatialOrbs:
         if inplace:
             self.coeff = [
                 coeff[:, idx] for idx, coeff in zip(new_idx, self.coeff)]
@@ -91,7 +91,7 @@ class RasOrb(_Orbitals):
             new.reindex(new_idx, inplace=True)
             return new
 
-    def round_occ(self, inplace: bool=False) -> RasOrb:
+    def round_occ(self, inplace: bool=False) -> SpatialOrbs:
         new_occ = [occ.round() for occ in self.occ]
 
         if not isclose(sum(occ.sum() for occ in self.occ),
@@ -105,14 +105,14 @@ class RasOrb(_Orbitals):
             new.round_occ(inplace=True)
             return new
 
-    def to_UhfOrb(self) -> UhfOrb:
+    def to_SpinOrb(self) -> SpinOrbs:
         spat = self.round_occ()
         spat.reindex([argsort(-v, kind='stable') for v in spat.occ], True)
 
         new_occ = {'a': [occ.clip(0, 1) for occ in spat.occ],
                    'b': [(occ - 1).clip(0, 1) for occ in spat.occ]}
 
-        return UhfOrb(
+        return SpinOrbs(
             orbs=spat.orbs.copy(), coeff=spat._spin_copy(spat.coeff),
             occ=new_occ, energy=spat._spin_copy(spat.energy),
             idx=spat.idx.copy())
@@ -122,10 +122,10 @@ class RasOrb(_Orbitals):
         return {'a': deepcopy(v), 'b': deepcopy(v)}
 
 
-class UhfOrb(_Orbitals):
+class SpinOrbs(_Orbitals):
 
     @classmethod
-    def read_orbfile(cls, path: PathLike) -> UhfOrb:
+    def read_orbfile(cls, path: PathLike) -> SpinOrbs:
         with open(path, 'r') as f:
             version, orbs, spin_orbs = _read_header(f)
 
@@ -136,7 +136,7 @@ class UhfOrb(_Orbitals):
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> UhfOrb:
+            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> SpinOrbs:
         if inplace:
             self.coeff = {
                 spin:
