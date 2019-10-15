@@ -15,15 +15,14 @@
   use rassi_aux, Only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
                         DMAB, mTRA, Job1_Old, Job2_Old
   implicit none
-  External DDot_
-  Real*8 DDot_
+! External DDot_
+! Real*8 DDot_
 #include "stdalloc.fh"
   integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
   integer, intent(inout) :: adr
   real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
   Integer JOB1, JOB2, bdim, IRC, J1, J2
   Real*8, Allocatable:: TRA1(:), TRA2(:)
-  Logical Redo_binat
 
 !**********************************************************************
 !   This is the generalized disk interface for TDMs.
@@ -91,16 +90,11 @@
        JOB2=JOB_Index(jState)
        J1=Max(JOB1,JOB2)
        J2=Min(JOB1,JOB2)
-       Redo_Binat=.False.
        If (J1.ne.JOB1_Old.or.J2.ne.JOB2_Old) Then
           CALL RDCMO_RASSI(J1,CMO1)
           CALL RDCMO_RASSI(J2,CMO2)
           JOB1_OLD=J1
           JOB2_OLD=J2
-          Redo_Binat=.True.
-       End If
-!
-       If (Redo_Binat) Then
           Call mma_Allocate(TRA1,mTra,Label='TRA1')
           Call mma_Allocate(TRA2,mTra,Label='TRA2')
           CALL FINDT(CMO1,CMO2,TRA1,TRA2)

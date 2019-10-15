@@ -103,7 +103,8 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
 *       estimate of disk space if more than 1 Gb.
 *
         If (iByte.gt.1024**3) AO_Mode=.False.
-        If (Force_NON_AO_TDM)  AO_Mode=.False. ! Force for debugging purpose.
+*       Force for debugging purpose.
+        If (Force_NON_AO_TDM)  AO_Mode=.False.
         WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
 *
 *       For small basis set with symmetry we might not benefit from

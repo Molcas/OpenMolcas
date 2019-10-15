@@ -77,11 +77,13 @@
         integer, intent(in)    :: lu
         logical, intent(in)    :: put_so_data
         logical, intent(in)    :: put_h5_data
-        real*8,  intent(in)    :: rtdm(ntdmzz)
-        real*8,  intent(in)    :: stdm(ntdmzz)
-        real*8,  intent(in)    :: wetdm(ntdmzz)
+        real*8,  intent(inout) :: rtdm(ntdmzz)
+        real*8,  intent(inout) :: stdm(ntdmzz)
+        real*8,  intent(inout) :: wetdm(ntdmzz)
         real*8,  intent(inout) :: prop(nstate,nstate,nprop)
-        integer iOpt, iaddr, iGo
+        integer                   iOpt
+        integer                   iGo
+        integer                   iaddr
 #include "rassiwfn.fh"
 
 
