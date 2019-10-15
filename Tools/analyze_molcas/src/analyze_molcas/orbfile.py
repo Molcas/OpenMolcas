@@ -1,12 +1,12 @@
 from __future__ import annotations
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, TypeVar, Type, TextIO
 import re
+from os import PathLike
 from enum import Enum
-import numpy as np
-from numpy.linalg import svd
-
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+from numpy import array
 from attr import attrs, attrib
 
 
@@ -16,6 +16,9 @@ class FileFormat(Exception):
 
 class RasOrb_version(Enum):
     v2_0, v2_2 = range(2)
+
+
+T = TypeVar('T', bound='Orbitals')
 
 
 @attrs
@@ -28,18 +31,18 @@ class Orbitals(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def read_orbfile(cls, path):
+    def read_orbfile(cls: Type[T], path: PathLike) -> T:
         pass
 
     @abstractmethod
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> RasOrb:
+            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> T:
         pass
 
-    def get_index(self):
+    def get_index(self) -> Sequence[Sequence[int]]:
         return [np.arange(n_orbs) for n_orbs in self.orbs]
 
-    def copy(self):
+    def copy(self) -> T:
         return self.__class__(
             orbs=self.orbs.copy(),
             coeff=self.coeff.copy(),
@@ -51,7 +54,7 @@ class Orbitals(metaclass=ABCMeta):
 class RasOrb(Orbitals):
 
     @classmethod
-    def read_orbfile(cls, path):
+    def read_orbfile(cls, path: PathLike) -> RasOrb:
         with open(path, 'r') as f:
             version, orbs, spin_orbs = _read_header(f)
 
@@ -60,7 +63,6 @@ class RasOrb(Orbitals):
 
             coeff, occ, energy, idx = _read_spin_orbs(f, orbs, version)
         return cls(orbs, coeff, occ, energy, idx)
-
 
     def reindex(self,
             new_idx: Sequence[Sequence[int]], inplace: bool=False) -> RasOrb:
@@ -81,11 +83,10 @@ def _reindex(indices: Sequence[Sequence],
     return [idx[new_idx] for new_idx, idx in zip(new_indices, indices)]
 
 
-
 class UhfOrb(Orbitals):
 
     @classmethod
-    def read_orbfile(cls, path):
+    def read_orbfile(cls, path: PathLike) -> UhfOrb:
         with open(path, 'r') as f:
             version, orbs, spin_orbs = _read_header(f)
 
@@ -95,9 +96,8 @@ class UhfOrb(Orbitals):
             coeff, occ, energy, idx = _read_spin_orbs(f, orbs, version)
         return cls(orbs, coeff, occ, energy, idx)
 
-
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> RasOrb:
+            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> UhfOrb:
         if inplace:
             self.coeff = {
                 spin: [coeff[:, idx] for idx, coeff in zip(new_idx, coeffs)]
@@ -113,7 +113,7 @@ class UhfOrb(Orbitals):
             return new
 
 
-def _read_header(f):
+def _read_header(f: TextIO) -> Tuple[RasOrb_version, Sequence[int], bool]:
     line = f.readline()
     while line:
         if '#INPORB' in line:
@@ -125,7 +125,9 @@ def _read_header(f):
     return version, orbs, spin_orbs
 
 
-def _read_spin_orbs(f, orbs, version):
+def _read_spin_orbs(
+        f: TextIO, orbs: Sequence[int],
+        version: RasOrb_version) -> Tuple[Sequence[array], ...]:
     MO_coeff, MO_occ, MO_E = {}, {}, {}
     line = f.readline()
     while line:
@@ -149,7 +151,9 @@ def _read_spin_orbs(f, orbs, version):
     return MO_coeff, MO_occ, MO_E, idx
 
 
-def _read_spatial_orbs(f, orbs, version):
+def _read_spatial_orbs(
+        f: TextIO, orbs: Sequence[int],
+        version: RasOrb_version) -> Tuple[Sequence[array], ...]:
     line = f.readline()
     while line:
         if '#ORB' in line:
@@ -179,7 +183,7 @@ def _read_version(line: str) -> RasOrb_version:
         raise ValueError('Inporb version could not be determined.')
 
 
-def _read_info(f) -> Tuple[bool, Sequence[int]]:
+def _read_info(f: TextIO) -> Tuple[bool, Sequence[int]]:
     _forward(f, 1)
     line = f.readline()
     spin_orbs, n_sym, _ = (int(x) for x in line.split())
@@ -187,7 +191,8 @@ def _read_info(f) -> Tuple[bool, Sequence[int]]:
     return bool(spin_orbs), [int(irrep) for irrep in line.split()[:n_sym]]
 
 
-def _read_coeffs(f, orbs, cols):
+def _read_coeffs(
+        f: TextIO, orbs: Sequence[int], cols: int) -> Sequence[array]:
     MO_coeff = [np.empty((n_orbs, n_orbs)) for n_orbs in orbs]
     for irrep, n_orbs in enumerate(orbs):
         rows = (n_orbs + cols - 1) // cols
@@ -201,7 +206,8 @@ def _read_coeffs(f, orbs, cols):
     return MO_coeff
 
 
-def _read_orb_property(f, orbs, cols):
+def _read_orb_property(
+        f: TextIO, orbs: Sequence[int], cols: int) -> Sequence[array]:
     MO_v = [np.empty(n_orbs) for n_orbs in orbs]
     f.readline()
     for irrep, n_orbs in enumerate(orbs):
@@ -214,7 +220,8 @@ def _read_orb_property(f, orbs, cols):
     return MO_v
 
 
-def _read_CAS_idx(f, orbs, cols):
+def _read_CAS_idx(
+        f: TextIO, orbs: Sequence[int], cols: int) -> Sequence[array]:
     idx = []
     for n_orbs in orbs:
         rows = (n_orbs + cols - 1) // cols
@@ -223,11 +230,11 @@ def _read_CAS_idx(f, orbs, cols):
         for _ in range(rows):
             line = f.readline()
             values.extend(line.strip()[2:])
-        idx.append(np.array(values))
+        idx.append(array(values))
     return idx
 
 
-def _forward(f, n):
+def _forward(f: TextIO, n: int) -> str:
     for _ in range(n):
         line = f.readline()
     return line
