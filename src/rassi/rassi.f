@@ -45,7 +45,8 @@ C RAS state interaction.
       EXTERNAL ISFREEUNIT
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
-     &                      ENERGY(:), SFDYS(:,:,:)
+     &                      ENERGY(:), SFDYS(:,:,:), DMAT(:), TDMZZ(:),
+     &                      VNAT(:),OCC(:)
       Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
@@ -129,7 +130,7 @@ C Compute generalized transition density matrices, as needed:
       Call Put_dArray('State Overlaps',OVLP,
      &                NSTATE*NSTATE)
 
-      IF(TRACK) CALL TRACK_STATE(LOVLP)
+      IF(TRACK) CALL TRACK_STATE(OVLP)
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
 C       Print the overlap matrix here, since MECTL is skipped
@@ -186,18 +187,18 @@ C Hamiltonian matrix elements, eigenvectors:
 C Natural orbitals, if requested:
       IF(NATO) THEN
 C CALCULATE AND WRITE OUT NATURAL ORBITALS.
-        CALL GETMEM('DMAT  ','ALLO','REAL',LDMAT,NBSQ)
-        CALL GETMEM('TDMZZ ','ALLO','REAL',LTDMZZ,NTDMZZ)
-        CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-        CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-        CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),EIGVEC)
-        CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),EIGVEC)
-        CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
-        CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
-        CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-        CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+        Call mma_allocate(DMAT,nBSQ,Label='DMAT')
+        Call mma_allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+        Call mma_allocate(VNAT,nBSQ,Label='VNAT')
+        Call mma_allocate(OCC,nBST,Label='OCC')
+*
+        CALL NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+        CALL NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+*
+        Call mma_deallocate(DMAT)
+        Call mma_deallocate(TDMZZ)
+        Call mma_deallocate(VNAT)
+        Call mma_deallocate(OCC)
       END IF
 C Bi-natural orbitals, if requested:
       IF (BINA) CALL BINAT()
