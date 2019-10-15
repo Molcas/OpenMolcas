@@ -121,6 +121,8 @@ C Compute the magnitude of the complex amplitudes as an approximation
 ! for normalization of DOs
 ! (Code from mksxy)
       NSZZ=0
+      NSSQ=0
+      NPROD=0
       DO 10 ISY=1,NSYM
         NO=NOSH(ISY)
         NB=NBASF(ISY)

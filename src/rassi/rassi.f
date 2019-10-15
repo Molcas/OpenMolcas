@@ -160,7 +160,7 @@ C a set of non-interacting, orthonormal wave functions expressed
 C as linear combinations of the input wave functions. These
 C results are written out, as well as the matrix elements  of
 C the eigenstates, and if requested, their density matrices
-C and perhaps GTDM's.
+C and perhaps GTDMs.
 
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
@@ -245,12 +245,12 @@ C Nr of spin states and division of loops:
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
+      LSODYSAMPS=ip_Dummy
       IF (DYSO.AND.IFSO) THEN
-       LSODYSAMPS=0
        CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
-       LSODYSAMPSR=0
+       LSODYSAMPSR=ip_Dummy
        CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
-       LSODYSAMPSI=0
+       LSODYSAMPSI=ip_Dummy
        CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
        CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
