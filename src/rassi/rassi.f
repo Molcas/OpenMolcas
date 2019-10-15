@@ -45,7 +45,7 @@ C RAS state interaction.
       EXTERNAL ISFREEUNIT
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
-     &                      ENERGY(:)
+     &                      ENERGY(:), SFDYS(:,:,:)
       Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
@@ -104,10 +104,7 @@ C Number of basis functions
          NZ=NZ+NBASF(ISY)
       END DO
 *
-      IF (DYSO) THEN
-       LSFDYS=0
-       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      END IF
+      IF (DYSO) Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
 *
 C Loop over jobiphs JOB1:
       Call mma_allocate(IDDET1,nState,Label='IDDET1')
@@ -119,7 +116,7 @@ C Loop over jobiphs JOB1:
 
 C Compute generalized transition density matrices, as needed:
           CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,
-     &                 WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1),
+     &                 SFDYS,NZ,Work(LHAM),IDDET1,
      &                 IDISK)
         END DO
       END DO
@@ -179,7 +176,7 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
-       CALL WRITEDYS(DYSAMPS,WORK(LSFDYS),NZ,ENERGY)
+       CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
 
       END IF
 ! +++
@@ -256,13 +253,11 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
        CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
        CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
-     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
-     &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
+     &               SFDYS,NZ,WORK(LSODYSAMPS),
+     &               WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
       END IF
 
-      IF (DYSO) THEN
-       CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      END IF
+      IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
 ! +++
 
       CALL PRPROP(PROP,USOR,USOI,
@@ -286,20 +281,17 @@ C Will also handle mixing of states (sodiag.f)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-CIgorS 02/10-2007  Begin----------------------------------------------C
-C   Trajectory Surface Hopping                                        C
-C                                                                     C
-C   Turns on the procedure if the Keyword HOP was specified.          C
-C                                                                     C
+*   Trajectory Surface Hopping                                         *
+*                                                                      *
+*   Turns on the procedure if the Keyword HOP was specified.           *
+*                                                                      *
       IF (HOP) then
         Call StatusLine('RASSI:','Trajectory Surface Hopping')
         CALL TSHinit(ENERGY)
       END IF
-C                                                                     C
-CIgorS End------------------------------------------------------------C
 *                                                                      *
 ************************************************************************
-*
+*                                                                      *
 * CEH April 2015 DQV diabatization scheme
 * This passes the PROP matrix into the DQV diabatization subroutine
 * The subroutine will compute a transformation matrix, which is used
