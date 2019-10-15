@@ -4,9 +4,10 @@ import re
 from os import PathLike
 from enum import Enum
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 
 import numpy as np
-from numpy import array
+from numpy import array, argsort, isclose
 from attr import attrs, attrib
 
 
@@ -18,11 +19,11 @@ class RasOrb_version(Enum):
     v2_0, v2_2 = range(2)
 
 
-T = TypeVar('T', bound='Orbitals')
+T = TypeVar('T', bound='_Orbitals')
 
 
 @attrs
-class Orbitals(metaclass=ABCMeta):
+class _Orbitals(metaclass=ABCMeta):
     orbs = attrib()
     coeff = attrib()
     occ = attrib()
@@ -51,7 +52,7 @@ class Orbitals(metaclass=ABCMeta):
             idx=self.idx.copy())
 
 
-class RasOrb(Orbitals):
+class RasOrb(_Orbitals):
 
     @classmethod
     def read_orbfile(cls, path: PathLike) -> RasOrb:
@@ -61,7 +62,7 @@ class RasOrb(Orbitals):
             if spin_orbs:
                 raise FileFormat('File represents spin orbitals')
 
-            coeff, occ, energy, idx = _read_spin_orbs(f, orbs, version)
+            coeff, occ, energy, idx = _read_spatial_orbs(f, orbs, version)
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
@@ -77,13 +78,43 @@ class RasOrb(Orbitals):
             new.reindex(new_idx, inplace=True)
             return new
 
+    def round_occ(self, inplace: bool=False) -> RasOrb:
+        new_occ = [occ.round() for occ in self.occ]
+
+        if not isclose(sum(occ.sum() for occ in self.occ),
+                       sum(occ.sum() for occ in new_occ)):
+            raise ValueError('Rounded occupation numbers yield different '
+                             'number of electrons.')
+        if inplace:
+            self.occ = new_occ
+        else:
+            new = self.copy()
+            new.round_occ(inplace=True)
+            return new
+
+    def to_UhfOrb(self) -> UhfOrb:
+        spat = self.round_occ()
+        spat.reindex([argsort(-v) for v in spat.occ], inplace=True)
+
+        new_occ = {'a': [occ.clip(0, 1) for occ in spat.occ],
+                   'b': [(occ - 1).clip(0, 1) for occ in spat.occ]}
+
+        return UhfOrb(
+            orbs=spat.orbs.copy(), coeff=spat._spin_copy(spat.coeff),
+            occ=new_occ, energy=spat._spin_copy(spat.energy),
+            idx=spat.idx.copy())
+
+    @staticmethod
+    def _spin_copy(v):
+        return {'a': deepcopy(v), 'b': deepcopy(v)}
+
 
 def _reindex(indices: Sequence[Sequence],
              new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
     return [idx[new_idx] for new_idx, idx in zip(new_indices, indices)]
 
 
-class UhfOrb(Orbitals):
+class UhfOrb(_Orbitals):
 
     @classmethod
     def read_orbfile(cls, path: PathLike) -> UhfOrb:
