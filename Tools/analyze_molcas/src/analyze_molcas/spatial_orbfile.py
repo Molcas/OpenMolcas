@@ -55,7 +55,7 @@ class SpatialOrbs(_Orbitals):
             new.round_occ(inplace=True)
             return new
 
-    def to_SpinOrb(self) -> SpinOrbs:
+    def to_SpinOrbs(self) -> SpinOrbs:
         spat = self.round_occ()
         spat.reindex([argsort(-v, kind='stable') for v in spat.occ], True)
 

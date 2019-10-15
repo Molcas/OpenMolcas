@@ -59,9 +59,9 @@ setup(
     #      #   'rst': ['docutils>=0.11'],
     #      #   ':python_version=="2.6"': ['argparse'],
     #  },
-    #  entry_points={
-    #      'console_scripts': [
-    #          'pymolcas-lib = analyze_molcas.cli:main',
-    #      ]
-    #  },
+    entry_points={
+        'console_scripts': [
+            'spat_to_spin = analyze_molcas.cli:spat_to_spin',
+        ]
+    },
 )
