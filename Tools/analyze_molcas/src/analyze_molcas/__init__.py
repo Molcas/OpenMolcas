@@ -1,4 +1,4 @@
 __version__ = '0.0.0'
 
-import analyze_molcas.orbfile
-from analyze_molcas.orbfile import SpatialOrbs, SpinOrbs
+from analyze_molcas.spin_orbfile import SpinOrbs
+from analyze_molcas.spatial_orbfile import SpatialOrbs

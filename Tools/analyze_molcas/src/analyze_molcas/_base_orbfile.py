@@ -43,19 +43,6 @@ class _Orbitals(metaclass=ABCMeta):
     def get_index(self) -> Sequence[Sequence[int]]:
         return [np.arange(n_orbs) for n_orbs in self.orbs]
 
-    def write_orbfile(self, path):
-        with open(path, 'w') as f:
-            for line in self._get_header():
-                print(line, file=f)
-            for line in self._write_MO_coeff():
-                print(line, file=f)
-            for line in self._write_MO_occ():
-                print(line, file=f)
-            for line in self._write_MO_E():
-                print(line, file=f)
-            for line in self._write_CAS_idx():
-                print(line, file=f)
-
     def copy(self) -> T:
         return self.__class__(
             orbs=self.orbs.copy(),
@@ -64,92 +51,51 @@ class _Orbitals(metaclass=ABCMeta):
             energy=self.energy.copy(),
             idx=self.idx.copy())
 
+    def write_orbfile(self, path):
+        with open(path, 'w') as f:
+            for line in self._write_header():
+                print(line, file=f)
+            for line in self._write_MO_coeff():
+                print(line, file=f)
+            for line in self._write_MO_occ():
+                print(line, file=f)
+            for line in self._write_MO_human_occ():
+                print(line, file=f)
+            for line in self._write_MO_E():
+                print(line, file=f)
+            for line in self._write_CAS_idx():
+                print(line, file=f)
 
-class SpatialOrbs(_Orbitals):
+    @abstractmethod
+    def _write_header(self):
+        pass
 
-    @classmethod
-    def read_orbfile(cls, path: PathLike) -> SpatialOrbs:
-        with open(path, 'r') as f:
-            version, orbs, spin_orbs = _read_header(f)
+    @abstractmethod
+    def _write_MO_coeff(self):
+        pass
 
-            if spin_orbs:
-                raise FileFormat('File represents spin orbitals')
+    @abstractmethod
+    def _write_MO_occ(self):
+        pass
 
-            coeff, occ, energy, idx = _read_spatial_orbs(f, orbs, version)
-        return cls(orbs, coeff, occ, energy, idx)
+    @abstractmethod
+    def _write_MO_human_occ(self):
+        pass
 
-    def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> SpatialOrbs:
-        if inplace:
-            self.coeff = [
-                coeff[:, idx] for idx, coeff in zip(new_idx, self.coeff)]
-            self.energy = _reindex(self.energy, new_idx)
-            self.idx = _reindex(self.idx, new_idx)
-            self.occ = _reindex(self.occ, new_idx)
-        else:
-            new = self.copy()
-            new.reindex(new_idx, inplace=True)
-            return new
+    @abstractmethod
+    def _write_MO_E(self):
+        pass
 
-    def round_occ(self, inplace: bool=False) -> SpatialOrbs:
-        new_occ = [occ.round() for occ in self.occ]
+    def _write_CAS_idx(self):
+        def res_out(v):
+            lines = _reshape_output(v, 10, '1')
+            return (f'{i % 10} {a}'for i, a in enumerate(lines))
 
-        if not isclose(sum(occ.sum() for occ in self.occ),
-                       sum(occ.sum() for occ in new_occ)):
-            raise ValueError('Rounded occupation numbers yield different '
-                             'number of electrons.')
-        if inplace:
-            self.occ = new_occ
-        else:
-            new = self.copy()
-            new.round_occ(inplace=True)
-            return new
-
-    def to_SpinOrb(self) -> SpinOrbs:
-        spat = self.round_occ()
-        spat.reindex([argsort(-v, kind='stable') for v in spat.occ], True)
-
-        new_occ = {'a': [occ.clip(0, 1) for occ in spat.occ],
-                   'b': [(occ - 1).clip(0, 1) for occ in spat.occ]}
-
-        return SpinOrbs(
-            orbs=spat.orbs.copy(), coeff=spat._spin_copy(spat.coeff),
-            occ=new_occ, energy=spat._spin_copy(spat.energy),
-            idx=spat.idx.copy())
-
-    @staticmethod
-    def _spin_copy(v):
-        return {'a': deepcopy(v), 'b': deepcopy(v)}
-
-
-class SpinOrbs(_Orbitals):
-
-    @classmethod
-    def read_orbfile(cls, path: PathLike) -> SpinOrbs:
-        with open(path, 'r') as f:
-            version, orbs, spin_orbs = _read_header(f)
-
-            if not spin_orbs:
-                raise FileFormat('File represents spatial orbitals')
-
-            coeff, occ, energy, idx = _read_spin_orbs(f, orbs, version)
-        return cls(orbs, coeff, occ, energy, idx)
-
-    def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> SpinOrbs:
-        if inplace:
-            self.coeff = {
-                spin:
-                    [coeff[:, idx] for idx, coeff in zip(new_idx, spin_values)]
-                for spin, spin_values in self.coeff.items()}
-            self.energy = _spin_reindex(self.energy, new_idx)
-            self.idx = _reindex(self.idx, new_idx)
-            self.occ = _spin_reindex(self.occ, new_idx)
-        else:
-            new = self.copy()
-            new.reindex(new_idx, inplace=True)
-            return new
-
+        lines = ['#INDEX']
+        for irrep, n_orbs in enumerate(self.orbs):
+            lines.append('* 1234567890')
+            lines.extend(res_out(self.idx[irrep]))
+        return lines
 
 
 def _reindex(indices: Sequence[Sequence],
@@ -285,7 +231,47 @@ def _read_CAS_idx(
     return idx
 
 
+def _reshape_output(v, cols, formatter):
+    rows = (len(v) + cols - 1) // cols
+    lines = []
+    for i in range(rows - 1):
+        current = v[(i * cols):((i + 1) * cols)]
+        lines.append(''.join(f'{x:{formatter}}' for x in current))
+    current = v[(rows - 1) * cols:]
+    lines.append(''.join(f'{x:{formatter}}' for x in current))
+    return lines
+
+
+def _write_section_1D(title, orbs, values,
+                      cols=5, subtitle=None, fmt='22.14E'):
+    res_out = _reshape_output
+
+    lines = [title]
+    if subtitle is not None:
+        lines.append(subtitle)
+    for irrep, n_orbs in enumerate(orbs):
+        lines.extend(res_out(values[irrep][:], cols, fmt))
+    return lines
+
+
+def _write_section_2D(title, orbs, values, cols=5, subtitle=None,
+                      paragraph=None, fmt='22.14E'):
+    res_out = _reshape_output
+
+    lines = [title]
+    if subtitle is not None:
+        lines.append(subtitle)
+    for irrep, n_orbs in enumerate(orbs):
+        for orb in range(n_orbs):
+            if paragraph:
+                lines.append(paragraph(irrep, orb))
+            lines.extend(res_out(values[irrep][:, orb], cols, fmt))
+    return lines
+
+
 def _forward(f: TextIO, n: int) -> str:
     for _ in range(n):
         line = f.readline()
     return line
+
+
