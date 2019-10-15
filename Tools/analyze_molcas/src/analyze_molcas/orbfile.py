@@ -37,7 +37,7 @@ class Orbitals(metaclass=ABCMeta):
         pass
 
     def get_index(self):
-        return [np.arange(len(energy)) for energy in self.energy]
+        return [np.arange(n_orbs) for n_orbs in self.orbs]
 
     def copy(self):
         return self.__class__(
