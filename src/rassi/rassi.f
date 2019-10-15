@@ -46,7 +46,9 @@ C RAS state interaction.
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), SFDYS(:,:,:), DMAT(:), TDMZZ(:),
-     &                      VNAT(:),OCC(:)
+     &                      VNAT(:),OCC(:), SOENE(:),
+     &                      SODYSAMPS(:,:), SODYSAMPSR(:,:),
+     &                      SODYSAMPSI(:,:)
       Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
@@ -234,35 +236,31 @@ C Nr of spin states and division of loops:
       Call mma_allocate(USOI,NSS,NSS,Label='USOI')
       LUTOTI=ip_of_Work(USOI(1,1))
       USOI(:,:)=0.0D0
-      CALL GETMEM('SOENE','ALLO','REAL',LSOENE,NSS)
-      CALL DCOPY_(NSS   ,[0.0D0],0,WORK(LSOENE),1)
+      Call mma_allocate(SOENE,nSS,Label='SOENE')
+      SOENE(:)=0.0D0
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
-        CALL SOEIG(PROP,USOR,USOI,WORK(LSOENE),NSS,ENERGY)
+        CALL SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
       END IF
 
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
-      LSODYSAMPS=ip_Dummy
       IF (DYSO.AND.IFSO) THEN
-       CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
-       LSODYSAMPSR=ip_Dummy
-       CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
-       LSODYSAMPSI=ip_Dummy
-       CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
+         Call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
+         Call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
+         Call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
 
-       CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
-     &               SFDYS,NZ,WORK(LSODYSAMPS),
-     &               WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
+         CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
+     &                 SFDYS,NZ,SODYSAMPS,
+     &                 SODYSAMPSR,SODYSAMPSI,SOENE)
       END IF
 
       IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
 ! +++
 
-      CALL PRPROP(PROP,USOR,USOI,
-     &            WORK(LSOENE),NSS,OVLP,WORK(LSODYSAMPS),
+      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,SODYSAMPS,
      &            ENERGY,iWork(lJBNUM),EigVec)
 
 C Plot SO-Natural Orbitals if requested
@@ -273,11 +271,11 @@ C Will also handle mixing of states (sodiag.f)
 
       Call mma_deallocate(USOR)
       Call mma_deallocate(USOI)
-      CALL GETMEM('SOENE','FREE','REAL',LSOENE,NSS)
+      Call mma_deallocate(SOENE)
       IF (DYSO.AND.IFSO) THEN
-       CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
-       CALL GETMEM('SODYSAMPSR','FREE','REAL',LSODYSAMPSR,NSS*NSS)
-       CALL GETMEM('SODYSAMPSI','FREE','REAL',LSODYSAMPSI,NSS*NSS)
+         Call mma_deallocate(SODYSAMPS)
+         Call mma_deallocate(SODYSAMPSR)
+         Call mma_deallocate(SODYSAMPSI)
       END IF
 *                                                                      *
 ************************************************************************
