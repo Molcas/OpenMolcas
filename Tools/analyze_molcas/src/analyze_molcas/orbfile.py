@@ -43,6 +43,19 @@ class _Orbitals(metaclass=ABCMeta):
     def get_index(self) -> Sequence[Sequence[int]]:
         return [np.arange(n_orbs) for n_orbs in self.orbs]
 
+    def write_orbfile(self, path):
+        with open(path, 'w') as f:
+            for line in self._get_header():
+                print(line, file=f)
+            for line in self._write_MO_coeff():
+                print(line, file=f)
+            for line in self._write_MO_occ():
+                print(line, file=f)
+            for line in self._write_MO_E():
+                print(line, file=f)
+            for line in self._write_CAS_idx():
+                print(line, file=f)
+
     def copy(self) -> T:
         return self.__class__(
             orbs=self.orbs.copy(),
@@ -94,7 +107,7 @@ class RasOrb(_Orbitals):
 
     def to_UhfOrb(self) -> UhfOrb:
         spat = self.round_occ()
-        spat.reindex([argsort(-v) for v in spat.occ], inplace=True)
+        spat.reindex([argsort(-v, kind='stable') for v in spat.occ], True)
 
         new_occ = {'a': [occ.clip(0, 1) for occ in spat.occ],
                    'b': [(occ - 1).clip(0, 1) for occ in spat.occ]}
@@ -107,11 +120,6 @@ class RasOrb(_Orbitals):
     @staticmethod
     def _spin_copy(v):
         return {'a': deepcopy(v), 'b': deepcopy(v)}
-
-
-def _reindex(indices: Sequence[Sequence],
-             new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
-    return [idx[new_idx] for new_idx, idx in zip(new_indices, indices)]
 
 
 class UhfOrb(_Orbitals):
@@ -131,17 +139,29 @@ class UhfOrb(_Orbitals):
             new_idx: Sequence[Sequence[int]], inplace: bool=False) -> UhfOrb:
         if inplace:
             self.coeff = {
-                spin: [coeff[:, idx] for idx, coeff in zip(new_idx, coeffs)]
-                for spin, coeffs in self.coeff.items()}
-            self.energy = [
-                energy[idx] for idx, energy in zip(new_idx, self.energy)]
-            self.idx = [kind[idx] for idx, kind in zip(new_idx, self.idx)]
-            self.occ = [occ[idx] for idx, occ in zip(new_idx, self.occ)]
-            self.orbs = [len(idx) for idx in new_idx]
+                spin:
+                    [coeff[:, idx] for idx, coeff in zip(new_idx, spin_values)]
+                for spin, spin_values in self.coeff.items()}
+            self.energy = _spin_reindex(self.energy, new_idx)
+            self.idx = _reindex(self.idx, new_idx)
+            self.occ = _spin_reindex(self.occ, new_idx)
         else:
             new = self.copy()
             new.reindex(new_idx, inplace=True)
             return new
+
+
+
+def _reindex(indices: Sequence[Sequence],
+             new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
+    return [idx[new_idx] for new_idx, idx in zip(new_indices, indices)]
+
+def _spin_reindex(values: Sequence[Sequence],
+             new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
+    return {
+        spin:
+            [v[new_idx] for new_idx, v in zip(new_indices, spin_values)]
+        for spin, spin_values in values.items()}
 
 
 def _read_header(f: TextIO) -> Tuple[RasOrb_version, Sequence[int], bool]:
