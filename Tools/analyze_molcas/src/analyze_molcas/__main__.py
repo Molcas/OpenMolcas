@@ -1,5 +1,5 @@
 #  """
-#  Entrypoint module, in case you use `python -mpymolcas_lib`.
+#  Entrypoint module, in case you use `python -manalyze_molcas`.
 #
 #
 #  Why does this file exist, and why __main__? For more info, read:
@@ -8,7 +8,7 @@
 #  - https://docs.python.org/2/using/cmdline.html#cmdoption-m
 #  - https://docs.python.org/3/using/cmdline.html#cmdoption-m
 #  """
-#  from pymolcas_lib.cli import main
+#  from analyze_molcas.cli import main
 #
 #  if __name__ == "__main__":
 #      main()

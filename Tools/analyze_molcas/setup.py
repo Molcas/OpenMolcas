@@ -61,7 +61,7 @@ setup(
     #  },
     #  entry_points={
     #      'console_scripts': [
-    #          'pymolcas-lib = pymolcas_lib.cli:main',
+    #          'pymolcas-lib = analyze_molcas.cli:main',
     #      ]
     #  },
 )

@@ -6,11 +6,11 @@
 #    You might be tempted to import things from __main__ later, but that will cause
 #    problems: the code will get executed twice:
 #
-#    - When you run `python -mpymolcas_lib` python will execute
+#    - When you run `python -manalyze_molcas` python will execute
 #      ``__main__.py`` as a script. That means there won't be any
-#      ``pymolcas_lib.__main__`` in ``sys.modules``.
+#      ``analyze_molcas.__main__`` in ``sys.modules``.
 #    - When you import __main__ it will get executed again (as a module) because
-#      there's no ``pymolcas_lib.__main__`` in ``sys.modules``.
+#      there's no ``analyze_molcas.__main__`` in ``sys.modules``.
 #
 #    Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 #  """

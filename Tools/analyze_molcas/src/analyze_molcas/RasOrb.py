@@ -12,26 +12,25 @@ class RasOrb_version(Enum):
     v2_0, v2_2 = range(2)
 
 
-def procrust(A, B):
-    """Calculate the optimal orthogonal transformation from ``A`` to ``B``.
+class Singleton(object):
+    def __new__(cls, *args, **kwds):
+        it = cls.__dict__.get("__it__")
+        if it is not None:
+            return it
+        cls.__it__ = it = object.__new__(cls)
+        it.init(*args, **kwds)
+        return it
 
-    The algorithm is described very well in
-    `https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem>`_.
+    def init(self, *args, **kwds):
+        pass
 
-    Args:
-        A (~numpy.array):
-        B (~numpy.array):
 
-    Returns:
-        :class:`~numpy.array`: Rotation matrix
-    """
-    # Naming of variables follows the wikipedia article:
-    # https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem
-    M = B @ A.T
-    # One can't initialize an array over its transposed
-    U, S, V = svd(M)
-    V = V.T
-    return U @ V.T
+class Undefined(Singleton):
+    def __bool__(self):
+        raise ValueError('This value is not defined.')
+
+
+UNDEFINED = Undefined()
 
 
 @attrs
@@ -41,6 +40,7 @@ class RasOrb:
     occ = attrib()
     energy = attrib()
     idx = attrib()
+    spin_resolved = attrib(default=UNDEFINED)
 
     def copy(self):
         return self.__class__(
@@ -48,7 +48,8 @@ class RasOrb:
             coeff=self.coeff.copy(),
             occ=self.occ.copy(),
             energy=self.energy.copy(),
-            idx=self.idx.copy())
+            idx=self.idx.copy(),
+            spin_resolved=self.spin_resolved)
 
     @classmethod
     def read_orbfile(cls, path):

@@ -22,7 +22,7 @@ if os.getenv('SPELLCHECK'):
 
 source_suffix = '.rst'
 master_doc = 'index'
-project = 'pymolcas_lib'
+project = 'analyze_molcas'
 year = '2019'
 author = 'Oskar Weser'
 copyright = '{0}, {1}'.format(year, author)
@@ -31,14 +31,14 @@ version = release = '0.0.0'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/mcocdawc/pymolcas_lib/issues/%s', '#'),
-    'pr': ('https://github.com/mcocdawc/pymolcas_lib/pull/%s', 'PR #'),
+    'issue': ('https://github.com/mcocdawc/analyze_molcas/issues/%s', '#'),
+    'pr': ('https://github.com/mcocdawc/analyze_molcas/pull/%s', 'PR #'),
 }
 import sphinx_py3doc_enhanced_theme
 html_theme = "sphinx_py3doc_enhanced_theme"
 html_theme_path = [sphinx_py3doc_enhanced_theme.get_html_theme_path()]
 html_theme_options = {
-    'githuburl': 'https://github.com/mcocdawc/pymolcas_lib/'
+    'githuburl': 'https://github.com/mcocdawc/analyze_molcas/'
 }
 
 html_use_smartypants = True

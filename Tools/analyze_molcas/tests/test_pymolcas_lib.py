@@ -1,7 +1,7 @@
 
 from click.testing import CliRunner
 
-from pymolcas_lib.cli import main
+from analyze_molcas.cli import main
 
 
 def test_main():

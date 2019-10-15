@@ -4,4 +4,4 @@ Reference
 .. toctree::
     :glob:
 
-    pymolcas_lib*
+    analyze_molcas*
