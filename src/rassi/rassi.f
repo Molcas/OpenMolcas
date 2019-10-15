@@ -80,8 +80,8 @@ C Number of basis functions
       DO ISY=1,NSYM
          NZ=NZ+NBASF(ISY)
       END DO
+      LSFDYS=ip_Dummy
       IF (DYSO) THEN
-       LSFDYS=0
        CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
       END IF
       CALL DCOPY_(NPROPSZ,[0.0D0],0,WORK(LPROP),1)
@@ -213,12 +213,12 @@ C Nr of spin states and division of loops:
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
+      LSODYSAMPS=ip_Dummy
       IF (DYSO.AND.IFSO) THEN
-       LSODYSAMPS=0
        CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
-       LSODYSAMPSR=0
+       LSODYSAMPSR=ip_Dummy
        CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
-       LSODYSAMPSI=0
+       LSODYSAMPSI=ip_Dummy
        CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
        CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
