@@ -18,7 +18,7 @@ def read(*names, **kwargs):
 
 
 setup(
-    name='pymolcas-lib',
+    name='analyze_molcas',
     version='0.0.0',
     license='MIT license',
     description='Module for molcas utility functions.',
