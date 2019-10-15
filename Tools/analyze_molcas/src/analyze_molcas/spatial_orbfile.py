@@ -79,27 +79,27 @@ class SpatialOrbs(_Orbitals):
                 f"{0:8d}{len(self.orbs):8d}{0:8d}",
                 f"{''.join(f'{x:8d}' for x in self.orbs)}",
                 f"{''.join(f'{x:8d}' for x in self.orbs)}",
-                '* PyOrb written']
+                '* SpatialOrbs written from analyze_molcas']
 
     def _write_MO_coeff(self):
         def get_paragraph(irrep, orb):
             return f'* ORBITAL{irrep + 1:5d}{orb + 1:5d}'
 
-        return _write_section_2D(
+        yield from _write_section_2D(
             title='#ORB', paragraph=get_paragraph,
             orbs=self.orbs, values=self.coeff)
 
     def _write_MO_occ(self):
-        return _write_section_1D(
+        yield from _write_section_1D(
             title='#OCC', subtitle='* OCCUPATION NUMBERS',
             orbs=self.orbs, values=self.occ)
 
     def _write_MO_human_occ(self):
-        return _write_section_1D(
+        yield from _write_section_1D(
             title='#OCHR', subtitle='* OCCUPATION NUMBERS (HUMAN-READABLE)',
             orbs=self.orbs, values=self.occ, cols=10, fmt='8.4f')
 
     def _write_MO_E(self):
-        return _write_section_1D(
+        yield from _write_section_1D(
             title='#ONE', subtitle='* ONE ELECTRON ENERGIES',
             orbs=self.orbs, values=self.energy, cols=10, fmt='12.4E')

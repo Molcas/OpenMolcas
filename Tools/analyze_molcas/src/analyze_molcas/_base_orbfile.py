@@ -265,5 +265,3 @@ def _forward(f: TextIO, n: int) -> str:
     for _ in range(n):
         line = f.readline()
     return line
-
-

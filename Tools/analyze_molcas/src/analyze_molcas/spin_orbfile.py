@@ -13,7 +13,8 @@ from attr import attrs, attrib
 
 from analyze_molcas._base_orbfile import (
     _Orbitals, FileFormat, _reindex, _spin_reindex,
-    _read_spin_orbs, _read_header)
+    _read_spin_orbs, _read_header,
+    _write_section_1D, _write_section_2D)
 
 
 class SpinOrbs(_Orbitals):
@@ -43,3 +44,48 @@ class SpinOrbs(_Orbitals):
             new = self.copy()
             new.reindex(new_idx, inplace=True)
             return new
+
+    def _write_header(self):
+        return ['#INPORB 2.2',
+                '#INFO',
+                '* PyOrb written',
+                f"{1:8d}{len(self.orbs):8d}{0:8d}",
+                f"{''.join(f'{x:8d}' for x in self.orbs)}",
+                f"{''.join(f'{x:8d}' for x in self.orbs)}",
+                '* SpinOrbs written from analyze_molcas']
+
+    def _write_MO_coeff(self):
+        def get_paragraph(irrep, orb):
+            return f'* ORBITAL{irrep + 1:5d}{orb + 1:5d}'
+
+        yield from _write_section_2D(
+            title='#ORB', paragraph=get_paragraph,
+            orbs=self.orbs, values=self.coeff['a'])
+        yield from _write_section_2D(
+            title='#UORB', paragraph=get_paragraph,
+            orbs=self.orbs, values=self.coeff['b'])
+
+    def _write_MO_occ(self):
+        yield from _write_section_1D(
+            title='#OCC', subtitle='* OCCUPATION NUMBERS',
+            orbs=self.orbs, values=self.occ['a'])
+        yield from _write_section_1D(
+            title='#UOCC', subtitle='* Beta OCCUPATION NUMBERS',
+            orbs=self.orbs, values=self.occ['b'])
+
+    def _write_MO_human_occ(self):
+        yield from _write_section_1D(
+            title='#OCHR', subtitle='* OCCUPATION NUMBERS (HUMAN-READABLE)',
+            orbs=self.orbs, values=self.occ['a'], cols=10, fmt='8.4f')
+        yield from _write_section_1D(
+            title='#UOCHR',
+            subtitle='* Beta OCCUPATION NUMBERS (HUMAN-READABLE)',
+            orbs=self.orbs, values=self.occ['b'], cols=10, fmt='8.4f')
+
+    def _write_MO_E(self):
+        yield from _write_section_1D(
+            title='#ONE', subtitle='* ONE ELECTRON ENERGIES',
+            orbs=self.orbs, values=self.energy['a'], cols=10, fmt='12.4E')
+        yield from _write_section_1D(
+            title='#UONE', subtitle='* Beta ONE ELECTRON ENERGIES',
+            orbs=self.orbs, values=self.energy['b'], cols=10, fmt='12.4E')
