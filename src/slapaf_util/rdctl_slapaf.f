@@ -97,7 +97,7 @@ C     Write (Lu,'(A)') Char
 C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
-      If (Char(1:4).eq.'AI  ') Go To 100
+      If (Char(1:4).eq.'KRIG') Go To 100
       If (Char(1:4).eq.'AIMD') Go To 101
       If (Char(1:4).eq.'AIL ') Go To 102
       If (Char(1:4).eq.'AINX') Go To 103
@@ -494,16 +494,11 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       MxItr=Min(iTmp,MxItr)
       Go To 999
 *                                                                      *
-****** AI   ************************************************************
+****** KRIG ************************************************************
 *                                                                      *
 *     Activate Kriging
 *
-100   Char=Get_Ln(LuRd)
-      If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
-       Kriging = .True.
-      Else
-       Call WarningMessage(1,'Illegal AI method selected.')
-      EndIf
+100   Kriging = .True.
       Go To 999
 *                                                                      *
 ****** AIMD ************************************************************

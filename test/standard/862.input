@@ -21,7 +21,7 @@ H -1.168343470  0.397437699  0.254753975
 CUTOFF=1.0D-8
 
 &SLAPAF
-  AI = Kriging
+  Kriging
   AISP = 1
 * Window=10
 * Iter=10

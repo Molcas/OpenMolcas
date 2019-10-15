@@ -27,7 +27,7 @@ Threshold=1.0D-10, 1.0D-5, 1.0D-5, 0.2D-5
   CUTOFF=1.0D-8
 
 &SLAPAF
-  AI = Kriging
+  Kriging
 * Turn on the GEK/GPR/KRG
   AISP = 1
 * Iteration at which GEK will start. (default 3)

@@ -1091,13 +1091,13 @@ Optional GEK keywords (...work in progress...)
 
 .. class:: keywordlist
 
-:kword:`AI`
-  blabla
+:kword:`KRIGing`
+  Activate optimization using kriging to describe the surrogate model.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AI" KIND="STRING" LEVEL="ADVANCED">
-              %%Keyword: AI <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="KRIGING" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Kriging <advanced>
               <HELP>
-              Work in progress...
+              Activate optimization using kriging to describe the surrogate model.
               </HELP></KEYWORD>
 
 :kword:`AISP`
@@ -1118,7 +1118,7 @@ Optional GEK keywords (...work in progress...)
               Work in progress...
               </HELP></KEYWORD>
 
-:kword:`l-value`
+:kword:`L-VAlue`
   blabla
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="l-value" KIND="REAL" LEVEL="ADVANCED">
