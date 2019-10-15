@@ -233,40 +233,32 @@ def _read_CAS_idx(
 
 def _reshape_output(v, cols, formatter):
     rows = (len(v) + cols - 1) // cols
-    lines = []
     for i in range(rows - 1):
         current = v[(i * cols):((i + 1) * cols)]
-        lines.append(''.join(f'{x:{formatter}}' for x in current))
+        yield ''.join(f'{x:{formatter}}' for x in current)
     current = v[(rows - 1) * cols:]
-    lines.append(''.join(f'{x:{formatter}}' for x in current))
-    return lines
+    yield ''.join(f'{x:{formatter}}' for x in current)
 
 
 def _write_section_1D(title, orbs, values,
                       cols=5, subtitle=None, fmt='22.14E'):
-    res_out = _reshape_output
-
-    lines = [title]
+    yield title
     if subtitle is not None:
-        lines.append(subtitle)
-    for irrep, n_orbs in enumerate(orbs):
-        lines.extend(res_out(values[irrep][:], cols, fmt))
-    return lines
+        yield subtitle
+    for irrep in range(len(orbs)):
+        yield from _reshape_output(values[irrep][:], cols, fmt)
 
 
 def _write_section_2D(title, orbs, values, cols=5, subtitle=None,
                       paragraph=None, fmt='22.14E'):
-    res_out = _reshape_output
-
-    lines = [title]
+    yield title
     if subtitle is not None:
-        lines.append(subtitle)
+        yield subtitle
     for irrep, n_orbs in enumerate(orbs):
         for orb in range(n_orbs):
             if paragraph:
-                lines.append(paragraph(irrep, orb))
-            lines.extend(res_out(values[irrep][:, orb], cols, fmt))
-    return lines
+                yield paragraph(irrep, orb)
+            yield from _reshape_output(values[irrep][:, orb], cols, fmt)
 
 
 def _forward(f: TextIO, n: int) -> str:
