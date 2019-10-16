@@ -26,7 +26,7 @@ from analyze_molcas import SpatialOrbs
               help='Output file name. '
                    'If omitted, the suffix UhfOrb is appended.')
 def spat_to_spin(input_path, out):
-    """Transform spatial orbital files to spin ortitals."""
+    """Transform spatial orbital files to spin orbitals."""
     input_path = Path(input_path)
     if out is None:
         out = input_path.parent / f'{input_path.stem}.UhfOrb'
