@@ -107,8 +107,6 @@ C Number of basis functions
          NZ=NZ+NBASF(ISY)
       END DO
 *
-      IF (DYSO) Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
-*
 C Loop over jobiphs JOB1:
       Call mma_allocate(IDDET1,nState,Label='IDDET1')
       IDISK=0  ! Initialize disk address for TDMs.
