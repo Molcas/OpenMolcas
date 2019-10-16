@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPCTL_RASSI()
+      use rassi_global_arrays, only: HAM
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment,
@@ -21,6 +22,7 @@
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPCTL')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "itmax.fh"
@@ -83,8 +85,8 @@ C Read (and do some checking) the standard input.
       Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
       Call dzero(Work(L_HEFF),NSTATE**2)
       If (.not.IFHEXT) Then
-        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
-        call dzero(Work(LHAM),NSTATE**2)
+        Call mma_allocate(HAM,nState,nState,Label='HAM')
+        HAM(:,:)=0.0D0
       EndIf
       If (.not.IFSHFT) Then
         Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)

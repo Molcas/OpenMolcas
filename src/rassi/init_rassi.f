@@ -91,7 +91,6 @@ C NR OF JOBIPHS AND STATES:
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
       END IF
 C
-      LHAM=ip_Dummy
       LESHFT=ip_Dummy
       LHdiag=ip_Dummy
 

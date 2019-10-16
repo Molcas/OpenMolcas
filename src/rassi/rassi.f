@@ -11,6 +11,7 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
+      use rassi_global_arrays, only: HAM, SFDYS
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -45,7 +46,7 @@ C RAS state interaction.
       EXTERNAL ISFREEUNIT
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
-     &                      ENERGY(:), SFDYS(:,:,:), DMAT(:), TDMZZ(:),
+     &                      ENERGY(:), DMAT(:), TDMZZ(:),
      &                      VNAT(:),OCC(:), SOENE(:),
      &                      SODYSAMPS(:,:), SODYSAMPSR(:,:),
      &                      SODYSAMPSI(:,:)
@@ -106,6 +107,8 @@ C Number of basis functions
       DO ISY=1,NSYM
          NZ=NZ+NBASF(ISY)
       END DO
+      IF (DYSO) Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
+
 *
 C Loop over jobiphs JOB1:
       Call mma_allocate(IDDET1,nState,Label='IDDET1')
@@ -117,7 +120,7 @@ C Loop over jobiphs JOB1:
 
 C Compute generalized transition density matrices, as needed:
           CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,
-     &                 SFDYS,NZ,Work(LHAM),IDDET1,
+     &                 NZ,IDDET1,
      &                 IDISK)
         END DO
       END DO
@@ -147,7 +150,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(PROP,OVLP,WORK(LHAM),WORK(LESHFT))
+      CALL MECTL(PROP,OVLP,HAM,WORK(LESHFT))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -165,8 +168,7 @@ C and perhaps GTDMs.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(PROP,OVLP,DYSAMPS,Work(LHAM),
-     &              EIGVEC,ENERGY)
+        CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       END IF
 
 
@@ -298,7 +300,7 @@ C Will also handle mixing of states (sodiag.f)
 
       IF (DQVD) then
         Call StatusLine('RASSI:', 'DQV Diabatization')
-        CALL DQVDiabat(PROP,WORK(LHAM))
+        CALL DQVDiabat(PROP,HAM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -310,7 +312,7 @@ C Will also handle mixing of states (sodiag.f)
  100  CONTINUE
       Call mma_deallocate(Ovlp)
       Call mma_deallocate(DYSAMPS)
-      Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
+      Call mma_deallocate(HAM)
       Call mma_deallocate(EigVec)
       Call mma_deallocate(Energy)
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)

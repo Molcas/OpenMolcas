@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
+      use rassi_global_arrays, only: HAM
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
@@ -802,7 +803,7 @@ C Write out various input data:
             DO I=1,NSTATE
               iadr=(j-1)*nstate+i-1
               iadr2=(i-1)*nstate+j-1
-              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
      &                               Work(L_HEFF+iadr2))
             END DO
           END DO
@@ -820,12 +821,12 @@ C Write out various input data:
      &      'possible extra interaction between states is ignored!')
         end if
         if (have_diag) then
-          DO I=0,NSTATE-1
-            Work(LHAM+i*nstate+i)=Work(LREFENE+i)
+          DO I=1,NSTATE
+           HAM(i,i)=Work(LREFENE+i-1)
           END DO
         else if (have_heff) then
-          DO I=0,NSTATE-1
-            Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
+          DO I=1,NSTATE
+            HAM(i,i)=Work(L_HEFF+(i-1)*nstate+i-1)
           END DO
         else
           call WarningMessage(2,'EJOB used but no energies available!')
@@ -843,7 +844,7 @@ C Write out various input data:
             DO I=1,NSTATE
               iadr=(j-1)*nstate+i-1
               iadr2=(i-1)*nstate+j-1
-              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
      &                               Work(L_HEFF+iadr2))
             END DO
           END DO

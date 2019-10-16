@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,SFDYS,NZ,
-     &                   HAM,IDDET1,IDISK)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
 
+      use rassi_global_arrays, only: HAM, SFDYS
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -41,9 +41,8 @@
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
-      DIMENSION OVLP(NSTATE,NSTATE),HAM(NSTATE,NSTATE)
+      DIMENSION OVLP(NSTATE,NSTATE)
       DIMENSION DYSAMPS(NSTATE,NSTATE)
-      Real*8, Allocatable:: SFDYS(:,:,:)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
@@ -803,7 +802,6 @@ C In AO basis:
 !         WRITE(*,*)WORK(LDYSZZ+NDUM-1)
 !        END DO
         IF (DYSO) THEN
-         Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
          DO NDUM=1,NDYSZZ
           SFDYS(NDUM,JSTATE,ISTATE)=WORK(LDYSZZ+NDUM-1)
           SFDYS(NDUM,ISTATE,JSTATE)=WORK(LDYSZZ+NDUM-1)
