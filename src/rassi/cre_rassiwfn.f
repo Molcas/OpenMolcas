@@ -62,7 +62,9 @@
 
 *     irrep per state
       call mma_allocate(state_irreps, NSTATE)
-      state_irreps = 5
+      do istate=1,nstate
+        state_irreps(istate) = IRREP(iWork(lJBNUM+ISTATE-1))
+      end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_IRREPS', 1, [NSTATE], state_irreps)
       call mma_deallocate(state_irreps)
