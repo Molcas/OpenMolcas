@@ -12,7 +12,8 @@
 
       !> module dependencies
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
-     &                               SODYSAMPSR, SODYSAMPSI
+     &                               SODYSAMPSR, SODYSAMPSI,
+     &                               PROP
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -45,7 +46,7 @@ C RAS state interaction.
       COMMON / CHO_JOBS / Fake_CMO2
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
-      Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
+      Real*8, Allocatable:: EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
      &                      VNAT(:),OCC(:), SOENE(:)
