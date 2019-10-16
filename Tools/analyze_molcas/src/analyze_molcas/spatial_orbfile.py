@@ -56,15 +56,14 @@ class SpatialOrbs(_Orbitals):
             return new
 
     def to_SpinOrbs(self) -> SpinOrbs:
-        spat = self.round_occ()
-        spat.reindex([argsort(-v, kind='stable') for v in spat.occ], True)
+        spat = self.reindex([argsort(-v, kind='stable') for v in self.occ])
 
-        new_occ = {'a': [occ.clip(0, 1) for occ in spat.occ],
-                   'b': [(occ - 1).clip(0, 1) for occ in spat.occ]}
+        new_occ = {'a': [occ / 2.0 for occ in spat.occ],
+                   'b': [occ / 2.0 for occ in spat.occ]}
 
         return SpinOrbs(
-            orbs=spat.orbs.copy(), coeff=spat._spin_copy(spat.coeff),
-            occ=new_occ, energy=spat._spin_copy(spat.energy),
+            orbs=spat.orbs.copy(), coeff=self._spin_copy(spat.coeff),
+            occ=new_occ, energy=self._spin_copy(spat.energy),
             idx=spat.idx.copy())
 
     @staticmethod
