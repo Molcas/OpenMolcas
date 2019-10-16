@@ -11,7 +11,8 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
-      use rassi_global_arrays, only: HAM, SFDYS
+      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
+     &                               SODYSAMPSR, SODYSAMPSI
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -47,9 +48,7 @@ C RAS state interaction.
       Real*8, Allocatable:: PROP(:,:,:), EigVec(:,:), USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
-     &                      VNAT(:),OCC(:), SOENE(:),
-     &                      SODYSAMPS(:,:), SODYSAMPSR(:,:),
-     &                      SODYSAMPSI(:,:)
+     &                      VNAT(:),OCC(:), SOENE(:)
       Integer, Allocatable:: IDDET1(:)
 *                                                                      *
 ************************************************************************
@@ -252,15 +251,13 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
          Call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
          Call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
 
-         CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,
-     &                 SFDYS,NZ,SODYSAMPS,
-     &                 SODYSAMPSR,SODYSAMPSI,SOENE)
+         CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       END IF
 
       IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
 ! +++
 
-      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,SODYSAMPS,
+      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
      &            ENERGY,iWork(lJBNUM),EigVec)
 
 C Plot SO-Natural Orbitals if requested

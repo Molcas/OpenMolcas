@@ -9,5 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module RASSI_GLOBAL_ARRAYS
-      Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:)
+      Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:), &
+                            SODYSAMPS(:,:), SODYSAMPSR(:,:), &
+                            SODYSAMPSI(:,:)
       End Module RASSI_GLOBAL_ARRAYS

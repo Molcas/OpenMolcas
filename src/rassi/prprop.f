@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,SODYSAMPS,
-     &                  ENERGY,JBNUM,EigVec)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,
+     &                  EigVec)
+      use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS),
-     &          SODYSAMPS(NSS,NSS)
+      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='PRPROP')

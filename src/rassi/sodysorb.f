@@ -12,8 +12,10 @@
 *               2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
 ************************************************************************
-      SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,SFDYS,NZ,
-     &                 SODYSAMPS,SODYSAMPSR,SODYSAMPSI,SOENE)
+      SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+      use rassi_global_arrays, only: SFDYS, SODYSAMPS,
+     &                               SODYSAMPSR, SODYSAMPSI
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -32,10 +34,6 @@
 
       ! Arrays for calculation of amplitudes
       DIMENSION DYSAMPS(NSTATE,NSTATE)
-      DIMENSION SFDYS(NZ,NSTATE,NSTATE)
-      DIMENSION SODYSAMPS(NSS,NSS)
-      DIMENSION SODYSAMPSR(NSS,NSS)
-      DIMENSION SODYSAMPSI(NSS,NSS)
       DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
       DIMENSION SZZFULL(NZ,NZ)
 
