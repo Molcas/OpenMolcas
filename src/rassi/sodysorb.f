@@ -84,8 +84,8 @@ C as a function of the SO state number
 
 C Now construct the SF dysamps in the multiplicity expanded basis
 C (initially all real, therefore put into SODYSAMPSR)
-      SODYSAMPSR=0.0D0
-      SODYSAMPSI=0.0D0
+      SODYSAMPSR(:,:)=0.0D0
+      SODYSAMPSI(:,:)=0.0D0
       DO JSTATE=1,NSS
          DO ISTATE=JSTATE+1,NSS
           SFJ=IWORK(SO2SFNUM+JSTATE-1)
@@ -101,9 +101,9 @@ C SO eigenvector in the ZTRNSF routine.
       CALL ZTRNSF(NSS,USOR,USOI,SODYSAMPSR,SODYSAMPSI)
 
 C Compute the magnitude of the complex amplitudes as an approximation
-      SODYSAMPSR=SODYSAMPSR*SODYSAMPSR
-      SODYSAMPSI=SODYSAMPSI*SODYSAMPSI
-      SODYSAMPS=SQRT(SODYSAMPSR+SODYSAMPSI)
+      SODYSAMPSR(:,:)=SODYSAMPSR*SODYSAMPSR
+      SODYSAMPSI(:,:)=SODYSAMPSI*SODYSAMPSI
+      SODYSAMPS(:,:)=SQRT(SODYSAMPSR+SODYSAMPSI)
 
       END IF ! Approximative amplitude calculation
 
@@ -170,7 +170,7 @@ C Multiply together with the SO eigenvector coefficients with the SF
 C Dyson orbital coefficients in the atomic basis to obtain
 C SO Dyson orbitals
 
-      SODYSAMPS=0.0D0
+      SODYSAMPS(:,:)=0.0D0
       ! For all requested initial states J and all final states I
       DO JSTATE=1,DYSEXPSO
 
@@ -272,6 +272,3 @@ C Free all the allocated memory
 
       RETURN
       END
-
-
-
