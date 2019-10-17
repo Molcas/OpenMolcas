@@ -819,7 +819,7 @@ C             Write density 1-matrices in AO basis to disk.
               If (iRC.eq.1) iEmpty=1
 
               !> spin-TDM
-              CALL MKTDAB(SIJ,TRASD,TSDMAB,iRC)
+              CALL MKTDAB(0.0D0,TRASD,TSDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
               If (iRC.eq.1) iEmpty=iEmpty+2
@@ -850,7 +850,7 @@ C             Write density 1-matrices in AO basis to disk.
                      If(DDot_(nTRAD+1,TRAD,1,TRAD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=1
 *
-                     TRASD(nTrad+1)=SIJ
+                     TRASD(nTrad+1)=0.0D0
                      iRC=0
                      If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
