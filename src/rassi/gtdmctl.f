@@ -988,15 +988,21 @@ C             Write density 1-matrices in AO basis to disk.
      &                    TDMAB,TDM2,CMO1,CMO2)
 
 #ifdef _HDF5_
-            IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
+            NTHISTDMZZ=0
+            ISY12=MUL(LSYM1,LSYM2)
+            DO ISY1=1,NSYM
+              ISY2=MUL(ISY12,ISY1)
+              NTHISTDMZZ=NTHISTDMZZ+NBASF(ISY1)*NBASF(ISY2)
+            END DO
+            IF(IF11)THEN
               call mh5_put_dset_array_real(wfn_sfs_tdm,
-     $        TDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
+     $        TDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
               call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     $        TSDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
+     $        TSDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
             END IF
             IF(SONATNSTATE.GT.0.OR.NATO)THEN
               call mh5_put_dset_array_real(wfn_sfs_wetdm,
-     $        WDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
+     $        WDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
             END IF
 #endif
 
