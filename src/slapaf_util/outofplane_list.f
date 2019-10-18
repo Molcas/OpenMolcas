@@ -21,8 +21,7 @@
      &                 nqB)
 ************************************************************************
 *     This is a quick and possibly dirty implementation of the out-    *
-*     of-plane angle. RL, Tokyo june, 2004.                            *
-*                                                                      *
+*     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -523,7 +522,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Write (6,*) 'Val=',Val*180.D0/Pi
 #endif
 *
-                  If (Abs(Val).gt.60.D0*(Pi/180.D0))  Go To 401
+                  If (Abs(Val).gt.05.D0*(Pi/180.D0))  Go To 401
 *
                   Call OutofP(A,nCent,Val,Grad,.False.,.False.,
      &                      '        ',Hess,Proc_dB)
@@ -604,7 +603,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                      ijDCR = kDCRT*8 + kDCRR+1
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *
-                     f_Const=Max(f_Const,f_Const_Min)
+*                    f_Const=Max(f_Const,f_Const_Min)
 #ifdef _DEBUG_
                      Write (6,*) 'f_const=',f_const
 #endif
