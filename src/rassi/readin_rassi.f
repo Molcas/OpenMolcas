@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READIN_RASSI
-      use rassi_global_arrays, only: HAM
+      use rassi_global_arrays, only: HAM, ESHFT
       use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -347,8 +347,8 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         IFSHFT=.TRUE.
-        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
-        Read(LuIn,*,ERR=997)(Work(LESHFT+ISTATE),ISTATE=0,NSTATE-1)
+        Call mma_allocate(ESHFT,nState,Label='ESHFT')
+        Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)
         LINENR=LINENR+1
         GOTO 100
       END IF

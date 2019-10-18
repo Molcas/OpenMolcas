@@ -13,7 +13,7 @@
       !> module dependencies
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI,
-     &                               PROP
+     &                               PROP, ESHFT
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -119,9 +119,7 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,
-     &                 NZ,IDDET1,
-     &                 IDISK)
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
         END DO
       END DO
       Call mma_deallocate(IDDET1)
@@ -130,8 +128,7 @@ C Compute generalized transition density matrices, as needed:
       CALL mh5_put_dset_array_real(wfn_overlap,
      &     OVLP,[NSTATE,NSTATE],[0,0])
 #endif
-      Call Put_dArray('State Overlaps',OVLP,
-     &                NSTATE*NSTATE)
+      Call Put_dArray('State Overlaps',OVLP,NSTATE*NSTATE)
 
       IF(TRACK) CALL TRACK_STATE(OVLP)
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
@@ -150,7 +147,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(PROP,OVLP,HAM,WORK(LESHFT))
+      CALL MECTL(PROP,OVLP,HAM,ESHFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -313,7 +310,7 @@ C Will also handle mixing of states (sodiag.f)
       Call mma_deallocate(HAM)
       Call mma_deallocate(EigVec)
       Call mma_deallocate(Energy)
-      Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
+      Call mma_deallocate(ESHFT)
       Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
       Call mma_deallocate(jDisk_TDM)
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)

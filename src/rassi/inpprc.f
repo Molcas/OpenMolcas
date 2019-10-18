@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_global_arrays, only: HAM
+      use rassi_global_arrays, only: HAM, ESHFT
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
@@ -996,7 +996,7 @@ C Write out various input data:
          WRITE(6,*)
          WRITE(6,*)'Each input state will be shifted with an individual'
          WRITE(6,*)'amount of energy. These energy shifts are (a.u.):'
-         WRITE(6,'(1X,5F16.8)')(Work(LESHFT+I),I=0,NSTATE-1)
+         WRITE(6,'(1X,5F16.8)')(ESHFT(I),I=1,NSTATE)
        END IF
       END IF
 

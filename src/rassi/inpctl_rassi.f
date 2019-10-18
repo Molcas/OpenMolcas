@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPCTL_RASSI()
-      use rassi_global_arrays, only: HAM
+      use rassi_global_arrays, only: HAM, ESHFT
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment,
@@ -89,8 +89,8 @@ C Read (and do some checking) the standard input.
         HAM(:,:)=0.0D0
       EndIf
       If (.not.IFSHFT) Then
-        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
-        call dzero(Work(LESHFT),NSTATE)
+        Call mma_allocate(ESHFT,nSTATE,Label='ESHFT')
+        ESHFT(:)=0.0D0
       EndIf
       If (.not.IFHDIA) Call GetMem('HDIAG','Allo','Real',LHDIAG,NSTATE)
 

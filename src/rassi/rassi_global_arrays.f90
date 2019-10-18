@@ -12,5 +12,5 @@
       Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:), &
                             SODYSAMPS(:,:), SODYSAMPSR(:,:), &
                             SODYSAMPSI(:,:), &
-                            PROP(:,:,:)
+                            PROP(:,:,:), ESHFT(:)
       End Module RASSI_GLOBAL_ARRAYS
