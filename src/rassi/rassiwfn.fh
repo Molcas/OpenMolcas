@@ -14,7 +14,7 @@
 
       integer                wfn_fileid,
      &       wfn_sfs_energy, wfn_sos_energy,
-     &       wfn_sos_coefr, wfn_sos_coefi,
+     &       wfn_sfs_coef, wfn_sos_coefr, wfn_sos_coefi,
      &       wfn_sfs_angmom, wfn_sos_angmomr,
      &       wfn_sos_angmomi, wfn_sfs_tdm,
      &       wfn_sfs_tsdm, wfn_overlap,
@@ -26,7 +26,7 @@
 
       common /rassiwfn_handles/ wfn_fileid,
      &       wfn_sfs_energy, wfn_sos_energy,
-     &       wfn_sos_coefr,  wfn_sos_coefi,
+     &       wfn_sfs_coef, wfn_sos_coefr,  wfn_sos_coefi,
      &       wfn_sfs_angmom, wfn_sos_angmomr,
      &       wfn_sos_angmomi, wfn_sfs_tdm,
      &       wfn_sfs_tsdm, wfn_overlap,

@@ -318,6 +318,7 @@ C especially for already diagonal Hamiltonian matrix.
       END IF
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
+      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
 #endif
 C To handle extreme cases of large energies/small energy differences
 C all TOTAL energies will undergo a universal constant shift:
