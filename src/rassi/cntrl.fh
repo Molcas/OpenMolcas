@@ -39,8 +39,10 @@ c                     Hamiltonian with a vector field.
 c    nQuad            Number of vectors in the isotropic quadrature
 c    Do_Pol           Specify a polarization vector direction
 c    DOCD             Regular circular dichroism - velocity and mixed gauge
+c    SaveDens         Save input-state transition densities in temp. file
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
-      LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM
+      LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM,
+     &        SaveDens
       REAL*8 TDIPMIN,SOTHR_PRT,TMGr_thrs
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
@@ -64,7 +66,7 @@ c    DOCD             Regular circular dichroism - velocity and mixed gauge
      &                             LIPAIR,
      &     IFJ2,IFJZ,
      &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOM,
-     &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM
+     &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM, SaveDens
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
 C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.

@@ -50,8 +50,10 @@
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:)
-      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
+      Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
 #ifdef _HDF5_
+      Logical isZero(3)
+      Real*8, Allocatable :: TDMIJ(:),TSDMIJ(:),WDMIJ(:),TMPIJ(:,:)
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
 #endif
@@ -319,6 +321,95 @@ C especially for already diagonal Hamiltonian matrix.
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
       call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
+C Transform TDMs to SF eigenstates
+      If (IFTRD1.or.IFTRD2) Then
+        Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+        Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+        Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+        Call mma_Allocate(TDMIJ,nTDMZZ,Label='TDMIJ')
+        Call mma_Allocate(TSDMIJ,nTDMZZ,Label='TSDMIJ')
+        Call mma_Allocate(WDMIJ,nTDMZZ,Label='WDMIJ')
+        Call mma_Allocate(TMPIJ,3,MaxVal(NBASF)**2,Label='TMPIJ')
+        Do iState=1,nState
+          Do jState=1,iState
+            Call dCopy_(nTDMZZ,[0.0D0],0,TDMIJ,1)
+            Call dCopy_(nTDMZZ,[0.0D0],0,TSDMIJ,1)
+            Call dCopy_(nTDMZZ,[0.0D0],0,WDMIJ,1)
+            isZero=[.True.,.True.,.True.]
+            Do k=1,nState
+              JOB1=iWork(lJBNUM+k-1)
+              LSYM1=IRREP(JOB1)
+              Do l=1,k
+                f1=EigVec(k,iState)*EigVec(l,jState)
+                f2=EigVec(l,iState)*EigVec(k,jState)
+                If (Max(Abs(f1),Abs(f2)).lt.1.0D-14) Cycle
+                JOB2=iWork(lJBNUM+l-1)
+                LSYM2=IRREP(JOB2)
+                ISY12=MUL(LSYM1,LSYM2)
+                iDisk=iDisk_TDM(k,l,1)
+                iEmpty=iDisk_TDM(k,l,2)
+                iOpt=2
+                iGo=3
+                If (IFSO) iGo=iGo+4
+                Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                         LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
+                If (IAnd(iEmpty,1).ne.0) Then
+                  isZero(1)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(TDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
+                  End If
+                End If
+                If (IAnd(iEmpty,2).ne.0) Then
+                  isZero(2)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(TSDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
+                  End If
+                End If
+                If (IFSO.and.(IAnd(iEmpty,4).ne.0)) Then
+                  isZero(3)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(WDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
+                  End If
+                End If
+              End Do
+            End Do
+            If (All(isZero)) Cycle
+            nThisTDMZZ=0
+            Do iSym1=1,nSym
+              iSym2=MUL(ISY12,iSym1)
+              nThisTDMZZ=nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
+            End Do
+            If (.not.isZero(1)) Then
+              call mh5_put_dset_array_real(wfn_sfs_tdm,
+     &          TDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
+            End If
+            If (.not.isZero(2)) Then
+            call mh5_put_dset_array_real(wfn_sfs_tsdm,
+     &        TSDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jSTate-1])
+            End If
+            If (IFSO.and.(.not.isZero(3))) Then
+              call mh5_put_dset_array_real(wfn_sfs_wetdm,
+     &          WDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
+            End If
+          End Do
+        End Do
+        Call mma_deAllocate(TDMZZ)
+        Call mma_deAllocate(TSDMZZ)
+        Call mma_deAllocate(WDMZZ)
+        Call mma_deAllocate(TDMIJ)
+        Call mma_deAllocate(TSDMIJ)
+        Call mma_deAllocate(WDMIJ)
+        Call mma_deAllocate(TMPIJ)
+      END IF
 #endif
 C To handle extreme cases of large energies/small energy differences
 C all TOTAL energies will undergo a universal constant shift:

@@ -832,7 +832,7 @@ C             Write density 1-matrices in AO basis to disk.
 
               if(.not.mstate_dens)then
 
-                IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
+                IF(SaveDens) THEN
 *C Transition density matrices, TDMZZ, in AO or MO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
@@ -986,27 +986,7 @@ C             Write density 1-matrices in AO basis to disk.
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
      &                    TDMAB,TDM2,CMO1,CMO2)
-
-#ifdef _HDF5_
-            NTHISTDMZZ=0
-            ISY12=MUL(LSYM1,LSYM2)
-            DO ISY1=1,NSYM
-              ISY2=MUL(ISY12,ISY1)
-              NTHISTDMZZ=NTHISTDMZZ+NBASF(ISY1)*NBASF(ISY2)
-            END DO
-            IF(IF11)THEN
-              call mh5_put_dset_array_real(wfn_sfs_tdm,
-     $        TDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-              call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     $        TSDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-            IF(SONATNSTATE.GT.0.OR.NATO)THEN
-              call mh5_put_dset_array_real(wfn_sfs_wetdm,
-     $        WDMZZ,[NTHISTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-#endif
-
-          END IF ! TRD1/2, mstate_dens
+          END IF
 
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ

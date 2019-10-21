@@ -340,7 +340,7 @@ C Will also handle mixing of states (sodiag.f)
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-      IF ((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Then
+      IF (SaveDens) Then
          Call DaClos(LuTDM)
          If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
          If (Allocated(CMO1)) Call mma_deallocate(CMO1)

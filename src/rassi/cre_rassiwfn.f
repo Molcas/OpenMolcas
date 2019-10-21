@@ -101,7 +101,8 @@
       call mh5_init_attr(wfn_sfs_coef, 'description',
      $        'Eigenstates of the input Hamiltonian, '//
      $        'expressed as linear combinations of the input '//
-     $        'states, as a matrix of size [NSTATE,NSTATE]')
+     $        'states, as a matrix of size [NSTATE,NSTATE], '//
+     $        'fast index corresponds to input states.')
 
 *     SFS properties
       wfn_sfs_angmom = mh5_create_dset_real(wfn_fileid,
@@ -130,28 +131,21 @@
       wfn_sfs_tdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_tdm, 'description',
-     $        'Transition density matrices for each pair of input '//
-     $        'states, matrix of size [NSTATE,NSTATE,NBAST], where '//
-     $        'NBAST is of size [NBAS(I)**2] for I=1,NSYM.'//
+     $        'Transition density matrices for each pair of spin-'//
+     $        'free states, matrix of size [NSTATE,NSTATE,NBAST], '//
+     $        'where NBAST is the sum of NBAS(I)**2 for I=1,NSYM.'//
      $        'Only contributing symmetry blocks are stored')
 
 *     SFS spin transition density
       wfn_sfs_tsdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_SPIN_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_tsdm, 'description',
-     $        'Transition spin density matrices for each pair of '//
-     $        'input states, matrix of size [NSTATE,NSTATE,NBAST], '//
-     $        'where NBAST is of size [NBAS(I)**2] for I=1,NSYM'//
+     $        'Transition spin density matrices for each pair of spin'//
+     $        '-free states, matrix of size [NSTATE,NSTATE,NBAST], '//
+     $        'where NBAST is the sum of NBAS(I)**2 for I=1,NSYM.'//
      $        'Only contributing symmetry blocks are stored')
 
-*     SFS WE-reduced TDMs of triplet type
-      wfn_sfs_wetdm = mh5_create_dset_real(wfn_fileid,
-     $        'SFS_WE_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
-      call mh5_init_attr(wfn_sfs_wetdm, 'description',
-     $        'WE-reduced TDMs for each pair of input states,'//
-     $        'matrix of size [NSTATE,NSTATE,NBAST], where NBAST '//
-     $        'is of size [NBAS(I)**2] for I=1,NSYM')
-
+      if (do_tmom) then
 *     SFS intermediate transition vectors
       nIJ=NSTATE*(NSTATE-1)/2
       nData= 1 + 3 + 2*3
@@ -166,8 +160,19 @@
      $        'real transition vector (3 components), '//
      $        'and imaginary transition vector (3 components), '//
      $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
+      end if
 
       if (ifso) then
+
+*     SFS WE-reduced TDMs of triplet type
+      wfn_sfs_wetdm = mh5_create_dset_real(wfn_fileid,
+     $        'SFS_WE_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
+      call mh5_init_attr(wfn_sfs_wetdm, 'description',
+     $        'WE-reduced TDMs for each pair of spin-free states,'//
+     $        'matrix of size [NSTATE,NSTATE,NBAST], where NBAST '//
+     $        'is the sum of NBAS(I)**2 for I=1,NSYM.'//
+     $        'Only contributing symmetry blocks are stored')
+
 *     energies of the spin orbit states (SOS)
       wfn_sos_energy = mh5_create_dset_real (wfn_fileid,
      $        'SOS_ENERGIES', 1, [NSS])
@@ -193,13 +198,15 @@
       call mh5_init_attr(wfn_sos_coefr, 'description',
      $        'Eigenstates of the spin-orbit Hamiltonian, '//
      $        'expressed as linear combinations of the spin-free '//
-     $        'states, 2D-array of real part as [NSS,NSS]')
+     $        'states, 2D-array of real part as [NSS,NSS], '//
+     $        'fast index corresponds to spin-free states.')
       wfn_sos_coefi = mh5_create_dset_real(wfn_fileid,
      $        'SOS_COEFFICIENTS_IMAG', 2, [NSS,NSS])
       call mh5_init_attr(wfn_sos_coefi, 'description',
      $        'Eigenstates of the spin-orbit Hamiltonian, '//
      $        'expressed as linear combinations of the spin-free '//
-     $        'states, 2D-array of imaginary part as [NSS,NSS]')
+     $        'states, 2D-array of imaginary part as [NSS,NSS], '//
+     $        'fast index corresponds to spin-free states.')
 
 *     SOS properties
       wfn_sos_angmomr = mh5_create_dset_real(wfn_fileid,
@@ -230,6 +237,7 @@
      $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
      $        ' [3,NSS,NSS], imaginary part')
 
+      if (do_tmom) then
       nIJ=NSS*(NSS-1)/2
       nData= 1 + 3 + 2*3
       wfn_sos_tm = mh5_create_dset_real(wfn_fileid,
@@ -244,6 +252,8 @@
      $        'real transition vector (3 components), '//
      $        'and imaginary transition vector (3 components), '//
      $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
+      end if
+
       end if
 #endif
       end
