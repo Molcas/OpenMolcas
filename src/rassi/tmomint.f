@@ -29,7 +29,7 @@
 !#define _DEBUG_
 #ifdef _DEBUG_
 #include "stdalloc.fh"
-      Real*8, Dimension(:), Allocatable :: Int_R, Int_I, Temp_Int
+      Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
 #endif
 #include "itmax.fh"
 #include "info.fh"
@@ -61,6 +61,7 @@
 *     over A.
 *
       If (iOpt.eq.2) Then
+#ifndef _DEBUG_
       nOrdOp = 0
       Label='TMOM0'
       nComp = 2
@@ -81,7 +82,9 @@
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
-#ifdef _DEBUG_
+*
+      Call Deallocate_Aux()
+#else
 *
 *     This section of the code is for pure debugging and will replace
 *     exact operator with truncated expansions of the operator in
@@ -100,12 +103,15 @@
       Call mma_allocate(Int_R,nInts+4,Label='Int_R')
       Call mma_allocate(Int_I,nInts+4,Label='Int_I')
       Call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
+      Call mma_allocate(CoorO,6,Label='CoorO')
+      Call FZero(CoorO,6)
+      Call dcopy_(3,wavevector,1,CoorO,1)
 *
-      Int_R=0.0D0
+      Int_R(1:nInts)=0.0D0
       Int_R(nInts+1:nInts+3)=CoorO
-      Int_I=0.0D0
+      Int_I(1:nInts)=0.0D0
       Int_I(nInts+1:nInts+3)=CoorO
-      Temp_Int=0.0D0
+      Temp_Int(1:nInts)=0.0D0
 *
       nMltpl=2
       iCase=1
@@ -156,13 +162,12 @@
       iComp=2
       Call WrOne(iRc,iOpt0,Label,iComp,Int_I,iSyLbl)
 *
+      Call mma_deallocate(CoorO)
       Call mma_deallocate(Int_R)
       Call mma_deallocate(Int_I)
       Call mma_deallocate(Temp_Int)
 *
 #endif
-*
-      Call Deallocate_Aux()
       End If
 *
 *     A*nabla. Note that when used the numbers are multiplied with -i to
