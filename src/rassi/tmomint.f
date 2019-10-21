@@ -26,7 +26,7 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
-!define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
 #include "stdalloc.fh"
       Real*8, Dimension(:), Allocatable :: Int_R, Int_I, Temp_Int
@@ -91,7 +91,7 @@
       iOpt1=1
       iOpt2=2
       iRc=-1
-      Label='TMOM0'
+      Label='Mltpl  0'
       iComp=1
 *     Pick up the size and the symmetry label.
       Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
