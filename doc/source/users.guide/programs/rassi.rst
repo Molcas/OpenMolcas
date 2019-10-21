@@ -826,6 +826,23 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`TIGRoup`
+  Group the states close in energy for the purpose of computing transition intensities wi the exponential operator
+  (:kword:`TINTensities` keyword). A single wave vector will be used for all transitions to the states in the group.
+  This is a good approximation when the energy difference between the states in a group is negligible with respect
+  to the energy of the transition. The keyword reads a real value, that is the maximum relative difference for
+  transitions in a group with respect to the average energy.
+  This keyword requires the use of :kword:`SUBSets` and :kword:`TINTensities`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TIGROUP" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SUBSETS,TINT">
+              %%Keyword: TIGRoup <advanced>
+              <HELP>
+              Group states close in energy for computing transition intensities with the exponential operator
+              (TINTensities keyword). Specify a real value as the grouping threshold, relative to the average
+              transition energy to a group. Requires SUBSets and TINTensities.
+              </HELP>
+              </KEYWORD>
+
 :kword:`IIORder`
   Set the order of the Lebedev grids used in the isotropic integration of transition intensities
   in association with the :kword:`TINT` option. Default value is 5.
@@ -1257,7 +1274,5 @@ Input example
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FILE" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
-
-.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TIGROUP" KIND="REAL" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>
