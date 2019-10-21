@@ -66,8 +66,8 @@
 *                                                                      *
 *     Before we start we need to backtransform the coefficients of the
 *     SO states from the basis of the SF states which diagonalize the
-*     SF Hamiltonian to the basis of the original SF states. This since
-*     all transition moments, whether or retrived from disk or
+*     SF Hamiltonian to the basis of the original (input) SF states.
+*     This since all transition moments, whether retrieved from disk or
 *     recomputed, are in the basis of the original SF states.
 *
       Call mma_allocate(VSOR,NSS,NSS,Label='VSOR')
