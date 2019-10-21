@@ -1401,10 +1401,12 @@ def validate(inp, db):
   for name in found:
     kw = module.find('.//KEYWORD[@NAME="{}"]'.format(name))
     try:
-      req = kw.get('REQUIRE').split('.OR.')
-      if (not any([i in found for i in req])):
-        result.append('*** Keyword {} is required by {}, but was not found'.format('|'.join(req), name))
-        rc = 7
+      req = kw.get('REQUIRE').split(',')
+      for r in req:
+        alt = r.split('.OR.')
+        if (not any([i in found for i in alt])):
+          result.append('*** Keyword {} is required by {}, but was not found'.format('|'.join(alt), name))
+          rc = 7
     except AttributeError:
       pass
     try:
