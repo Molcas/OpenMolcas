@@ -56,6 +56,7 @@
       Real*8, Allocatable :: TDMIJ(:),TSDMIJ(:),WDMIJ(:),TMPIJ(:,:)
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
+      Integer, Allocatable :: IdxState(:,:)
 #endif
 
 #ifdef _DEBUG_RASSI_
@@ -312,118 +313,26 @@ C especially for already diagonal Hamiltonian matrix.
       CALL GETMEM('STACK','FREE','INTE',LSTK,NSTATE)
       CALL GETMEM('LIST','FREE','INTE',LLIST,NSTATE)
 
+#ifdef _HDF5_
+      call mh5_put_dset(wfn_sfs_energy, ENERGY)
+      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
+#endif
+
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
         Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
-#ifdef _HDF5_
-      call mh5_put_dset(wfn_sfs_energy, ENERGY)
-      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
-C Transform TDMs to SF eigenstates
-      If (IFTRD1.or.IFTRD2) Then
-        Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
-        Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
-        Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
-        Call mma_Allocate(TDMIJ,nTDMZZ,Label='TDMIJ')
-        Call mma_Allocate(TSDMIJ,nTDMZZ,Label='TSDMIJ')
-        Call mma_Allocate(WDMIJ,nTDMZZ,Label='WDMIJ')
-        Call mma_Allocate(TMPIJ,3,MaxVal(NBASF)**2,Label='TMPIJ')
-        Do iState=1,nState
-          Do jState=1,iState
-            Call dCopy_(nTDMZZ,[0.0D0],0,TDMIJ,1)
-            Call dCopy_(nTDMZZ,[0.0D0],0,TSDMIJ,1)
-            Call dCopy_(nTDMZZ,[0.0D0],0,WDMIJ,1)
-            isZero=[.True.,.True.,.True.]
-            Do k=1,nState
-              JOB1=iWork(lJBNUM+k-1)
-              LSYM1=IRREP(JOB1)
-              Do l=1,k
-                f1=EigVec(k,iState)*EigVec(l,jState)
-                f2=EigVec(l,iState)*EigVec(k,jState)
-                If (Max(Abs(f1),Abs(f2)).lt.1.0D-14) Cycle
-                JOB2=iWork(lJBNUM+l-1)
-                LSYM2=IRREP(JOB2)
-                ISY12=MUL(LSYM1,LSYM2)
-                iDisk=iDisk_TDM(k,l,1)
-                iEmpty=iDisk_TDM(k,l,2)
-                iOpt=2
-                iGo=3
-                If (IFSO) iGo=iGo+4
-                Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
-     &                         LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
-                If (IAnd(iEmpty,1).ne.0) Then
-                  isZero(1)=.False.
-                  If (Abs(f1).ge.1.0D-14)
-     &              Call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
-                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
-                    Call Transpose_TDM(TDMZZ,ISY12)
-                    Call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
-                  End If
-                End If
-                If (IAnd(iEmpty,2).ne.0) Then
-                  isZero(2)=.False.
-                  If (Abs(f1).ge.1.0D-14)
-     &              Call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
-                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
-                    Call Transpose_TDM(TSDMZZ,ISY12)
-                    Call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
-                  End If
-                End If
-                If (IFSO.and.(IAnd(iEmpty,4).ne.0)) Then
-                  isZero(3)=.False.
-                  If (Abs(f1).ge.1.0D-14)
-     &              Call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
-                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
-                    Call Transpose_TDM(WDMZZ,ISY12)
-                    Call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
-                  End If
-                End If
-              End Do
-            End Do
-            If (All(isZero)) Cycle
-            nThisTDMZZ=0
-            Do iSym1=1,nSym
-              iSym2=MUL(ISY12,iSym1)
-              nThisTDMZZ=nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
-            End Do
-            If (.not.isZero(1)) Then
-              call mh5_put_dset_array_real(wfn_sfs_tdm,
-     &          TDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
-            End If
-            If (.not.isZero(2)) Then
-            call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     &        TSDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jSTate-1])
-            End If
-            If (IFSO.and.(.not.isZero(3))) Then
-              call mh5_put_dset_array_real(wfn_sfs_wetdm,
-     &          WDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
-            End If
-          End Do
-        End Do
-        Call mma_deAllocate(TDMZZ)
-        Call mma_deAllocate(TSDMZZ)
-        Call mma_deAllocate(WDMZZ)
-        Call mma_deAllocate(TDMIJ)
-        Call mma_deAllocate(TSDMIJ)
-        Call mma_deAllocate(WDMIJ)
-        Call mma_deAllocate(TMPIJ)
-      END IF
-#endif
 C To handle extreme cases of large energies/small energy differences
 C all TOTAL energies will undergo a universal constant shift:
-      EMIN=1.0D12
-      DO ISTATE=1,NSTATE
+      EMIN=ENERGY(1)
+      DO ISTATE=2,NSTATE
 cvv NAG compiler overoptimize this!
 c       EMIN=MIN(EMIN,ENERGY(ISTATE))
        if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
       END DO
-      KAU= INT(EMIN/1000.0D0)
-      EVAC=1000.0D0*DBLE(KAU)
-c      EMIN=EVAC
       DO ISTATE=1,NSTATE
-c        ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
         ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
       END DO
 
@@ -443,7 +352,7 @@ C components of H and S in original RASSCF wave function basis:
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
-      Call Add_Info('E_RASSI',ENERGY+EMIN-EVAC,NSTATE,iTol)
+      Call Add_Info('E_RASSI',ENERGY+EMIN,NSTATE,iTol)
 
 C Experimental addition: Effective L and/or M quantum numbers.
 
@@ -534,22 +443,22 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)' SPIN-FREE ENERGIES:'
-       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
+       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EMIN (a.u.) =',EMIN,')'
        WRITE(6,*)
        IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      L_eff   Abs_M'
         ELSE
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      L_eff'
         END IF
        ELSE
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      Abs_M'
         ELSE
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)'
         END IF
        END IF
@@ -3111,8 +3020,116 @@ C                 Why do it when we don't do the L.S-term!
 *                                                                      *
 ************************************************************************
 *
-
  900  CONTINUE
+
+#ifdef _HDF5_
+C Transform TDMs to SF eigenstates
+      If (IFTRD1.or.IFTRD2) Then
+        Call mma_Allocate(IdxState,nState,nState,Label='IdxState')
+        Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+        Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+        Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+        Call mma_Allocate(TDMIJ,nTDMZZ,Label='TDMIJ')
+        Call mma_Allocate(TSDMIJ,nTDMZZ,Label='TSDMIJ')
+        Call mma_Allocate(WDMIJ,nTDMZZ,Label='WDMIJ')
+        Call mma_Allocate(TMPIJ,3,MaxVal(NBASF)**2,Label='TMPIJ')
+C       list states for/between which we want to store the density matrices
+        Call iCopy(nState**2,[0],0,IdxState,1)
+        Do i=1,nState
+          iState=IndexE(i)
+          IdxState(iState,iState)=1
+          If (i.gt.iEnd) Cycle
+          Do j=Max(i+1,jStart),nState
+            jState=IndexE(j)
+            j_=Min(jState,iState)
+            i_=Max(jState,iState)
+            IdxState(i_,j_)=1
+          End Do
+        End Do
+        Do iState=1,nState
+          Do jState=1,iState
+            If (IdxState(iState,jState).eq.0) Cycle
+            Call dCopy_(nTDMZZ,[0.0D0],0,TDMIJ,1)
+            Call dCopy_(nTDMZZ,[0.0D0],0,TSDMIJ,1)
+            Call dCopy_(nTDMZZ,[0.0D0],0,WDMIJ,1)
+            isZero=[.True.,.True.,.True.]
+            Do k=1,nState
+              JOB1=iWork(lJBNUM+k-1)
+              LSYM1=IRREP(JOB1)
+              Do l=1,k
+                f1=EigVec(k,iState)*EigVec(l,jState)
+                f2=EigVec(l,iState)*EigVec(k,jState)
+                If (Max(Abs(f1),Abs(f2)).lt.1.0D-14) Cycle
+                JOB2=iWork(lJBNUM+l-1)
+                LSYM2=IRREP(JOB2)
+                ISY12=MUL(LSYM1,LSYM2)
+                iDisk=iDisk_TDM(k,l,1)
+                iEmpty=iDisk_TDM(k,l,2)
+                iOpt=2
+                iGo=3
+                If (IFSO) iGo=iGo+4
+                Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                         LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
+                If (IAnd(iEmpty,1).ne.0) Then
+                  isZero(1)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(TDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
+                  End If
+                End If
+                If (IAnd(iEmpty,2).ne.0) Then
+                  isZero(2)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(TSDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
+                  End If
+                End If
+                If (IFSO.and.(IAnd(iEmpty,4).ne.0)) Then
+                  isZero(3)=.False.
+                  If (Abs(f1).ge.1.0D-14)
+     &              Call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
+                  If ((k.ne.l).and.(Abs(f2).ge.1.0D-14)) Then
+                    Call Transpose_TDM(WDMZZ,ISY12)
+                    Call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
+                  End If
+                End If
+              End Do
+            End Do
+            If (All(isZero)) Cycle
+            nThisTDMZZ=0
+            Do iSym1=1,nSym
+              iSym2=MUL(ISY12,iSym1)
+              nThisTDMZZ=nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
+            End Do
+            If (.not.isZero(1)) Then
+              call mh5_put_dset_array_real(wfn_sfs_tdm,
+     &          TDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
+            End If
+            If (.not.isZero(2)) Then
+            call mh5_put_dset_array_real(wfn_sfs_tsdm,
+     &        TSDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jSTate-1])
+            End If
+            If (IFSO.and.(.not.isZero(3))) Then
+              call mh5_put_dset_array_real(wfn_sfs_wetdm,
+     &          WDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
+            End If
+          End Do
+        End Do
+        Call mma_deAllocate(IdxState)
+        Call mma_deAllocate(TDMZZ)
+        Call mma_deAllocate(TSDMZZ)
+        Call mma_deAllocate(WDMZZ)
+        Call mma_deAllocate(TDMIJ)
+        Call mma_deAllocate(TSDMIJ)
+        Call mma_deAllocate(WDMIJ)
+        Call mma_deAllocate(TMPIJ)
+      END IF
+#endif
+
       if(debug_dmrg_rassi_code)then
         write(6,*) 'end of eigctl: BLUBB debug print of property matrix'
         do istate = 1, nstate
