@@ -11,6 +11,10 @@
       SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS,ENERGY)
       !> module dependencies
       use rassi_global_arrays, only: JBNUM
+      use sorting, only : argsort
+#ifdef _HDF5_
+      use Dens2HDF5
+#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -63,6 +67,7 @@
       real*8    , allocatable :: rwork(:)
       integer                 :: lcwork, info
 #endif
+      Integer, Allocatable :: IndexE(:)
 
       REAL*8, EXTERNAL :: DCLEBS
 
@@ -497,19 +502,19 @@ C910  CONTINUE
        WRITE(6,*)'  Eigenvalues of complex Hamiltonian:'
        WRITE(6,*)'  -----------------------------------'
        IF(EMIN.NE.0.0D0)
-     &  WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
+     &  WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EMIN (a.u.) =',EMIN,')'
        WRITE(6,*)
        if(ifj2.ne.0.and.ifjz.ne.0) then
-        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)     J-value  Omega'
        else if(ifj2.ne.0.and.ifjz.eq.0) then
-        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)     J-value'
        else if(ifj2.eq.0.and.ifjz.ne.0) then
-        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      Omega'
        else if(ifj2.eq.0.and.ifjz.eq.0) then
-        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)'
        endif
        WRITE(6,*)
@@ -566,7 +571,7 @@ C Saving the ESO array in the RunFile.
 
 C Put energy onto info file for automatic verification runs:
       iTol=cho_x_gettol(8) ! reset thr iff Cholesky
-      Call Add_Info('ESO_LOW',ENSOR+EMIN-EVAC,NSS,iTol)
+      Call Add_Info('ESO_LOW',ENSOR+EMIN,NSS,iTol)
 
       IF(IPGLOB.GE.VERBOSE) THEN
        WRITE(6,*)
@@ -582,6 +587,25 @@ C Put energy onto info file for automatic verification runs:
       END IF
        CALL PRCEVC(NSS,FRAC,ENSOR,IWORK(LMAPST),IWORK(LMAPSP),
      &            IWORK(LMAPMS),USOR,USOI)
+
+C Update LoopDivide (SUBSets keyword)
+C Assume the SO "ground states" are mostly formed by the SF "ground states"
+      If (ReduceLoop) Then
+        Call mma_Allocate(IndexE,nState,Label='IndexE')
+        IndexE(:)=ArgSort(Energy, le)
+        n=0
+        Do iState=1,LoopDivide
+          Job=JbNum(IndexE(iState))
+          n=n+Mltplt(Job)
+        End Do
+        LoopDivide=n
+#ifdef _HDF5_
+        If (IFTRD1.or.IFTRD2)
+     &    Call UpdateIdx(IndexE,nSS,USOR,USOI,iWork(lMapSt))
+#endif
+        Call mma_deAllocate(IndexE)
+      End If
+
       CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
       CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
       CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
@@ -590,4 +614,12 @@ C Put energy onto info file for automatic verification runs:
       call mma_deallocate(HAMSOI)
       Call qExit(ROUTINE)
       RETURN
+
+      Contains
+
+      logical pure function le(x, y)
+        real*8, intent(in) :: x, y
+        le = x <= y
+      end function
+
       END
