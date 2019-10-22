@@ -379,8 +379,7 @@ General keywords
               </KEYWORD>
 
 :kword:`LDF1`
-  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword LDF.
-  Equivalent to keyword LDF.
+  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword :kword:`LDF`.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="LDF1" APPEAR="Local Density Fitting" KIND="SINGLE" EXCLUSIVE="CHOL,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: LDF1 <basic>
