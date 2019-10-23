@@ -20,6 +20,9 @@
 !!  You should have received a copy of the GNU Lesser General Public License
 !!  along with hdf5_qcm. If not, see <http://www.gnu.org/licenses/>.
 !!
+
+#ifdef _HDF5_
+
 module hdf5_utils
 
 
@@ -643,3 +646,7 @@ module hdf5_utils
 !------------------------------------------------------------------------
 
 end module hdf5_utils
+#else
+      subroutine nohdf5
+      end
+#endif

@@ -21,6 +21,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with hdf5_qcm. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#ifdef _HDF5_
 #include "hdf5.h"
 
 
@@ -260,3 +262,4 @@ herr_t hdf5_get_data_c(hid_t fileid, hid_t h5type, const char *dname, int rank, 
 
   return error;
 }
+#endif

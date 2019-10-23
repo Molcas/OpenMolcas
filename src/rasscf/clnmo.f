@@ -47,20 +47,25 @@
 * Prelude
 
       Call qEnter ('Clen')
-
 * Body
 
       iOff = ipCleanMask-1
+      iiOff=0
       Do iSym = 1,nSym
         mBas = nBas(iSym)
         Do i = 1,mBas
           ii = (i-1)*mBas+iOff
+          iii = (i-1)*mBas+iiOff
+
           Do j = 1,mBas
             ij = j+ii
-            If ( iWork(ij).eq.1 ) CMO(ij) = 0.0D0
+            iij= j+iii
+            If ( iWork(ij).eq.1 ) CMO(iij) = 0.0D0
           End Do
         End Do
         iOff = iOff+mBas*mBas
+        iiOff = iiOff+mBas*mBas
+ 
       End Do
 
 * Epilogue
