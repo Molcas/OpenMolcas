@@ -98,7 +98,6 @@
       Call mma_allocate(jAOtSO,8,Mx_AO)
       Do i = 1, Mx_AO
          Call ICopy(8,iAOtSO(i,0),MxAO,jAOtSO(1,i),1)
-         jp_AS = jp_AS + 8
       End Do
       Call Put_iArray('iAOtSO',jAOtSO,8*Mx_AO)
       Call mma_deallocate(jAOtSO)

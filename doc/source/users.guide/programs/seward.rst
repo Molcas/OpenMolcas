@@ -206,9 +206,9 @@ General keywords
 :kword:`TITLe`
   One line of title card follows.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TITL" APPEAR="Title (optional)" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TITL" APPEAR="Title" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
-              Enter one optional title cards.
+              Enter one optional title card.
               </HELP>
               %%Keyword: Title <basic>
               One line of title card follows.
@@ -217,7 +217,7 @@ General keywords
 :kword:`TEST`
   :program:`SEWARD` will only process the input and generate a non-zero return code.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TEST" APPEAR="Test (optional)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TEST" APPEAR="Test" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Test <basic>
               <HELP>
               SEWARD will only process the input and generate a non-zero
@@ -228,7 +228,7 @@ General keywords
 :kword:`ONEOnly`
   :program:`SEWARD` will not compute the two-electron integrals.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="ONEO" APPEAR="Only 1-el. Integrals (optional)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="ONEO" APPEAR="Only 1-el. Integrals" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Oneonly <basic>
               <HELP>
               SEWARD will not compute the two-electron integrals.
@@ -238,7 +238,7 @@ General keywords
 :kword:`NODKroll`
   :program:`SEWARD` will not compute Douglas--Kroll integrals.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NODK" APPEAR="Skip Douglas-Kroll Integrals (optional)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NODK" APPEAR="Skip Douglas-Kroll Integrals" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NoDK <basic>
               <HELP>
               SEWARD will not compute Douglas-Kroll integrals.
@@ -249,7 +249,7 @@ General keywords
   Prepares for later integral-direct calculations. As with keyword
   :kword:`OneOnly`, :program:`SEWARD` will evaluate no two-electron integrals.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="DIRE" APPEAR="Direct option (optional)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="DIRE" APPEAR="Direct option" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Direct <basic>
               <HELP>
               Prepares for later integral-direct calculations. As with keyword
@@ -280,7 +280,7 @@ General keywords
   The decomposition threshold can be changed using keyword :kword:`THRC`.
   Default is to not decompose.
 
-  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="AUX" APPEAR="CD options (optional)" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="AUX" APPEAR="CD options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CHOL" APPEAR="Cholesky" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: Cholesky <basic>
@@ -379,8 +379,7 @@ General keywords
               </KEYWORD>
 
 :kword:`LDF1`
-  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword LDF.
-  Equivalent to keyword LDF.
+  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword :kword:`LDF`.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="LDF1" APPEAR="Local Density Fitting" KIND="SINGLE" EXCLUSIVE="CHOL,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: LDF1 <basic>
@@ -436,7 +435,7 @@ General keywords
 :kword:`FAKE CD/RI`
   If CD/RI vectors are already available, :program:`SEWARD` will not redo work!
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="FAKE" APPEAR="Skip CD/RI vectors generation (optional)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="FAKE" APPEAR="Skip CD/RI vectors generation" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: FAKE <basic>
               <HELP>
               If CD/RI vectors are already available, SEWARD will not redo work!
@@ -478,6 +477,9 @@ General keywords
                    default is the MOLECULE normalization (except when AMFI or
                    Douglas-Kroll is specified, where the DCR formalism is again
                    default).
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="MOLECULE" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 
   .. :kword:`MOLCas`
        The integrals are normalized according to the double coset
@@ -549,8 +551,12 @@ General keywords
 :kword:`NOGUessorb`
   Disable automatic generation of starting orbitals with the GuessOrb procedure.
 
-  .. xmldoc:: %%Keyword: NOGUESSORB <basic>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOGUESSORB" APPEAR="No guess orbitals" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NOGUESSORB <basic>
+              <HELP>
               Disable automatic generation of starting orbitals with the GuessOrb procedure.
+              </HELP>
+              </KEYWORD>
 
 :kword:`NODElete`
   Do not delete any orbitals automatically.
@@ -590,38 +596,6 @@ General keywords
 
   .. xmldoc:: </GROUP>
 
-:kword:`ECPShow`
-  Force :program:`SEWARD` to print ECP parameters.
-
-  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="PROPT" APPEAR="Print options" LEVEL="BASIC">
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="ECPS" APPEAR="Print ECP info" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: ECPSHOW <basic>
-              <HELP>
-              Force SEWARD to print ECP parameters.
-              </HELP>
-              </KEYWORD>
-
-:kword:`AUXShow`
-  Force :program:`SEWARD` to print auxiliary basis set parameters.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="AUXS" APPEAR="Print auxiliary basis info" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: AUXSHOW <basic>
-              <HELP>
-              Force SEWARD to print auxiliary basis set parameters.
-              </HELP>
-              </KEYWORD>
-
-:kword:`BSSHow`
-  Force :program:`SEWARD` to print basis set parameters.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="BSSH" APPEAR="Print basis info" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: BSSHOW <basic>
-              <HELP>
-              Force SEWARD to print basis set parameters.
-              </HELP>
-              </KEYWORD>
-
 :kword:`VERBose`
   Force :program:`SEWARD` to print a bit more verbose.
 
@@ -632,12 +606,16 @@ General keywords
               </HELP>
               </KEYWORD>
 
-  .. xmldoc:: </GROUP>
-
 :kword:`EMBEdding`
   Reads in an embedding potential from a file. It can also write out the
   density and the electrostatic potential on a grid. It is a block keyword
   which *must* be ended with :kword:`ENDEmbedding`.
+
+  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="EMBE" APPEAR="External embedding potential" KIND="BLOCK" LEVEL="ADVANCED">
+              %%Keyword: Embedding <advanced>
+              <HELP>
+              Reads in an embedding potential from a file and can output the density and ESP on a grid.
+              </HELP>
 
   The subkeywords are:
 
@@ -667,12 +645,7 @@ General keywords
 
   The :kword:`EMBEdding` feature is currently only supported by the SCF part of |molcas|.
 
-  .. xmldoc:: <KEYWORD NAME="EMBE" APPEAR="External embedding potential" KIND="STRINGS" LEVEL="ADVANCED">
-              %%Keyword: Embedding <advanced>
-              <HELP>
-              Reads in an embedding potential from a file and can output the density and ESP on a grid.
-              </HELP>
-              </KEYWORD>
+  .. xmldoc:: </GROUP>
 
 Keywords associated to one-electron integrals
 :::::::::::::::::::::::::::::::::::::::::::::
@@ -687,7 +660,7 @@ Keywords associated to one-electron integrals
   center of the nuclear mass.
   The default is to do up to quadrupole moment integrals (2).
 
-  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="ONE" APPEAR="1-electron Integral options" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="ONE" APPEAR="1-electron Integral options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="MULTIPOLE" APPEAR="Set Max order of Multipole Moment Integrals" KIND="INT" LEVEL="ADVANCED" DEFAULT_VALUE="2">
               %%Keyword: Multipoles <basic>
@@ -708,7 +681,7 @@ Keywords associated to one-electron integrals
   the multipole operator and the coordinates of the center (in au) of
   expansion are specified.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" KIND="REALS_COMPUTED" NAME="CENT" APPEAR="Multipole moments origins" SIZE="4" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CENT" KIND="REALS_COMPUTED" APPEAR="Multipole moments origins" SIZE="4" LEVEL="ADVANCED">
               %%Keyword: Center <advanced>
               <HELP>
               This option is used to override the default selection of the origin
@@ -716,16 +689,6 @@ Keywords associated to one-electron integrals
               On the first entry specify the number of such modifications.
               On the following entries enter first the order of the multipole moment operators
               followed by the coordinates of the origin of the operator.
-              </HELP>
-              </KEYWORD>
-
-:kword:`SDIPole`
-  Requests computation of velocity integrals.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="SDIPOLE" APPEAR="Velocity Integrals" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: Sdipole <basic>
-              <HELP>
-              Requests computation of velocity integrals.
               </HELP>
               </KEYWORD>
 
@@ -743,15 +706,6 @@ Keywords associated to one-electron integrals
               </HELP>
               </KEYWORD>
 
-  .. :kword:`DOUGlas-kroll`
-       Explicit request that the one-electron Hamiltonian include the scalar relativistic
-       effects according to the so-called Douglas--Kroll transformation.
-
-  ..   .. xmldoc:: %%Keyword: Douglas-Kroll <basic>
-                   Explicit request that the one-electron Hamiltonian include the scalar relativistic
-                   effects according to the so-called Douglas-Kroll transformation.
-                   This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
-
   .. :kword:`BSSMethod`
        Request that the one-electron Hamiltonian include the scalar relativistic
        effects according to the so-called Barysz--Sadlej--Snijders transformation.
@@ -760,10 +714,12 @@ Keywords associated to one-electron integrals
                    Request that the one-electron Hamiltonian include the scalar relativistic
                    effects according to the so-called Barysz-Sadlej-Snijders transformation.
 
-:kword:`RXXPyy`
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="BSSMETHOD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+:kword:`RELAtivistic`
   Request arbitrary scalar relativistic Douglas--Kroll--Hess (DKH) correction to the one-electron Hamiltonian
   and the so-called picture-change correction to the property integrals (multipole moments
-  and electronic potential related properties).
+  and electronic potential related properties). An argument of the form ``RXXPyy`` follows.
   Here XX represents the order of the DKH correction to the one-electron Hamiltonian and
   yy the order of the picture-change correction. The character P denotes the parameterization
   used in the DKH procedure.
@@ -790,12 +746,12 @@ Keywords associated to one-electron integrals
   Since the EXP parameterization employs a fast algorithm, it is
   recommended for high order DKH transformation.
 
-  .. xmldoc:: <SELECT MODULE="SEWARD" NAME="RXXPYY" CONTAINS="R02O02,R03O03,R04O04,R02O00,RxxPyy" LEVEL="BASIC">
-              %%Keyword: RXXPyy <basic>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="RELATIVISTIC" APPEAR="Relativistic correction order and parametrization (RXXPyy)" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: RELAtivistic <basic>
               <HELP>
               Request arbitrary scalar relativistic Douglas-Kroll-Hess (DKH) correction to the one-electron Hamiltonian
               and the so-called picture-change correction to the property integrals (multipole moments
-              and electronic potential related properties).
+              and electronic potential related properties). An argument of the form RXXPyy follows
               Here XX represents the order of the DKH correction to the one-electron Hamiltonian and
               yy the order of the picture-change correction. The character P denotes the parameterization
               used in the DKH procedure.
@@ -814,73 +770,17 @@ Keywords associated to one-electron integrals
               Since the EXP parameterization employs a fast algorithm, it is
               recommended for high order DKH transformation.
               </HELP>
-              %<!--The option "RxxPyy" is to provide the user with an entry in the input file which can be edited later on.-->
-              <KEYWORD MODULE="SEWARD" NAME="R02O02" KIND="SINGLE" />
-              <KEYWORD MODULE="SEWARD" NAME="R03O03" KIND="SINGLE" />
-              <KEYWORD MODULE="SEWARD" NAME="R04O04" KIND="SINGLE" />
-              <KEYWORD MODULE="SEWARD" NAME="R02O00" KIND="SINGLE" />
-              <KEYWORD MODULE="SEWARD" NAME="RxxPyy" KIND="SINGLE" />
-              </SELECT>
-
-:kword:`RX2C`
-  Request the scalar relativistic X2C (eXact-two-Component) corrections to the
-  one-electron Hamiltonian as well as the property integrals.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="RX2C" APPEAR="Relativistic X2C integrals" KIND="SINGLE" EXCLUSIVE="RX2C" LEVEL="BASIC">
-              %%Keyword: RX2C <basic>
-              <HELP>
-              Request the scalar relativistic X2C (eXact-two-Component) corrections to the
-              one-electron Hamiltonian as well as the property integrals.
-              </HELP>
-              </KEYWORD>
-
-:kword:`RBSS`
-  Request the scalar relativistic BSS (Barysz--Sadlej--Snijders) corrections to the
-  one-electron Hamiltonian as well as the property integrals. The non-iterative
-  scheme is employed for the construction of BSS transformation.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="RBSS" APPEAR="Relativistic BSS integrals" KIND="SINGLE" EXCLUSIVE="RBSS" LEVEL="BASIC">
-              %%Keyword: RBSS <basic>
-              <HELP>
-              Request the scalar relativistic BSS (Barysz-Sadlej-Snijders) corrections to the
-              one-electron Hamiltonian as well as the property integrals. The non-iterative
-              scheme is employed for the construction of BSS transformation.
-              </HELP>
               </KEYWORD>
 
 :kword:`RLOCal`
   Request local approximation to the relativistic exact decoupling approaches such
   as X2C, BSS and DKH. This option cannot be used together with point group symmetry.
 
-  .. xmldoc:: <KEYWORD NAME="RLOCAL" APPEAR="Relativistic local approximation" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="RLOCAL" APPEAR="Relativistic local approximation" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Rlocal <basic>
               <HELP>
               Request local approximation to the relativistic exact decoupling approaches such
               as X2C, BSS and DKH. This option cannot be used together with point group symmetry.
-              </HELP>
-              </KEYWORD>
-
-:kword:`NOAMfi`
-  Explicit request for no computation of atomic mean-field integrals.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOAM" APPEAR="No AMFI integrals" KIND="SINGLE" EXCLUSIVE="AMFI" LEVEL="BASIC">
-              %%Keyword: NOAMFI <basic>
-              <HELP>
-              Explicit request for no computation of atomic mean-field integrals.
-              </HELP>
-              </KEYWORD>
-
-:kword:`AMFI`
-  Explicit request for the computation of atomic mean-field integrals (used in
-  subsequent spin--orbit calculations). These integrals are computed by default for the
-  ANO-RCC and ANO-DK3 basis sets.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="AMFI" APPEAR="AMFI integrals option" KIND="SINGLE" EXCLUSIVE="NOAM" LEVEL="BASIC">
-              %%Keyword: AMFI <basic>
-              <HELP>
-              Explicit request for the computation of atomic mean-field integrals (used in
-              subsequent spin-orbit calculations). These integrals are computed by default for
-              relativistic basis sets like the ANO-RCC and ANO-DK3 basis sets.
               </HELP>
               </KEYWORD>
 
@@ -901,7 +801,7 @@ Additional keywords for property calculations
   must be available, which contains the MO's and occupation numbers
   of a wave function. A custom filename can be given with :kword:`FileOrb`.
 
-  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="PROPERTY" APPEAR="Property calculations options" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="PROPERTY" APPEAR="Property calculations options" KIND="BOX" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="VECT" APPEAR="Activate property calculation" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Vectors <basic>
@@ -987,7 +887,7 @@ Keywords for two-electron integrals
   The two-electron integrals will not be packed. The default is to
   pack the two-electron integrals.
 
-  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="2EL" APPEAR="2-electron integral options" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="2EL" APPEAR="2-electron integral options" KIND="BOX" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOPA" APPEAR="Unpacked 2-el. integrals" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Nopack <advanced>
@@ -1295,6 +1195,12 @@ Compulsory keywords
 :kword:`GRID Input`
   This marks the beginning of the input to the numerical integration utility.
 
+  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="GRIDBLOCK" KIND="BLOCK" APPEAR="Numerical Quadrature Options" LEVEL="ADVANCED">
+              %%Keyword: Grid input <basic>
+              <HELP>
+              Specification of numerical quadrature parameters.
+              </HELP>
+
 :kword:`END Of Grid-Input`
   This marks the end of the input to the numerical integration utility.
 
@@ -1308,12 +1214,6 @@ Optional keywords
   COARSE, SG1GRID, FINE, ULTRAFINE
   following the Gaussian98 convention.
   Default is FINE.
-
-  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="GRID" APPEAR="Numerical Quadrature Options" LEVEL="ADVANCED">
-              %%Keyword: Grid input <basic>
-              <HELP>
-              Specification of numerical quadrature parameters.
-              </HELP>
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="GRID" APPEAR="Generic Grids" KIND="CHOICE" LEVEL="ADVANCED" LIST="FINE,COARSE,SG1GRID,ULTRAFINE">
               %%Keyword: Grid (NQ) <advanced>
@@ -1348,12 +1248,19 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="AGRID" APPEAR="Angular Grid" KIND="CHOICE" LEVEL="ADVANCED" LIST="LEBEDEV,LOBATTO,GGL">
+  .. xmldoc:: <SELECT MODULE="SEWARD" NAME="AGRID" APPEAR="Angular Grid" CONTAINS="LEBEDEV,LOBATTO,GGL" LEVEL="ADVANCED">
               <HELP>
               Specifies the type of angular grid. Options are Gauss-Gauss-Legendre (GGL), Lobatto, and
               Lebedev. Lebedev is the default.
               </HELP>
-              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="LEBEDEV" APPEAR="Lebedev angular grid" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="LOBATTO,GGL" />
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="LOBATTO" APPEAR="Lobatto angular grid" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="LEBEDEV,GGL" />
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="GGL" APPEAR="GGL angular grid" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="LEBEDEV,LOBATTO" />
+
+  .. xmldoc:: </SELECT>
 
 :kword:`GGL`
   It activates the use of Gauss and Gauss--Legendre angular quadrature.
@@ -1432,30 +1339,40 @@ Optional keywords
   using the grid to numerically evaluate the analytic gradient expression.
   Default is to use a moving grid.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="FIXE" APPEAR="Grid type" KIND="CHOICE" LEVEL="ADVANCED" LIST="MOVING,FIXED">
+  .. xmldoc:: <SELECT MODULE="SEWARD" NAME="GRID_TYPE" APPEAR="Grid type" CONTAINS="MOVING,FIXED" LEVEL="ADVANCED">
               <HELP>
               Specify if the grid should be fixed or moving. A moving grid is default.
               </HELP>
-              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="FIXE" APPEAR="Fixed grid" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Fixed Grid (NQ) <advanced>
+              <HELP>
               Use a fixed grid in the evaluation of the gradient. This corresponds to
               using the grid to numerically evaluate the analytic gradient expression.
               Default is to use a moving grid.
+              </HELP>
+              </KEYWORD>
 
 :kword:`MOVIng grid`
   Use a moving grid in the evaluation of the gradient. This correspond to
   evaluating the gradient of the numerical expression of the DFT energy. This is the default.
 
-  .. xmldoc:: %%Keyword: Moving grid (NQ) <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="MOVI" APPEAR="Moving grid" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Moving grid (NQ) <advanced>
+              <HELP>
               Use a moving grid in the evaluation of the gradient. This correspond to
               evaluating the gradient of the numerical expression of the DFT energy. This is the default.
+              </HELP>
+              </KEYWORD>
 
-:kword:`THREshold`
+  .. xmldoc:: </SELECT>
+
+:kword:`RTHReshold`
   It is followed by the value for the the radial threshold.
   Default value is 1.0D-13.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="THRE" APPEAR="Radial Grid Threshold" KIND="REAL" DEFAULT_VALUE="1.0D-13" LEVEL="ADVANCED">
-              %%Keyword: Threshold (NQ) <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="RTHR" APPEAR="Radial Grid Threshold" KIND="REAL" DEFAULT_VALUE="1.0D-13" LEVEL="ADVANCED">
+              %%Keyword: RThreshold (NQ) <advanced>
               <HELP>
               Follows the value for the the radial threshold.
               Default value is 1.0D-13.
@@ -1507,6 +1424,8 @@ Optional keywords
               grid close to the nuclei. Default value 3.0.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NORO" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
   .. xmldoc:: </GROUP>
 
@@ -1679,5 +1598,49 @@ It is important to note the local approximation cannot be used together with poi
 in the current implementation. Because the relativistic transformation is applied in the molecular
 orbital (MO) representation instead of the atomic orbital (AO) representation. Thus, the program will
 report an error and exit if symmetry is used.
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="FOOC" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="UNCONTRACTED" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NEMO" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CLIGHT" KIND="REAL" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="PAMFI" KIND="INT" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="DOANALYTICAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="PRINT" KIND="INTS_COMPUTED" SIZE="2" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <GROUP MODULE="SEWARD" NAME="CHOINPUT" KIND="BLOCK" LEVEL="UNDOCUMENTED">
+            <KEYWORD MODULE="SEWARD" NAME="THRC" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="PRIN" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="BUFF" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="THRD" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="DMP1" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="DMP2" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="SPAN" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="MINQ" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="MAXQ" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="SCRE" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="QUAL" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="THRN" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="WARN" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="TOON" KIND="REAL" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="NOAB" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="IOVE" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="FRAC" KIND="INTS" SIZE="2" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="PARA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="1-CE" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="ONES" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="ADDR" KIND="INT" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="RSTD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="RSTC" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="REOR" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+            <KEYWORD MODULE="SEWARD" NAME="CHOM" KIND="INT" LEVEL="UNDOCUMENTED" />
+            </GROUP>
+
+.. xmldoc:: <INCLUDE MODULE="GATEWAY" />
 
 .. xmldoc:: </MODULE>

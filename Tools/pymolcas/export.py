@@ -31,7 +31,7 @@ from io import open
 import sys, zlib, base64, os, stat
 sys.dont_write_bytecode = True
 
-files = ['tee', 'molcas_aux', 'emil_grammar', 'simpleeval', 'abstract_flow', 'emil_parse', 'python_parse', 'check_test', 'write_molcasrc', 'molcas_wrapper', 'pymolcas']
+files = ['tee', 'molcas_aux', 'emil_grammar', 'simpleeval', 'abstract_flow', 'emil_parse', 'python_parse', 'check_test', 'validate', 'write_molcasrc', 'molcas_wrapper', 'pymolcas']
 try:
   exe_name = sys.argv[1]
 except:

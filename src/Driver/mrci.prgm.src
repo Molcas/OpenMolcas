@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/mrci.exe             executable
+ (file)  MRCIINP  "$WorkDir/$Project."Mrci.Input rwi
  (file)  TRAINT   "$WorkDir/$Project."TraInt   ro*
  (file)  TRAONE   "$WorkDir/$Project."TraOne   ro
  (file)  ONEINT   "$WorkDir/$Project."OneInt   ro*

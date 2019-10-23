@@ -19,7 +19,6 @@
  (file)  CIITER        "$WorkDir/"CI_Iterations.txt          rw
  (file)  LUMOUT        "$WorkDir/"purge.lumout               rwp
  (file)  TMP0          "$WorkDir/"purge.temp00               rw*p
- (file)  MCPDFT        "$WorkDir/$Project$SubProject".McDens rw*st
- (file)  MCTRUD        "$WorkDir/$Project$SubProject".McTrue rw*st
+#include "mcpdftfiles.inc"
 #define _RASSCFFILES_
 #endif

@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/rpa.exe             executable
+ (file)  RPAINP "$WorkDir/$Project."Rpa.Input         rwi
 #include "aoints.inc"
 #include "choints.inc"
- (file)  RPAINP "$WorkDir/$Project."Rpa.Input         rwi
 #include "orbitals.inc"
 #include "moldenfiles.inc"
