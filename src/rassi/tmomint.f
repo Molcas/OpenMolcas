@@ -30,6 +30,8 @@
 #ifdef _DEBUG_
 #include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
+      Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
+      Integer IOFF(8,8)
 #endif
 #include "itmax.fh"
 #include "info.fh"
@@ -42,6 +44,8 @@
 #include "warnings.fh"
       Character*8 Label
       Dimension dum(1),idum(1)
+*
+      MulTab(i,j)=iEor(i-1,j-1)+1
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -61,7 +65,6 @@
 *     over A.
 *
       If (iOpt.eq.2) Then
-#ifndef _DEBUG_
       nOrdOp = 0
       Label='TMOM0'
       nComp = 2
@@ -84,65 +87,126 @@
      &           dum,1,0)
 *
       Call Deallocate_Aux()
-#else
+#ifdef _DEBUG_
+*
+      Call mma_allocate(CoorO,6,Label='CoorO')
+      CoorO(:)=0.0D0
+      CoorO(1:3)=wavevector
+!     Write (6,*) 'Wavevector=',Wavevector
 *
 *     This section of the code is for pure debugging and will replace
 *     exact operator with truncated expansions of the operator in
 *     terms of multipole integrals
 *
-      iOpt0=0
-      iOpt1=1
-      iOpt2=2
+      iOpt0=0 ! Write
+      iOpt1=1 ! Read just data size and symmetry
+      iOpt2=2 ! Read
       iRc=-1
-      Label='Mltpl  0'
+      Label='TMOM0  R'
       iComp=1
 *     Pick up the size and the symmetry label.
-      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-      nInts=idum(1)
+      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl_TMOM)
+      nInts_TMOM=idum(1)
+!     Write (*,*) 'nInts_TMOM=',nInts_TMOM
+      Call mma_allocate(Int_R,nInts_TMOM+4,Label='Int_R')
+      Call mma_allocate(Int_I,nInts_TMOM+4,Label='Int_I')
+      Call mma_allocate(Int_R_O,nInts_TMOM+4,Label='Int_R_O')
+      Call mma_allocate(Int_I_O,nInts_TMOM+4,Label='Int_I_O')
 *
-      Call mma_allocate(Int_R,nInts+4,Label='Int_R')
-      Call mma_allocate(Int_I,nInts+4,Label='Int_I')
-      Call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
-      Call mma_allocate(CoorO,6,Label='CoorO')
-      Call FZero(CoorO,6)
-      Call dcopy_(3,wavevector,1,CoorO,1)
+      Call RdOne(iRc,iOpt0,Label,iComp,Int_R_O,iSyLbl_TMOM)
+      Label='TMOM0  I'
+      iComp=1
+      Call RdOne(iRc,iOpt0,Label,iComp,Int_I_O,iSyLbl_TMOM)
+      Len=0
+      forall (i=1:8,j=1:8) IOFF(i,j)=-1
+      Do i=1,nIrrep
+         Do j=1,i
+            ij=MulTab(i,j)-1
+            If(iAnd(2**ij,iSyLbl_TMOM).ne.0) Then
+               IOFF(i,j)=Len+1
+               If(i.eq.j) Then
+                  Len_=nBas(i-1)*(nBas(i-1)+1)/2
+               Else
+                  Len_=nBas(i-1)*nBas(j-1)
+               End If
+               Len = Len + Len_
+            End If
+         End Do
+      End Do
+!     Write (*,*) 'Len=',Len
+!     Do I = 1, 8
+!        Write (6,*) (IOFF(I,J),J=1,8)
+!     End Do
 *
-      Int_R(1:nInts)=0.0D0
-      Int_R(nInts+1:nInts+3)=CoorO
-      Int_I(1:nInts)=0.0D0
-      Int_I(nInts+1:nInts+3)=CoorO
-      Temp_Int(1:nInts)=0.0D0
+      Int_R(:)=0.0D0
+      Int_R(nInts_TMOM+1:nInts_TMOM+3)=CoorO
+      Int_I(:)=0.0D0
+      Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
-      nMltpl=2
+      nMltpl=1
       iCase=1
       Phase=1.0D0
       Do iMltpl= 0, nMltpl
          Write (Label,'(A,I2)') 'Mltpl ',iMltpl
          nComp=(iMltpl+1)*(iMltpl+2)/2
          iComp=0
-         xyz=1.0D0
          Do ix = iMltpl, 0, -1
-            xyz=xyz*CoorO(1)**ix
+            x=CoorO(1)**ix
             Do iy = iMltpl-ix, 0, -1
-               xyz=xyz*CoorO(2)**iy
+               xy=x*CoorO(2)**iy
                iz = iMltpl-ix-iy
-               xyz=xyz*CoorO(3)**iz
+               xyz=xy*CoorO(3)**iz
+*
+               Fact=Phase*xyz/(Gamma(Dble(ix)+1.0D0)
+     &                        *Gamma(Dble(iy)+1.0D0)
+     &                        *Gamma(Dble(iz)+1.0D0))
+*
+!              Write (*,*) 'Fact=',Fact
+!              Write (6,*) CoorO(1)**ix, ix
+!              Write (6,*) CoorO(2)**iy, iy
+!              Write (6,*) CoorO(3)**iz, iz
+               If (Fact.eq.0.0D0) cycle
 *
                iComp=iComp+1
-               Call RdOne(iRc,iOpt2,Label,iComp,Temp_Int,iSyLbl)
-*
-               Fact=Phase*Gamma(Dble(iMltpl)+1.0D0)/
-     &                   (Gamma(Dble(ix)+1.0D0)
-     &                   *Gamma(Dble(iy)+1.0D0)
-     &                   *Gamma(Dble(iz)+1.0D0))
-*
-               If (iCase.eq.1) Then
-*                 Contribution to the real part
-                  Call DaXpY_(nInts,Fact,Temp_Int,1,Int_R,1)
-               Else
-*                 Contribution to the imaginary part
-                  Call DaXpY_(nInts,Fact,Temp_Int,1,Int_I,1)
+               Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+!              Write (*,*) 'iRC=',iRC
+               If (iRC.ne.0) Then
+                  Write (6,*) 'TMOMINT: Error reading ',Label
+                  Call Abend()
                End If
+               nInts=idum(1)
+!              Write (6,*) 'nInts=',nInts
+               Call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
+               Call RdOne(iRc,iOpt0,Label,iComp,Temp_Int,iSyLbl)
+!              Write (*,*) 'Temp_Int(1)',Temp_Int(1)
+*
+               Len=0
+               Do i=1,nIrrep
+                  Do j=1,i
+                     ij=MulTab(i,j)-1
+                     If(iAnd(2**ij,iSyLbl).ne.0) Then
+                        jOff=Len+1
+                        If(i.eq.j) Then
+                           Len_=nBas(i-1)*(nBas(i-1)+1)/2
+                        Else
+                           Len_=nBas(i-1)*nBas(j-1)
+                        End If
+!                       Write (*,*) 'jOff,IOFF(i,j),Len_=',
+!    &                               jOff,IOFF(i,j),Len_
+                        If (iCase.eq.1) Then
+*                          Contribution to the real part
+                           Call DaXpY_(Len_,Fact,Temp_Int(jOff),1,
+     &                                 Int_R(IOFF(i,j)),1)
+                        Else
+*                          Contribution to the imaginary part
+                           Call DaXpY_(Len_,Fact,Temp_Int(jOff),1,
+     &                                 Int_I(IOFF(i,j)),1)
+                        End If
+                        Len = Len + Len_
+                     End If
+                  End Do
+               End Do
+               Call mma_deallocate(Temp_Int)
             End Do
          End Do
 *
@@ -156,16 +220,41 @@
 *
 *     Overwrite the integrals with a truncated expansion,
 *
-      Label='TMOM0'
+      Len=0
+      Do i=1,nIrrep
+         Do j=1,i
+            ij=MulTab(i,j)-1
+            If(iAnd(2**ij,iSyLbl_TMOM).ne.0) Then
+               If(i.eq.j) Then
+                  Len_=nBas(i-1)*(nBas(i-1)+1)/2
+               Else
+                  Len_=nBas(i-1)*nBas(j-1)
+               End If
+!     Write (*,*) 'i,j=',i,j
+!     Write (*,*) 'Int_R,Int_Q=',Int_R_O(Len+1),Int_R(Len+1)
+!     Write (*,*) 'Int_I,Int_J=',Int_I_O(Len+1),Int_I(Len+1)
+!     Write (*,*) 'Int_R,Int_Q=',
+!    &                     DDOT_(Len_,1.0D0,0,Int_R_O(Len+1),1),
+!    &                     DDOT_(Len_,1.0D0,0,Int_R(Len+1),1)
+!     Write (*,*) 'Int_I,Int_J=',
+!    &                     DDOT_(Len_,1.0D0,0,Int_I_O(Len+1),1),
+!    &                     DDOT_(Len_,1.0D0,0,Int_I(Len+1),1)
+               Len = Len + Len_
+            End If
+         End Do
+      End Do
+      Label='TMOM0  R'
       iComp=1
-      Call WrOne(iRc,iOpt0,Label,iComp,Int_R,iSyLbl)
-      iComp=2
-      Call WrOne(iRc,iOpt0,Label,iComp,Int_I,iSyLbl)
+      Call WrOne(iRc,iOpt0,Label,iComp,Int_R,iSyLbl_TMOM)
+      Label='TMOM0  I'
+      iComp=1
+      Call WrOne(iRc,iOpt0,Label,iComp,Int_I,iSyLbl_TMOM)
 *
-      Call mma_deallocate(CoorO)
+      Call mma_deallocate(Int_R_O)
+      Call mma_deallocate(Int_I_O)
       Call mma_deallocate(Int_R)
       Call mma_deallocate(Int_I)
-      Call mma_deallocate(Temp_Int)
+      Call mma_deallocate(CoorO)
 *
 #endif
       End If

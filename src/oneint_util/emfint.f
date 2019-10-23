@@ -184,7 +184,7 @@ c Avoid unused argument warnings
          Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
      &                     [nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)])
          Call CCmbnMP(zQxyz,nZeta,la,lb,nOrdOp,Zeta,
-     &                rKappa,Array(ipRes),nComp)
+     &                rKappa,Array(ipRes),nComp,CCoor)
          Nullify(zQxyz)
       End If
 *

@@ -33,6 +33,8 @@
       JSTATE=Min(ISTATE_,JSTATE_)
 *
       IC=ICOMP(IPROP)
+!     Write (*,*) 'Mk_Prop: Label=',Label
+!     Write (*,*) 'Mk_Prop:    IC=',IC
       IOPT=1
       NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
@@ -40,9 +42,7 @@
       IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
       IOPT=0
       CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
-*     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
-*     Write (*,*) 'Int=',DDOT_(NSIZ,BUFF,1,BUFF,1),
-*    &                   DDOT_(NSIZ,1.0D0,0,BUFF,1)
+!     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
       IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOM' ) THEN
          WRITE(6,*)
          WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE MK_PROP ***'
