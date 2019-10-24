@@ -55,7 +55,7 @@
 *                                                                      *
 *     Electromagnetic field radiation integrals.                       *
 *                                                                      *
-*     Note that the integral is not symmetric or antisymmetric!        *
+*     Note that the integral is neither symmetric nor antisymmetric!   *
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -143,7 +143,7 @@
       Int_I(:)=0.0D0
       Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
-      nMltpl=1
+      nMltpl=9
       iCase=1
       Phase=1.0D0
       Do iMltpl= 0, nMltpl
@@ -161,13 +161,13 @@
      &                        *Gamma(Dble(iy)+1.0D0)
      &                        *Gamma(Dble(iz)+1.0D0))
 *
-!              Write (*,*) 'Fact=',Fact
-!              Write (6,*) CoorO(1)**ix, ix
-!              Write (6,*) CoorO(2)**iy, iy
-!              Write (6,*) CoorO(3)**iz, iz
-               If (Fact.eq.0.0D0) cycle
+*              Write (*,*) 'Fact=',Fact
+*              Write (6,*) CoorO(1)**ix, ix
+*              Write (6,*) CoorO(2)**iy, iy
+*              Write (6,*) CoorO(3)**iz, iz
 *
                iComp=iComp+1
+               If (Fact.eq.0.0D0) cycle
                Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
 !              Write (*,*) 'iRC=',iRC
                If (iRC.ne.0) Then
@@ -218,8 +218,10 @@
          End If
       End Do
 *
-*     Overwrite the integrals with a truncated expansion,
+*     Compare exact integrals with approximated.
 *
+!#define _COMPARE_
+#ifdef _COMPARE_
       Len=0
       Do i=1,nIrrep
          Do j=1,i
@@ -230,6 +232,29 @@
                Else
                   Len_=nBas(i-1)*nBas(j-1)
                End If
+               Do iLen = 1, Len_
+*                    Write (6,*) 'isym,jsym,iLen=',i,j,iLen
+*                    Write (*,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),
+*    &                                          Int_R(Len+iLen)
+*                    Write (*,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),
+*    &                                          Int_I(Len+iLen)
+                  temp= Abs(Int_R_O(Len+iLen)-Int_R(Len+iLen))/
+     &                  Max(Abs(Int_R_O(Len+iLen)),
+     &                      Abs(Int_R(Len+iLen)),1.0D-8)
+                  If (temp.gt.1.0D-2) Then
+                     Write (6,*) 'isym,jsym,iLen=',i,j,iLen
+                     Write (6,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),
+     &                                          Int_R(Len+iLen)
+                  End If
+                  temp= Abs(Int_I_O(Len+iLen)-Int_I(Len+iLen))/
+     &                  Max(Abs(Int_I_O(Len+iLen)),
+     &                      Abs(Int_I(Len+iLen)),1.0D-8)
+                  If (temp.gt.1.0D-2) Then
+                     Write (6,*) 'isym,jsym,iLen=',i,j,iLen
+                     Write (6,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),
+     &                                          Int_I(Len+iLen)
+                  End If
+               End Do
 !     Write (*,*) 'i,j=',i,j
 !     Write (*,*) 'Int_R,Int_Q=',Int_R_O(Len+1),Int_R(Len+1)
 !     Write (*,*) 'Int_I,Int_J=',Int_I_O(Len+1),Int_I(Len+1)
@@ -243,6 +268,10 @@
             End If
          End Do
       End Do
+#endif
+*
+*     Overwrite the integrals with a truncated expansion,
+*
       Label='TMOM0  R'
       iComp=1
       Call WrOne(iRc,iOpt0,Label,iComp,Int_R,iSyLbl_TMOM)
