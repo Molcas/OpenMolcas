@@ -240,7 +240,7 @@ C 5. DIAGONALIZE HAMILTONIAN.
       END DO
 
       CALL Jacob (WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      CALL Jacord(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL SortDiag(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
@@ -512,23 +512,25 @@ c LU: save esfs array
        CALL MMA_DEALLOCATE(ESFS)
 c
 
-      IF(IPGLOB.ge.VERBOSE) THEN
+      IF((IPGLOB.ge.VERBOSE).or.(.not.diagonal)) THEN
        WRITE(6,*)
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       DO L=1,NSTATE
-          I=IndexE(L)
-         Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
-     &         ' energy=',ENERGY(I)
-         WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
-       END DO
+       IF(IPGLOB.ge.VERBOSE) THEN
+        DO L=1,NSTATE
+           I=IndexE(L)
+          Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
+     &          ' energy=',ENERGY(I)+EMIN
+          WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
+        END DO
+       END IF
        CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
        DO L=1,NSTATE
           I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
-     &          ' energy=',ENERGY(I)
+     &          ' energy=',ENERGY(I)+EMIN
         EVMAX=0.0D0
         DO K=1,NSTATE
          EVMAX=MAX(EVMAX,ABS(EIGVEC(IndexE(K),I)))
@@ -543,17 +545,18 @@ c
            IWORK(LILST-1+NLST)=IndexE(K)
          END IF
         END DO
-         DO KSTA=1,NLST,6
-          KEND=MIN(NLST,KSTA+4)
-          WRITE(Line,'(5X,5(I5,F12.6))')
-     &     (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
-          CALL NORMAL(Line)
-          WRITE(6,*) Line
-         END DO
-         WRITE(6,*)
+        DO KSTA=1,NLST,6
+         KEND=MIN(NLST,KSTA+4)
+         WRITE(Line,'(5X,5(I5,F12.6))')
+     &    (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
+         CALL NORMAL(Line)
+         WRITE(6,*) Line
         END DO
-        CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
-        CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+        WRITE(6,*)
+       END DO
+       CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
+       CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+       IF(IPGLOB.ge.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
@@ -565,9 +568,10 @@ c
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
          WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
-     &         K=1,NSTATE)
+     &          K=1,NSTATE)
          WRITE(6,*)
-       END DO
+        END DO
+       END IF
       END IF
 
 C                                                                      C
