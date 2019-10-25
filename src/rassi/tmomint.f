@@ -92,7 +92,7 @@
       Call mma_allocate(CoorO,6,Label='CoorO')
       CoorO(:)=0.0D0
       CoorO(1:3)=wavevector
-!     Write (6,*) 'Wavevector=',Wavevector
+      Write (6,*) 'Wavevector=',Wavevector
 *
 *     This section of the code is for pure debugging and will replace
 *     exact operator with truncated expansions of the operator in
@@ -201,6 +201,32 @@
 *                          Contribution to the imaginary part
                            Call DaXpY_(Len_,Fact,Temp_Int(jOff),1,
      &                                 Int_I(IOFF(i,j)),1)
+*                          If (i.eq.1.and.j.eq.1.and.nIrrep.eq.1) Then
+*                             Write (6,*) nBas(i-1),nBas(j-1)
+*                             Write (*,*) 'Fact=',Fact
+*                             Write (6,*) CoorO(1)**ix, ix
+*                             Write (6,*) CoorO(2)**iy, iy
+*                             Write (6,*) CoorO(3)**iz, iz
+*                             Write (6,*) 'Temp_Int(385)=',
+*    &                                     Temp_Int(jOff+384)
+*                             Write (6,*) 'Int_I(385)=',
+*    &                                     Int_I(IOFF(i,j)+384)
+*                             Write (6,*) 'Int_I_O(385)=',
+*    &                                     Int_I_O(IOFF(i,j)+384)
+*                          End If
+*                          If (i.eq.2.and.j.eq.1.and.nIrrep.eq.8) Then
+*                             Write (6,*) nBas(i-1),nBas(j-1)
+*                             Write (*,*) 'Fact=',Fact
+*                             Write (6,*) CoorO(1)**ix, ix
+*                             Write (6,*) CoorO(2)**iy, iy
+*                             Write (6,*) CoorO(3)**iz, iz
+*                             Write (6,*) 'Temp_Int(55)=',
+*    &                                     Temp_Int(jOff+54)
+*                             Write (6,*) 'Int_I(55)=',
+*    &                                     Int_I(IOFF(i,j)+54)
+*                             Write (6,*) 'Int_I_O(55)=',
+*    &                                     Int_I_O(IOFF(i,j)+54)
+*                          End If
                         End If
                         Len = Len + Len_
                      End If
@@ -220,7 +246,7 @@
 *
 *     Compare exact integrals with approximated.
 *
-!#define _COMPARE_
+#define _COMPARE_
 #ifdef _COMPARE_
       Len=0
       Do i=1,nIrrep
