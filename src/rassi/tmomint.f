@@ -65,28 +65,29 @@
 *     over A.
 *
       If (iOpt.eq.2) Then
-      nOrdOp = 0
-      Label='TMOM0'
-      nComp = 2
-      Call Allocate_Aux()
-*     Here we put in the k-vector
-      Call FZero(CoorO,3*nComp)
-      Call dcopy_(3,wavevector,1,CoorO,1)
+         rHrmt=One
+         nOrdOp = 0
+         Label='TMOM0'
+         nComp = 2
+         Call Allocate_Aux()
+*        Here we put in the k-vector
+         Call FZero(CoorO,3*nComp)
+         Call dcopy_(3,wavevector,1,CoorO,1)
 *
-*     The electromagnetic field operator contributes to all
-*     irreducible irreps, hence OperI=255. Since the operator
-*     itself is not symmetry-adapted OperC is set to a dummy value.
+*        The electromagnetic field operator contributes to all
+*        irreducible irreps, hence OperI=255. Since the operator
+*        itself is not symmetry-adapted OperC is set to a dummy value.
 *
-      OperI(:) = 255
-      OperC(:) = 0 ! Dummy
+         OperI(:) = 255
+         OperC(:) = 0 ! Dummy
 *
-      Call dcopy_(nComp,[Zero],0,Nuc,1)
-      Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
-     &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &           dum,1,dum,idum,0,0,
-     &           dum,1,0)
+         Call dcopy_(nComp,[Zero],0,Nuc,1)
+         Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
+     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
+     &              dum,1,dum,idum,0,0,
+     &              dum,1,0)
 *
-      Call Deallocate_Aux()
+         Call Deallocate_Aux()
 #ifdef _DEBUG_
 *
       Call mma_allocate(CoorO,6,Label='CoorO')
@@ -296,7 +297,7 @@
       End Do
 #endif
 *
-*     Overwrite the integrals with a truncated expansion,
+*     Overwrite the integrals with a truncated expansion.
 *
       Label='TMOM0  R'
       iComp=1

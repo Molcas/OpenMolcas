@@ -35,7 +35,7 @@
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
      &       Array(nZeta*nArr)
       Integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
-      Parameter (mComp=100)
+      Parameter (mComp=200)
       Integer kOper(mComp), kChO(mComp)
 *
       Call QEnter('PXInt')

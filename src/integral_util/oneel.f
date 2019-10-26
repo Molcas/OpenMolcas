@@ -582,13 +582,6 @@ C     Logical Addpot
                Else
                   rHrmt=-One
                End If
-            Else If (Label(1:5).eq.'EMFR0'.or.
-     &               Label(1:5).eq.'TMOM0') Then
-               If (iComp.eq.1) Then
-                  rHrmt= One
-               Else
-                  rHrmt=-One
-               End If
             End If
 *           Write (*,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
             If (mSO.ne.0) Then
