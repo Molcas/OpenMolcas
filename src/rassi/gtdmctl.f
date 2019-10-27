@@ -73,6 +73,7 @@
       real*8, Allocatable:: TRAD(:), TRASD(:), WERD(:)
       real*8, Allocatable:: TDMAB(:), TSDMAB(:), WDMAB(:)
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
+      real*8, Allocatable:: TDM2(:)
 
 #ifdef _DMRG_
 !     strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
@@ -218,10 +219,7 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
         Call mma_allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
       END IF
 
-      LSPD1=LNILPT
       IF (IF11) THEN
-        NSPD1=NASORB**2
-        CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
         NTRAD=NASHT**2
         NTRASD=NASHT**2
         NWERD=NASHT**2
@@ -229,14 +227,7 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
-      LSPD2=LNILPT
-      LTDM2=LNILPT
-      IF (IF22) THEN
-        NASGEM=(NASORB*(NASORB-1))/2
-        NSPD2=NASGEM**2
-        CALL GETMEM('SPD2','Allo','Real',LSPD2,NSPD2)
-        CALL GETMEM('TDM2','Allo','Real',LTDM2,NTDM2)
-      END IF
+      IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
 
       LTRA1=LNILPT
       LTRA2=LNILPT
@@ -999,18 +990,18 @@ C             Write density 1-matrices in AO basis to disk.
             CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
      &                  IWORK(LSSTAB),IWORK(LOMAP),
-     &                  WORK(LDET1),WORK(LDET2),NTDM2,WORK(LTDM2),
+     &                  WORK(LDET1),WORK(LDET2),NTDM2,TDM2,
      &                  ISTATE,JSTATE,job1,job2,ist,jst)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
-     &      HTWO=DDOT_(NTDM2,WORK(LTDM2),1,WORK(LTUVX),1)
+     &      HTWO=DDOT_(NTDM2,TDM2,1,WORK(LTUVX),1)
 
           END IF ! IF22
 
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
-            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22, LTDM2)
+            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22, TDM2)
 
 #ifdef _HDF5_
             IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
@@ -1242,7 +1233,6 @@ C             Write density 1-matrices in AO basis to disk.
       END IF
 ! +++
       IF (IF11) THEN
-        CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
         Call mma_deallocate(TRAD)
         Call mma_deallocate(TRASD)
         Call mma_deallocate(WERD)
@@ -1255,10 +1245,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call mma_deallocate(WDMZZ)
         END IF
       END IF
-      IF (IF22) THEN
-        CALL GETMEM('SPD2','Free','Real',LSPD2,NSPD2)
-        CALL GETMEM('TDM2','Free','Real',LTDM2,NTDM2)
-      END IF
+      IF (IF22) Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
         CALL GETMEM('FMO','Free','REAL',LFMO,NTDM1)

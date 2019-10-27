@@ -13,7 +13,8 @@
       !> module dependencies
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI,
-     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
+     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT,
+     &                               NilPt
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -317,8 +318,7 @@ C Will also handle mixing of states (sodiag.f)
       Call mma_deallocate(LROOT)
       Call mma_deallocate(TocM)
       Call mma_deallocate(Prop)
-      CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
-      CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
+      Call mma_deallocate(NILPT)
 
       If (Do_SK) Call mma_deallocate(k_Vector)
 

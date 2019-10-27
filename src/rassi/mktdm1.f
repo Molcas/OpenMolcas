@@ -45,7 +45,9 @@
 #endif
 
 #include "symmul.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
+      Real*8, Allocatable:: SPD1(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the following quantities:
@@ -122,8 +124,8 @@ C Overlap:
 
 C General 1-particle transition density matrix:
       NSPD1=NASORB**2
-      CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
-      CALL DCOPY_(NSPD1,[0.0D0],0,WORK(LSPD1),1)
+      Call mma_allocate(SPD1,nSPD1,Label='SPD1')
+      SPD1(:)=0.0D0
       ISYOP = MUL(LSYM1,LSYM2)
       MS2OP = MSPROJ1-MSPROJ2
 
@@ -132,10 +134,10 @@ C General 1-particle transition density matrix:
         if(.not.doDMRG)then
 #endif
           !> spind constructs the 1-particle transition density matrix
-          !> output in WORK(LSPD1)
+          !> output in SPD1
           !> main input: DET1 and DET2
           CALL SPIND(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
-     &               IFSBTAB1,IFSBTAB2,DET1,DET2,WORK(LSPD1))
+     &               IFSBTAB1,IFSBTAB2,DET1,DET2,SPD1)
 
 #ifdef _DMRG_
         else
@@ -144,7 +146,7 @@ C General 1-particle transition density matrix:
           if (doMPSSICheckpoints) then
             call dmrg_interface_ctl(
      &                            task       = 'imp rdmY',
-     &                            x1         = work(lspd1),
+     &                            x1         = spd1,
      &                            ndim       = nasorb,
      &                            checkpoint1=
      &                            qcm_group_names(job1)%states(ist),
@@ -160,7 +162,7 @@ C General 1-particle transition density matrix:
           else
             call dmrg_interface_ctl(
      &                            task       = 'imp rdmY',
-     &                            x1         = work(lspd1),
+     &                            x1         = spd1,
      &                            ndim       = nasorb,
      &                            state      = LROOT(istate),
      &                            stateL     = LROOT(jstate),
@@ -179,7 +181,7 @@ C General 1-particle transition density matrix:
         if(debug_dmrg_rassi_code)then
           write(6,*) 'density for i, j',istate,jstate
           write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
-          call pretty_print_util(WORK(LSPD1),1,nasorb,1,nasorb,
+          call pretty_print_util(SPD1,1,nasorb,1,nasorb,
      &                           nasorb,nasorb,1,6)
         end if
 #endif
@@ -200,10 +202,10 @@ C   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
        ISORB=2*IORB-1
        DO JORB=1,NASHT
         JSORB=2*JORB-1
-        GAA=WORK(LSPD1-1+ISORB+NASORB*(JSORB-1))
-        GAB=WORK(LSPD1-1+ISORB+NASORB*(JSORB  ))
-        GBA=WORK(LSPD1  +ISORB+NASORB*(JSORB-1))
-        GBB=WORK(LSPD1  +ISORB+NASORB*(JSORB  ))
+        GAA=SPD1(0+ISORB+NASORB*(JSORB-1))
+        GAB=SPD1(0+ISORB+NASORB*(JSORB  ))
+        GBA=SPD1(1+ISORB+NASORB*(JSORB-1))
+        GBB=SPD1(1+ISORB+NASORB*(JSORB  ))
 
 C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
@@ -282,7 +284,7 @@ c Avoid unused argument warnings
       END IF
 #endif
 
-      CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
+      CALL mma_deallocate(SPD1)
 
       RETURN
       END

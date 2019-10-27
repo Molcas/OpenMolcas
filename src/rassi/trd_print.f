@@ -15,7 +15,7 @@
 !   Code written by P. A. Malmqvist.
 ! This code was moved from the main gtdmctl.f file for clarity.
 ! - F. Plasser
-      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, LTDM2)
+      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDM2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -31,7 +31,8 @@
 !#include "rassiwfn.fh"
 #include "stdalloc.fh"
 ! Variables passed
-      INTEGER ISTATE, JSTATE, LTDM2
+      INTEGER ISTATE, JSTATE
+      Real*8 TDM2(*)
       LOGICAL DO22
 ! Other variables
       CHARACTER*3 NUM1,NUM2
@@ -134,7 +135,7 @@
                           ITUVX=(IVX*(IVX-1))/2+ITU
                         END IF
                         IWBUF=IWBUF+1
-                        WBUF(IWBUF)=WORK(LTDM2-1+ITUVX)
+                        WBUF(IWBUF)=TDM2(ITUVX)
                         IF(IWBUF.EQ.5) THEN
                           WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
                           IWBUF=0

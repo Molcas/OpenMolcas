@@ -36,13 +36,15 @@
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
-      INTEGER LSPD2,NASGEM,NSPD2,ISTATE,JSTATE
+      INTEGER NASGEM,NSPD2,ISTATE,JSTATE
       INTEGER job1,job2,ist,jst
 #ifdef _DMRG_
       LOGICAL :: debug_dmrg_rassi_code = .false.
 #endif
 #include "symmul.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
+      Real*8, Allocatable:: SPD2(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the spin-summed 2-particle transition density matrix
@@ -54,8 +56,8 @@ C Pick out nr of active orbitals from orbital table:
       NASHT=NASORB/2
       NASGEM=(NASORB*(NASORB-1))/2
       NSPD2=NASGEM**2
-      CALL GETMEM('SPD2','Allo','Real',LSPD2,NSPD2)
-      CALL DCOPY_(NSPD2,[0.0D0],0,WORK(LSPD2),1)
+      Call mma_allocate(SPD2,nSPD2,Label='SPD2')
+      SPD2(:)=0.0D0
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
       MPLETD =  MPLET1 - MPLET2
@@ -63,8 +65,7 @@ C Pick out nr of active orbitals from orbital table:
       if(.not.doDMRG)then
 #endif
         CALL SPIND2(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
-     &              IFSBTAB1,IFSBTAB2,
-     &              DET1,DET2,WORK(LSPD2))
+     &              IFSBTAB1,IFSBTAB2,DET1,DET2,SPD2)
 #ifdef _DMRG_
       else
 
@@ -73,7 +74,7 @@ C Pick out nr of active orbitals from orbital table:
           call dmrg_interface_ctl(
      &                          task       = 'imp rdmY',
 #ifndef BLUBB
-     &                          x2         = work(lspd2),
+     &                          x2         = spd2,
      &                          mdim       = nasgem,
 #else
      &                          x2         = tdm2,
@@ -94,7 +95,7 @@ C Pick out nr of active orbitals from orbital table:
           call dmrg_interface_ctl(
      &                          task       = 'imp rdmY',
 #ifndef BLUBB
-     &                          x2         = work(lspd2),
+     &                          x2         = spd2,
      &                          mdim       = nasgem,
 #else
      &                          x2         = tdm2,
@@ -120,7 +121,7 @@ C Pick out nr of active orbitals from orbital table:
       if(debug_dmrg_rassi_code)then
         write(6,*)'density for i, j',istate,jstate
         write(6,*)'dimension: ',nasgem**2, '--> #nact', nasorb
-        call pretty_print_util(WORK(LSPD2),1,nasgem,1,nasgem,
+        call pretty_print_util(SPD2,1,nasgem,1,nasgem,
      &                         nasgem,nasgem,1,6)
       end if
 #endif
@@ -192,28 +193,28 @@ C Pick out nr of active orbitals from orbital table:
         IABBA=IAKB+NASGEM*(JALB-1)
         IBAAB=IBKA+NASGEM*(JBLA-1)
         IBBBB=IBKB+NASGEM*(JBLB-1)
-        GAAAA=WORK(LSPD2-1+IAAAA)
-        GABBA=WORK(LSPD2-1+IABBA)
-        GBAAB=WORK(LSPD2-1+IBAAB)
-        GBBBB=WORK(LSPD2-1+IBBBB)
+        GAAAA=SPD2(IAAAA)
+        GABBA=SPD2(IABBA)
+        GBAAB=SPD2(IBAAB)
+        GBBBB=SPD2(IBBBB)
         GVAL=SGNIK*SGNJL*(GAAAA+GABBA+GBAAB+GBBBB)
        ELSE
         IABAB=IAKB+NASGEM*(JBJA-1)
         IBAAB=IBKA+NASGEM*(JBJA-1)
-        GABAB=WORK(LSPD2-1+IABAB)
-        GBAAB=WORK(LSPD2-1+IBAAB)
+        GABAB=SPD2(IABAB)
+        GBAAB=SPD2(IBAAB)
         GVAL=SGNIK*(-GABAB+GBAAB)
        END IF
       ELSE
        IF(JORB.NE.LORB) THEN
         IBABA=IBIA+NASGEM*(JALB-1)
         IBAAB=IBIA+NASGEM*(JBLA-1)
-        GBABA=WORK(LSPD2-1+IBABA)
-        GBAAB=WORK(LSPD2-1+IBAAB)
+        GBABA=SPD2(IBABA)
+        GBAAB=SPD2(IBAAB)
         GVAL=SGNJL*(-GBABA+GBAAB)
        ELSE
         IBAAB=IBIA+NASGEM*(JBJA-1)
-        GBAAB=WORK(LSPD2-1+IBAAB)
+        GBAAB=SPD2(IBAAB)
         GVAL=2.0D0*GBAAB
        END IF
       END IF
@@ -237,7 +238,7 @@ C Position determined by active orbital index in external order:
       end do
 #endif
 
-      CALL GETMEM('SPD2','Free','Real',LSPD2,NSPD2)
+      CALL mma_deallocate(SPD2)
 C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
       IJIJ=0
       DO IJ=1,NASHT**2
