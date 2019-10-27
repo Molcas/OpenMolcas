@@ -585,7 +585,6 @@ Optional general keywords to control the input
     :kword:`ERAT`, :kword:`NCUT` and :kword:`ENCU` are mutually exclusive.
 
 :kword:`MVEC`
-  .. compound::
 
     Defines the number of directions for which the magnetization vector will be computed.
     On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
@@ -610,7 +609,7 @@ Optional general keywords to control the input
       0.53199  0.53199  0.33870
       0.17475  0.17188  0.00000
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MVEC" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MVEC" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
               %%Keyword: MVEC <basic>
               <HELP>
               Defines the number of directions for which the magnetization vector will be computed.
@@ -619,6 +618,45 @@ Optional general keywords to control the input
               "i" of the magnetic field (theta_i and phi_i). These values should be in radians.
               </HELP>
               </KEYWORD>
+
+
+:kword:`ZEEM`
+
+    Defines the number of directions for which the Zeeman energy will be computed /saved / plotted.
+    On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
+    The program will read :math:`N_{\text{DIR}}` lines for cartesian coordinates specifying the direction :math:`i` of the
+    applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
+    The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
+    Example: ::
+
+      MVEC
+      4
+      0.0000  0.0000   0.1000
+      1.5707  0.0000   2.5000
+      1.5707  1.5707   1.0000
+      0.4257  0.4187   0.0000
+
+    The above input requests computation of the magnetization vector in four directions of applied field.
+    The actual directions on the unit sphere are: ::
+
+      4
+      0.00000  0.00000  1.00000
+      0.53199  0.00000  0.84675
+      0.53199  0.53199  0.33870
+      0.17475  0.17188  0.00000
+
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ZEEM" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
+              %%Keyword: ZEEM <basic>
+              <HELP>
+              Defines the number of directions for which the magnetization vector will be computed.
+              On the first line below the keyword, the number of directions should be mentioned (NDIR. Default 0).
+              The program will read NDIR lines for spherical coordinates specifying the direction
+              "i" of the magnetic field (theta_i and phi_i). These values should be in radians.
+              </HELP>
+              </KEYWORD>
+
+
+
 
 :kword:`MAVE`
   This keyword specifies the grid density used for the computation of powder molar
@@ -703,6 +741,32 @@ Optional general keywords to control the input
               mean molecular field acting on the spin of the complex (the average intermolecular
               exchange constant). It is used in the calculation of all magnetic properties (not for
               spin Hamiltonians) (Default is 0.0)
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`ABCC`
+  This keyword will enable computation of magnetic and anisotropy axes in the
+  crystallographic :math:`abc` system. On the next line, the program will read six real
+  values, namely :math:`a`, :math:`b`, :math:`c`, :math:`\alpha`, :math:`\beta`, and :math:`\gamma`, defining the
+  crystal lattice. On the second line, the program will read the Cartesian coordinates
+  of the magnetic center. The computed values in the output correspond to the
+  crystallographic position of three "dummy atoms" located on the corresponding anisotropy axes, at the distance of 1 ångstrom from the metal site. ::
+
+    ABCC
+    20.17   19.83   18.76    90  120.32  90
+    12.329  13.872  1.234
+
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ABCC" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: ABCC <basic>
+              <HELP>
+              This keyword will enable computation of magnetic and anisotropy axes in the
+              crystallographic abc system. On the next line, the program will read six real
+              values, namely (a, b, c, alpha, beta, and gamma), defining the crystal lattice.
+              On the second line, the program will read the Cartesian coordinates of the
+              magnetic center. The computed values in the output correspond to the crystallographic
+              position of three "dummy atoms" located on the corresponding anisotropy axes, at the
+              distance of 1.0 angstrom from the metal site.
               </HELP>
               </KEYWORD>
 
