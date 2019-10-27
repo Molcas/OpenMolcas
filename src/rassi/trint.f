@@ -59,7 +59,7 @@ C OPEN THE ELECTRON REPULSION INTEGRAL FILE
 c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
       Call DecideOnCholesky(DoCholesky)
 
-      LTUVX=ip_of_work(TUVX)
+      LTUVX=ip_of_work(TUVX(1))
       If (.not.DoCholesky) then
 
          IOPT=0

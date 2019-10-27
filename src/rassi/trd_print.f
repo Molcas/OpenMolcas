@@ -15,7 +15,8 @@
 !   Code written by P. A. Malmqvist.
 ! This code was moved from the main gtdmctl.f file for clarity.
 ! - F. Plasser
-      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDM2)
+      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
+     &                     CMO1, CMO2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -32,7 +33,7 @@
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
-      Real*8 TDM2(*)
+      Real*8 TDM2(*), CMO1(*), CMO2(*)
       LOGICAL DO22
 ! Other variables
       CHARACTER*3 NUM1,NUM2
@@ -59,24 +60,24 @@
       WRITE(LU,*)'#  Active orbitals:'
       WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
       WRITE(LU,*)'#  State ',ISTATE,'    CMO coefficients:'
-      LPOS=LCMO1
+      LPOS=1
       DO ISYM=1,NSYM
         NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         NB=NBASF(ISYM)
         DO IO=1,NO
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+          WRITE(LU,'(5D19.12)')(CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
       WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
-      LPOS=LCMO2
+      LPOS=1
       DO ISYM=1,NSYM
         NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         NB=NBASF(ISYM)
         DO IO=1,NO
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+          WRITE(LU,'(5D19.12)')(CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
@@ -84,7 +85,7 @@
       WRITE(LU,'(5D19.12)') SIJ
       WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
       LSYM12=MUL(LSYM1,LSYM2)
-      LPOS=LTDMAB
+      LPOS=1
       DO ISYM1=1,NSYM
         NO1=NOSH(ISYM1)
         ISYM2=MUL(ISYM1,LSYM12)
@@ -96,7 +97,7 @@
             NI1=NISH(ISYM1)
             NI2=NISH(ISYM2)
             WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-            WRITE(LU,'(5D19.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
+            WRITE(LU,'(5D19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),
      &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
           END IF
           LPOS=LPOS+NO1*NO2

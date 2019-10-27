@@ -12,7 +12,7 @@
       Module RASSI_GLOBAL_ARRAYS
       Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:), &
                             SODYSAMPS(:,:), SODYSAMPSR(:,:), &
-                            SODYSAMPSI(:,:), &
+                            SODYSAMPSI(:,:), EIGVEC(:,:), &
                             PROP(:,:,:), ESHFT(:), HDIAG(:)
       Integer, Allocatable:: JBNUM(:), LROOT(:)
       End Module RASSI_GLOBAL_ARRAYS

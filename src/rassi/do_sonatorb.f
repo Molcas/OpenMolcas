@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
-      use rassi_global_arrays, only: JBNUM
+      use rassi_global_arrays, only: JBNUM, EIGVEC
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -62,7 +62,7 @@ c This was taken from smmat.f and modified slightly
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
            IJ=(JSS-1)*NSS+ISS
-           WORK(LVMAT-1+IJ)=WORK(LEIGVEC+(ISTATE-1)*NSTATE+JSTATE-1)
+           WORK(LVMAT-1+IJ)=EIGVEC(JSTATE,ISTATE)
           END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
          END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
         END DO ! end DO JSTATE=1,NSTATE

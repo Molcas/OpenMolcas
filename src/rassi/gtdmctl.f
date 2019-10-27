@@ -176,8 +176,6 @@ C WF parameters for ISTATE and JSTATE
 C Pick up orbitals of ket and bra states.
       Call mma_allocate(CMO1,nCMO,Label='CMO1')
       Call mma_allocate(CMO2,nCMO,Label='CMO2')
-      LCMO1=ip_of_work(CMO1(1))
-      LCMO2=ip_of_work(CMO2(1))
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 
@@ -996,7 +994,8 @@ C             Write density 1-matrices in AO basis to disk.
 
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
-            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22, TDM2)
+            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
+     &                    TDMAB,TDM2,CMO1,CMO2)
 
 #ifdef _HDF5_
             IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN

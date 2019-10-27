@@ -11,7 +11,7 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
-      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
+      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC,
      &                               SODYSAMPSR, SODYSAMPSI,
      &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux
@@ -45,7 +45,7 @@ C RAS state interaction.
       COMMON / CHO_JOBS / Fake_CMO2
       INTEGER IRC,ISFREEUNIT
       EXTERNAL ISFREEUNIT
-      Real*8, Allocatable:: EigVec(:,:), USOR(:,:),
+      Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
      &                      VNAT(:),OCC(:), SOENE(:)
@@ -91,7 +91,6 @@ C Needed matrix elements are computed by PROPER.
       Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
       Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
-      LEIGVEC=ip_of_work(EigVec(1,1))
       Call mma_allocate(ENERGY,nState,Label='Energy')
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
 
@@ -226,11 +225,9 @@ C Nr of spin states and division of loops:
       LOOPDIVIDE = LOOPDIVIDE_TEMP
 
       Call mma_allocate(USOR,NSS,NSS,Label='USOR')
-      LUTOTR=ip_of_Work(USOR(1,1))
       USOR(:,:)=0.0D0
       For All (i=1:NSS) USOR(i,i)=1.0D0
       Call mma_allocate(USOI,NSS,NSS,Label='USOI')
-      LUTOTI=ip_of_Work(USOI(1,1))
       USOI(:,:)=0.0D0
       Call mma_allocate(SOENE,nSS,Label='SOENE')
       SOENE(:)=0.0D0
