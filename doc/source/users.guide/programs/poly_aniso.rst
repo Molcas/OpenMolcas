@@ -404,9 +404,7 @@ Optional general keywords to control the input
   The program reads two lines: the first is the number of multiplets (:math:`N_{\text{MULT}}`) and the
   second the array of :math:`N_{\text{MULT}}` numbers specifying the dimension (multiplicity) of each multiplet.
 
-  .. compound::
-
-    Example: ::
+  Example: ::
 
       MLTP
       10
@@ -416,16 +414,16 @@ Optional general keywords to control the input
     The groups 1 and 4--10 are doublets (:math:`\tilde{S}=\ket{1/2}`), while the groups 2 and 3 are quadruplets,
     having the effective spin :math:`\tilde{S}=\ket{3/2}`. For the latter cases, the ZFS (:math:`D{-}`) tensors will be computed.
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MLTP" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="1">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MLTP" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" DEFAULT_VALUE="1">
               %%Keyword: MLTP <basic>
               <HELP>
-              The number of molecular multiplets (i.e. groups of spin-orbital eigenstates)
-              for which g, D and higher magnetic tensors will be calculated (default MLTP=1).
+              The number of molecular multiplets (i.e. groups of spin-orbital eigenstates) for
+              which g, D and higher magnetic tensors will be calculated.
               The program reads two lines: the first is the number of multiplets (NMULT) and
-              the second the array of NMULT numbers specifying the dimension of each multiplet.
-              The default is to select one multiplet which has the dimension equal to the
-              multiplicity of the ground term. In cases of strong spin-orbit coupling the usage
-              of this keyword is mandatory.
+              on the second line the array of NMULT numbers specifying the dimension of each multiplet.
+              By default, the code will first analyze the energy spectra by itself and will
+              compute the g and D tensors for ten low-lying groups of states. By using this
+              keyword the user overwrites the default.
               </HELP>
               </KEYWORD>
 
