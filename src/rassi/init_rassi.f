@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INIT_RASSI
-      use rassi_global_arrays, only: nilpt
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -40,10 +39,6 @@ C SET UP SYMMETRY MULTIPLICATION TABLE:
         END DO
         M=2*M
       END DO
-
-C  NILPT - IS A VALID REAL DUMMY FIELD
-      Call mma_allocate(NilPt,1,Label='NilPt')
-      LNIPT=ip_of_work(NilPt)
 
 C UNIT NUMBERS AND NAMES
       LUONE=2

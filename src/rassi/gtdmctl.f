@@ -73,7 +73,7 @@
       real*8, Allocatable:: TRAD(:), TRASD(:), WERD(:)
       real*8, Allocatable:: TDMAB(:), TSDMAB(:), WDMAB(:)
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
-      real*8, Allocatable:: TDM2(:)
+      real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
 
 #ifdef _DMRG_
 !     strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
@@ -229,8 +229,6 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       END IF
       IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
 
-      LTRA1=LNILPT
-      LTRA2=LNILPT
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
         IF (DoGSOR) Then
@@ -244,9 +242,9 @@ C Transform to biorthonormal orbital system
         End if !DoGSOR
 
 
-        CALL GETMEM('GTDMTRA1','ALLO','REAL',LTRA1,NTRA)
-        CALL GETMEM('GTDMTRA2','ALLO','REAL',LTRA2,NTRA)
-        CALL FINDT(CMO1,CMO2,WORK(LTRA1),WORK(LTRA2))
+        Call mma_allocate(TRA1,nTRA,Label='TRA1')
+        Call mma_allocate(TRA2,nTRA,Label='TRA2')
+        CALL FINDT(CMO1,CMO2,TRA1,TRA2)
         TRORB = .true.
       else
         TRORB = .false.
@@ -282,15 +280,12 @@ C Transform to biorthonormal orbital system
 C OBTAIN CORE ENERGY, FOCK MATRIX, AND TWO-ELECTRON INTEGRALS
 C IN THE MIXED ACTIVE MO BASIS:
       ECORE=0.0D0
-      LFMO =LNILPT
-      LTUVX=LNILPT
       IF (IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
-       CALL GETMEM('FMO','ALLO','REAL',LFMO,NTDM1)
-       CALL GETMEM('TUVX  ','ALLO','REAL',LTUVX,NTDM2)
-       CALL FZERO(WORK(LTUVX),NTDM2)
+       Call mma_allocate(FMO,nTDM1,Label='FMO')
+       Call mma_allocate(TUVX,nTDM2,Label='TUVX')
+       TUVX(:)=0.0D0
 CTEST       write(*,*)'GTDMCTL calling TRINT.'
-       CALL TRINT(CMO1,CMO2,ECORE,
-     &              NTDM1,WORK(LFMO),NTDM2,WORK(LTUVX))
+       CALL TRINT(CMO1,CMO2,ECORE,nTDM1,FMO,nTDM2,TUVX)
        ECORE=ENUC+ERFNUC+ECORE
 CTEST       write(*,*)'GTDMCTL back from TRINT.'
 CTEST       write(*,*)'ENUC  =',ENUC
@@ -648,7 +643,7 @@ C Read ISTATE wave function
           END IF
           CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
           CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
-     &                WORK(LTRA1),IWORK(LCNFTAB1),IWORK(LSPNTAB1),
+     &                TRA1,IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1))
 
@@ -664,7 +659,7 @@ C Write out the determinant expansion to disk.
      &                 MPLET1,
      &                 MSPROJ1,
      &                 NACTE1,
-     &                 WORK(LTRA1),
+     &                 TRA1,
      &                 NTRA,
      &                 NISH,
      &                 NASH,
@@ -703,7 +698,7 @@ C Read JSTATE wave function
           End If
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &                WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2))
 
@@ -716,7 +711,7 @@ C Read JSTATE wave function
      &                 MPLET2,
      &                 MSPROJ2,
      &                 NACTE2,
-     &                 WORK(LTRA2),
+     &                 TRA2,
      &                 NTRA,
      &                 NISH,
      &                 NASH,
@@ -821,7 +816,7 @@ C General 1-particle transition density matrix:
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
-        HONE=DDOT_(NTRAD,TRAD,1,WORK(LFMO),1)
+        HONE=DDOT_(NTRAD,TRAD,1,FMO,1)
         END IF
 
 
@@ -995,7 +990,7 @@ C             Write density 1-matrices in AO basis to disk.
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
-     &      HTWO=DDOT_(NTDM2,TDM2,1,WORK(LTUVX),1)
+     &      HTWO=DDOT_(NTDM2,TDM2,1,TUVX,1)
 
           END IF ! IF22
 
@@ -1076,7 +1071,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &              WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &              TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &          WORK(LDET2))
 
@@ -1213,8 +1208,8 @@ C             Write density 1-matrices in AO basis to disk.
       END IF
 
       IF(JOB1.NE.JOB2) THEN
-        CALL GETMEM('GTDMTRA1','FREE','REAL',LTRA1,NTRA)
-        CALL GETMEM('GTDMTRA2','FREE','REAL',LTRA2,NTRA)
+        Call mma_deallocate(TRA1)
+        Call mma_deallocate(TRA2)
       END IF
       CALL GETMEM('GTDMDET1','FREE','REAL',LDET1,NDET1)
       CALL GETMEM('GTDMDET2','FREE','REAL',LDET2,NDET2)
@@ -1248,8 +1243,8 @@ C             Write density 1-matrices in AO basis to disk.
       IF (IF22) Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
-        CALL GETMEM('FMO','Free','REAL',LFMO,NTDM1)
-        CALL GETMEM('TUVX  ','Free','REAL',LTUVX,NTDM2)
+        Call mma_deallocate(FMO)
+        Call mma_deallocate(TUVX)
       END IF
 
       Call mma_deallocate(CMO2)

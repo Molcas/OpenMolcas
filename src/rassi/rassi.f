@@ -13,8 +13,7 @@
       !> module dependencies
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI,
-     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT,
-     &                               NilPt
+     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -33,7 +32,6 @@ C RAS state interaction.
 #include "Morsel.fh"
 #include "Struct.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "prgm.fh"
 #include "rasdef.fh"
@@ -318,7 +316,6 @@ C Will also handle mixing of states (sodiag.f)
       Call mma_deallocate(LROOT)
       Call mma_deallocate(TocM)
       Call mma_deallocate(Prop)
-      Call mma_deallocate(NILPT)
 
       If (Do_SK) Call mma_deallocate(k_Vector)
 
