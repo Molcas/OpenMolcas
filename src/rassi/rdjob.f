@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDJOB(JOB,READ_STATES)
+      use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info
@@ -144,13 +145,13 @@
 *        NSTATE=NSTATE+ref_nstates
 * store the root IDs of each state
         DO I=0,NSTAT(JOB)-1
-          iWork(lLROOT+ISTAT(JOB)-1+I)=ref_rootid(I+1)
-          iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
+          LROOT(ISTAT(JOB)+I)=ref_rootid(I+1)
+          JBNUM(ISTAT(JOB)+I)=JOB
         END DO
       end if
       LROT1=ref_nroots
       DO I=0,NSTAT(JOB)-1
-        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        NROOT0=LROOT(ISTAT(JOB)+I)
         IF (NROOT0.GT.LROT1) THEN
           GOTO 9002
         END IF
@@ -216,7 +217,7 @@
      &         'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          Work(LREFENE+istate-1)=ref_energies(iWork(lLROOT+ISTATE-1))
+          Work(LREFENE+istate-1)=ref_energies(LROOT(ISTATE))
         END DO
         call mma_deallocate(ref_energies)
       End If
@@ -241,7 +242,7 @@
      &                                     qcm_group_names(job)
      &                                     %states(i),
      &                                     [1],
-     &                                     [iWork(lLROOT+ISTATE-1)-1]
+     &                                     [LROOT(ISTATE)-1]
      &                                    )
 !           Write(6,'(I3,A,A)') ISTATE, '   ',
 !    &      trim(qcm_group_names(job)%states(i))
@@ -385,15 +386,15 @@ C is added in GETH1.
 * store the root IDs of each state
 
 *If unset yet, set now
-        If (iWork(lLROOT+ISTAT(JOB)-1).eq.0) Then
+        If (LROOT(ISTAT(JOB)).eq.0) Then
           DO I=0,NSTAT(JOB)-1
-            iWork(lLROOT+ISTAT(JOB)-1+I)=IROOT1(I+1)
-            iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
+            LROOT(ISTAT(JOB)+I)=IROOT1(I+1)
+            JBNUM(ISTAT(JOB)+I)=JOB
           End DO
         End If
       END IF
       DO I=0,NSTAT(JOB)-1
-        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        NROOT0=LROOT(ISTAT(JOB)+I)
         IF (NROOT0.GT.LROT1) THEN
           GOTO 9002
         END IF
@@ -434,11 +435,10 @@ C Put these energies into diagonal of Hamiltonian:
           ISTATE=ISTAT(JOB)-1+I
 #ifdef _DMRG_
           if (doDMRG) then
-            E=WORK(LEJOB-1+iWork(lLROOT+ISTATE-1)
-     &        -ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
+            E=WORK(LEJOB-1+LROOT(ISTATE)-ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
           else
 #endif
-          E=WORK(LEJOB-1+iWork(lLROOT+ISTATE-1)+MXROOT*(NMAYBE-1))
+          E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
 #ifdef _DMRG_
           endif
 #endif
@@ -467,7 +467,7 @@ C If both EJOB and HEFF are given, read only the diagonal
           HAVE_DIAG=.TRUE.
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
-            ISNUM=iWork(lLROOT+ISTATE-1)
+            ISNUM=LROOT(ISTATE)
             HIJ=WORK(LHEFF-1+ISNUM+LROT1*(ISNUM-1))
             Work(LREFENE+istate-1)=HIJ
             iadr=(istate-1)*nstate+istate-1
@@ -476,10 +476,10 @@ C If both EJOB and HEFF are given, read only the diagonal
         ELSE
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
-            ISNUM=iWork(lLROOT+ISTATE-1)
+            ISNUM=LROOT(ISTATE)
             DO J=1,NSTAT(JOB)
               JSTATE=ISTAT(JOB)-1+J
-              JSNUM=iWork(lLROOT+JSTATE-1)
+              JSNUM=LROOT(JSTATE)
               HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
               iadr=(istate-1)*nstate+jstate-1
               Work(l_heff+iadr)=HIJ

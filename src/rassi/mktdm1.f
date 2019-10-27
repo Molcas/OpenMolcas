@@ -11,10 +11,11 @@
       SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
      &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
-     &    lLROOT,job1,job2,ist,jst)
+     &    job1,job2,ist,jst)
 
       !> module dependencies
 #ifdef _DMRG_
+      use rassi_global_arrays, only: LROOT
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
@@ -23,7 +24,7 @@
 #endif
 
       IMPLICIT NONE
-      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2,lLROOT
+      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*)
       INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
       INTEGER LSPD1,MS2OP,NASHT,NASORB,NSPD1
@@ -104,8 +105,8 @@ C Overlap:
             call dmrg_interface_ctl(
      &                            task   = 'overlap ',
      &                            energy = sij,
-     &                            state  = iWork(lLROOT+istate-1),
-     &                            stateL = iWork(lLROOT+jstate-1)
+     &                            state  = LROOT(istate),
+     &                            stateL = LROOT(jstate)
      &                           )
           end if
 
@@ -161,8 +162,8 @@ C General 1-particle transition density matrix:
      &                            task       = 'imp rdmY',
      &                            x1         = work(lspd1),
      &                            ndim       = nasorb,
-     &                            state      = iWork(lLROOT+istate-1),
-     &                            stateL     = iWork(lLROOT+jstate-1),
+     &                            state      = LROOT(istate),
+     &                            stateL     = LROOT(jstate),
      &                            msproj     = msproj1,
      &                            msprojL    = msproj2,
      &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
@@ -274,7 +275,6 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
-        call Unused_integer(lLROOT)
         call Unused_integer(job1)
         call Unused_integer(job2)
         call Unused_integer(ist)

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PROPER (PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
+      use rassi_global_arrays, only : JBNUM
       use RASSI_AUX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -31,8 +32,8 @@
       Real*8, Allocatable:: SCR(:,:)
 
 C COMBINED SYMMETRY OF STATES:
-      JOB1=iWork(lJBNUM+ISTATE-1)
-      JOB2=iWork(lJBNUM+JSTATE-1)
+      JOB1=JBNUM(ISTATE)
+      JOB2=JBNUM(JSTATE)
       LSYM1=IRREP(JOB1)
       LSYM2=IRREP(JOB2)
       ISY12=MUL(LSYM1,LSYM2)

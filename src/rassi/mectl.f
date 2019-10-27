@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
+      use rassi_global_arrays, only: HDIAG
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -23,8 +24,6 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 *
-
-
       CALL QENTER(ROUTINE)
 
 C Print results:
@@ -161,7 +160,7 @@ C Print results:
         DO ISTATE=1,NSTATE
           IF(.NOT.IFSHFT) ESHFT(ISTATE)=0.0D0
           IF(IFHDIA) ESHFT(ISTATE)=ESHFT(ISTATE)+
-     &              (Work(LHDIAG+ISTATE-1)-HAM(ISTATE,ISTATE))
+     &              (HDIAG(ISTATE)-HAM(ISTATE,ISTATE))
         END DO
         DO ISTATE=1,NSTATE
          DO JSTATE=1,NSTATE

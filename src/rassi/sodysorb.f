@@ -14,7 +14,7 @@
 ************************************************************************
       SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       use rassi_global_arrays, only: SFDYS, SODYSAMPS,
-     &                               SODYSAMPSR, SODYSAMPSI
+     &                               SODYSAMPSR, SODYSAMPSI, JBNUM
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -69,7 +69,7 @@ C as a function of the SO state number
       SOTOT=0
       SFTOT=0
       DO ISTATE=1,NSTATE
-       JOB1=iWork(lJBNUM+ISTATE-1)
+       JOB1=JBNUM(ISTATE)
        MPLET1=MLTPLT(JOB1)
        SFTOT=SFTOT+1
 

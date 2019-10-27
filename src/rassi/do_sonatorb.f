@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -41,7 +42,7 @@ c transform V matrix in SF basis to spin basis
 c This was taken from smmat.f and modified slightly
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB1=iWork(lJBNUM+ISTATE-1)
+       JOB1=JBNUM(ISTATE)
        MPLET1=MLTPLT(JOB1)
        S1=0.5D0*DBLE(MPLET1-1)
 
@@ -51,7 +52,7 @@ c This was taken from smmat.f and modified slightly
         JSS=0
 
         DO JSTATE=1,NSTATE
-         JOB2=iWork(lJBNUM+JSTATE-1)
+         JOB2=JBNUM(JSTATE)
          MPLET2=MLTPLT(JOB2)
          S2=0.5D0*DBLE(MPLET2-1)
 

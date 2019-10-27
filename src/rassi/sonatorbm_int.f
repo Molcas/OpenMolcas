@@ -12,6 +12,7 @@
      &                         iOpt,ROTMAT,
      &                         PROPVALXR,PROPVALYR,PROPVALZR,
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -42,7 +43,7 @@ C (see prprop.f and others)
 
       ISS=0
       DO ISF=1,NSTATE
-        JOB=iWork(lJBNUM+ISF-1)
+        JOB=JBNUM(ISF)
         MPLET=MLTPLT(JOB)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2

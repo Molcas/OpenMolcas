@@ -12,6 +12,7 @@
      &                     USOR,USOI,ASS,BSS,NSS,
      &                     iOpt,ROTMAT,DENSOUT)
       use rassi_aux, only : idisk_TDM
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -61,7 +62,7 @@ C (see prprop.f and others)
 
       ISS=0
       DO ISF=1,NSTATE
-        JOB=iWork(lJBNUM+ISF-1)
+        JOB=JBNUM(ISF)
         MPLET=MLTPLT(JOB)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2
@@ -148,8 +149,8 @@ C REQUESTED SPIN STATES
         MPLETL=IWORK(LMAPSP-1+LSS)
         MSPROJL=IWORK(LMAPMS-1+LSS)
 
-        JOB1=iWork(lJBNUM+KSF-1)
-        JOB2=iWork(lJBNUM+LSF-1)
+        JOB1=JBNUM(KSF)
+        JOB2=JBNUM(LSF)
         LSYM1=IRREP(JOB1)
         LSYM2=IRREP(JOB2)
         ISY12=MUL(LSYM1,LSYM2)

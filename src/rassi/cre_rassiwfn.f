@@ -12,6 +12,7 @@
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use kVectors
+      use rassi_global_arrays, only: JBNUM
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -57,13 +58,13 @@
 
       NSS=0
       DO ISTATE=1,NSTATE
-        NSS=NSS+MLTPLT(iWork(lJBNUM+ISTATE-1))
+        NSS=NSS+MLTPLT(JBNUM(ISTATE))
       END DO
 
 *     irrep per state
       call mma_allocate(state_irreps, NSTATE)
       do istate=1,nstate
-        state_irreps(istate) = IRREP(iWork(lJBNUM+ISTATE-1))
+        state_irreps(istate) = IRREP(JBNUM(ISTATE))
       end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_IRREPS', 1, [NSTATE], state_irreps)
@@ -72,7 +73,7 @@
 *     multiplicity per state
       call mma_allocate(state_mult, NSTATE)
       do istate=1,nstate
-        state_mult(istate) = MLTPLT(iWork(lJBNUM+ISTATE-1))
+        state_mult(istate) = MLTPLT(JBNUM(ISTATE))
       end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)

@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE READIN_RASSI
-      use rassi_global_arrays, only: HAM, ESHFT
+      SUBROUTINE READIN_RASSI()
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -261,17 +261,16 @@ C ------------------------------------------
           DO IJOB=1,NJOB
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
-          Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
-          Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
+          Call mma_allocate(JBNUM,nState,Label='JBNUM')
+          Call mma_allocate(LROOT,nState,Label='LROOT')
           LINENR=LINENR+1
           NSTATE=0
           DO IJOB=1,NJOB
             ISTAT(IJOB)=NSTATE+1
-            Read(LuIn,*,ERR=997) (iWork(lLROOT+NSTATE+J),
-     &                                 J=0,NSTAT(IJOB)-1)
+            Read(LuIn,*,ERR=997) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
             LINENR=LINENR+1
             DO ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-              iWork(lJBNUM+ISTATE-1)=IJOB
+              JBNUM(ISTATE)=IJOB
             END DO
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
@@ -339,8 +338,8 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         IFHDIA=.TRUE.
-        Call GetMem('HDIAG','ALLO','REAL',LHDIAG,NSTATE)
-        Read(LuIn,*,ERR=997)(Work(LHDIAG+ISTATE),ISTATE=0,NSTATE-1)
+        Call mma_allocate(HDIAG,nState,Label='nState')
+        Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
         LINENR=LINENR+1
         GOTO 100
       END IF

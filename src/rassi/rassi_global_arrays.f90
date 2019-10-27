@@ -7,10 +7,12 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
       Module RASSI_GLOBAL_ARRAYS
       Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:), &
                             SODYSAMPS(:,:), SODYSAMPSR(:,:), &
                             SODYSAMPSI(:,:), &
-                            PROP(:,:,:), ESHFT(:)
+                            PROP(:,:,:), ESHFT(:), HDIAG(:)
+      Integer, Allocatable:: JBNUM(:), LROOT(:)
       End Module RASSI_GLOBAL_ARRAYS

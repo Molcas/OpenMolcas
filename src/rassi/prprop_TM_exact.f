@@ -364,7 +364,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL mma_allocate(ISS_INDEX,NState+1,LABEL='ISS_INDEX')
       ISS_INDEX(1)=0
       Do iState=1,NState
-         Job=iWork(lJBNUM+iState-1)
+         Job=JBNUM(iState)
          ISS_INDEX(iState+1)=ISS_INDEX(IState)+MLTPLT(Job)
       End Do
 *

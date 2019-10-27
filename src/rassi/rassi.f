@@ -13,7 +13,7 @@
       !> module dependencies
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI,
-     &                               PROP, ESHFT
+     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux
       use kVectors
 #ifdef _DMRG_
@@ -218,7 +218,7 @@ C Nr of spin states and division of loops:
       NSS=0
       LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
-         JOB=iWork(lJBNUM+ISTATE-1)
+         JOB=JBNUM(ISTATE)
          MPLET=MLTPLT(JOB)
          NSS=NSS+MPLET
          IF(ISTATE.GT.LOOPDIVIDE) CYCLE
@@ -256,7 +256,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
 ! +++
 
       CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
-     &            ENERGY,iWork(lJBNUM),EigVec)
+     &            ENERGY,JBNUM,EigVec)
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
@@ -311,10 +311,10 @@ C Will also handle mixing of states (sodiag.f)
       Call mma_deallocate(EigVec)
       Call mma_deallocate(Energy)
       Call mma_deallocate(ESHFT)
-      Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
+      Call mma_deallocate(HDIAG)
       Call mma_deallocate(jDisk_TDM)
-      Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
-      Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
+      Call mma_deallocate(JBNUM)
+      Call mma_deallocate(LROOT)
       Call mma_deallocate(TocM)
       Call mma_deallocate(Prop)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)

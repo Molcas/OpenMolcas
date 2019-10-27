@@ -11,6 +11,7 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
+      USE rassi_global_arrays, only: JBNUM
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
       USE ISO_C_Binding
@@ -116,13 +117,13 @@ C Make a list of interacting sets of states:
         IF(IWORK(LLIST-1+I).GT.0) GOTO 20
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
-        JOB1=iWork(lJBNUM+I-1)
+        JOB1=JBNUM(I)
         NACTE1=NACTE(JOB1)
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
           IF(IWORK(LLIST-1+J).GT.0) GOTO 10
-          JOB2=iWork(lJBNUM+J-1)
+          JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
           IF(NACTE2.NE.NACTE1) GOTO 10
           MPLET2=MLTPLT(JOB2)
@@ -2585,16 +2586,16 @@ C                                                                      C
                ij_=0
                Do i_=istart_,iend_
                   I=IndexE(I_)
-                  MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
+                  MPLET_I=MLTPLT(JBNUM(I))
                   Do j_=jstart_,jend_
                      J=IndexE(J_)
-                     MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
+                     MPLET_J=MLTPLT(JBNUM(J))
                      EDIFF=ENERGY(J)-ENERGY(I)
                      ij_=ij_+1
                      LFIJ=LF+(ij_-1)*2
 C COMBINED SYMMETRY OF STATES:
-                     JOB1=iWork(lJBNUM+I-1)
-                     JOB2=iWork(lJBNUM+J-1)
+                     JOB1=JBNUM(I)
+                     JOB2=JBNUM(J)
                      LSYM1=IRREP(JOB1)
                      LSYM2=IRREP(JOB2)
                      ISY12=MUL(LSYM1,LSYM2)
@@ -2638,13 +2639,13 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                         Forall (iprp=1:12) Prop(:,:,IPRTMOM(IPRP))=0.0D0
                         Do k_ = 1, nState
                            k=IndexE(k_)
-                           JOB3=iWork(lJBNUM+k-1)
+                           JOB3=JBNUM(k)
                            LSYM3=IRREP(JOB3)
                            If (Abs(EigVec(k,I)) .lt. 1.0D-10 .and.
      &                         Abs(EigVec(k,J)) .lt. 1.0D-10) Cycle
                            Do l_ = 1, k
                               l=IndexE(l_)
-                              JOB4=iWork(lJBNUM+l-1)
+                              JOB4=JBNUM(l)
                               LSYM4=IRREP(JOB4)
                               If (Abs(EigVec(l,I)) .lt. 1.0D-10 .and.
      &                            Abs(EigVec(l,J)) .lt. 1.0D-10) Cycle

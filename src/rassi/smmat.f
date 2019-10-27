@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
@@ -68,7 +69,7 @@ C 2 = spin dependent property, triplet operator
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
       DO ISTATE=1,NSTATE
-         JOB1=iWork(lJBNUM+ISTATE-1)
+         JOB1=JBNUM(ISTATE)
          MPLET1=MLTPLT(JOB1)
          S1=0.5D0*DBLE(MPLET1-1)
 
@@ -79,7 +80,7 @@ C Mapping from spin states to spin-free state and to spin:
             JSS=0
 
             DO JSTATE=1,NSTATE
-               JOB2=iWork(lJBNUM+JSTATE-1)
+               JOB2=JBNUM(JSTATE)
                MPLET2=MLTPLT(JOB2)
                S2=0.5D0*DBLE(MPLET2-1)
 

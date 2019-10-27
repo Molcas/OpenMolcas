@@ -11,10 +11,11 @@
       SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,NTDM2,TDM2,
-     &                  ISTATE,JSTATE,lLROOT,job1,job2,ist,jst)
+     &                  ISTATE,JSTATE,job1,job2,ist,jst)
 
       !> module dependencies
 #ifdef _DMRG_
+      use rassi_global_arrays, only: LROOT
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
@@ -29,7 +30,7 @@
       INTEGER NASHT,NASORB
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
-      INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP,lLROOT
+      INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
       INTEGER MPLET1,MPLET2, MPLETD
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
@@ -99,8 +100,8 @@ C Pick out nr of active orbitals from orbital table:
      &                          x2         = tdm2,
      &                          mdim       = ntdm2,
 #endif
-     &                          state      = iWork(lLROOT+ISTATE-1),
-     &                          stateL     = iWork(lLROOT+JSTATE-1),
+     &                          state      = LROOT(ISTATE),
+     &                          stateL     = LROOT(JSTATE),
      &                          msproj     = msproj1,
      &                          msprojL    = msproj2,
      &                          multiplet  = MPLET1-1, ! (we need 2*S)
@@ -249,7 +250,6 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
       if (.false.) then
         call Unused_integer(ISTATE)
         call Unused_integer(JSTATE)
-        call Unused_integer(lLROOT)
         call Unused_integer(job1)
         call Unused_integer(job2)
         call Unused_integer(ist)

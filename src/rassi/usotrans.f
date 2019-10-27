@@ -13,6 +13,7 @@
       Subroutine USOTRANS(USOR,USOI,NSS,
      &                    EigVec,MSTATE,
      &                    VSOR,VSOI)
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -37,7 +38,7 @@ C Mapping from spin states to spin-free state:
       Call mma_allocate(MAPST,nSS,Label='MAPST')
       ISS=0
       DO ISTATE=1,MSTATE
-         JOB=iWork(lJBNUM+ISTATE-1)
+         JOB=JBNUM(ISTATE)
          MPLET=MLTPLT(JOB)
          DO MSPROJ=-MPLET+1,MPLET-1,2
             ISS=ISS+1

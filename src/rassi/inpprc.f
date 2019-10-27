@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_global_arrays, only: HAM, ESHFT
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
@@ -116,7 +116,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         If (.NOT.AO_Mode) Then
            WRITE(6,*) '       TDMs in reduced format'
            Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
-           Call ICopy(nState,iWork(lJBNUM),1,JOB_INDEX,1)
+           Call ICopy(nState,JBNUM,1,JOB_INDEX,1)
 *          Write (6,*) 'Job_Index=',Job_Index
            Call mma_allocate(CMO1,nCMO,Label='CMO1')
            Call mma_allocate(CMO2,nCMO,Label='CMO2')
@@ -850,8 +850,8 @@ C Write out various input data:
           END DO
         else if (have_diag) then
           ifhdia=.true.
-          DO I=0,NSTATE-1
-            Work(LHDIAG+I)=Work(LREFENE+i)
+          DO I=1,NSTATE
+            HDIAG(I)=Work(LREFENE+i-1)
           END DO
         end if
       end if
@@ -988,7 +988,7 @@ C Write out various input data:
         WRITE(6,*)
         WRITE(6,'(1X,A8,5x,20I4)')'  State:',(I,I=II,III)
         WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',
-     &                             (iWork(lJBNUM+I-1),I=II,III)
+     &                             (JBNUM(I),I=II,III)
         WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',
      &                             (iWork(lLROOT+I-1),I=II,III)
        END DO
@@ -1004,7 +1004,7 @@ C Added by Ungur Liviu on 04.11.2009
 C Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
-       CALL Put_iArray('JBNUM_SINGLE',iWork(lJBNUM),NSTATE)
+       CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
        CALL Put_iArray('LROOT_SINGLE',iWork(lLROOT),NSTATE)
 *
 * Generate the quadrature points for isotropic integration of the exponential operator

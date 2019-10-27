@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE BINAT()
+      use rassi_global_arrays, only : JBNUM
       use rassi_aux, only : iDisk_TDM
       IMPLICIT NONE
 
@@ -161,8 +162,8 @@ C Requested state pairs for computation: (OBSOLETE)
        KEIG_BRA=IBINA(1,IJPAIR)
        KEIG_KET=IBINA(2,IJPAIR)
 C Get symmetries, via jobiph number for the states:
-       LSYM_BRA=IRREP(iWork(lJBNUM+KEIG_BRA-1))
-       LSYM_KET=IRREP(iWork(lJBNUM+KEIG_KET-1))
+       LSYM_BRA=IRREP(JBNUM(KEIG_BRA))
+       LSYM_KET=IRREP(JBNUM(KEIG_KET))
 C Combined symmetry:
        LSYM12=MUL(LSYM_BRA,LSYM_KET)
 C For relating left and right symmetry blocks, offset tables are
@@ -179,9 +180,9 @@ C needed for the singular values and for the TDM.
        CALL DCOPY_(NBSQ,[0.0D0],0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
-        IF (IRREP(iWork(lJBNUM+I-1)).NE.LSYM_BRA) GOTO 92
+        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) GOTO 92
         DO J=1,NSTATE
-         IF (IRREP(iWork(lJBNUM+J-1)).NE.LSYM_KET) GOTO 91
+         IF (IRREP(JBNUM(J)).NE.LSYM_KET) GOTO 91
 C PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
 C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          ibra=(i-1)*nstate+KEIG_BRA-1

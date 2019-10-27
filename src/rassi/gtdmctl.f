@@ -10,7 +10,11 @@
 ************************************************************************
       SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
 
+#ifdef _DMRG_
+      use rassi_global_arrays, only: HAM, SFDYS, LROOT
+#else
       use rassi_global_arrays, only: HAM, SFDYS
+#endif
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -664,7 +668,7 @@ C Write out the determinant expansion to disk.
 #ifdef _DMRG_
           call prepMPS(
      &                 TRORB,
-     &                 iWork(lLROOT+ISTATE-1),
+     &                 LROOT(ISTATE),
      &                 LSYM1,
      &                 MPLET1,
      &                 MSPROJ1,
@@ -716,7 +720,7 @@ C Read JSTATE wave function
 #ifdef _DMRG_
           call prepMPS(
      &                 TRORB,
-     &                 iWork(llroot+JSTATE-1),
+     &                 lroot(JSTATE),
      &                 LSYM2,
      &                 MPLET2,
      &                 MSPROJ2,
@@ -822,7 +826,7 @@ C General 1-particle transition density matrix:
      &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
-     &            JSTATE,lLROOT,job1,job2,ist,jst)
+     &            JSTATE,job1,job2,ist,jst)
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
@@ -976,8 +980,8 @@ C             Write density 1-matrices in AO basis to disk.
                   call dmrg_interface_ctl(
      &                               task   = 'overlap ',
      &                               energy = sij,
-     &                               state  = iWork(lLROOT+istate-1),
-     &                               stateL = iWork(lLROOT+jstate-1)
+     &                               state  = LROOT(istate),
+     &                               stateL = LROOT(jstate)
      &                              )
                 end if
               end if !doDMRG
@@ -996,7 +1000,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
      &                  IWORK(LSSTAB),IWORK(LOMAP),
      &                  WORK(LDET1),WORK(LDET2),NTDM2,WORK(LTDM2),
-     &                  ISTATE,JSTATE,lLROOT,job1,job2,ist,jst)
+     &                  ISTATE,JSTATE,job1,job2,ist,jst)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))

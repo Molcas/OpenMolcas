@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS,ENERGY)
       !> module dependencies
+      use rassi_global_arrays, only: JBNUM
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -102,7 +103,7 @@ C Mapping from spin states to spin-free state and to spin:
       CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB=iWork(lJBNUM+ISTATE-1)
+       JOB=JBNUM(ISTATE)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1

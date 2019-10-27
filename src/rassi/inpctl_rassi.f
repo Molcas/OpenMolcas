@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPCTL_RASSI()
-      use rassi_global_arrays, only: HAM, ESHFT
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment,
@@ -58,12 +58,12 @@ C Read (and do some checking) the standard input.
           call rdjob_nstates(JOB)
         END DO
 * store the root IDs of each state
-        Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
-        Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
-        call izero(iWork(LLROOT),NSTATE)
+        Call mma_allocate(JBNUM,nState,Label='JBNUM')
+        Call mma_allocate(LROOT,nState,Label='LROOT')
+        LROOT(:)=0
         Do JOB=1,NJOB
           DO I=0,NSTAT(JOB)-1
-            iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
+            JBNUM(ISTAT(JOB)+I)=JOB
           End Do
         End Do
       ELSE
@@ -92,7 +92,7 @@ C Read (and do some checking) the standard input.
         Call mma_allocate(ESHFT,nSTATE,Label='ESHFT')
         ESHFT(:)=0.0D0
       EndIf
-      If (.not.IFHDIA) Call GetMem('HDIAG','Allo','Real',LHDIAG,NSTATE)
+      If (.not.IFHDIA) Call mma_Allocate(HDIAG,nState,Label='HDIAG')
 
 C Read information on the job files and check for consistency
       DO JOB=1,NJOB
