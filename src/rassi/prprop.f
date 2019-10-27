@@ -24,6 +24,7 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
@@ -70,6 +71,7 @@
       Complex*16 T0(3), TM1
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
+      REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
 
 
       CALL QENTER(ROUTINE)
@@ -303,17 +305,17 @@ c#endif
 *******************************************************
 c If PRPR requested, print the spin matrices
       IF (LPRPR) THEN
-         CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
-         CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
+         Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
+         Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
          DO ISOPR=1,3
-            CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
-            CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
-            CALL SMMAT(PROP,WORK(LSOPRR),NSS,0,ISOPR)
-            CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
-            CALL PRCMAT3(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
+            SOPRR(:,1)=0.0D0
+            SOPRI(:,1)=0.0D0
+            CALL SMMAT(PROP,SOPRR,NSS,0,ISOPR)
+            CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
+            CALL PRCMAT3(NSS,SOPRR,SOPRI,ISOPR)
          END DO
-         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
-         CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
+         Call mma_deallocate(SOPRR)
+         Call mma_deallocate(SOPRI)
       END IF
 
       IF(.not.IFSO) GOTO 300
@@ -400,37 +402,37 @@ C Print out the matrix elements:
         WRITE(6,'(1X,A,A8,A,I4)')
      &  'PROPERTY: ',SOPRNM(ISOPR),'   COMPONENT:',ISOCMP(ISOPR)
 CIFG  should print the origin, but where is it stored (for SO properties)?
-        CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
-        CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
+        Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
+        Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
+        SOPRR(:,1)=0.0D0
+        SOPRI(:,1)=0.0D0
 
-        CALL SMMAT(PROP,WORK(LSOPRR),NSS,ISOPR,0)
-        CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
-        CALL PRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI))
+        CALL SMMAT(PROP,SOPRR,NSS,ISOPR,0)
+        CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
+        CALL PRCMAT(NSS,SOPRR,SOPRI)
 C tjd-  BMII: Print out spin-orbit properties to a file
         IF (LPRPR) THEN
-          CALL PRCMAT2(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
+          CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
         ENDIF
 
 #ifdef _HDF5_
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
          call mh5_put_dset_array_real(wfn_sos_angmomr,
-     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $   SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
          call mh5_put_dset_array_real(wfn_sos_angmomi,
-     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $   SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 
         IF( SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &      SOPRTP(ISOPR).EQ.'HERMSING') THEN
          call mh5_put_dset_array_real(wfn_sos_edipmomr,
-     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $   SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
          call mh5_put_dset_array_real(wfn_sos_edipmomi,
-     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $   SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 #endif
-        CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
-        CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
+        Call mma_deallocate(SOPRR)
+        Call mma_deallocate(SOPRI)
        END DO
        Call CollapseOutput(0,'Matrix elements over SO states')
        WRITE(6,*)
@@ -4308,15 +4310,15 @@ c
       WRITE(6,*) "Looking for ",DMPPROP
       DO KPROP=1,NPROP
       IF(PNAME(KPROP).EQ.DMPPROP) THEN
-      CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2)
-      CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
+        Call mma_Allocate(SOPRR,NSS**2,1,Label='SOPRR')
+        Call mma_Allocate(SOPRI,NSS**2,1,Label='SOPRI')
+        SOPRR(:,1)=0.0D0
+        SOPRI(:,1)=0.0D0
 
-      CALL SMMAT(PROP,WORK(LSOPRR),NSS,KPROP,0)
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
-      !CALL PRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI))
-      CALL MULMAT(NSS,WORK(LSOPRR),WORK(LSOPRI),eex,Z)
+      CALL SMMAT(PROP,SOPRR,NSS,KPROP,0)
+      CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
+      !CALL PRCMAT(NSS,SOPRR,SOPRI)
+      CALL MULMAT(NSS,SOPRR,SOPRI,eex,Z)
       ic=0
       jc=0
       !write(6,*)"ICOMP(KPROP)",ICOMP(KPROP)
@@ -4359,8 +4361,8 @@ c
       ENDIF
       enddo
       enddo
-      CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2)
-      CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2)
+      CAll mma_deallocate(SOPRR)
+      CAll mma_deallocate(SOPRI)
       ENDIF
 
       END DO
