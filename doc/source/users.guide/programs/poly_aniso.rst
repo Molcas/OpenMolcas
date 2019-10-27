@@ -342,18 +342,23 @@ The pseudo-code is: ::
 
   ::
 
-    LIN9
+    LIN1
        READ number-of-interacting-pairs
        Do i=1, number-of-interacting-pairs
           READ site-1, site-2,   J
        End Do
+
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN1" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN3" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN9" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
 
 :kword:`ALIN` :kword:`LIN3`
   Specifies the anisotropic interactions between metal pairs. Three parameters per interacting pair are required.
 
   ::
 
-    LIN9
+    LIN3
        READ number-of-interacting-pairs
        Do i=1, number-of-interacting-pairs
           READ site-1, site-2,   Jxx, Jyy, Jzz
@@ -374,9 +379,15 @@ The pseudo-code is: ::
 
   :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
 
+
+
+
+
 :kword:`COOR`
   Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
   magnetic interaction between metal sites defined in the keywords :kword:`PAIR`, :kword:`ALIN`, :kword:`LIN1`, :kword:`LIN3` or :kword:`LIN9`.
+
+
 
   ::
 
@@ -386,6 +397,9 @@ The pseudo-code is: ::
           READ coordinates of center 2
           ...
        End Do
+
+
+
 
 *Other keywords*
 
@@ -428,7 +442,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`TINT`
-  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read four numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`, and :math:`\delta T_0`.
+  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read four numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
 
   .. container:: list
 
@@ -438,26 +452,21 @@ Optional general keywords to control the input
 
     :math:`n_T` --- number of temperature points (Default 101)
 
-  .. compound::
+  Example: ::
 
-    Example: ::
+    TINT
+    0.0  330.0  331
 
-      TINT
-      0.0  330.0  331
-
-    :program:`POLY_ANISO` will compute temperature dependence of the magnetic susceptibility in 331 points evenly distributed in temperature interval: 0.0 K -- 330.0 K.
+  :program:`POLY_ANISO` will compute temperature dependence of the magnetic susceptibility in 331 points evenly distributed in temperature interval: 0.0 K -- 330.0 K.
 
   .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="TINT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: TINT <basic>
               <HELP>
               Specifies the temperature points for the evaluation of the magnetic susceptibility.
-              The program will read four numbers: Tmin, Tmax, nT, and dltT0. Units of temperature = kelvin (K).
-              ||
+              The program will read four numbers: Tmin, Tmax, nT, and dltT0. Units of temperature = Kelvin (K).
               ||Tmin  -- the minimal temperature (Default 0.0 K)
               ||Tmax  -- the maximal temperature (Default 300.0 K)
               ||nT    -- number of temperature points (Default 101)
-              ||dltT0 -- the minimal temperature above the 0.0 K that helps to avoid infinite
-              ||         values during calculation (Default 0.001 K).
               </HELP>
               </KEYWORD>
 
@@ -767,6 +776,23 @@ Optional general keywords to control the input
               magnetic center. The computed values in the output correspond to the crystallographic
               position of three "dummy atoms" located on the corresponding anisotropy axes, at the
               distance of 1.0 angstrom from the metal site.
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`XFIE`
+  This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
+  for the computation of magnetic susceptibility by :math:`dM/dH` and :math:`M/H` formulas.
+  A comparison with the usual formula (in the limit of zero applied field) is provided.
+  (Default is 0.0)
+
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: XFIE <basic>
+              <HELP>
+              This keyword specifies the value (in Tesla) of applied magnetic field
+              for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
+              A comparison with the usual formula (in the limit of zero applied field) is provided.
+              (Default is 0.0)
               </HELP>
               </KEYWORD>
 
