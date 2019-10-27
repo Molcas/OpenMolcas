@@ -74,6 +74,7 @@
       real*8, Allocatable:: TDMAB(:), TSDMAB(:), WDMAB(:)
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
       real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
+      real*8, Allocatable:: DYSCOF(:), DYSAB(:), DYSZZ(:)
 
 #ifdef _DMRG_
 !     strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
@@ -192,16 +193,14 @@ C COF = active biorthonormal orbital base
 C AB  = inactive+active biorthonormal orbital base
 C ZZ  = atomic (basis function) base
       IF ((IF10.or.IF01).and.DYSO) THEN
-        CALL GETMEM('DYSCOF','Allo','Real',LDYSCOF,NASORB)
+        Call mma_allocate(DYSCOF,NASORB,Label='DYSCOF')
         ! Number of inactive+active orbitals
         NDYSAB = NASHT+NISHT
-        CALL GETMEM('DYSAB','Allo','Real',LDYSAB,NDYSAB)
+        Call mma_allocate(DYSAB,nDYSAB,Label='DYSAB')
         ! Number of atomic / basis functions
         NDYSZZ = NZ
-        CALL GETMEM('DYSZZ','Allo','Real',LDYSZZ,NDYSZZ)
-        DO NDUM=1,NDYSZZ
-         WORK(LDYSZZ+NDUM-1)=0.0D0
-        END DO
+        Call mma_allocate(DYSZZ,nDYSZZ,Label='DYSZZ')
+        DYSZZ(:)=0.0D0
       END IF
 ! +++
 
@@ -770,34 +769,19 @@ C DYSCOF = Active orbital coefficents of the DO
      &            IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            WORK(LDET1),WORK(LDET2),
      &            IF10,IF01,
-     &            DYSAMP,WORK(LDYSCOF))
+     &            DYSAMP,DYSCOF)
 
 C Write Dyson orbital coefficients in AO basis to disk.
         IF (DYSAMP.GT.1.0D-6) THEN
 C In full biorthonormal basis:
-         CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
-!         WRITE(*,*)"NDYSAB=",NDYSAB
-!         WRITE(*,*)"DYSAB="
-!         DO NDUM=1,NDYSAB
-!          WRITE(*,*)WORK(LDYSAB+NDUM-1)
-!         END DO
+         CALL MKDYSAB(DYSCOF,DYSAB)
 C In AO basis:
-         CALL MKDYSZZ(CMO1,WORK(LDYSAB),
-     &               WORK(LDYSZZ))
-!        WRITE(*,*)"NDYSZZ=",NDYSZZ
-!        WRITE(*,*)"DYSZZ="
-!        DO NDUM=1,NDYSZZ
-!         WRITE(*,*)WORK(LDYSZZ+NDUM-1)
-!        END DO
+         CALL MKDYSZZ(CMO1,DYSAB,DYSZZ)
         IF (DYSO) THEN
-         DO NDUM=1,NDYSZZ
-          SFDYS(NDUM,JSTATE,ISTATE)=WORK(LDYSZZ+NDUM-1)
-          SFDYS(NDUM,ISTATE,JSTATE)=WORK(LDYSZZ+NDUM-1)
-         END DO
+          SFDYS(:,JSTATE,ISTATE)=DYSZZ(:)
+          SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
         END IF
-        DO NDUM=1,NDYSZZ
-         WORK(LDYSZZ+NDUM-1)=0.0D0
-        END DO
+        DYSZZ(:)=0.0D0
        END IF ! AMP THRS
       END IF ! IF01 IF10
       DYSAMPS(ISTATE,JSTATE)=DYSAMP
@@ -1219,13 +1203,11 @@ C             Write density 1-matrices in AO basis to disk.
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)
       end if
-! +++ J. Norell 13/7 - 2018
       IF ((IF10.or.IF01).and.DYSO) THEN
-        CALL GETMEM('DYSCOF','Free','Real',LDYSCOF,NASORB)
-        CALL GETMEM('DYSAB','Free','Real',LDYSAB,NDYSAB)
-        CALL GETMEM('DYSZZ','Free','Real',LDYSZZ,NDYSZZ)
+        Call mma_deallocate(DYSCOF)
+        Call mma_deallocate(DYSAB)
+        Call mma_deallocate(DYSZZ)
       END IF
-! +++
       IF (IF11) THEN
         Call mma_deallocate(TRAD)
         Call mma_deallocate(TRASD)
