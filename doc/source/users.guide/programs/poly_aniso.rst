@@ -159,6 +159,8 @@ Mandatory keywords defining the calculation
   which cannot be related by point group symmetry.
   In the second position the answer to the question: *Have all NON-EQ centers been computed ab initio?*
   is given: ``T`` for *True* and ``F`` for *False*.
+  On the third position, the answer to the question: *Are the rassi.h5 files to be read for input?* 
+  is given. For the current status, the letter ``F`` is the only option.
   On the following line the program will read NON-EQ values specifying the
   number of equivalent centers of each type.
   On the following line the program will read NON-EQ integer numbers specifying
@@ -174,7 +176,7 @@ Mandatory keywords defining the calculation
   | ::                                     | ::                                     | ::                                     |
   |                                        |                                        |                                        |
   |   NNEQ                                 |   NNEQ                                 |   NNEQ                                 |
-  |   2  T                                 |   3  T                                 |   6  T                                 |
+  |   2  T  F                              |   3  T  F                              |   6  T  F                              |
   |   1  2                                 |   2  1  1                              |   1  1  1  1  1  1                     |
   |   2  2                                 |   4  2  3                              |   2  4  3  5  2  2                     |
   +----------------------------------------+----------------------------------------+----------------------------------------+
@@ -210,13 +212,13 @@ Mandatory keywords defining the calculation
   Some examples valid for mixed situations: the system consists of centers computed *ab initio* and
   isotropic centers (case ``F``, *False*):
 
-  .. class:: poly_aniso
+.. class:: poly_aniso
 
   +----------------------------------------+----------------------------------------+----------------------------------------+
   | ::                                     | ::                                     | ::                                     |
   |                                        |                                        |                                        |
   |   NNEQ                                 |   NNEQ                                 |   NNEQ                                 |
-  |   2  F                                 |   3  F                                 |   6  T                                 |
+  |   2  F  F                              |   3  F  F                              |   6  T  F                              |
   |   1  2                                 |   2  1  1                              |   1  1  1  1  1  1                     |
   |   2  2                                 |   4  2  3                              |   2  4  3  5  2  2                     |
   |   A  B                                 |   A  B  B                              |   B  B  A  A  B  A                     |
@@ -226,7 +228,7 @@ Mandatory keywords defining the calculation
   +----------------------------------------+----------------------------------------+----------------------------------------+
   | There are two kinds of magnetic centers| There are three kinds of magnetic      | There are six kinds of magnetic centers|
   | in the cluster; the center of the first| centers in the cluster; the first      | in the cluster; only three centers have|
-  | type has been computed *ab initio*,    | center type has been computed *ab      | been computed *ab initio*, while the   |
+  | type has been computed *ab initio*,    | center type has been computed *ab*     | *been computed *ab initio*, while the  |
   | while the centers of the second type   | initio*, while the centers of the      | other three centers are considered     |
   | are considered isotropic with          | second and third types are considered  | isotropic; the :math:`g` factor of the |
   | :math:`g=2.3`; the cluster consists of | isotropic with :math:`g=2.1` (second   | first center is 2.12 (:math:`S=1/2`);  |
@@ -253,6 +255,28 @@ Mandatory keywords defining the calculation
   There is no maximal value for :kword:`NNEQ`, although the calculation becomes quite heavy in case the number of
   exchange functions is large.
 
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="NNEQ" APPEAR="Definition of input magnetic sites" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: NNEQ <basic>
+              <HELP>
+                 This keyword defines several important parameters of the calculation. On the
+                 first line after the keyword the program reads 2 values:
+                 1) the number of types of different magnetic centers (NON-EQ) of the cluster and
+                 2) a letter ``T`` or ``F`` in the second position of the same line.
+                 The number of NON-EQ is the total number of magnetic centers of the cluster
+                 which cannot be related by point group symmetry.
+                 In the second position the answer to the question: *Have all NON-EQ centers been computed ab initio?*
+                 is given: ``T`` for *True* and ``F`` for *False*.
+                 On the third position, the answer to the question: *Are the rassi.h5 files to be read for input?* 
+                 is given. For the current status, the letter ``F`` is the only option.
+                 On the following line the program will read NON-EQ values specifying the
+                 number of equivalent centers of each type.
+                 On the following line the program will read NON-EQ integer numbers specifying
+                 the number of low-lying spin-orbit functions from each center forming the local
+                 exchange basis.
+              </HELP>
+              </KEYWORD>
+
+
 :kword:`SYMM`
   Specifies rotation matrices to symmetry equivalent sites. This keyword is mandatory in the case more centers of a given type are present in the calculation.
   This keyword is mandatory when the calculated polynuclear compound has exact crystallographic point group symmetry. In other words, when the number of
@@ -271,7 +295,7 @@ Mandatory keywords defining the calculation
   | ::                                     | ::                                     | ::                                     |
   |                                        |                                        |                                        |
   |     NNEQ                               |   NNEQ                                 |   NNEQ                                 |
-  |     2  F                               |   3  F                                 |   6  F                                 |
+  |     2  F  F                            |   3  F  F                              |   6  F  F                              |
   |     1  2                               |   2  1  1                              |   1  1  1  1  1  1                     |
   |     2  2                               |   4  2  3                              |   2  4  3  5  2  2                     |
   |     A  B                               |   A  B  B                              |   B  B  A  A  B  A                     |
@@ -315,6 +339,29 @@ Mandatory keywords defining the calculation
   +----------------------------------------+----------------------------------------+----------------------------------------+
 
   More examples are given in the *Tutorial* section.
+
+
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="SYMM" APPEAR="Definition of symmetry of the polynuclear cluster, if any" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: SYMM <basic>
+              <HELP>
+                 Specifies rotation matrices to symmetry equivalent sites. This keyword is mandatory in the case more centers of a given type are present in the calculation.
+                 This keyword is mandatory when the calculated polynuclear compound has exact crystallographic point group symmetry. In other words, when the number of
+                 equivalent centers of any kind :math:`i` is larger than 1, this keyword must be employed. Here the rotation matrices from the one
+                 center to all the other of the same type are declared.
+                 On the following line the program will read the number ``1`` followed on the next lines by as many :math:`3\times3` rotation matrices as the total number of
+                 equivalent centers of type ``1``. Then the rotation matrices of centers of type ``2``, ``3`` and so on, follow in the same format.
+                 When the rotation matrices contain irrational numbers (e.g. :math:`\sin{\frac{\pi}{6}}=\frac{\sqrt{3}}{2}`), then more digits than presented in the examples
+                 below are advised to be given: :math:`\frac{\sqrt{3}}{2}=0.86602540378`.
+              </HELP>
+              </KEYWORD>
+
+
+
+
+
+
+
+
 
 *Keywords defining the magnetic exchange interactions*
 
@@ -382,12 +429,13 @@ The pseudo-code is: ::
 
 
 
+.. class:: poly_aniso
 
 :kword:`COOR`
   Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
   magnetic interaction between metal sites defined in the keywords :kword:`PAIR`, :kword:`ALIN`, :kword:`LIN1`, :kword:`LIN3` or :kword:`LIN9`.
 
-
+ 
 
   ::
 
@@ -398,8 +446,13 @@ The pseudo-code is: ::
           ...
        End Do
 
-
-
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="COOR" APPEAR="Symmetrized coordinates of the non-equivalent metal sites, used for magnetic dipole-dipole calculation" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: COOR <basic>
+              <HELP>
+                 Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
+                 magnetic interaction between metal sites defined in the keywords :kword:`PAIR`, :kword:`ALIN`, :kword:`LIN1`, :kword:`LIN3` or :kword:`LIN9`.
+              </HELP>
+              </KEYWORD>
 
 *Other keywords*
 
@@ -704,7 +757,7 @@ Optional general keywords to control the input
           READ ( susceptibility(i, Temp), TEMP = 1, number-of-T-points )
        End Do
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="TEXP" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="TEXP" KIND="REALS_COMPUTED" SIZE="2" LEVEL="BASIC">
               %%Keyword: TEXP <basic>
               <HELP>
               This keyword allows computation of the magnetic susceptibility at experimental
@@ -729,7 +782,7 @@ Optional general keywords to control the input
           READ ( Magn(i, iT), iT=1, number-of-T-points-for-M )
        End Do
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="HEXP" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="HEXP" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: HEXP <basic>
               <HELP>
               This keyword allows computation of the molar magnetization at experimental field points.
