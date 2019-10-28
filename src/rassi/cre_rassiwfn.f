@@ -12,7 +12,9 @@
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use kVectors
+#ifdef _HDF5_
       use rassi_global_arrays, only: JBNUM
+#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
