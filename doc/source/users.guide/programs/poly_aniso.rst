@@ -397,8 +397,6 @@ The pseudo-code is: ::
 
 .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
 .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN1" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN3" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN9" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
 
 :kword:`ALIN` :kword:`LIN3`
   Specifies the anisotropic interactions between metal pairs. Three parameters per interacting pair are required.
@@ -413,6 +411,11 @@ The pseudo-code is: ::
 
   :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
 
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN3" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" />
+
+
+
+
 :kword:`LIN9`
   Specifies the full anisotropic interaction matrices between metal pairs. Nine parameters per interacting pair is required.
 
@@ -424,18 +427,15 @@ The pseudo-code is: ::
           READ site-1, site-2,   Jxx, Jxy, Jxz,   Jyx, Jyy, Jyz,  Jzx, Jzy, Jzz
        End Do
 
-  :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
+ :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
+
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN9" KIND="REALS_COMPUTED" SIZE="11" LEVEL="UNDOCUMENTED" />
 
 
-
-
-.. class:: poly_aniso
 
 :kword:`COOR`
   Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
   magnetic interaction between metal sites defined in the keywords :kword:`PAIR`, :kword:`ALIN`, :kword:`LIN1`, :kword:`LIN3` or :kword:`LIN9`.
-
- 
 
   ::
 
@@ -446,13 +446,17 @@ The pseudo-code is: ::
           ...
        End Do
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="COOR" APPEAR="Symmetrized coordinates of the non-equivalent metal sites, used for magnetic dipole-dipole calculation" KIND="CUSTOM" LEVEL="BASIC">
+.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="COOR" KIND="REALS_LOOKUP" SIZE="3NNEQ" LEVEL="BASIC">
               %%Keyword: COOR <basic>
               <HELP>
-                 Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
-                 magnetic interaction between metal sites defined in the keywords :kword:`PAIR`, :kword:`ALIN`, :kword:`LIN1`, :kword:`LIN3` or :kword:`LIN9`.
+                 Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole interaction.
               </HELP>
               </KEYWORD>
+
+
+
+
+
 
 *Other keywords*
 
