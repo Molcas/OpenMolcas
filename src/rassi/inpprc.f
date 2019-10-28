@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
-      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
@@ -990,7 +990,7 @@ C Write out various input data:
         WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',
      &                             (JBNUM(I),I=II,III)
         WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',
-     &                             (iWork(lLROOT+I-1),I=II,III)
+     &                             (LROOT(I),I=II,III)
        END DO
        IF(IFSHFT) THEN
          WRITE(6,*)
@@ -1005,7 +1005,7 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
        CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
-       CALL Put_iArray('LROOT_SINGLE',iWork(lLROOT),NSTATE)
+       CALL Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
 *
 * Generate the quadrature points for isotropic integration of the exponential operator
 *
