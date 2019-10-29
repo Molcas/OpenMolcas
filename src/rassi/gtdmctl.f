@@ -1059,10 +1059,12 @@ C             Write density 1-matrices in AO basis to disk.
           CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
-          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &              TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
-     &          WORK(LDET2))
+          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &                           TRA2,NCONF2,Work(LCI2))
+          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                WORK(LDET2))
 
           CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
           CALL DCOPY_(NCONF2,Work(LCI2_o),1,WORK(LThetaN),1)
