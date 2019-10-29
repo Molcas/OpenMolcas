@@ -639,8 +639,11 @@ C Read ISTATE wave function
             WORK(LCI1)=1.0D0
           END IF
           CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
-          CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
-     &                TRA1,IWORK(LCNFTAB1),IWORK(LSPNTAB1),
+C         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP1,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
+     &                           TRA1,NCONF1,Work(LCI1))
+          CALL PREPSD(WFTP1,ISGSTR1,ICISTR1,LSYM1,
+     &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1))
 
@@ -694,8 +697,11 @@ C Read JSTATE wave function
             CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
           End If
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
-          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &                TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+C         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &                           TRA2,NCONF2,Work(LCI2))
+          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2))
 
