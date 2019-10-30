@@ -161,6 +161,7 @@
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
+*     Call DiagMtrx(Hessian,nInter,iNeg)
 *
 *     Save the number of internal coordinates on the runfile.
 *
