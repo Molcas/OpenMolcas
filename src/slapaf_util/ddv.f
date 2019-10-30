@@ -23,7 +23,7 @@
 *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 *                                                                      *
 ************************************************************************
       If (nHidden.gt.0) Then
@@ -1050,18 +1050,19 @@ C                 Write (*,*) 'Help=',Help
 *
                   CosFi2=(rij(1)*rik(1)+rij(2)*rik(2)+rij(3)*rik(3))
      &                  /Sqrt(rij2*rik2)
-                  If (Abs(Abs(CosFi2)-One).lt.1.0D-1) Go To 224
+                  ThrFi=1.0D0/SQRT(2.0D0)
+                  If (Abs(CosFi2).lt.ThrFi) Go To 224
 *
                   CosFi3=(rij(1)*ril(1)+rij(2)*ril(2)+rij(3)*ril(3))
      &                  /Sqrt(rij2*ril2)
-                  If (Abs(Abs(CosFi3)-One).lt.1.0D-1) Go To 224
+                  If (Abs(CosFi3).lt.ThrFi) Go To 224
 *
                   CosFi4=(rik(1)*ril(1)+rik(2)*ril(2)+rik(3)*ril(3))
      &                  /Sqrt(rik2*ril2)
-                  If (Abs(Abs(CosFi4)-One).lt.1.0D-1) Go To 224
+                  If (Abs(CosFi4).lt.ThrFi) Go To 224
 #ifdef _DEBUG_
-*                 Write (6,*) 'CosFi2,CosFi3,CosFi4=',
-*    &                        CosFi2,CosFi3,CosFi4
+                  Write (6,*) 'CosFi2,CosFi3,CosFi4=',
+     &                        CosFi2,CosFi3,CosFi4
 #endif
 *
                   If (Schlegel.or.Help) Then
@@ -1078,7 +1079,7 @@ C                 tij=Max(tij,f_const_Min_)
 *
                   Call OutofP(xyz,4,Tau,C,.False.,.False.,'        ',
      &                        Dum,.False.)
-                  If (Abs(Tau).gt.45.0D0*(Pi/180.D0)) Go To 224
+                  If (Abs(Tau).gt.5.0D0*(Pi/180.D0)) Go To 224
 #ifdef _DEBUG_
                   nqO=nqO+1
 #endif
@@ -1182,6 +1183,7 @@ C                 tij=Max(tij,f_const_Min_)
       iRout=22
       iprint=nPrint(iRout)
       iPrint=99
+      iPrint=6
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
       Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)

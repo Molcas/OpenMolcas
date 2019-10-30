@@ -20,10 +20,14 @@
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       Call Mk_Hss_Q()
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
-*     Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
+*     Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
 *                                                                      *
       rmax=Zero
       Do i = 1, nInter
+*
+*        iCase=1 gives a Kriging Hessian which has the correct order
+*        of the eigenvalues as compared to the ad hoc Hessian.
+*
          iCase=1
          If (iCase.eq.1) Then
             Array_l(i)=One/Sqrt(Abs(Hessian(i,i)))
@@ -40,7 +44,7 @@
          If (Array_l(i).gt.rmax) rmax=Array_l(i)
       End Do
 *     Call RecPrt('Raw',' ',Array_l,1,nInter)
-      Call DScal_(nInter,One/rmax,Array_l,1)
+*     Call DScal_(nInter,One/rmax,Array_l,1)
 *     Call RecPrt('Scaled',' ',Array_l,1,nInter)
 *
       Call mma_Deallocate(Hessian)

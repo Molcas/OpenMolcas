@@ -107,7 +107,7 @@
 *     kriging!
 *
 *define _UNSORTED_
-#define _UPDATE_L_
+*define _UPDATE_L_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -428,7 +428,7 @@
      &            Grad(1,iter),Shift(1,iter),Lbl)
 #ifdef _DEBUG_
       Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
-      Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
+      Call RecPrt('Shift:',' ',Shift,nInter,iter)
 #endif
 *                                                                      *
 ************************************************************************

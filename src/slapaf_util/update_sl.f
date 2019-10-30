@@ -105,8 +105,10 @@
 *
       If (iPrint.ge.99) Then
          Call RecPrt('Update: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update: Shift',' ',Shift,nInter,Iter-1)
-         Call RecPrt('Update: GNrm',' ',GNrm,Iter,1)
+         Call RecPrt('Update: Energy',' ',Energy,1,Iter)
+         Call RecPrt('Update: Grad',' ',Grad,nInter,Iter)
+*        Call RecPrt('Update: Shift',' ',Shift,nInter,Iter-1)
+*        Call RecPrt('Update: GNrm',' ',GNrm,Iter,1)
       End If
 *
       iOpt_RS=0
