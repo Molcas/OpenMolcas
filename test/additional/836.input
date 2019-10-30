@@ -59,7 +59,7 @@ NoCD
   >>> EXPORT SubProject=
   &SLAPAF
     Thrshld=5.0D-6 2.0D-3
-    Iterations=10
+    Iterations=11
   >>> COPY $Project.RunFile  $Project.Singlet.RunFile
   >>> COPY $Project.RunFile2 $Project.Triplet.RunFile
 
