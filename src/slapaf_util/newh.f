@@ -31,7 +31,6 @@
       Use NewH_Mod
 #include "print.fh"
 #include "real.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing

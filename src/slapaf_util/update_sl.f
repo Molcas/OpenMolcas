@@ -85,7 +85,6 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-#include "stdalloc.fh"
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
