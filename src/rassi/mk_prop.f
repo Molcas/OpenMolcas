@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
+      SUBROUTINE MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
       IMPLICIT REAL*8 (A-H,O-Z)
 ***********************************************************************
@@ -29,33 +29,12 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
       INTEGER IOFF(8)
       DIMENSION IDUM(1)
+      ISTATE=Max(ISTATE_,JSTATE_)
+      JSTATE=Min(ISTATE_,JSTATE_)
 *
-*     Write (*,*) 'MK_PROP:',LABEL,ITYPE
-*     Write (*,*) 'IOFF=',IOFF
-*     Write (*,*) 'MASK,ISY12=',MASK,ISY12
-*     IF (LABEL(1:4).EQ.'TMOS') THEN
-*        PORIG(1,IPROP)=0.0D0
-*        PORIG(2,IPROP)=0.0D0
-*        PORIG(3,IPROP)=0.0D0
-*        PNUC(IPROP)=0.0D0
-*        PROP(JSTATE,ISTATE,IPROP)=0.0D0
-*        IPUSED(IPROP)=1
-*        GO TO 300 ! Temporary
-*     END IF
-*     Write (*,*) 'DENS1=',DDOT_(NDENS,DENS(1,1),1,DENS(1,1),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,1),1)
-*     Write (*,*) 'DENS2=',DDOT_(NDENS,DENS(1,2),1,DENS(1,2),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,2),1)
-*     Write (*,*) 'DENS3=',DDOT_(NDENS,DENS(1,3),1,DENS(1,3),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,3),1)
-*     Write (*,*) 'DENS4=',DDOT_(NDENS,DENS(1,4),1,DENS(1,4),1),
-*    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
-      If (LABEL(1:5).eq.'TMOS0' .OR.
-     &    LABEL(1:5).eq.'TMOS2') Then
-         IC=1
-      Else
-         IC=ICOMP(IPROP)
-      END IF
+      IC=ICOMP(IPROP)
+!     Write (*,*) 'Mk_Prop: Label=',Label
+!     Write (*,*) 'Mk_Prop:    IC=',IC
       IOPT=1
       NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
@@ -63,10 +42,8 @@
       IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
       IOPT=0
       CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
-*     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
-*     Write (*,*) 'Int=',DDOT_(NSIZ,BUFF,1,BUFF,1),
-*    &                   DDOT_(NSIZ,1.0D0,0,BUFF,1)
-      IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOS' ) THEN
+!     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
+      IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOM' ) THEN
          WRITE(6,*)
          WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE MK_PROP ***'
          WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'

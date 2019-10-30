@@ -51,10 +51,8 @@
       nD = iUHF + 1
 *
 *---- Deallocate memory
-      If (Allocated(Darwin)) Then
-         Call mma_deallocate(Darwin)
-         Call mma_deallocate(MssVlc)
-      End If
+      Call mma_deallocate(Darwin)
+      Call mma_deallocate(MssVlc)
       Call mma_deallocate(KntE)
       Call mma_deallocate(EDFT)
       Call mma_deallocate(TwoHam)

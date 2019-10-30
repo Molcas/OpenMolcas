@@ -104,9 +104,10 @@
 *     Make typeindex information                                       *
 *----------------------------------------------------------------------*
       if (.not. iDoGas) then
-        IndType = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas, nDel)
+        IndType(:, :) =
+     &      get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas, nDel)
       else
-        IndType = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
+        IndType(:, :) = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
       endif
 *----------------------------------------------------------------------*
 *     First, write orbitals to RasOrb:                                 *

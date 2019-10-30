@@ -25,8 +25,8 @@
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
  (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
  (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
- (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rwst
- (file)  H5FCIDMP  "$WorkDir/$Project."FciDmp.h5  rws
+ (file)  FCIDUMP  "$WorkDir/$Project."FciDmp       rwst
+ (file)  H5FCIDUMP  "$WorkDir/$Project."FciDmp.h5  rws
  (file)  FCINP  "$WorkDir/$Project."FciInp       rwst
 #include "chemps2files.inc"
 #include "espffiles.inc"

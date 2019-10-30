@@ -31,8 +31,8 @@ system (geometry, basis sets, symmetry) to be used for future calculations.
 
 Gateway module is a subset of :program:`seward`. All keywords
 for this module can also appear as an input for :program:`SEWARD`, however,
-for clearity the information about molecular system can be placed
-as an input for this module. Note, that gateway module does not
+for clarity the information about molecular system can be placed
+as an input for this module. Note, that :program:`gateway` does not
 compute any integral, and so must be followed by run of :program:`SEWARD`
 module.
 
@@ -1718,9 +1718,9 @@ Keywords associated to one-electron integrals
               </KEYWORD>
 
 :kword:`SDIPole`
-  Requests computation of velocity integrals.
+  Requests computation of velocity integrals. This is usually enabled by default.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SDIPOLE" APPEAR="Velocity Integrals" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SDIPOLE" APPEAR="Velocity integrals" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Sdipole <basic>
               <HELP>
               Requests computation of velocity integrals.
@@ -1731,8 +1731,9 @@ Keywords associated to one-electron integrals
   Supplement
   :file:`ONEINT` for transition angular momentum calculations.
   Entry which specifies the angular momentum origin (in au).
+  By default this is enabled with the origin at the center of mass.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ANGM" APPEAR="Activate auxiliary integrals for TDM calculations" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ANGM" APPEAR="Angular momentum" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
               %%Keyword: Angm <basic>
               <HELP>
               Supplement the file for transition angular momentum calculations.
@@ -1747,7 +1748,7 @@ Keywords associated to one-electron integrals
   :file:`ONEINT` for transition orbital magnetic quadrupole calculations.
   Entry which specifies the orbital magnetic quadrupole origin (in au).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="OMQI" APPEAR="Transition orbital magnetic quadrupole" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="OMQI" APPEAR="Orbital magnetic quadrupole" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
               %%Keyword: OMQI <basic>
               <HELP>
               Supplement the file for transition orbital magnetic quadrupole calculations.

@@ -82,6 +82,7 @@
       Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"

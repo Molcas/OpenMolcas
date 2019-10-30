@@ -354,7 +354,7 @@ CJULY29         LCJBLK = MXSOB*MXKB*MXB
 * matrix C(ij,Ka,kb)
 * both Ka and Kb blocked
 *
-*. Modified : Only used if atmost two elecs in i and j
+*. Modified : Only used if at most two elecs in i and j
 *.            No batching
 *.            Used for hardwired few electron code
       MXCIJAB = 0
