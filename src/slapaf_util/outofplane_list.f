@@ -522,7 +522,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Write (6,*) 'Val=',Val*180.D0/Pi
 #endif
 *
-                  If (Abs(Val).gt.05.D0*(Pi/180.D0))  Go To 401
+                  If (Abs(Val).gt.35.D0*(Pi/180.D0))  Go To 401
 *
                   Call OutofP(A,nCent,Val,Grad,.False.,.False.,
      &                      '        ',Hess,Proc_dB)
