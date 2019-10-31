@@ -660,18 +660,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),
      &               nH*nTempMagn,5)
       If(compute_Mdir_vector) Then
-        Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,5)
+        Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,4)
         Call Add_Info('MAGN_VECT_X(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,1),1,5)
-        Call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,5)
-        Call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1, 2,1,2),1,5)
+     &                     MVEC(1,(NH-1)/2,1,1),1,4)
+        Call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,4)
+        Call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1, 2,1,2),1,4)
         Call Add_Info('MAGN_VECT_Y(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,2),1,5)
-        Call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,5)
-        Call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1, 2,1,3),1,5)
+     &                     MVEC(1,(NH-1)/2,1,2),1,4)
+        Call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,4)
+        Call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1, 2,1,3),1,4)
         Call Add_Info('MAGN_VECT_Z(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,3),1,5)
-        Call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,5)
+     &                     MVEC(1,(NH-1)/2,1,3),1,4)
+        Call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,4)
       End If
 
 

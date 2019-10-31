@@ -96,7 +96,7 @@
       nip = nip + nZeta*nElem(la)*nElem(lb)*nComp
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'MltInt_GIAO: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in MltInt'
          Call Abend()
       End If
