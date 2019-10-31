@@ -461,6 +461,24 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`XFIE`
+  This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
+  for the computation of magnetic susceptibility by :math:`dM/dH` and :math:`M/H` formulas.
+  A comparison with the usual formula (in the limit of zero applied field) is provided.
+  (Default is 0.0)
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: XFIE <basic>
+              <HELP>
+              This keyword specifies the value (in Tesla) of applied magnetic field
+              for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
+              A comparison with the usual formula (in the limit of zero applied field) is provided.
+              (Default is 0.0)
+              </HELP>
+              </KEYWORD>
+
+
+
 :kword:`PRLV`
   This keyword controls the print level.
 

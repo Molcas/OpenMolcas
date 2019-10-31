@@ -39,8 +39,8 @@ field calculations.
       H. W. Seward, secretary of State in the Lincoln administration, who suggested and supervised
       the 1867 purchase of Alaska from tzar Russia. Price: 2 cents an acre.
 
-In the following three subsection we will in detail describe the input parameters
-for analytic integration, numerical integration, and reaction fields.
+In the following three subsections we will in detail describe the input parameters
+for analytic integration, numerical integration, and relativistic operators.
 
 .. ..include:: ../integrals.inc
 
@@ -379,8 +379,7 @@ General keywords
               </KEYWORD>
 
 :kword:`LDF1`
-  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword LDF.
-  Equivalent to keyword LDF.
+  Local Density Fitting using auxiliary functions centered on the two parent atoms of each AO product. Equivalent to keyword :kword:`LDF`.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="LDF1" APPEAR="Local Density Fitting" KIND="SINGLE" EXCLUSIVE="CHOL,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: LDF1 <basic>
@@ -681,6 +680,7 @@ Keywords associated to one-electron integrals
   Following this, one entry for each operator, the order of
   the multipole operator and the coordinates of the center (in au) of
   expansion are specified.
+  The default is the origin for 0th and 1st multipoles, and the center of mass for higher-order multipoles.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CENT" KIND="REALS_COMPUTED" APPEAR="Multipole moments origins" SIZE="4" LEVEL="ADVANCED">
               %%Keyword: Center <advanced>

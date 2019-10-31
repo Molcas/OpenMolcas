@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TSHop(CI1,CI2)
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+      use rassi_global_arrays, only: JBNUM, LROOT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -54,14 +54,14 @@ C
 C Get the CI coefficients for current state
 C
 C Open JOBIPH file:
-      JOB1=iWork(lJBNUM+ISTATE1-1)
+      JOB1=JBNUM(ISTATE1)
       CALL DANAME(LUIPH,JBNAME(JOB1))
 C Read table of contents on this JOBIPH file:
       IAD=0
       CALL IDAFILE(LUIPH,2,ITOC15,15,IAD)
 C Read CI coefficients from interface.
       IDISK=ITOC15(4)
-      LROOT1=iWork(lLROOT+ISTATE1-1)
+      LROOT1=LROOT(ISTATE1)
       DO I=1,LROOT1-1
          CALL DDAFILE(LUIPH,0,CI1,NCI1,IDISK)
       END DO
@@ -71,14 +71,14 @@ C
 C Get the CI coefficients for state2
 C
 C Open JOBIPH file:
-      JOB2=iWork(lJBNUM+ISTATE2-1)
+      JOB2=JBNUM(ISTATE2)
       CALL DANAME(LUIPH,JBNAME(JOB2))
 C Read table of contents on this JOBIPH file:
       IAD=0
       CALL IDAFILE(LUIPH,2,ITOC15,15,IAD)
 C Read CI coefficients from interface.
       IDISK=ITOC15(4)
-      LROOT1=iWork(lLROOT+ISTATE2-1)
+      LROOT1=LROOT(ISTATE2)
       DO I=1,LROOT1-1
          CALL DDAFILE(LUIPH,0,CI2,NCI2,IDISK)
       END DO

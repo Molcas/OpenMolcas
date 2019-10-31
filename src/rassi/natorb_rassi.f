@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+      use rassi_aux, only : iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -92,10 +93,16 @@ C HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
 C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
             X=EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
             IF(ABS(X).GT.1.0D-12) THEN
-              IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
-              CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
-              IF(I.EQ.J) X=0.5D00*X
-              CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
+              iEmpty=iDisk_TDM(I,J,2)
+              If (IAND(iEmpty,1).ne.0) Then
+                 IDISK=iDisk_TDM(I,J,1)
+                 iOpt=2
+                 iGo=1
+                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
+     &                          LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+                 IF(I.EQ.J) X=0.5D00*X
+                 CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
+              End If
             END IF
           END DO
         END DO

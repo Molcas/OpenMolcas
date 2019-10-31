@@ -142,20 +142,20 @@
       call mh5_init_attr(wfn_cicoef, 'description',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering, size [NCONF] '//
-     $        'for each root in NROOTS: [NCONF,NROOTS].')
+     $        'for each root in NROOTS: [NROOTS,NCONF].')
 
 *     density matrices for each root
       wfn_dens = mh5_create_dset_real (wfn_fileid,
      $        'DENSITY_MATRIX', 3, [NAC, NAC, lRoots])
       call mh5_init_attr(wfn_dens, 'description',
      $        'active 1-body density matrix, size [NAC,NAC] '//
-     $        'for each root in NROOTS: [NAC,NAC,NROOTS].')
+     $        'for each root in NROOTS: [NROOTS,NAC,NAC].')
 
       wfn_spindens = mh5_create_dset_real (wfn_fileid,
      $        'SPINDENSITY_MATRIX', 3, [NAC, NAC, lRoots])
       call mh5_init_attr(wfn_spindens, 'description',
      $        'active 1-body spin density matrix, size [NAC,NAC] '//
-     $        'for each root in NROOTS: [NAC,NAC,NROOTS].')
+     $        'for each root in NROOTS: [NROOTS,NAC,NAC].')
 
       if (KeyTDM) then
       wfn_transdens = mh5_create_dset_real (wfn_fileid,
@@ -164,7 +164,7 @@
       call mh5_init_attr(wfn_transdens, 'description',
      $        'active 1-body transition density matrix, '//
      $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
-     $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
+     $        '[NROOTS*(NROOTS-1)/2,NAC,NAC].')
       end if
 
 #ifdef _DMRG_
