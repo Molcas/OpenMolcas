@@ -12,6 +12,9 @@
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use kVectors
+#ifdef _HDF5_
+      use rassi_global_arrays, only: JBNUM
+#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -57,13 +60,13 @@
 
       NSS=0
       DO ISTATE=1,NSTATE
-        NSS=NSS+MLTPLT(iWork(lJBNUM+ISTATE-1))
+        NSS=NSS+MLTPLT(JBNUM(ISTATE))
       END DO
 
 *     irrep per state
       call mma_allocate(state_irreps, NSTATE)
       do istate=1,nstate
-        state_irreps(istate) = IRREP(iWork(lJBNUM+ISTATE-1))
+        state_irreps(istate) = IRREP(JBNUM(ISTATE))
       end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_IRREPS', 1, [NSTATE], state_irreps)
@@ -72,7 +75,7 @@
 *     multiplicity per state
       call mma_allocate(state_mult, NSTATE)
       do istate=1,nstate
-        state_mult(istate) = MLTPLT(iWork(lJBNUM+ISTATE-1))
+        state_mult(istate) = MLTPLT(JBNUM(ISTATE))
       end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)
@@ -131,14 +134,14 @@
       call mh5_init_attr(wfn_sfs_angmom, 'description',
      $        'Angular momentum components between the spin-free '//
      $        'states stored as <SFS1|iL(x,y,z)|SFS2> in'//
-     $        ' [NSTATE,NSTATE,3]')
+     $        ' [3,NSTATE,NSTATE]')
 
       wfn_sfs_edipmom = mh5_create_dset_real(wfn_fileid,
      $        'SFS_EDIPMOM', 3, [NSTATE,NSTATE,3])
       call mh5_init_attr(wfn_sfs_edipmom, 'description',
      $        'Electric dipole momentum components between the '//
      $        'spin-free states stored as <SFS1|ED(x,y,z)|SFS2> in'//
-     $        ' [NSTATE,NSTATE,3]')
+     $        ' [3,NSTATE,NSTATE]')
 
       wfn_sfs_amfi = mh5_create_dset_real(wfn_fileid,
      $        'SFS_AMFIINT', 3, [NSTATE,NSTATE,3])
@@ -146,7 +149,7 @@
      $        'Components of the spin-orbit integrals between the '//
      $        'spin-free states stored as '//
      $        '<SFS1|spin-orbit-operator|SFS2> in'//
-     $        ' [NSTATE,NSTATE,3]')
+     $        ' [3,NSTATE,NSTATE]')
 
 *     SOS properties
       wfn_sos_angmomr = mh5_create_dset_real(wfn_fileid,
@@ -154,14 +157,14 @@
       call mh5_init_attr(wfn_sos_angmomr, 'description',
      $        'Angular momentum components between the spin-orbit '//
      $        'states stored as <SOS1|iL(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], real part')
+     $        ' [3,NSS,NSS], real part')
 
       wfn_sos_angmomi = mh5_create_dset_real(wfn_fileid,
      $        'SOS_ANGMOM_IMAG', 3, [NSS,NSS,3])
       call mh5_init_attr(wfn_sos_angmomi, 'description',
      $        'Angular momentum components between the spin-orbit '//
      $        'states stored as <SOS1|iL(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], imaginary part')
+     $        ' [3,NSS,NSS], imaginary part')
 
       wfn_sos_spinr = mh5_create_dset_real(wfn_fileid,
      $        'SOS_SPIN_REAL', 3, [NSS,NSS,3])
@@ -182,21 +185,21 @@
       call mh5_init_attr(wfn_sos_edipmomr, 'description',
      $        'Electric dipole momentum components between the '//
      $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], real part')
+     $        ' [3,NSS,NSS], real part')
 
       wfn_sos_edipmomi = mh5_create_dset_real(wfn_fileid,
      $        'SOS_EDIPMOM_IMAG', 3, [NSS,NSS,3])
       call mh5_init_attr(wfn_sos_edipmomi, 'description',
      $        'Electric dipole momentum components between the '//
      $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], imaginary part')
+     $        ' [3,NSS,NSS], imaginary part')
 
 *     SFS transition density
       wfn_sfs_tdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_tdm, 'description',
      $        'Transition density matrices for each pair of states, '//
-     $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
+     $        'matrix of size [NSTATE,NSTATE,NBAST], where NBAST '//
      $        'is of size [NBAS(I)**2] for I=1,NSYM')
 
 *     SFS spin transition density
@@ -204,43 +207,46 @@
      $        'SFS_TRANSITION_SPIN_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_tsdm, 'description',
      $        'Transition spin density matrices for each pair of '//
-     $        'states, matrix of size [NBAST,NSTATE,NSTATE], where '//
+     $        'states, matrix of size [NSTATE,NSTATE,NBAST], where '//
      $        'NBAST is of size [NBAS(I)**2] for I=1,NSYM')
 
-*     SFS WE-reduced TDM''s of triplet type
+*     SFS WE-reduced TDMs of triplet type
       wfn_sfs_wetdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_WE_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_wetdm, 'description',
      $        'WE-reduced TDMs for each pair of states,'//
-     $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
+     $        'matrix of size [NSTATE,NSTATE,NBAST], where NBAST '//
      $        'is of size [NBAS(I)**2] for I=1,NSYM')
 
-*     SFS intermediate transition moments
+*     SFS intermediate transition vectors
       nIJ=NSTATE*(NSTATE-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       wfn_sfs_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SFS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
+     $        'SFS_TRANSITION_VECTORS', 4, [nData,nQuad,nIJ,nk_Vector])
       call mh5_init_attr(wfn_sfs_tm, 'description',
-     $        'SFS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad*nVec), '//
-     $        'polarization vectors (x2), weights, for each, '//
-     $        'unique pairs of SF states, '//
-     $        'excluding self-pairs (nIJ), '//
-     $        'and k-vector stored as a, '//
-     $        'matrix of size [nVec,nIJ,nQuad,nData]')
+     $        'SFS intermediate transition vectors '//
+     $        'for nVec specific k-vectors, '//
+     $        'nIJ unique pairs of SF states, '//
+     $        'and nQuad quadrature k-vectors; '//
+     $        'stored as weight, k-vector (3 components), '//
+     $        'real transition vector (3 components), '//
+     $        'and imaginary transition vector (3 components), '//
+     $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
 
-*     SOS intermediate transition moments
+*     SOS intermediate transition vectors
       nIJ=NSS*(NSS-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       wfn_sos_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SOS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
+     $        'SOS_TRANSITION_VECTORS', 4,
+     $        [nData,2*nQuad,nIJ,nk_Vector])
       call mh5_init_attr(wfn_sos_tm, 'description',
-     $        'SOS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad*nVec), '//
-     $        'polarization vectors (x2), weights, for each, '//
-     $        'unique pairs of SO states, '//
-     $        'excluding self-pairs (nIJ), '//
-     $        'and k-vector stored as a, '//
-     $        'matrix of size [nVec,nIJ,nQuad,nData]')
+     $        'SOS intermediate transition vectors '//
+     $        'for nVec specific k-vectors, '//
+     $        'nIJ unique pairs of SF states, '//
+     $        'and nQuad quadrature k-vectors; '//
+     $        'stored as weight, k-vector (3 components), '//
+     $        'real transition vector (3 components), '//
+     $        'and imaginary transition vector (3 components), '//
+     $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
 #endif
       end

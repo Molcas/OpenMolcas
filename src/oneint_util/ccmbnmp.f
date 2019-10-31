@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp)
+      SubRoutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
+     &                   kVector)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -28,7 +29,7 @@
 #include "real.fh"
       Complex*16 Rnxyz(nZeta,3,0:la,0:lb,0:lr), Temp
       Real*8  Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &        Zeta(nZeta), rKappa(nZeta)
+     &        Zeta(nZeta), rKappa(nZeta), kVector(3)
 *
 *     Statement function for Cartesian index
 *
@@ -55,7 +56,10 @@
                Do 42 iy = lr-ix, 0, -1
                   iz = lr-ix-iy
                   Do 30 iZeta = 1, nZeta
-                     Fact = rKappa(iZeta) * 1/Sqrt(Zeta(iZeta)**3)
+                     rTemp=KVector(1)**2 + kVector(2)**2 + kVector(3)**2
+                     rTemp=rTemp/(Four*Zeta(iZeta))
+                     Fact = rKappa(iZeta) * (1.0D0/Sqrt(Zeta(iZeta)**3))
+     &                    * Exp(-rTemp)
                      Temp = Fact *
      &                       Rnxyz(iZeta,1,ixa,ixb,ix)*
      &                       Rnxyz(iZeta,2,iya,iyb,iy)*

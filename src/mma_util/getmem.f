@@ -205,7 +205,6 @@
 
       integer i
 
-      write(6,*) 'GARBLE',vartyp,length
       select case(vartyp)
       case ('REAL')
         call dcopy_(length,dgarbage,0,work(ipos),1)

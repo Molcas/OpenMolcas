@@ -188,6 +188,8 @@ c               Close(28)
                    Read(Label,'(2X,I1)') lpole
                Else If (LBL.eq.'DMS ') Then
                    lpole = 3
+               Else If (LBL.eq.'VELO') Then
+                   lpole = 1
                End If
                Call mma_allocate(plabs,nComp,label='plabs')
                Call mma_allocate(TMat,nComp**2,label='TMat')
@@ -264,32 +266,32 @@ c               Close(28)
                Else If ((iComp+2)/3.eq.4) Then
                   L_Temp='EMFR  IA'
                End If
-             Else If (Label(1:5).eq.'TMOS0') Then
+             Else If (Label(1:5).eq.'TMOM0') Then
                If (iComp.eq.1) Then
-                  L_Temp='TMOS0  R'
+                  L_Temp='TMOM0  R'
                   iComp_=1
                Else
-                  L_Temp='TMOS0  I'
+                  L_Temp='TMOM0  I'
                   iComp_=1
                End If
-             Else If (Label(1:5).eq.'TMOS2') Then
+             Else If (Label(1:5).eq.'TMOM2') Then
                If (iComp.eq.1) Then
-                  L_Temp='TMOS2  R'
+                  L_Temp='TMOM2  R'
                   iComp_=1
                Else
-                  L_Temp='TMOS2  I'
+                  L_Temp='TMOM2  I'
                   iComp_=1
                End If
-            Else If (Label(1:5).eq.'TMOS ') Then
+            Else If (Label(1:5).eq.'TMOM ') Then
                iComp_=MOD(iComp+2,3)+1
                If ((iComp+2)/3.eq.1) Then
-                  L_Temp='TMOS  RS'
+                  L_Temp='TMOM  RS'
                Else If ((iComp+2)/3.eq.2) Then
-                  L_Temp='TMOS  RA'
+                  L_Temp='TMOM  RA'
                Else If ((iComp+2)/3.eq.3) Then
-                  L_Temp='TMOS  IS'
+                  L_Temp='TMOM  IS'
                Else If ((iComp+2)/3.eq.4) Then
-                  L_Temp='TMOS  IA'
+                  L_Temp='TMOM  IA'
                End If
             Else
                L_Temp=Label
@@ -399,7 +401,7 @@ C     Logical Addpot
 #include "property_label.fh"
       Real*8 Array(LenTot)
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,
-     &                                     SOInt, Final, Scrtch,
+     &                                     SOInt, FArray, Scrtch,
      &                                     ScrSph, Kern
       Integer, Dimension(:,:), Allocatable :: Ind_ij
       Real*8 CCoor(3,nComp), PtChrg(nGrid)
@@ -510,7 +512,7 @@ C     Logical Addpot
          MemKrn=Max(MemKer*iPrim*jPrim,MemKrn)
       End Do
 *
-      Call mma_Allocate(Final,lFinal,label='Final')
+      Call mma_Allocate(FArray,lFinal,label='Final')
       Call mma_allocate(Scrtch,lScrt1,label='Scrtch')
       Call mma_allocate(ScrSph,lScrt2,label='ScrSph')
       Call mma_allocate(Kern,MemKrn,label='Kern')
@@ -558,7 +560,7 @@ C     Logical Addpot
      &                 nOrdOp,iChO,
      &                 iStabO,nStabO,nIC,
      &                 PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
-     &                 Final,lFinal,Scrtch,lScrt1,
+     &                 FArray,lFinal,Scrtch,lScrt1,
      &                 ScrSph,lScrt2,Kern,MemKrn)
          iSOBlk = ipSO
          Do iComp = 1, nComp
@@ -574,15 +576,8 @@ C     Logical Addpot
 *
             rHrmt_Save=rHrmt
 
-            If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOS ') Then
+            If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOM ') Then
                If (MOD((iComp+5),6).lt.3) Then
-                  rHrmt= One
-               Else
-                  rHrmt=-One
-               End If
-            Else If (Label(1:5).eq.'EMFR0'.or.
-     &               Label(1:5).eq.'TMOS0') Then
-               If (iComp.eq.1) Then
                   rHrmt= One
                Else
                   rHrmt=-One
@@ -610,7 +605,7 @@ C     Logical Addpot
       Call mma_deallocate(Kern)
       Call mma_deallocate(ScrSph)
       Call mma_deallocate(Scrtch)
-      Call mma_deallocate(Final)
+      Call mma_deallocate(FArray)
       Call mma_deallocate(Ind_ij)
       Call mma_deallocate(PCoor)
       Call mma_deallocate(Kappa)

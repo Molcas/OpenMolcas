@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORBM(CHARTYPE,
-     &                   USOR,USOI,ASS,BSS,NSS,
-     &                   ROTMAT,DENSOUT)
+     &                     USOR,USOI,ASS,BSS,NSS,
+     &                     iOpt,ROTMAT,DENSOUT)
+      use rassi_aux, only : idisk_TDM
+      use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -60,7 +62,7 @@ C (see prprop.f and others)
 
       ISS=0
       DO ISF=1,NSTATE
-        JOB=iWork(lJBNUM+ISF-1)
+        JOB=JBNUM(ISF)
         MPLET=MLTPLT(JOB)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2
@@ -147,27 +149,14 @@ C REQUESTED SPIN STATES
         MPLETL=IWORK(LMAPSP-1+LSS)
         MSPROJL=IWORK(LMAPMS-1+LSS)
 
-        JOB1=iWork(lJBNUM+KSF-1)
-        JOB2=iWork(lJBNUM+LSF-1)
+        JOB1=JBNUM(KSF)
+        JOB2=JBNUM(LSF)
         LSYM1=IRREP(JOB1)
         LSYM2=IRREP(JOB2)
         ISY12=MUL(LSYM1,LSYM2)
 
 C SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
-        IOF=0
-        DO ISY1=1,NSYM
-          ISY2=MUL(ISY1,ISY12)
-          IF(ISY1.LT.ISY2) GOTO 10
-          IOFF(ISY1)=IOF
-          IOFF(ISY2)=IOF
-          NB1=NBASF(ISY1)
-          NB2=NBASF(ISY2)
-          NB12=NB1*NB2
-          IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-          IOF=IOF+NB12
-  10      CONTINUE
-        END DO
-
+        Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 
 c These are going to be zero, so head them off at the pass
         IF(ITYPE.LE.2
@@ -185,23 +174,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
-        IF(LSF.GT.KSF) THEN
-          IDISK=iWork(lIDTDM+(LSF-1)*NSTATE+KSF-1)
-        ELSE
-          IDISK=iWork(lIDTDM+(KSF-1)*NSTATE+LSF-1)
-        END IF
-        CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
-
-c I Don't know what is stored between TDMZZ and WDMZZ,
-c but store it in TDMZZ then overwrite
-c (see mectl.f)
-        IF(ITYPE.GE.3) THEN
-          CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
-          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
-          CALL DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZ),1)
-          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
+        iEmpty=iDisk_TDM(KSF,LSF,2)
+        IDISK=iDisk_TDM(KSF,LSF,1)
+        iOpt=2
+        IF (ITYPE.GE.3) Then
+           iGo=4
+           CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
 C NOTE-the TD matrix as read in has an incorrect sign
-          CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
+           CALL DSCAL_(NTDMZZ,-1.0d0,WORK(LTDMZZ),1)
+        Else
+           iGo=1
+           CALL dens2file(Work(LTDMZZ),Work(LTDMZZ),Work(LTDMZZ),
+     &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
         END IF
 
 
@@ -311,6 +296,7 @@ c ie, see how AMFI is processed in soeig.f
      &          .AND.MSPROJK.EQ.MSPROJL) THEN
           CALL DAXPY_(NBTRI,1.0d0,WORK(LSCR),1,WORK(LSDMZR),1)
         ELSE IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
+          If (iOpt.eq.1) Then
           CALL DAXPY_(NBTRI,CGX*ROTMAT(1,1),WORK(LSCR),1,WORK(LSDMXR),1)
           CALL DAXPY_(NBTRI,CGY*ROTMAT(2,1),WORK(LSCR),1,WORK(LSDMXI),1)
           CALL DAXPY_(NBTRI,CG0*ROTMAT(3,1),WORK(LSCR),1,WORK(LSDMXR),1)
@@ -322,6 +308,11 @@ c ie, see how AMFI is processed in soeig.f
           CALL DAXPY_(NBTRI,CGX*ROTMAT(1,3),WORK(LSCR),1,WORK(LSDMZR),1)
           CALL DAXPY_(NBTRI,CGY*ROTMAT(2,3),WORK(LSCR),1,WORK(LSDMZI),1)
           CALL DAXPY_(NBTRI,CG0*ROTMAT(3,3),WORK(LSCR),1,WORK(LSDMZR),1)
+          Else
+          CALL DAXPY_(NBTRI,CGX,WORK(LSCR),1,WORK(LSDMXR),1)
+          CALL DAXPY_(NBTRI,CGY,WORK(LSCR),1,WORK(LSDMYI),1)
+          CALL DAXPY_(NBTRI,CG0,WORK(LSCR),1,WORK(LSDMZR),1)
+          End If
         END IF
 
 
@@ -412,220 +403,3 @@ c Free memory
 
       RETURN
       END
-
-
-
-
-      SUBROUTINE SONATORBM_INT(DENS, CHARPROP, CHARTYPE,ASS,BSS,NSS,
-     &                        ROTMAT,
-     &                        PROPVALXR,PROPVALYR,PROPVALZR,
-     &                        PROPVALXI,PROPVALYI,PROPVALZI)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SONATORBM_INT')
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
-#include "WrkSpc.fh"
-      DIMENSION DENS(6,NBTRI)
-      INTEGER ASS,BSS
-      CHARACTER*8 CHARPROP, CHARTYPE
-c      DIMENSION IOFF(8)
-      Dimension ROTMAT(3,3)
-      DIMENSION IDUM(1)
-
-
-
-C SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
-c      IOF=0
-c      DO ISY1=1,NSYM
-c        ISY2=MUL(ISY1,ISY12)
-c        IF(ISY1.LT.ISY2) GOTO 10
-c        IOFF(ISY1)=IOF
-c        IOFF(ISY2)=IOF
-c        NB1=NBASF(ISY1)
-c        NB2=NBASF(ISY2)
-c        NB12=NB1*NB2
-c        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-c        IOF=IOF+NB12
-c10      CONTINUE
-c      END DO
-
-C NOW DO INTEGRATION WITH AO MATRICES
-C FOR THE EXPECTATION VALUE
-
-C The following creates an array that is used to
-C map a specific spin state to the corresponding
-C spin-free state and to its spin
-C (see prprop.f and others)
-
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
-
-      ISS=0
-      DO ISF=1,NSTATE
-        JOB=iWork(lJBNUM+ISF-1)
-        MPLET=MLTPLT(JOB)
-
-        DO MSPROJ=-MPLET+1,MPLET-1,2
-          ISS=ISS+1
-          IWORK(LMAPST-1+ISS)=ISF
-          IWORK(LMAPSP-1+ISS)=MPLET
-          IWORK(LMAPMS-1+ISS)=MSPROJ
-        END DO
-      END DO
-
-
-C Get the proper type of the property
-      ITYPE=0
-      IF(CHARTYPE.EQ.'HERMSING') ITYPE=1
-      IF(CHARTYPE.EQ.'ANTISING') ITYPE=2
-      IF(CHARTYPE.EQ.'HERMTRIP') ITYPE=3
-      IF(CHARTYPE.EQ.'ANTITRIP') ITYPE=4
-      IF(ITYPE.EQ.0) THEN
-        WRITE(6,*)'RASSI/SONATORB internal error.'
-        WRITE(6,*)'Erroneous property type:',CHARTYPE
-        CALL ABEND()
-      END IF
-
-C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-c The extra 4 elements correspond to the nuclear contribution
-c and the origin of the operator
-      NIP=4+NBTRI
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-      CALL GETMEM('IPX    ','ALLO','REAL',LIPX,NIP)
-      CALL GETMEM('IPY    ','ALLO','REAL',LIPY,NIP)
-      CALL GETMEM('IPZ    ','ALLO','REAL',LIPZ,NIP)
-      CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPX),1)
-      CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPY),1)
-      CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPZ),1)
-
-      DO IC=1,3 ! loop over reading X,Y, and Z AO Integrals
-
-C Get info from the stored integrals
-c IOPT controls what is read.
-c IOPT=1 Read the size information
-c IOPT=0 Read the property
-c IOPT=6 Read the property, skipping the nuclear contribution and the origin
-c (see misc_util/OneFlags.fh)
-      IOPT=1
-      CALL iRDONE(IRC,IOPT,CHARPROP,IC,IDUM,ISCHK)
-      IF (IRC.EQ.0) NSIZ=IDUM(1)
-
-
-C sanity check?
-c      DO ISS=1,NSS
-c        DO JSS=1,NSS
-c          ISF=IWORK(LMAPST-1+ISS)
-c          JSF=IWORK(LMAPST-1+JSS)
-C COMBINED SYMMETRY OF STATES:
-c          JOB1=JBNUM(ISF)
-c          JOB2=JBNUM(JSF)
-c          LSYM1=IRREP(JOB1)
-c          LSYM2=IRREP(JOB2)
-c          ISY12=MUL(LSYM1,LSYM2)
-C THE SYMMETRY CHECK MASK:
-c          MASK=2**(ISY12-1)
-c          IF(MOD(ISCHK/MASK,2).EQ.0) THEN
-c            WRITE(6,*) "MASK DOESN'T MATCH"
-c            WRITE(6,*) "ISF:",ISF
-c            WRITE(6,*) "JSF:",JSF
-c            WRITE(6,*) "  MASK:",MASK
-c            WRITE(6,*) " ISCHK:",ISCHK
-c            WRITE(6,*) "  PROP:",CHARPROP
-c            WRITE(6,*) "  COMP:",IC
-c            CALL ABEND()
-c          END IF
-c        END DO
-c      END DO
-
-c Actually read the integral
-      IOPT=0
-      CALL RDONE(IRC,IOPT,CHARPROP,IC,WORK(LIP),ISCHK)
-
-      IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE SONATORB ***'
-        WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
-        WRITE(6,'(6X,A,A)')'  LABEL     = ',CHARPROP
-        WRITE(6,'(6X,A,I2)')'  COMPONENT = ',IC
-        WRITE(6,*)
-        CALL ABEND()
-      END IF
-
-c note reordering
-      CALL DAXPY_(NIP,ROTMAT(IC,1),WORK(LIP),1,WORK(LIPX),1)
-      CALL DAXPY_(NIP,ROTMAT(IC,2),WORK(LIP),1,WORK(LIPY),1)
-      CALL DAXPY_(NIP,ROTMAT(IC,3),WORK(LIP),1,WORK(LIPZ),1)
-
-      END DO ! end loop over reading X,Y, and Z AO Integrals
-
-      PROPVALXR=0.0d0
-      PROPVALYR=0.0d0
-      PROPVALZR=0.0d0
-      PROPVALXI=0.0d0
-      PROPVALYI=0.0d0
-      PROPVALZI=0.0d0
-
-C The integral is NBTRI matrix
-C The property is NBTRI matrix
-c We only work with half the matrix. Therefore, this would
-c have a factor of 2. However, the factor of 1/2 was missing
-c in SONATORB.F from the symmetric/antisymmetric equations
-      IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
-        DO I=1,NBTRI
-          PROPVALXR=PROPVALXR+WORK(LIPX-1+I)*DENS(1,I)
-          PROPVALYR=PROPVALYR+WORK(LIPY-1+I)*DENS(2,I)
-          PROPVALZR=PROPVALZR+WORK(LIPZ-1+I)*DENS(3,I)
-
-          PROPVALXI=PROPVALXI+WORK(LIPX-1+I)*DENS(4,I)
-          PROPVALYI=PROPVALYI+WORK(LIPY-1+I)*DENS(5,I)
-          PROPVALZI=PROPVALZI+WORK(LIPZ-1+I)*DENS(6,I)
-        END DO
-      ELSE
-        DO I=1,NBTRI
-          PROPVALXI=PROPVALXI+WORK(LIPX-1+I)*DENS(1,I)
-          PROPVALYI=PROPVALYI+WORK(LIPY-1+I)*DENS(2,I)
-          PROPVALZI=PROPVALZI+WORK(LIPZ-1+I)*DENS(3,I)
-
-          PROPVALXR=PROPVALXR-WORK(LIPX-1+I)*DENS(4,I)
-          PROPVALYR=PROPVALYR-WORK(LIPY-1+I)*DENS(5,I)
-          PROPVALZR=PROPVALZR-WORK(LIPZ-1+I)*DENS(6,I)
-        END DO
-      END IF
-
-      IF(IPGLOB.GE.VERBOSE) THEN
-      WRITE(6,*)
-      WRITE(6,*) "************************************"
-      WRITE(6,*) "SONATORB EXPECTATION VALUES"
-      WRITE(6,*) " PROPERTY: ", CHARPROP
-      WRITE(6,*) " TYPE: ", CHARTYPE
-      WRITE(6,*) " STATE (K,L): ",ASS,BSS
-      WRITE(6,*) "************************************"
-      WRITE(6,*) "Property: Re(X): ",PROPVALXR
-      WRITE(6,*) "Property: Re(Y): ",PROPVALYR
-      WRITE(6,*) "Property: Re(Z): ",PROPVALZR
-      WRITE(6,*) "Property: Im(X): ",PROPVALXI
-      WRITE(6,*) "Property: Im(Y): ",PROPVALYI
-      WRITE(6,*) "Property: Im(Z): ",PROPVALZI
-      WRITE(6,*) "************************************"
-      END IF
-
-c Free up un-needed space
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
-      CALL GETMEM('IPX    ','FREE','REAL',LIPX,NIP)
-      CALL GETMEM('IPY    ','FREE','REAL',LIPY,NIP)
-      CALL GETMEM('IPZ    ','FREE','REAL',LIPZ,NIP)
-
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
-
-
-      RETURN
-      END
-
