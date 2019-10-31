@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/rassi.exe             executable
-#include "state_interaction.inc"
  (file)  RASSIINP "$WorkDir/$Project."Rassi.Input     rwi
+#include "state_interaction.inc"
  (file)  CIVECTOR "$WorkDir/$Project".CIVector    rw
  (file)  CIVECTUP "$WorkDir/$Project".CIVectup    rw

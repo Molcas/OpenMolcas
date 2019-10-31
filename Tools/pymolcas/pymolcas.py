@@ -15,7 +15,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from six import text_type
+try:
+  from six import text_type
+except ImportError:
+  text_type = str
 import sys
 sys.dont_write_bytecode = True
 
@@ -74,6 +77,7 @@ def main(my_name):
   parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation', action='store_true')
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
+  parser.add_argument('-val', '--validate', help='validate input only (dry run)', action='store_true')
   parser.add_argument('-np', '--nprocs', help='number of parallel (MPI) processes', type=int)
   parser.add_argument('-v', '--version', help='print version of the driver', action='store_true')
   parser.add_argument('-o', '--output', help='redirect output stream to FILE', metavar='FILE')
@@ -161,7 +165,7 @@ def main(my_name):
       args['error'] = '{0}.err'.format(fn)
 
   try:
-    Molcas = Molcas_wrapper(warning=warning, stamp=stamp)
+    Molcas = Molcas_wrapper(warning=warning, stamp=stamp, validate=args.get('validate'))
   except MolcasException as message:
     print(text_type(message), file=sys.stderr)
     return(1)
@@ -211,13 +215,14 @@ def main(my_name):
       return(1)
     try:
       Molcas.read_input(args['filename'])
-      Molcas.auto()
+      if (args['validate']):
+        Molcas.validate()
+      else:
+        Molcas.auto()
     except MolcasException as message:
       print(text_type(message), file=sys.stderr)
       # Skip verification with unsupported features
-      # TODO: remove when ready
-      if ('is unsupported' in text_type(message) or
-          'Unknown module' in text_type(message)):
+      if ('Unknown module' in text_type(message)):
         Molcas.rc = '_RC_NOT_AVAILABLE_'
       else:
         Molcas.rc = '_RC_JOB_KILLED_'

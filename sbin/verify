@@ -11,7 +11,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2018, Ignacio Fdez. Galván                        *
+#               2017-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # verify
@@ -35,6 +35,9 @@
 #
 # Add --fromfile option
 # Ignacio Fdez. Galván, May 2018
+#
+# Add --timest and --validate options
+# Ignacio Fdez. Galván, Aug-Sep 2019
 
 # perl modules
 use warnings;
@@ -91,6 +94,8 @@ GetOptions ( \%opt,
              "reset",
              "status",
              "trap",
+             "timest",
+             "validate",
              "word=s",
            ) or short_help(1);
 
@@ -211,6 +216,12 @@ if ($opt{fuzzy}) {
 if ($opt{pass}) {
         $ENV{'MOLCAS_THR'} = '-1';
         $ENV{'MOLCAS_PASSCHECK'} = '1';
+}
+$ENV{MOLCAS_VALIDATE}='YES' if(! defined($ENV{MOLCAS_VALIDATE}));
+# command-line options
+my $cli_opts = "-ign";
+if ($opt{validate}) {
+  $cli_opts = "$cli_opts --validate";
 }
 
 #-------------------------------------------
@@ -504,7 +515,19 @@ open (FAILED_LIST, ">", $log_failed_list)
 
 # start by printing headers
 print RESULT $header;
-print TIMING $header;
+if ($opt{timest}) {
+  print TIMING <<"EOF";
+# Automatically-generated file. Do not modify!
+#
+# To generate this file run pymolcas verify -timest -pass .everything
+#
+# Note that what matters is relative timings, so do not
+# mix runs with different settings or environments.
+
+EOF
+} else {
+  print TIMING $header;
+}
 
 print RESULT <<"EOF";
 1: Basic tests that must pass
@@ -568,6 +591,7 @@ foreach my $file (@filelist) {
         $cycles = 2 * $cycles if ($opt{parallel});
         print RESULT "----------\ngroup $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
         while ($cycles-- > 0) {
+                my $sttime = time;
                 if ($opt{parallel}) {
                         if ($cycles % 2 == 1) {
                                 $ENV{MOLCAS_NPROCS} = 1;
@@ -600,9 +624,9 @@ foreach my $file (@filelist) {
                 if ($child_pid == 0) {
                                 #child
                         if ($opt{debug}) {
-                                exec("$MOLCAS_DRIVER -ign $input");
+                                exec("$MOLCAS_DRIVER $cli_opts $input");
                         } else {
-                                exec("$MOLCAS_DRIVER -ign $input -o $out -e $err");
+                                exec("$MOLCAS_DRIVER $cli_opts $input -o $out -e $err");
                         }
                 }
                 $active_pid = $child_pid;
@@ -617,6 +641,7 @@ foreach my $file (@filelist) {
                         # but we should still cause a failure (segfault, garbage)
                         $rc = 30 if ($special = special_failure ($out));
                 }
+                my $result = '';
                 if ($rc) {
                         $cycles = 0;
                         if (not $opt{debug}) {
@@ -625,6 +650,7 @@ foreach my $file (@filelist) {
                         }
                         # skip the test if a program is not available (RC_NOT_AVAILABLE)
                         if ($rc == 36) {
+                                $result = ' S';
                                 # print results
                                 print RESULT "$mark:$group:$name Skipped!\n";
                                 msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
@@ -634,6 +660,7 @@ foreach my $file (@filelist) {
                                 # pretend to be fine for the remainder of this test
                                 $rc = 0;
                         } else {
+                                $result = ' F';
                                 # gather extra info
                                 my $mod = '';
                                 $mod = failed_module($out) if (not $opt{debug});
@@ -660,7 +687,16 @@ foreach my $file (@filelist) {
                         }
                 }
                 # save timing info
-                if (not $opt{debug}) {
+                if ($opt{timest}) {
+                        my $runtime = time - $sttime;
+                        if ($rc) {
+                                if ($rc == 36) {
+                                } else {
+                                }
+                        }
+                        print TIMING "--- $group{$file}:$name$result\n";
+                        print TIMING "$runtime\n";
+                } elsif (not $opt{debug}) {
                         print TIMING "--- Run: $project\n";
                         open ERR, "<", $err or error ("could not open $err\n");
                         while (<ERR>) {
@@ -789,6 +825,7 @@ options:
   --rawlist        only list matching tests (as a list of input files)
   --reset          clean up any results and tmp/log directories and exit
   --status         print status of the verification (useful for redirecting the output)
+  --timest         write time estimates (for split_tests)
   --trap           stop immediately after a failed test
   --word WORD      filter test files containing WORD
 

@@ -14,7 +14,7 @@
       Implicit Real*8 (a-h,o-z)
       Call Get_lScalar('EFP',EFP)
 *
-      EFP_On=EFP
+      EFP_On=lEFP
 #else
       EFP_On=.FALSE.
 #endif

@@ -21,6 +21,7 @@
  (file)  GV1.off        "$WorkDir/$Project."GV1.off              rw
 #include "gradfiles.inc"
 #include "espffiles.inc"
+#include "mcpdftfiles.inc"
  (file)  CVEC         "$WorkDir/$Project".CfVec                 rw*p
  (file)  CHTV          "$WorkDir/$Project".ChTV                  rw*
  (file)  LUGAM        "$WorkDir/$Project".LuGam                rw

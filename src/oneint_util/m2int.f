@@ -110,7 +110,7 @@
       nip = nip + nZeta*nComp*nElem(la)*nElem(lb)
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'M2Int: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in M2Int'
          Call Abend()
       End If

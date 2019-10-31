@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READCI(ISTATE,ISGS,ICIS,NCI,CI)
+      use rassi_global_arrays, only: JBNUM, LROOT
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -41,8 +42,8 @@
         WRITE(6,*)' ISTATE, NSTATE:',ISTATE,NSTATE
         CALL ABEND()
       END IF
-      JOB=iWork(lJBNUM+ISTATE-1)
-      LROOT1=iWork(lLROOT+ISTATE-1)
+      JOB=JBNUM(ISTATE)
+      LROOT1=LROOT(ISTATE)
 
 #ifdef _HDF5_
 ************************************************************************
@@ -90,7 +91,7 @@
         WRITE(6,*)' READCI called for state ',ISTATE
         WRITE(6,*)' This is on JobIph nr.',JOB
         WRITE(6,*)' JobIph file name:',JBNAME(JOB)
-        WRITE(6,*)' It is root nr.',iWork(lLROOT+ISTATE-1)
+        WRITE(6,*)' It is root nr.',LROOT(ISTATE)
         WRITE(6,*)' Its length NCI=',NCI
         WRITE(6,*)' Its symmetry  =',IRREP(JOB)
         WRITE(6,*)' Spin multiplic=',MLTPLT(JOB)

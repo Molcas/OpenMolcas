@@ -71,6 +71,9 @@ python_parse.py
 check_test.py
   Checks the results of a test file against the reference.
 
+validate.py
+  Validates input against the XML definitions.
+
 export.py
 pack.py
 compile.sh

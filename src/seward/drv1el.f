@@ -33,16 +33,16 @@
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
-     &          M1Int,  M2Int, SROInt, AMPInt,  PXPInt,  PXInt,
-     &          VPInt, PPInt, CntInt, EMFInt,
+     &         QpVInt,  M1Int,  M2Int, SROInt, AMPInt, PXPInt,  PXInt,
+     &          VPInt,  PPInt, CntInt, EMFInt,
      &         MltInt_GIAO,
      &         KneInt_GIAO,
      &          NAInt_GIAO,
      &          dTdmu_Int
       External MltMem, KnEMem, MVeMem,  VeMem,  D1Mem,  NAMem,  EFMem,
      &         OAMMem, OMQMem, DMSMem, WelMem, XFdMem,  PrjMem,
-     &          M1Mem, M2Mem, SROMem, AMPMem, PXPmem,  PXMem,
-     &          VPMem, PPMem, CntMem, EMFMem,
+     &         QpVMem,  M1Mem,  M2Mem, SROMem, AMPMem, PXPmem,  PXMem,
+     &          VPMem,  PPMem, CntMem, EMFMem,
      &         MltMem_GIAO,
      &         KneMem_GIAO,
      &          NAMem_GIAO,
@@ -531,7 +531,6 @@ c           iPAMcount=iPAMcount+1
 *                                                                      *
 *     Note that the integral is not symmetric or antisymmetric!        *
 *                                                                      *
-*                                                                      *
 ************************************************************************
 ************************************************************************
       PLabel=' '
@@ -550,7 +549,7 @@ c           iPAMcount=iPAMcount+1
 *
 *        The electromagnetic field operator contributes to all
 *        irreducible irreps, hence OperI=255. Since the operator
-*        it self is not symmetry adopted OperC is set to a dummy value.
+*        itself is not symmetry adapted OperC is set to a dummy value.
 *
          OperI(1   ) = 255
          OperI(1+1 ) = 255
@@ -577,7 +576,7 @@ c           iPAMcount=iPAMcount+1
 *
 *        The electromagnetic field operator contributes to all
 *        irreducible irreps, hence OperI=255. Since the operator
-*        it self is not symmetry adopted OperC is set to a dummy value.
+*        itself is not symmetry adapted OperC is set to a dummy value.
 *
          OperI(1   ) = 255
          OperI(1+1 ) = 255
@@ -826,6 +825,71 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
 *12b)                                                                  *
 *                                                                      *
+*     Velocity quadrupole.                                             *
+*     (the companion symmetric combination to the angular momentum)    *
+*                                                                      *
+************************************************************************
+************************************************************************
+      PLabel=' '
+      rHrmt=-One
+      If (Vlct.and.(nMltpl.ge.2).and..Not.Primitive_Pass) Then
+         Label='MLTPV  2'
+         nComp = 6
+         nOrdOp = 2
+         Call Allocate_Auxiliary()
+*
+*        Use origin for quadrupole moment
+         Call DCopy_(nComp,Coor_MPM(1,3),0,CoorO(1  ),3)
+         Call DCopy_(nComp,Coor_MPM(2,3),0,CoorO(1+1),3)
+         Call DCopy_(nComp,Coor_MPM(3,3),0,CoorO(1+2),3)
+         Call dCopy_(3,Coor_MPM(1,3),1,Ccoor,1)
+*
+         ixyz=1
+         iSymX = 2**IrrFnc(ixyz)
+         ixyz=2
+         iSymY = 2**IrrFnc(ixyz)
+         ixyz=4
+         iSymZ = 2**IrrFnc(ixyz)
+         iSymCx = iSymX
+         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
+         iSymCy = iSymY
+         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
+         iSymCz = iSymZ
+         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
+*
+* Calculates QpV_ij = r_i*p_j+p_i*r_j (or rater p -> nabla)
+*
+* QpVxx
+         OperI(1  ) = MltLbl(iSymCx,iSymX,nIrrep)
+         OperC(1  ) = iChBas(2)
+* QpVxy
+         OperI(1+1) = MltLbl(iSymCx,iSymY,nIrrep)
+         OperC(1+1) = iChBas(2) + iChBas(3)
+* QpVxz
+         OperI(1+2) = MltLbl(iSymCx,iSymZ,nIrrep)
+         OperC(1+2) = iChBas(2) + iChBas(4)
+* QpVyy
+         OperI(1+3) = MltLbl(iSymCy,iSymY,nIrrep)
+         OperC(1+3) = iChBas(3)
+* QpVyz
+         OperI(1+4) = MltLbl(iSymCy,iSymZ,nIrrep)
+         OperC(1+4) = iChBas(3) + iChBas(4)
+* QpVzz
+         OperI(1+5) = MltLbl(iSymCz,iSymZ,nIrrep)
+         OperC(1+5) = iChBas(4)
+*
+         Call DCopy_(nComp,[Zero],0,Nuc,1)
+         Call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,
+     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
+     &              dum,1,dum,idum,0,0,
+     &              dum,1,0)
+*
+         Call Deallocate_Auxiliary()
+      End If   ! Vlct.and.(nMltpl.ge.2)
+************************************************************************
+************************************************************************
+*12c)                                                                  *
+*                                                                      *
 *     Orbital Magnetic Quadrupole integrals.                           *
 *                                                                      *
 ************************************************************************
@@ -838,12 +902,10 @@ c           iPAMcount=iPAMcount+1
          nOrdOp = 3
          Call Allocate_Auxiliary()
 *
-!        Change from 3 to ncomp?
          Call dcopy_(nComp,[Work(ipOMQ  )],0,CoorO(1  ),3)
          Call dcopy_(nComp,[Work(ipOMQ+1)],0,CoorO(1+1),3)
          Call dcopy_(nComp,[Work(ipOMQ+2)],0,CoorO(1+2),3)
-!        Should then not all be copied?
-         Call dCopy_(3,Work(ipOMQ),1,Ccoor,1)
+         Call dcopy_(3,Work(ipOMQ),1,Ccoor,1)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
@@ -1465,8 +1527,12 @@ C decomposition of the totally symmetric irrep of Gsub.
 * and write the sum through Add_Info
 *
       If (PrPrt.and.mCnt.gt.0) Then
-        SumEl=Zero
-        SumNuc=Zero
+        Call mma_allocate(PtEl,1,label='PtEl')
+        Call mma_allocate(PtNuc,1,label='PtNuc')
+        Call mma_allocate(SumEl,1,label='SumEl')
+        Call mma_allocate(SumNuc,1,label='SumNuc')
+        SumEl(1)=Zero
+        SumNuc(1)=Zero
 *       Read and sum the values
         LuTmp=10
         Call DaName(LuTmp,'TMPPRP')
@@ -1474,8 +1540,8 @@ C decomposition of the totally symmetric irrep of Gsub.
         Do iCnt=1,mCnt
           Call dDaFile(LuTmp,2,PtEl,1,iDisk)
           Call dDaFile(LuTmp,2,PtNuc,1,iDisk)
-          SumEl=SumEl+PtEl
-          SumNuc=SumNuc+PtNuc
+          SumEl(1)=SumEl(1)+PtEl(1)
+          SumNuc(1)=SumNuc(1)+PtNuc(1)
         End Do
         Call DaClos(LuTmp)
 *       set the tolerance according to the total number of centers
@@ -1486,6 +1552,10 @@ C decomposition of the totally symmetric irrep of Gsub.
         Call Add_Info(label,SumEl,1,iTol)
         Write (label,'(a,a)') 'CNT','  nuc'
         Call Add_Info(label,SumNuc,1,iTol)
+        Call mma_deallocate(PtEl)
+        Call mma_deallocate(PtNuc)
+        Call mma_deallocate(SumEl)
+        Call mma_deallocate(SumNuc)
       End If
 *
 ************************************************************************

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/ccsdt.exe            executable
- (file)  CCSDTINP "$WorkDir/$Project."Ccsdt.Input         rwi
+ (file)  CCSDTINP "$WorkDir/$Project."Ccsdt.Input rwi
  (file)  JOBIPH  "$WorkDir/$Project$SubProject."JobIph       ro
  (file)  TEMPDA  "$WorkDir/"TEMPDA                rw*p
  (file)  Temp    "$WorkDir/"Temp                  rw*p

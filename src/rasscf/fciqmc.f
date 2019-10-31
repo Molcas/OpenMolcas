@@ -37,12 +37,18 @@
 #include "mafdecls.fh"
       integer*4 :: error
 #endif
+      save
+
       interface
         integer function isfreeunit(iseed)
           integer, intent(in) :: iseed
         end function
+
+        subroutine NECImain(fcidmp, input_name, NECIen)
+          character(*), intent(in) :: fcidmp, input_name
+          real*8, intent (out) :: NECIen
+        end subroutine
       end interface
-      save
       contains
 
 !>  @brief
@@ -85,7 +91,6 @@
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
 
-      implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
 #include "timers.fh"
@@ -103,10 +108,16 @@
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 
       parameter(ROUTINE = 'FCIQMC_clt')
+      character(*), parameter ::
+     &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
       call qEnter(routine)
 
-      fake_run_ = merge(fake_run, .false., present(fake_run))
+      if (present(fake_run)) then
+        fake_run_ = fake_run
+      else
+        fake_run_ = .false.
+      end if
 
 ! Local print level (if any)
       iprlev = iprloc(1)
@@ -153,9 +164,9 @@
 ! TODO: permutation has to be applied at more places
       select case (ReOrFlag)
         case (2:)
-          permutation = get_P_inp(ReOrInp)
+          permutation(:) = get_P_inp(ReOrInp)
         case (-1)
-          permutation = get_P_GAS(nGSSH)
+          permutation(:) = get_P_GAS(nGSSH)
       end select
 
 ! This call is not side effect free, sets EMY and modifies F_IN
@@ -163,33 +174,36 @@
      &      F_IN, orbital_E, folded_Fock)
 
       if (ReOrFlag /= 0) then
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
-     &                     permutation)
+        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
+     &      orbital_E, folded_Fock, TUVX, EMY, permutation)
       else
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
+        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
+     &      orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-! NOTE: Add fourth argument OCC.
-! If the Occupation number is written properly as well.
-      call write_OrbFile(CMO, orbital_E, iDoGas)
+      if (iDoGAS) then
+        if (ReOrFlag /= 0) then
+          call write_GASORB(nGSSH, permutation)
+        else
+          call write_GASORB(nGSSH)
+        end if
+      end if
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
-      if (.not. fake_run_) then
-        call run_neci(DoEmbdNECI,
-     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2, NECIen=NECIen)
-      end if
+
+      call run_neci(DoEmbdNECI, fake_run_, ascii_fcidmp, h5_fcidmp,
+     &  doGAS=iDoGAS, reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
+     &  NECIen=NECIen,
+     &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do
-
-
-      call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
 
 ! print matrices
       if (IPRLEV >= DEBUG) then
@@ -214,58 +228,92 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, reuse_pops, NECien)
+      subroutine run_neci(DoEmbdNECI, fake_run,
+     &      ascii_fcidmp, h5_fcidmp,
+     &      reuse_pops,
+     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
         use fciqmc_make_inp, only : make_inp
+        use rasscf_data, only : nAcPar, nAcPr2
         implicit none
-        logical, intent(in) :: DoEmbdNECI, reuse_pops
-        real*8, intent(out) :: NECIen
-        if (DoEmbdNECI) then
-          call make_inp(readpops=reuse_pops)
+        logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
+        character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
+        real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
+     &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+        logical, intent(in), optional :: doGAS
+        logical :: doGAS_
+        real*8, save :: previous_NECIen = 0.0d0
+
+        character(*), parameter :: input_name = 'FCINP'
+
+        if (present(doGAS)) then
+          doGAS_ = doGAS
+        else
+          doGAS_ = .false.
+        end if
+
+        if (fake_run) then
+          NECIen = previous_NECIen
+        else
+          if (DoEmbdNECI) then
+            call make_inp(input_name, doGAS=doGAS_, readpops=reuse_pops)
 #ifdef _NECI_
-          write(6,*) 'NECI called automatically within Molcas!'
-          if (myrank /= 0) call chdir_('..')
-          call necimain(NECIen)
-          if (myrank /= 0) call chdir_('tmp_'//str(myrank))
+            write(6,*) 'NECI called automatically within Molcas!'
+            if (myrank /= 0) call chdir_('..')
+            call necimain(
+     &        real_path(ascii_fcidmp), real_path(input_name), NECIen)
+            if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
-          call WarningMessage(2, 'EmbdNECI is given in input, '//
+            call WarningMessage(2, 'EmbdNECI is given in input, '//
      &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
-        else
-          call make_inp()
-          if (myrank == 0) then
-            call write_ExNECI_message()
+          else
+            call make_inp(input_name, doGAS=doGAS_)
+            if (myrank == 0) then
+              call write_ExNECI_message(input_name, ascii_fcidmp,
+     &                                  h5_fcidmp)
+            end if
             call wait_and_read(NECIen)
-            write(6,*) 'I read the following energy:', NECIen
           end if
-#ifdef _MOLCAS_MPP_
-          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0,MPI_COMM_WORLD,error)
-#endif
+          previous_NECIen = NECIen
         end if
+        call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
       end subroutine run_neci
 
 
       subroutine wait_and_read(NECIen)
-        implicit none
         real*8, intent(out) :: NECIen
         logical :: newcycle_found
         integer :: LuNewC
         newcycle_found = .false.
         do while(.not. newcycle_found)
           call sleep(1)
-          call f_Inquire('NEWCYCLE', newcycle_found)
+          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
+#ifdef _MOLCAS_MPP_
+          if (is_real_par()) then
+            call MPI_Bcast(newcycle_found, 1, MPI_LOGICAL,
+     &                     0, MPI_COMM_WORLD, error)
+          end if
+#endif
         end do
-        write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-        LuNewC = 12
-        call molcas_open(LuNewC, 'NEWCYCLE')
-          read(LuNewC,*) NECIen
-        close(LuNewC, status='delete')
+        if (myrank == 0) then
+          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+          LuNewC = isFreeUnit(12)
+          call molcas_open(LuNewC, 'NEWCYCLE')
+            read(LuNewC,*) NECIen
+          close(LuNewC, status='delete')
+          write(6, *) 'I read the following energy:', NECIen
+        end if
+#ifdef _MOLCAS_MPP_
+        if (is_real_par()) then
+          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0,MPI_COMM_WORLD,error)
+        end if
+#endif
       end subroutine wait_and_read
 
 
       subroutine abort_(message)
-        implicit none
         character(*), intent(in) :: message
         call WarningMessage(2, message)
         call QTrace()
@@ -277,7 +325,6 @@
         use fciqmc_make_inp, only : make_inp_cleanup => cleanup
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         use fcidump, only : fcidump_cleanup => cleanup
-        implicit none
         call make_inp_cleanup()
         call read_RDM_cleanup()
         call fcidump_cleanup()
@@ -286,7 +333,6 @@
 
       subroutine check_options(lroots, lRf, KSDFT,
      &      DoGAS, iGSOCCX, nGAS)
-        implicit none
         integer, intent(in) :: lroots, iGSOCCX(:, :),nGAS
         logical, intent(in) :: lRf, DoGAS
         character(*), intent(in) :: KSDFT
@@ -306,36 +352,42 @@
         end if
       end subroutine check_options
 
+      function real_path(molcas_name) result(path)
+        character(*), intent(in) :: molcas_name
+        character(:), allocatable :: path
+        character(1024) :: buffer
+        integer :: L
+        call prgmtranslate_master(molcas_name, buffer, L)
+        path = buffer(:L)
+      end function
 
-      subroutine write_ExNECI_message()
-        implicit none
-        character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
-        integer :: L, err
+
+      subroutine write_ExNECI_message(
+     &      input_name, ascii_fcidmp, h5_fcidmp)
+        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
+        character(1024) :: WorkDir
+        integer :: err
 
         call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
-        call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
-        call prgmtranslate_master('FCIDMP', fcidmp, L)
-        call prgmtranslate_master('FCINP', fcinp, L)
-        call prgmtranslate_master('NEWCYCLE', newcycle, L)
-
 
         write(6,'(A)')'Run NECI externally.'
         write(6,'(A)')'Get the (example) NECI input:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcinp), '$NECI_RUN_DIR'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(input_name), '$NECI_RUN_DIR'
         write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(ascii_fcidmp), '$NECI_RUN_DIR'
         write(6,'(A)')'Or the HDF5 FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
+        write(6,'(4x, A, 1x, A, 1x, A)')
+     &    'cp', real_path(h5_fcidmp), '$NECI_RUN_DIR'
         write(6, *)
         write(6,'(A)') "When finished do:"
         write(6,'(4x, A)')
      &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
      &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
-        write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
+        write(6,'(4x, A)')
+     &    'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
         call xflush(6)
       end subroutine write_ExNECI_message
 
@@ -348,7 +400,8 @@
         use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
         use fciqmc_read_RDM, only : read_neci_RDM
         implicit none
-        real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
+        real*8, intent(out) ::
+     &      D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, allocatable ::
 !> one-body density
@@ -397,35 +450,24 @@
         call mma_deallocate(PAtmp)
       end subroutine get_neci_RDM
 
-      subroutine write_OrbFile(CMO, orbital_E, iDoGas)
-        use general_data, only : ntot,
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
-        use gas_data, only : nGSSH
-        use write_orbital_files, only : get_typeidx
-        implicit none
-        real*8, intent(in) :: CMO(:), orbital_E(:)
-        logical, intent(in) :: iDoGAS
-        real*8, allocatable :: occ_number(:)
-        integer, parameter :: arbitrary_magic_number = 50
-        integer :: file_id, typeidx(7, 8)
-        character(*), parameter :: filename = 'ORTORB'
-        character(len=80) ::
-     &    orbfile_title = 'Orbitals that are used for FCIQMC.'
+      subroutine write_GASORB(GAS_spaces, permutation)
+        integer, intent(in) :: GAS_spaces(:, :)
+        integer, intent(in), optional :: permutation(:)
+        integer, parameter :: arbitrary_magic_number = 42
+        integer :: i, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, file_id
+
+        GAS_ORB(:) = [(((iGAS, i = 1, GAS_spaces(iGAS, iSym)),
+     &                 iGAS = 1, size(GAS_spaces, 1)), iSym = 1, nSym)]
+
+        if (present(permutation)) GAS_ORB = GAS_ORB(permutation)
 
         file_id = arbitrary_magic_number
         file_id = isfreeunit(file_id)
-        if (.not. iDoGas) then
-          typeidx = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas,nDel)
-
-        else
-          typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
-        endif
-
-        call mma_allocate(occ_number, nTot)
-        occ_number(:) = 1.d0
-        call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,
-     &             CMO, occ_number, orbital_E, typeidx, orbfile_title)
-        call mma_deallocate(occ_number)
+        call molcas_open(file_id, 'GASOrbs')
+          do i = 1, size(GAS_ORB)
+            write(file_id,'(I0, A)', advance='no') GAS_ORB(i), ','
+          end do
+        close(file_id)
       end subroutine
 
       end module fciqmc

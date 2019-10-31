@@ -9,4 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/surfacehop.exe             executable
+ (file)  SURFAINP "$WorkDir/$Project."Surfacehop.Input rwi
  (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     rw

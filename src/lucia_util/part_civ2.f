@@ -20,7 +20,7 @@
 * Last update : May 1999 : ISIMSYM added
 *
 * Partition a CI vector into batches of blocks.
-* The length of a batch must be atmost MXLNG
+* The length of a batch must be at most MXLNG
 * If ISIMSYM.EQ.1, TTS blocks that differs only in symmetry are not
 *                  split.
 *
