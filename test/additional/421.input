@@ -2,12 +2,13 @@
 * Molecule: 2-chloropropionitrile
 * Basis: ANO-RCC-MB
 * Symmetry: No symmetry
-* Keywords tested: SUBS, DIRE, and TINT
+* Keywords tested:
 * Responsible person: Roland Lindh (180210)
-* Comments: tests 414 and 415 are identical apart from that the molecule is
-*           the chiral partner - rotatory strength should have the same value
-*           but different sign.
+* Comments:
 *-------------------------------------------------------------------------------
+>>COPY $Project.xyz .
+>>COPY $Project.InpOrb .
+
 >> EXPORT MOLCAS_FORCE_NON_AO_TDM=ON
  &GATEWAY
 TITLE

@@ -79,7 +79,7 @@
      &            +(USOR(i,iSS)*USOI(j,jSS)-USOI(i,iSS)*USOR(j,jSS))**2
                 f2=(USOR(j,iSS)*USOR(i,jSS)+USOI(j,iSS)*USOI(i,jSS))**2
      &            +(USOR(j,iSS)*USOI(i,jSS)-USOI(j,iSS)*USOR(i,jSS))**2
-                ! this should be Thrs**2, but let's be looser with SO states
+!               this should be Thrs**2, but let's be looser with SO states
                 If (Max(f1,f2).ge.Thrs) IdxState(i_,j_)=2
             End Do
             End Do

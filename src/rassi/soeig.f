@@ -12,6 +12,7 @@
       !> module dependencies
       use rassi_global_arrays, only: JBNUM
       use sorting, only : argsort
+      use sorting_funcs, only : le_r
 #ifdef _HDF5_
       use Dens2HDF5
 #endif
@@ -592,7 +593,7 @@ C Update LoopDivide (SUBSets keyword)
 C Assume the SO "ground states" are mostly formed by the SF "ground states"
       If (ReduceLoop) Then
         Call mma_Allocate(IndexE,nState,Label='IndexE')
-        IndexE(:)=ArgSort(Energy, le)
+        IndexE(:)=ArgSort(Energy, le_r)
         n=0
         Do iState=1,LoopDivide
           Job=JbNum(IndexE(iState))
@@ -614,12 +615,5 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
       call mma_deallocate(HAMSOI)
       Call qExit(ROUTINE)
       RETURN
-
-      Contains
-
-      logical pure function le(x, y)
-        real*8, intent(in) :: x, y
-        le = x <= y
-      end function
 
       END

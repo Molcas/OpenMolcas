@@ -324,17 +324,6 @@ C especially for already diagonal Hamiltonian matrix.
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
-C To handle extreme cases of large energies/small energy differences
-C all TOTAL energies will undergo a universal constant shift:
-      EMIN=ENERGY(1)
-      DO ISTATE=2,NSTATE
-cvv NAG compiler overoptimize this!
-c       EMIN=MIN(EMIN,ENERGY(ISTATE))
-       if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
-      END DO
-      DO ISTATE=1,NSTATE
-        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
-      END DO
 
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
@@ -352,7 +341,19 @@ C components of H and S in original RASSCF wave function basis:
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
-      Call Add_Info('E_RASSI',ENERGY+EMIN,NSTATE,iTol)
+      Call Add_Info('E_RASSI',ENERGY,NSTATE,iTol)
+
+C To handle extreme cases of large energies/small energy differences
+C all TOTAL energies will undergo a universal constant shift:
+      EMIN=ENERGY(1)
+      DO ISTATE=2,NSTATE
+cvv NAG compiler overoptimize this!
+c       EMIN=MIN(EMIN,ENERGY(ISTATE))
+       if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
+      END DO
+      DO ISTATE=1,NSTATE
+        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
+      END DO
 
 C Experimental addition: Effective L and/or M quantum numbers.
 

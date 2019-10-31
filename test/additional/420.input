@@ -2,10 +2,13 @@
 * Molecule: 2-chloropropionitrile
 * Basis: ANO-RCC-MB
 * Symmetry: No symmetry
-* Keywords tested: SUBS, DIRE, and TINT
-* Responsible person: Roland Lindh (201008)
+* Keywords tested:
+* Responsible person: Roland Lindh (191008)
 * Comments: Test of non-diagonal case in RASSI
 *-------------------------------------------------------------------------------
+>>COPY $Project.xyz .
+>>COPY $Project.InpOrb .
+
 >> EXPORT MOLCAS_FORCE_NON_AO_TDM=ON
  &GATEWAY
 TITLE
@@ -22,7 +25,6 @@ GROUP=NOSYM
   Spin=1
   Symmetry=1
   CIROOT= 1 1 1
-* CIROOT=6 6; 1 2 3 4 5 6; 1 0 0 0 0 0
   THRS= 1.0e-10, 1.0e-06, 1.0e-06
 
 >> COPY $Project.JobIph JOB001
@@ -32,7 +34,6 @@ GROUP=NOSYM
   Spin=1
   Symmetry=1
   CIROOT=6 6; 1 2 3 4 5 6; 0 1 1 1 1 1
-* CIROOT=6 6 1
   THRS= 1.0e-10, 1.0e-06, 1.0e-06
 
 >> COPY $Project.JobIph JOB002
