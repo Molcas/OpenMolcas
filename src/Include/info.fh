@@ -158,8 +158,6 @@
 *             momentum integrals will be computed                      *
 *     lOMQ  : logical flag to indicate that the orbital magnetic       *
 *             quadrupole integrals will be computed                    *
-*     lOMQS : logical flag to indicate that the symmetric part of the  *
-*             orbital magnetic quadrupole integrals will be computed   *
 *     lAMP  : logical flag to indicate that the angular momentum       *
 *             product integrals will be computed                       *
 *     PrPrt : logical flag to indicate that it is a property           *
@@ -343,7 +341,7 @@
 ************************************************************************
 *                                                                      *
       Logical   Prjct(MxShll),Transf(MxShll),DirInt, Onenly, Petite,
-     &          lSOInt, Test, Vlct, lOAM, lOMQ, lOMQS, lAMP, lAux,
+     &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
@@ -363,7 +361,7 @@
      &               DirInt, DKroll, BSS, Primitive_Pass,
      &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
-     &               Test, Vlct,      lOAM, lOMQ, lOMQS, lAMP, FockOp,
+     &               Test, Vlct,      lOAM, lOMQ, lAMP, FockOp,
      &               Prprt, Short, ifallorb, lDMS, lRel,        UnNorm,
      &               lSchw, Dist,ECP, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,

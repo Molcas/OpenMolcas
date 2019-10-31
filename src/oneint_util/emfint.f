@@ -102,7 +102,7 @@ c Avoid unused argument warnings
       End If
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'EMFInt: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in EMFInt'
          Call Abend()
       End If
@@ -184,7 +184,8 @@ c Avoid unused argument warnings
          Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
      &                     [nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)])
          Call CCmbnMP(zQxyz,nZeta,la,lb,nOrdOp,Zeta,
-     &                rKappa,Array(ipRes),nComp)
+     &                rKappa,Array(ipRes),nComp,CCoor)
+         Nullify(zQxyz)
       End If
 *
       llOper=lOper(1)

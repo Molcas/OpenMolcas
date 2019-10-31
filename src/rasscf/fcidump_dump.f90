@@ -16,7 +16,6 @@ module fcidump_dump
   implicit none
   private
   public :: dump_ascii, dump_hdf5
-  save
 contains
 
 !>  @brief
@@ -34,24 +33,26 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table)
+  subroutine dump_ascii(path, EMY, orbital_table, fock_table, &
+                        two_el_table, orbsym)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
+    character(*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
+    integer, intent(in) :: orbsym(:)
     integer :: i, j, ireturn, isFreeUnit, LuFCI
 
     call qEnter('dump_ascii')
 
     LuFCI = isFreeUnit(38)
-    call molcas_open(LuFCI,'FCIDMP')
+    call molcas_open(LuFCI, path)
 
     write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh), &
        ',NELEC=',nActEl,',MS2=',int((ISPIN-1.0d0)),','
-
-    write(LuFCI,'(A,500(I2,","))')'  ORBSYM=',((j,i=1,nAsh(j)), j=1,nSym)
+    write(LuFCI,'(A,500(I2,","))')'  ORBSYM=',(orbsym(i),i=1,size(orbsym))
     write(LuFCI,'(2X,A5,I1)') 'ISYM=', LSYM -1
     write(LuFCI,'(A)') ' &END'
 
@@ -75,15 +76,19 @@ contains
     close(LuFCI)
 
 ! ========== For testing purposes FROM HERE =============
-    call Add_Info('core energy', [EMY], 1, 8)
-    call Add_Info('Orbital Energy', orbital_table%values(1), 1, 8)
-    call Add_Info('Fock element', fock_table%values(1), 1, 8)
-    call Add_Info('TwoEl Integral element', two_el_table%values(1), 1, 8)
+    if (length(orbital_table) /= 0 .and. length(fock_table) /=0 &
+        .and. length(two_el_table) /= 0) then
+      call Add_Info('core energy', [EMY], 1, 8)
+      call Add_Info('Orbital Energy', orbital_table%values(1), 1, 8)
+      call Add_Info('Fock element', fock_table%values(1), 1, 8)
+      call Add_Info('TwoEl Integral element', two_el_table%values(1), 1, 8)
+    end if
 ! ========== For testing purposes TO HERE ===============
 
     call FastIO('STATUS')
     ireturn = 0
     call qExit('dump_ascii')
+
     return
   end subroutine dump_ascii
 
@@ -102,7 +107,7 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
+  subroutine dump_hdf5(path, EMY, orbital_table, fock_table, two_el_table, orbsym)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
@@ -110,10 +115,12 @@ contains
     use mh5
 #endif
     implicit none
+    character(*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
+    integer, intent(in) :: orbsym(:)
 #ifdef _HDF5_
     integer :: file_id, dset_id
     integer :: ireturn
@@ -121,12 +128,12 @@ contains
 
     call qEnter('dump_hdf5')
 
-    file_id = mh5_create_file('H5FCIDMP')
+    file_id = mh5_create_file(path)
 
 !   symmetry information
     call Get_cArray('Irreps', lIrrep, 24)
     call mh5_init_attr(file_id, 'IRREP_LABELS', 1, [nSym], lIrrep, 3)
-    call mh5_init_attr(file_id, 'ORBSYM', 1, [nSym], nAsh)
+    call mh5_init_attr(file_id, 'ORBSYM', 1, [size(orbsym)], orbsym)
     call mh5_init_attr(file_id, 'NORB', sum(nAsh(:nSym)))
 
     ! Set wavefunction type
@@ -197,9 +204,11 @@ contains
 ! Avoid unused argument warnings
     if (.false.) then
       call unused_real(EMY)
+      call unused_character(path)
       call unused(orbital_table)
       call unused(fock_table)
       call unused(two_el_table)
+      call unused_integer_array(orbsym)
     end if
 #endif
   end subroutine dump_hdf5

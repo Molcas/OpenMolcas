@@ -9,5 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/guga.exe             executable
+ (file)  GUGAINP "$WorkDir/$Project."Guga.Input   rwi
  (file)  CIGUGA  "$WorkDir/$Project."CiGuga       rw
  (file)  TEMP01  "$WorkDir/"purge.tmp001          rwp

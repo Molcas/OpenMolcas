@@ -57,9 +57,11 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use write_orbital_files, only : OrbFiles
+      use write_orbital_files, only : OrbFiles, putOrbFile
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
+
+      use orthonormalization, only : ON_scheme
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -393,7 +395,14 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
+     & WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),ON_scheme)
+      if (KeyORTH) then
+! TODO(Oskar): Add fourth argument OCC
+!   If the Occupation number is written properly as well.
+        call putOrbFile(CMO=Work(lCMO : lCMO + nTot2 - 1),
+     &                  orbital_E=work(lDIAF : lDIAF + nTot - 1),
+     &                  iDoGAS=iDoGAS)
+      end if
 * Only now are such variables finally known.
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -787,9 +796,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                   F_IN=work(lFI : lFI + nTot1 - 1),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
-          call make_fcidumps(orbital_E, folded_Fock,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       core_energy=EMY)
+          call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
+     &      orbital_E, folded_Fock,
+     &      TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
           call mma_deallocate(orbital_E)
           call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
@@ -1977,14 +1986,12 @@ c deallocating TUVX memory...
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
-
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
+      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      end if
-      if(DoNECI) then
-         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+      else if (DoNECI) then
+          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
           call fciqmc_cleanup()
       end if
 * We better deallocate before it is too late...
@@ -2039,7 +2046,6 @@ c      End If
         Call MKGUGA_FREE
       end if
 
-
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue
 * DMRG: Save results for other use
@@ -2082,7 +2088,6 @@ c      End If
       end if
 ! ==========================================================
 ! Exit
-
 
  9990 Continue
 C Close the one-electron integral file:

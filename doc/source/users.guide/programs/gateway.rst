@@ -26,19 +26,13 @@
             in density fitting procedures.
             </HELP>
 
-.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FREEINPUT" APPEAR="Free input" KIND="STRINGS" LEVEL="GUI">
-            <HELP>
-            Input section which is not recognized by GUI
-            </HELP>
-            </KEYWORD>
-
 The Gateway module collects information about molecular
 system (geometry, basis sets, symmetry) to be used for future calculations.
 
 Gateway module is a subset of :program:`seward`. All keywords
 for this module can also appear as an input for :program:`SEWARD`, however,
-for clearity the information about molecular system can be placed
-as an input for this module. Note, that gateway module does not
+for clarity the information about molecular system can be placed
+as an input for this module. Note, that :program:`gateway` does not
 compute any integral, and so must be followed by run of :program:`SEWARD`
 module.
 
@@ -72,10 +66,35 @@ General keywords
 :kword:`TITLE`
   The keyword followed by a title.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TITLE" APPEAR="Title" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: TITLE <basic>
               <HELP>
               The keyword followed by a title
+              </HELP>
+              </KEYWORD>
+
+:kword:`TEST`
+  :program:`GATEWAY` will only process the input and generate a non-zero return code.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TEST" APPEAR="Test" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: Test <basic>
+              <HELP>
+              GATEWAY will only process the input and generate a non-zero
+              return code.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXPErt`
+  Activates "expert mode", in which various default settings are
+  altered. This will, for example, allow the user to combine
+  relativistic and non-relativistic basis sets.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EXPE" APPEAR="Expert mode" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Expert <advanced>
+              <HELP>
+              Activates "expert mode", in which various default settings are
+              altered. This will, for example, allow the user to combine
+              relativistic and non-relativistic basis sets.
               </HELP>
               </KEYWORD>
 
@@ -148,7 +167,7 @@ General keywords
   created by using several :kword:`BASIs Set` blocks for the same element (native
   input) or by using labels (XYZ input).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ISOT" APPEAR="Isotopic specification" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ISOTOPES" APPEAR="Isotopic specification" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: Isotopes <advanced>
               <HELP>
               Specifies isotopes or masses. First write the number of atom masses to change,
@@ -156,6 +175,50 @@ General keywords
               (a) the mass number of the isotope, or (b) the mass in dalton and the word DALTON.
               </HELP>
               </KEYWORD>
+
+:kword:`ECPShow`
+  Force :program:`GATEWAY` to print ECP parameters.
+
+  .. xmldoc:: <GROUP MODULE="GATEWAY" KIND="BOX" NAME="PROPT" APPEAR="Print options" LEVEL="BASIC">
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ECPS" APPEAR="Print ECP info" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ECPSHOW <basic>
+              <HELP>
+              Force GATEWAY to print ECP parameters.
+              </HELP>
+              </KEYWORD>
+
+:kword:`AUXShow`
+  Force :program:`GATEWAY` to print auxiliary basis set parameters.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="AUXS" APPEAR="Print auxiliary basis info" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: AUXSHOW <basic>
+              <HELP>
+              Force GATEWAY to print auxiliary basis set parameters.
+              </HELP>
+              </KEYWORD>
+
+:kword:`BSSHow`
+  Force :program:`GATEWAY` to print basis set parameters.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BSSH" APPEAR="Print basis info" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: BSSHOW <basic>
+              <HELP>
+              Force GATEWAY to print basis set parameters.
+              </HELP>
+              </KEYWORD>
+
+:kword:`VERBose`
+  Force :program:`GATEWAY` to print a bit more verbose.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="VERB" APPEAR="Verbose output" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: Verbose <basic>
+              <HELP>
+              Force GATEWAY to print a bit more verbose.
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: </GROUP>
 
 Molecular structure: coordinates, symmetry and basis sets
 .........................................................
@@ -213,11 +276,13 @@ By default, symmetry is not used in the calculation.
 
   The default is no symmetry.
 
-  .. xmldoc:: %%Keyword: Symmetry (non-XYZ format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SYMMETRY" APPEAR="Symmetry" KIND="STRING" LEVEL="BASIC" EXCLUSIVE="COORD">
+              %%Keyword: Symmetry (non-XYZ format) <basic>
               Symmetry point group is specified by up to three group generators.
               Possible generators are "x", "y", "z", "xy", "xz", "yz", and "xyz".
               The order of the irreps depends on the order of the generators.
               The keyword can be used only in 'native' input format.
+              </KEYWORD>
 
 :kword:`BASIs Set`
   This notes the start of a basis set definition.
@@ -227,11 +292,13 @@ By default, symmetry is not used in the calculation.
   Below follows a description of the options associated with the
   basis set definition.
 
-  .. xmldoc:: %%Keyword: BASIS (non-XYZ format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="BASIC" INPUT="REQUIRED" EXCLUSIVE="COORD">
+              %%Keyword: BASIS (non-XYZ format) <basic>
               This notes the start of a basis set definition.
               The next line always contains a basis set label.
               The basis set definition is alway terminated with the "End of Basis" keyword.
               For details consult the manual.
+              </KEYWORD>
 
   * **Label [/ option]** ---
     The label is a specification of a specific basis set, e.g.
@@ -393,14 +460,18 @@ Note that coordinates in these formats use ångström as units.
       H.STO-3G
       End of basis
 
-  .. xmldoc:: %%Keyword: XBAS <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: XBAS <basic>
+              <HELP>
               A keyword to specify the basis for atoms. The specification is very similar
               to the native format: ATOM.BasisSet. Each new atom is written at a new line.
               The end of the keyword is marked by an 'End of basis' line.
+              </HELP>
 
               If all atoms have the same basis, e.g. ANO-S-VDZ, it is possible to use
               this name without element name. In this case there is no need to specify
               'End of basis'.
+              </KEYWORD>
 
 :kword:`ZMAT`
   Alternative format to give coordinates in terms of bond lengths,
@@ -557,7 +628,7 @@ The default units are Ångströms. By default, maximum possible symmetry is used
   The keyword may appear several times. In this case all coordinate files
   will be concatenated, and considered as individual fragments.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="FILE" LEVEL="BASIC" INPUT="REQUIRED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="CUSTOM" INPUT="REQUIRED" LEVEL="BASIC">
               %%Keyword: COORD (XYZ format) <basic>
               <HELP>
               The keyword followed on the next line by the name of an HDF5 or XYZ file,
@@ -593,7 +664,7 @@ The default units are Ångströms. By default, maximum possible symmetry is used
   If keyword BASIS never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS" APPEAR="Basis set" KIND="LIST" LEVEL="BASIC" INPUT="REQUIRED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
               %%Keyword: BASIS (XYZ format) <basic>
               <HELP>
               The keyword followed on the next line by the name of global basis set for
@@ -615,7 +686,7 @@ The default units are Ångströms. By default, maximum possible symmetry is used
   .. Limitations: in the current implementation atom labels, and basis sets are ignored
      during symmetry recognition.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="GROUP" APPEAR="Group" KIND="LIST" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="GROUP" APPEAR="Group" KIND="STRING" LEVEL="BASIC">
               %%Keyword: GROUP (XYZ format) <basic>
               <HELP>
               The keyword followed on the next line by the list of group generators
@@ -818,11 +889,15 @@ For a complete description of this keyword see the section
   This option can be used in conjunction with any definition of the
   internal coordinates.
 
-  .. xmldoc:: %%Keyword: Constraints <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CONSTRAINTS" APPEAR="Constraints" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: Constraints <basic>
+              <HELP>
               This marks the start of the definition of the constraints
               which the optimization is subject to.
               This section is always ended by the keyword "End of Constraints".
               Consult the manual for the details.
+              </HELP>
+              </KEYWORD>
 
 :kword:`NGEXclude`
   This marks the start of the definition of additional restrictions for numerical differentiation.
@@ -837,9 +912,13 @@ For a complete description of this keyword see the section
   Note that the value assigned to the constraints in this section is unused, but a ``Value`` block
   must still be included.
 
-  .. xmldoc:: %%Keyword: NGExclude <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NGEXCLUDE" APPEAR="Exclude from numerical differentiation" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: NGExclude <basic>
+              <HELP>
               This marks the start of the definition of additional restrictions for numerical differentiation.
               This section is always ended by the keyword "End of NGExclude".
+              </HELP>
+              </KEYWORD>
 
 Explicit auxiliary basis sets
 .............................
@@ -913,6 +992,10 @@ provides auxiliary basis sets for any wave function model and valence basis set.
               </HELP>
               </KEYWORD>
 
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRICD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 :kword:`CDTHreshold`
   Threshold for on-the-fly generation of aCD or acCD auxiliary basis sets for RI calculations
   (default value 1.0d-4).
@@ -952,7 +1035,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
 :kword:`aCD basis`
   Generate an atomic CD (aCD) auxiliary basis sets (default off).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="aCD" APPEAR="aCD auxiliary basis" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="acCD" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ACD" APPEAR="aCD auxiliary basis" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="ACCD" LEVEL="ADVANCED">
               %%Keyword: aCD basis <basic>
               <HELP>
               Generate an atomic CD (aCD) auxiliary basis sets (default off).
@@ -962,7 +1045,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
 :kword:`acCD basis`
   Generate an atomic compact CD (acCD) auxiliary basis sets (default on).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="acCD" APPEAR="acCD auxiliary basis" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="aCD" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ACCD" APPEAR="acCD auxiliary basis" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="ACD" LEVEL="ADVANCED">
               %%Keyword: acCD basis <basic>
               <HELP>
               Generate an atomic compact CD (acCD) auxiliary basis sets (default on).
@@ -1120,18 +1203,15 @@ its own keywords to compute reaction fields for excited states.
 
 Compulsory keywords
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF_INPUT" APPEAR="Reaction Field Options" LEVEL="ADVANCED">
-
-.. class:: keywordlist
-
 :kword:`RF-Input`
   Activate reaction field options.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Activate Reaction Field Options" KIND="SINGLE" LEVEL="ADVANCED">
-              <HELP>
-              Activate reaction field options.
-              </HELP>
-              </KEYWORD>
+.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Reaction Field Options" KIND="BLOCK" LEVEL="ADVANCED">
+            <HELP>
+            Reaction field options.
+            </HELP>
+
+.. class:: keywordlist
 
 :kword:`END Of RF-Input`
   This marks the end of the input to the reaction field utility.
@@ -1160,7 +1240,7 @@ Optional keywords for the Kirkwood Model
   Optionally a fourth argument can be added giving the value of the dielectric constant of the
   fast component of the solvent (default value 1.0).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="REACTION" APPEAR="Onsager-Kirkwoord Model" KIND="REALS" SIZE="4" LEVEL="ADVANCED" EXCLUSIVE="PCM-MODEL" REQUIRE="RF-INPUT">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="REACTION" APPEAR="Onsager-Kirkwoord Model" KIND="CUSTOM" LEVEL="ADVANCED" EXCLUSIVE="PCM-MODEL">
               %%Keyword: Reaction field (RF) <basic>
               <HELP>
               This command is exclusive to the Kirkwood model.
@@ -1180,8 +1260,6 @@ Optional keywords for the Kirkwood Model
               fast component of the solvent (default value 1.0).
               </HELP>
               </KEYWORD>
-
-.. xmldoc:: </GROUP>
 
 Sample input for the reaction field part (Kirkwood model) ::
 
@@ -1243,7 +1321,7 @@ program adds the effect as a constant perturbation.
 
 Optional keywords for the PCM Model
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="PCM" APPEAR="PCM Options" LEVEL="ADVANCED">
+.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="PCM" APPEAR="PCM Options" KIND="BOX" LEVEL="ADVANCED">
 
 .. class:: keywordlist
 
@@ -1255,7 +1333,7 @@ Optional keywords for the PCM Model
   in the corresponding program sections. Some PCM parameters can be changed through the following
   keywords.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="PCM-MODEL" APPEAR="PCM Model" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="RF-INPUT" EXCLUSIVE="REACTION">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="PCM-MODEL" APPEAR="PCM Model" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="REACTION">
               %%Keyword: PCM-model (RF) <basic>
               <HELP>
               If no other keywords are specified, the program will execute a standard PCM calculation
@@ -1413,6 +1491,8 @@ Optional keywords for the PCM Model
 
 .. xmldoc:: </GROUP>
 
+.. xmldoc:: </GROUP>
+
 Solvents implemented in the PCM model are
 
 .. %---- Table of allowed solvents ------
@@ -1515,7 +1595,7 @@ examples manual for further details.
 Keywords associated to one-electron integrals
 .............................................
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="ONE" APPEAR="1-electron integral options" LEVEL="ADVANCED">
+.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="ONE-ELECTRON" APPEAR="1-electron integral options" KIND="BOX" LEVEL="ADVANCED">
 
 .. class:: keywordlist
 
@@ -1547,9 +1627,13 @@ Keywords associated to one-electron integrals
   If the distance of the center of the Gaussian from the origin is
   negative displacements relative to the cavity radius is assumed.
 
-  .. xmldoc:: %%Keyword: Well integrals <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="WELL" APPEAR="Well integrals" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
+              <ALTERNATE KIND="INT" />
+              %%Keyword: Well integrals <basic>
+              <HELP>
               Request computation of Pauli repulsion integrals for dielectric
               cavity reaction field calculations.
+              </HELP>
               The first line specifies the total number of primitive well integrals in the
               repulsion integral. Then follows a number of lines, one for each
               well integral, specifying the coefficient of the well integral in the
@@ -1562,6 +1646,7 @@ Keywords associated to one-electron integrals
               the cavity will be used.
               If the distance of the center of the Gaussian from the origin is
               negative displacements relative to the cavity radius is assumed.
+              </KEYWORD>
 
 :kword:`XFIEld integrals`
   Request the presence of an external electric field represented by a
@@ -1579,7 +1664,7 @@ Keywords associated to one-electron integrals
   used in more complex situations, e.g. polymers, allowing you to specify a second fragment number
   so that junction atoms does not contribute to either of the neighbouring fragments.
   Finally, the fifth and last integer [nRead] (relevant only if Langevin dipoles are used) may
-  be 0 or 1 (where 0 is default), specifying wheather an element number (e.g. 8 for oxygen) should be
+  be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
   read for each multipole. In that case the default radius for that element is used to determine which
   Langevin grid points should be annihilated. A negative element number signifies that a particular
   radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
@@ -1595,10 +1680,14 @@ Keywords associated to one-electron integrals
   keyword that must be placed between nXF and nOrd. All these data can be stored in a separate file whose
   name must be passed as an argument of the :kword:`XField` keyword.
 
-  .. xmldoc:: %%Keyword: Xfield integrals <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XFIELD" APPEAR="External field" KIND="CUSTOM" LEVEL="BASIC">
+              <ALTERNATE KIND="STRING" />
+              %%Keyword: Xfield integrals <basic>
+              <HELP>
               Request the presence of an external electric field represented by a
               number of partial charges and dipoles. Optionally, polarisabilities may be specified whose
               induced dipoles are determined self-consistently during the SCF iteration.
+              </HELP>
               The first line may contain, apart from the first integer (nXF) (number of centers), up to
               four additional integers. The second integer (nOrd) specifies the maximum multipole order,
               or -1 signifying no permanent multipoles. Default is 1 (charges and dipoles). The third
@@ -1611,7 +1700,7 @@ Keywords associated to one-electron integrals
               used in more complex situations, e.g. polymers, allowing you to specify a second fragment number
               so that junction atoms does not contribute to either of the neighbouring fragments.
               Finally, the fifth and last integer (nRead) (relevant only if Langevin dipoles are used) may
-              be 0 or 1 (where 0 is default), specifying wheather an element number (e.g. 8 for oxygen) should be
+              be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
               read for each multipole. In that case the default radius for that element is used to determine which
               Langevin grid points should be annihilated. A negative element number signifies that a particular
               radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
@@ -1626,13 +1715,25 @@ Keywords associated to one-electron integrals
               charge, and dipole vector). All entries are in atomic units, if not otherwise requested by the Angstrom
               keyword that must be placed between nXF and nOrd. All these data can be stored in a separate file whose
               name must be passed as an argument of the XField keyword.
+              </KEYWORD>
+
+:kword:`SDIPole`
+  Requests computation of velocity integrals. This is usually enabled by default.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SDIPOLE" APPEAR="Velocity integrals" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Sdipole <basic>
+              <HELP>
+              Requests computation of velocity integrals.
+              </HELP>
+              </KEYWORD>
 
 :kword:`ANGM`
   Supplement
   :file:`ONEINT` for transition angular momentum calculations.
   Entry which specifies the angular momentum origin (in au).
+  By default this is enabled with the origin at the center of mass.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ANGM" APPEAR="Activate auxiliary integrals for TDM calculations" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ANGM" APPEAR="Angular momentum" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
               %%Keyword: Angm <basic>
               <HELP>
               Supplement the file for transition angular momentum calculations.
@@ -1647,7 +1748,7 @@ Keywords associated to one-electron integrals
   :file:`ONEINT` for transition orbital magnetic quadrupole calculations.
   Entry which specifies the orbital magnetic quadrupole origin (in au).
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="OMQI" APPEAR="Transition orbital magnetic quadrupole" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="OMQI" APPEAR="Orbital magnetic quadrupole" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
               %%Keyword: OMQI <basic>
               <HELP>
               Supplement the file for transition orbital magnetic quadrupole calculations.
@@ -1695,33 +1796,89 @@ Keywords associated to one-electron integrals
               </HELP>
               </KEYWORD>
 
+  .. :kword:`DOUGlas-kroll`
+     Explicit request that the one-electron Hamiltonian include the scalar relativistic
+     effects according to the so-called Douglas--Kroll transformation.
+
+  ..   .. xmldoc:: %%Keyword: Douglas-Kroll <basic>
+                 Explicit request that the one-electron Hamiltonian include the scalar relativistic
+                 effects according to the so-called Douglas-Kroll transformation.
+                 This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DOUGLAS-KROLL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+:kword:`RX2C`
+  Request the scalar relativistic X2C (eXact-two-Component) corrections to the
+  one-electron Hamiltonian as well as the property integrals.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RX2C" APPEAR="Relativistic X2C integrals" KIND="SINGLE" EXCLUSIVE="RBSS" LEVEL="BASIC">
+              %%Keyword: RX2C <basic>
+              <HELP>
+              Request the scalar relativistic X2C (eXact-two-Component) corrections to the
+              one-electron Hamiltonian as well as the property integrals.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RBSS`
+  Request the scalar relativistic BSS (Barysz--Sadlej--Snijders) corrections to the
+  one-electron Hamiltonian as well as the property integrals. The non-iterative
+  scheme is employed for the construction of BSS transformation.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RBSS" APPEAR="Relativistic BSS integrals" KIND="SINGLE" EXCLUSIVE="RX2C" LEVEL="BASIC">
+              %%Keyword: RBSS <basic>
+              <HELP>
+              Request the scalar relativistic BSS (Barysz-Sadlej-Snijders) corrections to the
+              one-electron Hamiltonian as well as the property integrals. The non-iterative
+              scheme is employed for the construction of BSS transformation.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NOAMfi`
+  Explicit request for no computation of atomic mean-field integrals.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOAM" APPEAR="No AMFI integrals" KIND="SINGLE" EXCLUSIVE="AMFI" LEVEL="BASIC">
+              %%Keyword: NOAMFI <basic>
+              <HELP>
+              Explicit request for no computation of atomic mean-field integrals.
+              </HELP>
+              </KEYWORD>
+
+:kword:`AMFI`
+  Explicit request for the computation of atomic mean-field integrals (used in
+  subsequent spin--orbit calculations). These integrals are computed by default for the
+  ANO-RCC and ANO-DK3 basis sets.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="AMFI" APPEAR="AMFI integrals option" KIND="SINGLE" EXCLUSIVE="NOAM" LEVEL="BASIC">
+              %%Keyword: AMFI <basic>
+              <HELP>
+              Explicit request for the computation of atomic mean-field integrals (used in
+              subsequent spin-orbit calculations). These integrals are computed by default for
+              relativistic basis sets like the ANO-RCC and ANO-DK3 basis sets.
+              </HELP>
+              </KEYWORD>
+
 :kword:`EPOT`
   An integer follows which represents the
   number of points for which the electric potential will be computed. If
-  this number is zero, the electric field acting on each nucleus will be
+  this number is zero, the electric potential acting on each nucleus will be
   computed. If nonzero, then the coordinates (in au) for each point have to be
   supplied, one entry for each point.
   This keyword is mutually exclusive with :kword:`EFLD` and :kword:`FLDG`.
 
-  .. xmldoc:: <SELECT MODULE="SEWARD" NAME="EF" APPEAR="Electric potential, field and field gradient options" LEVEL="BASIC" CONTAINS="EPOT,EFLD,FLDG">
+  .. xmldoc:: <SELECT MODULE="GATEWAY" NAME="EF" APPEAR="Electric potential, field and field gradient options" LEVEL="BASIC" CONTAINS="EPOT,EFLD,FLDG">
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EPOT;0" APPEAR="Electric potential" KIND="SINGLE" EXCLUSIVE="EPOT" LEVEL="BASIC">
-              <HELP>
-              Activate the computation of the electric potential at each nucleus.
-              </HELP>
-              </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EPOT" APPEAR="Electric potential: general input" KIND="REALS_COMPUTED" SIZE="3" EXCLUSIVE="EPOT;0" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EPOT" APPEAR="Electric potential" KIND="CUSTOM" LEVEL="ADVANCED">
               <HELP>
               Activate the computation of the electric potential at some points.
               The first entry is the number of points at which this should be computed.
               The coordinates (in au) for each point have to be
               supplied on the subsequent entries.
+              If the number of points is zero, the electric potential on each nucleus will be computed.
               </HELP>
               %%Keyword: EPOT <basic>
               An integer follows which represents the
               number of points for which the electric potential will be computed. If
-              this number is zero, the electric field acting on each nucleus will be
+              this number is zero, the electric potential acting on each nucleus will be
               computed. If nonzero, then the coordinates (in au) for each point have to be
               supplied, one entry for each point.
               This keyword is mutually exclusive with EFLD and FLDG.
@@ -1735,18 +1892,13 @@ Keywords associated to one-electron integrals
   supplied, one entry for each point.
   This keyword is mutually exclusive with :kword:`EPOT` and :kword:`FLDG`.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EFLD;0" APPEAR="Electric field" KIND="SINGLE" EXCLUSIVE="EFLD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EFLD" APPEAR="Electric field" KIND="CUSTOM" LEVEL="ADVANCED">
               <HELP>
-              Activate the computation of the electric field and potential at each nucleus.
-              </HELP>
-              </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EFLD" APPEAR="Electric field: general input" KIND="REALS_COMPUTED" SIZE="3" EXCLUSIVE="EFLD;0" LEVEL="ADVANCED">
-              <HELP>
-              Activate the computation of the electric potential at some points.
+              Activate the computation of the electric potential and field at some points.
               The first entry is the number of points at which this should be computed.
               The coordinates (in au) for each point have to be
               supplied on the subsequent entries.
+              If the number of points is zero, the electric field on each nucleus will be computed.
               </HELP>
               %%Keyword: EFLD <basic>
               Followed by a card with an integer entry which represents the
@@ -1768,18 +1920,13 @@ Keywords associated to one-electron integrals
   in something like a geometry optimization where the coordinate isn't known when the input is written.
   This keyword is mutually exclusive with :kword:`EPOT` and :kword:`EFLD`.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FLDG;0" APPEAR="Electric field gradient" KIND="SINGLE" EXCLUSIVE="FLDG" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FLDG" APPEAR="Electric field gradient" KIND="CUSTOM" LEVEL="ADVANCED">
               <HELP>
-              Activate the computation of the electric field and potential at each nucleus.
-              </HELP>
-              </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FLDG" APPEAR="Electric field gradient: general input" KIND="REALS_COMPUTED" SIZE="3" EXCLUSIVE="FLDG;0" LEVEL="ADVANCED">
-              <HELP>
-              Activate the computation of the electric potential at some points.
+              Activate the computation of the electric potential, field and field gradient at some points.
               The first entry is the number of points at which this should be computed.
               The coordinates (in au) for each point have to be
               supplied on the subsequent entries.
+              If the number of points is zero, the electric field gradient on each nucleus will be computed.
               </HELP>
               %%Keyword: FLDG <basic>
               An integer required which represents the
@@ -1798,7 +1945,7 @@ Keywords associated to one-electron integrals
 :kword:`EMPC`
   Use point charges specified by the keyword :kword:`XField` when calculating the Orbital-Free Embedding potential.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EmPC" APPEAR="Embedded Point Charges" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="EMPC" APPEAR="Embedded Point Charges" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: EMPC <basic>
               <HELP>
               Use point charges specified by the keyword XFIELD when calculating the Orbital-Free Embedding potential.
@@ -1820,7 +1967,7 @@ Keywords associated with nuclear charge distribution models
 Input parameters associated with different models of the nuclear charge distribution. The
 default is to use a point charge representation.
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="ONE" APPEAR="Nuclear Models" LEVEL="ADVANCED">
+.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="NUCLEAR" APPEAR="Nuclear Models" KIND="BOX" LEVEL="ADVANCED">
 
 .. class:: keywordlist
 
@@ -1870,7 +2017,7 @@ not make that input section redundant and should always be included.
   Alternatively, two lines with the filenames containing the coordinates of reactants and products, respectively,
   (in XYZ format) can be given.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RPCOORD" APPEAR="Reactants and Products coordinates" KIND="STRINGS" SIZE="2" WINDOW_SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RP-COORD" APPEAR="Reactants and Products coordinates" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: RP-Coordinates <advanced>
               <HELP>
               This activates the Saddle method for TS geometry optimization.
@@ -2113,7 +2260,7 @@ fragments. (See documentation for :program:`GEO` for more details)
   rotation matrix). The keyword :kword:`origin` is mutually exclusive with the keyword :kword:`frgm`
   which is an alternative way to express the same rotations and translations.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ORIG" APPEAR="origin" KIND="STRINGS" LEVEL="ADVANCED" EXCLUSIVE="FRGM">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ORIG" APPEAR="origin" KIND="UNKNOWN" LEVEL="ADVANCED" EXCLUSIVE="FRGM">
               %%Keyword: origin <advanced>
               <HELP>
               Followed by two lines for each fragment.
@@ -2173,8 +2320,6 @@ fragments. (See documentation for :program:`GEO` for more details)
               Should only be used together with the FRGM keyword.
               </KEYWORD>
 
-.. xmldoc:: </MODULE>
-
 Example of an input: ::
 
   &GATEWAY
@@ -2198,6 +2343,8 @@ coordinates using newtons method with a step-factor of 15.0d0 are prepared for. 
 more details on these optimization see the manual entry for the module
 :program:`geo`.
 
+.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TINKER" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 QM/MM calculations with |molcas|/:program:`Gromacs`
 ...................................................
 
@@ -2208,7 +2355,8 @@ The following keywords apply to QM/MM calculations performed with the |molcas|/:
 :kword:`GROMacs`
   Requests that the definition of the full QM+MM system should be imported from :program:`GROMACS`. The keyword should be followed by one of the options :kword:`SIMPLE` or :kword:`CASTMM` on the next line. In the case of :kword:`SIMPLE`, all MM atoms defined in the :program:`GROMACS` input will be treated as *outer* MM atoms in |molcas|. This means, for example, that in a geometry optimization, their positions will be updated using microiterations rather than the conventional optimization scheme. Conversely, :kword:`CASTMM` requests that certain MM atoms should be treated as *inner* MM atoms in |molcas|. Their positions will be updated with the same scheme as used for the QM atoms. The :kword:`CASTMM` option should be followed by two additional input lines, the first one containing the number of MM atoms to convert from outer to inner type, and the second containing a list of those atoms (using their corresponding :program:`GROMACS` indices).
 
-  .. xmldoc:: %%Keyword: Gromacs <basic>
+  .. xmldoc:: <GROUP MODULE="GATEWAY" NAME="GROMACS" APPEAR="Gromacs" KIND="RADIO" LEVEL="ADVANCED">
+              %%Keyword: Gromacs <basic>
               Requests that the definition of the full QM+MM system should be imported from GROMACS.
               The keyword should be followed by one of the options SIMPLE or CASTMM on the next line.
               In the case of SIMPLE, all MM atoms defined in the GROMACS input will be treated as outer MM atoms in MOLCAS.
@@ -2218,6 +2366,12 @@ The following keywords apply to QM/MM calculations performed with the |molcas|/:
               The CASTMM option should be followed by two additional input lines,
               the first one containing the number of MM atoms to convert from outer to inner type,
               and the second containing a list of those atoms (using their corresponding GROMACS indices).
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SIMPLE" APPEAR="Simple" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CASTMM" APPEAR="CastMM" KIND="INTS" SIZE="2" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: </GROUP>
 
 :kword:`LINKatoms`
   Defines link atoms for use with the Morokuma updating scheme. The desired number of link atoms should be given as an integer on the next line. This should be followed by additional input lines, one for each link atom to be defined. Each definition should be of the form ILA, IQM, IMM, SCALE, where ILA, IQM and IMM are the :program:`GROMACS` indices of the link atom and the corresponding QM and MM frontier atoms, respectively. SCALE is the scaling factor to be used in the Morokuma scheme. Note that each link atom must be defined as a QM atom in the :program:`GROMACS` input. In addition, the frontier MM atom must be an inner MM atom specified as discussed above.
@@ -2231,3 +2385,11 @@ The following keywords apply to QM/MM calculations performed with the |molcas|/:
               SCALE is the scaling factor to be used in the Morokuma scheme.
               Note that each link atom must be defined as a QM atom in the GROMACS input.
               In addition, the frontier MM atom must be an inner MM atom specified with the GROMACS keyword in GATEWAY.
+
+.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FPCO" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FPPR" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="PRINT" KIND="INTS_COMPUTED" SIZE="2" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: </MODULE>

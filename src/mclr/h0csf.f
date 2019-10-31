@@ -73,7 +73,7 @@
 *   SCR    : Scratch array of length ????
 *   NCONF : Number of configurations of symmetry IREFSM
 *   IPWAY : Defines way of choosing Primary space
-*    = 1  : use the first configurations (untill atmost
+*    = 1  : use the first configurations (until at most
 *           MXPDIM CSFs have been included )
 *   NP1CNF : Number of primary configurations obtained in P1(output)
 *   NP1CSF : Number of primary CSFs obtained in P1 (OUTPUT)

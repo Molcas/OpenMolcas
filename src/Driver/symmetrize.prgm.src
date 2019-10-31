@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/symmetrize.exe"  executable
+ (file) SYMMEINP "$WorkDir/$Project."Symmetrize.Input     rwi
  (file) ONEINT   "$WorkDir/$Project."OneInt               rw*
  (file) MSYMOUT  "$WorkDir/$Project."msym                 rws
  (file) MSYMAORB "$WorkDir/$Project$SubProject."MSymAOrb  rws

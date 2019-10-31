@@ -30,13 +30,16 @@ module fcidump
   save
 contains
 
-  subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
-    implicit none
+  subroutine make_fcidumps(ascii_path, h5_path, orbital_energies, folded_Fock,&
+                           TUVX, core_energy, permutation)
+    use general_data, only : nSym, nAsh
+    character(*), intent(in) :: ascii_path, h5_path
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
     type(TwoElIntTable) :: two_el_table
+    integer :: orbsym(sum(nAsh(:nSym))), n, j
 
     call mma_allocate(fock_table, nacpar)
     call mma_allocate(two_el_table, size(TUVX))
@@ -46,20 +49,28 @@ contains
     call fill_fock(fock_table, folded_Fock)
     call fill_2ElInt(two_el_table, TUVX)
 
+    n = 1
+    do j = 1, nSym
+      orbsym(n : n + nAsh(j) - 1) = j
+      n = n + nAsh(j)
+    end do
+
     if (present(permutation)) then
-      call reorder(orbital_table, fock_table, two_el_table, permutation)
+      call reorder(orbital_table, fock_table, two_el_table, orbsym, permutation)
     end if
 
-    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table)
-    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table)
+    call dump_ascii(ascii_path, core_energy, orbital_table, fock_table, &
+                    & two_el_table, orbsym)
+    call dump_hdf5(h5_path, core_energy, orbital_table, fock_table, &
+                    & two_el_table, orbsym)
 
     call mma_deallocate(fock_table)
     call mma_deallocate(two_el_table)
     call mma_deallocate(orbital_table)
   end subroutine make_fcidumps
 
-  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
-    implicit none
+  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
+                       F_IN, orbital_E, folded_Fock)
     integer, intent(in) :: iter
     real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
@@ -75,7 +86,6 @@ contains
 
   subroutine cleanup()
     use fcidump_reorder, only : fcidump_reorder_cleanup => cleanup
-    implicit none
     call fcidump_reorder_cleanup()
   end subroutine
 end module fcidump

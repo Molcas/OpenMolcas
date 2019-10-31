@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
-      Subroutine genCxCTL(iStop,Cartesian)
+      Subroutine genCxCTL(iStop,Cartesian,rDelta)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -187,9 +187,9 @@
          Call FZero(Work(jpShf),mInt)
          jInter = (iDisp+1)/2
          If (Mod(iDisp,2).eq.0) Then
-            Work(ipdu-1+jInter) = -Delta
+            Work(ipdu-1+jInter) = -rDelta
          Else
-            Work(ipdu-1+jInter) =  Delta
+            Work(ipdu-1+jInter) =  rDelta
          End If
 *        Call RecPrt('du',' ',Work(ipdu),mInt,1)
 *
@@ -204,7 +204,7 @@
 *
 *        Save the value of the displacement in the list.
 *
-         Work(ipDList-1+jInter) = Delta
+         Work(ipDList-1+jInter) = rDelta
 *
 *        Take a copy of the current values of the internal
 *        coordinates.

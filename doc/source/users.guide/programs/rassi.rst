@@ -352,12 +352,14 @@ Keywords
     the Fock matrix. The loss of speed compared to the default algorithm can be substantial, especially for electron-rich systems.
     Default is to use LK.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NOLK" APPEAR="Turn Off LK screening" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NOLK" APPEAR="Turn Off LK screening" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: NoLK <advanced>
                 <HELP>
                 Deactivates LK screening.
                 </HELP>
                 </KEYWORD>
+
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="LOCK" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
   * :kword:`DMPK`
     Available only within ChoInput. Modifies the thresholds used in the LK screening.
@@ -369,13 +371,15 @@ Keywords
     accuracy of the RASSI energies consistent with the choice of the Cholesky decomposition
     threshold.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DMPK" APPEAR="Damping for LK" LEVEL="ADVANCED" KIND="REAL" EXCLUSIVE="NOLK" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DMPK" APPEAR="Damping for LK" LEVEL="ADVANCED" KIND="REAL" EXCLUSIVE="NOLK">
                 %%Keyword: DMPK <advanced>
                 <HELP>
                 Modifies the thresholds used in the LK screening.
                 The default value is 1.0d-1. A smaller value results in a slower but more accurate calculation.
                 </HELP>
                 </KEYWORD>
+
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ALGORITHM" LEVEL="UNDOCUMENTED" KIND="INT" />
 
   * :kword:`NODEcomposition`
     Available only within ChoInput. The inactive Exchange contribution to the Fock matrix is computed using inactive canonical orbitals
@@ -385,7 +389,7 @@ Keywords
     density type supermatrix :math:`\mat{D}=(\mat{C}_A, \mat{C}_B)(\mat{C}_A, \mat{C}_B)^{\text{T}}` where :math:`\mat{C}` is the corresponding canonical
     MOs matrix for the state :math:`A` and :math:`B`.
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NODE" APPEAR="Turn Off density decomposition" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NODE" APPEAR="Turn Off density decomposition" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: NODE <advanced>
                 <HELP>
                 The inactive Exchange contribution to the Fock matrix is computed using inactive canonical orbitals
@@ -399,7 +403,7 @@ Keywords
     is then ensured by rotating the orbitals of B according to the orthogonal matrix defined in A
     through the Cholesky localization. These orbitals used for B are therefore called "pseudo Cholesky MOs".
 
-    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PSEU" APPEAR="Use PseudoCholesky orbitals" LEVEL="ADVANCED" KIND="SINGLE" REQUIRE="CHOI">
+    .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PSEU" APPEAR="Use PseudoCholesky orbitals" LEVEL="ADVANCED" KIND="SINGLE">
                 %%Keyword: PSEU <advanced>
                 <HELP>
                 The inactive Exchange contribution to the Fock matrix is computed using pseudo Cholesky orbitals.
@@ -488,11 +492,15 @@ Keywords
   component conventions, see
   :program:`SEWARD` program description.
 
-  .. xmldoc:: %%Keyword: Property <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PROPERTY" APPEAR="Properties" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: Property <basic>
+              <HELP>
               Enter a user-supplied selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated. Without
               this keyword and list, the default choice is to use every operator,
               for which the one-electron integral file supplies integrals.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SOCOupling`
   Enter a positive threshold value. Spin--orbit interaction matrix
@@ -501,12 +509,16 @@ Keywords
   The value is given in cm\ :math:`^{-1}` units. The keyword is
   ignored unless an SO hamiltonian is actually computed.
 
-  .. xmldoc:: %%Keyword: SOCoupling <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SOCOUPLING" APPEAR="Spin-orbit coupling threshold" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: SOCoupling <basic>
+              <HELP>
               Enter a positive threshold value. Spin-orbit interaction matrix
               elements over the spin components of the spin-free eigenstates
               will be printed, unless smaller than this threshold.
               The value is given in cm-1 units. The keyword is ignored unless
               an SO hamiltonian is actually computed.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SOPRoperty`
   Enter a user-supplied selection of one-electron operators, for which
@@ -596,7 +608,7 @@ Keywords
   "JOB002", etc. will be used, and all states found on these files will be
   used.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="JOBIPH" APPEAR="Input states from JOBIPHs" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: NrOf <basic>
               <HELP>
               Number of JOBIPH files used as input, followed by a list of
@@ -605,18 +617,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NR OF JOBIPHS" KIND="CUSTOM" LEVEL="UNDOCUMENTED" />
 
-:kword:`REDL`
+:kword:`SUBSets`
   In many cases, RASSI is used to compute the transition moments between
   a set of initial states (for example the ground state) and a set of final states.
-  "Reduced loop" allows to restrict the computation of transition moments between the two sets
+  This keyword allows to restrict the computation of transition moments between the two sets
   and not within each set, thus saving time and reducing the output size.
   The keyword is followed by the index where the two sets split (assuming energy ordering).
-  For a calculation between one ground state and several excited states, REDL should be 1.
+  For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="REDL" APPEAR="Reduced loop" KIND="INT" SIZE="1" LEVEL="BASIC">
-              %%Keyword: Redl <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SUBSETS" APPEAR="Subsets" KIND="INT" LEVEL="BASIC">
+              %%Keyword: Subsets <basic>
               <HELP>
               Restricts the computation of transition moments to be only between
               two sets of states, and not also within each set.
@@ -632,11 +645,15 @@ Keywords
   For default :file:`JOBIPH` file names, see the Files section.
   The names will be truncated to 8 characters and converted to uppercase.
 
-  .. xmldoc:: %%Keyword: IPHNames <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IPHNAMES" APPEAR="JobIph names" KIND="STRINGS_LOOKUP" SIZE="NROFJOBIPHS" LEVEL="BASIC">
+              %%Keyword: IPHNames <basic>
+              <HELP>
               Followed by one entry for each JOBIPH file to be used, with the
               name of each file. Note: This keyword presumes that the number of
               JOBIPH files have already been entered using keyword NROF.
               The names will be truncated to 8 characters and converted to uppercase.
+              </HELP>
+              </KEYWORD>
 
   .. :kword:`NACMe`
        Switch from calculations of transition dipole moment to calculation of
@@ -700,7 +717,7 @@ Keywords
   The next entry gives the number of transitions for which binatural
   orbitals will be computed. Then a line should follow for each transition,
   with the two states involved. The orbitals and singular values provide a
-  singular value decomposition of a transition density matrix \cite{Malmqvist:2012}.
+  singular value decomposition of a transition density matrix :cite:`Malmqvist:2012`.
   The bra and ket orbitals are written followed by the singular values in the
   usual UHF format used by other |molcas| programs.
 
@@ -731,8 +748,12 @@ Keywords
   Print out the CI coefficients read from
   :file:`JOBIPH`.
 
-  .. xmldoc:: %%Keyword: CIPrint <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIPRINT" APPEAR="Print input CI coeff." KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CIPrint <advanced>
+              <HELP>
               Print out the CI coefficients read from JOBIPH.
+              </HELP>
+              </KEYWORD>
 
 :kword:`THRS`
   The next line gives the threshold for printing CI coefficients. The
@@ -745,7 +766,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`DIPRrint`
+:kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
 
@@ -757,7 +778,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`QIPRrint`
+:kword:`QIPRint`
   The next entry gives the threshold for printing quadrupole intensities.
   Default is 1.0D-5.
   Will overwrite any value chosen for dipole intensities.
@@ -781,47 +802,114 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`TMOS`
-  Activate the computation of oscillators strengths (and transition moments) using the
-  non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (A) in
+:kword:`CD`
+  Compute rotatory strengths (for circular dichroism) from the multipole expansion of transition moments.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CD" APPEAR="Circular dichroism" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CD <basic>
+              <HELP>
+              Compute rotatory strengths from the multipole expansion of transition moments.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TINTensities`
+  Activate the computation of transition intensities (oscillator strengths and rotatory strengths) using the
+  non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (:math:`A`) in
   the weak field approximation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TMOS" APPEAR="Transition moments - oscillator strength" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: TMOS <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TINT" APPEAR="Transition intensities (exponential)" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: TINTensities <advanced>
               <HELP>
-              Activate the computation of oscillators strengths (and transition moments) using the
+              Activate the computation of transition intensities (oscillator strengths and rotatory strengths) using the
               non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (A) in
               the weak field approximation.
               </HELP>
               </KEYWORD>
 
-:kword:`L-EFfective`
-  Set the order of the Lebedev grids used in the interpolation of the solid angles
-  in association with the :kword:`TMOS` option. Default value is 5.
+:kword:`TIGRoup`
+  Group the states close in energy for the purpose of computing transition intensities wi the exponential operator
+  (:kword:`TINTensities` keyword). A single wave vector will be used for all transitions to the states in the group.
+  This is a good approximation when the energy difference between the states in a group is negligible with respect
+  to the energy of the transition. The keyword reads a real value, that is the maximum relative difference for
+  transitions in a group with respect to the average energy.
+  This keyword requires the use of :kword:`SUBSets` and :kword:`TINTensities`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TIGROUP" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SUBSETS,TINT">
+              %%Keyword: TIGRoup <advanced>
+              <HELP>
+              Group states close in energy for computing transition intensities with the exponential operator
+              (TINTensities keyword). Specify a real value as the grouping threshold, relative to the average
+              transition energy to a group. Requires SUBSets and TINTensities.
+              </HELP>
+              </KEYWORD>
+
+:kword:`IIORder`
+  Set the order of the Lebedev grids used in the isotropic integration of transition intensities
+  in association with the :kword:`TINT` option. Default value is 5.
   Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="L-EFF" APPEAR="Order of Lebedev integration" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="5" LEVEL="ADVANCED">
-              %%Keyword: L-Eff <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IIORDER" APPEAR="Isotropic integration order" KIND="INT" MIN_VALUE="5" DEFAULT_VALUE="5" LEVEL="ADVANCED">
+              %%Keyword: IIORder <advanced>
               <HELP>
-              Set the order of the Lebedev grids used in the interpolation of the solid angles
-              in association with the TMOS option. Default value is 5.
+              Set the order of the Lebedev grids used in the isotropic integration of transition intensities
+              in association with the TINT option. Default value is 5.
               Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
               </HELP>
               </KEYWORD>
 
-:kword:`K-VEctor`
+:kword:`PRRAw`
+  Print the raw directions for the exact semi-classical intensities (see the :kword:`TINT` keyword).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRRA" APPEAR="Print raw directions" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: PRRAw <advanced>
+              <HELP>
+              Print the raw directions for the exact semi-classical intensities
+              </HELP>
+              (see the TINT keyword).
+              </KEYWORD>
+
+:kword:`PRWEighted`
+  Print the weighted directions for the exact semi-classical intensities (see the :kword:`TINT` keyword).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRWE" APPEAR="Print weighted directions" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: PRWEighted <advanced>
+              <HELP>
+              Print the weighted directions for the exact semi-classical intensities
+              </HELP>
+              (see the TINT keyword).
+              </KEYWORD>
+
+:kword:`DIREction`
   Define the direction of the incident light for which we will
   compute transition moments and oscillator strengths. The keyword
-  is followed by three reals specifying the direction. The values
+  is followed by an integer :math:`n`, the number of directions,
+  and then :math:`n` lines with three real numbers each specifying the direction. The values
   do not need to be normalized.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="K-VECTOR" APPEAR="The wave k-vector" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
-              %%Keyword: k-vector <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DIRECTION" APPEAR="Direction of propagation" KIND="REALS_COMPUTED" SIZE="3" LEVEL="ADVANCED">
+              %%Keyword: DIREction <advanced>
               <HELP>
               Define the direction of the incident light for which we will
               compute transition moments and oscillator strengths. The keyword
-              is followed by three reals specifying the direction. The values
+              is followed by an integer n, the number of directions,
+              and then n lines with three real numbers each specifying the direction. The values
               do not need to be normalized.
+              </HELP>
+              </KEYWORD>
+
+:kword:`POLArization`
+  Define the direction of the polarization of the incident light, see :kword:`DIREction`.
+  The keyword is followed by three real numbers specifying the components of a vector (not necessarily normalized),
+  the polarizarion direction is defined by orthogonalizing this vector with each vector specified in :kword:`DIREction`.
+  Currently, this keyword only works with the oscillator strengths computed with the :kword:`TINTensities` keyword.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="POLARIZATION" APPEAR="Direction of polarization" KIND="REALS" SIZE="3" REQUIRE="DIRECTION,TINT" LEVEL="ADVANCED">
+              %%Keyword: POLArization <advanced>
+              <HELP>
+              Define the direction of the polarization of the incident light, see DIREction.
+              The keyword is followed by three real numbers specifying the components of a vector (not necessarily normalized),
+              the polarizarion direction is defined by orthogonalizing this vector with each vector specified in DIREction.
+              Currently, this keyword only works with the oscillator strengths computed with the TINTensities keyword.
               </HELP>
               </KEYWORD>
 
@@ -851,7 +939,7 @@ Keywords
   It is read from the following few lines, as a triangular matrix: One element
   of the first row, two from the next, etc., as list-directed input of reals.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="UNKNOWN" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
               <HELP>
               The spin-free Hamiltonian is read from a file instead of being computed.
@@ -897,10 +985,14 @@ Keywords
   created. This keyword is necessary if :program:`QmStat` is to be run
   afterwards.
 
-  .. xmldoc:: %%Keyword: TOfile <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TOFILE" APPEAR="Data to file" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: TOfile <basic>
+              <HELP>
               Signals that a set of files with data from Rassi should be
               created. This keyword is necessary if QmStat is to be run
               afterwards.
+              </HELP>
+              </KEYWORD>
 
 :kword:`XVIN`
   Demand for printing expectation values of all selected one-electron
@@ -948,7 +1040,7 @@ Keywords
   need to be available (use keywords :kword:`SPIN` and :kword:`PROP`).
   For a more detailed description see ref :cite:`EPRG:2008`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRG" APPEAR="EPR g Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN,PROP">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRG" APPEAR="EPR g Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: EPRg <advanced>
               <HELP>
               This computes the g matrix and principal g values for the
@@ -974,7 +1066,7 @@ Keywords
   need to be available (use keywords :kword:`SPIN` and :kword:`PROP`).
   For a more detailed description see ref :cite:`MAGN:2009`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MAGN" APPEAR="Magnetism" KIND="REAL" LEVEL="DEV" REQUIRE="SPIN,PROP">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MAGN" APPEAR="Magnetism" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: Magnetic properties <advanced>
               <HELP>
               This computes the magnetic moment and magnetic susceptibility.
@@ -1001,7 +1093,7 @@ Keywords
   is invoked by changing the root for the gradient computation.
   The current implementation is working only with SA-CASSCF.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" LEVEL="DEV">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Hop <advanced>
               <HELP>
               Allows transitions between electronic states during molecular
@@ -1174,5 +1266,13 @@ Input example
   * spanned by the 8 input functions. Assume only the first
   * 4 are of interest, and we want natural orbitals out
   NATO= 4
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FILE" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

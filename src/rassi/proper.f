@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PROPER (PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
+      use rassi_global_arrays, only : JBNUM
+      use RASSI_AUX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -19,6 +21,7 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       DIMENSION TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       DIMENSION IOFF(8)
       CHARACTER*8 LABEL
@@ -26,13 +29,11 @@
       Save iDiskSav !(For ToFile)
       SAVE ICALL
       DATA ICALL /0/
-
-
-
+      Real*8, Allocatable:: SCR(:,:)
 
 C COMBINED SYMMETRY OF STATES:
-      JOB1=iWork(lJBNUM+ISTATE-1)
-      JOB2=iWork(lJBNUM+JSTATE-1)
+      JOB1=JBNUM(ISTATE)
+      JOB2=JBNUM(JSTATE)
       LSYM1=IRREP(JOB1)
       LSYM2=IRREP(JOB2)
       ISY12=MUL(LSYM1,LSYM2)
@@ -42,93 +43,17 @@ C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
 C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-      IOF=0
-      Call IZERO(IOFF,8)
-      DO ISY1=1,NSYM
-        ISY2=MUL(ISY1,ISY12)
-        IF(ISY1.LT.ISY2) GOTO 10
-        IOFF(ISY1)=IOF
-        IOFF(ISY2)=IOF
-        NB1=NBASF(ISY1)
-        NB2=NBASF(ISY2)
-        NB12=NB1*NB2
-        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-        IOF=IOF+NB12
-  10    CONTINUE
-      END DO
+      Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-      CALL DCOPY_(4*NSCR,[0.0D00],0,WORK(LSCR),1)
-C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
-      IF(ISY12.EQ.1) THEN
-        IOF=0
-        ITD=0
-        DO 100 ISY=1,NSYM
-          NB=NBASF(ISY)
-          IF(NB.EQ.0) GOTO 100
-          DO 90 J=1,NB
-            DO 90 I=1,NB
-              ITD=ITD+1
-              TDM=TDMZZ(ITD)
-              WDM=WDMZZ(ITD)
-              IF(I.GE.J) THEN
-                IJ=IOF+(I*(I-1))/2+J
-                IF(I.GT.J) THEN
-                  WORK(LSCR-1+IJ+NSCR*(1))=WORK(LSCR-1+IJ+NSCR*(1))+TDM
-                  WORK(LSCR-1+IJ+NSCR*(3))=WORK(LSCR-1+IJ+NSCR*(3))+WDM
-                END IF
-              ELSE
-                IJ=IOF+(J*(J-1))/2+I
-                WORK(LSCR-1+IJ+NSCR*(1))=WORK(LSCR-1+IJ+NSCR*(1))-TDM
-                WORK(LSCR-1+IJ+NSCR*(3))=WORK(LSCR-1+IJ+NSCR*(3))-WDM
-              END IF
-              WORK(LSCR-1+IJ+NSCR*(0))=WORK(LSCR-1+IJ+NSCR*(0))+TDM
-              WORK(LSCR-1+IJ+NSCR*(2))=WORK(LSCR-1+IJ+NSCR*(2))+WDM
-90        CONTINUE
-          IOF=IOF+(NB*(NB+1))/2
-100     CONTINUE
-      ELSE
-C GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS
-C THEN LOOP OVER ELEMENTS OF TDMZZ
-        ITD=0
-        DO 200 ISY1=1,NSYM
-          NB1=NBASF(ISY1)
-          IF(NB1.EQ.0) GOTO 200
-          ISY2=MUL(ISY1,ISY12)
-          NB2=NBASF(ISY2)
-          IF(NB2.EQ.0) GOTO 200
-          IF(ISY1.GT.ISY2) THEN
-            DO 180 J=1,NB2
-              DO 180 I=1,NB1
-                ITD=ITD+1
-                TDM=TDMZZ(ITD)
-                WDM=WDMZZ(ITD)
-                IJ=IOFF(ISY1)+I+NB1*(J-1)
-                WORK(LSCR-1+IJ       )=WORK(LSCR-1+IJ       )+TDM
-                WORK(LSCR-1+IJ+NSCR  )=WORK(LSCR-1+IJ+NSCR  )+TDM
-                WORK(LSCR-1+IJ+NSCR*2)=WORK(LSCR-1+IJ+NSCR*2)+WDM
-                WORK(LSCR-1+IJ+NSCR*3)=WORK(LSCR-1+IJ+NSCR*3)+WDM
-180         CONTINUE
-          ELSE
-            DO 190 J=1,NB2
-              DO 190 I=1,NB1
-                ITD=ITD+1
-                TDM=TDMZZ(ITD)
-                WDM=WDMZZ(ITD)
-                IJ=IOFF(ISY2)+J+NB2*(I-1)
-                WORK(LSCR-1+IJ       )=WORK(LSCR-1+IJ       )+TDM
-                WORK(LSCR-1+IJ+NSCR  )=WORK(LSCR-1+IJ+NSCR  )-TDM
-                WORK(LSCR-1+IJ+NSCR*2)=WORK(LSCR-1+IJ+NSCR*2)+WDM
-                WORK(LSCR-1+IJ+NSCR*3)=WORK(LSCR-1+IJ+NSCR*3)-WDM
-190         CONTINUE
-          END IF
-200     CONTINUE
-      END IF
+      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+      SCR(:,:)=0.0D0
+      Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
+*
 C AT THIS POINT, THE SYMMETRICALLY AND ANTISYMMETRICALLY FOLDED
 C DENSITY MATRICES, AND WE-REDUCED SPIN DENSITY MATRICES, HAVE BEEN
-C CALCULATED BEGINNING IN WORK(LSCR).
+C CALCULATED BEGINNING IN SCR.
 C LOOP OVER ALL REQUIRED ONE-ELECTRON OPERATORS:
 C
 C-------------------------------------------
@@ -139,41 +64,48 @@ C-------------------------------------------
 C
 C IF NONADIABATIC COUPLINGS ARE REQUIRED LET'S COMPUTE THEM RIGHT NOW!
 C
-         CALL COMP_NAC(ISTATE, JSTATE, LSCR, ISY12, IOFF, LCI1)
+         CALL COMP_NAC(ISTATE, JSTATE, SCR, 4*nSCR, ISY12, IOFF, LCI1)
       END IF
 C WE CONTINUE WITH THE NORMAL CALCULATION OF PROPERTIES...
 C-------------------------------------------
 CTL2004-end
 C-------------------------------------------
-*If requested by user, put Work(lscr) in an unformatted file for later
+*If requested by user, put SCR in an unformatted file for later
 *use by another program. (A.Ohrn)
       If(ToFile) then
         Call DaName(LuToM,FnToM)
         If(iCall.eq.0) then  !Make room for table-of-contents
           iDisk=0
-          Call ICOPY(nState*(nState+1)/2,[-1],0,iWork(liTocM),1)
-          Call iDaFile(LuToM,1,iWork(liTocM),nState*(nstate+1)/2,iDisk)
-          iWork(liTocM)=iDisk
+          Call ICOPY(nState*(nState+1)/2,[-1],0,TocM,1)
+          Call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
+          TocM(1)=iDisk
           iDiskSav=iDisk
           iCall=1
         Endif
-        i=Max(iState,jState)
-        j=Min(iState,jState)
+        If (iState.lt.jState) Then
+*
+*          For the rest of the code to work this can not be violated.
+*
+           Write (6,*) 'Proper: iState.lt.jState'
+           Call Abend()
+        End If
+        i=iState
+        j=jState
         indCall=i*(i-1)/2+j  !Which call this is
-        iWork(liToCM+indCall-1)=iDiskSav
+        ToCM(indCall)=iDiskSav
         ind=indCall+1
         iDisk=iDiskSav
 *       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
-        Call dDaFile(LuToM,1,Work(Lscr),4*nscr,iDisk) !The THING.
+        Call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.
         iDiskSav=iDisk  !Save diskaddress.
         iDisk=0
-        Call iDaFile(LuToM,1,iWork(liTocM),nState*(nState+1)/2,iDisk)
+        Call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
                             !Put table of contents.
         Call DaClos(LuToM)
       Endif
 *End of ToFile
 *     Write (*,*) 'ISTATE,JSTATE=',ISTATE,JSTATE
-      DO 300 IPROP=1,NPROP
+      DO IPROP=1,NPROP
         PROP(ISTATE,JSTATE,IPROP)=0.0D00
         LABEL=PNAME(IPROP)
 
@@ -185,8 +117,7 @@ c the EF2 term without the nuclear contribution
           LABEL(1:3) = 'EF2'
           !write(6,*)"EF2---->ASD Here"
         END IF
-        IF(LABEL(1:3).EQ.'SMQ') CYCLE
-        IF(LABEL(1:4).EQ.'TMOS') CYCLE
+        IF(LABEL(1:4).EQ.'TMOM') CYCLE
 
         IF(LABEL(1:4).EQ.'PSOP') THEN
           LABEL(1:4) = 'PSOI'
@@ -211,10 +142,10 @@ c the EF2 term without the nuclear contribution
         END IF
 *
         Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
-     &               WORK(LIP),NIP,WORK(LSCR),NSCR,MASK,ISY12,IOFF)
+     &               WORK(LIP),NIP,SCR,NSCR,MASK,ISY12,IOFF)
 *
-300   CONTINUE
-      CALL GETMEM('TDMSCR','Free','Real',LSCR,4*NSCR)
+      END DO
+      Call mma_deallocate(SCR)
       CALL GETMEM('      ','FREE','REAL',LIP,NIP)
       RETURN
       END

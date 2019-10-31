@@ -26,6 +26,7 @@
 ************************************************************************
       use Period
       use GeoList
+      use MpmC
       use EFP_Module
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -272,6 +273,9 @@
       If (lOMQ) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital magnetic quadrupole around (',
      &   (DInf(ipOMQ+i),i=0,2),')'
+      If (Vlct.and.(nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+     &                       '   Velocity quadrupole around (',
+     &   (Coor_MPM(i,3),i=1,3),')'
       If (lAMP) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      & '   Products of Orbital angular momentum operators around (',
      &   (DInf(ipAMP+i),i=0,2),')'
@@ -289,7 +293,7 @@
          Write (LuWr,'(15X,A,F10.5)')
      &     '    - RPQMin: ',RPQMin
       End If
-      If (EFP) Then
+      If (lEFP) Then
 #ifdef _EFP_
          Write (LuWr,'(15X,A)')
      &     '   Effective Fragment potentials added       '

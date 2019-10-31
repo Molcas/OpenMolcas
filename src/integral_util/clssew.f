@@ -55,11 +55,11 @@
       Call Freek2()
       Call CloseR()
 *
-      If (EFP) Then
+      If (lEFP) Then
          Deallocate(FRAG_TYPE)
          Deallocate(ABC)
          Deallocate(EFP_COORS)
-         EFP=.FALSE.
+         lEFP=.FALSE.
       End If
 *
       Seward_Status=InActive

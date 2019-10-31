@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/numerical_gradient.exe             executable
+ (file)  NUMERINP      "$WorkDir/$Project."Num_grad.Input      rwi
 #include "aoints.inc"
 #include "choints.inc"
 #include "chotmpfiles.inc"

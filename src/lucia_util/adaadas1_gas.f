@@ -50,7 +50,7 @@
 *.Output
       INTEGER I1(LI1,*)
       DIMENSION XI1S(LI1,*)
-*. Local scratch, atmost 1000 orbitals in a given TS block)
+*. Local scratch, at most 1000 orbitals in a given TS block)
       DIMENSION ISCR(1000)
 *PAM2009 Array of values, replacing expressions such as ''DBLE((-1)**INT8)'':
       DIMENSION SGNARR(0:63)

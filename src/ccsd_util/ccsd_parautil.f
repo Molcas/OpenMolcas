@@ -61,7 +61,7 @@ c
 c        N.B. FREE ZONE in purpose of this routine is the space of
 c       free working files V1-V4, .....
 c        (free zone is not used in GA)
-c        Since T2 amplitudes are no more then oovv, atmost V1-V3 space
+c        Since T2 amplitudes are no more then oovv, at most V1-V3 space
 c        will be demaged. (acutally V1 and V2 only)
 c
         implicit none

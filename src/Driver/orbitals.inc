@@ -24,6 +24,7 @@
  (file)  IPAORB  "$WorkDir/$Project$SubProject."IPAOrb        rwst
  (file)  DPAORB  "$WorkDir/$Project$SubProject."DPAOrb        rwst
  (file)  LOCORB  "$WorkDir/$Project$SubProject."LocOrb        rwst
+ (file)  ORTHORB "$WorkDir/$Project$SubProject."OrthOrb       rwst
  (file)  CIORB01 "$WorkDir/$Project$SubProject."CiOrb         rwst
  (file)  LPRORB  "$WorkDir/$Project$SubProject."LprOrb        rws
  (file)  SPDORB  "$WorkDir/$Project$SubProject."SpdOrb        rws*t
