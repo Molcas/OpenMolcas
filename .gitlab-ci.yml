@@ -222,6 +222,8 @@ tinker:
   except:
     - tags
     - master@Molcas/OpenMolcas
+  # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
+  retry: 2
 
 # Dummy "test" job for when there were no source code changes
 
@@ -291,6 +293,8 @@ test:intel:
   <<: *run-tests
   needs:
     - build:intel
+  tags:
+    - docker
 
 build:intel13:
   extends: .intel13
