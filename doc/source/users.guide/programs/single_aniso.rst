@@ -461,6 +461,24 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`XFIE`
+  This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
+  for the computation of magnetic susceptibility by :math:`dM/dH` and :math:`M/H` formulas.
+  A comparison with the usual formula (in the limit of zero applied field) is provided.
+  (Default is 0.0)
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: XFIE <basic>
+              <HELP>
+              This keyword specifies the value (in Tesla) of applied magnetic field
+              for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
+              A comparison with the usual formula (in the limit of zero applied field) is provided.
+              (Default is 0.0)
+              </HELP>
+              </KEYWORD>
+
+
+
 :kword:`PRLV`
   This keyword controls the print level.
 
@@ -584,6 +602,23 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`PLOT`
+  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*. 
+  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image. 
+  The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+  The files are named: file:`XT.dat`, file:`XT.plt`, file:`XT.png`, file:`MH.dat`, file:`MH.plt`, file:`MH.png`, file:`BARRIER_TME.dat`, file:`BARRIER_ENE.dat`, file:`BARRIER.plt` and file:`BARRIER.png`.
+
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: PLOT <basic>
+              <HELP>
+              This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".
+              The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+              The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+              The files are named: `XT.dat`, `XT.plt`, `XT.png`, `MH.dat`, `MH.plt`, `MH.png`, `BARRIER_TME.dat`, `BARRIER_ENE.dat`, `BARRIER.plt` and `BARRIER.png`.
+              </HELP>
+              </KEYWORD>
+
 An input example
 ................
 
@@ -603,11 +638,7 @@ An input example
   0.0  330.0  331
   MAVE
   1  12
-  MVEC
-  3
-  0.0000  0.0000   0.1000
-  1.5707  0.0000   0.5000
-  1.5707  1.5707   1.0000
+  PLOT
 
 .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="ZEEM" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
 
