@@ -293,6 +293,7 @@ test:intel:
   <<: *run-tests
   needs:
     - build:intel
+  parallel: 2
   tags:
     - docker
 
