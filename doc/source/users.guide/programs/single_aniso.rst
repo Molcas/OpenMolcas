@@ -9,9 +9,9 @@
 
 .. only:: html
 
-.. contents::
-    :local:
-    :backlinks: none
+  .. contents::
+      :local:
+      :backlinks: none
 
 .. xmldoc:: <MODULE NAME="SINGLE_ANISO" APPEAR="Single_Aniso">
             %%Description:
