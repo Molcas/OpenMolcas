@@ -10,6 +10,7 @@
 .. role:: bdit
 
 .. substitutions
+.. |openmolcas|    replace:: :sc:`OpenMolcas`
 .. |molcas|        replace:: :sc:`Molcas`
 .. |molcasiii|     replace:: |molcas|-3
 .. |molcasiv|      replace:: |molcas|-4

@@ -74,7 +74,7 @@ Also, you can benefit from following optional dependencies:
 
 .. warning::
 
-   The DGA library is not available in OpenMolcas.
+   The DGA library is not available in |openmolcas|.
 
 The Graphical User Interface codes in |molcas| require additional software,
 including OpenGL and glut library. However, in most of the cases there is no need

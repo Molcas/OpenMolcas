@@ -374,7 +374,7 @@ The complete list of |molcas|-related environment variables:
 
   .. warning::
 
-     This feature is not available in OpenMolcas.
+     This feature is not available in |openmolcas|.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_FIM" APPEAR="FiM" KIND="CHOICE" LIST="----,YES" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_FIM <advanced>

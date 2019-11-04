@@ -262,13 +262,13 @@ Stochastic-CASSCF method
    This program requires an external package to run
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
-initially into a locally modified version of |molcas| and now available in OpenMolcas.
+initially into a locally modified version of |molcas| and now available in |openmolcas|.
 The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
 This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
 with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
 for the orbital optimization.
 
-The method is compatible with density fitting techniques available within OpenMolcas.
+The method is compatible with density fitting techniques available within |openmolcas|.
 The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
 
 .. _UG\:sec\:StochCAS_dependencies:
@@ -277,7 +277,7 @@ Dependencies
 ............
 
 In addition to the normal :program:`RASSCF` dependencies, the Stochastic-CASSCF requires that the :program:`NECI` program is installed externally
-(the :program:`NECI` program can also be embedded into OpenMolcas. This form of installation is however not fully developed and not suggested).
+(the :program:`NECI` program can also be embedded into |openmolcas|. This form of installation is however not fully developed and not suggested).
 For the :program:`NECI` program a parallel installation (using MPI) is assumed as well as the use of hdf5 libraries to store and process
 the walker population. Using the FCIQMC algorithm the user will produce one- and two-body density matrix files (:file:`ONERDM`, :file:`TwoRDM_XXXX`), that are required for the subsequent orbital optimization step.
 
@@ -330,7 +330,7 @@ This can be achieved by a simple script, such as the following: ::
 Input keywords
 ..............
 
-This section describes the input to the Stochastic-CASSCF method in the OpenMolcas program.
+This section describes the input to the Stochastic-CASSCF method in the |openmolcas| program.
 Two input keywords are strictly required in the :program:`RASSCF` module for activating the Stochastic-CASSCF:
 
 .. class:: keywordlist
