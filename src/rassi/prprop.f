@@ -233,11 +233,6 @@ C Addition of ANGMOM to Runfile.
                   TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_angmom,
-c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
-c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-c#endif
          ENDIF
 c add dipole moment integrals:
          IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.
@@ -251,11 +246,6 @@ c add dipole moment integrals:
                   TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_edipmom,
-c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
-c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-c#endif
          ENDIF
 c add spin-orbit AMFI integrals:
          IF(PNAME(IPROP)(1:8).EQ.'AMFI    ') THEN
@@ -268,34 +258,26 @@ c add spin-orbit AMFI integrals:
                   TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_amfi,
-c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
-c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-c#endif
          ENDIF
       ENDDO
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_angmom,
-     $      TMPL(:,:,:),
+       call mh5_put_dset_array_real(wfn_sfs_angmom,TMPL(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_edipmom,
-     $      TMPE(:,:,:),
+       call mh5_put_dset_array_real(wfn_sfs_edipmom,TMPE(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFAMFI.EQV..TRUE.) THEN
        CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_amfi,
-     $      TMPA(:,:,:),
+       call mh5_put_dset_array_real(wfn_sfs_amfi,TMPA(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
