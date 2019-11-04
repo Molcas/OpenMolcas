@@ -245,7 +245,7 @@ of the :program:`MBPT2` program can be found on section :ref:`TUT:sec:mbpt2`.
 
   The :program:`SCF` program works by default with closed-shell systems with an
   even number of electrons at the Restricted Hartee--Fock (RHF) level. If,
-  instead there is a need to use the Unrestricted Hartree Fock (UHF) method, this can be schieved by invoking the
+  instead there is a need to use the Unrestricted Hartree--Fock (UHF) method, this can be schieved by invoking the
   keyword :kword:`UHF`. This is possible for both even and odd electron systems.
   For instance, in a system with an odd number of electrons such as the :math:`\ce{CH3}` radical, with the
   following Cartesian coordinates
