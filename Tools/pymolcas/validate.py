@@ -879,6 +879,92 @@ def test_custom(lines, keyword):
     else:
       return None
 
+  elif (module == 'POLY_ANISO'):
+    if (name in ['LIN1', 'PAIR', 'LIN3', 'ALIN', 'LIN9']):
+      try:
+        n = first_int(lines[l])
+        l += 1
+        if (name in ['LIN1', 'PAIR']):
+          m = 1
+        elif (name in ['LIN3', 'ALIN']):
+          m = 3
+        elif (name == 'LIN9'):
+          m = 9
+        for i in range(n):
+          parts = fortran_split(lines[l])
+          nums = to_int(parts[0:2])
+          assert (len(nums) == 2)
+          nums = to_float(parts[2:2+m])
+          assert (len(nums) == m)
+          l += 1
+      except:
+        return None
+    elif (name == 'HEXP'):
+      try:
+        n = first_int(lines[l])
+        ll = test_standard(lines[l-1:], 'REALS_COMPUTED', 1)
+        if ((ll is None) or (ll < 1)):
+          return None
+        l += ll-1
+        ll = test_standard(lines[l-1:], 'REALS_COMPUTED', n+1)
+        if ((ll is None) or (ll < 1)):
+          return None
+        l += ll-1
+      except:
+        return None
+    elif (name == 'NNEQ'):
+      try:
+        parts = fortran_split(lines[l])
+        n = fortran_int(parts[0])
+        gv.lookup['3NNEQ'] = 3*n
+        parts = [i.upper().strip() for i in parts[1:3]]
+        assert (len(parts) == 2)
+        assert all([i in ['T', 'F'] for i in parts])
+        more = (parts[0] == 'F')
+        l += 1
+        parts = fortran_split(lines[l])
+        nums = to_int(parts[0:n])
+        assert (len(nums) == n)
+        l += 1
+        parts = fortran_split(lines[l])
+        nums = to_int(parts[0:n])
+        assert (len(nums) == n)
+        l += 1
+        if (more):
+          parts = fortran_split(lines[l])[0:n]
+          assert (len(parts) == n)
+          parts = [i.upper().strip() for i in parts]
+          assert all([i in ['A', 'B'] for i in parts])
+          l += 1
+          for i in parts:
+            if (i == 'B'):
+              n = fortran_float(first_word(lines[l]))
+              l += 1
+      except:
+        return None
+    elif (name == 'SYMM'):
+      try:
+        m = 1
+        while (l < len(lines)):
+          try:
+            n = first_int(lines[l])
+          except:
+            break
+          assert (n == m)
+          m += 1
+          l += 1
+          while (l < len(lines)):
+            ll = test_standard(lines[l-1:], 'REALS', 9)
+            if ((ll is None) or (ll < 1)):
+              break
+            l += ll-1
+        if (m == 1):
+          return None
+      except:
+        return None
+    else:
+      return None
+
   elif (module == 'MCLR'):
     if (name == 'THERMO'):
       try:

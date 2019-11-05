@@ -66,7 +66,7 @@ automatically.
 Output files
 ............
 
-In all output files coordinates are given in Ångströms and the values of charges --- in atomic units.
+In all output files coordinates are given in ångströms and the values of charges --- in atomic units.
 
 .. class:: filelist
 

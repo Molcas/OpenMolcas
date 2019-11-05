@@ -96,7 +96,7 @@ c local variables
       RtoB=8
       CtoB=16
       mem_local=0
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_allocate(htot,exch,'htot')
         Call mma_allocate(h1,exch,'h1')
         Call mma_allocate(h2,exch,'h2')
@@ -499,7 +499,7 @@ c proceed to print
 
 !=======================================================================
 ! deallocate memory
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_deallocate(htot)
         Call mma_deallocate(h1)
         Call mma_deallocate(h2)

@@ -250,7 +250,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RtoB=8
       CtoB=16
       mem_local=0
-      If(lmax>0) Then
+      If(lmax>=0) Then
         ! exchange energy spectrum
         Call mma_allocate(intc,lmax,'intc')
         Call mma_allocate(icoord,lmax,'icoord')
@@ -259,13 +259,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call icopy(lmax,[0],0,icoord,1)
         Call icopy(2*lmax,[0],0,nind,1)
         mem_local=mem_local+4*lmax*ItoB
-        If(exch>0) Then
+        If(exch>=0) Then
           Call mma_allocate(ibas,exch,lmax,'ibas')
           Call icopy(exch*lmax,[0],0,ibas,1)
           mem_local=mem_local+exch*lmax*ItoB
         End If
       End If
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_allocate(wlin ,exch,'wlin ')
         Call mma_allocate(wlin1,exch,'wlin1')
         Call mma_allocate(wlin3,exch,'wlin3')
@@ -284,7 +284,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call dcopy_(exch,[0.0_wp],0,wito ,1)
         mem_local=mem_local+8*exch*RtoB
       End If
-      If(nmax>0) Then
+      If(nmax>=0) Then
         Call mma_allocate( S1,3,nmax,nmax,' S1')
         Call mma_allocate( M1,3,nmax,nmax,' M1')
         Call mma_allocate( S2,3,nmax,nmax,' S2')
@@ -307,7 +307,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,MM2,1)
         mem_local=mem_local+8*3*nmax*nmax*CtoB
 
-        If(npair>0) Then
+        If(npair>=0) Then
           ibuf=npair*nmax*nmax*nmax*nmax
           Call mma_allocate(HLIN1,npair,nmax,nmax,nmax,nmax,'HLIN1')
           Call mma_allocate(HLIN3,npair,nmax,nmax,nmax,nmax,'HLIN3')
@@ -327,14 +327,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         End If
       End If
 
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_allocate(tmp,exch,exch,'tmp')
         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
         mem_local=mem_local+exch*exch*CtoB
       End If
 
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         Call mma_allocate(nexchR,nneq,'nexchR')
         Call icopy( nneq,[0],0,nexchR,1)
         mem_local=mem_local+nneq*ItoB
@@ -345,15 +345,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call zcopy_(nneq*3*2*2,[(0.0_wp,0.0_wp)],0,MMR,1)
         mem_local=mem_local+2*nneq*3*2*2*CtoB
 
-        If(neqv>0) Then
+        If(neqv>=0) Then
           Call mma_allocate(rotR,nneq,neqv,3,3,'rotR')
           Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,rotR,1)
           mem_local=mem_local+nneq*neqv*3*3*RtoB
         End If
       End If
 
-      If(exchR>0) Then
-        If(lmax>0) Then
+      If(exchR>=0) Then
+        If(lmax>=0) Then
           Call mma_allocate(ibasR,nneq,lmax,'ibasR')
           Call icopy( nneq*lmax,[0],0,ibasR,1)
           mem_local=mem_local+nneq*lmax*ItoB
@@ -371,13 +371,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         mem_local=mem_local+7*exchR*exchR*CtoB
       End If
 
-      If(npair>0) Then
+      If(npair>=0) Then
         Call mma_allocate(HKEXR,npair,2,2,2,2,'HKEXR')
         Call zcopy_(npair*2*2*2*2,[(0.0_wp,0.0_wp)],0,HKEXR,1)
         mem_local=mem_local+npair*2*2*2*2*CtoB
       End If
 
-      If(lmax>0) Then
+      If(lmax>=0) Then
         Call mma_allocate(intcR,lmax,'intcR')
         Call icopy(lmax,[0],0,intcR,1)
         mem_local=mem_local+lmax*ItoB
@@ -1153,13 +1153,13 @@ c printout the Hamiltonians:
 
       !some verification
       If(dnrm2_(exch,WLIN,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WLIN',WLIN(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
       If(dnrm2_(exch,WDIP,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WDIP',WDIP(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WDIP',[dnrm2_(exch,WDIP,1)],1,8)
       If(dnrm2_(exch,WKEX,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WKEX',WKEX(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
       If(dnrm2_(exch,W,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::     W',W(1:exch),exch,8)
+     &   Call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
 c compute the moments:
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,M,1)
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,S,1)
@@ -1259,16 +1259,16 @@ c      Write(6,'(A)')
 
 !-----------------------------------------------------------------------
 ! deallocate memory for this function:
-      If(lmax>0) Then
+      If(lmax>=0) Then
         ! exchange energy spectrum
         Call mma_deallocate(intc)
         Call mma_deallocate(icoord)
         Call mma_deallocate(nind)
-        If(exch>0) Then
+        If(exch>=0) Then
           Call mma_deallocate(ibas)
         End If
       End If
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_deallocate(wlin)
         Call mma_deallocate(wlin1)
         Call mma_deallocate(wlin3)
@@ -1278,7 +1278,7 @@ c      Write(6,'(A)')
         Call mma_deallocate(wdmo)
         Call mma_deallocate(wito)
       End If
-      If(nmax>0) Then
+      If(nmax>=0) Then
         Call mma_deallocate(S1)
         Call mma_deallocate(M1)
         Call mma_deallocate(S2)
@@ -1289,7 +1289,7 @@ c      Write(6,'(A)')
         Call mma_deallocate(SM2)
         Call mma_deallocate(MM1)
         Call mma_deallocate(MM2)
-        If(npair>0) Then
+        If(npair>=0) Then
           Call mma_deallocate(HLIN1)
           Call mma_deallocate(HLIN3)
           Call mma_deallocate(HLIN9)
@@ -1300,21 +1300,21 @@ c      Write(6,'(A)')
         End If
       End If
 
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_deallocate(tmp)
       End If
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         Call mma_deallocate(nexchR)
         Call mma_deallocate(SMR)
         Call mma_deallocate(MMR)
-        If(neqv>0) Then
+        If(neqv>=0) Then
           Call mma_deallocate(rotR)
         End If
       End If
 
-      If(exchR>0) Then
-        If(lmax>0) Then
+      If(exchR>=0) Then
+        If(lmax>=0) Then
           Call mma_deallocate(ibasR)
         End If
         Call mma_deallocate(WR)
@@ -1323,11 +1323,11 @@ c      Write(6,'(A)')
         Call mma_deallocate(SR)
       End If
 
-      If(npair>0) Then
+      If(npair>=0) Then
         Call mma_deallocate(HKEXR)
       End If
 
-      If(lmax>0) Then
+      If(lmax>=0) Then
         Call mma_deallocate(intcR)
       End If
 
@@ -1410,26 +1410,30 @@ c 199  Continue
       Complex(kind=wp), intent(inout) :: S(3,n,n), M(3,n,n)
       Logical                         :: dbg
       ! local data:
-      Real(kind=wp)                   :: g(3)
-      Complex(kind=wp), allocatable   :: Mt(:,:,:), St(:,:,:), Z(:,:)
+      Integer                         :: i
+      Complex(kind=wp), allocatable   :: Mt(:,:,:), St(:,:,:)
+!      Real(kind=wp)                   :: g(3)
+!      Complex(kind=wp), allocatable   :: Z(:,:)
 
       Call qEnter('PA_prep_mom_exch')
 !-----------------------------------------------------------------------
       Call mma_allocate(Mt,3,n,n,'Mt')
       Call mma_allocate(St,3,n,n,'St')
-      Call mma_allocate(Z,n,n,'Z')
-
+!      Call mma_allocate(Z,n,n,'Z')
+!      Call dcopy_(3  ,[0.0_wp],0,  g,1)
       Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,Mt,1)
       Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,St,1)
-      Call dcopy_(3  ,[0.0_wp],0,  g,1)
       Call dcopy_(3*3,[0.0_wp],0, mg,1)
+
       ! make a local backup of the data:
       Call zcopy_(3*n*n,M,1,Mt,1)
       Call zcopy_(3*n*n,S,1,St,1)
+      Do i=1,3
+        mg(i,i)=1.0_wp
+      End Do
 
       If(dbg) Call prMom('PA_prep_mom_exch, input S',St,n)
       If(dbg) Call prMom('PA_prep_mom_exch, input M',Mt,n)
-
 
       ! rotate the momentum using the R rotation matrix --
       ! to the local axes for a symmetric compound:
@@ -1438,50 +1442,49 @@ c 199  Continue
       Call rotmom2( St, n, R, S)
       Call rotmom2( Mt, n, R, M)
       ! back-up again:
-      Call zcopy_(3*n*n,M,1,Mt,1)
-      Call zcopy_(3*n*n,S,1,St,1)
+!      Call zcopy_(3*n*n,M,1,Mt,1)
+!      Call zcopy_(3*n*n,S,1,St,1)
 
 
 
-      ! find local magnetic axes:
-      Call atens( M, n, g, mg, 2)
-      ! rotate the momentum using the  mg  rotation matrix --
-      ! to the local magnetic axes:
-      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
-      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
-      Call rotmom2( St, n, mg, S)
-      Call rotmom2( Mt, n, mg, M)
-
-
-
-      ! find local pseudospin:
-      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Z,1)
-      Call pseudospin( M, n, Z, 3,1, 1)
-      If(dbg) Call pa_prmat('PA_prep_mom_exch, Z:',Z,n)
-
-      ! Transform the moment into their local pseudospins
-      Call UTMU2( n, n, Z, S )
-      Call UTMU2( n, n, Z, M )
-      If(dbg) Call prMom('PA_prep_mom_exch, S:', S, n)
-      If(dbg) Call prMom('PA_prep_mom_exch, M:', M, n)
-      ! back-up again:
-      Call zcopy_(3*n*n,M,1,Mt,1)
-      Call zcopy_(3*n*n,S,1,St,1)
-
-
-
-      ! rotate back the moment, so that we preserve the
-      ! original coordinate system of the computed molecule
-      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
-      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
-      Call rotmom( St, n, mg, S)
-      Call rotmom( Mt, n, mg, M)
-
+!------------------------------------------
+! experimental:
+!      If (.FALSE.) THEN
+!         ! find local magnetic axes:
+!         Call atens( M, n, g, mg, 2)
+!         ! rotate the momentum using the  mg  rotation matrix --
+!         ! to the local magnetic axes:
+!         Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
+!         Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
+!         Call rotmom2( St, n, mg, S)
+!         Call rotmom2( Mt, n, mg, M)
+!
+!         ! find local pseudospin:
+!         Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Z,1)
+!         Call pseudospin( M, n, Z, 3,1, 1)
+!         If(dbg) Call pa_prmat('PA_prep_mom_exch, Z:',Z,n)
+!
+!         ! Transform the moment into their local pseudospins
+!         Call UTMU2( n, n, Z, S )
+!         Call UTMU2( n, n, Z, M )
+!         If(dbg) Call prMom('PA_prep_mom_exch, S:', S, n)
+!         If(dbg) Call prMom('PA_prep_mom_exch, M:', M, n)
+!         ! back-up again:
+!         Call zcopy_(3*n*n,M,1,Mt,1)
+!         Call zcopy_(3*n*n,S,1,St,1)
+!
+!         ! rotate back the moment, so that we preserve the
+!         ! original coordinate system of the computed molecule
+!         Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
+!         Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
+!         Call rotmom( St, n, mg, S)
+!         Call rotmom( Mt, n, mg, M)
+!      END IF
 !-----------------------------------------------------------------------
 
       Call mma_deallocate(Mt)
       Call mma_deallocate(St)
-      Call mma_deallocate(Z)
+!      Call mma_deallocate(Z)
 
       Call qExit('PA_prep_mom_exch')
 

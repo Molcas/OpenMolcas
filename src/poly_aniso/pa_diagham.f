@@ -67,16 +67,16 @@ c diag:
       Complex(kind=wp), allocatable :: work(:) !work(2*exch-1)
       Call qEnter('PA_diagham')
 c allocate memory and initialize variables:
-      If( exch > 0 ) Then
+      If( exch >= 0 ) Then
          Call mma_allocate(HTOT,exch,exch,'HTOT')
          Call mma_allocate(WORK,(2*exch-1),'WORK')
-         If( lmax > 0 ) Then
+         If( lmax >= 0 ) Then
             Call mma_allocate(ibas,exch,lmax,'ibas')
          End If
          Call mma_allocate(rwork,(3*exch-2),'rwork')
       End If
 
-      If( lmax > 0 ) Then
+      If( lmax >= 0 ) Then
          Call mma_allocate(nind,lmax,2,'nind')
          Call mma_allocate(intc,lmax,'intc')
          Call mma_allocate(icoord,lmax,'icoord')
@@ -561,16 +561,16 @@ c diagonalize
 
 !----------------------------------------------------------------------!
 ! deallocate memory:
-      If( exch > 0 ) Then
+      If( exch >= 0 ) Then
          Call mma_deallocate(HTOT)
          Call mma_deallocate(WORK)
-         If( lmax > 0 ) Then
+         If( lmax >= 0 ) Then
             Call mma_deallocate(ibas)
          End If
          Call mma_deallocate(rwork)
       End If
 
-      If( lmax > 0 ) Then
+      If( lmax >= 0 ) Then
          Call mma_deallocate(nind)
          Call mma_deallocate(intc)
          Call mma_deallocate(icoord)
