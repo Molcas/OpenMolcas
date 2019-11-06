@@ -48,11 +48,7 @@
                        do i=k,nInter
                           B(:) = cv(:,j,i,k)
                           hpred(j,k,i) = dot_product(B, Kv)
-                          if (i.ne.k) then
-                            hpred(j,i,k) = hpred(j,k,i)
-                          else
-                            hpred(j,k,i) = 2.0D0*hpred(j,k,i)
-                          endif
+                          if (i.ne.k) hpred(j,i,k) = hpred(j,k,i)
                        enddo
                     enddo
                 endif
