@@ -1043,7 +1043,7 @@ A list of these keywords is given below:
 
 :kword:`RFPErt`
   This keyword will add a constant reaction field perturbation to the
-  Hamiltonian. The perturbation is read from the :file:`RUNOLD` (if not present defults to :file:`RUNFILE`) and
+  Hamiltonian. The perturbation is read from the :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) and
   is the latest self-consistent perturbation generated
   by one of the programs :program:`SCF` or :program:`RASSCF`.
 
