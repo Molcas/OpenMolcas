@@ -120,14 +120,14 @@
       mem_local=0
       RtoB=8
 
-      If(nM>0) Then
+      If(nM>=0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(WM,nM,'W')
          Call dcopy_(nM,[0.0_wp],0,WM,1)
          mem_local=mem_local+nM*RtoB
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
          Call mma_allocate(MT,3,nH,nTempMagn,'MT')
          Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
          mem_local=mem_local+3*nH*nTempMagn*RtoB
@@ -148,7 +148,7 @@
          Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
          mem_local=mem_local+nH*nTempMagn*RtoB
 
-         If(nDirTot>0) Then
+         If(nDirTot>=0) Then
             Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
             Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
             Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
@@ -157,19 +157,19 @@
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
       End If
 
-      If((nTempMagn>0).and.hinput) Then
+      If((nTempMagn>=0).and.hinput) Then
          Call mma_allocate(STDEV,nTempMagn,'H')
          Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
          mem_local=mem_local+nTempMagn*RtoB
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
             Call mma_allocate(dHX,nDirTot,'dHX')
             Call mma_allocate(dHY,nDirTot,'dHY')
             Call mma_allocate(dHZ,nDirTot,'dHZ')
@@ -643,59 +643,65 @@ c /// -------------------------------------------------------------------
 
 
       If(DoPlot) Then
-        Write(6,'(A)') 'Subroutine plot_M to be finalized yet'
+        IF ( hinput ) THEN
+           Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,
+     &                            magn_exp, zJ )
+        ELSE
+           Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV, zJ )
+        END IF
+!        IF ( zeeman_energy ) THEN
+!           Call plot_zeeman( nH, nM, nDirZee, H, LuZee )
+!        END IF
       End If
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-        Call Add_Info('MAGN_AVERAGED(2)   ',MAV( 2,1),1,5)
-        Call Add_Info('MAGN_AVERAGED(nH/2)',
-     &                       MAV((nH-1)/2,1),1,5)
-        Call Add_Info('MAGN_AVERAGED(nH)  ',MAV(NH,1),1,5)
+      Call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),
+     &               nH*nTempMagn,5)
       If(compute_Mdir_vector) Then
-        Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,5)
+        Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,4)
         Call Add_Info('MAGN_VECT_X(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,1),1,5)
-        Call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,5)
-        Call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1, 2,1,2),1,5)
+     &                     MVEC(1,(NH-1)/2,1,1),1,4)
+        Call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,4)
+        Call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1, 2,1,2),1,4)
         Call Add_Info('MAGN_VECT_Y(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,2),1,5)
-        Call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,5)
-        Call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1, 2,1,3),1,5)
+     &                     MVEC(1,(NH-1)/2,1,2),1,4)
+        Call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,4)
+        Call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1, 2,1,3),1,4)
         Call Add_Info('MAGN_VECT_Z(nH/2)  ',
-     &                     MVEC(1,(NH-1)/2,1,3),1,5)
-        Call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,5)
+     &                     MVEC(1,(NH-1)/2,1,3),1,4)
+        Call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,4)
       End If
 
 
 !-----------------------------------------------------------------------
-! Allocate necessary memory
-      If(nM>0) Then
+! Deallocate necessary memory
+      If(nM>=0) Then
          Call mma_deallocate(WM)
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
          Call mma_deallocate(MT)
          Call mma_deallocate(ST)
          Call mma_deallocate(MAV)
          Call mma_deallocate(SAV)
          Call mma_deallocate(ZT)
-         If(nDirTot>0) Then
+         If(nDirTot>=0) Then
             Call mma_deallocate(MVEC)
             Call mma_deallocate(SVEC)
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 
-      If((nTempMagn>0).and.hinput) Then
+      If((nTempMagn>=0).and.hinput) Then
          Call mma_deallocate(STDEV)
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
             Call mma_deallocate(dHX)
             Call mma_deallocate(dHY)
             Call mma_deallocate(dHZ)

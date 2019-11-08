@@ -423,7 +423,7 @@ ensemble which can be found in any standard statistical mechanics book.
 The analysis is performed at different temperatures, for instance: ::
 
   *****************************************************
-  Temperature =   273.00 Kelvin, Pressure =   1.00 atm
+  Temperature =   273.00 kelvin, Pressure =   1.00 atm
   -----------------------------------------------------
   Molecular Partition Function and Molar Entropy:
                         q/V (M**-3)    S(kcal/mol*K)

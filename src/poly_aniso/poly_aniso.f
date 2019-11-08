@@ -215,7 +215,7 @@ c---------------------------------------------------------------------
       CtoB=16
       ItoB=8
 
-      If(exch>0) Then
+      If(exch>=0) Then
         ! exchange energy spectrum
         Call mma_allocate(W,exch,'W')
         Call dcopy_(exch,[0.0_wp],0,W,1)
@@ -236,7 +236,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
       End If
 
-      If(nPair>0) Then
+      If(nPair>=0) Then
         ! index of metal site for each interacting pair:
         Call mma_allocate(i_pair,nPair,2,'i_pair')
         Call icopy(nPair*2,[0],0,i_pair,1)
@@ -262,7 +262,7 @@ c---------------------------------------------------------------------
         Call icopy(nPair*2,[0],0,imaxrank,1)
         mem=mem+nPair*2*ItoB
         ! exchange JITO
-        If((MxRank1>0).AND.(MxRank2>0)) Then
+        If((MxRank1>=0).AND.(MxRank2>=0)) Then
            l1(1)=1;         l1(2)=nPair
            l2(1)=1;         l2(2)=MxRank1
            l3(1)=-MxRank1;  l3(2)=MxRank1
@@ -284,7 +284,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
         ! index of metal site for each interacting pair:
         Call mma_allocate(nDim,nMult,'nDim')
         Call icopy(nMult,[0],0,nDim,1)
@@ -301,7 +301,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
       End If
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         ! number of equivalent centers, per type
         Call mma_allocate(neq,nneq,'neq')
         Call icopy(nneq,[0],0,neq,1)
@@ -340,7 +340,7 @@ c---------------------------------------------------------------------
         mem=mem+9*nneq*RtoB
 
 
-        If(neqv>0) Then
+        If(neqv>=0) Then
           ! R_LG
           Call mma_allocate(r_lg,nneq,neqv,3,3,'r_lg')
           Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_lg,1)
@@ -351,7 +351,7 @@ c---------------------------------------------------------------------
           mem=mem+nneq*neqv*3*3*RtoB
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           ! local spin orbit states
           Call mma_allocate(eso,nneq,nLoc,'eso')
           Call dcopy_( nneq*nLoc,[0.0_wp],0,eso,1)
@@ -370,7 +370,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 4 =',mem
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
         ! unit numbers of the files containing Zeeman states
         Call mma_allocate(LuZee,nDirZee,'LuZee')
         Call icopy(nDirZee,[0],0,LuZee,1)
@@ -383,7 +383,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
         ! magnetization vectors
         Call mma_allocate(dirX,nDir,'dirX')
         Call mma_allocate(dirY,nDir,'dirY')
@@ -396,7 +396,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
         ! experimental field points:
         Call mma_allocate(Hexp,nH,'Hexp')
         Call dcopy_(nH,[0.0_wp],0,Hexp,1)
@@ -413,7 +413,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
       End If
 
-      If((nCenter>0).and.(nTempMagn>0)) Then
+      If((nCenter>=0).and.(nTempMagn>=0)) Then
         ! XT for local centers, all states
         Call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
         Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XLM,1)
@@ -434,7 +434,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 8 =',mem
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         ! T expeirimental given by user in the input
         Call mma_allocate(Texp,nT,'Texp')
         Call dcopy_(nT,[0.0_wp],0,Texp,1)
@@ -445,7 +445,7 @@ c---------------------------------------------------------------------
         mem=mem+nT*RtoB
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
 !       -- add nTempMagn points, so that all measurables are computed at once...
 !       temperature points for which XT will be computed
         Call mma_allocate(T,(nTempMagn+nT),'Temperature')
@@ -529,7 +529,25 @@ c---------------------------------------------------------------------
 c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
       Do i=1,nneq
          If(dbg) Write(6,'(A,A)') 'itype(i)=',itype(i)
-         If( (itype(i).eq.'B').OR.(itype(i).eq.'C') ) Then
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '   nss(i)=', nss(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '  nsfs(i)=', nsfs(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) ' nexch(i)=', nexch(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '     nLoc=', nLoc
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) ' gtens_input(1:3,i)=',
+     &                       (gtens_input(j,i),j=1,3)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) 'D_fact(i)=',D_fact(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) 'eso(i,1:nexch(i))=',
+     &                       (eso(i,j),j=1,nexch(i))
+         If(dbg) Call xFlush(6)
+
+         If ((itype(i).eq.'B').OR.(itype(i).eq.'C')) Then
 
             If(dbg) Write(6,*) 'Enter generate_isotrop_site'
             Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),
@@ -858,7 +876,8 @@ c---------------------------------------------------------------------
      &                       w, dipexch, s_exch, dipso, s_so, eso,
      &                       hinput, r_rot, XLM, ZLM, XRM, ZRM,
      &                       zeeman_energy, compute_Mdir_vector,
-     &                       m_paranoid, m_accurate, smagn, mem )
+     &                       m_paranoid, m_accurate, smagn, mem,
+     &                       doplot )
       Else
          Write(6,'(A)') 'Computation of the molar magnetization ... '//
      &                  'skipped by the user'
@@ -867,33 +886,33 @@ c---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! Deallocate memory for big arrays:
 !---------------------------------------------------------------------
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_deallocate(W)
         Call mma_deallocate(Z)
         Call mma_deallocate(dipexch)
         Call mma_deallocate(s_exch)
       End If
 
-      If(nPair>0) Then
+      If(nPair>=0) Then
         Call mma_deallocate(i_pair)
         Call mma_deallocate(Jex)
         Call mma_deallocate(JAex)
         Call mma_deallocate(JAex9)
         Call mma_deallocate(JDMex)
         Call mma_deallocate(imaxrank)
-        If((MxRank1>0).AND.(MxRank2>0)) Then
+        If((MxRank1>=0).AND.(MxRank2>=0)) Then
           Call mma_deallocate(JITOexR)
           Call mma_deallocate(JITOexI)
         End If
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
         Call mma_deallocate(nDim)
         Call mma_deallocate(gtens)
         Call mma_deallocate(maxes)
       End If
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         Call mma_deallocate(neq)
         Call mma_deallocate(nss)
         Call mma_deallocate(nsfs)
@@ -903,48 +922,48 @@ c---------------------------------------------------------------------
         Call mma_deallocate(EoverD_fact)
         Call mma_deallocate(MagnCoords)
         Call mma_deallocate(riso)
-        If(neqv>0) Then
+        If(neqv>=0) Then
           Call mma_deallocate(r_lg)
           Call mma_deallocate(r_rot)
         End If
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           Call mma_deallocate(eso)
           Call mma_deallocate(dipso)
           Call mma_deallocate(s_so)
         End If
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
         Call mma_deallocate(LuZee)
         Call mma_deallocate(dir_weight)
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
         Call mma_deallocate(dirX)
         Call mma_deallocate(dirY)
         Call mma_deallocate(dirZ)
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
         ! experimental field points:
         Call mma_deallocate(Hexp)
         Call mma_deallocate(Mexp)
         Call mma_deallocate(TempMagn)
       End If
 
-      If((nCenter>0).and.(nTempMagn>0)) Then
+      If((nCenter>=0).and.(nTempMagn>=0)) Then
         Call mma_deallocate(XLM)
         Call mma_deallocate(ZLM)
         Call mma_deallocate(XRM)
         Call mma_deallocate(ZRM)
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         Call mma_deallocate(Texp)
         Call mma_deallocate(chit_exp)
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
         Call mma_deallocate(T)
         Call mma_deallocate(XTexp)
         Call mma_deallocate(XT_no_field)

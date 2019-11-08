@@ -31,7 +31,7 @@ c local variables:
 
       Call qEnter('MAGN')
 
-      If(zJ == 0.0_wp ) Then
+      If( abs(zJ) .lt. tiny(0.0_wp) ) Then
 
 
          If(DBG) Write(6,*) 'Enter MAGN_NO_MF :'

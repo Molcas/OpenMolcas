@@ -1057,7 +1057,7 @@ Keywords
   This computes the magnetic moment and magnetic susceptibility.
   On the next two lines you have to provide the magnetic field and
   temperature data. On the first line put the number of magnetic
-  field steps, the starting field (in Tesla), size of the steps (in Tesla),
+  field steps, the starting field (in tesla), size of the steps (in tesla),
   and an angular resolution for sampling points in case of powder magnetization
   (for a value of 0.0d0 the powder magnetization is deactivated).
   The second line reads the number of temperature steps, the starting
@@ -1072,7 +1072,7 @@ Keywords
               This computes the magnetic moment and magnetic susceptibility.
               On the next two lines you have to provide the magnetic field and
               temperature data. On the first line put the number of magnetic
-              field steps, the starting field (in Tesla), size of the steps (in Tesla),
+              field steps, the starting field (in tesla), size of the steps (in tesla),
               and an angular resolution for sampling points in case of powder magnetization
               (for a value of 0.0d0 the powder magnetization is deactivated).
               The second line reads the number of temperature steps, the starting

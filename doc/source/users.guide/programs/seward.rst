@@ -960,12 +960,12 @@ by that the center of the diffuse basis is assigned the unique atom label DBAS.
 .. class:: keywordlist
 
 :kword:`RMAT`
-  Radius of the :math:`R`\-matrix sphere (in Bohr). This sphere is centered at the
-  coordinate origin. The default is 10 Bohr.
+  Radius of the :math:`R`\-matrix sphere (in bohr). This sphere is centered at the
+  coordinate origin. The default is 10 bohr.
 
   .. xmldoc:: %%Keyword: RMAT <basic>
-              Radius of the R-matrix sphere (in Bohr). This sphere is centered
-              at the coordinate origin. Default value is set to 10 Bohr.
+              Radius of the R-matrix sphere (in bohr). This sphere is centered
+              at the coordinate origin. Default value is set to 10 bohr.
 
 :kword:`RMEA`
   Absolute precision in radial integration.

@@ -16,10 +16,11 @@
      &                          w, dipexch, s_exch, dipso, s_so, eso,
      &                          hinput, r_rot, XLM, ZLM, XRM, ZRM,
      &                          zeeman_energy, compute_Mdir_vector,
-     &                          m_paranoid, m_accurate, smagn, mem )
+     &                          m_paranoid, m_accurate, smagn, mem,
+     &                          doplot )
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 c constants defining the sizes
@@ -36,10 +37,11 @@ c constants defining the sizes
       Logical, intent(in)       :: m_paranoid
       Logical, intent(in)       :: m_accurate
       Logical, intent(in)       :: smagn
+      Logical, intent(in)       :: doplot
 
       Real(kind=wp), intent(in) :: R_ROT(nneq,neqv,3,3)
       Real(kind=wp), intent(in) :: W(exch)
- ! exchange energies printed out in the previous part
+! exchange energies printed out in the previous part
       Real(kind=wp), intent(in) :: ESO(nneq,nLoc)
 ! spin-orbit energies from ANISO files
       Real(kind=wp), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
@@ -143,14 +145,14 @@ c----------------------------------------------------------------------
       If(dbg) Write(6,*) 'MAGN:      nLoc=',nLoc
       If(dbg) Write(6,*) 'MAGN: nTempMagn=',nTempMagn
 
-      If(nM>0) Then
+      If(nM>=0) Then
         ! Zeeman exchange energy spectrum
         Call mma_allocate(Wex,nM,'Wex')
         Call dcopy_(nM,[0.0_wp],0,Wex,1)
         mem_local=mem_local+nM*RtoB
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
         ! exchange statistical sum, Boltzmann distribution
         Call mma_allocate(Zex,nTempMagn,'Zex')
         Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
@@ -164,7 +166,7 @@ c----------------------------------------------------------------------
         Call dcopy_(3*nTempMagn,[0.0_wp],0,Mex,1)
         mem_local=mem_local+3*nTempMagn*RtoB
 
-        If(nneq>0) Then
+        If(nneq>=0) Then
           ! local statistical sum, Boltzmann distribution
           Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
           Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
@@ -192,7 +194,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+3*nneq*nTempMagn*RtoB
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           ! Zeeman local energies
           Call mma_allocate(WL,nneq,nLoc,'WL')
           Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
@@ -203,7 +205,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+nneq*nLoc*RtoB
         End If
 
-        If(nCenter>0) Then
+        If(nCenter>=0) Then
           ! ZRT(nCenter,nTempMagn)
           Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
           Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
@@ -230,7 +232,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+3*nCenter*nTempMagn*RtoB
         End If
 
-        If(nH>0) Then
+        If(nH>=0) Then
           ! total statistical sum, Boltzmann distribution
           Call mma_allocate(ZT,nH,nTempMagn,'ZT')
           Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
@@ -251,7 +253,7 @@ c----------------------------------------------------------------------
           Call mma_allocate(MAV,nH,nTempMagn,'MAV')
           Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
           mem_local=mem_local+nH*nTempMagn*RtoB
-          If(nDirTot>0) Then
+          If(nDirTot>=0) Then
             ! total spin magnetisation vector
             Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
             Call dcopy_(nDirTot*nH*nTempMagn*3,[0.0_wp],0,SVEC,1)
@@ -265,7 +267,7 @@ c----------------------------------------------------------------------
         End If
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
          ! orientation of the field
          Call mma_allocate(dHX,nDirTot,'dHX')
          Call mma_allocate(dHY,nDirTot,'dHY')
@@ -278,7 +280,7 @@ c----------------------------------------------------------------------
          mem_local=mem_local+4*nDirTot*RtoB
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H  field')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
@@ -293,10 +295,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       Call hdir( nDir, nDirZee, dirX, dirY, dirZ, dir_weight,
      &                 nP, nsymm, ngrid, nDirTot, dHX, dHY, dHZ, dHW )
-      Call Add_Info('MR_MAGN  dHX', dHX,nDirTot,10)
-      Call Add_Info('MR_MAGN  dHY', dHY,nDirTot,10)
-      Call Add_Info('MR_MAGN  dHZ', dHZ,nDirTot,10)
-      Call Add_Info('MR_MAGN  dWX', dHW,nDirTot,10)
+      Call Add_Info('MR_MAGN  dHX', dHX(1:5),5,10)
+      Call Add_Info('MR_MAGN  dHY', dHY(1:5),5,10)
+      Call Add_Info('MR_MAGN  dHZ', dHZ(1:5),5,10)
+      Call Add_Info('MR_MAGN  dWX', dHW(1:5),5,10)
       If(DBG) Then
         Write(6,'(A,F10.6)') '        zJ = ',zJ
         Write(6,'(A,F10.6)') '      thrs = ',thrs
@@ -498,8 +500,10 @@ c exchange magnetization:
      &               Sex,
      &               Mex, m_paranoid, DBG )
           If(DBG) Write(6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
-          Call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
-          Call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)]         ,1,8)
+          If(IM == 1) THEN
+           Call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
+           Call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)]         ,1,8)
+          End If
 c compute local magnetizations:
           If(m_accurate) Then
             Do i=1,nneq
@@ -516,7 +520,10 @@ c this check is to avoid the unnecessary computation, in cases when no local exc
      &                     ZL(i,1:nTempMagn),
      &                     SL(i,1:3,1:nTempMagn),
      &                     ML(i,1:3,1:nTempMagn), m_paranoid, DBG )
+                If(IM == 2) THEN
                 Call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
+                End If
+
                 If(DBG) Write(6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',
      &                                   (ML(i,l,1),l=1,3)
 c only local "exchange states":
@@ -536,8 +543,10 @@ c only local "exchange states":
               End If
             End Do
 
+          If(IM == 3) THEN
             Call Add_Info('ML_MAGN',[dnrm2_(3*nTempMagn*nneq,ML,1)],1,8)
             Call Add_Info('MR_MAGN',[dnrm2_(3*nTempMagn*nneq,MR,1)],1,8)
+          End If
 
 c expand the basis and rotate local vectors to the general
 c coordinate system:
@@ -832,9 +841,13 @@ c      End If
          End Do
       End If!smagn
       ! add some verification:
-      Call Add_Info('H_MAGN       ',   H,nH,6)
-      Call Add_Info('MAGN_AVERAGED', MAV,nH*nTempMagn,6)
-      Call Add_Info('ZTL_MAGN',[dnrm2_(nH*nTempMagn,ZT,1)],1,8)
+      Call Add_Info('MR_MAGN',[dnrm2_(3*nTempMagn*nneq,MR,1)],1,8)
+      Call Add_Info('MR_MAGN',[dnrm2_(3*nTempMagn*nneq,MR,1)],1,8)
+      Call Add_Info('MR_MAGN',[dnrm2_(3*nTempMagn*nneq,MR,1)],1,8)
+
+      Call Add_Info('H_MAGN       ', [dnrm2_(nH,H,1)],1,6)
+      Call Add_Info('MAGN_AVERAGED', [dnrm2_(nH*nTempMagn,MAV,1)],1,6)
+      Call Add_Info('ZTL_MAGN'     , [dnrm2_(nH*nTempMagn,ZT,1)],1,8)
       Do iH=1,nH
          Write(lbl_X,'(A,i3)') 'MAGN_VECT X ',iH
          Write(lbl_Y,'(A,i3)') 'MAGN_VECT Y ',iH
@@ -845,21 +858,36 @@ c      End If
          Call Add_Info(lbl_Z,[dnrm2_(ibuf,MVEC(:,iH,:,3),1)],1,8)
       End Do
 
+!-------------------------  PLOTs -------------------------------------!
+      IF ( DoPlot ) THEN
+         IF ( hinput ) THEN
+            Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,
+     &                             Mexp, zJ )
+         ELSE
+            Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV, zJ )
+         END IF
+
+!         IF ( zeeman_energy ) THEN
+!            Call plot_zeeman( nH, nM, nDirZee, H, LuZee )
+!         END IF
+      END IF
+!------------------------- END PLOTs -------------------------------------!
+
 
 
 
 
 
 c----------------------------------------------------------------------
-      If(nM>0) Then
+      If(nM>=0) Then
         Call mma_deallocate(Wex)
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
         Call mma_deallocate(Zex)
         Call mma_deallocate(Sex)
         Call mma_deallocate(Mex)
-        If(nneq>0) Then
+        If(nneq>=0) Then
           Call mma_deallocate(ZL)
           Call mma_deallocate(SL)
           Call mma_deallocate(ML)
@@ -868,12 +896,12 @@ c----------------------------------------------------------------------
           Call mma_deallocate(MR)
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           Call mma_deallocate(WL)
           Call mma_deallocate(WR)
         End If
 
-        If(nCenter>0) Then
+        If(nCenter>=0) Then
           Call mma_deallocate(ZRT)
           Call mma_deallocate(ZLT)
           Call mma_deallocate(MRT)
@@ -882,27 +910,27 @@ c----------------------------------------------------------------------
           Call mma_deallocate(SLT)
         End If
 
-        If(nH>0) Then
+        If(nH>=0) Then
           Call mma_deallocate(ZT)
           Call mma_deallocate(ST)
           Call mma_deallocate(MT)
           Call mma_deallocate(SAV)
           Call mma_deallocate(MAV)
-          If(nDirTot>0) Then
+          If(nDirTot>=0) Then
             Call mma_deallocate(SVEC)
             Call mma_deallocate(MVEC)
           End If
         End If
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
          Call mma_deallocate(dHX)
          Call mma_deallocate(dHY)
          Call mma_deallocate(dHZ)
          Call mma_deallocate(dHW)
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 
