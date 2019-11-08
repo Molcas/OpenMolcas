@@ -648,7 +648,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 Note also that the "I" parts should change sign with kPhase,
 *                 but so does wavevector, so the net result is the opposite.
 *
-#ifdef _NOT_USED_
                   IF (iCar.EQ.1) THEN
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
@@ -692,7 +691,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      CALL DAXPY_(NSS**2, wavevector(2)*cst,
      &                           TMP,1,WORK(LDXR+0*NSS**2),1)
                   END IF
-#endif
                END DO
 *
 *              Now we can compute the transition moments for k and -k
