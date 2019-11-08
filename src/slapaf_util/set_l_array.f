@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
-      Subroutine set_l_Array(Array_l,nInter)
+      Subroutine set_l_Array(Array_l,nInter,BaseLine)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -21,31 +21,17 @@
       Call Mk_Hss_Q()
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *     Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
-*                                                                      *
-      rmax=Zero
+*
+*     Gives a Kriging Hessian for a single point of Kriging with
+*     a diagonal which is identical to the diagonal values of
+*     the HMF ad hoc Hessian.
+*
       Do i = 1, nInter
 *
-*        iCase=1 gives a Kriging Hessian which has the correct order
-*        of the eigenvalues as compared to the ad hoc Hessian.
+         Array_l(i)=Sqrt((5.0D0*BaseLine)/(3.0D0*Abs(Hessian(i,i))))
 *
-         iCase=1
-         If (iCase.eq.1) Then
-            Array_l(i)=One/Sqrt(Abs(Hessian(i,i)))
-         Else If (iCase.eq.2) Then
-            Array_l(i)=One/Abs(Hessian(i,i))
-         Else If (iCase.eq.3) Then
-            Array_l(i)=Abs(Hessian(i,i))
-         Else If (iCase.eq.4) Then
-            Array_l(i)=Sqrt(Abs(Hessian(i,i)))
-         Else
-            Write (6,*) 'set_l_array: illegal iCase value'
-            Call Abend()
-         End If
-         If (Array_l(i).gt.rmax) rmax=Array_l(i)
       End Do
-*     Call RecPrt('Raw',' ',Array_l,1,nInter)
-*     Call DScal_(nInter,One/rmax,Array_l,1)
-*     Call RecPrt('Scaled',' ',Array_l,1,nInter)
+*     Call RecPrt('Array_l',' ',Array_l,1,nInter)
 *
       Call mma_Deallocate(Hessian)
 *

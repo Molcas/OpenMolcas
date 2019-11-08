@@ -14,7 +14,7 @@
         use globvar
         Implicit None
         Integer nInter,nPoints,ndimx
-        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx), tmp
 !
 !#define _Hess_Test
 #ifdef _Hess_Test
@@ -44,28 +44,34 @@
         write(6,*) 'Hess Threshold',HessT
 !
         do i = 1,nInter
-           nx(:,:) = x_
+           tmp=nx(i,1)
 !
            Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
 !
-           nx(i,1) = x_(i,1) + Delta
-           Call Gradient_Kriging(nx(:,1),tgrad,ndimx)
+           nx(i,1) = tmp + Delta
+           call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+           call predict(1,nPoints,nInter)
+           tgrad=gpred(npx,:)
+
 !
-           nx(i,1) = x_(i,1) - Delta
-           Call Gradient_Kriging(nx(:,1),thgrad,ndimx)
+           nx(i,1) = tmp - Delta
+           call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+           call predict(1,nPoints,nInter)
+           thgrad=gpred(npx,:)
 !
            do j=1,nInter
               hpred(npx,i,j) = (tgrad(j)-thgrad(j))/(2.0D0*Delta)
            enddo
+           nx(i,1) = tmp
         enddo
-! Comparing Analitical solution with Numerical
+! Comparing Analytical solution with Numerical
         do i = 1,nInter
            do j = 1,nInter
               write(6,*) 'i,j',i,j
               write(6,*) 'hpred, ddy_',hpred(npx,i,j),ddy_(i,j)
               if (abs(ddy_(i,j)-hpred(npx,i,j)).gt.HessT) then
                  Write(6,*) 'Error in entry',i,',',j,'of the hessian matrix'
-                 Call RecPrt('Anna Hess',' ',ddy_,nInter,nInter)
+                 Call RecPrt('Anal Hess',' ',ddy_,nInter,nInter)
                  Call RecPrt('Num Hess',' ',hpred,nInter,nInter)
                  Write(6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+ HessT)
                  Write(6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)- HessT)

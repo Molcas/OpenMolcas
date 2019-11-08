@@ -27,6 +27,7 @@ C
       mblAI = .False.
       blaAI = .True.
       blavAI=0.04D0
+      set_l=.False.
 *
       Return
       End

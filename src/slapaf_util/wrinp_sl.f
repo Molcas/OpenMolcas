@@ -90,8 +90,13 @@
 *      Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
 *      Write (Lu,*)
        Call Get_dScalar('Value_l',Value_l)
-       Write (Lu,*) '  Characteristic length scale, l:            ',
+       If (set_l) Then
+          Write (Lu,*) '  Global characteristic length scale, l:     ',
      &              Value_l
+       Else
+          Write (Lu,*) '  Individual characteristic length scale set '
+     &          //'to repoduce diagonal of HMF hessian.'
+       End If
 *
        If (blaAI) then
           write (6,'(A,F9.5,A,/,A,F9.5,A)')

@@ -78,7 +78,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      Use AI, only: miAI, meAI, nspAI
+      Use AI, only: miAI, meAI, nspAI, blavAI, set_l
       Implicit Real*8 (a-h,o-z)
       External Restriction_Step, Restriction_Dispersion
       Real*8 Restriction_Step, Restriction_Dispersion
@@ -107,11 +107,10 @@
 *     kriging!
 *
 *define _UNSORTED_
-*define _UPDATE_L_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical Kriging_Hessian, Not_Converged, Single_l_value
+      Logical Kriging_Hessian, Not_Converged
       Real*8, Allocatable:: Array_l(:)
 #ifndef _UNSORTED_
       Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
@@ -248,13 +247,6 @@
          xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
          iNew=iFirst+nRaw-1
          yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-#ifdef _UPDATE_L_
-         If (yyy.gt.xxx) Then
-            Value_l=Value_l * 0.95D0
-         Else
-            Value_l=Value_l * 1.05D0
-         End If
-#endif
 *
 *        Update the restricted variance threshold.
 *
@@ -262,22 +254,17 @@
 *    &                 1.0D-6)
       End If
 *
-*     Select between single or multiple l values.
-*     Multiple option still experimental.
+*     Select between setting all l's to a single value or go in
+*     multiple l-value mode in which the l-value is set such that
+*     the kriging hessian reproduce the diagonal value of the HMF
+*     Hessian of the current structure.
 *
-      Single_l_value=.True.
-*     Single_l_value=.False.
-      If (Single_l_value) Then
+      If (Set_l) Then
          Call set_l_kriging([Value_l],1)
       Else
          Call mma_Allocate(Array_l,nInter,Label='Array_l')
-*        Call DCopy_(nInter,[1.0D0],0,Array_l,1)
-         Call Set_l_Array(Array_l,nInter)
-*        Call RecPrt('l values',' ',Array_l,nInter,1)
-*        Write (6,*) 'Value_l=',Value_l
-         Call DScal_(nInter,Value_l,Array_l,1)
-*        Call RecPrt('l values',' ',Array_l,nInter,1)
-         Call set_l_kriging(Array_l,nInter)
+         Call Set_l_Array(Array_l,nInter,blavAI)
+         Call set_l_Kriging(Array_l,nInter)
          Call mma_DeAllocate(Array_l)
       End If
       Call Put_dScalar('Value_l',Value_l)
@@ -402,19 +389,6 @@
 *     End of the micro iteration loop
 *
       End Do  ! Do While
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Reduce the l-value(s) if the step was restricted.
-*
-#ifdef _UPDATE_L_
-      If (Step_trunc.eq.'*') Then
-         Call Get_dScalar('Value_l',Value_l)
-         Value_l=Value_l * 0.95D0
-*        Write (6,*) ' Set l value to:',Value_l
-         Call Put_dScalar('Value_l',Value_l)
-      End If
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

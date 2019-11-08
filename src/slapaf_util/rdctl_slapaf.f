@@ -499,6 +499,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Activate Kriging
 *
 100   Kriging = .True.
+      Line_Search = .False.
       Go To 999
 *                                                                      *
 ****** AIMD ************************************************************
@@ -597,6 +598,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Change the l value of the GEK.
 *
 112   Char=Get_Ln(LuRd)
+      Set_l=.True.
       Call Get_F1(1,Value_l)
       Call Qpg_dScalar('Value_l',Found)
       If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
