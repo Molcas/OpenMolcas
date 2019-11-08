@@ -30,7 +30,7 @@
 !
 !   AO_Mode: true if TDMs are in the AO basis, otherwise the TDMs are
 !            stored in the basis of the active orbitals only (no sym).
-!   iEmtpy: the three lowest bits are set if the TDMAB, TSDMAB, and
+!   iEmpty: the three lowest bits are set if the TDMAB, TSDMAB, and
 !           WDMAB, are stored on disk, respectively. That is, for
 !           example, if iEmpty=5 the code will write only the first
 !           and the last matrix. On read of the second matrix the

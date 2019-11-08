@@ -92,6 +92,8 @@ c
       Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
       Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
 
+
+      If (N==1) goto 199
 c  initialisations:
       isite=0
       nind=0
@@ -332,6 +334,8 @@ c  we proceed to compute expectation values for this nb1 exchange state
       Write(6,'(5A)') '--------|----|',
      & ('------------------------------|',i1=1,4)
       End Do
+
+199   CONTINUE
 
       ! deallocate temporary arrays:
       Call mma_deallocate(WM)

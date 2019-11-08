@@ -166,7 +166,7 @@ fi
 
 # Tinker compilation
 echo "Now relax during the compilation."
-make clean
-make all
-make rename
+make clean || exit 3
+make all || exit 3
+make rename || exit 3
 echo "Tinker compilation completed."

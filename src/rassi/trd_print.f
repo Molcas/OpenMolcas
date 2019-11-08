@@ -33,7 +33,7 @@
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
-      Real*8 TDM2(*), CMO1(*), CMO2(*)
+      Real*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*)
       LOGICAL DO22
 ! Other variables
       CHARACTER*3 NUM1,NUM2

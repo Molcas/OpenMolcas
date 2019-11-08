@@ -1043,7 +1043,7 @@ A list of these keywords is given below:
 
 :kword:`RFPErt`
   This keyword will add a constant reaction field perturbation to the
-  Hamiltonian. The perturbation is read from the :file:`RUNOLD` (if not present defults to :file:`RUNFILE`) and
+  Hamiltonian. The perturbation is read from the :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) and
   is the latest self-consistent perturbation generated
   by one of the programs :program:`SCF` or :program:`RASSCF`.
 
@@ -2197,7 +2197,8 @@ A list of these keywords is given below:
 
 :kword:`TDM`
   If this keyword is given, and if HDF5 support is enabled, the active 1-electron transition
-  density matrix between every pair of states in the current calculation will be computed and
+  density matrix between every pair of states in the current calculation
+  (and transition spin density matrix for non-singlet states) will be computed and
   stored in the HDF5 file.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="TDM" LEVEL="BASIC" APPEAR="Transition density matrices" KIND="SINGLE">

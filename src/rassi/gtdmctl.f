@@ -639,8 +639,11 @@ C Read ISTATE wave function
             WORK(LCI1)=1.0D0
           END IF
           CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
-          CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
-     &                TRA1,IWORK(LCNFTAB1),IWORK(LSPNTAB1),
+C         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP1,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
+     &                           TRA1,NCONF1,Work(LCI1))
+          CALL PREPSD(WFTP1,ISGSTR1,ICISTR1,LSYM1,
+     &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1))
 
@@ -694,8 +697,11 @@ C Read JSTATE wave function
             CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
           End If
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
-          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &                TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+C         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &                           TRA2,NCONF2,Work(LCI2))
+          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2))
 
@@ -813,7 +819,7 @@ C             Write density 1-matrices in AO basis to disk.
               If (iRC.eq.1) iEmpty=1
 
               !> spin-TDM
-              CALL MKTDAB(SIJ,TRASD,TSDMAB,iRC)
+              CALL MKTDAB(0.0D0,TRASD,TSDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
               If (iRC.eq.1) iEmpty=iEmpty+2
@@ -826,7 +832,7 @@ C             Write density 1-matrices in AO basis to disk.
 
               if(.not.mstate_dens)then
 
-                IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
+                IF(SaveDens) THEN
 *C Transition density matrices, TDMZZ, in AO or MO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
@@ -844,7 +850,7 @@ C             Write density 1-matrices in AO basis to disk.
                      If(DDot_(nTRAD+1,TRAD,1,TRAD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=1
 *
-                     TRASD(nTrad+1)=SIJ
+                     TRASD(nTrad+1)=0.0D0
                      iRC=0
                      If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
@@ -980,21 +986,7 @@ C             Write density 1-matrices in AO basis to disk.
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
      &                    TDMAB,TDM2,CMO1,CMO2)
-
-#ifdef _HDF5_
-            IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
-              call mh5_put_dset_array_real(wfn_sfs_tdm,
-     $        TDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-              call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     $        TSDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-            IF(SONATNSTATE.GT.0.OR.NATO)THEN
-              call mh5_put_dset_array_real(wfn_sfs_wetdm,
-     $        WDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-#endif
-
-          END IF ! TRD1/2, mstate_dens
+          END IF
 
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
@@ -1053,10 +1045,12 @@ C             Write density 1-matrices in AO basis to disk.
           CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
-          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &              TRA2,IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
-     &          WORK(LDET2))
+          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &                           TRA2,NCONF2,Work(LCI2))
+          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                WORK(LDET2))
 
           CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
           CALL DCOPY_(NCONF2,Work(LCI2_o),1,WORK(LThetaN),1)

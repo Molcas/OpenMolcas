@@ -16,6 +16,9 @@
      &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux
       use kVectors
+#ifdef _HDF5_
+      use Dens2HDF5
+#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: finalize_dmrg
@@ -214,15 +217,11 @@ C spin-orbit eigenfunctions and levels are computed.
 
 C Nr of spin states and division of loops:
       NSS=0
-      LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
          JOB=JBNUM(ISTATE)
          MPLET=MLTPLT(JOB)
          NSS=NSS+MPLET
-         IF(ISTATE.GT.LOOPDIVIDE) CYCLE
-         LOOPDIVIDE_TEMP = LOOPDIVIDE_TEMP + MPLET
       END DO
-      LOOPDIVIDE = LOOPDIVIDE_TEMP
 
       Call mma_allocate(USOR,NSS,NSS,Label='USOR')
       USOR(:,:)=0.0D0
@@ -236,6 +235,11 @@ C Nr of spin states and division of loops:
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
         CALL SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
       END IF
+
+C Store TDMs in HDF5
+#ifdef _HDF5_
+      Call StoreDens(EigVec)
+#endif
 
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
@@ -340,7 +344,7 @@ C Will also handle mixing of states (sodiag.f)
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-      IF ((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) Then
+      IF (SaveDens) Then
          Call DaClos(LuTDM)
          If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
          If (Allocated(CMO1)) Call mma_deallocate(CMO1)

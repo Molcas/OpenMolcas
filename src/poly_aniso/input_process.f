@@ -408,8 +408,8 @@ c    ...
 ! ======================================================================
 !  Print out of the SUSCEPTIBILITY
       compute_susceptibility=.true.
-      If(tmin==0.0_wp) tmin=0.0_wp
-      If(tmax==0.0_wp) tmax=0.0_wp
+!      If(tmin==0.0_wp) tmin=0.0_wp
+!      If(tmax==0.0_wp) tmax=0.0_wp
       If(compute_susceptibility) Then
        !-----------------------------------------!
          Write(6,'(A)') 'Magnetic susceptibility will be computed'//
