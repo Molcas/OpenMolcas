@@ -104,9 +104,10 @@
 c        Call append_file(LuMC)
         write(LuMC,'(A)') ' Here densities are MCPDFT modified ones.'
         write(LuMC,*)     ' Used by translated functional: ', KSDFA(1:8)
-        write(LuMC,'(A)') '       X         Y        Z'//
-     &   '         d_alpha*W     d_beta*W       dTot*W      Weight'//
-     &   '         dTot            P2           ratio'
+        write(LuMC,'(A)') '     X    ,     Y    ,     Z    ,'//
+     &                    '       d_a*W     ,       d_b*W     ,'//
+     &                    '       dTot*W    ,       Weights   ,'//
+     &                    '          dTot   ,       P2        ,   ratio'
         call OpnFl('MCTRUD',LuMT,Exist)
 c        Call append_file(LuMT)
         write(LuMT,'(A)') ' Here densities are original ones.'
