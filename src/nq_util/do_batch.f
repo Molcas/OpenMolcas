@@ -534,9 +534,17 @@ cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 * Compute gradients
           end if
 *         ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
          end do
 *        ^ end loop over grid points
        Else !GRADIENT CALCULATION
@@ -685,9 +693,17 @@ cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
              end if
            end if
 *         ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
           end do
 
 !******************************************************************
@@ -758,9 +774,17 @@ cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
              end if
            end if
 *          ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
           end do!loop over effective coordinates
           end do!loop over gridpts
 !         Call GetMem('P2_ontop_d','Free','Real',ipP2_d,mGrid*nGrad_Eff)
@@ -974,9 +998,17 @@ c
 *          ^ end conditional regarding the ratio
           end if
 *         ^ end if over little density
-         write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
         end do!end loop over grid points
 
        Else !GRADIENT CALCULATION
@@ -1265,9 +1297,17 @@ cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 *          ^ end if over zeta=0
           end if
 *         ^ end if over little density
-         write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
         end do
 *       ^ end loop over grid points
 
