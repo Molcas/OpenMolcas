@@ -463,8 +463,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 **************************************************************************
 * TLSDA,TLSDA5                                                           *
 **************************************************************************
-
-
        If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
@@ -653,6 +651,15 @@ cRKCft
           do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
            ratio = 0.0d0
+           write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
 cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
@@ -863,7 +870,15 @@ c         write(6,*) 'thrsrho2', thrsrho2
           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
           ratio = 0.0d0
-
+          write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
 cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1)).ge.
 cGLM     &                               0.25*thrsrho**3.0d0)then
           if(dTot.ge.thrsrho) then
@@ -1111,6 +1126,15 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
           ratio = 0.0d0
+          write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
 cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
