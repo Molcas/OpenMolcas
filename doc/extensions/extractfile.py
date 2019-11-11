@@ -110,7 +110,7 @@ class ExtractCodeBlock(CodeBlock):
     return [literal]
   def set_source_info(self, literal):
     try:
-      super().set_source_info(literal)
+      super(ExtractCodeBlock, self).set_source_info(literal)
     except AttributeError:
       set_source_info(self, literal)
 
