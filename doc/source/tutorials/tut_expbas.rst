@@ -14,7 +14,7 @@ of orbitals will give a CASSCF/CASPT2 calculation that demand
 unrealistically large computer resources and time.
 Compromises must be made. Any smaller selection of active orbitals
 can in general affect your results, and the selection should be
-based on the specific calculations: see :ref:`TUT:sec:hints` for
+based on the specific calculations: see :numref:`TUT:sec:hints` for
 advise.
 
 The following three tools may be help in the process:
@@ -95,5 +95,4 @@ a single-point calculation for a few more states than you are really
 interested in, and maybe look at properties, etc. There may be
 experimental spectra to compare with.
 
-And please have a look at the
-section :ref:`TUT:sec:hints`.
+And please have a look at :numref:`TUT:sec:hints`.

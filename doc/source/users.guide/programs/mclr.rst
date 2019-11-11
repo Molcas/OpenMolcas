@@ -80,7 +80,7 @@ Input files
 :program:`MCLR` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`ABDATA`,
 :file:`RYSRW`, :file:`JOBIPH`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 .. _UG\:sec\:mclr_output_files:
 

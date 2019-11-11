@@ -18,7 +18,7 @@ To optimize a molecular geometry is probably one of the most frequent
 interests of a quantum chemist :cite:`Helgaker:92`. In the present section we examine
 some examples of obtaining stationary points on the energy surfaces.
 We will focus in this section in searching of minimal energy points,
-postponing the discussion on transition states to section :ref:`TUT:sec:path`.
+postponing the discussion on transition states to :numref:`TUT:sec:path`.
 This type of calculations require the computation of molecular gradients,
 whether using analytical or numerical derivatives. We will also examine
 how to obtain the full geometrical Hessian for a molecular state, what
@@ -177,7 +177,7 @@ script.
 
 The generators used to define the
 |Ctv| symmetry are X and XY, plane :math:`yz` and axis :math:`z`. They
-differ from those used in other examples as in section :ref:`TUT:sec:nih`.
+differ from those used in other examples as in :numref:`TUT:sec:nih`.
 The only consequence is that the order of the symmetries in :program:`SEWARD`
 differs. In the present case the order is: |ao|, |at|, |bo|, and |bt|,
 and consequently the classification by symmetries of the orbitals

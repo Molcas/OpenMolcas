@@ -129,7 +129,7 @@ The following is an example of a shell script. ::
 
 The file :file:`$ThisDir/$Project.input` contains the ordered sequence
 of |molcas| inputs and the EMIL interpreter will call the appropriate
-programs. See section :ref:`UG:sec:EMIL` for an explanation of the
+programs. See :numref:`UG:sec:EMIL` for an explanation of the
 additional tools available in the EMIL interpreter.
 
 The following is an example of a shell script to be submitted for batch
@@ -368,7 +368,7 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_FIM`
-  Activates the Files In Memory I/O layer. See section :ref:`MT:sec:fim` for more details.
+  Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
   *Note that this setting is available only in MOLCAS compiled without Global
   Arrays.*
 

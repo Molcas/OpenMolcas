@@ -44,7 +44,7 @@ files and :variable:`Project` to define the name of a project: ::
   export Project=MyMolecule
 
 |molcas| will provide default values if they are not explicitly defined. For a discussion of other |molcas|
-environment variables, please see the section on :ref:`TUT:sec:environment`. All environment variables can
+environment variables, please see :numref:`TUT:sec:environment`. All environment variables can
 either be defined explicitly or entered in a shell script which can be subsequently executed.
 
 .. index::

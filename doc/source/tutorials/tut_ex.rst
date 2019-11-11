@@ -140,7 +140,7 @@ Apart from energies and state properties it is quite often necessary to compute
 state interaction properties such as transition dipole moments, Einstein coefficients,
 and many other. This can be achieved with the :program:`RASSI` module, a powerful
 program which can be used for many purposes
-(see section :ref:`UG:sec:rassi`). We can
+(see :numref:`UG:sec:rassi`). We can
 start by simply computing the basic interaction properties
 
 .. extractfile:: problem_based_tutorials/CASSI.excited.acrolein.input
@@ -176,7 +176,7 @@ dynamic correlation energy and it is better to substitute them by properly
 computed values, such those at the CASPT2 level. This is achieved with the
 keyword :kword:`Ejob`.
 More information is available
-in section :ref:`TUT:sec:rassi_thio`.
+in :numref:`TUT:sec:rassi_thio`.
 
 Now a more complex case. We want to compute vertical singlet-triplet gaps from
 the singlet ground state of acrolein to different, up to five, triplet excited
@@ -615,7 +615,7 @@ basis sets, application of different localization schemes, analysis of first
 order polarizabilities, calculation of vibrational intensities, analysis, generation,
 and fitting of potentials, computation of vibro-rotational spectra for diatomic
 molecules, introduction of relativistic effects, etc. All those aspects are
-explained in the manual and are much more specific. Next section :ref:`TUT:sec:pg-based-tut`
+explained in the manual and are much more specific. :ref:`Next section <TUT:sec:pg-based-tut>`
 details the basic structure of the inputs, program by program, while easy examples
 can also be found. Later, another chapter includes a number of extremely detailed
 examples with more elaborated quantum chemical examples, in which also scientific

@@ -31,7 +31,7 @@ treated in a quantum mechanical calculation, while the rest of the whole
 system, the *environment*, is kept frozen and represented by embedding
 potentials which act onto the *cluster*. For an explanation of the
 type of potentials and approaches used in |molcas| the reader is referred
-to the section :ref:`UG:sec:the_ecp_libraries` of the user's guide.
+to :numref:`UG:sec:the_ecp_libraries` of the user's guide.
 
 To use such type of effective potentials implies to compute a set
 of atomic integrals and therefore involves only the :program:`SEWARD` program.
@@ -55,7 +55,7 @@ plus the 4f\ :math:`^{14}` lantanide shell. To perform an ECP calculation in a
 molecular system containing :math:`\ce{At}` it is necessary to specify which type of
 effective potential will substitute the *core* electrons and which valence
 basis set will complement it. Although the core ECP's (strictly AIMP's, see
-section :ref:`UG:sec:the_ecp_libraries` of the user's guide) can be safely
+:numref:`UG:sec:the_ecp_libraries` of the user's guide) can be safely
 mixed together with all-electron basis set, the valence basis sets included
 in the |molcas| AIMP library have been explicitly optimized to complement the
 AIMP potentials.
@@ -182,7 +182,7 @@ used both the valence basis set and the AIMP potential must be included in
 the input, as it will be shown in the next section.
 
 For an explanation of the remaining items in the library the reader is referred
-to the section :ref:`UG:sec:the_ecp_libraries` of the user's guide.
+to :numref:`UG:sec:the_ecp_libraries` of the user's guide.
 
 :numref:`block:hat_scf` contains the sample input required to compute the
 SCF wave function for the astatine hydride molecule at an internuclear
@@ -227,7 +227,7 @@ used for the :math:`\ce{At}` atom with a size for the valence basis set recommen
 
 To perform embedded cluster (EC) calculations requires certain degree
 of experience and therefore the reader is referred to the literature
-quoted in section :ref:`UG:sec:the_ecp_libraries` of the user's guide.
+quoted in :numref:`UG:sec:the_ecp_libraries` of the user's guide.
 On the following a detailed example is however presented.
 It corresponds to EC calculations useful for local properties
 associated to a :math:`\ce{Tl^+}` impurity in :math:`\ce{KMgF3}`. First, a cluster must be

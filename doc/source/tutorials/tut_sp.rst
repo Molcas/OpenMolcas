@@ -99,10 +99,10 @@ the Hartree--Fock SCF wave function and energy.
 The most relevant information is contained in the output file, where the :program:`GATEWAY` program
 information describing the nuclear geometry, molecular symmetry, and the data
 regarding the one-electron basis sets and the calculation of one- and
-two-electron integrals, as described in section :ref:`TUT:sec:seward`. Next,
+two-electron integrals, as described in :numref:`TUT:sec:seward`. Next,
 comes the output of program :program:`SCF` with information of the electronic
 energy, wave function, and the Hartree--Fock (HF) molecular orbitals
-(see section :ref:`TUT:sec:scf`).
+(see :numref:`TUT:sec:scf`).
 
 Files containing intermediate information, integrals, orbitals, etc, will be
 kept in the $WorkDir directory for further use. For instance, files
@@ -162,7 +162,7 @@ Now, execute the |molcas| program: ::
 :program:`GRID_IT` can also be run separately, if an orbital file is specified in
 the input, and the :file:`$WorkDir` directory is available.
 
-More information can be found in section :ref:`UG:sec:gridit`.
+More information can be found in :numref:`UG:sec:gridit`.
 
 As an alternative to running a specific project, the short script provided below can be placed
 in the directory :file:`$MOLCAS/doc/samples/problem_based_tutorials` with the name :file:`project.sh`.
@@ -239,7 +239,7 @@ the entire :file:`$WorkDir` directory, unless it is known for certain the exact 
 
 In addition to the calculation of a HF wave function, an MP2 calculation has been performed with
 a frozen deepest orbital, the carbon 1s, of :math:`\ce{CH4}`. Information about the output
-of the :program:`MBPT2` program can be found on section :ref:`TUT:sec:mbpt2`.
+of the :program:`MBPT2` program can be found on :numref:`TUT:sec:mbpt2`.
 
 .. compound::
 
@@ -683,5 +683,5 @@ In the next example the correction is added at both the CASSCF and CASPT2 levels
 Notice that the tesserae of the average area in the PCM model (keyword
 has been changed to the value required for acetone by the keyword :kword:`Aare`,
 while the default is 0.4 Å:math:`^2` for water
-(see section :ref:`UG:sec:rfield`).
-More detailed examples can be found in section :ref:`TUT:sec:cavity`.
+(see :numref:`UG:sec:rfield`).
+More detailed examples can be found in :numref:`TUT:sec:cavity`.

@@ -47,7 +47,6 @@ extensions = [
     'sphinxcontrib.bibtex',
     #'rst2pdf.pdfbuilder',
     'transforms',
-    'numsec',
     'xmldoc',
     'extractfile',
     'float',
@@ -392,7 +391,8 @@ html_compact_lists = True
 
 numfig = True
 numfig_secnum_depth = 3
-numfig_format = {'figure': 'Figure %s',
+numfig_format = {'section': 'Section %s',
+                 'figure': 'Figure %s',
                  'table': 'Table %s',
                  'code-block': 'Block %s'}
 

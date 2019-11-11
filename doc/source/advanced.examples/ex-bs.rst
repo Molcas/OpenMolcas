@@ -117,7 +117,7 @@ stand, except for the following changes:
    which is in this case a (13,1,1/12,1,1,1/7,1,1/5,1) real pattern.
    Other contraction patters should be input "Inline".
 
-#. The user is suggested to read carefully section :ref:`TUT:sec:ecp`
+#. The user is suggested to read carefully :numref:`TUT:sec:ecp`
    of the tutorials and examples manual before using the ECP utilities.
 
 .. _UG\:sec\:one-electron_integral_labels:

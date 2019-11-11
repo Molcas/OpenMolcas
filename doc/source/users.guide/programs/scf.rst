@@ -205,7 +205,7 @@ Input files
 
 :program:`SCF` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`INPORB`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -1191,8 +1191,8 @@ Advanced general keywords
   .. xmldoc:: %%Keyword: STAT <advanced>
               This keyword will add an addition print outs with statistic information
 
-For calculations of a molecule in a reaction field see section :ref:`UG:sec:rfield`
-of the present manual and section :ref:`TUT:sec:cavity` of the examples manual.
+For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
+of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
 .. include:: ../dft_functionals.inc
 

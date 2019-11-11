@@ -26,7 +26,7 @@ therefore, be built in a way that allows a loop over the different programs.
 
 The general input commands :command:`Do while` and :command:`Enddo` control the loop
 and program input is inserted within these commands. Instructions for the number of maximum iterations allowed and the type of output required can also be added.
-(see section :ref:`UG:sec:sysvar`)
+(see :numref:`UG:sec:sysvar`)
 
 .. The commands :command:`Set output file`, which prints output for each iterations and
    in the :file:`$WorkDir` directory with the file name :file:`Structure.$iteration.output`, and
@@ -182,7 +182,7 @@ by invoking the keyword :kword:`Constraints` and ending with the keyword :kword:
 The names of variables corresponding to geometrical variables in either internal or Cartesian coordinates
 that are to be constrained are placed between these two keywords.
 (see nomenclature in
-section :ref:`UG:sec:definition_of_internal_coordinates`)
+:numref:`UG:sec:definition_of_internal_coordinates`)
 In the case of :math:`H_2O`, the H1--O--H2 angle is fixed at 120\ |o|, so a variable,
 :math:`a`, is first defined with the keywork :kword:`Angle`, which relates it to the H1--O1--H2 angle, followed by the second keyword, :kword:`Value`,
 where the variable :math:`a` is specified as 120\ |o|.
@@ -406,5 +406,5 @@ Thanks to symmetry restrictions the number of iterations within :program:`NUMERI
 has been reduced to five instead of seven, because many of the deformations
 are redundant within the :math:`C_{2v}` symmetry. Also, symmetry considerations are
 important when defining geometrical restrictions
-(see sections :ref:`UG:sec:definition_of_internal_coordinates`
-and :ref:`TUT:sec:optim`).
+(see :numref:`Sections %s <UG:sec:definition_of_internal_coordinates>`
+and :numref:`%s <TUT:sec:optim>`).
