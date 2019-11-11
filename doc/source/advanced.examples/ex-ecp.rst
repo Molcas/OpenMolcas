@@ -20,7 +20,7 @@ Core and Embedding Potentials within the :program:`SEWARD` Program
      :local:
      :backlinks: none
 
-|molcasversion| is able to perform *effective core potential* (ECP)
+|molcas| is able to perform *effective core potential* (ECP)
 and *embedded cluster* (EC) calculations.
 In ECP calculations :cite:`Wahlgren:92,Seijo:99`
 the *core* electrons of a molecule are kept frozen and represented by a set of atomic

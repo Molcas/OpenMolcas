@@ -3,10 +3,10 @@
 Computing relativistic effects in molecules
 ===========================================
 
-|molcasthis| is intended for calculations on systems including all atoms of the
+|molcas| is intended for calculations on systems including all atoms of the
 periodic table. This is only possible if relativistic effects can be added in a
 way that is accurate and at the same time applies to all the methods used in
-|molcasthis|, in particular the CASSCF and CASPT2 approaches. |molcasthis|
+|molcas|, in particular the CASSCF and CASPT2 approaches. |molcas|
 includes relativistic effects within the same wave function framework as used in
 non-relativistic calculations. This has been possible by partitioning the
 relativistic effects into two parts: the scalar relativistic effects and
@@ -19,9 +19,9 @@ Scalar relativistic effects
 The scalar relativistic effects are included by adding the corresponding terms
 of the DK Hamiltonian to the one-electron integrals in Seward (use
 the keyword :kword:`Douglas-Kroll`). This has no effect on the form of the wave
-function and can be used with all |molcasthis| modules. Note however that it is
+function and can be used with all |molcas| modules. Note however that it is
 necessary to use a basis set with a corresponding relativistic contraction.
-|molcasthis| provides the ANO-RCC basis set, which has been constructed using
+|molcas| provides the ANO-RCC basis set, which has been constructed using
 the DK Hamiltonian. Use this basis set in your relativistic calculations. It has
 the same accuracy as the non-relativistic ANO-L basis set. Scalar relativistic
 effects become important already for atoms of the second row. With ANO type

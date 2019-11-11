@@ -41,56 +41,78 @@ class ExtractFileDirective(Directive):
 #
 class ExtractCodeBlock(CodeBlock):
   has_content = True
-  required_arguments = 1
-  optional_arguments = 0
+  required_arguments = 0
+  optional_arguments = 1
   final_argument_whitespace = False
   option_spec = {
+    'force': directives.flag,
     'linenos': directives.flag,
     'dedent': int,
     'lineno-start': int,
     'emphasize-lines': directives.unchanged_required,
     'caption': directives.unchanged_required,
+    'class': directives.class_option,
     'name': directives.unchanged,
     ###########################################
     'filename': directives.unchanged_required,
     ###########################################
   }
   def run(self):
-    code = u'\n'.join(self.content)
+    document = self.state.document
+    code = '\n'.join(self.content)
+    location = self.state_machine.get_source_and_line(self.lineno)
     linespec = self.options.get('emphasize-lines')
     if linespec:
       try:
         nlines = len(self.content)
-        hl_lines = [x+1 for x in parselinenos(linespec, nlines)]
+        hl_lines = parselinenos(linespec, nlines)
+        if any(i >= nlines for i in hl_lines):
+          logger.warning(__('line number spec is out of range(1-%d): %r') %
+                         (nlines, self.options['emphasize-lines']),
+                         location=location)
+        hl_lines = [x + 1 for x in hl_lines if x < nlines]
       except ValueError as err:
-        document = self.state.document
-        return [document.reporter.warning(str(err), line=self.lineno)]
+        return [document.reporter.warning(err, line=self.lineno)]
     else:
       hl_lines = None
     if 'dedent' in self.options:
+      location = self.state_machine.get_source_and_line(self.lineno)
       lines = code.split('\n')
-      lines = dedent_lines(lines, self.options['dedent'])
+      lines = dedent_lines(lines, self.options['dedent'], location=location)
       code = '\n'.join(lines)
-    literal = nodes.literal_block(code, code)
-    literal['language'] = self.arguments[0]
-    literal['linenos'] = 'linenos' in self.options or \
-                         'lineno-start' in self.options
+    literal = nodes.literal_block(code, code)  # type: Element
+    if 'linenos' in self.options or 'lineno-start' in self.options:
+      literal['linenos'] = True
+    literal['classes'] += self.options.get('class', [])
+    literal['force'] = 'force' in self.options
+    if self.arguments:
+      literal['language'] = self.arguments[0]
+    else:
+      literal['language'] = self.env.temp_data.get('highlight_language',
+                                                   self.config.highlight_language)
     extra_args = literal['highlight_args'] = {}
     if hl_lines is not None:
       extra_args['hl_lines'] = hl_lines
     if 'lineno-start' in self.options:
       extra_args['linenostart'] = self.options['lineno-start']
-    set_source_info(self, literal)
+    self.set_source_info(literal)
     caption = self.options.get('caption')
     if caption:
-      self.options.setdefault('name', nodes.fully_normalize_name(caption))
-      literal = container_wrapper(self, literal, caption)
+      try:
+        literal = container_wrapper(self, literal, caption)
+      except ValueError as exc:
+        return [document.reporter.warning(exc, line=self.lineno)]
     self.add_name(literal)
     ###########################################
     filename = self.options.get('filename')
     addCode(self.state.document.settings.env, filename, code)
     ###########################################
     return [literal]
+  def set_source_info(self, literal):
+    try:
+      super().set_source_info(literal)
+    except AttributeError:
+      set_source_info(self, literal)
 
 # Add code to the environment
 #

@@ -1,15 +1,28 @@
 # -*- coding: utf-8 -*-
 #***********************************************************************
-# This file is part of OpenMolcas.                                     *
-#                                                                      *
-# OpenMolcas is free software; you can redistribute it and/or modify   *
-# it under the terms of the GNU Lesser General Public License, v. 2.1. *
-# OpenMolcas is distributed in the hope that it will be useful, but it *
-# is provided "as is" and without any express or implied warranties.   *
-# For more details see the full text of the license in the file        *
-# LICENSE or in <http://www.gnu.org/licenses/>.                        *
-#                                                                      *
-# Copyright (C) 2015, Ignacio Fdez. Galván                             *
+# Copyright (c) 2012, Jeff Terrace
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE.
 #***********************************************************************
 
 """
@@ -30,14 +43,14 @@ class CustomStandardDomain(sphinx.domains.std.StandardDomain):
                      typ, target, node, contnode):
         res = super(CustomStandardDomain, self).resolve_xref(env, fromdocname, builder,
                                                             typ, target, node, contnode)
-        
+
         if res is None:
             return res
-        
+
         if typ == 'ref' and not node['refexplicit']:
             docname, labelid, sectname = self.data['labels'].get(target, ('','',''))
             res['refdocname'] = docname
-        
+
         return res
 
 def doctree_resolved(app, doctree, docname):
@@ -61,5 +74,5 @@ def doctree_resolved(app, doctree, docname):
                         child.parent.replace(child, nodes.Text(linktext))
 
 def setup(app):
-    app.override_domain(CustomStandardDomain)
+    app.add_domain(CustomStandardDomain, override=True)
     app.connect('doctree-resolved', doctree_resolved)

@@ -10,7 +10,7 @@ Quickstart Guide for |molcas|
 Introduction
 ------------
 
-Running |molcas| |molcasversion| requires a small number of operations.
+Running |molcas| requires a small number of operations.
 This section of the manual, entitled "Quickstart Guide for |molcas|"
 is aimed at those users who want to immediately
 run a simple |molcas| calculation in order to become familiar with the program.

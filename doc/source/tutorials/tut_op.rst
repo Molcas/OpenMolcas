@@ -11,7 +11,7 @@ the minimum steepest-descent energy path (MEP) from an initial point to the fina
 a minimum energy geometry as the PES progresses in a downward manner.
 
 All these types of searches can be performed either by fully optimizing all
-degrees of freedom of the system or by introducing certain restrictions. |molcas| |molcasversion| can perform
+degrees of freedom of the system or by introducing certain restrictions. |molcas| can perform
 geometry optimizations at the SCF (RHF and UHF), DFT (RHF and UHF based), CASSCF (CASSCF and RASSCF) levels of theory,
 where efficient analytical gradients are available and at the CASPT2 and other correlated levels where numerical
 gradients are used.

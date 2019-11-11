@@ -11,8 +11,6 @@
 
 .. substitutions
 .. |molcas|        replace:: :sc:`Molcas`
-.. |molcasversion| replace:: 8.3
-.. |molcasthis|    replace:: |molcas|-\ |molcasversion|
 .. |molcasiii|     replace:: |molcas|-3
 .. |molcasiv|      replace:: |molcas|-4
 .. |molcasv|       replace:: |molcas|-5

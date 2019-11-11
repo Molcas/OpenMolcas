@@ -607,7 +607,7 @@ obtained in the later.
 
 A number of simple examples as how to proceed with the most frequent
 quantum chemical problems computed with |molcas| have been given above. Certainly there are many more
-possibilities in |molcas| |molcasversion|, such as calculation of 3D band
+possibilities in |molcas|, such as calculation of 3D band
 systems in solids at a semiempirical level, obtaining valence-bond structures,
 the use of QM/MM methods in combination with a external MM code, the introduction
 of external homogeneous or non homogeneous perturbations, generation of atomic

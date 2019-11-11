@@ -27,7 +27,7 @@ approximation and thermodynamic properties by the use of the proper
 partition functions.
 
 The program :program:`ALASKA` computes analytical gradients for optimized wave
-functions. In |molcasversion| the SCF, DFT, and CASSCF/RASSCF levels of calculation are
+functions. In |molcas| the SCF, DFT, and CASSCF/RASSCF levels of calculation are
 available. The program :program:`ALASKA` also computes numerical gradients
 from CASPT2 and MS-CASPT2 energies. Provided with the first order derivative matrix with respect to the
 nuclei and an approximate guess of the Hessian matrix, the program

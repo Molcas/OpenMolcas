@@ -1,7 +1,7 @@
 Electronic Energy at Fixed Nuclear Geometry
 ===========================================
 
-The |molcas| |molcasversion| suite of Quantum Chemical programs is modular in
+The |molcas| suite of Quantum Chemical programs is modular in
 design, and a desired calculation is achieved by executing a list of
 |molcas| program modules in succession, occasionally manipulating
 the program information files. If the information files from a previous
