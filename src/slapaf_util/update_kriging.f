@@ -107,6 +107,7 @@
 *     kriging!
 *
 *define _UNSORTED_
+*define _TEST_KRIGING_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -114,6 +115,9 @@
       Real*8, Allocatable:: Array_l(:)
 #ifndef _UNSORTED_
       Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
+#endif
+#ifdef _TEST_KRIGING_
+      Real*8, Allocatable:: EstiGrad(:)
 #endif
 *
       iRout=153
@@ -230,9 +234,11 @@
      &                      Grad_s,
      &                      Energy_s)
 *
+#ifndef _TEST_KRIGING_
       Call mma_deAllocate(Energy_s)
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
+#endif
 #endif
 *                                                                      *
 ************************************************************************
@@ -268,6 +274,23 @@
          Call mma_DeAllocate(Array_l)
       End If
       Call Put_dScalar('Value_l',Value_l)
+#ifdef _TEST_KRIGING_
+      Call mma_allocate(EstiGrad,nInter,Label='EstiGrad')
+      Do iRaw = 1, nRaw
+         Call Energy_Kriging(qInt_s(1,iRaw),EstiEnergy,nInter)
+         Write (6,*) 'Energy'
+         Write (6,*) Energy_s(iRaw),EstiEnergy
+         Call Gradient_Kriging(qInt_s(1,iRaw),EstiGrad,nInter)
+         Write (6,*) 'Gradient'
+         Do iInter = 1, nInter
+            Write (6,*) Grad_s(iInter,iRaw), EstiGrad(iInter)
+         End Do
+      End Do
+      Call mma_deAllocate(EstiGrad)
+      Call mma_deAllocate(Energy_s)
+      Call mma_deAllocate(qInt_s)
+      Call mma_deAllocate(Grad_s)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

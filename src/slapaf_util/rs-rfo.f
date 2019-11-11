@@ -39,13 +39,14 @@
       Real*8 StepMax
 *
 *     Local variables
-      Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec, Matrix
+      Real*8, Dimension(:), Allocatable:: Tmp, Val, Matrix
+      Real*8, Dimension(:,:), Allocatable:: Vec
       Logical Iterate, Restart
       Real*8 Lambda
 *
       UpMeth='RS-RFO'
       Lu=6
-*define _DEBUG_
+!#define _DEBUG_
 *define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
@@ -64,14 +65,18 @@
       Iterate=.False.
       Restart=.False.
 *     Thr_RS=1.0D-7
-      NumVal=1
-      Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
+#ifdef _DEBUG_
+      NumVal=nInter+1
+#else
+      NumVal=Min(5,nInter+1)
+#endif
+      Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
 *
-      Call DZero(Vec,(nInter+1)*NumVal)
-      Call DZero(Tmp,nInter+1)
+      Vec(:,:)=0.0D0
+      Tmp(:)=0.0
  998  Continue
          Iter=Iter+1
 #ifdef _DEBUG2_
@@ -107,14 +112,46 @@
 #endif
 *
 *        Restore the vector from the previous iteration, if any
-         call dcopy_(nInter+1,Tmp,1,Vec,1)
+         call dcopy_(nInter+1,Tmp(1),1,Vec(1,1),1)
          Call Davidson(Matrix,nInter+1,NumVal,Val,Vec,iStatus)
          If (iStatus.gt.0) Then
            Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')
          End If
-         call dcopy_(nInter+1,Vec,1,Tmp,1)
-         Call DScal_(nInter,One/Sqrt(A_RFO),Vec,1)
+*
+*        Pick up the root which represents the shortest displacement.
+*
+#ifdef _DEBUG_
+         Call RecPrt('Val',' ',Val,1,NumVal)
+         Call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
+#endif
+         iRoot=-1
+         Dist=1.0D99
+         Do iVal = 1, NumVal
+            VV=DDot_(nInter,Vec(1,iVal),1,Vec(1,iVal),1)
+            ZZ = VV/A_RFO + Vec(nInter+1,iVal)**2
+            Fact=Vec(nInter+1,iVal)/Sqrt(ZZ)
+            dqdq=VV/(A_RFO*Fact**2*ZZ)
+#ifdef _DEBUG_
+            Write (6,*)
+            Write (6,*) 'iVal,A_RFO=',iVal,A_RFO
+            Write (6,*) 'ZZ=',ZZ
+            Write (6,*) 'Fact=',Fact
+            Write (6,*) 'dqdq=',dqdq
+#endif
+            If (dqdq.lt.Dist) Then
+               iRoot=iVal
+               Dist=dqdq
+            End If
+         End Do
+         If (iRoot.eq.-1) Then
+            Write (6,*)
+            Write (6,*) 'RS-RFO: Illegal iroot value!'
+            Call Abend()
+         End If
+*        Write (6,*) 'iRoot=',iRoot
+         call dcopy_(nInter+1,Vec(1,iRoot),1,Tmp,1)
+         Call DScal_(nInter,One/Sqrt(A_RFO),Vec(1,iRoot),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -125,8 +162,8 @@
 #ifdef _DEBUG2_
          Write (Lu,*) ' RF eigenvalue=',Val
 #endif
-         ZZ=DDot_(nInter+1,Vec,1,Vec,1)
-         Call DScal_(nInter+1,One/Sqrt(ZZ),Vec,1)
+         ZZ=DDot_(nInter+1,Vec(1,iRoot),1,Vec(1,iRoot),1)
+         Call DScal_(nInter+1,One/Sqrt(ZZ),Vec(1,iRoot),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -136,11 +173,11 @@
 *                                                                      *
 *        Copy v^k_{n,i}
 *
-         call dcopy_(nInter,Vec,1,dq,1)
+         call dcopy_(nInter,Vec(1,iRoot),1,dq,1)
 *
 *        Pick v^k_{1,i}
 *
-         Fact=Vec(nInter+1)
+         Fact=Vec(nInter+1,iRoot)
 #ifdef _DEBUG2_
          Write (Lu,*) 'v^k_{1,i}=',Fact
 #endif

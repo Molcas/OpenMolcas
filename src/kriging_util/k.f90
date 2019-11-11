@@ -160,7 +160,13 @@
 !
 !Trend Function (baseline)
             if (blaAI) then
-               sb = y(nPoints) + blavAI
+!
+!              Make sure the base line is above any data point
+!
+               sb = -1.0D99
+               Do i = 1, nPoints
+                  sb = Max( sb, y(i) + blavAI )
+               End Do
             else if (mblAI) then
                sb = sbmev
             else if (blAI) Then

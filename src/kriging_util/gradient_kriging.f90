@@ -18,6 +18,7 @@
 !
 !#define _Grad_Test
 #ifdef _Grad_Test
+        Integer i
         Real*8 Delta,tpred,thpred
         Real*8 GradT
         GradT = 1.0D-6

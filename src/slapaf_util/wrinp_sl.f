@@ -100,7 +100,7 @@
 *
        If (blaAI) then
           write (6,'(A,F9.5,A,/,A,F9.5,A)')
-     &          '   Baseline is last energy plus: ',blavAI,' a.u',
+     &          '   Baseline is highest energy plus: ',blavAI,' a.u',
      &          '                                 ',
      &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,
      &              ' kcal/mol'

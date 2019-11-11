@@ -21,7 +21,7 @@
         Real*8 Scale,Delta,Fact,tgrad(ndimx),thgrad(ndimx)
         Real*8 HessT
         Integer i, j
-        HessT = 1.0D-7
+        HessT = 1.0D-3
 #endif
         nPoints = nPoints_save
         nInter = nInter_save
