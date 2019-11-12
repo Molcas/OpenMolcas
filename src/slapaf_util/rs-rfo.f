@@ -46,7 +46,7 @@
 *
       UpMeth='RS-RFO'
       Lu=6
-!#define _DEBUG_
+*define _DEBUG_
 *define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
@@ -67,8 +67,9 @@
 *     Thr_RS=1.0D-7
 #ifdef _DEBUG_
       NumVal=nInter+1
+*     NumVal=Min(10,nInter+1)
 #else
-      NumVal=Min(5,nInter+1)
+      NumVal=Min(10,nInter+1)
 #endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -149,7 +150,6 @@
             Write (6,*) 'RS-RFO: Illegal iroot value!'
             Call Abend()
          End If
-*        Write (6,*) 'iRoot=',iRoot
          call dcopy_(nInter+1,Vec(1,iRoot),1,Tmp,1)
          Call DScal_(nInter,One/Sqrt(A_RFO),Vec(1,iRoot),1)
 *                                                                      *
@@ -185,6 +185,13 @@
 *        Normalize according to Eq. (5)
 *
          Call DScal_(nInter,One/Fact,dq,1)
+#ifdef _DEBUG_
+            Write (6,*)
+            Write (6,*) 'iRoot=',iRoot
+            Write (6,*) 'ZZ=',ZZ
+            Write (6,*) 'Fact=',Fact
+            Write (6,*) 'dqdq=',DDot_(nInter,dq,1,dq,1)
+#endif
 *
 *        Compute lambda_i according to Eq. (8a)
 *
