@@ -1,7 +1,7 @@
 Citation for |molcas|
 =====================
 
-The recommended citations for |molcas| Version |molcasversion| are:
+The recommended citations for |molcas| are:
 
 **Molcas 8:** F. Aquilante, J. Autschbach, R. K. Carlson, L. F. Chibotaru,
 M. G. Delcey, L. De Vico, I. Fdez. Galván, N. Ferré, L. M. Frutos, L. Gagliardi,
