@@ -531,7 +531,7 @@ c       ----------------
 c
         subroutine UrobChV (L2,NaGrp,NbeGrp,LunAux)
 c
-c       vyraba fily so simulovanymi Choleski vektormi
+c       vyraba fily so simulovanymi Cholesky vektormi
 c       so spravnou strukturou
 c
         implicit none
@@ -980,7 +980,7 @@ c       ----------------
 c
         subroutine UrobL2 (L2,NaGrp,NbeGrp,LunAux)
 c
-c       vyraba fily so simulovanymi Choleski vektormi
+c       vyraba fily so simulovanymi Cholesky vektormi
 c       so spravnou strukturou
 c
         implicit none

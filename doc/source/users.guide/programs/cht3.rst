@@ -31,7 +31,7 @@ point-group symmetry is not implemented. Main advantage compared to the
 :program:`CCSDT` module is |molcas| is in its more efficient parallelization and
 dramatically lowered memory (and eventually disk) requirements.
 
-.. For further details the reader is referred to the section :ref:`TUT:sec:cht3`.
+.. For further details the reader is referred to :numref:`TUT:sec:cht3`.
 
 .. index::
    pair: Dependencies; CHT3

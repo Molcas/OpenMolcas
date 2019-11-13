@@ -12,4 +12,4 @@ will be used by the program :program:`SLAPAF`. At present the :program:`ALASKA`
 module computes SCF/DFT and MCSCF gradients analytically, the rest are computed
 numerically. The :program:`ALASKA` module is automatically invoked when needed if
 the user has not explicitly requested the module to be executed. We postpone the
-discussion about :program:`ALASKA` to section :ref:`TUT:sec:structure`.
+discussion about :program:`ALASKA` to :numref:`TUT:sec:structure`.

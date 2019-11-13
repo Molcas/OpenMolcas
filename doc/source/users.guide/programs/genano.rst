@@ -87,7 +87,7 @@ positive charge, thus it may be appropriate to include
   A wide range of specialized basis sets can also be generated,
   for example a molecular basis set describing Rydberg orbitals,
   see the example in the "Tutorials and Examples" part,
-  section :ref:`TUT:sec:make_rydberg_basis_sets`.
+  :numref:`TUT:sec:make_rydberg_basis_sets`.
   There is a possibility to create Rydberg orbitals
   automatically by using the keyword
   :kword:`RYDBERG`. Here all unoccupied orbitals with
@@ -128,7 +128,7 @@ in all wave functions.
 The center may not be "degenerate", i.e.
 it may not generate other centers through symmetry
 operations. See the description of :program:`SEWARD`
-on :ref:`UG:sec:seward`
+on :numref:`UG:sec:seward`
 for a more extensive discussion.
 For example for :math:`\ce{O2}` you cannot use :math:`D_{2h}` symmetry
 since this would involve one center that is mirrored into the other.

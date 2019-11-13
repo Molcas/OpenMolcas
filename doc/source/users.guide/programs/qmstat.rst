@@ -203,8 +203,8 @@ following form ::
   ...(keywords on higher tier)
   END simulation
 
-Also consult the input example below and the examples in section
-:ref:`TUT:sec:cavity` for guidance. Mandatory keywords
+Also consult the input example below and the examples in
+:numref:`TUT:sec:cavity` for guidance. Mandatory keywords
 are highlighted.
 
 .. class:: keywordlist

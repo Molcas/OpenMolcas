@@ -33,7 +33,7 @@ c   with fragmented cholesky index. _AI1 -> _CDtmp1
 c
         call frankie(nfr,no,nv,printkey)
 c
-c        take local # of Choleski Vectors on this node
+c        take local # of Cholesky Vectors on this node
         NChHere=NumCho(1)
 c
         return
@@ -58,7 +58,7 @@ c ----------------------------------------------------------------
         FracMem=0.0d0
         Call Cho_X_init(rc,FracMem) ! initialize cholesky info
 c
-c        take local # of Choleski Vectors on this node
+c        take local # of Cholesky Vectors on this node
         NChHere=NumCho(1)
 
         Call Cho_X_final(rc)

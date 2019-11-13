@@ -16,7 +16,7 @@ unless an analysis of the correlation energies of specific electron
 pairs or contribution from external orbitals wants to be performed.
 In this case keywords :kword:`SFROzen` and :kword:`SDELeted` have to
 be used as described in
-section :ref:`UG:sec:mbpt2`
+:numref:`UG:sec:mbpt2`
 of the user's guide.
 
 
