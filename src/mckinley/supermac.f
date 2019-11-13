@@ -107,7 +107,8 @@
          Call Lu2Lu('SCFINP',LuInput)
          Write (LuInput,'(A)')
          Call Lu2Lu('CCSDTINP',LuInput)
-      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF') Then
+      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF' .or.
+     &         Method .eq. 'UHF-SCF') Then
          Call Lu2Lu('SCFINP',LuInput)
       End If
 *
