@@ -357,7 +357,7 @@ c
 c        integral based
           length=0
         else
-c        choleski based
+c        cholesky based
           length=nc*mdGrpa*no
         end if
 c
@@ -381,7 +381,7 @@ c
 c        integral based
           length=0
         else
-c        choleski based
+c        cholesky based
           length=nc*mdGrpa*mdGrpbe
         end if
 c
@@ -433,7 +433,7 @@ c
 c        integral based
           length=0
         else
-c        choleski based
+c        cholesky based
         if ((NaGrp.eq.1).and.(NbeGrp.eq.1)) then
           length=nc*nv*(nv+1)/2
         else
@@ -898,7 +898,7 @@ c
         subroutine GetChVHlp1 (cGrp,deGrp,yes,NL2,L2Status)
 c
 c       this routine do:
-c       check, if Choleski vector block cGrp,deGrp is actually situated
+c       check, if Cholesky vector block cGrp,deGrp is actually situated
 c       in the memory as one of L2x
 c
 c       descrition of parameters:

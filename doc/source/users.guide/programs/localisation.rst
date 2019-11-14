@@ -103,7 +103,7 @@ Input files
 files: :file:`ONEINT`, :file:`RUNFILE`, :file:`INPORB`.
 For Edmiston--Ruedenberg localisation,
 it also needs :file:`CHVEC`, :file:`CHRED` and :file:`CHORST` files
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............

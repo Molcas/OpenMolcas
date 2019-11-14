@@ -289,8 +289,8 @@ Optional coordinate selection keywords
   coordinates. This section is always ended by the keyword
   :kword:`End of Internal`.
   For a complete description of this
-  keyword see the section
-  :ref:`UG:sec:definition_of_internal_coordinates`.
+  keyword see
+  :numref:`UG:sec:definition_of_internal_coordinates`.
   This option will also use a diagonal matrix as default for
   the Hessian matrix.
   The default is to
@@ -612,7 +612,7 @@ Optional optimization procedure keywords
   the input, all constraints will be released. The syntax of this
   keyword is exactly like normal constraints, and it must be ended with
   :kword:`End of TSConstraints`
-  (see section :ref:`UG:sec:definition_of_internal_coordinates` below).
+  (see :numref:`UG:sec:definition_of_internal_coordinates` below).
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TSCONSTRAINTS" APPEAR="TS constraints" KIND="CUSTOM" REQUIRE="FINDTS" LEVEL="BASIC">
               %%Keyword: TSConstraints <basic>
