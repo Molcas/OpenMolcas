@@ -586,6 +586,7 @@ cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
              end if
            end if
             end do!ngrad_eff
+#ifdef _DEBUG_
           !if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 !         write(*,*) Grid(1,iGrid+1),Grid(2,iGrid+1),Grid(3,iGrid+1)
           if(Grid(1,iGrid+1).eq.0d0.and.
@@ -603,16 +604,18 @@ cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &dTot,dTot_d,Rho(1,iGrid+1),Rho(2,iGrid+1),Zeta,p2_ontop(1,iGrid+1)
           end if
           !end if
+#endif
 
-*         ^ end if for little rho
 !          write(LuMC,'(3F12.6,5E12.4)')
 !     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
 !     &Rho(2,iGrid+1),dTot,P2_ontop_d(1,iGrid+1),ratio
            end do!igrid
        End if !not gradient or gradient
        End if !tlsda
+#ifdef _DEBUG_
 !       Close(97)
 !       Close(98)
+#endif
 
 
 cRKCft
