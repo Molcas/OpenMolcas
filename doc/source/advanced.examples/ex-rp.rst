@@ -36,7 +36,7 @@ position of the transition state, and finishes by computing
 as accurately as possible the relative energies relating the
 position of the species. To perform geometry optimizations
 searching for true minima in the potential energy surfaces (PES)
-is by now a well-established procedure (see section :ref:`TUT:sec:optim`).
+is by now a well-established procedure (see :numref:`TUT:sec:optim`).
 An stationary point in the PES is characterized by having all the
 first derivatives of the energy with respect to each one of the
 independent coordinates equal to zero and the second derivatives

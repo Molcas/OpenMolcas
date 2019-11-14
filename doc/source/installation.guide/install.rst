@@ -74,7 +74,7 @@ Also, you can benefit from following optional dependencies:
 
 .. warning::
 
-   The DGA library is not available in OpenMolcas.
+   The DGA library is not available in |openmolcas|.
 
 The Graphical User Interface codes in |molcas| require additional software,
 including OpenGL and glut library. However, in most of the cases there is no need
@@ -191,7 +191,7 @@ in the next sections to configure |molcas|.
     ./setup
 
   in the main |molcas| directory. Answer the questions and then proceed to
-  section :ref:`sec:building_molcas` to build |molcas|.
+  :numref:`sec:building_molcas` to build |molcas|.
 
 For advanced users that need further customization, one of the alternatives
 in the next sections will be needed.
@@ -278,7 +278,7 @@ important options.
   and may give wrong results in some cases.
 * ``CMAKE_INSTALL_PREFIX`` --- Specify the directory where |molcas| will be installed when running
   :command:`make install`.
-* ``GA`` --- (``ON``/``OFF``): Enable interface with Global Arrays (see section :ref:`sec:parallel_installation`).
+* ``GA`` --- (``ON``/``OFF``): Enable interface with Global Arrays (see :numref:`sec:parallel_installation`).
 * ``HDF5`` --- (``ON``/``OFF``): Enable HDF5 files (portable binary format) in some programs.
 * ``LINALG`` --- (``Internal``/``Runtime``/``MKL``/``ACML``/``OpenBLAS``): Select the linear algebra library (BLAS + LAPACK)
   against which to link |molcas|. ``Internal`` uses the default (and slow) Netlib version included with |molcas|. ``Runtime``
@@ -358,7 +358,7 @@ Example 2: Intel C/Fortran compilers with GA/IntelMPI and MKL
 Building |molcas|
 -----------------
 
-When the configuration step (section :ref:`sec:configure_molcas`) is completed
+When the configuration step (:numref:`sec:configure_molcas`) is completed
 successfully, you can build |molcas|.
 This is simply done by typing :command:`make` in the |molcas| root directory.
 It is recommended that you save the output from :command:`make` in a log file
@@ -388,8 +388,8 @@ These are not serious in most cases. We are working on eliminating them, but
 the job is not yet completely finished.
 
 After |molcas| has been built correctly, you should absolutely run a basic
-verification to ensure that the installation is sane. See the next section
-:ref:`sec:verify` for details on verification.
+verification to ensure that the installation is sane. See the :ref:`next section <sec:verify>`
+for details on verification.
 
 .. _sec\:verify:
 

@@ -439,7 +439,7 @@ SUBROUTINE CASPT2_UDLDET(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
   ! compute the energy
 
   ! method 1: E2 = <V0|X>
-  E2 = DDOT_(NSD,V0,1,X,1)
+  E2 = DDOT(NSD,V0,1,X,1)
   WRITE(*,'(1X,A32,F21.14)') 'E2 as <V0|X> = ', E2
 
   ! method 2: E2 = <0|Ĥ|Psi1>
@@ -455,7 +455,7 @@ SUBROUTINE CASPT2_UDLDET(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
   !CALL WFN_PRINT(PSI1,1.0D-8)
 
   ! TAU still contains Ĥ|0>, so contract with |Psi1>
-  E2 = DDOT_(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
+  E2 = DDOT(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
   WRITE(*,'(1X,A32,F21.14)') 'E2 as <Psi1|H|0> = ', E2
 
 END SUBROUTINE CASPT2_UDLDET

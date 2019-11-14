@@ -30,7 +30,7 @@ point-group symmetry is not implemented. Main advantage compared to the
 :program:`CCSDT` module in |molcas| is in its more efficient parallelization and
 dramatically lowered memory (and eventually disk) requirements.
 
-.. For further details the reader is referred to the section :ref:`TUT:sec:chcc`.
+.. For further details the reader is referred to :numref:`TUT:sec:chcc`.
 
 .. index::
    pair: Dependencies; CHCC
@@ -84,7 +84,7 @@ Input files
 :program:`CHCC` will use the following input
 files: :file:`CHVEC`, :file:`CHRED`, :file:`CHORST`, :file:`RUNFILE`,
 and :file:`CHOR2F`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............

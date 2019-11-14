@@ -90,7 +90,7 @@ c       (A'B'|IJ) I3xxyy xx - Group of A'
 c                        yy - Group of B'
 c
 c
-c3      Structure of Choleski vector files
+c3      Structure of Cholesky vector files
 c
 c       L1(m,I ,A')  L1vcxx xx - Group of A'
 c

@@ -17,7 +17,7 @@ The use of keyword :kword:`RLXRoot` in the :program:`RASSCF` program is required
 In both cases the explicit request of executing the :program:`MCLR` module is not
 required and will be automatic.
 We postpone further
-discussion about :program:`MCLR` to section :ref:`TUT:sec:structure`.
+discussion about :program:`MCLR` to :numref:`TUT:sec:structure`.
 
 It follows an example of how to optimize an excited state from a previous
 State-Average (SA) CASSCF calculation.

@@ -266,7 +266,7 @@ that to compute a multiconfigurational ACPF wave function we have to use
 the :program:`MRCI` program, not the :program:`CPF` module which does not accept
 more than one single reference. In all the highly correlated
 methods we have frozen the three carbon core orbitals because of the reasons
-already explained in section :ref:`TUT:sec:x2`. For MRCI, ACPF, CCSD, and CCSD(T)
+already explained in :numref:`TUT:sec:x2`. For MRCI, ACPF, CCSD, and CCSD(T)
 the freezing is performed in the :program:`MOTRA` step.
 
 .. index::
@@ -745,7 +745,7 @@ including the Davidson correction (MRCI+Q) which corrects for the
 size-inconsistency of the truncated CI expansion :cite:`Taylor:92b`.
 
 For CASPT2 the evaluation criteria are commented in
-section :ref:`TUT:sec:excited`. The portion of the :program:`CASPT2` output for
+:numref:`TUT:sec:excited`. The portion of the :program:`CASPT2` output for
 propene is: ::
 
         Reference energy:        -117.1222638304

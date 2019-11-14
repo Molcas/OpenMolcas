@@ -358,7 +358,7 @@ c
         FracMem=0.0d0
         Call Cho_X_init(rc,FracMem) ! initialize cholesky info
 c
-c       take local # of Choleski Vectors on this node
+c       take local # of Cholesky Vectors on this node
 #ifdef _MOLCAS_MPP_
 c
         do jal1=0,Nprocs-1

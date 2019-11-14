@@ -69,7 +69,7 @@ c       (A'B'|IJ) I3xxyy xx - Group of A'
 c                        yy - Group of B'
 c
 c
-c3      Structure of Choleski vector files
+c3      Structure of Cholesky vector files
 c
 c       L1(m,I ,A')  L1vcxx xx - Group of A'
 c
@@ -365,7 +365,7 @@ cc              pozor na faktor, cele X je s vahou 0.5, sem teda asi 1
                    call mv0v1u (dim1,wrk(PossV3),1,wrk(PossX),1,1.0d0)
 c
 cXe                Term Xe (V2,V3 and V4 can be used)
-c                only in choleski based approach
+c                only in cholesky based approach
 c
                 if (intkey.eq.0) then
 cXe.1                Ext V2(i,u,v,j) <- Aex(ij,uv)

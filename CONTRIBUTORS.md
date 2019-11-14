@@ -24,6 +24,9 @@ sources may be subject to a more restrictive or otherwise incompatible license.
 General citations
 =================
 
+* **OpenMolcas**:
+  *J. Chem. Theory Comput.* **15** (2019) 5925-5964. DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+
 * **Molcas 8**:
   *J. Comput. Chem.* **37** (2016) 506-541. DOI: [10.1002/jcc.24221](https://doi.org/10.1002/jcc.24221)
 
@@ -161,7 +164,7 @@ Alessio Valentini
 Valérie Vallet  
 Steven Vancoillie  
 Valera Veryazov  
-Victor Vysotskiy  
+Victor P. Vysotskiy  
 Ulf Wahlgren  
 Yubin Wang  
 Mark A. Watson  
