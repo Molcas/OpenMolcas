@@ -30,6 +30,7 @@
 *
       IPRNUM=-1
       IPRCMP=0
+      PRMAT(:,:)=0.0D0
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)

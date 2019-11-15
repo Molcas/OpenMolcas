@@ -22,7 +22,7 @@
       Integer NSS, MSTATE
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
       Real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)
-      Integer, Allocatable:: MAPST(:)
+      Integer, Allocatable:: MAPST(:,:)
       REAL*8 tmp_R, tmp_I
       Integer ISTATE, JOB, MPLET, MSPROJ, ISS, JSS, JSS_, KSS, KSS_
 *                                                                      *
@@ -35,14 +35,16 @@
 *     recomputed, are in the basis of the original SF states.
 *
 C Mapping from spin states to spin-free state:
-      Call mma_allocate(MAPST,nSS,Label='MAPST')
+      Call mma_allocate(MAPST,nSS,3,Label='MAPST')
       ISS=0
       DO ISTATE=1,MSTATE
          JOB=JBNUM(ISTATE)
          MPLET=MLTPLT(JOB)
          DO MSPROJ=-MPLET+1,MPLET-1,2
             ISS=ISS+1
-            MAPST(ISS)=ISTATE
+            MAPST(ISS,1)=ISTATE
+            MAPST(ISS,2)=MPLET
+            MAPST(ISS,3)=MSPROJ
        END DO
       END DO
 *
@@ -50,13 +52,15 @@ C Mapping from spin states to spin-free state:
 *
       Do iSS = 1, nSS
          Do JSS = 1, nSS
-            jSS_=MAPST(JSS)
             tmp_R=0.0D0
             tmp_I=0.0D0
+            jSS_=MAPST(JSS,1)
             Do kSS = 1, nSS
-               kSS_=MAPST(kSS)
-               tmp_R=tmp_R + USOR(kSS,iSS)*EigVec(kSS_,jSS_)
-               tmp_I=tmp_I + USOI(kSS,iSS)*EigVec(kSS_,jSS_)
+               If (MAPST(kss,2).ne.MAPST(jss,2)) Cycle
+               If (MAPST(kss,3).ne.MAPST(jss,3)) Cycle
+               kSS_=MAPST(kSS,1)
+               tmp_R=tmp_R + USOR(kSS,iSS)*EigVec(jss_,kSS_)
+               tmp_I=tmp_I + USOI(kSS,iSS)*EigVec(jss_,kSS_)
             End Do
             VSOR(JSS,ISS)=tmp_R
             VSOI(JSS,ISS)=tmp_I
