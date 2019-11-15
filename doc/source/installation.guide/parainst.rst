@@ -19,7 +19,7 @@ or to our own DGA library (an internal PGAS framework built upon MPI-2).
 
 .. warning::
 
-   The DGA library is not available in OpenMolcas.
+   The DGA library is not available in |openmolcas|.
 
 When using DGA (the default), the current list of supported MPI-2.2 implementations is given below:
 MPICH2/MPICH3, MVAPICH2, OpenMPI, Intel MPI.

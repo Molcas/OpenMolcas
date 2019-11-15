@@ -52,9 +52,9 @@ is allowed. Following some examples
    should be small.
 
 For a complete list of one-electron integrals which can be
-evaluated by the program :program:`SEWARD` check out the section
-:ref:`UG:sec:seward_description` and, especially, the subsection
-:ref:`UG:sec:one-electron_integral_labels`.
+evaluated by the program :program:`SEWARD` check out
+:numref:`UG:sec:seward_description` and, especially,
+:numref:`UG:sec:one-electron_integral_labels`.
 
 Note, the perturbation matrices consist of the electronic contributions,
 only. The quadrupole, electric field gradient and higher electric moment
@@ -79,7 +79,7 @@ Input files
 ...........
 
 The program :program:`FFPT` needs :file:`ONEINT`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -301,7 +301,7 @@ The following keywords are known to the
   an operator is given as an integer. The last parameter denotes
   the strength of a perturbation operator and is given as a real number.
   For a list of the available one-electron integral labels refer to
-  section :ref:`UG:sec:seward`.
+  :numref:`UG:sec:seward`.
 
   For example to add Pauli repulsion integrals for
   reaction field calculations the input would look like: ::

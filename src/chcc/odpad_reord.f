@@ -149,7 +149,7 @@ c
 c       I/O parameter description:
 c       NxGrp    - # of groups in a,b,be,ga set (I)
 c       maxdim   - maximal dimension of V' (I)
-c       NChBlk   - # of Choleski vectors in one Block - m' (I)
+c       NChBlk   - # of Cholesky vectors in one Block - m' (I)
 c       Possx    - initial possitinos of arrays (O-all)
 c       PossT    - initial and last possition (I/O)
 c
@@ -839,7 +839,7 @@ c        from local L0-L2 files (dimensioned as ncLoc)
 c        N.B. This file have sense only for paralell run
 c
 c
-c       Structure of Choleski vector files
+c       Structure of Cholesky vector files
 c
 c       L0(m,IJ)    L0vctr  I>=J
 c

@@ -907,7 +907,7 @@ one-electron Darwin contact term integrals and obtain a first-order correction
 to the energy with respect to relativistic effects at the CASSCF level in the :program:`RASSCF` output.
 Scalar relativistic effects can be also included according the Douglas--Kroll
 or the Barysz--Sadlej--Snijders transformations, as it will be explained in
-section :ref:`TUT:sec:SOC`.
+:numref:`TUT:sec:SOC`.
 
 The CASPT2 input needed to compute the second-order correction to the energy
 will include the number of the CASSCF root to compute. For instance,
