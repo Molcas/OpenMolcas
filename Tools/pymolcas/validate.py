@@ -1377,7 +1377,7 @@ def validate(inp, db):
     return (rc, ['No module named "{0}"'.format(program)])
 
   # This is a hack for the XYZ input of GATEWAY/SEWARD
-  # to hide "XYZ input" keywords (they will be enabled if COORD or GROMACS is found)
+  # to hide "XYZ input" keywords (they will be enabled if COORD, GROMACS or TINKER is found)
   if (module.get('NAME') in ['GATEWAY', 'SEWARD']):
     for kw in module.xpath('KEYWORD[@NAME="BASIS (XYZ)"] | KEYWORD[@NAME="GROUP"]'):
       kw.set('NAME', '*{}'.format(kw.get('NAME')))
@@ -1422,7 +1422,7 @@ def validate(inp, db):
             group = stack.pop(-1)
           bad = False
           found.append(name)
-          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS'])):
+          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS', 'TINKER'])):
             enable_xyz(kw.getparent())
           break
       else:
@@ -1467,7 +1467,7 @@ def validate(inp, db):
     if (name[0] in ['*', '#']):
       continue
     # special case
-    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS']])):
+    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS', 'TINKER']])):
       continue
     if (name not in found):
       result.append('*** Keyword {} is required, but was not found'.format(name))
