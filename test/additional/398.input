@@ -39,8 +39,10 @@
  
 &Seward
 
+> EXPORT MOLCAS_THR=2
 &ESPF
  External = Tinker
+> EXPORT MOLCAS_THR=0
 
 &SCF
  UHF
