@@ -68,7 +68,7 @@
 #ifdef _DEBUG_
       NumVal=nInter+1
 #else
-      NumVal=Min(5,nInter+1)
+      NumVal=Min(5,nInter)
 #endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
