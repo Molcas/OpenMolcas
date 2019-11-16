@@ -128,6 +128,7 @@
          iRoot=-1
          Dist=1.0D99
          Do iVal = 1, NumVal
+            If (Vec(nInter+1,iVal).eq.0.0D0) Cycle
             VV=DDot_(nInter,Vec(1,iVal),1,Vec(1,iVal),1)
             ZZ = VV/A_RFO + Vec(nInter+1,iVal)**2
             Fact=Vec(nInter+1,iVal)/Sqrt(ZZ)
