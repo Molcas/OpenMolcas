@@ -15,6 +15,7 @@
  (file)  MCKINT   "$WorkDir/$Project."MckInt               rw
  (file)  SEWARINP "$WorkDir/$Project."Seward.Input         rwi
  (file)  SCFINP   "$WorkDir/$Project."Scf.Input            rwi
+ (file)  ESPFINP  "$WorkDir/$Project."Espf.Input           rwi
  (file)  RASSCINP "$WorkDir/$Project."Rasscf.Input         rwi
  (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input         rwi
  (file)  CCSDTINP "$WorkDir/$Project."Ccsdt.Input          rwi
