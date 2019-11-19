@@ -119,7 +119,11 @@ def test_keyword(lines, keyword):
   if (parent.tag == 'GROUP'):
     endlist.append('END' + parent.get('NAME')[0])
   l = 0
-  if (cmp_str(name, lines[0])):
+  names = [name]
+  also = keyword.get('ALSO')
+  if (also):
+    names.extend(keyword.get('ALSO').split(','))
+  if (any([cmp_str(i, lines[0]) for i in names])):
     ll = test(lines, keyword, kind, size, choice)
     # try possible <ALTERNATE> definitions
     if (ll is None):
@@ -880,13 +884,13 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'POLY_ANISO'):
-    if (name in ['LIN1', 'PAIR', 'LIN3', 'ALIN', 'LIN9']):
+    if (name in ['PAIR', 'ALIN', 'LIN9']):
       try:
         n = first_int(lines[l])
         l += 1
-        if (name in ['LIN1', 'PAIR']):
+        if (name == 'PAIR'):
           m = 1
-        elif (name in ['LIN3', 'ALIN']):
+        elif (name == 'ALIN'):
           m = 3
         elif (name == 'LIN9'):
           m = 9
@@ -1102,7 +1106,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSI'):
-    if (name in ['NROFJOBIPHS', 'NR OF JOBIPHS']):
+    if (name == 'NROFJOBIPHS'):
       try:
         parts = fortran_split(lines[l])
         n = fortran_int(parts[0])
