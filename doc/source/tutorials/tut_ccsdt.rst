@@ -105,7 +105,7 @@ final energy is sometimes referred as SA1 CCSD(T)\ :math:`_d` (see
 :cite:`t3_neo`).
 
 .. A suitable shell script to run these calculations can be found at the end of
-   section :ref:`UG:sec:cct3` of the user's guide.
+   :numref:`UG:sec:cct3` of the user's guide.
 
 .. extractcode-block:: none
    :filename: tutorials/CCSDT.HF.input

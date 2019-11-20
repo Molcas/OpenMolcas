@@ -43,7 +43,7 @@ converges, or maximum number of iterations (:variable:`MOLCAS_MAXITER`) will be 
 default value is 50).
 
 There are several EMIL commands
-(see sect :ref:`UG:sec:emil_commands`) which can be
+(see :numref:`UG:sec:emil_commands`) which can be
 used to control geometry optimization. For example, it is possible to execute
 some |molcas| modules only once: ::
 
@@ -57,7 +57,7 @@ minimum (default, no input required then) or a transition state. The program is 
 finding inter state crossings (ISC), conical intersections (CI),
 to compute reaction paths, intrinsic reaction coordinate (IRC) paths, etc.
 
-.. Examples as how to use the :program:`SLAPAF` code is displayed in following section :ref:`TUT:sec:structure`.
+.. Examples as how to use the :program:`SLAPAF` code is displayed in following :numref:`TUT:sec:structure`.
 
 :program:`SLAPAF` --- Basic and Most Common Keywords
 ----------------------------------------------------

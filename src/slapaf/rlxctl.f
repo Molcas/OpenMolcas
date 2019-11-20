@@ -210,6 +210,7 @@
       nPrint( 54)=nPrint( 54)-1
       Write (6,*) ' Accumulate the gradient for selected '//
      &            'numerical differentiation.'
+      Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
       Ed=Zero
       Step_Trunc=' '
          Go To 666

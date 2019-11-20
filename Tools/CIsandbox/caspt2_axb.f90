@@ -11,7 +11,7 @@
 SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   ! Computes the CASPT2 second-order energy of the wavefunction PSI, provided
   ! that the full Fock matrix and necessary 1- and 2-el integrals are given.
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: REAL64
   USE SECOND_QUANTIZATION
   USE WAVEFUNCTION
   USE DENSITY
@@ -48,7 +48,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   INTEGER :: I, J, P, Q, R, S, IA, IB
   INTEGER :: DETA, DETB, TMPA, TMPB
 
-  REAL(REAL64), EXTERNAL :: DNRM2, DDOT
+  REAL(REAL64), EXTERNAL :: DNRM2_, DDOT_
 
   ! get appropriate orbital space dimensions from the supplied Fock matrix
   NI=SIZE(F%II,1)
@@ -158,7 +158,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
     DO IA=1,PSI%NDETA
       TMPA=ISHFT(DETA,NI)+(2**NI-1)
   
-      E0 = E0 + PSI%COEF(IA,IB) * SGM%COEF(RANK(TMPA),RANK(TMPB))
+      E0 = E0 + PSI%COEF(IA,IB) * SGM%COEF(RANK_(TMPA),RANK_(TMPB))
 
       DETA=LEX_NEXT(DETA)
     END DO
@@ -292,11 +292,11 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
     END DO
   END DO
 
-  CALL DGEMM('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
+  CALL DGEMM_('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,PSI1KET,PSI1%NDET, &
        & 0.0D0,S0,NSD)
 
-  CALL DGEMM('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
+  CALL DGEMM_('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,FOCKKET,PSI1%NDET, &
        & 0.0D0,H0,NSD)
 
@@ -309,7 +309,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   ! accordingly
 
   ALLOCATE(U0(NSD,NSD))
-  U0=S0
+  U0(:,:)=S0
 
   NWORK=NSD**2
   ALLOCATE(WORK(NWORK))
@@ -342,7 +342,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
 
   ! Solve (H0 - E0 S0) X = -V0
 
-  H0 = H0 - E0 * S0
+  H0(:,:) = H0 - E0 * S0
 
   ALLOCATE(IPIV(NSD))
 
@@ -356,7 +356,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
     STOP 'Failed to solve linear equation system'
   END IF
 
-  X=MATMUL(T0,X(1:MSD))
+  X(:)=MATMUL(T0,X(1:MSD))
 
   ! compute the energy
 

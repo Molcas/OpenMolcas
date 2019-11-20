@@ -3,9 +3,9 @@ Contents
 
 .. note::
 
-   Most of this documentation precedes the creation of OpenMolcas.
+   Most of this documentation precedes the creation of |openmolcas|.
    It is probably outdated in several points, and it may mention
-   features not available in OpenMolcas.
+   features not available in |openmolcas|.
 
 .. toctree::
    :maxdepth: 3

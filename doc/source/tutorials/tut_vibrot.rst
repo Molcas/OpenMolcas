@@ -17,5 +17,5 @@ of the |molcas| programs, just its standard input file.
 In the Advances Examples the reader will find an overview of the input and
 output files required by :program:`VIBROT` and the different uses of the
 program on the calculation of the electronic states of the :math:`C_2` molecule.
-The reader is referred to section :ref:`UG:sec:vibrot`
+The reader is referred to :numref:`UG:sec:vibrot`
 of the user's guide for a detailed description of the program.

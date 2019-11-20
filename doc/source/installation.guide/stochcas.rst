@@ -15,7 +15,7 @@ responsible for the FCIQMC dynamics, replacing the deterministic Direct-CI based
 In principle, two installation protocols can be adopted that are referred to as embedded and uncoupled
 forms. In the embedded form, the :program:`NECI` program is treated as a dependent subroutine of the
 RASSCF program. This form effectively leads to an automatized version of the
-Stochastic-CASSCF within the OpenMolcas software.
+Stochastic-CASSCF within the |openmolcas| software.
 In the uncoupled form of Stochastic-CASSCF, :program:`NECI` is installed as a stand-alone program
 and the |molcas|-:program:`NECI` interface is controlled manually by the user.
 In this guide the uncoupled form will be discussed. It is the form preferred by

@@ -125,7 +125,7 @@ section is compulsory. Presently following Functional Keywords are available:
 BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA, LSDA5, SVWN, SVWN5, TLYP, PBE, PBE0,
 M06, M06HF, M062X, M06L.
 The description of functional keywords and the functionals is defined in the
-section DFT Calculations :ref:`UG:sec:dft`.
+section :ref:`UG:sec:dft`.
 
 The input for KSDFT is given as, ::
 

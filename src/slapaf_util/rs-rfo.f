@@ -67,9 +67,8 @@
 *     Thr_RS=1.0D-7
 #ifdef _DEBUG_
       NumVal=nInter+1
-*     NumVal=Min(10,nInter+1)
 #else
-      NumVal=Min(10,nInter+1)
+      NumVal=Min(5,nInter)
 #endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -129,6 +128,7 @@
          iRoot=-1
          Dist=1.0D99
          Do iVal = 1, NumVal
+            If (Vec(nInter+1,iVal).eq.0.0D0) Cycle
             VV=DDot_(nInter,Vec(1,iVal),1,Vec(1,iVal),1)
             ZZ = VV/A_RFO + Vec(nInter+1,iVal)**2
             Fact=Vec(nInter+1,iVal)/Sqrt(ZZ)

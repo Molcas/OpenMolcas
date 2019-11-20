@@ -275,14 +275,14 @@ c
         integer dimbe,dimga,addbe,addga,addbepp,addgapp
         integer bSGrpUp,gaSGrpUp
         integer i,j
-        integer choleskikey
+        integer choleskykey
         integer FirstT2n(1:maxSGrp,1:maxSGrp)
         character*6 LunName
 c
         if (intkey.eq.1) then
-          choleskikey=0
+          choleskykey=0
         else
-          choleskikey=1
+          choleskykey=1
         end if
 c
 cx      distribute memory
@@ -377,7 +377,7 @@ c        aGrp is scheduled. Skip if no
         if (i.eq.0) goto 12
 c
 c
-        if (choleskikey.eq.1) then
+        if (choleskykey.eq.1) then
 cx          read L2W(m,i,a') <- L1(m,i,a')
           LunName=L1Name(aGrp)
           dim1=nc*dima*no
@@ -397,7 +397,7 @@ c##     test, if this a'b' combination is planed to be run on this node
         end if
 c
 c
-          if (choleskikey.eq.1) then
+          if (choleskykey.eq.1) then
 cx            read L12(m,b',i) <- L1(m,b',i)
               LunName=L1Name(bGrp)
             dim1=nc*dimb*no
@@ -425,8 +425,8 @@ cx        cycle over all groups of (be>=ga)
           do gaGrp=1,beGrp
           dimga=DimGrpbe(gaGrp)
 c
-            if (choleskikey.eq.1) then
-cxx         read Choleski vectors
+            if (choleskykey.eq.1) then
+cxx         read Cholesky vectors
 c*          L21 (m,a',be')
 c           L22 (m,a',ga')
 c           L23 (m,b',be')
@@ -498,9 +498,9 @@ cxxx          cycle over all subgroups of (a>=b)'
         end if
 99      format (8(i3,1x))
 c
-                if (choleskikey.eq.1) then
+                if (choleskykey.eq.1) then
 c
-c*              choleski generation of (VV|VV) integrals
+c*              cholesky generation of (VV|VV) integrals
 c
 cxxxx             Extract M1(m,a",be") from L21(m,a',be')
                   call  ExtractM (wrk(PossM1),wrk(PsAcL21),

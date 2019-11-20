@@ -14,12 +14,12 @@
         use globvar
         Implicit None
         Integer nInter,nPoints,ndimx
-        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx), tmp
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
 !#define _Hess_Test
 #ifdef _Hess_Test
         Real*8 Scale,Delta,Fact,tgrad(ndimx),thgrad(ndimx)
-        Real*8 HessT
+        Real*8 HessT, tmp
         Integer i, j
         HessT = 1.0D-3
 #endif

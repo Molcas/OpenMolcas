@@ -79,7 +79,7 @@ Input files
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`.
 For Cholesky runs: :file:`CHVEC`, :file:`CHORST`, :file:`CHRED` and
 :file:`CHOR2F`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 .. Intermediate files
    ..................
