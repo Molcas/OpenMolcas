@@ -1817,12 +1817,12 @@ C printing threshold
 ! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DXYDZ=((-WORK(LDXYR-1+IJSS) + g*WORK(LSXYI-1+IJSS)) ! LSXY is imaginary
-     &           *WORK(LDZI-1+IJSS))
+            DXYDZ=((-WORK(LDXYR-1+IJSS) + g*WORK(LSXYI-1+IJSS))
+     &           *WORK(LDZI-1+IJSS)) ! Electric-Dipole
      &           +((WORK(LDXYI-1+IJSS) + g*WORK(LSXYR-1+IJSS))
      &           *WORK(LDZR-1+IJSS))
             DYXDZ=-((WORK(LDYXR-1+IJSS) + g*WORK(LSYXR-1+IJSS))
-     &           *WORK(LDZI-1+IJSS)) ! Electric-Dipole
+     &           *WORK(LDZI-1+IJSS))
      &           +((WORK(LDYXI-1+IJSS) + g*WORK(LSYXI-1+IJSS))
      &           *WORK(LDZR-1+IJSS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
