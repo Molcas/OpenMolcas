@@ -1731,6 +1731,7 @@ C printing threshold
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 ! Magnetic-Quadrupole
+         go to 216
          IF(IPRDXY.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXYR),NSS,IPRDXY,0)
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXYR),WORK(LDXYI))
@@ -1757,6 +1758,7 @@ C printing threshold
           CALL SMMAT(PROP,WORK(LDZYR),NSS,IPRDZY,0)
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZYR),WORK(LDZYI))
          END IF
+ 216     Continue
 ! Spin-Magnetic-Quadrupole
          IF(IPRSXY.GT.0) THEN
           CALL SMMAT(PROP,WORK(LSXYR),NSS,IPRSXY,2)
@@ -1848,7 +1850,6 @@ C printing threshold
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
-            write(6,*) 'MGD',FXY,FZY,FYX,FYZ,FXZ,FZX
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
             F =2.0d0*F
 ! Add it to the total
