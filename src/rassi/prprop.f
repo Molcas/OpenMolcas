@@ -1810,34 +1810,37 @@ C printing threshold
 !
 ! Since the Spin-Magnetic-Quadrupole is made from the multiplication of two complex integrals we have
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
+! Also, since the magnetic quadrupole terms are real and the electric dipole are imaginary
+! we multiply the real components of MQ with the imaginary of the dipole term, and vice versa.
+! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DYXDZ=((WORK(LDYXR-1+IJSS) + g*WORK(LSYXR-1+IJSS))
-     &           *WORK(LDZR-1+IJSS)) ! Electric-Dipole
-     &           +((WORK(LDYXI-1+IJSS) + g*WORK(LSYXI-1+IJSS))
-     &           *WORK(LDZI-1+IJSS))
             DXYDZ=((WORK(LDXYR-1+IJSS) + g*WORK(LSXYR-1+IJSS))
      &           *WORK(LDZR-1+IJSS))
      &           +((WORK(LDXYI-1+IJSS) + g*WORK(LSXYI-1+IJSS))
      &           *WORK(LDZI-1+IJSS))
+            DYXDZ=-((WORK(LDYXR-1+IJSS) + g*WORK(LSYXR-1+IJSS))
+     &           *WORK(LDZI-1+IJSS)) ! Electric-Dipole
+     &           +((WORK(LDYXI-1+IJSS) + g*WORK(LSYXI-1+IJSS))
+     &           *WORK(LDZR-1+IJSS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=((WORK(LDZXR-1+IJSS) + g*WORK(LSZXR-1+IJSS))
-     &           *WORK(LDYR-1+IJSS))
+            DZXDY=-((WORK(LDZXR-1+IJSS) + g*WORK(LSZXR-1+IJSS))
+     &           *WORK(LDYI-1+IJSS))
      &           +((WORK(LDZXI-1+IJSS) + g*WORK(LSZXI-1+IJSS))
-     &           *WORK(LDYI-1+IJSS))
-            DXZDY=((WORK(LDXZR-1+IJSS) + g*WORK(LSXZR-1+IJSS))
      &           *WORK(LDYR-1+IJSS))
-     &           +((WORK(LDXZI-1+IJSS) + g*WORK(LSXZI-1+IJSS))
+            DXZDY=-((WORK(LDXZR-1+IJSS) + g*WORK(LSXZR-1+IJSS))
      &           *WORK(LDYI-1+IJSS))
+     &           +((WORK(LDXZI-1+IJSS) + g*WORK(LSXZI-1+IJSS))
+     &           *WORK(LDYR-1+IJSS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=((WORK(LDYZR-1+IJSS) + g*WORK(LSYZR-1+IJSS))
-     &           *WORK(LDXR-1+IJSS))
-     &           +((WORK(LDYZI-1+IJSS) + g*WORK(LSYZI-1+IJSS))
+            DYZDX=-((WORK(LDYZR-1+IJSS) + g*WORK(LSYZR-1+IJSS))
      &           *WORK(LDXI-1+IJSS))
+     &           +((WORK(LDYZI-1+IJSS) + g*WORK(LSYZI-1+IJSS))
+     &           *WORK(LDXR-1+IJSS))
             DZYDX=((WORK(LDZYR-1+IJSS) + g*WORK(LSZYR-1+IJSS))
      &           *WORK(LDXR-1+IJSS))
      &           +((WORK(LDZYI-1+IJSS) + g*WORK(LSZYI-1+IJSS))
@@ -1845,8 +1848,9 @@ C printing threshold
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
+            write(6,*) 'MGD',FXY,FZY,FYX,FYZ,FXZ,FZX
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
-            F = -F
+            F =2.0d0*F
 ! Add it to the total
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
