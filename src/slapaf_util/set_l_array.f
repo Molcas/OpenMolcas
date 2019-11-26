@@ -10,16 +10,10 @@
 *                                                                      *
 * Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
-      Subroutine set_l_Array(Array_l,nInter,BaseLine)
+      Subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian)
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-      Real*8 Array_l(nInter)
-      Real*8, Allocatable:: Hessian(:,:)
+      Real*8 Array_l(nInter), Hessian(nInter,nInter)
 *
-      Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
-      Call Mk_Hss_Q()
-      Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *     Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
 *
 *     Gives a Kriging Hessian for a single point of Kriging with
@@ -32,8 +26,6 @@
 *
       End Do
 *     Call RecPrt('Array_l',' ',Array_l,1,nInter)
-*
-      Call mma_Deallocate(Hessian)
 *
       Return
       End

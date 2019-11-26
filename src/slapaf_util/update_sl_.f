@@ -135,8 +135,8 @@
 *        Temporary code until we have the 2nd derivatives from the
 *        kriging code.
 *
-         Call DCopy_(nInter**2,[Zero],0,Hessian,1)
-         Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
+*        Call DCopy_(nInter**2,[Zero],0,Hessian,1)
+*        Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
          iNeg(1)=0
          iNeg(2)=0

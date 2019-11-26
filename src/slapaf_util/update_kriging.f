@@ -98,6 +98,7 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -107,18 +108,16 @@
 *     kriging!
 *
 *define _UNSORTED_
-*define _TEST_KRIGING_
+#define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged
       Real*8, Allocatable:: Array_l(:)
 #ifndef _UNSORTED_
-      Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
+      Real*8, Allocatable:: Energy_s(:)
 #endif
-#ifdef _TEST_KRIGING_
-      Real*8, Allocatable:: EstiGrad(:)
-#endif
+      Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -148,7 +147,39 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Pass the data point to the GEK routine. Remember to
+*     Pick up the HMF Hessian
+*
+      Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
+      Call Mk_Hss_Q()
+      Call Get_dArray('Hss_Q',Hessian,nInter**2)
+*     Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
+*
+      Call mma_allocate(U,nInter,nInter,Label='U')
+      U(:,:)=0.0D0
+      For all (i=1:nInter) U(i,i)=1.0D0
+#ifdef _DIAG_HESS_
+*
+      Call mma_allocate(HTri,nInter*(nInter+1)/2,Label='HTri')
+      Do iInter = 1, nInter
+         Do jInter = 1, iInter
+            ij = iInter*(iInter-1)/2 + jInter
+            HTri(ij)=Hessian(iInter,jInter)
+         End Do
+      End Do
+*     Call TriPrt('HTri(raw)',' ',HTri,nInter)
+      Call NIDiag_new(HTri,U,nInter,nInter,0)
+*     U(:,:)=0.0D0
+*     For all (i=1:nInter) U(i,i)=1.0D0
+*     Call TriPrt('HTri',' ',HTri,nInter)
+      Hessian(:,:) = 0.0D0
+      For all (i=1:nInter) Hessian(i,i)=HTri(i*(i+1)/2)
+      Call mma_deallocate(HTri)
+*     Call RecPrt('Hessian(D)',' ',Hessian,nInter,nInter)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Pass the data points to the GEK routine. Remember to
 *     change the sign of the gradients.
 *                                                                      *
 ************************************************************************
@@ -156,13 +187,21 @@
 *     Note that we could have some kind of sorting here if we
 *     like!
 *
+      Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
+      Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
 #ifdef _UNSORTED_
-      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+*
+*     Tranform to the basis which diagonalize the HMF Hessian.
+*
+      Call Trans(U,qInt(1,iFirst),qInt_s,nInter,nRaw)
+      Call Trans(U,Grad(1,iFirst),Grad_s,nInter,nRaw)
+      Call DScal_(nInter*nRaw,-One,Grad_s,1)
+*
       Call Start_Kriging(nRaw,nInter,
-     &                      qInt(1,iFirst),
-     &                      Grad(1,iFirst),
-     &                      Energy(iFirst))
-      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+     &                   qInt_s,
+     &                   Grad_s,
+     &                   Energy(iFirst))
+*
 #else
 *                                                                      *
 ************************************************************************
@@ -171,14 +210,12 @@
 *     closest to the last point. Make sure that the reference
 *     point is the last point such that is always will define
 *     the reference point. This is improtant when the bias is
-*     defined relative to the last points energy.
+*     defined Backrelative to the last points energy.
 *
 *     This code will have to be cleanup up later.
 *
       ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
       Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
-      Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
-      Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
 *
       Call DCopy_(nInter,qInt(1,iter),1,qInt_s(1,nRaw),1)
       Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
@@ -228,69 +265,60 @@
       Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
 #endif
 *
-      Call DScal_(nInter*nRaw,-One,Grad_s,1)
-      Call Start_Kriging(nRaw,nInter,
-     &                      qInt_s,
-     &                      Grad_s,
-     &                      Energy_s)
 *
-#ifndef _TEST_KRIGING_
+*
+*     Tranform to the basis which diagonalize the HMF Hessian.
+*
+      Call mma_allocate(Temp,nInter,nRaw,Label='Temp')
+      Call Trans(U,qInt_s,Temp,nInter,nRaw)
+      qInt_s(:,:) = Temp
+      Call Trans(U,Grad_s,Temp,nInter,nRaw)
+      Grad_s(:,:) = -Temp
+      Call mma_deallocate(Temp)
+*
+      Call Start_Kriging(nRaw,nInter,
+     &                   qInt_s,
+     &                   Grad_s,
+     &                   Energy_s)
+*
       Call mma_deAllocate(Energy_s)
+#endif
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
-#endif
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Update the l value dynamically. Here we compare the actual,
-*     ab inito value with the GEK prediction of the gradient.
+*     There is a small tweak here. We need to send the transformed
+*     coordinates, shifts, and gradients to update_sl_.f
 *
-      Call Get_dScalar('Value_l',Value_l)
-*
-      If (iter.gt.nspAI) Then
-         iOld=iFirst+nRaw-2
-         xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
-         iNew=iFirst+nRaw-1
-         yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-*
-*        Update the restricted variance threshold.
-*
-*        Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
-*    &                 1.0D-6)
-      End If
-*
+      Call mma_allocate(qInt_s,nInter,MaxItr,Label='qInt_s')
+      Call mma_allocate(Grad_s,nInter,MaxItr,Label='Grad_s')
+      Call mma_allocate(Shift_s,nInter,MaxItr,Label='Shift_s')
+      qInt_s(:,:)=0.0D0
+      Grad_s(:,:)=0.0D0
+      Shift_s(:,:)=0.0D0
+      Call Trans(U,qInt,qInt_s,nInter,iter)
+      Call Trans(U,Grad,Grad_s,nInter,iter)
+      Call Trans(U,Shift,Shift_s,nInter,iter)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Select between setting all l's to a single value or go in
 *     multiple l-value mode in which the l-value is set such that
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
       If (Set_l) Then
+         Call Get_dScalar('Value_l',Value_l)
          Call set_l_kriging([Value_l],1)
+         Call Put_dScalar('Value_l',Value_l)
       Else
          Call mma_Allocate(Array_l,nInter,Label='Array_l')
-         Call Set_l_Array(Array_l,nInter,blavAI)
-         Call set_l_Kriging(Array_l,nInter)
-         Call mma_DeAllocate(Array_l)
+         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
+         Call Set_l_Kriging(Array_l,nInter)
+         Call mma_deAllocate(Array_l)
       End If
-      Call Put_dScalar('Value_l',Value_l)
-#ifdef _TEST_KRIGING_
-      Call mma_allocate(EstiGrad,nInter,Label='EstiGrad')
-      Do iRaw = 1, nRaw
-         Call Energy_Kriging(qInt_s(1,iRaw),EstiEnergy,nInter)
-         Write (6,*) 'Energy'
-         Write (6,*) Energy_s(iRaw),EstiEnergy
-         Call Gradient_Kriging(qInt_s(1,iRaw),EstiGrad,nInter)
-         Write (6,*) 'Gradient'
-         Do iInter = 1, nInter
-            Write (6,*) Grad_s(iInter,iRaw), EstiGrad(iInter)
-         End Do
-      End Do
-      Call mma_deAllocate(EstiGrad)
-      Call mma_deAllocate(Energy_s)
-      Call mma_deAllocate(qInt_s)
-      Call mma_deAllocate(Grad_s)
-#endif
+      Call mma_deallocate(Hessian)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -312,7 +340,7 @@
 *        Compute the updated structure.
 *
          Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt,Shift,Grad,iOptC,Beta,Beta_Disp,
+     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,Beta_Disp,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
@@ -342,8 +370,8 @@
 *
          dqdq=Zero
          Do iInter=1,nInter
-            dqdq=(qInt(iInter,iterAI+1)
-     &           -qInt(iInter,iFirst+nRaw-1))**2
+            dqdq=(qInt_s(iInter,iterAI+1)
+     &           -qInt_s(iInter,iFirst+nRaw-1))**2
          End Do
          If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
 *                                                                      *
@@ -352,11 +380,12 @@
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
-         Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),nInter)
-         Call Dispersion_Kriging(qInt(1,iterAI+1),Dummy,nInter)
+         Call Energy_Kriging(qInt_s(1,iterAI+1),Energy(iterAI+1),nInter)
+         Call Dispersion_Kriging(qInt_s(1,iterAI+1),Dummy,nInter)
          E_Disp = Dummy
-         Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),nInter)
-         Call DScal_(nInter,-One,Grad(1,iterAI+1),1)
+         Call Gradient_Kriging(qInt_s(1,iterAI+1),
+     &                         Grad_s(1,iterAI+1),nInter)
+         Call DScal_(nInter,-One,Grad_s(1,iterAI+1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -364,9 +393,9 @@
          iterAI = iterAI + 1
          dEner = Energy(iterAI) - Energy(iterAI-1)
 #ifdef _DEBUG_
-         Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
+         Call RecPrt('qInt(x):',' ',qInt_s,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
-         Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+         Call RecPrt('Grad(x):',' ',Grad_s,nInter,iterAI)
 #endif
 *                                                                      *
 ************************************************************************
@@ -380,15 +409,15 @@
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criterions
-            FAbs=Sqrt(DDot_(nInter,Grad(1,iterAI),1,
-     &                            Grad(1,iterAI),1)/DBLE(nInter))
-            RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
-     &                          Shift(1,iterAI-1),1)/DBLE(nInter))
+            FAbs=Sqrt(DDot_(nInter,Grad_s(1,iterAI),1,
+     &                            Grad_s(1,iterAI),1)/DBLE(nInter))
+            RMS =Sqrt(DDot_(nInter,Shift_s(1,iterAI-1),1,
+     &                          Shift_s(1,iterAI-1),1)/DBLE(nInter))
             GrdMx=Zero
             RMSMx=Zero
             Do iInter = 1, nInter
-               GrdMx=Max(GrdMx,Abs(Grad(iInter,iterAI)))
-               RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
+               GrdMx=Max(GrdMx,Abs(Grad_s(iInter,iterAI)))
+               RMSMx=Max(RMSMx,Abs(Shift_s(iInter,iterAI-1)))
             End Do
 *
             Not_Converged = FAbs.gt.ThrGrd
@@ -418,9 +447,16 @@
 *     Save the optimized kriging coordinates as the coordinates
 *     for the next macro iteration.
 *
-      Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
+      Call mma_allocate(Temp,nInter,1,Label='Temp')
+      Call BackTrans(U,qInt_s(1,iterAI),Temp,nInter,1)
+      qInt(:,iter+1)=Temp(:,1)
+      Call mma_deallocate(Temp)
+*
+*     Update the shift vector
+*
       Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
       Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
+*
       Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &            Grad(1,iter),Shift(1,iter),Lbl)
 #ifdef _DEBUG_
@@ -432,6 +468,10 @@
 *                                                                      *
 *     Deallocating memory used by Kriging
 *
+      Call mma_deallocate(qInt_s)
+      Call mma_deallocate(Grad_s)
+      Call mma_deallocate(Shift_s)
+      Call mma_deallocate(U)
       Call Finish_Kriging()
 *                                                                      *
 ************************************************************************
@@ -457,4 +497,40 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(kIter)
       If (.False.) Call Unused_integer(NmIter)
 *
-      End
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Contains
+      Subroutine Trans(U,X,Y,nInter,nIter)
+      Implicit None
+      Integer nInter, nIter
+      Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
+*
+*     Call RecPrt('U',' ',U,nInter,nInter)
+*     Call RecPrt('X',' ',X,nInter,nIter)
+      Call DGEMM_('T','N',nInter,nIter,nInter,
+     &            1.0D0,U,nInter,
+     &                  X,nInter,
+     &            0.0D0,Y,nInter)
+*     Call RecPrt('Y',' ',Y,nInter,nIter)
+*
+      Return
+      End Subroutine Trans
+*
+      Subroutine BackTrans(U,X,Y,nInter,nIter)
+      Implicit None
+      Integer nInter, nIter
+      Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
+*
+*     Call RecPrt('U',' ',U,nInter,nInter)
+*     Call RecPrt('X',' ',X,nInter,nIter)
+      Call DGEMM_('N','N',nInter,nIter,nInter,
+     &            1.0D0,U,nInter,
+     &                  X,nInter,
+     &            0.0D0,Y,nInter)
+*     Call RecPrt('Y',' ',Y,nInter,nIter)
+*
+      Return
+      End Subroutine BackTrans
+*
+      End Subroutine Update_Kriging
