@@ -1,14 +1,7 @@
-# There can only be a single "include" per file
-include:
-  # Configurations defined in an external file
-  - "/.configs.yml"
-  # Jobs for building the documentation
-  - "/doc/.gitlab-ci.yml"
-
-# Define templates for "sub-jobs"
-# - install-key: install the SSH key to access private repositories
-# - compile: compile OpenMolcas with CMake
-# - run-tests: run the verification suite
+# Some useful templates:
+# sources: list of files that require a rebuild
+# compile-jobs: rules for when to run compile jobs
+# test-jobs: rules for when to run test jobs
 
 .template: &sources
   changes:
@@ -23,6 +16,49 @@ include:
     - src/**/*
     - test/**/*
     - Tools/**/*
+
+.template: &compile-jobs
+  rules:
+    # not on tags
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # merge requests
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+      when: always
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: always
+    # branches, if changes in the source
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      <<: *sources
+      when: always
+
+.template: &test-jobs
+  rules:
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # merge requests
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+      when: always
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: always
+
+# There can only be a single "include" per file
+include:
+  # Configurations defined in an external file
+  - "/.configs.yml"
+  # Jobs for building the documentation
+  - "/doc/.gitlab-ci.yml"
+
+# Define templates for "sub-jobs"
+# - install-key: install the SSH key to access private repositories
+# - compile: compile OpenMolcas with CMake
+# - run-tests: run the verification suite
 
 .template: &install-key
   before_script:
@@ -41,6 +77,7 @@ include:
 
 .template: &compile
   stage: build
+  interruptible: true
   #<<: *install-key
   script:
     # special pre-script that may be needed in some installations
@@ -97,20 +134,11 @@ include:
       - molcas-extra/
     expire_in: 1 day
     when: always
-  only:
-    refs:
-      - branches
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - tags
-    - master@Molcas/OpenMolcas
+  <<: *compile-jobs
 
 .template: &run-tests
   stage: test
+  interruptible: true
   script:
     # special pre-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
@@ -158,15 +186,7 @@ include:
       - failed/
     expire_in: 1 month
     when: always
-  only:
-    refs:
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - master@Molcas/OpenMolcas
+  <<: *test-jobs
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -174,6 +194,7 @@ include:
 tinker:
   stage: build
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
+  interruptible: true
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
@@ -211,32 +232,9 @@ tinker:
     paths:
       - build/
     expire_in: 1 day
-  only:
-    refs:
-      - branches
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - tags
-    - master@Molcas/OpenMolcas
+  <<: *compile-jobs
   # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
   retry: 2
-
-# Dummy "test" job for when there were no source code changes
-
-test:dummy:
-  stage: test
-  script:
-    - >
-      echo "No source code changes"
-  only:
-    refs:
-      - merge_requests
-  except:
-    <<: *sources
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.

@@ -59,7 +59,9 @@
      &             //' is only valid at stationary points!'
       Write (LUt,10)
       Write (LUt,10) ' Note that rotational and translational degrees'
-     &             //' have been automatically removed.'
+     &             //' have been automatically removed,'
+      Write (LUt,10) ' if the energy is invariant to these degrees'
+     &             //' of freedom.'
       Write (LUt,10)
       Write (LUt,10)
       Write (LUt,10) ' Harmonic frequencies in cm-1'

@@ -396,41 +396,41 @@ C tjd-  BMII: Print out spin-orbit properties to a file
         ENDIF
 
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
-           CALL Put_dArray('ANGMR_NSS',WORK(LSOPRR),3*NSS*NSS)
-           CALL Put_dArray('ANGMI_NSS',WORK(LSOPRI),3*NSS*NSS)
+           CALL Put_dArray('ANGMR_NSS',SOPRR,3*NSS*NSS)
+           CALL Put_dArray('ANGMI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
            Call mh5_put_dset_array_real(wfn_sos_angmomr,
-     $                WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset_array_real(wfn_sos_angmomi,
-     $                WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
 
         IF( (SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1').AND.
      &      (SOPRTP(ISOPR).EQ.'HERMSING') ) THEN
 
-           CALL Put_dArray('EDIPR_NSS',WORK(LSOPRR),3*NSS*NSS)
-           CALL Put_dArray('EDIPI_NSS',WORK(LSOPRI),3*NSS*NSS)
+           CALL Put_dArray('EDIPR_NSS',SOPRR,NSS**2*3)
+           CALL Put_dArray('EDIPI_NSS',SOPRI,NSS**2*3)
 #ifdef _HDF5_
            Call mh5_put_dset_array_real(wfn_sos_edipmomr,
-     $                WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset_array_real(wfn_sos_edipmomi,
-     $                WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
 
         IF( SOPRNM(ISOPR)(1:4) .EQ.'SPIN') THEN
-           CALL Put_dArray('SPINR_NSS',WORK(LSOPRR),3*NSS*NSS)
-           CALL Put_dArray('SPINI_NSS',WORK(LSOPRI),3*NSS*NSS)
+           CALL Put_dArray('SPINR_NSS',SOPRR,3*NSS*NSS)
+           CALL Put_dArray('SPINI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
            Call mh5_put_dset_array_real(wfn_sos_spinr,
-     $                 WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                 SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
            Call mh5_put_dset_array_real(wfn_sos_spini,
-     $                 WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+     $                 SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
-        CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
-        CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
+        Call mma_deallocate(SOPRR)
+        Call mma_deallocate(SOPRI)
        END DO
        Call CollapseOutput(0,'Matrix elements over SO states')
        WRITE(6,*)
