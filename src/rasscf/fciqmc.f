@@ -34,8 +34,8 @@
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-#include "mafdecls.fh"
       integer*4 :: error
+      integer*4, parameter :: one4=1, root4=0
 #endif
       save
 
@@ -292,8 +292,8 @@
           if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, 1, MPI_LOGICAL,
-     &                     0, MPI_COMM_WORLD, error)
+            call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
+     &                     root4, MPI_COMM_WORLD, error)
           end if
 #endif
         end do
@@ -307,7 +307,8 @@
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0,MPI_COMM_WORLD,error)
+          call MPI_Bcast(NECIen, one4, MPI_REAL8,
+     &                   root4, MPI_COMM_WORLD, error)
         end if
 #endif
       end subroutine wait_and_read
