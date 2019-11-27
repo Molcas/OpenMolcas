@@ -383,8 +383,7 @@ The pseudo-code is: ::
           READ site-1, site-2,   J
        End Do
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN1" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" ALSO="LIN1" />
 
 :kword:`ALIN` or :kword:`LIN3`
   Specifies the anisotropic interactions between metal pairs. Three parameters per interacting pair are required.
@@ -399,8 +398,7 @@ The pseudo-code is: ::
 
   :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
 
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ALIN" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" />
-  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN3" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" />
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ALIN" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" ALSO="LIN3" />
 
 :kword:`LIN9`
   Specifies the full anisotropic interaction matrices between metal pairs. Nine parameters per interacting pair is required.

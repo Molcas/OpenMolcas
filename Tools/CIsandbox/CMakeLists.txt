@@ -14,13 +14,16 @@ endif ()
 file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
-file (GLOB sources *.f90)
+file (GLOB data *.DAT)
+message("${data}")
 
-if (BIGOT)
-        set (dir_error "disabled (not compatible with BIGOT)" PARENT_SCOPE)
-        return()
-endif ()
+foreach (datafile ${data})
+        file (COPY ${datafile} DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+endforeach (datafile)
+
+file (GLOB sources *.f90)
 
 add_executable (caspt2_mini.exe ${sources})
 target_link_libraries (caspt2_mini.exe molcas)
 target_link_libraries (caspt2_mini.exe ${EXTERNAL_LIBRARIES})
+

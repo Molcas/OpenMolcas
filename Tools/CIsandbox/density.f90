@@ -16,7 +16,7 @@ MODULE DENSITY
 
   ! Steven Vancoillie, November 2013, Lund
 
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: REAL64
   USE SECOND_QUANTIZATION
   USE WAVEFUNCTION
   IMPLICIT NONE
@@ -31,7 +31,7 @@ CONTAINS
     REAL(REAL64), INTENT(OUT) :: D1(:,:)
     REAL(REAL64), ALLOCATABLE :: SIGMA(:,:)
     INTEGER :: P, Q, IDET, DET, TMP, IRANK
-    REAL(REAL64), EXTERNAL :: DDOT
+    REAL(REAL64), EXTERNAL :: DDOT_
 
     ALLOCATE(SIGMA(PSI%NDETA,PSI%NDETB))
 
@@ -43,7 +43,7 @@ CONTAINS
         DO IDET = 1, PSI%NDETB
           TMP = EX1(P,Q,DET)
           IF (TMP.NE.-1) THEN
-            IRANK=RANK(TMP)
+            IRANK=RANK_(TMP)
             SIGMA(:,IRANK) = SIGMA(:,IRANK) + PSI%COEF(:,IDET) * SIGN(1,TMP)
           END IF
           DET = LEX_NEXT(DET)
@@ -53,13 +53,13 @@ CONTAINS
         DO IDET = 1, PSI%NDETA
           TMP = EX1(P,Q,DET)
           IF (TMP.NE.-1) THEN
-            IRANK=RANK(TMP)
+            IRANK=RANK_(TMP)
             SIGMA(IRANK,:) = SIGMA(IRANK,:) + PSI%COEF(IDET,:) * SIGN(1,TMP)
           END IF
           DET = LEX_NEXT(DET)
         END DO
 
-        D1(P,Q) = DDOT(PSI%NDETA*PSI%NDETB,SIGMA,1,PSI%COEF,1)
+        D1(P,Q) = DDOT_(PSI%NDETA*PSI%NDETB,SIGMA,1,PSI%COEF,1)
       END DO
     END DO
   END SUBROUTINE D1_EXC
@@ -72,11 +72,10 @@ CONTAINS
     TYPE(WFN), INTENT(IN) :: PSI
     REAL(REAL64), INTENT(OUT) :: D1(:,:)
     REAL(REAL64), ALLOCATABLE :: BRA(:,:,:), KET(:,:,:)
-    INTEGER :: P, Q, NORB
+    INTEGER :: P, NORB
     INTEGER :: IA, IB, MDETA, MDETB, NDETSUB
     INTEGER :: DET, TMP, IRANK
     INTEGER :: F
-    REAL(REAL64) :: TRACE
 
     NORB=PSI%NORB
 
@@ -96,7 +95,7 @@ CONTAINS
       DO IA=1,PSI%NDETA
         TMP=ANN(P,DET)
         IF (TMP.NE.-1) THEN
-          IRANK=RANK(TMP)
+          IRANK=RANK_(TMP)
           F=SIGN(1,TMP)
           DO IB=1,PSI%NDETB
             KET(IB,IRANK,P) = PSI%COEF(IA,IB) * F
@@ -105,9 +104,9 @@ CONTAINS
         DET = LEX_NEXT(DET)
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB,NORB,NDETSUB,1.0D0,BRA,NDETSUB,KET,NDETSUB,1.0D0,D1,NORB)
+    CALL DGEMM_('T','N',NORB,NORB,NDETSUB,1.0D0,BRA,NDETSUB,KET,NDETSUB,1.0D0,D1,NORB)
 
     DEALLOCATE(BRA)
     DEALLOCATE(KET)
@@ -126,7 +125,7 @@ CONTAINS
       DO IB=1,PSI%NDETB
         TMP=ANN(P,DET)
         IF (TMP.NE.-1) THEN
-          IRANK=RANK(TMP)
+          IRANK=RANK_(TMP)
           F=SIGN(1,TMP)
           DO IA=1,PSI%NDETA
             KET(IA,IRANK,P) = PSI%COEF(IA,IB) * F
@@ -135,9 +134,9 @@ CONTAINS
         DET = LEX_NEXT(DET)
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB,NORB,NDETSUB,1.0D0,BRA,NDETSUB,KET,NDETSUB,1.0D0,D1,NORB)
+    CALL DGEMM_('T','N',NORB,NORB,NDETSUB,1.0D0,BRA,NDETSUB,KET,NDETSUB,1.0D0,D1,NORB)
 
     DEALLOCATE(BRA)
     DEALLOCATE(KET)
@@ -161,8 +160,7 @@ CONTAINS
     INTEGER :: P, Q, NORB, NORB2
     INTEGER :: IA, IB, MDETA, MDETB, NDETSUB
     INTEGER :: DETA, DETB, TMPA, TMPB, IRANKA, IRANKB
-    INTEGER :: F, FA, FB
-    REAL(REAL64) :: TRACE
+    INTEGER :: FA, FB
 
     D2 = 0.0D0
 
@@ -184,7 +182,7 @@ CONTAINS
         DO IA=1,PSI%NDETA
           TMPA=ANN2(P,Q,DETA)
           IF (TMPA.NE.-1) THEN
-            IRANKA=RANK(TMPA)
+            IRANKA=RANK_(TMPA)
             FA=SIGN(1,TMPA)
             DO IB=1,PSI%NDETB
               KET(IB,IRANKA,P,Q) = PSI%COEF(IA,IB) * FA
@@ -194,9 +192,9 @@ CONTAINS
         END DO
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
+    CALL DGEMM_('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
         & BRA,NDETSUB,KET,NDETSUB,1.0D0,D2,NORB2)
 
     DEALLOCATE(BRA)
@@ -216,7 +214,7 @@ CONTAINS
         DO IB=1,PSI%NDETB
           TMPB=ANN2(P,Q,DETB)
           IF (TMPB.NE.-1) THEN
-            IRANKB=RANK(TMPB)
+            IRANKB=RANK_(TMPB)
             FB=SIGN(1,TMPB)
             DO IA=1,PSI%NDETA
               KET(IA,IRANKB,P,Q) = PSI%COEF(IA,IB) * FB
@@ -226,9 +224,9 @@ CONTAINS
         END DO
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
+    CALL DGEMM_('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
         & BRA,NDETSUB,KET,NDETSUB,1.0D0,D2,NORB2)
 
     DEALLOCATE(BRA)
@@ -248,13 +246,13 @@ CONTAINS
         DO IA=1,PSI%NDETA
           TMPA=ANN(P,DETA)
           IF (TMPA.NE.-1) THEN
-            IRANKA=RANK(TMPA)
+            IRANKA=RANK_(TMPA)
             FA=SIGN(1,TMPA)
             DETB=LEX_INIT(PSI%NELB,NORB)
             DO IB=1,PSI%NDETB
               TMPB=ANN(Q,DETB)
               IF (TMPB.NE.-1) THEN
-                IRANKB=RANK(TMPB)
+                IRANKB=RANK_(TMPB)
                 FB=SIGN(1,TMPB)*(-1)**(PSI%NELA)
                 KET(IRANKB,IRANKA,P,Q) = PSI%COEF(IA,IB) * FA * FB
               END IF
@@ -265,9 +263,9 @@ CONTAINS
         END DO
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
+    CALL DGEMM_('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
         & BRA,NDETSUB,KET,NDETSUB,1.0D0,D2,NORB2)
 
     DEALLOCATE(BRA)
@@ -287,13 +285,13 @@ CONTAINS
         DO IB=1,PSI%NDETB
           TMPB=ANN(P,DETB)
           IF (TMPB.NE.-1) THEN
-            IRANKB=RANK(TMPB)
+            IRANKB=RANK_(TMPB)
             FB=SIGN(1,TMPB)*(-1)**(PSI%NELA-1)
             DETA=LEX_INIT(PSI%NELA,NORB)
             DO IA=1,PSI%NDETA
               TMPA=ANN(Q,DETA)
               IF (TMPA.NE.-1) THEN
-                IRANKA=RANK(TMPA)
+                IRANKA=RANK_(TMPA)
                 FA=SIGN(1,TMPA)
                 KET(IRANKA,IRANKB,P,Q) = PSI%COEF(IA,IB) * FA * FB
               END IF
@@ -304,9 +302,9 @@ CONTAINS
         END DO
       END DO
     END DO
-    BRA=KET
+    BRA(:,:,:,:)=KET
 
-    CALL DGEMM('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
+    CALL DGEMM_('T','N',NORB2,NORB2,NDETSUB,1.0D0, &
         & BRA,NDETSUB,KET,NDETSUB,1.0D0,D2,NORB2)
 
     DEALLOCATE(BRA)

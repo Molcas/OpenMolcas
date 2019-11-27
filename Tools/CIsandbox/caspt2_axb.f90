@@ -11,7 +11,7 @@
 SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   ! Computes the CASPT2 second-order energy of the wavefunction PSI, provided
   ! that the full Fock matrix and necessary 1- and 2-el integrals are given.
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: REAL64
   USE SECOND_QUANTIZATION
   USE WAVEFUNCTION
   USE DENSITY
@@ -48,7 +48,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   INTEGER :: I, J, P, Q, R, S, IA, IB
   INTEGER :: DETA, DETB, TMPA, TMPB
 
-  REAL(REAL64), EXTERNAL :: DNRM2, DDOT
+  REAL(REAL64), EXTERNAL :: DNRM2_, DDOT_
 
   ! get appropriate orbital space dimensions from the supplied Fock matrix
   NI=SIZE(F%II,1)
@@ -197,8 +197,8 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
           PSI1%COEF=0.0D0
           CALL WFN_PSD(NI,NA,NS,SGM,PSI1)
 
-          IF (DNRM2(PSI1%NDET,PSI1%COEF,1).NE.0.0D0) THEN
-            VPQRS(P,Q,R,S)=DDOT(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
+          IF (DNRM2_(PSI1%NDET,PSI1%COEF,1).NE.0.0D0) THEN
+            VPQRS(P,Q,R,S)=DDOT_(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
             NSD=NSD+1
           END IF
 
@@ -259,7 +259,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
           PSI1%COEF=0.0D0
           CALL WFN_PSD(NI,NA,NS,SGM,PSI1)
 
-          IF (DNRM2(PSI1%NDET,PSI1%COEF,1).NE.0.0D0) THEN
+          IF (DNRM2_(PSI1%NDET,PSI1%COEF,1).NE.0.0D0) THEN
             ISD=ISD+1
             ! put |i> = E_pqrs |0> into PSI1BRA and PSI1KET
             PSI1BRA(ISD,:,:) = PSI1%COEF
@@ -292,11 +292,11 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
     END DO
   END DO
 
-  CALL DGEMM('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
+  CALL DGEMM_('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,PSI1KET,PSI1%NDET, &
        & 0.0D0,S0,NSD)
 
-  CALL DGEMM('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
+  CALL DGEMM_('N','N',NSD,NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,FOCKKET,PSI1%NDET, &
        & 0.0D0,H0,NSD)
 
@@ -309,7 +309,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   ! accordingly
 
   ALLOCATE(U0(NSD,NSD))
-  U0=S0
+  U0(:,:)=S0
 
   NWORK=NSD**2
   ALLOCATE(WORK(NWORK))
@@ -342,7 +342,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
 
   ! Solve (H0 - E0 S0) X = -V0
 
-  H0 = H0 - E0 * S0
+  H0(:,:) = H0 - E0 * S0
 
   ALLOCATE(IPIV(NSD))
 
@@ -356,12 +356,12 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
     STOP 'Failed to solve linear equation system'
   END IF
 
-  X=MATMUL(T0,X(1:MSD))
+  X(:)=MATMUL(T0,X(1:MSD))
 
   ! compute the energy
 
   ! method 1: E2 = <V0|X>
-  E2 = DDOT(NSD,V0,1,X,1)
+  E2 = DDOT_(NSD,V0,1,X,1)
   WRITE(*,'(1X,A32,F21.14)') 'E2 as <V0|X> = ', E2
 
   ! method 2: E2 = <0|Ĥ|Psi1>
@@ -403,7 +403,7 @@ SUBROUTINE CASPT2_AXB(PSI,F,NMO,ONEINT,TWOINT)
   !CALL WFN_PRINT(PSI1,1.0D-8)
 
   ! TAU still contains Ĥ|0>, so contract with |Psi1>
-  E2 = DDOT(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
+  E2 = DDOT_(PSI1%NDET,PSI1%COEF,1,TAU%COEF,1)
   WRITE(*,'(1X,A32,F21.14)') 'E2 as <Psi1|H|0> = ', E2
 
 END SUBROUTINE
