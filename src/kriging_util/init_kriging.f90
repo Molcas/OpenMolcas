@@ -7,24 +7,27 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Dispersion_Kriging(x_,y_,ndimx)
+Subroutine Init_Kriging()
   use kriging_mod
-  Implicit None
-  Integer nInter,nPoints,ndimx
-  Real*8 x_(ndimx,1),y_
 !
-!nx is the n-dimensional vector of the last iteration computed
+! Initiate Kriging parameters.
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
-        nx(:,:) = x_
-        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(0,nPoints,nInter)
-! 95% confidence -> 1.96*sigma
-  y_ = 1.96d0*sigma(npx)
+  Kriging = .False.
+  nspAI = 1
+  anMd = .True.
+  pAI = 2
+  npxAI = 1
+  lb(1) = 20.0D0
+  lb(2) = 20.0D0
+  lb(3) = 1
+  miAI = 50
+  meAI = 1.0D-8
+  blAI = .False.
+  mblAI = .False.
+  blaAI = .True.
+  blavAI=0.50D0
+  set_l=.False.
 !
-  return
-End Subroutine Dispersion_Kriging
+  Return
+End Subroutine Init_Kriging

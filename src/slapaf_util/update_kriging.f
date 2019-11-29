@@ -78,7 +78,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      Use AI, only: miAI, meAI, nspAI, blavAI, set_l
+      Use kriging_mod, only: miAI, meAI, blavAI, set_l
       Implicit Real*8 (a-h,o-z)
       External Restriction_Step, Restriction_Dispersion
       Real*8 Restriction_Step, Restriction_Dispersion
@@ -104,8 +104,7 @@
 *                                                                      *
 *     Different hardwired kriging options
 *
-*     Note that turning of the sorting will result in a poorer
-*     kriging!
+*     Note that turning off the sorting will result in a poorer kriging!
 *
 *#define _UNSORTED_
 #define _DIAG_HESS_
@@ -197,8 +196,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Note that we could have some kind of sorting here if we
-*     like!
+*     Note that we could have some kind of sorting here if we like!
 *
       Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
       Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
@@ -420,7 +418,7 @@
      &                iOpt_RS)
          End If
 *
-*        Change lable of updating method if kriging points has
+*        Change label of updating method if kriging points has
 *        been used.
 *
          If (iterK.gt.0) Then
@@ -432,8 +430,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Compute the step length from the last ab inito point
-*        to the most recent krining point.
+*        Compute the step length from the last ab initio point
+*        to the most recent kriging point.
 *
          dqdq=Zero
          Do iInter=1,nInter
@@ -466,15 +464,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Check on convergence criterions.
+*        Check on convergence criteria.
 *
          If (ThrEne.gt.Zero) Then
-*           Convergence on energy criterions.
+*           Convergence on energy criteria.
             Not_Converged = Abs(dEner).ge.ThrEne
             Not_Converged = Not_Converged .and. iterK.lt.miAI
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
-*           Use standard convergence criterions
+*           Use standard convergence criteria
             FAbs=Sqrt(DDot_(nInter,Grad_s(1,iterAI),1,
      &                            Grad_s(1,iterAI),1)/DBLE(nInter))
             RMS =Sqrt(DDot_(nInter,Shift_s(1,iterAI-1),1,
@@ -498,7 +496,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        If the step restriction is envoked terminate anyhow.
+*        If the step restriction is invoked, terminate anyhow.
 *
          If (Step_trunc.eq.'*') Not_Converged=.False.
 *                                                                      *

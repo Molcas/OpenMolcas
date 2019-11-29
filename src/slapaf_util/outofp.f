@@ -127,7 +127,7 @@
       C14X(2,3)=R42(3)*R43(1)-R42(1)*R43(3)
       C14X(3,3)=R42(1)*R43(2)-R42(2)*R43(1)
 *
-*     Exit if 2-3-4 are colinear
+*     Exit if 2-3-4 are collinear
 *     (equivalent to the above check, but this is more concrete)
 *
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
@@ -473,7 +473,7 @@ C     Call DScal_(12**2,-One,dBt,1)
       C14X(2,3)=R42(3)*R43(1)-R42(1)*R43(3)
       C14X(3,3)=R42(1)*R43(2)-R42(2)*R43(1)
 *
-*     Exit if 2-3-4 are colinear
+*     Exit if 2-3-4 are collinear
 *     (equivalent to the above check, but this is more concrete)
 *
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
@@ -610,7 +610,7 @@ C     Call DScal_(12**2,-One,dBt,1)
       C14X(2,3)=R42(3)*R43(1)-R42(1)*R43(3)
       C14X(3,3)=R42(1)*R43(2)-R42(2)*R43(1)
 *
-*     Exit if 2-3-4 are colinear
+*     Exit if 2-3-4 are collinear
 *     (equivalent to the above check, but this is more concrete)
 *
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then

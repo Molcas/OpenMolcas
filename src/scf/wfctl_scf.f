@@ -863,7 +863,7 @@
 *                                                                      *
 *------- Perform another iteration if necessary
 *
-*        Convergence criterions are
+*        Convergence criteria are
 *
 *        Either,
 *

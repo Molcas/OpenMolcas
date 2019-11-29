@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1994,2004,2014,2017,2019, Roland Lindh                 *
-*               2014,2018, Ignacio Fdez. Galvan                        *
+* Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
       Real*8 Function Restriction_Dispersion(q,dq,nInter)
 ************************************************************************
 *                                                                      *
 *     Object: External routine to evaluate a general constraint,       *
-*             to be used in a constraint optimization. In this case    *
+*             to be used in a constrained optimization. In this case   *
 *             the constraint is a step size constraint.                *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Chemistry - BMC                   *
