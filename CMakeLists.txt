@@ -641,7 +641,8 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-cpp")
+set (FFLAGS_GNU_BASIC "")
+set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
@@ -730,7 +731,8 @@ set (CFLAGS_Intel_RELEASE "-O2")
 set (CFLAGS_Intel_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
-set (FFLAGS_Intel_BASIC "-fpp")
+set (FFLAGS_Intel_BASIC "")
+set (FFLAGS_Intel_PREPROCESS "-fpp")
 set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
@@ -783,7 +785,8 @@ set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "SunPro")
-set (FFLAGS_SunPro_BASIC "-fpp") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_BASIC "") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_PREPROCESS "-fpp")
 set (FFLAGS_SunPro_OPENMP "-xopenmp")
 set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
 # build targets
@@ -829,7 +832,8 @@ set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mpreprocess -Mbackslash")
+set (FFLAGS_PGI_BASIC "-Mbackslash")
+set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
 set (FFLAGS_PGI_OPENMP "-mp")
 set (FFLAGS_PGI_ILP64 "-i8")
 # build targets
@@ -851,7 +855,8 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-fpp -dusty -dcfuns -mismatch_all -w -kind=byte")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
+set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
@@ -1039,6 +1044,10 @@ else ()
                 )
 endif ()
 set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
+
+if (NOT CMAKE_GENERATOR STREQUAL "Ninja")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_PREPROCESS}")
+endif ()
 
 if (ADDRMODE EQUAL 64)
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_ILP64}")

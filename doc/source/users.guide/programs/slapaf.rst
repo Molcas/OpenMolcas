@@ -640,80 +640,120 @@ Optional optimization procedure keywords
 
   .. xmldoc:: </GROUP>
 
-:kword:`MEP-search`
-  Enable a minimum energy path (MEP) search. :kword:`MEP` is a valid synonym.
+:kword:`MEP-search` or :kword:`MEP`
+  Enable a minimum energy path (MEP) search.
 
   .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC" ALSO="MEP">
               %%Keyword: MEP-search <basic>
               <HELP>
-              Enable a minimum energy path (MEP) search. MEP is a valid synonym.
+              Enable a minimum energy path (MEP) search.
               </HELP>
+              MEP is a valid synonym.
               </KEYWORD>
 
   .. xmldoc:: %%Keyword: MEP <basic>
-              Enable a minimum energy path (MEP) search. Synonym of MEP-search.
+              Enable a minimum energy path (MEP) search.
+              Synonym of MEP-search.
 
-:kword:`NMEP`
-  Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
-  Synonym of :kword:`NIRC`.
+:kword:`IRC`
+  The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
+  transition state structure. The analysis will follow the reaction path forward and
+  backward until the energy increases. The keyword requires that the starting structure be
+  that of a transition state and that the reaction vector be specified explicitly
+  (check the keyword :kword:`REACtion vector`) or implicitly if it can be found on :file:`RUNOLD`.
+  Note that the user should not specify any explicit constraints!
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
-              %%Keyword: NMEP <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRC" APPEAR="IRC analysis" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: IRC <basic>
               <HELP>
-              Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
-              Synonym of NIRC.
+              The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
+              transition state structure. The analysis will follow the reaction path forward and
+              backward until the energy increase. The keyword require that the starting structure is
+              that of a transition state and that the reaction vector is specified explicitly
+              (check the keyword "REACtion vector") or implicitly can be found on RUNOLD.
+              Note that the user should not specify any explicit constraints!
               </HELP>
               </KEYWORD>
 
-:kword:`MEPStep`
+:kword:`NMEP` or :kword:`NIRC`
+  Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="NIRC">
+              %%Keyword: NMEP <basic>
+              <HELP>
+              Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
+              </HELP>
+              NIRC is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: NIRC <basic>
+              Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
+              Synonym of NMEP.
+
+:kword:`MEPStep` or :kword:`IRCStep`
   The keyword is used to specify the step length done in the MEP search or IRC analysis.
   The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
   (in normalized mass-weighted coordinates).
-  Synonym of :kword:`IRCStep`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="IRCSTEP">
               %%Keyword: MEPStep <basic>
               <HELP>
               The keyword is used to specify the step length done in the MEP search or IRC analysis.
               The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
               (in normalized mass-weighted coordinates).
-              Synonym of IRCStep.
               </HELP>
+              IRCStep is a valid synonym.
               </KEYWORD>
 
-:kword:`MEPType`
+              %%Keyword: IRCStep <basic>
+              The keyword is used to specify the step length done in the IRC analysis or MEP search.
+              The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
+              (in normalized mass-weighted coordinates).
+              Synonym of MEPStep.
+
+:kword:`MEPType`  or :kword:`IRCType`
   Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
   The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
   or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
   The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
-  Synonym of :kword:`IRCType`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCTYPE">
               %%Keyword: MEPType <basic>
               <HELP>
               Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
               or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
               The reference structure changes at each step, according to the MEPAlgorithm keyword.
-              Synonym of IRCType.
               </HELP>
+              IRCType is a valid synonym.
               </KEYWORD>
 
-:kword:`MEPAlgorithm`
+              %%Keyword: IRCType <basic>
+              Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
+              The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
+              or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
+              The reference structure changes at each step, according to the IRCAlgorithm keyword.
+              Synonym of MEPType.
+
+:kword:`MEPAlgorithm` or :kword:`IRCAlgorithm`
   Selects the algorithm for a MEP search or IRC analysis.
   The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
-  Synonym of :kword:`IRCAlgorithm`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCALGORITHM">
               %%Keyword: MEPAlgorithm <basic>
               <HELP>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
-              Synonym of IRCAlgorithm.
               </HELP>
+              IRCAlgorithm is a valid synonym.
               </KEYWORD>
+
+              %%Keyword: IRCAlgorithm <basic>
+              Selects the algorithm for a MEP search or IRC analysis.
+              The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
+              Synonym of MEPAlgorithm.
 
 :kword:`REFErence`
   The keyword is followed by a list of the symmetry unique coordinates (in au)
@@ -740,86 +780,6 @@ Optional optimization procedure keywords
               The keyword is followed by a list of the gradient vector components. This keyword is
               compulsory when using the Transverse kind of constraint. The optimization is performed in
               a space orthogonal to the given vector.
-              </HELP>
-              </KEYWORD>
-
-:kword:`IRC`
-  The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
-  transition state structure. The analysis will follow the reaction path forward and
-  backward until the energy increases. The keyword requires that the starting structure be
-  that of a transition state and that the reaction vector be specified explicitly
-  (check the keyword :kword:`REACtion vector`) or implicitly if it can be found on :file:`RUNOLD`.
-  Note that the user should not specify any explicit constraints!
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRC" APPEAR="IRC analysis" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: IRC <basic>
-              <HELP>
-              The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
-              transition state structure. The analysis will follow the reaction path forward and
-              backward until the energy increase. The keyword require that the starting structure is
-              that of a transition state and that the reaction vector is specified explicitly
-              (check the keyword "REACtion vector") or implicitly can be found on RUNOLD.
-              Note that the user should not specify any explicit constraints!
-              </HELP>
-              </KEYWORD>
-
-:kword:`NIRC`
-  Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
-  Synonym of :kword:`NMEP`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NIRC" APPEAR="Max points on an IRC" KIND="INT" MIN_VALUE="1" REQUIRE="IRC" LEVEL="BASIC">
-              %%Keyword: NIRC <basic>
-              <HELP>
-              Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
-              Synonym of NMEP.
-              </HELP>
-              </KEYWORD>
-
-:kword:`IRCStep`
-  The keyword is used to specify the step length done in the IRC analysis or MEP search.
-  The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
-  (in normalized mass-weighted coordinates).
-  Synonym of :kword:`MEPStep`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCSTEP" APPEAR="IRC Step" KIND="STRING" REQUIRE="IRC" LEVEL="BASIC">
-              %%Keyword: IRCStep <basic>
-              <HELP>
-              The keyword is used to specify the step length done in the IRC analysis or MEP search.
-              The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
-              (in normalized mass-weighted coordinates).
-              Synonym of MEPStep.
-              </HELP>
-              </KEYWORD>
-
-:kword:`IRCType`
-  Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
-  The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
-  or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
-  The reference structure changes at each step, according to the :kword:`IRCAlgorithm` keyword.
-  Synonym of :kword:`MEPType`
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCTYPE" APPEAR="IRC Type" KIND="STRING" REQUIRE="IRC" LEVEL="ADVANCED">
-              %%Keyword: IRCType <basic>
-              <HELP>
-              Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
-              The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
-              or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
-              The reference structure changes at each step, according to the IRCAlgorithm keyword.
-              Synonym of MEPType.
-              </HELP>
-              </KEYWORD>
-
-:kword:`IRCAlgorithm`
-  Selects the algorithm for a MEP search or IRC analysis.
-  The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
-  Synonym of :kword:`MEPAlgorithm`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCALGORITHM" APPEAR="IRC Algorithm" KIND="STRING" REQUIRE="IRC" LEVEL="ADVANCED">
-              %%Keyword: IRCAlgorithm <basic>
-              <HELP>
-              Selects the algorithm for a MEP search or IRC analysis.
-              The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
-              Synonym of MEPAlgorithm.
               </HELP>
               </KEYWORD>
 
