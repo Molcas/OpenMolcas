@@ -1329,7 +1329,9 @@ CIgorS End
 
 * This also implies that information on orbital types could be
 * taken from typeindex on orbital file:
-        If( index(InfoLbl,'i').gt.0  .or. index(InfoLbl,'I').gt.0) Then
+        if (('I' .in. to_upper(trim(InfoLbl)))
+     &      .and. .not. any([KeyRAS1, KeyRAS2, KeyRAS3,
+     &                       KeyFROZ, KeyINAC, KeyDELE])) then
           iOrbData=3
           iOverWr=0
           If (DBG) Then
