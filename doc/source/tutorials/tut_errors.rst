@@ -187,8 +187,8 @@ In the following the most usual errors found in |molcas| are listed.
 
 .. .. _TUT\:sec\:flow_all:
 
-   |molcasversion| Flowchart
-   -------------------------
+   |molcas| Flowchart
+   ------------------
 
    .. figure:: flow-all.*
       :name: fig:flow_all

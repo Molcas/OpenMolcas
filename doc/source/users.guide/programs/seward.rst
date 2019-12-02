@@ -151,7 +151,7 @@ Input Files
 
 Apart form the standard input file
 :program:`SEWARD` will use the following input files: :file:`RYSRW`, :file:`ABDATA`,
-:file:`RUNFILE`, :file:`INPORB` (for calculation of properties) (:ref:`UG:sec:files_list`).
+:file:`RUNFILE`, :file:`INPORB` (for calculation of properties) (:numref:`UG:sec:files_list`).
 In addition, :program:`SEWARD` uses the following files:
 
 .. class:: filelist
@@ -160,8 +160,8 @@ In addition, :program:`SEWARD` uses the following files:
   The default directory for one-particle basis set information.
   This directory contains files which are part
   of the program system and could
-  be manipulated by the user in accordance with the instructions in the
-  section :ref:`UG:sec:the_basis_set_libraries` and following subsections.
+  be manipulated by the user in accordance with the instructions in
+  :numref:`UG:sec:the_basis_set_libraries` and following subsections.
   New basis set files can be added to this directory by the local
   |molcas| administrator.
 
@@ -174,7 +174,7 @@ Output files
 In addition to the standard output file
 :program:`SEWARD` may generate the following files:
 :file:`ONEINT`, :file:`ORDINT`, :file:`CHVEC`, :file:`CHRED`, :file:`CHORST`,
-:file:`CHOMAP`, :file:`CHOR2F` (:ref:`UG:sec:files_list`).
+:file:`CHOMAP`, :file:`CHOR2F` (:numref:`UG:sec:files_list`).
 
 .. _UG\:sec\:seward_input:
 
@@ -960,12 +960,12 @@ by that the center of the diffuse basis is assigned the unique atom label DBAS.
 .. class:: keywordlist
 
 :kword:`RMAT`
-  Radius of the :math:`R`\-matrix sphere (in Bohr). This sphere is centered at the
-  coordinate origin. The default is 10 Bohr.
+  Radius of the :math:`R`\-matrix sphere (in bohr). This sphere is centered at the
+  coordinate origin. The default is 10 bohr.
 
   .. xmldoc:: %%Keyword: RMAT <basic>
-              Radius of the R-matrix sphere (in Bohr). This sphere is centered
-              at the coordinate origin. Default value is set to 10 Bohr.
+              Radius of the R-matrix sphere (in bohr). This sphere is centered
+              at the coordinate origin. Default value is set to 10 bohr.
 
 :kword:`RMEA`
   Absolute precision in radial integration.

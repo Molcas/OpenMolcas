@@ -103,7 +103,7 @@ The
 :program:`CPF` will use the following input
 files: :file:`ONEINT`, :file:`RUNFILE`, :file:`CIGUGA`,
 :file:`TRAINT`, :file:`TRAONE`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 and :file:`CPFVECT` (for restarted calculations).
 
 Output files

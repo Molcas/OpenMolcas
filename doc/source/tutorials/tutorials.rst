@@ -3,7 +3,7 @@
 Program Based Tutorials
 =======================
 
-The |molcas| |molcasversion| suite of Quantum Chemical programs is modular in
+The |molcas| suite of Quantum Chemical programs is modular in
 design. The desired calculation is achieved by executing a list of
 |molcas| program modules in succession, while potentially manipulating
 the program information files. If the information files from a previous
@@ -17,7 +17,7 @@ specification of keywords in previous modules.
 The following sections describe the use of the |molcas| modules and
 their inter-relationships. Each module is introduced in the
 approximate order for performing a typical calculation.
-A complete flowchart for the |molcas| |molcasversion| suite of programs follows.
+A complete flowchart for the |molcas| suite of programs follows.
 
 .. toctree::
 

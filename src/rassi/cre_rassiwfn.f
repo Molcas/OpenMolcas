@@ -228,14 +228,14 @@
       call mh5_init_attr(wfn_sos_spinr, 'description',
      $        'Spin momentum components between the spin-orbit '//
      $        'states stored as <SOS1|SPIN(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], real part')
+     $        ' [3,NSS,NSS], real part')
 
       wfn_sos_spini = mh5_create_dset_real(wfn_fileid,
      $        'SOS_SPIN_IMAG', 3, [NSS,NSS,3])
       call mh5_init_attr(wfn_sos_spini, 'description',
      $        'Spin momentum components between the spin-orbit '//
      $        'states stored as <SOS1|SPIN(x,y,z)|SOS2> in'//
-     $        ' [NSS,NSS,3], imaginary part')
+     $        ' [3,NSS,NSS], imaginary part')
 
       wfn_sos_edipmomr = mh5_create_dset_real(wfn_fileid,
      $        'SOS_EDIPMOM_REAL', 3, [NSS,NSS,3])

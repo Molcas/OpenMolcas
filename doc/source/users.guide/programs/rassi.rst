@@ -550,19 +550,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`ONEL`
+:kword:`ONEL` or :kword:`ONEE`
   The two-electron integral file will not be accessed. No Hamiltonian
   matrix elements will be calculated, and only matrix elements for the
   original RASSCF wave functions will be calculated.
-  :kword:`ONEE` is a valid synonym for this keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ONEL" APPEAR="One-electron properties only" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ONEL" APPEAR="One-electron properties only" KIND="SINGLE" LEVEL="BASIC" ALSO="ONEE">
               %%Keyword: Onel <basic>
               <HELP>
               The two-electron integral file will not be accessed. No hamiltonian
               matrix elements will be calculated. Non-interacting states will not
-              be formed. Onee is a valid synonym for this keyword.
+              be formed.
               </HELP>
+              Onee is a valid synonym for this keyword.
               </KEYWORD>
 
 :kword:`J-VAlue`
@@ -608,7 +608,7 @@ Keywords
   "JOB002", etc. will be used, and all states found on these files will be
   used.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC" ALSO="NR OF JOBIPHS">
               %%Keyword: NrOf <basic>
               <HELP>
               Number of JOBIPH files used as input, followed by a list of
@@ -616,8 +616,6 @@ Keywords
               for each JOBIPH a list of which states to select.
               </HELP>
               </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NR OF JOBIPHS" KIND="CUSTOM" LEVEL="UNDOCUMENTED" />
 
 :kword:`SUBSets`
   In many cases, RASSI is used to compute the transition moments between
@@ -1057,7 +1055,7 @@ Keywords
   This computes the magnetic moment and magnetic susceptibility.
   On the next two lines you have to provide the magnetic field and
   temperature data. On the first line put the number of magnetic
-  field steps, the starting field (in Tesla), size of the steps (in Tesla),
+  field steps, the starting field (in tesla), size of the steps (in tesla),
   and an angular resolution for sampling points in case of powder magnetization
   (for a value of 0.0d0 the powder magnetization is deactivated).
   The second line reads the number of temperature steps, the starting
@@ -1072,7 +1070,7 @@ Keywords
               This computes the magnetic moment and magnetic susceptibility.
               On the next two lines you have to provide the magnetic field and
               temperature data. On the first line put the number of magnetic
-              field steps, the starting field (in Tesla), size of the steps (in Tesla),
+              field steps, the starting field (in tesla), size of the steps (in tesla),
               and an angular resolution for sampling points in case of powder magnetization
               (for a value of 0.0d0 the powder magnetization is deactivated).
               The second line reads the number of temperature steps, the starting

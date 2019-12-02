@@ -19,7 +19,7 @@
          Write(Warning,3) A
 3        FORMAT(1X,'Warning argument of aCos= ',1F21.18)
          If (ABS(A).lt.One+Delta) Then
-            Call WarningMessage(1,Warning)
+            !Call WarningMessage(1,Warning)
             A=Sign(One,A)
          Else
             Call WarningMessage(2,Warning)

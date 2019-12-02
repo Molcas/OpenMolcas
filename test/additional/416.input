@@ -39,6 +39,8 @@
   IIOR = 11
   SUBS = 1
   SpinOrbit
+  XVIN ; XVES ; XVSO
+  MEIN ; MEES ; MESO
 
 >>>> FILE C4H6.xyz
   10

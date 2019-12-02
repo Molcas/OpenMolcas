@@ -98,9 +98,6 @@
           End Do
         End Do
       End If
-      do i=1,nstate
-      write(6,*) idxstate(i,:)
-      end do
       End Subroutine UpdateIdx
 
 ************************************************************************
