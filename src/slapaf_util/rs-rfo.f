@@ -46,7 +46,7 @@
 *
       UpMeth='RS-RFO'
       Lu=6
-*define _DEBUG_
+*#define _DEBUG_
 *define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
@@ -68,7 +68,7 @@
 #ifdef _DEBUG_
       NumVal=nInter+1
 #else
-      NumVal=Min(5,nInter)
+      NumVal=Min(6,nInter)+1
 #endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
@@ -267,6 +267,17 @@
       Write (Lu,*) 'EigVal,dqHdq=',EigVal,dqHdq
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
       Call RecPrt(' In RS_RFO:dq',' ',dq,nInter,1)
+#endif
+#define _CHECK_UPDATE_
+#ifdef _CHECK_UPDATE_
+      Thr_Check=1.0D2
+      Do i = 1, nInter
+         If (ABS(dq(i)).gt.Thr_Check) Then
+            Write (6,*) 'RS_RFO: ABS(dq(i)).gt.Thr_Check'
+            Write (6,*) '        Probably an error.'
+            Call Abend()
+         End If
+      End Do
 #endif
 *
       Call mma_deallocate(Vec)

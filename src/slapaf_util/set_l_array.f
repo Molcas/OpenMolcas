@@ -22,7 +22,9 @@
 *
       Do i = 1, nInter
 *
-         Array_l(i)=Sqrt((5.0D0*BaseLine)/(3.0D0*Abs(Hessian(i,i))))
+         Hss=Max(Abs(Hessian(i,i)),0.010D0)
+*        Hss=Abs(Hessian(i,i))
+         Array_l(i)=Sqrt((5.0D0*BaseLine)/(3.0D0*Hss))
 *
       End Do
 *     Call RecPrt('Array_l',' ',Array_l,1,nInter)

@@ -57,15 +57,14 @@
      &      ,ThrEne
       Write (Lu,'(A)')
      &    ' Parameters for constrained optimization'
+      If (.NOT.Kriging) Then
       Write (Lu,'(A,E9.2)')
      &    ' Max step length (initial seed):          ',Beta
-      Write (Lu,'(A,F9.5,A)')
-     &    ' Max variance accepted:                   ',Beta_disp,' a.u.'
-      Write (Lu,'(A,F9.5,A)')
-     &    '                                          ',
-     &      Beta_disp*CONV_AU_TO_KJ_PER_MOLE_,
-     &    ' kcal/mol'
+      Else
+      Write (Lu,'(A,F9.5)')
+     &    ' Max variance accepted (fact. of g.norm): ',Beta_disp
       Write (Lu,*)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -99,7 +98,7 @@
        End If
 *
        If (blaAI) then
-          write (6,'(A,F9.5,A,/,A,F9.5,A)')
+          write (6,'(A,F10.5,A,/,A,F10.5,A)')
      &          '   Baseline is highest energy plus: ',blavAI,' a.u',
      &          '                                 ',
      &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,

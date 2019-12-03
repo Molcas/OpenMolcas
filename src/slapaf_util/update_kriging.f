@@ -107,16 +107,14 @@
 *     Note that turning of the sorting will result in a poorer
 *     kriging!
 *
-*define _UNSORTED_
+*#define _UNSORTED_
 #define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged
       Real*8, Allocatable:: Array_l(:)
-#ifndef _UNSORTED_
       Real*8, Allocatable:: Energy_s(:)
-#endif
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
 *
       iRout=153
@@ -189,6 +187,7 @@
 *
       Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
       Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
+      Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
 #ifdef _UNSORTED_
 *
 *     Tranform to the basis which diagonalize the HMF Hessian.
@@ -196,11 +195,7 @@
       Call Trans(U,qInt(1,iFirst),qInt_s,nInter,nRaw)
       Call Trans(U,Grad(1,iFirst),Grad_s,nInter,nRaw)
       Call DScal_(nInter*nRaw,-One,Grad_s,1)
-*
-      Call Start_Kriging(nRaw,nInter,
-     &                   qInt_s,
-     &                   Grad_s,
-     &                   Energy(iFirst))
+      Call DCopy_(nRaw,Energy(iFirst),1,Energy_s,1)
 *
 #else
 *                                                                      *
@@ -215,7 +210,6 @@
 *     This code will have to be cleanup up later.
 *
       ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
-      Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
 *
       Call DCopy_(nInter,qInt(1,iter),1,qInt_s(1,nRaw),1)
       Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
@@ -276,13 +270,10 @@
       Grad_s(:,:) = -Temp
       Call mma_deallocate(Temp)
 *
-      Call Start_Kriging(nRaw,nInter,
-     &                   qInt_s,
-     &                   Grad_s,
-     &                   Energy_s)
+#endif
+      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy_s)
 *
       Call mma_deAllocate(Energy_s)
-#endif
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
 *                                                                      *
@@ -339,8 +330,10 @@
 *                                                                      *
 *        Compute the updated structure.
 *
+         Beta_Disp_=MaxVal(GNrm,iterAI)*Beta_Disp
          Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,Beta_Disp,
+     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,
+     &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
