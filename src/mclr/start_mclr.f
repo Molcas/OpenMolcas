@@ -102,7 +102,7 @@
      &                      nFro,nDel,ipCMO,nDens2,
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
       iType=3  ! Means that TraCtl is called by MCLR
-*
+
       if (.not.newCho) Then
         Call TraCtl_Drv(iType,.True.,1)
       EndIf
@@ -132,6 +132,7 @@
          Write(Fname,'(A4)') 'CHTU'
          Call DANAME_MF_WA(LuChoInt(2),Fname)
       EndIf
+*
       Call DaClos(LuTri2)
       Call DaClos(LuHlf2)
       Call DaClos(LuHlf3)

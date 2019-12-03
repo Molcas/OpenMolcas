@@ -25,7 +25,7 @@
 
 #include "cicisp_mclr.fh"
        Character NT
-       integer kic(2),opout
+       integer kic(2),opout,nbb(8)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block

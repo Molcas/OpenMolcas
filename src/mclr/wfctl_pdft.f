@@ -51,7 +51,7 @@
       Integer nacpar,nacpr2
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
-      Logical fix
+
       Integer ipFT99,iptemp5
 *
       Call QEnter('WfCtl_SA')
@@ -311,7 +311,7 @@
 *            write(6,*) Work(ipin(ipST)-1+iS)
 *          end do
         else 
-        call dcopy_(nConf1,[Zero],0,Work(ipIn(ipst)+i*nconf1),1)
+        call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)+i*nconf1),1)
         end if
       Enddo
 
@@ -423,21 +423,11 @@
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Work(ipSigma),1)
 *
-      Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
-     &              Work(ipKap),nDens2+6,work(ipTemp3),nDens2+6,
-     &              isym,iter)
 *
 *REMOVING ORB PRECONDITIONER
 !      Call dcopy_(ndensc,Work(ipsigma),1,
 !     &   Work(ipkap),1)
 *
-      irc=opOut(ippre2)
-      r2=ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
-      If(debug)Write(6,*) 'In that case I think that r2 should be:',r2
-      If (r2.gt.r1) Write(6,*) 'Warning ',
-     &    ' perturbation number ',idisp,' might diverge'
-*
-      call dcopy_(ndensC,Work(ipKap),1,Work(ipdKap),1)
 *
       deltaC=Zero
 !AMS _________________________________________________________
@@ -467,10 +457,10 @@
        Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
        Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
 *
-      call Dcopy(ndens,[Zero],
+      call Dcopy(ndens,Zero,
      &     0,work(kap_new_temp),1)
 *
-      call Dcopy(ndensc,[Zero],
+      call Dcopy(ndensc,Zero,
      &     0,work(kap_new),1)
 *
 *       call Dcopy(nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
@@ -489,42 +479,43 @@
      & nconf1, work(lmroots),1,0.0d0,
      & work(ipin(ipcid)+(irlxroot-1)*nconf1),1) 
 *
+*      write(*,*) 'ipcd'
+*      do i=1,nroots*nconf1
+*        write(*,*) work(ipin(ipcid)-1+i)
+*      end do
+*
+*        Call daxpy(nconf1,-1.0d0,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+*     &             1,work(ipst_prime),1) 
+*      write(*,*) 'ipst_pime'
+*      do i=1,nconf1
+*        write(*,*) work(ipst_prime-1+i)
+*      end do
 *
 *SA-SA rotations w/in SA space for new lagrange multipliers
-       fix=.FALSE.
        do i=0, nroots-1
        if (i.eq.(irlxroot-1)) then
        work(lmroots_new+i)=0.0d0
        else
          diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
          write(*,*) 'diff',diff
-         diffsq=diff**2
-         if (diffsq.le.1.5d-010**2) then
-             fix=.TRUE. 
-             degen_root= i
-         end if
          wscale = (1.0d0/(2.0d0*diff))*(1.0d0/weight(i+1))
          write(*,*)'wscale',wscale
          write(*,*) 'weight', weight(i+1)        
-         work(lmroots_new+i)= wscale*work(lmroots+i)
+        work(lmroots_new+i)= wscale*work(lmroots+i)
        end if
        end do
 *
-*      if(debug) then
+      if(debug) then
       write(*,*) 'lmroots_new'
        do i=1,nroots
         write(*,*) work(lmroots_new-1+i)
       end do
-*      end if
-*
+      end if
 *SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
-         write(*,*) 'ipci*lmroots_new'
-          call dgemv_('N',nconf1,nroots,1.0d0,work(ipin(ipci)),
-     &    nconf1,work(lmroots_new),1,0.0d0,
-     &    work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     &  nconf1, work(lmroots_new),1,0.0d0,
+     &  work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
 *
-         if (.false.) then
-        end if
 *First iter of PCG
 *           if (.false.) then
           Call TimesE2_(work(kap_new),ipCId,1,reco,jspin,ipS2,
@@ -535,7 +526,7 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ipst this should be lmroots'
+       write(*,*) 'lmroots_ipst this should be 1lmroots'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
        end do
@@ -546,7 +537,7 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ips1 this should be -lmroots'
+       write(*,*) 'lmroots_ips1 thisshould be -lmroots'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
        end do
@@ -569,10 +560,13 @@
          irc=opOut(ipdia)
 *
          Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
-     &                 Work(ipSc2),nDens2+6,Work(ipSc1),nDens2+6,
+     &                 Work(ipdKap),nDens2+6,Work(ipSc1),nDens2+6,
      &                 iSym,iter)
          irc=opOut(ippre2)
-            Call DaXpY_(nDensC,One,Work(ipSc2),1,Work(ipdKap),1)
+         r2=ddot_(ndensc,Work(ipdKap),1,Work(ipdKap),1)
+         If (r2.gt.r1) Write(6,*) 'Warning ',
+     &    ' perturbation number ',idisp,' might diverge'
+*
 *
 *      call Dcopy(nconf1*nroots,Zero,
 *     &     0,work(ipin(ips1)),1)
@@ -609,15 +603,47 @@
         deltaC=0.0d0
       End If
 !AMS_______________________________________________
-*
+
       irc=ipOut(ipcid)
-      deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-      call dcopy_(nDens,[Zero],0,Work(ipKap),1)
+      deltaK=ddot_(nDensC,Work(ipdKap),1,Work(ipSigma),1)
       delta=deltac+deltaK
 *         write(*,*)'deltac and deltak', deltac,deltak
       delta0=delta
       iter=1
       If (delta.eq.Zero) Goto 300
+
+* MRH: the below is my attempt to do archaeology on this nightmare
+* ipKap: accumulates Lagrange multiplier orbital parts (ipdKap * ralpha)
+* ipdKap: orbital input of Hessian matrix-vector; also accumulates (?)
+* ipTemp4: orbital output of Hessian matrix-vector
+* ipSigma: accumulates error vector orbital part 
+* ipCIT: accumulates Lagrange multiplier CI parts (ipCId * ralpha)
+* ipCId: CI input of Hessian matrix-vector; also accumulates (?)
+* ipS1: CI output of Hessian matrix-vector
+* ipST: accumulates error vector CI part 
+* At this line, prior to my fix:
+*  ipst = (g - A.x_sa)_ci
+*  ipcid = M^-1 (g - A.x_sa)_ci [NOTE: here M^-1 is just 1]
+*  ipcit = x_sa
+*  ipSigma = (g - A.x_sa)_orb
+*  ipdKap = M^-1 (2*g - A.x_sa)_orb (!!!)
+*  ipKap = 0 
+* ipdKap has a factor of 2 because until the dcopy_ a few lines above,
+* ipKap contained M^-1 g_orb
+* calculated on line 426. This was added to a factor of M^-1 (g -
+* A.x_sa)_orb calculated
+* on line 574, which resembles what happens in the PCG algorith below
+* but without the factors of
+* alpha, beta that make everything so confusing. Also, delta = delta0 =
+* <g_orb|M^-1|(g - A.x_sa)_orb> + <g_ci - A.x_sa|M^-1|g_ci - A.x_sa>
+* 
+* I think the correct thing is for ipdKap to contain M^-1 (g - A.x_sa)
+* and delta = delta0 to contain <g - A.x_sa|M^-1|g - A.x_sa>.
+* This can be accomplished by getting rid of the stuff that happens in
+* and around line 426
+* and making sure that it happens in and around line 574 instead.
+* (I HAVE NOW DONE THIS so these line numbers are meaningless.)
+
 
 *-----------------------------------------------------------------------------
 *
@@ -682,8 +708,8 @@
 *        S=M  Sigma
 *
          irc=opOut(ipcid)
-*
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rchc,isym,work(ipS))
+
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
 
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -711,7 +737,7 @@
      &                             Work(ipIn(ipS2)),1)
 *
 *         write(*,*) 'ipst and ips2'
-*
+
 *
          irc=ipOut(ipST)
 *
@@ -724,9 +750,9 @@
          Else
             rbeta=(deltac+deltaK)/delta
             delta=deltac+deltaK
-*
-*         write(*,*)'deltac and deltak', deltac,deltak
-*
+
+*         write(*,*)'deltac, deltak, and delta0', deltac,deltak,delta0
+
             Call DScal_(nConf1*nroots,rBeta,Work(ipIn(ipCID)),1)
             Call DScal_(nDensC,rBeta,Work(ipdKap),1)
             Call DaXpY_(nConf1*nroots,One,Work(ipIn(ipS2)),1,
@@ -870,7 +896,7 @@
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
-*      Dimension rdum(1)
+      Dimension rdum(1)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)
@@ -919,3 +945,4 @@
 *
       Return
       End
+
