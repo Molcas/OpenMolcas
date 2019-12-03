@@ -203,8 +203,8 @@ following form ::
   ...(keywords on higher tier)
   END simulation
 
-Also consult the input example below and the examples in section
-:ref:`TUT:sec:cavity` for guidance. Mandatory keywords
+Also consult the input example below and the examples in
+:numref:`TUT:sec:cavity` for guidance. Mandatory keywords
 are highlighted.
 
 .. class:: keywordlist
@@ -223,7 +223,7 @@ are highlighted.
     with the present keyword.
   * **PERMittivity** Permittivity of the dielectric continuum. 80 on
     default.
-  * **TEMPerature** Temperature in Kelvin. Default is 300.
+  * **TEMPerature** Temperature in kelvin. Default is 300.
   * **PRESsure** Macroscopic pressure in atmosphere. Default is 1 atm.
   * **SURFace** Surface tension parameter for the cavity. Default is
     for air--water interface.
@@ -582,9 +582,9 @@ are highlighted.
   * **ORBItals**
     Two numbers are required: how many orbitals that are to be used
     how many occupied orbitals there are in the QM region.
-    as a basis in which to solve the Hartree-Fock equation, and
+    as a basis in which to solve the Hartree--Fock equation, and
   * **END ScfSection**
-    Marks the end of the input that govern the Scf calculations.
+    Marks the end of the input that govern the SCF calculations.
 
   .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="SCFSECTION" LEVEL="UNDOCUMENTED" KIND="BLOCK">
 

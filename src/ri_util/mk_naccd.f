@@ -32,7 +32,7 @@
 
 *     aCD subroutine:
 *     Still looping over yang and jAng
-*     Choleski decomposition (only contracted + with a threshold)
+*     Cholesky decomposition (only contracted + with a threshold)
 *     End loop
 
 ************************************************************************

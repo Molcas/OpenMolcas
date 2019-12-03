@@ -68,6 +68,7 @@ def write_XMLDocs(app, exception):
   if hasattr(env, 'XMLDocs'):
     data_dir = app.config.data_dir
     with codecs.open(os.path.join(data_dir, 'keyword.xml'), 'w', 'utf-8') as keywordsfile:
+      keywordsfile.write('<!-- This file is generated automatically from the OpenMolcas documentation -->\n')
       keywordsfile.write('<ROOT>\n')
       # Sort by docname, then by lineno
       docs = list(set([piece['docname'] for piece in env.XMLDocs]))
@@ -139,7 +140,7 @@ def reformat_Help(piece):
     if (H_head.match(piece[i])):
       index = i
       header = help_header(piece[index])
-      break 
+      break
   if (index is None):
     text = ''
   else:

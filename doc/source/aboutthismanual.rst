@@ -9,7 +9,7 @@ Manual in Four Parts
 --------------------
 
 This manual is designed for use with the *ab initio* Quantum
-chemistry software package |molcas| |molcasversion| developed at the
+chemistry software package |molcas| developed at the
 by the world-wide |molcas| team where its base and origin is the
 Department of Theoretical Chemistry, Lund University, Sweden. |molcas| is designed for use
 by Theoretical Chemists and requires knowledge of the
@@ -57,7 +57,7 @@ The |molcas| manual is divided in four parts to facilitate its use.
 
    The approach to a research project is outlined including input files and shell scripts. More
    importantly, however, the value of the calculations is evaluated and
-   advanced features of |molcasversion| are used and explained to improve the
+   advanced features of |molcas| are used and explained to improve the
    value of the results.
 
 The complete manual is available on the net in HTML and PDF formats

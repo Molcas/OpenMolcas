@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2015,2017, Ignacio Fdez. Galván                        *
+* Copyright (C) 2015,2017,2019 Ignacio Fdez. Galván                    *
 ***********************************************************************/
 
 /*
@@ -623,18 +623,46 @@ div.contents {
 }
 
 /* bibliography */
+
+/* sphinx 1.8, with tables */
 div.document table.docutils.citation {
   border: none;
   margin: 0.8em 0;
 }
 
-.citation {
+table.citation {
   margin-top: 0.5em;
   text-align: left;
 }
 
-.citation .label {
+table.citation .label {
   width: 3.2em;
+}
+
+/* sphinx 2.0, with dl */
+
+dl.citation dt {
+  height: 0;
+}
+
+dl.citation dd {
+  margin-left: 3.5em;
+}
+
+dl.citation dd + dt {
+  margin-top: 0.5em;
+}
+
+dl.citation dd p {
+  text-indent: 0;
+  text-align: left;
+}
+
+dl.citation .brackets:before {
+  content: '[';
+}
+dl.citation .brackets:after {
+  content: ']';
 }
 
 /* captions */
@@ -672,6 +700,12 @@ span.caption-number {
 }
 
 /* footnotes */
+
+.fn-backref {
+  font-style: italic;
+}
+
+/* sphinx 1.8, with tables */
 div.document table.docutils.footnote {
   border: none;
   margin: 0;
@@ -698,8 +732,35 @@ table.footnote td.label {
   vertical-align: text-top;
 }
 
-.fn-backref {
-  font-style: italic;
+/* sphinx 2.0, with dl */
+dl.footnote {
+  font-size: 85%;
+}
+
+dl.footnote dt {
+  height: 0;
+  margin-left: 2em;
+}
+
+dl.footnote dd {
+  margin-left: 4em;
+}
+
+dl.footnote dd p {
+  text-indent: 0;
+  text-align: left;
+}
+
+dl.footnote .brackets:before {
+  content: '[';
+}
+dl.footnote .brackets:after {
+  content: ']';
+}
+
+a.footnote-reference {
+  vertical-align: text-top;
+  font-size: 85%;
 }
 
 /* Code blocks */

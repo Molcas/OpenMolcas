@@ -1,6 +1,29 @@
+# Some useful templates:
+# doc-build: rules for when to build documentation
+# doc-publish: rules for whon to publish documentation
+
+.template: &doc-build
+  rules:
+    # not on tags
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # merge requests
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+      when: on_success
+    # branches, api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: on_success
+
+.template: &doc-publish
+  rules:
+    # only on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: on_success
+
 # A special job for building the documentation,
 doc:
   stage: build
+  interruptible: true
   image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
   script:
     # First build sphinx doc
@@ -25,20 +48,14 @@ doc:
       - build/doc
       - doc/doxygen/html
     expire_in: 1 day
-  only:
-    - branches
-    - merge_requests
-    - api
-    - triggers
-    - web
-  except:
-    - tags
+  <<: *doc-build
   tags:
     - docker
 
 # And the corresponding job to publish the documentation for the master branch
 pages:
   stage: deploy
+  interruptible: false
   script:
     - mkdir -p public
     - mv build/doc/html public/sphinx
@@ -51,5 +68,4 @@ pages:
     paths:
       - public
     expire_in: 1 day
-  only:
-    - master@Molcas/OpenMolcas
+  <<: *doc-publish

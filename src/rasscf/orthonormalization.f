@@ -17,6 +17,7 @@
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
+        use sorting_funcs, only : ge_r
 
         implicit none
         save
@@ -244,7 +245,7 @@
 
         call diagonalize(S_transf, U, s_diag)
 
-        idx(:) = argsort(s_diag, ge)
+        idx(:) = argsort(s_diag, ge_r)
         U(:, :) = U(:, idx)
         s_diag(:) = s_diag(idx)
 
@@ -277,11 +278,6 @@
         call mma_deallocate(U)
         call mma_deallocate(S_transf)
       end subroutine Canonical_Array
-
-      logical pure function ge(x, y)
-        real*8, intent(in) :: x, y
-        ge = x >= y
-      end function
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
