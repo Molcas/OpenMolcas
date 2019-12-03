@@ -138,29 +138,30 @@
 *        Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 *        Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
-         iNeg(1)=0
-         iNeg(2)=0
-         HUpMet=' GPR'
+         iOptH = iOr(8,iAnd(iOptH,32))
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Hessian,nInter**2)
-*
-*        Perform the Hessian update
-*
-         If (iPrint.ge.6) Then
-            Write (Lu,*)
-            Write (Lu,*)
-            Write (Lu,*) ' *** Updating the molecular Hessian ***'
-            Write (Lu,*)
-         End If
-         iRout=154
-         jPrint=nPrint(iRout)
-         Call Update_H(nWndw,Hessian,nInter,
-     &                 mIter,iOptC,Mode,ipMF,
-     &                 Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
-     &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
-     &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
+*
+*     Perform the Hessian update, in case of GEK it essential will
+*     modify the Hessian if it is needed to guide it towards a
+*     a minimum or a TS.
+*
+      If (iPrint.ge.6) Then
+         Write (Lu,*)
+         Write (Lu,*)
+         Write (Lu,*) ' *** Updating the molecular Hessian ***'
+         Write (Lu,*)
+      End If
+      iRout=154
+      jPrint=nPrint(iRout)
+      Call Update_H(nWndw,Hessian,nInter,
+     &              mIter,iOptC,Mode,ipMF,
+     &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
+     &              iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
+     &              GNrm_Threshold,nsAtom,IRC,.True.)
+*
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
 *     Call DiagMtrx(Hessian,nInter,iNeg)
 *
