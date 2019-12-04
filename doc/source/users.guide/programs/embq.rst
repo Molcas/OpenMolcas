@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program is not available in OpenMolcas
+   This program is not available in |openmolcas|
 
 .. only:: html
 
@@ -66,7 +66,7 @@ automatically.
 Output files
 ............
 
-In all output files coordinates are given in Ångströms and the values of charges --- in atomic units.
+In all output files coordinates are given in ångströms and the values of charges --- in atomic units.
 
 .. class:: filelist
 

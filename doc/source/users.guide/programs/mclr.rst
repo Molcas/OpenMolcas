@@ -80,7 +80,7 @@ Input files
 :program:`MCLR` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`ABDATA`,
 :file:`RYSRW`, :file:`JOBIPH`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 .. _UG\:sec\:mclr_output_files:
 
@@ -286,7 +286,7 @@ A list of these keywords is given below:
   for which the thermochemistry will be calculated. The section is ended by the
   keyword "End of PT".
 
-  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="THERMO" APPEAR="Thermochemistry" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="THERMO" APPEAR="Thermochemistry" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: THERM <advanced>
               <HELP>
               Request an user specified thermochemical analysis.

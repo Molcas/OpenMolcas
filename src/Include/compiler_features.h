@@ -26,7 +26,7 @@ incomplete.
 #endif
 
 /* Allocatable characters */
-#if (__GNUC__ && GCC_VERSION < 40800 )
+#if ( __GNUC__ && GCC_VERSION < 40800 )
 #undef ALLOC_CHAR
 #else
 #define ALLOC_CHAR
@@ -41,21 +41,22 @@ incomplete.
 #endif
 
 /* Allocatable scalars */
-#if (__GNUC__ && GCC_VERSION < 40500 )
+#if ( __GNUC__ && GCC_VERSION < 40500 )
 #undef ALLOC_SCAL
 #else
 #define ALLOC_SCAL
 #endif
 
 /* Pointer bounds remapping */
-#if (__GNUC__ && GCC_VERSION < 40700 )
+#if (( __GNUC__ && GCC_VERSION < 40700 ) || \
+     ( __SUNPRO_F90 ))
 #undef POINTER_REMAP
 #else
 #define POINTER_REMAP
 #endif
 
 /* Parity of the binary representation (poppar) */
-#if ((__GNUC__ && GCC_VERSION < 40600 ) || \
+#if (( __GNUC__ && GCC_VERSION < 40600 ) || \
      ( __INTEL_COMPILER && __INTEL_COMPILER < 1300 ))
 #undef BINARY_PARITY
 #else
@@ -63,7 +64,7 @@ incomplete.
 #endif
 
 /* Trailing zeros in the binary representation (trailz) */
-#if ((__GNUC__ && GCC_VERSION < 40600 ) || \
+#if (( __GNUC__ && GCC_VERSION < 40600 ) || \
      ( __INTEL_COMPILER && __INTEL_COMPILER < 1300 ) || \
      ( __PGI ))
 #undef TRAILING_ZEROS
@@ -72,8 +73,15 @@ incomplete.
 #endif
 
 /* c_ptr binding */
-#if (NAGFOR && __NAG_COMPILER_RELEASE < 61 )
+#if ( NAGFOR && __NAG_COMPILER_RELEASE < 61 )
 #undef C_PTR_BINDING
 #else
 #define C_PTR_BINDING
+#endif
+
+/* Internal procedures as arguments */
+#if ( __SUNPRO_F90 || __PGI)
+#undef INTERNAL_PROC_ARG
+#else
+#define INTERNAL_PROC_ARG
 #endif

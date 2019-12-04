@@ -76,7 +76,7 @@
       nip = nip + nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'MltPrm: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in MltPrm'
          Call Abend()
       End If

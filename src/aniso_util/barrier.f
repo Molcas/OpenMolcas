@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine barrier( nBlock, dipIn, W, imanifold, NMULT, NDIM,
-     &                    iprint)
+     &                    doPLOT, iprint)
 c the present Subroutine computes the matrix elements of the transitions from states forming the blocking barrier;
 c the states of opposite magnetization are given in the input, under keyword MLTP:
 c the magnetic field is applied to each group of states delared at MLTP in order to form states of a definite
@@ -23,6 +23,7 @@ c  N --  dimension of the barrier
       Integer, intent(in)          :: nDim(nMult)
       Real(kind=wp), intent(in)    :: W(nBlock)
       Complex(kind=wp), intent(in) :: dipIn(3,nBlock,nBlock)
+      Logical, intent(in)          :: doPLOT
 !-----------------------------------------------------------------------
       Integer          :: k,l,i,j,i1,i2,il,idim,Ifunct,j1,j2,iMult,ipar
       Integer          :: nb,maxmult
@@ -56,6 +57,7 @@ c  N --  dimension of the barrier
 !                                            (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
       Call qEnter('barrier')
+
       If((nmult>0).and.(nBlock>0)) Then
          Call mma_allocate(ibas,nmult,nBlock,'ibas')
          Call mma_allocate(wz,nmult,nBlock,'wz')
@@ -271,6 +273,15 @@ c     &                   dipso5(  l,i1,j1,i2,j2), i,j
         End Do
       End Do
 
+      If(doPLOT) then
+         CALL plot_barrier(nBlock,nMult,nDIM,W,dipso5)
+         Write(6,'(A)') 'The following files '
+         Write(6,'(A)') '#-->  $WorkDir/BARRIER.plt'
+         Write(6,'(A)') '#-->  $WorkDir/BARRIER_ENE.dat'
+         Write(6,'(A)') '#-->  $WorkDir/BARREIR_TME.dat'
+         Write(6,'(A)') '#-->  $WorkDir/BARREIR.plt'
+         Write(6,'(A)') 'Have been generated successfully.'
+      End If
 
 
 ccccccccccccccccccccccccccccccccccccc

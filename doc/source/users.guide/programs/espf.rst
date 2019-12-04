@@ -73,7 +73,7 @@ The interface to :program:`GROMACS` differs from the :program:`TINKER` interface
 .. [#fn3] Configuration with CMake requires the flag ``-D GROMACS=ON``
 .. [#fn4] http://www.gromacs.org/
 
-The recommended (and the only verified) approach of using the |molcas|/:program:`GROMACS` interface is to define the full QM+MM system in the :program:`GROMACS` input. The system definition can then be imported into |molcas| by adding the keyword :kword:`GROMACS` in :program:`GATEWAY` (see section :ref:`UG:sec:gateway` for details). For efficiency reasons, the |molcas| part of the interface separates the MM subsystem into two different atom types: *inner* MM atoms and *outer* MM atoms. These are completely equivalent as far as interactions are concerned. However, whereas the coordinates of the inner MM atoms are stored and updated using |molcas| standard mechanism, the outer MM atoms are handled using a mechanism specifically designed with large systems in mind. The division into inner and outer MM atoms can be controlled with options to the :kword:`GROMACS` keyword in :program:`GATEWAY` (see section :ref:`UG:sec:gateway`).
+The recommended (and the only verified) approach of using the |molcas|/:program:`GROMACS` interface is to define the full QM+MM system in the :program:`GROMACS` input. The system definition can then be imported into |molcas| by adding the keyword :kword:`GROMACS` in :program:`GATEWAY` (see :numref:`UG:sec:gateway` for details). For efficiency reasons, the |molcas| part of the interface separates the MM subsystem into two different atom types: *inner* MM atoms and *outer* MM atoms. These are completely equivalent as far as interactions are concerned. However, whereas the coordinates of the inner MM atoms are stored and updated using |molcas| standard mechanism, the outer MM atoms are handled using a mechanism specifically designed with large systems in mind. The division into inner and outer MM atoms can be controlled with options to the :kword:`GROMACS` keyword in :program:`GATEWAY` (see :numref:`UG:sec:gateway`).
 
 Please note that the |molcas|/:program:`GROMACS` interface is still under development and is currently provided for evaluation purposes only.
 
@@ -130,7 +130,7 @@ Files
 -----
 
 :program:`ESPF` will use the following input
-files: :file:`RYSRW`, :file:`ABDATA`, :file:`RUNFILE`, :file:`ONEINT` (for more information see :ref:`UG:sec:files_list`).
+files: :file:`RYSRW`, :file:`ABDATA`, :file:`RUNFILE`, :file:`ONEINT` (for more information see :numref:`UG:sec:files_list`).
 In addition, :program:`ESPF` uses :file:`ESPFINP` (the ESPF input file) and :file:`SEWARINP` (the Seward input file).
 
 Please note that the external potential can be given within a file, separated from the :program:`ESPF` input file.
@@ -198,12 +198,15 @@ Compulsory keywords
 
   * Any other word. The following characters up to the next space are taken as a file name and the rest of the line is ignored. Instead, the full input (including the first line) is read from the specified file and must follow the syntax specified above.
 
-  .. xmldoc::  <KEYWORD MODULE="ESPF" NAME="EXTERNAL" APPEAR="External potential" INPUT="REQUIRED" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc::  <KEYWORD MODULE="ESPF" NAME="EXTERNAL" APPEAR="External potential" INPUT="REQUIRED" KIND="CUSTOM" LEVEL="BASIC">
+               <ALTERNATE KIND="CHOICE" LIST="NONE,TINKER,GROMACS" />
+               <ALTERNATE KIND="STRING" />
                %%Keyword: External potential <basic>
                %%Tested ##055 ##803
                <HELP>
                Specify how the external potential is given. Can be given inline or in another file.
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 Optional keywords
 
@@ -216,7 +219,8 @@ Optional keywords
                %%Keyword: Title <basic>
                <HELP>
                One line following this one is regarded as title.
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`MULTipoleorder`
   Multipolar order of the ESPF operators. For :program:`TINKER`, allowed values are 0 (charge-like) or 1 (charge- and dipole-like). For :program:`GROMACS`, only 0 is allowed. Default value is 0.
@@ -227,7 +231,8 @@ Optional keywords
                <HELP>
                Give the order of the ESPF operators. Only 0 (charge) or 1 (charge and
                dipole).
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`GRID`
   Modify the grid specifications. The grid is made of points belonging to molecular surfaces defined according to the van der Waals radii of each quantum atom. Two schemes are available. The first one is the GEPOL procedure, as implemented into the PCM SCRF method. The other one is called PNT and is the default. On the next line, first select the method with the GEPOL or PNT option. On the same line, one integer number and one real number are given if PNT is selected. The first one gives the maximum number of shells around the van der Waals surface of the quantum atoms. The second one gives the distance between the shells. Note that all points within the van der Waals envelope are discarded to avoid the penetration effects. Default values are 4 shells separated by 1 Å.
@@ -238,7 +243,8 @@ Optional keywords
                %%Tested ##803
                <HELP>
                Modify the grid specifications.
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`SHOW`
   Requires the printing of the ESPF.DATA file.
@@ -248,7 +254,8 @@ Optional keywords
                %%Tested NONE
                <HELP>
                Printing of the ESPF.DATA file.
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`LAMOrokuma`
   Activate the Morokuma scheme for scaling the link atom positions in a QM/MM calculation. Note that in the case of :program:`TINKER`, the scaling factor is currently hard-coded and is determined from the radii of the atoms involved in the QM/MM frontier bond. This differs from the :program:`GROMACS` interface in which this factor must be provided by the user through the :kword:`LINKATOMS` keyword in :program:`GATEWAY`.
@@ -258,7 +265,8 @@ Optional keywords
                %%Tested ##055
                <HELP>
                Set on the Morokuma's scheme for scaling the link atom positions.
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`MMITerations`
   Maximum number of microiterations used to optimize the outer MM atoms in a |molcas|/:program:`GROMACS` run. The default is 0, which disables microiterations and leaves the outer MM atoms frozen. For the :program:`TINKER` interface, microiterations are requested in the :program:`TINKER` keyword file.
@@ -267,7 +275,8 @@ Optional keywords
                %%Keyword: MMIterations <basic>
                <HELP>
                Maximum number of microiterations to optimize the MM subsystem (with Gromacs interface).
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 :kword:`MMCOnvergence`
   Convergence threshold for the MM microiterations (:program:`GROMACS` only). The optimization of the (outer) MM atoms will stop when the maximum force component is smaller than this number, in atomic units. The default is 0.001 atomic units (50 kJ/mol/nm).
@@ -276,7 +285,8 @@ Optional keywords
                %%Keyword: MMConvergence <basic>
                <HELP>
                Convergence for the MM microiterations (with Gromacs interface).
-               </HELP></KEYWORD>
+               </HELP>
+               </KEYWORD>
 
 .. xmldoc:: </MODULE>
 

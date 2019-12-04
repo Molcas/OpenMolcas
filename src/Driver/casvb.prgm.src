@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/casvb.exe             executable
+ (file)  CASVBINP "$WorkDir/$Project."Casvb.Input           rwi
 #include "aoints.inc"
 #include "choints.inc"
 #include "rysfiles.inc"

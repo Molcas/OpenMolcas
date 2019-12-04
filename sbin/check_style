@@ -112,6 +112,13 @@ def test_openst(line, filename):
     return False
   return openst.match(line.decode('ascii', 'ignore').strip('\n'))
 
+# MATMUL function
+matmulfn = re.compile(r'\bmatmul\s*\(', re.IGNORECASE)
+def test_matmulfn(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return (matmulfn.search(line.decode('ascii', 'ignore').strip('\n')))
+
 #====================================================
 
 #====================================================
@@ -132,6 +139,7 @@ tests.append({'func': test_dp, 'print': '[{0}] "double precision" in {1}, line {
 tests.append({'func': test_stop, 'print': '[{0}] "STOP" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
+tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': False})
 
 def run_tests(line, fname, ln):
   j = 0

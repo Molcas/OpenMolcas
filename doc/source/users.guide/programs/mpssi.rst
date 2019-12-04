@@ -91,7 +91,7 @@ one or more :file:`nevpt2.h5` files). Also, it needs a :file:`ONEINT` file from
 property integrals for the requested matrix elements. If Hamiltonian
 matrix elements are used, also the :file:`ORDINT` file is needed.
 
-or further information see the description of the :program:`RASSI` program (:ref:`UG:sec:rassi`).
+or further information see the description of the :program:`RASSI` program (:numref:`UG:sec:rassi`).
 
 .. index::
    pair: Files; MPSSI
@@ -219,5 +219,7 @@ Input example
   'AngMom' 3
   * This input will compute spinfree and spin-orbit igenstates in the space
   * spanned by the 2 input functions
+
+.. xmldoc:: <INCLUDE MODULE="RASSI" />
 
 .. xmldoc:: </MODULE>

@@ -463,8 +463,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 **************************************************************************
 * TLSDA,TLSDA5                                                           *
 **************************************************************************
-
-
        If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
@@ -508,7 +506,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
          do iGrid=0,mGrid-1
           dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
           ratio = 0.0d0
-!          if(dTot.ge.thrsrho) then
             write(LuMT,'(3(F10.6,A),5(F17.10,A))')
      &       Grid(1,iGrid+1),',',
      &       Grid(2,iGrid+1),',',
@@ -518,7 +515,8 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &       dTot*Weights(iGrid+1),',',
      &       Weights(iGrid+1),',',
      &       dTot
-          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+          if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)
             if((1.0d0-ratio).gt.thrsrho2) then
@@ -536,9 +534,17 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 * Compute gradients
           end if
 *         ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
          end do
 *        ^ end loop over grid points
        Else !GRADIENT CALCULATION
@@ -548,7 +554,8 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+           if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
      &                - 8*P2_ontop(1,iGrid+1)*dTot_d/(dTot**3.0d0)
@@ -579,6 +586,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
              end if
            end if
             end do!ngrad_eff
+#ifdef _DEBUG_
           !if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 !         write(*,*) Grid(1,iGrid+1),Grid(2,iGrid+1),Grid(3,iGrid+1)
           if(Grid(1,iGrid+1).eq.0d0.and.
@@ -596,16 +604,18 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &dTot,dTot_d,Rho(1,iGrid+1),Rho(2,iGrid+1),Zeta,p2_ontop(1,iGrid+1)
           end if
           !end if
+#endif
 
-*         ^ end if for little rho
 !          write(LuMC,'(3F12.6,5E12.4)')
 !     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
 !     &Rho(2,iGrid+1),dTot,P2_ontop_d(1,iGrid+1),ratio
            end do!igrid
        End if !not gradient or gradient
        End if !tlsda
+#ifdef _DEBUG_
 !       Close(97)
 !       Close(98)
+#endif
 
 
 cRKCft
@@ -652,7 +662,17 @@ cRKCft
           do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
            ratio = 0.0d0
-           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+           write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
+cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+           if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3))then
               Zeta  = sqrt(1.0d0-ratio)
@@ -676,9 +696,17 @@ cRKCft
              end if
            end if
 *         ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
           end do
 
 !******************************************************************
@@ -694,7 +722,8 @@ cRKCft
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+           if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
 !             ratio_d= 4.0d0*P2_ontop_d(dindex,iGrid+1)/(dTot**2.0d0)
 !             ratio_d=4.0d0*Work(ipP2_d - 1 +
@@ -719,8 +748,7 @@ cRKCft
 
              end if
 
-!      end if!shit
-*           ^ end if
+!      end if
               if((ratio.ge.thrsrho3).and.(ratio.le.thrsrho4)) then
                 Zeta = (Ab1*(ratio-1.15d0)**5.0d0) +
      &         (Bb1*(ratio-1.15d0)**4.0d0) + (Cb1*(ratio-1.15d0)**3.0d0)
@@ -748,11 +776,18 @@ cRKCft
               dRho_dr(2,iGrid+1,dindex)= dTot_d/2.0d0
              end if
            end if
-
-*         ^ end if for little rho
-          write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+*          ^ end if for little rho
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
           end do!loop over effective coordinates
           end do!loop over gridpts
 !         Call GetMem('P2_ontop_d','Free','Real',ipP2_d,mGrid*nGrad_Eff)
@@ -862,16 +897,19 @@ c         write(6,*) 'thrsrho2', thrsrho2
           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
           ratio = 0.0d0
-          !if(dTot.ge.thrsrho) then
-          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+          write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
+cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1)).ge.
+cGLM     &                               0.25*thrsrho**3.0d0)then
+          if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
-cGLM            write(6,'(3F10.4,5E12.4)')
-cGLM     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-cGLM     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
-c            write(6,'(3F12.6,8E14.6,8A)')
-c     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),Rho(2,iGrid+1),
-c     & Rho(3,iGrid+1),Rho(4,iGrid+1),Rho(5,iGrid+1),Rho(6,iGrid+1),
-c     & Rho(7,iGrid+1),Rho(8,iGrid+1), ' before'
             if(l_tanhr) ratio = tanh(ratio)
             if((1.0d0-ratio).gt.thrsrho2) then
              Zeta  = sqrt(1.0d0-ratio)
@@ -961,21 +999,19 @@ c
               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
            end if
 *          ^ end conditional regarding the ratio
-         end if
+          end if
 *         ^ end if over little density
-         write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
-!          if(dTot.ge.thrsrho) then
-!          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
-!          if(Grid(1,iGrid+1).eq.0d0.and.Grid(2,iGrid+1).eq.0d0) then
-!          write(97,'(3F12.6,12E12.4)')
-!     &(Grid(i,iGrid+1),i=1,3),dRho_dr(1,iGrid+1,3),dRho_dr(1,iGrid+1,6),
-!     &dRho_dr(2,iGrid+1,3),dRho_dr(2,iGrid+1,6),p2_ontop_d(1,3,iGrid+1),
-!     &p2_ontop_d(1,6,iGrid+1),
-!     &dTot,dTot_d,Rho(1,iGrid+1),Rho(2,iGrid+1),Zeta,p2_ontop(1,iGrid+1)
-!          end if
-!          end if
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
         end do!end loop over grid points
 
        Else !GRADIENT CALCULATION
@@ -994,7 +1030,11 @@ c
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-            if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+cGLM          if(P2_ontop(1,iGrid+1).lt.0.0d0) P2_ontop(1,iGrid+1)
+cGLM     &                                           = 0.0d0
+cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1))
+cGLM     &                           .ge.0.25*thrsrho**3.0d0) then
+          if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
      &                - 8*P2_ontop(1,iGrid+1)*dTot_d/(dTot**3.0d0)
@@ -1059,7 +1099,7 @@ c
                dRho_dr(8,iGrid+1,dindex) =
      &         -Zeta_d*grad_z/2.0d0+(1.0d0-Zeta)*dTot_dz/2.0d0
               end if!Threshrho_2
-            end if!threshrho
+            end if!little density (threshrho)
           end do!ngrad_eff
         end do!gridpt
        end if!Gradient calculation
@@ -1121,7 +1161,17 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
           ratio = 0.0d0
-          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+          write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
+cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+          if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3)) then
              Zeta  = sqrt(1.0d0-ratio)
@@ -1248,11 +1298,19 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
            end if
 *          ^ end if over zeta=0
-         end if
+          end if
 *         ^ end if over little density
-         write(LuMC,'(3F12.6,5E20.6)')
-     &(Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &Rho(2,iGrid+1),dTot,P2_ontop(1,iGrid+1),ratio
+          write(LuMC,'(3(F10.6,A),7(F17.10,A))')
+     &          Grid(1,iGrid+1),',',
+     &          Grid(2,iGrid+1),',',
+     &          Grid(3,iGrid+1),',',
+     &          Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &          Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &          dTot*Weights(iGrid+1),',',
+     &          Weights(iGrid+1),',',
+     &          dTot,',',
+     &          P2_ontop(1,iGrid+1),',',
+     &          ratio
         end do
 *       ^ end loop over grid points
 
@@ -1273,7 +1331,8 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-            if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
+            if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
      &                - 8.0d0*P2_ontop(1,iGrid+1)*dTot_d/(dTot**3.0d0)
@@ -1536,7 +1595,7 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
                dRho_dr(8,iGrid+1,dindex) =
      &         -Zeta_d*grad_z/2.0d0+(1.0d0-Zeta)*dTot_dz/2.0d0
               end if!Threshrho_2
-           end if!threshrho
+            end if! little density (threshrho)
           end do!ngrad_eff
         end do!gridpt
        end if!

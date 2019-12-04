@@ -9,10 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
+      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
+     &                      DMAB, mTRA
+      use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPPRC')
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasdef.fh"
@@ -29,12 +34,14 @@
       Character*3 lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH
-      DIMENSION DUMMY(1),IDUM(1)
+      DIMENSION IDUM(1)
 * Analysing and post-processing the input that was read in readin_rassi.
 
       CALL QENTER(ROUTINE)
 
-      Call GetMem('IDTDM','Allo','Inte',lIDTDM,NSTATE**2)
+      Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,
+     &                  Label='jDisk_TDM')
+      jDisk_TDM(:,:)=-1
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:
@@ -83,40 +90,45 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMS=(NTDMZZ+NBST)/2
       NTDMA=NTDMS
       NTDMAB=NTRA
-c jochen 02/15: sonatorb needs LUTDM
-c     we'll make it conditional upon the keyword
-      IF((SONATNSTATE.GT.0).OR.NATO) THEN
+      SaveDens=(IFTRD1.OR.IFTRD2).OR.
+     &         (SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM
+      IF(SaveDens) THEN
+        WRITE(6,*)
         WRITE(6,*) ' Info: creating TDMFILE'
-c ... the following code used to be in init_rassi. The problem
-c     is that sonatnstate is unknown when that routine is
-c     executed.
         LUTDM=21
         LUTDM=IsFreeUnit(LUTDM)
         FNTDM='TDMFILE'
         CALL DANAME_MF(LUTDM,FNTDM)
-c ... end import from init_rassi
-        IDISK=0
-        DO ISTATE=1,nstate
-          DO JSTATE=1,ISTATE
-            iWork(lIDTDM+(iState-1)*Nstate+Jstate-1)=IDISK
-C Compute next disk address after writing TDMZZ data set..
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-C ..and also a TSDMZZ data set
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-C ..and also a WDMZZ data set ('Triplet TDM')
-            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-          END DO
-        END DO
+        AO_Mode=.True.
+        iByte=8*3*nstate*(nstate-1)/2*nTDMZZ
+*
+*       For the time we will move over to compact mode if the required
+*       estimate of disk space if more than 1 Gb.
+*
+        If (iByte.gt.1024**3) AO_Mode=.False.
+*       Force for debugging purpose.
+        If (Force_NON_AO_TDM)  AO_Mode=.False.
+        WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
+*
+*       For small basis set with symmetry we might not benefit from
+*       doing this.
+*
+        If (NASHT**2+1.gt.nTDMAB) AO_Mode=.True.
+*
+        If (.NOT.AO_Mode) Then
+           WRITE(6,*) '       TDMs in reduced format'
+           Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
+           Call ICopy(nState,JBNUM,1,JOB_INDEX,1)
+*          Write (6,*) 'Job_Index=',Job_Index
+           Call mma_allocate(CMO1,nCMO,Label='CMO1')
+           Call mma_allocate(CMO2,nCMO,Label='CMO2')
+           Call mma_allocate(DMAB,nTDMAB,Label='DMAB')
+           mTRA=nTRA
+        Else
+           WRITE(6,*) '       TDMs in AO format'
+        End If
+        WRITE(6,*)
       END IF
-c ... jochen end
-
-C Upcase property names in lists of requests:
-      DO IPROP=1,NPROP
-        CALL UPCASE(PNAME(IPROP))
-      END DO
-      DO ISOPR=1,NSOPR
-        CALL UPCASE(SOPRNM(ISOPR))
-      END DO
 
 C Upcase property names in lists of requests:
       DO IPROP=1,NPROP
@@ -141,6 +153,7 @@ C (IPUSED will be set later, set it to zero now.)
       PRPLST(1)=LABEL
       ICMPLST(1)=ICMP
       IPUSED(1)=0
+*
       DO I=1,MXPROP
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
@@ -187,193 +200,234 @@ c Copy the EF2 integral label for hyperfine calculations
       END DO
 110   CONTINUE
       NPRPLST=IPRP
-C Dirty fix (like this routine) for SMQ (spin-magnetic-quadrupole moment)
-C There is no integrals for this operator
-C but because of the reassemble of PNAME we just pretend
-C operator integral is constructed from dipole and AMFI integrals (see prprop)
-      DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'SMQ') THEN
-            DO I =1,9 ! Assume all
-               IPRP=IPRP+1
-               LABEL = 'SMQ'
-               PRPLST(IPRP)=LABEL
-               ICMPLST(IPRP)=I
-               IPUSED(IPRP)=0
-            END DO
-            EXIT
-         END IF
-      END DO
-      NPRPLST=IPRP
-C End dirty fix
 *
 *     Add empty slots for on-the-fly TM integrals.
-*
-*     Note that the some of the TMOS0 and TMOS2 slots do not
-*     correspond to actual integrals. On the integral file these are
-*     just a single real and imaginary component. These are however
-*     combined with the spin operator at which time they do become
-*     3 components for each type.
 *
 *     If the RASSI code is run several instances on the same job some
 *     of these labels will already be available on the file and need
 *     not to be added to the list.
 *
-      IF (Do_TMOS.AND.PRPLST(IPRP)(1:4).NE.'TMOS') THEN
-         PRPLST(IPRP+ 1)='TMOS0  R'
+      IF (Do_TMOM.AND.PRPLST(IPRP)(1:4).NE.'TMOM') THEN
+         PRPLST(IPRP+ 1)='TMOM0  R'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  R'
-         ICMPLST(IPRP+ 2)=2
+         PRPLST(IPRP+ 2)='TMOM0  I'
+         ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS0  R'
-         ICMPLST(IPRP+ 3)=3
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS0  I'
-         ICMPLST(IPRP+ 4)=1
-         IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS0  I'
-         ICMPLST(IPRP+ 5)=2
-         IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS0  I'
-         ICMPLST(IPRP+ 6)=3
-         IPUSED(IPRP+ 6)=0
-         IPRP=IPRP+6
+         IPRP=IPRP+2
 *
-         PRPLST(IPRP+ 1)='TMOS  RS'
+         PRPLST(IPRP+ 1)='TMOM  RS'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS  RS'
+         PRPLST(IPRP+ 2)='TMOM  RS'
          ICMPLST(IPRP+ 2)=2
          IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS  RS'
+         PRPLST(IPRP+ 3)='TMOM  RS'
          ICMPLST(IPRP+ 3)=3
          IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS  RA'
+         PRPLST(IPRP+ 4)='TMOM  RA'
          ICMPLST(IPRP+ 4)=1
          IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS  RA'
+         PRPLST(IPRP+ 5)='TMOM  RA'
          ICMPLST(IPRP+ 5)=2
          IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS  RA'
+         PRPLST(IPRP+ 6)='TMOM  RA'
          ICMPLST(IPRP+ 6)=3
          IPUSED(IPRP+ 6)=0
-         PRPLST(IPRP+ 7)='TMOS  IS'
+         PRPLST(IPRP+ 7)='TMOM  IS'
          ICMPLST(IPRP+ 7)=1
          IPUSED(IPRP+ 7)=0
-         PRPLST(IPRP+ 8)='TMOS  IS'
+         PRPLST(IPRP+ 8)='TMOM  IS'
          ICMPLST(IPRP+ 8)=2
          IPUSED(IPRP+ 8)=0
-         PRPLST(IPRP+ 9)='TMOS  IS'
+         PRPLST(IPRP+ 9)='TMOM  IS'
          ICMPLST(IPRP+ 9)=3
          IPUSED(IPRP+ 9)=0
-         PRPLST(IPRP+10)='TMOS  IA'
+         PRPLST(IPRP+10)='TMOM  IA'
          ICMPLST(IPRP+10)=1
          IPUSED(IPRP+10)=0
-         PRPLST(IPRP+11)='TMOS  IA'
+         PRPLST(IPRP+11)='TMOM  IA'
          ICMPLST(IPRP+11)=2
          IPUSED(IPRP+11)=0
-         PRPLST(IPRP+12)='TMOS  IA'
+         PRPLST(IPRP+12)='TMOM  IA'
          ICMPLST(IPRP+12)=3
          IPUSED(IPRP+12)=0
          IPRP=IPRP+12
 *
-         PRPLST(IPRP+ 1)='TMOS2  R'
-         ICMPLST(IPRP+ 1)=1
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS2  R'
-         ICMPLST(IPRP+ 2)=2
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS2  R'
-         ICMPLST(IPRP+ 3)=3
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS2  I'
-         ICMPLST(IPRP+ 4)=1
-         IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS2  I'
-         ICMPLST(IPRP+ 5)=2
-         IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS2  I'
-         ICMPLST(IPRP+ 6)=3
-         IPUSED(IPRP+ 6)=0
-         IPRP=IPRP+6
-      Else IF (Do_TMOS) Then
-         PRPLST(IPRP+ 1)='TMOS0  R'
-         ICMPLST(IPRP+ 1)=2
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  R'
-         ICMPLST(IPRP+ 2)=3
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS0  I'
-         ICMPLST(IPRP+ 3)=2
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS0  I'
-         ICMPLST(IPRP+ 4)=3
-         IPUSED(IPRP+ 4)=0
-         IPRP=IPRP+4
+C Not currently in use.
+C        PRPLST(IPRP+ 1)='TMOM2  R'
+C        ICMPLST(IPRP+ 1)=1
+C        IPUSED(IPRP+ 1)=0
+C        CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)PRPLST(IPRP+ 2)='TMOM2  R'
+C        ICMPLST(IPRP+ 2)=2
+C        IPUSED(IPRP+ 2)=0
+C        PRPLST(IPRP+ 3)='TMOM2  R'
+C        ICMPLST(IPRP+ 3)=3
+C        IPUSED(IPRP+ 3)=0
+C        PRPLST(IPRP+ 4)='TMOM2  I'
+C        ICMPLST(IPRP+ 4)=1
+C        IPUSED(IPRP+ 4)=0
+C        PRPLST(IPRP+ 5)='TMOM2  I'
+C        ICMPLST(IPRP+ 5)=2
+C        IPUSED(IPRP+ 5)=0
+C        PRPLST(IPRP+ 6)='TMOM2  I'
+C        ICMPLST(IPRP+ 6)=3
+C        IPUSED(IPRP+ 6)=0
+C        IPRP=IPRP+6
+C     Else IF (Do_TMOM) Then
+C        PRPLST(IPRP+ 1)='TMOM0  R'
+C        ICMPLST(IPRP+ 1)=1
+C        IPUSED(IPRP+ 1)=0
+C        PRPLST(IPRP+ 2)='TMOM0  I'
+C        ICMPLST(IPRP+ 2)=1
+C        IPUSED(IPRP+ 2)=0
+C        IPRP=IPRP+2
 *
-         PRPLST(IPRP+ 1)='TMOS2  R'
-         ICMPLST(IPRP+ 1)=2
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS2  R'
-         ICMPLST(IPRP+ 2)=3
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS2  I'
-         ICMPLST(IPRP+ 3)=2
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS2  I'
-         ICMPLST(IPRP+ 4)=3
-         IPUSED(IPRP+ 4)=0
-         IPRP=IPRP+4
+C Not currently in use.
+C        PRPLST(IPRP+ 1)='TMOM2  R'
+C        ICMPLST(IPRP+ 1)=2
+C        IPUSED(IPRP+ 1)=0
+C        PRPLST(IPRP+ 2)='TMOM2  R'
+C        ICMPLST(IPRP+ 2)=3
+C        IPUSED(IPRP+ 2)=0
+C        PRPLST(IPRP+ 3)='TMOM2  I'
+C        ICMPLST(IPRP+ 3)=2
+C        IPUSED(IPRP+ 3)=0
+C        PRPLST(IPRP+ 4)='TMOM2  I'
+C        ICMPLST(IPRP+ 4)=3
+C        IPUSED(IPRP+ 4)=0
+C        IPRP=IPRP+4
       END IF
+*
       NPRPLST=IPRP
-C Add some property names by defaults, if no input:
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
+C Add some property names by defaults, if no input:                   C
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
       IF (NPROP.EQ.0) THEN
+C
          IF (NSOPR.EQ.0) THEN
 C If no input at all, use this selection:
             DO IPRP=1,NPRPLST
-               IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
-     &             PRPLST(IPRP).eq.'MLTPL  2'.or.
-     &             PRPLST(IPRP)(1:4).eq.'TMOS'.or.
+C
+               IF (PRPLST(IPRP).eq.'MLTPL  0' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  1' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  2' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  3' .or.
+     &             PRPLST(IPRP).eq.'OMQ     ' .or.
+     &             PRPLST(IPRP).eq.'ANGMOM' .or.
+     &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
+     &             PRPLST(IPRP).eq.'MLTPV  2' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
+C
                   NSOPR=NSOPR+1
                   SOPRNM(NSOPR)=PRPLST(IPRP)
+C
+C SET the proper default type label. That is, which WE-reduced density
+C should the integral be contracted with. If not set here it will
+C default to a Hermitian singlet reduced density.
+                  IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'OMQ     '  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'MLTPV  2'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RS'  ) THEN
+                     SOPRTP(NSOPR)='HERMSING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RA'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IS'  ) THEN
+                     SOPRTP(NSOPR)='HERMSING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IA'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  R'  ) THEN
+                     SOPRTP(NSOPR)='HERMTRIP'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  I'  ) THEN
+                     SOPRTP(NSOPR)='HERMTRIP'
+                  ELSE
+                     SOPRTP(NSOPR)='HERMSING'
+                  END IF
+C
+C Set the number of elements of the property
                   ISOCMP(NSOPR)=ICMPLST(IPRP)
+C
+C Add properties for the explicit spin part of the transition moments
+C in the case of spin-orbit coupled wave functrions.
+C
+                  IF (IFSO) THEN
+                     IF (PRPLST(IPRP).EQ.'MLTPL  0') THEN
+                        NSOPR=NSOPR+1
+                        SOPRNM(NSOPR)=PRPLST(IPRP)
+                        ISOCMP(NSOPR)=ICMPLST(IPRP)
+                        SOPRTP(NSOPR)='ANTITRIP'
+                     ELSE IF (PRPLST(IPRP).EQ.'MLTPL  1') THEN
+                        NSOPR=NSOPR+1
+                        SOPRNM(NSOPR)=PRPLST(IPRP)
+                        ISOCMP(NSOPR)=ICMPLST(IPRP)
+                        SOPRTP(NSOPR)='ANTITRIP'
+C Uncomment to activate more options!!!
+C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
+C                       NSOPR=NSOPR+1
+C                       SOPRNM(NSOPR)=PRPLST(IPRP)
+C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+C                       SOPRTP(NSOPR)='HERMTRIP'
+C                    ELSE IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
+C                       NSOPR=NSOPR+1
+C                       SOPRNM(NSOPR)=PRPLST(IPRP)
+C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+C                       SOPRTP(NSOPR)='ANTITRIP'
+                     END IF
+                  END IF
+C
                END IF
+C
 C Add some properties if DQVD is requested
                IF (DQVD) THEN
-                  IF ((PRPLST(IPRP).eq.'MLTPL  2').and.
-     &                (ICMPLST(IPRP).eq.1 .or.
-     &                 ICMPLST(IPRP).eq.4 .or.
-     &                 ICMPLST(IPRP).eq.6)) THEN
-                     NSOPR=NSOPR+1
-                     SOPRNM(NSOPR)=PRPLST(IPRP)
-                     ISOCMP(NSOPR)=ICMPLST(IPRP)
-                  END IF
+C                 'MLTPL  2' already there by default
                   IF (PRPLST(IPRP).eq.'EF0    1') THEN
                      NSOPR=NSOPR+1
                      SOPRNM(NSOPR)=PRPLST(IPRP)
                      ISOCMP(NSOPR)=ICMPLST(IPRP)
                   END IF
                END IF
+C
             END DO
          END IF
 C If no PROP input, copy the SOPR selection:
          NPROP=NSOPR
          DO IPROP=1,NPROP
             PNAME(IPROP)=SOPRNM(IPROP)
+            PTYPE(IPROP)=SOPRTP(IPROP)
             ICOMP(IPROP)=ISOCMP(IPROP)
          END DO
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
       ELSE
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
 C If no SOPR input, copy the PROP selection:
          IF (NSOPR.EQ.0) THEN
             NSOPR=NPROP
             DO ISOPR=1,NSOPR
                SOPRNM(ISOPR)=PNAME(ISOPR)
+               SOPRTP(ISOPR)=PTYPE(ISOPR)
                ISOCMP(ISOPR)=ICOMP(ISOPR)
             END DO
          END IF
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
       END IF
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
 * Lists (above) now contain either a default choice, or
 * a selection by the user. Check that integrals are
 * available on the oneint file.
@@ -419,45 +473,6 @@ C If no SOPR input, copy the PROP selection:
         write(6,*)' Reason: Angular momentum integrals are missing.'
         IFJZ=0
        END IF
-      END IF
-*
-*     Modified. Redundant with the new 2nd TM code. (RL)
-*     Remove commented code later!
-*
-* Check if angular momentum integrals should be added to the list of
-* property matrix elements to be computed:
-* IFAMX=0 if angular moment X-components will not be needed, etc
-*     IFAMX=0
-*     IFAMY=0
-*     IFAMZ=0
-*     IF(IFJZ.NE.0) IFAMZ=1
-*     IF(IFJ2.NE.0 .OR. IFGCAL .OR. IFXCAL) THEN
-       IFAMX=1
-       IFAMY=1
-       IFAMZ=1
-*     END IF
-* If already on the list, skip it.
-*     DO ISOPR=1,NSOPR
-*      IF(SOPRNM(ISOPR).eq.'ANGMOM  ') THEN
-*       IF(ISOCMP(ISOPR).EQ.1) IFAMX=0
-*       IF(ISOCMP(ISOPR).EQ.2) IFAMY=0
-*       IF(ISOCMP(ISOPR).EQ.3) IFAMZ=0
-*      END IF
-*     END DO
-      IF(IFAMX.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=1
-      END IF
-      IF(IFAMY.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=2
-      END IF
-      IF(IFAMZ.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=3
       END IF
 
 C Is everything available that we may need?
@@ -640,45 +655,96 @@ C SO eigenstates.
        END DO
  222   CONTINUE
       END DO
+C
 C Reassemble the PNAME, ICOMP arrays.
-      IPROP=0
+C
       DO IPRP=1,NPRPLST
-       IF(IPUSED(IPRP).EQ.1) THEN
-        IPROP=IPROP+1
-        PNAME(IPROP)=PRPLST(IPRP)
-        ICOMP(IPROP)=ICMPLST(IPRP)
-       END IF
-      END DO
-      NPROP=IPROP
-C Reassemble the SOPRNM, ISOCMP arrays:
-      NSOPRNW=0
-      DO ISOPR=1,NSOPR
-       DO IPRP=1,NPRPLST
-        IF(IPUSED(IPRP).EQ.1) THEN
-         IF (PRPLST(IPRP).EQ.SOPRNM(ISOPR)) THEN
-          IF (ICMPLST(IPRP).EQ.ISOCMP(ISOPR)) THEN
-           NSOPRNW=NSOPRNW+1
-           SOPRNM(NSOPRNW)=SOPRNM(ISOPR)
-           ISOCMP(NSOPRNW)=ISOCMP(ISOPR)
-           GOTO 223
-          END IF
+         IF (IPUSED(IPRP).EQ.0) THEN
+            DO IPROP = 1, NPROP
+               IF (PNAME(IPROP).EQ.PRPLST(IPRP)) PNAME(IPROP)='REMOVE'
+            END DO
+         ELSE
+            IADD=1
+            DO IPROP = 1, NPROP
+               IF (PNAME(IPROP).EQ.PRPLST(IPRP) .AND.
+     &             ICOMP(IPROP).EQ.ICMPLST(IPRP)) IADD=0
+            END DO
+            IF (IADD.EQ.1) THEN
+               NPROP=NPROP+1
+               PNAME(NPROP)=PRPLST(IPRP)
+               PTYPE(NPROP)='UNDEF.  '
+               ICOMP(NPROP)=ICMPLST(IPRP)
+            END IF
          END IF
-        END IF
-       END DO
- 223   CONTINUE
       END DO
-      NSOPR=NSOPRNW
+      MPROP=NPROP
+      DO IPROP = 1, NPROP
+         IF (PNAME(IPROP).EQ.'DONE') EXIT
+         IF (PNAME(IPROP).EQ.'REMOVE') THEN
+            DO JPROP = IPROP, MPROP-1
+               PNAME(JPROP)=PNAME(JPROP+1)
+               PTYPE(JPROP)=PTYPE(JPROP+1)
+               ICOMP(JPROP)=ICOMP(JPROP+1)
+            END DO
+            PNAME(MPROP)='DONE'
+            MPROP=MPROP-1
+         END IF
+      END DO
+      NPROP=MPROP
+C
+C Reassemble the SOPRNM, ISOCMP arrays:
+C
+      DO IPRP=1,NPRPLST
+         IF (IPUSED(IPRP).EQ.0) THEN
+            DO ISOPR = 1, NSOPR
+               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP)) SOPRNM(ISOPR)='REMOVE'
+            END DO
+         ELSE
+            IADD=1
+            DO ISOPR = 1, NSOPR
+               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP) .AND.
+     &             ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) IADD=0
+            END DO
+            IF (IADD.EQ.1) THEN
+               NSOPR=NSOPR+1
+               SOPRNM(NSOPR)=PRPLST(IPRP)
+               SOPRTP(NSOPR)='UNDEF.  '
+               ISOCMP(NSOPR)=ICMPLST(IPRP)
+            END IF
+         END IF
+      END DO
+      MSOPR=NSOPR
+      DO ISOPR = 1, NSOPR
+         IF (SOPRNM(ISOPR).EQ.'DONE') EXIT
+         IF (SOPRNM(ISOPR).EQ.'REMOVE') THEN
+            DO JSOPR = ISOPR, MSOPR-1
+               SOPRNM(JSOPR)=SOPRNM(JSOPR+1)
+               SOPRTP(JSOPR)=SOPRTP(JSOPR+1)
+               ISOCMP(JSOPR)=ISOCMP(JSOPR+1)
+            END DO
+            PNAME(MSOPR)='DONE'
+            MSOPR=MSOPR-1
+         END IF
+      END DO
+      NSOPR=MSOPR
 
 C IPUSED is used later for other purposes, and should be initialized
 C to zero.
       DO IPRP=1,NPRPLST
        IPUSED(IPRP)=0
       END DO
-
+C
+C PTYPE and SOPRTP is set here if not already set above. Note that this
+C is a fallback procedure that should not be used actively. This
+C fallback typically assigns the type of WE-reduced density to be
+C used for user-specified lists of properties.
+C
       DO IPROP=1,NPROP
+       IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
        PTYPE(IPROP)='HERMSING'
        IF(PNAME(IPROP).EQ.'VELOCITY') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'ANGMOM  ') PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'MLTPV  2') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP)(1:4).EQ.'PSOP') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'OMQ     ') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'AMFI    ') PTYPE(IPROP)='ANTITRIP'
@@ -686,28 +752,33 @@ C to zero.
        IF(PNAME(IPROP)(1:6).EQ.'DMP   ') PTYPE(IPROP)='HERMSING'
        IF(PNAME(IPROP).EQ.'EMFR  RA')PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'EMFR  IA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOS  RA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOS  IA')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM  RA')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM  IA')PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'EMFR0  I')PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP).EQ.'TMOS0  I')PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP).EQ.'TMOS2  I')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM0  R')PTYPE(IPROP)='HERMTRIP'
+       IF(PNAME(IPROP).EQ.'TMOM0  I')PTYPE(IPROP)='HERMTRIP'
+       IF(PNAME(IPROP).EQ.'TMOM2  I')PTYPE(IPROP)='ANTISING'
        END DO
 
       DO ISOPR=1,NSOPR
+       IF (SOPRTP(ISOPR).NE.'UNDEF.  ') CYCLE
        SOPRTP(ISOPR)='HERMSING'
        IF(SOPRNM(ISOPR).EQ.'VELOCITY') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'MLTPV  2') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR)(1:4).EQ.'PSOP') SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(IPROP).EQ.'OMQ     ') SOPRTP(IPROP)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'AMFI    ') SOPRTP(ISOPR)='ANTITRIP'
        IF(SOPRNM(ISOPR)(1:3).EQ.'ASD') SOPRTP(ISOPR)='HERMTRIP'
        IF(SOPRNM(ISOPR)(1:6).EQ.'DMP   ') SOPRTP(ISOPR)='HERMSING'
        IF(SOPRNM(ISOPR).EQ.'EMFR  RA')SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'EMFR  IA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOS  RA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOS  IA')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM  RA')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM  IA')SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'EMFR0  I')SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOS0  I')SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOS2  I')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM0  R')SOPRTP(ISOPR)='HERMTRIP'
+       IF(SOPRNM(ISOPR).EQ.'TMOM0  I')SOPRTP(ISOPR)='HERMTRIP'
+       IF(SOPRNM(ISOPR).EQ.'TMOM2  I')SOPRTP(ISOPR)='ANTISING'
       END DO
 
 C Write out various input data:
@@ -734,13 +805,13 @@ C Write out various input data:
             DO I=1,NSTATE
               iadr=(j-1)*nstate+i-1
               iadr2=(i-1)*nstate+j-1
-              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
      &                               Work(L_HEFF+iadr2))
             END DO
           END DO
           if (jobmatch) then
             call WarningMessage(1,'HEFF used for a situation where '//
-     &        'posible extra interaction between states is ignored!')
+     &        'possible extra interaction between states is ignored!')
           end if
         else
           call WarningMessage(2,'HEFF used but none is available!')
@@ -749,15 +820,15 @@ C Write out various input data:
       else if (ifejob) then
         if (have_heff) then
           call WarningMessage(1,'EJOB used when HEFF is available, '//
-     &      'posible extra interaction between states is ignored!')
+     &      'possible extra interaction between states is ignored!')
         end if
         if (have_diag) then
-          DO I=0,NSTATE-1
-            Work(LHAM+i*nstate+i)=Work(LREFENE+i)
+          DO I=1,NSTATE
+           HAM(i,i)=Work(LREFENE+i-1)
           END DO
         else if (have_heff) then
-          DO I=0,NSTATE-1
-            Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
+          DO I=1,NSTATE
+            HAM(i,i)=Work(L_HEFF+(i-1)*nstate+i-1)
           END DO
         else
           call WarningMessage(2,'EJOB used but no energies available!')
@@ -765,7 +836,7 @@ C Write out various input data:
         end if
         if (jobmatch) then
           call WarningMessage(1,'EJOB used for a situation where '//
-     &      'posible extra interaction between states is ignored!')
+     &      'possible extra interaction between states is ignored!')
         end if
       else if (.not.(ifhext.or.ifhdia.or.ifshft.or.ifhcom)) then
 * the user has selected no procedure...
@@ -775,14 +846,14 @@ C Write out various input data:
             DO I=1,NSTATE
               iadr=(j-1)*nstate+i-1
               iadr2=(i-1)*nstate+j-1
-              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
      &                               Work(L_HEFF+iadr2))
             END DO
           END DO
         else if (have_diag) then
           ifhdia=.true.
-          DO I=0,NSTATE-1
-            Work(LHDIAG+I)=Work(LREFENE+i)
+          DO I=1,NSTATE
+            HDIAG(I)=Work(LREFENE+i-1)
           END DO
         end if
       end if
@@ -794,7 +865,7 @@ C Write out various input data:
         WRITE(6,*)
      &    '  (note: frozen counts as inactive, deleted as secondary)'
         WRITE(6,*)
-        WRITE(6,'(6X,A,I2)')'NR of irreps:',NSYM
+        WRITE(6,'(6X,A,I2)')'Nr of irreps:',NSYM
         WRITE(6,*)
         WRITE(6,'(6X,A)')
      &       '           Total     No./Irrep '
@@ -919,15 +990,15 @@ C Write out various input data:
         WRITE(6,*)
         WRITE(6,'(1X,A8,5x,20I4)')'  State:',(I,I=II,III)
         WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',
-     &                             (iWork(lJBNUM+I-1),I=II,III)
+     &                             (JBNUM(I),I=II,III)
         WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',
-     &                             (iWork(lLROOT+I-1),I=II,III)
+     &                             (LROOT(I),I=II,III)
        END DO
        IF(IFSHFT) THEN
          WRITE(6,*)
          WRITE(6,*)'Each input state will be shifted with an individual'
          WRITE(6,*)'amount of energy. These energy shifts are (a.u.):'
-         WRITE(6,'(1X,5F16.8)')(Work(LESHFT+I),I=0,NSTATE-1)
+         WRITE(6,'(1X,5F16.8)')(ESHFT(I),I=1,NSTATE)
        END IF
       END IF
 
@@ -935,10 +1006,26 @@ C Added by Ungur Liviu on 04.11.2009
 C Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
-       CALL Put_iArray('JBNUM_SINGLE',iWork(lJBNUM),NSTATE)
-       CALL Put_iArray('LROOT_SINGLE',iWork(lLROOT),NSTATE)
-
-
+       CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
+       CALL Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
+*
+* Generate the quadrature points for isotropic integration of the exponential operator
+*
+      If (Do_TMOM) Then
+        If (Do_SK) Then
+          nQuad=1
+        Else
+          nk_Vector = 1
+          Call Setup_O()
+          Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+          Call Free_O()
+          Call Free_Work(ipR)
+        End If
+      Else
+        nk_Vector = 0
+        nQuad = 0
+      End If
+*
       CALL XFLUSH(6)
       CALL QEXIT(ROUTINE)
       RETURN

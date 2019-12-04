@@ -2,9 +2,9 @@
 * Molecule: CH4
 * Basis: Primitive inline
 * Symmetry: D2
-* Features tested: SEW,SCF,MOTRA,GUGA,MRCI,GENANO
+* Features tested: SEW,SCF,MOTRA,GUGA,MRCI,GUGADRT,GUGACI
 * Responsible person: P.-O. Widmark 041227
-* Comments: Test of GENANO
+* Comments:
 *-------------------------------------------------------------------------------
  &SEWARD &END
 NoCD

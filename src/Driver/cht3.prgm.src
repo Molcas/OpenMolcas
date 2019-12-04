@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/cht3.exe             executable
-#include "choints.inc"
  (file) CHT3INP     "$WorkDir/$Project.Cht3.Input"               rwi
+#include "choints.inc"
  (file) L0vctr      "$WorkDir/$Project.L0vctr"                   rw*
  (file) L1vc        "$WorkDir/$Project.L1vc"                     rw*
  (file) L20         "$WorkDir/$Project.L20"                      rw*

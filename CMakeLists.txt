@@ -641,7 +641,8 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-cpp")
+set (FFLAGS_GNU_BASIC "")
+set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
@@ -660,9 +661,19 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
+# Add runtime checks
+# (No boundary checks because of the Work arrays)
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+        if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "6")
+                set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
+        else ()
+                set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
+        endif ()
+endif ()
+
 set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
-set (FFLAGS_GNU_BIGOT "-Wall -Werror")
+set (FFLAGS_GNU_BIGOT "-Wall -Wrealloc-lhs -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
@@ -720,12 +731,13 @@ set (CFLAGS_Intel_RELEASE "-O2")
 set (CFLAGS_Intel_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
-set (FFLAGS_Intel_BASIC "-fpp")
+set (FFLAGS_Intel_BASIC "")
+set (FFLAGS_Intel_PREPROCESS "-fpp")
 set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
 set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -traceback")
 set (FFLAGS_Intel_FAST "-fast")
@@ -773,7 +785,8 @@ set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "SunPro")
-set (FFLAGS_SunPro_BASIC "-fpp") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_BASIC "") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_PREPROCESS "-fpp")
 set (FFLAGS_SunPro_OPENMP "-xopenmp")
 set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
 # build targets
@@ -819,7 +832,8 @@ set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mpreprocess -Mbackslash")
+set (FFLAGS_PGI_BASIC "-Mbackslash")
+set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
 set (FFLAGS_PGI_OPENMP "-mp")
 set (FFLAGS_PGI_ILP64 "-i8")
 # build targets
@@ -841,7 +855,8 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-fpp -dusty -dcfuns -mismatch_all -w -kind=byte")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
+set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
@@ -860,7 +875,7 @@ set(NAG_TRAP "-ieee=stop")
 
 # Preprocessor
 if (CMAKE_BUILD_TYPE STREQUAL "Garble")
-        add_definitions (-D_GARBLE_ -D_NO_IEEECK_ -D_FPE_TRAP_)
+        add_definitions (-D_GARBLE_ -D_FPE_TRAP_)
         # Disable FPE traps for compilers that do not support IEEE Fortran modules
         # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
         if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
@@ -1029,6 +1044,10 @@ else ()
                 )
 endif ()
 set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
+
+if (NOT CMAKE_GENERATOR STREQUAL "Ninja")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_PREPROCESS}")
+endif ()
 
 if (ADDRMODE EQUAL 64)
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_ILP64}")
@@ -1753,11 +1772,23 @@ endif ()
 set (extprojsdir "${OPENMOLCAS_DIR}/External")
 
 if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
-        set (proj ${extprojsdir}/lapack)
-        if (EXISTS ${proj}/BLAS/SRC/ddot.f)
-                list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
-        else ()
-                message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+        set (have_linalg "YES")
+        foreach (util "blas_m_util" "lapack_m_util")
+                find_source(${util})
+                if (DEFINED ${util}_src)
+                        list (APPEND internal_linalg ${${util}_src})
+                else ()
+                        set (have_linalg "NO")
+                endif ()
+        endforeach ()
+        if (NOT have_linalg)
+                set (proj ${extprojsdir}/lapack)
+                if (EXISTS ${proj}/BLAS/SRC/ddot.f)
+                        unset (internal_linalg)
+                        list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
+                else ()
+                        message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+                endif ()
         endif ()
 endif ()
 
@@ -1962,6 +1993,7 @@ if (WFA)
         if (NOT HDF5)
                 message (FATAL_ERROR "WFA support requires enabling HDF5 too.")
         endif ()
+        set (CMAKE_CXX_STANDARD 11)
 
         message("Configuring libwfa support:")
 
@@ -2740,6 +2772,11 @@ if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
         set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
+# compiler wrong warning
+if (BIGOT AND (${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU"))
+        set_property(SOURCE ${rasscf_src}/orthonormalization.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error=maybe-uninitialized")
+endif ()
+
 # set up proper RPATH for executables, use RUNPATH if on Linux
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -2847,8 +2884,13 @@ if (TOOLS)
                 foreach (tool ${tools})
                         if (IS_DIRECTORY ${toolsdir}/${tool})
                                 if (EXISTS ${toolsdir}/${tool}/CMakeLists.txt)
+                                        set(dir_error "")
                                         add_subdirectory (${toolsdir}/${tool} ${PROJECT_BINARY_DIR}/Tools/${tool})
-                                        message ("-- ${tool}: added to targets")
+                                        if ("${dir_error}" STREQUAL "")
+                                                message ("-- ${tool}: added to targets")
+                                        else ()
+                                                message ("-- ${tool}: ${dir_error}")
+                                        endif ()
                                 else ()
                                         message ("-- ${tool}: ignored (no CMake support)")
                                 endif ()

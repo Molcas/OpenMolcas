@@ -44,12 +44,12 @@ such as Block or CheMPS2. The latter two are currently activated through the :pr
 
 For further information concerning input orbitals, convergence (acceleration) of the orbital optimization algorithm,
 dependencies, input orbitals, etc., we refer the reader to the introdcution of the :program:`RASSCF` program (see
-:ref:`UG:sec:rasscf`) which is called by the :program:`DMRGSCF` program in order to perform the actual orbital optimization. DMRGSCF calculations require to have
-only active orbitals in RAS2 (see the keyword list in the program :program:`RASSCF` section :ref:`UG:sec:rasscf` for
+:numref:`UG:sec:rasscf`) which is called by the :program:`DMRGSCF` program in order to perform the actual orbital optimization. DMRGSCF calculations require to have
+only active orbitals in RAS2 (see the keyword list in the program :program:`RASSCF`, :numref:`UG:sec:rasscf` for
 details).
 
 **NOTE**: The :program:`DMRGSCF` program does **NOT** support RASSCF/GASSCF calculations but it can be combined with MC-PDFT. For options
-concerning the latter, see the documentation of the :program:`MCPDFT` program, section :ref:`UG:sec:mcpdft`.
+concerning the latter, see the documentation of the :program:`MCPDFT` program, :numref:`UG:sec:mcpdft`.
 
 .. _QCMaquis: https://scine.ethz.ch/static/download/qcmaquis_manual.pdf
 
@@ -74,7 +74,7 @@ In the following we provide further input options for a DMRGSCF calculation.
 
     ActiveSpaceOptimizer=QCMaquis
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="ActiveSpaceOptimizer" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="ACTIVESPACEOPTIMIZER" KIND="CHOICE" LIST="QCMaquis" LEVEL="BASIC">
               %%Keyword: ActiveSpaceOptimizer <basic>
               <HELP>
               Sets the DMRG program to be used as active space optimizer
@@ -90,7 +90,7 @@ In the following we provide further input options for a DMRGSCF calculation.
 
     enables a state-specific orbital ordering for the MPS optimization by exploiting concepts from graph theory. The ordering follows from the elements of the Fiedler vector which is the eigenvector corresponding to the second lowest eigenvalue of the so-called graph Laplacian.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="Fiedler" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="FIEDLER" KIND="CHOICE" LIST="on" LEVEL="BASIC">
               %%Keyword: Fiedler <basic>
               <HELP>
               Enables Fiedler vector ordering.
@@ -112,7 +112,7 @@ In the following we provide further input options for a DMRGSCF calculation.
     symmetry. Support for other point group symmetries will be available in due time. **Note**: The CIDEAS option requires to
     set the *HF occupation* for each state in the OptimizationSettings input section below by means of the :kword:`SOCC` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="CIDEAS" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="CIDEAS" KIND="CHOICE" LIST="on" LEVEL="BASIC">
               %%Keyword: CIDEAS <basic>
               <HELP>
               Enables CI-DEAS.
@@ -138,7 +138,9 @@ in this section. The start and end of the DMRGSettings input section is given by
 :kword:`max_bond_dimension`
   Maximum number of renormalized block states (commonly referred to as :math:`m`-value or bond dimension) that will be kept during each microiteration step of a sweep.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="max_bond_dimension" KIND="INTEGER" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="DMRGSCF" NAME="DMRGSETTINGS" APPEAR="DMRG settings" KIND="BLOCK" LEVEL="BASIC">
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="MAX_BOND_DIMENSION" KIND="INT" LEVEL="BASIC">
               %%Keyword: max_bond_dimension <basic>
               <HELP>
               Maximum bond dimension.
@@ -148,19 +150,35 @@ in this section. The start and end of the DMRGSettings input section is given by
 :kword:`nsweeps`
   Maximum number of DMRG sweeps. Please be aware that nsweeps sets the number of combined forward and backward sweeps. Thus, the actual number of sweeps is :math:`2\times`:kword:`nsweeps`.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="nsweeps" KIND="INTEGER" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NSWEEPS" KIND="INT" LEVEL="BASIC">
               %%Keyword: nsweeps <basic>
               <HELP>
               Maximum number of DMRG sweeps.
               </HELP>
               </KEYWORD>
 
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NGROWSWEEPS" KIND="INT" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NMAINSWEEPS" KIND="INT" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="SWEEP_BOND_DIMENSIONS" KIND="STRING" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="INIT_BOND_DIMENSIONS" KIND="INT" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="CONV_THRESH" KIND="REAL" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="TRUNCATION_FINAL" KIND="REAL" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="IETL_JCD_TOL" KIND="REAL" LEVEL="UNDOCUMENTED" />
+
+  .. xmldoc:: </GROUP>
+
 OOptimizationSettings input section
 ...................................
 
 The Orbital OptimizationSettings block contains general, non DMRG-specific options required for the MPS wave function optimisation
 (such as number of the active electrons, active orbital specification etc.), i.e., a normal input for a CASSCF or a CASCI
-calculation with the :program:`RASSCF` module. Most of the RASSCF keywords listed in the keyword section of :ref:`UG:sec:rasscf` are accepted,
+calculation with the :program:`RASSCF` module. Most of the RASSCF keywords listed in the keyword section of :numref:`UG:sec:rasscf` are accepted,
 with the exception of keywords relating to explicit CI wave function quantities.
 Please consult the :program:`RASSCF` module description for further details on the input.
 In addition to the standard :program:`RASSCF` keywords, several optional keywords are available within :program:`DMRGSCF`
@@ -175,7 +193,11 @@ are listed below. The start and end of the OptimizationSettings input section is
 :kword:`FCIDUMP`
   Skip the wave function optimization and write out the transformed active MO integrals to a :file:`FCIDUMP` file in :file:`$WorkDir` which can be used in subsequent **QCMaquis** DMRG calculations.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="fcidump" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="DMRGSCF" NAME="OOPTIMIZATIONSETTINGS" APPEAR="Orbital optimization settings" KIND="BLOCK" LEVEL="BASIC">
+
+  .. xmldoc:: <INCLUDE MODULE="RASSCF" />
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="FCIDUMP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: fcidump <basic>
               <HELP>
               Dump integrals on file FCIDUMP.
@@ -185,7 +207,7 @@ are listed below. The start and end of the OptimizationSettings input section is
 :kword:`SOCCupy`
   Initial electronic configuration for the calculated state(s). This keyword is equivalent to the :kword:`hf_occ` card in the **QCMaquis** input (see Table 8 of the QCMaquis_ manual), but allows input for multiple states. The occupation is inserted as a string (strings) of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty. For several states, the occupation strings for each state are separated by newlines.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="soccupy" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="SOCCUPY" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: soccupy <basic>
               <HELP>
               Set HF determinant start guess for MPS wave functions.
@@ -195,12 +217,14 @@ are listed below. The start and end of the OptimizationSettings input section is
 :kword:`NEVPT2prep`
   Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. If this keyword is followed by a parameter :kword:`EVRDM`, then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. Otherwise, **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NEVPT2prep" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NEVPT2prep <basic>
               <HELP>
               Prepare input for higher-order RDM/TDM evaluation.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: </GROUP>
 
 Runtime options
 ---------------
@@ -217,10 +241,10 @@ Input files
 :program:`DMRGSCF` will use (in analogy to :program:`RASSCF`) the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`INPORB`,
 :file:`JOBIPH`
-(for more information see :ref:`UG:sec:files_list`). We strongly recommend to use the HDF5 files
+(for more information see :numref:`UG:sec:files_list`). We strongly recommend to use the HDF5 files
 (:file:`$Project.ProgramName.h5`) produced by the wave
-function modules in |molcas| as orbital input files, see the keyword :kword:`FILEORB` in the :program:`RASSCF` input section
-:ref:`UG:sec:rasscf` for further details.
+function modules in |molcas| as orbital input files, see the keyword :kword:`FILEORB` in the :program:`RASSCF` input,
+:numref:`UG:sec:rasscf` for further details.
 
 A number of additional files generated by :program:`SEWARD` are also used by the
 :program:`DMRGSCF` program.
@@ -303,3 +327,7 @@ for a small CAS(6,6) problem. ::
   EndOOptimizationSettings
 
 .. xmldoc:: </MODULE>
+
+.. xmldoc:: <MODULE NAME="NEVPT2">
+            <KEYWORD MODULE="NEVPT2" NAME="STATES" KIND="INT" LEVEL="UNDOCUMENTED" />
+            </MODULE>

@@ -28,7 +28,7 @@ Hg    0.000000    0.000000    0.000000
 End of basis
 
 Douglas
-R02E02
+Relativistic = R02E02
 
 CLIGHT
 137.03598950 
@@ -69,49 +69,7 @@ Hg    0.000000    0.000000    0.000000
 End of basis
 
 Douglas
-R03E03
-
-CLIGHT
-137.03598950 
-
-EPOT
-1
-Hg
-
-NoCD
-End of input
-
- &SCF &END
-UHF
-Occupation
-1
-0
-THREsholds
-1.0d-10 1.0d-6 0.5d-7 0.2d-5
-End of input
- &SEWARD  &END
-Title
- H-like atoms
-expert
-Basis set
-Hg.ano-rcc..5s.5s / Inline
- 80.0 0
- 5 5
-                5365.5336018834    
-                3117.0606234915    
-                1810.8295747343    
-                1051.9858754173    
-                611.14215137550    
-1.0 0.0 0.0 0.0 0.0
-0.0 1.0 0.0 0.0 0.0
-0.0 0.0 1.0 0.0 0.0
-0.0 0.0 0.0 1.0 0.0
-0.0 0.0 0.0 0.0 1.0
-Hg    0.000000    0.000000    0.000000
-End of basis
-
-Douglas
-R05E05
+Relativistic = R03E03
 
 CLIGHT
 137.03598950 
@@ -153,7 +111,49 @@ Hg    0.000000    0.000000    0.000000
 End of basis
 
 Douglas
-R07E07
+Relativistic = R05E05
+
+CLIGHT
+137.03598950 
+
+EPOT
+1
+Hg
+
+NoCD
+End of input
+
+ &SCF &END
+UHF
+Occupation
+1
+0
+THREsholds
+1.0d-10 1.0d-6 0.5d-7 0.2d-5
+End of input
+ &SEWARD  &END
+Title
+ H-like atoms
+expert
+Basis set
+Hg.ano-rcc..5s.5s / Inline
+ 80.0 0
+ 5 5
+                5365.5336018834    
+                3117.0606234915    
+                1810.8295747343    
+                1051.9858754173    
+                611.14215137550    
+1.0 0.0 0.0 0.0 0.0
+0.0 1.0 0.0 0.0 0.0
+0.0 0.0 1.0 0.0 0.0
+0.0 0.0 0.0 1.0 0.0
+0.0 0.0 0.0 0.0 1.0
+Hg    0.000000    0.000000    0.000000
+End of basis
+
+Douglas
+Relativistic = R07E07
 
 CLIGHT
 137.03598950 

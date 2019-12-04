@@ -19,7 +19,7 @@
 * DIMENS:   dimension of the square MAT = nbas(isym)
 *
 * EIGENVEC: First it is used as scratch inside eigen_molcas. Next it will contains eigenvectors
-*           of the eigen-decomposed matrix in Choleski form. Instead of eigenvectors X such that MAT = XDX^t,
+*           of the eigen-decomposed matrix in Cholesky form. Instead of eigenvectors X such that MAT = XDX^t,
 *           eigenvectors are presented as Y = X(D**0.5) such that MAT = YY^t.
 *           Negative eigenvalues are set to zero and eigenvalue larger than 2.0d0 set to 2.0d0
 *

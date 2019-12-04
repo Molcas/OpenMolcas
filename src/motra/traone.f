@@ -43,7 +43,7 @@ C     *             NORB(ISYM),NBAS(ISYM),NBAS(ISYM))
          CALL DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),
      *                NBAS(ISYM),1.0d0,CMO(ICMO),
      *                 NBAS(ISYM),TEMP,NBAS(ISYM),
-     *                 0.0d0,TEMP(IOFF),NORB(ISYM))
+     *                 0.0d0,TEMP(IOFF),MAX(1,NORB(ISYM)))
          CALL MXMT(TEMP(IOFF),    1,NORB(ISYM),
      *             CMO(ICMO),     1,NBAS(ISYM),
      *             PMO(IMO),

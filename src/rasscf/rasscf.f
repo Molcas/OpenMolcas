@@ -57,9 +57,11 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use write_orbital_files, only : OrbFiles
+      use write_orbital_files, only : OrbFiles, putOrbFile
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
+
+      use orthonormalization, only : ON_scheme
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -393,7 +395,14 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
+     & WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),ON_scheme)
+      if (KeyORTH) then
+! TODO(Oskar): Add fourth argument OCC
+!   If the Occupation number is written properly as well.
+        call putOrbFile(CMO=Work(lCMO : lCMO + nTot2 - 1),
+     &                  orbital_E=work(lDIAF : lDIAF + nTot - 1),
+     &                  iDoGAS=iDoGAS)
+      end if
 * Only now are such variables finally known.
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -787,9 +796,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                   F_IN=work(lFI : lFI + nTot1 - 1),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
-          call make_fcidumps(orbital_E, folded_Fock,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       core_energy=EMY)
+          call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
+     &      orbital_E, folded_Fock,
+     &      TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
           call mma_deallocate(orbital_E)
           call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
@@ -1814,6 +1823,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','ALLO','REAL',LW7,NAC*NAC)
          jDisk=IADR15(4)
          Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
          Do jRoot=2,lRoots
@@ -1835,6 +1845,9 @@ c Clean-close as much as you can the CASDFT stuff...
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
      &              [NAC,NAC,1], [0,0,idx-1])
+               If (iSpin.gt.1)
+     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
@@ -1842,6 +1855,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','FREE','REAL',LW7,NAC*NAC)
 #else
          Call WarningMessage(1,'HDF5 support disabled, '//
      &                         'TDM keyword ignored.')
@@ -1977,14 +1991,12 @@ c deallocating TUVX memory...
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
-
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
+      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      end if
-      if(DoNECI) then
-         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+      else if (DoNECI) then
+          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
           call fciqmc_cleanup()
       end if
 * We better deallocate before it is too late...
@@ -2039,7 +2051,6 @@ c      End If
         Call MKGUGA_FREE
       end if
 
-
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue
 * DMRG: Save results for other use
@@ -2082,7 +2093,6 @@ c      End If
       end if
 ! ==========================================================
 ! Exit
-
 
  9990 Continue
 C Close the one-electron integral file:

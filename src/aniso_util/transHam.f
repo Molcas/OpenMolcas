@@ -35,7 +35,7 @@ c           matrices to the basis of their local pseudospins
       Complex(kind=wp), allocatable :: HI(:,:,:,:) !HI(n1,n1,n2,n2)
       Logical ::  DBG
 
-      DBG= .true.
+      DBG= .false.
 
       Call qEnter('transham')
 !-----------------------------------------------------------------------

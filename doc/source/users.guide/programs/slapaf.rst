@@ -289,14 +289,14 @@ Optional coordinate selection keywords
   coordinates. This section is always ended by the keyword
   :kword:`End of Internal`.
   For a complete description of this
-  keyword see the section
-  :ref:`UG:sec:definition_of_internal_coordinates`.
+  keyword see
+  :numref:`UG:sec:definition_of_internal_coordinates`.
   This option will also use a diagonal matrix as default for
   the Hessian matrix.
   The default is to
   use the FCW non-redundant internal coordinates.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="INTERNAL" APPEAR="User-defined internal coordinates" KIND="STRINGS" EXCLUSIVE="HWRS,NOHWRS,CARTESIAN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="INTERNAL" APPEAR="User-defined internal coordinates" KIND="CUSTOM" EXCLUSIVE="HWRS,NOHWRS,CARTESIAN" LEVEL="ADVANCED">
               %%Keyword: Internal <advanced>
               <HELP>
               This marks the start of the definition of the internal
@@ -311,7 +311,7 @@ Optional coordinate selection keywords
   nonredundant internal coordinates. This is the default.
   The Hessian will be modeled by the Hessian Model Functional.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="HWRS" APPEAR="FWC internal coordinates" KIND="SINGLE" EXCLUSIVE="NOHWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="HWRS" APPEAR="FWC internal coordinates" KIND="SINGLE" EXCLUSIVE="NOHWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED">
               %%Keyword: HWRS <basic>
               <HELP>
               Use the force constant weighted (FCW) redundant space version of the
@@ -326,7 +326,7 @@ Optional coordinate selection keywords
   nonredundant internal coordinates. The default is to use the HWRS option.
   The Hessian will be modeled by the Hessian Model Functional.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOHWRS" APPEAR="Integral coordinates" KIND="SINGLE" EXCLUSIVE="HWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOHWRS" APPEAR="Integral coordinates" KIND="SINGLE" EXCLUSIVE="HWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED">
               %%Keyword: NoHWRS <basic>
               <HELP>
               Disable the use of the force constant weighted redundant space version of the
@@ -344,7 +344,7 @@ Optional coordinate selection keywords
   fragments at a distance up to the specified value longer.
   The value can be followed with the unit BOHR or ANGSTROM. The default is 0.5 a.u.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="FUZZ" Appear="Fuzz" KIND="REAL" MIN_VALUE="0.001" DEFAULT_VALUE="0.5" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="FUZZ" APPEAR="Fuzz" KIND="REAL" MIN_VALUE="0.001" DEFAULT_VALUE="0.5" LEVEL="ADVANCED">
               %%Keyword: Fuzz <advanced>
               <HELP>
               When automatically generating the primitive internal coordinates, the system may
@@ -612,9 +612,9 @@ Optional optimization procedure keywords
   the input, all constraints will be released. The syntax of this
   keyword is exactly like normal constraints, and it must be ended with
   :kword:`End of TSConstraints`
-  (see section :ref:`UG:sec:definition_of_internal_coordinates` below).
+  (see :numref:`UG:sec:definition_of_internal_coordinates` below).
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TSCO" APPEAR="TS constraints" KIND="STRINGS" REQUIRE="FINDTS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TSCONSTRAINTS" APPEAR="TS constraints" KIND="CUSTOM" REQUIRE="FINDTS" LEVEL="BASIC">
               %%Keyword: TSConstraints <basic>
               <HELP>
               Specify constraints that will be active during the initial stage of an
@@ -640,108 +640,22 @@ Optional optimization procedure keywords
 
   .. xmldoc:: </GROUP>
 
-:kword:`MEP-search`
-  Enable a minimum energy path (MEP) search. :kword:`MEP` is a valid synonym.
+:kword:`MEP-search` or :kword:`MEP`
+  Enable a minimum energy path (MEP) search.
 
   .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC" ALSO="MEP">
               %%Keyword: MEP-search <basic>
               <HELP>
-              Enable a minimum energy path (MEP) search. MEP is a valid synonym.
+              Enable a minimum energy path (MEP) search.
               </HELP>
+              MEP is a valid synonym.
               </KEYWORD>
 
   .. xmldoc:: %%Keyword: MEP <basic>
-              Enable a minimum energy path (MEP) search. Synonym of MEP-search.
-
-:kword:`NMEP`
-  Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
-  Synonym of :kword:`NIRC`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
-              %%Keyword: NMEP <basic>
-              <HELP>
-              Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
-              Synonym of NIRC.
-              </HELP>
-              </KEYWORD>
-
-:kword:`MEPStep`
-  The keyword is used to specify the step length done in the MEP search or IRC analysis.
-  The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
-  (in normalized mass-weighted coordinates).
-  Synonym of :kword:`IRCStep`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
-              %%Keyword: MEPStep <basic>
-              <HELP>
-              The keyword is used to specify the step length done in the MEP search or IRC analysis.
-              The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
-              (in normalized mass-weighted coordinates).
-              Synonym of IRCStep.
-              </HELP>
-              </KEYWORD>
-
-:kword:`MEPType`
-  Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
-  The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
-  or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
-  The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
-  Synonym of :kword:`IRCType`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="ADVANCED">
-              %%Keyword: MEPType <basic>
-              <HELP>
-              Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
-              The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
-              or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
-              The reference structure changes at each step, according to the MEPAlgorithm keyword.
-              Synonym of IRCType.
-              </HELP>
-              </KEYWORD>
-
-:kword:`MEPAlgorithm`
-  Selects the algorithm for a MEP search or IRC analysis.
-  The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
-  Synonym of :kword:`IRCAlgorithm`.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="ADVANCED">
-              %%Keyword: MEPAlgorithm <basic>
-              <HELP>
-              Selects the algorithm for a MEP search or IRC analysis.
-              The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
-              Synonym of IRCAlgorithm.
-              </HELP>
-              </KEYWORD>
-
-:kword:`REFErence`
-  The keyword is followed by a list of the symmetry unique coordinates (in au)
-  of the origin of the hyper sphere. The default origin is the structure
-  of the first iteration.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
-              %%Keyword: REFErence <basic>
-              <HELP>
-              The keyword is followed by a list of the symmetry unique coordinates (in au)
-              of the origin of the hyper sphere. The default origin is the structure
-              of the first iteration.
-              </HELP>
-              </KEYWORD>
-
-:kword:`GRADient of reference`
-  The keyword is followed by a list of the gradient vector components. This keyword is
-  compulsory when using the Transverse kind of constraint. The optimization is performed in
-  a space orthogonal to the given vector.
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="GRAD" APPEAR="Gradient of reference" KIND="STRINGS" LEVEL="BASIC">
-              %%Keyword: GRADient of reference <basic>
-              <HELP>
-              The keyword is followed by a list of the gradient vector components. This keyword is
-              compulsory when using the Transverse kind of constraint. The optimization is performed in
-              a space orthogonal to the given vector.
-              </HELP>
-              </KEYWORD>
+              Enable a minimum energy path (MEP) search.
+              Synonym of MEP-search.
 
 :kword:`IRC`
   The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
@@ -763,63 +677,109 @@ Optional optimization procedure keywords
               </HELP>
               </KEYWORD>
 
-:kword:`NIRC`
-  Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
-  Synonym of :kword:`NMEP`.
+:kword:`NMEP` or :kword:`NIRC`
+  Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NIRC" APPEAR="Max points on an IRC" KIND="INT" MIN_VALUE="1" REQUIRE="IRC" LEVEL="BASIC">
-              %%Keyword: NIRC <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="NIRC">
+              %%Keyword: NMEP <basic>
               <HELP>
-              Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
-              Synonym of NMEP.
+              Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
               </HELP>
+              NIRC is a valid synonym.
               </KEYWORD>
 
-:kword:`IRCStep`
-  The keyword is used to specify the step length done in the IRC analysis or MEP search.
+              %%Keyword: NIRC <basic>
+              Maximum number of points to find in an intrinsic reaction coordinate analysis or minimum energy path search.
+              Synonym of NMEP.
+
+:kword:`MEPStep` or :kword:`IRCStep`
+  The keyword is used to specify the step length done in the MEP search or IRC analysis.
   The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
   (in normalized mass-weighted coordinates).
-  Synonym of :kword:`MEPStep`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCSTEP" APPEAR="IRC Step" KIND="STRING" REQUIRE="IRC" LEVEL="BASIC">
-              %%Keyword: IRCStep <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="IRCSTEP">
+              %%Keyword: MEPStep <basic>
               <HELP>
+              The keyword is used to specify the step length done in the MEP search or IRC analysis.
+              The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
+              (in normalized mass-weighted coordinates).
+              </HELP>
+              IRCStep is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: IRCStep <basic>
               The keyword is used to specify the step length done in the IRC analysis or MEP search.
               The step length can be followed with the unit BOHR or ANGSTROM. The default is 0.1 a.u.
               (in normalized mass-weighted coordinates).
               Synonym of MEPStep.
-              </HELP>
-              </KEYWORD>
 
-:kword:`IRCType`
-  Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
+:kword:`MEPType`  or :kword:`IRCType`
+  Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
   The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
   or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
-  The reference structure changes at each step, according to the :kword:`IRCAlgorithm` keyword.
-  Synonym of :kword:`MEPType`
+  The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCTYPE" APPEAR="IRC Type" KIND="STRING" REQUIRE="IRC" LEVEL="ADVANCED">
-              %%Keyword: IRCType <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCTYPE">
+              %%Keyword: MEPType <basic>
               <HELP>
+              Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
+              The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
+              or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
+              The reference structure changes at each step, according to the MEPAlgorithm keyword.
+              </HELP>
+              IRCType is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: IRCType <basic>
               Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
               or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
               The reference structure changes at each step, according to the IRCAlgorithm keyword.
               Synonym of MEPType.
-              </HELP>
-              </KEYWORD>
 
-:kword:`IRCAlgorithm`
+:kword:`MEPAlgorithm` or :kword:`IRCAlgorithm`
   Selects the algorithm for a MEP search or IRC analysis.
   The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
-  Synonym of :kword:`MEPAlgorithm`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="IRCALGORITHM" APPEAR="IRC Algorithm" KIND="STRING" REQUIRE="IRC" LEVEL="ADVANCED">
-              %%Keyword: IRCAlgorithm <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCALGORITHM">
+              %%Keyword: MEPAlgorithm <basic>
               <HELP>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
+              </HELP>
+              IRCAlgorithm is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: IRCAlgorithm <basic>
+              Selects the algorithm for a MEP search or IRC analysis.
+              The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
               Synonym of MEPAlgorithm.
+
+:kword:`REFErence`
+  The keyword is followed by a list of the symmetry unique coordinates (in au)
+  of the origin of the hyper sphere. The default origin is the structure
+  of the first iteration.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
+              %%Keyword: REFErence <basic>
+              <HELP>
+              The keyword is followed by a list of the symmetry unique coordinates (in au)
+              of the origin of the hyper sphere. The default origin is the structure
+              of the first iteration.
+              </HELP>
+              </KEYWORD>
+
+:kword:`GRADient of reference`
+  The keyword is followed by a list of the gradient vector components. This keyword is
+  compulsory when using the Transverse kind of constraint. The optimization is performed in
+  a space orthogonal to the given vector.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="GRAD" APPEAR="Gradient of reference" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
+              %%Keyword: GRADient of reference <basic>
+              <HELP>
+              The keyword is followed by a list of the gradient vector components. This keyword is
+              compulsory when using the Transverse kind of constraint. The optimization is performed in
+              a space orthogonal to the given vector.
               </HELP>
               </KEYWORD>
 
@@ -827,7 +787,7 @@ Optional optimization procedure keywords
   The keyword is followed by the reaction vector specified as the Cartesian vector components
   on each of the symmetry unique atoms.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REAC" APPEAR="Reaction vector" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REAC" APPEAR="Reaction vector" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: REACtion vector <basic>
               <HELP>
               The keyword is followed by the reaction vector specified as the Cartesian vector components
@@ -956,7 +916,7 @@ Optional force constant keywords
   The eigenvalues and eigenvectors of the Hessian matrix
   are printed. The internal coordinates definitions are also printed.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PRFC" APPEAR="Print eigen vectors and values of H" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PRFC" APPEAR="Print eigen vectors and values of H" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: PrFC <basic>
               <HELP>
               The eigenvalues and eigenvectors of the Hessian matrix
@@ -967,7 +927,7 @@ Optional force constant keywords
 :kword:`RHIDden`
   Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`Angstrom`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: rHid <advanced>
               <HELP>
               Define the hidden atoms selection radius in order to improve a QM/MM Hessian.
@@ -987,7 +947,7 @@ Optional miscellaneous keywords
   The keyword must be followed by the definition on the primitive
   coordinate.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CTOF" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CTOF" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: CTOF <advanced>
               <HELP>
               Coordinates TO Follow defines an internal coordinate whose values
@@ -1010,7 +970,7 @@ Optional miscellaneous keywords
   :kword:`Bohr`.
   The default values are 15 and 3.0 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: RTRN <advanced>
               <HELP>
               Maximum number of atoms for which bond lengths, angles and dihedral
@@ -1030,7 +990,7 @@ Optional miscellaneous keywords
   for which the thermochemistry will be calculated.
   The section is ended by the keyword :kword:`End of PT`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="THERMO" APPEAR="Thermochemical analysis" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="THERMO" APPEAR="Thermochemical analysis" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: THER <advanced>
               <HELP>
               Request frequencies to be computed followed by an user specified thermochemical analysis.
@@ -1068,7 +1028,7 @@ Optional miscellaneous keywords
   The keyword must be followed by the name of the module. Moreover, the EMIL command COPY needs to be used
   in the global input to provide a file named LASTEN, containing the input for the specified module.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="LASTenergy" APPEAR="Last Energy method" KIND="STRING" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="LASTENERGY" APPEAR="Last Energy method" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: LAST <advanced>
               <HELP>
               Specifies the quantum chemical method requested for the Last_Energy module (e.g., SCF, CASSCF, CASPT2, etc.)
@@ -1080,7 +1040,7 @@ Optional miscellaneous keywords
 :kword:`NOLAst energy`
   Disables the call to the Last_Energy module when convergence is achieved.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLAstEnergy" APPEAR="No Last Energy" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLASTENERGY" APPEAR="No Last Energy" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NoLastEnergy <basic>
               <HELP>
               Disables the call to the Last_Energy module when convergence is achieved.
@@ -1452,4 +1412,13 @@ using automatic calculation of analytical gradients and nonadiabatic coupling.
 
   >>> EndDo
 
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REDUNDANT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOEMEP" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 .. xmldoc:: </MODULE>
+
+.. xmldoc:: <MODULE NAME="LAST_ENERGY">
+            </MODULE>

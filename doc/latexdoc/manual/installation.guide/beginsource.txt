@@ -1,3 +1,0 @@
-%! beginsource.tex $ this file belongs to the Molcas repository $*/
-
-\begin{sourcelisting}

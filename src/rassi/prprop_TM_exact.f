@@ -7,10 +7,18 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018,2019, Roland Lindh                                *
+*               2019, Mickael G. Delcey                                *
+*               2019, Ignacio Fdez Galvan                              *
 ************************************************************************
-      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
-     &                           JBNUM)
+      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
+      USE RASSI_AUX
       USE kVectors
+#include "compiler_features.h"
+#ifndef POINTER_REMAP
+      USE ISO_C_Binding
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -25,83 +33,87 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &          ENERGY(NSTATE),JBNUM(NSTATE)
+#include "stdalloc.fh"
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE),
+     &          EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-      REAL*8 Boltz_k,coeff_chi
-      LOGICAL Sparse_I,Sparse_J
-      REAL*8 J2CM
-      Real*8 E1(3), E2(3), kxe1(3), kxe2(3)
-      INTEGER IOFF(8)
+      LOGICAL TMOgroup
+      INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER*8 LABEL
-      Complex*16 T0_e(3), T0_m(3), T1(3), TM1, TM2, PE1_e, PE1_m,
-*    &                                    TMR, TML, PE2_e, PE2_m,
-     &                                              PE2_e, PE2_m,
-     &           E1B, E2B,
-     &           IMAGINARY
+      CHARACTER*6 STLNE1
+      CHARACTER*52 STLNE2
+      Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2,ISS_INDEX,
+     &   iMask,jMask,iSSMask,jSSMask
+      Real*8 TM_R(3), TM_I(3), TM_C(3)
+      Real*8 wavevector(3), UK(3)
+      Real*8 kPhase(2)
+      Real*8, Allocatable :: pol_Vector(:,:)
+#ifdef _HDF5_
+      Real*8, Allocatable, Target :: Storage(:,:,:,:)
+      Real*8, Pointer :: flatStorage(:)
+#endif
+      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
+      Real*8, Allocatable:: VSOR(:,:), VSOI(:,:), TMP(:)
 
       CALL QENTER(ROUTINE)
-
-      Dummy=Energy(1)
-      Dummy=OVLP(1,1)
+#define _TIME_TMOM_
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu1,TWall1)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Before we start we need to backtransform the coefficients of the
+*     SO states from the basis of the SF states which diagonalize the
+*     SF Hamiltonian to the basis of the original (input) SF states.
+*     This since all transition moments, whether retrieved from disk or
+*     recomputed, are in the basis of the original SF states.
 *
-      AVOGADRO=CONST_AVOGADRO_
-      AU2EV=CONV_AU_TO_EV_
-      AU2CM=CONV_AU_TO_CM1_
-      AU2T=CONV_AU_TO_T_
-      AU2J=CONV_AU_TO_KJ_*1.0D3
-      J2CM=AU2CM/AU2J
-      AU2JTM=(AU2J/AU2T)*AVOGADRO
-      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
-      ALPHA2= ALPHA*ALPHA
+      Call mma_allocate(VSOR,NSS,NSS,Label='VSOR')
+      Call mma_allocate(VSOI,NSS,NSS,Label='VSOI')
+*
+      Call USOTRANS(USOR,USOI,NSS,
+     &              EigVec,NSTATE,
+     &              VSOR,VSOI)
+*
+*                                                                      *
+************************************************************************
+*                                                                      *
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 *1.0D2
-      IMAGINARY=DCMPLX(0.0D0,1.0D0)
+      AU2REDR=2.0D2*DEBYE
+      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+      ! 1/c^3 (in a.u. of time ^ -1)
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &          /CONST_AU_TIME_IN_SI_
+      HALF=0.5D0
+      PI= CONST_PI_
+      SPEED_OF_LIGHT=CONST_C_IN_AU_
+      G_Elec=CONST_ELECTRON_G_FACTOR_
 
-      BOLTZ_K=CONST_BOLTZMANN_*J2CM
-      coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
-     &          CONST_BOHR_MAGNETON_IN_SI_**2
-      FEGVAL=-(CONST_ELECTRON_G_FACTOR_)
-      BOLTZ=CONST_BOLTZMANN_/AU2J
-      Rmu0=4.0D-7*CONST_PI_
-
+*define _TIME_TMOM_
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu1,TWall1)
+#endif
 C Compute transition strengths for spin-orbit states:
 *
-* Initial setup for both dipole, quadrupole etc. and exact operator
+* Initial setup for exact operator
 *
 C printing threshold
       OSTHR=1.0D-5
-      OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,*) ' Threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
+      IF(QIPR) WRITE(6,*) ' Threshold changed to ',OSTHR,
      &                    ' since quadrupole threshold is given '
-      IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-
-      IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
 !
       IF(REDUCELOOP) THEN
-        EX=ENSOR(1)
-        L=1
-       LD=1
-        DO ISO = 2, NSS
-           If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
-              LD = LD + 1
-              EX = ENSOR(ISO)
-           Else
-              L = L + 1
-           End If
-           If (LD.gt.LOOPDIVIDE) Exit
-        End Do
-        IEND = L
-        JSTART = L+1
+        IEND = LOOPDIVIDE
+        JSTART = LOOPDIVIDE+1
       ELSE
         IEND = NSS
         JSTART = 1
@@ -122,15 +134,15 @@ C printing threshold
 *     The operator is split in 4 different component, each with three
 *     elements corresponding to differentiation in the x, y, and z
 *     direction. The four parts are labels as:
-*     EMFR  RS: The symmetric part of the real comp. of the op.
-*     EMFR  RA: The asymmetric part of the real comp. of the op.
-*     EMFR  IS: The symmetric part of the imaginary comp. of the op.
-*     EMFR  IA: The asymmetric part of the imaginary comp. of the op.
+*     TMOM  RS: The symmetric part of the real comp. of the op.
+*     TMOM  RA: The asymmetric part of the real comp. of the op.
+*     TMOM  IS: The symmetric part of the imaginary comp. of the op.
+*     TMOM  IA: The asymmetric part of the imaginary comp. of the op.
 *
 ************************************************************************
 *                                                                      *
-*     Section (1): Computation of k specific oscillator strength.
-*     Section (2): Computation of the isotropic oscillator strength.
+*     Section (1): Computation of k specific oscillator strength.      *
+*     Section (2): Computation of the isotropic oscillator strength.   *
 *                                                                      *
 ************************************************************************
 *
@@ -142,19 +154,32 @@ C printing threshold
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPREMFR_RS=-1
-      IPORIG=-1
+      IPRTMOM(:)=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPREMFR_RS.EQ.-1) THEN
-            IPREMFR_RS=IPROP
-            IPORIG=IPROP
+         IF (PNAME(IPROP).EQ.'TMOM  RS') THEN
+            IF (IPRTMOM(0+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(0+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IS') THEN
+            IF (IPRTMOM(3+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(3+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  RA') THEN
+            IF (IPRTMOM(6+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(6+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IA') THEN
+            IF (IPRTMOM(9+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(9+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM0  R') THEN
+            IF (IPRTMOM(13).EQ.-1) IPRTMOM(13)=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM0  I') THEN
+            IF (IPRTMOM(14).EQ.-1) IPRTMOM(14)=IPROP
          END IF
       ENDDO
-      IPREMFR_0R=IPREMFR_RS-6
-      IPREMFR_0I=IPREMFR_RS-3
-      IPREMFR_RA=IPREMFR_RS+3
-      IPREMFR_IS=IPREMFR_RS+6
-      IPREMFR_IA=IPREMFR_RS+9
+      IF (ANY(IPRTMOM.EQ.-1)) Go To 666
 *
 *     Initiate the Seward environment
 *
@@ -163,63 +188,149 @@ C printing threshold
 *
 *     Generate the quadrature points.
 *
+*     In the spin-coupled case, wave functions are complex and there is
+*     not a simple relation between oscillator and rotatory strengths for
+*     k and -k vectors, but there is between the integrals computed in
+*     the spin-free basis, so we compute them only once and obtain separately
+*     the results for k and -k, given by kPhase
+*
+      kPhase = [1.0D0, -1.0D0]
       If (Do_SK) Then
          nQuad = 1
          nVec=nk_Vector
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         If (.Not.(PRRAW.Or.PRWEIGHT)) kPhase(2) = 0.0D0
       Else
          Call Setup_O()
-         Call Do_Lebedev(L_Eff,nQuad,ipR)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
          nVec = 1
       End If
+      If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 *
-*     Get table of content for density matrices.
+*     Initialize for density matrices.
 *
-      Call DaName(LuToM,FnToM)
-      iDisk=0
-      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
+      Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+      Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+      Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+      nSCR=(NBST*(NBST+1))/2
+      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+
 *
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
 *
-      CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-      CALL GETMEM('TMP','ALLO','REAL',LTMP,NSS**2)
+      CALL GETMEM('DXR','ALLO','REAL',LDXR,3*NSS**2)
+      CALL GETMEM('DXI','ALLO','REAL',LDXI,3*NSS**2)
+      CALL GETMEM('DXRM','ALLO','REAL',LDXRM,3*NSS**2)
+      CALL GETMEM('DXIM','ALLO','REAL',LDXIM,3*NSS**2)
+      Call mma_Allocate(TMP,NSS**2,Label='TMP')
+      CALL GETMEM('TMR','ALLO','REAL',LTMR,3*NSS**2)
+      CALL GETMEM('TMI','ALLO','REAL',LTMI,3*NSS**2)
 *
 C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-      NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-*
-*     Array for printing contributions from different directions
-*
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5)
+#ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
 *     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
-*         all k-vectors (3*nQuad)
-*             all polarization directions (2*3)
-*                 we store the transition moment (a complex number) (2*2)
+*         all k-vectors (2*nQuad or 2*nVec)
+*             we store:
+*                 the weight (1)
+*                 the k-vector (3)
+*                 we projected transition vector (real and imaginary parts) (2*3)
 *
       nIJ=nSS*(nSS-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
-      nStorage = nIJ * nQuad * nData
-      mStorage = nStorage * nVec
-      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
+      ip_w       = 1
+      ip_kvector = ip_w + 1
+      ip_TMR     = ip_kvector + 3
+      ip_TMI     = ip_TMR + 3
+      nData      = ip_TMI + 3 - 1
+      Call mma_allocate(Storage,nData,2*nQuad,nIJ,nVec,label='Storage')
+      Call dCopy_(Size(Storage),[0.0D0],0,Storage,1)
+#endif
+*MGD group transitions
+      TMOgroup=.false.
+      ngroup1=IEND
+      ngroup2=NSS-JSTART+1
+      nmax2=1
+      IF(REDUCELOOP.and.TMGr_thrs.ge.0.0d0) THEN
+        TMOgroup=.true.
+        THRS=TMGr_thrs
+        i=IEND
+        RefEne=0
+        TAU=-1
+        ngroup2=1
+        Do j=JSTART,NSS
+          if (ENSOR(J)-Refene.gt.TAU) then
+              NGROUP2=NGROUP2+1
+              Refene=ENSOR(J)
+              ediff=Refene-ENSOR(I)
+              TAU=ediff*THRS
+           EndIf
+        End Do
+        Call mma_Allocate(TMOgrp2,NGROUP2,Label='TMOgrp2')
+        ngroup2=0
+        TAU=-1
+        RefEne=0
+        Do j=JSTART,NSS
+          if (ENSOR(J)-Refene.gt.TAU) then
+              NGROUP2=NGROUP2+1
+              TMOgrp2(NGROUP2)=J
+              Refene=ENSOR(J)
+              ediff=Refene-ENSOR(I)
+              TAU=ediff*THRS
+           EndIf
+        End Do
+        TMOgrp2(ngroup2+1)=NSS+1
+*
+        j=JSTART
+        Refene=ENSOR(j)
+        TAU=-1
+        ngroup1=1
+        Do i=IEND,1,-1
+          if (Refene-ENSOR(i).gt.TAU) then
+            ngroup1=ngroup1+1
+            Refene=ENSOR(i)
+            ediff=ENSOR(j)-Refene
+            Tau=ediff*THRS
+          EndIf
+        End Do
+        Call mma_Allocate(TMOgrp1,NGROUP1,Label='TMOgrp1')
+        Ntmp=Ngroup1
+        Ngroup1=Ngroup1-1
+        Refene=ENSOR(j)
+        TAU=-1
+        Do i=IEND,1,-1
+          if (Refene-ENSOR(i).gt.TAU) then
+            TMOgrp1(ntmp)=i+1
+            ntmp=ntmp-1
+            Refene=ENSOR(i)
+            ediff=ENSOR(j)-Refene
+            Tau=ediff*THRS
+          EndIf
+        End Do
+        TMOgrp1(1)=1
+        maxgrp1=0
+        Do i=1,ngroup1
+          maxgrp1=max(maxgrp1,TMOgrp1(i+1)-TMOgrp1(i))
+        End Do
+        maxgrp2=0
+        Do i=1,ngroup2
+          maxgrp2=max(maxgrp2,TMOgrp2(i+1)-TMOgrp2(i))
+        End Do
+        nmax2=maxgrp1*maxgrp2
+      EndIF
+*
+*     Array for printing contributions from different directions
+*
+      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
+      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
+      LMAX_=0
 *
       Do iVec = 1, nVec
-*
-         ip_w      = 1
-         ip_kvector= ip_w + 1
-         ip_e1     = ip_kvector + 3
-         ip_e2     = ip_e1 + 3
-         ip_TM1R   = ip_e2 + 3
-         ip_TM1I   = ip_TM1R + 1
-         ip_TM2R   = ip_TM1I + 1
-         ip_TM2I   = ip_TM2R + 1
 *
          If (Do_SK) Then
             Work(ipR  )=k_Vector(1,iVec)
@@ -228,124 +339,160 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             Work(ipR+3)=1.0D0   ! Dummy weight
          End If
 *
-      AFACTOR=32.1299D09
-      HALF=0.5D0
-      PI= CONST_PI_
-      HBAR=1.0D0 ! in a.u.
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
-      G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
 *
-      Sparse_Limit=0.25D0
-      ThrSparse=1.0D-6
-      DO ISO=1, IEND
+      ThrSparse=1.0D-12
 *
-*        Check the sparseness of the coefficient array
+      Call mma_allocate(iMask,NState,LABEL='iMask')
+      Call mma_allocate(jMask,NState,LABEL='jMask')
+      Call mma_allocate(iSSMask,NSS,LABEL='iSSMask')
+      Call mma_allocate(jSSMask,NSS,LABEL='jSSMask')
 *
-         mSS=0
-         Do i = 1, nSS
-            temp = USOR(i,ISO)**2 + USOI(i,ISO)**2
-            If (temp.gt.ThrSparse) mSS=mSS+1
-         End Do
+      CALL mma_allocate(ISS_INDEX,NState+1,LABEL='ISS_INDEX')
+      ISS_INDEX(1)=0
+      Do iState=1,NState
+         Job=JBNUM(iState)
+         ISS_INDEX(iState+1)=ISS_INDEX(IState)+MLTPLT(Job)
+      End Do
 *
-         Sparse_I = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
+      Do igrp=1,ngroup1
 *
-         DO JSO=JSTART, NSS
+         If (TMOgroup) Then
+            istart_=TMOgrp1(igrp)
+            iend_=TMOgrp1(igrp+1)-1
+            ENSOR1=0.5D0*(ENSOR(istart_)+ENSOR(iend_))
+         Else
+            istart_=igrp
+            iend_=igrp
+            ENSOR1=ENSOR(istart_)
+         EndIf
+*Screening
+         Call iCopy(NState,[0],0,iMask,1)
+         Call iCopy(NSS,[0],0,iSSMask,1)
+         ISM=0
+         ISSM=0
+         ISFLoop: Do ISF=1,NState
+           Do ISS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
+             Do ISO=istart_,iend_
+               Temp=VSOR(ISS,ISO)**2 + VSOI(ISS,ISO)**2
+               If (Temp.gt.ThrSparse) Then
+                 ISM=ISM+1
+                 iMask(ISM)=ISF
+                 Do IMSS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
+                   ISSM=ISSM+1
+                   iSSMask(ISSM)=IMSS
+                 End Do
+                 Cycle ISFLoop
+               End If
+             End Do
+           End Do
+         End Do ISFLoop
 *
-*           Check the sparseness of the coefficient array
+         Do jgrp=1,ngroup2
 *
-            mSS=0
-            Do i = 1, nSS
-               temp = USOR(i,JSO)**2 + USOI(i,JSO)**2
-               If (temp.gt.ThrSparse) mSS=mSS+1
-            End Do
+            If (TMOgroup) Then
+              jstart_=TMOgrp2(jgrp)
+              jend_=TMOgrp2(jgrp+1)-1
+              ENSOR2=0.5D0*(ENSOR(jstart_)+ENSOR(jend_))
+            Else
+              jstart_=jgrp+jstart-1
+              jend_=jgrp+jstart-1
+              ENSOR2=ENSOR(jstart_)
+            EndIf
+            EDIFF_=ENSOR2-ENSOR1
+            n12=(iend_-istart_+1)*(jend_-jstart_+1)
+*Screening
+            Call iCopy(NState,[0],0,jMask,1)
+            Call iCopy(NSS,[0],0,jSSMask,1)
+            JSM=0
+            JSSM=0
+            JSFLoop: Do JSF=1,NState
+              Do JSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
+                Do JSO=jstart_,jend_
+                  Temp=VSOR(JSS,JSO)**2 + VSOI(JSS,JSO)**2
+                  If (Temp.gt.ThrSparse) Then
+                    JSM=JSM+1
+                    jMask(JSM)=JSF
+                    Do JMSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
+                      JSSM=JSSM+1
+                      jSSMask(JSSM)=JMSS
+                    End Do
+                    Cycle JSFLoop
+                  End If
+                End Do
+              End Do
+            End Do JSFLoop
 *
-            Sparse_J = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
+            IJSS(1)=istart_
+            IJSS(2)=iend_
+            IJSS(3)=jstart_
+            IJSS(4)=jend_
 *
-            EDIFF=ENSOR(JSO)-ENSOR(ISO)
-            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
-            IF(EDIFF.LT.0.0D0) CYCLE
+            WRITE(STLNE1,'(A6)') 'RASSI:'
+            WRITE(STLNE2,'(A33,I5,A5,I5)')
+     &         'Trans. intensities for SO groups ',igrp,' and ',jgrp
+            Call StatusLine(STLNE1,STLNE2)
+*
+            IF (ABS(EDIFF_).LE.1.0D-8) CYCLE
+            IF(EDIFF_.LT.0.0D0) CYCLE
             IJSO=IJSO+1
-            iOff_= (IJSO-1)*nQuad*nData
 *
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=EDIFF/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF_)/SPEED_OF_LIGHT
+*
+*           For the case the energy difference is negative we
+*           need to change the sign of the B.s term to get
+*           consistency.
+*
+            cst=SIGN(Half,EDIFF_)*g_Elec
 *
 *           Iterate over the quadrature points.
 *
-            FX=0.0D0
-            FY=0.0D0
-            FZ=0.0D0
-            F =0.0D0
-            R =0.0D0
-*
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*5,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5,[0.0D0],0,WORK(LWEIGH),1)
-
+            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
+            CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
+            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+*
             Do iQuad = 1, nQuad
-               iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
-     &                  + (iVec-1)*nStorage
+               iVec_=(iVec-1)*nQuad+iQuad
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               xcoor=Work((iQuad-1)*4  +ipR)
-               ycoor=Work((iQuad-1)*4+1+ipR)
-               zcoor=Work((iQuad-1)*4+2+ipR)
-
-               PORIG(1,IPREMFR_RS)=rkNorm*xcoor
-               PORIG(2,IPREMFR_RS)=rkNorm*ycoor
-               PORIG(3,IPREMFR_RS)=rkNorm*zcoor
-               Call DCopy_(3,PORIG(1,IPREMFR_RS),1,
-     &                       Work(iStorage+ip_kvector),1)
+               UK(1)=Work((iQuad-1)*4  +ipR)
+               UK(2)=Work((iQuad-1)*4+1+ipR)
+               UK(3)=Work((iQuad-1)*4+2+ipR)
+               wavevector(:)=rkNorm*UK(:)
+*
+*              Note that the weights are normalized to integrate to
+*              4*pi over the solid angles.
 *
                Weight=Work((iQuad-1)*4+3+ipR)
-               Work(iStorage+ip_w)=Weight
+               If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
 *
-*              Generate the associated polarization vectors.
+*              Generate the polarization vector
 *
-               IF (PORIG(1,IPREMFR_RS).EQ.0.0D0 .and.
-     &             PORIG(2,IPREMFR_RS).EQ.0.0D0) Then
-                  E1(1)=1.0D0
-                  E1(2)=0.0D0
-                  E1(3)=0.0D0
-               ELSE
-                  E1(1)= PORIG(2,IPREMFR_RS)
-                  E1(2)=-PORIG(1,IPREMFR_RS)
-                  E1(3)= 0.0D0
-               END IF
-               Tmp=1.0D0/SQRT(E1(1)**2+E1(2)**2+E1(3)**2)
-               E1(1)=E1(1)*Tmp
-               E1(2)=E1(2)*Tmp
-               E1(3)=E1(3)*Tmp
-               E2(1)=PORIG(2,IPREMFR_RS)*E1(3)-E1(2)*PORIG(3,IPREMFR_RS)
-               E2(2)=PORIG(3,IPREMFR_RS)*E1(1)-E1(3)*PORIG(1,IPREMFR_RS)
-               E2(3)=PORIG(1,IPREMFR_RS)*E1(2)-E1(1)*PORIG(2,IPREMFR_RS)
-               Tmp=1.0D0/SQRT(E2(1)**2+E2(2)**2+E2(3)**2)
-               E2(1)=E2(1)*Tmp
-               E2(2)=E2(2)*Tmp
-               E2(3)=E2(3)*Tmp
-               Call DCopy_(3,E1,1,Work(iStorage+ip_e1),1)
-               Call DCopy_(3,E2,1,Work(iStorage+ip_e2),1)
-*
-*              Compute the vectors (k x e1) and  (k x e2).
-*
-               kxe1(1)=PORIG(2,IPORIG)*E1(3)-PORIG(3,IPORIG)*E1(2)
-               kxe1(2)=PORIG(3,IPORIG)*E1(1)-PORIG(1,IPORIG)*E1(3)
-               kxe1(3)=PORIG(1,IPORIG)*E1(2)-PORIG(2,IPORIG)*E1(1)
-               kxe2(1)=PORIG(2,IPORIG)*E2(3)-PORIG(3,IPORIG)*E2(2)
-               kxe2(2)=PORIG(3,IPORIG)*E2(1)-PORIG(1,IPORIG)*E2(3)
-               kxe2(3)=PORIG(1,IPORIG)*E2(2)-PORIG(2,IPORIG)*E2(1)
+               If (Do_Pol) Then
+                  pol_Vector(:,iVec_)=
+     &               e_Vector-DDot_(3,UK,1,e_Vector,1)*UK
+                  rNorm=DDot_(3,pol_Vector(:,iVec_),1,
+     &                         pol_Vector(:,iVec_),1)
+                  If (rNorm.gt.1.0D-12) Then
+                     pol_Vector(:,iVec_)=pol_Vector(:,iVec_)/Sqrt(rNorm)
+                  Else
+                     pol_Vector(:,iVec_)=0.0D0
+                  End If
+               End If
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
-               Call TMOSInt(PORIG(1,IPREMFR_RS))
+               iOpt=2
+               Call TMOMInt(wavevector,iOpt)
 *
 ************************************************************************
 *                                                                      *
@@ -354,41 +501,19 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-               DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+               Do IPRP = 1,14
+                  IPROP = IPRTMOM(IPRP)
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
-               ISS = 0
-               DO I=1, NSTATE
+
+               DO ISS=1,ISM
 *
 *                 Does this spin-free state contribute to any of the
 *                 two spin states? Check the corresponding coefficients.
 *
-                  JOB1=iWork(lJBNUM+I-1)
-                  MPLET1 = MLTPLT(JOB1)
-*
-                  temp=0.0D0
-                  Do MS1 = 1, MPLET1
-                     ISS = ISS + 1
-                     temp=Max(temp,USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2)
-                     temp=Max(temp,USOR(ISS,JSO)**2 + USOI(ISS,JSO)**2)
-                  End Do
-                  If (temp.le.ThrSparse)  Cycle
-*
-                  JSS=0
-                  DO J=1, I
-*
-                     JOB2=iWork(lJBNUM+J-1)
-                     MPLET2 = MLTPLT(JOB2)
-*
-                     temp=0.0D0
-                     Do MS2 = 1, MPLET2
-                        JSS = JSS + 1
-                        temp=
-     &                     Max(temp,USOR(JSS,ISO)**2 + USOI(JSS,ISO)**2)
-                        temp=
-     &                     Max(temp,USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2)
-                     End Do
-                     If (temp.le.ThrSparse)  Cycle
+                  i=iMask(ISS)
+                  DO JSS=1,JSM
+                     j=jMask(JSS)
 *
 *                    COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
@@ -400,287 +525,416 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      MASK=2**(ISY12-1)
 *                    FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF
 *                    TDMSCR
-                     IOF=0
-                     Call IZERO(IOFF,8)
-                     DO ISY1=1,NSYM
-                        ISY2=MUL(ISY1,ISY12)
-                        IF (ISY1.LT.ISY2) CYCLE
-                        IOFF(ISY1)=IOF
-                        IOFF(ISY2)=IOF
-                        NB1=NBASF(ISY1)
-                        NB2=NBASF(ISY2)
-                        NB12=NB1*NB2
-                        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-                        IOF=IOF+NB12
-                     END DO
+                     Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 *
 *                    Pick up the transition density between the two
-*                    states from disc. Generated in PROPER.
+*                    states from disc. Generated in GTDMCTL.
 *
-                     ij=I*(I-1)/2+J
-                     iDisk=iWork(liTocM+ij-1)
-                     Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                     IDISK=iDisk_TDM(I,J,1)
+                     iEmpty=iDisk_TDM(I,J,2)
+                     iOpt=2
+                     iGO=5
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+     &                              LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+                     Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,
+     &                            IOFF,NBASF,ISY12)
 *
 *                    Compute the transition property of the property
 *                    integrals between the two states.
 *
-                     DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+                     DO IPRP = 1,14
+                        IPROP = IPRTMOM(IPRP)
                         ITYPE=0
                         IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                         IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
                         IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                         IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                         LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                               WORK(LIP),NIP,WORK(LSCR),NSCR,
+                        Call MK_PROP(PROP,IPROP,I,J,
+     &                               LABEL,ITYPE,
+     &                               WORK(LIP),NIP,SCR,nSCR,
      &                               MASK,ISY12,IOFF)
                      END DO
 *
                   END DO ! J
                END DO ! I
 *
-*              (1) the spin-free part. This part is split into a
-*                  symmetric and an antisymmetric part, being electric
-*                  and magnetic, respectively. We will treat them
-*                  separate for now to facilitate the calculation of
-*                  the rotatory strength.
+*              LDXR & LDXI hold the component that does not change from k to -k
+*              LDXRM & LDXIM hold the component that changes sign
 *
-*              Note that the integrals are not computed for the
-*              momentum opertor but rather for nabla. That is
-*              as we assemble to transition momentum we have to
-*              remember to put in a factor of -i.
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXR),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXI),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXRM),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXIM),1)
+               DO iCar = 1, 3
 *
-               Do iCar = 1, 3
+*              (1) the spin-free part.
+*                 Note that the integrals are not computed for the
+*                 momentum operator but rather for nabla. That is
+*                 as we assemble to transition momentum we have to
+*                 remember to put in a factor of -i.
 *
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTMP),1)
+                  LI_=LDXI+(iCar-1)*NSS**2
+                  LRM_=LDXRM+(iCar-1)*NSS**2
 *
-*                 The electric (symmetric) part
+*                 The real part (symmetric and anti-symmetric) becomes imaginary
 *
-*                 the real symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
+                  CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(0+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,WORK(LI_),1)
+                  CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(6+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,WORK(LI_),1)
 *
-*                 the imaginary symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
+*                 The imaginary part (symmetric and anti-symmetric) becomes real
 *
-*                 Transform properties to the spin-orbit basis
-*                 and pick up correct element
-                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
-     &                           WORK(LTMP),T0_e(iCar),ISO,JSO)
-*
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTMP),1)
-*
-*                 The magnetic (antisymmetric) part
-*
-*                 the real anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RA',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
-*
-*                 the imaginary anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IA',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
-*
-*                 Transform properties to the spin-orbit basis
-*                 and pick up correct element
-                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
-     &                           WORK(LTMP),T0_m(iCar),ISO,JSO)
-*
-               End Do
-*
-*              Assemble the electric and magnetic contribution of the
-*              transition moment for the respective polarization
-*              directions from the spin-independent part of the
-*              Hamiltonian.
-*
-               PE1_e = E1(1)*T0_e(1) + E1(2)*T0_e(2) + E1(3)*T0_e(3)
-               PE1_m = E1(1)*T0_m(1) + E1(2)*T0_m(2) + E1(3)*T0_m(3)
-*
-               PE2_e = E2(1)*T0_e(1) + E2(2)*T0_e(2) + E2(3)*T0_e(3)
-               PE2_m = E2(1)*T0_m(1) + E2(2)*T0_m(2) + E2(3)*T0_m(3)
-*
-*              Multiply with the factor -i to have the transition
-*              moment corresponding to the momentum operator and not
-*              as now nabla!
-*
-               PE1_e = - Imaginary * PE1_e
-               PE1_m = - Imaginary * PE1_m
-               PE2_e = - Imaginary * PE2_e
-               PE2_m = - Imaginary * PE2_m
+                  CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(3+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,WORK(LRM_),1)
+                  CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(9+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,WORK(LRM_),1)
 *
 *              (2) the spin-dependent part, magnetic
 *
-*              iCar=1: 1/2(S(+)+S(-))
-*              iCar=2: 1/2i(S(+)-S(-))
-*              iCar=3: Sz
+*                 iCar=1: 1/2(S(+)+S(-))
+*                 iCar=2: 1/2i(S(+)-S(-))
+*                 iCar=3: Sz
 *
-               Do iCar = 1, 3
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-                  If (iCar.eq.1.or.iCar.eq.3) Then
-*                    pick up the real component
-                     CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',
-     &                                iCar,
-     &                                USOR,USOI,ISO,JSO,ThrSparse)
-*                 Else
-*                    pick up the imaginary component
-                     CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',
-     &                                iCar,
-     &                                USOR,USOI,ISO,JSO,ThrSparse)
-                  End If
-                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
-     &                           WORK(LTMP),T1(iCar),ISO,JSO)
-               End Do
+*                 Here we need to be very careful. The operator is
+*                 similar to the L.S operator, the spin-orbit coupling.
+*                 However, here we have that the operator is B.S. Thus
+*                 we can do this in a similar fashion as the spin-orbit
+*                 coupling, but with some important difference.
 *
-*              Assemble the spin-dependent part of the transition
-*              moment.
+*                 For the spin-orbit coupling the L operator is divided
+*                 into x-, y-, and z-components, that is the operator
+*                 will be represented by three different integrals.
+*                 For the integrals over B it is similar but the x-, y-,
+*                 and z-components are constants outside of the integral.
+*                 For example, the x-component is expressed as
+*                 (k x e_l)_x <0|e^(i k.r)|n>. In this section we will
+*                 handle the (k x e_l)_x part outside the loop over the
+*                 Cartesian components.
 *
-               E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
-               E2B=kxe2(1)*T1(1)+kxe2(2)*T1(2)+kxe2(3)*T1(3)
+*                 We have to note one further difference, the integrals
+*                 are complex in this case.
 *
-*              Assemble to total transition moment for the two
-*              polarization directions.
+*                 Let us now compute the contributions T(i), i=x,y,z
 *
-               TM1 =(PE1_e + PE1_m)+ IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 =(PE2_e + PE2_m)+ IMAGINARY*(g_Elec/2.0D0)*E2B
+*                 In the equations we find that the y-component is imaginary,
+*                 see the equations on page 234 in Per Ake's paper. Hence,
+*                 the y-component is treated slightly differently.
 *
-               Work(iStorage+ip_TM1R)=DBLE(TM1)
-               Work(iStorage+ip_TM1I)=AIMAG(TM1)
-               Work(iStorage+ip_TM2R)=DBLE(TM2)
-               Work(iStorage+ip_TM2I)=AIMAG(TM2)
+*                 Actually, here we compute (<0|e^(i k.r)|n> x k), which
+*                 will be later dotted with e_l.
 *
-*              Integrate over all directions of the polarization
-*              vector and divide with the "distance", 2*pi, to get
-*              the average value.
+*                 i*g/2*(s_y*k_z-s_z*k_y) -> T_x
+*                 i*g/2*(s_z*k_x-s_x*k_z) -> T_y
+*                 i*g/2*(s_x*k_y-s_y*k_x) -> T_z
 *
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
+*                 Note also that the "I" parts should change sign with kPhase,
+*                 but so does wavevector, so the net result is the opposite.
+*
+                  IF (iCar.EQ.1) THEN
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           TMP,1,WORK(LDXIM+2*NSS**2),1)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           TMP,1,WORK(LDXIM+1*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           TMP,1,WORK(LDXR+2*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(3)*cst,
+     &                           TMP,1,WORK(LDXR+1*NSS**2),1)
+                  ELSE IF (iCar.EQ.2) THEN
+*                    For the y-component we have to interchange the real and
+*                    the imaginary components. The real component gets a
+*                    minus sign due to the product i*i=-1
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           TMP,1,WORK(LDXI+0*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           TMP,1,WORK(LDXI+2*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           TMP,1,WORK(LDXRM+0*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           TMP,1,WORK(LDXRM+2*NSS**2),1)
+                  ELSE IF (iCar.EQ.3) THEN
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           TMP,1,WORK(LDXIM+1*NSS**2),1)
+                     CALL DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           TMP,1,WORK(LDXIM+0*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(1)*cst,
+     &                           TMP,1,WORK(LDXR+1*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           TMP,1,WORK(LDXR+0*NSS**2),1)
+                  END IF
+               END DO
+*
+*              Now we can compute the transition moments for k and -k
+*
+               DO kp = 1, 2
+*
+               IF (ABS(kPhase(kp)).LT.0.5d0) CYCLE
+               CALL DCOPY_(3*NSS**2,WORK(LDXR),1,WORK(LTMR),1)
+               CALL DCOPY_(3*NSS**2,WORK(LDXI),1,WORK(LTMI),1)
+               CALL DAXPY_(3*NSS**2,kPhase(kp),
+     &                     WORK(LDXRM),1,WORK(LTMR),1)
+               CALL DAXPY_(3*NSS**2,kPhase(kp),
+     &                     WORK(LDXIM),1,WORK(LTMI),1)
+               DO iCar=1, 3
+                  LR_=LTMR+(iCar-1)*NSS**2
+                  LI_=LTMI+(iCar-1)*NSS**2
+                  CALL ZTRNSF_MASKED(NSS,VSOR,VSOI,
+     &                               WORK(LR_),WORK(LI_),
+     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
+               END DO
+*
+               IJ_=0
+               Do ISO=istart_,iend_
+                 Do JSO=jstart_,jend_
+                   IJ=(JSO-1)*NSS+ISO-1
+                   IJ_=IJ_+1
+                   LFIJ=LF+(ij_-1)*2
+                   EDIFF=ENSOR(JSO)-ENSOR(ISO)
+*
+*              Store the vectors for this direction
+*
+                   Call DCopy_(3,Work(LTMR+IJ),NSS**2,TM_R,1)
+                   Call DCopy_(3,Work(LTMI+IJ),NSS**2,TM_I,1)
+#ifdef _HDF5_
+*              Get proper triangular index
+                   IJSO_=(JSO-1)*(JSO-2)/2+ISO
+                   iQuad_=2*(iQuad-1)+kp
+                   Storage(ip_w,iQuad_,IJSO_,iVec)=Weight
+                   Call DCopy_(3,kPhase(kp)*Wavevector,1,
+     &                  Storage(ip_kvector,iQuad_,IJSO_,iVec),1)
+                   Call DCopy_(3,TM_R,1,
+     &                  Storage(ip_TMR,iQuad_,IJSO_,iVec),1)
+                   Call DCopy_(3,TM_I,1,
+     &                  Storage(ip_TMI,iQuad_,IJSO_,iVec),1)
+#endif
+*
+*              Project out the k direction from the real and imaginary components
+*
+                   Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
+                   Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
+*
+*              Implicitly integrate over all directions of the
+*              polarization vector to get the average value.
+*
+                   TM1 = DDot_(3,TM_R,1,TM_R,1)
+                   TM2 = DDot_(3,TM_I,1,TM_I,1)
+                   TM_2 = Half*(TM1+TM2)
+*
+*              Compute maximum and minimum oscillator strengths
+*              and the corresponding polarization vectors
+*
+                   If (Do_SK) Then
+                      LMAX_ = LMAX+8*(ij_-1)
+                      TM3 = DDot_(3,TM_R,1,TM_I,1)
+                      Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
+                      Work(LMAX_+0) = TM_2+Half*Rng
+                      Work(LMAX_+4) = TM_2-Half*Rng
+*                     The direction for the maximum
+                      Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
+                      Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
+                      Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+*                     Normalize and compute the direction for the minimum
+*                     as a cross product with k
+                      rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                      If (rNorm.gt.1.0D-12) Then
+                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
+                         Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
+     &                                 Work(LMAX_+3)*UK(2)
+                         Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
+     &                                 Work(LMAX_+1)*UK(3)
+                         Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
+     &                                 Work(LMAX_+2)*UK(1)
+                         rNorm=DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                      Else
+                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
+                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                      End If
+                   End If
+*
+*              Oscillator strength for a specific polarization vector
+*
+                   If (Do_Pol) Then
+                      TM1 = DDot_(3,TM_R,1,pol_Vector(1,iVec_),1)
+                      TM2 = DDot_(3,TM_I,1,pol_Vector(1,iVec_),1)
+                      TM_2 = TM1*TM1+TM2*TM2
+                   End If
 *
 *              Compute the oscillator strength
 *
-               F_Temp = 2.0D0*TM_2/EDIFF
+                   F_Temp = 2.0D0*TM_2/EDIFF
+                   If (Do_SK) Then
+                      Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
+                      Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                   End If
 *
-*              Compute the rotatory strength
+*              Compute the rotatory strength, note that it depends on kPhase
 *
-*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+                   TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
+                   TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
+                   TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
+                   TM_2 = 2.0D0*kPhase(kp)*DDot_(3,TM_C,1,UK,1)
+                   R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
+                   R_Temp=R_Temp*AU2REDR
 *
-*              TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
-               TM_2 = - 2.0D0*(
-     &                           DBLE(TM1)*AIMAG(TM2)
-     &                          -DBLE(TM2)*AIMAG(TM1)
-     &                           )
-               R_Temp= TM_2/ABS(EDIFF)
-               R_Temp = R_Temp * AU2ESUISH
+*              Save the raw oscillator and rotatory strengths in a given direction
 *
-*              Save the raw oscillator strengths in a given direction
+                   NQUAD_=2*NQUAD
+                   LRAW_=LRAW+6*NQUAD_*(ij_-1)
+                   IQUAD_=2*(IQUAD-1)+(kp-1)
+                   WORK(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
+                   WORK(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
 *
-               WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = R_TEMP
-               WORK(LRAW+(IQUAD-1)+2*NQUAD) = XCOOR
-               WORK(LRAW+(IQUAD-1)+3*NQUAD) = YCOOR
-               WORK(LRAW+(IQUAD-1)+4*NQUAD) = ZCOOR
+*              Save the direction and weight too
+*
+                   WORK(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+5*NQUAD_) = Weight
+*
+*              Do not accumulate if not doing an isotropic integration
+*
+                   If (Do_SK.And.(kp.gt.1)) Cycle
 *
 *              Accumulate to the isotropic oscillator strength
 *
-               F = F + Weight * F_Temp
+                   Work(LFIJ  )=Work(LFIJ  ) + Weight * F_Temp
 *
 *              Accumulate to the isotropic rotatory strength
 *
-               R = R + Weight * R_Temp
+                   Work(LFIJ+1)=Work(LFIJ+1) + Weight * R_Temp
+                 End Do
+               End Do
 *
-*              Save the weighted oscillator and rotatory strengths in a
-*              given direction k.
+               End Do ! kp
 *
-               WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = XCOOR
-               WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = YCOOR
-               WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = ZCOOR
-
             End Do ! iQuad
 *
-*           Note that the weights are normalized to integrate to
-*           4*pi over the solid angles.
+            IJ_=0
+            Do ISO=istart_,iend_
+              Do JSO=jstart_,jend_
+                 IJ=(ISO-1)*NSS+JSO-1
+                 IJ_=IJ_+1
+                 LFIJ=LF+(ij_-1)*2
+                 EDIFF=ENSOR(JSO)-ENSOR(ISO)
+                 F=Work(LFIJ)
+                 R=Work(LFIJ+1)
 *
-            If (.NOT.Do_SK) Then
-               F = F / (4.0D0*PI)
-               R = R / (4.0D0*PI)
-            End If
-            IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
-            A =(AFACTOR*EDIFF**2)*F
+                 Call Add_Info('ITMS(SO)',[F],1,6)
+                 Call Add_Info('ROTS(SO)',[R],1,4)
+*
+                 IF (Do_Pol) THEN
+                    LMAX_=LMAX+8*(ij_-1)
+                    F_CHECK=ABS(WORK(LMAX_+0))
+                 ELSE
+                    F_CHECK=ABS(F)
+                 END IF
+                 IF (F_CHECK.LT.OSTHR) CYCLE
+                 A =(AFACTOR*EDIFF**2)*F
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
                If (Do_SK) Then
                   CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
-               WRITE(6,'(1x,a)')
-     &           '   The oscillator strength is'//
-     &           ' integrated over all directions of the polar'//
-     &           'ization vector'
-                  WRITE(6,'(4x,a,3F8.4,a)')
+     &              'Transition moment strengths (SO states):')
+                  WRITE(6,'(3X,A)')
+     &              '----------------------------------------'
+                  If (Do_Pol) Then
+                      iVec_=(iVec-1)*nQuad+1
+                      WRITE(6,'(4x,a,3F8.4)')
+     &                  'Direction of the polarization: ',
+     &                  (pol_vector(k,iVec),k=1,3)
+                  Else
+                     WRITE(6,'(4x,a)')
+     &                 'The oscillator strength is integrated '//
+     &                 'over all directions of the polarization '//
+     &                 'vector'
+                  End If
+                  WRITE(6,'(4x,a,3F8.4)')
      &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2),' (au)'
+     &                   (Work(ipR+k),k=0,2)
                Else
                   CALL CollapseOutput(1,
-     &                'Isotropic transition moment strengths:')
+     &              'Isotropic transition moment strengths '//
+     &              '(SO states):')
+                  WRITE(6,'(3X,A)')
+     &              '--------------------------------------'//
+     &              '------------'
                End If
-               WRITE(6,'(3X,A)')
-     &                '--------------------------------------'
                IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,'(1x,a,ES16.8)')
-     &                  '   for osc. strength at least ',OSTHR
+                  WRITE(6,30) 'for osc. strength at least ',OSTHR
                END IF
                WRITE(6,*)
                If (.NOT.Do_SK) Then
-               WRITE(6,'(1x,a,I4,a)')
-     &           '   Integrated over ',nQuad,' directions of the'//
-     &           ' wave vector'
-               WRITE(6,'(1x,a)')
-     &           '   The oscillator strength is'//
-     &           ' integrated over all directions of the polar'//
-     &           'ization vector'
-               WRITE(6,*)
+                 WRITE(6,'(4x,a,I4,a)')
+     &             'Integrated over ',2*nQuad,' directions of the '//
+     &             'wave vector'
+                 WRITE(6,'(4x,a)')
+     &             'The oscillator strength is '//
+     &             'integrated over all directions of the polar'//
+     &             'ization vector'
+                  WRITE(6,*)
                End If
-               WRITE(6,*)"        To  From     Osc. strength"//
-     &           "    Rot. strength",
-     &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &           "      Total A (sec-1)  "
-               WRITE(6,*)
-     &  '      -------------------------------------------'//
-     &  '------------------------------------------------'
+               WRITE(6,31) 'From', 'To', 'Osc. strength',
+     &                     'Red. rot. str.', 'Total A (sec-1)'
+               WRITE(6,32)
               iPrint=1
             END IF
-            WRITE(6,'(5X,2I5,5X,2(F8.6,8X),4ES16.8)')
-     &           ISO,JSO,F,R,AX,AY,AZ,A
+*
+*     Regular print
+*
+            WRITE(6,33) ISO,JSO,F,R,A
+*
+            IF (Do_SK) THEN
+               WRITE(6,50) 'maximum',WORK(LMAX_+0),
+     &            'for polarization direction:',
+     &            WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
+               WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &            'for polarization direction:',
+     &            WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+            END IF
+*
 *
 *     Printing raw (unweighted) and direction for every transition
 *
             IF(PRRAW) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Raw Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Raw osc. str.',
+     &                    'Red. rot. str.','kx','ky','kz'
+              WRITE(6,35)
+              NQUAD_=2*NQUAD
+              LRAW_=LRAW+6*NQUAD_*(ij_-1)
               DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
-     &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+1*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+2*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
+                DO kp=1,2
+                  IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
+                  IQUAD_=2*(IQUAD-1)+(kp-1)
+                  WRITE(6,33) ISO,JSO,
+     &            WORK(LRAW_+IQUAD_+0*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+1*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+                END DO
               END DO
-              WRITE(6,*)
+              WRITE(6,35)
               WRITE(6,*)
             END IF
 *
@@ -689,61 +943,105 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IF(PRWEIGHT) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Wei Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
+     &                    'Red. rot. str.','kx','ky','kz'
+              WRITE(6,35)
+              NQUAD_=2*NQUAD
+              LRAW_=LRAW+6*NQUAD_*(ij_-1)
               DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
-     &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)/ (4.0D0*PI)
+                DO kp=1,2
+                  IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
+                  IQUAD_=2*(IQUAD-1)+(kp-1)
+                  Weight=WORK(LRAW_+IQUAD_+5*NQUAD_)
+                  WRITE(6,33) ISO,JSO,
+     &            WORK(LRAW_+IQUAD_+0*NQUAD_)*Weight,
+     &            WORK(LRAW_+IQUAD_+1*NQUAD_)*Weight,
+     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+                END DO
               END DO
-              WRITE(6,*)
+              WRITE(6,35)
               WRITE(6,*)
             END IF
 *
-            Call Add_Info('ITMS(SO)',[F],1,6)
-            Call Add_Info('ROTS(SO)',[R],1,6)
+               End Do
+            End Do
 *
          END DO
       END DO
+      Call mma_deallocate(iMask)
+      Call mma_deallocate(jMask)
+      Call mma_deallocate(iSSMask)
+      Call mma_deallocate(jSSMask)
+      Call mma_deallocate(ISS_INDEX)
 *
       If (iPrint.EQ.1) THEN
+         WRITE(6,32)
          If (Do_SK) Then
             CALL CollapseOutput(0,
-     &                'Transition moment strengths:')
+     &            'Transition moment strengths (SO states):')
          Else
             CALL CollapseOutput(0,
-     &                'Isotropic transition moment strengths:')
+     &            'Isotropic transition moment strengths (SO states):')
          End If
       END IF
 *
       End Do ! iVec
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu2,TWall2)
+      write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
 *
 #ifdef _HDF5_
-      Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))
+#ifdef POINTER_REMAP
+      flatStorage(1:SIZE(Storage)) => Storage
+#else
+      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
+#endif
+      Call mh5_put_dset(wfn_sos_tm,flatStorage)
+      Nullify(flatStorage)
+      Call mma_deallocate(Storage)
 #endif
 *
 *     Do some cleanup
 *
-      Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5)
-      CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
+      CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
-      CALL GETMEM('TMP','FREE','REAL',LTMP,NSS**2)
+      CALL GETMEM('DXI','FREE','REAL',LDXI,3*NSS**2)
+      CALL GETMEM('DXRM','FREE','REAL',LDXRM,NSS**2)
+      CALL GETMEM('DXIM','FREE','REAL',LDXIM,3*NSS**2)
+      call mma_deallocate(TMP)
+      if (TMOgroup) Then
+        Call mma_DeAllocate(TMOgrp1)
+        Call mma_DeAllocate(TMOgrp2)
+      EndIf
+      If (Do_Pol) Call mma_deallocate(pol_Vector)
+      CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
+      CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
+      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
 *
-      Call DaClos(LuToM)
+      Call mma_deallocate(SCR)
+      Call mma_deAllocate(TDMZZ)
+      Call mma_deAllocate(TSDMZZ)
+      Call mma_deAllocate(WDMZZ)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
+
+ 666  Continue
+      Call mma_deallocate(VSOR)
+      Call mma_deallocate(VSOI)
+*
+30    FORMAT (5X,A,1X,ES15.8)
+31    FORMAT (5X,2(1X,A4),4X,3(1X,A15))
+32    FORMAT (5X,63('-'))
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+34    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
+35    FORMAT (5X,95('-'))
+50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
 *
 ************************************************************************
 *                                                                      *
@@ -751,6 +1049,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
+#ifdef _TIME_TMOM_
+      Call CWTime(TCpu2,TWall2)
+      write(6,*) 'Time for TMOM(SO) : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
       RETURN
-      END
+      END Subroutine PRPROP_TM_Exact
 

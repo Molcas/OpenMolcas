@@ -165,8 +165,8 @@ The compulsory keywords are:
   on the next (or next two) entry(ies). The isotopes of hydrogen can be given as
   H, D, or T.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ATOMS" APPEAR="The two atoms" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: ATOMs <compulsory>
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ATOMS" APPEAR="The two atoms" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: ATOMs <basic>
               <HELP>
               Read the mass number and chemical symbol of the atoms from the next line.
               If the mass number is zero the mass of the most abundant isotope will be
@@ -185,8 +185,9 @@ The compulsory keywords are:
   the distance between adjacent plot points. This input must only be
   given together with the keyword :kword:`RoVibrational spectrum`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="POTE" APPEAR="Potential" KIND="STRINGS" LEVEL="BASIC">
-              %%Keyword: POTEntial <compulsory>
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="POTE" APPEAR="Potential" KIND="CUSTOM" LEVEL="BASIC">
+              <ALTERNATE KIND="STRING" />
+              %%Keyword: POTEntial <basic>
               <HELP>
               Read the potential from a file (in au). Format: distance, value one pair on
               each line. Only together with vib-rot calculation.
@@ -202,7 +203,7 @@ input:
   One single title line
 
   .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: TITLe <advanced>
+              %%Keyword: TITLe <basic>
               <HELP>
               One single title line
               </HELP>
@@ -214,7 +215,7 @@ input:
   199. The maximum value that can be used is 4999.
 
   .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="GRID" APPEAR="Numerical grid" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="199" MIN_VALUE="1" MAX_VALUE="4999">
-              %%Keyword: GRID <advanced>
+              %%Keyword: GRID <basic>
               <HELP>
               Give the number of numerical grid points (default is 199, max is 4999).
               </HELP>
@@ -289,7 +290,7 @@ input:
   Only the wave function analysis will be carried out but not the
   calculation of spectroscopic constants.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="NOSP" APPEAR="No spectroscopic constants" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="NOSP" APPEAR="No spectroscopic constants" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NOSPectroscopic <advanced>
               <HELP>
               No calculation of spectroscopic constants.
@@ -314,7 +315,7 @@ input:
   The keyword :kword:`Observable` can be repeated up to ten times in a
   single run. All observables should be given in atomic units.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="OBSE" APPEAR="Observable" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="OBSE" APPEAR="Observable" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: OBSErvable <basic>
               <HELP>
               Input for radial functions of observables (in au). The input is read from a
@@ -340,7 +341,7 @@ input:
   (88 :math:`\text{cm}^{-1}`). This value must be smaller than the
   zero-point vibrational energy of the molecule.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="STEP" APPEAR="Numerical step size" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.004" MIN_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="STEP" APPEAR="Numerical step size" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.004" MIN_VALUE="0.0">
               %%Keyword: STEP <advanced>
               <HELP>
               Give the starting value for the energy step used in bracketing eigenvalues.

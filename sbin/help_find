@@ -43,8 +43,8 @@ helptext = '''
 ################################################################################{0}
 
 Use with a command-line argument to search for a procedure (subroutine/function)
-in the Molcas source code. Wildcards are supported, but the argument may need
-to be put inside quotes to prevent its expansion by the shell.
+or module in the Molcas source code. Wildcards are supported, but the argument
+may need to be put inside quotes to prevent its expansion by the shell.
 
 Examples:
 
@@ -52,15 +52,15 @@ Examples:
 
   {2}pget?{0}       find all procedures whose name is "pget" plus one character
 
-  {2}"bi*"{0}       find all procedures with a name starting with "bi"
-              (without the quotes, the shell will probably expand it to "bin")
+  {2}"sb*"{0}       find all procedures with a name starting with "sb"
+              (without the quotes, the shell will probably expand it to "sbin")
 '''.format(Style.RESET_ALL, Fore.BLUE, Fore.GREEN)
 
 # Main regex to identify Fortran procedures
 # Some shortcomings:
 # - Does not handle continuation lines
 # - Does not skip procedures inside an interface block
-find_regex = re.compile(r'([^!*c]\s*\S*(?<!end)\s*(function|subroutine|interface|entry)\s+)(\w+)', flags=re.IGNORECASE)
+find_regex = re.compile(r'([^!*c]\s*\S*(?<!end)\s*(function|subroutine|interface|entry|module)\s+)(\w+)', flags=re.IGNORECASE)
 
 # Use colors in terminal, not if output is redirected to file
 if sys.stdout.isatty():
@@ -145,7 +145,7 @@ except:
   else:
     # If ctags, just parse the human-readable output
     procs = []
-    ctags = subprocess.Popen(['ctags', '-x', '--c-kinds=f', '--fortran-kinds=fsei', '-h .h.fh', '--langmap=c:.c.h,fortran:.f.f90.fh', '--languages=c,fortran', '-R', src_dir], stdout=subprocess.PIPE)
+    ctags = subprocess.Popen(['ctags', '-x', '--c-kinds=f', '--fortran-kinds=fsiem', '-h .h.fh', '--langmap=c:.c.h,fortran:.f.f90.fh', '--languages=c,fortran', '-R', src_dir], stdout=subprocess.PIPE)
     for line in ctags.stdout:
       l = line.decode('ascii').split()
       procs.append([l[0], relpath(l[3], src_dir), int(l[2]), ' '+' '.join(l[4:])])
