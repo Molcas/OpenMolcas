@@ -36,18 +36,24 @@
 *     BRij and BRjk should be normalized
       Do i = 1, 3
          Co=Co+BRij(i,1)*BRjk(i,2)
-         Crap=Crap+(BRjk(i,2)+BRij(i,1))**2
+      End Do
+      Do i = 1, 3
+         Crap=Crap+(BRjk(i,2)-Sign(One,Co)*BRij(i,1))**2
       End Do
       Crap = Sqrt(Crap)
 *
 *.... Special care for cases close to linearity
 *
       If (Crap.lt.1.0D-4) Then
-         Si=Half*Crap
-         Fir=Pi-ArSin(Si)
+         Si=Crap
+         If (Co.lt.Zero) Then
+            Fir=Pi-ArSin(Si)
+         Else
+            Fir=ArSin(Si)
+         End If
       Else
-         Fir=ArCos(Co)
          If (Abs(Co).gt.One) Co=Sign(One,Co)
+         Fir=ArCos(Co)
          Si=Sqrt(One-Co**2)
       End If
 *
