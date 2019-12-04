@@ -55,9 +55,9 @@ def fortran_float(num):
   if (num[0] == '$'):
     return 1.0
   # in case there is no exponent marker
-  num = re.sub(r'(\d)([+-]\d)', r'\1e\2', num)
-  # convert D to E
-  num = num.translate(str.maketrans('dD', 'eE'))
+  num = re.sub(r'([\d.])([+-]\d)', r'\1e\2', num)
+  # convert d/D to e
+  num = re.sub(r'[dD]', 'e', num)
   return float(num)
 
 # Convert a list to integers
