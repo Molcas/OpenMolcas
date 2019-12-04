@@ -10,22 +10,36 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine transmat(A,U,N)
-      implicit none
-***
-* This subroutine carries out the following transformation:
-*       U^T * A * U
-* where A and U are NxN matrices
-***
+* This subroutine diagonalizes a real symmetric matrix A using
+* the Jacobi algorithm
+**
+      subroutine eigen(A,U,N)
+      implicit real(8) (A-H,O-Z)
+#include "WrkSpc.fh"
 
-      integer N
       real(8) A(N,N)
       real(8) U(N,N)
 
-* A = U^T * A
-      call dgemm_('T', 'N', N, N, N, 1.0d0, U, N, A, N, 0.0d0, A, N)
-* A = A * U
-      call dgemm_('N', 'N', N, N, N, 1.0d0, A, N, U, N, 0.0d0, A, N)
+      NSCR=(N*(N+1))/2
+      call getmem('SCR','ALLO','REAL',LSCR,NSCR)
+      ! call getmem('EVEC','ALLO','REAL',LEVEC,Nstate**2)
+
+      IJ=0
+      do I=1,N
+        do J=1,I
+          IJ=IJ+1
+          WORK(LSCR+IJ-1)=A(I,J)
+        end do
+      end do
+
+* Initialize U as the identity matrix
+      U=0.0d0
+      call dcopy_(N,[1.0D0],0,U,N+1)
+
+* Call Jacobi algorithm
+      call JACOB(WORK(LSCR),U,N,N)
+
+      call getmem('SCR','FREE','REAL',LSCR,N)
 
       return
       end

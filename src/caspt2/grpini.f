@@ -188,7 +188,7 @@ c Modify the Fock matrix, if needed:
       IF (NGRP.GT.1.AND.IFXMS) THEN
 
         CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
-        CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LEVEC))
+        CALL eigen(WORK(LFOPXMS),WORK(LEVEC),NGRP)
 
 * Transform H0 (= FOPXMS) and HEFF (which at this stage corresponds to the 1st-order
 * corrected effective Hamiltonian) in the new basis that diagonalize FOPXMS

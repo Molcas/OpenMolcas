@@ -78,21 +78,24 @@ C
 #ifdef _MOLCAS_MPP_
       LOGICAL KING, Is_Real_Par
 #endif
-C     timers
+* Timers
       REAL*8 CPTF0,CPTF11,CPTF12,CPTF13,CPTF14,CPE,CPUTOT,
      &       TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14,TIOE,TIOTOT
-C     indices
+* Indices
       INTEGER I,J
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
-C     convergence check
+* Convergence check
       INTEGER ICONV
-C     relative energies
+* Relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
       INTEGER IDISK
 
-C     effective hamiltonian
-      REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:), H0(:,:)
+* Effective Hamiltonian
+      REAL*8, ALLOCATABLE :: HEFF(:,:), UEFF(:,:)
+
+* Zeroth-order Hamiltonian
+      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:)
 
       Call StatusLine('CASPT2:','Just starting')
 
@@ -102,22 +105,25 @@ C     effective hamiltonian
       CALL SETTIM
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 
-* probe the environment to globally set the IPRGLB value
+* Probe the environment to globally set the IPRGLB value
       Call Set_Print_Level
 
 *======================================================================*
 *
       Call StatusLine('CASPT2:','Initializing')
       CALL PT2INI
+* Initialize effective Hamiltonian and eigenvectors
+      CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
+      CALL MMA_ALLOCATE(UEFF,NSTATE,NSTATE)
+      HEFF=0.0D0
+      UEFF=0.0D0
+* Initialize zeroth-order Hamiltonian and eigenvectors
+      CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
+      CALL MMA_ALLOCATE(U0,NSTATE,NSTATE)
+      H0=0.D0
+      U0=0.D0
 *
 *======================================================================*
-
-      CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,HEFF,1)
-
-      CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,H0,1)
-
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and
 C proceed to the MS coupling section.
@@ -135,22 +141,16 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
           HEFF(I,I) = REFENE(I)
         END DO
         IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)' Heff[1] is initialized to:'
-          DO I=1,NSTATE
-            WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
-          END DO
-          WRITE(6,*)
+          write(6,*)' Heff[1] in the original model space basis:'
+          call prettyprint(Heff,NState,NState)
+          write(6,*)
         END IF
       END IF
 
-
-* In case of a DW-CASPT2 calculation, we first rotate the states
-* according to the XMS prescription in a similar manner to a
-* diabatization procedure. Hence, we "borrow" the XMSINI subroutine
-* which is effectively the initialization of XMS-CASPT2.
-* However, here we only use it to rotate the CASSCF states.
+* In case of a XDW-CASPT2 calculation we first rotate the CASSCF
+* states according to the XMS prescription.
       IF (IFRXMS) THEN
-        CALL XMSINI(HEFF,H0)
+        CALL XMSinit(Heff,H0,U0)
       END IF
 
 
@@ -400,15 +400,10 @@ C End of long loop over groups
        WRITE(6,*)
       END IF
 
-      CALL MMA_ALLOCATE(EIGVEC,NSTATE,NSTATE)
-      EIGVEC=0.0D0
-      DO I=1,NSTATE
-        EIGVEC(I,I) = 1.0D0
-      END DO
       IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
       IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
-        CALL MLTCTL(HEFF,EIGVEC)
+        CALL MLTCTL(HEFF,UEFF)
       END IF
 
       IF(IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
@@ -428,7 +423,7 @@ C End of long loop over groups
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
-      CALL CREIPH_CASPT2(HEFF,EIGVEC)
+      CALL CREIPH_CASPT2(HEFF,UEFF)
 
 * Store the PT2 energy and effective hamiltonian on the wavefunction file
       CALL PT2WFN_ESTORE(HEFF)
@@ -437,7 +432,8 @@ C End of long loop over groups
       Call Put_iScalar('NumGradRoot',iRlxRoot)
       Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
 
-      CALL MMA_DEALLOCATE(EIGVEC)
+      CALL MMA_DEALLOCATE(UEFF)
+      CALL MMA_DEALLOCATE(U0)
 9000  CONTINUE
 
 C Free resources, close files
