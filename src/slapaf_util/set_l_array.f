@@ -22,8 +22,9 @@
 *
       Do i = 1, nInter
 *
-         Hss=Max(Abs(Hessian(i,i)),0.010D0)
-*        Hss=Abs(Hessian(i,i))
+*        Make sure that the characteristic length is not too long.
+*
+         Hss=Max(Abs(Hessian(i,i)),0.0050D0)
          Array_l(i)=Sqrt((5.0D0*BaseLine)/(3.0D0*Hss))
 *
       End Do

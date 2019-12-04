@@ -330,7 +330,11 @@
 *                                                                      *
 *        Compute the updated structure.
 *
-         Beta_Disp_=MaxVal(GNrm,iterAI)*Beta_Disp
+*        Make sure that the variance restriction never is too tight.
+         Beta_Disp_=Max(0.001D0,MaxVal(GNrm,iterAI)*Beta_Disp)
+         iOpt_RS=1   ! Activate restricted variance.
+         If (GNrm(iterAI).lt.0.005D0) iOpt_RS=0
+         If (iOpt_RS.eq.1) Then
          Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt_s,Shift_s,Grad_s,iOptC,Beta,
      &                Beta_Disp_,
@@ -345,6 +349,22 @@
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian,qBeta,Restriction_dispersion,
      &                iOpt_RS)
+         Else
+         Call Update_sl_(iterAI,iInt,nFix,nInter,
+     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,
+     &                Beta_Disp_,
+     &                Lbl,GNrm,Energy,
+     &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                Labels,nLabels,FindTS,TSC,nRowH,
+     &                nWndw/2,Mode,ipMF,
+     &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
+     &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                Kriging_Hessian,qBeta,Restriction_Step,
+     &                iOpt_RS)
+         End If
 *
 *        Change lable of updating method if kriging points has
 *        been used.
@@ -456,6 +476,19 @@
       Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
       Call RecPrt('Shift:',' ',Shift,nInter,iter)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Reset Step_trunc flag if gradient is below the convergence
+*     theshold. If not we might end up in a loop of no displacements
+*     and eventually numerical problems.
+*
+      FAbs=Sqrt(
+     &          DDot_(nInter,Grad(1,iter),1,Grad(1,iter),1)
+     &         / DBLE(nInter)
+     &         )
+      GrdMax=Abs(GrdMax)
+      If (GrdMax.le.ThrGrd*OneHalf .and. Fabs.lt.ThrGrd) Step_trunc=' '
 *                                                                      *
 ************************************************************************
 *                                                                      *
