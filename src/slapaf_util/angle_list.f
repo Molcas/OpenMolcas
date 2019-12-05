@@ -423,11 +423,11 @@ C                 Do k = 1, 2
 *
                      If (Process) Then
 *
-                        Call LBend1(A,nCent,Val,
-     &                              Grad_all(1,nq,iIter),
-     &                              .False.,.False.,
-     &                              '        ',Hess,Proc_dB,Axis,
-     &                              Perp_Axis(1,k))
+                        Call LBend(A,nCent,Val,
+     &                             Grad_all(1,nq,iIter),
+     &                             .False.,.False.,
+     &                             '        ',Hess,Proc_dB,Axis,
+     &                             Perp_Axis(1,k),(k.eq.2))
 *
 *---------------------- Flip Angle value and gradient if needed!
 *
