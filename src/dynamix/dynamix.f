@@ -76,7 +76,7 @@ C
 C
 #ifdef _HDF5_
       if (.not.found .and. lH5Restart) then
-         call restart_dynamix(file_h5res,nh)
+         call restart_dynamix(file_h5res)
          found = .true.
       endif
 #endif

@@ -10,13 +10,14 @@
 ************************************************************************
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #ifdef _HDF5_
-      SUBROUTINE Restart_Dynamix(file_h5res,nh)
+      SUBROUTINE Restart_Dynamix(file_h5res)
       IMPLICIT NONE
 #include "stdalloc.fh"
 #include "mh5.fh"
       REAL*8, ALLOCATABLE ::    vel(:),NHC(:)
       REAL*8              ::    time,dt,e
-      INTEGER             ::    attr_id,i,restart_fileid,natom,nsym,nh
+      INTEGER             ::    attr_id,i,restart_fileid,natom,nsym,
+     &                          dset_id,nh(1)
       Character           ::    tmp*256,sFile*256
       CHARACTER*180       ::    File_H5Res
       LOGICAL             ::    Exist
@@ -77,9 +78,12 @@ C read velocities and save in RunFile
       CALL mma_deallocate(vel)
 
 C read thermostat info and save in RunFile
-      CALL mma_allocate(NHC,nh)
+      dset_id=mh5_open_dset(restart_fileid,'NOSEHOOVER')
+      call mh5_get_dset_array_dims(dset_id,nh)
+      call mh5_close_dset(dset_id)
+      CALL mma_allocate(NHC,nh(1))
       call mh5_fetch_dset_array_real(restart_fileid,'NOSEHOOVER',NHC)
-      call Put_dArray('NOSEHOOVER',NHC,nh)
+      call Put_dArray('NOSEHOOVER',NHC,nh(1))
       CALL mma_deallocate(NHC)
 
       call mh5_close_file(restart_fileid)
