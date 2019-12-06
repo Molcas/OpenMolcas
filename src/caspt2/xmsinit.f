@@ -16,7 +16,7 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
-#include "pt2_guga.fh"
+! #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -87,11 +87,6 @@
         call INTCTL1(WORK(LCMO))
       end if
 
-* Initialize model space Fock matrix (i.e. the Fock matrix expressed
-* in the basis of the selected CASSCF states)
-      ! call getmem('FOPXMS','ALLO','REAL',LFOPXMS,Nstate**2)
-      ! call docpy_(Nstate**2,[0.0D0],0,WORK(LFOPXMS),1)
-
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
       do J=1,Nstate
@@ -100,7 +95,6 @@
 * Compute matrix element <I|F|J> and store it into H0
           FIJ = 0.0D0
           call FOPAB(WORK(LFIFA),I,J,FIJ)
-          ! WORK(LFOPXMS + (J1-1) + (Nstate*(J2-1))) = FIJ
           H0(I,J) = FIJ
         end do
       end do
@@ -113,12 +107,11 @@
       end if
 
 * Diagonalize H0 in the model space
-      ! call getmem('EVEC','ALLO','REAL',LEVEC,Nstate**2)
       call eigen(H0,U0,Nstate)
 
 * Transform H0 and Heff in the basis that diagonalizes H0
-      call TRANSMAT(H0,U0,Nstate)
-      call TRANSMAT(Heff,U0,Nstate)
+      call transmat(H0,U0,Nstate)
+      call transmat(Heff,U0,Nstate)
 
       if (IPRGLB.ge.VERBOSE) then
         write(6,*)
@@ -168,8 +161,6 @@
 * Release all memory
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
-      ! call getmem('EVEC','FREE','REAL',LEVEC,Nstate**2)
-      ! call getmem('FOPXMS','FREE','REAL',LFOPXMS,Nstate**2)
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
       call QEXIT('XMSinit')

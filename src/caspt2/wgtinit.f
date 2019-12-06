@@ -10,123 +10,82 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE WGTINI(HAM)
-
-      IMPLICIT REAL*8 (A-H,O-Z)
-
+      subroutine wgtinit(H)
+      implicit real(8) (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
-#include "pt2_guga.fh"
+! #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "intgrl.fh"
-#include "eqsolv.fh"
-#include "warnings.fh"
+! #include "intgrl.fh"
+! #include "eqsolv.fh"
+! #include "warnings.fh"
 
-      REAL*8 HAM(NSTATE,NSTATE)
+      real(8) H(Nstate,Nstate)
 
-      CALL QENTER('WGTINI')
+      CALL QENTER('wgtinit')
 
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)' Entered WGTINI.'
-      END IF
+      if (IPRGLB.GE.VERBOSE) then
+        write(6,*)' entered wgtinit.'
+      end if
 
 * Initialize array of weights with all zeros
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDWGT),1)
+      call dcopy_(Nstate**2,[0.0D0],0,WORK(LDWGT),1)
 
-      DO ISTATE=1,NSTATE
+* Main loop over all states to compute the weights
+      do I=1,Nstate
 
-* Compute weights for constructing H0
-        IF (IFDW) THEN
-          EBETA = HAM(ISTATE,ISTATE)
+* If it is an XDW-CASPT2 calculation, the weights are computed
+* according to JCTC ...
+        if (IFDW) then
+          Ebeta = H(I,I)
 * Compute normalization factor
-          DO JSTATE=1,NSTATE
-            EALPHA = HAM(JSTATE,JSTATE)
-            FAC = 0.0D0
-            DO KSTATE=1,NSTATE
-              EGAMMA = HAM(KSTATE,KSTATE)
-              FAC = FAC + EXP(-ZETA*(EALPHA - EGAMMA)**2)
-            END DO
-            IJ = (ISTATE-1) + NSTATE*(JSTATE-1)
-            WORK(LDWGT+IJ) = EXP(-ZETA*(EALPHA - EBETA)**2)/FAC
-          END DO
-* If it is an XMS-CASPT2 calculation, all the weights are 1/NSTATE
-        ELSE IF (IFXMS) THEN
-          CALL DCOPY_(NSTATE**2,1.0D0/NSTATE,0,WORK(LDWGT),1)
-        ELSE
-* It is a normal MS-CASPT2 and the weight vectors are the standard
+          do J=1,Nstate
+            Ealpha = H(J,J)
+            factor = 0.0D0
+            do K=1,Nstate
+              Egamma = H(K,K)
+              factor = factor + exp(-zeta*(Ealpha - Egamma)**2)
+            end do
+            IJ = (I-1) + Nstate*(J-1)
+* Compute weight according to XDW prescription
+            WORK(LDWGT+IJ) = exp(-zeta*(Ealpha - Ebeta)**2)/factor
+          end do
+
+* If it is an XMS-CASPT2 calculation, all the weights are equal,
+* i.e. they all are 1/Nstate
+        else if (IFXMS) then
+          call dcopy_(Nstate**2,1.0D0/Nstate,0,WORK(LDWGT),1)
+
+* If it is a normal MS-CASPT2, the weight vectors are the standard
 * unit vectors e_1, e_2, ...
-          WORK(LDWGT + (NSTATE*(ISTATE-1)) + (ISTATE-1)) = 1.0D0
-        END IF
+        else
+          WORK(LDWGT + (Nstate*(I-1)) + (I-1)) = 1.0d0
+        end if
 
-      END DO
+* End of loop over states
+      end do
 
+* In case it is a XDW calculation, print out the weights
+      if (IFDW.and.(IPRGLB.ge.NORMAL)) then
+        write(6,*)
+        if (IFEFOCK) then
+          write(6,*)' Weights calculated with <I|H0|J>:'
+        else
+          write(6,*)' Weights calculated with <I|H|J>:'
+        end if
 
-      IF (IFDW) THEN
-        WRITE(6,*)
-        WRITE(6,*)' *****This is a DW calculation*****'
-        IF (IFEFOCK) THEN
-          WRITE(6,*)' Weights calculated with E_FOCK:'
-        ELSE
-          WRITE(6,*)' Weights calculated with E_CASSCF:'
-        END IF
-        DO I=1,NSTATE
-          WRITE(6,'(1x,10f8.4)')(WORK(LDWGT + (I-1) + NSTATE*(J-1)),
-     &    J=1,NSTATE)
-        END DO
-        WRITE(6,*)
-      END IF
+        call prettyprint(WORK(LDWGT),Nstate,Nstate)
 
-      CALL QEXIT('WGTINI')
-      RETURN
-      END
+    !     DO I=1,Nstate
+    !       WRITE(6,'(1x,10f8.4)')(WORK(LDWGT + (I-1) + Nstate*(J-1)),
+    !  &    J=1,Nstate)
+    !     END DO
+    !     WRITE(6,*)
+      end if
 
+      CALL QEXIT('wgtinit')
 
-********************************************************************
-
-
-* GET ORIGINAL CASSCF CMO COEFFICIENTS.
-!       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
-!       IDISK=IAD1M(1)
-!       CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
-
-!       DO ISTATE=1,NSTATE
-! * Compute weights for constructing V
-!         IF (IFVDW) THEN
-! * build sa-Fock matrix (we do this at every cycle but in reality is always the same...)
-!         CALL DCOPY_(NDREF,WORK(LDMIX+(ISTATE-1)*NDREF),1,WORK(LDREF),1)
-! * This builds FIMO, FAMO, FIFA, ...
-!           If (IfChol) then
-! * INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
-!             IF_TRNSF=.FALSE.
-!             CALL INTCTL2(IF_TRNSF)
-!           Else
-! * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis.
-!             CALL INTCTL1(WORK(LCMO))
-!             CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-!           End If
-!           ! EBETA = REFENE(ISTATE)
-!           DO JSTATE=1,NSTATE
-!           WRITE(6,*)
-!           WRITE(6,*)' JSTATE = ',JSTATE
-!             ! EALPHA = REFENE(JSTATE)
-!             FIJ = 0.0D0
-!             EIJ = EI - EJ
-!             CALL FOPAB(WORK(LFIFA),ISTATE,JSTATE,FIJ)
-!             WRITE(6,*)
-!             WRITE(6,*)' FIJ = ',FIJ
-! * Compute normalization factor FAC (i.e. the denominator)
-!             FAC = 0.0D0
-!             DO KSTATE=1,NSTATE
-!               ! EGAMMA = REFENE(KSTATE)
-!               FKJ = 0.0D0
-!               EKJ = EK - EJ
-!               CALL FOPAB(WORK(LFIFA),KSTATE,JSTATE,FKJ)
-!               FAC = FAC + EXP(-ZETAV*(EJK/FKJ)**2)
-!             END DO
-!             IJ = (ISTATE-1) + NSTATE*(JSTATE-1)
-!             WORK(LVWGT+IJ) = EXP(-ZETAV*(EIJ/FIJ)**2)/FAC
-!           END DO
-!         END IF
-
+      return
+      end

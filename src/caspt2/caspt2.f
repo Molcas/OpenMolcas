@@ -149,22 +149,20 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription.
-      IF (IFRXMS) THEN
-        CALL XMSinit(Heff,H0,U0)
-      END IF
-
+      if (IFRXMS) then
+        call XMSinit(Heff,H0,U0)
+      end if
 
 * Compute the weights
-      IF (IFRXMS) THEN
-        IF (IFEFOCK) THEN
-          CALL WGTINI(H0)
-        ELSE
-          CALL WGTINI(HEFF)
-        END IF
-      ELSE
-        CALL WGTINI(HEFF)
-      END IF
-
+      if (IFRXMS) then
+        if (IFEFOCK) then
+          call wgtinit(H0)
+        else
+          call wgtinit(Heff)
+        end if
+      else
+        call wgtinit(Heff)
+      end if
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
