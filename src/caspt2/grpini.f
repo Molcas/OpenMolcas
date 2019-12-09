@@ -142,17 +142,18 @@ c Modify the Fock matrix, if needed:
       IF (IPRGLB.GE.USUAL.AND.NGRP.GT.1) THEN
         WRITE(6,*)
         WRITE(6,*)' Zeroth-order Hamiltonian matrix (H0):'
-        DO ISTA=1,NGRP,5
-          IEND=MIN(ISTA+4,NGRP)
-          WRITE(6,*)
-          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
-          DO I=ISTA,NGRP
-            II0=(I*(I-1))/2
-            WRITE(6,'(1x,I3,2X,5F16.8)')
-     &            I,(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=ISTA,IEND)
-          END DO
-        END DO
-        WRITE(6,*)
+        call prettyprint(WORK(LFOPXMS),NGRP,NGRP)
+    !     DO ISTA=1,NGRP,5
+    !       IEND=MIN(ISTA+4,NGRP)
+    !       WRITE(6,*)
+    !       WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+    !       DO I=ISTA,NGRP
+    !         II0=(I*(I-1))/2
+    !         WRITE(6,'(1x,I3,2X,5F16.8)')
+    !  &            I,(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=ISTA,IEND)
+    !       END DO
+    !     END DO
+    !     WRITE(6,*)
       END IF
 
 * Store zeroth order energies
@@ -208,12 +209,15 @@ c Modify the Fock matrix, if needed:
           END DO
         END IF
 
+
+
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,*)' Heff[1] in H0 basis:'
-          DO J1=1,NSTATE
-            WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
-          END DO
+          call prettyprint(Heff,Nstate,Nstate)
+          WRITE(6,*)
+          WRITE(6,*)' H0 in H0 basis:'
+          call prettyprint(H0,Nstate,Nstate)
         END IF
 
 * And then, transform the CI arrays. Assume we can put all the

@@ -101,7 +101,7 @@ C     Cholesky
 * The one-electron Hamiltonian
       NHONE=NOTRI
       CALL GETMEM('LHONE','ALLO','REAL',LHONE,NHONE)
-* The fock matrix with contributions from active orbitals, only.
+* The fock matrix with contributions from inactive orbitals, only.
       NFIMO=NOTRI
       CALL GETMEM('LFIMO','ALLO','REAL',LFIMO,NFIMO)
 * The fock matrix with contributions from active orbitals, only.

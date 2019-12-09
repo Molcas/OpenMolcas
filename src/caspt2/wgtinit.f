@@ -15,12 +15,8 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
-! #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-! #include "intgrl.fh"
-! #include "eqsolv.fh"
-! #include "warnings.fh"
 
       real(8) H(Nstate,Nstate)
 
@@ -68,21 +64,15 @@
       end do
 
 * In case it is a XDW calculation, print out the weights
-      if (IFDW.and.(IPRGLB.ge.NORMAL)) then
+      ! if (IFDW.and.(IPRGLB.ge.NORMAL)) then
+      if (IPRGLB.ge.NORMAL) then
         write(6,*)
         if (IFEFOCK) then
           write(6,*)' Weights calculated with <I|H0|J>:'
         else
           write(6,*)' Weights calculated with <I|H|J>:'
         end if
-
         call prettyprint(WORK(LDWGT),Nstate,Nstate)
-
-    !     DO I=1,Nstate
-    !       WRITE(6,'(1x,10f8.4)')(WORK(LDWGT + (I-1) + Nstate*(J-1)),
-    !  &    J=1,Nstate)
-    !     END DO
-    !     WRITE(6,*)
       end if
 
       CALL QEXIT('wgtinit')
