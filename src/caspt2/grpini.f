@@ -11,7 +11,7 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0)
+      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -30,10 +30,12 @@
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "warnings.fh"
+#include "stdalloc.fh"
       LOGICAL IF_TRNSF
       CHARACTER(27)  STLNE2
-      REAL*8 HEFF(NSTATE,NSTATE)
-      REAL*8 H0(NSTATE,NSTATE)
+      real(8) Heff(Nstate,Nstate)
+      real(8) H0(Nstate,Nstate)
+      real(8) U0(Nstate,Nstate)
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -42,7 +44,7 @@
         write(6,*)' Entered GRPINI.'
         write(6,*)' NSTATE=',NSTATE
         write(6,*)' The MSTATE array:'
-        write(6,'(1x,20I4)')( MSTATE(J),J=1,NSTATE)
+        write(6,'(1x,20I4)')(MSTATE(J),J=1,NSTATE)
         write(6,*)' IGROUP,NGRP=',IGROUP,NGRP
       END IF
 
@@ -52,7 +54,6 @@
         CALL ABEND
       END IF
 
-* ---------------------------------------------------------------------
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
@@ -62,233 +63,177 @@
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
       END IF
-
 * ---------------------------------------------------------------------
-* GET ORIGINAL CASSCF CMO COEFFICIENTS.
-      CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
+
+* Load CASSCF MO coefficients
+      call getmem('LCMO','ALLO','REAL',LCMO,NCMO)
       IDISK=IAD1M(1)
-      CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
-* Also (for temporary back-compatibility with older code) save as
-*  'current' CMO data on LUONEM:
+      call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
       IAD1M(2)=IDISK
-      CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
+      call ddafile(LUONEM,1,WORK(LCMO),NCMO,IDISK)
       IEOF1M=IDISK
 
-* ---------------------------------------------------------------------
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,
 * and then the zeroth-order Hamiltonian elements between states.
 
-      CALL GETMEM('FOPXMS','ALLO','REAL',LFOPXMS,NGRP**2)
-      CALL DCOPY_(NGRP**2,[0.0D0],0,WORK(LFOPXMS),1)
-
 * Loop over all states in group
-      DO J2=1,NGRP
-        JSTATE=J2+JSTATE_OFF
+      do J=1,Ngrp
+        Jstate=J+JSTATE_OFF
 
-* Copy the 1-RDM of JSTATE in LDREF
-        CALL DCOPY_(NDREF,WORK(LDMIX+(JSTATE-1)*NDREF),1,WORK(LDREF),1)
+* Copy the 1-RDM of Jstate from LDMIX into LDREF
+        CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
 
-* INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO, FAMO,
-* FIFA and orbital energies.
-        If (IfChol) then
-* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
+* Compute the Fock matrix in MO basis for state Jstate
+* INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
+* Fock matrix in MO basis: FIMO, FAMO, FIFA and orbital energies
+        if (IfChol) then
+* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
           IF_TRNSF=.FALSE.
-          CALL INTCTL2(IF_TRNSF)
-        Else
-* INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis.
-          CALL INTCTL1(WORK(LCMO))
-          CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-        End If
+          call INTCTL2(IF_TRNSF)
+        else
+* INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
+          call INTCTL1(WORK(LCMO))
+          call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+        end If
 
-c Modify the Fock matrix, if needed:
+c Modify the Fock matrix if needed
         IF (FOCKTYPE.NE.'STANDARD') THEN
            CALL NEWFOCK(WORK(LFIFA))
         END IF
 
-* NN.15
-* TODO : MKFOP and following transformation are skipped in DMRG-CASPT2 run
-*        for the time, this will be fixed later to implement DMRG-MS-CASPT2.
+* NN.15, TODO:
+* MKFOP and following transformation are skipped in DMRG-CASPT2 run
+* for the time, this will be fixed later to implement DMRG-MS-CASPT2
         IF (DoCumulant) GoTo 100
 
-* Compute elements of zeroth-order Hamiltonian matrix obtained as
-* <BRA|FOP|KET> where FOP is the (average) Fock operator (FIFA)
-        IKET=JSTATE
-* Loop over bra functions:
-        DO J1=1,NGRP
-          IBRA=J1+JSTATE_OFF
-* Compute matrix element and put it into FOPXMS:
-          FOPEL = 0.0D0
-          CALL FOPAB(WORK(LFIFA),IBRA,IKET,FOPEL)
-          WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
-        END DO
+* Loop over bra functions
+        do I=1,Ngrp
+          Istate=I+JSTATE_OFF
+* Compute matrix element and put it into H0
+          call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
+        end do
 
-! Compute Fock matrix element couplings to check applicability
-        IF (IPRGLB.GE.USUAL.AND.(.NOT.IFXMS)) THEN
-          WRITE(6,*)
-          WRITE(6,'(A,I2)')' Fock couplings state --- ',IKET
-          DO IBRA=1,NSTATE
-* Compute matrix element and put it into FOPXMS:
-            FOPEL = 0.0D0
-            CALL FOPAB(WORK(LFIFA),IBRA,IKET,FOPEL)
-            WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
-            WRITE(6,'(2x,F16.8)') FOPEL
-          END DO
-        END IF
+* In case of MS- and XDW-CASPT2 calculations, compute off-diagonal
+* elements of the Fock matrix as a sanity check of the diagonal
+* approximation within the generalized Bloch equation
+        if (IPRGLB.ge.USUAL.and.(.not.IFXMS)) then
+          write(6,*)
+          write(6,'(A,I2)')' Fock couplings state --- ',Jstate
+          do Istate=1,Nstate
+            if (Istate.ne.Jstate) then
+* Compute matrix element and print it out
+              call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
+              write(6,'(2x,F16.8)') H0(Istate,Jstate)
+* Then set it to zero becuase we are within the diagonal approximation
+              H0(Istate,Jstate) = 0.0d0
+            else
+* Just print out the already computed diagonal element
+              write(6,'(2x,F16.8)') H0(Istate,Jstate)
+            end if
+          end do
+        end if
 
-      END DO
+      end do
 * End of loop over states
 
-      IF (IPRGLB.GE.USUAL.AND.NGRP.GT.1) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Zeroth-order Hamiltonian matrix (H0):'
-        call prettyprint(WORK(LFOPXMS),NGRP,NGRP)
-    !     DO ISTA=1,NGRP,5
-    !       IEND=MIN(ISTA+4,NGRP)
-    !       WRITE(6,*)
-    !       WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
-    !       DO I=ISTA,NGRP
-    !         II0=(I*(I-1))/2
-    !         WRITE(6,'(1x,I3,2X,5F16.8)')
-    !  &            I,(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=ISTA,IEND)
-    !       END DO
-    !     END DO
-    !     WRITE(6,*)
-      END IF
+      if (IPRGLB.ge.USUAL.and.Ngrp.gt.1) then
+        write(6,*)
+        write(6,*)' Zeroth-order Hamiltonian of this group:'
+        call prettyprint(H0,Ngrp,Ngrp)
+      end if
 
-* Store zeroth order energies
-      DO I=1,NGRP
-        DO J=1,NGRP
-          H0(I+JSTATE_OFF,J+JSTATE_OFF) = WORK(LFOPXMS+I-1+NGRP*(J-1))
-        END DO
-      END DO
+* In case of and XMS calculation (i.e. Ngrp > 1), transform the CI
+* arrays of this group of states to make the Fock matrix diagonal
+* in the model space
+      if (Ngrp.gt.1.and.IFXMS) then
 
-! Form average Fock matrix for DW-XMS before states are rotated
-!       IF (IFFDW.AND.IFXMS) THEN
-! ! Zero out the density matrix
-!         CALL DCOPY_(NDREF,[0.0D0],0,WORK(LDREF),1)
-! ! Compute the SA density matrix on the spot
-!         SCL = 1.0d0/NGRP
-!         DO J=1,NGRP
-!           CALL DAXPY_(NDREF,SCL,WORK(LDMIX+(J-1)*NDREF),1,WORK(LDREF),1)
-!         END DO
-! ! Compute Fock matrix
-!         If (IfChol) then
-!           IF_TRNSF=.FALSE.
-!           CALL INTCTL2(IF_TRNSF)
-!         Else
-!           CALL INTCTL1(WORK(LCMO))
-!           CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-!         End If
-!       END IF
+* Diagonalize H0 and save eigenvectors in U0
+        call eigen(H0,U0,Ngrp)
 
-* Transform the CI arrays of this group of states, to make the FOP matrix diagonal.
-* Note that the Fock matrix, etc are still assumed to be valid -- this seems
-* illogical, but is the way XMS is defined -- else we would need to repeat the
-* whole thing iteratively.
-      IF (NGRP.GT.1.AND.IFXMS) THEN
+* Transform the Fock matrix and Heff in the new basis
+        call transmat(H0,U0,Ngrp)
+        call transmat(Heff,U0,Ngrp)
 
-        CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
-        CALL eigen(WORK(LFOPXMS),WORK(LEVEC),NGRP)
+        if (IPRGLB.ge.VERBOSE) then
+          write(6,*)
 
-* Transform H0 (= FOPXMS) and HEFF (which at this stage corresponds to the 1st-order
-* corrected effective Hamiltonian) in the new basis that diagonalize FOPXMS
-        CALL TRANSMAT(H0,WORK(LEVEC),NGRP)
-        CALL TRANSMAT(HEFF,WORK(LEVEC),NGRP)
+          write(6,*)' Fock in the rotated model space basis:'
+          call prettyprint(H0,Ngrp,Ngrp)
 
-        IF (IPRGLB.GE.USUAL) THEN
-          WRITE(6,*)
-          WRITE(6,'(6X,A)')' H0 eigenvectors:'
-          DO ISTA=1,NSTATE,5
-            IEND=MIN(ISTA+4,NSTATE)
-            DO J1=0,NSTATE-1
-              WRITE(6,'(6x,5F16.8)')(WORK(LEVEC+J1+NGRP*(I-1)),
-     &                               I=ISTA,IEND)
-            END DO
-            WRITE(6,*)
-          END DO
-        END IF
+          write(6,*)' Eigenvectors:'
+          call prettyprint(U0,Ngrp,Ngrp)
 
+          write(6,*)' Heff[1] in the rotated model space basis:'
+          call prettyprint(Heff,Ngrp,Ngrp)
+        end if
 
+* Mix the CI arrays according to the H0 eigenvectors. Assume we can
+* put all the original ones in memory, but put the resulting vectors
+* one by one in a buffer.
+        write(6,*)
+        write(6,*)' Mixing the CASSCF states according to XMS-CASPT2'
+        write(6,*)
 
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          WRITE(6,*)' Heff[1] in H0 basis:'
-          call prettyprint(Heff,Nstate,Nstate)
-          WRITE(6,*)
-          WRITE(6,*)' H0 in H0 basis:'
-          call prettyprint(H0,Nstate,Nstate)
-        END IF
+        call getmem('CIREF','ALLO','REAL',LCIref,Ngrp*Nconf)
+* Load the CI arrays into memory
+        do I=1,Ngrp
+          call loadCI(WORK(LCIref+Nconf*(I-1)),I)
+        end do
 
-* And then, transform the CI arrays. Assume we can put all the
-* original ones in memory, but put the resulting vectors one by
-* one in a buffer.
-        WRITE(6,*)
-        WRITE(6,*)' Mixing the CASSCF states according to H0...'
-        WRITE(6,*)
-        CALL GETMEM('CIREF','ALLO','REAL',LCIREF,NGRP*NCONF)
-        DO J=1,NGRP
-          IK=JSTATE_OFF+J
-          ID=IDCIEX
-          DO I=1,IK-1
-            CALL DDAFILE(LUCIEX,0,WORK(LCIREF),NCONF,ID)
-          END DO
-          CALL DDAFILE(LUCIEX,2,WORK(LCIREF+NCONF*(J-1)),NCONF,ID)
-        END DO
-        CALL GETMEM('CIXMS','ALLO','REAL',LCIXMS,NCONF)
-        DO J=1,NGRP
-          CALL DGEMM_('N','N',NCONF,1,NGRP,
-     &                1.0D0,WORK(LCIREF),NCONF,
-     &                WORK(LEVEC+NGRP*(J-1)),NGRP,
-     &                0.0D0,WORK(LCIXMS),NCONF)
-          IK=JSTATE_OFF+J
-          ID=IDCIEX
-          DO I=1,IK-1
-            CALL DDAFILE(LUCIEX,0,WORK(LCIXMS),NCONF,ID)
-          END DO
-          CALL DDAFILE(LUCIEX,1,WORK(LCIXMS),NCONF,ID)
+        call getmem('CIXMS','ALLO','REAL',LCIXMS,Nconf)
+        do J=1,Ngrp
+* Transform the states
+          call dgemm_('N','N',Nconf,1,Ngrp,
+     &               1.0D0,WORK(LCIREF),Nconf,U0(:,J),Ngrp,
+     &               0.0D0,WORK(LCIXMS),Nconf)
 
-          IF(IPRGLB.GE.VERBOSE) THEN
-            WRITE(6,'(1x,a,i3)')
-     &      ' The CI coefficients for the MIXED state nr. ',MSTATE(IK)
-            CALL PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
-          END IF
+* Write the rotated CI coefficients back into LUCIEX and REPLACE the
+* original unrotated CASSCF states. Note that the original states
+* are still available in the JobIph file
+          call writeCI(WORK(LCIXMS),J)
 
-        END DO
+          if (IPRGLB.ge.VERBOSE) then
+            write(6,'(1x,a,i3)')
+     &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
+            call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+          end if
+        end do
 
-        CALL GETMEM('CIREF','FREE','REAL',LCIREF,NGRP*NCONF)
-        CALL GETMEM('CIXMS','FREE','REAL',LCIXMS,NCONF)
-        CALL GETMEM('EVEC','FREE','REAL',LEVEC,NGRP**2)
+        call getmem('CIREF','FREE','REAL',LCIREF,Ngrp*Nconf)
+        call getmem('CIXMS','FREE','REAL',LCIXMS,Nconf)
 
-      END IF
+      end if
 
-      CALL GETMEM('FOPXMS','FREE','REAL',LFOPXMS,NGRP**2)
+ 100  continue
 
- 100  CONTINUE
-* We now know FIFA, as expressed in initial RAS orbitals. Transform to use new
-* orbitals, in which non-diagonal couplings within subspaces (inactive, ras1, etc)
-* are zero. As a by-product, the CI arrays will be transformed so they still
-* represent the XMS root functions, using the new orbitals.
-* Also, the matrices FIFA, etc, are themselves transformed:
+* We now know FIFA as expressed in initial RAS (natural) orbitals.
+* Transform it to a new basis in which the non-diagonal couplings
+* between subspaces (inactive, ras1, etc) are zero. As a by-product,
+* the CI arrays will be transformed so they still represent the
+* model functions, but using the new orbitals.
+* Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(WORK(LCMO))
+      call orbctl(WORK(LCMO))
 
-* In subroutine stini, the individual RHS, etc, arrays will be computed for
-* the states. If this is a true XMS calculation (NGRP.gt.1) then there is one
-* data set that is in common for these calculations, namely the transformed
-* MO integrals (if conventional), or the transformed Cholesky vectors (if
-* IfChol), so these are computed here:
-      IF (IfChol) then
-* TRACHO3 computes MO-transformed Cholesky vectors without computing Fock matrices.
-        CALL TRACHO3(WORK(LCMO))
-      ELSE
-* TRACTL(0) computes transformed 2-body MO integrals.
-        CALL TRACTL(0)
-      END IF
-      CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+* In subroutine stini, the individual RHS, etc, arrays will be computed
+* for the states. If this is a true XMS calculation (Ngrp > 1) then
+* there is one data set that is in common for these calculations,
+* namely the transformed MO integrals (if conventional), or the
+* transformed Cholesky vectors (if IfChol), so these are computed here
 
-      CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+      if (IfChol) then
+* TRACHO3 computes MO-transformed Cholesky vectors without computing
+* Fock matrices
+        call TRACHO3(WORK(LCMO))
+      else
+* TRACTL(0) computes transformed 2-body MO integrals
+        call TRACTL(0)
+      end if
+      call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+
+      call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
       CALL QEXIT('GRPINI')
-      RETURN
-      END
+      return
+      end

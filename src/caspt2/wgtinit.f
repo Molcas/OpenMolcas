@@ -64,8 +64,7 @@
       end do
 
 * In case it is a XDW calculation, print out the weights
-      ! if (IFDW.and.(IPRGLB.ge.NORMAL)) then
-      if (IPRGLB.ge.NORMAL) then
+      if (IFDW.and.(IPRGLB.ge.NORMAL)) then
         write(6,*)
         if (IFEFOCK) then
           write(6,*)' Weights calculated with <I|H0|J>:'

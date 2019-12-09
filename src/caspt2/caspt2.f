@@ -150,7 +150,7 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription.
       if (IFRXMS) then
-        call XMSinit(Heff,H0,U0)
+        call xdwinit(Heff,H0,U0)
       end if
 
 * Compute the weights
@@ -187,7 +187,7 @@ C of group states for which GRPINI is called.
          WRITE(6,*)
        END IF
 
-       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0)
+       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE

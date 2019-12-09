@@ -11,7 +11,7 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine XMSinit(Heff,H0,U0)
+      subroutine xdwinit(Heff,H0,U0)
       implicit real(8) (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -25,7 +25,7 @@
       logical IF_TRNSF
 
 
-      call QENTER('XMSinit')
+      call QENTER('xdwinit')
 
 * Allocate memory for CI array state averaged 1-RDM
       call getmem('LCI','ALLO','REAL',LCI,NCONF)
@@ -129,7 +129,7 @@
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
       write(6,*)
-      write(6,*)' Mixing the CASSCF states according to XMS...'
+      write(6,*)' Mixing the CASSCF states according to XDW-CASPT2'
       write(6,*)
 
       call getmem('CIREF','ALLO','REAL',LCIref,Nstate*Nconf)
@@ -162,7 +162,7 @@
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      call QEXIT('XMSinit')
+      call QEXIT('xdwinit')
 
       return
       end
