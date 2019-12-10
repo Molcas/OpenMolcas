@@ -117,9 +117,9 @@ c Modify the Fock matrix if needed
 * In case of MS- and XDW-CASPT2 calculations, compute off-diagonal
 * elements of the Fock matrix as a sanity check of the diagonal
 * approximation within the generalized Bloch equation
-        if (IPRGLB.ge.USUAL.and.(.not.IFXMS)) then
+        if (IPRGLB.ge.DEBUG.and.(.not.IFXMS)) then
           write(6,*)
-          write(6,'(A,I2)')' Fock couplings state --- ',Jstate
+          write(6,'(A,I2)')' Fock couplings to state ',Jstate
           do Istate=1,Nstate
             if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
@@ -137,9 +137,9 @@ c Modify the Fock matrix if needed
       end do
 * End of loop over states
 
-      if (IPRGLB.ge.USUAL.and.Ngrp.gt.1) then
+      if (IPRGLB.ge.DEBUG.and.Ngrp.gt.1) then
         write(6,*)
-        write(6,*)' Zeroth-order Hamiltonian of this group:'
+        write(6,*)' Fock matrix in the original model space basis:'
         call prettyprint(H0,Ngrp,Ngrp)
       end if
 
@@ -155,10 +155,8 @@ c Modify the Fock matrix if needed
         call transmat(H0,U0,Ngrp)
         call transmat(Heff,U0,Ngrp)
 
-        if (IPRGLB.ge.VERBOSE) then
-          write(6,*)
-
-          write(6,*)' Fock in the rotated model space basis:'
+        if (IPRGLB.ge.DEBUG) then
+          write(6,*)' Fock matrix in the rotated model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
 
           write(6,*)' Eigenvectors:'
@@ -172,7 +170,8 @@ c Modify the Fock matrix if needed
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
         write(6,*)
-        write(6,*)' Mixing the CASSCF states according to XMS-CASPT2'
+        write(6,'(A)')' The CASSCF states are rotated such that'//
+     &                ' they diagonalize the Fock operator.'
         write(6,*)
 
         call getmem('CIREF','ALLO','REAL',LCIref,Ngrp*Nconf)

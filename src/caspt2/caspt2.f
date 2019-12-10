@@ -360,16 +360,6 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)' H0 energies:'
-        DO I=1,NSTATE
-          CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &     'H0 Root',I,'Total energy:',H0(I,I),1)
-        END DO
-        WRITE(6,*)
-        WRITE(6,*)
-      END IF
-
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -385,7 +375,7 @@ C End of long loop over groups
        END IF
        WRITE(6,*)
       END IF
-      IF(IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
+      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
@@ -406,7 +396,7 @@ C End of long loop over groups
         CALL MLTCTL(HEFF,UEFF)
       END IF
 
-      IF(IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
+      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'

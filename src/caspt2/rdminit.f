@@ -23,7 +23,7 @@
 
       call QENTER('rdminit')
 
-      if (IPRGLB.GE.VERBOSE) then
+      if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered rdminit.'
       end if
 

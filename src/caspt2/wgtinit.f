@@ -22,8 +22,8 @@
 
       CALL QENTER('wgtinit')
 
-      if (IPRGLB.GE.VERBOSE) then
-        write(6,*)' entered wgtinit.'
+      if (IPRGLB.GE.DEBUG) then
+        write(6,*)' Entered wgtinit.'
       end if
 
 * Initialize array of weights with all zeros
@@ -64,7 +64,7 @@
       end do
 
 * In case it is a XDW calculation, print out the weights
-      if (IFDW.and.(IPRGLB.ge.NORMAL)) then
+      if (IFDW.and.(IPRGLB.ge.VERBOSE)) then
         write(6,*)
         if (IFEFOCK) then
           write(6,*)' Weights calculated with <I|H0|J>:'

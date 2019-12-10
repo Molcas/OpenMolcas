@@ -365,7 +365,16 @@ C     really parallel or not.
      &           .AND.(.NOT.Input % NoMult)
       IFDW   = Input % DWMS
       IFRXMS = Input % RXMS
-      IFEFOCK = Input % EFOC
+
+      if (Input % EFOC) then
+        if (.not.IFRXMS) then
+          Call WarningMessage(2,'Keyword EFOCk can only be used'//
+     &                          'together with the RXMS keyword.')
+          Call Quit_OnUserError
+        else
+          IFEFOCK = Input % EFOC
+        end if
+      end if
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

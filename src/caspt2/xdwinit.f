@@ -99,7 +99,7 @@
       end do
 * End of loop over states
 
-      if (IPRGLB.ge.VERBOSE) then
+      if (IPRGLB.ge.DEBUG) then
         write(6,*)
         write(6,*)' H0 in the original model space basis:'
         call prettyprint(H0,Nstate,Nstate)
@@ -112,9 +112,7 @@
       call transmat(H0,U0,Nstate)
       call transmat(Heff,U0,Nstate)
 
-      if (IPRGLB.ge.VERBOSE) then
-        write(6,*)
-
+      if (IPRGLB.ge.DEBUG) then
         write(6,*)' H0 in the rotated model space basis:'
         call prettyprint(H0,Nstate,Nstate)
 
