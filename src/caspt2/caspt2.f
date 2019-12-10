@@ -120,8 +120,11 @@ C
 * Initialize zeroth-order Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
       CALL MMA_ALLOCATE(U0,NSTATE,NSTATE)
-      H0=0.D0
-      U0=0.D0
+      H0=0.0D0
+* U0 is initialized as the identity matrix, in the case of a
+* standard MS-CASPT2 calculation it will not be touched anymore
+      U0=0.0D0
+      call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
 *======================================================================*
 C If the EFFE keyword has been used, we already have the multi state
@@ -168,7 +171,6 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW-MS, DW-XMS.
       call rdminit
-
 
 C For (X)Multi-State, a long loop over root states.
 C The states are ordered by group, with each group containing a number
@@ -421,7 +423,7 @@ C End of long loop over groups
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
-      CALL CREIPH_CASPT2(HEFF,UEFF)
+      CALL CREIPH_CASPT2(Heff,Ueff,U0)
 
 * Store the PT2 energy and effective hamiltonian on the wavefunction file
       CALL PT2WFN_ESTORE(HEFF)
