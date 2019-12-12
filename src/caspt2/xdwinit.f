@@ -126,9 +126,12 @@
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
-      write(6,*)
-      write(6,*)' Mixing the CASSCF states according to XDW-CASPT2'
-      write(6,*)
+        if (IPRGLB.ge.VERBOSE) then
+          write(6,*)
+          write(6,'(A)')' The CASSCF states are rotated such that'//
+     &                  ' they diagonalize the SA-Fock operator'
+          write(6,*)
+        end if
 
       call getmem('CIREF','ALLO','REAL',LCIref,Nstate*Nconf)
 * Load the CI arrays into memory

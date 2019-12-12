@@ -143,7 +143,7 @@ C---------------------
       ICONV = 16
  900  CONTINUE
       IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,'(23A5)')('-----',I=1,23)
+       WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,*)
        WRITE(6,*)' FINAL CASPT2 RESULT:'
       END IF

@@ -39,9 +39,7 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
-!     RXMS      rotate states a-la-XMS prior caspt2 calculation
-      Logical :: RXMS = .False.
-!     DWMS      dynamically-weighted MS-CASPT2
+!     DWMS      use dynamical weighting to construct Fock
       Logical :: DWMS = .False.
       Integer :: ZETA = 0
 !     EFOC      uses rotated E_0 energies with DWMS
@@ -309,9 +307,6 @@ C end of input
         End If
       End Do
       dealloc_dline
-
-      Case('RXMS')
-      Input % RXMS = .True.
 
       Case('DWMS')
       Input % DWMS = .True.
