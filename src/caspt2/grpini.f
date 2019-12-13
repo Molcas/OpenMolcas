@@ -77,6 +77,8 @@
 * For each such state, compute the Fock matrix in original MO basis,
 * and then the zeroth-order Hamiltonian elements between states.
 
+* Timer for Fock matrix build
+      call timing(CPU0,CPU,TIO0,TIO)
 * Loop over all states in group
       do J=1,Ngrp
         Jstate=J+JSTATE_OFF
@@ -144,6 +146,11 @@ c Modify the Fock matrix if needed
 
 * End of long loop over Jstate
       end do
+
+* End timer Fock matrix build
+      call timing(CPU1,CPU,TIO1,TIO)
+      CPUFMB=CPU1-CPU0
+      TIOFMB=TIO1-TIO0
 
 * In case of a XMS calculation, i.e. Ngrp > 1 and not DW, transform
 * the CI arrays of this group of states to make the Fock matrix
@@ -233,6 +240,7 @@ c Modify the Fock matrix if needed
 * namely the transformed MO integrals (if conventional), or the
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
+      CALL TIMING(CPU0,CPU,TIO0,TIO)
       if (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
@@ -241,6 +249,9 @@ c Modify the Fock matrix if needed
 * TRACTL(0) computes transformed 2-body MO integrals
         call TRACTL(0)
       end if
+      CALL TIMING(CPU1,CPU,TIO1,TIO)
+      CPUINT=CPU1-CPU0
+      TIOINT=TIO1-TIO0
       call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)

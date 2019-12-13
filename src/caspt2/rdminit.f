@@ -17,6 +17,7 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       integer offset
@@ -48,12 +49,6 @@
         else
 * Get the CI array
           call loadCI(WORK(LCI),I)
-        end if
-
-        if (IPRGLB.GE.DEBUG) then
-          write(6,*)
-          write(6,*)' CI array of CASSCF state nr. ',MSTATE(I)
-          call PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
         end if
 
 * Compute 1-particle active density matrix GAMMA1

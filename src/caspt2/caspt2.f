@@ -79,8 +79,9 @@ C
       LOGICAL KING, Is_Real_Par
 #endif
 * Timers
-      REAL*8 CPTF0,CPTF11,CPTF12,CPTF13,CPTF14,CPE,CPUTOT,
-     &       TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14,TIOE,TIOTOT
+      REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
+     &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
+     &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
       INTEGER I,J
       INTEGER ISTATE
@@ -103,7 +104,7 @@ C
       CALL QENTER('CASPT2')
 
       CALL SETTIM
-      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+      ! CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 
 * Probe the environment to globally set the IPRGLB value
       Call Set_Print_Level
@@ -145,7 +146,7 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         END DO
         IF (IPRGLB.GE.DEBUG) THEN
           write(6,*)' Heff[1] in the original model space basis:'
-          call prettyprint(Heff,NState,NState)
+          call prettyprint(Heff,Nstate,Nstate)
         END IF
       END IF
 
@@ -184,7 +185,11 @@ C of group states for which GRPINI is called.
          WRITE(6,*)
        END IF
 
+       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
+       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+       CPUGIN=CPTF10-CPTF0
+       TIOGIN=TIOTF10-TIOTF0
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -196,8 +201,8 @@ C skip this state if we only need 1 state and it isn't this "One"
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
          CALL STINI
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
-         CPUINI=CPTF11-CPTF0
-         TIOINI=TIOTF11-TIOTF0
+         CPUSIN=CPTF11-CPTF0
+         TIOSIN=TIOTF11-TIOTF0
 
 C     SOLVE CASPT2 EQUATION SYSTEM AND COMPUTE CORR ENERGIES.
 
@@ -309,6 +314,18 @@ C     transition density matrices.
          CPUTOT=CPTF14-CPTF0
          TIOTOT=TIOTF14-TIOTF0
 
+         IF (ISTATE.EQ.1) THEN
+           CPUTOT=CPUTOT+CPUGIN
+           TIOTOT=TIOTOT+TIOGIN
+         ELSE
+           CPUGIN=0.D0
+           TIOGIN=0.D0
+           CPUFMB=0.D0
+           TIOFMB=0.D0
+           CPUINT=0.D0
+           TIOINT=0.D0
+         END IF
+
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',JSTATE
@@ -320,8 +337,10 @@ C     transition density matrices.
      &                         ' ------------- '//
      &                         ' ------------- '
           WRITE(6,*)
-          WRITE(6,'(A,2F14.2)')'  Initialization        ',CPUINI,TIOINI
+          WRITE(6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
+          WRITE(6,'(A,2F14.2)')'  - Fock matrix build   ',CPUFMB,TIOFMB
           WRITE(6,'(A,2F14.2)')'  - integral transforms ',CPUINT,TIOINT
+          WRITE(6,'(A,2F14.2)')'  State initialization  ',CPUSIN,TIOSIN
           WRITE(6,'(A,2F14.2)')'  - density matrices    ',CPUFG3,TIOFG3
           WRITE(6,'(A,2F14.2)')'  CASPT2 equations      ',CPUPT2,TIOPT2
           WRITE(6,'(A,2F14.2)')'  - H0 S/B matrices     ',CPUSBM,TIOSBM
