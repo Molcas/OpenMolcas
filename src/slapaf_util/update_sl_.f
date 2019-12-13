@@ -138,6 +138,8 @@
 *        Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 *        Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
+         Write (6,*) 'Before corrections'
+         Call DiagMtrx(Hessian,nInter,iNeg)
          iOptH = iOr(8,iAnd(iOptH,32))
       Else
          Call Mk_Hss_Q()
@@ -145,8 +147,8 @@
       End If
 *
 *     Perform the Hessian update, in case of GEK it essential will
-*     modify the Hessian if it is needed to guide it towards a
-*     a minimum or a TS.
+*     modify the Hessian if it is needed to guide 2nd order
+*     optimization towards a minimum or a TS.
 *
       If (iPrint.ge.6) Then
          Write (Lu,*)
@@ -163,7 +165,8 @@
      &              GNrm_Threshold,nsAtom,IRC,.True.)
 *
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
-*     Call DiagMtrx(Hessian,nInter,iNeg)
+      Write (6,*) 'After corrections'
+      Call DiagMtrx(Hessian,nInter,iNeg)
 *
 *     Save the number of internal coordinates on the runfile.
 *
@@ -230,7 +233,7 @@
          nLoop=0
          Do While (rCart.ge.Two*Beta)
             nLoop=nLoop+1
-            If (nLoop.gt.100) Exit
+            If (nLoop.gt.10) Exit
             If (rCart.gt.rInter) Then
               fCart=fCart*rInter/rCart
             Else
@@ -628,6 +631,9 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         Call Hessian_Kriging(qInt(1,kIter+1),Hessian,nInter)
+         Write (6,*) 'at convergence'
+         Call DiagMtrx(Hessian,nInter,iNeg)
       Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)

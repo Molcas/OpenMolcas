@@ -19,13 +19,11 @@
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
 !
-        if (all(x_.ne.nx)) then
-                nPoints=nPoints_save
-                nInter=nInter_save
-                nx(:,:) = x_
-                call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-                call predict(0,nPoints,nInter)
-        endif
+        nPoints=nPoints_save
+        nInter=nInter_save
+        nx(:,:) = x_
+        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(0,nPoints,nInter)
         y_ = sigma(npx)
 !
         return

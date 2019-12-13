@@ -126,6 +126,7 @@
          Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
          Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
       End If
+      Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
 *
       Kriging_Hessian =.TRUE.
       iOpt_RS=1   ! Activate restricted variance.
@@ -174,6 +175,20 @@
       Call mma_deallocate(HTri)
 *     Call RecPrt('Hessian(D)',' ',Hessian,nInter,nInter)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Select between setting all l's to a single value or go in
+*     multiple l-value mode in which the l-value is set such that
+*     the kriging hessian reproduce the diagonal value of the HMF
+*     Hessian of the current structure.
+*
+      If (Set_l) Then
+         Call Get_dScalar('Value_l',Value_l)
+      Else
+         Call mma_Allocate(Array_l,nInter,Label='Array_l')
+         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -228,6 +243,7 @@
 *
 *           Compute the distance in Cartesian coordinates.
 *
+#ifdef _CARTESIAN_
             Distance=Zero
             Do ix = 1, 3*nsAtom
                Distance= Distance +
@@ -235,6 +251,26 @@
      &                  (Work(ipCx_ref+ix-1) -
      &                   Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
             End Do
+#else
+            Distance=0.0d0
+            If (set_l) Then
+               Do inter = 1, nInter
+                  Distance = Distance +
+     &                       (
+     &                        ( qInt(inter,iter) - qInt(inter,jter) )
+     &                       / Value_l
+     &                       )**2
+               End Do
+            Else
+               Do inter = 1, nInter
+                  Distance = Distance +
+     &                       (
+     &                        ( qInt(inter,iter) - qInt(inter,jter) )
+     &                       / Array_l(inter)
+     &                       )**2
+               End Do
+            End If
+#endif
             Distance = sqrt(Distance)
 *
             If (Distance.gt.Thr_low .and.
@@ -245,7 +281,9 @@
          End Do
          If (kter.eq.-1) Then
             Write (6,*) 'kter not set!'
+            Call Abend()
          Else
+            Write (6,*) 'Use iteration: kter=',kter
             Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
             Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
             Energy_s(iRaw)=Energy(kter)
@@ -300,16 +338,36 @@
 *     Hessian of the current structure.
 *
       If (Set_l) Then
-         Call Get_dScalar('Value_l',Value_l)
          Call set_l_kriging([Value_l],1)
          Call Put_dScalar('Value_l',Value_l)
       Else
-         Call mma_Allocate(Array_l,nInter,Label='Array_l')
-         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
          Call Set_l_Kriging(Array_l,nInter)
          Call mma_deAllocate(Array_l)
       End If
       Call mma_deallocate(Hessian)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Make sure that the variance restriction never is too tight.
+*
+      tmp=0.0D0
+      Do i = 1, iter
+         tmp = Max(tmp,GNrm(i))
+      End Do
+      Beta_Disp_=Max(0.001D0,tmp*Beta_Disp)
+*
+*     Switch over to RS-RFO once the gradient is low.
+*
+      tmp=100.0D0
+      Do i = 1, iter
+         tmp = Min(tmp,GNrm(i))
+      End Do
+      Beta_=Beta
+      Write (6,*) 'MinVal,iter=',tmp,iter,GNrm(iter)
+      If (tmp.lt.0.005D0) Then
+         iOpt_RS=0
+         Beta_=0.03D0
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -330,13 +388,9 @@
 *                                                                      *
 *        Compute the updated structure.
 *
-*        Make sure that the variance restriction never is too tight.
-         Beta_Disp_=Max(0.001D0,MaxVal(GNrm,iterAI)*Beta_Disp)
-         iOpt_RS=1   ! Activate restricted variance.
-         If (GNrm(iterAI).lt.0.005D0) iOpt_RS=0
          If (iOpt_RS.eq.1) Then
          Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,
+     &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
      &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -351,7 +405,7 @@
      &                iOpt_RS)
          Else
          Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt_s,Shift_s,Grad_s,iOptC,Beta,
+     &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
      &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -370,9 +424,9 @@
 *        been used.
 *
          If (iterK.gt.0) Then
-            UpMeth='GPR   '
+            UpMeth='GEK   '
             Write (UpMeth(4:6),'(I3)') iterK
-         Else
+         Else If(iOpt_RS.eq.1) Then
             UpMeth='RV-RFO'
          End If
 *                                                                      *
@@ -394,8 +448,7 @@
 *        surrogate model for the new coordinates.
 *
          Call Energy_Kriging(qInt_s(1,iterAI+1),Energy(iterAI+1),nInter)
-         Call Dispersion_Kriging(qInt_s(1,iterAI+1),Dummy,nInter)
-         E_Disp = Dummy
+         Call Dispersion_Kriging(qInt_s(1,iterAI+1),E_Disp,nInter)
          Call Gradient_Kriging(qInt_s(1,iterAI+1),
      &                         Grad_s(1,iterAI+1),nInter)
          Call DScal_(nInter,-One,Grad_s(1,iterAI+1),1)

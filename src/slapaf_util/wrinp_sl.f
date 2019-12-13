@@ -56,7 +56,7 @@
       Write (Lu,'(A,E8.1)')' Convergence criterion on energy change <=:'
      &      ,ThrEne
       Write (Lu,'(A)')
-     &    ' Parameters for constrained optimization'
+     &    ' Parameters for step-restricted optimization'
       If (.NOT.Kriging) Then
       Write (Lu,'(A,E9.2)')
      &    ' Max step length (initial seed):          ',Beta
