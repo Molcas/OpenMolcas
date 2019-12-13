@@ -114,54 +114,65 @@ c Modify the Fock matrix if needed
           call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
         end do
 
+        if (IPRGLB.ge.VERBOSE) then
 * In case of MS- and XDW-CASPT2 calculations, compute off-diagonal
 * elements of the Fock matrix as a sanity check of the diagonal
-* approximation within the generalized Bloch equation
-        if (IPRGLB.ge.DEBUG.and.(.not.IFXMS)) then
-          write(6,*)
-          write(6,'(A,I2)')' Fock couplings to state ',Jstate
-          do Istate=1,Nstate
-            if (Istate.ne.Jstate) then
+* approximation within the generalized Bloch equation.
+          if (IFDW.or.(.not.IFXMS)) then
+            write(6,*)
+            write(6,*) 'Fock matrix couplings'
+            write(6,*) '---------------------'
+            write(6,*)
+            write(6,'(10X,6X,A3,I4,A3)') ' | ', Jstate, ' > '
+            do Istate=1,Nstate
+              if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
-              call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
-              write(6,'(2x,F16.8)') H0(Istate,Jstate)
+                call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
+                write(6,'(A3,I4,A3,F16.8)')
+     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
 * Then set it to zero becuase we are within the diagonal approximation
-              H0(Istate,Jstate) = 0.0d0
-            else
+                H0(Istate,Jstate) = 0.0d0
+              else
 * Just print out the already computed diagonal element
-              write(6,'(2x,F16.8)') H0(Istate,Jstate)
-            end if
-          end do
+                write(6,'(A3,I4,A3,F16.8)')
+     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
+              end if
+            end do
+            write(6,*)
+          end if
         end if
 
+* End of long loop over Jstate
       end do
-* End of loop over states
 
-      if (IPRGLB.ge.DEBUG.and.Ngrp.gt.1) then
-        write(6,*)
-        write(6,*)' Fock matrix in the original model space basis:'
-        call prettyprint(H0,Ngrp,Ngrp)
-      end if
+* In case of a XMS calculation, i.e. Ngrp > 1 and not DW, transform
+* the CI arrays of this group of states to make the Fock matrix
+* diagonal in the model space
+      if (Ngrp.gt.1.and.IFXMS.and.(.not.IFDW)) then
 
-* In case of and XMS calculation (i.e. Ngrp > 1), transform the CI
-* arrays of this group of states to make the Fock matrix diagonal
-* in the model space
-      if (Ngrp.gt.1.and.IFXMS) then
-
+* In case of XMS-CASPT2, printout H0 in original basis
+        if (IPRGLB.ge.VERBOSE) then
+          write(6,*)
+          write(6,*)' H0 in the original model space basis:'
+          call prettyprint(H0,Ngrp,Ngrp)
+        end if
 * Diagonalize H0 and save eigenvectors in U0
         call eigen(H0,U0,Ngrp)
 
-* Transform the Fock matrix and Heff in the new basis
+* Transform the Fock matrix in the new basis
         call transmat(H0,U0,Ngrp)
-        call transmat(Heff,U0,Ngrp)
-
-        if (IPRGLB.ge.DEBUG) then
-          write(6,*)' Fock matrix in the rotated model space basis:'
-          call prettyprint(H0,Ngrp,Ngrp)
-
-          write(6,*)' Eigenvectors:'
+        if (IPRGLB.ge.VERBOSE) then
+          write(6,*)' H0 eigenvectors:'
           call prettyprint(U0,Ngrp,Ngrp)
+        end if
+        if (IPRGLB.ge.DEBUG) then
+          write(6,*)' H0 in the rotated model space basis:'
+          call prettyprint(H0,Ngrp,Ngrp)
+        end if
 
+* As well as Heff
+        call transmat(Heff,U0,Ngrp)
+        if (IPRGLB.ge.DEBUG) then
           write(6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
@@ -170,9 +181,8 @@ c Modify the Fock matrix if needed
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
         if (IPRGLB.ge.VERBOSE) then
-          write(6,*)
-          write(6,'(A)')' The CASSCF states are rotated such that'//
-     &                  ' they diagonalize the Fock operator'
+          write(6,'(A)')' The CASSCF states are now rotated'//
+     &                  ' according to the H0 eigenvectors'
           write(6,*)
         end if
 

@@ -143,10 +143,9 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
         END DO
-        IF (IPRGLB.GE.VERBOSE) THEN
+        IF (IPRGLB.GE.DEBUG) THEN
           write(6,*)' Heff[1] in the original model space basis:'
           call prettyprint(Heff,NState,NState)
-          write(6,*)
         END IF
       END IF
 
@@ -389,7 +388,7 @@ C End of long loop over groups
       IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
       IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
-        CALL MLTCTL(HEFF,UEFF)
+        CALL MLTCTL(HEFF,UEFF,U0)
       END IF
 
       IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN

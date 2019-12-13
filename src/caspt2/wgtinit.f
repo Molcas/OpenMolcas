@@ -65,7 +65,6 @@
 
 * In case it is a XDW calculation, print out the weights
       if (IFDW.and.(IPRGLB.ge.VERBOSE)) then
-        write(6,*)
         if (IFEFOCK) then
           write(6,*)' Weights calculated with <I|H0|J>:'
         else

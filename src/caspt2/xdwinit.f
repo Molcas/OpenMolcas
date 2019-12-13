@@ -16,6 +16,7 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -99,7 +100,7 @@
       end do
 * End of loop over states
 
-      if (IPRGLB.ge.DEBUG) then
+      if (IPRGLB.ge.VERBOSE) then
         write(6,*)
         write(6,*)' H0 in the original model space basis:'
         call prettyprint(H0,Nstate,Nstate)
@@ -108,17 +109,20 @@
 * Diagonalize H0 in the model space
       call eigen(H0,U0,Nstate)
 
-* Transform H0 and Heff in the basis that diagonalizes H0
+* Transform the Fock matrix in the new basis
       call transmat(H0,U0,Nstate)
+        if (IPRGLB.ge.VERBOSE) then
+          write(6,*)' H0 eigenvectors:'
+          call prettyprint(U0,Nstate,Nstate)
+        end if
+        if (IPRGLB.ge.DEBUG) then
+          write(6,*)' H0 in the rotated model space basis:'
+          call prettyprint(H0,Nstate,Nstate)
+        end if
+
+* As well as Heff
       call transmat(Heff,U0,Nstate)
-
       if (IPRGLB.ge.DEBUG) then
-        write(6,*)' H0 in the rotated model space basis:'
-        call prettyprint(H0,Nstate,Nstate)
-
-        write(6,*)' Eigenvectors:'
-        call prettyprint(U0,Nstate,Nstate)
-
         write(6,*)' Heff[1] in the rotated model space basis:'
         call prettyprint(Heff,Nstate,Nstate)
       end if
@@ -127,9 +131,8 @@
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
         if (IPRGLB.ge.VERBOSE) then
-          write(6,*)
-          write(6,'(A)')' The CASSCF states are rotated such that'//
-     &                  ' they diagonalize the SA-Fock operator'
+          write(6,'(A)')' The CASSCF states are now rotated'//
+     &                  ' according to the H0 eigenvectors'
           write(6,*)
         end if
 
