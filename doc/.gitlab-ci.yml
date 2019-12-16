@@ -9,16 +9,16 @@
       when: never
     # merge requests
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
-      when: always
+      when: on_success
     # branches, api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
-      when: always
+      when: on_success
 
 .template: &doc-publish
   rules:
     # only on master
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
-      when: always
+      when: on_success
 
 # A special job for building the documentation,
 doc:

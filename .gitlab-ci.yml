@@ -27,14 +27,14 @@
       when: never
     # merge requests
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
-      when: always
+      when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
-      when: always
+      when: on_success
     # branches, if changes in the source
     - if: '$CI_PIPELINE_SOURCE == "push"'
       <<: *sources
-      when: always
+      when: on_success
 
 .template: &test-jobs
   rules:
@@ -43,10 +43,10 @@
       when: never
     # merge requests
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
-      when: always
+      when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
-      when: always
+      when: on_success
 
 # There can only be a single "include" per file
 include:
