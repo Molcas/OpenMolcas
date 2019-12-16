@@ -309,6 +309,7 @@
         logical :: lin_dep_detected, improve_solution
 
         real*8, allocatable :: previous(:), correction(:), v(:)
+        real*8, pointer :: curr(:)
 
         call mma_allocate(previous, size(S, 1))
         call mma_allocate(correction, size(S, 1))
@@ -317,7 +318,7 @@
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
         do i = 1, n_to_ON
-        associate(curr => ONB(:, n_new + 1))
+          curr => ONB(:, n_new + 1)
           curr = basis(:, i)
 
           improve_solution = .true.
@@ -341,7 +342,6 @@
               n_new = n_new + 1
             end if
           end do
-        end associate
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
 
