@@ -332,7 +332,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select between setting all l's to a single value or go in
+*     Select between setting all ls to a single value or go in
 *     multiple l-value mode in which the l-value is set such that
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
@@ -364,10 +364,10 @@
       End Do
       Beta_=Beta
       Write (6,*) 'MinVal,iter=',tmp,iter,GNrm(iter)
-      If (tmp.lt.0.005D0) Then
-         iOpt_RS=0
-         Beta_=0.03D0
-      End If
+*     If (tmp.lt.0.005D0) Then
+*        iOpt_RS=0
+*        Beta_=0.03D0
+*     End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
