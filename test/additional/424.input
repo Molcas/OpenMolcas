@@ -10,7 +10,7 @@
 &SEWARD
 
 &RASSCF
-    FileOrb = $CurrDir/Reverted.InpOrb
+    FileOrb = $WorkDir/Reverted.InpOrb
     DMPO
     NACTEL = 6 0 0
     Inactive = 4
