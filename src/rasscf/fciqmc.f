@@ -44,8 +44,9 @@
           integer, intent(in) :: iseed
         end function
 
-        subroutine NECImain(fcidmp, input_name, NECIen)
+        subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
           character(*), intent(in) :: fcidmp, input_name
+          integer*8, intent(in) :: MemSize
           real*8, intent (out) :: NECIen
         end subroutine
       end interface
@@ -260,7 +261,8 @@
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
             call necimain(
-     &        real_path(ascii_fcidmp), real_path(input_name), NECIen)
+     &        real_path(ascii_fcidmp), real_path(input_name),
+     &                  get_memory(), NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
@@ -362,6 +364,13 @@
         path = buffer(:L)
       end function
 
+      function get_memory() result(res)
+        integer :: res
+        character(len=255) :: memory_char
+
+        call get_environment_variable("MOLCAS_MEM", memory_char)
+        read(memory_char, *) res
+      end function
 
       subroutine write_ExNECI_message(
      &      input_name, ascii_fcidmp, h5_fcidmp)
