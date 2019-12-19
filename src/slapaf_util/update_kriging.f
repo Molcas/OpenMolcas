@@ -22,66 +22,15 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,ThrEne,ThrGrd)
+     &                     Degen,ThrEne,ThrGrd,iRow)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
 *                                                                      *
-*    Input:                                                            *
-*      iter           : iteration counter                              *
-*      MaxItr         : max number of iteration                        *
-*      NmIter         : number of iteration in numerical approach      *
-*      iInt           : number of internal coordinates to vary         *
-*      nFix           : number of frozen internal coordinates          *
-*      nInter         : total number of internal coordinates           *
-*      qInt(*,iter )  : the internal coordinates                       *
-*      Grad(*,iter )  : the gradient in the internal coordinates       *
-*      iOptC          : option flag for update methods                 *
-*      Beta           : damping factor                                 *
-*      Lbl            : character labels for internal coordinates      *
-*      nLbl           : length of Lbl                                  *
-*      GNrm           : the norm of the gradient in each iteration     *
-*      Energy         : the energy of each iteration                   *
-*      Line_Search    : logical flag for line search                   *
-*      nLambda        : number of contraints                           *
-*      iRow_c         : number of lines on the UDC file                *
-*      nsAtom         : number of symmetry unique atoms                *
-*      AtomLbl        : character string with atom labels              *
-*      nSym           : number of irreps                               *
-*      iOper          : integer representations of symmetry operators  *
-*      mxdc           : max number of nsAtom                           *
-*      jStab          : integer list of stabilizers                    *
-*      nStab          : number of stabilizers                          *
-*      BMx            : the so-called Wilson B matrix                  *
-*      Smmtrc         : logical flag for symmetry properties           *
-*      nDimBC         : dimension of redundant coordinates(?)          *
-*      rLambda        : vector for Lagrange multipliers                *
-*      ipCx           : pointer to cartesian coordinates               *
-*      iNeg           : Hessian index                                  *
-*      Labels         : character string of primitive int. coord.      *
-*      nLabels        : length of Labels                               *
-*      CnstWght       : constraints weight                             *
-*                                                                      *
-*    OutPut:                                                           *
-*      Shift(*,iter ) : the shift of the internal coordinates          *
-*      qInt(*,iter +1): the internal coordinates to be used in the     *
-*                       next iteration                                 *
-*      UpMeth         : character label with update method abrivation  *
-*      ed             : estimated energy change to the next point      *
-*      Step_Trunc     : character label to denote truncation type      *
-*      GrdMax         : largest gradient component                     *
-*      StpMax         : largest step component                         *
-*      GrdLbl         : character label of component with GrdMax       *
-*      StpLbl         : character label of component with StpLbl       *
-*                                                                      *
-*                                                                      *
-*     Author: Roland Lindh                                             *
-*             2000                                                     *
+*    (see update_sl)                                                   *
 ************************************************************************
       Use kriging_mod, only: miAI, meAI, blavAI, set_l
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step, Restriction_Dispersion
-      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -124,8 +73,8 @@
          Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
          Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
          Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
+         Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
       End If
-      Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
 *
       Kriging_Hessian =.TRUE.
       iOpt_RS=1   ! Activate restricted variance.
@@ -150,11 +99,11 @@
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       Call Mk_Hss_Q()
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
-*     Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
+*     Call RecPrt('HMF Hessian',' ',Hessian,nInter,nInter)
 *
       Call mma_allocate(U,nInter,nInter,Label='U')
-      U(:,:)=0.0D0
-      For all (i=1:nInter) U(i,i)=1.0D0
+      U(:,:)=Zero
+      Forall (i=1:nInter) U(i,i)=One
 #ifdef _DIAG_HESS_
 *
       Call mma_allocate(HTri,nInter*(nInter+1)/2,Label='HTri')
@@ -166,13 +115,16 @@
       End Do
 *     Call TriPrt('HTri(raw)',' ',HTri,nInter)
       Call NIDiag_new(HTri,U,nInter,nInter,0)
-*     U(:,:)=0.0D0
-*     For all (i=1:nInter) U(i,i)=1.0D0
+*     U(:,:)=Zero
+*     Forall (i=1:nInter) U(i,i)=One
 *     Call TriPrt('HTri',' ',HTri,nInter)
-      Hessian(:,:) = 0.0D0
-      For all (i=1:nInter) Hessian(i,i)=HTri(i*(i+1)/2)
+      Hessian(:,:) = Zero
+      Forall (i=1:nInter) Hessian(i,i)=HTri(i*(i+1)/2)
       Call mma_deallocate(HTri)
 *     Call RecPrt('Hessian(D)',' ',Hessian,nInter,nInter)
+#endif
+#ifdef _DEBUG_
+      Call RecPrt('U','',U,nInter,nInter)
 #endif
 *                                                                      *
 ************************************************************************
@@ -203,10 +155,10 @@
       Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
 #ifdef _UNSORTED_
 *
-*     Tranform to the basis which diagonalize the HMF Hessian.
+*     Transform to the basis which diagonalizes the HMF Hessian.
 *
-      Call Trans(U,qInt(1,iFirst),qInt_s,nInter,nRaw)
-      Call Trans(U,Grad(1,iFirst),Grad_s,nInter,nRaw)
+      Call Trans_K(U,qInt(1,iFirst),qInt_s,nInter,nRaw)
+      Call Trans_K(U,Grad(1,iFirst),Grad_s,nInter,nRaw)
       Call DScal_(nInter*nRaw,-One,Grad_s,1)
       Call DCopy_(nRaw,Energy(iFirst),1,Energy_s,1)
 *
@@ -214,13 +166,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Sort the data so that it some in an order of the points
-*     closest to the last point. Make sure that the reference
-*     point is the last point such that is always will define
-*     the reference point. This is improtant when the bias is
-*     defined Backrelative to the last points energy.
+*     Sort the data so that the points are ordered by distance
+*     to the last point. Make sure that the reference point is
+*     the last point. This is important when the bias is defined
+*     relative to the last point energy.
 *
-*     This code will have to be cleanup up later.
+*     This code will have to be cleaned up up later.
 *
       ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
 *
@@ -228,11 +179,11 @@
       Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
       Energy_s(nRaw)=Energy(iter)
 *
-*     Pick up the coordinates in descending order with the ones
+*     Pick up the coordinates in descending order starting with the ones
 *     that are the closest to the current structure.
 *
       iSt=Max(1,iter-nWndw+1)
-      Thr_low = 0.0D0
+      Thr_low = Zero
       Thr_high= 99.0D0
       Do iRaw = nRaw-1, 1, -1
 *
@@ -281,7 +232,7 @@
             Write (6,*) 'kter not set!'
             Call Abend()
          Else
-            Write (6,*) 'Use iteration: kter=',kter
+*           Write (6,*) 'Use iteration: kter=',kter
             Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
             Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
             Energy_s(iRaw)=Energy(kter)
@@ -295,14 +246,12 @@
       Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
 #endif
 *
-*
-*
-*     Tranform to the basis which diagonalize the HMF Hessian.
+*     Transform to the basis which diagonalizes the HMF Hessian.
 *
       Call mma_allocate(Temp,nInter,nRaw,Label='Temp')
-      Call Trans(U,qInt_s,Temp,nInter,nRaw)
+      Call Trans_K(U,qInt_s,Temp,nInter,nRaw)
       qInt_s(:,:) = Temp
-      Call Trans(U,Grad_s,Temp,nInter,nRaw)
+      Call Trans_K(U,Grad_s,Temp,nInter,nRaw)
       Grad_s(:,:) = -Temp
       Call mma_deallocate(Temp)
 *
@@ -316,21 +265,21 @@
 ************************************************************************
 *                                                                      *
 *     There is a small tweak here. We need to send the transformed
-*     coordinates, shifts, and gradients to update_sl_.f
+*     coordinates, shifts, and gradients to update_sl_
 *
       Call mma_allocate(qInt_s,nInter,MaxItr,Label='qInt_s')
       Call mma_allocate(Grad_s,nInter,MaxItr,Label='Grad_s')
       Call mma_allocate(Shift_s,nInter,MaxItr,Label='Shift_s')
-      qInt_s(:,:)=0.0D0
-      Grad_s(:,:)=0.0D0
-      Shift_s(:,:)=0.0D0
-      Call Trans(U,qInt,qInt_s,nInter,iter)
-      Call Trans(U,Grad,Grad_s,nInter,iter)
-      Call Trans(U,Shift,Shift_s,nInter,iter)
+      qInt_s(:,:)=Zero
+      Grad_s(:,:)=Zero
+      Shift_s(:,:)=Zero
+      Call Trans_K(U,qInt,qInt_s,nInter,iter)
+      Call Trans_K(U,Grad,Grad_s,nInter,iter)
+      Call Trans_K(U,Shift,Shift_s,nInter,iter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select between setting all ls to a single value or go in
+*     Select between setting all l's to a single value or go in
 *     multiple l-value mode in which the l-value is set such that
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
@@ -342,7 +291,6 @@
          Call Set_l_Kriging(Array_l,nInter)
          Call mma_deAllocate(Array_l)
       End If
-      Call mma_deallocate(Hessian)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -361,7 +309,7 @@
          tmp = Min(tmp,GNrm(i))
       End Do
       Beta_=Beta
-      Write (6,*) 'MinVal,iter=',tmp,iter,GNrm(iter)
+*     Write (6,*) 'MinVal,iter=',tmp,iter,GNrm(iter)
 *     If (tmp.lt.0.005D0) Then
 *        iOpt_RS=0
 *        Beta_=0.03D0
@@ -381,12 +329,18 @@
          Write (6,*)
          Write (6,*) 'Do iterAI: ',iterAI
 #endif
+*
+*        Compute the Kriging Hessian
+*
+         If (Kriging_Hessian) Then
+            Call Hessian_Kriging(qInt_s(1,iterAI),Hessian,nInter)
+            Call Put_dArray('Hss_Q',Hessian,nInter**2)
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        Compute the updated structure.
 *
-         If (iOpt_RS.eq.1) Then
          Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
      &                Beta_Disp_,
@@ -399,26 +353,9 @@
      &                nWndw/2,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,Restriction_dispersion,
-     &                iOpt_RS)
-         Else
-         Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
-     &                Beta_Disp_,
-     &                Lbl,GNrm,Energy,
-     &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
-     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                Labels,nLabels,FindTS,TSC,nRowH,
-     &                nWndw/2,Mode,ipMF,
-     &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
-     &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,Restriction_Step,
-     &                iOpt_RS)
-         End If
+     &                Kriging_Hessian,qBeta,iOpt_RS)
 *
-*        Change label of updating method if kriging points has
+*        Change label of updating method if kriging points have
 *        been used.
 *
          If (iterK.gt.0) Then
@@ -469,7 +406,6 @@
          If (ThrEne.gt.Zero) Then
 *           Convergence on energy criteria.
             Not_Converged = Abs(dEner).ge.ThrEne
-            Not_Converged = Not_Converged .and. iterK.lt.miAI
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criteria
@@ -491,8 +427,8 @@
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
      &                      RMSMx.gt.ThrGrd*Six
-            Not_Converged = Not_Converged .and. iterK.le.miAI
          End If
+         Not_Converged = Not_Converged .and. iterK.lt.miAI
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -512,7 +448,7 @@
 *     for the next macro iteration.
 *
       Call mma_allocate(Temp,nInter,1,Label='Temp')
-      Call BackTrans(U,qInt_s(1,iterAI),Temp,nInter,1)
+      Call BackTrans_K(U,qInt_s(1,iterAI),Temp,nInter,1)
       qInt(:,iter+1)=Temp(:,1)
       Call mma_deallocate(Temp)
 *
@@ -549,11 +485,12 @@
       Call mma_deallocate(Grad_s)
       Call mma_deallocate(Shift_s)
       Call mma_deallocate(U)
+      Call mma_deallocate(Hessian)
       Call Finish_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----Write out the shift in internal coordinates basis.
+*-----Write out the shift in internal coordinate basis.
 *
       If (iPrint.ge.99) Then
          Call RecPrt(
@@ -574,11 +511,12 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(kIter)
       If (.False.) Call Unused_integer(NmIter)
 *
+      Return
+      End Subroutine Update_Kriging
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Contains
-      Subroutine Trans(U,X,Y,nInter,nIter)
+      Subroutine Trans_K(U,X,Y,nInter,nIter)
       Implicit None
       Integer nInter, nIter
       Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
@@ -592,9 +530,9 @@ c Avoid unused argument warnings
 *     Call RecPrt('Y',' ',Y,nInter,nIter)
 *
       Return
-      End Subroutine Trans
+      End Subroutine Trans_K
 *
-      Subroutine BackTrans(U,X,Y,nInter,nIter)
+      Subroutine BackTrans_K(U,X,Y,nInter,nIter)
       Implicit None
       Integer nInter, nIter
       Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
@@ -607,7 +545,4 @@ c Avoid unused argument warnings
      &            0.0D0,Y,nInter)
 *     Call RecPrt('Y',' ',Y,nInter,nIter)
 *
-      Return
-      End Subroutine BackTrans
-*
-      End Subroutine Update_Kriging
+      End Subroutine BackTrans_K

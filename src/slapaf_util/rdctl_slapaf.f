@@ -504,7 +504,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AIMD ************************************************************
 *                                                                      *
-*      Analitical or numerical Mat'ern derivatives
+*      Analitical or numerical Matern derivatives
 *
 101   Char=Get_Ln(LuRd)
       If (Char.eq.'False'.or.Char.eq.'false') then
@@ -516,7 +516,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AIL  ************************************************************
 *                                                                      *
-*     Widht limits of the Mat`ern function
+*     Width limits of the Matern function
 *
 102   Char=Get_Ln(LuRd)
       Call Get_F(1,lb,3)
@@ -532,7 +532,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AIP  ************************************************************
 *                                                                      *
-*     Parameter of differentiability for Mat`ern function
+*     Parameter of differentiability for Matern function
 *
 104   Char=Get_Ln(LuRd)
       Call Get_F1(1,pAI)
@@ -557,7 +557,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AIME ************************************************************
 *                                                                      *
-*     Minimum egergy differences of the last two Iterations
+*     Minimum energy differences of the last two iterations
 *     (loop exit condition)
 *
 107   Char=Get_Ln(LuRd)
@@ -577,7 +577,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** AIMB ************************************************************
 *                                                                      *
 *     Base line modification value to maximum value of the Energy
-*     This option superseas any value assigned to blAI
+*     This option supersedes any value assigned to blAI
 *
 109   Char=Get_Ln(LuRd)
       mblAI = .True.
@@ -586,7 +586,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** AIAB ************************************************************
 *                                                                      *
 *     adding energy to the last energy value of the base line
-*     This option superseeds any value assigned to blAI and mblAI
+*     This option supersedes any value assigned to blAI and mblAI
 *
 110   Char=Get_Ln(LuRd)
       Call Get_F1(1,blavAI)

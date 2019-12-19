@@ -18,7 +18,7 @@
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
-     &                   Restriction,iOpt_RS,Thr_RS)
+     &                   iOpt_RS,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -44,8 +44,8 @@
 *             July '03                                                 *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction
-      Real*8 Restriction
+      External Restriction_Step, Restriction_Dispersion
+      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
@@ -624,15 +624,20 @@ C        Write (6,*) 'xBeta=',xBeta
          If (iOpt_RS.eq.0) Then
             tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
             Thr_RS=1.0D-7
+C           Write (6,*) 'tBeta=',tBeta
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Restriction_Step,Thr_RS)
          Else
             tBeta=Beta_Disp
             Thr_RS=1.0D-5
+C           Write (6,*) 'tBeta=',tBeta
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Restriction_Dispersion,Thr_RS)
          End If
-C        Write (6,*) 'tBeta=',tBeta
-         Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &             Restriction,Thr_RS)
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *

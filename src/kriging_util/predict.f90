@@ -30,10 +30,12 @@ SUBROUTINE predict(gh,iter,nInter)
       A(:,:) = full_R
       B(:) = CV(:,j,1,1)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-      var(j) = 1 - dot_product(B,CV(:,j,1,1))
-      tsum = sum(rones(1:iter))
-      B(:) = cv(:,j,1,1)
-      var(j)=max(var(j)+(1-dot_product(B,rones))**2/tsum,0d0)
+      var(j) = 1d0 - dot_product(B,CV(:,j,1,1))
+      if (ordinary) Then
+        tsum = sum(rones(1:iter))
+        B(:) = cv(:,j,1,1)
+        var(j)=max(var(j)+(1d0-dot_product(B,rones))**2/tsum,0d0)
+      end if
       sigma(j)=sqrt(var(j)*variance)
       pred(j) = sb + dot_product(B,Kv)
       Call mma_deallocate(A)

@@ -20,8 +20,7 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,Kriging_Hessian,qBeta,Restriction,
-     &                     iOpt_RS)
+     &                     Degen,Kriging_Hessian,qBeta,iOpt_RS)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -76,8 +75,8 @@
 *             2000                                                     *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction
-      Real*8 Restriction
+      External Restriction_Step, Restriction_Dispersion
+      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -131,22 +130,16 @@
 *
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       If (Kriging_Hessian) Then
-*
-*        Temporary code until we have the 2nd derivatives from the
-*        kriging code.
-*
-*        Call DCopy_(nInter**2,[Zero],0,Hessian,1)
-*        Call DCopy_(nInter,[1.0D-2],0,Hessian,nInter+1)
-         Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
+*        Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
 *        Write (6,*) 'Before corrections'
 *        Call DiagMtrx(Hessian,nInter,iNeg)
          iOptH = iOr(8,iAnd(iOptH,32))
       Else
          Call Mk_Hss_Q()
-         Call Get_dArray('Hss_Q',Hessian,nInter**2)
       End If
+      Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *
-*     Perform the Hessian update, in case of GEK it essential will
+*     Perform the Hessian update, in case of GEK it essentially will
 *     modify the Hessian if it is needed to guide 2nd order
 *     optimization towards a minimum or a TS.
 *
@@ -295,16 +288,22 @@ C           Write (*,*) 'tBeta=',tBeta
             If (iOpt_RS.eq.0) Then
                qBeta=fCart*tBeta
                Thr_RS=1.0D-7
+               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
+     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
+     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   Energy,Line_Search,Step_Trunc,
+     &                   Restriction_Step,Thr_RS)
             Else
                qBeta=Beta_Disp
                Thr_RS=1.0D-5
+               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
+     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
+     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   Energy,Line_Search,Step_Trunc,
+     &                   Restriction_Dispersion,Thr_RS)
             End If
-            Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
-     &                Work(ipdg),Work(ipA),nA,
-     &                ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
-     &                Energy,Line_Search,Step_Trunc,
-     &                Restriction,Thr_RS)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *
@@ -586,7 +585,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght,Restriction,iOpt_RS,Thr_RS)
+     &                IRC,CnstWght,iOpt_RS,Thr_RS)
 *
 *           Rough conversion to Cartesians
 *

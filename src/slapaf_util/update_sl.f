@@ -78,8 +78,6 @@
 *             2000                                                     *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step, Restriction_Dispersion
-      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -144,8 +142,7 @@
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,Restriction_step,
-     &                   iOpt_RS)
+     &                   Kriging_Hessian,qBeta,iOpt_RS)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -178,8 +175,7 @@
      &                nWndw,Mode,ipMF,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,Restriction_step,
-     &                iOpt_RS)
+     &                Kriging_Hessian,qBeta,iOpt_RS)
 *                                                                      *
 ************************************************************************
 *                                                                      *

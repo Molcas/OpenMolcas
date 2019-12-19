@@ -21,7 +21,7 @@
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
-*     Object: To compute the new symmetry distinct Cartesian coordinate*
+*     Object: To compute the new symm. distinct Cartesian coordinates  *
 *             from the suggested shift of the internal coordinates.    *
 *                                                                      *
 ************************************************************************

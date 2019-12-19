@@ -48,7 +48,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
 !Mat is the final matrix after the distance (between source data rl and dl) has
-! passed through the Mat'ern correlation function (ISBN 0-486-61272-4 & eq. (11-12)
+! passed through the Matern correlation function (ISBN 0-486-61272-4 & eq. (11-12)
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
@@ -67,7 +67,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 !cv is the corvariant vector that contains the correlation function values and
 ! gradients between the sample data and the prediction
 ! (eq. 4 ref.).
-!l is a n-dimensional vector of the width of the Mat'ern function.
+!l is a n-dimensional vector of the width of the Matern function.
 !ll is the likelihood function.
 !
   Call mma_allocate(kv,m_t,Label="kv")

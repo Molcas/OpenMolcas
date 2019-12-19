@@ -15,7 +15,7 @@
       implicit none
       integer :: nspAI, npxAI, miAI
       real*8 :: pAI, lb(3), dAIy, meAI, blvAI, blavAI
-      logical :: Kriging, anMd, blAI, mblAI, blaAI, set_l
+      logical :: Kriging, ordinary, anMd, blAI, mblAI, blaAI, set_l
 *
 *     use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI,
 *    &              blavAI

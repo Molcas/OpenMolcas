@@ -157,6 +157,7 @@ SUBROUTINE kriging_model(nPoints)
   enddo
 !
 !Trend Function (baseline)
+  ordinary = .False.
   if (blaAI) then
 !
 !   Make sure the base line is above any data point
@@ -170,6 +171,7 @@ SUBROUTINE kriging_model(nPoints)
   else if (blAI) Then
     sb = blvAI
   else
+    ordinary = .True.
     sbO = dot_product(y,B(1:nPoints))/sum(B(1:nPoints))
     B(:) = [y,dy]
 #ifdef _DEBUG_
@@ -212,7 +214,7 @@ SUBROUTINE kriging_model(nPoints)
   Call TriPrt('HTri',' ',HTri,nPoints)
 #endif
 !
-! Constructe a a transformation which will transform the
+! Construct a transformation which will transform the
 ! correlation matrix to this new basis.
 !
   Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')

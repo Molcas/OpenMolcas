@@ -65,11 +65,11 @@
       Iterate=.False.
       Restart=.False.
 *     Thr_RS=1.0D-7
-#ifdef _DEBUG_
-      NumVal=nInter+1
-#else
+*ifdef _DEBUG_
+*     NumVal=nInter+1
+*else
       NumVal=Min(6,nInter)+1
-#endif
+*endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
@@ -122,8 +122,8 @@
 *        Pick up the root which represents the shortest displacement.
 *
 #ifdef _DEBUG_
-         Call RecPrt('Val',' ',Val,1,NumVal)
-         Call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
+*        Call RecPrt('Val',' ',Val,1,NumVal)
+*        Call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
 #endif
          iRoot=-1
          Dist=1.0D99
@@ -134,11 +134,11 @@
             Fact=Vec(nInter+1,iVal)/Sqrt(ZZ)
             dqdq=VV/(A_RFO*Fact**2*ZZ)
 #ifdef _DEBUG_
-            Write (6,*)
-            Write (6,*) 'iVal,A_RFO=',iVal,A_RFO
-            Write (6,*) 'ZZ=',ZZ
-            Write (6,*) 'Fact=',Fact
-            Write (6,*) 'dqdq=',dqdq
+*           Write (6,*)
+*           Write (6,*) 'iVal,A_RFO=',iVal,A_RFO
+*           Write (6,*) 'ZZ=',ZZ
+*           Write (6,*) 'Fact=',Fact
+*           Write (6,*) 'dqdq=',dqdq
 #endif
             If (dqdq.lt.Dist) Then
                iRoot=iVal
@@ -186,11 +186,11 @@
 *
          Call DScal_(nInter,One/Fact,dq,1)
 #ifdef _DEBUG_
-            Write (6,*)
-            Write (6,*) 'iRoot=',iRoot
-            Write (6,*) 'ZZ=',ZZ
-            Write (6,*) 'Fact=',Fact
-            Write (6,*) 'dqdq=',DDot_(nInter,dq,1,dq,1)
+*           Write (6,*)
+*           Write (6,*) 'iRoot=',iRoot
+*           Write (6,*) 'ZZ=',ZZ
+*           Write (6,*) 'Fact=',Fact
+*           Write (6,*) 'dqdq=',DDot_(nInter,dq,1,dq,1)
 #endif
 *
 *        Compute lambda_i according to Eq. (8a)

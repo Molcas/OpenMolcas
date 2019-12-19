@@ -75,17 +75,17 @@
      &               nspAI
        Write (Lu,*) '  Max number of data sets used in GEK:       ',
      &               nWndw
-*      Write (Lu,*) '  Analytical Mat`ern derivatives:            ',anMd
-*      Write (Lu,*) '  Width of Mat`ern: 0.1:6 # of steps:',lb
+*      Write (Lu,*) '  Analytical Matern derivatives:             ',anMd
+*      Write (Lu,*) '  Width of Matern: 0.1:6 # of steps:         ',lb
 *      Write (Lu,*) '  Resolution of the predicted path:          ',
 *    &               npxAI
-       Write (Lu,*) '  Parameter of diff. for Mat`ern (p):        ',pAI
-       Write (Lu,*) '  Max inter. for opt on surrogate model:     ',miAI
+       Write (Lu,*) '  Parameter of diff. for Matern (p):         ',pAI
+       Write (Lu,*) '  Max iter. for opt. on surrogate model:     ',miAI
 *      Write (Lu,*) 'Minimum egergy differences at convergence;',meAI
 *      Write (Lu,*)
 *      Write (Lu,*) '*Note: for the analytical Matern the only choices'
 *      Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
-*      Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
+*      Write (Lu,*) '    Matern you can choose between (0->"Inf"),'
 *      Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
 *      Write (Lu,*)
        Call Get_dScalar('Value_l',Value_l)
@@ -94,25 +94,25 @@
      &              Value_l
        Else
           Write (Lu,*) '  Individual characteristic length scale set '
-     &          //'to repoduce diagonal of HMF hessian.'
+     &          //'to reproduce diagonal of HMF Hessian.'
        End If
 *
        If (blaAI) then
           write (6,'(A,F10.5,A,/,A,F10.5,A)')
      &          '   Baseline is highest energy plus: ',blavAI,' a.u',
-     &          '                                 ',
+     &          '                                    ',
      &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,
-     &              ' kcal/mol'
+     &              ' kJ/mol'
        Else
           if (mblAI) then
              write (6,*) '  Baseline set to maximum value of the energy'
           else if (blAI) then
              write (6,'(A,F9.5,A,/,A,F9.5,A)')
-     &              '  Baseline (Trend Function) changed to value:',
+     &              '  Baseline (trend function) changed to value:',
      &              blvAI, 'a.u.',
      &              '                                             ',
      &              blvAI * CONV_AU_TO_KJ_PER_MOLE_,
-     &              ' kcal/mol'
+     &              ' kJ/mol'
           endif
        Endif
        Write (Lu,*)

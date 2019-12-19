@@ -230,7 +230,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Work(ipCoor),ipB,Work(ipCM),
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
-     &               Work(ipDCF),Work(ipdss),Work(ipTmp),Stop,
+     &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iOper,nSym,iSym,Smmtrc,
      &               Degen,Work(ipGx),Work(ipCx),mTtAtm,
      &               iWork(ipANr),iOptH,User_Def,

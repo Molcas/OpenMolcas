@@ -244,7 +244,7 @@
      &               nWndw,Mode,ipMF,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
+     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
@@ -279,7 +279,7 @@
       Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &            ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &            ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &            Stop,AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &            AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
      &            Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
