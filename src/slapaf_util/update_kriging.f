@@ -17,7 +17,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,ipCx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
@@ -39,7 +39,8 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner,
+     &       Gx(3*nsatom,Iter)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -294,12 +295,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Make sure that the variance restriction never is too tight.
+*     Let the accepted variance be set as a linear function of the
+*     largest component in the gradient.
+*     Make sure that the variance restriction never is too tight, hence
+*     the limit to 0.001 au = 0.63 kcal/mol
 *
       tmp=0.0D0
-      Do i = 1, iter
-         tmp = Max(tmp,GNrm(i))
+      Do i = 1, 3*nsAtom
+         tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
+      Write (6,*) 'tmp=',tmp
       Beta_Disp_=Max(0.001D0,tmp*Beta_Disp)
 *
 *     Switch over to RS-RFO once the gradient is low.

@@ -62,7 +62,8 @@
      &    ' Max step length (initial seed):          ',Beta
       Else
       Write (Lu,'(A,F9.5)')
-     &    ' Max variance accepted (fact. of g.norm): ',Beta_disp
+     &    ' Max variance accepted (fact. of abs(g.max.comp)): ',
+     &      Beta_disp
       Write (Lu,*)
       End If
 *                                                                      *
