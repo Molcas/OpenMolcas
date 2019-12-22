@@ -304,21 +304,24 @@
       Do i = 1, 3*nsAtom
          tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
-      Write (6,*) 'tmp=',tmp
       Beta_Disp_=Max(0.001D0,tmp*Beta_Disp)
 *
 *     Switch over to RS-RFO once the gradient is low.
 *
-      tmp=100.0D0
-      Do i = 1, iter
-         tmp = Min(tmp,GNrm(i))
+      tmp=99.0D0
+      Do j = 1, iter
+         tmp0=0.0D0
+         Do i = 1, 3*nsAtom
+            tmp0 = Max(tmp0,Abs(Gx(i,j)))
+         End Do
+         tmp=Min(tmp,tmp0)
       End Do
+
       Beta_=Beta
-*     Write (6,*) 'MinVal,iter=',tmp,iter,GNrm(iter)
-*     If (tmp.lt.0.005D0) Then
-*        iOpt_RS=0
-*        Beta_=0.03D0
-*     End If
+      If (tmp.lt.4.0D-4) Then
+         iOpt_RS=0
+         Beta_=0.03D0
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -440,6 +443,10 @@
 *        If the step restriction is invoked, terminate anyhow.
 *
          If (Step_trunc.eq.'*') Not_Converged=.False.
+*
+*        If RS rather than RV don not micro iterate
+*
+         If (iOpt_RS.eq.0) Not_Converged=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
