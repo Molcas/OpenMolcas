@@ -3018,7 +3018,7 @@ endif ()
 if (EXISTS ${GIT})
         foreach (BASE_DIR ${basedirs})
                 execute_process (
-                        COMMAND "${OPENMOLCAS_DIR}/sbin/install_hooks.sh" "${BASE_DIR}"
+                        COMMAND ${OPENMOLCAS_DIR}/sbin/install_hooks.sh ${BASE_DIR}
                         WORKING_DIRECTORY ${BASE_DIR}
                         )
         endforeach ()
@@ -3099,7 +3099,7 @@ if (PYTHONINTERP_FOUND)
         mark_as_advanced(FORCE XMLLINT)
         if (XMLLINT)
                 execute_process (
-                        COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
+                        COMMAND ${XMLLINT} ${PROJECT_BINARY_DIR}/data/keyword.xml "-noout"
                         ERROR_VARIABLE XMLLINT_ERROR
                         RESULT_VARIABLE XMLLINT_RESULT
                         )
@@ -3200,7 +3200,7 @@ if (SPHINX_EXECUTABLE)
                 doc_html
                 # workaround for sphinx bug #5966
                 COMMAND touch ${PROJECT_SOURCE_DIR}/doc/source/index.rst
-                COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E env OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )
         add_dependencies (doc_all doc_html)
@@ -3212,7 +3212,7 @@ if (SPHINX_EXECUTABLE)
 
                 add_custom_target (
                         doc_pdf
-                        COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                        COMMAND ${CMAKE_COMMAND} -E env OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                                 ${SPHINX_EXECUTABLE} -b latex ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/latex
                         COMMAND make -C ${SPHINX_BUILDDIR}/latex all-pdf
                         )

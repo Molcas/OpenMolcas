@@ -141,7 +141,7 @@
 *     Initialize the common /SRT1/, i.e.,                              *
 *     determine the partitioning of the 2el integrals into             *
 *     submatrices (slices) where the size of the slices is             *
-*     determined by the maximum nuber of bins (mxBin)                  *
+*     determined by the maximum number of bins (mxBin)                 *
 *----------------------------------------------------------------------*
 *
       Call MKSRT1(IntTot)
