@@ -479,7 +479,7 @@ C     then give a warning message and print the one with the largest SquareSum
 
 C     Printing control      
 C     
-      INTEGER iPrintSym,OrbNum,IOrbinSym,UseSym,LSym,LInd
+      INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
 
       Logical DoTest
 
