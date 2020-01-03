@@ -79,6 +79,7 @@
 *     Store the new state for geometry optimization
       IF (newState.ne.initState) THEN
         CALL Put_iScalar('Relax CASSCF root',newState)
+        CALL Put_iScalar('Relax Original root',newState)
         CALL Put_iScalar('NumGradRoot',newState)
       END IF
 

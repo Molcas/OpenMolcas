@@ -30,8 +30,8 @@ c     It found corresponding (IJ|KL) and expand it to opened
 c     NORB(symp) TEMP files with a structure
 c     indq,indr,inds,value, each TEMP for one p
 c
-c     N.B. This process can be axcelerated, if exppbs would be
-c     devided into exppsb1-8, each for given typ, since this
+c     N.B. This process can be accelerated, if exppbs would be
+c     divided into exppsb1-8, each for given typ, since this
 c     routine is common for all types.
 c
 c     types of (ij|kl) NI,J,K,L defined in III

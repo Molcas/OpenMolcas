@@ -52,7 +52,6 @@
 #include "csfbas.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
-* FCIQMC stuff:
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
 #ifdef _HDF5_
@@ -1191,7 +1190,8 @@ CIgorS End
 #ifdef _HDF5_
         KeyLUMO=.false.
         KeyTYPE=.false.
-        iOverwr=0
+        iOverwr = merge(1, 0, any([KeyRAS1, KeyRAS2, KeyRAS3,
+     &                             KeyFROZ, KeyINAC, KeyDELE]))
         mh5id = mh5_open_file_r(StartOrbFile)
 *     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
@@ -1329,7 +1329,9 @@ CIgorS End
 
 * This also implies that information on orbital types could be
 * taken from typeindex on orbital file:
-        If( index(InfoLbl,'i').gt.0  .or. index(InfoLbl,'I').gt.0) Then
+        if (('I' .in. to_upper(trim(InfoLbl)))
+     &      .and. .not. any([KeyRAS1, KeyRAS2, KeyRAS3,
+     &                       KeyFROZ, KeyINAC, KeyDELE])) then
           iOrbData=3
           iOverWr=0
           If (DBG) Then
