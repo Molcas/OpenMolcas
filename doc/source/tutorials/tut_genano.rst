@@ -17,7 +17,7 @@ The program can be used to generate any set of atomic or molecular basis
 functions. Only one or more wave functions (represented by formated orbital
 files) are needed to generate the average density matrix. These natural orbital
 files can be produced by any of the wave function generators, as it is described
-in section :ref:`UG:sec:genano` of the user's guide. As an illustrative example,
+in :numref:`UG:sec:genano` of the user's guide. As an illustrative example,
 in the Advanced Examples there is an example of how to
 generate a set of molecular basis set describing Rydberg orbitals for the
 benzene molecule. The reader is referred to this example for more details.

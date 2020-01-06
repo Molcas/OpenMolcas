@@ -14,7 +14,7 @@
 ************************************************************************
 *                                                                      *
 * Object: to assemble the orbital angular momentum integrals from the  *
-*         derivative integrals dipole integrals.        .              *
+*         derivative integrals and dipole integrals.                   *
 *                                                                      *
 * Called from: OAMInt                                                  *
 *                                                                      *
@@ -94,7 +94,7 @@
      &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3)
      &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1) )
                Final(iZeta,ipa,ipb,3) = Two*Beta(iZeta) * (
-     &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),  1)
+     &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb),1)
      &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2) )
  30         Continue
 *

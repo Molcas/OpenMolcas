@@ -79,6 +79,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
       Real*8 qInt(nInter,iter+1), Shift(nInter,iter),

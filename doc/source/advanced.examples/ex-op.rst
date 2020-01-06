@@ -18,7 +18,7 @@ To optimize a molecular geometry is probably one of the most frequent
 interests of a quantum chemist :cite:`Helgaker:92`. In the present section we examine
 some examples of obtaining stationary points on the energy surfaces.
 We will focus in this section in searching of minimal energy points,
-postponing the discussion on transition states to section :ref:`TUT:sec:path`.
+postponing the discussion on transition states to :numref:`TUT:sec:path`.
 This type of calculations require the computation of molecular gradients,
 whether using analytical or numerical derivatives. We will also examine
 how to obtain the full geometrical Hessian for a molecular state, what
@@ -27,7 +27,7 @@ approximation and thermodynamic properties by the use of the proper
 partition functions.
 
 The program :program:`ALASKA` computes analytical gradients for optimized wave
-functions. In |molcasversion| the SCF, DFT, and CASSCF/RASSCF levels of calculation are
+functions. In |molcas| the SCF, DFT, and CASSCF/RASSCF levels of calculation are
 available. The program :program:`ALASKA` also computes numerical gradients
 from CASPT2 and MS-CASPT2 energies. Provided with the first order derivative matrix with respect to the
 nuclei and an approximate guess of the Hessian matrix, the program
@@ -177,7 +177,7 @@ script.
 
 The generators used to define the
 |Ctv| symmetry are X and XY, plane :math:`yz` and axis :math:`z`. They
-differ from those used in other examples as in section :ref:`TUT:sec:nih`.
+differ from those used in other examples as in :numref:`TUT:sec:nih`.
 The only consequence is that the order of the symmetries in :program:`SEWARD`
 differs. In the present case the order is: |ao|, |at|, |bo|, and |bt|,
 and consequently the classification by symmetries of the orbitals
@@ -423,7 +423,7 @@ ensemble which can be found in any standard statistical mechanics book.
 The analysis is performed at different temperatures, for instance: ::
 
   *****************************************************
-  Temperature =   273.00 Kelvin, Pressure =   1.00 atm
+  Temperature =   273.00 kelvin, Pressure =   1.00 atm
   -----------------------------------------------------
   Molecular Partition Function and Molar Entropy:
                         q/V (M**-3)    S(kcal/mol*K)

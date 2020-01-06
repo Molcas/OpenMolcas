@@ -90,6 +90,8 @@
       If (.Not.lRel) Then
          Call mma_deallocate(MssVlc)
          Call mma_deallocate(Darwin)
+         Call mma_allocate(MssVlc,0,Label='MssVlc')
+         Call mma_allocate(Darwin,0,Label='Darwin')
       End If
 *
 *----------------------------------------------------------------------*

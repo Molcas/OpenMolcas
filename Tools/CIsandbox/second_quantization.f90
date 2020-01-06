@@ -24,7 +24,7 @@ MODULE SECOND_QUANTIZATION
 
   ! Steven Vancoillie, November 2013, Lund
 
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: INT64
   IMPLICIT NONE
   INTEGER, SAVE :: ONEBITS(0:255), RANKTBL(0:255,64)
 
@@ -142,10 +142,10 @@ CONTAINS
     END DO
   END SUBROUTINE RANK_INIT
 
-  INTEGER FUNCTION RANK(C)
+  INTEGER FUNCTION RANK_(C)
     INTEGER, INTENT(IN) :: C
     INTEGER :: BYTE(4), ONES(4)
-    RANK = 0
+    RANK_ = 0
     IF (C.EQ.-1) RETURN
     BYTE(1) = IBITS(C, 0,8)
     BYTE(2) = IBITS(C, 8,8)
@@ -154,11 +154,11 @@ CONTAINS
     ONES(1) = ONEBITS(BYTE(1))
     ONES(2) = ONEBITS(BYTE(2)) + ONES(1)
     ONES(3) = ONEBITS(BYTE(3)) + ONES(2)
-    RANK = 1 + RANKTBL(BYTE(1), 1)     &
-         & + RANKTBL(BYTE(2), 2+ONES(1)) &
-         & + RANKTBL(BYTE(3),11+ONES(2)) &
-         & + RANKTBL(BYTE(4),28+ONES(3))
-  END FUNCTION RANK
+    RANK_ = 1 + RANKTBL(BYTE(1), 1)     &
+          & + RANKTBL(BYTE(2), 2+ONES(1)) &
+          & + RANKTBL(BYTE(3),11+ONES(2)) &
+          & + RANKTBL(BYTE(4),28+ONES(3))
+  END FUNCTION RANK_
 
   INTEGER FUNCTION EX1(P,Q,C) RESULT(D)
     IMPLICIT NONE
@@ -203,8 +203,8 @@ CONTAINS
     T = IEOR(T,ISHFT(T,-16))
     T = IEOR(T,ISHFT(T,-8))
     T = IEOR(T,ISHFT(T,-4))
-    T = IAND(T,B'1111')
-    T = IAND(ISHFT(Z'6996',-T),1)
+    T = IAND(T,INT(B'1111'))
+    T = IAND(ISHFT(INT(Z'6996'),-T),1)
     D = IEOR(ISHFT(T,31),D)
   END FUNCTION ANN
 
@@ -223,8 +223,8 @@ CONTAINS
     T = IEOR(T,ISHFT(T,-16))
     T = IEOR(T,ISHFT(T,-8))
     T = IEOR(T,ISHFT(T,-4))
-    T = IAND(T,B'1111')
-    T = IAND(ISHFT(Z'6996',-T),1)
+    T = IAND(T,INT(B'1111'))
+    T = IAND(ISHFT(INT(Z'6996'),-T),1)
     D = IEOR(ISHFT(T,31),D)
   END FUNCTION CRE
 
@@ -253,8 +253,8 @@ CONTAINS
     T = IEOR(T,ISHFT(T,-16))
     T = IEOR(T,ISHFT(T,-8))
     T = IEOR(T,ISHFT(T,-4))
-    T = IAND(T,B'1111')
-    T = IAND(ISHFT(Z'6996',-T),1)
+    T = IAND(T,INT(B'1111'))
+    T = IAND(ISHFT(INT(Z'6996'),-T),1)
     D = IEOR(ISHFT(T,31),D)
   END FUNCTION ANN2
 
@@ -283,8 +283,8 @@ CONTAINS
     T = IEOR(T,ISHFT(T,-16))
     T = IEOR(T,ISHFT(T,-8))
     T = IEOR(T,ISHFT(T,-4))
-    T = IAND(T,B'1111')
-    T = IAND(ISHFT(Z'6996',-T),1)
+    T = IAND(T,INT(B'1111'))
+    T = IAND(ISHFT(INT(Z'6996'),-T),1)
     D = IEOR(ISHFT(T,31),D)
   END FUNCTION CRE2
 
@@ -292,7 +292,7 @@ CONTAINS
     ! test routine for evaluation the creation and annihilation operators
     INTEGER :: NEL, NORB
     INTEGER :: NDET, IDET, DET, TMP
-    INTEGER :: P, Q
+    INTEGER :: P
 
     ! test on 3in5
     NEL=3

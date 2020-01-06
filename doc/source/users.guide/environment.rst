@@ -129,7 +129,7 @@ The following is an example of a shell script. ::
 
 The file :file:`$ThisDir/$Project.input` contains the ordered sequence
 of |molcas| inputs and the EMIL interpreter will call the appropriate
-programs. See section :ref:`UG:sec:EMIL` for an explanation of the
+programs. See :numref:`UG:sec:EMIL` for an explanation of the
 additional tools available in the EMIL interpreter.
 
 The following is an example of a shell script to be submitted for batch
@@ -368,13 +368,13 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_FIM`
-  Activates the Files In Memory I/O layer. See section :ref:`MT:sec:fim` for more details.
+  Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
   *Note that this setting is available only in MOLCAS compiled without Global
   Arrays.*
 
   .. warning::
 
-     This feature is not available in OpenMolcas.
+     This feature is not available in |openmolcas|.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_FIM" APPEAR="FiM" KIND="CHOICE" LIST="----,YES" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_FIM <advanced>
@@ -623,13 +623,13 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_TRAP`
-  If MOLCAS_TRAP set to ``OFF`` |molcas| modules will continue to be executed,
+  If set to OFF |molcas| modules will continue to be executed,
   even if a non-zero return code was produced.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_TRAP" APPEAR="Trap on Error" KIND="CHOICE" LIST="----,OFF" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_TRAP <advanced>
               <HELP>
-              If MOLCAS_TRAP set to 'OFF' molcas modules will continue to be executed,
+              If set to OFF molcas modules will continue to be executed,
               even if a non-zero return code was produced.
               </HELP>
               </KEYWORD>
@@ -638,14 +638,15 @@ The complete list of |molcas|-related environment variables:
   If set to YES, the input for each module will be validated against the documented syntax,
   and the calculation will stop if it does not pass. If set to CHECK, the input will be
   validated, but the calculation will continue, although the program itself may stop.
+  If set to FIRST, the whole input file will be validated prior to the calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_VALIDATE" APPEAR="Validate input" KIND="CHOICE" LIST="----,YES,CHECK" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_VALIDATE" APPEAR="Validate input" KIND="CHOICE" LIST="----,YES,CHECK,FIRST" LEVEL="BASIC">
               %%Keyword: MOLCAS_VALIDATE <basic>
               <HELP>
               If set to YES, the input for each module will be validated against the documented syntax,
               and the calculation will stop if it does not pass. If set to CHECK, the input will be
               validated, but the calculation will continue, although the program itself may stop.
-              A parent directory for all scratch areas. It can be set to an
+              If set to FIRST, the whole input file will be validated prior to the calculation.
               </HELP>
               </KEYWORD>
 

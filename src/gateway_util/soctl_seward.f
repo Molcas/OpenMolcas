@@ -300,6 +300,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      LPC(2,iyy)=YCoor
                      LPC(3,iyy)=ZCoor
                      LPQ(iyy)=Charge(iCnttp)
+                     LPMM(iyy)=IsMM(iCnttp)
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                       //ChOper(iOper(iR))
                   End Do
@@ -501,6 +502,7 @@ C     Show=Show.and..Not.Primitive_Pass
                             LPC(3,iyy)=ZCoor
 *
                             LPQ(iyy)=Charge(iCnttp)
+                            LPMM(iyy)=IsMM(iCnttp)
                             LPA(iyy)=iAtmnr(iCnttp)
 *
                             LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'

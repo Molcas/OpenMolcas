@@ -796,9 +796,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                   F_IN=work(lFI : lFI + nTot1 - 1),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
-          call make_fcidumps(orbital_E, folded_Fock,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       core_energy=EMY)
+          call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
+     &      orbital_E, folded_Fock,
+     &      TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
           call mma_deallocate(orbital_E)
           call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
@@ -1823,6 +1823,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','ALLO','REAL',LW7,NAC*NAC)
          jDisk=IADR15(4)
          Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
          Do jRoot=2,lRoots
@@ -1844,6 +1845,9 @@ c Clean-close as much as you can the CASDFT stuff...
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
      &              [NAC,NAC,1], [0,0,idx-1])
+               If (iSpin.gt.1)
+     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
@@ -1851,6 +1855,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','FREE','REAL',LW7,NAC*NAC)
 #else
          Call WarningMessage(1,'HDF5 support disabled, '//
      &                         'TDM keyword ignored.')
@@ -1988,12 +1993,11 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
+      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      end if
-      if(DoNECI) then
-        CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-        call fciqmc_cleanup()
+      else if (DoNECI) then
+          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+          call fciqmc_cleanup()
       end if
 * We better deallocate before it is too late...
 c     if(DoNECI) then
@@ -2046,7 +2050,6 @@ c      End If
      &          .or. DoNECI .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
-
 
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue

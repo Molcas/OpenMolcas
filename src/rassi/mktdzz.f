@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ)
+      SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TDMAB(NTDMAB),TDMZZ(NTDMZZ)
       DIMENSION CMOA(NCMO),CMOB(NCMO)
@@ -18,6 +18,10 @@
 #include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
+      If (iRC.eq.0) Then
+         TDMZZ(:)=0.0D0
+         Return
+      End If
 C ISTCMO()=START INDEX FOR CMO ARRAY SYMMETRY BLOCKS.
       ISY12=MUL(LSYM1,LSYM2)
 C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.

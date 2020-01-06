@@ -168,13 +168,13 @@
          Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend1(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
-     &               Axis,Perp_Axis(1,1))
+         Call LBend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
+     &              Axis,Perp_Axis(1,1),.False.)
          Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend1(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
-     &               Axis,Perp_Axis(1,2))
+         Call LBend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
+     &              Axis,Perp_Axis(1,2),.True.)
          Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'BEND  ')Then
          Call Bend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)

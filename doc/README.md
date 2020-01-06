@@ -25,9 +25,3 @@ Configuration and auxiliary files to generate source code documentation with
 is included in the source files.
 
 To build the doxygen documentation just run `doxygen` inside this directory.
-
-`latexdoc`
-
-This is the Molcas documentation in LaTeX format. It is kept here for
-historical reasons, and in deference to [molcas.org](http://www.molcas.org). It
-is **not** the primary documentation for OpenMolcas.

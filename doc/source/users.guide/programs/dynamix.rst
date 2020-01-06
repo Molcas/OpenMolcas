@@ -131,7 +131,7 @@ General keywords
 :kword:`VELOcities`
   Specifies how the initial velocities are generated.
   This keyword is followed by an integer on the next line. The internal
-  unit of the velocities is [Bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
+  unit of the velocities is [bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
   .. container:: list
 
@@ -139,10 +139,10 @@ General keywords
 
     **1** --- The velocities are read from the file :file:`$Project.velocity.xyz`
     in :file:`$WorkDir`. This file contains velocities in the xyz format given in the same
-    order as the atoms in coordinate file. The unit of the velocities is [Bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
+    order as the atoms in coordinate file. The unit of the velocities is [bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
     **2** --- This option allows to read in mass-weighted velocities from the
-    file :file:`$Project.velocity.xyz` in [Bohr\ :math:`\cdot\sqrt{\text{a.m.u.}}\cdot`\(a.u. of time)\ :math:`^{-1}`].
+    file :file:`$Project.velocity.xyz` in [bohr\ :math:`\cdot\sqrt{\text{a.m.u.}}\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
     **3** --- This option takes random velocities from a Maxwell--Boltzmann distribution, at
     a given temperature, assuming that every component of the velocity can be considered as an independent gaussian random variable.
@@ -212,7 +212,7 @@ General keywords
   This keyword allows to restart a trajectory calculation from an HDF5 file.
   The name of the restart file is given on the next line.
 
-  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: H5REstart <advanced>
               <HELP>
               Restarts a trajectory calculation from an HDF5 file, whose name is given on the next line.

@@ -283,7 +283,7 @@ c
                 evenodd(k)=evenodd(k+1)
                 doperators(k)=doperators(k+1)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-CMR Does this work?? Was adopted from above
+CMR Does this work?? Was adapted from above
 C               Call copy_dkoperators_ic(k+1,iwork(term),k,operators)
                 Call copy_dkoperators(k+1,operators,k,operators)
 #else
@@ -292,7 +292,7 @@ C               Call copy_dkoperators_ic(k+1,iwork(term),k,operators)
  110          continue
               opcounter=opcounter-1
               ordercounter(i)=ordercounter(i)-1
-CMR Does this work?? Was adopted from above
+CMR Does this work?? Was adapted from above
               goto 2456
             End If
 c
@@ -502,7 +502,7 @@ c
                   xdoperators(k)=xdoperators(k+1)
                   xoperators(k)=xoperators(k+1)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-CMR Does this work?? Was adopted from above
+CMR Does this work?? Was adapted from above
                   Call copy_dkoperators(k+1,xoperators,k,xoperators)
 #else
                 xoperators(k)=xoperators(k+1)

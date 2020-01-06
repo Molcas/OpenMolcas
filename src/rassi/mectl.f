@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
+      use rassi_global_arrays, only: HDIAG
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -23,31 +24,7 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 *
-
-
       CALL QENTER(ROUTINE)
-
-* PAM Sep 2014: this section moved to within GTDMCTL loops
-*C Transition density matrices, TDMZZ, in AO basis.
-*C WDMZZ similar, but WE-reduced 'triplet' densities.
-*      CALL GETMEM('TDMZZ','Allo','Real',LTDMZZ,NTDMZZ)
-*      CALL GETMEM('TSDMZZ','Allo','Real',LTSDMZZ,NTDMZZ)
-*      CALL GETMEM('WDMZZ','Allo','Real',LWDMZZ,NTDMZZ)
-*C Double loop over the states
-*      DO ISTATE=1,NSTATE
-*        DO JSTATE=1,ISTATE
-*C IDTDM: TOC array for transition 1-matrices
-*          IDISK=IDTDM(ISTATE,JSTATE)
-*          CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
-*          CALL DDAFILE(LUTDM,2,WORK(LTSDMZZ),NTDMZZ,IDISK)
-*          CALL DDAFILE(LUTDM,2,WORK(LWDMZZ),NTDMZZ,IDISK)
-*          CALL PROPER (PROP,ISTATE,JSTATE,WORK(LTDMZZ),WORK(LWDMZZ))
-*        END DO
-*      END DO
-*      CALL GETMEM('TDMZZ','Free','Real',LTDMZZ,NTDMZZ)
-*      CALL GETMEM('TSDMZZ','Free','Real',LTSDMZZ,NTDMZZ)
-*      CALL GETMEM('WDMZZ','Free','Real',LWDMZZ,NTDMZZ)
-
 
 C Print results:
       NCOL=4
@@ -183,7 +160,7 @@ C Print results:
         DO ISTATE=1,NSTATE
           IF(.NOT.IFSHFT) ESHFT(ISTATE)=0.0D0
           IF(IFHDIA) ESHFT(ISTATE)=ESHFT(ISTATE)+
-     &              (Work(LHDIAG+ISTATE-1)-HAM(ISTATE,ISTATE))
+     &              (HDIAG(ISTATE)-HAM(ISTATE,ISTATE))
         END DO
         DO ISTATE=1,NSTATE
          DO JSTATE=1,NSTATE

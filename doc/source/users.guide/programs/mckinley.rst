@@ -88,7 +88,7 @@ Input files
 
 :program:`MCKINLEY` will use the following input
 files: :file:`RYSRW`, :file:`ABDATA`, :file:`RUNFILE`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............

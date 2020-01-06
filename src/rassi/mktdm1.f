@@ -11,10 +11,11 @@
       SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
      &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
-     &    lLROOT,job1,job2,ist,jst)
+     &    job1,job2,ist,jst)
 
       !> module dependencies
 #ifdef _DMRG_
+      use rassi_global_arrays, only: LROOT
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
@@ -23,10 +24,10 @@
 #endif
 
       IMPLICIT NONE
-      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2,lLROOT
+      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*)
       INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
-      INTEGER LSPD1,MS2OP,NASHT,NASORB,NSPD1
+      INTEGER MS2OP,NASHT,NASORB,NSPD1
       INTEGER, INTENT(IN) :: ISTATE, JSTATE,job1,job2,ist,jst
       REAL*8 DET1(*),DET2(*)
       REAL*8 SIJ,TDM1(NASHT,NASHT),TSDM1(NASHT,NASHT),WTDM1(NASHT,NASHT)
@@ -44,7 +45,9 @@
 #endif
 
 #include "symmul.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
+      Real*8, Allocatable:: SPD1(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the following quantities:
@@ -104,8 +107,8 @@ C Overlap:
             call dmrg_interface_ctl(
      &                            task   = 'overlap ',
      &                            energy = sij,
-     &                            state  = iWork(lLROOT+istate-1),
-     &                            stateL = iWork(lLROOT+jstate-1)
+     &                            state  = LROOT(istate),
+     &                            stateL = LROOT(jstate)
      &                           )
           end if
 
@@ -121,8 +124,8 @@ C Overlap:
 
 C General 1-particle transition density matrix:
       NSPD1=NASORB**2
-      CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
-      CALL DCOPY_(NSPD1,[0.0D0],0,WORK(LSPD1),1)
+      Call mma_allocate(SPD1,nSPD1,Label='SPD1')
+      SPD1(:)=0.0D0
       ISYOP = MUL(LSYM1,LSYM2)
       MS2OP = MSPROJ1-MSPROJ2
 
@@ -131,10 +134,10 @@ C General 1-particle transition density matrix:
         if(.not.doDMRG)then
 #endif
           !> spind constructs the 1-particle transition density matrix
-          !> output in WORK(LSPD1)
+          !> output in SPD1
           !> main input: DET1 and DET2
           CALL SPIND(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
-     &               IFSBTAB1,IFSBTAB2,DET1,DET2,WORK(LSPD1))
+     &               IFSBTAB1,IFSBTAB2,DET1,DET2,SPD1)
 
 #ifdef _DMRG_
         else
@@ -143,7 +146,7 @@ C General 1-particle transition density matrix:
           if (doMPSSICheckpoints) then
             call dmrg_interface_ctl(
      &                            task       = 'imp rdmY',
-     &                            x1         = work(lspd1),
+     &                            x1         = spd1,
      &                            ndim       = nasorb,
      &                            checkpoint1=
      &                            qcm_group_names(job1)%states(ist),
@@ -159,10 +162,10 @@ C General 1-particle transition density matrix:
           else
             call dmrg_interface_ctl(
      &                            task       = 'imp rdmY',
-     &                            x1         = work(lspd1),
+     &                            x1         = spd1,
      &                            ndim       = nasorb,
-     &                            state      = iWork(lLROOT+istate-1),
-     &                            stateL     = iWork(lLROOT+jstate-1),
+     &                            state      = LROOT(istate),
+     &                            stateL     = LROOT(jstate),
      &                            msproj     = msproj1,
      &                            msprojL    = msproj2,
      &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
@@ -178,7 +181,7 @@ C General 1-particle transition density matrix:
         if(debug_dmrg_rassi_code)then
           write(6,*) 'density for i, j',istate,jstate
           write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
-          call pretty_print_util(WORK(LSPD1),1,nasorb,1,nasorb,
+          call pretty_print_util(SPD1,1,nasorb,1,nasorb,
      &                           nasorb,nasorb,1,6)
         end if
 #endif
@@ -199,10 +202,10 @@ C   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
        ISORB=2*IORB-1
        DO JORB=1,NASHT
         JSORB=2*JORB-1
-        GAA=WORK(LSPD1-1+ISORB+NASORB*(JSORB-1))
-        GAB=WORK(LSPD1-1+ISORB+NASORB*(JSORB  ))
-        GBA=WORK(LSPD1  +ISORB+NASORB*(JSORB-1))
-        GBB=WORK(LSPD1  +ISORB+NASORB*(JSORB  ))
+        GAA=SPD1(0+ISORB+NASORB*(JSORB-1))
+        GAB=SPD1(0+ISORB+NASORB*(JSORB  ))
+        GBA=SPD1(1+ISORB+NASORB*(JSORB-1))
+        GBB=SPD1(1+ISORB+NASORB*(JSORB  ))
 
 C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
@@ -274,7 +277,6 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
-        call Unused_integer(lLROOT)
         call Unused_integer(job1)
         call Unused_integer(job2)
         call Unused_integer(ist)
@@ -282,7 +284,7 @@ c Avoid unused argument warnings
       END IF
 #endif
 
-      CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
+      CALL mma_deallocate(SPD1)
 
       RETURN
       END
