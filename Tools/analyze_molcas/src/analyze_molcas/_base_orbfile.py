@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Sequence, Tuple, TypeVar, Type, TextIO
 import re
 from os import PathLike

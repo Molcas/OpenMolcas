@@ -32,28 +32,36 @@
       ThrAcos=1.0D-6
       Do i = 1, 3
          Co = Co + (Cent(i,1)-Cent(i,2))*(Cent(i,3)-Cent(i,2))
-         Crap = Crap + ( (Cent(i,3)-Cent(i,2))
-     &                  +(Cent(i,1)-Cent(i,2)) )**2
          RR1=RR1+(Cent(i,1)-Cent(i,2))**2
          RR2=RR2+(Cent(i,3)-Cent(i,2))**2
       End Do
-      Co=Co/Sqrt(RR1*RR2)
-      Crap=Crap/Sqrt(RR1*RR2)
+      RR1=Sqrt(RR1)
+      RR2=Sqrt(RR2)
+      Co=Co/(RR1*RR2)
+      Do i = 1, 3
+         Crap = Crap + ( (Cent(i,3)-Cent(i,2))/RR2
+     &     -Sign(One,Co)*(Cent(i,1)-Cent(i,2))/RR1 )**2
+      End Do
+      Crap=Sqrt(Crap)
       If (iPrint.ge.99) Then
          Write (6,*) 'Co=',Co
-         Write (6,*) 'Crap,Sqrt(Crap)=',Crap,Sqrt(Crap)
+         Write (6,*) 'Crap=',Crap
       End If
-      If (Sqrt(Crap).lt.1.0D-6) Then
-         Fi=Pi-ArSin(Sqrt(Crap))
-         Si=Sqrt(Crap)
+      If (Crap.lt.1.0D-6) Then
+         Si=Crap
+         If (Co.lt.Zero) Then
+            Fi=Pi-ArSin(Si)
+         Else
+            Fi=ArSin(Si)
+         End If
       Else
-       if(Co.gt.One.and.Co.lt.One+ThrAcos) Co=One
-       if(Co.lt.-One.and.Co.gt.-One-ThrAcos) Co=-One
-       if(Co.gt.One+ThrAcos.or.Co.lt.-One-ThrAcos) then
-         Call WarningMessage(2,'Error in CoSys')
-         write(6,*) 'Error in cosys: arcos(',Co,')'
-         Call Abend
-       endif
+         If(Co.gt.One.and.Co.lt.One+ThrAcos) Co=One
+         If(Co.lt.-One.and.Co.gt.-One-ThrAcos) Co=-One
+         If(Co.gt.One+ThrAcos.or.Co.lt.-One-ThrAcos) then
+            Call WarningMessage(2,'Error in CoSys')
+            write(6,*) 'Error in cosys: arcos(',Co,')'
+            Call Abend
+         End If
          Fi=ArCos(Co)
          Si=Sqrt(One-Co**2)
       End If
@@ -62,7 +70,7 @@
          Write (6,*) 'Pi-Fi=',Pi-Fi
       End If
 *
-      Linear=Abs(Pi-Fi).lt.1.0D-13
+      Linear=Abs(Si).lt.1.0D-13
 *
 *---- Form reference axis
 *
@@ -71,8 +79,20 @@
          R(i)=Cent(i,3)-Cent(i,1)
          RR=RR+R(i)**2
       End Do
+      RR=Sqrt(RR)
+      If ((RR1.ge.RR2).and.(RR1.ge.RR)) Then
+        Do i = 1, 3
+           R(i)=Cent(i,1)-Cent(i,2)
+        End Do
+        RR=RR1
+      Else If (RR2.ge.RR) Then
+        Do i = 1, 3
+           R(i)=Cent(i,3)-Cent(i,2)
+        End Do
+        RR=RR2
+      End If
+      Call DScal_(3,One/RR,R,1)
 *
-      Call DScal_(3,One/Sqrt(RR),R,1)
       If (iPrint.ge.99) Then
          Write (6,*) 'Linear=',Linear
          Write (6,*) 'RR=',RR
@@ -148,20 +168,8 @@
 *        Form the cross product R12xR32
          RR=Zero
          Do i = 1, 3
-            If (i.eq.1) Then
-               j=2
-               k=3
-            Else If (i.eq.2) Then
-               j=3
-               k=1
-            Else
-               j=1
-               k=2
-            End If
-C           j=i+1
-C           If (j.gt.3) j=j-3
-C           k=j+1
-C           If (k.gt.3) k=k-3
+            j = Mod(i,3)+1
+            k = Mod(i+1,3)+1
             R21j=Cent(j,1)-Cent(j,2)
             R21k=Cent(k,1)-Cent(k,2)
             R23j=Cent(j,3)-Cent(j,2)
@@ -171,6 +179,7 @@ C           If (k.gt.3) k=k-3
          End Do
          If (RR.eq.Zero) Then
             Linear=.True.
+            If (iPrint.ge.99) Write (6,*) 'Linear=',Linear
             Go To 99
          End If
          Call DScal_(3,One/Sqrt(RR),xyz(1,2),1)
@@ -178,20 +187,8 @@ C           If (k.gt.3) k=k-3
 *
          RR=Zero
          Do i = 1, 3
-            If (i.eq.1) Then
-               j=2
-               k=3
-            Else If (i.eq.2) Then
-               j=3
-               k=1
-            Else
-               j=1
-               k=2
-            End If
-C           j=i+1
-C           If (j.gt.3) j=j-3
-C           k=j+1
-C           If (k.gt.3) k=k-3
+            j = Mod(i,3)+1
+            k = Mod(i+1,3)+1
             xyz(i,1) = xyz(j,2)*R(k)-xyz(k,2)*R(j)
             RR = RR + xyz(i,1)**2
          End Do
