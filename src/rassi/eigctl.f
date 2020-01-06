@@ -12,6 +12,9 @@
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
+#ifdef _HDF5_
+      USE Dens2HDF5
+#endif
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
       USE ISO_C_Binding
@@ -50,7 +53,7 @@
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:)
-      Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
+      Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -237,7 +240,7 @@ C 5. DIAGONALIZE HAMILTONIAN.
       END DO
 
       CALL Jacob (WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      CALL Jacord(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL SortDiag(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
@@ -310,30 +313,17 @@ C especially for already diagonal Hamiltonian matrix.
       CALL GETMEM('STACK','FREE','INTE',LSTK,NSTATE)
       CALL GETMEM('LIST','FREE','INTE',LLIST,NSTATE)
 
+#ifdef _HDF5_
+      call mh5_put_dset(wfn_sfs_energy, ENERGY)
+      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
+#endif
+
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
         Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
-#ifdef _HDF5_
-      call mh5_put_dset(wfn_sfs_energy, ENERGY)
-#endif
-C To handle extreme cases of large energies/small energy differences
-C all TOTAL energies will undergo a universal constant shift:
-      EMIN=1.0D12
-      DO ISTATE=1,NSTATE
-cvv NAG compiler overoptimize this!
-c       EMIN=MIN(EMIN,ENERGY(ISTATE))
-       if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
-      END DO
-      KAU= INT(EMIN/1000.0D0)
-      EVAC=1000.0D0*DBLE(KAU)
-c      EMIN=EVAC
-      DO ISTATE=1,NSTATE
-c        ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
-        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
-      END DO
 
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
@@ -351,7 +341,19 @@ C components of H and S in original RASSCF wave function basis:
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
-      Call Add_Info('E_RASSI',ENERGY+EMIN-EVAC,NSTATE,iTol)
+      Call Add_Info('E_RASSI',ENERGY,NSTATE,iTol)
+
+C To handle extreme cases of large energies/small energy differences
+C all TOTAL energies will undergo a universal constant shift:
+      EMIN=ENERGY(1)
+      DO ISTATE=2,NSTATE
+cvv NAG compiler overoptimize this!
+c       EMIN=MIN(EMIN,ENERGY(ISTATE))
+       if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
+      END DO
+      DO ISTATE=1,NSTATE
+        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
+      END DO
 
 C Experimental addition: Effective L and/or M quantum numbers.
 
@@ -397,28 +399,31 @@ C within the basis formed by the states.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Sort the states energywise
+*     Sort the states energywise
 *
-       Call mma_Allocate(IndexE,nState,Label='IndexE')
-       Do iState = 1, nState
-          IndexE(iState)=iState
-       End Do
-       Do iState = 1, nState-1
-          EX=ENERGY(IndexE(iState))
+      Call mma_Allocate(IndexE,nState,Label='IndexE')
+      Do iState = 1, nState
+         IndexE(iState)=iState
+      End Do
+      Do iState = 1, nState-1
+         EX=ENERGY(IndexE(iState))
 *
-          kState=iState
-          Do jState = iState+1, nState
-             If (ENERGY(IndexE(jState)).lt.EX) Then
-                kState=jState
-                EX=ENERGY(IndexE(jState))
-             End If
-          End Do
-          If (kState.ne.iState) Then
-             lState=IndexE(iState)
-             IndexE(iState)=IndexE(kState)
-             IndexE(kState)=lState
-          End If
-       End Do
+         kState=iState
+         Do jState = iState+1, nState
+            If (ENERGY(IndexE(jState)).lt.EX) Then
+               kState=jState
+               EX=ENERGY(IndexE(jState))
+            End If
+         End Do
+         If (kState.ne.iState) Then
+            lState=IndexE(iState)
+            IndexE(iState)=IndexE(kState)
+            IndexE(kState)=lState
+         End If
+      End Do
+#ifdef _HDF5_
+      If (IFTRD1.or.IFTRD2) Call UpdateIdx(IndexE, 0)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -442,22 +447,22 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)' SPIN-FREE ENERGIES:'
-       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
+       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EMIN (a.u.) =',EMIN,')'
        WRITE(6,*)
        IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      L_eff   Abs_M'
         ELSE
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      L_eff'
         END IF
        ELSE
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)      Abs_M'
         ELSE
-        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+        WRITE(6,*)'SF State       Relative EMIN(au)   Rel lowest'//
      &          ' level(eV)    D:o, cm**(-1)'
         END IF
        END IF
@@ -508,23 +513,25 @@ c LU: save esfs array
        CALL MMA_DEALLOCATE(ESFS)
 c
 
-      IF(IPGLOB.ge.VERBOSE) THEN
+      IF((IPGLOB.ge.VERBOSE).or.(.not.diagonal)) THEN
        WRITE(6,*)
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       DO L=1,NSTATE
-          I=IndexE(L)
-         Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
-     &         ' energy=',ENERGY(I)
-         WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
-       END DO
+       IF(IPGLOB.ge.VERBOSE) THEN
+        DO L=1,NSTATE
+           I=IndexE(L)
+          Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
+     &          ' energy=',ENERGY(I)+EMIN
+          WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
+        END DO
+       END IF
        CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
        DO L=1,NSTATE
           I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
-     &          ' energy=',ENERGY(I)
+     &          ' energy=',ENERGY(I)+EMIN
         EVMAX=0.0D0
         DO K=1,NSTATE
          EVMAX=MAX(EVMAX,ABS(EIGVEC(IndexE(K),I)))
@@ -539,17 +546,18 @@ c
            IWORK(LILST-1+NLST)=IndexE(K)
          END IF
         END DO
-         DO KSTA=1,NLST,6
-          KEND=MIN(NLST,KSTA+4)
-          WRITE(Line,'(5X,5(I5,F12.6))')
-     &     (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
-          CALL NORMAL(Line)
-          WRITE(6,*) Line
-         END DO
-         WRITE(6,*)
+        DO KSTA=1,NLST,6
+         KEND=MIN(NLST,KSTA+4)
+         WRITE(Line,'(5X,5(I5,F12.6))')
+     &    (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
+         CALL NORMAL(Line)
+         WRITE(6,*) Line
         END DO
-        CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
-        CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+        WRITE(6,*)
+       END DO
+       CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
+       CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+       IF(IPGLOB.ge.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
@@ -561,9 +569,10 @@ c
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
          WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
-     &         K=1,NSTATE)
+     &          K=1,NSTATE)
          WRITE(6,*)
-       END DO
+        END DO
+       END IF
       END IF
 
 C                                                                      C
@@ -3019,8 +3028,8 @@ C                 Why do it when we don't do the L.S-term!
 *                                                                      *
 ************************************************************************
 *
-
  900  CONTINUE
+
       if(debug_dmrg_rassi_code)then
         write(6,*) 'end of eigctl: BLUBB debug print of property matrix'
         do istate = 1, nstate

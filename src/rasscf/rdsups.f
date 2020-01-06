@@ -61,7 +61,7 @@
         is(i)=0
         ie(i)=0
       End Do
-*---  Devide the line into substrings  --------------------------------*
+*---  Divide the line into substrings  --------------------------------*
       m=1
       is(m)=0
       Do i=1,iLast

@@ -205,7 +205,7 @@ Input files
 
 :program:`SCF` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`INPORB`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -322,7 +322,7 @@ Below is a list of keywords that should cover the needs of most users.
   Example: `KSDFT=B3LYP`
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LEVEL="BASIC"
-                       LIST="----,BLYP,BPBE,B2PLYP,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP">
+              LIST="----,BLYP,BPBE,B2PLYP,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP">
               %%Keyword: KSDFT <basic>
               <HELP>
               Use this keyword to do density functional theory calculations
@@ -1191,8 +1191,8 @@ Advanced general keywords
   .. xmldoc:: %%Keyword: STAT <advanced>
               This keyword will add an addition print outs with statistic information
 
-For calculations of a molecule in a reaction field see section :ref:`UG:sec:rfield`
-of the present manual and section :ref:`TUT:sec:cavity` of the examples manual.
+For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
+of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
 .. include:: ../dft_functionals.inc
 

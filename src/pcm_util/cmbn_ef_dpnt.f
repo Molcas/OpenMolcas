@@ -40,6 +40,7 @@
       mdc=0
       iCen=1
       Do iCnttp=1,nCnttp
+         If (AuxCnttp(iCnttp)) Cycle
          Do iCnt=1,nCntr(iCnttp)
             mdc=mdc+1
             nDispS = IndDsp(mdc,iIrrep)

@@ -641,7 +641,8 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-cpp")
+set (FFLAGS_GNU_BASIC "")
+set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
@@ -730,7 +731,8 @@ set (CFLAGS_Intel_RELEASE "-O2")
 set (CFLAGS_Intel_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
-set (FFLAGS_Intel_BASIC "-fpp")
+set (FFLAGS_Intel_BASIC "")
+set (FFLAGS_Intel_PREPROCESS "-fpp")
 set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
@@ -783,7 +785,8 @@ set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "SunPro")
-set (FFLAGS_SunPro_BASIC "-fpp") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_BASIC "") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_PREPROCESS "-fpp")
 set (FFLAGS_SunPro_OPENMP "-xopenmp")
 set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
 # build targets
@@ -829,7 +832,8 @@ set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mpreprocess -Mbackslash")
+set (FFLAGS_PGI_BASIC "-Mbackslash")
+set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
 set (FFLAGS_PGI_OPENMP "-mp")
 set (FFLAGS_PGI_ILP64 "-i8")
 # build targets
@@ -851,7 +855,8 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-fpp -dusty -dcfuns -mismatch_all -w -kind=byte")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
+set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
@@ -1039,6 +1044,10 @@ else ()
                 )
 endif ()
 set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
+
+if (NOT CMAKE_GENERATOR STREQUAL "Ninja")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_PREPROCESS}")
+endif ()
 
 if (ADDRMODE EQUAL 64)
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_ILP64}")
@@ -2875,8 +2884,13 @@ if (TOOLS)
                 foreach (tool ${tools})
                         if (IS_DIRECTORY ${toolsdir}/${tool})
                                 if (EXISTS ${toolsdir}/${tool}/CMakeLists.txt)
+                                        set(dir_error "")
                                         add_subdirectory (${toolsdir}/${tool} ${PROJECT_BINARY_DIR}/Tools/${tool})
-                                        message ("-- ${tool}: added to targets")
+                                        if ("${dir_error}" STREQUAL "")
+                                                message ("-- ${tool}: added to targets")
+                                        else ()
+                                                message ("-- ${tool}: ${dir_error}")
+                                        endif ()
                                 else ()
                                         message ("-- ${tool}: ignored (no CMake support)")
                                 endif ()
@@ -3004,7 +3018,7 @@ endif ()
 if (EXISTS ${GIT})
         foreach (BASE_DIR ${basedirs})
                 execute_process (
-                        COMMAND "${OPENMOLCAS_DIR}/sbin/install_hooks.sh" "${BASE_DIR}"
+                        COMMAND ${OPENMOLCAS_DIR}/sbin/install_hooks.sh ${BASE_DIR}
                         WORKING_DIRECTORY ${BASE_DIR}
                         )
         endforeach ()
@@ -3085,7 +3099,7 @@ if (PYTHONINTERP_FOUND)
         mark_as_advanced(FORCE XMLLINT)
         if (XMLLINT)
                 execute_process (
-                        COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
+                        COMMAND ${XMLLINT} ${PROJECT_BINARY_DIR}/data/keyword.xml "-noout"
                         ERROR_VARIABLE XMLLINT_ERROR
                         RESULT_VARIABLE XMLLINT_RESULT
                         )
@@ -3186,7 +3200,7 @@ if (SPHINX_EXECUTABLE)
                 doc_html
                 # workaround for sphinx bug #5966
                 COMMAND touch ${PROJECT_SOURCE_DIR}/doc/source/index.rst
-                COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                COMMAND ${CMAKE_COMMAND} -E env OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )
         add_dependencies (doc_all doc_html)
@@ -3198,7 +3212,7 @@ if (SPHINX_EXECUTABLE)
 
                 add_custom_target (
                         doc_pdf
-                        COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                        COMMAND ${CMAKE_COMMAND} -E env OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                                 ${SPHINX_EXECUTABLE} -b latex ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/latex
                         COMMAND make -C ${SPHINX_BUILDDIR}/latex all-pdf
                         )
