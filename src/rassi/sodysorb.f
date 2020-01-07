@@ -180,7 +180,8 @@ C SO Dyson orbitals
       ! For all requested initial states J and all final states I
       DO JSTATE=1,DYSEXPSO
 
-         ! For each initial state JSTATE up to DYSEXPSFSO we will gather all the obtained Dysorbs
+         ! For each initial state JSTATE up to DYSEXPSFSO we will
+         ! gather all the obtained Dysorbs
          ! and export to a shared .molden file
          IFILE=1
          SODYSCIND=0 ! Orbital coeff. index
