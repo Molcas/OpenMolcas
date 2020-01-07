@@ -216,7 +216,8 @@ C SO Dyson orbitals
             ! Check change in ms projection
             MSPROJJ=WORK(MSPROJS+JEIG-1)
             MSPROJI=WORK(MSPROJS+IEIG-1)
-            IF(ABS(MSPROJJ-MSPROJI).NE.1) THEN ! Check |delta ms|=0.5 selection rule
+            ! Check |delta ms|=0.5 selection rule
+            IF(ABS(MSPROJJ-MSPROJI).NE.1) THEN
              CYCLE
             END IF
 
