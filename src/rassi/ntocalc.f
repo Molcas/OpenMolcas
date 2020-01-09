@@ -1,19 +1,15 @@
-<<<<<<< HEAD
-C       ***************************************************
-C                          Calculating NTO
-C       ****************************************************
-C        Reference: J. Chem. Phys., 2014, 141, 024106
-C
-C                                         -------Jie Bao 
-C                  in Depart. of Chemistry, University of Minnesota, USA
-C                                             2018/09/22
-C       A document is available to explain the code on Minnesota
-C       OpenMolcas Website:
-C       https://comp.chem.umn.edu/openmolcas
-
-
-      SUBROUTINE   NTOCalc(ISTATE,JSTATE,LTRAD,LTRASD,ISpin)
-=======
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Jie J. Bao                                       *
+************************************************************************
 !       ***************************************************
 !                          Calculating NTO
 !       ****************************************************
@@ -38,14 +34,13 @@ C       https://comp.chem.umn.edu/openmolcas
 !
 !        However, the sets of particle and hole orbitals are switched
 !        when I examined the results. So I put the data stored in LONTO
-!        as the particle NTO. (Probably the transition density matrix is
-!        stored in the order as its transpose.)
+!        as the particle NTO. (Because JOB1 is for the second JobIph
+!        file in the input and JOB2 is for the first.)
 !
 !                                         -------Jie Bao 
 !                  in Depart. of Chemistry, University of Minnesota, USA
 !                                             2018/08/09
       SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
 C Include every head file included in the higher level code, namely
 C gtdmctl.f
 #include "rasdim.fh"
@@ -58,12 +53,8 @@ C gtdmctl.f
 #include "Struct.fh"
 #include "rassiwfn.fh"
 
-<<<<<<< HEAD
-      Integer LTRAD, LTRASD,ISpin
-=======
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       Character,DIMENSION(2) :: Spin
       INTEGER Iprint,Jprint,I,J,isym                        ! Printing or looping contral
       INTEGER IUseSym,NUseSym,NSupBas,icactorb              ! CMO Symmetry Contral
@@ -75,21 +66,13 @@ C gtdmctl.f
       !IOrb is the index  of orbitals.
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
-<<<<<<< HEAD
-      INTEGER LTDM,LTDMT,LScrq,NScrq
-=======
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       DIMENSION WGRONK(2)
 
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
-<<<<<<< HEAD
-      Double Precision Zero,Two,SumEigVal
-=======
       Double Precision Zero,Two,PrintThres
       Real*8 SumEigVal
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
 
 C      DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
@@ -98,15 +81,9 @@ C     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
       !OrbSym() is the index of symmetry/irrep  for IOrb
-<<<<<<< HEAD
-      CHARACTER (len=14) FILENAME
-      CHARACTER (len=8)  NTOType
-      CHARACTER (len=2)  STATENAME
-=======
       CHARACTER (len=17) FILENAME
       CHARACTER (len=8)  NTOType
       CHARACTER (len=5)  STATENAME,StateNameTmp
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       Character*3 lIrrep(8)
       Logical DOTEST
 
@@ -114,15 +91,12 @@ C     This is to convert active MO sets in any symmetry into a C1 symmetry
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0
-<<<<<<< HEAD
-=======
       PrintThres=1.0D-5
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
       CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
       CALL RDCMO_RASSI(JOB2,WORK(LCMO2))
 
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       if(dotest)then
 C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
 C       write(6,*) 'Transition density matrix '
@@ -237,14 +211,10 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
       End If 
 C     end of building up the super-CMO matrix
 C     Start and initialize spaces
-<<<<<<< HEAD
-      write (STATENAME,'(I0)') ISTATE
-=======
       write(StateName,'(I3)') ISTATE
       write(StateNameTmp,'(I3,a1,a)')
      & JSTATE,'_',trim(adjustl(STATENAME))
       write (STATENAME,'(a)') trim(adjustl(StateNameTmp)) 
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       NDge=NASHT**2
       CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
       CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)
@@ -284,19 +254,11 @@ C     Start and initialize spaces
       If (Spin(I_NTO).eq.'a') Then
 C       WORK(LTDM-1+I)=WORK(LTRAD-1+I)
       Do I=1,Ndge
-<<<<<<< HEAD
-       WORK(LTDM-1+I)=(WORK(LTRAD-1+I)+WORK(LTRASD-1+I))/Two
-      End DO
-      else
-      Do I=1,Ndge
-       WORK(LTDM-1+I)=(WORK(LTRAD-1+I)-WORK(LTRASD-1+I))/Two
-=======
        WORK(LTDM-1+I)=(TRAD(I)+TRASD(I))/Two
       End DO
       else
       Do I=1,Ndge
        WORK(LTDM-1+I)=(TRAD(I)-TRASD(I))/Two
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       End DO
       End IF
       DO I=1,NASHT
@@ -311,22 +273,14 @@ C     Print out transition density matrix
       open (unit=233,file=FILENAME)
       DO I=1,NASHT
         write (233,'(5(2X,E10.4E2))')
-<<<<<<< HEAD
-     &    (WORK(LTRAD-1+NASHT*(I-1)+J),J=1,NASHT)
-=======
      &    (TRAD(NASHT*(I-1)+J),J=1,NASHT)
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       END DO
       write (233,*)
       write (233,*)
       write (233,*)
       DO I=1,NASHT
         write (233,'(5(2X,E10.4E2))')
-<<<<<<< HEAD
-     &    (WORK(LTRASD-1+NASHT*(I-1)+J),J=1,NASHT)
-=======
      &    (TRASD(NASHT*(I-1)+J),J=1,NASHT)
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
       END DO
       close (233)
       End If
@@ -451,13 +405,7 @@ C     Putting particle-hole pairs in the output
      &'SYMMETRY INDEX','SYMMETRY INDEX'
       WRITE(6,'(6X,100A1)') ('-',i=1,100)
       Do IOrb=NASHT,1,-1
-<<<<<<< HEAD
-       IF(WORK(LNTOUeig-1+IOrb).lt.Zero) THEN
-        WORK(LNTOUeig-1+IOrb)=Zero
-       End IF
-=======
        IF(WORK(LNTOUeig-1+IOrb).lt.PrintThres)  EXIT
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
      & SQRT(WORK(LNTOUeig-1+IOrb)),WORK(LNTOUeig-1+IOrb),
      &WORK(LNTOUeig-1+IOrb)/SumEigVal*1.0D2,
@@ -490,11 +438,8 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('Veig','Free','Real',LNTOVeig,NDge)
       CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
       CALL GETMEM ('TDMT','Free','Real',LTDMT,NDge)
-<<<<<<< HEAD
-=======
       CALL GETMEM('GTDMCMO1','Free','REAL',LCMO1,NCMO)
       CALL GETMEM('GTDMCMO2','Free','REAL',LCMO2,NCMO)
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
 
       CALL GETMEM ('SupCMO1','Free','Real',LSUPCMO1,NSUPCMO)
       CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
@@ -522,16 +467,10 @@ C     input variables
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
-<<<<<<< HEAD
-      CHARACTER (len=2)  STATENAME
-=======
       CHARACTER (len=5)  STATENAME
       CHARACTER (len=17) FILENAME
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
-
 C     Loop control
-      INTEGER I, J, ICount, JCount
-
+      INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
       INTEGER INTO,IUseSym,NNTO,ISym,IOrb
       REAL*8,DIMENSION(NUseSym) :: SquareSum               
@@ -541,53 +480,47 @@ C     SquareSum=Sum over square of coefficients for certain symmetry
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
-<<<<<<< HEAD
-      REAL*8 Threshold,Zero,SumEigVal                      
-=======
       REAL*8 Threshold,Zero,SumEigVal
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
       COMMON SumEigVal
-
-
+      INTEGER NPCMO,IPCMO
+      Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control      
 C     
       INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
-<<<<<<< HEAD
-      CHARACTER (len=14) FILENAME
-=======
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
-
+      INTEGER LU
+      Real*8,DIMENSION(2) :: vDum
+      INTEGER,DIMENSION(7,8) :: v2Dum
+      CHARACTER(len=72)Note
       Logical DoTest
-
+      
 
       DoTest=.false.
       Threshold=0.0D-10
       Zero=0.0D0
-c      Do IUseSym=1, NUseSym
-c       write (6,'(2I5)') IUseSym,NUseBF(IUseSym)
-c      End Do
 
       Do IUseSym=1,NUseSym
        NOrbinSym(IUseSym)=0
       End DO
 
+      NPCMO=0
+      Do ISym=1,NSym
+       NPCMO=NPCMO+NBASF(ISym)**2
+      End Do
+      allocate(PCMO(NPCMO))
+
 
       Do INTO=1,NASHT
-C       write(6,*) 'INTO=',INTO
        iPrintSym=0
        Do IUseSym=1,NUseSym
-C       write(6,*) 'IUseSym',IUseSym
         SquareSum(IUseSym)=Zero
         Do ICount=1,NUseBF(IUseSym)
-C       write(6,*) 'ICount',ICount
          I=INTO
          J=ICount+NUsedBF(IUseSym)
          SquareSum(IUseSym)=SquareSum(IUseSym)
      &   +WORK(LNTO+I-1+(J-1)*NASHT)**2
-C         write(6,*)'square sum=',SquareSum(IUseSym) 
         End DO
         If (SquareSum(IUseSym).gt.Threshold) THEN
          If (iPrintSym.eq.0) Then
@@ -596,19 +529,13 @@ C         write(6,*)'square sum=',SquareSum(IUseSym)
           write(6,'(a,a)')'There are at least two symmetries that have',
      &    ' a sum of coefficient**2 larger than the threshold'
        write(6,'(5A10)')'Threshold','Sum1','Sum2','Sym1','Sym2'
-<<<<<<< HEAD
-       write(6,'(3E10.6E2,2I10)')Threshold,SquareSum(iPrintSym),IUseSym,
-     &    SquareSum(iPrintSym),SquareSum(IUseSym)
-=======
        write(6,'(3E10.6E2,2I10)')Threshold,SquareSum(iPrintSym),
      & SquareSum(IUseSym),iPrintSym,IUseSym
->>>>>>> 792ce78c1f8233ac63d8c826a6f08ba0ec56cd7e
           If (SquareSum(iPrintSym).lt.SquareSum(IUseSym)) THEN
            iPrintSym=IUseSym
           End If
          End IF
         End If
-C        write (6,*) 'printsym=',printsym
        End Do
        If(iPrintsym.eq.0) Then
         write(6,'(a,I2,a,a,a)') 'the symmetry of orbital ',INTO, 
@@ -622,23 +549,10 @@ C        write (6,*) 'printsym=',printsym
       WORK(LInd-1+INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
       End Do
 
-
-      WRITE(FILENAME,'(a,a,a,a)') 
-     & trim(adjustl(STATENAME)),Spin,'.',NTOType
-      OPEN  (unit=233,file=FILENAME)
-
 C     generating file in a similar way to other orbital files
-      write(233,'(a)') '#INPORB 2.2'
-      write(233,'(a)') '#INFO'
-      write(233,'(a)') '*  Natural Transition Orbitals'
-      write(233,'(3i8)') 0,NSYM,0
-      write(233,'(8i8)') (NBASF(I),I=1,NSYM)
-      write(233,'(8i8)') (NBASF(I),I=1,NSYM)
-
-
       IOrb=0
+      IPCMO=0
       SumEigVal=Zero
-      write(233,'(a)') '#ORB'
       Do ISym=1,NSym
        IUseSym=RealtoUse(ISym)
        If(IUseSym.ne.0) Then
@@ -648,11 +562,13 @@ C       write inactive part
        Do OrbNum=1,NISH(ISym)  
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
-        write(233,'(A,2I5)') '* ORBITAL',ISym,OrbNum
-        Do I=1,NBASF(ISym),5
-        write(233,'(5E22.14E2)') (Zero,J=1,MIN(5,NBASF(ISym)+1-I)) 
-        END DO
        END DO
+C Recording Printed NTO (PCMO)
+       Do I=1,NISH(ISym)*NBASF(ISYM)
+        IPCMO=IPCMO+1
+        PCMO(IPCMO)=Zero
+       End Do
+C Recording Printed NTO (PCMO)
 C       write active part
        Do IOrbinSym=1,NNTO
         OrbNum=IOrbinSym+NISH(ISym)
@@ -660,59 +576,53 @@ C       write active part
         I=OrbSymIndex(IUseSym,IOrbinSym)
         EigValArray(IOrb)=WORK(LEigVal-1+I)
         SumEigVal=SumEigVal+WORK(LEigVal-1+I)
-        write(233,'(A,2I5)') '* ORBITAL',ISym,OrbNum
-        Do ICount=1,NUseBF(IUseSym),5
+C Recording Printed NTO (PCMO)
+        Do ICount=1,NUseBF(IUSeSym)
+         IPCMO=IPCMO+1
          J=ICount+NUsedBF(IUseSym)
-         write(233,'(5E22.14E2)')(WORK(LNTO+I-1+(JCount-1)*NASHT),
-     &   JCount=J,MIN(J+4,NUseBF(IUseSym)+NUsedBF(IUseSym)))
-        End DO
+         PCMO(IPCMO)=WORK(LNTO+I-1+(J-1)*NASHT)
+        End Do
+C Recording Printed NTO (PCMO)
        End Do
 C       write virtual part
        Do OrBNum=NISH(ISym)+NASH(ISym)+1,NBASF(ISym)
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
-        write(233,'(A,2I5)') '* ORBITAL',ISym,OrbNum
-        Do I=1,NBASF(ISym),5
-        write(233,'(5E22.14E2)') (Zero,J=1,MIN(5,NBASF(ISym)+1-I)) 
-        END DO
        END DO
+C Recording Printed NTO (PCMO)
+       Do I=1,NSSH(ISym)*NBASF(ISYM)
+        IPCMO=IPCMO+1
+        PCMO(IPCMO)=Zero
+       End Do
+C Recording Printed NTO (PCMO)
        Else
 C      If there is no active orbitals in this symmetry       
        Do OrbNum=1,NBASF(ISym)  
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
-        write(233,'(A,2I5)') '* ORBITAL',ISym,OrbNum
-        Do I=1,NBASF(ISym),5
-        write(233,'(5E22.14E2)') (Zero,J=1,MIN(5,NBASF(ISym)+1-I)) 
-        END DO
        END DO
+C Recording Printed NTO (PCMO)
+       Do I=1,NBASF(ISYM)**2
+        IPCMO=IPCMO+1
+        PCMO(IPCMO)=Zero
+       End Do
+C Recording Printed NTO (PCMO)
        End If
       End Do
-      
-      write(233,'(a)') '#OCC'
-      write(233,'(a)') '* EXCITATION CONTRIBUTION'
-      IOrb=0
-      DO ISym=1,NSym
-       Do I=IOrb+1,IOrb+NBASF(ISym),5
-      write(233,'(5E22.14E2)')
-     & (EigValArray(I+J)/SumEigVal,J=0,MIN(4,NBASF(ISym)+IOrb-I))
-       End Do
-       IOrb=IOrb+NBASF(ISym)
+
+
+      Do I=1,NBST
+       EigValArray(I)=EigValArray(I)/SumEigVal
       End Do
 
-      write(233,'(a)') '#OCHR'
-      write(233,'(a,a)') '* EXCITATION CONTRIBUTION'
-     &, '(HUMAN-READABLE)'
-      IOrb=0
-      DO ISym=1,NSym
-       Do I=IOrb+1,IOrb+NBASF(ISym),10
-      write(233,'(10F8.4)')
-     &(EigValArray(I+J)/SumEigVal,J=0,MIN(9,NBASF(ISym)+IOrb-I))
-       End Do
-       IOrb=IOrb+NBASF(ISym)
-      End Do
-      CLOSE (233)
+      LU=50
+      Note='*  Natural Transition Orbitals'
+      WRITE(FILENAME,'(a,a,a,a)') 
+     & trim(adjustl(STATENAME)),Spin,'.',NTOType
+      CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
+     & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
 
+      deallocate(PCMO) 
       RETURN
       END
 
