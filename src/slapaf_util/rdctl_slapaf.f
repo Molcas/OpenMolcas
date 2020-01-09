@@ -1360,8 +1360,10 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *     to work we need the values of the internal coordinates for more
 *     points than the window size. Here we increase it with a factor of
 *     2 temporarily. The sorted list will still be of the orginal size.
+*     However, the default window for kriging is twice as large as
+*     for conventional calculations.
 *
-      If (Kriging) nWndw=2*nWndw
+      If (Kriging) nWndw=4*nWndw  ! 2*2=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
