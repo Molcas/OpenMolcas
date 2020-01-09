@@ -212,7 +212,7 @@
       ! edmom
       Call ddafile(luaniso,1, edmom,3*nstate*nstate,idisk)
       ! amfi
-      Call ddafile(luaniso,1, edmom,3*nstate*nstate,idisk)
+      Call ddafile(luaniso,1,  amfi,3*nstate*nstate,idisk)
 
       ! magnetic moment:
       Do l=1,3
