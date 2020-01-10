@@ -232,7 +232,7 @@
            FMIN=FDIAG(NO1+MIN)
            FDIAG(NO1+MIN)=FDIAG(NO1+NT)
            FDIAG(NO1+NT)=FMIN
-           CALL DSWAP_(NAO,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(MIN-1)),1)
+           CALL DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(MIN-1)),1)
 41         CONTINUE
           END DO
          ENDIF
@@ -301,12 +301,13 @@
            FMIN=FDIAG(NO1+MIN)
            FDIAG(NO1+MIN)=FDIAG(NO1+NT)
            FDIAG(NO1+NT)=FMIN
-           CALL DSWAP_(NAO,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(MIN-1)),1)
+           CALL DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(MIN-1)),1)
 42         CONTINUE
           END DO
          ENDIF
-         CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
-     *               VEC,NR2,'N',CMOX(1+NOT*NIO+NIO),NOT,NR2,NR2)
+         CALL DGEADD(CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,'N',
+     *               VEC,NR2,'N',
+     *               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
@@ -367,12 +368,13 @@
            FMIN=FDIAG(NO1+MIN)
            FDIAG(NO1+MIN)=FDIAG(NO1+NT)
            FDIAG(NO1+NT)=FMIN
-           CALL DSWAP_(NAO,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(MIN-1)),1)
+           CALL DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(MIN-1)),1)
 43         CONTINUE
           END DO
          ENDIF
-         CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
-     *               VEC,NR3,'N',CMOX(1+NOT*NIO+NIO),NOT,NR3,NR3)
+         CALL DGEADD(CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,'N',
+     *               VEC,NR3,'N',
+     *               CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
