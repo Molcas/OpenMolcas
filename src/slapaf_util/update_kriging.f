@@ -44,7 +44,8 @@
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
-     &        FindTS, TSC, HrmFrq_Show, Curvilinear, Print_it
+     &        FindTS, TSC, HrmFrq_Show, Curvilinear
+*    &        FindTS, TSC, HrmFrq_Show, Curvilinear, Print_it
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
@@ -183,8 +184,8 @@
 *     Pick up the coordinates in descending order starting with the ones
 *     that are the closest to the current structure.
 *
-      Print_it=.False.
- 666  Continue
+*     Print_it=.False.
+*666  Continue
       iSt=Max(1,iter-nWndw+1)
       Thr_low = Zero
       Thr_high= 1.0D99
@@ -236,26 +237,26 @@
                kter=jter
                Thr_high=Distance
             End If
-            If (Print_it) Then
-               Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
-               Write (6,*) 'Thr_high=',Thr_high
-            End If
+*           If (Print_it) Then
+*              Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
+*              Write (6,*) 'Thr_high=',Thr_high
+*           End If
          End Do
          If (kter.eq.-1) Then
             Write (6,*) 'kter not set!'
-            If (Print_it) Then
+*           If (Print_it) Then
                Call Abend()
-            Else
-               Print_it=.True.
-               Go To 666
-            End if
+*           Else
+*              Print_it=.True.
+*              Go To 666
+*           End if
          Else
 *           Write (6,*) 'Use iteration: kter=',kter
             Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
             Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
             Energy_s(iRaw)=Energy(kter)
             Thr_low=Thr_high
-            Thr_high= 99.0D0
+            Thr_high= 1.0D99
          End If
       End Do
 #ifdef _DEBUG_
