@@ -1246,6 +1246,15 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NTOCalc`
+  Enables natural transition orbital (NTO) calculation of two states. The NTO files are printed out as :file:`.PartNTO` and :file:`.HoleNTO`, which have the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
+              %%Keyword: NTOC <advanced>
+              <HELP>
+              Enables natural transition orbital calculation. See http://hdl.handle.net/11299/210242 for a detailed explanation of the outputs.
+              </HELP>
+              </KEYWORD>
 Input example
 .............
 
