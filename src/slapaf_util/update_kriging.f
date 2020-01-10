@@ -22,7 +22,7 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,ThrEne,ThrGrd,iRow)
+     &                     Degen,ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
