@@ -49,7 +49,7 @@
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
-      LOGICAL IFTWO,TRORB,DoNTO
+      LOGICAL IFTWO,TRORB
       CHARACTER*8 WFTP1,WFTP2
       CHARACTER*6 STLNE1
       CHARACTER*48 STLNE2
@@ -818,18 +818,6 @@ C Calculate Natural Transition Orbital (NTO):
         End If
 C End of Calculating NTO
 
-C Calculate Natural Transition Orbital (NTO):
-        IF (IFNTO) THEN
-         IF (job1.ne.job2) THEN
-           DoNTO=.true.
-         Else
-           DoNTO=.false.
-         End If
-         IF (DoNTO) Then
-          Call NTOCalc(ISTATE,JSTATE,LTRAD,LTRASD,MPLET1)
-         End If
-        End If 
-C End of Calculating NTO
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,TRAD,1,FMO,1)
