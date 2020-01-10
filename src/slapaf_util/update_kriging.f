@@ -225,12 +225,12 @@
             End If
 #endif
             Distance = sqrt(Distance)
-            If (Print_it) Then
-               Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
-               Write (6,*) 'Distance=',Distance
-               Write (6,*) 'Thr_low=',Thr_low
-               Write (6,*) 'Thr_high=',Thr_high
-            End If
+*           If (Print_it) Then
+*              Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
+*              Write (6,*) 'Distance=',Distance
+*              Write (6,*) 'Thr_low=',Thr_low
+*              Write (6,*) 'Thr_high=',Thr_high
+*           End If
 *
             If (Distance.gt.Thr_low .and.
      &          Distance.lt.Thr_high) Then
