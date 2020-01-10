@@ -212,7 +212,7 @@ General keywords
   This keyword allows to restart a trajectory calculation from an HDF5 file.
   The name of the restart file is given on the next line.
 
-  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: H5REstart <advanced>
               <HELP>
               Restarts a trajectory calculation from an HDF5 file, whose name is given on the next line.
