@@ -244,7 +244,7 @@
      &               nWndw,Mode,ipMF,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
+     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
       Else
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
