@@ -31,6 +31,7 @@
       logical ::
      &  DoEmbdNECI = .false.,
      &  DoNECI = .false.
+#include "WrkSpc.fh"
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -262,7 +263,7 @@
             if (myrank /= 0) call chdir_('..')
             call necimain(
      &        real_path(ascii_fcidmp), real_path(input_name),
-     &                  get_memory(), NECIen)
+     &                  MxMem, NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
@@ -362,14 +363,6 @@
         integer :: L
         call prgmtranslate_master(molcas_name, buffer, L)
         path = buffer(:L)
-      end function
-
-      function get_memory() result(res)
-        integer :: res
-        character(len=255) :: memory_char
-
-        call get_environment_variable("MOLCAS_MEM", memory_char)
-        read(memory_char, *) res
       end function
 
       subroutine write_ExNECI_message(
