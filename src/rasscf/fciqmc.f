@@ -105,8 +105,8 @@
       logical, intent(in), optional :: fake_run
       logical :: fake_run_
       real*8, save :: NECIen
-      integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot,
-     &    permutation(sum(nAsh(:nSym)))
+      integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
+      integer, allocatable :: permutation(:)
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 
       parameter(ROUTINE = 'FCIQMC_clt')
@@ -157,39 +157,28 @@
       end if
 
 ! SOME DIRTY SETUPS
-! TODO(Giovanni): No dirty setups
       S = 0.5d0 * dble(iSpin - 1)
 
       call check_options(lRoots, lRf, KSDFT, iDoGAS, iGSOCCX, nGAS)
 
 ! Produce a working FCIDUMP file
-! TODO: permutation has to be applied at more places
-      select case (ReOrFlag)
-        case (2:)
-          permutation(:) = get_P_inp(ReOrInp)
-        case (-1)
-          permutation(:) = get_P_GAS(nGSSH)
-      end select
+      if (ReOrFlag /= 0) then
+        allocate(permutation(sum(nAsh(:nSym))))
+        if (ReOrFlag >= 2) permutation(:) = get_P_inp(ReOrInp)
+        if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
+      end if
 
 ! This call is not side effect free, sets EMY and modifies F_IN
       call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
      &      F_IN, orbital_E, folded_Fock)
 
-      if (ReOrFlag /= 0) then
-        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
-     &      orbital_E, folded_Fock, TUVX, EMY, permutation)
-      else
-        call make_fcidumps(ascii_fcidmp, h5_fcidmp,
-     &      orbital_E, folded_Fock, TUVX, EMY)
-      end if
+! Fortran Standard 2008 12.5.2.12:
+! Allocatable actual arguments that are passed to
+! non-allocatable, optional dummy arguments are **not** present.
+      call make_fcidumps(ascii_fcidmp, h5_fcidmp,
+     &                   orbital_E, folded_Fock, TUVX, EMY, permutation)
 
-      if (iDoGAS) then
-        if (ReOrFlag /= 0) then
-          call write_GASORB(nGSSH, permutation)
-        else
-          call write_GASORB(nGSSH)
-        end if
-      end if
+      if (iDoGAS) call write_GASORB(nGSSH, permutation)
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
