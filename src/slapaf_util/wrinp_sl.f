@@ -75,7 +75,7 @@
        Write (Lu,*) '  GEK starts at iteration:                   ',
      &               nspAI
        Write (Lu,*) '  Max number of data sets used in GEK:       ',
-     &               nWndw
+     &               nWndw/2
 *      Write (Lu,*) '  Analytical Matern derivatives:             ',anMd
 *      Write (Lu,*) '  Width of Matern: 0.1:6 # of steps:         ',lb
 *      Write (Lu,*) '  Resolution of the predicted path:          ',
