@@ -56,7 +56,7 @@
       use qcmaquis_interface_environment, only:
      &    finalize_dmrg, dump_dmrg_info
 #endif
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
       use generic_CI, only: decide_on_CI_solver,
      &      CI_init_t, CI_solver_t, CI_cleanup_t

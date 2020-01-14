@@ -20,8 +20,7 @@
 #endif
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
       use fortran_strings, only : str
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use WrkSpc_mod, only: mxMem
+      use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
       use rasscf_data, only : lRoots, nRoots, iRoot
       use general_data, only : nSym, nConf
