@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine read_formatted_aniso( input_file_name, nss, nstate,
      &                                multiplicity, eso, esfs,
-     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM )
+     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
+     &                                AMFI, HSO )
       Implicit None
 #include "stdalloc.fh"
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
@@ -19,12 +20,14 @@
       Real(kind=wp), intent(out)    :: eso(nss), esfs(nstate)
       Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
       Real(kind=wp), intent(out)    :: angmom(3,nstate,nstate)
+      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
       Complex(kind=wp), intent(out) :: MM(3,nss,nss)
       Complex(kind=wp), intent(out) :: MS(3,nss,nss)
       Complex(kind=wp), intent(out) :: ML(3,nss,nss)
 !     electric dipole moment
       Complex(kind=wp), intent(out) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: U(nss,nss)
+      Complex(kind=wp), intent(out) ::   U(nss,nss)
+      Complex(kind=wp), intent(out) :: HSO(nss,nss)
       Character(180)                :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
@@ -153,6 +156,26 @@ c compatibility with the present version: of aniso_i.input file
       Do l=1,3
         Do j1=1,nstate
           Read(LuAniso,'(5ES24.14)') (edmom(l,j1,j2),j2=1,nstate)
+        End Do
+      End Do
+
+      ! amfi
+      Do l=1,3
+        Do j1=1,nstate
+          Read(LuAniso,'(5ES24.14)') (amfi(l,j1,j2),j2=1,nstate)
+        End Do
+      End Do
+
+      ! HSO matrix
+      tmpR=0.0_wp
+      tmpI=0.0_wp
+      Do j1=1,nss
+        read(LuAniso,*) ( tmpR(j1,j2), tmpI(j1,j2), j2=1,nss )
+      End Do
+
+      Do j1=1,nss
+        Do j2=1,nss
+          HSO(j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
         End Do
       End Do
 
@@ -374,7 +397,7 @@ c      End If
 
       Subroutine write_formatted_aniso( nss, nstate, multiplicity, eso,
      &                                  esfs, U, MM, MS, DM, angmom,
-     &                                  edmom )
+     &                                  edmom, amfi, HSO )
 
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
@@ -382,10 +405,12 @@ c      End If
       Real(kind=wp), intent(in)    :: eso(nss), esfs(nstate)
       Real(kind=wp), intent(in)    :: angmom(3,nstate,nstate)
       Real(kind=wp), intent(in)    ::  edmom(3,nstate,nstate)
+      Real(kind=wp), intent(in)    ::   amfi(3,nstate,nstate)
       Complex(kind=wp), intent(in) :: MM(3,nss,nss)
       Complex(kind=wp), intent(in) :: MS(3,nss,nss)
       Complex(kind=wp), intent(in) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(in) :: U(nss,nss)
+      Complex(kind=wp), intent(in) ::    U(nss,nss)
+      Complex(kind=wp), intent(in) ::  HSO(nss,nss)
       ! local stuff
       Integer                      :: l,i,j,LuAniso,IsFreeUnit
       External                     :: IsFreeUnit
@@ -430,6 +455,18 @@ c      End If
         Do i=1,nstate
           Write(LuAniso,'(5ES24.14)') (edmom(l,i,j),j=1,nstate)
         End Do
+      End Do
+
+      ! amfi
+      Do l=1,3
+        Do i=1,nstate
+          Write(LuAniso,'(5ES24.14)') (amfi(l,i,j),j=1,nstate)
+        End Do
+      End Do
+
+      ! HSO matrix
+      Do i=1,nss
+         Write(LuAniso,'(5ES24.14)') (HSO(i,j) ,j=1,nss)
       End Do
 
       Close(LuAniso)
