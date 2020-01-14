@@ -56,14 +56,16 @@ C gtdmctl.f
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
       Character,DIMENSION(2) :: Spin
-      INTEGER Iprint,Jprint,I,J,isym                        ! Printing or looping contral
-      INTEGER IUseSym,NUseSym,NSupBas,icactorb              ! CMO Symmetry Contral
-      INTEGER,DIMENSION(NBST)  :: OrbUsedSym                ! CMO Symmetry Contral
-      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              ! CMO Symmetry Contral
+      INTEGER Iprint,Jprint,I,J,isym                        
+! Printing or looping control
+      INTEGER IUseSym,NUseSym,NSupBas,icactorb             
+      INTEGER,DIMENSION(NBST)  :: OrbUsedSym                
+      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              
+! CMO Symmetry Contrl
       INTEGER,DIMENSION(NSym) :: NUsedBF,NUseBF,UsetoReal,RealtoUse
 ! Nr. of basis functions used prior to this symmetry (NUsedBF) and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
-      !IOrb is the index  of orbitals.
+!IOrb is the index  of orbitals.
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
@@ -74,7 +76,7 @@ C gtdmctl.f
       Double Precision Zero,Two,PrintThres
       Real*8 SumEigVal
 
-C      DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
+C     DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
 C     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -171,8 +173,8 @@ C     building up a super-CMO matrix (to be C1-like)
       CALL GETMEM ('SupCMO2','Allo','Real',LSUPCMO2,NSUPCMO)
       CALL GETMEM ('ONTO','Allo','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Allo','Real',LUNTO,NSUPCMO)
-      CALL DCOPY_(NSUPCMO,Zero,0,WORK(LSUPCMO1),1)
-      CALL DCOPY_(NSUPCMO,Zero,0,WORK(LSUPCMO2),1)
+      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO1),1)
+      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO2),1)
       icactorb=0
       I=0
       Do IOrb=1,NAISHT
@@ -246,10 +248,10 @@ C     Start and initialize spaces
         Spin(2)='b'
       End IF
       Do I_NTO=1,N_NTO
-      CALL DCOPY_(Ndge,Zero,0,WORK(LNTOUeig),1)
-      CALL DCOPY_(Ndge,Zero,0,WORK(LNTOVeig),1)
-      CALL DCOPY_(NSupCMO,Zero,0,WORK(LONTO),1)
-      CALL DCOPY_(NSupCMO,Zero,0,WORK(LUNTO),1)
+      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOUeig),1)
+      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOVeig),1)
+      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LONTO),1)
+      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LUNTO),1)
 !      CALL DCOPY_(Ndge,WORK(LTRAD),1,WORK(LTDM),1)
       If (Spin(I_NTO).eq.'a') Then
 C       WORK(LTDM-1+I)=WORK(LTRAD-1+I)
@@ -422,7 +424,8 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndto,NASHT)
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndfr,NASHT)
-      End DO  ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
+      End DO  
+! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
        write(6,*)
        WRITE(6,'(6X,100A1)') ('*',i=1,100)
