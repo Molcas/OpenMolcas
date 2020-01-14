@@ -18,37 +18,39 @@
 #ifdef NAGFOR
       use f90_unix_proc, only : sleep
 #endif
-      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
+      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_,
+     &    real_path
       use fortran_strings, only : str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
-      use rasscf_data, only : lRoots, nRoots, iRoot
-      use general_data, only : nSym, nConf
+      use rasscf_data, only : lRoots, nRoots, iRoot,
+     &    iAdr15, Weight, nAcPar, nAcPr2
+      use general_data, only : nSym, nConf, JobIPH
+
+      use CI_solver_util, only: wait_and_read, abort_
+      use fciqmc_read_RDM, only : read_neci_RDM
+      use fciqmc_make_inp, only : make_inp
 
       implicit none
+      save
       private
       public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup
-      logical ::
-     &  DoEmbdNECI = .false.,
-     &  DoNECI = .false.
+      logical :: DoEmbdNECI = .false., DoNECI = .false.
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
       integer*4 :: error
-      integer*4, parameter :: one4=1, root4=0
 #endif
-      save
 
       interface
-        integer function isfreeunit(iseed)
-          integer, intent(in) :: iseed
-        end function
+          integer function isfreeunit(iseed)
+              integer, intent(in) :: iseed
+          end function
 
-        subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
-          character(*), intent(in) :: fcidmp, input_name
-          integer*8, intent(in) :: MemSize
-          real*8, intent (out) :: NECIen
-        end subroutine
+          subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
+              character(*), intent(in) :: fcidmp, input_name
+              integer*8, intent(in) :: MemSize
+              real*8, intent (out) :: NECIen
+          end subroutine
       end interface
       contains
 
@@ -215,9 +217,6 @@
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
      &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
-        use fciqmc_make_inp, only : make_inp
-        use rasscf_data, only : nAcPar, nAcPr2
-        implicit none
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
@@ -265,47 +264,6 @@
         call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
       end subroutine run_neci
 
-
-      subroutine wait_and_read(NECIen)
-        real*8, intent(out) :: NECIen
-        logical :: newcycle_found
-        integer :: LuNewC
-        newcycle_found = .false.
-        do while(.not. newcycle_found)
-          call sleep(1)
-          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
-#ifdef _MOLCAS_MPP_
-          if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
-     &                     root4, MPI_COMM_WORLD, error)
-          end if
-#endif
-        end do
-        if (myrank == 0) then
-          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-          LuNewC = isFreeUnit(12)
-          call molcas_open(LuNewC, 'NEWCYCLE')
-            read(LuNewC,*) NECIen
-          close(LuNewC, status='delete')
-          write(6, *) 'I read the following energy:', NECIen
-        end if
-#ifdef _MOLCAS_MPP_
-        if (is_real_par()) then
-          call MPI_Bcast(NECIen, one4, MPI_REAL8,
-     &                   root4, MPI_COMM_WORLD, error)
-        end if
-#endif
-      end subroutine wait_and_read
-
-
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
-
-
       subroutine cleanup()
         use fciqmc_make_inp, only : make_inp_cleanup => cleanup
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
@@ -347,15 +305,6 @@
         end if
       end subroutine check_options
 
-      function real_path(molcas_name) result(path)
-        character(*), intent(in) :: molcas_name
-        character(:), allocatable :: path
-        character(1024) :: buffer
-        integer :: L
-        call prgmtranslate_master(molcas_name, buffer, L)
-        path = buffer(:L)
-      end function
-
       subroutine write_ExNECI_message(
      &      input_name, ascii_fcidmp, h5_fcidmp)
         character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
@@ -390,10 +339,6 @@
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
-        use general_data, only : JobIPH
-        use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
-        use fciqmc_read_RDM, only : read_neci_RDM
-        implicit none
         real*8, intent(out) ::
      &      D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
