@@ -58,8 +58,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
-      use generic_CI, only: decide_on_CI_solver,
-     &      CI_init_t, CI_solver_t, CI_cleanup_t
+
+      use generic_CI, only: CI_init_t, CI_solver_t, CI_cleanup_t
+      use fciqmc, only: DoNECI, fciqmc_ctl,
+     &    fciqmc_init => init, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
@@ -261,8 +263,13 @@
 
       Call InpPri(lOpto)
 
-* Assign the procedure pointers to the correct CI-solver
-      call decide_on_CI_solver(CI_init, CI_solver, CI_cleanup)
+      if (DoNECI) then
+          CI_init => fciqmc_init
+          CI_solver => fciqmc_ctl
+          CI_cleanup => fciqmc_cleanup
+      else
+          nullify(CI_init, CI_solver, CI_cleanup)
+      end if
 
       if (associated(CI_init)) call CI_init()
 

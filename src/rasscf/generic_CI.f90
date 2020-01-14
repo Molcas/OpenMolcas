@@ -17,7 +17,7 @@ module generic_CI
         fciqmc_init => init, fciqmc_cleanup => cleanup
     implicit none
     private
-    public :: decide_on_CI_solver, CI_init_t, CI_solver_t, CI_cleanup_t
+    public :: CI_init_t, CI_solver_t, CI_cleanup_t
 
     abstract interface
 !>  @brief
@@ -62,20 +62,5 @@ module generic_CI
         subroutine CI_cleanup_t()
         end subroutine
     end interface
-
-contains
-
-    subroutine decide_on_CI_solver(CI_init, CI_solver, CI_cleanup)
-        procedure(CI_init_t), pointer, intent(out) :: CI_init
-        procedure(CI_solver_t), pointer, intent(out) :: CI_solver
-        procedure(CI_cleanup_t), pointer, intent(out) :: CI_cleanup
-        if (DoNECI) then
-            CI_init => fciqmc_init
-            CI_solver => fciqmc_ctl
-            CI_cleanup => fciqmc_cleanup
-        else
-            nullify(CI_init, CI_solver, CI_cleanup)
-        end if
-    end subroutine
 
 end module generic_CI
