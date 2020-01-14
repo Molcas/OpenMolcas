@@ -13,11 +13,8 @@
 ! src/Include/stdalloc.fh
 ! into a module.
 
-      module stdalloc
+      module WrkSpc_mod
       implicit none
-      private
-      public :: mma_allocate, mma_deallocate
 
-#include "stdalloc.fh"
-      save
-      end module stdalloc
+#include "WrkSpc.fh"
+      end module WrkSpc_mod

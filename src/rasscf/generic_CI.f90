@@ -74,9 +74,7 @@ contains
             CI_solver => fciqmc_ctl
             CI_cleanup => fciqmc_cleanup
         else
-            nullify(CI_init)
-            nullify(CI_solver)
-            nullify(CI_cleanup)
+            nullify(CI_init, CI_solver, CI_cleanup)
         end if
     end subroutine
 

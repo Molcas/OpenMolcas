@@ -21,6 +21,7 @@
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
       use fortran_strings, only : str
       use stdalloc, only : mma_allocate, mma_deallocate
+      use WrkSpc_mod, only: mxMem
 
       use rasscf_data, only : lRoots, nRoots, iRoot
       use general_data, only : nSym, nConf
@@ -31,7 +32,6 @@
       logical ::
      &  DoEmbdNECI = .false.,
      &  DoNECI = .false.
-#include "WrkSpc.fh"
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
