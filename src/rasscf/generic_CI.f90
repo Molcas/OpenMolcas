@@ -13,24 +13,20 @@
 
 
 module generic_CI
+    use fciqmc, only: DoNECI, fciqmc_ctl, &
+        fciqmc_init => init, fciqmc_cleanup => cleanup
     implicit none
     private
-    public :: CI_solver_factory
+    public :: decide_on_CI_solver, CI_init_t, CI_solver_t, CI_cleanup_t
 
-    type, abstract :: CI_runner
-    end type
-
-    type, abstract :: CI_runner_args
-    end type
-
-contains
-
-
+    abstract interface
 !>  @brief
-!>    Create a CI-solver from building blocks.
+!>      Interface for procedure pointers to CI-solvers
 !>
 !>  @author Oskar Weser
 !>
+!>  @paramin[in] actual_iter The actual iteration number starting at 0.
+!>      This means 0 is 1A, 1 is 1B, 2 is 2 and so on.
 !>  @paramin[in] CMO MO coefficients
 !>  @paramin[in] DIAF DIAGONAL of Fock matrix useful for NECI
 !>  @paramin[in] D1I_MO Inactive 1-dens matrix
@@ -40,18 +36,48 @@ contains
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-!>  @paramin[in] fake_run  If true the CI step is not performed, but
-!>    the RDMs are read from previous run.
-      subroutine CI_solver_factory(
-     &          CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
-     &          D1S_MO, DMAT, PSMAT, PAMAT)
-      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
-     &    rotmax, Ener, Nac, nAcPar, nAcpr2
+        subroutine CI_solver_t(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, TUVX, &
+                               F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
+            use general_data, only : ntot, ntot1, ntot2
+            use rasscf_data, only : Nac, nAcPar, nAcpr2
 
-      use gugx_data, only : IfCAS
-      use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
+            integer, intent(in) :: actual_iter
+            real*8, intent(in) :: CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), &
+                                  D1A_AO(nTot2), TUVX(nAcpr2)
+            real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+            real*8, intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+        end subroutine
 
-      end subroutine
+!>  @brief
+!>      Interface to init routine for CI-solvers
+!>
+!>  @author Oskar Weser
+        subroutine CI_init_t()
+        end subroutine
 
-end module
+!>  @brief
+!>      Interface to cleanup routine for CI-solvers
+!>
+!>  @author Oskar Weser
+        subroutine CI_cleanup_t()
+        end subroutine
+    end interface
+
+contains
+
+    subroutine decide_on_CI_solver(CI_init, CI_solver, CI_cleanup)
+        procedure(CI_init_t), pointer, intent(out) :: CI_init
+        procedure(CI_solver_t), pointer, intent(out) :: CI_solver
+        procedure(CI_cleanup_t), pointer, intent(out) :: CI_cleanup
+        if (DoNECI) then
+            CI_init => fciqmc_init
+            CI_solver => fciqmc_ctl
+            CI_cleanup => fciqmc_cleanup
+        else
+            nullify(CI_init)
+            nullify(CI_solver)
+            nullify(CI_cleanup)
+        end if
+    end subroutine
+
+end module generic_CI

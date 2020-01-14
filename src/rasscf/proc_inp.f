@@ -3252,18 +3252,6 @@ C Test read failed. JOBOLD cannot be used.
 #endif
       end if
 
-      IF(DoNECI) THEN
-*     ^ For NECI only orbital related arrays are allowed to be stored.
-*     ! Arrays of nConf size need to be avoided
-        CALL GETMEM('INT1  ','ALLO','REAL',KINT1,NASHT**2)
-        kint1_pointer = KINT1
-        Call FZero(Work(KINT1),NASHT**2)
-        write(6,*) ' NECI activated. List of Confs might get lengthy.'
-        write(6,*) ' Number of Configurations computed by GUGA: ',nConf
-        write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
-        nConf= 0
-      END IF
-*
       ISCF=0
       IF (ISPIN.EQ.NAC+1.AND.NACTEL.EQ.NAC) ISCF=1
       IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1

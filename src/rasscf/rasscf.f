@@ -58,7 +58,8 @@
 #endif
       use stdalloc
       use write_orbital_files, only : OrbFiles, putOrbFile
-      use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
+      use generic_CI, only: decide_on_CI_solver,
+     &      CI_init_t, CI_solver_t, CI_cleanup_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
@@ -122,6 +123,14 @@
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
+* --------- Procedure pointers for CI-solvers
+        procedure(CI_init_t), pointer :: CI_init
+        procedure(CI_solver_t), pointer :: CI_solver
+        procedure(CI_cleanup_t), pointer :: CI_cleanup
+* --------- End Procedure pointers.
+
+! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
+      integer :: actual_iter
 
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
@@ -251,6 +260,12 @@
 
 
       Call InpPri(lOpto)
+
+* Assign the procedure pointers to the correct CI-solver
+      call decide_on_CI_solver(CI_init, CI_solver, CI_cleanup)
+
+      if (associated(CI_init)) call CI_init()
+
 
 *
 * If this is not CASDFT make sure the DFT flag is unset
@@ -587,6 +602,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ECAS   = 0.0d0
       ROTMAX = 0.0d0
       ITER   = 0
+      actual_iter = 0
       IFINAL = 0
       TMXTOT = 0.0D0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
@@ -805,8 +821,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           goto 2010
         end if
 
-        if (DoNECI) then
-          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+        if (associated(CI_solver)) then
+          call CI_solver(actual_iter=actual_iter,
+     &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
@@ -852,20 +869,6 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
              write(6,'(a,i4)')' Nr of preliminary CI iterations:',ITERCI
           End If
         end if
-
-        If ( IPRLEV.ge.DEBUG ) then
-          Write(LF,*)
-          Write(LF,*) ' PUVX in rasscf af FCIQMC_ctl'
-          Write(LF,*) ' ---------------------'
-          Write(LF,*)
-          call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
-
-          Write(LF,*)
-          Write(LF,*) ' ---------------------'
-        end if
-
-c       CALL TRIPRT('One-body dmat, D, in RASSCF aft first CICTL',
-c     &             ' ',Work(LDMAT),NAC)
 
 c.. dongxia testing jobiph
 c.. upt to here, jobiph are all zeros at iadr15(2)
@@ -981,6 +984,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
 *
 * Print header to file containing informations on CI iterations.
 *
+      actual_iter = actual_iter + 1
       Write(IterFile,*)
       Write(IterFile,'(20A4)') ('****',i=1,20)
       IF (Iter .Eq. 1) Then
@@ -1081,8 +1085,9 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         End If
 
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
-        if (DoNECI) then
-          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+        if (associated(CI_solver)) then
+          call CI_solver(actual_iter=actual_iter,
+     &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
@@ -1091,20 +1096,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
-     &                    fake_run=(iter==1))
-          If ( IPRLEV.ge.DEBUG ) then
-            Write(LF,*)
-            Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
-            Write(LF,*) ' ---------------------'
-            Write(LF,*)
-            iOff=1
-            Do iSym = 1,nSym
-              iBas = nBas(iSym)
-              call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-              iOff = iOff + iBas*iBas
-            End Do
-          end if
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
@@ -1290,27 +1282,7 @@ c      Call rasscf_xml(Iter)
         iOff = iOff + (iBas*iBas+iBas)/2
        End Do
       End If
-        IF (DoNECI) THEN
-          write(6,*)'RASSCF: For NECI orbital energies are approximated'
-          write(6,*)'to the diagonal value of the Fock matrix properly'
-          write(6,*)'transformed accordingly to e(X) rotation matrix'
-c This is of course not true other than for special cases ... but some might find it beneficial!
-          iOff  = 0
-          iOff2 = 0
-          Do iSym = 1,nSym
-            iBas = nBas(iSym)
-            if(iBas.gt.0) then
-             do iDiag = 1,iBas
-               WORK(LDIAF+iDiag-1+iOff)=
-     &            WORK(LFA+(iDiag*(iDiag+1)/2)+iOff2-1)
-             end do
-             write(6,*) 'OrbEn in line for sym = ',iSym
-             write(6,*) (Work(LDIAF+i+ioff), i = 0,iBas-1)
-             iOff  = iOff + iBas
-             iOff2 = iOff2 + (iBas*iBas+iBas)/2
-            end if
-          End Do
-        END IF
+
 cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
       If (DoCholesky.and.ALGO.eq.2) Then
          Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
@@ -1730,8 +1702,9 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-      if(DoNECI) then
-        call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+      if (associated(CI_solver)) then
+          call CI_solver(actual_iter=actual_iter,
+     &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
@@ -1993,18 +1966,14 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
-          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (DoNECI) then
-          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-          call fciqmc_cleanup()
+      If (.not. any([associated(CI_solver), DumpOnly,
+     &              doDMRG, doBlockDMRG])) then
+        Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+      else if (associated(CI_cleanup)) then
+        call CI_cleanup()
       end if
-* We better deallocate before it is too late...
-c     if(DoNECI) then
-c       CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-c     end if
-*
-*
+      nullify(CI_init, CI_solver, CI_cleanup)
+
 
       Call StatusLine('RASSCF:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
@@ -2047,7 +2016,7 @@ c      End If
       EndIf
 
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
-     &          .or. DoNECI .or. DumpOnly)) then
+     &          .or. associated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
 

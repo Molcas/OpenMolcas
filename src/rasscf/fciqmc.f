@@ -23,11 +23,11 @@
       use stdalloc, only : mma_allocate, mma_deallocate
 
       use rasscf_data, only : lRoots, nRoots, iRoot
-      use general_data, only : nSym
+      use general_data, only : nSym, nConf
 
       implicit none
       private
-      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, cleanup
+      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup
       logical ::
      &  DoEmbdNECI = .false.,
      &  DoNECI = .false.
@@ -69,8 +69,10 @@
 !>  only two-electron terms as computed in TRA_CTL2.
 !>  In output it contains also the one-electron contribution
 !>
+!>  @paramin[in] actual_iter The actual iteration number starting at 0.
+!>      This means 0 is 1A, 1 is 1B, 2 is 2 and so on.
 !>  @paramin[in] CMO MO coefficients
-!>  @paramin[in] DIAF DIAGONAL of Fock matrix useful for NECI
+!>  @paramin[in] DIAF Diagonal of Fock matrix useful for NECI
 !>  @paramin[in] D1I_MO Inactive 1-dens matrix
 !>  @paramin[in] TUVX Active 2-el integrals
 !>  @paramin[inout] F_In Fock matrix from inactive density
@@ -78,11 +80,8 @@
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-!>  @paramin[in] fake_run  If true the NECI run is not performed, but
-!>    the RDMs are read from previous runs.
-      subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
-     &                      D1S_MO, DMAT, PSMAT, PAMAT,
-     &                      fake_run)
+      subroutine fciqmc_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
+     &                      TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
       use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
       use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
      &    rotmax, Ener, Nac, nAcPar, nAcpr2
@@ -96,14 +95,13 @@
 #include "output_ras.fh"
 #include "rctfld.fh"
 #include "timers.fh"
+      integer, intent(in) :: actual_iter
       real*8, intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
      &    D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      logical, intent(in), optional :: fake_run
-      logical :: fake_run_
       real*8, save :: NECIen
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
       integer, allocatable :: permutation(:)
@@ -114,12 +112,6 @@
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
       call qEnter(routine)
-
-      if (present(fake_run)) then
-        fake_run_ = fake_run
-      else
-        fake_run_ = .false.
-      end if
 
 ! Local print level (if any)
       iprlev = iprloc(1)
@@ -186,7 +178,8 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
 
-      call run_neci(DoEmbdNECI, fake_run_, ascii_fcidmp, h5_fcidmp,
+      call run_neci(DoEmbdNECI, actual_iter == 1,
+     &  ascii_fcidmp, h5_fcidmp,
      &  doGAS=iDoGAS, reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
@@ -322,6 +315,16 @@
         call read_RDM_cleanup()
         call fcidump_cleanup()
       end subroutine cleanup
+
+      subroutine init()
+! For NECI only orbital related arrays are allowed to be stored.
+! Arrays of nConf size need to be avoided.
+! For this reason set nConf to zero.
+        write(6,*) ' NECI activated. List of Confs might get lengthy.'
+        write(6,*) ' Number of Configurations computed by GUGA: ', nConf
+        write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
+        nConf= 0
+      end subroutine
 
 
       subroutine check_options(lroots, lRf, KSDFT,
