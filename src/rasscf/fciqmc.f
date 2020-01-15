@@ -107,40 +107,6 @@
 
       call qEnter(routine)
 
-! Local print level (if any)
-      iprlev = iprloc(1)
-      if(iprlev.ge.debug) then
-        write(lf,*)
-        write(lf,*) ' ===================='
-        write(lf,*) ' Entering FCIQMC_Ctl'
-        write(lf,*) ' ===================='
-        write(lf,*)
-        write(lf,*) ' IFCAS value     =', IFCAS
-        write(lf,*) ' lroots,nroots   =', lroots,nroots
-        write(lf,*)
-      end if
-! set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
-! IFCAS = 0: This is a CAS calculation
-! IFCAS = 1: This is a RAS calculation
-! IFCAS = 2: This is a GAS calculation
-      if(iprlev.ge.debug) then
-        write(lf,*)
-        write(lf,*) ' CMO in FCIQMC_CTL'
-        write(lf,*) ' ---------------------'
-        write(lf,*)
-        ioff=1
-        do isym = 1,nsym
-          ibas = nbas(isym)
-          if(ibas.ne.0) then
-            write(6,*) 'Sym =', isym
-            do i= 1,ibas
-              write(6,*) (cmo(ioff+ibas*(i-1)+j),j=0,ibas-1)
-            end do
-            ioff = ioff + (ibas*ibas)
-          end if
-        end do
-      end if
-
 ! SOME DIRTY SETUPS
       S = 0.5d0 * dble(iSpin - 1)
 
@@ -155,7 +121,7 @@
 
 ! This call is not side effect free, sets EMY and modifies F_IN
       call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
-     &      F_IN, orbital_E, folded_Fock)
+     &               F_IN, orbital_E, folded_Fock)
 
 ! Fortran Standard 2008 12.5.2.12:
 ! Allocatable actual arguments that are passed to
@@ -181,18 +147,6 @@
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do
-
-! print matrices
-      if (IPRLEV >= DEBUG) then
-        call TRIPRT('Averaged one-body density matrix, DMAT',
-     &              ' ',DMAT,NAC)
-        call TRIPRT('Averaged one-body spin density matrix, DS',
-     &              ' ',D1S_MO,NAC)
-        call TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',PSMAT,NACPAR)
-        call TRIPRT('Averaged antisymmetric two-body density matrix,PA',
-     &              ' ',PAMAT,NACPAR)
-      end if
 
       if (nAsh(1) /= nac) call dblock(dmat)
 
@@ -333,7 +287,7 @@
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
         use fciqmc_read_RDM, only: read_neci_RDM
-        real*8, intent(out) ::
+        real*8, intent(inout) ::
      &      D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, allocatable ::
@@ -362,7 +316,7 @@
             if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
           end do
           DMAT(:) = SCAL * DTMP(:)
-          D1S_MO(:) = SCAL * PSMAT(:)
+          D1S_MO(:) = SCAL * DStmp(:)
           PSMAT(:) = SCAL * Ptmp(:)
           PAMAT(:) = SCAL * PAtmp(:)
 ! Put it on the RUNFILE

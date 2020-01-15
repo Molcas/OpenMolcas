@@ -15,15 +15,19 @@
       use mpi
 #endif
 #ifdef NAGFOR
-      use f90_unix_proc, only : sleep
+      use f90_unix_proc, only: sleep
 #endif
-      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_,
+      use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
-      use fortran_strings, only : str
+      use fortran_strings, only: str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
-      use rasscf_data, only : lRoots, nRoots, iRoot
-      use general_data, only : nSym, nConf
+      use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY,
+     &    S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
+      use general_data, only: iSpin, nSym, nConf, JobIPH,
+     &    ntot, ntot1, ntot2, nAsh, nBas
+      use gugx_data, only: IfCAS
+      use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
       use CI_solver_util, only: wait_and_read, abort_
 
@@ -33,11 +37,6 @@
       public :: CC_CI_ctl, Do_CC_CI, init, cleanup
       logical :: Do_CC_CI = .false.
 #include "para_info.fh"
-#ifdef _MOLCAS_MPP_
-      integer*4 :: error
-#endif
-
-
       interface
         integer function isfreeunit(iseed)
           integer, intent(in) :: iseed
@@ -46,14 +45,7 @@
       contains
 
       subroutine CC_CI_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
-     &                 TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
-      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
-     &    rotmax, Ener, Nac, nAcPar, nAcpr2
-
-      use gugx_data, only : IfCAS
-      use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
-
+     &                     TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
 
@@ -71,7 +63,9 @@
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
       integer, allocatable :: permutation(:)
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
-
+#ifdef _MOLCAS_MPP_
+      integer*4 :: error
+#endif
       parameter(ROUTINE = 'CC_CI_ctl')
       character(*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
@@ -91,7 +85,7 @@
       end if
 
 ! This call is not side effect free, sets EMY and modifies F_IN
-      call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
+      call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
      &      F_IN, orbital_E, folded_Fock)
 
 ! Fortran Standard 2008 12.5.2.12:
@@ -128,8 +122,6 @@
 
       subroutine run_CC_CI(ascii_fcidmp, h5_fcidmp,
      &      fake_run, energy, D1S_MO, DMAT, PSMAT, PAMAT)
-        use rasscf_data, only : nAcPar, nAcPr2
-        implicit none
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         logical, intent(in) :: fake_run
         real*8, intent(out) :: energy, D1S_MO(nAcPar), DMAT(nAcpar),
@@ -184,7 +176,9 @@
         if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
           call abort_('CC CI does not support Reaction Field yet!')
         end if
-        if (DoGAS) call abort_('GAS not yet supported!')
+        if (DoGAS) then
+          call abort_('CC CI does not support GASSCF yet!')
+        end if
       end subroutine check_options
 
       subroutine write_user_message(
@@ -222,8 +216,6 @@
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_CC_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
-        use general_data, only : JobIPH
-        use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
         use fciqmc_read_RDM, only : read_neci_RDM
         implicit none
         real*8, intent(out) ::
