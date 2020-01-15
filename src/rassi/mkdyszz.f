@@ -22,32 +22,30 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSAB(*),DYSZZ(*)
       DIMENSION CMOA(NCMO)
+      INTEGER IBIO,IZZ,SYMOFF,BIOOFF
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 
-C *** Symmetry is likely not handled correctly, since the effect
-C *** of the annihilated electron is not accountd for.
+C *** Re-express the DO coefficients in biorth basis DYSAB
+C *** into atomic basis DYSZZ with help of CMOA that contains
+C *** biorth orbitals in ZZ basis
 
-      IST=1
-      ISTTA=1
-      ISTCA=1
-      ISTTZ=1
-      DO 20 ISY1=1,NSYM
+      SYMOFF=0
+      DO ISY1=1,NSYM
         NO1=NOSH(ISY1)
         NB1=NBASF(ISY1)
-        IF(NB1.EQ.0) GOTO 15
-        CALL FZERO(DYSZZ(ISTTZ),NB1)
-        CALL DGEMM_('N','T',1,NB1,NO1,1.0D0,
-     &              DYSAB(ISTTA),1,CMOA(ISTCA),NB1,
-     &       0.0D0,  DYSZZ(ISTTZ),1)
-        ISTTA=ISTTA+NO1
-15      CONTINUE
-        ISTCA=ISTCA+NB1*NO1
-        ISTTZ=ISTTZ+NB1
-20    CONTINUE
+        DO IBIO=1,NO1
+         DO IZZ=1,NB1
+          BIOOFF=(IBIO-1)*NB1
+          COEFF=DYSAB(IBIO)*CMOA(SYMOFF+BIOOFF+IZZ)
+          DYSZZ(IZZ)=DYSZZ(IZZ)+COEFF
+         END DO
+        END DO
+        SYMOFF=SYMOFF+NO1
+      END DO
 
       RETURN
       END
