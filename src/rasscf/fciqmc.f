@@ -16,20 +16,21 @@
       use mpi
 #endif
 #ifdef NAGFOR
-      use f90_unix_proc, only : sleep
+      use f90_unix_proc, only: sleep
 #endif
-      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_,
+      use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
-      use fortran_strings, only : str
+      use fortran_strings, only: str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
-      use rasscf_data, only : lRoots, nRoots, iRoot,
-     &    iAdr15, Weight, nAcPar, nAcPr2
-      use general_data, only : nSym, nConf, JobIPH
+      use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY,
+     &    S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
+      use general_data, only: iSpin, nSym, nConf, JobIPH,
+     &    ntot, ntot1, ntot2, nAsh, nBas
+      use gugx_data, only: IfCAS
+      use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
       use CI_solver_util, only: wait_and_read, abort_
-      use fciqmc_read_RDM, only : read_neci_RDM
-      use fciqmc_make_inp, only : make_inp
 
       implicit none
       save
@@ -37,9 +38,6 @@
       public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup
       logical :: DoEmbdNECI = .false., DoNECI = .false.
 #include "para_info.fh"
-#ifdef _MOLCAS_MPP_
-      integer*4 :: error
-#endif
 
       interface
           integer function isfreeunit(iseed)
@@ -83,16 +81,8 @@
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine fciqmc_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
      &                      TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
-      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
-     &    rotmax, Ener, Nac, nAcPar, nAcpr2
-
-      use gugx_data, only : IfCAS
-      use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
-
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
-
 #include "output_ras.fh"
 #include "rctfld.fh"
 #include "timers.fh"
@@ -107,6 +97,9 @@
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
       integer, allocatable :: permutation(:)
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+#ifdef _MOLCAS_MPP_
+      integer*4 :: error
+#endif
 
       parameter(ROUTINE = 'FCIQMC_clt')
       character(*), parameter ::
@@ -122,7 +115,6 @@
         write(lf,*) ' Entering FCIQMC_Ctl'
         write(lf,*) ' ===================='
         write(lf,*)
-        write(lf,*) ' iteration count =', iter
         write(lf,*) ' IFCAS value     =', IFCAS
         write(lf,*) ' lroots,nroots   =', lroots,nroots
         write(lf,*)
@@ -162,7 +154,7 @@
       end if
 
 ! This call is not side effect free, sets EMY and modifies F_IN
-      call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
+      call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
      &      F_IN, orbital_E, folded_Fock)
 
 ! Fortran Standard 2008 12.5.2.12:
@@ -180,8 +172,8 @@
 #endif
 
       call run_neci(DoEmbdNECI, actual_iter == 1,
-     &  ascii_fcidmp, h5_fcidmp,
-     &  doGAS=iDoGAS, reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
+     &  ascii_fcidmp, h5_fcidmp, doGAS=iDoGAS,
+     &  reuse_pops=actual_iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
 ! NECIen so far is only the energy for the GS.
@@ -217,6 +209,7 @@
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
      &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
+        use fciqmc_make_inp, only: make_inp
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
@@ -339,6 +332,7 @@
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+        use fciqmc_read_RDM, only: read_neci_RDM
         real*8, intent(out) ::
      &      D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
