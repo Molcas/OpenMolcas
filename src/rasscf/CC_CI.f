@@ -59,8 +59,8 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real*8, save :: energy
-      integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
+      real*8 :: energy
+      integer :: jRoot
       integer, allocatable :: permutation(:)
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
@@ -128,7 +128,8 @@
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, save :: previous_energy = 0.0d0
 
-        character(*), parameter :: input_name = 'CC_CI.inp'
+        character(*), parameter :: input_name = 'CC_CI.inp',
+     &      energy_file = 'CC_energy.dat'
 
         if (fake_run) then
           energy = previous_energy
@@ -137,7 +138,7 @@
           if (myrank == 0) then
             call write_user_message(input_name, ascii_fcidmp, h5_fcidmp)
           end if
-          call wait_and_read(energy)
+          call wait_and_read(energy_file, energy)
           previous_energy = energy
         end if
         call get_CC_RDM(D1S_MO, DMAT, PSMAT, PAMAT)

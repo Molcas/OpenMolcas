@@ -14,9 +14,12 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
+      use rasscf_data, only: lRoots, nRoots, iAdr15,
+     &                       iRoot, Weight, nAcPar, nAcpr2
+      use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_
+      public :: wait_and_read, abort_, RDM_to_runfile
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -33,14 +36,15 @@
       contains
 
 
-      subroutine wait_and_read(energy)
+      subroutine wait_and_read(filename, energy)
+        character(*), intent(in) :: filename
         real*8, intent(out) :: energy
         logical :: newcycle_found
         integer :: LuNewC
         newcycle_found = .false.
         do while(.not. newcycle_found)
           call sleep(1)
-          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
+          if (myrank == 0) call f_Inquire(trim(filename),newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
             call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
@@ -70,6 +74,33 @@
         call QTrace()
         call Abend()
       end subroutine
+
+
+!>  @brief
+!>    State Average RDMs and put into runfile.
+!>
+!>  @author Giovanni Li Manni, Oskar Weser
+!>
+!>  @paramin[out] DMAT Average 1 body density matrix
+!>  @paramin[out] DSPN Average spin 1-dens matrix
+!>  @paramin[out] PSMAT Average symm. 2-dens matrix
+!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+      subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
+        real*8, intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
+     &                        PSMAT(nAcpr2), PAMAT(nAcpr2)
+        integer :: iDisk, jDisk
+
+! Put it on the RUNFILE
+        call Put_D1MO(DMAT,NACPAR)
+        call Put_P2MO(PSMAT,NACPR2)
+! Save density matrices on disk
+        iDisk = IADR15(4)
+        jDisk = IADR15(3)
+        call DDafile(JOBIPH, 1, DMAT, NACPAR, jDisk)
+        call DDafile(JOBIPH, 1, D1S_MO, NACPAR, jDisk)
+        call DDafile(JOBIPH, 1, PSMAT, NACPR2, jDisk)
+        call DDafile(JOBIPH, 1, PAMAT, NACPR2, jDisk)
+      end subroutine RDM_to_runfile
 
 
 

@@ -23,7 +23,7 @@
       contains
 
 !>  @brief
-!>    Start and control FCIQMC.
+!>    Read NECI RDM files
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>

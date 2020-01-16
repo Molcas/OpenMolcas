@@ -30,7 +30,8 @@
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use CI_solver_util, only: wait_and_read, abort_
+      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
+      use fciqmc_read_RDM, only: read_neci_RDM
 
       implicit none
       save
@@ -93,8 +94,8 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real*8, save :: NECIen
-      integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot
+      real*8 :: NECIen
+      integer :: jRoot
       integer, allocatable :: permutation(:)
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
@@ -172,7 +173,8 @@
         logical :: doGAS_
         real*8, save :: previous_NECIen = 0.0d0
 
-        character(*), parameter :: input_name = 'FCINP'
+        character(*), parameter :: input_name = 'FCINP',
+     &    energy_file = 'NEWCYCLE'
 
         if (present(doGAS)) then
           doGAS_ = doGAS
@@ -202,13 +204,14 @@
             call make_inp(input_name, doGAS=doGAS_)
             if (myrank == 0) then
               call write_ExNECI_message(input_name, ascii_fcidmp,
-     &                                  h5_fcidmp)
+     &                                  h5_fcidmp, energy_file)
             end if
-            call wait_and_read(NECIen)
+            call wait_and_read(energy_file, NECIen)
           end if
           previous_NECIen = NECIen
         end if
-        call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+        call read_neci_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
+        call RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_neci
 
       subroutine cleanup()
@@ -253,8 +256,9 @@
       end subroutine check_options
 
       subroutine write_ExNECI_message(
-     &      input_name, ascii_fcidmp, h5_fcidmp)
-        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
+     &      input_name, ascii_fcidmp, h5_fcidmp, energy_file)
+        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp,
+     &          energy_file
         character(1024) :: WorkDir
         integer :: err
 
@@ -277,65 +281,9 @@
      &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
      &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
         write(6,'(4x, A)')
-     &    'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
+     &    'echo $your_RDM_Energy > '//real_path(energy_file)
         call xflush(6)
       end subroutine write_ExNECI_message
-
-!> Generate density matrices for Molcas
-!>   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
-!>   I will be reading them from those formatted files for the time being.
-!>   Next it will be nice if NECI prints them out already in Molcas format.
-      subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
-        use fciqmc_read_RDM, only: read_neci_RDM
-        real*8, intent(inout) ::
-     &      D1S_MO(nAcPar), DMAT(nAcpar),
-     &      PSMAT(nAcpr2), PAMAT(nAcpr2)
-        real*8, allocatable ::
-!> one-body density
-     &    DTMP(:),
-!> symmetric two-body density
-     &    Ptmp(:),
-!> antisymmetric two-body density
-     &    PAtmp(:),
-!> one-body spin density
-     &    DStmp(:)
-        real*8 :: Scal
-        integer :: jRoot, kRoot, iDisk, jDisk
-
-        call mma_allocate(DTMP, nAcPar, label='Dtmp ')
-        call mma_allocate(DStmp, nAcPar, label='DStmp')
-        call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
-        call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
-
-        call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
-
-! Compute average density matrices
-        do jRoot = 1, lRoots
-          Scal = 0.0d0
-          do kRoot = 1, nRoots
-            if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
-          end do
-          DMAT(:) = SCAL * DTMP(:)
-          D1S_MO(:) = SCAL * DStmp(:)
-          PSMAT(:) = SCAL * Ptmp(:)
-          PAMAT(:) = SCAL * PAtmp(:)
-! Put it on the RUNFILE
-          call Put_D1MO(DTMP,NACPAR)
-          call Put_P2MO(Ptmp,NACPR2)
-! Save density matrices on disk
-          iDisk = IADR15(4)
-          jDisk = IADR15(3)
-          call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
-          call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
-          call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
-          call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
-        end do
-
-        call mma_deallocate(DTMP)
-        call mma_deallocate(DStmp)
-        call mma_deallocate(Ptmp)
-        call mma_deallocate(PAtmp)
-      end subroutine get_neci_RDM
 
       subroutine write_GASORB(GAS_spaces, permutation)
         integer, intent(in) :: GAS_spaces(:, :)
