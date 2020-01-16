@@ -62,7 +62,7 @@
       use generic_CI, only: CI_init_t, CI_solver_t, CI_cleanup_t
       use fciqmc, only: DoNECI, fciqmc_ctl,
      &    fciqmc_init => init, fciqmc_cleanup => cleanup
-      use CC_CI_mod, only: Do_CC_CI, CC_CI_ctl
+      use CC_CI_mod, only: Do_CC_CI, CC_CI_ctl,
      &    CC_CI_init => init, CC_CI_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
@@ -270,7 +270,9 @@
           CI_solver => fciqmc_ctl
           CI_cleanup => fciqmc_cleanup
       else if (Do_CC_CI) then
-          nullify(CI_init, CI_solver, CI_cleanup)
+          CI_init => CC_CI_init
+          CI_solver => CC_CI_ctl
+          CI_cleanup => CC_CI_cleanup
       else
           nullify(CI_init, CI_solver, CI_cleanup)
       end if

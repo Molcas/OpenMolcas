@@ -29,7 +29,7 @@
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use CI_solver_util, only: wait_and_read, abort_
+      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
 
       implicit none
       save
@@ -94,7 +94,7 @@
       call make_fcidumps(ascii_fcidmp, h5_fcidmp,
      &                   orbital_E, folded_Fock, TUVX, EMY, permutation)
 
-! Run NECI
+! Run CC
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
@@ -103,8 +103,6 @@
       call run_CC_CI(ascii_fcidmp, h5_fcidmp,
      &      fake_run=actual_iter == 1, energy=energy,
      &      D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
-! NECIen so far is only the energy for the GS.
-! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = energy
       end do
@@ -129,7 +127,7 @@
         real*8, save :: previous_energy = 0.0d0
 
         character(*), parameter :: input_name = 'CC_CI.inp',
-     &      energy_file = 'CC_energy.dat'
+     &      energy_file = 'NEWCYCLE'
 
         if (fake_run) then
           energy = previous_energy
@@ -141,12 +139,15 @@
           call wait_and_read(energy_file, energy)
           previous_energy = energy
         end if
-        call get_CC_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+        call read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
+        call RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_CC_CI
 
       subroutine make_inp(input_name)
         character(*), intent(in) :: input_name
-        call abort_('make_inp has to be implemented.')
+        write(6, *) input_name
+        write(6, *) 'make_inp has to be implemented.'
+!         call abort_('make_inp has to be implemented.')
       end subroutine
 
 
@@ -158,7 +159,7 @@
       subroutine init()
 ! Due to possible size of active space arrays of nConf
 ! size need to be avoided.  For this reason set nConf to zero.
-        write(6,*) ' NECI activated. List of Confs might get lengthy.'
+        write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
         write(6,*) ' Number of Configurations computed by GUGA: ', nConf
         write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
         nConf= 0
@@ -194,13 +195,13 @@
         write(6,'(A)')'Run coupled cluster CI externally.'
         write(6,'(A)')'Get the (example) coupled cluster input:'
         write(6,'(4x, A, 1x, A, 1x, A)')
-     &    'cp', real_path(input_name), '$NECI_RUN_DIR'
+     &    'cp', real_path(input_name), '$CC_RUN_DIR'
         write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
         write(6,'(4x, A, 1x, A, 1x, A)')
-     &    'cp', real_path(ascii_fcidmp), '$NECI_RUN_DIR'
+     &    'cp', real_path(ascii_fcidmp), '$CC_RUN_DIR'
         write(6,'(A)')'Or the HDF5 FCIDUMP:'
         write(6,'(4x, A, 1x, A, 1x, A)')
-     &    'cp', real_path(h5_fcidmp), '$NECI_RUN_DIR'
+     &    'cp', real_path(h5_fcidmp), '$CC_RUN_DIR'
         write(6, *)
         write(6,'(A)') "When finished do:"
 ! TODO(Oskar, Thomas): Change accordingly
@@ -212,61 +213,24 @@
         call xflush(6)
       end subroutine write_user_message
 
-!> Generate density matrices for Molcas
-!>   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
-!>   I will be reading them from those formatted files for the time being.
-!>   Next it will be nice if NECI prints them out already in Molcas format.
-      subroutine get_CC_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
-        use fciqmc_read_RDM, only : read_neci_RDM
-        implicit none
+!>  @brief
+!>    Read DCC RDM files
+!>
+!>  @author Oskar Weser
+!>
+!>  @paramin[out] DMAT Average 1 body density matrix
+!>  @paramin[out] DSPN Average spin 1-dens matrix
+!>  @paramin[out] PSMAT Average symm. 2-dens matrix
+!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+      subroutine read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
         real*8, intent(out) ::
-     &      D1S_MO(nAcPar), DMAT(nAcpar),
+     &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
-        real*8, allocatable ::
-!> one-body density
-     &    DTMP(:),
-!> symmetric two-body density
-     &    Ptmp(:),
-!> antisymmetric two-body density
-     &    PAtmp(:),
-!> one-body spin density
-     &    DStmp(:)
-        real*8 :: Scal
-        integer :: jRoot, kRoot, iDisk, jDisk
 
-        call mma_allocate(DTMP, nAcPar, label='Dtmp ')
-        call mma_allocate(DStmp, nAcPar, label='DStmp')
-        call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
-        call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
-
-        call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
-
-! Compute average density matrices
-        do jRoot = 1, lRoots
-          Scal = 0.0d0
-          do kRoot = 1, nRoots
-            if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
-          end do
-          DMAT(:) = SCAL * DTMP(:)
-          D1S_MO(:) = SCAL * PSMAT(:)
-          PSMAT(:) = SCAL * Ptmp(:)
-          PAMAT(:) = SCAL * PAtmp(:)
-! Put it on the RUNFILE
-          call Put_D1MO(DTMP,NACPAR)
-          call Put_P2MO(Ptmp,NACPR2)
-! Save density matrices on disk
-          iDisk = IADR15(4)
-          jDisk = IADR15(3)
-          call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
-          call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
-          call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
-          call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
-        end do
-
-        call mma_deallocate(DTMP)
-        call mma_deallocate(DStmp)
-        call mma_deallocate(Ptmp)
-        call mma_deallocate(PAtmp)
-      end subroutine get_CC_RDM
+        DMAT(:) = 1.0
+        D1S_MO(:) = 1.0
+        PSMAT(:) = 1.0
+        PAMAT(:) = 1.0
+      end subroutine read_CC_RDM
 
       end module CC_CI_mod
