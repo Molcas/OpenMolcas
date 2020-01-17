@@ -1183,8 +1183,6 @@ C                 tij=Max(tij,f_const_Min_)
       Lu=6
       iRout=22
       iprint=nPrint(iRout)
-      iPrint=99
-      iPrint=6
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
       Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
