@@ -863,7 +863,7 @@
 *                                                                      *
 *------- Perform another iteration if necessary
 *
-*        Convergence criterions are
+*        Convergence criteria are
 *
 *        Either,
 *
@@ -872,11 +872,11 @@
 *        3) the absolute Fock matrix change is smaller than FThr
 *        4) the absolute density matrix change is smaller than DThr,
 *           and
-*        5) it step is NOT a Quasi NR step
+*        5) step is NOT a Quasi NR step
 *
 *        or
 *
-*        1) it step is a Quasi NR step, and
+*        1) step is a Quasi NR step, and
 *        2) DltNrm.le.DltNth
 *
 *        or
