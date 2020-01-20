@@ -99,10 +99,10 @@ C Check if reduced dimensionality
         DO i = 1,POUT
           pvel(i) = dot_product(pcoo(i,:),vel)
      & / dot_product(pcoo(i,:),pcoo(i,:))
-          vel = vel - pvel(i)*pcoo(i,:)
+          vel(:) = vel(:) - pvel(i)*pcoo(i,:)
           pforce(i) = dot_product(pcoo(i,:),force)
      & / dot_product(pcoo(i,:),pcoo(i,:))
-          force = force - pforce(i)*pcoo(i,:)
+          force(:) = force(:) - pforce(i)*pcoo(i,:)
         ENDDO
       ENDIF
 C--------------------------------------------------------------------C
