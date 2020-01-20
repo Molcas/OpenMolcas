@@ -20,6 +20,9 @@
       public :: mma_allocate, mma_deallocate, mxMem
 
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
+      integer, parameter :: iWorkLen = 8
+      real*8 :: Work(1:iWorkLen)
+      integer :: mxMem
+      common /WrkSpc/ Work, mxMem
       save
       end module stdalloc
