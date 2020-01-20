@@ -52,6 +52,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       CHARACTER  caption*15, lastline*80
       CHARACTER, ALLOCATABLE ::    atom(:)*2
       REAL*8, ALLOCATABLE ::       Mass(:),vel(:),force(:),xyz(:)
+      REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
       INTEGER Iso
 C
 C     The parameter conv converts the gradients (Hartree/Bohr) to
@@ -93,6 +94,21 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
 
       CALL Get_Velocity(vel,3*natom)
 
+C Check if reduced dimensionality
+      IF (POUT .NE. 0) THEN
+        CALL mma_allocate(pcoo,POUT,natom*3)
+        CALL mma_allocate(pvel,POUT)
+        CALL mma_allocate(pforce,POUT)
+        CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
+        DO i = 1,POUT
+          pvel(i) = dot_product(pcoo(i,:),vel)
+     & / dot_product(pcoo(i,:),pcoo(i,:))
+          vel = vel - pvel(i)*pcoo(i,:)
+          pforce(i) = dot_product(pcoo(i,:),force)
+     & / dot_product(pcoo(i,:),pcoo(i,:))
+          force = force - pforce(i)*pcoo(i,:)
+        ENDDO
+      ENDIF
 C
 C     Definition of the time step
 C
@@ -116,7 +132,8 @@ C-------------------------------------------
      &      Mass(i)
          END DO
       END DO
-
+      WRITE(6,*) vel
+      WRITE(6,*) force
 C  Calling the thermostats for canonical ensemble
       IF (THERMO.eq.2) THEN
          CALL NhcThermo(vel)

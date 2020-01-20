@@ -49,6 +49,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
+      REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
       INTEGER Iso
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
@@ -88,7 +89,22 @@ C
 C     Read the velocities
 C
       CALL Get_Velocity(vel,3*natom)
-
+C
+C Check if reduced dimensionality
+      IF (POUT .NE. 0) THEN
+        CALL mma_allocate(pcoo,POUT,natom*3)
+        CALL mma_allocate(pvel,POUT)
+        CALL mma_allocate(pforce,POUT)
+        CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
+        DO i = 1,POUT
+          pvel(i) = dot_product(pcoo(i,:),vel)
+     & / dot_product(pcoo(i,:),pcoo(i,:))
+          vel = vel - pvel(i)*pcoo(i,:)
+          pforce(i) = dot_product(pcoo(i,:),force)
+     & / dot_product(pcoo(i,:),pcoo(i,:))
+          force = force - pforce(i)*pcoo(i,:)
+        ENDDO
+      ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
 C--------------------------------------------------------------------C

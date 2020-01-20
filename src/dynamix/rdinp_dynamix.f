@@ -62,6 +62,7 @@ C
       IF (Line(1:4).EQ.'TEMP') GOTO 1113
       IF (Line(1:4).EQ.'ISOT') GOTO 1114
       IF (Line(1:4).EQ.'H5RE') GOTO 1115
+      IF (Line(1:3).EQ.'OUT')  GOTO 1116
       IF (Line(1:3).EQ.'END')  GOTO 9000
 
 *>>>>>>>>>>>>>>>>>>>> TITL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -198,6 +199,17 @@ c      CALL Abend()
       write (6,*) 'from a HDF5 file, but this is not supported in this'
       write (6,*) 'installation.'
       call Quit_OnUserError()
+#endif
+      GOTO 999
+*>>>>>>>>>>>>>>>>>>>> project OUT some coordinates <<<<<<<<<<<<<<<<<<<<<<<
+ 1116 CONTINUE
+#ifdef _DEBUG_
+      WRITE(6,*) ' Dynamix starts reading OUT.'
+#endif
+      Line = Get_Ln(LuSpool)
+      CALL Get_I1(1,POUT)
+#ifdef _DEBUG_
+      WRITE(6,*) ' Dynamix ends reading OUT.'
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
