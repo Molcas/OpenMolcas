@@ -33,10 +33,13 @@
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
+      use generic_CI, only: CI_solver_t
+
       implicit none
       save
       private
-      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup
+      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup,
+     &    fciqmc_solver_t
       logical :: DoEmbdNECI = .false., DoNECI = .false.
 #include "para_info.fh"
 
@@ -51,6 +54,16 @@
               real*8, intent (out) :: NECIen
           end subroutine
       end interface
+
+
+      type, extends(CI_solver_t) :: fciqmc_solver_t
+      contains
+        procedure, nopass :: init
+        procedure, nopass :: run => fciqmc_ctl
+        procedure, nopass :: cleanup
+      end type
+
+
       contains
 
 !>  @brief

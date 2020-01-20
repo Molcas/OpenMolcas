@@ -13,11 +13,9 @@
 
 
 module generic_CI
-    use fciqmc, only: DoNECI, fciqmc_ctl, &
-        fciqmc_init => init, fciqmc_cleanup => cleanup
     implicit none
     private
-    public :: CI_init_t, CI_solver_t, CI_cleanup_t
+    public :: CI_init_t, CI_run_t, CI_cleanup_t, CI_solver_t
 
     abstract interface
 !>  @brief
@@ -36,7 +34,7 @@ module generic_CI
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-        subroutine CI_solver_t(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, TUVX, &
+        subroutine CI_run_t(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, TUVX, &
                                F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
             use general_data, only : ntot, ntot1, ntot2
             use rasscf_data, only : Nac, nAcPar, nAcpr2
@@ -62,5 +60,12 @@ module generic_CI
         subroutine CI_cleanup_t()
         end subroutine
     end interface
+
+    type, abstract :: CI_solver_t
+    contains
+      procedure(CI_init_t), deferred, nopass :: init
+      procedure(CI_run_t), deferred, nopass :: run
+      procedure(CI_cleanup_t), deferred, nopass :: cleanup
+    end type
 
 end module generic_CI

@@ -233,4 +233,37 @@
         PAMAT(:) = 1.0
       end subroutine read_CC_RDM
 
+!       subroutine read_2RDM(path, RDM_2)
+!         character(*), intent(in) :: path
+!         real(dp), intent(out) :: RDM_2(:)
+!
+!         integer :: file_id, io_err, curr_line, i, n_lines
+!
+!
+!         call assert(size(RDM_2) == nAcpr2, 'Size does not match')
+!
+!         n_lines = inv_triang_number(nAcpr2)
+!
+!         file_id = 112
+!         i = 1
+!         write(*, *) n_lines, triangular_number(n_lines), inv_triang_number(triangular_number(n_lines))
+!         open(unit=file_id, file=path, action='read')
+!           do curr_line = 1, n_lines
+!             read(file_id, *, iostat=io_err) RDM_2(i : i + curr_line - 1)
+!             i = i + curr_line
+!           end do
+!         close(file_id)
+!       end subroutine
+!
+!       pure integer function triangular_number(n)
+!         integer, intent(in) :: n
+!         triangular_number = n * (n + 1) / 2
+!       end function
+!
+!       pure function inv_triang_number(n) result(res)
+!         integer, intent(in) :: n
+!         integer :: res
+!         res = nint(-1.d0/2.d0 + sqrt(1.d0/4.d0 + 2.d0*real(n, kind=dp)))
+!       end function
+
       end module CC_CI_mod
