@@ -17,7 +17,7 @@
      &                  Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,ipRef,Redundant,nqInt,
-     &                  MaxItr)
+     &                  MaxItr,iRef)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *

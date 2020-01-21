@@ -63,7 +63,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical Kriging_Hessian, Not_Converged
+      Logical Kriging_Hessian, Not_Converged, Force_RS
       Real*8, Allocatable:: Array_l(:)
       Real*8, Allocatable:: Energy_s(:)
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
@@ -79,6 +79,7 @@
       End If
 *
       Kriging_Hessian =.TRUE.
+      Force_RS=.FALSE.
       iOpt_RS=1   ! Activate restricted variance.
       iterAI=iter
       dEner=meAI
@@ -485,6 +486,12 @@
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
+*        Transform the new internal coordinates to Cartesians
+*
+         Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
+     &                       Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
+     &                       Work(ipCx),U,.True.,iter)
+*
          Call Energy_Kriging(qInt_s(1,iterAI+1),Energy(iterAI+1),nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI+1),E_Disp,nInter)
          Call Gradient_Kriging(qInt_s(1,iterAI+1),
@@ -537,6 +544,17 @@
             Not_Converged = Not_Converged .or.
      &                      RMSMx.gt.ThrGrd*Six
          End If
+*        Check total displacement from initial structure
+         If (Force_RS) Then
+            Call mma_allocate(Temp,3*nsAtom,1)
+            Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*3*nsAtom),1,
+     &                           Temp,1)
+            Call daXpY_(3*nsAtom,-One,Work(ipCx+(iter-1)*3*nsAtom),1,
+     &                                Temp,1)
+            RMS =Sqrt(DDot_(3*nsAtom,Temp,1,Temp,1)/DBLE(3*nsAtom))
+            If (RMS.gt.(Three*Beta_)) Step_trunc='*'
+            Call mma_deAllocate(Temp)
+         End If
          Not_Converged = Not_Converged .and. iterK.lt.miAI
 *                                                                      *
 ************************************************************************
@@ -564,6 +582,8 @@
       Call BackTrans_K(U,qInt_s(1,iterAI),Temp,nInter,1)
       qInt(:,iter+1)=Temp(:,1)
       Call mma_deallocate(Temp)
+      Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*(3*nsAtom)),1,
+     &                     Work(ipCx+iter*(3*nsAtom)),1)
 *
 *     Update the shift vector
 *

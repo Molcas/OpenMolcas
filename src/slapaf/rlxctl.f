@@ -125,6 +125,7 @@
       Numerical = lNmHss .and.iter.le.NmIter .and.iter.ne.1
 *
       If (Numerical) nWndw=NmIter
+      iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,
      &           iOper,Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
@@ -271,22 +272,26 @@
 ************************************************************************
 *                                                                      *
 *-----Transform the new internal coordinates to Cartesians
+*     (if not already done by Kriging)
 *
-      Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
-      Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
-      Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
-      PrQ=.False.
-      Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
-     &            ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
-     &            ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &            AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
-     &            Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
-     &            User_Def,nStab,jStab,Curvilinear,Numerical,
-     &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr)
-      Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
-      Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
-      Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
+      If (.not.(Kriging .and. Iter.ge.nspAI)) Then
+         Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
+         Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
+         Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
+         PrQ=.False.
+         iRef=0
+         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
+     &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
+     &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
+     &               AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &               User_Def,nStab,jStab,Curvilinear,Numerical,
+     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef)
+         Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
+         Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
+         Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************

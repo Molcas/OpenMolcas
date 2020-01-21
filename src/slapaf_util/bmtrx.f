@@ -52,12 +52,14 @@
 *            internal coordinate to define the K-matrix and to generate
 *            the raw model Hessian and TR vectors.
 *
-      If (.Not.BSet.and..Not.Numerical) Then
-         iIter = nIter-1         ! Compute cartesian Structure
-      Else If (Numerical) Then
+      If (Numerical) Then
          iIter = 1               ! Numerical Hessian Computation
-      Else
-         iIter = nIter           ! Normal Computation
+      Else If (iIter.eq.0) Then
+         If (.Not.BSet) Then
+            iIter = nIter-1      ! Compute cartesian Structure
+         Else
+            iIter = nIter        ! Normal Computation
+         End If
       End If
 *
 #ifdef _DEBUG_

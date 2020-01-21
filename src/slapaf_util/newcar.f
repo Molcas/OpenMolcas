@@ -14,7 +14,7 @@
      &                  Degen,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
-     &                  ipRef,Redundant,nqInt,MaxItr)
+     &                  ipRef,Redundant,nqInt,MaxItr,iRef)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -63,7 +63,8 @@
      &             Degen,kIter,ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &             iCoSet,rHidden,Error,ipRef,Redundant,nqInt,MaxItr)
+     &             iCoSet,rHidden,Error,ipRef,Redundant,nqInt,MaxItr,
+     &             iRef)
 *                                                                      *
 ************************************************************************
 *                                                                      *
