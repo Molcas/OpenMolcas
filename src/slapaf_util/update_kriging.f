@@ -57,6 +57,7 @@
 *
 *     Note that turning off the sorting will result in a poorer kriging!
 *
+*#define _DEBUG_
 *#define _UNSORTED_
 #define _DIAG_HESS_
 *                                                                      *
@@ -328,7 +329,6 @@
 *
 #ifdef _RS_RFO_
 *     Switch over to RS-RFO once the gradient is low.
-*     Switch over to RS-RFO once the gradient is low.
 *
       tmp=99.0D0
       Do j = 1, iter
@@ -384,16 +384,6 @@
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian,qBeta,iOpt_RS)
-*
-*        Change label of updating method if kriging points have
-*        been used.
-*
-         If (iterK.gt.0) Then
-            UpMeth='GEK   '
-            Write (UpMeth(4:6),'(I3)') iterK
-         Else If(iOpt_RS.eq.1) Then
-            UpMeth='RV-RFO'
-         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -428,6 +418,16 @@
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
          Call RecPrt('Grad(x):',' ',Grad_s,nInter,iterAI)
 #endif
+*
+*        Change label of updating method if kriging points have
+*        been used.
+*
+         If (iterK.gt.1) Then
+            UpMeth='GEK   '
+            Write (UpMeth(4:6),'(I3)') iterK
+         Else If(iOpt_RS.eq.1) Then
+            UpMeth='RV-RFO'
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -490,6 +490,10 @@
 *
       Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
       Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
+*
+*     Update the predicted energy change
+*
+      ed = Energy(iterAI)-Energy(iter)
 *
       Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &            Grad(1,iter),Shift(1,iter),Lbl)

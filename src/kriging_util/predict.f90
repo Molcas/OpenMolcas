@@ -28,7 +28,8 @@ SUBROUTINE predict(gh,iter,nInter)
       Call mma_allocate(IPIV,m_t,label="IPIV")
       ! calculations of Energy and dispersion
       A(:,:) = full_R
-      B(:) = CV(:,j,1,1)
+      B(:) = cv(:,j,1,1)
+      pred(j) = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
       var(j) = 1d0 - dot_product(B,CV(:,j,1,1))
       if (ordinary) Then
@@ -37,7 +38,6 @@ SUBROUTINE predict(gh,iter,nInter)
         var(j)=max(var(j)+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if
       sigma(j)=sqrt(var(j)*variance)
-      pred(j) = sb + dot_product(B,Kv)
       Call mma_deallocate(A)
       Call mma_deallocate(IPIV)
     else if (gh.eq.1) then

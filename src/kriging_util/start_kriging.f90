@@ -64,7 +64,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 !var is part of the GEK variance and the concentrated Likelihood function (eq.
 ! (8) and (9) ref.).
 !Sigma is a dispersion function +-sigma=1.96*sqrt(abs(var*variance)) (need reference).
-!cv is the corvariant vector that contains the correlation function values and
+!cv is the covariant vector that contains the correlation function values and
 ! gradients between the sample data and the prediction
 ! (eq. 4 ref.).
 !l is a n-dimensional vector of the width of the Matern function.
