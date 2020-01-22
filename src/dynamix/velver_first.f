@@ -37,7 +37,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       EXTERNAL    IsFreeUnit
-      INTEGER     natom,i,j,irc,file,IsFreeUnit,ipCoord
+      INTEGER     natom,i,j,p,irc,file,IsFreeUnit,ipCoord
       REAL*8      DT2,DTSQ2,Ekin,time,totimpl,RMS
 
       CHARACTER  caption*15, lastline*80, filname*80
@@ -90,19 +90,45 @@ C     Read the velocities
 C
       CALL Get_Velocity(vel,3*natom)
 C
+C     Initialize the Mass variable
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
+C
 C Check if reduced dimensionality
+C          WRITE(6,*) 'MORGANE', POUT
       IF (POUT .NE. 0) THEN
         CALL mma_allocate(pcoo,POUT,natom*3)
         CALL mma_allocate(pvel,POUT)
         CALL mma_allocate(pforce,POUT)
         CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
-        DO i = 1,POUT
-          pvel(i) = dot_product(pcoo(i,:),vel)
-     & / dot_product(pcoo(i,:),pcoo(i,:))
-          vel(:) = vel(:) - pvel(i)*pcoo(i,:)
-          pforce(i) = dot_product(pcoo(i,:),force)
-     & / dot_product(pcoo(i,:),pcoo(i,:))
-          force(:) = force(:) - pforce(i)*pcoo(i,:)
+        DO p = 1,POUT
+          pvel(p) = dot_product(pcoo(p,:),vel)
+     & / dot_product(pcoo(p,:),pcoo(p,:))
+          vel(:) = vel(:) - pvel(p)*pcoo(p,:)
+          pforce(p) = 0
+          DO i=1, natom
+            IF (i.GT.matom) THEN
+              CALL LeftAd(atom(i))
+              Iso=0
+              CALL Isotope(Iso,atom(i),Mass(i))
+            END IF
+            DO j=1, 3
+              pforce(p) = pforce(p) + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
+     & /Mass(i)
+            ENDDO
+          ENDDO
+          pforce(p) = pforce(p) / dot_product(pcoo(p,:),pcoo(p,:))
+          DO i=1, natom
+            IF (i.GT.matom) THEN
+              CALL LeftAd(atom(i))
+              Iso=0
+              CALL Isotope(Iso,atom(i),Mass(i))
+            END IF
+            DO j=1, 3
+              force(3*(i-1)+j) = force(3*(i-1)+j) -
+     & pforce(p)*Mass(i)*pcoo(p,3*(i-1)+j)
+            ENDDO
+          ENDDO
         ENDDO
       ENDIF
 C--------------------------------------------------------------------C
@@ -113,11 +139,6 @@ C--------------------------------------------------------------------C
       ENDIF
 C--------------------------------------------------------------------C
 
-C     Initialize the Mass variable
-C
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
-C
 C     Write out the old coordinates
 C
       CALL DxRdNAtomStnd(natom2)
