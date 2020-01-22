@@ -165,6 +165,16 @@
      $        'active 1-body transition density matrix, '//
      $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
      $        '[NROOTS*(NROOTS-1)/2,NAC,NAC].')
+
+      if (iSpin.gt.1) then
+      wfn_transsdens = mh5_create_dset_real (wfn_fileid,
+     $        'TRANSITION_SPIN_DENSITY_MATRIX', 3,
+     $        [NAC, NAC, lRoots*(lRoots-1)/2])
+      call mh5_init_attr(wfn_transsdens, 'description',
+     $        'active 1-body transition spin density matrix, '//
+     $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
+     $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
+      end if
       end if
 
 #ifdef _DMRG_

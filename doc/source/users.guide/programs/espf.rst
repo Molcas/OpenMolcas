@@ -73,7 +73,7 @@ The interface to :program:`GROMACS` differs from the :program:`TINKER` interface
 .. [#fn3] Configuration with CMake requires the flag ``-D GROMACS=ON``
 .. [#fn4] http://www.gromacs.org/
 
-The recommended (and the only verified) approach of using the |molcas|/:program:`GROMACS` interface is to define the full QM+MM system in the :program:`GROMACS` input. The system definition can then be imported into |molcas| by adding the keyword :kword:`GROMACS` in :program:`GATEWAY` (see section :ref:`UG:sec:gateway` for details). For efficiency reasons, the |molcas| part of the interface separates the MM subsystem into two different atom types: *inner* MM atoms and *outer* MM atoms. These are completely equivalent as far as interactions are concerned. However, whereas the coordinates of the inner MM atoms are stored and updated using |molcas| standard mechanism, the outer MM atoms are handled using a mechanism specifically designed with large systems in mind. The division into inner and outer MM atoms can be controlled with options to the :kword:`GROMACS` keyword in :program:`GATEWAY` (see section :ref:`UG:sec:gateway`).
+The recommended (and the only verified) approach of using the |molcas|/:program:`GROMACS` interface is to define the full QM+MM system in the :program:`GROMACS` input. The system definition can then be imported into |molcas| by adding the keyword :kword:`GROMACS` in :program:`GATEWAY` (see :numref:`UG:sec:gateway` for details). For efficiency reasons, the |molcas| part of the interface separates the MM subsystem into two different atom types: *inner* MM atoms and *outer* MM atoms. These are completely equivalent as far as interactions are concerned. However, whereas the coordinates of the inner MM atoms are stored and updated using |molcas| standard mechanism, the outer MM atoms are handled using a mechanism specifically designed with large systems in mind. The division into inner and outer MM atoms can be controlled with options to the :kword:`GROMACS` keyword in :program:`GATEWAY` (see :numref:`UG:sec:gateway`).
 
 Please note that the |molcas|/:program:`GROMACS` interface is still under development and is currently provided for evaluation purposes only.
 
@@ -130,7 +130,7 @@ Files
 -----
 
 :program:`ESPF` will use the following input
-files: :file:`RYSRW`, :file:`ABDATA`, :file:`RUNFILE`, :file:`ONEINT` (for more information see :ref:`UG:sec:files_list`).
+files: :file:`RYSRW`, :file:`ABDATA`, :file:`RUNFILE`, :file:`ONEINT` (for more information see :numref:`UG:sec:files_list`).
 In addition, :program:`ESPF` uses :file:`ESPFINP` (the ESPF input file) and :file:`SEWARINP` (the Seward input file).
 
 Please note that the external potential can be given within a file, separated from the :program:`ESPF` input file.

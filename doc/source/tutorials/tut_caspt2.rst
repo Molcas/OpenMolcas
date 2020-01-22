@@ -39,7 +39,7 @@ SA-CASSCF calculation.
 :program:`CASPT2` Output
 ------------------------
 
-In section :ref:`TUT:sec:pt2out` the meaning and significance of most of the
+In :numref:`TUT:sec:pt2out` the meaning and significance of most of the
 features used and printed by the :program:`CASPT2` program are explained in the
 context of an actual example. We suggest a careful reading of that section
 because understanding the results of a CASPT2 calculation is important for
@@ -70,7 +70,7 @@ quasi-canonical orbitals.
 Two important sections follow. First a detailed report on small energy
 denominators, large components, and large energy contributions which will
 inform about the reliability of the calculation
-(see section :ref:`TUT:sec:pt2out`)
+(see :numref:`TUT:sec:pt2out`)
 and finally the :program:`CASPT2` property section
 including the natural orbitals obtained
 as defined in the output and a number of approximated molecular properties.

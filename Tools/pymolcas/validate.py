@@ -55,9 +55,9 @@ def fortran_float(num):
   if (num[0] == '$'):
     return 1.0
   # in case there is no exponent marker
-  num = re.sub(r'(\d)([+-]\d)', r'\1e\2', num)
-  # convert D to E
-  num = num.translate(str.maketrans('dD', 'eE'))
+  num = re.sub(r'([\d.])([+-]\d)', r'\1e\2', num)
+  # convert d/D to e
+  num = re.sub(r'[dD]', 'e', num)
   return float(num)
 
 # Convert a list to integers
@@ -119,7 +119,11 @@ def test_keyword(lines, keyword):
   if (parent.tag == 'GROUP'):
     endlist.append('END' + parent.get('NAME')[0])
   l = 0
-  if (cmp_str(name, lines[0])):
+  names = [name]
+  also = keyword.get('ALSO')
+  if (also):
+    names.extend(keyword.get('ALSO').split(','))
+  if (any([cmp_str(i, lines[0]) for i in names])):
     ll = test(lines, keyword, kind, size, choice)
     # try possible <ALTERNATE> definitions
     if (ll is None):
@@ -880,13 +884,13 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'POLY_ANISO'):
-    if (name in ['LIN1', 'PAIR', 'LIN3', 'ALIN', 'LIN9']):
+    if (name in ['PAIR', 'ALIN', 'LIN9']):
       try:
         n = first_int(lines[l])
         l += 1
-        if (name in ['LIN1', 'PAIR']):
+        if (name == 'PAIR'):
           m = 1
-        elif (name in ['LIN3', 'ALIN']):
+        elif (name == 'ALIN'):
           m = 3
         elif (name == 'LIN9'):
           m = 9
@@ -1102,7 +1106,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSI'):
-    if (name in ['NROFJOBIPHS', 'NR OF JOBIPHS']):
+    if (name == 'NROFJOBIPHS'):
       try:
         parts = fortran_split(lines[l])
         n = fortran_int(parts[0])
@@ -1377,7 +1381,7 @@ def validate(inp, db):
     return (rc, ['No module named "{0}"'.format(program)])
 
   # This is a hack for the XYZ input of GATEWAY/SEWARD
-  # to hide "XYZ input" keywords (they will be enabled if COORD or GROMACS is found)
+  # to hide "XYZ input" keywords (they will be enabled if COORD, GROMACS or TINKER is found)
   if (module.get('NAME') in ['GATEWAY', 'SEWARD']):
     for kw in module.xpath('KEYWORD[@NAME="BASIS (XYZ)"] | KEYWORD[@NAME="GROUP"]'):
       kw.set('NAME', '*{}'.format(kw.get('NAME')))
@@ -1422,7 +1426,7 @@ def validate(inp, db):
             group = stack.pop(-1)
           bad = False
           found.append(name)
-          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS'])):
+          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS', 'TINKER'])):
             enable_xyz(kw.getparent())
           break
       else:
@@ -1467,7 +1471,7 @@ def validate(inp, db):
     if (name[0] in ['*', '#']):
       continue
     # special case
-    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS']])):
+    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS', 'TINKER']])):
       continue
     if (name not in found):
       result.append('*** Keyword {} is required, but was not found'.format(name))

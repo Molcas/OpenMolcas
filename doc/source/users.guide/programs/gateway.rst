@@ -599,14 +599,14 @@ Advanced XYZ input
 ::::::::::::::::::
 
 If the geometry is specified in XYZ format, all atoms should be specified.
-The default units are Ångströms. By default, maximum possible symmetry is used.
+The default units are ångströms. By default, maximum possible symmetry is used.
 
 "Molcas XYZ" file format is an extension of plain XYZ format.
 
 * First line of this file contains the number of atoms.
 
 * Second line (a comment line) can contain "a.u." or "bohr" to
-  use atomic units, instead of default Ångströms.
+  use atomic units, instead of default ångströms.
   Also this line can contain keyword TRANS, followed by 3 numbers,
   and/or ROT, followed by 9 numbers (in this case coordinates
   will be Translated by specified vector, and/or Rotated), and SCALE (or
@@ -876,8 +876,7 @@ Constraints
 ...........
 
 In case of optimizations with constraints these are defined in the :program:`GATEWAY` input.
-For a complete description of this keyword see the section
-:ref:`UG:sec:definition_of_internal_coordinates`.
+For a complete description of this keyword see :numref:`UG:sec:definition_of_internal_coordinates`.
 
 .. class:: keywordlist
 
@@ -1166,7 +1165,7 @@ respective program sections.
 
 Complete and detailed examples of how to add a reaction field,
 through the Kirkwood or the PCM model, into quantum chemical
-calculations in |molcas| is presented in section :ref:`TUT:sec:cavity` of the
+calculations in |molcas| is presented in :numref:`TUT:sec:cavity` of the
 examples manual. The user is encouraged to read that section for further details.
 
 Input for the Kirkwood and PCM models
@@ -1589,7 +1588,7 @@ calculation on the first excited state is performed.
   NonEq
   RFRoot  = 2
 
-Again the user is recommended to read section :ref:`TUT:sec:cavity` of the
+Again the user is recommended to read :numref:`TUT:sec:cavity` of the
 examples manual for further details.
 
 Keywords associated to one-electron integrals
@@ -2348,7 +2347,7 @@ more details on these optimization see the manual entry for the module
 QM/MM calculations with |molcas|/:program:`Gromacs`
 ...................................................
 
-The following keywords apply to QM/MM calculations performed with the |molcas|/:program:`GROMACS` interface (see section :ref:`UG:sec:espf` for more details).
+The following keywords apply to QM/MM calculations performed with the |molcas|/:program:`GROMACS` interface (see :numref:`UG:sec:espf` for more details).
 
 .. class:: keywordlist
 

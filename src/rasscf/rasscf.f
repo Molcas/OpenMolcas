@@ -1823,6 +1823,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','ALLO','REAL',LW7,NAC*NAC)
          jDisk=IADR15(4)
          Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
          Do jRoot=2,lRoots
@@ -1844,6 +1845,9 @@ c Clean-close as much as you can the CASDFT stuff...
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
      &              [NAC,NAC,1], [0,0,idx-1])
+               If (iSpin.gt.1)
+     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
@@ -1851,6 +1855,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+         Call GetMem('SDtmp','FREE','REAL',LW7,NAC*NAC)
 #else
          Call WarningMessage(1,'HDF5 support disabled, '//
      &                         'TDM keyword ignored.')

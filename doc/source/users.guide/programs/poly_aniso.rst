@@ -87,7 +87,7 @@ approximation. However, it was succesfully applied for a wide variety of polynuc
   the two magnetic dipoles, :math:`\vec{n}_{12}` is the directional vector connecting the two magnetic dipoles (of unit length).
   :math:`\mu_{\text{Bohr}}^2` is the square of the Bohr magneton; with an approximative value of 0.43297 in :math:`\text{cm}^{-1}/\text{T}`.
   As inferred from the above Equation, the dipolar magnetic interaction depends on the distance and on the angle between the magnetic moments on magnetic
-  centers. Therefore, the cartesian coordinates of all non-equivalent magnetic centers must be provided in the input (see the keyword :kword:`COOR`).
+  centers. Therefore, the Cartesian coordinates of all non-equivalent magnetic centers must be provided in the input (see the keyword :kword:`COOR`).
 
 Files
 -----
@@ -159,7 +159,7 @@ Mandatory keywords defining the calculation
   which cannot be related by point group symmetry.
   In the second position the answer to the question: *Have all NON-EQ centers been computed ab initio?*
   is given: ``T`` for *True* and ``F`` for *False*.
-  On the third position, the answer to the question: *Are the rassi.h5 files to be read for input?* 
+  On the third position, the answer to the question: *Are the rassi.h5 files to be read for input?*
   is given. For the current status, the letter ``F`` is the only option.
   On the following line the program will read NON-EQ values specifying the
   number of equivalent centers of each type.
@@ -212,7 +212,7 @@ Mandatory keywords defining the calculation
   Some examples valid for mixed situations: the system consists of centers computed *ab initio* and
   isotropic centers (case ``F``, *False*):
 
-.. class:: poly_aniso
+  .. class:: poly_aniso
 
   +----------------------------------------+----------------------------------------+----------------------------------------+
   | ::                                     | ::                                     | ::                                     |
@@ -228,7 +228,7 @@ Mandatory keywords defining the calculation
   +----------------------------------------+----------------------------------------+----------------------------------------+
   | There are two kinds of magnetic centers| There are three kinds of magnetic      | There are six kinds of magnetic centers|
   | in the cluster; the center of the first| centers in the cluster; the first      | in the cluster; only three centers have|
-  | type has been computed *ab initio*,    | center type has been computed *ab*     | *been computed *ab initio*, while the  |
+  | type has been computed *ab initio*,    | center type has been computed *ab      | been computed *ab initio*, while the   |
   | while the centers of the second type   | initio*, while the centers of the      | other three centers are considered     |
   | are considered isotropic with          | second and third types are considered  | isotropic; the :math:`g` factor of the |
   | :math:`g=2.3`; the cluster consists of | isotropic with :math:`g=2.1` (second   | first center is 2.12 (:math:`S=1/2`);  |
@@ -255,27 +255,26 @@ Mandatory keywords defining the calculation
   There is no maximal value for :kword:`NNEQ`, although the calculation becomes quite heavy in case the number of
   exchange functions is large.
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="NNEQ" APPEAR="Definition of input magnetic sites" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="NNEQ" APPEAR="Definition of input magnetic sites" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: NNEQ <basic>
               <HELP>
-                 This keyword defines several important parameters of the calculation. On the
-                 first line after the keyword the program reads 2 values:
-                 1) the number of types of different magnetic centers (NON-EQ) of the cluster and
-                 2) a letter ``T`` or ``F`` in the second position of the same line.
-                 The number of NON-EQ is the total number of magnetic centers of the cluster
-                 which cannot be related by point group symmetry.
-                 In the second position the answer to the question: *Have all NON-EQ centers been computed ab initio?*
-                 is given: ``T`` for *True* and ``F`` for *False*.
-                 On the third position, the answer to the question: *Are the rassi.h5 files to be read for input?* 
-                 is given. For the current status, the letter ``F`` is the only option.
-                 On the following line the program will read NON-EQ values specifying the
-                 number of equivalent centers of each type.
-                 On the following line the program will read NON-EQ integer numbers specifying
-                 the number of low-lying spin-orbit functions from each center forming the local
-                 exchange basis.
+              This keyword defines several important parameters of the calculation. On the
+              first line after the keyword the program reads 2 values:
+              1) the number of types of different magnetic centers (NON-EQ) of the cluster and
+              2) a letter "T" or "F" in the second position of the same line.
+              The number of NON-EQ is the total number of magnetic centers of the cluster
+              which cannot be related by point group symmetry.
+              In the second position the answer to the question: "Have all NON-EQ centers been computed ab initio?"
+              is given: "T" for True and "F" for False.
+              On the third position, the answer to the question: "Are the rassi.h5 files to be read for input?"
+              is given. For the current status, the letter "F" is the only option.
+              On the following line the program will read NON-EQ values specifying the
+              number of equivalent centers of each type.
+              On the following line the program will read NON-EQ integer numbers specifying
+              the number of low-lying spin-orbit functions from each center forming the local
+              exchange basis.
               </HELP>
               </KEYWORD>
-
 
 :kword:`SYMM`
   Specifies rotation matrices to symmetry equivalent sites. This keyword is mandatory in the case more centers of a given type are present in the calculation.
@@ -340,28 +339,17 @@ Mandatory keywords defining the calculation
 
   More examples are given in the *Tutorial* section.
 
-
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="SYMM" APPEAR="Definition of symmetry of the polynuclear cluster, if any" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="SYMM" APPEAR="Definition of symmetry of the polynuclear cluster, if any" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: SYMM <basic>
               <HELP>
-                 Specifies rotation matrices to symmetry equivalent sites. This keyword is mandatory in the case more centers of a given type are present in the calculation.
-                 This keyword is mandatory when the calculated polynuclear compound has exact crystallographic point group symmetry. In other words, when the number of
-                 equivalent centers of any kind :math:`i` is larger than 1, this keyword must be employed. Here the rotation matrices from the one
-                 center to all the other of the same type are declared.
-                 On the following line the program will read the number ``1`` followed on the next lines by as many :math:`3\times3` rotation matrices as the total number of
-                 equivalent centers of type ``1``. Then the rotation matrices of centers of type ``2``, ``3`` and so on, follow in the same format.
-                 When the rotation matrices contain irrational numbers (e.g. :math:`\sin{\frac{\pi}{6}}=\frac{\sqrt{3}}{2}`), then more digits than presented in the examples
-                 below are advised to be given: :math:`\frac{\sqrt{3}}{2}=0.86602540378`.
+              Specifies rotation matrices to symmetry equivalent sites. This keyword is mandatory in the case more centers of a given type are present in the calculation.
+              This keyword is mandatory when the calculated polynuclear compound has exact crystallographic point group symmetry. In other words, when the number of
+              equivalent centers of any kind "i" is larger than 1, this keyword must be employed. Here the rotation matrices from the one
+              center to all the other of the same type are declared.
+              On the following line the program will read the number "1" followed on the next lines by as many 3x3 rotation matrices as the total number of
+              equivalent centers of type "1". Then the rotation matrices of centers of type "2", "3" and so on, follow in the same format.
               </HELP>
               </KEYWORD>
-
-
-
-
-
-
-
-
 
 *Keywords defining the magnetic exchange interactions*
 
@@ -395,10 +383,9 @@ The pseudo-code is: ::
           READ site-1, site-2,   J
        End Do
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN1" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PAIR" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" ALSO="LIN1" />
 
-:kword:`ALIN` :kword:`LIN3`
+:kword:`ALIN` or :kword:`LIN3`
   Specifies the anisotropic interactions between metal pairs. Three parameters per interacting pair are required.
 
   ::
@@ -411,10 +398,7 @@ The pseudo-code is: ::
 
   :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN3" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" />
-
-
-
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ALIN" KIND="REALS_COMPUTED" SIZE="5" LEVEL="UNDOCUMENTED" ALSO="LIN3" />
 
 :kword:`LIN9`
   Specifies the full anisotropic interaction matrices between metal pairs. Nine parameters per interacting pair is required.
@@ -427,11 +411,9 @@ The pseudo-code is: ::
           READ site-1, site-2,   Jxx, Jxy, Jxz,   Jyx, Jyy, Jyz,  Jzx, Jzy, Jzz
        End Do
 
- :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
+  :math:`J_{\alpha\beta}`, where :math:`\alpha` and :math:`\beta` are main values of the Cartesian components of the (:math:`3\times3`) matrix defining the exchange interaction between site-1 and site-2.
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN9" KIND="REALS_COMPUTED" SIZE="11" LEVEL="UNDOCUMENTED" />
-
-
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="LIN9" KIND="REALS_COMPUTED" SIZE="11" LEVEL="UNDOCUMENTED" />
 
 :kword:`COOR`
   Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole
@@ -446,17 +428,12 @@ The pseudo-code is: ::
           ...
        End Do
 
-.. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="COOR" KIND="REALS_LOOKUP" SIZE="3NNEQ" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="COOR" KIND="REALS_LOOKUP" SIZE="3NNEQ" LEVEL="BASIC">
               %%Keyword: COOR <basic>
               <HELP>
-                 Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole interaction.
+              Specifies the symmetrized coordinates of the metal sites. This keyword enables computation of dipole-dipole interaction.
               </HELP>
               </KEYWORD>
-
-
-
-
-
 
 *Other keywords*
 
@@ -477,13 +454,13 @@ Optional general keywords to control the input
 
   Example: ::
 
-      MLTP
-      10
-      2 4 4 2 2   2 2 2 2 2
+    MLTP
+    10
+    2 4 4 2 2   2 2 2 2 2
 
-    :program:`POLY_ANISO` will compute the :math:`g` and :math:`D{-}` tensors for 10 groups of states.
-    The groups 1 and 4--10 are doublets (:math:`\tilde{S}=\ket{1/2}`), while the groups 2 and 3 are quadruplets,
-    having the effective spin :math:`\tilde{S}=\ket{3/2}`. For the latter cases, the ZFS (:math:`D{-}`) tensors will be computed.
+  :program:`POLY_ANISO` will compute the :math:`g` and :math:`D{-}` tensors for 10 groups of states.
+  The groups 1 and 4--10 are doublets (:math:`\tilde{S}=\ket{1/2}`), while the groups 2 and 3 are quadruplets,
+  having the effective spin :math:`\tilde{S}=\ket{3/2}`. For the latter cases, the ZFS (:math:`D{-}`) tensors will be computed.
 
   .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MLTP" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" DEFAULT_VALUE="1">
               %%Keyword: MLTP <basic>
@@ -499,7 +476,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`TINT`
-  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read four numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
+  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read three numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
 
   .. container:: list
 
@@ -520,7 +497,7 @@ Optional general keywords to control the input
               %%Keyword: TINT <basic>
               <HELP>
               Specifies the temperature points for the evaluation of the magnetic susceptibility.
-              The program will read four numbers: Tmin, Tmax, nT, and dltT0. Units of temperature = Kelvin (K).
+              The program will read three numbers: Tmin, Tmax, nT. Units of temperature = kelvin (K).
               ||Tmin  -- the minimal temperature (Default 0.0 K)
               ||Tmax  -- the maximal temperature (Default 300.0 K)
               ||nT    -- number of temperature points (Default 101)
@@ -651,29 +628,28 @@ Optional general keywords to control the input
     :kword:`ERAT`, :kword:`NCUT` and :kword:`ENCU` are mutually exclusive.
 
 :kword:`MVEC`
+  Defines the number of directions for which the magnetization vector will be computed.
+  On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
+  The program will read :math:`N_{\text{DIR}}` lines for Cartesian coordinates specifying the direction :math:`i` of the
+  applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
+  The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
+  Example: ::
 
-    Defines the number of directions for which the magnetization vector will be computed.
-    On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
-    The program will read :math:`N_{\text{DIR}}` lines for cartesian coordinates specifying the direction :math:`i` of the
-    applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
-    The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
-    Example: ::
+    MVEC
+    4
+    0.0000  0.0000   0.1000
+    1.5707  0.0000   2.5000
+    1.5707  1.5707   1.0000
+    0.4257  0.4187   0.0000
 
-      MVEC
-      4
-      0.0000  0.0000   0.1000
-      1.5707  0.0000   2.5000
-      1.5707  1.5707   1.0000
-      0.4257  0.4187   0.0000
+  The above input requests computation of the magnetization vector in four directions of applied field.
+  The actual directions on the unit sphere are: ::
 
-    The above input requests computation of the magnetization vector in four directions of applied field.
-    The actual directions on the unit sphere are: ::
-
-      4
-      0.00000  0.00000  1.00000
-      0.53199  0.00000  0.84675
-      0.53199  0.53199  0.33870
-      0.17475  0.17188  0.00000
+    4
+    0.00000  0.00000  1.00000
+    0.53199  0.00000  0.84675
+    0.53199  0.53199  0.33870
+    0.17475  0.17188  0.00000
 
   .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="MVEC" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
               %%Keyword: MVEC <basic>
@@ -685,31 +661,29 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
-
 :kword:`ZEEM`
+  Defines the number of directions for which the Zeeman energy will be computed/saved/plotted.
+  On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
+  The program will read :math:`N_{\text{DIR}}` lines for Cartesian coordinates specifying the direction :math:`i` of the
+  applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
+  The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
+  Example: ::
 
-    Defines the number of directions for which the Zeeman energy will be computed /saved / plotted.
-    On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
-    The program will read :math:`N_{\text{DIR}}` lines for cartesian coordinates specifying the direction :math:`i` of the
-    applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
-    The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
-    Example: ::
+    MVEC
+    4
+    0.0000  0.0000   0.1000
+    1.5707  0.0000   2.5000
+    1.5707  1.5707   1.0000
+    0.4257  0.4187   0.0000
 
-      MVEC
-      4
-      0.0000  0.0000   0.1000
-      1.5707  0.0000   2.5000
-      1.5707  1.5707   1.0000
-      0.4257  0.4187   0.0000
+  The above input requests computation of the magnetization vector in four directions of applied field.
+  The actual directions on the unit sphere are: ::
 
-    The above input requests computation of the magnetization vector in four directions of applied field.
-    The actual directions on the unit sphere are: ::
-
-      4
-      0.00000  0.00000  1.00000
-      0.53199  0.00000  0.84675
-      0.53199  0.53199  0.33870
-      0.17475  0.17188  0.00000
+    4
+    0.00000  0.00000  1.00000
+    0.53199  0.00000  0.84675
+    0.53199  0.53199  0.33870
+    0.17475  0.17188  0.00000
 
   .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="ZEEM" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
               %%Keyword: ZEEM <basic>
@@ -720,9 +694,6 @@ Optional general keywords to control the input
               "i" of the magnetic field (theta_i and phi_i). These values should be in radians.
               </HELP>
               </KEYWORD>
-
-
-
 
 :kword:`MAVE`
   This keyword specifies the grid density used for the computation of powder molar
@@ -810,14 +781,13 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
-
 :kword:`ABCC`
   This keyword will enable computation of magnetic and anisotropy axes in the
   crystallographic :math:`abc` system. On the next line, the program will read six real
   values, namely :math:`a`, :math:`b`, :math:`c`, :math:`\alpha`, :math:`\beta`, and :math:`\gamma`, defining the
   crystal lattice. On the second line, the program will read the Cartesian coordinates
   of the magnetic center. The computed values in the output correspond to the
-  crystallographic position of three "dummy atoms" located on the corresponding anisotropy axes, at the distance of 1 ångstrom from the metal site. ::
+  crystallographic position of three "dummy atoms" located on the corresponding anisotropy axes, at the distance of 1 ångström from the metal site. ::
 
     ABCC
     20.17   19.83   18.76    90  120.32  90
@@ -836,17 +806,16 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
-
 :kword:`XFIE`
   This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
-  for the computation of magnetic susceptibility by :math:`dM/dH` and :math:`M/H` formulas.
+  for the computation of magnetic susceptibility by :math:`\mathrm{d}M/\mathrm{d}H` and :math:`M/H` formulas.
   A comparison with the usual formula (in the limit of zero applied field) is provided.
   (Default is 0.0)
 
   .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
               %%Keyword: XFIE <basic>
               <HELP>
-              This keyword specifies the value (in Tesla) of applied magnetic field
+              This keyword specifies the value (in tesla) of applied magnetic field
               for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
               A comparison with the usual formula (in the limit of zero applied field) is provided.
               (Default is 0.0)
@@ -871,13 +840,11 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
-
 :kword:`PLOT`
-  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*. 
-  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image. 
+  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*.
+  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
   The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
-  The files are named: file:`XT.dat`, file:`XT.plt`, file:`XT.png`, file:`MH.dat`, file:`MH.plt`, file:`MH.png`, file:`BARRIER_TME.dat`, file:`BARRIER_ENE.dat`, file:`BARRIER.plt` and file:`BARRIER.png`.
-
+  The files are named: :file:`XT.dat`, :file:`XT.plt`, :file:`XT.png`, :file:`MH.dat`, :file:`MH.plt`, :file:`MH.png`, :file:`BARRIER_TME.dat`, :file:`BARRIER_ENE.dat`, :file:`BARRIER.plt` and :file:`BARRIER.png`.
 
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: PLOT <basic>
@@ -885,10 +852,8 @@ Optional general keywords to control the input
               This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".
               The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
               The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
-              The files are named: `XT.dat`, `XT.plt`, `XT.png`, `MH.dat`, `MH.plt`, `MH.png`, `BARRIER_TME.dat`, `BARRIER_ENE.dat`, `BARRIER.plt` and `BARRIER.png`.
+              The files are named: XT.dat, XT.plt, XT.png, MH.dat, MH.plt, MH.png, BARRIER_TME.dat, BARRIER_ENE.dat, BARRIER.plt and BARRIER.png.
               </HELP>
               </KEYWORD>
-
-
 
 .. xmldoc:: </MODULE>

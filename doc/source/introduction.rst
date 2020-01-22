@@ -35,7 +35,7 @@ It is also possible using either CASSCF or RASSCF to
 employ optimization techniques and obtain equilibrium geometries, transition-state structures,
 force fields, and vibrational energies using gradient techniques.
 
-In the present version (|molcasversion|) the Stochastic-CASSCF method :cite:`limanni2016` is also available to treat systems requiring large active spaces.
+Since |molcasviii| the Stochastic-CASSCF method :cite:`limanni2016` is also available to treat systems requiring large active spaces.
 Routine calculations have been presented with active spaces of size of 40 electrons in 40 orbitals :cite:`limanni2018,limanni2019` and larger active space are currently tested.
 
 Although the RASSCF approach is known to give reasonable structures for
@@ -74,13 +74,13 @@ study of several electronic states, including their interaction to second order.
 This code is especially useful in cases where two or more energy surfaces are
 close in energy. An analytical CASPT2 gradient code is in the process of development,
 but this work is as yet unfinished. In place of the analytical gradient capability,
-the present version (|molcasversion|) includes a numerical procedure, which allows
+|molcas| includes a numerical procedure, which allows
 automatic geometry optimization at the CASPT2 level of theory. It is applicable
 to all states and systems for which the CASPT2 energy can be computed including the
 calculation of vibrational frequencies. It is important to note that the CASPT2
 method is under constant development.
 
-In the present version (|molcasversion|) the Multiconfiguration Pair-Density Functional Theory, MC-PDFT,
+Since |molcasviii| the Multiconfiguration Pair-Density Functional Theory, MC-PDFT,
 is also available to treat dynamical correlation.
 
 If only a few electrons are correlated, the active space can be quite large

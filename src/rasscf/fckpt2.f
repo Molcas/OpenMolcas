@@ -101,6 +101,9 @@
        NFO=NFRO(ISYM)
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
+       NR1=NRS1(ISYM)
+       NR2=NRS2(ISYM)
+       NR3=NRS3(ISYM)
        NEO=NSSH(ISYM)
        NOO=NFO+NIO+NAO
        NOT=NIO+NAO+NEO
@@ -180,67 +183,210 @@
 ************************************************************************
 *
        IF(NAO.NE.0) THEN
+************************************************************************
+* RAS1 part of the Fock matrix
+************************************************************************
+        IF(NR1.NE.0) THEN
 * MOVE FP TO TRIANGULAR FORM
-        NTU=0
-        DO NT=1,NAO
-         DO NU=1,NT
-          NTU=NTU+1
-          NTT=NT+NIO
-          NUT=NU+NIO
-          NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
-          FTR(NTU)= FP(NTUT)
-          IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
+         NTU=0
+         DO NT=1,NR1
+          DO NU=1,NT
+           NTU=NTU+1
+           NTT=NT+NIO
+           NUT=NU+NIO
+           NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
+           FTR(NTU)= FP(NTUT)
+           IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
+          END DO
          END DO
-        END DO
 * DIAGONALIZE
-        NAO2=NAO**2
-        CALL FZERO(VEC,NAO2)
-        II=1
-        DO NT=1,NAO
-         VEC(II)=1.0D0
-         II=II+NAO+1
-        END DO
-        CALL Jacob(FTR,VEC,NAO,NAO)
+         NR12=NR1**2
+         CALL FZERO(VEC,NR12)
+         II=1
+         DO NT=1,NR1
+          VEC(II)=1.0D0
+          II=II+NR1+1
+         END DO
+         CALL Jacob(FTR,VEC,NR1,NR1)
 *
 * Move eigenvalues to FDIAG.
 *
-        II=0
-        NO1=IB+NFO+NIO
-        DO NT=1,NAO
-         II=II+NT
-         FDIAG(NO1+NT)=FTR(II)
-        END DO
+         II=0
+         NO1=IB+NFO+NIO
+         DO NT=1,NR1
+          II=II+NT
+          FDIAG(NO1+NT)=FTR(II)
+         END DO
 *
 * Sort eigenvalues and orbitals after energy
 *
-        IF(NAO.GT.1) THEN
-         NAO1=NAO-1
-         DO NT=1,NAO1
-          NT1=NT+1
-          MIN=NT
-          DO NU=NT1,NAO
-           IF(FDIAG(NO1+NU).LT.FDIAG(NO1+MIN)) MIN=NU
+         IF(NR1.GT.1) THEN
+          NR11=NR1-1
+          DO NT=1,NR11
+           NT1=NT+1
+           MIN=NT
+           DO NU=NT1,NR1
+            IF(FDIAG(NO1+NU).LT.FDIAG(NO1+MIN)) MIN=NU
+           END DO
+           IF(MIN.EQ.NT) GO TO 41
+           FMIN=FDIAG(NO1+MIN)
+           FDIAG(NO1+MIN)=FDIAG(NO1+NT)
+           FDIAG(NO1+NT)=FMIN
+           CALL DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(MIN-1)),1)
+41         CONTINUE
           END DO
-          IF(MIN.EQ.NT) GO TO 40
-          FMIN=FDIAG(NO1+MIN)
-          FDIAG(NO1+MIN)=FDIAG(NO1+NT)
-          FDIAG(NO1+NT)=FMIN
-          CALL DSWAP_(NAO,VEC(1+NAO*(NT-1)),1,VEC(1+NAO*(MIN-1)),1)
-40        CONTINUE
-         END DO
-        ENDIF
-        CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
-     *              VEC,NAO,'N',CMOX(1+NOT*NIO+NIO),NOT,NAO,NAO)
+         ENDIF
+         CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
+     *               VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
-        II=0
-        NO1=IB+NFO+NIO
-        DO NT=1,NAO
-          write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT), ifock, ifock
-          ifock = ifock + 1
-        END DO
+         II=0
+         NO1=IB+NFO+NIO
+         DO NT=1,NR1
+           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           ifock = ifock + 1
+         END DO
 #endif
-       ENDIF
+        ENDIF ! NR1
+
+
+
+
+************************************************************************
+* RAS2 part of the Fock matrix
+************************************************************************
+        IF(NR2.NE.0) THEN
+* MOVE FP TO TRIANGULAR FORM
+         NTU=0
+         DO NT=1,NR2
+          DO NU=1,NT
+           NTU=NTU+1
+           NTT=NT+NIO+NR1
+           NUT=NU+NIO+NR1
+           NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
+           FTR(NTU)= FP(NTUT)
+           IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
+          END DO
+         END DO
+* DIAGONALIZE
+         NR22=NR2**2
+         CALL FZERO(VEC,NR22)
+         II=1
+         DO NT=1,NR2
+          VEC(II)=1.0D0
+          II=II+NR2+1
+         END DO
+         CALL Jacob(FTR,VEC,NR2,NR2)
+*
+* Move eigenvalues to FDIAG.
+*
+         II=0
+         NO1=IB+NFO+NIO+NR1
+         DO NT=1,NR2
+          II=II+NT
+          FDIAG(NO1+NT)=FTR(II)
+         END DO
+*
+* Sort eigenvalues and orbitals after energy
+*
+         IF(NR2.GT.1) THEN
+          NR21=NR2-1
+          DO NT=1,NR21
+           NT1=NT+1
+           MIN=NT
+           DO NU=NT1,NR2
+            IF(FDIAG(NO1+NU).LT.FDIAG(NO1+MIN)) MIN=NU
+           END DO
+           IF(MIN.EQ.NT) GO TO 42
+           FMIN=FDIAG(NO1+MIN)
+           FDIAG(NO1+MIN)=FDIAG(NO1+NT)
+           FDIAG(NO1+NT)=FMIN
+           CALL DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(MIN-1)),1)
+42         CONTINUE
+          END DO
+         ENDIF
+         CALL DGEADD(CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,'N',
+     *               VEC,NR2,'N',
+     *               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+         II=0
+         NO1=IB+NFO+NIO+NR1
+         DO NT=1,NR2
+           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           ifock = ifock + 1
+         END DO
+#endif
+        ENDIF ! NR2
+
+************************************************************************
+* RAS3 part of the Fock matrix
+************************************************************************
+        IF(NR3.NE.0) THEN
+* MOVE FP TO TRIANGULAR FORM
+         NTU=0
+         DO NT=1,NR3
+          DO NU=1,NT
+           NTU=NTU+1
+           NTT=NT+NIO+NR1+NR2
+           NUT=NU+NIO+NR1+NR2
+           NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
+           FTR(NTU)= FP(NTUT)
+           IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
+          END DO
+         END DO
+* DIAGONALIZE
+         NR32=NR3**2
+         CALL FZERO(VEC,NR32)
+         II=1
+         DO NT=1,NR3
+          VEC(II)=1.0D0
+          II=II+NR3+1
+         END DO
+         CALL Jacob(FTR,VEC,NR3,NR3)
+*
+* Move eigenvalues to FDIAG.
+*
+         II=0
+         NO1=IB+NFO+NIO+NR1+NR2
+         DO NT=1,NR3
+          II=II+NT
+          FDIAG(NO1+NT)=FTR(II)
+         END DO
+*
+* Sort eigenvalues and orbitals after energy
+*
+         IF(NR3.GT.1) THEN
+          NR31=NR3-1
+          DO NT=1,NR31
+           NT1=NT+1
+           MIN=NT
+           DO NU=NT1,NR3
+            IF(FDIAG(NO1+NU).LT.FDIAG(NO1+MIN)) MIN=NU
+           END DO
+           IF(MIN.EQ.NT) GO TO 43
+           FMIN=FDIAG(NO1+MIN)
+           FDIAG(NO1+MIN)=FDIAG(NO1+NT)
+           FDIAG(NO1+NT)=FMIN
+           CALL DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(MIN-1)),1)
+43         CONTINUE
+          END DO
+         ENDIF
+         CALL DGEADD(CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,'N',
+     *               VEC,NR3,'N',
+     *               CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+         II=0
+         NO1=IB+NFO+NIO+NR1+NR2
+         DO NT=1,NR3
+           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           ifock = ifock + 1
+         END DO
+#endif
+        ENDIF ! NR3
+
+       ENDIF ! NAO
 *
 ************************************************************************
 * external part of the Fock matrix

@@ -56,6 +56,9 @@
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,lThetaM,LUCITH
       Real*8 Norm_fac
+CC    NTO section
+      Logical DoNTO
+CC    NTO section
       External IsFreeUnit
 
       type mixed_1pdensities
@@ -801,6 +804,19 @@ C General 1-particle transition density matrix:
      &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
+C Calculate Natural Transition Orbital (NTO):
+        IF (IFNTO) THEN
+         IF (job1.ne.job2) THEN
+           DoNTO=.true.
+         Else
+           DoNTO=.false.
+         End If
+         IF (DoNTO) Then
+          Call NTOCalc(job1,job2,ISTATE,JSTATE,TRAD,TRASD,MPLET1)
+          write(6,*) 'ntocalculation finished'
+         End If
+        End If
+C End of Calculating NTO
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
@@ -819,7 +835,7 @@ C             Write density 1-matrices in AO basis to disk.
               If (iRC.eq.1) iEmpty=1
 
               !> spin-TDM
-              CALL MKTDAB(SIJ,TRASD,TSDMAB,iRC)
+              CALL MKTDAB(0.0D0,TRASD,TSDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
               If (iRC.eq.1) iEmpty=iEmpty+2
@@ -832,7 +848,7 @@ C             Write density 1-matrices in AO basis to disk.
 
               if(.not.mstate_dens)then
 
-                IF((SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM) THEN
+                IF(SaveDens) THEN
 *C Transition density matrices, TDMZZ, in AO or MO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
@@ -850,7 +866,7 @@ C             Write density 1-matrices in AO basis to disk.
                      If(DDot_(nTRAD+1,TRAD,1,TRAD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=1
 *
-                     TRASD(nTrad+1)=SIJ
+                     TRASD(nTrad+1)=0.0D0
                      iRC=0
                      If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
@@ -986,21 +1002,7 @@ C             Write density 1-matrices in AO basis to disk.
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
      &                    TDMAB,TDM2,CMO1,CMO2)
-
-#ifdef _HDF5_
-            IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
-              call mh5_put_dset_array_real(wfn_sfs_tdm,
-     $        TDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-              call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     $        TSDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-            IF(SONATNSTATE.GT.0.OR.NATO)THEN
-              call mh5_put_dset_array_real(wfn_sfs_wetdm,
-     $        WDMZZ,[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            END IF
-#endif
-
-          END IF ! TRD1/2, mstate_dens
+          END IF
 
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ

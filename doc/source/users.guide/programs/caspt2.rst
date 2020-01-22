@@ -172,7 +172,7 @@ compared to the Rydberg states. It is important that the AO basis set is
 chosen to contain a good representation of the Rydberg orbitals, in order to
 separate them from the valence excited states. For more details on how to
 perform calculations on excited states we refer to the
-literature :cite:`Roos:95b,Roos:96a` and section :ref:`TUT:sec:excited` of
+literature :cite:`Roos:95b,Roos:96a` and :numref:`TUT:sec:excited` of
 the examples manual.
 
 The first order wave function is obtained in the :program:`CASPT2` program as an
@@ -223,7 +223,7 @@ Input files
 
 :program:`CASPT2` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`JOBIPH`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
