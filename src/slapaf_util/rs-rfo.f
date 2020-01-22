@@ -237,7 +237,7 @@
 *           Converge if small interval
 *
             If ((dqdq.lt.StepMax**2).and.
-     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr_RS)) Go To 997
+     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
