@@ -295,6 +295,8 @@ C
                   Write (LuInput,*) THERMO
                   Write (LuInput,'(A)') 'VELO'
                   Write (LuInput,*) VELO
+                  Write (LuInput,'(A)') 'OUT'
+                  Write (LuInput,*) POUT
                   Write (LuInput,'(A)') 'End of Input'
                   Write (LuInput,'(A)')
      &                  '>export MOLCAS_TRAP=$DYN_OLD_TRAP'

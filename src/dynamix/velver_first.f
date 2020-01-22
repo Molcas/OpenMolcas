@@ -95,7 +95,6 @@ C     Initialize the Mass variable
       CALL Get_Mass_All(Mass,matom)
 C
 C Check if reduced dimensionality
-C          WRITE(6,*) 'MORGANE', POUT
       IF (POUT .NE. 0) THEN
         CALL mma_allocate(pcoo,POUT,natom*3)
         CALL mma_allocate(pvel,POUT)
