@@ -10,36 +10,37 @@
 *                                                                      *
 * Copyright (C) 2020, Jie J. Bao                                       *
 ************************************************************************
-!       ***************************************************
-!                          Calculating NTO
-!       ****************************************************
-!        Reference: J. Chem. Phys., 2014, 141, 024106
-!        Notation used in the following of the code follows those in the
-!        reference mentioned above, especially between equation 53 and
-!        54 on page 024106-8.
-!        NASHT is the number of active orbitals, originated from this
-!        program.
-!        Umat is the U matrix, which is the eigenvector  matrix
-!        calculated by transition density matrix (TDM) 
-!        multiplied by its transpose. Vmat is the V matrix, the eigen-
-!        vector matrix of a matrix calculated by the transpose 
-!        multiplied by the TDM.
-!        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
-!        that
-!        for the V matrix.
-!        ONTO is the hole NTO, calculated by multiplying MO matrix with
-!        the eigenvector matrix for U matrix. Note that the eigenvector
-!        matrix is still named as U. Similar condition is for the
-!        particle matirx.
-!
-!        However, the sets of particle and hole orbitals are switched
-!        when I examined the results. So I put the data stored in LONTO
-!        as the particle NTO. (Because JOB1 is for the second JobIph
-!        file in the input and JOB2 is for the first.)
-!
-!                                         -------Jie Bao 
-!                  in Depart. of Chemistry, University of Minnesota, USA
-!                                             2018/08/09
+*       ***************************************************
+*                          Calculating NTO
+*       ****************************************************
+*        Reference: J. Chem. Phys., 2014, 141, 024106
+*        Notation used in the following of the code follows those in the
+*        reference mentioned above, especially between equation 53 and
+*        54 on page 024106-8.
+*        NASHT is the number of active orbitals, originated from this
+*        program.
+*        Umat is the U matrix, which is the eigenvector  matrix
+*        calculated by transition density matrix (TDM)
+*        multiplied by its transpose. Vmat is the V matrix, the eigen-
+*        vector matrix of a matrix calculated by the transpose
+*        multiplied by the TDM.
+*        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
+*        that
+*        for the V matrix.
+*        ONTO is the hole NTO, calculated by multiplying MO matrix with
+*        the eigenvector matrix for U matrix. Note that the eigenvector
+*        matrix is still named as U. Similar condition is for the
+*        particle matirx.
+*
+*        However, the sets of particle and hole orbitals are switched
+*        when I examined the results. So I put the data stored in LONTO
+*        as the particle NTO. (Because JOB1 is for the second JobIph
+*        file in the input and JOB2 is for the first.)
+*
+*                                         -------Jie Bao
+*                  in Depart. of Chemistry, University of Minnesota, USA
+*                                             2018/08/09
+
       SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 C Include every head file included in the higher level code, namely
 C gtdmctl.f
@@ -73,8 +74,7 @@ C gtdmctl.f
 
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
-      Double Precision Zero,Two,PrintThres
-      Real*8 SumEigVal
+      REAL*8 Zero,Two,PrintThres,SumEigVal
 
 C     DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
@@ -83,13 +83,19 @@ C     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
       !OrbSym() is the index of symmetry/irrep  for IOrb
-      CHARACTER (len=17) FILENAME
+      CHARACTER (len=128) FILENAME
       CHARACTER (len=8)  NTOType
       CHARACTER (len=5)  STATENAME,StateNameTmp
       Character*3 lIrrep(8)
       Logical DOTEST
+      INTEGER LU,ISFREEUNIT
 
       COMMON SumEigVal
+      EXTERNAL ISFREEUNIT      
+
+
+      LU=233
+ 
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0
@@ -272,19 +278,20 @@ C     Print out transition density matrix
       If(Spin(I_NTO).eq.'a') Then
       write (FILENAME,fmt='(a,a)')
      &"TDM",trim(adjustl(STATENAME))
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(5(2X,E10.4E2))')
+        write (LU,'(5(2X,E10.4E2))')
      &    (TRAD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      write (233,*)
-      write (233,*)
-      write (233,*)
+      write (LU,*)
+      write (LU,*)
+      write (LU,*)
       DO I=1,NASHT
-        write (233,'(5(2X,E10.4E2))')
+        write (LU,'(5(2X,E10.4E2))')
      &    (TRASD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
       End If
 C     Generalizing transpose of TDM, TDM_T
 
@@ -294,23 +301,25 @@ C     Calculating T_trans*T
 C     Writing Particle Matrix
       write (FILENAME,fmt='(a,a,a)')
      &"Dhole.",trim(adjustl(STATENAME)),Spin(I_NTO)
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(10(2X,E10.4E2))')
+        write (LU,'(10(2X,E10.4E2))')
      &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
 C     Calculating T*T_transpose
       CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDM),NASHT,
      &             WORK(LTDMT),NASHT,0.0D0,WORK(LNTOUmat),NASHT)
       write (FILENAME,fmt='(a,a,a)')
      &"Dpart.",trim(adjustl(STATENAME)),Spin(I_NTO)
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(10(2X,E10.4E2))')
+        write (LU,'(10(2X,E10.4E2))')
      &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
        CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
      &              WGRONK,-1,INFO)
        NScrq=INT(WGRONK(1))
@@ -331,20 +340,22 @@ C     Printing some matrices
       If (DoTest) Then
        write (FILENAME,fmt='(a,a,a)')
      & "EigVecHole.",trim(adjustl(STATENAME)),Spin(I_NTO)
-       open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (233,'(5(2X,E10.4E2))')
+         write (LU,'(5(2X,E10.4E2))')
      &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
-       close (233)
+       close (LU)
        write (FILENAME,fmt='(a,a,a)')
      & "EigVecPart.",trim(adjustl(STATENAME)),Spin(I_NTO)
-       open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (233,'(5(2X,E10.4E2))')
+         write (LU,'(5(2X,E10.4E2))')
      &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
-       close (233)
+       close (LU)
       End IF
 C     End of Diagonlazing the mataces
 
@@ -378,10 +389,10 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndto,NASHT)
       CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
-      NTOType='PartNTO'
+      NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NTOType,
      &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
-      NTOType='HoleNTO'
+      NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
      &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
 C     End of Printing NTOs     
@@ -471,7 +482,7 @@ C     input variables
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
-      CHARACTER (len=17) FILENAME
+      CHARACTER (len=128) FILENAME
 C     Loop control
       INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
@@ -493,12 +504,13 @@ C     then give a warning message and print the one with the largest SquareSum
 C     Printing control      
 C     
       INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
-      INTEGER LU
+      INTEGER LU,ISFREEUNIT
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
       Logical DoTest
       
+      External ISFREEUNIT
 
       DoTest=.false.
       Threshold=0.0D-10
@@ -619,9 +631,10 @@ C Recording Printed NTO (PCMO)
       End Do
 
       LU=50
+      LU=ISFREEUNIT(LU)
       Note='*  Natural Transition Orbitals'
-      WRITE(FILENAME,'(a,a,a,a)') 
-     & trim(adjustl(STATENAME)),Spin,'.',NTOType
+      WRITE(FILENAME,'(6(a))') 
+     & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
 

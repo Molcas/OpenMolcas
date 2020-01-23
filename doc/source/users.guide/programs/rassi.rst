@@ -1247,12 +1247,16 @@ Keywords
               </KEYWORD>
 
 :kword:`NTOCalc`
-  Enables natural transition orbital (NTO) calculation of two states. The NTO files are printed out as :file:`.PartNTO` and :file:`.HoleNTO`, which have the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+  Enables natural transition orbital (NTO) calculation of two states. The NTO files are printed out as :file:`$Project.PartNTO.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+  The NTO calculations can be performed for states with different spatial symmetries.
+  `I` and `J` are the RASSI states between which the NTOs are calculated. One may search for 'Nr of states' in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with 'State:') with the actual states (in the line starting with 'Root nr:') in each JobIph file (in the line starting with 'JobIph:').
+  `Spin` is the `a` for alpha NTOs and `b` for beta NTOs. If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
+  `NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
               %%Keyword: NTOC <advanced>
               <HELP>
-              Enables natural transition orbital calculation. See http://hdl.handle.net/11299/210242 for a detailed explanation of the outputs.
+              Enables natural transition orbital calculation. See 899.input in test/additional as an example of input. 
               </HELP>
               </KEYWORD>
 Input example
