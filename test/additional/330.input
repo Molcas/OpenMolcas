@@ -17,7 +17,6 @@
 &SEWARD
   DoAnalytical
 
->COPY LocOrb  $Project.LocOrb
 &LOCALISATION
   occupied
 &LOCALISATION
