@@ -30,6 +30,7 @@ NoCD
   nActEl    = 4 0 0
   CIRoot    = 2 2 1
   MDRlxRoot = 2
+  THRS=1.0e-09, 1.0e-05, 1.0e-05
 
 >>> IF ( ITER = 1 )
   >>> COPY $Project.JobIph JOB001
