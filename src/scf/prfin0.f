@@ -134,7 +134,8 @@ c      if(.false.) Lines(3) = Molcas_revision
       End If
       If(WarnSlow) Then
          call WarningMessage(1,
-     &     'Warning:; The program had convergence problems, stopping')
+     &     'Warning:; The program had convergence problems;'//
+     &     'and terminated with looser convergence')
       End If
       Fmt = '(6X,A,T50,F19.10)'
       suhf=-0.5d0+sqrt(0.25d0+s2uhf)
