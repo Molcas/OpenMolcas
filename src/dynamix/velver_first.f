@@ -96,39 +96,7 @@ C     Initialize the Mass variable
 C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL mma_allocate(pcoo,POUT,natom*3)
-        CALL mma_allocate(pvel,POUT)
-        CALL mma_allocate(pforce,POUT)
-        CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
-        DO p = 1,POUT
-          pvel(p) = dot_product(pcoo(p,:),vel)
-     & / dot_product(pcoo(p,:),pcoo(p,:))
-          vel(:) = vel(:) - pvel(p)*pcoo(p,:)
-          pforce(p) = 0
-          DO i=1, natom
-            IF (i.GT.matom) THEN
-              CALL LeftAd(atom(i))
-              Iso=0
-              CALL Isotope(Iso,atom(i),Mass(i))
-            END IF
-            DO j=1, 3
-              pforce(p) = pforce(p) + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
-     & /Mass(i)
-            ENDDO
-          ENDDO
-          pforce(p) = pforce(p) / dot_product(pcoo(p,:),pcoo(p,:))
-          DO i=1, natom
-            IF (i.GT.matom) THEN
-              CALL LeftAd(atom(i))
-              Iso=0
-              CALL Isotope(Iso,atom(i),Mass(i))
-            END IF
-            DO j=1, 3
-              force(3*(i-1)+j) = force(3*(i-1)+j) -
-     & pforce(p)*Mass(i)*pcoo(p,3*(i-1)+j)
-            ENDDO
-          ENDDO
-        ENDDO
+        CALL project_out(vel,force)
       ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
