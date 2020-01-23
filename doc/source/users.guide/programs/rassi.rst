@@ -1247,7 +1247,7 @@ Keywords
               </KEYWORD>
 
 :kword:`NTOCalc`
-  Enables natural transition orbital (NTO) calculation of two states. The NTO files are printed out as :file:`$Project.PartNTO.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other). The NTO files are printed out as :file:`$Project.PartNTO.I``_``J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
   The NTO calculations can be performed for states with different spatial symmetries.
   `I` and `J` are the RASSI states between which the NTOs are calculated. One may search for 'Nr of states' in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with 'State:') with the actual states (in the line starting with 'Root nr:') in each JobIph file (in the line starting with 'JobIph:').
   `Spin` is the `a` for alpha NTOs and `b` for beta NTOs. If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
@@ -1256,7 +1256,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
               %%Keyword: NTOC <advanced>
               <HELP>
-              Enables natural transition orbital calculation. See 899.input in test/additional as an example of input. 
+              Enables natural transition orbital calculation from two JobIph files. 
               </HELP>
               </KEYWORD>
 Input example
@@ -1278,6 +1278,20 @@ Input example
   * 4 are of interest, and we want natural orbitals out
   NATO= 4
 
+An NTO input example using the JobIph file from a state-averaged calculation is as follows:
+
+::
+  >>COPY  "Jobiph file 1" JOB001
+  >>COPY  "Jobiph file 2" JOB002
+
+  &RASSI
+  NTOC
+  Nr of JobIphs=2 1 1
+  1; 2
+  *This NTO calculation is performed for the ground state and the first 
+  *excited state of the previous calculation done in the &RASSCF module.
+
+
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
@@ -1285,5 +1299,7 @@ Input example
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FILE" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
 
 .. xmldoc:: </MODULE>

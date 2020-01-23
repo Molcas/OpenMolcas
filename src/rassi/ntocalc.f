@@ -71,12 +71,9 @@ C gtdmctl.f
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       DIMENSION WGRONK(2)
-
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
-
-C     DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
 C     re-organizing orbitals 
 C     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -89,10 +86,8 @@ C     This is to convert active MO sets in any symmetry into a C1 symmetry
       Character*3 lIrrep(8)
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
-
       COMMON SumEigVal
       EXTERNAL ISFREEUNIT      
-
 
       LU=233
  
@@ -509,7 +504,6 @@ C
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
       Logical DoTest
-      
       External ISFREEUNIT
 
       DoTest=.false.
