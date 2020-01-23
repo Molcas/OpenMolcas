@@ -49,6 +49,7 @@ C
       CALL mma_allocate(pcoo,POUT,natom*3)
       CALL mma_allocate(pvel,POUT)
       CALL mma_allocate(pforce,POUT)
+      CALL mma_allocate(Mass,natom)
 
       filname = 'comqum.dat'
       CALL F_INQUIRE(filname,hybrid)
