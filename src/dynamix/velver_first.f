@@ -95,7 +95,7 @@ C     Initialize the Mass variable
 C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL project_out(vel,force)
+        CALL project_out(vel,force,natom)
       ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE

@@ -97,7 +97,7 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
 
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL project_out(vel,force)
+        CALL project_out(vel,force,natom)
       ENDIF
 C
 C     Definition of the time step

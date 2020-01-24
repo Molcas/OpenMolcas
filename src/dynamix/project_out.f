@@ -24,7 +24,7 @@ C *********************************************************************
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
-      SUBROUTINE project_out(vel,force)
+      SUBROUTINE project_out(vel,force,natom)
       USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
@@ -36,25 +36,14 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "stdalloc.fh"
 #include "dyn.fh"
 #include "constants2.fh"
-      EXTERNAL     IsFreeUnit
-      INTEGER      i,j,p,natom
-      INTEGER      Iso
-      LOGICAL      hybrid
-      CHARACTER    filname*80
-      REAL*8, ALLOCATABLE ::       Mass(:)
-      CHARACTER, ALLOCATABLE ::    atom(:)*2
-      REAL*8, INTENT(INOUT) ::       vel(:),force(:)
-      REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
+      INTEGER                                 :: i,j,p
+      INTEGER                                 :: natom
+      INTEGER                                 :: Iso
+      REAL*8, ALLOCATABLE                     :: Mass(:)
+      CHARACTER, ALLOCATABLE                  :: atom(:)*2
+      REAL*8, DIMENSION(natom), INTENT(INOUT) :: vel,force
+      REAL*8, ALLOCATABLE                 :: pcoo(:,:),pvel(:),pforce(:)
 C
-      filname = 'comqum.dat'
-      CALL F_INQUIRE(filname,hybrid)
-      IF (hybrid) THEN
-         WRITE(6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
-         CALL DxRdNAtomHbrd(natom)
-      ELSE
-         CALL DxRdNAtomStnd(natom)
-      END IF
-
       CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
       CALL mma_allocate(pvel,POUT)
