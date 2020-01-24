@@ -43,7 +43,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       EXTERNAL     IsFreeUnit
-      INTEGER      i,j,p,natom,file,IsFreeUnit,nsAtom
+      INTEGER      i,j,natom,file,IsFreeUnit,nsAtom
       CHARACTER    filname*80,line*80
       REAL*8       conv,tolerance,DT2,time,kb
       REAL*8       Ekin,Epot,Etot,Etot0,Ekin_target
@@ -52,7 +52,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       CHARACTER  caption*15, lastline*80
       CHARACTER, ALLOCATABLE ::    atom(:)*2
       REAL*8, ALLOCATABLE ::       Mass(:),vel(:),force(:),xyz(:)
-      REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
       INTEGER Iso
 C
 C     The parameter conv converts the gradients (Hartree/Bohr) to

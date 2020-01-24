@@ -37,7 +37,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       EXTERNAL    IsFreeUnit
-      INTEGER     natom,i,j,p,irc,file,IsFreeUnit,ipCoord
+      INTEGER     natom,i,j,irc,file,IsFreeUnit,ipCoord
       REAL*8      DT2,DTSQ2,Ekin,time,totimpl,RMS
 
       CHARACTER  caption*15, lastline*80, filname*80
@@ -49,7 +49,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
-      REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
       INTEGER Iso
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
