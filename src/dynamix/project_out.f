@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2006, Igor Schapiro                                    *
+* Copyright (C) 2020, Morgane Vacher                                   *
 ************************************************************************
 C
 C *********************************************************************
