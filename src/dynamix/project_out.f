@@ -42,12 +42,11 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE                     :: Mass(:)
       CHARACTER, ALLOCATABLE                  :: atom(:)*2
       REAL*8, DIMENSION(natom), INTENT(INOUT) :: vel,force
-      REAL*8, ALLOCATABLE                 :: pcoo(:,:),pvel(:),pforce(:)
+      REAL*8, ALLOCATABLE                     :: pcoo(:,:)
+      REAL*8                                  :: pvel,pforce,norm
 C
       CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
-      CALL mma_allocate(pvel,POUT)
-      CALL mma_allocate(pforce,POUT)
       CALL mma_allocate(Mass,natom)
 
       CALL Get_Name_Full(atom)
@@ -56,10 +55,28 @@ C
       CALL Get_Mass_All(Mass,matom)
 
       DO p = 1,POUT
-        pvel(p) = dot_product(pcoo(p,:),vel)
-     & / dot_product(pcoo(p,:),pcoo(p,:))
-        vel(:) = vel(:) - pvel(p)*pcoo(p,:)
-        pforce(p) = 0
+        norm = 0
+        DO i=1, natom
+          DO j=1, 3
+            norm = norm + pcoo(p,3*(i-1)+j)*pcoo(p,3*(i-1)+j)
+          ENDDO
+        ENDDO
+
+        pvel = 0
+        DO i=1, natom
+          DO j=1, 3
+            pvel = pvel + pcoo(p,3*(i-1)+j)*vel(3*(i-1)+j)
+          ENDDO
+        ENDDO
+        pvel = pvel / norm
+        DO i=1, natom
+          DO j=1, 3
+            vel(3*(i-1)+j) = vel(3*(i-1)+j) -
+     & pvel*pcoo(p,3*(i-1)+j)
+          ENDDO
+        ENDDO
+
+        pforce = 0
         DO i=1, natom
           IF (i.GT.matom) THEN
             CALL LeftAd(atom(i))
@@ -67,11 +84,11 @@ C
             CALL Isotope(Iso,atom(i),Mass(i))
           END IF
           DO j=1, 3
-            pforce(p) = pforce(p) + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
+            pforce = pforce + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
      & /Mass(i)
           ENDDO
         ENDDO
-        pforce(p) = pforce(p) / dot_product(pcoo(p,:),pcoo(p,:))
+        pforce = pforce / norm
         DO i=1, natom
           IF (i.GT.matom) THEN
             CALL LeftAd(atom(i))
@@ -80,14 +97,14 @@ C
           END IF
           DO j=1, 3
             force(3*(i-1)+j) = force(3*(i-1)+j) -
-     & pforce(p)*Mass(i)*pcoo(p,3*(i-1)+j)
+     & pforce*Mass(i)*pcoo(p,3*(i-1)+j)
           ENDDO
         ENDDO
       ENDDO
 
-      CALL mma_deallocate(pforce)
-      CALL mma_deallocate(pvel)
       CALL mma_deallocate(pcoo)
+      CALL mma_deallocate(atom)
+      CALL mma_deallocate(Mass)
 
       RETURN
       END
