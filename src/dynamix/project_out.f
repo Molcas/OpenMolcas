@@ -55,11 +55,13 @@ C
          CALL DxRdNAtomStnd(natom)
       END IF
 
+      CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
       CALL mma_allocate(pvel,POUT)
       CALL mma_allocate(pforce,POUT)
       CALL mma_allocate(Mass,natom)
 
+      CALL Get_Name_Full(atom)
       CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
       CALL Get_nAtoms_All(matom)
       CALL Get_Mass_All(Mass,matom)
