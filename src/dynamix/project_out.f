@@ -46,11 +46,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, INTENT(INOUT) ::       vel(:),force(:)
       REAL*8, ALLOCATABLE ::     pcoo(:,:),pvel(:),pforce(:)
 C
-      CALL mma_allocate(pcoo,POUT,natom*3)
-      CALL mma_allocate(pvel,POUT)
-      CALL mma_allocate(pforce,POUT)
-      CALL mma_allocate(Mass,natom)
-
       filname = 'comqum.dat'
       CALL F_INQUIRE(filname,hybrid)
       IF (hybrid) THEN
@@ -59,6 +54,12 @@ C
       ELSE
          CALL DxRdNAtomStnd(natom)
       END IF
+
+      CALL mma_allocate(pcoo,POUT,natom*3)
+      CALL mma_allocate(pvel,POUT)
+      CALL mma_allocate(pforce,POUT)
+      CALL mma_allocate(Mass,natom)
+
       CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
       CALL Get_nAtoms_All(matom)
       CALL Get_Mass_All(Mass,matom)
