@@ -42,8 +42,6 @@
 *                                             2018/08/09
 
       SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
-C Include every head file included in the higher level code, namely
-C gtdmctl.f
 #include "rasdim.fh"
 #include "rasdef.fh"
 #include "symmul.fh"
@@ -64,7 +62,8 @@ C gtdmctl.f
       INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              
 ! CMO Symmetry Contrl
       INTEGER,DIMENSION(NSym) :: NUsedBF,NUseBF,UsetoReal,RealtoUse
-! Nr. of basis functions used prior to this symmetry (NUsedBF) and used in this symmetry (NUseBF) NSym >= NusedSym
+! Nr. of basis functions used prior to this symmetry (NUsedBF) 
+! and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
@@ -74,8 +73,8 @@ C gtdmctl.f
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
-C     re-organizing orbitals 
-C     This is to convert active MO sets in any symmetry into a C1 symmetry
+!     re-organizing orbitals 
+!     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
