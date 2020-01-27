@@ -241,6 +241,7 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL mma_deallocate(atom)
          CALL mma_deallocate(Mass)
          CALL mma_deallocate(vel)
+         CALL mma_deallocate(pcoo)
       END IF
 
 C
