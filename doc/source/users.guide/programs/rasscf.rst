@@ -2394,9 +2394,7 @@ provide MC-PDFT energies.
 
 More advanced examples can be found in the tutorial section of the manual.
 
-Input example for DMRG-CASSCF with Molcas-CheMPS2 interface:
-
-::
+Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
 
   &RASSCF
   Title= Water molecule. Active orbitals OH and OH* in both symmetries
