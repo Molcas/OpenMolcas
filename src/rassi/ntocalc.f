@@ -55,14 +55,14 @@
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
       Character,DIMENSION(2) :: Spin
-      INTEGER Iprint,Jprint,I,J,isym                        
+      INTEGER Iprint,Jprint,I,J,isym
 ! Printing or looping control
-      INTEGER IUseSym,NUseSym,NSupBas,icactorb             
-      INTEGER,DIMENSION(NBST)  :: OrbUsedSym                
-      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              
+      INTEGER IUseSym,NUseSym,NSupBas,icactorb
+      INTEGER,DIMENSION(NBST)  :: OrbUsedSym
+      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct
 ! CMO Symmetry Contrl
       INTEGER,DIMENSION(NSym) :: NUsedBF,NUseBF,UsetoReal,RealtoUse
-! Nr. of basis functions used prior to this symmetry (NUsedBF) 
+! Nr. of basis functions used prior to this symmetry (NUsedBF)
 ! and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
@@ -73,7 +73,7 @@
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
-!     re-organizing orbitals 
+!     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
@@ -86,10 +86,10 @@
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
       COMMON SumEigVal
-      EXTERNAL ISFREEUNIT      
+      EXTERNAL ISFREEUNIT
 
       LU=233
- 
+
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0
@@ -103,17 +103,17 @@
 C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
 C       write(6,*) 'Transition density matrix '
 C       Do IPrint=1,NASHT
-C       write (6,'(10(2X,F10.7))') 
+C       write (6,'(10(2X,F10.7))')
 C     & (WORK(LTRAD+JPrint-1+NASHT*(IPrint-1)),JPrint=1,NASHT)
 C       End Do
        write(6,*) 'LCMO1 '
        Do I=0,NCMO,5
-       write(6,'(2X,5F10.6)') 
+       write(6,'(2X,5F10.6)')
      & (WORK(LCMO1+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
        End Do
        write(6,*) 'LCMO2 '
        Do I=0,NCMO,5
-       write(6,'(2X,5F10.6)') 
+       write(6,'(2X,5F10.6)')
      & (WORK(LCMO2+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
        End Do
       endif
@@ -151,19 +151,19 @@ C     Analyzing the symmetry of the wave function
       End Do
       NSUPCMO=NASHT*NSupBas
       NUseSym=IUseSym
-      NAISHT=NASHT+NISHT 
+      NAISHT=NASHT+NISHT
       IF (DoTest) Then
        write(6,*) 'Reprinting MO information'
        write(6,*) 'Size of Super-CMO matrix',NSupCMO
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'MO Index',(IOrb,IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Irrep Belong to',(OrbSym(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Nr. of Basis F',(OrbBas(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Act Orbital?',(OrbAct(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'used basis f',(NUsedBF(OrbUsedSym(IOrb)),IOrb=1,NAISHT)
       End If
 C     End of analyzing wave function
@@ -201,8 +201,8 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-     
- 
+
+
        write(6,*)'printing CMO2 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
@@ -210,13 +210,13 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-      End If 
+      End If
 C     end of building up the super-CMO matrix
 C     Start and initialize spaces
       write(StateName,'(I3)') ISTATE
       write(StateNameTmp,'(I3,a1,a)')
      & JSTATE,'_',trim(adjustl(STATENAME))
-      write (STATENAME,'(a)') trim(adjustl(StateNameTmp)) 
+      write (STATENAME,'(a)') trim(adjustl(StateNameTmp))
       NDge=NASHT**2
       CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
       CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)
@@ -368,7 +368,7 @@ C     Constructing hole and particle orbitals
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-      
+
        write(6,*)'printing Hole     NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
@@ -389,7 +389,7 @@ C     Printing NTOs
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
      &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
-C     End of Printing NTOs     
+C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
@@ -419,17 +419,17 @@ C     Putting particle-hole pairs in the output
      & lIrrep(INT(WORK(LSymfr-1+IOrb))),INT(WORK(LIndfr-1+IOrb)),
      & lIrrep(INT(WORK(LSymto-1+IOrb))),INT(WORK(LIndto-1+IOrb))
       End Do
-       
+
       WRITE(6,'(6X,100A1)') ('-',i=1,100)
        write(6,'(6X,A,F8.5)')'SUM OF EIGENVALUES',SumEigVal
       WRITE(6,'(6X,100A1)') ('=',i=1,100)
-       
- 
+
+
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymto,NASHT)
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndto,NASHT)
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndfr,NASHT)
-      End DO  
+      End DO
 ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
        write(6,*)
@@ -454,7 +454,7 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
       RETURN
-      END 
+      END
 
 
 
@@ -469,7 +469,7 @@ C     Putting particle-hole pairs in the output
 #include "Files.fh"
 #include "Struct.fh"
 #include "rassiwfn.fh"
-     
+
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
@@ -481,10 +481,10 @@ C     Loop control
       INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
       INTEGER INTO,IUseSym,NNTO,ISym,IOrb
-      REAL*8,DIMENSION(NUseSym) :: SquareSum               
-      REAL*8,DIMENSION(NBST) :: EigValArray 
+      REAL*8,DIMENSION(NUseSym) :: SquareSum
+      REAL*8,DIMENSION(NBST) :: EigValArray
 C     SquareSum=Sum over square of coefficients for certain symmetry
-      INTEGER,DIMENSION(NUseSym) :: NOrbinSym                
+      INTEGER,DIMENSION(NUseSym) :: NOrbinSym
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
@@ -495,8 +495,8 @@ C     then give a warning message and print the one with the largest SquareSum
       COMMON SumEigVal
       INTEGER NPCMO,IPCMO
       Real*8,DIMENSION(:),allocatable::PCMO
-C     Printing control      
-C     
+C     Printing control
+C
       INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
       INTEGER LU,ISFREEUNIT
       Real*8,DIMENSION(2) :: vDum
@@ -546,7 +546,7 @@ C
         End If
        End Do
        If(iPrintsym.eq.0) Then
-        write(6,'(a,I2,a,a,a)') 'the symmetry of orbital ',INTO, 
+        write(6,'(a,I2,a,a,a)') 'the symmetry of orbital ',INTO,
      & ' is not found. How is this possible?',
      & ' Change the value of DoTest in ntocalc.f to true ',
      & ' to print out the intermediate values'
@@ -567,7 +567,7 @@ C     generating file in a similar way to other orbital files
 C      If there are active orbitals in this symmetry
        NNTO=NOrbinSym(IUseSym)
 C       write inactive part
-       Do OrbNum=1,NISH(ISym)  
+       Do OrbNum=1,NISH(ISym)
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
        END DO
@@ -604,8 +604,8 @@ C Recording Printed NTO (PCMO)
        End Do
 C Recording Printed NTO (PCMO)
        Else
-C      If there is no active orbitals in this symmetry       
-       Do OrbNum=1,NBASF(ISym)  
+C      If there is no active orbitals in this symmetry
+       Do OrbNum=1,NBASF(ISym)
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
        END DO
@@ -626,12 +626,12 @@ C Recording Printed NTO (PCMO)
       LU=50
       LU=ISFREEUNIT(LU)
       Note='*  Natural Transition Orbitals'
-      WRITE(FILENAME,'(6(a))') 
+      WRITE(FILENAME,'(6(a))')
      & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
 
-      deallocate(PCMO) 
+      deallocate(PCMO)
       RETURN
       END
 
