@@ -326,6 +326,7 @@ c mess started here :)
          RecLab(167)='EDIPI_NSS       '
          RecLab(168)='SPINR_NSS       '
          RecLab(169)='SPINI_NSS       '
+         RecLab(170)='Proj_Coord      '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!
