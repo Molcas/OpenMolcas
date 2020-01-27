@@ -20,7 +20,7 @@
 >>> COPY RasOrb guess.RasOrb
 &RASSCF
   LumOrb
-  Fileorb= $Project.LocOrb
+  Fileorb= guess.RasOrb
   alter = 3; 1 12 16; 1 6 13; 1 18 20
   spin = 1
   nactel = 8 0 0
