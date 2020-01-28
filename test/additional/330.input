@@ -28,9 +28,11 @@
   ciroot = 4 4 1
   mdrlxr = 1
 
->>> FOREACH ITER in (1..5)
-* hack to have the same accuracy for POTNUC as for geometry optimisation
->>> EXPORT MOLCAS_STRUCTURE=1
+>>> COPY out.001.xyz .
+
+>>> EXPORT MOLCAS_REDUCE_PRT=NO
+>>> EXPORT MOLCAS_MAXITER=5
+>>> DOWHILE
 
   &SEWARD
     DoAnalytical
