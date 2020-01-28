@@ -27,6 +27,8 @@
 
       REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
       ! Arrays, bounds, and indices
+      INTEGER   MSPROJS
+      REAL*8    MSPROJI,MSPROJJ
       INTEGER   SOTOT,SFTOT,SO2SFNUM
       INTEGER   NZ,LSZZ,ORBNUM
       INTEGER   SODYSCIND
@@ -62,9 +64,12 @@ C    are correctly calculated for these states.
 
 C Setup SO2SFNUM list which contains the original SF state numbers
 C as a function of the SO state number
+C And MSPROJS which saves their ms projections for later use
 
       SO2SFNUM=0
       CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
+      MSPROJS=0
+      CALL GETMEM('MSPROJS','ALLO','REAL',MSPROJS,NSS)
       ISS=0
       SOTOT=0
       SFTOT=0
@@ -73,9 +78,10 @@ C as a function of the SO state number
        MPLET1=MLTPLT(JOB1)
        SFTOT=SFTOT+1
 
-       DO MSPROJ1=-MPLET1+1,MPLET1-1,2
+       DO MSPROJ=-MPLET1+1,MPLET1-1,2
         SOTOT=SOTOT+1
         IWORK(SO2SFNUM+SOTOT-1)=SFTOT
+        WORK(MSPROJS+SOTOT-1)=MSPROJ
 
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
@@ -174,8 +180,9 @@ C SO Dyson orbitals
       ! For all requested initial states J and all final states I
       DO JSTATE=1,DYSEXPSO
 
-!     For each initial state JSTATE up to DYSEXPSFSO we will gather all the obtained Dysorbs
-!     and export to a shared .molden file
+         ! For each initial state JSTATE up to DYSEXPSFSO we will
+         ! gather all the obtained Dysorbs
+         ! and export to a shared .molden file
          IFILE=1
          SODYSCIND=0 ! Orbital coeff. index
          ORBNUM=0 ! Dysorb index for given JSTATE
@@ -186,38 +193,46 @@ C SO Dyson orbitals
 
          DO ISTATE=JSTATE+1,NSS
 
-        ! Reset values for next state combination
-        SODYSCOFSR=0.0D0
-        SODYSCOFSI=0.0D0
+          ! Reset values for next state combination
+          SODYSCOFSR=0.0D0
+          SODYSCOFSI=0.0D0
 
-        ! Iterate over the eigenvector components of both states
-        DO JEIG=1,NSS
+          ! Iterate over the eigenvector components of both states
+          DO JEIG=1,NSS
 
-         ! Coefficient of first state
-         CJR=USOR(JEIG,JSTATE)
-         CJI=USOI(JEIG,JSTATE)
-         ! Find the corresponding SF states
-         SFJ=IWORK(SO2SFNUM+JEIG-1)
+           ! Coefficient of first state
+           CJR=USOR(JEIG,JSTATE)
+           CJI=USOI(JEIG,JSTATE)
+           ! Find the corresponding SF states
+           SFJ=IWORK(SO2SFNUM+JEIG-1)
 
-         DO IEIG=1,NSS
+           DO IEIG=1,NSS
 
-          ! Coefficient of second state
-          CIR=USOR(IEIG,ISTATE)
-          CII=USOI(IEIG,ISTATE)
-          ! Find the corresponding SF states
-          SFI=IWORK(SO2SFNUM+IEIG-1)
+            ! Coefficient of second state
+            CIR=USOR(IEIG,ISTATE)
+            CII=USOI(IEIG,ISTATE)
+            ! Find the corresponding SF states
+            SFI=IWORK(SO2SFNUM+IEIG-1)
 
-          IF (DYSAMPS(SFJ,SFI).GT.1.0D-5) THEN
-           ! Multiply together coefficients
-           CREAL=CJR*CIR+CJI*CII
-           CIMAG=CJR*CII-CJI*CIR
-           ! Multiply with the corresponding SF Dyson orbital
-           SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
-           SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
-          END IF
+            ! Check change in ms projection
+            MSPROJJ=WORK(MSPROJS+JEIG-1)
+            MSPROJI=WORK(MSPROJS+IEIG-1)
+            ! Check |delta ms|=0.5 selection rule
+            IF(ABS(MSPROJJ-MSPROJI).NE.1) THEN
+             CYCLE
+            END IF
 
-         END DO ! IEIG
-        END DO ! JEIG
+            IF (DYSAMPS(SFJ,SFI).GT.1.0D-5) THEN
+             ! Multiply together coefficients
+             CREAL=CJR*CIR+CJI*CII
+             CIMAG=CJR*CII-CJI*CIR
+             ! Multiply with the corresponding SF Dyson orbital
+             SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
+             SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
+            END IF
+
+           END DO ! IEIG
+          END DO ! JEIG
 
 ! Normalize the overlap of SODYSCOFS expanded orbitals with the
 ! atomic overlap matrix SZZ to obtain correct amplitudes
@@ -269,6 +284,7 @@ C SO Dyson orbitals
 C Free all the allocated memory
 
       CALL GETMEM('SO2SF','FREE','INTE',SO2SFNUM,NSS)
+      CALL GETMEM('MSPROJS','FREE','REAL',MSPROJS,NSS)
 
       RETURN
       END

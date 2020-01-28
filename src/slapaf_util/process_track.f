@@ -115,8 +115,10 @@
       CALL Qpg_iScalar('Relax CASSCF root',Found)
       IF (Found) THEN
         Call Get_iScalar('Relax CASSCF root',i)
-        IF (RootMap(i).NE.i)
-     &    CALL Put_iScalar('Relax CASSCF root',RootMap(i))
+        IF (RootMap(i).NE.i) THEN
+          CALL Put_iScalar('Relax CASSCF root',RootMap(i))
+          CALL Put_iScalar('Relax Original root',RootMap(i))
+        END IF
       END IF
       CALL Qpg_iScalar('NumGradRoot',Found)
       IF (Found) THEN
