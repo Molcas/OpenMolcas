@@ -44,15 +44,15 @@ NoCD
   &SEWARD
   >>> COPY $Project$SubProject.GssOrb $Project.GssOrb
   &SCF; UHF; SPIN=3
-    Thresholds=1.0d-10, 1.0d-5, 1.5d-5, 0.2d-4
-  &ALASKA; Cutoff=1.0D-9
+    Thresholds=1.0d-10, 1.0d-6, 1.5d-6, 0.2d-4
+  &ALASKA; Cutoff=1.0D-10
 
   >>> EXPORT SubProject=.Singlet
   &SEWARD
   >>> COPY $Project$SubProject.GssOrb $Project.GssOrb
   &SCF; UHF; SPIN=1
-    Thresholds=1.0d-10, 1.0d-5, 1.5d-5, 0.2d-4
-  &ALASKA; Cutoff=1.0D-9
+    Thresholds=1.0d-10, 1.0d-6, 1.5d-6, 0.2d-4
+  &ALASKA; Cutoff=1.0D-10
 
   >>> COPY $Project.Singlet.RunFile $Project.RunFile
   >>> COPY $Project.Triplet.RunFile $Project.RunFile2
