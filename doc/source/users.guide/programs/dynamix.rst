@@ -90,9 +90,9 @@ Input
 -----
 
 This section describes the input syntax of :program:`DYNAMIX` in the |molcas| program
-package. In general a MD simulation requires a :kword:`FOREACH` loop which contains
+package. In general a MD simulation requires a :kword:`DoWhile` or :kword:`ForEach` loop which contains
 several programs to compute the energy and :program:`ALASKA` for subsequent gradient
-computation. The input of the :program:`DYNAMIX` begins with the program name,
+computation. The :program:`DYNAMIX` input begins with the program name,
 and is followed by the only compulsory keyword :kword:`VELV` which specifies the
 velocity Verlet algorithm: ::
 
@@ -235,13 +235,13 @@ Input examples
 ..............
 
 The following example shows the input for an excited state CASSCF molecular dynamics
-simulation of a methaniminium cation using the :program:`DYNAMIX` program. The FOREACH loop
+simulation of a methaniminium cation using the :program:`DYNAMIX` program. The :kword:`DoWhile` loop
 allows 1000 steps with 10 a.u. of time step size which leads to a total duration of
 242 fs. In the :program:`RASSCF` program the second root is selected for gradient
 calculation using the keyword :kword:`MDRLXR`. This input assumes that the a
 :file:`JOBIPH` file with orbitals is already given. In each iteration the :file:`JOBIPH`
 is updated to achieve a fast convergence of the CASSCF wavefunction.
-A Nosé--Hoover chain of thermostats, enabled with THERmo= 2, is used to
+A Nosé--Hoover chain of thermostats, enabled with :kword:`THERmo`\=2, is used to
 reproduce dynamics at constant temperature, where the initial velocities are
 taken from a Maxwell--Boltzmann distribution at 300 K.
 
@@ -260,11 +260,12 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
    BASIS= 3-21G
    GROUP= nosym
 
-  >> FOREACH ITER in (1 .. 1000)
+  >> EXPORT MOLCAS_MAXITER=1000
+  >> DOWHILE
 
   &SEWARD
 
-  >> IF ( $ITER = 1 )
+  >> IF ( ITER = 1 )
 
   &RASSCF
    LUMORB
