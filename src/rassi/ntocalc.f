@@ -10,39 +10,38 @@
 *                                                                      *
 * Copyright (C) 2020, Jie J. Bao                                       *
 ************************************************************************
-!       ***************************************************
-!                          Calculating NTO
-!       ****************************************************
-!        Reference: J. Chem. Phys., 2014, 141, 024106
-!        Notation used in the following of the code follows those in the
-!        reference mentioned above, especially between equation 53 and
-!        54 on page 024106-8.
-!        NASHT is the number of active orbitals, originated from this
-!        program.
-!        Umat is the U matrix, which is the eigenvector  matrix
-!        calculated by transition density matrix (TDM) 
-!        multiplied by its transpose. Vmat is the V matrix, the eigen-
-!        vector matrix of a matrix calculated by the transpose 
-!        multiplied by the TDM.
-!        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
-!        that
-!        for the V matrix.
-!        ONTO is the hole NTO, calculated by multiplying MO matrix with
-!        the eigenvector matrix for U matrix. Note that the eigenvector
-!        matrix is still named as U. Similar condition is for the
-!        particle matirx.
-!
-!        However, the sets of particle and hole orbitals are switched
-!        when I examined the results. So I put the data stored in LONTO
-!        as the particle NTO. (Because JOB1 is for the second JobIph
-!        file in the input and JOB2 is for the first.)
-!
-!                                         -------Jie Bao 
-!                  in Depart. of Chemistry, University of Minnesota, USA
-!                                             2018/08/09
+*       ***************************************************
+*                          Calculating NTO
+*       ****************************************************
+*        Reference: J. Chem. Phys., 2014, 141, 024106
+*        Notation used in the following of the code follows those in the
+*        reference mentioned above, especially between equation 53 and
+*        54 on page 024106-8.
+*        NASHT is the number of active orbitals, originated from this
+*        program.
+*        Umat is the U matrix, which is the eigenvector  matrix
+*        calculated by transition density matrix (TDM)
+*        multiplied by its transpose. Vmat is the V matrix, the eigen-
+*        vector matrix of a matrix calculated by the transpose
+*        multiplied by the TDM.
+*        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
+*        that
+*        for the V matrix.
+*        ONTO is the hole NTO, calculated by multiplying MO matrix with
+*        the eigenvector matrix for U matrix. Note that the eigenvector
+*        matrix is still named as U. Similar condition is for the
+*        particle matirx.
+*
+*        However, the sets of particle and hole orbitals are switched
+*        when I examined the results. So I put the data stored in LONTO
+*        as the particle NTO. (Because JOB1 is for the second JobIph
+*        file in the input and JOB2 is for the first.)
+*
+*                                         -------Jie Bao
+*                  in Depart. of Chemistry, University of Minnesota, USA
+*                                             2018/08/09
+
       SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
-C Include every head file included in the higher level code, namely
-C gtdmctl.f
 #include "rasdim.fh"
 #include "rasdef.fh"
 #include "symmul.fh"
@@ -56,40 +55,41 @@ C gtdmctl.f
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
       Character,DIMENSION(2) :: Spin
-      INTEGER Iprint,Jprint,I,J,isym                        
+      INTEGER Iprint,Jprint,I,J,isym
 ! Printing or looping control
-      INTEGER IUseSym,NUseSym,NSupBas,icactorb             
-      INTEGER,DIMENSION(NBST)  :: OrbUsedSym                
-      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct              
+      INTEGER IUseSym,NUseSym,NSupBas,icactorb
+      INTEGER,DIMENSION(NBST)  :: OrbUsedSym
+      INTEGER,DIMENSION(NASHT+NISHT) :: OrbAct
 ! CMO Symmetry Contrl
       INTEGER,DIMENSION(NSym) :: NUsedBF,NUseBF,UsetoReal,RealtoUse
-! Nr. of basis functions used prior to this symmetry (NUsedBF) and used in this symmetry (NUseBF) NSym >= NusedSym
+! Nr. of basis functions used prior to this symmetry (NUsedBF)
+! and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       DIMENSION WGRONK(2)
-
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
-      Double Precision Zero,Two,PrintThres
-      Real*8 SumEigVal
-
-C     DIMENSION OrbArray(NCMO),EigVArray(NASHT),TDMArray(NASHT**2)
-C     re-organizing orbitals 
-C     This is to convert active MO sets in any symmetry into a C1 symmetry
+      REAL*8 Zero,Two,PrintThres,SumEigVal
+!     re-organizing orbitals
+!     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
       INTEGER, DIMENSION(NISHT+NASHT) :: OrbBas,OrbSym
       !OrbBas() is the number of basis function for IOrb
       !OrbSym() is the index of symmetry/irrep  for IOrb
-      CHARACTER (len=17) FILENAME
+      CHARACTER (len=128) FILENAME
       CHARACTER (len=8)  NTOType
       CHARACTER (len=5)  STATENAME,StateNameTmp
       Character*3 lIrrep(8)
       Logical DOTEST
-
+      INTEGER LU,ISFREEUNIT
       COMMON SumEigVal
+      EXTERNAL ISFREEUNIT
+
+      LU=233
+
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0
@@ -103,17 +103,17 @@ C     This is to convert active MO sets in any symmetry into a C1 symmetry
 C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
 C       write(6,*) 'Transition density matrix '
 C       Do IPrint=1,NASHT
-C       write (6,'(10(2X,F10.7))') 
+C       write (6,'(10(2X,F10.7))')
 C     & (WORK(LTRAD+JPrint-1+NASHT*(IPrint-1)),JPrint=1,NASHT)
 C       End Do
        write(6,*) 'LCMO1 '
        Do I=0,NCMO,5
-       write(6,'(2X,5F10.6)') 
+       write(6,'(2X,5F10.6)')
      & (WORK(LCMO1+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
        End Do
        write(6,*) 'LCMO2 '
        Do I=0,NCMO,5
-       write(6,'(2X,5F10.6)') 
+       write(6,'(2X,5F10.6)')
      & (WORK(LCMO2+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
        End Do
       endif
@@ -151,19 +151,19 @@ C     Analyzing the symmetry of the wave function
       End Do
       NSUPCMO=NASHT*NSupBas
       NUseSym=IUseSym
-      NAISHT=NASHT+NISHT 
+      NAISHT=NASHT+NISHT
       IF (DoTest) Then
        write(6,*) 'Reprinting MO information'
        write(6,*) 'Size of Super-CMO matrix',NSupCMO
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'MO Index',(IOrb,IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Irrep Belong to',(OrbSym(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Nr. of Basis F',(OrbBas(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'Act Orbital?',(OrbAct(IOrb),IOrb=1,NAISHT)
-       write(6,'(6X,A20,4X,16I4)') 
+       write(6,'(6X,A20,4X,16I4)')
      & 'used basis f',(NUsedBF(OrbUsedSym(IOrb)),IOrb=1,NAISHT)
       End If
 C     End of analyzing wave function
@@ -201,8 +201,8 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-     
- 
+
+
        write(6,*)'printing CMO2 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
@@ -210,13 +210,13 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-      End If 
+      End If
 C     end of building up the super-CMO matrix
 C     Start and initialize spaces
       write(StateName,'(I3)') ISTATE
       write(StateNameTmp,'(I3,a1,a)')
      & JSTATE,'_',trim(adjustl(STATENAME))
-      write (STATENAME,'(a)') trim(adjustl(StateNameTmp)) 
+      write (STATENAME,'(a)') trim(adjustl(StateNameTmp))
       NDge=NASHT**2
       CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
       CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)
@@ -272,19 +272,20 @@ C     Print out transition density matrix
       If(Spin(I_NTO).eq.'a') Then
       write (FILENAME,fmt='(a,a)')
      &"TDM",trim(adjustl(STATENAME))
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(5(2X,E10.4E2))')
+        write (LU,'(5(2X,E10.4E2))')
      &    (TRAD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      write (233,*)
-      write (233,*)
-      write (233,*)
+      write (LU,*)
+      write (LU,*)
+      write (LU,*)
       DO I=1,NASHT
-        write (233,'(5(2X,E10.4E2))')
+        write (LU,'(5(2X,E10.4E2))')
      &    (TRASD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
       End If
 C     Generalizing transpose of TDM, TDM_T
 
@@ -294,23 +295,25 @@ C     Calculating T_trans*T
 C     Writing Particle Matrix
       write (FILENAME,fmt='(a,a,a)')
      &"Dhole.",trim(adjustl(STATENAME)),Spin(I_NTO)
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(10(2X,E10.4E2))')
+        write (LU,'(10(2X,E10.4E2))')
      &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
 C     Calculating T*T_transpose
       CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDM),NASHT,
      &             WORK(LTDMT),NASHT,0.0D0,WORK(LNTOUmat),NASHT)
       write (FILENAME,fmt='(a,a,a)')
      &"Dpart.",trim(adjustl(STATENAME)),Spin(I_NTO)
-      open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (233,'(10(2X,E10.4E2))')
+        write (LU,'(10(2X,E10.4E2))')
      &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
-      close (233)
+      close (LU)
        CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
      &              WGRONK,-1,INFO)
        NScrq=INT(WGRONK(1))
@@ -331,20 +334,22 @@ C     Printing some matrices
       If (DoTest) Then
        write (FILENAME,fmt='(a,a,a)')
      & "EigVecHole.",trim(adjustl(STATENAME)),Spin(I_NTO)
-       open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (233,'(5(2X,E10.4E2))')
+         write (LU,'(5(2X,E10.4E2))')
      &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
-       close (233)
+       close (LU)
        write (FILENAME,fmt='(a,a,a)')
      & "EigVecPart.",trim(adjustl(STATENAME)),Spin(I_NTO)
-       open (unit=233,file=FILENAME)
+      LU=ISFREEUNIT(LU)
+      CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (233,'(5(2X,E10.4E2))')
+         write (LU,'(5(2X,E10.4E2))')
      &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
-       close (233)
+       close (LU)
       End IF
 C     End of Diagonlazing the mataces
 
@@ -363,7 +368,7 @@ C     Constructing hole and particle orbitals
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
-      
+
        write(6,*)'printing Hole     NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
@@ -378,13 +383,13 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndto,NASHT)
       CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
-      NTOType='PartNTO'
+      NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NTOType,
      &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
-      NTOType='HoleNTO'
+      NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
      &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
-C     End of Printing NTOs     
+C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
@@ -414,17 +419,17 @@ C     Putting particle-hole pairs in the output
      & lIrrep(INT(WORK(LSymfr-1+IOrb))),INT(WORK(LIndfr-1+IOrb)),
      & lIrrep(INT(WORK(LSymto-1+IOrb))),INT(WORK(LIndto-1+IOrb))
       End Do
-       
+
       WRITE(6,'(6X,100A1)') ('-',i=1,100)
        write(6,'(6X,A,F8.5)')'SUM OF EIGENVALUES',SumEigVal
       WRITE(6,'(6X,100A1)') ('=',i=1,100)
-       
- 
+
+
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymto,NASHT)
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndto,NASHT)
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Free','Inte',LIndfr,NASHT)
-      End DO  
+      End DO
 ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
        write(6,*)
@@ -449,7 +454,7 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
       RETURN
-      END 
+      END
 
 
 
@@ -464,22 +469,22 @@ C     Putting particle-hole pairs in the output
 #include "Files.fh"
 #include "Struct.fh"
 #include "rassiwfn.fh"
-     
+
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
-      CHARACTER (len=17) FILENAME
+      CHARACTER (len=128) FILENAME
 C     Loop control
       INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
       INTEGER INTO,IUseSym,NNTO,ISym,IOrb
-      REAL*8,DIMENSION(NUseSym) :: SquareSum               
-      REAL*8,DIMENSION(NBST) :: EigValArray 
+      REAL*8,DIMENSION(NUseSym) :: SquareSum
+      REAL*8,DIMENSION(NBST) :: EigValArray
 C     SquareSum=Sum over square of coefficients for certain symmetry
-      INTEGER,DIMENSION(NUseSym) :: NOrbinSym                
+      INTEGER,DIMENSION(NUseSym) :: NOrbinSym
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
@@ -490,15 +495,15 @@ C     then give a warning message and print the one with the largest SquareSum
       COMMON SumEigVal
       INTEGER NPCMO,IPCMO
       Real*8,DIMENSION(:),allocatable::PCMO
-C     Printing control      
-C     
+C     Printing control
+C
       INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
-      INTEGER LU
+      INTEGER LU,ISFREEUNIT
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
       Logical DoTest
-      
+      External ISFREEUNIT
 
       DoTest=.false.
       Threshold=0.0D-10
@@ -541,7 +546,7 @@ C
         End If
        End Do
        If(iPrintsym.eq.0) Then
-        write(6,'(a,I2,a,a,a)') 'the symmetry of orbital ',INTO, 
+        write(6,'(a,I2,a,a,a)') 'the symmetry of orbital ',INTO,
      & ' is not found. How is this possible?',
      & ' Change the value of DoTest in ntocalc.f to true ',
      & ' to print out the intermediate values'
@@ -562,7 +567,7 @@ C     generating file in a similar way to other orbital files
 C      If there are active orbitals in this symmetry
        NNTO=NOrbinSym(IUseSym)
 C       write inactive part
-       Do OrbNum=1,NISH(ISym)  
+       Do OrbNum=1,NISH(ISym)
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
        END DO
@@ -599,8 +604,8 @@ C Recording Printed NTO (PCMO)
        End Do
 C Recording Printed NTO (PCMO)
        Else
-C      If there is no active orbitals in this symmetry       
-       Do OrbNum=1,NBASF(ISym)  
+C      If there is no active orbitals in this symmetry
+       Do OrbNum=1,NBASF(ISym)
         IOrb=IOrb+1
         EigValArray(IOrb)=Zero
        END DO
@@ -619,13 +624,14 @@ C Recording Printed NTO (PCMO)
       End Do
 
       LU=50
+      LU=ISFREEUNIT(LU)
       Note='*  Natural Transition Orbitals'
-      WRITE(FILENAME,'(a,a,a,a)') 
-     & trim(adjustl(STATENAME)),Spin,'.',NTOType
+      WRITE(FILENAME,'(6(a))')
+     & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
 
-      deallocate(PCMO) 
+      deallocate(PCMO)
       RETURN
       END
 

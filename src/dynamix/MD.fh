@@ -17,17 +17,19 @@ C VELOcities = 0  zero start velocities (default)
 C              1  reads in the velocities (Bohr/a.u.) from 'velocity.xyz'
 C              2  reads in the mass-weighted velocities (Bohr/a.u.) from 'velocity.xyz'
 C              3  Maxwell-Boltzmann distribution at temperature T (Bohr/a.u.)
+C POUT = x Number of nuclear coordinates to project out from the dynamics
+C          and therefore of files 'out.00x.xyz' to read
 C
 C DT      - Time step
 C Etot0   - Reference total energy for microcanonical ensemble
 C Restart - Restart time of the molecular dynamics simulation
 C iPrint  - (global) print level
 C
-      INTEGER   THERMO,VELO,iPrint
+      INTEGER   THERMO,VELO,POUT,iPrint
       REAL*8    DT,RESTART,TEMP
       LOGICAL   lH5Restart
       CHARACTER*180  File_H5Res
-      COMMON /MDint/ THERMO,VELO,iPrint
+      COMMON /MDint/ THERMO,VELO,POUT,iPrint
       COMMON /MDreal/ DT,RESTART,TEMP
       COMMON /MDlogi/ lH5Restart
       COMMON /MDstri/ FILE_H5RES
