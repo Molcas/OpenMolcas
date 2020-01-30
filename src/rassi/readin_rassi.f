@@ -238,6 +238,10 @@ C ------------------------------------------
         IFSO=.TRUE.
         GOTO 100
       END IF
+      IF(LINE(1:4).EQ.'NTOC') THEN
+        IFNTO=.TRUE.
+        GOTO 100
+      END IF
 C ------------------------------------------
 * PAM07 Added: Keyword for printing spin-orbit coupling matrix elements
 * A threshold in reciprocal cm is entered.

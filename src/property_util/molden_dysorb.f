@@ -706,9 +706,8 @@ c      End If
 *      Construct a matrix which inverses the symmetry transformation
 *      of the basis fuctions (DESYM)
 *
-      IF (nIrrep.LT.2) THEN
-          GOTO 500
-      END IF
+*      NOTE: Also necessary for no symmetry calculations
+*      to properly keep track of i.e. px vs py vs pz
 
       DESYM=0.0D0
       iBtot=0
@@ -757,25 +756,16 @@ c      End If
 *      Dump vector in the molden.input file
 *
 
- 500  Continue
       Write (MF,'(A)') '[MO]'
 
       ! For all Dyson orbitals
       DO I=1,NDO
 
-      ! No symmetry = no backtransformation of basis functions needed
-       IF (nIrrep.LT.2) THEN
-        Write (MF,'(A,I0,A)') 'Sym= ',I,"a"
-        Write (MF,103) ENE(I)
-        Write (MF,'(A)') 'Spin= Alpha'
-        Write (MF,104) OCC(I)
-        DO J=1,NB
-         WRITE(MF,100) J,CMO((I-1)*NB+J)
-        END DO
-
       ! Symmetry = perform a backtransformation from symmetrized to
       ! original basis functions
-       ELSE
+      ! and to properly split up e.g. px vs py vs pz compoments
+      ! also for no symmetry calculations
+
         ! Find the correct symmetry label from the symmetrized functions
         idx=(I-1)*NB+1
         iLabel=MAXLOC(ABS(CMO(idx:idx+nB-1)),1)
@@ -794,8 +784,6 @@ c      End If
          WRITE(MF,100) iGTO,COEF
         END DO
         CONTINUE
-
-       END IF ! End of symmetry backtransformation
 
       END DO ! I=1,NDO (i.e. Dyson orbitals)
 

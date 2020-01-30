@@ -405,7 +405,7 @@ C  read the input
          If ( input_to_read .eq. 1 ) Then
             Call read_binary_aniso( nss, nstate, multiplicity, eso,
      &                              esfs, U, MM, MS, ML, DM, ANGMOM,
-     &                              EDMOM )
+     &                              EDMOM, AMFI, HSO )
 
          Else If ( input_to_read .eq. 2 ) Then
             ! get the information from formatted aniso.input file:
@@ -416,7 +416,8 @@ C  read the input
             nstate2=nstate
             Call read_formatted_aniso( input_file_name, nss2, nstate2,
      &                                 multiplicity, eso, esfs, U, MM,
-     &                                 MS, ML, DM, ANGMOM, EDMOM )
+     &                                 MS, ML, DM, ANGMOM, EDMOM,
+     &                                 AMFI, HSO )
             IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit  '//
      &                         'read_formatted_aniso'
 
@@ -514,10 +515,13 @@ C  read the input
 ! save some important data, regardless of the following execution
       ! -- binary $Project.aniso
       Call write_binary_aniso( nss, nstate, multiplicity, eso,
-     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM )
+     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM, AMFI,
+     &                         HSO )
       ! ASCII -- anisoinput:
-      Call write_formatted_aniso( nss, nstate, multiplicity, eso,
-     &                            esfs, U, MM, MS, DM, ANGMOM, EDMOM )
+      Call write_formatted_aniso(
+     &                         nss, nstate, multiplicity, eso,
+     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM, AMFI,
+     &                         HSO )
 !
 !----- compute various properties ----------|
 ! calculation of magnetic Hamiltonians:
