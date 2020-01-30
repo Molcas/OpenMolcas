@@ -31,6 +31,7 @@
 
       integer :: natoms
       real*8, allocatable :: charges(:), coord(:,:)
+      integer, allocatable :: atnums(:)
 
       integer :: nsym, isym
       character :: lIrrep(24)
@@ -98,6 +99,18 @@
       call mma_deallocate(atomlbl)
       call mh5_close_dset(dsetid)
 
+*     atom numbers
+      dsetid = mh5_create_dset_int(fileid,
+     $        'CENTER_ATNUMS', 1, [nAtoms])
+      call mh5_init_attr(dsetid, 'description',
+     $        'Atomic numbers, storead as '//
+     $        'array of size [NATOMS_UNIQUE]')
+      call mma_allocate(atnums,nAtoms)
+      Call Get_iArray('Un_cen Charge',atnums,nAtoms)
+      call mh5_put_dset(dsetid,atnums)
+      call mma_deallocate(atnums)
+      call mh5_close_dset(dsetid)
+
 *     atom charges
       dsetid = mh5_create_dset_real(fileid,
      $        'CENTER_CHARGES', 1, [nAtoms])
@@ -105,7 +118,7 @@
      $        'Nuclear charges, storead as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(charges,nAtoms)
-      Call Get_dArray('Un_cen Charge',charges,nAtoms)
+      Call Get_dArray('Un_cen Effective Charge',charges,nAtoms)
       call mh5_put_dset(dsetid,charges)
       call mma_deallocate(charges)
       call mh5_close_dset(dsetid)
@@ -152,11 +165,23 @@
         call mma_deallocate(desym_atomlbl)
         call mh5_close_dset(dsetid)
 
+*     desymmetrized atom numbers
+        dsetid = mh5_create_dset_int(fileid,
+     $          'DESYM_CENTER_ATNUMS', 1, [MCENTR])
+        call mh5_init_attr(dsetid, 'description',
+     $          'Desymmetrized atomic numbers, '//
+     $          'stored as array of size [NATOMS_ALL]')
+        call mma_allocate(atnums,mcentr)
+        call get_iArray('LP_A',atnums,mcentr)
+        call mh5_put_dset(dsetid,atnums)
+        call mma_deallocate(atnums)
+        call mh5_close_dset(dsetid)
+
 *     desymmetrized atom charges
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_CHARGES', 1, [MCENTR])
         call mh5_init_attr(dsetid, 'description',
-     $          'Desymmetrized Center charges, '//
+     $          'Desymmetrized center charges, '//
      $          'stored as array of size [NATOMS_ALL]')
         call mma_allocate(charges,mcentr)
         call get_dArray('LP_Q',charges,mcentr)

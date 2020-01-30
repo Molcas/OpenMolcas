@@ -234,6 +234,39 @@ C
 *
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 *
+      SUBROUTINE DxRdOut(pcoo,POUT,natom)
+C
+C     This Subroutine reads in the coordinates to project out from the file 'out.00N.xyz'
+C
+      IMPLICIT NONE
+#include "Molcas.fh"
+      EXTERNAL      IsFreeUnit
+      INTEGER       i,j,p,file,natom,POUT,IsFreeUnit
+      REAL*8        pcoo(POUT,natom*3)
+      CHARACTER*80  filname
+      CHARACTER*180 OutLine, Get_Ln
+*
+      file=81
+      file=IsFreeUnit(file)
+      DO P=1,POUT
+        WRITE(filname,'(A,I3.3,A)') 'out.',p,'.xyz'
+        CALL Molcas_Open(file,filname)
+        DO i=1,natom
+          OutLine = Get_Ln(file)
+          DO j=1,3
+            pcoo(p,3*(i-1)+j)=0.0D0
+            CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
+          END DO
+        END DO
+      END DO
+      CLOSE(file)
+*
+      RETURN
+
+      END
+*
+C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+*
       SUBROUTINE DxRdVel(vel,natom)
 C
 C     This Subroutine reads in the velocities from the file 'velocity.xyz'

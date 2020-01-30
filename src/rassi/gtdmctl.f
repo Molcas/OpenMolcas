@@ -56,6 +56,9 @@
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,lThetaM,LUCITH
       Real*8 Norm_fac
+CC    NTO section
+      Logical DoNTO
+CC    NTO section
       External IsFreeUnit
 
       type mixed_1pdensities
@@ -801,6 +804,19 @@ C General 1-particle transition density matrix:
      &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
+C Calculate Natural Transition Orbital (NTO):
+        IF (IFNTO) THEN
+         IF (job1.ne.job2) THEN
+           DoNTO=.true.
+         Else
+           DoNTO=.false.
+         End If
+         IF (DoNTO) Then
+          Call NTOCalc(job1,job2,ISTATE,JSTATE,TRAD,TRASD,MPLET1)
+          write(6,*) 'ntocalculation finished'
+         End If
+        End If
+C End of Calculating NTO
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:

@@ -196,3 +196,7 @@ C HOP    - Switch for Trajectory Surface Hopping Algorithm
 ! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
 ! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
 !           instead we mix the TDMs)
+C      NTO Calculation Section /// Jie Bao
+       Logical IfNTO
+       COMMON /NTO/ IfNTO
+C

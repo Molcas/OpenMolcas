@@ -92,7 +92,13 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
       END IF
 
       CALL Get_Velocity(vel,3*natom)
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
 
+C Check if reduced dimensionality
+      IF (POUT .NE. 0) THEN
+        CALL project_out(vel,force,natom)
+      ENDIF
 C
 C     Definition of the time step
 C
@@ -101,8 +107,6 @@ C
 
       CALL Get_dScalar('MD_Time',time)
 
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
       DO i=1, natom
 C     Determines the mass of an atom from its name
          IF (i.GT.matom) THEN
@@ -116,7 +120,6 @@ C-------------------------------------------
      &      Mass(i)
          END DO
       END DO
-
 C  Calling the thermostats for canonical ensemble
       IF (THERMO.eq.2) THEN
          CALL NhcThermo(vel)
