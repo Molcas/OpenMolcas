@@ -314,16 +314,38 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Let the accepted variance be set as a linear function of the
-*     largest component in the gradient.
-*     Make sure that the variance restriction never is too tight, hence
-*     the limit to 0.001 au = 0.63 kcal/mol
+*     Find the fraction value to be used to define the restricted
+*     variance threshold.
 *
+*
+      Beta_Disp_Tmp=Beta_Disp
+      Beta_Disp_Min=1.0D-8
+      Do i = Max(1,iter-nRaw), iter-1
+         If (GNrm(i+1).gt.Two*GNrm(i)) Then
+            Write (6,*) 'Reduce'
+            fact=1.0D-1
+            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-2,Beta_Disp_Tmp*fact)
+         Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
+            Write (6,*) 'Increase'
+            fact=1.0D1
+            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+         Else If (GNrm(i+1).lt.GNrm(i)) Then
+            Write (6,*) 'Increase'
+            fact=2.5D0
+            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+         End If
+         Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
+      End Do
+*     Let the accepted variance be set as a fraction of the
+*     largest component in the gradient.
       tmp=0.0D0
       Do i = 1, 3*nsAtom
          tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
-      Beta_Disp_=Max(0.001D0,tmp*Beta_Disp)
+      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp_tmp)
+      Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
+      Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
+      Write (6,*) 'Beta_Disp_=',Beta_Disp_
 *
       Beta_=Beta
 *
