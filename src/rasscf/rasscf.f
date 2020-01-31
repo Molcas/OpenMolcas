@@ -61,8 +61,7 @@
 
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t
-      use CC_CI_mod, only: Do_CC_CI, CC_CI_ctl,
-     &    CC_CI_init => init, CC_CI_cleanup => cleanup
+      use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
@@ -127,7 +126,7 @@
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
 * --------- Procedure pointers for CI-solvers
-        class(CI_solver_t), allocatable :: CI_solvasdf
+        class(CI_solver_t), allocatable :: CI_solver
 * --------- End Procedure pointers.
 
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
@@ -263,11 +262,12 @@
       Call InpPri(lOpto)
 
       if (DoNECI) then
-          allocate(fciqmc_solver_t :: CI_solvasdf)
+        allocate(fciqmc_solver_t :: CI_solver)
       else if (Do_CC_CI) then
+        allocate(CC_CI_solver_t :: CI_solver)
       end if
 
-      if (allocated(CI_solvasdf)) call CI_solvasdf%init()
+      if (allocated(CI_solver)) call CI_solver%init()
 
 
 *
@@ -824,8 +824,8 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           goto 2010
         end if
 
-        if (allocated(CI_solvasdf)) then
-          call CI_solvasdf%run(actual_iter=actual_iter,
+        if (allocated(CI_solver)) then
+          call CI_solver%run(actual_iter=actual_iter,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1088,8 +1088,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         End If
 
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
-        if (allocated(CI_solvasdf)) then
-          call CI_solvasdf%run(actual_iter=actual_iter,
+        if (allocated(CI_solver)) then
+          call CI_solver%run(actual_iter=actual_iter,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1705,8 +1705,8 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-      if (allocated(CI_solvasdf)) then
-          call CI_solvasdf%run(actual_iter=actual_iter,
+      if (allocated(CI_solver)) then
+          call CI_solver%run(actual_iter=actual_iter,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1969,11 +1969,11 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If (.not. any([allocated(CI_solvasdf), DumpOnly,
+      If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solvasdf)) then
-        call CI_solvasdf%cleanup()
+      else if (allocated(CI_solver)) then
+        call CI_solver%cleanup()
       end if
 
 
@@ -2018,7 +2018,7 @@ c      End If
       EndIf
 
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
-     &          .or. allocated(CI_solvasdf) .or. DumpOnly)) then
+     &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
 

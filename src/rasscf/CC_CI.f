@@ -25,16 +25,20 @@
       use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY,
      &    S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
       use general_data, only: iSpin, nSym, nConf, JobIPH,
-     &    ntot, ntot1, ntot2, nAsh, nBas
+     &    ntot, ntot1, ntot2, nAsh, nBas, nActEl
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
+      use generic_CI, only: CI_solver_t
+      use index_symmetry, only: one_el_idx, two_el_idx,
+     &    one_el_idx_flatten
+      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,
+     &  assert_, dp
 
       implicit none
       save
       private
-      public :: CC_CI_ctl, Do_CC_CI, init, cleanup
+      public :: Do_CC_CI, CC_CI_solver_t
       logical :: Do_CC_CI = .false.
 #include "para_info.fh"
       interface
@@ -42,6 +46,19 @@
           integer, intent(in) :: iseed
         end function
       end interface
+
+      type, extends(CI_solver_t) :: CC_CI_solver_t
+      contains
+        procedure, nopass :: init
+        procedure, nopass :: run => CC_CI_ctl
+        procedure, nopass :: cleanup
+      end type
+
+      integer*4 :: error
+      integer*4, parameter :: one4=1, root4=0
+
+      integer, parameter :: mpi_arg = kind(error)
+
       contains
 
       subroutine CC_CI_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
@@ -171,16 +188,15 @@
         logical, intent(in) :: lRf, DoGAS
         character(*), intent(in) :: KSDFT
         logical :: Do_ESPF
-        if (lroots > 1) then
-          call abort_('CC CI does not support State Average yet!')
-        end if
+        call assert_(lroots == 1,
+     &               "CC-CI doesn't support State Average!")
+
         call DecideOnESPF(Do_ESPF)
         if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
           call abort_('CC CI does not support Reaction Field yet!')
         end if
-        if (DoGAS) then
-          call abort_('CC CI does not support GASSCF yet!')
-        end if
+
+        call assert_(.not. DoGAS, 'CC CI does not support GASSCF yet!')
       end subroutine check_options
 
       subroutine write_user_message(
@@ -205,9 +221,7 @@
         write(6, *)
         write(6,'(A)') "When finished do:"
 ! TODO(Oskar, Thomas): Change accordingly
-        write(6,'(4x, A)')
-     &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
-     &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+        write(6,'(4x, A)') 'cp PSMAT.dat PAMAT.dat '//trim(WorkDir)
         write(6,'(4x, A)')
      &    'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
         call xflush(6)
@@ -227,43 +241,66 @@
      &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
 
-        DMAT(:) = 1.0
-        D1S_MO(:) = 1.0
-        PSMAT(:) = 1.0
-        PAMAT(:) = 1.0
+        integer :: p, q, r, s, pq, rs, pqrs, idx1RDM(2), idx2RDM(4)
+
+        if (myrank == 0) then
+          call read_2RDM('PSMAT.dat', PSMAT)
+          call read_2RDM('PAMAT.dat', PAMAT)
+
+          DMAT(:) = 0.0d0
+          do pqrs = lbound(PSMAT, 1), ubound(PSMAT, 1)
+            idx2RDM = two_el_idx(pqrs, p, q, r, s)
+            if (r == s) then
+              pq = one_el_idx_flatten(p, q)
+              DMAT(pq) = DMAT(pq) + PSMAT(pqrs)
+            end if
+          end do
+          DMAT(:) = DMAT(:) / (nActEl - 1)
+
+        end if
+        D1S_MO(:) = 0.0
+! Could be changed into non blocking BCast
+        call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
+     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
+        call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
+     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
+        call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
+     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
       end subroutine read_CC_RDM
 
-!       subroutine read_2RDM(path, RDM_2)
-!         character(*), intent(in) :: path
-!         real(dp), intent(out) :: RDM_2(:)
-!
-!         integer :: file_id, io_err, curr_line, i, n_lines
-!
-!
-!         call assert(size(RDM_2) == nAcpr2, 'Size does not match')
-!
-!         n_lines = inv_triang_number(nAcpr2)
-!
-!         file_id = 112
-!         i = 1
-!         write(*, *) n_lines, triangular_number(n_lines), inv_triang_number(triangular_number(n_lines))
-!         open(unit=file_id, file=path, action='read')
-!           do curr_line = 1, n_lines
-!             read(file_id, *, iostat=io_err) RDM_2(i : i + curr_line - 1)
-!             i = i + curr_line
-!           end do
-!         close(file_id)
-!       end subroutine
-!
-!       pure integer function triangular_number(n)
-!         integer, intent(in) :: n
-!         triangular_number = n * (n + 1) / 2
-!       end function
-!
-!       pure function inv_triang_number(n) result(res)
-!         integer, intent(in) :: n
-!         integer :: res
-!         res = nint(-1.d0/2.d0 + sqrt(1.d0/4.d0 + 2.d0*real(n, kind=dp)))
-!       end function
+      subroutine read_2RDM(path, RDM_2)
+        character(*), intent(in) :: path
+        real*8, intent(out) :: RDM_2(:)
+
+        integer :: file_id, io_err, curr_line, i, n_lines
+        integer, parameter :: arbitrary_magic_number = 42
+
+
+        call assert_(size(RDM_2) == nAcpr2, 'Size does not match')
+        n_lines = inv_triang_number(nAcpr2)
+
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
+        i = 1
+        call molcas_open(file_id, trim(path))
+          do curr_line = 1, n_lines
+            read(file_id, *, iostat=io_err) RDM_2(i : i + curr_line - 1)
+            call assert_(io_err == 0, 'Error on reading 2-RDMs.')
+            i = i + curr_line
+          end do
+        close(file_id)
+      end subroutine
+
+      pure integer function triangular_number(n)
+        integer, intent(in) :: n
+        triangular_number = n * (n + 1) / 2
+      end function
+
+      !> This is the inverse function of triangular_number
+      pure function inv_triang_number(n) result(res)
+        integer, intent(in) :: n
+        integer :: res
+        res = nint(-1.d0/2.d0 + sqrt(1.d0/4.d0 + 2.d0*real(n, kind=dp)))
+      end function
 
       end module CC_CI_mod

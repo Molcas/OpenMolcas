@@ -19,7 +19,8 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, RDM_to_runfile
+      public :: wait_and_read, abort_, assert_, RDM_to_runfile, dp
+      integer, parameter :: dp = kind(1.0d0)
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -73,6 +74,12 @@
         call WarningMessage(2, message)
         call QTrace()
         call Abend()
+      end subroutine
+
+      subroutine assert_(condition, message)
+        logical, intent(in) :: condition
+        character(*), intent(in) :: message
+        if (.not. condition) call abort_(message)
       end subroutine
 
 
