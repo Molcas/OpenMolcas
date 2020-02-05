@@ -21,14 +21,14 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       INTEGER AixRm
-      EXTERNAL IsFreeUnit,AixRm
+      EXTERNAL IsFreeUnit,AixRm,IsStructure
       PARAMETER   (nTasks=3)
       PARAMETER  (nh=6)
-      CHARACTER   StdIn*16, caption*15
+      CHARACTER   StdIn*16, caption*15, ENV*8
       REAL*8      time, mean, kb
       REAL*8      Epot,Ekin,Etot0
       REAL*8      NHC(nh)
-      INTEGER     Task(nTasks),natom,IsFreeUnit,irc
+      INTEGER     Task(nTasks),natom,IsFreeUnit,irc,Itr,MxItr
       INTEGER     iRlxRoot,nRoots,i
       LOGICAL     Found,lHop
       INTEGER     VelVer, VV_First, VV_Second, Gromacs, VV_Dump
@@ -342,9 +342,9 @@ C
          END IF
       END DO
 
-*
-*-----Remove the GRADS file
-*
+C
+C-----Remove the GRADS file
+C
       Call f_Inquire('GRADS',Found)
       If (Found) Then
          If (AixRm('GRADS').ne.0) Call Abend()
@@ -354,8 +354,31 @@ C
       call mh5_close_file(dyn_fileid)
 #endif
 
+C
+C-----If running in a DoWhile loop, we turn a successful
+C     return code into "continue loop", except on the
+C     last iteration
+C
+      If ((IsStructure().eq.1).and.(irc.eq.0)) Then
+         MxItr=0
+         Call GetEnvf('MOLCAS_MAXITER', ENV)
+         If (ENV.ne.' ') Then
+            Read (ENV,*) MxItr
+         End If
+         Itr=1
+         Call GetEnvf('MOLCAS_ITER', ENV)
+         If (ENV.ne.' ') Then
+            Read (ENV,*) Itr
+         End If
+         If (Itr.lt.MxItr) Then
+            iReturn=_RC_CONTINUE_LOOP_
+         Else
+            iReturn=irc
+         End If
+      Else
+         iReturn=irc
+      End If
       CALL QExit('Dynamix')
-      iReturn=irc
       RETURN
 *
       END
