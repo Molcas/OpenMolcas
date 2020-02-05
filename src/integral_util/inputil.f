@@ -66,14 +66,83 @@
       logical Quit_On_Error
       common /getlnQOE/ Quit_On_Error
       character*180 get_ln_quit
+      character*4 keya(45)
+      character*4 tmp
+      integer i,ik
+      common /ln_stack/keya
+      common /ln_stack_count/ia,ik
+      data ifirst/0/
+      save ifirst
+      if(ifirst.eq.0) then
+c      print *,'DEBUG', 'first init'
+        ifirst=1
+        ia=0
+	ik=0
+      endif
+      if(ia.eq.1.and.ik.gt.0) then
+      
+        tmp=keya(1)
+        do i=1,ik-1
+         keya(i)=keya(i+1)
+        enddo
+        keya(ik)=' '
+        ik=ik-1
+        if(ik.eq.0) ia=0
+        get_ln=tmp
+
+      else
       get_ln=get_ln_quit(lunit,1)
+c      print *,'DEBUG', 'get line=',get_ln
       if(Quit_On_Error) Then
         Call WarningMessage(2,'Error in Get_Ln')
         Call Quit_OnUserError()
       End If
+      endif
       Return
       End
-
+c VV
+      subroutine activate_ln_stack()
+      common /ln_stack/keya
+      common /ln_stack_count/ia,ik
+      character*4 keya(45)
+      integer ia,ik
+      ia=1
+      return
+      end
+c syntax: call set_ln_stack("xxx;yyy;zzz")
+c no spaces are allowed
+      subroutine set_ln_stack(keys)
+      character *180 keys, keyst, keystmp
+      character*4 keya(45)
+      character*4 tmp
+      common /ln_stack/keya
+      common /ln_stack_count/ia,ik
+      integer i,ia,ik
+      ik=0
+      ia=0
+      if(keys.eq.' ') return
+      keyst=' '
+      keyst=keys
+100   i=index(keyst,';')
+      if(keyst.eq.' ') return
+      if(i.eq.0) then
+      ik=ik+1
+      tmp=keyst(1:4)
+      keya(ik)=tmp
+      else
+      ik=ik+1
+      tmp=keyst(1:4)
+      if(i.le.4) tmp(i:)=' '
+      keya(ik)=tmp
+      keystmp=' '
+      keystmp(1:)=keyst(i+1:)
+      keyst=keystmp
+      goto 100
+      endif
+      return
+      end
+      
+      
       character*180 function get_ln_EOF(lunit)
       logical Quit_On_Error
       common /getlnQOE/ Quit_On_Error

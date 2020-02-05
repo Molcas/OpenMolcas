@@ -339,6 +339,7 @@ cperiod
 *
  998  lTtl = .False.
  9988 Continue
+      call activate_ln_stack()
       Key = Get_Ln(LuRd)
 *
  9989 If (Run_Mode.eq.G_Mode.and..Not.GWInput) Then

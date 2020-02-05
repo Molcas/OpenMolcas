@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2001-2005, Valera Veryazov                             *
+* Copyright (C) 2001-2005, 2019, Valera Veryazov                       *
 ************************************************************************
       Subroutine TransTbl(Filename)
 c
@@ -278,6 +278,10 @@ c
 c      print *, 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
       call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
 777   read(iunit,'(a)', end=35, err=35) Line
+      if(Line(1:8).eq.'#Keyword') then        
+         write(6,*) "*** Extra Keyword line was found:", Line(10:)
+	 call set_ln_stack(Line(10:))
+      endif
       if(Line(1:1).eq.'/') then
 c  we already reached body of the file.
        LineComp=':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
