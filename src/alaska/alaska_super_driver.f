@@ -483,10 +483,12 @@
 *        Read the root, as it could be a CASSCF state-specific excited
 *        state calculation
 *
+*
          iRlxRoot=0
          Call Qpg_iScalar('Relax CASSCF root',Exist)
          If (Exist) Call Get_iScalar('Relax CASSCF root',iRlxRoot)
          If (iRlxRoot.eq.0) iRlxRoot=1
+         write(*,*) 'irlxroot_alaska',irlxroot
 *
 *        Go ahead and compute the gradients
 *

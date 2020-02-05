@@ -88,7 +88,8 @@ C Local print level (if any)
 ***********************************************************
 * Load the nuclear repulsion energy
 ***********************************************************
-
+*TRS
+      write(*,*) 'rlxroot', irlxroot
       Call Get_dScalar('PotNuc',potNuc)
 
 ***********************************************************
@@ -119,7 +120,7 @@ C Local print level (if any)
       Tot_El_Charge=Tot_El_Charge-DBLE(nActEl)
       Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
 
-
+      
 ***********************************************************
 * Load bare nuclei Hamiltonian
 ***********************************************************
