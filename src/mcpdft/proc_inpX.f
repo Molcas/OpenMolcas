@@ -2524,11 +2524,18 @@ c       write(6,*)          '  --------------------------------------'
        DoGradPDFT=.true.
        Call SetPos_m(LUInput,'GRAD',Line,iRc)
        Call ChkIfKey_m()
+*TRS - Adding else statement to make nograd the default if the grad
+*keyword isn't used
+       Else
+       DoNoGrad=.true.
+*TRS
       End If
 *
 *---  Process NOGR command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if NOGRadient case.'
-      If (KeyNOGR) Then
+*TRS - removing nograd command
+*      If (KeyNOGR) Then
+       If (.false.) Then
        If (DBG) Write(6,*) ' NOGRadient keyword was used.'
        DoNoGrad=.true.
        Call SetPos_m(LUInput,'NOGR',Line,iRc)
@@ -2622,25 +2629,31 @@ c       write(6,*)          '  --------------------------------------'
 ************************************************************************
 *                                                                      *
 *     Select default root for geometry optimization
-*
-      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
-*
+*TRS - Not overwriting rlxroot from sacasscf
+      write(*,*)'irlxroot', irlxroot
+*      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
+*READ INPUT FROM SA-CASSCF
+       If (irlxroot.eq.0.and.dogradpdft) then
+           irlxroot=pdftroot
+       end if 
+          
+
 *        Check if multi state SA-CASSCF
 *
-         nW = 0
-         Do iR = 1, LROOTS
-            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
-         End Do
-         If (nW.ne.1) Then
-            iRlxRoot=iroot(LROOTS)
-         Else
-            Do iR = 1, LROOTS
-               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
-            End Do
-         End If
-      End If
-      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
-*                                                                      *
+*         nW = 0
+*         Do iR = 1, LROOTS
+*            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
+*         End Do
+*         If (nW.ne.1) Then
+*            iRlxRoot=iroot(LROOTS)
+*         Else
+*            Do iR = 1, LROOTS
+*               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
+*            End Do
+*         End If
+*      End If
+*      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
+*   TRS                                                                   *
 ************************************************************************
 *                                                                      *
 *---  Compute IZROT. IZROT is a matrix (lower triangular over the -----*

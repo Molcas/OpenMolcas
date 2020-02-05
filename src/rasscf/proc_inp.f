@@ -1020,6 +1020,8 @@ CBOR.. End modification 001011
         Call AbEnd()
        End If
       End If
+*TRS
+      pdftroot=irlxroot
 *
 *
 CIgorS 29-4-2010 Begin
