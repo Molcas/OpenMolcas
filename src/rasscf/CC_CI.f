@@ -261,12 +261,14 @@
         end if
         D1S_MO(:) = 0.0
 ! Could be changed into non blocking BCast
+#ifdef _MOLCAS_MPP_
         call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
      &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
         call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
      &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
         call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
      &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
+#endif
       end subroutine read_CC_RDM
 
       subroutine read_2RDM(path, RDM_2)
