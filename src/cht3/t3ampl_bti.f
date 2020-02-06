@@ -687,7 +687,7 @@ cmp
 #ifdef _MOLCAS_MPP_
 
         it1=NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2)
-        call gadgop (ccsdt,1,'+')
+        call gadgop ([ccsdt],1,'+')
         call gadgop (energ,4,'+')
         call gadgop (times_parr,10,'+')
 c
