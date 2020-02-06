@@ -33,7 +33,7 @@
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
-      use generic_CI, only: CI_solver_t
+      use generic_CI, only: CI_solver_t, unused
 
       implicit none
       save
@@ -232,6 +232,7 @@
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         use fcidump, only : fcidump_cleanup => cleanup
         type(fciqmc_solver_t), intent(in) :: CI_solver
+        if (.false.) call unused(CI_solver)
         call make_inp_cleanup()
         call read_RDM_cleanup()
         call fcidump_cleanup()

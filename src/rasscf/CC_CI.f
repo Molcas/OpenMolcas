@@ -29,7 +29,7 @@
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use generic_CI, only: CI_solver_t
+      use generic_CI, only: CI_solver_t, unused
       use index_symmetry, only: one_el_idx, two_el_idx,
      &    one_el_idx_flatten
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,
@@ -171,6 +171,7 @@
       subroutine cleanup(CI_solver)
         use fcidump, only : fcidump_cleanup => cleanup
         type(CC_CI_solver_t), intent(in) :: CI_solver
+        if (.false.) call unused(CI_solver)
         call fcidump_cleanup()
       end subroutine cleanup
 
@@ -242,7 +243,7 @@
      &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
 
-        integer :: p, q, r, s, pq, rs, pqrs, idx1RDM(2), idx2RDM(4)
+        integer :: p, q, r, s, pq, pqrs, idx2RDM(4)
 
         if (myrank == 0) then
           call read_2RDM('PSMAT.dat', PSMAT)

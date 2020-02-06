@@ -26,7 +26,7 @@
 module generic_CI
     implicit none
     private
-    public :: CI_solver_t
+    public :: CI_solver_t, unused
 
     abstract interface
 !>  @brief
@@ -71,5 +71,12 @@ module generic_CI
       procedure(CI_init_t), deferred, nopass :: init
       procedure(CI_run_t), deferred, nopass :: run
     end type
+
+    contains
+
+    subroutine unused(CI_solver)
+      class(CI_solver_t), intent(in) :: CI_solver
+      if (.false.) call CI_solver%init()
+    end subroutine
 
 end module generic_CI
