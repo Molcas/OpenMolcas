@@ -11,11 +11,22 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
+! NOTE
+! TLDR:
+!   Please implement a final procedure to automatically cleanup
+!   if you extend CI_solver_t.
+!
+! Explanation:
+!   I would like to force inheriting classes to implement a final procedure:
+!       final, deferred :: cleanup
+!   Unfortunately this is not possible, compare:
+!   Fortran 2008 standard draft, Note 4.47
+!   https://stackoverflow.com/questions/60005005/how-to-force-the-definition-of-a-destructor?noredirect=1#comment106120819_60005005
 
 module generic_CI
     implicit none
     private
-    public :: CI_init_t, CI_run_t, CI_cleanup_t, CI_solver_t
+    public :: CI_solver_t
 
     abstract interface
 !>  @brief
@@ -53,19 +64,12 @@ module generic_CI
         subroutine CI_init_t()
         end subroutine
 
-!>  @brief
-!>      Interface to cleanup routine for CI-solvers
-!>
-!>  @author Oskar Weser
-        subroutine CI_cleanup_t()
-        end subroutine
     end interface
 
     type, abstract :: CI_solver_t
     contains
       procedure(CI_init_t), deferred, nopass :: init
       procedure(CI_run_t), deferred, nopass :: run
-      procedure(CI_cleanup_t), deferred, nopass :: cleanup
     end type
 
 end module generic_CI

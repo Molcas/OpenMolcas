@@ -261,6 +261,9 @@
 
       Call InpPri(lOpto)
 
+* Note that CI_solver subclasses can provide a final procedure
+* (some people might call it destructor). Hence the deallocation and
+* cleanup is automatically performed, when it goes out of scope.
       if (DoNECI) then
         allocate(fciqmc_solver_t :: CI_solver)
       else if (Do_CC_CI) then
@@ -1972,8 +1975,6 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solver)) then
-        call CI_solver%cleanup()
       end if
 
 
