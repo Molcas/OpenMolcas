@@ -248,6 +248,7 @@
 *
       imix=0
       ifnr=-1
+      ign=0
       itype=0
       ExtBasDir=' '
       isxbas=0
@@ -1066,9 +1067,9 @@ c Simplistic validity check for value
 *
       Call UpCase(BSLbl)
       iDummy_basis=0
+      Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
       If (BSLbl(1:2).eq.'X.'.and.Index(BSLbl,'INLINE').eq.0.and.
      &    Index(BSLbl,'RYDBERG').eq.0) Then
-         Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
          BSLbl_Dummy=BSLbl
          BSLbl='X.ANO-RCC.'
          Do i=11,80
@@ -1156,10 +1157,12 @@ c Simplistic validity check for value
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
      &                                    BasisTypes,1)
       If (itype.eq.0) Then
-         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2)
+         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2 .or.
+     &       BasisTypes(3).eq.14)
      &       iType=BasisTypes(3)
       Else
-         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2) Then
+         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2 .or.
+     &       BasisTypes(3).eq.14) Then
             If (BasisTypes(3).ne.iType) Then
                imix=1
                BasisTypes(3)=-1
@@ -1168,7 +1171,17 @@ c Simplistic validity check for value
          End If
       End If
       If (itype.eq.1) ifnr=1
-      If (itype.eq.2) ifnr=0
+      If (itype.eq.2 .or. itype.eq.14) ifnr=0
+*
+      If (ign.eq.0) Then
+         ign=BasisTypes(4)
+      Else If (BasisTypes(4).ne.ign) Then
+         Call WarningMessage(1,
+     &     'SEWARD found basis sets of mixed nuclear charge model. '
+     &   //'The most advanced one will be used.')
+         ign=Max(ign,BasisTypes(4))
+         BasisTypes(4)=ign
+      End If
 *
       If (nSOC.gt.-1) Then
          Do l = 1, MxAng
@@ -1238,12 +1251,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Here we will have to fix that the 6-31G family of basis sets
-*     should by default be used with 6 d-functions rather than 5.
+*     Set Cartesian functions if specified by the basis type
+*     (6-31G family).
 *
-      KWord=BSLbl(1:Indx-1)
-      Call UpCase(KWord)
-      If (INDEX(KWord,'6-31G').ne.0) Then
+      If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
             Prjct(iSh)=.False.
             Transf(iSh)=.False.
@@ -1256,14 +1267,24 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     This will also automatically activate finite nuclear mass
 *     correction.
 *
+      KWord=BSLbl(1:Indx-1)
+      Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
          fmass(nCnttp)=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
-         Nuclear_Model=Gaussian_Type
          tDel=1.0D50
          Call Put_dScalar('T delete thr',tDel)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Update BasisTypes
+*
+      Do i=1,4
+         If (BasisTypes_save(i).eq.0) Cycle
+         If (BasisTypes(i).ne.BasisTypes_save(i)) BasisTypes(i)=-1
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4017,7 +4038,7 @@ c      endif
          Call WarningMessage(2,
      &      ' input is inconsistent!;'
      &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' and non-relativistic types!')
+     &    //' (or non-relativistic) types!')
          if(.not.Expert) Call Quit_OnUserError()
       End If
       If (ifnr.eq.1) Then
@@ -4033,7 +4054,13 @@ c      endif
          If (.Not.DKroll) Then
             DKroll=.True.
 C           If (iRELAE.eq.-1) IRELAE=201022
-            If (iRELAE.eq.-1) IRELAE=  1022
+            If (iRELAE.eq.-1) Then
+               If (itype.eq.2) Then
+                  IRELAE=  1022
+               Else If (itype.eq.14) Then
+                  IRELAE=   101
+               End If
+            End If
          End If
          If (MolWgh.ne.0 .and. MolWgh.ne.2) MolWgh=2
       End If
@@ -4050,6 +4077,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 *                                                                      *
 *     Activate Finite Nucleus parameters
+*
+      If (Nuclear_Model.eq.Point_Charge) Then
+         If (ign.eq.2) Nuclear_Model=Gaussian_Type
+         If (ign.eq.3) Nuclear_Model=mGaussian_Type
+      End If
 *
       Do iCnttp = 1, nCnttp
          If (Nuclear_Model.eq.Gaussian_Type) Then
