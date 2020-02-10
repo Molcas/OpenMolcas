@@ -89,7 +89,10 @@ C Local print level (if any)
 * Load the nuclear repulsion energy
 ***********************************************************
 *TRS
-      write(*,*) 'rlxroot', irlxroot
+      Call Get_iScalar('Relax CASSCF root',iRlxRoot)
+      write(*,*) 'rlxroot ', irlxroot
+*TRS
+*
       Call Get_dScalar('PotNuc',potNuc)
 
 ***********************************************************

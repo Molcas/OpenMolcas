@@ -990,7 +990,9 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       End If
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
-      IF(KeyCIRO) Then
+*TRS - removing ciroots keyword
+*      IF(KeyCIRO) Then
+       If(.false.) Then
        If (DBG) Write(6,*) ' CIROOTS command was given.'
        Call SetPos_m(LUInput,'CIRO',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -1058,7 +1060,9 @@ CBOR.. End modification 001011
        KeyCIRE=.TRUE.
       END IF
 *---  Process RLXR command --------------------------------------------*
-      If(KeyRLXR) Then
+*TRS - remove rlxr keyword
+*      If(KeyRLXR) Then
+       If(.false.) Then
        Call SetPos_m(LUInput,'RLXR',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' O.K. reading after keyword RLXR.'
@@ -2630,14 +2634,10 @@ c       write(6,*)          '  --------------------------------------'
 *                                                                      *
 *     Select default root for geometry optimization
 *TRS - Not overwriting rlxroot from sacasscf
-      write(*,*)'irlxroot', irlxroot
+*      write(*,*)'irlxroot', irlxroot
 *      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
-*READ INPUT FROM SA-CASSCF
-       If (irlxroot.eq.0.and.dogradpdft) then
-           irlxroot=pdftroot
-       end if 
-          
-
+*          
+*
 *        Check if multi state SA-CASSCF
 *
 *         nW = 0

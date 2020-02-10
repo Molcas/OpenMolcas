@@ -488,7 +488,6 @@
          Call Qpg_iScalar('Relax CASSCF root',Exist)
          If (Exist) Call Get_iScalar('Relax CASSCF root',iRlxRoot)
          If (iRlxRoot.eq.0) iRlxRoot=1
-         write(*,*) 'irlxroot_alaska',irlxroot
 *
 *        Go ahead and compute the gradients
 *
