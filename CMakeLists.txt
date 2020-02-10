@@ -1993,7 +1993,6 @@ if (WFA)
         if (NOT HDF5)
                 message (FATAL_ERROR "WFA support requires enabling HDF5 too.")
         endif ()
-        set (CMAKE_CXX_STANDARD 11)
 
         message("Configuring libwfa support:")
 

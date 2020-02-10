@@ -88,7 +88,15 @@ C
 C     Read the velocities
 C
       CALL Get_Velocity(vel,3*natom)
-
+C
+C     Initialize the Mass variable
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
+C
+C Check if reduced dimensionality
+      IF (POUT .NE. 0) THEN
+        CALL project_out(vel,force,natom)
+      ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
 C--------------------------------------------------------------------C
@@ -97,11 +105,6 @@ C--------------------------------------------------------------------C
       ENDIF
 C--------------------------------------------------------------------C
 
-C     Initialize the Mass variable
-C
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
-C
 C     Write out the old coordinates
 C
       CALL DxRdNAtomStnd(natom2)
