@@ -64,17 +64,35 @@ C
 
         pvel = 0
         DO i=1, natom
+          IF (i.GT.matom) THEN
+            CALL LeftAd(atom(i))
+            Iso=0
+            CALL Isotope(Iso,atom(i),Mass(i))
+          END IF
           DO j=1, 3
-            pvel = pvel + pcoo(p,3*(i-1)+j)*vel(3*(i-1)+j)
+            pvel = pvel + pcoo(p,3*(i-1)+j)*vel(3*(i-1)+j)*Mass(i)
           ENDDO
         ENDDO
-        pvel = pvel / norm
+        pvel = pvel / (norm*sum(Mass))
         DO i=1, natom
           DO j=1, 3
             vel(3*(i-1)+j) = vel(3*(i-1)+j) -
      & pvel*pcoo(p,3*(i-1)+j)
           ENDDO
         ENDDO
+C check
+        pvel = 0
+        DO i=1, natom
+          IF (i.GT.matom) THEN
+            CALL LeftAd(atom(i))
+            Iso=0
+            CALL Isotope(Iso,atom(i),Mass(i))
+          END IF
+          DO j=1, 3
+            pvel = pvel + pcoo(p,3*(i-1)+j)*vel(3*(i-1)+j)*Mass(i)
+          ENDDO
+        ENDDO
+      WRITE(6,*) pvel/(norm*sum(Mass))
 
         pforce = 0
         DO i=1, natom
@@ -85,10 +103,9 @@ C
           END IF
           DO j=1, 3
             pforce = pforce + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
-     & /Mass(i)
           ENDDO
         ENDDO
-        pforce = pforce / norm
+        pforce = pforce / (norm*sum(Mass))
         DO i=1, natom
           IF (i.GT.matom) THEN
             CALL LeftAd(atom(i))
@@ -100,6 +117,14 @@ C
      & pforce*Mass(i)*pcoo(p,3*(i-1)+j)
           ENDDO
         ENDDO
+C check
+        pforce = 0
+        DO i=1, natom
+          DO j=1, 3
+            pforce = pforce + pcoo(p,3*(i-1)+j)*force(3*(i-1)+j)
+          ENDDO
+        ENDDO
+      WRITE(6,*) pforce/(norm*sum(Mass))
       ENDDO
 
       CALL mma_deallocate(pcoo)
