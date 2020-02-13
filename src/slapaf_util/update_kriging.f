@@ -58,7 +58,7 @@
 *     Note that turning off the sorting will result in a poorer kriging!
 *
 *#define _DEBUG_
-*#define _UNSORTED_
+#define _UNSORTED_
 #define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
@@ -75,7 +75,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
          Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
-         Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
          Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
       End If
 *
@@ -132,21 +131,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select between setting all l's to a single value or go in
-*     multiple l-value mode in which the l-value is set such that
-*     the kriging hessian reproduce the diagonal value of the HMF
-*     Hessian of the current structure.
-*
-      If (Set_l) Then
-         Call Get_dScalar('Value_l',Value_l)
-      Else
-         Call mma_Allocate(Array_l,nInter,Label='Array_l')
-         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Pass the data points to the GEK routine. Remember to
+*     Select the data points to pass to the GEK routine. Remember to
 *     change the sign of the gradients.
 *                                                                      *
 ************************************************************************
@@ -156,6 +141,7 @@
       Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
       Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
       Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
+*
 #ifdef _UNSORTED_
 *
 *     Transform to the basis which diagonalizes the HMF Hessian.
@@ -252,7 +238,7 @@
 *              Go To 666
 *           End if
          Else
-*           Write (6,*) 'Use iteration: kter=',kter
+            Write (6,*) 'Use iteration: kter=',kter
             Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
             Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
             Energy_s(iRaw)=Energy(kter)
@@ -260,11 +246,6 @@
             Thr_high= 1.0D99
          End If
       End Do
-#ifdef _DEBUG_
-      Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
-      Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
-      Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
-#endif
 *
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
@@ -276,6 +257,58 @@
       Call mma_deallocate(Temp)
 *
 #endif
+#ifdef _DEBUG_
+      Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
+      Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
+      Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     At this point let us modify the value of the trend function such
+*     that it is proportional to the norm of the largest norm in the
+*     test suite.
+*
+      blavai_orig=blavai
+      blavai_min=1.0D-2*blavai
+      blavai_min=0.0D0
+      Write (6,*) 'blavai_orig=',blavai_orig
+      Write (6,*) 'blavai_min=',blavai_min
+      blavai_max=blavai_orig
+*     Do iRaw = iter-nRaw+1, iter-1
+*        Factor= 1.0D-1
+*        Write (*,*) GNrm(iRaw+1)/GNrm(iRaw)
+*        Write (*,*) LOG10(GNrm(iRaw+1)/GNrm(iRaw))
+*        Write (*,*) Factor*LOG10(GNrm(iRaw+1)/GNrm(iRaw))
+*        fact=10.0**(Factor*LOG10(GNrm(iRaw+1)/GNrm(iRaw)))
+*        Write (*,*) 'fact=',fact
+*        blavai=Min(blavai_orig,
+*    &          Max(blavai_min,
+*    &              blavai*fact))
+*     End Do
+      blavai=Max(blavai_orig*GNrm(iter)/0.000050D0,blavai_min)
+      Write (6,*) 'blavai=',blavai
+      Write (6,*)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Select between setting all l's to a single value or go in
+*     multiple l-value mode in which the l-value is set such that
+*     the kriging hessian reproduce the diagonal value of the HMF
+*     Hessian of the current structure.
+*
+      If (Set_l) Then
+         Call Get_dScalar('Value_l',Value_l)
+      Else
+         Call mma_Allocate(Array_l,nInter,Label='Array_l')
+         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Pass the sample points to the GEK procedure and deallocate the
+*     memory -- to be reused for another purpose later.
+*
       Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy_s)
 *
       Call mma_deAllocate(Energy_s)
@@ -284,8 +317,23 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Pass the l-values to the GEK routine. This will initiate the
+*     computation of the covariance matrix, and solve related GEK
+*     equations.
+*
+      If (Set_l) Then
+         Call set_l_kriging([Value_l],1)
+         Call Put_dScalar('Value_l',Value_l)
+      Else
+         Call Set_l_Kriging(Array_l,nInter)
+         Call mma_deAllocate(Array_l)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     There is a small tweak here. We need to send the transformed
-*     coordinates, shifts, and gradients to update_sl_
+*     orignal coordinates, shifts, and gradients to update_sl_. Note
+*     that this does NOT correspond to the data set to the GEK.
 *
       Call mma_allocate(qInt_s,nInter,MaxItr,Label='qInt_s')
       Call mma_allocate(Grad_s,nInter,MaxItr,Label='Grad_s')
@@ -299,41 +347,54 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select between setting all l's to a single value or go in
-*     multiple l-value mode in which the l-value is set such that
-*     the kriging hessian reproduce the diagonal value of the HMF
-*     Hessian of the current structure.
-*
-      If (Set_l) Then
-         Call set_l_kriging([Value_l],1)
-         Call Put_dScalar('Value_l',Value_l)
-      Else
-         Call Set_l_Kriging(Array_l,nInter)
-         Call mma_deAllocate(Array_l)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Find the fraction value to be used to define the restricted
 *     variance threshold.
 *
 *
       Beta_Disp_Tmp=Beta_Disp
-      Beta_Disp_Min=1.0D-8
-      Do i = Max(1,iter-nRaw), iter-1
-         If (GNrm(i+1).gt.Two*GNrm(i)) Then
-            Write (6,*) 'Reduce'
+      Beta_Disp_Min=1.0D-10
+*     Beta_Disp_Min=Beta_Disp*1.0D-3
+      mRaw=Min(5,nRaw)
+      Do i = Max(1,iter-mRaw), iter-1
+#ifdef _OLD_
+         If (GNrm(i+1).gt.Five*GNrm(i)) Then
+            Write (6,*) 'Reduce1'
+            fact=1.0D-2
+            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+         Else If (GNrm(i+1).gt.Two*GNrm(i)) Then
+            Write (6,*) 'Reduce2'
             fact=1.0D-1
-            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-2,Beta_Disp_Tmp*fact)
-         Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
-            Write (6,*) 'Increase'
+            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+         Else If (GNrm(i+1).gt.GNrm(i)) Then
+            Write (6,*) 'Reduce3'
+            fact=5.0D-1
+            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+         Else If (Five*GNrm(i+1).lt.GNrm(i)) Then
+            Write (6,*) 'Increase1'
             fact=1.0D1
             Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+         Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
+            Write (6,*) 'Increase2'
+            fact=5.0D0
+            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
          Else If (GNrm(i+1).lt.GNrm(i)) Then
-            Write (6,*) 'Increase'
+            Write (6,*) 'Increase2'
             fact=2.5D0
             Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
          End If
+#else
+            Factor=-4.0D0
+            Factor=-2.9D0
+            Factor=-3.5D0
+            Write (6,*) GNrm(i+1)/GNrm(i)
+            Write (6,*) LOG10(GNrm(i+1)/GNrm(i))
+            Write (6,*) Factor*LOG10(GNrm(i+1)/GNrm(i))
+            fact=10.0**(Factor*LOG10(GNrm(i+1)/GNrm(i)))
+            Write (6,*) 'fact=',fact
+            Beta_Disp_Tmp=Min(Beta_Disp,
+     &                    Max(Beta_Disp_Min,
+     &                        Beta_Disp_Tmp*fact))
+#endif
          Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
       End Do
 *     Let the accepted variance be set as a fraction of the
@@ -444,12 +505,8 @@
 *        Change label of updating method if kriging points have
 *        been used.
 *
-         If (iterK.gt.1) Then
-            UpMeth='GEK   '
-            Write (UpMeth(4:6),'(I3)') iterK
-         Else If(iOpt_RS.eq.1) Then
-            UpMeth='RV-RFO'
-         End If
+         UpMeth='RVO   '
+         Write (UpMeth(4:6),'(I3)') iterK
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -530,12 +587,12 @@
 *     theshold. If not we might end up in a loop of no displacements
 *     and eventually numerical problems.
 *
-      FAbs=Sqrt(
-     &          DDot_(nInter,Grad(1,iter),1,Grad(1,iter),1)
-     &         / DBLE(nInter)
-     &         )
-      GrdMax=Abs(GrdMax)
-      If (GrdMax.le.ThrGrd*OneHalf .and. Fabs.lt.ThrGrd) Step_trunc=' '
+*     FAbs=Sqrt(
+*    &          DDot_(nInter,Grad(1,iter),1,Grad(1,iter),1)
+*    &         / DBLE(nInter)
+*    &         )
+*     GrdMax=Abs(GrdMax)
+*     If (GrdMax.le.ThrGrd*OneHalf .and. Fabs.lt.ThrGrd) Step_trunc=' '
 *                                                                      *
 ************************************************************************
 *                                                                      *

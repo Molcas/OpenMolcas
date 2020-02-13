@@ -88,6 +88,7 @@
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
+*    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
      &        Curvilinear, Kriging_Hessian
@@ -159,7 +160,7 @@
 *
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
 *     Write (6,*) 'After corrections'
-*     Call DiagMtrx(Hessian,nInter,iNeg)
+*     Call DiagMtrx(Hessian,nInter,jNeg)
 *
 *     Save the number of internal coordinates on the runfile.
 *
@@ -285,6 +286,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *----------... Compute updated geometry in Internal coordinates
 *
 *           Select restriction if step or variance.
+#ifdef _OLD_
             If (iOpt_RS.eq.0) Then
                qBeta=fCart*tBeta
                Thr_RS=1.0D-7
@@ -296,7 +298,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Restriction_Step,Thr_RS)
             Else
                qBeta=Beta_Disp
-               Thr_RS=1.0D-5
+               Thr_RS=1.0D-3*qBeta
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
      &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
@@ -304,6 +306,31 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Dispersion,Thr_RS)
             End If
+#else
+            phi=Two/(One+Sqrt(Five))
+            fact=One
+            qBeta=fCart*tBeta
+            Thr_RS=1.0D-7
+            Do
+               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
+     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
+     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   Energy,Line_Search,Step_Trunc,
+     &                   Restriction_Step,Thr_RS)
+               If (iOpt_RS.eq.0) Exit
+               Step_Trunc=' '
+               disp=Restriction_Dispersion(qInt(1,kIter),Shift(1,kIter),
+     &                                     mInter)
+               fact=phi*fact
+               qBeta=phi*qBeta
+               If (disp+1.0D-5.lt.Beta_Disp) Exit
+               If ((fact.lt.1.0D-3).or.(disp.lt.Beta_Disp)) Then
+                  Step_Trunc='*'
+                  Exit
+               End If
+            End Do
+#endif
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *

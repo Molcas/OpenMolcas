@@ -65,11 +65,11 @@
       Iterate=.False.
       Restart=.False.
 *     Thr_RS=1.0D-7
-*ifdef _DEBUG_
-*     NumVal=nInter+1
-*else
+#ifdef _DEBUG_
+      NumVal=nInter+1
+#else
       NumVal=Min(6,nInter)+1
-*endif
+#endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
@@ -204,6 +204,8 @@
 #ifdef _DEBUG_
          Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,Sqrt(dqdq),StepMax,
      &                                 EigVal
+         Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+         Write (Lu,*) 'Thr_RS=',Thr_RS
 #endif
 *                                                                      *
 ************************************************************************
@@ -232,6 +234,7 @@
 *        Procedure if the step length is not equal to the trust radius
 *
          If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr_RS) Then
+*           Write (6,*) 'Case 1'
             Step_Trunc='*'
 #ifdef _DEBUG2_
             Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
@@ -245,6 +248,7 @@
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
             If (A_RFO.eq.-One) Then
+               Write (Lu,*) 'reset Step_Trunc'
                A_RFO=One
                Step_Trunc=' '
                Restart=.True.
@@ -283,6 +287,10 @@
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
       Call mma_deallocate(Matrix)
+*     Write (6,*) 'dqdq=',dqdq,Sqrt(dqdq)
+*     Write (6,*) 'StepMax=',StepMax,StepMax**2
+*     Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+*     Write (Lu,*) dqdq.lt.StepMax**2
 *
       Return
       End
