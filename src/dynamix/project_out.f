@@ -104,6 +104,7 @@ C
      & pforce*Mass(i)*pcoo(p,3*(i-1)+j)
           ENDDO
         ENDDO
+      ENDDO
 
       CALL mma_deallocate(pcoo)
       CALL mma_deallocate(atom)
