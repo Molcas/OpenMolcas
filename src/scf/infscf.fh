@@ -266,7 +266,7 @@
 * Damping    - T   = 'Damping' is used...                              *
 * Diis       - T   = 'Diis' is used...                                 *
 * PmTime     - T   = Subroutine PMat_SCF is timed                      *
-* EmConv     - T   = Emergency converged is siganed by someone.        *
+* EmConv     - T   = Emergency converged is signaled by someone.       *
 * WarnCfg    - T   = Solution might not be lowest configuration        *
 * WarnPocc   - T   = Solution with partial occ. no. found              *
 * WarnSlow   - T   = Warn about slow convergence.                      *

@@ -18,9 +18,12 @@
 Description
 -----------
 
-.. xmldoc:: %%Description:
+.. xmldoc:: <MODULE NAME="GUESSORB">
+            %%Description:
+            <HELP>
             The GUESSORB program generates a start guess for orbitals.
             These orbitals can be used as input for all wavefunction code.
+            </HELP>
 
 The :program:`GUESSORB` program generates a start guess for orbitals.
 The file :file:`GSSORB` is created containing these orbitals.
@@ -53,7 +56,7 @@ Input files
 
 :program:`GUESSORB` will use the following input
 files: :file:`ONEINT`, :file:`RUNFILE`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -87,7 +90,7 @@ Keywords
 
 :kword:`PRMO`
   This keyword will make :program:`Guessorb` print the orbitals that are
-  generated. On the next line an integer is to be specified that control
+  generated. On the next line an integer is to be specified that controls
   how much output you get, see below. On the same line you can optionally specify
   a floating point number that control how many orbitals are printed.
   Only orbitals with orbital energy less than this number will be printed,
@@ -98,17 +101,45 @@ Keywords
   * 3 --- As for 2 but with orbitals printed in compact format.
   * 4 --- As for 3 but orbitals are printed in full format.
 
+  .. xmldoc:: <KEYWORD MODULE="GUESSORB" NAME="PRMO" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: PRMO <basic>
+              <HELP>
+              Print the generated orbitals, an integer controls the output level.
+              Optionally, a floating point number limits the orbitals printed to
+              those with energy below the number (default 5.0 au).
+              ||
+              ||1: Only occupation numbers and orbital energies are printed.
+              ||2: As for 1 but with an additional sorted list of orbital energies.
+              ||3: As for 2 but with orbitals printed in compact format.
+              ||4: As for 3 but orbitals are printed in full format.
+              </HELP>
+              </KEYWORD>
+
 :kword:`PRPOpulation`
   This keyword will print a Mulliken population analysis based on the
   assumptions guessorb make with regards to populating orbitals.
 
+  .. xmldoc:: <KEYWORD MODULE="GUESSORB" NAME="PRPO" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: PRPOpulation <basic>
+              <HELP>
+              Prints Mulliken population analysis.
+              </HELP>
+              </KEYWORD>
+
 :kword:`STHR`
   This keyword controls how many orbitals will be deleted.
-  On the next line you specify a threshold that have the default :math:`10^{-5}`.
+  On the next line you specify a threshold that have the default :math:`10^{-9}`.
   The overlap matrix is diagonalized and only eigenvectors
   with eigenvalues larger that this threshold will be used,
   the other will be deleted.
-  This removes near liner dependence.
+  This removes near linear dependence.
+
+  .. xmldoc:: <KEYWORD MODULE="GUESSORB" NAME="STHR" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="1e-9">
+              %%Keyword: STHR <basic>
+              <HELP>
+              Threshold for deleting orbitals based on overlap. Default 1e-9.
+              </HELP>
+              </KEYWORD>
 
 :kword:`TTHR`
   This keyword controls how many orbitals will be deleted.
@@ -117,6 +148,13 @@ Keywords
   of virtual orbitals and only orbitals with energies below
   this threshold is used, the other will be deleted.
   This removes degrees of freedom describing core correlation.
+
+  .. xmldoc:: <KEYWORD MODULE="GUESSORB" NAME="TTHR" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="1e6">
+              %%Keyword: TTHR <basic>
+              <HELP>
+              Threshold for deleting orbitals based on kinetic energy. Default 1e6.
+              </HELP>
+              </KEYWORD>
 
 :kword:`GAPThr`
   This keyword controls how guessorb attempt to populate
@@ -130,6 +168,13 @@ Keywords
   in an active space in such a way that the gap between the
   three spaces (inactive, active and secondary) will be
   larger than the threshold.
+
+  .. xmldoc:: <KEYWORD MODULE="GUESSORB" NAME="GAPT" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.01">
+              %%Keyword: GAPThr <basic>
+              <HELP>
+              Threshold for populating orbitals. Default 0.01.
+              </HELP>
+              </KEYWORD>
 
 :kword:`END of input`
   ..
@@ -155,3 +200,5 @@ into :program:`RASSCF` without specifying the active space. ::
 
   &RASSCF
   LumOrb
+
+.. xmldoc:: </MODULE>

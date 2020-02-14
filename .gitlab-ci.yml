@@ -1,14 +1,7 @@
-# There can only be a single "include" per file
-include:
-  # Configurations defined in an external file
-  - "/.configs.yml"
-  # Jobs for building the documentation
-  - "/doc/.gitlab-ci.yml"
-
-# Define templates for "sub-jobs"
-# - install-key: install the SSH key to access private repositories
-# - compile: compile OpenMolcas with CMake
-# - run-tests: run the verification suite
+# Some useful templates:
+# sources: list of files that require a rebuild
+# compile-jobs: rules for when to run compile jobs
+# test-jobs: rules for when to run test jobs
 
 .template: &sources
   changes:
@@ -23,6 +16,49 @@ include:
     - src/**/*
     - test/**/*
     - Tools/**/*
+
+.template: &compile-jobs
+  rules:
+    # not on tags
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # merge requests
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+      when: on_success
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: on_success
+    # branches, if changes in the source
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      <<: *sources
+      when: on_success
+
+.template: &test-jobs
+  rules:
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # merge requests
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+      when: on_success
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: on_success
+
+# There can only be a single "include" per file
+include:
+  # Configurations defined in an external file
+  - "/.configs.yml"
+  # Jobs for building the documentation
+  - "/doc/.gitlab-ci.yml"
+
+# Define templates for "sub-jobs"
+# - install-key: install the SSH key to access private repositories
+# - compile: compile OpenMolcas with CMake
+# - run-tests: run the verification suite
 
 .template: &install-key
   before_script:
@@ -41,6 +77,7 @@ include:
 
 .template: &compile
   stage: build
+  interruptible: true
   #<<: *install-key
   script:
     # special pre-script that may be needed in some installations
@@ -97,20 +134,11 @@ include:
       - molcas-extra/
     expire_in: 1 day
     when: always
-  only:
-    refs:
-      - branches
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - tags
-    - master@Molcas/OpenMolcas
+  <<: *compile-jobs
 
 .template: &run-tests
   stage: test
+  interruptible: true
   script:
     # special pre-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
@@ -134,11 +162,11 @@ include:
     - |
       if [ -n "${CI_NODE_INDEX}" ] ; then
         pymolcas verify --flatlist ${tests} > filelist
-        export subset_size=$(($(wc -l < filelist)/${CI_NODE_TOTAL}))
-        split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
-        if [ -f "fl${CI_NODE_INDEX}" ] ; then
-          pymolcas verify --status --fromfile fl${CI_NODE_INDEX}
+        if ( ! which python && which python3 ) ; then
+          sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
         fi
+        ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        pymolcas verify --status --fromfile fl
       else
         pymolcas verify --status ${tests}
       fi
@@ -158,19 +186,7 @@ include:
       - failed/
     expire_in: 1 month
     when: always
-  only:
-    refs:
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - master@Molcas/OpenMolcas
-  # run even if the previous stage failed
-  # (in general, we want to run those configurations that didn't fail,
-  #  but there's no harm in running all)
-  when: always
+  <<: *test-jobs
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -178,6 +194,7 @@ include:
 tinker:
   stage: build
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
+  interruptible: true
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
@@ -199,7 +216,7 @@ tinker:
   script:
     # Use backup if the tinker website is down
     - >
-      sed -i -e 's/wget.*/& || \\/' -e '/wget/a wget https://gitlab.com/Molcas/Mirrors/Tinker/raw/master/${TINKERVERSION}.tar.gz?private_token=Y5PsqzY_Ev8U6JQDGyuL -O ${TINKERVERSION}.tar.gz' Tools/patch2tinker/get_tinker
+      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
     # Apply the low-memory patch
     - |
       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
@@ -215,30 +232,9 @@ tinker:
     paths:
       - build/
     expire_in: 1 day
-  only:
-    refs:
-      - branches
-      - merge_requests
-      - api
-      - triggers
-      - web
-    <<: *sources
-  except:
-    - tags
-    - master@Molcas/OpenMolcas
-
-# Dummy "test" job for when there were no source code changes
-
-test:dummy:
-  stage: test
-  script:
-    - >
-      echo "No source code changes"
-  except:
-    refs:
-      - tags
-      - master@Molcas/OpenMolcas
-    <<: *sources
+  <<: *compile-jobs
+  # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
+  retry: 2
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
@@ -249,7 +245,7 @@ build:plain:
 test:plain:
   extends: .plain
   <<: *run-tests
-  dependencies:
+  needs:
     - build:plain
     - tinker
   parallel: 2
@@ -260,7 +256,7 @@ build:options:
 test:options:
   extends: .options
   <<: *run-tests
-  dependencies:
+  needs:
     - build:options
     - tinker
   parallel: 2
@@ -271,7 +267,7 @@ build:pgi:
 test:pgi:
   extends: .pgi
   <<: *run-tests
-  dependencies:
+  needs:
     - build:pgi
     - tinker
   parallel: 2
@@ -282,7 +278,7 @@ build:sun:
 test:sun:
   extends: .sun
   <<: *run-tests
-  dependencies:
+  needs:
     - build:sun
     - tinker
   parallel: 2
@@ -293,8 +289,11 @@ build:intel:
 test:intel:
   extends: .intel
   <<: *run-tests
-  dependencies:
+  needs:
     - build:intel
+  parallel: 2
+  tags:
+    - docker
 
 build:intel13:
   extends: .intel13
@@ -302,7 +301,7 @@ build:intel13:
 test:intel13:
   extends: .intel13
   <<: *run-tests
-  dependencies:
+  needs:
     - build:intel13
 
 # Disable NAG, since the runner is unavailable
@@ -312,7 +311,7 @@ test:intel13:
 #test:nag:
 #  extends: .nag
 #  <<: *run-tests
-#  dependencies:
+#  needs:
 #    - build:nag
 #    - tinker
 
@@ -322,7 +321,7 @@ build:garble:
 test:garble:
   extends: .garble
   <<: *run-tests
-  dependencies:
+  needs:
     - build:garble
     - tinker
   parallel: 4
@@ -333,18 +332,18 @@ build:bounds:
 test:bounds:
   extends: .bounds
   <<: *run-tests
-  dependencies:
+  needs:
     - build:bounds
   parallel: 4
 
 build:debug:
   extends: .debug
   <<: *compile
-test:debug:
-  extends: .debug
-  <<: *run-tests
-  dependencies:
-    - build:debug
+#test:debug:
+#  extends: .debug
+#  <<: *run-tests
+#  needs:
+#    - build:debug
 
 build:qcmaquis:
   extends: .qcmaquis
@@ -352,6 +351,6 @@ build:qcmaquis:
 test:qcmaquis:
   extends: .qcmaquis
   <<: *run-tests
-  dependencies:
+  needs:
     - build:qcmaquis
 

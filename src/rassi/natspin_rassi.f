@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+      use rassi_aux, only : iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -94,13 +95,18 @@ C HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
 C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
             X=EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
             IF(ABS(X).GT.1.0D-12) THEN
-              IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
-C FIRST READ TRANSITION DENS MATRIX AND THEN TRANSITION SPIN DENS MATRIX
-              CALL DDAFILE(LUTDM,0,TDMZZ,NTDMZZ,IDISK)
+              iDisk=iDisk_TDM(J,I,1)
+              iEmpty=iDisk_TDM(J,I,2)
+              If (IAND(iEmpty,2).ne.0) Then
+                 iDisk=iDisk_TDM(J,I,1)
+                 iOpt=2
+                 iGo=2
 C PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
-              CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
-              IF(I.EQ.J) X=0.5D00*X
-              CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
+                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
+     &                          LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+                 IF(I.EQ.J) X=0.5D00*X
+                 CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
+              End If
             END IF
           END DO
         END DO
@@ -173,14 +179,6 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           INV=INV+NB**2
           LV=LV+NB**2
           LE=LE+NB
-        END DO
-C FOR SPIN ORBITALS CHANGE EIGENVALUES OF INACTIVE ORBITALS TO ZERO
-        IOCC=0
-        DO I=1,NSYM
-           DO J=1,NISH(I)
-              OCC(IOCC+J)=0.0D0
-           END DO
-           IOCC=IOCC+NBASF(I)
         END DO
 
 C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS. THE FILES WILL BE NAMED

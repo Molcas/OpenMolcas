@@ -31,6 +31,7 @@
 
       integer :: natoms
       real*8, allocatable :: charges(:), coord(:,:)
+      integer, allocatable :: atnums(:)
 
       integer :: nsym, isym
       character :: lIrrep(24)
@@ -53,6 +54,9 @@
       integer :: nPrim
       integer, allocatable :: PrimIDs(:,:)
       real*8, allocatable :: Primitives(:,:)
+
+      integer :: i,j
+      integer, allocatable :: QMMap(:)
 
       integer :: dsetid
 
@@ -80,7 +84,7 @@
       Call Get_dScalar('PotNuc',PotNuc)
       call mh5_init_attr (fileid,'POTNUC', PotNuc)
 
-      Call Get_iScalar('Unique atoms',nAtoms)
+      Call Get_iScalar('Unique centers',nAtoms)
       call mh5_init_attr (fileid,'NATOMS_UNIQUE', nAtoms)
 
 *     atom labels
@@ -90,9 +94,21 @@
      $          'Unique center labels '//
      $          'arranged as one [NATOMS_UNIQUE] block')
       call mma_allocate(atomlbl,nAtoms)
-      Call Get_cArray('Unique Atom Names',atomlbl,LENIN*nAtoms)
+      Call Get_cArray('Un_cen Names',atomlbl,LENIN*nAtoms)
       call mh5_put_dset(dsetid,atomlbl)
       call mma_deallocate(atomlbl)
+      call mh5_close_dset(dsetid)
+
+*     atom numbers
+      dsetid = mh5_create_dset_int(fileid,
+     $        'CENTER_ATNUMS', 1, [nAtoms])
+      call mh5_init_attr(dsetid, 'description',
+     $        'Atomic numbers, storead as '//
+     $        'array of size [NATOMS_UNIQUE]')
+      call mma_allocate(atnums,nAtoms)
+      Call Get_iArray('Un_cen Charge',atnums,nAtoms)
+      call mh5_put_dset(dsetid,atnums)
+      call mma_deallocate(atnums)
       call mh5_close_dset(dsetid)
 
 *     atom charges
@@ -102,7 +118,7 @@
      $        'Nuclear charges, storead as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(charges,nAtoms)
-      Call Get_dArray('Nuclear Charge',charges,nAtoms)
+      Call Get_dArray('Un_cen Effective Charge',charges,nAtoms)
       call mh5_put_dset(dsetid,charges)
       call mma_deallocate(charges)
       call mh5_close_dset(dsetid)
@@ -114,7 +130,7 @@
      $        'Atom coordinates, matrix of size [NATOMS_UNIQUE,3], '//
      $        'stored with atom index varying slowest')
       call mma_allocate(coord,3,nAtoms)
-      Call Get_dArray('Unique Coordinates',coord,3*nAtoms)
+      Call Get_dArray('Un_cen Coordinates',coord,3*nAtoms)
       call mh5_put_dset_array_real(dsetid,coord)
       call mma_deallocate(coord)
       call mh5_close_dset(dsetid)
@@ -131,9 +147,10 @@
       call mma_deallocate(basis_ids)
       call mh5_close_dset(dsetid)
 
+      Call get_iScalar('LP_nCenter',mCentr)
+
       IF (NSYM.GT.1) THEN
 
-        Call get_iScalar('LP_nCenter',mCentr)
         call mh5_init_attr (fileid,'NATOMS_ALL', mCentr)
 
 *     desymmetrized atom labels
@@ -141,19 +158,31 @@
      $          'DESYM_CENTER_LABELS', 1, [mcentr], LENIN4)
         call mh5_init_attr(dsetid, 'description',
      $          'Desymmetrized center labels '//
-     $          'arranged as one [MCENTR] block')
+     $          'arranged as one [NATOMS_ALL] block')
         call mma_allocate(desym_atomlbl,mcentr)
         Call get_cArray('LP_L',desym_atomlbl,(LENIN4)*mCentr)
         call mh5_put_dset(dsetid,desym_atomlbl)
         call mma_deallocate(desym_atomlbl)
         call mh5_close_dset(dsetid)
 
+*     desymmetrized atom numbers
+        dsetid = mh5_create_dset_int(fileid,
+     $          'DESYM_CENTER_ATNUMS', 1, [MCENTR])
+        call mh5_init_attr(dsetid, 'description',
+     $          'Desymmetrized atomic numbers, '//
+     $          'stored as array of size [NATOMS_ALL]')
+        call mma_allocate(atnums,mcentr)
+        call get_iArray('LP_A',atnums,mcentr)
+        call mh5_put_dset(dsetid,atnums)
+        call mma_deallocate(atnums)
+        call mh5_close_dset(dsetid)
+
 *     desymmetrized atom charges
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_CHARGES', 1, [MCENTR])
         call mh5_init_attr(dsetid, 'description',
-     $          'Desymmetrized Center charges, '//
-     $          'stored as array of size [MCENTR]')
+     $          'Desymmetrized center charges, '//
+     $          'stored as array of size [NATOMS_ALL]')
         call mma_allocate(charges,mcentr)
         call get_dArray('LP_Q',charges,mcentr)
         call mh5_put_dset(dsetid,charges)
@@ -164,7 +193,7 @@
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_COORDINATES', 2, [3,MCENTR])
         call mh5_init_attr(dsetid, 'description',
-     $          'Desymmetrized coordinates, size [MCENTR,3], '//
+     $          'Desymmetrized coordinates, size [NATOMS_ALL,3], '//
      $          'stored with atom index varying slowest')
         call mma_allocate(coord,3,MCENTR)
         call get_dArray('LP_Coor',coord,3*mcentr)
@@ -210,6 +239,23 @@
      $        'center_id, angmom, shell_id (C1 2s <-> 1,0,2)')
       call mma_allocate(PrimIDs,3,nPrim)
       call get_iArray('primitive ids', PrimIDs, 3*nPrim)
+*     only QM atoms have basis functions,
+*     remap the center_id numbers to skip MM atoms
+      call mma_allocate(QMMap,mcentr)
+      call get_iArray('IsMM Atoms', QMMap, mcentr)
+      j=0
+      do i=1,mcentr
+        if (QMMap(i).eq.0) then
+          j = j+1
+          QMMap(j) = i
+        end if
+      end do
+      if (j.lt.mcentr) then
+        do i=1,nPrim
+          PrimIDs(1,i) = QMMap(PrimIDs(1,i))
+        end do
+      end if
+      call mma_deallocate(QMMap)
       call mh5_put_dset_array_int(dsetid,PrimIDs)
       call mma_deallocate(PrimIDs)
       call mh5_close_dset(dsetid)

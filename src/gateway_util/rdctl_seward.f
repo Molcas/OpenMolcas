@@ -98,6 +98,7 @@
       Real*8 HypParam(3)
       Integer iSeed
       Save iSeed
+      Logical Vlct_
 *
       Logical DoEMPC
       Common /EmbPCharg/ DoEMPC
@@ -218,6 +219,7 @@
       iOptimType = 1
       gradLim = 0.0d0
       Do_OneEl=.True.
+      Vlct_=.False.
 #ifdef _FDE_
       ! Embedding
       embPot=.false.
@@ -246,6 +248,7 @@
 *
       imix=0
       ifnr=-1
+      ign=0
       itype=0
       ExtBasDir=' '
       isxbas=0
@@ -492,21 +495,22 @@ cperiod
       If (KWord(1:4).eq.'PKTH') Go To 9940
       If (KWord(1:4).eq.'PSOI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
-      If (KWord(1:1).eq.'R' .and.
-     &    (KWord(2:2).ge.'0' .and.
-     &     KWord(2:2).le.'9') .and.
-     &     (KWord(3:3).ge.'0' .and.
-     &      KWord(3:3).le.'9') .and.
-     &      (KWord(4:4).eq.'O' .or.
-     &       KWord(4:4).eq.'E' .or.
-     &       KWord(4:4).eq.'S' .or.
-     &       KWord(4:4).eq.'M' .or.
-     &       KWord(4:4).eq.'C') ) Go To 657
+c     If (KWord(1:1).eq.'R' .and.
+c    &    (KWord(2:2).ge.'0' .and.
+c    &     KWord(2:2).le.'9') .and.
+c    &     (KWord(3:3).ge.'0' .and.
+c    &      KWord(3:3).le.'9') .and.
+c    &      (KWord(4:4).eq.'O' .or.
+c    &       KWord(4:4).eq.'E' .or.
+c    &       KWord(4:4).eq.'S' .or.
+c    &       KWord(4:4).eq.'M' .or.
+c    &       KWord(4:4).eq.'C') ) Go To 657
       If (KWord(1:4).eq.'RA0F') Go To 9012
       If (KWord(1:4).eq.'RA0H') Go To 9011
       If (KWord(1:4).eq.'RADI') Go To 909
       If (KWord(1:4).eq.'RAIH') Go To 9013
       If (KWord(1:4).eq.'RBSS') Go To 9015
+      If (KWord(1:4).eq.'RELA') Go To 657
       If (KWord(1:4).eq.'RELI') Go To 962
       If (KWord(1:4).eq.'RESC') Go To 978
       If (KWord(1:4).eq.'RF-I') Go To 9970
@@ -583,9 +587,6 @@ cperiod
 c977  Call WarningMessage(2,' Premature end of input file.')
 c     Call Quit_OnUserError()
 *
-c988  Call WarningMessage(2,' Error while reading input file.;'//
-c    &                ' Last read was:'//KWord)
-c     Call Abend()
 #ifdef _FDE_
 *                                                                      *
 ****** EMBE ************************************************************
@@ -785,9 +786,10 @@ c     Call Abend()
 *                                                                      *
 ****** BSSH ************************************************************
 *                                                                      *
-*     Allow printing of ECP data
+*     Allow printing of basis set data
 *
  9121 nPrint(2)=Max(6,nPrint(2))
+      GWInput=.True.
       Go To 998
 *                                                                      *
 ****** VERB ************************************************************
@@ -1065,9 +1067,9 @@ c Simplistic validity check for value
 *
       Call UpCase(BSLbl)
       iDummy_basis=0
+      Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
       If (BSLbl(1:2).eq.'X.'.and.Index(BSLbl,'INLINE').eq.0.and.
      &    Index(BSLbl,'RYDBERG').eq.0) Then
-         Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
          BSLbl_Dummy=BSLbl
          BSLbl='X.ANO-RCC.'
          Do i=11,80
@@ -1155,10 +1157,12 @@ c Simplistic validity check for value
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
      &                                    BasisTypes,1)
       If (itype.eq.0) Then
-         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2)
+         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2 .or.
+     &       BasisTypes(3).eq.14)
      &       iType=BasisTypes(3)
       Else
-         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2) Then
+         If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2 .or.
+     &       BasisTypes(3).eq.14) Then
             If (BasisTypes(3).ne.iType) Then
                imix=1
                BasisTypes(3)=-1
@@ -1167,7 +1171,17 @@ c Simplistic validity check for value
          End If
       End If
       If (itype.eq.1) ifnr=1
-      If (itype.eq.2) ifnr=0
+      If (itype.eq.2 .or. itype.eq.14) ifnr=0
+*
+      If (ign.eq.0) Then
+         ign=BasisTypes(4)
+      Else If (BasisTypes(4).ne.ign) Then
+         Call WarningMessage(1,
+     &     'SEWARD found basis sets of mixed nuclear charge model. '
+     &   //'The most advanced one will be used.')
+         ign=Max(ign,BasisTypes(4))
+         BasisTypes(4)=ign
+      End If
 *
       If (nSOC.gt.-1) Then
          Do l = 1, MxAng
@@ -1237,12 +1251,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Here we will have to fix that the 6-31G family of basis sets
-*     should by default be used with 6 d-functions rather than 5.
+*     Set Cartesian functions if specified by the basis type
+*     (6-31G family).
 *
-      KWord=BSLbl(1:Indx-1)
-      Call UpCase(KWord)
-      If (INDEX(KWord,'6-31G').ne.0) Then
+      If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
             Prjct(iSh)=.False.
             Transf(iSh)=.False.
@@ -1255,14 +1267,24 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     This will also automatically activate finite nuclear mass
 *     correction.
 *
+      KWord=BSLbl(1:Indx-1)
+      Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
          fmass(nCnttp)=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
-         Nuclear_Model=Gaussian_Type
          tDel=1.0D50
          Call Put_dScalar('T delete thr',tDel)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Update BasisTypes
+*
+      Do i=1,4
+         If (BasisTypes_save(i).eq.0) Cycle
+         If (BasisTypes(i).ne.BasisTypes_save(i)) BasisTypes(i)=-1
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1646,6 +1668,7 @@ c     Go To 998
       Call mma_allocate(ITmp,nTemp,label='ITmp')
       Do 1502 i = 1, nTemp
          KWord = Get_Ln(LuRd)
+         Call Upcase(KWord)
          Call Get_I1(1,iMltpl)
          Call Get_F(2,RTmp(1,i),3)
          If (Index(KWord,'ANGSTROM').ne.0)
@@ -1694,7 +1717,7 @@ c     Go To 998
       KWord = Get_Ln(LuRd)
 9752  Call Get_I1(1,nXF)
       Convert=.False.
-      Call Upcase(kWord)
+      Call Upcase(KWord)
       If (Index(KWord,'ANGSTROM').ne.0) Then
           Convert=.True.
           ix=Index(KWord,'ANGSTROM')
@@ -2044,6 +2067,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             call Get_F1(1,Work(ipW+2))
             call Get_F1(2,Work(ipW+1))
             call Get_F1(3,Work(ipW  ))
+            Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0) Then
                Work(ipW)=Work(ipW)/angstr
                Work(ipW+1)=Work(ipW+1)*angstr
@@ -2075,14 +2099,14 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *     Process only the input.
 *
  991  Test = .TRUE.
-      GWInput=.True.
+      GWInput=Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
 ****** SDIP ************************************************************
 *                                                                      *
 *     Compute integrals for transition dipole moment
 *
- 992  Vlct = .TRUE.
+ 992  Vlct_ = .TRUE.
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -2171,6 +2195,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             End If
          Else
             Call Get_F(1,EFt(1,iEF),3)
+            Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0)
      &         Call DScal_(3,One/angstr,EFt(1,iEF),1)
          End If
@@ -2185,6 +2210,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       GWInput=.True.
       Call mma_allocate(OAMt,3,label='OAMt')
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,OAMt,3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Call DScal_(3,One/angstr,OAMt,1)
@@ -2208,6 +2234,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       GWInput=.True.
       Call mma_allocate(OMQt,3,label='OMQt')
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,OMQt,3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Call DScal_(3,One/angstr,OMQt,1)
@@ -2222,6 +2249,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
       ipAMP=ipExp(iShll+1)
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,Work(ipAMP),3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &     Call DScal_(3,One/angstr,
@@ -2247,6 +2275,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Call mma_allocate(DMSt,3,nDMS,label='DMSt')
       Do iDMS = 1, nDMS
          KWord = Get_Ln(LuRd)
+         Call Upcase(KWord)
          Call Get_F(1,DMSt(1,iDMS),3)
          If (Index(KWord,'ANGSTROM').ne.0)
      &        Call DScal_(3,One/angstr,DMSt(1,iDMS),1)
@@ -2457,7 +2486,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
      &           'Cholesky is incompatible with RI and Direct keywords')
          Call Quit_OnUserError()
       EndIf
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .False.
       Go To 998
 *                                                                      *
 ***** THRC *************************************************************
@@ -2547,7 +2576,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       Call Get_F1(1,E2)
       Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
       Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .True.
       Go To 998
 *
 **    Files
@@ -2665,7 +2694,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Saddle options
  9081 Key = Get_Ln(LuRd)
       Call Get_F1(1,SadStep)
-      GWInput = Run_Mode.eq.G_Mode
+      GWInput = .True.
       Go To 998
 *                                                                      *
 ***** CELL *************************************************************
@@ -2826,7 +2855,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
  9100 Do_GuessOrb=.FALSE.
       Go To 998
 *                                                                      *
-***** Rxxyzz ***********************************************************
+***** RELA *************************************************************
 *                                                                      *
 *     DKH option: order and parameterization.
 *     xx: order of Hamiltonian
@@ -2834,6 +2863,21 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     zz: order of properties
 *
  657  Continue
+      kWord = Get_Ln(LuRd)
+      If (KWord(1:1).eq.'R' .and.
+     &    (KWord(2:2).ge.'0' .and.
+     &     KWord(2:2).le.'9') .and.
+     &     (KWord(3:3).ge.'0' .and.
+     &      KWord(3:3).le.'9') .and.
+     &      (KWord(4:4).eq.'O' .or.
+     &       KWord(4:4).eq.'E' .or.
+     &       KWord(4:4).eq.'S' .or.
+     &       KWord(4:4).eq.'M' .or.
+     &       KWord(4:4).eq.'C') ) Then
+      Else
+         Call WarningMessage(2,'Error in RELA keyword')
+         Call Quit_OnUserError()
+      End If
       DKroll=.True.
 *
 *     DKH order in the Hamiltonian
@@ -2991,6 +3035,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *     No computation of AMFI integrals
 *
  8007 NoAMFI=.True.
+      GWInput=.True.
       Go To 998
 *                                                                      *
 ***** RPQM *************************************************************
@@ -3661,6 +3706,7 @@ c
 *                                                                      *
  8035 GWinput = .True.
       Kword = Get_Ln(LuRd)
+      Call Upcase(KWord)
       EMFR=.True.
       Call Get_F(1,KVector,3)
       Temp=Sqrt(KVector(1)**2+KVector(2)**2+KVector(3)**2)
@@ -3767,7 +3813,7 @@ c
          Write (LuWr,*) '                POINTS, and'
          Write (LuWr,*) '                ROTMAT'
       End If
-      EFP=.True.
+      lEFP=.True.
       Go To 998
 *                                                                      *
 ************************************************************************
@@ -3992,7 +4038,7 @@ c      endif
          Call WarningMessage(2,
      &      ' input is inconsistent!;'
      &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' and non-relativistic types!')
+     &    //' (or non-relativistic) types!')
          if(.not.Expert) Call Quit_OnUserError()
       End If
       If (ifnr.eq.1) Then
@@ -4008,7 +4054,13 @@ c      endif
          If (.Not.DKroll) Then
             DKroll=.True.
 C           If (iRELAE.eq.-1) IRELAE=201022
-            If (iRELAE.eq.-1) IRELAE=  1022
+            If (iRELAE.eq.-1) Then
+               If (itype.eq.2) Then
+                  IRELAE=  1022
+               Else If (itype.eq.14) Then
+                  IRELAE=   101
+               End If
+            End If
          End If
          If (MolWgh.ne.0 .and. MolWgh.ne.2) MolWgh=2
       End If
@@ -4025,6 +4077,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 *                                                                      *
 *     Activate Finite Nucleus parameters
+*
+      If (Nuclear_Model.eq.Point_Charge) Then
+         If (ign.eq.2) Nuclear_Model=Gaussian_Type
+         If (ign.eq.3) Nuclear_Model=mGaussian_Type
+      End If
 *
       Do iCnttp = 1, nCnttp
          If (Nuclear_Model.eq.Gaussian_Type) Then
@@ -4262,38 +4319,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
 *---- Generate labels for cartesian and spherical basis sets.
 *     Generate the transformation matrix for cartesian to sphericals
 *     and contaminants.
 *
       Call Sphere(iAngMx)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Put up list for point at which the orbital angular momentum
-*     will be computed.
-*
-      If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,Work(ipOAM),1)
-         Call mma_deallocate(OAMt)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Put up list for point at which the orbital magnetic quadrupole
-*     will be computed.
-*
-      If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
-         Call mma_deallocate(OMQt)
-         ipExp(Mx_Shll) = ipOMQ + 3
-         nInfo = nInfo + 3
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4372,6 +4402,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     computation of the velocity integrals.
 *
       If (nMltpl.eq.0) Vlct=.False.
+*
+*     But turn it on again if explicitly requested
+*
+      If (Vlct_) Vlct=.True.
 *
 *     This is the highest order of any property operator.
 *     The default value of 4 is due to the mass-velocity operator
@@ -4614,6 +4648,38 @@ C     Mx_mdc=mdc
 #ifdef _DEBUG_
        Call RecPrt(' Multipole centers',' ',Coor_MPM,3,nMltpl+1)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Put up list for point at which the orbital angular momentum
+*     will be computed.
+*
+      If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
+         ipOAM=ipExp(Mx_Shll)
+         call dcopy_(3,OAMt,1,Work(ipOAM),1)
+         Call mma_deallocate(OAMt)
+         ipExp(Mx_Shll) = ipOAM + 3
+         nInfo = nInfo + 3
+      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
+         lOAM=.True.
+         ipOAM=ipExp(Mx_Shll)
+         call dcopy_(3,CoM,1,Work(ipOAM),1)
+         ipExp(Mx_Shll) = ipOAM + 3
+         nInfo = nInfo + 3
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Put up list for point at which the orbital magnetic quadrupole
+*     will be computed.
+*
+      If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
+         ipOMQ=ipExp(Mx_Shll)
+         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
+         Call mma_deallocate(OMQt)
+         ipExp(Mx_Shll) = ipOMQ + 3
+         nInfo = nInfo + 3
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

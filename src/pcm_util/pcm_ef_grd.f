@@ -52,6 +52,7 @@
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
+         If (AuxCnttp(jCnttp)) Cycle
          Z = Charge(jCnttp)
          mCnt = nCntr(jCnttp)
          jxyz = ipCntr(jCnttp)

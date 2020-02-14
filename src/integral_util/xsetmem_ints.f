@@ -17,7 +17,7 @@ c
      &               'External handling of scratch already active!')
          Call Abend()
       End If
-      Call GetMem('SewMem','ALLO','REAL',ipt,mem)
+      Call GetMem('SewMem','ALLONOGARBLE','REAL',ipt,mem)
       Call SetMem_Ints(ipt,Mem)
       XMem_Status=Active
 *

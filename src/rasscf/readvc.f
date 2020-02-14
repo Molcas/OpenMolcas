@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Markus P. Fuelscher                              *
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine ReadVC(CMO,OCC,D,DS,P,PA)
+      Subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -57,14 +57,25 @@
 *     none                                                             *
 *                                                                      *
 ************************************************************************
+      use stdalloc, only : mma_allocate, mma_deallocate
+      use fortran_strings, only : to_upper
 
-      Implicit Real*8 (A-H,O-Z)
+      use rasscf_data, only : lRoots, nRoots,
+     &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
+     &  maxorbout, nAcPar, iXsym, iAlphaBeta,
+     &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT, iClean,
+     &  purify, iAdr15
+      use general_data, only : nSym, mXSym,
+     &  nDel, nBas, nOrb,
+     &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
+     &  JobIph, nSSH, maxbfn, mXAct
+
+      use orthonormalization, only : t_ON_scheme, ON_scheme_values,
+     &  orthonormalize
+
+      implicit none
 
 *     global data declarations
-
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"
@@ -74,26 +85,38 @@
 #include "casvb.fh"
 #include "raswfn.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
-*     calling arguments
 
-      Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      type(t_ON_scheme), intent(in) :: scheme
 
-*     local data declarations
-
-      Character*72 JobTit(mxTit)
-      DIMENSION IADR19(30)
-      Character*80 VecTit
-      Character*4 Label
-c      Integer StrnLn
-      Logical Found
-      Logical Changed
-      Integer nTmp(8)
+      logical :: found, changed
+      integer :: iPrlev, nData, ifvb,
+     &    i, j, iTIND, NNwOrd, iSym,
+     &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
+     &    lll, lJobH, ldJobH, lscr, iDisk,
+     &    jRoot, kRoot, iDXsX, idXCI,
+     &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
+      real*8 :: Dummy(1), Scal
+      real*8, allocatable :: CMO_copy(:)
 #ifdef _HDF5_
-      Character(Len=maxbfn) typestring
+      integer mh5id
+      character(Len=maxbfn) typestring
 #endif
-      Dimension Dummy(1),iDummy(1)
-      Character*(LENIN8*mxOrb) lJobH1
-      Character*(2*72) lJobH2
+      character(LENIN8*mxOrb) :: lJobH1
+      character(2*72) :: lJobH2
+      character(72) :: JobTit(mxTit)
+      character(80) :: VecTit
+      character(4) :: Label
+
+      interface
+        integer function isfreeunit(seed)
+          integer, intent(in) :: seed
+        end function
+
+        integer function ip_of_Work_i(A)
+          integer :: A
+        end function
+      end interface
 
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -271,7 +294,7 @@ C Local print level (if any)
          Else
             Write(LF,'(6X,A)')
      &      'The MO-coefficients are taken from the file:'
-            Write(LF,'(6X,A)') IPHNAME(:mylen(IPHNAME))
+            Write(LF,'(6X,A)') trim(iPhName)
          End If
          Write(VecTit(1:72),'(A72)') JobTit(1)
          Write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
@@ -289,8 +312,7 @@ C Local print level (if any)
            Else
               Write(LF,'(6X,A)')
      &        'The active density matrices (D,DS,P,PA) are read from'//
-     &        ' file '//IPHNAME(:mylen(IPHNAME))//
-     &        ' and weighted together.'
+     &        ' file '//trim(iPhName)//' and weighted together.'
            End If
          End If
          Call GetMem('Scr','Allo','Real',lscr,NACPR2)
@@ -502,13 +524,12 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMO)
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
-*     orthogonalize the molecular orbitals
-* New orthonormalization routine, with additional deletion of
-* linear dependence.
-      CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
-      CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
-      CALL ONCMO(WORK(LCMOO),CMO)
-      CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
+      if (scheme%val /= ON_scheme_values%no_ON) then
+        call mma_allocate(CMO_copy, nTot2)
+        CMO_copy(:nTot2) = CMO(:nTot2)
+        call orthonormalize(CMO_copy, scheme, CMO(:nTot2))
+        call mma_deallocate(CMO_copy)
+      end if
 
 *     save start orbitals
 

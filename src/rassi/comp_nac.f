@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Teodoro Laino                                    *
 ************************************************************************
 C     ******************************************************************C
-      SUBROUTINE COMP_NAC(ISTATE, JSTATE, LSCR, ISY12, IOFF,LCI1)
+      SUBROUTINE COMP_NAC(ISTATE, JSTATE, SCR, nSCR,ISY12, IOFF,LCI1)
 C***********************************************************************C
 C COMP_NAC : This routine was created to compute NonAdiabatic Couplings C
 C                                                                       C
@@ -28,7 +28,7 @@ C The original idea to implement this NAC computation was due to        C
 C Per-Ake Malmqvist on January 2000                                     C
 C                                                                       C
 C On Input:                                                             C
-C             LSCR:  Pointer to Transition density matrice in AO basis. C
+C             SCR:  Transition density matrice in AO basis.             C
 C                                                                       C
 C***********************************************************************C
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -44,6 +44,7 @@ C***********************************************************************C
 #include "diff.fh"
 #include "symmul.fh"
 * Arguments
+      REAL*8 SCR(nSCR)
       DIMENSION IOFF(*)
       Integer IndGrd(0:7)
       Logical TF, TstFnc
@@ -111,7 +112,7 @@ C***********************************************************************C
      &                                      idisp,
      &                                      iIrrep+1,
      &                                      isy12,
-     &                                      Work(lscr-1),
+     &                                      SCR,
      &                                      Work(LCI1),
      &                                      Prop,
      &                                      Ioff)

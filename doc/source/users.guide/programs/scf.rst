@@ -205,7 +205,7 @@ Input files
 
 :program:`SCF` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`INPORB`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -316,15 +316,20 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by functional keyword:
-  BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA, LSDA5, SVWN, SVWN5, TLYP, PBE, PBE0, M06, M06HF, M062X, M06L.
+  BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
+  HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
+  O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP.
   Example: `KSDFT=B3LYP`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LIST="----,BLYP,B3LYP,B3LYP5,HFB,HFS,LDA,LDA5,LSDA,LSDA5,SVWN,SVWN5,TLYP,PBE,PBE0,M06,M06HF,M062X,M06L" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LEVEL="BASIC"
+              LIST="----,BLYP,BPBE,B2PLYP,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP">
               %%Keyword: KSDFT <basic>
               <HELP>
               Use this keyword to do density functional theory calculations
               This keyword should be followed by the functional keyword:
-              BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA, LSDA5, SVWN, SVWN5, TLYP, PBE, PBE0, M06, M062X, M06HF, M06L.
+              BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
+              HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
+              O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP.
               Example: KSDFT=B3LYP
               </HELP>
               </KEYWORD>
@@ -332,7 +337,7 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`DFCF`
   Use this keyword to scale the exchange terms and/or correlation terms of a density functional.
   This keyword should be followed by the scaling factor for the exchange terms and the scaling factor for the correlation terms, separated by a space.
-  If the values are 1.0 (default), then the original density functional is used. 
+  If the values are 1.0 (default), then the original density functional is used.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
@@ -340,7 +345,7 @@ Below is a list of keywords that should cover the needs of most users.
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of a density functional.
-              This keyword should be followed by the scaling factor for the exchange terms 
+              This keyword should be followed by the scaling factor for the exchange terms
               and the scaling factor for the correlation terms, separated by a space.
               If the values are 1.0 (default), then the original density functional is used.
               For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
@@ -363,7 +368,7 @@ Below is a list of keywords that should cover the needs of most users.
 
   .. xmldoc:: <SELECT MODULE="SCF" NAME="ELECTRONS" APPEAR="Electron Count" LEVEL="BASIC" CONTAINS="DEFAULT,CHARGE,OCCUPIED">
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="CHARGE" KIND="INT" LEVEL="BASIC" EXCLUSIVE="OCCUPIED" MEMBER="ELECTRONS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="CHARGE" KIND="INT" LEVEL="BASIC" EXCLUSIVE="OCCUPIED">
               %%Keyword: Charge <basic>
               <HELP>
               Use this keyword to set the number of electrons in the system.
@@ -403,7 +408,7 @@ Below is a list of keywords that should cover the needs of most users.
   If :kword:`UHF` keyword was specified, occupation numbers
   must be specified in two lines: for alpha and beta spins
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="OCCUPIED" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC" EXCLUSIVE="CHARGE" MEMBER="ELECTRONS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="OCCUPIED" KIND="CUSTOM" LEVEL="BASIC" EXCLUSIVE="CHARGE">
               %%Keyword: Occupied <basic>
               <HELP>
               Use this keyword to set the number of electrons in the system.
@@ -511,13 +516,17 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`CHOLesky`
   :program:`SCF` will use Cholesky (or RI/DF) representation of the two-electron integrals to compute
   the corresponding contributions to the Fock or KS matrices. The default (LK)
-  algorithm is used. The configuration may be tailored using the ChoInput section.
+  algorithm is used. The configuration may be tailored using the :kword:`ChoInput` section.
   Default is to not use Cholesky unless the Cholesky (or RI/DF) representation of the two-electron
   integrals has been produced by :program:`SEWARD`.
 
-  .. xmldoc:: %%Keyword: Cholesky <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="CHOLESKY" APPEAR="Default Cholesky" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: Cholesky <advanced>
+              <HELP>
               Use of Cholesky (or RI/DF) representation for the two-electron integrals
               with default SCF settings.
+              </HELP>
+              </KEYWORD>
 
 :kword:`CHOInput`
   This marks the start of an input section for modifying
@@ -544,6 +553,8 @@ Below is a list of keywords that should cover the needs of most users.
                 Deactivates LK screening. Available only within ChoInput.
                 </HELP>
                 </KEYWORD>
+
+    .. xmldoc:: <KEYWORD MODULE="SCF" NAME="LOCK" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
   * :kword:`DMPK`
     Available only within :kword:`ChoInput`. Modifies the thresholds used in the LK screening.
@@ -578,15 +589,19 @@ Below is a list of keywords that should cover the needs of most users.
                 </HELP>
                 </KEYWORD>
 
-    .. xmldoc:: </GROUP>
+    .. xmldoc:: <KEYWORD MODULE="SCF" NAME="ALGORITHM" LEVEL="UNDOCUMENTED" KIND="INT" />
 
   * :kword:`TIME`
     Activates printing of the timings of each task of the Fock matrix build.
     Default is to not show these timings.
 
+    .. xmldoc:: <KEYWORD MODULE="SCF" NAME="TIME" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
   * :kword:`MEMFraction`
     Set the fraction of memory to use as global Cholesky vector buffer.
     Default: for serial runs 0.0d0; for parallel runs 0.3d0.
+
+    .. xmldoc:: </GROUP>
 
 :kword:`CONStraints`
   Performs a Constrained (Natural Orbitals) SCF calculation, available only in combination with Cholesky or RI integral representation.
@@ -648,7 +663,9 @@ Below is a list of keywords that should cover the needs of most users.
   OFE potential (zero for KSDFT and one for HF); second, the exponential decay factor for this correction (used in PES calculations).
   The OPTIONAL keyword :kword:`FTHA` is used in a freeze-and-thaw cycle (EMIL Do While) to specify the (subsystems) energy convergence threshold.
 
-  .. xmldoc:: %%Keyword: OFEM <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="OFEMBEDDING" APPEAR="Orbital-free embedding" LEVEL="ADVANCED" KIND="STRING">
+              %%Keyword: OFEM <advanced>
+              <HELP>
               Performs a Orbital-Free Embedding (OFE)SCF calculation, available only in combination with Cholesky or RI integral representation.
               The runfile of the environment subsystem renamed AUXRFIL is required.
               An example of input for the keyword OFEM is the following:
@@ -663,10 +680,24 @@ Below is a list of keywords that should cover the needs of most users.
               The keyword OFEM requires the specification of two functionals in the form fun1/fun2, where fun1 is the functional used for the
               Kinetic Energy (available functionals: Thomas-Fermi, with acronym LDTF, and the NDSD functional), and where
               fun2 is the xc-functional (LDA, LDA5, PBE and BLYP available at the moment).
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFMD" LEVEL="ADVANCED" KIND="REALS" SIZE="2" REQUIRE="OFEMBEDDING">
+              %%Keyword: dFMD <advanced>
+              <HELP>
               The OPTIONAL keyword dFMD has two arguments: first, the fraction of correlation potential to be added to the OFE potential (zero for
               KSDFT and one for HF); second, the exponential decay factor for this correction (used in PES calculations).
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FTHAW" LEVEL="ADVANCED" KIND="REAL" REQUIRE="OFEMBEDDING">
+              %%Keyword: FTHAw <advanced>
+              <HELP>
               The OPTIONAL keyword FTHA is used in a freeze-and-thaw cycle (EMIL Do While) to specify the (subsystems) energy convergence
               threshold.
+              </HELP>
+              </KEYWORD>
 
 :kword:`ITERations`
   Specifies the maximum number of iterations. The default is 400 which
@@ -678,7 +709,7 @@ Below is a list of keywords that should cover the needs of most users.
 
   .. xmldoc:: <SELECT MODULE="SCF" NAME="GUESS" APPEAR="Initial guess" LEVEL="BASIC" CONTAINS="CORE,LUMORB,FILEORB,GSSRUNFILE">
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="CORE" APPEAR="Core" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="LUMORB,FILEORB,GSSRUNFILE" MEMBER="GUESS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="CORE" APPEAR="Core" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="LUMORB,FILEORB,GSSRUNFILE">
               %%Keyword: Core <basic>
               <HELP>
               The starting vectors are obtained from a diagonalization of the core
@@ -690,7 +721,7 @@ Below is a list of keywords that should cover the needs of most users.
   The starting vectors are taken from a previous :file:`SCFORB` file called
   :file:`INPORB`.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="LUMORB" APPEAR="LUMORB" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="FILEORB,CORE,GSSRUNFILE" MEMBER="GUESS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="LUMORB" APPEAR="LUMORB" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="FILEORB,CORE,GSSRUNFILE">
               %%Keyword: LUMORB <basic>
               <HELP>
               The starting vectors are taken from a previous SCFORB file called
@@ -701,7 +732,7 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`FILEORB`
   The starting vectors are taken from a previous :file:`SCFORB` file, specified by user.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FILEORB" APPEAR="FILEORB" KIND="STRING" LEVEL="BASIC" EXCLUSIVE="LUMORB,CORE,GSSRUNFILE" MEMBER="GUESS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FILEORB" APPEAR="FILEORB" KIND="STRING" LEVEL="BASIC" EXCLUSIVE="LUMORB,CORE,GSSRUNFILE">
               %%Keyword: FILEORB <basic>
               <HELP>
               The starting vectors are taken from a previous SCFORB file, specified by user.
@@ -711,7 +742,7 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`GSSRunfile`
   The starting vectors are taken from the orbitals produced by :program:`Guessorb`.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="GSSRUNFILE" APPEAR="GSSRUNFILE" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="CORE,LUMORB,FILEORB" MEMBER="GUESS">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="GSSRUNFILE" APPEAR="GSSRUNFILE" KIND="SINGLE" LEVEL="BASIC" EXCLUSIVE="CORE,LUMORB,FILEORB">
               %%Keyword: GssRunfile <basic>
               <HELP>
               The starting vectors are taken from the orbitals produced by Guessorb.
@@ -826,16 +857,20 @@ Advanced general keywords
   complementary set to the actual SCF orbitals! In future use of this orbital
   file the complementary set should always be deleted from use.
 
-  .. xmldoc:: %%Keyword: Ovldelete <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="OVLDELETE" APPEAR="Delete threshold" KIND="REAL" DEFAULT_VALUE="1.0d-5" LEVEL="ADVANCED">
+              %%Keyword: Ovldelete <advanced>
+              <HELP>
               Specifies the threshold for deleting near linear dependence in the
               basis set. The eigenvectors of the overlap matrix with eigenvalues
               less than that threshold are removed from the orbital subspace, and
               do not participate in the optimization procedure. The default value
               is 1.0d-5.
+              </HELP>
               The keyword takes as argument a (double precision) floating point number.
               Note that the SCFORB file will contain the deleted orbitals as a
               complemental set to the actual SCF orbitals! In future use of this orbital
               file the complemental set should always be deleted from use.
+              </KEYWORD>
 
 :kword:`PRORbitals`
   Specifies which orbitals are to be printed in the log file (standard output).
@@ -868,7 +903,10 @@ Advanced general keywords
 
   Default value is 3 for small numbers of MOs and 2 for number of MOs > 256.
 
-  .. xmldoc:: %%Keyword: Prorbitals <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="PRORBITALS" APPEAR="Orbital printout" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              <ALTERNATE KIND="INT" />
+              %%Keyword: Prorbitals <advanced>
+              <HELP>
               Specifies which orbitals are to be printed in the logfile (standard output).
               The keyword takes as argument two integers.
               The possible values of first argument are:
@@ -883,6 +921,8 @@ Advanced general keywords
               ||1 --- Print only one-electron energies and occupation numbers
               ||2 --- Short print format
               ||3 --- Extended print format
+              </HELP>
+              </KEYWORD>
 
 :kword:`PRLScf`
   Specifies the general print level of the calculation. An integer
@@ -1028,16 +1068,20 @@ Advanced general keywords
   second-order/\ :math:`C^2`\-DIIS to be activated. If the latter is set to zero
   the older first order :math:`C^2`\-DIIS procedure will be used instead.
 
-  .. xmldoc:: %%Keyword: QNRTHR <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="QNRTHR" APPEAR="QNR threshold" KIND="REAL" DEFAULT_VALUE="0.15" LEVEL="ADVANCED">
+              %%Keyword: QNRTHR <advanced>
+              <HELP>
               Set the threshold on the change in density, at which the
               second-order/C2-DIIS
               procedure kicks in.
               The keyword takes as argument a (double precision) floating point number.
               The default value is 0.15.
+              </HELP>
               Note: the change in density has to drop under both the
               DIISthr and the QNRThr threshold, for the
               second-order/C2-DIIS to be activated. If the latter is set to zero
               the older first order C2-DIIS procedure will be used instead.
+              </KEYWORD>
 
 :kword:`C1DIis`
   Use :math:`C^1`\-DIIS for convergence acceleration rather than :math:`C^2`\-DIIS
@@ -1067,7 +1111,9 @@ Advanced general keywords
   In the case of UHF calculation occupation numbers should be specified
   on two different entries: for alpha and beta spin.
 
-  .. xmldoc:: %%Keyword: Occnumbers <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="OCCNUMBERS" APPEAR="Occupation numbers " KIND="CUSTOM" LEVEL="ADVANCED">
+              %%Keyword: Occnumbers <advanced>
+              <HELP>
               Gives the option to specify occupation numbers other than 0 and 2.
               This can be useful for generating starting orbitals for open shell
               cases. It should be noted however, that it is still the closed shell
@@ -1076,6 +1122,10 @@ Advanced general keywords
               orbitals.
               In the case of UHF calculation occupation numbers should be specified
               on two different entries: for alpha and beta spin
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="MCCNUMBERS" APPEAR="Muonic ccupation numbers " KIND="CUSTOM" LEVEL="ADVANCED" />
 
 :kword:`IVO`
   Specifies that the virtual orbitals are to be improved for
@@ -1141,8 +1191,8 @@ Advanced general keywords
   .. xmldoc:: %%Keyword: STAT <advanced>
               This keyword will add an addition print outs with statistic information
 
-For calculations of a molecule in a reaction field see section :ref:`UG:sec:rfield`
-of the present manual and section :ref:`TUT:sec:cavity` of the examples manual.
+For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
+of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
 .. include:: ../dft_functionals.inc
 
@@ -1186,17 +1236,21 @@ path will be taken whenever there are no two-electron integrals available.
   I/O buffer. If the size of the disk is non-zero and the I/O buffer size is zero the
   latter will be reset to the default value.
 
-  .. xmldoc:: %%Keyword: Disk <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DISK" APPEAR="Semi-direct" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: Disk <advanced>
+              <HELP>
               This option enables/disables the semi-direct algorithm. It requires
               two arguments which specifies the max Mbyte of integrals that are written
               on disk during the first iteration (and retrieved later in subsequent
               iterations) and the size of the I/O buffer in kbyte.
-              The default values are
-              2000 MByte and 512 kByte. In case the specified disk space is zero and the I/O buffer
+              The default values are 2000 MByte and 512 kByte.
+              </HELP>
+              In case the specified disk space is zero and the I/O buffer
               is different from zero it will default to a semi-direct SCF with in-core storage
               of the integrals. The size of the memory for integrals storage is the size of the
               corresponding I/O buffer. If the size of the disk is non-zero and the I/O buffer size is zero the
               latter will be reset to the default value.
+              </KEYWORD>
 
 :kword:`THIZe`
   This option specifies a threshold for two-electron integrals.
@@ -1257,5 +1311,19 @@ electron configuration :math:`\text{1a}_1^2 \text{2a}_1^2 \text{3a}_1^2 \text{1b
   * the size of the I/O buffer by default (512 kByte)
   Disk= 1 0
   Ivo
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="USELDF" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="USECONVENTIONAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="QPRINT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="FCKAUF" KIND="CHOICE" LIST="True,False" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="CONSTRAINTS" KIND="CUSTOM" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="SAVERAGED" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SCF" NAME="ADDCORRELATION" KIND="STRING" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

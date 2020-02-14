@@ -186,11 +186,16 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Pick up rDelta from the runfile
+      Call Get_dScalar('Numerical Gradient rDelta',rDelta)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Check if there is a coordinate list from Slapaf on the run file.
 *     Read the B-matrix and T-matrix. To be used in case of
 *     differentiation in internal coordinates according to Slapaf.
 *
-      If (nAtMM .eq. 0) Call GenCxCTL(iRC,NMCart)
+      If (nAtMM .eq. 0) Call GenCxCTL(iRC,NMCart,rDelta)
 *
       Call qpg_dArray('CList',Found,nCList)
       If (Found) Then
@@ -295,8 +300,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *        Cartesian displacement list
 *
          nDisp=3*nAtoms
-*        Pick up rDelta from the runfile
-         Call Get_dScalar('Numerical Gradient rDelta',rDelta)
          Call Allocate_Work(ipDisp,nDisp)
          Call FZero(Work(ipDisp),nDisp)
 *
@@ -440,6 +443,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          End If
          Write (LuWr,*) 'Effective number of displacements     ',
      &                   2*(nDisp-nLambda-3*nAtMM)
+         Write (LuWr,*) 'Relative displacements                ',
+     &                   rDelta
          Write (LuWr,*)
       End If
 *
@@ -1051,7 +1056,7 @@ C_MPP End Do
       If (Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' ) Then
          Call Get_iScalar('Relax CASSCF root',irlxroot1)
-         Call Get_iScalar('Relax Original ro',irlxroot2)
+         Call Get_iScalar('Relax Original root',irlxroot2)
          If (iRlxRoot1.ne.iRlxRoot2) Then
             Call Put_iScalar('Relax CASSCF root',irlxroot2)
             Call Put_iScalar('NumGradRoot',irlxroot2)

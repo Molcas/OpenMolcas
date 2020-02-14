@@ -11,8 +11,10 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2018, Ignacio Fdez. Galván                             *
+# Copyright (C) 2018,2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
+
+import sys
 
 # These modules should be available in any python installation
 standard_modules = [
@@ -54,8 +56,12 @@ standard_modules = [
 modules = {
   'pyparsing':[],
   #'setuptools', (only used in pack.py)
-  'six':['python_2_unicode_compatible'],
 }
+
+if (sys.version_info.major < 3):
+  modules.update({
+    'six':['python_2_unicode_compatible'],
+  })
 
 fail = []
 
@@ -80,8 +86,6 @@ else:
       for i in modules[item]:
         if (i not in dir(tmp)):
           fail.append('{}({})'.format(item, i))
-
-import sys
 
 if (fail):
   print(' '.join(fail))

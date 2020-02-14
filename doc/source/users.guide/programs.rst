@@ -3,7 +3,7 @@ Programs
 
 .. note::
 
-   Programs marked with |extramark| are *not* available in OpenMolcas.
+   Programs marked with |extramark| are *not* available in |openmolcas|.
 
 .. toctree::
    :maxdepth: 1

@@ -9,9 +9,9 @@
 
 .. only:: html
 
-.. contents::
-    :local:
-    :backlinks: none
+  .. contents::
+      :local:
+      :backlinks: none
 
 .. xmldoc:: <MODULE NAME="SINGLE_ANISO" APPEAR="Single_Aniso">
             %%Description:
@@ -63,7 +63,7 @@ The magnetic Hamiltonians are defined for a desired group of :math:`N` electroni
 
 .. The second version of the :program:`SINGLE_ANISO` program allows the calculation of all 27 parameters of the exact Crystal-Field acting on the ground atomic multiplet for lanthanides. Moreover, the *ab initio* wave functions corresponding to the lowest atomic multiplet :math:`\ket{J,M_J}` are decomposed in a linear combination of functions with definite projection of the total moment on the quantization axis.
 
-The calculation of magnetic properties takes into account the contribution of excited states (the ligand-field and charge transfer states of the complex or mononuclear fragment included in the RASSI calculation) via their thermal population and Zeeman admixture. The intermolecular exchange interaction between magnetic molecules in a crystal can be taken into account during the simulation of magnetic properties by a phenomenological parameter :math:`z_J` specified by the user (see keyword MLTP).
+The calculation of magnetic properties takes into account the contribution of excited states (the ligand-field and charge transfer states of the complex or mononuclear fragment included in the RASSI calculation) via their thermal population and Zeeman admixture. The intermolecular exchange interaction between magnetic molecules in a crystal can be taken into account during the simulation of magnetic properties by a phenomenological parameter :math:`z_J` specified by the user (see keyword :kword:`MLTP`).
 
 .. index::
    pair: Dependencies; Single_aniso
@@ -134,7 +134,7 @@ Output files
 Input
 -----
 
-Normally :program:`SINGLE_ANISO` runs without specifying any of the following keywords. The only unknown variable for :program:`SINGLE_ANISO` is the dimension (multiplicity) of the pseudospin. By default one multiplet is selected, which has the dimension equal to the multiplicity of the ground term. For example, in cases where spin-orbit coupling is weak, the multiplicity of the effective spin Hamiltonian is usually the same as the multiplicity of the lowest term, while in the cases with strong anisotropy (lanthanide or actinide complexes, :math:`\ce{Co^{2+}}` complexes, etc...) the lowest energy levels of the complexes form a group of states which can differ quite strong from the spin multiplicity of the lowest term. In these cases the user should specify the multiplicity corresponding to a chosen value of pseudospin :math:`(2\tilde{S}+1)`. For instance, in :math:`\ce{Dy^{3+}}` the spin of the ground state term is :math:`S=5/2`, but in many situations only the ground Kramers doublet is considered; then the user should set the multiplicity of the pseudospin equal to 2 (see MLTP keyword).
+Normally :program:`SINGLE_ANISO` runs without specifying any of the following keywords. The only unknown variable for :program:`SINGLE_ANISO` is the dimension (multiplicity) of the pseudospin. By default one multiplet is selected, which has the dimension equal to the multiplicity of the ground term. For example, in cases where spin-orbit coupling is weak, the multiplicity of the effective spin Hamiltonian is usually the same as the multiplicity of the lowest term, while in the cases with strong anisotropy (lanthanide or actinide complexes, :math:`\ce{Co^{2+}}` complexes, etc...) the lowest energy levels of the complexes form a group of states which can differ quite strong from the spin multiplicity of the lowest term. In these cases the user should specify the multiplicity corresponding to a chosen value of pseudospin :math:`(2\tilde{S}+1)`. For instance, in :math:`\ce{Dy^{3+}}` the spin of the ground state term is :math:`S=5/2`, but in many situations only the ground Kramers doublet is considered; then the user should set the multiplicity of the pseudospin equal to 2 (see :kword:`MLTP` keyword).
 The calculation of the parameters of the crystal field corresponding to the ground atomic multiplet for lanthanides should be requested by the CRYS keyword. ::
 
   &SINGLE_ANISO
@@ -186,7 +186,7 @@ Optional general keywords to control the input
   the first two groups having the effective spin :math:`\tilde{S}=\ket{3/2}` each, while
   the other two groups of states being Kramers doublets.
 
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MLTP" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="1">
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MLTP" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" DEFAULT_VALUE="1">
               %%Keyword: MLTP <basic>
               <HELP>
               The number of molecular multiplets (i.e. groups of spin-orbital eigenstates) for
@@ -200,7 +200,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`TINT`
-  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read four numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
+  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read three numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
 
   .. container:: list
 
@@ -221,7 +221,7 @@ Optional general keywords to control the input
               %%Keyword: TINT <basic>
               <HELP>
               Specifies the temperature points for the evaluation of the magnetic susceptibility.
-              The program will read four numbers: Tmin, Tmax, nT, and dltT0. Units of temperature = Kelvin (K).
+              The program will read three numbers: Tmin, Tmax, nT. Units of temperature = kelvin (K).
               ||Tmin  -- the minimal temperature (Default 0.0 K)
               ||Tmax  -- the maximal temperature (Default 300.0 K)
               ||nT    -- number of temperature points (Default 101)
@@ -250,7 +250,7 @@ Optional general keywords to control the input
               %%Keyword: HINT <basic>
               <HELP>
               Specifies the field points for the evaluation of the molar magnetization.
-              The program will read four numbers: Hmin, Hmax, nH, and dltH0. Units of magnetic field = Tesla (T).
+              The program will read four numbers: Hmin, Hmax, nH, and dltH0. Units of magnetic field = tesla (T).
               ||Hmin  -- the minimal field (Default 0.0 T)
               ||Hmax  -- the maximal field (Default 300.0 T)
               ||nH    -- number of field points (Default 101)
@@ -338,8 +338,8 @@ Optional general keywords to control the input
 
 :kword:`MVEC`
   Defines the number of directions for which the magnetization vector will be computed.
-  On the first line below the keyword, the number of directions should be mentioned (NDIR. Default 0).
-  The program will read NDIR lines for cartesian coordinates specifying the direction :math:`i` of the
+  On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
+  The program will read :math:`N_{\text{DIR}}` lines for Cartesian coordinates specifying the direction :math:`i` of the
   applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
   The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
   Example: ::
@@ -360,7 +360,7 @@ Optional general keywords to control the input
     0.53199  0.53199  0.33870
     0.17475  0.17188  0.00000
 
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MVEC" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MVEC" KIND="REALS_COMPUTED" SIZE="3" LEVEL="BASIC">
               %%Keyword: MVEC <basic>
               <HELP>
               Defines the number of directions for which the magnetization vector will be computed.
@@ -439,7 +439,7 @@ Optional general keywords to control the input
               <HELP>
               This keyword allows computation of the molar magnetization at experimental field points.
               On the line below the keyword,the number of experimental points NH is defined, and on
-              the next NH lines the program reads the experimental field strength (Tesla) and the
+              the next NH lines the program reads the experimental field strength (tesla) and the
               experimental magnetization (in Bohr magnetons). HEXP and HINT are mutually exclusive.
               The SINGLE_ANISO will print the standard deviation from the experiment.
               </HELP>
@@ -458,6 +458,22 @@ Optional general keywords to control the input
               mean molecular field acting on the spin of the complex (the average intermolecular
               exchange constant). It is used in the calculation of all magnetic properties (not for
               spin Hamiltonians) (Default is 0.0)
+              </HELP>
+              </KEYWORD>
+
+:kword:`XFIE`
+  This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
+  for the computation of magnetic susceptibility by :math:`\mathrm{d}M/\mathrm{d}H` and :math:`M/H` formulas.
+  A comparison with the usual formula (in the limit of zero applied field) is provided.
+  (Default is 0.0)
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: XFIE <basic>
+              <HELP>
+              This keyword specifies the value (in tesla) of applied magnetic field
+              for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
+              A comparison with the usual formula (in the limit of zero applied field) is provided.
+              (Default is 0.0)
               </HELP>
               </KEYWORD>
 
@@ -483,7 +499,7 @@ Optional general keywords to control the input
   The keyword is obsolete. The :program:`SINGLE_ANISO` creates by default one ASCII formated text file named :file:`ANISOINPUT`
   and also a binary file named :file:`$Project.Aniso`. Both may be used to restart (or re-run again) the :program:`SINGLE_ANISO` calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="POLY" KIND="STRING" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="POLY" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: POLY <basic>
               <HELP>
               SINGLE_ANISO will prepare an input file (binary) for the future POLY_ANISO program. The default is not to create it.
@@ -524,7 +540,7 @@ Optional general keywords to control the input
 
     3 --- the direction of the quantization axis is given by the user: on the next line the program will read three real numbers: the projections (:math:`p_x`, :math:`p_y`, :math:`p_z`) of the specified direction on the initial Cartesian axes. Note that :math:`p_x^2 + p_y^2 + p_z^2 = 1`.
 
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="QUAX" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="QUAX" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: QUAX <basic>
               <HELP>
               This keyword controls the quantization axis for the computation of the Crystal-Field parameters acting on the ground atomic multiplet of a lanthanide. On the next line, the program will read one of the three values:
@@ -584,6 +600,22 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`PLOT`
+  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*.
+  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+  The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+  The files are named: :file:`XT.dat`, :file:`XT.plt`, :file:`XT.png`, :file:`MH.dat`, :file:`MH.plt`, :file:`MH.png`, :file:`BARRIER_TME.dat`, :file:`BARRIER_ENE.dat`, :file:`BARRIER.plt` and :file:`BARRIER.png`.
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: PLOT <basic>
+              <HELP>
+              This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".
+              The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+              The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+              The files are named: XT.dat, XT.plt, XT.png, MH.dat, MH.plt, MH.png, BARRIER_TME.dat, BARRIER_ENE.dat, BARRIER.plt and BARRIER.png.
+              </HELP>
+              </KEYWORD>
+
 An input example
 ................
 
@@ -603,10 +635,12 @@ An input example
   0.0  330.0  331
   MAVE
   1  12
-  MVEC
-  3
-  0.0000  0.0000   0.1000
-  1.5707  0.0000   0.5000
-  1.5707  1.5707   1.0000
+  PLOT
+
+.. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="ZEEM" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="ERAT" KIND="REAL" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="RESTART" KIND="STRING" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

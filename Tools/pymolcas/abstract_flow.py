@@ -18,7 +18,12 @@ try:
   from builtins import super
 except ImportError:
   from future.builtins import super
-from six import text_type, python_2_unicode_compatible
+try:
+  from six import text_type, python_2_unicode_compatible
+except ImportError:
+  text_type = str
+  def python_2_unicode_compatible(orig):
+    return orig
 
 from os.path import isfile
 from re import match
@@ -239,10 +244,6 @@ class Group(Statement):
       env.exit_loop()
     if (self.grouptype == 'foreach'):
       env.exit_loop()
-    # A block should not be "transparent",
-    # if all items have returned None, here we return success
-    if (self.rc is None):
-      self.rc = 0
     set_utf8('EMIL_RETURNCODE', self.rc)
     return self.rc
 

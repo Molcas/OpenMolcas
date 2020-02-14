@@ -90,9 +90,9 @@ Input
 -----
 
 This section describes the input syntax of :program:`DYNAMIX` in the |molcas| program
-package. In general a MD simulation requires a :kword:`FOREACH` loop which contains
+package. In general a MD simulation requires a :kword:`DoWhile` or :kword:`ForEach` loop which contains
 several programs to compute the energy and :program:`ALASKA` for subsequent gradient
-computation. The input of the :program:`DYNAMIX` begins with the program name,
+computation. The :program:`DYNAMIX` input begins with the program name,
 and is followed by the only compulsory keyword :kword:`VELV` which specifies the
 velocity Verlet algorithm: ::
 
@@ -131,7 +131,7 @@ General keywords
 :kword:`VELOcities`
   Specifies how the initial velocities are generated.
   This keyword is followed by an integer on the next line. The internal
-  unit of the velocities is [Bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
+  unit of the velocities is [bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
   .. container:: list
 
@@ -139,10 +139,10 @@ General keywords
 
     **1** --- The velocities are read from the file :file:`$Project.velocity.xyz`
     in :file:`$WorkDir`. This file contains velocities in the xyz format given in the same
-    order as the atoms in coordinate file. The unit of the velocities is [Bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
+    order as the atoms in coordinate file. The unit of the velocities is [bohr\ :math:`\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
     **2** --- This option allows to read in mass-weighted velocities from the
-    file :file:`$Project.velocity.xyz` in [Bohr\ :math:`\cdot\sqrt{\text{a.m.u.}}\cdot`\(a.u. of time)\ :math:`^{-1}`].
+    file :file:`$Project.velocity.xyz` in [bohr\ :math:`\cdot\sqrt{\text{a.m.u.}}\cdot`\(a.u. of time)\ :math:`^{-1}`].
 
     **3** --- This option takes random velocities from a Maxwell--Boltzmann distribution, at
     a given temperature, assuming that every component of the velocity can be considered as an independent gaussian random variable.
@@ -197,6 +197,18 @@ General keywords
               </HELP>
               </KEYWORD>
 
+:kword:`OUT`
+  Enables dynamics in reduced dimensionality.
+  This keyword is followed by an integer on the next line, which defines the number of nuclear coordinates to project out from the trajectory (default 0).
+  The coordinates to project out are then read from the files `out.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
+
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="OUT" APPEAR="Number of coordinates to project out" KIND="INT" LEVEL="ADVANCED" DEFAULT_VALUE="0">
+              %%Keyword: OUT <advanced>
+              <HELP>
+              Enables reduced dimensionality.
+              </HELP>
+              </KEYWORD>
+
 :kword:`RESTART`
   This keyword allows to restart the trajectory at a given time.
   The time is given on the next line in atomic units.
@@ -212,7 +224,7 @@ General keywords
   This keyword allows to restart a trajectory calculation from an HDF5 file.
   The name of the restart file is given on the next line.
 
-  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="H5RESTART" APPEAR="Restart the trajectory from a H5 file" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: H5REstart <advanced>
               <HELP>
               Restarts a trajectory calculation from an HDF5 file, whose name is given on the next line.
@@ -223,13 +235,13 @@ Input examples
 ..............
 
 The following example shows the input for an excited state CASSCF molecular dynamics
-simulation of a methaniminium cation using the :program:`DYNAMIX` program. The FOREACH loop
+simulation of a methaniminium cation using the :program:`DYNAMIX` program. The :kword:`DoWhile` loop
 allows 1000 steps with 10 a.u. of time step size which leads to a total duration of
 242 fs. In the :program:`RASSCF` program the second root is selected for gradient
 calculation using the keyword :kword:`MDRLXR`. This input assumes that the a
 :file:`JOBIPH` file with orbitals is already given. In each iteration the :file:`JOBIPH`
 is updated to achieve a fast convergence of the CASSCF wavefunction.
-A Nosé--Hoover chain of thermostats, enabled with THERmo= 2, is used to
+A Nosé--Hoover chain of thermostats, enabled with :kword:`THERmo`\=2, is used to
 reproduce dynamics at constant temperature, where the initial velocities are
 taken from a Maxwell--Boltzmann distribution at 300 K.
 
@@ -248,11 +260,12 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
    BASIS= 3-21G
    GROUP= nosym
 
-  >> FOREACH ITER in (1 .. 1000)
+  >> EXPORT MOLCAS_MAXITER=1000
+  >> DOWHILE
 
   &SEWARD
 
-  >> IF ( $ITER = 1 )
+  >> IF ( ITER = 1 )
 
   &RASSCF
    LUMORB
@@ -291,6 +304,8 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
    HOP= 1
 
   >> END DO
+
+.. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="VV_FIRST" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>
 

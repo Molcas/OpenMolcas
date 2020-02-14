@@ -17,8 +17,10 @@
 #include "cntrl.fh"
 #include "symmul.fh"
 #include "Files.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
+      Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
       CALL QENTER(ROUTINE)
@@ -37,10 +39,6 @@ C SET UP SYMMETRY MULTIPLICATION TABLE:
         END DO
         M=2*M
       END DO
-
-C LNILPT - WORK(LNILPT) IS A VALID DUMMY FIELD
-      CALL GETMEM('NilPt','ALLO','REAL',LNILPT,1)
-      CALL GETMEM('INilPt','ALLO','INTE',LINILPT,1)
 
 C UNIT NUMBERS AND NAMES
       LUONE=2
@@ -90,10 +88,6 @@ C NR OF JOBIPHS AND STATES:
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
       END IF
 C
-      LHAM=ip_Dummy
-      LESHFT=ip_Dummy
-      LHdiag=ip_Dummy
-
 C NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
       NPROP=0
 
@@ -112,6 +106,14 @@ C MATRIX ELEMENTS TO PRINT:
       NSOTHR_PRT=0
       SOTHR_PRT=-1.0D0
 
+C SET LABELS TO UNDEFINED
+      DO IPROP = 1, MXPROP
+         PNAME(IPROP) ='UNDEF.  '
+         PTYPE(IPROP) ='UNDEF.  '
+         SOPRNM(IPROP)='UNDEF.  '
+         SOPRTP(IPROP)='UNDEF.  '
+      END DO
+
 C DEFAULT FLAGS:
       PRSXY=.FALSE.
       PRDIPVEC=.FALSE.
@@ -128,6 +130,7 @@ C DEFAULT FLAGS:
       HAVE_HEFF=.FALSE.
       HAVE_DIAG=.FALSE.
       IFSO=.FALSE.
+      IFNTO=.FALSE.
       NATO=.FALSE.
       BINA=.FALSE.
       NONA=.FALSE.
@@ -157,15 +160,22 @@ C DEFAULT FLAGS:
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
 * Exact operator
-      Do_TMOS=.FALSE.
+      Do_TMOM=.FALSE.
       PRRAW=.FALSE.
       PRWEIGHT=.FALSE.
-      NEW_TOLERANCE=.FALSE.
       TOLERANCE=0.1D0
       REDUCELOOP=.FALSE.
       LOOPDIVIDE=0
+      TMGr_thrs=-1.0d0
       Do_SK  =.FALSE.
+      Do_Pol  =.FALSE.
       L_Eff=5
+C CD - velocity and mixed gauge
+      DOCD = .FALSE.
+C Force that TDMs are not stored in the AO basis.
+      Force_NON_AO_TDM=.False.
+      CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
+      If (STRING.eq.'ON') Force_NON_AO_TDM=.True.
 cnf
       IfDCpl = .False.
 cnf
@@ -235,9 +245,11 @@ c BP - Hyperfine tensor and SONATORB initialization
         WRITE(6,*)'     ONLY_OVERLAPS:',ONLY_OVERLAPS
         WRITE(6,*)'     IfDCpl:',IfDCpl
         WRITE(6,*)'     IFCURD:',IFCURD
-        WRITE(6,*)'     Do_TMOS:',Do_TMOS
+        WRITE(6,*)'     Do_TMOM:',Do_TMOM
         WRITE(6,*)'     Do_SK:',Do_SK
         WRITE(6,*)'     L_Eff:',L_Eff
+        WRITE(6,*)'     CD:',DOCD
+        WRITE(6,*)'     Force_NON_AO_TDM:',Force_NON_AO_TDM
       END IF
 
 C DEFAULT WAVE FUNCTION TYPE:

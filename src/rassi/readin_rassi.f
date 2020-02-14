@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE READIN_RASSI
-
+      SUBROUTINE READIN_RASSI()
+      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -238,6 +238,10 @@ C ------------------------------------------
         IFSO=.TRUE.
         GOTO 100
       END IF
+      IF(LINE(1:4).EQ.'NTOC') THEN
+        IFNTO=.TRUE.
+        GOTO 100
+      END IF
 C ------------------------------------------
 * PAM07 Added: Keyword for printing spin-orbit coupling matrix elements
 * A threshold in reciprocal cm is entered.
@@ -261,17 +265,16 @@ C ------------------------------------------
           DO IJOB=1,NJOB
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
-          Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
-          Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
+          Call mma_allocate(JBNUM,nState,Label='JBNUM')
+          Call mma_allocate(LROOT,nState,Label='LROOT')
           LINENR=LINENR+1
           NSTATE=0
           DO IJOB=1,NJOB
             ISTAT(IJOB)=NSTATE+1
-            Read(LuIn,*,ERR=997) (iWork(lLROOT+NSTATE+J),
-     &                                 J=0,NSTAT(IJOB)-1)
+            Read(LuIn,*,ERR=997) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
             LINENR=LINENR+1
             DO ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-              iWork(lJBNUM+ISTATE-1)=IJOB
+              JBNUM(ISTATE)=IJOB
             END DO
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
@@ -304,14 +307,13 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         IFHEXT=.TRUE.
         IFHAM =.TRUE.
-        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
-        Read(LuIn,*,ERR=997)((WORK(LHAM+ISTATE*NSTATE+JSTATE),
-     &                                           JSTATE=0,ISTATE),
-     &                                           ISTATE=0,NSTATE-1)
-        DO ISTATE=0,NSTATE-2
-         DO JSTATE=ISTATE,NSTATE-1
-           WORK(LHAM+JSTATE*NSTATE+ISTATE)=
-     &     WORK(LHAM+ISTATE*NSTATE+JSTATE)
+        Call mma_allocate(HAM,nState,nState,Label='HAM')
+        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),
+     &                                           JSTATE=1,ISTATE),
+     &                                           ISTATE=1,NSTATE)
+        DO ISTATE=1,NSTATE-1
+         DO JSTATE=ISTATE+1,NSTATE
+            HAM(ISTATE,JSTATE)=HAM(JSTATE,ISTATE)
          END DO
         END DO
         LINENR=LINENR+NSTATE
@@ -340,16 +342,16 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         IFHDIA=.TRUE.
-        Call GetMem('HDIAG','ALLO','REAL',LHDIAG,NSTATE)
-        Read(LuIn,*,ERR=997)(Work(LHDIAG+ISTATE),ISTATE=0,NSTATE-1)
+        Call mma_allocate(HDIAG,nState,Label='nState')
+        Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
         LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         IFSHFT=.TRUE.
-        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
-        Read(LuIn,*,ERR=997)(Work(LESHFT+ISTATE),ISTATE=0,NSTATE-1)
+        Call mma_allocate(ESHFT,nState,Label='ESHFT')
+        Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)
         LINENR=LINENR+1
         GOTO 100
       END IF
@@ -645,6 +647,13 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
+C--------------------------------------------
+      IF(LINE(1:4).EQ.'CD  ') THEN
+! Perform regular circular dichroism - velocity and mixed gauge
+        DOCD = .TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'DYSO')THEN
 ! Enable Dyson orbital calculations
@@ -661,29 +670,24 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
-      If(Line(1:4).eq.'TMOS') then
+      If(Line(1:4).eq.'TINT') then
 ! Calculate exact isotropically averaged semi-classical intensities
-! Activate integration of transition moment oscillator strengths
+! Activate integration of transition intensities
 ! based on the exact non-relativistic Hamiltonian in the weak field
 ! approximation.
-        Do_TMOS=.TRUE.
-        ToFile=.TRUE.
+        Do_TMOM=.TRUE.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
-#ifdef _DMRG_
-C--------------------------------------------
-      if (Line(1:4).eq.'QDSC') then
-        QDPT2SC = .true.
-        goto 100
-      end if
-C--------------------------------------------
-      if (Line(1:4).eq.'QDPC') then
-        QDPT2SC = .false.
-        goto 100
-      end if
-#endif
+C ------------------------------------------
+      If(Line(1:4).eq.'TIGR') then
+! Group exact TINT to reduce computational cost
+! TMGr_thrs is the tolerance in the relative energy (unitless)
+! TMGr_thrs only works with SUBS keyword
+        Read(LuIn,*,ERR=997) TMGr_thrs
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
@@ -702,13 +706,12 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'TOLE')THEN
 ! Set tolerance for different gauges - currently 10 percent (0.1D0)
 ! Defined as Tolerance = ABS(1-O_r/O_p)
-        NEW_TOLERANCE=.TRUE.
         Read(LuIn,*,ERR=997) TOLERANCE
         LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
-      IF(LINE(1:4).EQ.'REDL')THEN
+      IF(LINE(1:4).EQ.'SUBS')THEN
 ! Reduce looping in intensities. Set limit for the inner and outer loop
         REDUCELOOP=.TRUE.
         Read(LuIn,*,ERR=997) LOOPDIVIDE
@@ -716,22 +719,22 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
-      If(Line(1:4).eq.'L-EF') then
+      If(Line(1:4).eq.'IIOR') then
 ! Set the order of the Lebedev polynomials used for the numerical
-! integration over solid angles. Current default 5.
+! isotropic integration. Current default 5.
         Read(LuIn,*,ERR=997) L_Eff
         Linenr=Linenr+1
         GoTo 100
       Endif
 C--------------------------------------------
-      If(Line(1:4).eq.'KVEC') then
+      If(Line(1:4).eq.'DIRE') then
 ! Set a specific direction of the incident light when computing
-! the transition moment and oscillator stength in the use of
+! the transition intensities in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=401) nk_Vector
+        Read(LuIn,*,ERR=997) nk_Vector
         Linenr=Linenr+1
- 400    Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
+        Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
         Do j = 1, nk_Vector
            Read(LuIn,*,ERR=997) (k_Vector(i,j),i=1,3)
            Linenr=Linenr+1
@@ -742,11 +745,52 @@ C--------------------------------------------
            k_Vector(3,j)=k_Vector(3,j)*tmp
         End Do
         GoTo 100
- 401    nk_Vector=1
-        BackSpace(LuIn)
-        Linenr=Linenr-1
-        GoTo 400
       Endif
+C--------------------------------------------
+      If(Line(1:4).eq.'POLA') then
+        Do_Pol=.TRUE.
+        Linenr=Linenr+1
+        Read(LuIn,*,ERR=997) (e_Vector(i),i=1,3)
+        GoTo 100
+      Endif
+#ifdef _DMRG_
+C--------------------------------------------
+      if (Line(1:4).eq.'QDSC') then
+        QDPT2SC = .true.
+        goto 100
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'QDPC') then
+        QDPT2SC = .false.
+        goto 100
+      end if
+#endif
+C These errors could eventually be removed
+C--------------------------------------------
+      if (Line(1:4).eq.'TMOS') then
+        write(6,*)' Keyword TMOS is deprecated, use TINT instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'KVEC') then
+        write(6,*)' Keyword KVEC is deprecated, use DIRE instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'L-EF') then
+        write(6,*)' Keyword L-EF is deprecated, use IIOR instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'REDL') then
+        write(6,*)' Keyword REDL is deprecated, use SUBS instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'TMGR') then
+        write(6,*)' Keyword TMGR is deprecated, use TIGR instead.'
+        goto 999
+      end if
 C--------------------------------------------
 *
       WRITE(6,*)' The following input line was not understood:'
@@ -776,6 +820,12 @@ cnf
          IfDCpl = .False.
       End If
 cnf
+      If (Do_Pol.and..not.Do_SK) Then
+         Call WarningMessage(1,'Input request was ignored.')
+         Write(6,*) ' Polarization direction can only be used with'
+         Write(6,*) ' specific k-vector directions.'
+         Do_Pol = .False.
+      End If
 * Determine file names, if undefined.
       IF(JBNAME(1).EQ.'UNDEFINE') THEN
 * The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'

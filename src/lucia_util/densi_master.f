@@ -105,8 +105,8 @@ c      END IF
       IPACK = .TRUE.
       DUMMY = 0.0D0
       IF (tdm) THEN
-         CALL densi2_lucia(1,work(krho1),dummy,dummy,dummy,
-     &   work(kvec1),work(kvec2),lusc1,luhc,exps2,0,dummy,IPACK)
+         CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
+     &   work(kvec1),work(kvec2),lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
          CALL densi2_lucia(2,work(krho1),dummy,Work(lw8),Work(lw9),
      &   work(kvec1),work(kvec2),lusc1,luhc,exps2,1,work(ksrho1),IPACK)
@@ -126,9 +126,7 @@ C      exps2  : DONE!!! - Output - expectation value of S**2.
 C      1      : DONE!!! - Calculate spin density
 C      ksrho1 : DONE!!! - Comming with glbbas.fh.
 *
-      IF (tdm) THEN
-         CALL DCopy_(ntoob*ntoob,work(krho1),1,work(lw6),1)
-      ELSE
+      IF (.not.tdm) THEN
 *        Save densities in trigonal format for use in Molcas
 *
          CALL TriPak(work(krho1), work(lw6), 1, ntoob, ntoob)

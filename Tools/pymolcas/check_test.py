@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017,2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2017-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -23,6 +23,7 @@ def check_test(infofile, checkfile, count):
   block = re_compile(r'#>>\s*(\d+)')
   reference = re_compile(r'#>\s*(.*)="(.*)"\/(.*)')
   rc = '_RC_ALL_IS_WELL_'
+  last = True
 
   # Read actual values from the calculation
   vals = []
@@ -79,6 +80,7 @@ def check_test(infofile, checkfile, count):
           match = block.match(line)
           if (match):
             if (start):
+              last = False
               break
             if (int(match.group(1)) == count):
               start = True
@@ -113,6 +115,7 @@ def check_test(infofile, checkfile, count):
     fmt_num = '{0:<30} {1:20.16g} {2:20.16g} {3:9.3e} {4:9.3e} {5}'
     fmt_rule = '-'*92
     j = -1
+    failtol = False
     for i in range(len(refs)):
       # Find the corresponding item in the actual values
       j += 1
@@ -129,7 +132,9 @@ def check_test(infofile, checkfile, count):
       else:
         for item in extra:
           print('*** Extra label: {0}'.format(item))
-      # Check the difference against the tolerace (with some dirty tricks)
+      # Check the difference against the tolerance (with some dirty tricks)
+      if (vals[j]['tol'] != refs[i]['tol']):
+        failtol = True
       dif = abs(vals[j]['val'] - refs[i]['val'])
       tol = -refs[i]['tol']
       if (tol < 0):
@@ -159,9 +164,12 @@ def check_test(infofile, checkfile, count):
       j += 1
       if (not fuzzy):
         rc = failrc
+    if (failtol):
+      print('*** Tolerances do not match')
+      rc = failrc
     if (start):
       print(fmt_rule)
     elif (rc == '_RC_ALL_IS_WELL_'):
       print('All values match the reference')
 
-  return rc
+  return rc, last

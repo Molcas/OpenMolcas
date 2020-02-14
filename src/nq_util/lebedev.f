@@ -28,7 +28,7 @@
 *             of Lund, SWEDEN.                                         *
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
 *             University of Bologna, ITALY. November 2001              *
-*             This has been readapted fromt he original routine by     *
+*             This has been readapted from the original routine by     *
 *             Bernard Delley, Paul Scherrer Institut, Switzerland      *
 *             Journal of Computational Chemistry 1996, 17, 1152--1155  *
 ************************************************************************

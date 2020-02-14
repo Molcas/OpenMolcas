@@ -529,7 +529,7 @@
         New = ApplySym(Op, Geom(i)%Coord)
         Found = .False.
         Do j=i,Size(Geom)
-          Call SplitLabel(Geom(j)%Lab, SymB, Num, Lab, Bas)
+          Call SplitLabel(Geom(j)%Lab, Sym, Num, Lab, Bas)
           SymB = Trim(Sym)//Trim(Lab)
           Call UpCase(SymB)
           If (SymB .ne. SymA) Cycle

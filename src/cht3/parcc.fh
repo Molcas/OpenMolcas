@@ -65,7 +65,7 @@ c
         integer T2o2v4yes(1:maxSGrp,1:maxSGrp)
 c
 c
-c6        Local number of Choleski vectors on each node
+c6        Local number of Cholesky vectors on each node
         integer NChLoc(0:(maxnod-1))
 c
 c

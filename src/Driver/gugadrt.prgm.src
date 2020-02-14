@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/gugadrt.exe"  executable
- (file) DRTINPUT "$WorkDir/$Project."drt.input ro
+ (file) GUGADINP "$WorkDir/$Project."Gugadrt.Input ro
  (file) CIDRT "$WorkDir/$Project."CiDrt rw
  (file) TRAONE "$WorkDir/$Project."TraOne rw
  (file) CIMO  "$WorkDir/$Project."CiMO rw

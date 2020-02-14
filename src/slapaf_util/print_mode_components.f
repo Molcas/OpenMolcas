@@ -276,7 +276,7 @@
       Call Qpg_dArray('K',Found,nK)
       If (.not.Found .or. (nK.ne.mq*nQQ)) Call Abend()
       Call Get_dArray('K',KMtrx,nK)
-      KTrsp=Transpose(KMtrx)
+      KTrsp(:,:)=Transpose(KMtrx)
       Call mma_deallocate(KMtrx)
 *
 *---- Form the full B matrix in the redundant internal coordinates

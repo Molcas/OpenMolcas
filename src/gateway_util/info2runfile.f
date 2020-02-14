@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
+*               2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SubRoutine Info2Runfile(DInf,nDInf)
 ************************************************************************
@@ -42,7 +43,7 @@
       Common /EmbPCharg/ DoEMPC
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
-      Integer, Dimension(:), Allocatable :: NTC
+      Integer, Dimension(:), Allocatable :: NTC, ICh
       Real*8 DInf(nDInf)
 ************************************************************************
 *                                                                      *
@@ -139,6 +140,51 @@
       iDNG=0
       If (Do_Numerical_Gradients) iDNG=1
       Call Put_iScalar('DNG',iDNG)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Generate list of unique centers (atoms+pseudo)
+*
+      nNuc = 0
+      Do iCnttp = 1, nCnttp
+         If (.Not.FragCnttp(iCnttp).and.
+     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+      End Do
+*
+      Call mma_allocate(DCo,3,nNuc,label='DCo')
+      Call mma_allocate(ICh,nNuc,label='ICh')
+      Call mma_allocate(DCh_Eff,nNuc,label='DCh_Eff')
+      mdc = 0
+      iNuc = 0
+      Do iCnttp = 1, nCnttp
+         If (.Not.FragCnttp(iCnttp).and.
+     &       .Not.AuxCnttp(iCnttp)) Then
+            ixyz = ipCntr(iCnttp)
+            Do iCnt = 1, nCntr(iCnttp)
+               mdc = mdc + 1
+               iNuc = iNuc+ 1
+               DCo(1,iNuc) = DInf(ixyz  )
+               DCo(2,iNuc) = DInf(ixyz+1)
+               DCo(3,iNuc) = DInf(ixyz+2)
+               DCh_Eff(iNuc)= Charge(iCnttp)
+               ICh(iNuc)   = iAtmNr(iCnttp)
+               xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
+               ixyz = ixyz + 3
+            End Do
+         Else
+            mdc  = mdc + nCntr(iCnttp)
+         End If
+      End Do
+*
+      Call Put_iScalar('Unique centers',nNuc)
+      Call Put_dArray('Un_cen Coordinates',DCo,3*nNuc)
+      Call Put_iArray('Un_cen charge',ICh,nNuc)
+      Call Put_dArray('Un_cen effective charge',DCh_Eff,nNuc)
+      Call Put_cArray('Un_cen Names',xLblCnt(1),(LENIN)*nNuc)
+*
+      Call mma_deallocate(DCh_Eff)
+      Call mma_deallocate(ICh)
+      Call mma_deallocate(DCo)
 *                                                                      *
 ************************************************************************
 *                                                                      *

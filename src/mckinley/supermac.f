@@ -25,7 +25,8 @@
      &            Method .eq. 'MBPT2'       .or.
      &            Method .eq. 'CCSDT'       .or.
      &            Method .eq. 'CASSCFSA'    .or.
-     &            Method .eq. 'KS-DFT'
+     &            Method .eq. 'KS-DFT'      .or.
+     &            Method .eq. 'UKS-DFT'
 *
       If (Method.eq.'CASSCF') Then
          Call Get_iScalar('NumGradRoot',irlxroot)
@@ -94,6 +95,10 @@
       Call Lu2Lu('SEWARINP',LuInput)
       Write (LuInput,*)
 *
+      If (Do_ESPF) THen
+         Call Lu2Lu('ESPFINP',LuInput)
+      End If
+*
       If (Method .eq. 'RASSCFSA'.or.Method .eq. 'CASSCFSA' .or.
      &    Method .eq. 'CASSCF') Then
          Call Lu2Lu('RASSCINP',LuInput)
@@ -107,7 +112,8 @@
          Call Lu2Lu('SCFINP',LuInput)
          Write (LuInput,'(A)')
          Call Lu2Lu('CCSDTINP',LuInput)
-      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF') Then
+      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF' .or.
+     &         Method .eq. 'UKS-DFT'.or. Method.eq.'UHF-SCF') Then
          Call Lu2Lu('SCFINP',LuInput)
       End If
 *

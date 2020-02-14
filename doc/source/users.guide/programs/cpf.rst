@@ -103,7 +103,7 @@ The
 :program:`CPF` will use the following input
 files: :file:`ONEINT`, :file:`RUNFILE`, :file:`CIGUGA`,
 :file:`TRAINT`, :file:`TRAONE`
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 and :file:`CPFVECT` (for restarted calculations).
 
 Output files
@@ -156,7 +156,7 @@ Optional keywords
   No additional input is required.
   Only one of the choices SDCI, CPF, MCPF or ACPF should be chosen.
 
-  .. xmldoc:: <GROUP MODULE="CPF" NAME="COMP_MODEL" APPEAR="Computation model" KIND="RADIO" WINDOW="INPLACE" LEVEL="BASIC">
+  .. xmldoc:: <SELECT MODULE="CPF" NAME="COMP_MODEL" APPEAR="Computation model" CONTAINS="SDCI,CPF,MCPF,ACPF" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="CPF" NAME="SDCI" KIND="SINGLE" EXCLUSIVE="CPF,MCPF,ACPF" LEVEL="BASIC">
               %%Keyword: SDCI <basic>
@@ -203,7 +203,7 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-  .. xmldoc:: </GROUP>
+  .. xmldoc:: </SELECT>
 
 :kword:`RESTart`
   Restart the calculation from a previous calculation.

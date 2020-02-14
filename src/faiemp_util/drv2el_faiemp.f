@@ -172,7 +172,7 @@ c     &                EnergyWeight,Array)
           Call MakeDens(nFragDens(iCnttp),nFragEner(iCnttp),
      &                Work(ipFragCoef(iCnttp)),Work(ipFragEner(iCnttp)),
      &                EnergyWeight,Work(ipFragDensAO))
-* create the symmetry adopted version if necessary
+* create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
 C         If(nIrrep.ne.1) Call SymmDens(Work(ipFragDensAO),
 C    &      Work(ipFragDensSO))

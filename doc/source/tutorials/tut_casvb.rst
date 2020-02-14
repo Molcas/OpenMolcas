@@ -210,8 +210,8 @@ Viewing and plotting VB orbitals
 In many cases it can be helpful to view the shape of the converged valence bond
 orbitals. |molcas| therefore provides two facilities for doing this. For the
 Molden program, an interface file is generated at the end of each
-:program:`CASVB` run (see also Section :ref:`UG:sec:Molden`). Alternatively a
+:program:`CASVB` run (see also :numref:`UG:sec:Molden`). Alternatively a
 :program:`CASVB` run may be followed by :program:`RASSCF`
-(Section :ref:`UG:sec:rasscf`) and :program:`GRID_IT`
-(Section :ref:`UG:sec:gridit`) with the :kword:`VB` specification, in order to
+(:numref:`UG:sec:rasscf`) and :program:`GRID_IT`
+(:numref:`UG:sec:gridit`) with the :kword:`VB` specification, in order to
 generate necessary files for viewing with :program:`LUSCUS`.

@@ -15,7 +15,7 @@ MODULE FOCKMATRIX
   ! allocating/freeing, printing, and transforming the Fock matrix
   !
   ! Steven Vancoillie, November 2013, Lund
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: REAL64
   IMPLICIT NONE
 
   TYPE FMAT
@@ -53,15 +53,15 @@ CONTAINS
     NAEND=NIEND+NA
     NSSTA=NAEND+1
     NSEND=NAEND+NS
-    F%II = FTOT(NISTA:NIEND,NISTA:NIEND)
-    F%AI = FTOT(NASTA:NAEND,NISTA:NIEND)
-    F%SI = FTOT(NSSTA:NSEND,NISTA:NIEND)
-    F%IA = FTOT(NISTA:NIEND,NASTA:NAEND)
-    F%AA = FTOT(NASTA:NAEND,NASTA:NAEND)
-    F%SA = FTOT(NSSTA:NSEND,NASTA:NAEND)
-    F%IS = FTOT(NISTA:NIEND,NSSTA:NSEND)
-    F%AS = FTOT(NASTA:NAEND,NSSTA:NSEND)
-    F%SS = FTOT(NSSTA:NSEND,NSSTA:NSEND)
+    F%II(:,:) = FTOT(NISTA:NIEND,NISTA:NIEND)
+    F%AI(:,:) = FTOT(NASTA:NAEND,NISTA:NIEND)
+    F%SI(:,:) = FTOT(NSSTA:NSEND,NISTA:NIEND)
+    F%IA(:,:) = FTOT(NISTA:NIEND,NASTA:NAEND)
+    F%AA(:,:) = FTOT(NASTA:NAEND,NASTA:NAEND)
+    F%SA(:,:) = FTOT(NSSTA:NSEND,NASTA:NAEND)
+    F%IS(:,:) = FTOT(NISTA:NIEND,NSSTA:NSEND)
+    F%AS(:,:) = FTOT(NASTA:NAEND,NSSTA:NSEND)
+    F%SS(:,:) = FTOT(NSSTA:NSEND,NSSTA:NSEND)
   END SUBROUTINE FMAT_INIT
 
   SUBROUTINE FMAT_FREE(F)
@@ -83,7 +83,6 @@ CONTAINS
   END SUBROUTINE FMAT_FREE
 
   SUBROUTINE FMAT_LOAD(F)
-    USE ISO_FORTRAN_ENV
     IMPLICIT NONE
     TYPE(FMAT) :: F
     INTEGER :: I
@@ -103,7 +102,7 @@ CONTAINS
   END SUBROUTINE FMAT_LOAD
 
   SUBROUTINE FMAT_COPY(F,FTOT,NMO)
-    USE ISO_FORTRAN_ENV
+    USE ISO_FORTRAN_ENV, ONLY: REAL64
     IMPLICIT NONE
     TYPE(FMAT), INTENT(IN) :: F
     INTEGER, INTENT(IN) :: NMO
@@ -131,7 +130,6 @@ CONTAINS
   END SUBROUTINE FMAT_COPY
 
   SUBROUTINE FMAT_PRINT(F)
-    USE ISO_FORTRAN_ENV
     IMPLICIT NONE
     TYPE(FMAT) :: F
     INTEGER :: I
@@ -175,16 +173,12 @@ CONTAINS
     !  - off-diagonal blocks FAI, FSI, FSA contain the lower triangular
     !    blocks QAI, QSI, QSA that form the matrix L
 
-    USE ISO_FORTRAN_ENV
+    USE ISO_FORTRAN_ENV, ONLY: REAL64
     IMPLICIT NONE
     TYPE(FMAT), INTENT(INOUT) :: F
 
-    INTEGER :: I, J
     INTEGER :: NI, NA, NS, NTOT
-    INTEGER :: II, IA, IS
-    INTEGER :: NISTA, NIEND, NASTA, NAEND, NSSTA, NSEND
-
-    REAL(REAL64), ALLOCATABLE :: O(:,:), U(:,:), D(:,:), L(:,:)
+    INTEGER :: IA, IS
 
     REAL(REAL64), ALLOCATABLE :: WORK(:)
     INTEGER :: NWORK, INFO
@@ -203,55 +197,55 @@ CONTAINS
     IF (INFO.NE.0) STOP 'Error: diagonalization of FSS failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%IS = MATMUL(F%IS,F%SS)
-    F%AS = MATMUL(F%AS,F%SS)
-    F%SI = TRANSPOSE(F%IS)
-    F%SA = TRANSPOSE(F%AS)
+    F%IS(:,:) = MATMUL(F%IS,F%SS)
+    F%AS(:,:) = MATMUL(F%AS,F%SS)
+    F%SI(:,:) = TRANSPOSE(F%IS)
+    F%SA(:,:) = TRANSPOSE(F%AS)
 
     ! construct new QIS/QSI blocks
     DO IS=1,NS
       F%IS(:,IS) = F%IS(:,IS)/F%DS(IS)
     END DO
-    F%II = F%II - MATMUL(F%IS,F%SI)
-    F%SI = TRANSPOSE(F%IS)
+    F%II(:,:) = F%II - MATMUL(F%IS,F%SI)
+    F%SI(:,:) = TRANSPOSE(F%IS)
 
     ! adjust off-diagonal blocks to elimination
-    F%AI = F%AI - MATMUL(F%AS,F%SI)
-    F%IA = TRANSPOSE(F%AI)
+    F%AI(:,:) = F%AI - MATMUL(F%AS,F%SI)
+    F%IA(:,:) = TRANSPOSE(F%AI)
 
     ! construct new QAS/QSA blocks
     DO IS=1,NS
       F%AS(:,IS) = F%AS(:,IS)/F%DS(IS)
     END DO
-    F%AA = F%AA - MATMUL(F%AS,F%SA)
-    F%SA = TRANSPOSE(F%AS)
+    F%AA(:,:) = F%AA - MATMUL(F%AS,F%SA)
+    F%SA(:,:) = TRANSPOSE(F%AS)
 
     ! step 2: diagonalize the active-active subblock
     call dsyev_('V','U',NA,F%AA,NA,F%DA,WORK,NWORK,INFO)
     IF (INFO.NE.0) STOP 'Error: diagonalization of FAA failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%IA = MATMUL(F%IA,F%AA)
-    F%SA = MATMUL(F%SA,F%AA)
-    F%AI = TRANSPOSE(F%IA)
-    F%AS = TRANSPOSE(F%SA)
+    F%IA(:,:) = MATMUL(F%IA,F%AA)
+    F%SA(:,:) = MATMUL(F%SA,F%AA)
+    F%AI(:,:) = TRANSPOSE(F%IA)
+    F%AS(:,:) = TRANSPOSE(F%SA)
 
     ! construct new QIA/QAI blocks
     DO IA=1,NA
       F%IA(:,IA) = F%IA(:,IA)/F%DA(IA)
     END DO
-    F%II = F%II - MATMUL(F%IA,F%AI)
-    F%AI = TRANSPOSE(F%IA)
+    F%II(:,:) = F%II - MATMUL(F%IA,F%AI)
+    F%AI(:,:) = TRANSPOSE(F%IA)
 
     ! step 3: diagonalize the inactive-inactive subblock
     call dsyev_('V','U',NI,F%II,NI,F%DI,WORK,NWORK,INFO)
     IF (INFO.NE.0) STOP 'Error: diagonalization of FII failed'
 
     ! adjust off-diagonal blocks to basis change
-    F%AI = MATMUL(F%AI,F%II)
-    F%SI = MATMUL(F%SI,F%II)
-    F%IA = TRANSPOSE(F%AI)
-    F%IS = TRANSPOSE(F%SI)
+    F%AI(:,:) = MATMUL(F%AI,F%II)
+    F%SI(:,:) = MATMUL(F%SI,F%II)
+    F%IA(:,:) = TRANSPOSE(F%AI)
+    F%IS(:,:) = TRANSPOSE(F%SI)
 
 #ifdef _DEBUG_
     ! sanity test: we should be able to reconstruct the original fock matrix!!

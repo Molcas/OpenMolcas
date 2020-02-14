@@ -365,18 +365,18 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      If ( IPT2.eq.1 ) Then
-        If (NHOLE1.ne.0 .or. NELEC3.ne.0) Then
-          Write(LF,*)
-          Write(LF,*)'******************* WARNING *******************'
-          Call WarningMessage(1,'''Quasi-canonical'' is ignored.')
-          Write(LF,*)'You requested quasicanonical orbitals, but this'
-          Write(LF,*)'is not possible with a true RASSCF calculation.'
-          Write(LF,*)'Your request will be ignored.                  '
-          Write(LF,*)'***********************************************'
-          IPT2=0
-        End If
-      End If
+!      If ( IPT2.eq.1 ) Then
+!        If (NHOLE1.ne.0 .or. NELEC3.ne.0) Then
+!          Write(LF,*)
+!          Write(LF,*)'******************* WARNING *******************'
+!          Call WarningMessage(1,'''Quasi-canonical'' is ignored.')
+!          Write(LF,*)'You requested quasicanonical orbitals, but this'
+!          Write(LF,*)'is not possible with a true RASSCF calculation.'
+!          Write(LF,*)'Your request will be ignored.                  '
+!          Write(LF,*)'***********************************************'
+!          IPT2=0
+!        End If
+!      End If
 
 CGG Sep 03 Check ALTEr
       If ( NAlter.gt.0 ) Then

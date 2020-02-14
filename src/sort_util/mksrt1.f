@@ -87,7 +87,7 @@
 *
 *----------------------------------------------------------------------*
 *     determine the partitioning of the 2el integrals into             *
-*     submatrices by deviding the symmetry blocks into slices that     *
+*     submatrices by dividing the symmetry blocks into slices that     *
 *     fit into the available memory.                                   *
 *----------------------------------------------------------------------*
 *

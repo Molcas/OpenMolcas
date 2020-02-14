@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine read_formatted_aniso( input_file_name, nss, nstate,
      &                                multiplicity, eso, esfs,
-     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM )
+     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
+     &                                AMFI, HSO )
       Implicit None
 #include "stdalloc.fh"
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
@@ -19,12 +20,14 @@
       Real(kind=wp), intent(out)    :: eso(nss), esfs(nstate)
       Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
       Real(kind=wp), intent(out)    :: angmom(3,nstate,nstate)
+      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
       Complex(kind=wp), intent(out) :: MM(3,nss,nss)
       Complex(kind=wp), intent(out) :: MS(3,nss,nss)
       Complex(kind=wp), intent(out) :: ML(3,nss,nss)
 !     electric dipole moment
       Complex(kind=wp), intent(out) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: U(nss,nss)
+      Complex(kind=wp), intent(out) ::   U(nss,nss)
+      Complex(kind=wp), intent(out) :: HSO(nss,nss)
       Character(180)                :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
@@ -59,7 +62,7 @@ c compatibility with the present version: of aniso_i.input file
       read(LuAniso,*) (eso(j),j=1,nss)
       If(dbg) then
          write(6,'(A)') 'ESO:'
-         write(6,'(10F14.6)') (eso(j),j=1,nss)
+         write(6,'(5ES24.14)') (eso(j),j=1,nss)
       End If
       read(LuAniso,*) (multiplicity(j),j=1,nstate)
       If(dbg) then
@@ -103,7 +106,7 @@ c compatibility with the present version: of aniso_i.input file
       read(LuAniso,*) (esfs(j),j=1,nstate)
       If(dbg) then
          write(6,'(A)') 'ESFS:'
-         write(6,'(10F14.6)') (esfs(j),j=1,nstate)
+         write(6,'(5ES24.14)') (esfs(j),j=1,nstate)
       End If
 
       ! U matrix
@@ -152,7 +155,27 @@ c compatibility with the present version: of aniso_i.input file
       ! edmom
       Do l=1,3
         Do j1=1,nstate
-          Read(LuAniso,'(10f20.14)') (edmom(l,j1,j2),j2=1,nstate)
+          Read(LuAniso,'(5ES24.14)') (edmom(l,j1,j2),j2=1,nstate)
+        End Do
+      End Do
+
+      ! amfi
+      Do l=1,3
+        Do j1=1,nstate
+          Read(LuAniso,'(5ES24.14)') (amfi(l,j1,j2),j2=1,nstate)
+        End Do
+      End Do
+
+      ! HSO matrix
+      tmpR=0.0_wp
+      tmpI=0.0_wp
+      Do j1=1,nss
+        read(LuAniso,*) ( tmpR(j1,j2), tmpI(j1,j2), j2=1,nss )
+      End Do
+
+      Do j1=1,nss
+        Do j2=1,nss
+          HSO(j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
         End Do
       End Do
 
@@ -374,7 +397,7 @@ c      End If
 
       Subroutine write_formatted_aniso( nss, nstate, multiplicity, eso,
      &                                  esfs, U, MM, MS, DM, angmom,
-     &                                  edmom )
+     &                                  edmom, amfi, HSO )
 
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
@@ -382,54 +405,68 @@ c      End If
       Real(kind=wp), intent(in)    :: eso(nss), esfs(nstate)
       Real(kind=wp), intent(in)    :: angmom(3,nstate,nstate)
       Real(kind=wp), intent(in)    ::  edmom(3,nstate,nstate)
+      Real(kind=wp), intent(in)    ::   amfi(3,nstate,nstate)
       Complex(kind=wp), intent(in) :: MM(3,nss,nss)
       Complex(kind=wp), intent(in) :: MS(3,nss,nss)
       Complex(kind=wp), intent(in) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(in) :: U(nss,nss)
+      Complex(kind=wp), intent(in) ::    U(nss,nss)
+      Complex(kind=wp), intent(in) ::  HSO(nss,nss)
       ! local stuff
       Integer                      :: l,i,j,LuAniso,IsFreeUnit
       External                     :: IsFreeUnit
 
       LuAniso=IsFreeUnit(81)
       Call molcas_open(LuAniso,'ANISOINPUT')
-      Write(LuAniso,'(2i8)') nstate, nss
-      Write(LuAniso,'(20(f16.4,2x))') (eso(i),i=1,nss)
-      Write(LuAniso,'(50i3)') (multiplicity(i),i=1,nstate)
+      Write(LuAniso,'(2i10)') nstate, nss
+      Write(LuAniso,'(5ES24.14)') (eso(i),i=1,nss)
+      Write(LuAniso,'(30i4)') (multiplicity(i),i=1,nstate)
       Do l=1,3
          Do i=1,nss
-            Write(LuAniso,'(10(2f20.14,1x))') (MM(l,i,j),j=1,nss)
+            Write(LuAniso,'(5ES24.14)') (MM(l,i,j),j=1,nss)
          End Do
       End Do
       Do l=1,3
          Do i=1,nss
-            Write(LuAniso,'(10(2f20.14,1x))') (MS(l,i,j),j=1,nss)
+            Write(LuAniso,'(5ES24.14)') (MS(l,i,j),j=1,nss)
          End Do
       End Do
       ! add data at the end, so that we do not break the functionality
       ! with the present format:
-      Write(LuAniso,'(20(f16.4,2x))') (esfs(i),i=1,nstate)
+      Write(LuAniso,'(5ES24.14)') (esfs(i),i=1,nstate)
       Do i=1,nss
-         Write(LuAniso,'(10(2f20.14,1x))') (U(i,j) ,j=1,nss)
+         Write(LuAniso,'(5ES24.14)') (U(i,j) ,j=1,nss)
       End Do
       ! angmom
       Do l=1,3
         Do i=1,nstate
-          Write(LuAniso,'(10f20.14)') (angmom(l,i,j),j=1,nstate)
+          Write(LuAniso,'(5ES24.14)') (angmom(l,i,j),j=1,nstate)
         End Do
       End Do
 
       ! DMmom
       Do l=1,3
         Do i=1,nss
-          Write(LuAniso,'(10(2f20.14,1x))') (DM(l,i,j),j=1,nss)
+          Write(LuAniso,'(5ES24.14)') (DM(l,i,j),j=1,nss)
         End Do
       End Do
 
       ! edmom
       Do l=1,3
         Do i=1,nstate
-          Write(LuAniso,'(10f20.14)') (edmom(l,i,j),j=1,nstate)
+          Write(LuAniso,'(5ES24.14)') (edmom(l,i,j),j=1,nstate)
         End Do
+      End Do
+
+      ! amfi
+      Do l=1,3
+        Do i=1,nstate
+          Write(LuAniso,'(5ES24.14)') (amfi(l,i,j),j=1,nstate)
+        End Do
+      End Do
+
+      ! HSO matrix
+      Do i=1,nss
+         Write(LuAniso,'(5ES24.14)') (HSO(i,j) ,j=1,nss)
       End Do
 
       Close(LuAniso)
@@ -555,17 +592,17 @@ c compatibility with the present version: of aniso_i.input file
       Call molcas_open(LuAniso,filename)
       nstate=1
       multiplicity=1
-      Write(LuAniso,'(2i8)') nstate, nss
-      Write(LuAniso,'(20(f19.14,2x))') (eso(i),i=1,nss)
-      Write(LuAniso,'(50i3)') multiplicity
+      Write(LuAniso,'(2i10)') nstate, nss
+      Write(LuAniso,'(5ES24.14)') (eso(i),i=1,nss)
+      Write(LuAniso,'(30i4)') multiplicity
       Do l=1,3
          Do i=1,nss
-            Write(LuAniso,'(10(2f20.14,1x))') (MM(l,i,j),j=1,nss)
+            Write(LuAniso,'(5ES24.14)') (MM(l,i,j),j=1,nss)
          End Do
       End Do
       Do l=1,3
          Do i=1,nss
-            Write(LuAniso,'(10(2f20.14,1x))') (MS(l,i,j),j=1,nss)
+            Write(LuAniso,'(5ES24.14)') (MS(l,i,j),j=1,nss)
          End Do
       End Do
       Close(LuAniso)

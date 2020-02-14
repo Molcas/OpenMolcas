@@ -43,7 +43,7 @@ c local variables
       dnorm=0.0_wp
       dnorm =  dznrm2(3*dim*dim, moment, 1 )
 
-      If ( dnorm.eq.0._wp ) Then
+      If ( dnorm.le.tiny(0.0_wp) ) Then
          Write(6,'(A)') 'Norm of the magnetic moment is zero.'
          Write(6,'(A)') 'Returning the default (dummy) values'
          gtens=0.0_wp
@@ -270,7 +270,6 @@ c     &                                      (maxes(j,3),j=1,3),'|'
      &       ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
          Write(6,'(65a)') ('-',i=1,56),'|'
 
-         Call Add_Info('GTENS_MAIN',gtens,3,4)
       End If
 
  199  Continue

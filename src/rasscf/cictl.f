@@ -892,11 +892,11 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
      &                               14,".h5",3,maquis_name_results)
 
           !> copy current target wave function to local wave function
-            call system(
+            call systemf(
      & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
      & "rm -rf rf.checkpoint_state.h5 && "//
-     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
-     &                 )
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",
+     &                 iErr)
           end if
         end if
 #endif
@@ -980,8 +980,8 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
           call system(
      & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
      & "rm -rf rf.checkpoint_state.h5 && "//
-     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
-     &               )
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",
+     &               iErr)
 #endif
         else
           jDisk = IADR15(4)

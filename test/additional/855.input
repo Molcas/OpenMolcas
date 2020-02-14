@@ -142,30 +142,6 @@ End of Input
 
  &MBPT2 &END
 Title
-benzene/avdz. This run: Algo 1, Forcebatch, Presort
-Freeze
- 6
-ChoAlgorithm
- 1
-Forcebatch
-Presort
-Verbose
-End of Input
-
- &MBPT2 &END
-Title
-benzene/avdz. This run: Algo 2, Forcebatch, Presort
-Freeze
- 6
-ChoAlgorithm
- 2
-Forcebatch
-Presort
-Verbose
-End of Input
-
- &MBPT2 &END
-Title
 benzene/avdz. This run: Algo 1, decoMP2
 Freeze
  6
@@ -206,32 +182,6 @@ Freeze
 ChoAlgorithm
  2
 Forcebatch
-DecoMP2
-Verbose
-End of Input
-
- &MBPT2 &END
-Title
-benzene/avdz. This run: Algo 1, decoMP2, Forcebatch, Presort
-Freeze
- 6
-ChoAlgorithm
- 1
-Forcebatch
-Presort
-DecoMP2
-Verbose
-End of Input
-
- &MBPT2 &END
-Title
-benzene/avdz. This run: Algo 2, decoMP2, Forcebatch, Presort
-Freeze
- 6
-ChoAlgorithm
- 2
-Forcebatch
-Presort
 DecoMP2
 Verbose
 End of Input
@@ -281,27 +231,15 @@ End of Input
 #> E_MP2="-231.538729869970"/6
 #> HF_REF_WEIGHT="0.761742735423"/6
 #>>   9
-#> E_MP2="-231.538729869970"/6
-#> HF_REF_WEIGHT="0.761742735423"/6
+#> E_MP2="-231.538727703219"/6
+#> HF_REF_WEIGHT="0.761743113376"/6
 #>>  10
-#> E_MP2="-231.538729869970"/6
-#> HF_REF_WEIGHT="0.761742735423"/6
+#> E_MP2="-231.538727703219"/6
+#> HF_REF_WEIGHT="0.761743113376"/6
 #>>  11
 #> E_MP2="-231.538727703219"/6
 #> HF_REF_WEIGHT="0.761743113376"/6
 #>>  12
-#> E_MP2="-231.538727703219"/6
-#> HF_REF_WEIGHT="0.761743113376"/6
-#>>  13
-#> E_MP2="-231.538727703219"/6
-#> HF_REF_WEIGHT="0.761743113376"/6
-#>>  14
-#> E_MP2="-231.538727703219"/6
-#> HF_REF_WEIGHT="0.761743113376"/6
-#>>  15
-#> E_MP2="-231.538727703219"/6
-#> HF_REF_WEIGHT="0.761743113376"/6
-#>>  16
 #> E_MP2="-231.538727703219"/6
 #> HF_REF_WEIGHT="0.761743113376"/6
 >>EOF
