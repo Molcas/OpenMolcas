@@ -15,6 +15,49 @@ from analyze_molcas.spin_orbfile import SpinOrbs
 
 
 class SpatialOrbs(_Orbitals):
+    """Represents a RasOrb file with spatial orbitals
+
+Attributes
+----------
+All attributes are lists, whose length is the number of
+irreps.  The i-th element is the i-th irrep.
+
+orbs : list of integer
+    The number of orbitals per irrep.
+    `RasOrb.orb[i]` is the number of orbitals in the i-th irrep.
+    `sum(RasOrb.orb)` is the total number of orbitals.
+coeff : list of float 2D arrays
+    The MO-coefficients per irrep.
+    `RasOrb.coeff[i][mu, l]` is the linear coefficient of the
+    mu-th AO in the l-th MO in the i-th irrep.
+occ : list of float
+    The occupation numbers per irrep.
+    `RasOrb.occ[i][j]` is the occupation number of the j-th MO
+    in the i-th irrep.
+energy : list of float
+    The orbital energies per irrep.
+    `RasOrb.energy[i][j]` is the energy of the j-th MO
+    in the i-th irrep.
+idx : list of string 1D arrays
+    The RAS index per irrep.
+    `RasOrb.energy[i][j]` is the RAS index of the j-th MO
+    in the i-th irrep.
+
+Examples
+--------
+Read a RasOrb file:
+
+>>> ras_orb = RasOrb.read_orbfile('./quint.RasOrb')
+
+Write a RasOrb file:
+
+>>> ras_orb = RasOrb.write_orbfile('./transformed.RasOrb')
+
+Put all orbitals in active space:
+
+>>> for index in ras_orb.idx:
+>>>     index[:] = '2'
+    """
 
     @classmethod
     def read_orbfile(cls, path: PathLike):
