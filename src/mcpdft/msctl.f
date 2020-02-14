@@ -90,7 +90,7 @@ C Local print level (if any)
 ***********************************************************
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-      write(*,*) 'rlxroot ', irlxroot
+*      write(*,*) 'rlxroot ', irlxroot
 *TRS
 *
       Call Get_dScalar('PotNuc',potNuc)
@@ -534,7 +534,8 @@ c         call xflush(6)
 
       CASDFT_Funct = 0.0D0
       Call Get_dScalar('CASDFT energy',CASDFT_Funct)
-c      If ( IPRLEV.ge.DEBUG ) then
+*TRS
+      If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
      &  'Nuclear repulsion energy :',PotNuc
        Write(LF,'(4X,A35,F18.8)')
@@ -548,7 +549,7 @@ c      If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
      &  'Active nuc-elec attraction energy:',EactN
 c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
-c      End If
+      End If
 c         call xflush(6)
 ***********************************************************
 * Printing matrices

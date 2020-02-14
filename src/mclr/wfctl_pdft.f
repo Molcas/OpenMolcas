@@ -470,10 +470,12 @@
      & nconf1,work(ipin(ipcid)+(irlxroot-1)*nconf1),
      & 1,0.0d0,work(lmroots),1)
 *SA-SA rotations w/in SA space in eigen state basis
+      if(debug) then
       write(*,*) 'lmroots'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
       end do       
+      end if
 *SA-SA rotations w/in SA space in CSF basis
         call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)), 
      & nconf1, work(lmroots),1,0.0d0,
@@ -497,10 +499,10 @@
        work(lmroots_new+i)=0.0d0
        else
          diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
-         write(*,*) 'diff',diff
+        if(debug) write(*,*) 'diff',diff
          wscale = (1.0d0/(2.0d0*diff))*(1.0d0/weight(i+1))
-         write(*,*)'wscale',wscale
-         write(*,*) 'weight', weight(i+1)        
+        if(debug) write(*,*)'wscale',wscale
+        if(debug) write(*,*) 'weight', weight(i+1)        
         work(lmroots_new+i)= wscale*work(lmroots+i)
        end if
        end do
@@ -588,10 +590,12 @@
      & nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
      & 1,0.0d0,work(lmroots),1)
 *
-      write(*,*) 'lmroots_ipst this should be zero'
+      if(debug) then
+       write(*,*) 'lmroots_ipst this should be zero'
        do i=1,nroots
         write(*,*) work(lmroots-1+i)
        end do
+       end if
        Call GetMem('lmroots','Free','Real',lmroots,nroots)
 *
 *
