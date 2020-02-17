@@ -47,11 +47,11 @@ Examples
 --------
 Read a RasOrb file:
 
->>> ras_orb = RasOrb.read_orbfile('./quint.RasOrb')
+>>> ras_orb = SpatialOrbs.read_orbfile('./quint.RasOrb')
 
 Write a RasOrb file:
 
->>> ras_orb = RasOrb.write_orbfile('./transformed.RasOrb')
+>>> ras_orb.write_orbfile('./transformed.RasOrb')
 
 Put all orbitals in active space:
 
