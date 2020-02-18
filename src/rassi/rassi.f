@@ -58,7 +58,7 @@ C RAS state interaction.
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
      &                      VNAT(:),OCC(:), SOENE(:)
-      Integer, Allocatable:: IDDET1(:)
+      integer, allocatable:: IDDET1(:), IDDET2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -133,8 +133,10 @@ C Number of basis functions
         call NameRun('#Pop')    ! switch back to old RUNFILE
       end if
 
-C Loop over jobiphs JOB1:
+C Loop over jobiphs:
       Call mma_allocate(IDDET1,nState,Label='IDDET1')
+      Call mma_allocate(IDDET2,nState,Label='IDDET2')
+
       IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
@@ -142,10 +144,12 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,
+     &                 IDDET2,IDISK)
         END DO
       END DO
       Call mma_deallocate(IDDET1)
+      Call mma_deallocate(IDDET2)
 
 #ifdef _HDF5_
       CALL mh5_put_dset(wfn_overlap,OVLP,[NSTATE,NSTATE],[0,0])
@@ -392,7 +396,6 @@ C Plot SO-Natural Transition Orbitals if requested
 *                                                                      *
 *     Close dafiles.
 *
-      Call DaClos(LuScr)
       IF (SaveDens) Then
          Call DaClos(LuTDM)
          If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)

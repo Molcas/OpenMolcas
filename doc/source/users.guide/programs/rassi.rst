@@ -771,6 +771,15 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`CIH5`
+  Add CI coefficients, occupation vectors in determinant basis and molecular orbitals (both original and transformed) to the HDF5 file.
+  If coupled with :kword:`CIPRint` and :kword:`ORBItals`` keywords print them also to output file.
+  Needed for the interface to Auger-SCI program.
+  Note that currently only two spin-manifolds can be computed at a time.
+
+  .. xmldoc:: %%Keyword: CIH5 <advanced>
+              Print out the CI coefficients to H5 file.
+
 :kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
@@ -1445,8 +1454,8 @@ Keywords
               </KEYWORD>
 
 :kword:`MONA`
-        This keyword indicates that the properties of monomer A were calculated in the respective RASSI section of the Frenkel exciton protocol.
-        This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
+  This keyword indicates that the properties of monomer A were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONA" APPEAR="Monomer A" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MONA <basic>
@@ -1456,8 +1465,8 @@ Keywords
               </KEYWORD>
 
 :kword:`MONB`
-        This keyword indicates that the properties of monomer B were calculated in the respective RASSI section of the Frenkel exciton protocol.
-        This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
+  This keyword indicates that the properties of monomer B were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONB" APPEAR="Monomer B" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MONB <basic>
@@ -1467,8 +1476,8 @@ Keywords
               </KEYWORD>
 
 :kword:`EXCItonics`
-        This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
-        Has to be put in the second RASSI section of the Frenkel exciton protocoll.
+  This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
+  Has to be put in the second RASSI section of the Frenkel exciton protocol.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXCITONICS" APPEAR="Exciton calculation" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: EXCI <basic>

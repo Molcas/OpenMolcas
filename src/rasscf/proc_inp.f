@@ -3516,9 +3516,12 @@ C Test read failed. JOBOLD cannot be used.
           Call StatusLine('RASSCF:','Initializing Lucia...')
           CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
+* and number of determinants to store
           nconf=0
+          nDet=0
           do i=1,mxsym
             nconf=nconf+ncsasm(i)
+            nDet=nDet+ndtasm(i)
           end do
 #ifdef _DMRG_
         end if
