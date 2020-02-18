@@ -38,7 +38,7 @@
       Call RecPrt('qNext',' ',qNext,nInter,1)
 #endif
       Call Dispersion_Kriging(qNext,y,nInter)
-      Restriction_Dispersion=y**2
+      Restriction_Dispersion=y
       Call mma_Deallocate(qNext)
 *
       Return

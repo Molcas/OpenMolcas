@@ -307,7 +307,6 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Restriction_Dispersion,Thr_RS)
             End If
 #else
-            phi=Two/(One+Sqrt(Five))
             fact=One
             qBeta=fCart*tBeta
             Thr_RS=1.0D-7
@@ -322,10 +321,10 @@ C           Write (*,*) 'tBeta=',tBeta
                Step_Trunc=' '
                disp=Restriction_Dispersion(qInt(1,kIter),Shift(1,kIter),
      &                                     mInter)
-               fact=phi*fact
-               qBeta=phi*qBeta
-               If (disp+1.0D-5.lt.Beta_Disp) Exit
-               If ((fact.lt.1.0D-3).or.(disp.lt.Beta_Disp)) Then
+               fact=Half*fact
+               qBeta=Half*qBeta
+               If (One-disp/Beta_Disp.gt.1.0D-3) Exit
+               If ((fact.lt.1.0D-5).or.(disp.lt.Beta_Disp)) Then
                   Step_Trunc='*'
                   Exit
                End If

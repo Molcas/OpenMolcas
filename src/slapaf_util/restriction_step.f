@@ -25,7 +25,7 @@
       Integer nInter
       Real*8 q(nInter), dq(nInter)
 *
-      Restriction_Step=DDot_(nInter,dq,1,dq,1)
+      Restriction_Step=Sqrt(DDot_(nInter,dq,1,dq,1))
 *
       If (.False.) Call Unused_real_array(q)
       Return

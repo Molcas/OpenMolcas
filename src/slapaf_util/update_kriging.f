@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2019, Roland Lindh                                     *
+* Copyright (C) 2019,2020, Roland Lindh                                *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
@@ -29,7 +30,7 @@
 *                                                                      *
 *    (see update_sl)                                                   *
 ************************************************************************
-      Use kriging_mod, only: miAI, meAI, blavAI, set_l
+      Use kriging_mod, only: miAI, meAI, blavAI, set_l, variance
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -67,6 +68,11 @@
       Real*8, Allocatable:: Array_l(:)
       Real*8, Allocatable:: Energy_s(:)
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
+*#define _OVERSHOOT_
+#ifdef _OVERSHOOT_
+      Logical Found
+      Real*8, Allocatable:: Step_k(:,:)
+#endif
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -267,15 +273,16 @@
 ************************************************************************
 *                                                                      *
 *     At this point let us modify the value of the trend function such
-*     that it is proportional to the norm of the largest norm in the
-*     test suite.
+*     that it is proportional to the norm of the gradient
 *
       blavai_orig=blavai
       blavai_min=1.0D-2*blavai
-      blavai_min=0.0D0
+      blavai_min=0.01D0
+      blavai_max=blavai_orig
+      blavai_max=10.0D0
       Write (6,*) 'blavai_orig=',blavai_orig
       Write (6,*) 'blavai_min=',blavai_min
-      blavai_max=blavai_orig
+      Write (6,*) 'blavai_max=',blavai_max
 *     Do iRaw = iter-nRaw+1, iter-1
 *        Factor= 1.0D-1
 *        Write (*,*) GNrm(iRaw+1)/GNrm(iRaw)
@@ -288,6 +295,7 @@
 *    &              blavai*fact))
 *     End Do
       blavai=Max(blavai_orig*GNrm(iter)/0.000050D0,blavai_min)
+      blavai=Min(blavai,blavai_max)
       Write (6,*) 'blavai=',blavai
       Write (6,*)
 *                                                                      *
@@ -333,7 +341,7 @@
 ************************************************************************
 *                                                                      *
 *     There is a small tweak here. We need to send the transformed
-*     orignal coordinates, shifts, and gradients to update_sl_. Note
+*     original coordinates, shifts, and gradients to update_sl_. Note
 *     that this does NOT correspond to the data set to the GEK.
 *
       Call mma_allocate(qInt_s,nInter,MaxItr,Label='qInt_s')
@@ -345,6 +353,19 @@
       Call Trans_K(U,qInt,qInt_s,nInter,iter)
       Call Trans_K(U,Grad,Grad_s,nInter,iter)
       Call Trans_K(U,Shift,Shift_s,nInter,iter)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Save initial gradient
+*     This is for the case the gradient is already converged, we want
+*     the microiterations to still reduce the gradient
+*
+      FAbs_ini=Sqrt(DDot_(nInter,Grad_s(1,iter),1,
+     &                           Grad_s(1,iter),1)/DBLE(nInter))
+      GrdMx_ini=Zero
+      Do iInter = 1, nInter
+         GrdMx_ini=Max(GrdMx_ini,Abs(Grad_s(iInter,iterAI)))
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -384,17 +405,17 @@
             Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
          End If
 #else
-            Factor=-4.0D0
-            Factor=-2.9D0
-            Factor=-3.5D0
-            Write (6,*) GNrm(i+1)/GNrm(i)
-            Write (6,*) LOG10(GNrm(i+1)/GNrm(i))
-            Write (6,*) Factor*LOG10(GNrm(i+1)/GNrm(i))
-            fact=10.0**(Factor*LOG10(GNrm(i+1)/GNrm(i)))
-            Write (6,*) 'fact=',fact
-            Beta_Disp_Tmp=Min(Beta_Disp,
-     &                    Max(Beta_Disp_Min,
-     &                        Beta_Disp_Tmp*fact))
+c           Factor=-4.0D0
+c           Factor=-2.9D0
+c           Factor=-3.5D0
+c           Write (6,*) GNrm(i+1)/GNrm(i)
+c           Write (6,*) LOG10(GNrm(i+1)/GNrm(i))
+c           Write (6,*) Factor*LOG10(GNrm(i+1)/GNrm(i))
+c           fact=10.0**(Factor*LOG10(GNrm(i+1)/GNrm(i)))
+c           Write (6,*) 'fact=',fact
+c           Beta_Disp_Tmp=Min(Beta_Disp,
+c    &                    Max(Beta_Disp_Min,
+c    &                        Beta_Disp_Tmp*fact))
 #endif
          Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
       End Do
@@ -408,6 +429,7 @@
       Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
       Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
       Write (6,*) 'Beta_Disp_=',Beta_Disp_
+      Write (6,*) 'Max_Disp_=',1.96D0*Sqrt(variance)
 *
       Beta_=Beta
 *
@@ -509,8 +531,7 @@
          Call RecPrt('Grad(x):',' ',Grad_s,nInter,iterAI)
 #endif
 *
-*        Change label of updating method if kriging points have
-*        been used.
+*        Change label of updating method
 *
          UpMeth='RVO   '
          Write (UpMeth(4:6),'(I3)') iterK
@@ -536,9 +557,9 @@
                RMSMx=Max(RMSMx,Abs(Shift_s(iInter,iterAI-1)))
             End Do
 *
-            Not_Converged = FAbs.gt.ThrGrd
+            Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
             Not_Converged = Not_Converged .or.
-     &                      GrdMx.gt.ThrGrd*OneHalf
+     &                      GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
             Not_Converged = Not_Converged .or.
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
@@ -572,6 +593,66 @@
 *     End of the micro iteration loop
 *
       End Do  ! Do While
+#ifdef _OVERSHOOT_
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Attempt overshooting
+*
+      Call mma_allocate(Step_k,nInter,2)
+      i=iFirst+nRaw-1
+      Call dCopy_(nInter,qInt_s(1,iterAI),1,Step_k(1,2),1)
+      Call dAXpY_(nInter,-One,qInt_s(1,i),1,Step_k(1,2),1)
+*     Call RecPrt('q(i+1)-q(f)','',Step_k(1,2),nInter,1)
+      If (i.gt.1) Then
+         Call dCopy_(nInter,qInt_s(1,i),1,Step_k(1,1),1)
+         Call dAXpY_(nInter,-One,qInt_s(1,i-1),1,Step_k(1,1),1)
+*        Call RecPrt('q(f)-q(f-1)','',Step_k(1,1),nInter,1)
+         dsds=dDot_(nInter,Step_k(1,1),1,Step_k(1,2),1)
+         dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,1),1,Step_k(1,1),1))
+         dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,2),1,Step_k(1,2),1))
+*        Write(6,*) 'dsds = ',dsds
+      Else
+         dsds=Zero
+      End If
+      Call qpg_dScalar('OS_Factor',Found)
+      If (Found) Then
+         Call get_dScalar('OS_Factor',OS_Factor)
+      Else
+         OS_Factor=One
+      End If
+*     Write(6,*) 'OS_Factor: ',OS_Factor
+      Phi=(One+Sqrt(Five))/Two
+      If ((dsds.gt.0.9D0).and.
+     &    (FAbs_ini.lt.1.0D1*ThrGrd).and.
+     &    (GrdMx_ini.lt.1.0D1*ThrGrd*OneHalf)) Then
+       If (Step_Trunc.eq.' ') Then
+         OS_Factor=OS_Factor*Phi
+         Call dAXpY_(nInter,OS_Factor-One,Step_k(1,2),1,
+     &                                    qInt_s(1,iterAI),1)
+         Call Energy_Kriging(qInt_s(1,iterAI),OS_Energy,nInter)
+         Call Dispersion_Kriging(qInt_s(1,iterAI),OS_Disp,nInter)
+         If (OS_Disp.gt.E_Disp) Then
+            If (OS_Disp.gt.Beta_Disp) OS_Factor=OS_Factor/Phi
+            Call dAXpY_(nInter,OS_Factor-One,Step_k(1,2),1,
+     &                         Shift_s(1,iterAI-1),1)
+            Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
+     &                          dMass,Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
+     &                          Work(ipCx),U,.True.,iter)
+            Energy(iterAI)=OS_Energy
+            If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
+            UpMeth(4:4)='+'
+         Else
+            OS_Factor=One
+         End If
+       End If
+      Else
+         OS_Factor=One
+      End if
+*     Write(6,*) 'OS_Factor: ',OS_Factor
+      Call put_dScalar('OS_Factor',OS_Factor)
+      Call mma_deallocate(Step_k)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

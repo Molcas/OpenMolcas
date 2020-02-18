@@ -13,7 +13,7 @@
       Subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian)
       Implicit Real*8 (a-h,o-z)
       Real*8 Array_l(nInter), Hessian(nInter,nInter)
-*     Real*8 Array_l(nInter), Hessian(nInter,nInter), l_max
+*     Real*8 l_max
 *
       Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
       Write (6,*) 'BaseLine=',BaseLine
