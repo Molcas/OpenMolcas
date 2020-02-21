@@ -164,6 +164,7 @@ include:
         pymolcas verify --flatlist ${tests} > filelist
         if ( ! which python && which python3 ) ; then
           sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
+          sed -i -e 's/env python/env python3/' ../Tools/verify/get_keywords.py
         fi
         ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
         pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
