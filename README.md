@@ -22,6 +22,9 @@ DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 Installation
 ------------
 
+For more detailed information, please refer to the [wiki
+pages](/../wikis/home).
+
 OpenMolcas is configured with [CMake](https://cmake.org). A quick way to get it
 up and running is the following:
 
@@ -77,8 +80,6 @@ can read it in [HTML format](https://molcas.gitlab.io/OpenMolcas/sphinx/) or
 [PDF format](https://molcas.gitlab.io/OpenMolcas/Manual.pdf). Note that most
 of it precedes the creation of OpenMolcas and it is probably outdated in
 several points. It may also mention features not available in OpenMolcas.
-
-There may be more information in the [wiki pages](/../wikis/home).
 
 Help
 ----

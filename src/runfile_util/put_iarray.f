@@ -187,6 +187,7 @@
          RecLab( 83)='Root Mapping    '
          RecLab( 84)='Fermion IDs     '
          RecLab( 85)='IsMM Atoms      '
+         RecLab( 86)='Un_cen Charge   '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include

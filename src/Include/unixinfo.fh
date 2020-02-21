@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer pid,ppid,sec,min,hour,mday,mon,year,wday,yday,isdst
+      Integer pid,ppid,sec,mins,hour,mday,mon,year,wday,yday,isdst
       Character*3 Weekday(7),Month(12)
       Character*256 UserName,RealName,HomeDir,Shell
       Character*256 MolcasDir
       Character*256 ProgName, SuperName
       Common /unixinfocom/pid,ppid,
-     +  sec,min,hour,mday,mon,year,wday,yday,isdst,
+     +  sec,mins,hour,mday,mon,year,wday,yday,isdst,
      +  WeekDay,Month,
      +  UserName,RealName,HomeDir,Shell,
      +  MolcasDir,

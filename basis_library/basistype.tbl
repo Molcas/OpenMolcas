@@ -10,20 +10,20 @@
 #***********************************************************************
 #                 1     2     3     4
 # ------------   ---   ---   ---   ---
-3-21G            SEG   AE_   NRH
-4-31G            SEG   AE_   NRH
-6-31G            SEG   AE_   NRH
-6-31Gp           SEG   AE_   NRH
-6-31Gpp          SEG   AE_   NRH
-6-311Gpp         SEG   AE_   NRH
+3-21G            SEC   AE_   NRH
+4-31G            SEC   AE_   NRH
+6-31G            SEC   AE_   NRH
+6-31Gp           SEC   AE_   NRH
+6-31Gpp          SEC   AE_   NRH
+6-311Gpp         SEC   AE_   NRH
 60-MWB-OPT       SEG   AE_   UNK
 ANO-DK3          RAF   AE_   RH_
 ANO-L            ANO   AE_   NRH
 ANO-MB           ANO   AE_   RH_
 ANO-ORCA         ANO   AE_   NRH
-ANO-RCC          ANO   AE_   RH_
+ANO-RCC          ANO   AE_   RH_   PN_
 ANO-S            ANO   AE_   NRH
-ANO-XS           ANO   AE_   RH_
+ANO-XS           ANO   AE_   RH_   PN_
 AUG-CC-PVDZ      CCC   AE_   NRH
 AUG-CC-PVTZ      CCC   AE_   NRH
 AUG-CC-PVQZ      CCC   AE_   NRH
@@ -59,7 +59,7 @@ ECP.HW           SEG   NAE   RCP
 ECP.PETERSON     RAF   NAE   RCP
 ECP.STOLL        RAF   NAE   RCP
 MG3S             SEG   AE_   NRH
-MUONIC           UNC   AE_   NRH
+MUONIC           UNC   AE_   NRH   GN_
 NB               UNK   UNK   UNK
 PC-0             SEG   AE_   NRH
 PC-1             SEG   AE_   NRH
@@ -78,17 +78,25 @@ UNC              UNC   AE_   NRH
 UNCREL           UNC   AE_   RH_
 # *************************************
 # 1: Contraction type
-#  - SEG: Segmented
+#  - SEG: segmented
+#  - SEC: segmented Cartesian
 #  - ANO: ANO
 #  - RAF: Raffenetti
 #  - CCC: CC contraction
 #  - UNC: uncontracted
+#  - ARC: automatic Raffenetti
+#  - GEN: general contraction
 # 2: All electron
-#  - AE:  All electron
-#  - NAE: Not all electron
+#  - AE_: all electron (= YES)
+#  - NAE: not all electron (= NO_)
 # 3: Relativity
-#  - RH:  Relativistic hamiltonian
-#  - NRH: Non relativistic hamiltonian
-#  - RCP: Relativistic core potential
+#  - RH_: relativistic Hamiltonian
+#  - NRH: non relativistic Hamiltonian
+#  - RCP: relativistic core potential
+#  - DKH: DKH
+#  - X2C: exact 2-component
 #  - RYD: Rydberg
-# 4: Reserved
+# 4: Nucleus
+#  - PN_: point nucleus
+#  - GN_: Gaussian nucleus
+#  - MNG: modified Gaussian
