@@ -1417,6 +1417,28 @@
       end if
       end subroutine
 
+      subroutine mh5_get_dset_array_dims(dset_id, dims)
+      implicit none
+      integer :: dset_id
+      integer :: dims(*)
+      integer :: ierr
+      interface
+        function mh5c_get_dset_array_dims(id, dims)
+     &   result(ierr) bind(C, name='mh5c_get_dset_array_dims')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: id
+        integer(MOLCAS_C_INT) :: dims(*)
+        integer(MOLCAS_C_INT) :: ierr
+        end function
+      end interface
+
+      ierr = mh5c_get_dset_array_dims(dset_id, dims)
+      if (ierr .lt. 0) then
+        call abend
+      end if
+      end subroutine
+
 * Convenience wrappers: 'init' and 'fetch'
 
 * init: create, put, close

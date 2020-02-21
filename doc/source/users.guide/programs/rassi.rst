@@ -1246,6 +1246,20 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NTOCalc`
+  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other). The NTO files are printed out as :file:`$Project.PartNTO.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+  The NTO calculations can be performed for states with different spatial symmetries.
+  :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated. One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each JobIph file (in the line starting with ``JobIph:``).
+  :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs. If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
+  :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
+              %%Keyword: NTOC <advanced>
+              <HELP>
+              Enables natural transition orbital calculation from two JobIph files.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
@@ -1264,6 +1278,19 @@ Input example
   * spanned by the 8 input functions. Assume only the first
   * 4 are of interest, and we want natural orbitals out
   NATO= 4
+
+An NTO input example using the JobIph file from a state-averaged calculation is as follows: ::
+
+  >>COPY  "Jobiph file 1" JOB001
+  >>COPY  "Jobiph file 2" JOB002
+
+  &RASSI
+  NTOC
+  Nr of JobIphs=2 1 1
+  1; 2
+  *This NTO calculation is performed for the ground state and the first
+  *excited state of the previous calculation done in the &RASSCF module.
+
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 

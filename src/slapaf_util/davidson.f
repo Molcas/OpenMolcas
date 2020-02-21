@@ -43,7 +43,7 @@
       INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
-      PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      PARAMETER (Thr=1.0D-7, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
 *
 #include "stdalloc.fh"
 #include "real.fh"

@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Sequence, Tuple, TypeVar, Type, TextIO
 import re
 from os import PathLike
@@ -18,7 +17,7 @@ from analyze_molcas.spin_orbfile import SpinOrbs
 class SpatialOrbs(_Orbitals):
 
     @classmethod
-    def read_orbfile(cls, path: PathLike) -> SpatialOrbs:
+    def read_orbfile(cls, path: PathLike):
         with open(path, 'r') as f:
             version, orbs, spin_orbs = _read_header(f)
 
@@ -29,7 +28,7 @@ class SpatialOrbs(_Orbitals):
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> SpatialOrbs:
+            new_idx: Sequence[Sequence[int]], inplace: bool=False):
         if inplace:
             self.coeff = [
                 coeff[:, idx] for idx, coeff in zip(new_idx, self.coeff)]
@@ -41,7 +40,7 @@ class SpatialOrbs(_Orbitals):
             new.reindex(new_idx, inplace=True)
             return new
 
-    def round_occ(self, inplace: bool=False) -> SpatialOrbs:
+    def round_occ(self, inplace: bool=False):
         new_occ = [occ.round() for occ in self.occ]
 
         if not isclose(sum(occ.sum() for occ in self.occ),

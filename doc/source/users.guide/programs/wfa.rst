@@ -387,6 +387,7 @@ Output listing                         Explanation
 ``Nr of entangled states (Z_HE)``      :math:`Z_{HE}=2^{S_{H|E}}`
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
+``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`
 ``|<r_e - r_h>| [Ang]``                Linear e/h distance :math:`\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_{\text{exc}}`
@@ -395,7 +396,8 @@ Output listing                         Explanation
 ``RMS electron-hole separation [Ang]`` :math:`d_{\text{exc}} = (\langle \left|\vec{x}_e - \vec{x}_h\right|^2\rangle_{\text{exc}})^{1/2}` :cite:`Bappler2014`
 ``Covariance(r_h, r_e) [Ang^2]``       :math:`\text{COV}\left(\vec{x}_h,\vec{x}_e\right) = \langle\vec{x}_h\cdot\vec{x}_e\rangle_{\text{exc}} -
                                        \langle\vec{x}_h\rangle_{\text{exc}}\cdot\langle\vec{x}_e\rangle_{\text{exc}}`
-``Correlation coefficient``            :math:`R_{eh} = \text{COV}\left(\vec{x}_h,\vec{x}_e\right)/\sigma_h\cdot\sigma_e`
+``Correlation coefficient``            :math:`R_{eh} = \text{COV}\left(\vec{x}_h,\vec{x}_e\right)/\sigma_h\cdot\sigma_e` :cite:`Plasser2015`
+``Center-of-mass size``                :math:`(\langle \left|\vec{x}_e + \vec{x}_h\right|^2\rangle_{\text{exc}}-\langle \vec{x}_e + \vec{x}_h\rangle_{\text{exc}}^2)^{1/2}`
 ====================================== =============================================================================================================================
 
 .. xmldoc:: </MODULE>

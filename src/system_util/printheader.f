@@ -20,6 +20,7 @@ CSVC: print a banner with module name and runtime information
       integer :: i
 
 #include "para_info.fh"
+#include "unixinfo.fh"
 #ifdef _MOLCAS_MPP_
       integer :: nprocs_global
       integer, external :: GAnNodes
@@ -94,6 +95,18 @@ CSVC: print a banner with module name and runtime information
       line = 'available to each process: '//
      &        trim(adjustl(memory))//' of memory, '//
      &        trim(adjustl(threads))
+      call center_text(line)
+      write(6,'(a)') trim(line)
+
+      line = 'pid:'
+#ifdef _MOLCAS_MPP_
+      nprocs_global = GAnNodes()
+      write(proc,'(I16)') nprocs_global
+      if (nprocs_global.gt.1) then
+        if (nprocs.gt.1) line = 'master pid:'
+      end if
+#endif
+      write(line,'(a,1x,i0)') trim(line),pid
       call center_text(line)
       write(6,'(a)') trim(line)
 
