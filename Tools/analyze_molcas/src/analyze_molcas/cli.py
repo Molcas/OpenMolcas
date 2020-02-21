@@ -51,8 +51,7 @@ def assimilate(reference_path, target_path):
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('orb_files', type=click.File(), nargs=-1)
 def combine_orbs(orb_files):
-    """Orthogonally transform orbitals in target active space
-    as close as possible to reference active space."""
+    "Combine several RasOrbs files into one. The symmetry group must match."
     import operator
     from functools import reduce
 

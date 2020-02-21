@@ -19,6 +19,11 @@ from analyze_molcas._linalg_helper import get_kabsch_transformation
 class SpatialOrbs(_Orbitals):
     """Represents a RasOrb file with spatial orbitals
 
+The operators +, *, ==, and != are overloaded.
+Similar to lists `+` concatenates two SpatialOrbs and
+`*` concatenates a SpatialOrb with itself n-times.
+
+
 Attributes
 ----------
 All attributes are lists, whose length is the number of
