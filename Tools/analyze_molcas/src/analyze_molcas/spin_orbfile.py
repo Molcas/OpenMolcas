@@ -1,13 +1,5 @@
-from typing import Sequence, Tuple, TypeVar, Type, TextIO
-import re
+from typing import Sequence
 from os import PathLike
-from enum import Enum
-from abc import ABCMeta, abstractmethod
-from copy import deepcopy
-
-import numpy as np
-from numpy import array, argsort, isclose
-from attr import attrs, attrib
 
 
 from analyze_molcas._base_orbfile import (
@@ -30,7 +22,7 @@ class SpinOrbs(_Orbitals):
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False):
+                new_idx: Sequence[Sequence[int]], inplace: bool=False):
         if inplace:
             self.coeff = {
                 spin:

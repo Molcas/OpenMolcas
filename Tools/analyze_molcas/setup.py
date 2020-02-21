@@ -57,6 +57,8 @@ setup(
     entry_points={
         'console_scripts': [
             'spat_to_spin = analyze_molcas.cli:spat_to_spin',
+            'assimilate = analyze_molcas.cli:assimilate',
+            'combine_orbs = analyze_molcas.cli:combine_orbs',
         ]
     },
 )

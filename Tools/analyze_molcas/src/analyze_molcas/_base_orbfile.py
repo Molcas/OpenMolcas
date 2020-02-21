@@ -3,11 +3,9 @@ import re
 from os import PathLike
 from enum import Enum
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 
 import numpy as np
-from numpy import array, argsort, isclose
-from attr import attrs, attrib
+from numpy import array
 
 
 class FileFormat(Exception):
@@ -21,13 +19,14 @@ class RasOrb_version(Enum):
 T = TypeVar('T', bound='_Orbitals')
 
 
-@attrs
 class _Orbitals(metaclass=ABCMeta):
-    orbs = attrib()
-    coeff = attrib()
-    occ = attrib()
-    energy = attrib()
-    idx = attrib()
+
+    def __init__(self, orbs, coeff, occ, energy, idx):
+        self.orbs = orbs
+        self.coeff = coeff
+        self.occ = occ
+        self.energy = energy
+        self.idx = idx
 
     @classmethod
     @abstractmethod
@@ -36,7 +35,7 @@ class _Orbitals(metaclass=ABCMeta):
 
     @abstractmethod
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False) -> T:
+                new_idx: Sequence[Sequence[int]], inplace: bool=False) -> T:
         pass
 
     def get_index(self) -> Sequence[Sequence[int]]:
@@ -50,20 +49,18 @@ class _Orbitals(metaclass=ABCMeta):
             energy=self.energy.copy(),
             idx=self.idx.copy())
 
-    def write_orbfile(self, path):
-        with open(path, 'w') as f:
-            for line in self._write_header():
-                print(line, file=f)
-            for line in self._write_MO_coeff():
-                print(line, file=f)
-            for line in self._write_MO_occ():
-                print(line, file=f)
-            for line in self._write_MO_human_occ():
-                print(line, file=f)
-            for line in self._write_MO_E():
-                print(line, file=f)
-            for line in self._write_CAS_idx():
-                print(line, file=f)
+    def write_orbfile(self, path=None):
+        if path is None:
+            yield from self._write_header()
+            yield from self._write_MO_coeff()
+            yield from self._write_MO_occ()
+            yield from self._write_MO_human_occ()
+            yield from self._write_MO_E()
+            yield from self._write_CAS_idx()
+        else:
+            with open(path, 'w') as f:
+                for line in self.write_orbfile():
+                    print(line, file=f)
 
     @abstractmethod
     def _write_header(self):
@@ -96,13 +93,18 @@ class _Orbitals(metaclass=ABCMeta):
             lines.extend(res_out(self.idx[irrep]))
         return lines
 
+    def __repr__(self):
+        return ("{} with {} orbitals per irrep"
+                .format(type(self).__name__, self.orbs))
+
 
 def _reindex(indices: Sequence[Sequence],
              new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
     return [idx[new_idx] for new_idx, idx in zip(new_indices, indices)]
 
+
 def _spin_reindex(values: Sequence[Sequence],
-             new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
+                  new_indices: Sequence[Sequence[int]]) -> Sequence[Sequence]:
     return {
         spin:
             [v[new_idx] for new_idx, v in zip(new_indices, spin_values)]

@@ -31,3 +31,32 @@ def spat_to_spin(input_path, out):
     if out is None:
         out = input_path.parent / f'{input_path.stem}.UhfOrb'
     SpatialOrbs.read_orbfile(input_path).to_SpinOrbs().write_orbfile(out)
+
+
+@click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('reference_path', type=click.File())
+@click.argument('target_path', type=click.File())
+def assimilate(reference_path, target_path):
+    """Orthogonally transform orbitals in target active space
+    as close as possible to reference active space."""
+    reference = SpatialOrbs.read_orbfile_stream(reference_path).canonicalize()
+    target = SpatialOrbs.read_orbfile_stream(target_path).canonicalize()
+
+    for line in (reference
+                 .assimilate(target, [target.get_idx_active_space()])
+                 .write_orbfile()):
+        print(line)
+
+
+@click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('orb_files', type=click.File(), nargs=-1)
+def combine_orbs(orb_files):
+    """Orthogonally transform orbitals in target active space
+    as close as possible to reference active space."""
+    import operator
+    from functools import reduce
+
+    orbs = (SpatialOrbs.read_orbfile_stream(path) for path in orb_files)
+
+    for line in reduce(operator.add, orbs).write_orbfile():
+        print(line)
