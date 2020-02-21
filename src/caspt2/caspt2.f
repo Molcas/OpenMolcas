@@ -93,7 +93,7 @@ C
       INTEGER IDISK
 
 * Effective Hamiltonian
-      REAL*8, ALLOCATABLE :: HEFF(:,:), UEFF(:,:)
+      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:)
 
 * Zeroth-order Hamiltonian
       REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:)
@@ -114,13 +114,13 @@ C
       Call StatusLine('CASPT2:','Initializing')
       CALL PT2INI
 * Initialize effective Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
-      CALL MMA_ALLOCATE(UEFF,NSTATE,NSTATE)
-      HEFF=0.0D0
-      UEFF=0.0D0
+      CALL MMA_ALLOCATE(Heff,Nstate,Nstate)
+      CALL MMA_ALLOCATE(Ueff,Nstate,Nstate)
+      Heff=0.0D0
+      Ueff=0.0D0
 * Initialize zeroth-order Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
-      CALL MMA_ALLOCATE(U0,NSTATE,NSTATE)
+      CALL MMA_ALLOCATE(H0,Nstate,Nstate)
+      CALL MMA_ALLOCATE(U0,Nstate,Nstate)
       H0=0.0D0
 * U0 is initialized as the identity matrix, in the case of a
 * standard MS-CASPT2 calculation it will not be touched anymore
@@ -128,12 +128,14 @@ C
       call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
 *======================================================================*
-C If the EFFE keyword has been used, we already have the multi state
-C coupling Hamiltonian effective matrix, just copy the energies and
-C proceed to the MS coupling section.
-C Otherwise, put the CASSCF energies on the diagonal, i.e. form the
-C first-order corrected Heff[1] = PHP and later on we will add the
-C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
+* If the EFFE keyword has been used, we already have the multi state
+* coupling Hamiltonian effective matrix, just copy the energies and
+* proceed to the MS coupling section.
+* Otherwise, put the CASSCF energies on the diagonal, i.e. form the
+* first-order corrected effective Hamiltonian:
+*     Heff[1] = PHP
+* and later on we will add the second-order correction
+* Heff(2) = PH \Omega_1 P to Heff[1]
       IF (INPUT%JMS) THEN
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
@@ -151,7 +153,7 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
       END IF
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
-* states according to the XMS prescription.
+* states according to the XMS prescription in xdwinit
       if (IFXMS.and.IFDW) then
         call xdwinit(Heff,H0,U0)
         if (IFEFOCK) then
@@ -168,9 +170,9 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
 * calculation: MS, XMS, DW or XDW.
       call rdminit
 
-C For (X)Multi-State, a long loop over root states.
-C The states are ordered by group, with each group containing a number
-C of group states for which GRPINI is called.
+* For (X)Multi-State, a long loop over root states.
+* The states are ordered by group, with each group containing a number
+* of group states for which GRPINI is called.
       JSTATE_OFF=0
       STATELOOP: DO IGROUP=1,NGROUP
 
@@ -195,7 +197,7 @@ C of group states for which GRPINI is called.
          JSTATE = JSTATE_OFF + ISTATE
 
 
-C skip this state if we only need 1 state and it isn't this "One"
+* Skip this state if we only need 1 state and it isn't this "one".
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -204,8 +206,7 @@ C skip this state if we only need 1 state and it isn't this "One"
          CPUSIN=CPTF11-CPTF0
          TIOSIN=TIOTF11-TIOTF0
 
-C     SOLVE CASPT2 EQUATION SYSTEM AND COMPUTE CORR ENERGIES.
-
+* Solve CASPT2 equation system and compute corr energies.
          IF (IPRGLB.GE.USUAL) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
             WRITE(6,*)' CASPT2 EQUATION SOLUTION'

@@ -396,7 +396,7 @@ C     really parallel or not.
       if (Input % EFOC) then
         if (.not.(IFXMS.and.IFDW)) then
           Call WarningMessage(2,'Keyword EFOCk can only be used'//
-     &                          'XDW-CASPT2 calculations.')
+     &                          'in (X)DW-CASPT2 calculations.')
           Call Quit_OnUserError
         else
         end if

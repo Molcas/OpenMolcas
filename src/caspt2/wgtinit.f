@@ -33,8 +33,7 @@
       do I=1,Nstate
 
 * If it is an XDW-CASPT2 calculation, the weights are computed
-* according to JCTC ...
-        if (IFDW) then
+        if (IFDW.and.zeta.ge.0.0d0) then
           Ebeta = H(I,I)
 * Compute normalization factor
           do J=1,Nstate
@@ -51,11 +50,11 @@
 
 * If it is an XMS-CASPT2 calculation, all the weights are equal,
 * i.e. they all are 1/Nstate
-        else if (IFXMS) then
+        else if (IFXMS.and.(.not.IFDW)) then
           call dcopy_(Nstate**2,1.0D0/Nstate,0,WORK(LDWGT),1)
 
-* If it is a normal MS-CASPT2, the weight vectors are the standard
-* unit vectors e_1, e_2, ...
+* If it is a normal MS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
+* the weight vectors are the standard unit vectors e_1, e_2, ...
         else
           WORK(LDWGT + (Nstate*(I-1)) + (I-1)) = 1.0d0
         end if
@@ -66,9 +65,9 @@
 * In case it is a XDW calculation, print out the weights
       if (IFDW.and.(IPRGLB.ge.VERBOSE)) then
         if (IFEFOCK) then
-          write(6,*)' Weights calculated with <I|H0|J>:'
+          write(6,*)' Weights calculated with <I|H0|I>:'
         else
-          write(6,*)' Weights calculated with <I|H|J>:'
+          write(6,*)' Weights calculated with <I|H|I>:'
         end if
         call prettyprint(WORK(LDWGT),Nstate,Nstate)
       end if

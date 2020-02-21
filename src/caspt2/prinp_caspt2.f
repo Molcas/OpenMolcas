@@ -229,7 +229,11 @@
 
         write(6,Fmt2//'A,T50,A)')'Fock operator',trim(FockOpType)
         if (IFDW) then
-          write(6,Fmt2//'A,T41,I10)')'DW exponent',ZETA
+          if (zeta.ge.0) then
+            write(6,Fmt2//'A,T41,I10)')'DW exponent',zeta
+          else
+            write(6,Fmt2//'A,T50,A)')'DW exponent','infinity'
+          end if
         end if
 
         if (Hzero.ne.'STANDARD') then
