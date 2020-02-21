@@ -166,9 +166,9 @@ include:
           sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
         fi
         ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        pymolcas verify --status --fromfile fl
+        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
-        pymolcas verify --status ${tests}
+        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
       fi
     # special post-script that may be needed in some installations
     # (not using after_script because it would be overwritten)
