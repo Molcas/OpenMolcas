@@ -327,9 +327,8 @@ Keywords
   for which equal weights are assigned to all states and thus XDW-CASPT2
   is exactly equivalent to XMS-CASPT2.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
-              %%Keyword: DWMS <basic> GUI:list
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INT" LEVEL="BASIC">
+              %%Keyword: DWMS <basic> GUI:number
               <HELP>
               Enter an integer value specifying the exponent zeta used to
               compute the weights. A negative value corresponds to taking
