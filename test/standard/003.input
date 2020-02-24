@@ -81,6 +81,38 @@ Title
 MAXITER
  25
 IPEA
+ 0.00
+XMultistate
+ 3 1 2 3
+DWMS
+ 50
+CONVergence
+ 1.0D-9
+PROPerties
+End of input
+*-------------------------------------------------------------------------------
+ &CASPT2 &END
+Title
+ Ge
+MAXITER
+ 25
+IPEA
+ 0.00
+XMultistate
+ 3 1 2 3
+DWMS
+ -1
+CONVergence
+ 1.0D-9
+PROPerties
+End of input
+*-------------------------------------------------------------------------------
+ &CASPT2 &END
+Title
+ Ge
+MAXITER
+ 25
+IPEA
  0.25
 Multistate
  3 1 2 3
@@ -127,6 +159,38 @@ IPEA
  0.00
 XMultistate
  6 1 2 3 4 5 6
+CONVergence
+ 1.0D-9
+PROPerties
+End of input
+*-------------------------------------------------------------------------------
+ &CASPT2 &END
+Title
+ Ge
+MAXITER
+ 25
+IPEA
+ 0.00
+XMultistate
+ 6 1 2 3 4 5 6
+DWMS
+ 50
+CONVergence
+ 1.0D-9
+PROPerties
+End of input
+*-------------------------------------------------------------------------------
+ &CASPT2 &END
+Title
+ Ge
+MAXITER
+ 25
+IPEA
+ 0.00
+XMultistate
+ 6 1 2 3 4 5 6
+DWMS
+ -1
 CONVergence
  1.0D-9
 PROPerties
