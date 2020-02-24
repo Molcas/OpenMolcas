@@ -13,10 +13,11 @@
       Subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian)
       Implicit Real*8 (a-h,o-z)
       Real*8 Array_l(nInter), Hessian(nInter,nInter)
+      Real*8 H_min
 *     Real*8 l_max
 *
-      Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
-      Write (6,*) 'BaseLine=',BaseLine
+*     Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
+*     Write (6,*) 'BaseLine=',BaseLine
 *
 *     Gives a Kriging Hessian for a single point of Kriging with
 *     a diagonal which is identical to the diagonal values of
@@ -24,20 +25,19 @@
 *
 *     l_max=80.0D0
 *     l_max=100.0D0
+      H_min=0.025D0
       Do i = 1, nInter
 *
 *        Make sure that the characteristic length is not too long.
 *
-         Hss=Max(Abs(Hessian(i,i)),0.050D0)
-         Hss=Max(Abs(Hessian(i,i)),0.010D0)
-         Hss=Max(Abs(Hessian(i,i)),0.020D0)
-         Hss=Max(Abs(Hessian(i,i)),0.025D0)
+         Hss=Max(Abs(Hessian(i,i)),H_min)
+         Hessian(i,i)=Hss
          Array_l(i)=Sqrt((5.0D0*BaseLine)/(3.0D0*Hss))
 *        Hss=Abs(Hessian(i,i))
 *        Array_l(i)=Min(l_max,Sqrt((5.0D0*BaseLine)/(3.0D0*Hss)))
 *
       End Do
-      Call RecPrt('Array_l',' ',Array_l,1,nInter)
+*     Call RecPrt('Array_l',' ',Array_l,1,nInter)
 *
       Return
       End

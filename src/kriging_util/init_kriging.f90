@@ -26,7 +26,7 @@ Subroutine Init_Kriging()
   blAI = .False.
   mblAI = .False.
   blaAI = .True.
-  blavAI=0.75D0
+  blavAI=10.0D0
   set_l=.False.
 !
   Return

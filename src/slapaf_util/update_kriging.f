@@ -275,14 +275,14 @@
 *     At this point let us modify the value of the trend function such
 *     that it is proportional to the norm of the gradient
 *
-      blavai_orig=blavai
-      blavai_min=1.0D-2*blavai
-      blavai_min=0.01D0
-      blavai_max=blavai_orig
-      blavai_max=10.0D0
-      Write (6,*) 'blavai_orig=',blavai_orig
-      Write (6,*) 'blavai_min=',blavai_min
-      Write (6,*) 'blavai_max=',blavai_max
+c     blavai_orig=blavai
+c     blavai_min=1.0D-2*blavai
+c     blavai_min=0.01D0
+c     blavai_max=blavai_orig
+c     blavai_max=10.0D0
+c     Write (6,*) 'blavai_orig=',blavai_orig
+c     Write (6,*) 'blavai_min=',blavai_min
+c     Write (6,*) 'blavai_max=',blavai_max
 *     Do iRaw = iter-nRaw+1, iter-1
 *        Factor= 1.0D-1
 *        Write (*,*) GNrm(iRaw+1)/GNrm(iRaw)
@@ -294,10 +294,10 @@
 *    &          Max(blavai_min,
 *    &              blavai*fact))
 *     End Do
-      blavai=Max(blavai_orig*GNrm(iter)/0.000050D0,blavai_min)
-      blavai=Min(blavai,blavai_max)
-      Write (6,*) 'blavai=',blavai
-      Write (6,*)
+c     blavai=Max(blavai_orig*GNrm(iter)/0.000050D0,blavai_min)
+c     blavai=Min(blavai,blavai_max)
+c     Write (6,*) 'blavai=',blavai
+c     Write (6,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -373,10 +373,10 @@
 *     variance threshold.
 *
 *
-      Beta_Disp_Tmp=Beta_Disp
+c     Beta_Disp_Tmp=Beta_Disp
       Beta_Disp_Min=1.0D-10
 *     Beta_Disp_Min=Beta_Disp*1.0D-3
-      mRaw=Min(5,nRaw)
+c     mRaw=Min(5,nRaw)
       Do i = Max(1,iter-mRaw), iter-1
 #ifdef _OLD_
          If (GNrm(i+1).gt.Five*GNrm(i)) Then
@@ -417,7 +417,7 @@ c           Beta_Disp_Tmp=Min(Beta_Disp,
 c    &                    Max(Beta_Disp_Min,
 c    &                        Beta_Disp_Tmp*fact))
 #endif
-         Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
+c        Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
       End Do
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
@@ -425,13 +425,15 @@ c    &                        Beta_Disp_Tmp*fact))
       Do i = 1, 3*nsAtom
          tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
-      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp_tmp)
-      Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
-      Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
-      Write (6,*) 'Beta_Disp_=',Beta_Disp_
-      Write (6,*) 'Max_Disp_=',1.96D0*Sqrt(variance)
+*     Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp_tmp)
+      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
+*     Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
+*     Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
+*     Write (6,*) 'Beta_Disp_=',Beta_Disp_
+*     Write (6,*) 'Max_Disp_=',1.96D0*Sqrt(variance)
 *
-      Beta_=Beta
+*     Beta_=Beta
+      Beta_=Min(1.0D3*GNrm(iter),Beta)
 *
 #ifdef _RS_RFO_
 *     Switch over to RS-RFO once the gradient is low.
