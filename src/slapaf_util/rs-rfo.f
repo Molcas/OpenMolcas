@@ -56,7 +56,7 @@
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
-      Write (Lu,*) ' Iter   alpha          dqdq      epMax     EigVal'
+      Write (Lu,*) ' Iter   alpha          dqdq    StepMax     EigVal'
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
@@ -64,7 +64,6 @@
       Iter=0
       Iterate=.False.
       Restart=.False.
-*     Thr_RS=1.0D-7
       NumVal=Min(6,nInter)+1
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')

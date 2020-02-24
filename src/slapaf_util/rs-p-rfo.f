@@ -275,7 +275,6 @@
          Call DScal_(nInter,One/(Sqrt(A_RFO)*Work(ipPVec+nInter)),
      &                     Work(ipPStep),1)
          Call DaXpY_(nInter,One,Work(ipPStep),1,dq,1)
-         dqdq_min=DDot_(nInter,Work(ipPStep),1,Work(ipPStep),1)
          dqdq_min=Restriction(q,Work(ipPStep),nInter)
 *        write (Lu,*) 'dqdq_min=',dqdq_min
          EigVal_t=-DDot_(nInter,Work(ipPStep),1,Work(ipPGrad),1) ! Sign
