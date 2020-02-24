@@ -41,7 +41,7 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Logical :: AllXMult = .False.
 !     DWMS      use dynamical weighting to construct Fock
       Logical :: DWMS = .False.
-      Integer :: ZETA = 0
+      Integer :: ZETA = 50
 !     EFOC      uses rotated E_0 energies with DWMS
       Logical :: EFOC = .False.
 !     LROO      compute only a single root, mutually exclusive
