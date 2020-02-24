@@ -181,7 +181,7 @@ include:
     - |
       cp -L build/test/result result
       cp -Lr build/test/failed failed
-      cp -L build/test/keylist keylist
+      cp -L build/test/tmp/keylist keylist
   artifacts:
     paths:
       - result
