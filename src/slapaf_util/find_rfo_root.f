@@ -110,9 +110,7 @@
           RETURN
         END IF
         new=xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
-        IF ((new.LE.xx1).OR.(new.GE.xx2)) Then
-           new=Half*(xx1+xx2)
-        End If
+        IF ((new.LE.xx1).OR.(new.GE.xx2)) new=Half*(xx1+xx2)
         nnew=new
 *
 *       Define a quadratic fitting for the 3 points
@@ -137,9 +135,7 @@
           END IF
         END IF
 *       Last check: make sure the new point is in the correct interval
-        IF ((nnew.GT.xx1).AND.(nnew.LT.xx2)) Then
-           new=nnew
-        End If
+        IF ((nnew.GT.xx1).AND.(nnew.LT.xx2)) new=nnew
 *
 *       Update the end points
         x1=xx1

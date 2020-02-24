@@ -23,7 +23,6 @@
       Lu=6
       iRout=21
       iPrint=nPrint(iRout)
-      iPrint=6
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
       Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
@@ -109,9 +108,9 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
          Close (LuTmp)
 *
       Else If (iprint.gt.5) Then
-
+*
         Call Print_qEVec2(nH,ipEVal,Work(ipEVec))
-
+*
       End If
 *
       Call GetMem('EVec','Free','Real',ipEVec,nH*nH)

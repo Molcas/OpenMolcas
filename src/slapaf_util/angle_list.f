@@ -337,8 +337,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*              We like to avoild the problem with angles that have the
-*              value Pi. We introduce "linear" angles under two o
+*              We'd like to avoid the problem with angles that have the
+*              value Pi. We introduce "linear" angles under two
 *              conditions.
 *              (1) the reference angle is within delta of Pi.
 *              (2) the actual angle is within 1.0D-11 of Pi.(?)

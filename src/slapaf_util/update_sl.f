@@ -28,7 +28,7 @@
 *                                                                      *
 *    Input:                                                            *
 *      iter           : iteration counter                              *
-*      MaxItr         : max number of iteration                        *
+*      MaxItr         : max number of iterations                       *
 *      NmIter         : number of iteration in numerical approach      *
 *      iInt           : number of internal coordinates to vary         *
 *      nFix           : number of frozen internal coordinates          *

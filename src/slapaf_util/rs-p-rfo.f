@@ -125,7 +125,7 @@
       If (iPrint.ge.6) Then
          Write (Lu,*)
          Write (Lu,*) 'RS-P-RF Optimization'
-         Write (Lu,*) ' Iter   alpha   Sqrt(dqdq) StepMax'//
+         Write (Lu,*) ' Iter   alpha        dqdq  StepMax'//
      &                '   EigVal_r  EigVal_t'
       End If
 *
@@ -294,7 +294,7 @@
       dqdq=Restriction(q,dq,nInter)
 *
       If (iPrint.ge.6)
-     &  Write (Lu,'(I5,5F10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,
+     &  Write (Lu,'(I5,5F10.5)') Iter,A_RFO,dqdq,StepMax,
      &                           EigVal_r,EigVal_t
 *                                                                      *
 ************************************************************************
@@ -303,7 +303,7 @@
 *
          If (.Not.Iterate) Then
             A_RFO_long=A_RFO
-            dqdq_long=Sqrt(dqdq)
+            dqdq_long=dqdq
             A_RFO_short=Zero
             dqdq_short=dqdq_long+One
          End If
@@ -313,18 +313,18 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If (Iter.eq.1.and.dqdq.gt.StepMax**2) Iterate=.True.
+         If (Iter.eq.1.and.dqdq.gt.StepMax) Iterate=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        Procedure if the step length is not equal to the trust radius
 *
-         If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
+         If (Iterate.and.Abs(StepMax-dqdq).gt.Thr) Then
             Step_Trunc='*'
-*           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+*           Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
-     &                         A_RFO,Sqrt(dqdq),StepMax)
+     &                         A_RFO,dqdq,StepMax)
             If (Iter.gt.IterMx) Then
                Write (Lu,*) ' Too many iterations in RF'
                Go To 997

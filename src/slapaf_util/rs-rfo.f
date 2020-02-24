@@ -185,7 +185,7 @@
 *           Write (6,*) 'iRoot=',iRoot
 *           Write (6,*) 'ZZ=',ZZ
 *           Write (6,*) 'Fact=',Fact
-*           Write (6,*) 'dqdq=',Sqrt(DDot_(nInter,dq,1,dq,1))
+*           Write (6,*) 'dqdq=',Restriction(q,dq,nInter)
 #endif
 *
 *        Compute lambda_i according to Eq. (8a)
@@ -198,8 +198,8 @@
          dqdq=Restriction(q,dq,nInter)
 #ifdef _DEBUG_
          Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
-         Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
-         Write (Lu,*) 'Thr_RS=',Thr_RS
+*        Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
+*        Write (Lu,*) 'Thr_RS=',Thr_RS
 #endif
 *                                                                      *
 ************************************************************************
@@ -280,10 +280,10 @@
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
       Call mma_deallocate(Matrix)
-*     Write (6,*) 'dqdq=',dqdq,dqdq
+*     Write (6,*) 'dqdq=',dqdq,dqdq**2
 *     Write (6,*) 'StepMax=',StepMax,StepMax**2
 *     Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
-*     Write (Lu,*) dqdq.lt.StepMax**2
+*     Write (Lu,*) dqdq.lt.StepMax
 *
       Return
       End

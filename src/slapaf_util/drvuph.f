@@ -35,6 +35,7 @@
       End If
       If (nRowH.GT.0) iSt=Max(iSt,nRowH+2)
       If (jPrint.ge.99) Then
+         Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
          Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
       End If
 *                                                                      *
