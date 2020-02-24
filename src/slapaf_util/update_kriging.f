@@ -30,7 +30,7 @@
 *                                                                      *
 *    (see update_sl)                                                   *
 ************************************************************************
-      Use kriging_mod, only: miAI, meAI, blavAI, set_l, variance
+      Use kriging_mod, only: miAI, meAI, blavAI, set_l !, variance
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -377,34 +377,34 @@ c     Beta_Disp_Tmp=Beta_Disp
       Beta_Disp_Min=1.0D-10
 *     Beta_Disp_Min=Beta_Disp*1.0D-3
 c     mRaw=Min(5,nRaw)
-      Do i = Max(1,iter-mRaw), iter-1
-#ifdef _OLD_
-         If (GNrm(i+1).gt.Five*GNrm(i)) Then
-            Write (6,*) 'Reduce1'
-            fact=1.0D-2
-            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-         Else If (GNrm(i+1).gt.Two*GNrm(i)) Then
-            Write (6,*) 'Reduce2'
-            fact=1.0D-1
-            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-         Else If (GNrm(i+1).gt.GNrm(i)) Then
-            Write (6,*) 'Reduce3'
-            fact=5.0D-1
-            Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-         Else If (Five*GNrm(i+1).lt.GNrm(i)) Then
-            Write (6,*) 'Increase1'
-            fact=1.0D1
-            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-         Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
-            Write (6,*) 'Increase2'
-            fact=5.0D0
-            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-         Else If (GNrm(i+1).lt.GNrm(i)) Then
-            Write (6,*) 'Increase2'
-            fact=2.5D0
-            Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-         End If
-#else
+c     Do i = Max(1,iter-mRaw), iter-1
+cifdef _OLD_
+c        If (GNrm(i+1).gt.Five*GNrm(i)) Then
+c           Write (6,*) 'Reduce1'
+c           fact=1.0D-2
+c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+c        Else If (GNrm(i+1).gt.Two*GNrm(i)) Then
+c           Write (6,*) 'Reduce2'
+c           fact=1.0D-1
+c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+c        Else If (GNrm(i+1).gt.GNrm(i)) Then
+c           Write (6,*) 'Reduce3'
+c           fact=5.0D-1
+c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
+c        Else If (Five*GNrm(i+1).lt.GNrm(i)) Then
+c           Write (6,*) 'Increase1'
+c           fact=1.0D1
+c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+c        Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
+c           Write (6,*) 'Increase2'
+c           fact=5.0D0
+c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+c        Else If (GNrm(i+1).lt.GNrm(i)) Then
+c           Write (6,*) 'Increase2'
+c           fact=2.5D0
+c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
+c        End If
+celse
 c           Factor=-4.0D0
 c           Factor=-2.9D0
 c           Factor=-3.5D0
@@ -416,9 +416,9 @@ c           Write (6,*) 'fact=',fact
 c           Beta_Disp_Tmp=Min(Beta_Disp,
 c    &                    Max(Beta_Disp_Min,
 c    &                        Beta_Disp_Tmp*fact))
-#endif
+cendif
 c        Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
-      End Do
+c     End Do
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
       tmp=0.0D0
