@@ -30,10 +30,3 @@ doc/doxygen/html
 /tinker*/
 #Python
 *__pycache__*
-#build
-build
-test/failed
-test/log
-test/tmp
-test/result
-test/timing.data
