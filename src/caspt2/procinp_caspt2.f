@@ -187,13 +187,22 @@ C     really parallel or not.
      &                          'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
+* Either the states were specified manually or the keyword "all"
+* was used, so first we check the keyword all
+        If (Input%AllMult) Then
+          NSTATE = NROOTS
+          MSTATE = IROOT
+          NGROUP = NSTATE
+          NGROUPSTATE(1:NGROUP)=1
+        Else
 * Save the states that need to be computed
-        Do I=1,Input%nMultState
-          MSTATE(I) = Input%MultGroup%State(I)
-          NSTATE = NSTATE + 1
-        End Do
-        NGROUP = Input%nMultState
-        NGROUPSTATE(1:NGROUP) = 1
+          Do I=1,Input%nMultState
+            MSTATE(I) = Input%MultGroup%State(I)
+            NSTATE = NSTATE + 1
+          End Do
+          NGROUP = Input%nMultState
+          NGROUPSTATE(1:NGROUP) = 1
+        End If
       End If
       IOFF=NSTATE
 * This is the case for XMS-CASPT2 and XDW-CASPT2
@@ -209,20 +218,34 @@ C     really parallel or not.
 * have as many groups as states. Nevertheless, it makes more sense
 * from the user point of view to ask for it through XMUL and DWMS
         if (Input%DWMS) then
-          do I=1,Input%nXMulState
-            MSTATE(I) = Input%XMulGroup%State(I)
-            NSTATE = NSTATE + 1
-          end do
-          NGROUP = Input%nXMulState
-          NGROUPSTATE(1:NGROUP) = 1
+          if (Input%AllXMult) Then
+            NSTATE = NROOTS
+            MSTATE = IROOT
+            NGROUP = NSTATE
+            NGROUPSTATE(1:NGROUP)=1
+          else
+            do I=1,Input%nXMulState
+              MSTATE(I) = Input%XMulGroup%State(I)
+              NSTATE = NSTATE + 1
+            end do
+            NGROUP = Input%nXMulState
+            NGROUPSTATE(1:NGROUP) = 1
+          end if
 * This is a XMS-CASPT2: one group with all the states
         else
-          NGROUP = 1
-          NGROUPSTATE(NGROUP) = Input%nXMulState
-          do I=1,Input%nXMulState
-            MSTATE(I) = Input%XMulGroup%State(I)
-            NSTATE = NSTATE + 1
-          end Do
+          if (Input%AllXMult) Then
+            NSTATE = NROOTS
+            MSTATE = IROOT
+            NGROUP=1
+            NGROUPSTATE(1)=NSTATE
+          else
+            NGROUP = 1
+            NGROUPSTATE(NGROUP) = Input%nXMulState
+            do I=1,Input%nXMulState
+              MSTATE(I) = Input%XMulGroup%State(I)
+              NSTATE = NSTATE + 1
+            end do
+          end if
         end if
       End If
 * After parsing mult or xmult, check that no two equal states where
@@ -251,19 +274,13 @@ C     really parallel or not.
         NGROUP=1
         NGROUPSTATE(1)=1
       End If
-* If still nothing was selected, we should default to computing all the
+* If still nothing was selected we should default to compute all the
 * roots that were part of the rasscf orbital optimization.
-      IF(NSTATE.EQ.0) THEN
+      IF (NSTATE.EQ.0) THEN
         NSTATE=NROOTS
         MSTATE=IROOT
-        If (Input%AllMult.or.(Input%AllXMult.and.Input%DWMS)) Then
-          NGROUP=NSTATE
-          NGROUPSTATE(1:NGROUP)=1
-* Note that this case accounts also for Input%AllXMult !!
-        Else
-          NGROUP=1
-          NGROUPSTATE(1)=NSTATE
-        End If
+        NGROUP=NSTATE
+        NGROUPSTATE(1:NGROUP)=1
       END IF
 * Find the group number for OnlyRoot
       If (NLYROOT.ne.0) Then
