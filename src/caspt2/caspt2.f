@@ -83,14 +83,13 @@ C
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
      &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
-      INTEGER I,J
+      INTEGER I
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 * Convergence check
       INTEGER ICONV
 * Relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
-      INTEGER IDISK
 
 * Effective Hamiltonian
       REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:)
