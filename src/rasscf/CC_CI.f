@@ -31,9 +31,9 @@
 
       use generic_CI, only: CI_solver_t, unused
       use index_symmetry, only: one_el_idx, two_el_idx,
-     &    one_el_idx_flatten
+     &    one_el_idx_flatten, two_el_idx_flatten
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,
-     &  assert_, dp
+     &  assert_, dp, CleanMat
 
       implicit none
       save
@@ -239,38 +239,53 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
+        use CI_solver_util, only: dp
         real*8, intent(out) ::
      &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
 
-        integer :: p, q, r, s, pq, pqrs, idx2RDM(4)
 
         if (myrank == 0) then
           call read_2RDM('PSMAT.dat', PSMAT)
           call read_2RDM('PAMAT.dat', PAMAT)
-
-          DMAT(:) = 0.0d0
-          do pqrs = lbound(PSMAT, 1), ubound(PSMAT, 1)
-            idx2RDM = two_el_idx(pqrs, p, q, r, s)
-            if (r == s) then
-              pq = one_el_idx_flatten(p, q)
-              DMAT(pq) = DMAT(pq) + PSMAT(pqrs)
-            end if
-          end do
-          DMAT(:) = DMAT(:) / (nActEl - 1)
-
+          call calc_1RDM(PSMAT, DMAT)
+          call cleanMat(DMAT)
         end if
+! No spin resolved RDMs available at the moment.
         D1S_MO(:) = 0.0
 ! Could be changed into non blocking BCast
 #ifdef _MOLCAS_MPP_
-        call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
-     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
-        call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
-     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
-        call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
-     &                 MPI_REAL8, 0, MPI_COMM_WORLD, error)
+        if (is_real_par()) then
+            call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
+     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+            call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
+     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+            call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
+     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+        end if
 #endif
       end subroutine read_CC_RDM
+
+      subroutine calc_1RDM(PSMAT, DMAT)
+        real*8, intent(in) :: PSMAT(:)
+        real*8, intent(out) :: DMAT(:)
+
+        integer :: i
+        integer :: pq, p, q, r
+
+        call assert_(size(PSMAT) == triangular_number(size(DMAT)),
+     &      'Dimension mismatch PSMAT, DMAT')
+
+        DMAT(:) = 0.0d0
+        do pq = lbound(DMAT, 1), ubound(DMAT, 1)
+          call one_el_idx(pq, p, q)
+          do r = 1, inv_triang_number(size(DMAT))
+            DMAT(pq) = DMAT(pq) + PSMAT(two_el_idx_flatten(p, q, r, r))
+          end do
+        end do
+        DMAT(:) = DMAT(:) * 2.0_dp / real(nActEl - 1, kind=dp)
+
+      end subroutine
 
       subroutine read_2RDM(path, RDM_2)
         character(*), intent(in) :: path
@@ -306,5 +321,29 @@
         integer :: res
         res = nint(-1.d0/2.d0 + sqrt(1.d0/4.d0 + 2.d0*real(n, kind=dp)))
       end function
+
+
+      subroutine write_RDM(RDM, i_unit)
+        use CI_solver_util, only: assert_
+        implicit none
+        real*8, intent(in) :: RDM(:)
+        integer, intent(in) :: i_unit
+
+        integer :: io_err, curr_line, i, n_lines, j
+
+        n_lines = inv_triang_number(size(RDM))
+
+        i = 1
+        do curr_line = 1, n_lines
+          do j = i, i + curr_line - 1
+            write(i_unit, '(E25.15)', advance='no', iostat=io_err)
+     &          RDM(j)
+            call assert_(io_err == 0, 'Error on writing RDM.')
+          end do
+          write(i_unit, *)
+          i = i + curr_line
+        end do
+
+      end subroutine
 
       end module CC_CI_mod
