@@ -2087,4 +2087,5 @@ C Close the one-electron integral file:
       Call qExit(ROUTINE)
 
       return
-      End
+
+      end subroutine rasscf
