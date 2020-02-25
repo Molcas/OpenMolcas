@@ -70,7 +70,6 @@
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
 *#define _OVERSHOOT_
 #ifdef _OVERSHOOT_
-      Logical Found
       Real*8, Allocatable:: Step_k(:,:)
 #endif
 *
@@ -613,46 +612,36 @@ c     End Do
          dsds=dDot_(nInter,Step_k(1,1),1,Step_k(1,2),1)
          dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,1),1,Step_k(1,1),1))
          dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,2),1,Step_k(1,2),1))
-*        Write(6,*) 'dsds = ',dsds
+         Write(6,*) 'dsds = ',dsds
       Else
          dsds=Zero
       End If
-      Call qpg_dScalar('OS_Factor',Found)
-      If (Found) Then
-         Call get_dScalar('OS_Factor',OS_Factor)
-      Else
-         OS_Factor=One
-      End If
-*     Write(6,*) 'OS_Factor: ',OS_Factor
-      Phi=(One+Sqrt(Five))/Two
-      If ((dsds.gt.0.9D0).and.
-     &    (FAbs_ini.lt.1.0D1*ThrGrd).and.
-     &    (GrdMx_ini.lt.1.0D1*ThrGrd*OneHalf)) Then
-       If (Step_Trunc.eq.' ') Then
-         OS_Factor=OS_Factor*Phi
-         Call dAXpY_(nInter,OS_Factor-One,Step_k(1,2),1,
+      dsds_min=0.9D0
+      If ((dsds.gt.dsds_min).And.(Step_Trunc.eq.' ')) Then
+        Do Max_OS=9,0,-1
+         OS_Factor=Max_OS*((dsds-dsds_min)/(One-dsds_min))**4
+         Call dCopy_(nInter,qInt_s(1,i),1,qInt_s(1,iterAI),1)
+         Call dAXpY_(nInter,One+OS_Factor,Step_k(1,2),1,
      &                                    qInt_s(1,iterAI),1)
          Call Energy_Kriging(qInt_s(1,iterAI),OS_Energy,nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI),OS_Disp,nInter)
-         If (OS_Disp.gt.E_Disp) Then
-            If (OS_Disp.gt.Beta_Disp) OS_Factor=OS_Factor/Phi
-            Call dAXpY_(nInter,OS_Factor-One,Step_k(1,2),1,
-     &                         Shift_s(1,iterAI-1),1)
+         Write(6,*) 'Max_OS=',Max_OS
+         Write(6,*) OS_Disp,E_Disp,Beta_Disp_
+         If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
+            Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
+     &                                   Shift_s(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
      &                          dMass,Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
      &                          Work(ipCx),U,.True.,iter)
             Energy(iterAI)=OS_Energy
-            If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
-            UpMeth(4:4)='+'
-         Else
-            OS_Factor=One
+            If (Max_OS.gt.0) Then
+               If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
+               UpMeth(4:4)='+'
+            End If
+            Exit
          End If
-       End If
-      Else
-         OS_Factor=One
-      End if
-*     Write(6,*) 'OS_Factor: ',OS_Factor
-      Call put_dScalar('OS_Factor',OS_Factor)
+        End Do
+      End If
       Call mma_deallocate(Step_k)
 #endif
 *                                                                      *
