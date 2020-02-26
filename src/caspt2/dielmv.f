@@ -24,7 +24,7 @@
 
       DO I=1,NUP
         II=NIPWLK*(I-1)
-        SUM=0.0D00
+        SUM=0.0D0
         DO LV1=MIDLEV+1,NLEV,15
           II=II+1
           IC=ICASE(II)
@@ -43,7 +43,7 @@
 C THEN THE LOWER HALF:
       DO I=1,NDWN
         II=NIPWLK*(I-1)
-        SUM=0.0D00
+        SUM=0.0D0
         DO LV1=1,MIDLEV,15
         II=II+1
         IC=JCASE(II)

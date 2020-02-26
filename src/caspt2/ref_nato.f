@@ -77,7 +77,7 @@ C Change back to positive sign.
 C Secondary and deleted orbitals:
         NSD=NB-(NFI+NA)
         IF(NSD.GT.0) THEN
-          CALL DCOPY_(NSD,[0.0D00],0,OCC(IOCC+1),1)
+          CALL DCOPY_(NSD,[0.0D0],0,OCC(IOCC+1),1)
           IOCC=IOCC+NSD
           CALL DCOPY_(NB*NSD,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*NSD

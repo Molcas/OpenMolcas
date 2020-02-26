@@ -787,7 +787,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
           END IF
         END IF
       ELSE
-        IF(FACT.EQ.0.0D00) THEN
+        IF(FACT.EQ.0.0D0) THEN
             CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
@@ -796,7 +796,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
         END IF
       END IF
 #else
-      IF(FACT.EQ.0.0D00) THEN
+      IF(FACT.EQ.0.0D0) THEN
           CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
       ELSE
         IF(FACT.NE.1.0D00) THEN

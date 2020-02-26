@@ -99,7 +99,7 @@ c Print new orbitals. First, form array of orbital energies.
       I2=1
       DO ISYM=1,NSYM
         IF(NFRO(ISYM).GT.0) THEN
-          CALL DCOPY_(NFRO(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NFRO(ISYM),[0.0D0],0,WORK(LORBE-1+I2),1)
           I2=I2+NFRO(ISYM)
         END IF
         IF(NORB(ISYM).GT.0) THEN
@@ -108,7 +108,7 @@ c Print new orbitals. First, form array of orbital energies.
           I2=I2+NORB(ISYM)
         END IF
         IF(NDEL(ISYM).GT.0) THEN
-          CALL DCOPY_(NDEL(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NDEL(ISYM),[0.0D0],0,WORK(LORBE-1+I2),1)
           I2=I2+NDEL(ISYM)
         END IF
       END DO
