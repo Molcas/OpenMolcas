@@ -242,7 +242,7 @@ Put all orbitals in active space:
             raise ValueError("Self and Other have to be same symmetry group "
                              "with the same number of orbitals per irrep")
         new_other = other.copy()
-        # Use a shorter function name
+        # Defines a shorter function name
         f = get_kabsch_transformation
         for irrep, indices in enumerate(blocks):
             for GAS_space in indices:

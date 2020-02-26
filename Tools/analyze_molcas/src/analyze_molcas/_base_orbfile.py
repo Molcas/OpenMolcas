@@ -2,6 +2,7 @@ from typing import Sequence, Tuple, TypeVar, Type, TextIO
 import re
 from os import PathLike
 from enum import Enum
+from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -43,23 +44,27 @@ class _Orbitals(metaclass=ABCMeta):
 
     def copy(self) -> T:
         return self.__class__(
-            orbs=self.orbs.copy(),
-            coeff=self.coeff.copy(),
-            occ=self.occ.copy(),
-            energy=self.energy.copy(),
-            idx=self.idx.copy())
+            orbs=deepcopy(self.orbs),
+            coeff=deepcopy(self.coeff),
+            occ=deepcopy(self.occ),
+            energy=deepcopy(self.energy),
+            idx=deepcopy(self.idx))
+
+    def _write_orbfile_stream(self):
+        yield from self._write_header()
+        yield from self._write_MO_coeff()
+        yield from self._write_MO_occ()
+        yield from self._write_MO_human_occ()
+        yield from self._write_MO_E()
+        yield from self._write_CAS_idx()
 
     def write_orbfile(self, path=None):
+        "Write an orbital file. By default an iterator of lines is returned."
         if path is None:
-            yield from self._write_header()
-            yield from self._write_MO_coeff()
-            yield from self._write_MO_occ()
-            yield from self._write_MO_human_occ()
-            yield from self._write_MO_E()
-            yield from self._write_CAS_idx()
+            return self._write_orbfile_stream()
         else:
             with open(path, 'w') as f:
-                for line in self.write_orbfile():
+                for line in self._write_orbfile_stream():
                     print(line, file=f)
 
     @abstractmethod
