@@ -51,7 +51,7 @@
 * If it is an XMS-CASPT2 calculation, all the weights are equal,
 * i.e. they all are 1/Nstate
         else if (IFXMS.and.(.not.IFDW)) then
-          call dcopy_(Nstate**2,1.0D0/Nstate,0,WORK(LDWGT),1)
+          call dcopy_(Nstate**2,[1.0D0/Nstate],0,WORK(LDWGT),1)
 
 * If it is a normal MS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
 * the weight vectors are the standard unit vectors e_1, e_2, ...

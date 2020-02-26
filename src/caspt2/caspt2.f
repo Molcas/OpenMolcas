@@ -318,12 +318,12 @@ C     transition density matrices.
            CPUTOT=CPUTOT+CPUGIN
            TIOTOT=TIOTOT+TIOGIN
          ELSE
-           CPUGIN=0.D0
-           TIOGIN=0.D0
-           CPUFMB=0.D0
-           TIOFMB=0.D0
-           CPUINT=0.D0
-           TIOINT=0.D0
+           CPUGIN=0.0D0
+           TIOGIN=0.0D0
+           CPUFMB=0.0D0
+           TIOFMB=0.0D0
+           CPUINT=0.0D0
+           TIOINT=0.0D0
          END IF
 
         IF (IPRGLB.GE.VERBOSE) THEN
