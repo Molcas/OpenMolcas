@@ -42,7 +42,7 @@ C OR CLOSED-SHELL SCF CASE.
       CALL DCOPY_(NG2,[0.0D0],0,F2,1)
       CALL DCOPY_(NG3,[0.0D0],0,F3,1)
 
-      ESUM=0.0D00
+      ESUM=0.0D0
       DO I=1,NLEV
         ESUM=ESUM+ETA(I)
       END DO

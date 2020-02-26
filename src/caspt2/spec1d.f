@@ -38,7 +38,7 @@ C the conjugate expression (summing into Y, values from X).
           CALL DAXPY_(NIS,FACT,Y,1,X(ITT),NAS)
   20    CONTINUE
       ELSE
-        CALL DCOPY_(NIS,[0.0D00],0,Y,1)
+        CALL DCOPY_(NIS,[0.0D0],0,Y,1)
         DO 30 ITQ=1,NASHT
           ITT=KTU(ITQ,ITQ)
           CALL DAXPY_(NIS,FACT,X(ITT),NAS,Y,1)

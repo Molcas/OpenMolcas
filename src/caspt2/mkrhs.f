@@ -175,7 +175,7 @@ C VJTI CASE:
 C   Allocate WP,WM
           NV=NVP+NVM
           CALL GETMEM('WB','ALLO','REAL',LW,NV)
-          CALL DCOPY_(NV,[0.0D00],0,WORK(LW),1)
+          CALL DCOPY_(NV,[0.0D0],0,WORK(LW),1)
           LWP=LW
           LWM=LW+NVP
 C   Let  W(tu,i,j)=(it,ju):

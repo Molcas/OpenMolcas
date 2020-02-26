@@ -49,8 +49,8 @@ c arrays G1 and G2.
 
       CALL QENTER('DENS2_RPT2')
 
-      CALL DCOPY_(NG1,[0.0D00],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D00],0,G2,1)
+      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
+      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
 
 C For the special cases, there is no actual CI-routines involved:
 c Special code for hi-spin case:

@@ -116,7 +116,7 @@
 
 * Compute (lowering part of) FIFA operator acting on
 * the ket wave function.
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
         ISU=ISM(LEVU)
@@ -169,7 +169,7 @@
 * We are computing contributions <KET|Etu|BRA> with t<u, then
 * using them as <BRA|Eut|KET>
 * Note that I already have BRA in memory
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
         ISU=ISM(LEVU)

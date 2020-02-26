@@ -45,14 +45,14 @@ C with correct trace.
       WRITE(6,*)' matrix is roughly approximated only.'
       END IF
 
-      COEF1=0.0D00
-      COEF2=0.0D00
+      COEF1=0.0D0
+      COEF2=0.0D0
       NAHOLE=2*NASHT-NACTEL
       DO 101 ICASE=1,13
         NADIFF=NACTD(ICASE)
         IF(NACTEL+NADIFF.LT.0) GOTO 101
         IF(NAHOLE-NADIFF.LT.0) GOTO 101
-        OVL=0.0D00
+        OVL=0.0D0
         DO 100 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.EQ.0) GOTO 100

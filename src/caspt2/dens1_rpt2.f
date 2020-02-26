@@ -48,7 +48,7 @@
 
       CALL QENTER('DENS1_RPT2')
 
-      CALL DCOPY_(NG1,0.0D00,0,G1,1)
+      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 
 * For the special cases, there is no actual CI-routines involved:
 * Special code for hi-spin case:

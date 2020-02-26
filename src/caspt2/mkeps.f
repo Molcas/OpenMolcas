@@ -57,7 +57,7 @@ c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       END DO
 
 C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
-      EASUM=0.0D00
+      EASUM=0.0D0
       DO ISYM=1,NSYM
         NA=NASH(ISYM)
         DO I=1,NA
