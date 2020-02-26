@@ -66,7 +66,7 @@ c One-electron Hamiltonian is in WORK(LHONE)
 
 c Inactive and active Fock matrices:
       CALL DCOPY_(notri,WORK(LHONE),1,WORK(LFIMO),1)
-      CALL DCOPY_(notri,[0.00D00],0,WORK(LFAMO),1)
+      CALL DCOPY_(notri,[0.0D0],0,WORK(LFAMO),1)
       CALL FMAT_CASPT2(WORK(LFIMO),WORK(LFAMO),WORK(LDREF),NBUF,
      &                 WORK(LBUF))
 
