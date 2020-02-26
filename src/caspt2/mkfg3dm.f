@@ -102,9 +102,9 @@ C Put in zeroes. Recognize special cases:
       CALL DCOPY_(NG2,[0.0D0],0,G2,1)
       CALL DCOPY_(NG3,[0.0D0],0,G3,1)
       IF(IFF.ne.0) THEN
-       CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-       CALL DCOPY_(NG2,[0.0D0],0,F2,1)
-       CALL DCOPY_(NG3,[0.0D0],0,F3,1)
+        CALL DCOPY_(NG1,[0.0D0],0,F1,1)
+        CALL DCOPY_(NG2,[0.0D0],0,F2,1)
+        CALL DCOPY_(NG3,[0.0D0],0,F3,1)
       END IF
 
       IF(NACTEL.EQ.0) GOTO 999
