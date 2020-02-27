@@ -34,7 +34,7 @@ C         P.O.B. 124
 C         S-221 00 LUND SWEDEN     TEL: 46-10 82 51
 C     ********** IBM-3090 RELEASE 87 09 14 **********
 C 92-12-04 P-AA M: Changed for use with CASPT2 MOLCAS-3 version.
-C Also transforms 1-el integrals.
+C Also transforms 1-el integrals. -> Actually that part is commented out
 C
 c 98-09-02 J.Hasegawa Modified for non-squared integrals.
       IMPLICIT REAL*8 (A-H,O-Z)

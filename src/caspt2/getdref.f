@@ -8,32 +8,42 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL1(CMO)
+      SUBROUTINE GETDREF(DREF)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "output.fh"
 #include "WrkSpc.fh"
-#include "intgrl.fh"
+! #include "intgrl.fh"
+      REAL*8 DREF(NDREF)
 
-      DIMENSION CMO(NCMO)
-      CALL QENTER('INTCTL1')
+      CALL QENTER('GETDREF')
+* Get active 1-el density matrix GAMMA1 and
+* construct DREF in a tringular storage.
 
-* Compute using conventional integral file:
+* Remember: NDREF=1 if NASHT=0.
+      DREF(1)=0.0d0
+      IF(NASHT.EQ.0) GO TO 99
+* Active 1-el density matrix:
+      CALL GETMEM('LG1','ALLO','REAL',LG1,NG1)
+      CALL PT2_GET(NG1,'GAMMA1',WORK(LG1))
+      DO I=1,NASHT
+        DO J=1,I
+          IJ=(I*(I-1))/2+J
+          DREF(IJ)=WORK(LG1-1+I+NASHT*(J-1))
+        END DO
+      END DO
+      CALL GETMEM('LG1','FREE','REAL',LG1,NG1)
+
       IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' INTCTL1 calling TRACTL...'
+        WRITE(6,*)' GETDREF has constructed DREF.'
         CALL XFLUSH(6)
       END IF
-      Call TRACTL(0)
-      CALL TRAONE(CMO)
-      IF (IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' INTCTL1 back from TRAONE.'
-        CALL XFLUSH(6)
-      END IF
-c Compute FIMO, FAMO, ...  to workspace:
-      CALL FOCK_RPT2
 
-      CALL QEXIT('INTCTL1')
+  99  CONTINUE
+
+      CALL QEXIT('GETDREF')
       RETURN
       END
+

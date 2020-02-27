@@ -787,7 +787,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
           END IF
         END IF
       ELSE
-        IF(FACT.EQ.0.0D00) THEN
+        IF(FACT.EQ.0.0D0) THEN
             CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
@@ -796,7 +796,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
         END IF
       END IF
 #else
-      IF(FACT.EQ.0.0D00) THEN
+      IF(FACT.EQ.0.0D0) THEN
           CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
       ELSE
         IF(FACT.NE.1.0D00) THEN
@@ -1255,17 +1255,19 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,
-     &                DIN(iLo),DIS(jLo),SHIFT,SHIFTI,DOVL)
+          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
+     &                DIS(jLo),SHIFT,SHIFTI,DOVL)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DOVL)
+        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
+     &                   SHIFT,SHIFTI,DOVL)
       END IF
 #else
-      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DOVL)
+      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
+     &                 SHIFT,SHIFTI,DOVL)
 #endif
 
       END
@@ -1314,7 +1316,8 @@ C-SVC: get the local vertical stripes of the lg_W vector
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL)
+      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,
+     &                  SHIFT,SHIFTI,DOVL)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)

@@ -66,7 +66,7 @@ C Change back to positive sign.
         END IF
 C Deleted orbitals:
         IF(ND.GT.0) THEN
-          CALL DCOPY_(ND,[0.0D00],0,OCC(IOCC+1),1)
+          CALL DCOPY_(ND,[0.0D0],0,OCC(IOCC+1),1)
           IOCC=IOCC+ND
           CALL DCOPY_(NB*ND,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*ND

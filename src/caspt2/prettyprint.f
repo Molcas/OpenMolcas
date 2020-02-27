@@ -7,23 +7,29 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE DIAFOP(NGRP,FOPXMS,SCR,EVEC)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FOPXMS(NGRP,NGRP)
-      DIMENSION SCR((NGRP*(NGRP+1))/2)
-      DIMENSION EVEC(NGRP,NGRP)
+      subroutine prettyprint(A,N,M)
+* This subroutine pretty prints the NxM matrix A
+      implicit none
 
-      IJ=0
-      DO I=1,NGRP
-       DO J=1,I
-        IJ=IJ+1
-        SCR(IJ)=FOPXMS(I,J)
-       END DO
-      END DO
-      CALL DCOPY_(NGRP**2,[0.0D0],0,EVEC,1)
-      CALL DCOPY_(NGRP,[1.0D0],0,EVEC,NGRP+1)
-      CALL JACOB(SCR,EVEC,NGRP,NGRP)
+#include "output.fh"
 
-      RETURN
-      END
+* Input arguments
+      integer N,M
+      real*8 A(N,M)
+
+      integer i,j,jStart,jEnd
+
+      do jStart=1,N,5
+        jEnd = min(jStart+4, N)
+        write(6,'(1x,5i16)')(j,j=jStart,jEnd)
+        do i=1,N
+          write(6,'(1x,i3,2x,5f16.8)')i,(A(i,j),j=jStart,jEnd)
+        end do
+        write(6,*)
+      end do
+
+      return
+      end
