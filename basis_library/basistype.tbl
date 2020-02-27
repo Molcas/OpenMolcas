@@ -50,7 +50,6 @@ DEF2-SVP         SEG   AE_   NRH
 DEF2-TZVP        SEG   AE_   NRH
 DEF2-TZVPP       SEG   AE_   NRH
 DZ               SEG   AE_   NRH
-DH               SEG   AE_   NRH
 DZP              SEG   AE_   NRH
 ECP              RAF   NAE   RCP
 ECP.DOLG         SEG   NAE   RCP
