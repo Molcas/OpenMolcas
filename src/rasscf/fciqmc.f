@@ -292,7 +292,7 @@
           if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
+            call MPI_Bcast([newcycle_found], one4, MPI_LOGICAL,
      &                     root4, MPI_COMM_WORLD, error)
           end if
 #endif
@@ -307,7 +307,7 @@
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call MPI_Bcast(NECIen, one4, MPI_REAL8,
+          call MPI_Bcast([NECIen], one4, MPI_REAL8,
      &                   root4, MPI_COMM_WORLD, error)
         end if
 #endif
