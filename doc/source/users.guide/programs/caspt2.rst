@@ -134,7 +134,8 @@ states.
 
 In some cases, where one can expect strong interaction between different CASSCF
 wave functions, it is advisable to use the Multi-State (MS) CASPT2 method
-:cite:`Finley:98b` or the new Extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`.
+:cite:`Finley:98b`, the extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`
+or the new extended dynamically weighted CASPT2 :cite:`Battaglia2020`.
 A second order effective Hamiltonian is constructed for a
 number of CASSCF wave functions obtained in a state-average calculation. This
 introduces interaction matrix elements at second order between the different
@@ -144,12 +145,15 @@ effective zeroth order wave functions, which are linear combinations of the
 original CASSCF states. This method has been used successfully to separate
 artificially mixed valence and Rydberg states and for transition metal compounds
 with low lying excited states of the same symmetry as the ground state.
-In the original multi-state method, perturbed wave functions are computed
-for each of several root functions, separately; these are used to compute
-the effective Hamiltonian. In the newer (XMS) method, the perturbations are
-computed with one common zeroth-order Hamiltonian, and the eigenstates of
+In the original multi-state method,
+perturbed wave functions are computed for each of several root functions,
+separately; these are used to compute the effective Hamiltonian.
+In the XMS-CASPT2 method, the perturbations are computed with one
+common zeroth-order Hamiltonian, and the eigenstates of
 the effective Hamiltonian are written onto the :file:`JOBIPH` file rather than used
 to generate a new :file:`JOBMIX` file.
+The new XDW-CASPT2 method interpolates between the MS and XMS variants,
+retaining the advantages of both approaches.
 
 It is clear from the discussion above that it is not a "black box" procedure
 to perform CASPT2 calculations on excited states. It is often necessary to
@@ -305,6 +309,31 @@ Keywords
               showing which CASSCF state to use as root state for each.
               Alternatively, enter "all" for all the states included in the CASSCF
               orbital optimization.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DWMS`
+  It constructs the Fock matrices used in the zeroth-order Hamiltonian
+  using dynamically weighted densities. Used in conjunction with
+  :kword:`XMULtistate` it performs a XDW-CASPT2 calculation
+  according to :cite:`Battaglia2020`.
+  It is possible to use this option also with :kword:`MULTistate`, in
+  such case the original CASSCF states are used as inputs for the dynamically
+  weighted densities, rather than the rotated references as in XDW-CASPT2.
+  An integer number for the exponential factor :math:`\zeta` can be specified,
+  if not, the default value of 50 is used. By specifying any negative integer
+  number, the limit :math:`\zeta\to\infty` is taken, resulting in the
+  same weights as in MS-CASPT2. The other limiting case is :math:`\zeta=0`,
+  for which equal weights are assigned to all states and thus XDW-CASPT2
+  is exactly equivalent to XMS-CASPT2.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INT" LEVEL="BASIC">
+              %%Keyword: DWMS <basic> GUI:number
+              <HELP>
+              Enter an integer value specifying the exponent zeta used to
+              compute the weights. A negative value corresponds to taking
+              the limit to infinity, completely avoiding any mixing of
+              the densities.
               </HELP>
               </KEYWORD>
 

@@ -88,6 +88,7 @@ GetOptions ( \%opt,
              "parallel=i",
              "pass",
              "path=s",
+             "postproc=s",
              "tmp=s",
              "quiet",
              "rawlist",
@@ -704,6 +705,10 @@ foreach my $file (@filelist) {
                         }
                         close ERR;
                 }
+                if ($opt{postproc}) {
+                        $ENV{project} = $project;
+                        system("$opt{postproc}");
+                }
                 # clean up
                 unless ($rc or $opt{keep}) {
                         unlink $input, $out, $err, $status;
@@ -820,6 +825,7 @@ options:
   --module MODULE  filter test files containing MODULE
   --pass           ignore checkfile failures
   --path PATH      run with PATH as temporary directory
+  --postproc CMD   postprocessing command to run before cleaning up the work directory
   --tmp TMP        run with TMP as parent scratch directory
   --quiet          do not print any messages to the screen
   --rawlist        only list matching tests (as a list of input files)
