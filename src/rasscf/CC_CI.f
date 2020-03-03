@@ -38,7 +38,7 @@
       implicit none
       save
       private
-      public :: Do_CC_CI, CC_CI_solver_t
+      public :: Do_CC_CI, CC_CI_solver_t, write_RDM
       logical :: Do_CC_CI = .false.
 #include "para_info.fh"
       interface
