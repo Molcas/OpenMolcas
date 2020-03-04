@@ -834,7 +834,11 @@ class Molcas_wrapper(object):
       set_utf8('MOLCAS_CURRENT_PROGRAM', name.lower())
       self._set_threads()
       self.write_environment()
-      self._current_module = Molcas_module(self, name, inp)
+      try:
+        self._current_module = Molcas_module(self, name, inp)
+      except:
+        self.rc = '_RC_NOT_AVAILABLE_'
+        return self.rc
       rc = self._current_module.run()
       rcname = ''
       if (rc is not None):
