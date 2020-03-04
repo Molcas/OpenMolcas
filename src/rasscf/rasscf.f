@@ -102,7 +102,9 @@
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive, l_casdft
       Logical IfOpened
+#ifdef _DMRG_
       Logical Do_ESPF
+#endif
 
 * --------- Cholesky stuff:
       Integer ALGO
