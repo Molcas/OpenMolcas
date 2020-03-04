@@ -16,6 +16,8 @@ rc=0 Happy landing!
 
 rc=1 The calculation has been interrupted
 
+rc=36 Requested module not available
+
 rc=64 Happy landing and iterate
 
 rc=65 Happy landing, but additional module(s) requested
