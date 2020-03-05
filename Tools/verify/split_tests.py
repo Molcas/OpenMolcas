@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2019, Ignacio Fdez Galván                              *
+# Copyright (C) 2019, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #
 # Split a list of tests in sets taking roughly the same running time

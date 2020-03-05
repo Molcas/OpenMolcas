@@ -66,7 +66,7 @@ c One-electron Hamiltonian is in WORK(LHONE)
 
 c Inactive and active Fock matrices:
       CALL DCOPY_(notri,WORK(LHONE),1,WORK(LFIMO),1)
-      CALL DCOPY_(notri,[0.00D00],0,WORK(LFAMO),1)
+      CALL DCOPY_(notri,[0.0D0],0,WORK(LFAMO),1)
       CALL FMAT_CASPT2(WORK(LFIMO),WORK(LFAMO),WORK(LDREF),NBUF,
      &                 WORK(LBUF))
 
@@ -114,15 +114,15 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
 C This is never used anywhere, and it is actually
 C wrong in XMS, since the DREF used is not the average
 C density.
-      EASUM=0.0D00
-      DO ISYM=1,NSYM
-        NA=NASH(ISYM)
-        DO I=1,NA
-          ITOT=NAES(ISYM)+I
-          ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
-        END DO
-      END DO
+      ! EASUM=0.0D0
+      ! DO ISYM=1,NSYM
+      !   NA=NASH(ISYM)
+      !   DO I=1,NA
+      !     ITOT=NAES(ISYM)+I
+      !     ID=(ITOT*(ITOT+1))/2
+      !     EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
+      !   END DO
+      ! END DO
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
