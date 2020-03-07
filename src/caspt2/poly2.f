@@ -18,9 +18,9 @@
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
       IMPLICIT NONE
-C  PER-AAKE MALMQUIST, 92-12-07
-C THIS PROGRAM CALCULATES 1-EL AND 2-EL
-C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
+* PER-AAKE MALMQUIST, 92-12-07
+* THIS PROGRAM CALCULATES 1-EL AND 2-EL
+* DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
@@ -78,17 +78,17 @@ C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
 #endif
       END IF
 
-C REINITIALIZE USE OF DMAT.
-C The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
-C CLAB10 replaces older field called LABEL.
+* REINITIALIZE USE OF DMAT.
+* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
+* CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
         IADR10(I,2)=0
         CLAB10(I)='   EMPTY'
       END DO
       IADR10(1,1)=0
-C HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
-C ARRAY ON LUDMAT AND UPDATE THE TOC.
+* HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
+* ARRAY ON LUDMAT AND UPDATE THE TOC.
       IF(NLEV.GT.0) THEN
         CALL PT2_PUT(NG1,' GAMMA1',WORK(LG1TMP))
         CALL PT2_PUT(NG2,' GAMMA2',WORK(LG2TMP))

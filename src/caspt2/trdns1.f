@@ -61,7 +61,7 @@ C Transform to standard representation, covariant form.
       IMLTOP=1
       IF(NWTI.EQ.0) GOTO 110
       CALL GETMEM('WTI','ALLO','REAL',LWTI,NWTI)
-      CALL DCOPY_(NWTI,[0.0D00],0,WORK(LWTI),1)
+      CALL DCOPY_(NWTI,[0.0D0],0,WORK(LWTI),1)
       ICASE=1
       IWOFF=0
       DO 100 ISYM=1,NSYM
@@ -100,7 +100,7 @@ C Transform to standard representation, covariant form.
 
       IF(NWAT.EQ.0) GOTO 210
       CALL GETMEM('WAT','ALLO','REAL',LWAT,NWAT)
-      CALL DCOPY_(NWAT,[0.0D00],0,WORK(LWAT),1)
+      CALL DCOPY_(NWAT,[0.0D0],0,WORK(LWAT),1)
       ICASE=4
       IWOFF=0
       DO 200 ISYM=1,NSYM
@@ -139,7 +139,7 @@ C Transform to standard representation, covariant form.
 
       IF(NWAI.EQ.0) GOTO 300
       CALL GETMEM('WAI','ALLO','REAL',LWAI,NWAI)
-      CALL DCOPY_(NWAI,[0.0D00],0,WORK(LWAI),1)
+      CALL DCOPY_(NWAI,[0.0D0],0,WORK(LWAI),1)
       ICASE=5
       ISYM=1
       IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 300

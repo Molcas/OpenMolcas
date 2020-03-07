@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2001-2005, Valera Veryazov                             *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine TransTbl(Filename)
 c
@@ -328,10 +329,12 @@ c
 c       print *,'DEBUG=',LineComp
           tmp=LineComp(2:5)
           i1=index(BasTypeCon,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') BasisTypes(1)=-1
-          i1=i1/4+1
-          if(BasisTypes(1).eq.0) BasisTypes(1)=i1
-          if(BasisTypes(1).ne.i1) BasisTypes(1)=-1
+          if(i1.eq.0.or.tmp.eq.'UNK:') Then
+             BasisTypes(1)=-1
+          Else
+             i1=i1/4+1
+             BasisTypes(1)=i1
+          End If
 c
           tmp=LineComp(6:9)
           i1=index(BasTypeAll,tmp)
@@ -339,29 +342,29 @@ c
              BasisTypes(2)=-1
           Else
              i1=i1/4+1
-             if(BasisTypes(2).eq.0) BasisTypes(2)=i1
+             BasisTypes(2)=i1
 c hack to map YES to AE_, and NO_ to NAE
-             if((BasisTypes(2).ne.i1).and.(BasisTypes(2)+2.ne.i1))
-     &           BasisTypes(2)=-1
              if(BasisTypes(2).eq.3) BasisTypes(2)=1
              if(BasisTypes(2).eq.4) BasisTypes(2)=2
           EndIf
 c
           tmp=LineComp(10:13)
           i1=index(BasTypeRel,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') BasisTypes(3)=-1
-          i1=i1/4+1
-          if(BasisTypes(3).eq.0) BasisTypes(3)=i1
-          if(BasisTypes(3).ne.i1) BasisTypes(3)=-1
+          if(i1.eq.0.or.tmp.eq.'UNK:') Then
+             BasisTypes(3)=-1
+          Else
+             i1=i1/4+1
+             BasisTypes(3)=i1
+          EndIf
 c
           tmp=LineComp(14:17)
           i1=index(BasTypeNuc,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') BasisTypes(4)=-1
-          i1=i1/4+1
-          if(BasisTypes(4).eq.0) BasisTypes(4)=i1
-          if(BasisTypes(4).ne.i1) BasisTypes(4)=-1
-
-
+          if(i1.eq.0.or.tmp.eq.'UNK:') Then
+             BasisTypes(4)=-1
+          Else
+             i1=i1/4+1
+             BasisTypes(4)=i1
+          EndIf
 
        return
       end
