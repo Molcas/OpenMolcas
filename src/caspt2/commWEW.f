@@ -60,7 +60,7 @@ C          CALL DAFILE(LUSBT,2,SMAT,RtoI*NS,IDS)
           CALL DDAFILE(LUSBT,2,SMAT,NS,IDS)
 C Compute TBLK as the covariant representation of vector JVEC, by multiplying
 C with the overlap matrix. Then get rid of the overlap matrix.
-          CALL DCOPY_(NCBLK,[0.0D00],0,TBLK,1)
+          CALL DCOPY_(NCBLK,[0.0D0],0,TBLK,1)
           CALL TRIMUL(NAS,NIS,1.0D00,SMAT,CBLK,NAS,TBLK,NAS)
           CALL MMA_DEALLOCATE(SMAT)
 C Finally, if IVEC not equals JVEC, read in the contravariant block of vector

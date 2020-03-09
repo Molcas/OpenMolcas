@@ -105,6 +105,9 @@
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive, l_casdft
       Logical IfOpened
+#ifdef _DMRG_
+      Logical Do_ESPF
+#endif
 
 * --------- Cholesky stuff:
       Integer ALGO
@@ -640,8 +643,10 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ! DMRGCI and CIOnly.It's enabled only for DMRGCI with QCMaquis
       ! now, (to exclude potential side effects)
       ! but consider extending it to other cases!
+      call DecideOnESPF(Do_ESPF)
+      !write(LF,*) ' |rasscf> DecideOnESPF == ',Do_ESPF
       If (( ITER.EQ.1 ).and.((.not.(DoDMRG.and.(ICIONLY.NE.0))).or.lRf
-     &    .or.domcpdftDMRG))THEN
+     &    .or.domcpdftDMRG.or.Do_ESPF))THEN
 #else
       If ( ITER.EQ.1 ) THEN
 #endif
@@ -985,7 +990,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         End if
       END IF
 ************************************************************************
-*         ^ End First iteration
+*     ^ End First iteration
 ************************************************************************
 *
 * Print header to file containing informations on CI iterations.

@@ -110,7 +110,7 @@
         implicit none
         character(len=*) :: path
         integer, optional, intent(out) :: err
-        integer :: loc_err
+        integer(MOLCAS_C_INT) :: loc_err
         call mkdir_c(trim(path)//C_NULL_CHAR,
      &        int(o'772', MOLCAS_C_INT), loc_err)
         if (present(err)) err = loc_err

@@ -8,11 +8,11 @@
 " For more details see the full text of the license in the file        *
 " LICENSE or in <http://www.gnu.org/licenses/>.                        *
 "                                                                      *
-" Copyright (C) 2013-2016, Ignacio Fdez. Galván                        *
+" Copyright (C) 2013-2016,2020, Ignacio Fdez. Galván                   *
 "***********************************************************************
 " Language:     Molcas output (*.log)
 " Version:      7.9
-" Last Change:  2016 April 22
+" Last Change:  2020 March 4
 " Maintainer:   Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
 
 " Folds can be open and closed with "zo" and "zc"
@@ -65,6 +65,9 @@ syn match molcasEmil "^\s*>\+\s*.*$"
 syn match molcasError "^Non-zero return code.*"
 syn match molcasError "^ *\.\+\n\(^ *\.\.\..*\.\n\)*"
 
+" Return code
+syn match molcasReturn "^\.#\+\.\n\(^\.#.*#\.\n\)*\.#\+\.\n"
+
 " Set colors
 hi link molcasHeader PreProc
 hi link molcasInfo Comment
@@ -74,7 +77,7 @@ hi link molcasResult Number
 hi link molcasEmil Statement
 hi link molcasMessage ToDo
 hi link molcasError Error
-hi link molcasReturn Error
+hi link molcasReturn Identifier
 " Large parts of the output colored only if debugging
 if exists("molcas_output_debug")
   hi link molcasFoldModule Statement

@@ -15,7 +15,6 @@ file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
 file (GLOB data *.DAT)
-message("${data}")
 
 foreach (datafile ${data})
         file (COPY ${datafile} DESTINATION ${EXECUTABLE_OUTPUT_PATH})
