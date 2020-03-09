@@ -14,6 +14,7 @@
 
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
+        implicit none
         private
         public :: make_inp, cleanup
         integer, public ::
@@ -67,7 +68,6 @@
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
-      implicit none
       character(*), intent(in) :: path
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
@@ -172,7 +172,6 @@
       contains
 
         function indent_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           if (indentlevel /= 0) then
             res = str(indentlevel)//'x, '
@@ -182,43 +181,36 @@
         end function
 
         function kw_fmt(value_fmt) result(res)
-          implicit none
           character(*), intent(in) :: value_fmt
           character(:), allocatable :: res
           res = '('//indent_fmt()//', A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('I0')
         end function
 
         function R_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('F0.2')
         end function
 
         function A_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('A')
         end function
 
         subroutine indent()
-          implicit none
           indentlevel = indentlevel + indentstep
         end subroutine
 
         subroutine dedent()
-          implicit none
           indentlevel = indentlevel - indentstep
         end subroutine
       end subroutine make_inp
 
       subroutine cleanup()
-        implicit none
         if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 
