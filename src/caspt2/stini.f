@@ -40,8 +40,15 @@ C     indices
         CALL XFlush(6)
       END IF
 
-* WITH NEW CMOS, TRANSFORM ONE- AND TWO-ELECTRON INTEGRALS.
-* LUSOLV, LUSBT and LUDMAT will be reused in TRACTL.
+* REINITIALIZE USE OF DMAT.
+* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
+* CLAB10 replaces older field called LABEL.
+      DO I=1,64
+        IADR10(I,1)=-1
+        IADR10(I,2)=0
+        CLAB10(I)='   EMPTY'
+      END DO
+      IADR10(1,1)=0
 
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' STINI calling POLY3...'

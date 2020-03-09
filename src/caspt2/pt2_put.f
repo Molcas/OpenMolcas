@@ -34,9 +34,11 @@
         LAB1=LAB(1:8)
       END IF
 
+      ! write(6,*)'PT2_PUT> LAB1 = ',LAB1
 C FIND DISK ADDRESS:
       DO I=1,64
         IF(CLAB10(I).EQ.'   EMPTY') THEN
+          ! write(6,*)'PT2_PUT> found empty slot at = ',I
 C      write(6,*)' PT2_PUT found empty slot at I=',I
           CLAB10(I)=LAB1
           IAD=IADR10(I,1)
@@ -45,6 +47,8 @@ C      write(6,*)' PT2_PUT found empty slot at I=',I
           IF(I.LT.64) IADR10(I+1,1)=IAD
           GOTO 20
         ELSE IF (CLAB10(I).EQ.LAB1) THEN
+          ! write(6,*)'PT2_PUT> found slot with same label at = ',I
+          ! write(6,*)'PT2_PUT> slot size IADR10(I,2) = ',IADR10(I,2)
           IF(NSIZE.GT.IADR10(I,2)) GOTO 98
           IAD=IADR10(I,1)
           IADR10(I,2)=NSIZE
