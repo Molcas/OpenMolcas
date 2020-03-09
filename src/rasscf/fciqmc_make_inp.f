@@ -183,7 +183,7 @@
         function kw_fmt(value_fmt) result(res)
           character(*), intent(in) :: value_fmt
           character(:), allocatable :: res
-          res = '('//indent_fmt()//', A, 1x, '//value_fmt//')'
+          res = '('//indent_fmt()//'A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
