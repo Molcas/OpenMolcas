@@ -31,6 +31,9 @@
 
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 G1(NLEV,NLEV)
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      REAL*8 G2(NLEV,NLEV,NLEV,NLEV)
+#endif
 
       REAL*8 GTU
 
@@ -133,6 +136,19 @@
       CALL GAdSUM (G1,NG1)
 
   99  CONTINUE
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      If (DoCumulant) THEN
+      If(NACTEL.GT.1) Then
+*QP: At this point, only load 2RDM of one state, JSTATE=1
+        Call chemps2_load2pdm( nlev, G2, MSTATE(1) )
+        Call two2onerdm_bis( nlev, NACTEL, G2, G1 )
+      Else
+        write(6,*) "FATAL ERROR: DMRG-CASPT2 with
+     & CHEMPS2 does not work with NACTEL=1"
+      End If
+      End If
+#endif
 
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",A)')

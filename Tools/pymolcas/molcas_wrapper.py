@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2019, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2020, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -98,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.06'
+  version = 'py2.08'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -688,21 +688,33 @@ class Molcas_wrapper(object):
         f = 'stdout'
         open(join(self.scratch, f), 'a').close()
         self.parallel_task(['c', '2', f, self.currdir], force=True)
-      rc_form = re_compile('rc={0}(\s.*)'.format(self.rc_num))
-      try:
-        with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:
-          for line in l:
-            match = rc_form.match(line)
-            if match:
-              print(match.group(1))
-      except:
-        print('')
+      for l in self._final_rc(self.rc_num):
+        print(l)
       if (self.rc_num == -1):
         print('\nAborting...')
     if (self._resources != (0,0,0)):
       print('    Timing: Wall={0:.2f} User={1:.2f} System={2:.2f}'.format(*self._resources))
     if (get_utf8('MOLCAS_KEEP_WORKDIR', default='YES').upper() == 'NO'):
       self.delete_scratch()
+
+  def _final_rc(self, rc):
+    rc_form = re_compile('rc={0}\s(.*)'.format(rc))
+    text = []
+    try:
+      with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:
+        for line in l:
+          match = rc_form.match(line)
+          if match:
+            text.append(match.group(1))
+    except:
+      pass
+    if not text:
+      text.append('Non-zero return code')
+    if text:
+      maxlen = max(len(l) for l in text)
+      line = '.{}.'.format('#'*(maxlen+4))
+      text = ['', line] + ['.# {} #.'.format(l) for l in text] + [line, '']
+    return text
 
   def validate(self):
     import abstract_flow
@@ -822,7 +834,11 @@ class Molcas_wrapper(object):
       set_utf8('MOLCAS_CURRENT_PROGRAM', name.lower())
       self._set_threads()
       self.write_environment()
-      self._current_module = Molcas_module(self, name, inp)
+      try:
+        self._current_module = Molcas_module(self, name, inp)
+      except:
+        self.rc = '_RC_NOT_AVAILABLE_'
+        return self.rc
       rc = self._current_module.run()
       rcname = ''
       if (rc is not None):
