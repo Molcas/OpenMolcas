@@ -40,9 +40,8 @@ C     indices
         CALL XFlush(6)
       END IF
 
-* REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
-* CLAB10 replaces older field called LABEL.
+* Reinitialize labels for saving density matrices on disk.
+* The fields IADR10 and CLAB10 are kept in common from pt2_guga.fh
       DO I=1,64
         IADR10(I,1)=-1
         IADR10(I,2)=0

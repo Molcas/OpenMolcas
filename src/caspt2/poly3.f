@@ -95,10 +95,6 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
 * elements of the G3 and F3
       NG3=NG3MAX
 
-      ! write(6,*)'POLY3> Before MKFG3:'
-      ! write(6,*)'POLY3> NG3MAX = ',NG3MAX
-      ! write(6,*)'POLY3> NG3    = ',NG3
-
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
       IF (.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
@@ -141,10 +137,6 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
       END IF
 
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
-
-      ! write(6,*)'POLY3> After MKFG3:'
-      ! write(6,*)'POLY3> NG3MAX = ',NG3MAX
-      ! write(6,*)'POLY3> NG3    = ',NG3
 
       IF(NLEV.GT.0) THEN
         CALL PT2_PUT(NG1,' GAMMA1',WORK(LG1))
