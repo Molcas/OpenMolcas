@@ -56,6 +56,11 @@
       LUTRI4= 27
       FNTRI5='TEMP05  '
       LUTRI5= 28
+*     files used only within the TwoStep Run of MCLR
+      FnQDAT='QDAT    '  ! some temporary data is stored here
+      LuQDAT= 29
+      FnMOTRA='MOTRA   ' ! this file is exactly the same as TEMP01, but not deleted at the end
+      LuMOTRA=30
 *
       BLine=' '
       State_Sym=1
