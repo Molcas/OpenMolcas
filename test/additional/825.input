@@ -1,0 +1,53 @@
+*-------------------------------------------------------------------------------
+* Molecule: CeF
+* Basis: ano-rcc-vdz
+* Symmetry: C1
+* Features tested: TwoStep approach in MCLR for SA-CASSCF gradient and non-adiabatic coupling
+* Responsible person: Liviu Ungur
+* Comments:
+*-------------------------------------------------------------------------------
+
+>>> FILE CeF.xyz
+2
+
+Ce  0.000000  0.000000  0.000000
+F   0.000000  0.000000  2.000000
+>>> EOF
+>>> COPY CeF.xyz .
+
+&GATEWAY
+  Coord = CeF.xyz
+  Basis = ANO-RCC-VDZ
+  Group = NoSymm
+  NoCD
+
+&SEWARD
+
+&RASSCF
+  RAS2    = 7
+  NActEl  = 1 0 0
+  Charge  = 2
+  CIRoot  = 7 7 1
+
+&MCLR
+  SALA = 1
+  EXPD = 7
+  TWOSTEP=FIRST
+
+
+&MCLR
+  SALA = 1
+  EXPD = 7
+  TWOSTEP=SECOND
+
+&ALSKA
+  ROOT = 1
+
+
+&MCLR
+  NAC = 1 2
+  EXPD = 7
+  TWOSTEP=SECOND
+
+&ALSKA
+  NAC = 1 2
