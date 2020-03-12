@@ -346,7 +346,7 @@ A list of these keywords is given below:
   (TWOstep=SECOND), the files MOTRA and QDAT are read and employed for the computation of the corresponding
   Lagrangian multipliers. This approach allows to reduce the input-output of data to/from disk during such calculations.
 
-  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="TWOS" APPEAR="Two Step CMLR run" KIND="CHOICE LIST" LIST="FIRST,SECOND" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="TWOS" APPEAR="Two Step MCLR run" KIND="CHOICE" LIST="FIRST,SECOND" LEVEL="ADVANCED">
               <HELP>
               Activate the two-step run of MCLR, in connection to the computation of molecular gradients
               and NACs for SA-CASSCF wave function. Takes two values: FIRST or SECOND.
