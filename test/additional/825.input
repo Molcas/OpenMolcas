@@ -24,9 +24,10 @@ F   0.000000  0.000000  2.000000
 &SEWARD
 
 &RASSCF
+  SPIN    = 2
   RAS2    = 7
   NActEl  = 1 0 0
-  Charge  = 2
+  INAC    = 32
   CIRoot  = 7 7 1
 
 &MCLR
