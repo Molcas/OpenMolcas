@@ -79,7 +79,7 @@ Input files
 
 :program:`MCLR` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`ABDATA`,
-:file:`RYSRW`, :file:`JOBIPH`
+:file:`RYSRW`, :file:`JOBIPH`, :file:`QDAT`, :file:`MOTRA`
 (for more information see :numref:`UG:sec:files_list`).
 
 .. _UG\:sec\:mclr_output_files:
@@ -346,13 +346,13 @@ A list of these keywords is given below:
   (TWOstep=SECOND), the files MOTRA and QDAT are read and employed for the computation of the corresponding
   Lagrangian multipliers. This approach allows to reduce the input-output of data to/from disk during such calculations.
 
-  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="TWOS" APPEAR="Two Step CMLR run" KIND="COMPLEX" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="TWOS" APPEAR="Two Step CMLR run" KIND="CHOICE LIST" LIST="FIRST,SECOND" LEVEL="ADVANCED">
               <HELP>
               Activate the two-step run of MCLR, in connection to the computation of molecular gradients
               and NACs for SA-CASSCF wave function. Takes two values: FIRST or SECOND.
               </HELP>
               %%Keyword: TWOS <advanced>
-              It is used to activate the two-step run of :program:`MCLR`, in connection to the computation of
+              It is used to activate the two-step run of MCLR, in connection to the computation of
               molecular gradients / NACs for SA-CASSCF wave function. The keyword takes two values: FIRST or SECOND.
               In the first MCLR run (i.e. TWOStep = FIRST), the MOTRA and QDAT files are generated. In the subsequent MCLR run
               (TWOstep=SECOND), the files MOTRA and QDAT are read and employed for the computation of the corresponding

@@ -476,7 +476,6 @@
       If (Line(1:1).eq.'*' ) Goto 220
       Read(Line,*,Err=998,End=999) StepType
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
-      TwoStep=.true.
       If((StepType(1:4).ne.'FIRS').and.(StepType(1:4).ne.'SECO').and.
      &   (StepType(1:4).ne.'RUN1').and.(StepType(1:4).ne.'RUN2')) Then
          Call WarningMessage(2,'TWOStep: input error!')
@@ -488,6 +487,7 @@
       If (StepType(1:4).eq.'SECO') then
         StepType(1:4)='RUN2'
       End If
+      TwoStep=.true.
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
       Goto 100
 *----------------------------------------------------------------------*
