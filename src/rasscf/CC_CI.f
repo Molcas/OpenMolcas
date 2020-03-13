@@ -270,7 +270,6 @@
         real*8, intent(in) :: PSMAT(:)
         real*8, intent(out) :: DMAT(:)
 
-        integer :: i
         integer :: pq, p, q, r
 
         call assert_(size(PSMAT) == triangular_number(size(DMAT)),
