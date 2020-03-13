@@ -61,7 +61,7 @@
 
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t
-      use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t, write_RDM
+      use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
@@ -1122,13 +1122,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               WORK(LTUVX),IFINAL)
         end if
 
-        associate(PSMAT => work(lpmat : lPMat + nAcpr2 - 1),
-     &            PAMAT => work(lpa : lpa + nAcPr2 - 1))
-            write(6, *) '===== PSMAT'
-            call write_RDM(PSMAT, 6)
-            write(6, *) '===== PAMAT'
-            call write_RDM(PAMAT, 6)
-        end associate
 c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
 c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
