@@ -14,16 +14,18 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       IMPLICIT NONE
 #include "stdalloc.fh"
 #include "mh5.fh"
-      REAL*8, ALLOCATABLE ::    vel(:)
+      REAL*8, ALLOCATABLE ::    vel(:),NHC(:)
       REAL*8              ::    time,dt,e
-      INTEGER             ::    attr_id,i,restart_fileid,natom,nsym
-      Character           ::    tmp*256,sFile*128
+      INTEGER             ::    attr_id,i,restart_fileid,natom,nsym,
+     &                          dset_id,nh(1)
+      Character           ::    tmp*256,sFile*256
       CHARACTER*180       ::    File_H5Res
       LOGICAL             ::    Exist
 
       write(6,'(A)') 'Restarting dynamix from h5 file', file_h5res
 
 C Check the file exists
+      sFile=File_H5Res
       call f_inquire(sFile,Exist)
       if(.not.Exist) then
         call getenvf('MOLCAS_SUBMIT_DIR',tmp)
@@ -35,8 +37,7 @@ C Check the file exists
           endif
         endif
         if(.not.Exist) then
-          Call WarningMessage(2,'File '//
-     &                        sFile//' is not found')
+          Call WarningMessage(2,'File '//trim(sFile)//' is not found')
           call Quit_OnUserError()
         endif
       endif
@@ -75,6 +76,15 @@ C read velocities and save in RunFile
       call mh5_fetch_dset_array_real(restart_fileid,'VELOCITIES',vel)
       call Put_dArray('Velocities',vel,3*natom)
       CALL mma_deallocate(vel)
+
+C read thermostat info and save in RunFile
+      dset_id=mh5_open_dset(restart_fileid,'NOSEHOOVER')
+      call mh5_get_dset_array_dims(dset_id,nh)
+      call mh5_close_dset(dset_id)
+      CALL mma_allocate(NHC,nh(1))
+      call mh5_fetch_dset_array_real(restart_fileid,'NOSEHOOVER',NHC)
+      call Put_dArray('NOSEHOOVER',NHC,nh(1))
+      CALL mma_deallocate(NHC)
 
       call mh5_close_file(restart_fileid)
 

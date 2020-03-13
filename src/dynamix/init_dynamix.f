@@ -46,6 +46,7 @@ C
       THERMO=0
       TEMP=298.15
       VELO=0
+      POUT=0
       iPrint=2
       DT=1.0D1
       TIME=0.0D0

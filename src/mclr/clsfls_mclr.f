@@ -51,6 +51,10 @@
          End If
       End If
       Call DaClos(LuTri1)
+      If(TwoStep) Then
+        Call DaClos(LuQDAT)
+        !Call DaClos(LuMOTRA)
+      End If
 *
 *---  Close the MckInt file or Remove the MCKINT file if SA---------------*
 *     Do not remove file if we are producing data on the MckInt file for

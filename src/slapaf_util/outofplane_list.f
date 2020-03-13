@@ -21,8 +21,7 @@
      &                 nqB)
 ************************************************************************
 *     This is a quick and possibly dirty implementation of the out-    *
-*     of-plane angle. RL, Tokyo june, 2004.                            *
-*                                                                      *
+*     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -58,7 +57,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,19 +101,19 @@
 *     DCBA. To garantee this we limit the pairs to the unique
 *     combinations.
 *
-      Do iBond = 1, nBonds
-         iBondType=iTabBonds(3,iBond)
-         If (iBondType.eq.vdW_Bond) Go To 101
-         If (iBondType.gt.Magic_Bond) Go To 101
+      Do jBond = 1, nBonds
+         jBondType=iTabBonds(3,jBond)
+         If (jBondType.eq.vdW_Bond) Go To 101
+         If (jBondType.gt.Magic_Bond) Go To 101
 *
          Do iCase = 1, 2
 *
             If (iCase.eq.1) Then
-               iAtom_ = iTabBonds(1,iBond)
-               jAtom_ = iTabBonds(2,iBond)
+               iAtom_ = iTabBonds(1,jBond)
+               jAtom_ = iTabBonds(2,jBond)
             Else
-               iAtom_ = iTabBonds(2,iBond)
-               jAtom_ = iTabBonds(1,iBond)
+               iAtom_ = iTabBonds(2,jBond)
+               jAtom_ = iTabBonds(1,jBond)
             End If
             iAtom=iTabAI(1,iAtom_)
             jAtom=iTabAI(1,jAtom_)
@@ -217,7 +216,7 @@
 #endif
                If (kBondType.eq.vdW_Bond) Go To 301
                If (kBondType.gt.Magic_Bond) Go To 301
-               If (kBond.eq.iBond) Go To 301
+               If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
                ik_=nAtoms*(kAtom-1)+iAtom
@@ -247,7 +246,7 @@
                   lBondType=iTabBonds(3,lBond)
                   If (lBondType.eq.vdW_Bond)   Go To 401
                   If (lBondType.gt.Magic_Bond)   Go To 401
-                  If (lBond.eq.iBond)   Go To 401
+                  If (lBond.eq.jBond)   Go To 401
                   If (lBond.eq.kBond)   Go To 401
                   lAtom=iTabAI(1,lAtom_)
 #ifdef _DEBUG_
@@ -466,17 +465,17 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                      *Exp(Alpha*(r0**2-ril2))
                   End If
                   If (f_Const_Ref.lt.f_Const_Min .and.
-     &                iBondtype.ne.Fragments_Bond .and.
+     &                jBondtype.ne.Fragments_Bond .and.
      &                kBondtype.ne.Fragments_Bond .and.
      &                lBondtype.ne.Fragments_Bond) Go To 401
 *
 *---------------- Check that valence angles are above threshold
 *
                   mCent=3
-                  delta = (45.0D0/180.D0)*Pi
-                  If (iBondType.eq.Fragments_Bond .or.
-     &                kBondType.eq.Fragments_Bond .or.
-     &                lBondType.eq.Fragments_Bond) delta=0.0D0
+                  delta0 = (45.0D0/180.D0)*Pi
+*                 If (jBondType.eq.Fragments_Bond .or.
+*    &                kBondType.eq.Fragments_Bond .or.
+*    &                lBondType.eq.Fragments_Bond) delta=0.0D0
 *
 *---------------- 1-4-2
 *
@@ -489,6 +488,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
 #ifdef _DEBUG_
                   Write (6,*) '1-4-2: Fi2=',Fi2
 #endif
+                  delta = delta0
+                  If (jBondType.eq.Fragments_Bond .or.
+     &                kBondType.eq.Fragments_Bond) delta=0.0D0
                   If (Fi2.gt.Pi-delta) Go To 401
                   If (Fi2.lt.delta)    Go To 401
 *
@@ -501,6 +503,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
 #ifdef _DEBUG_
                   Write (6,*) '1-4-3: Fi3=',Fi3
 #endif
+                  delta = delta0
+                  If (jBondType.eq.Fragments_Bond .or.
+     &                lBondType.eq.Fragments_Bond) delta=0.0D0
                   If (Fi3.gt.Pi-delta) Go To 401
                   If (Fi3.lt.delta)    Go To 401
 *
@@ -513,6 +518,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
 #ifdef _DEBUG_
                   Write (6,*) '2-4-3: Fi4=',Fi4
 #endif
+                  delta = delta0
+                  If (kBondType.eq.Fragments_Bond .or.
+     &                lBondType.eq.Fragments_Bond) delta=0.0D0
                   If (Fi4.gt.Pi-delta) Go To 401
                   If (Fi4.lt.delta)    Go To 401
 *
@@ -523,7 +531,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Write (6,*) 'Val=',Val*180.D0/Pi
 #endif
 *
-                  If (Abs(Val).gt.60.D0*(Pi/180.D0))  Go To 401
+                  If (Abs(Val).gt.35.D0*(Pi/180.D0))  Go To 401
 *
                   Call OutofP(A,nCent,Val,Grad,.False.,.False.,
      &                      '        ',Hess,Proc_dB)
@@ -604,7 +612,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                      ijDCR = kDCRT*8 + kDCRR+1
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *
-                     f_Const=Max(f_Const,f_Const_Min)
+*                    f_Const=Max(f_Const,f_Const_Min)
 #ifdef _DEBUG_
                      Write (6,*) 'f_const=',f_const
 #endif
@@ -632,7 +640,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
   201       Continue
          End Do                  ! iCase
   101    Continue
-      End Do                     ! iBond
+      End Do                     ! jBond
 *
       Call QExit ('OutOfPs')
       Return

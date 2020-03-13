@@ -35,7 +35,8 @@
 *
       call setup_MCLR(1)
 *
-      If (iAnd(kPrint,4).eq.4) Write(6,*) 'Transformation of integrals'
+      If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))
+     &    Write(6,*) 'Transformation of integrals'
 *     For the mp2-gradient calculations we want the transformation
 *     routine to produce all integrals of the occupied and virtual
 *     orbitals so we tell it that the whole space is inactive and
@@ -44,7 +45,17 @@
 *-----Use the driver from the CASPT2 code (only none-squared).
 *
 *
+      ! re-direct the transformed integrals to the MOTRA file
+      ! which is preserved at the end of the calculation.
+      ! LuTri1 is deleted.
+      If (TwoStep) Then
+         LuTri1=LuMOTRA
+         FnTri1=FnMOTRA
+         Call DaName_MF_wa(LuQDAT,FnQDAT)
+      End If
+
       Call DaName_MF_wa(LuTri1,FnTri1)
+
       If (newCho) Then
 *
 **       Compute inverse CMO
@@ -103,9 +114,17 @@
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
       iType=3  ! Means that TraCtl is called by MCLR
 
-      if (.not.newCho) Then
+      If ((.not.newCho).and.(StepType.ne.'RUN2')) Then
         Call TraCtl_Drv(iType,.True.,1)
-      EndIf
+      End If
+
+      If(TwoStep.and.(StepType.eq.'RUN2')) Then
+        ! fetch some data from existing file LuTri1
+        ! (from a previous MCLR run)
+        ! and make it available to ERI common block intgrl.fh
+        ! (LuTRI1=LuMOTRA)
+        Call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)
+      End If
 *
 *
 *     Init Cholesky informations
@@ -152,5 +171,27 @@
 *     exit                                                             *
 *----------------------------------------------------------------------*
       Call QExit('Start_MCLR')
+      Return
+      End
+
+      Subroutine put_temp_data_on_intgrl(LUINTMZ_, NSYMZ_, NORBZ_,
+     &                                   NISHZ_, NASHZ_  )
+      Implicit None
+      Integer ::       LUINTMZ_, NSYMZ_
+      Integer ::       NORBZ_(8), NOSHZ_(8), NISHZ_(8), NASHZ_(8)
+      Integer ::       nLength, iAddress, i
+#include "intgrl.fh"
+      iAddress=0
+      IAD2M(1:3,1:36*36)=0
+      nLength=3*36*36
+      NOSHZ_(1:8)=0
+      ! read the address list from the existing file
+      Call iDaFile(LUINTMZ_,2,IAD2M,nLength,iAddress)
+      NSYMZ=NSYMZ_
+      LUINTMZ=LUINTMZ_
+      Do i=1,NSYMZ_
+        NORBZ(i) = NORBZ_(i)
+        NOSHZ(i) = NISHZ_(i) + NASHZ_(i)
+      End Do
       Return
       End

@@ -1,0 +1,50 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+* Return code messages
+*
+
+rc=0 Happy landing!
+
+rc=1 The calculation has been interrupted
+
+rc=36 Requested module not available
+
+rc=64 Happy landing and iterate
+
+rc=65 Happy landing, but additional module(s) requested
+
+rc=68 Calculation terminated
+
+rc=96 Convergence problem
+
+rc=100 Maximum running time reached
+rc=100 This should only be active during verification or when explicitly set
+
+rc=112 User input error
+
+rc=113 EMIL input error
+
+rc=115 User error in Cholesky input
+
+rc=116 Results are too different from the reference
+
+rc=128 Some internal inconsistency of the code was detected
+
+rc=129 The module was terminated by an external error
+
+rc=134 Floating point exception
+
+rc=139 Calculation terminated due to memory problems
+
+rc=161 Calculation terminated due to problems writing to disk
+
+rc=162 Calculation terminated due to problems reading from disk

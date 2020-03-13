@@ -39,7 +39,7 @@ C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
         NDPT=NDPT+NO**2
         NDMAT=NDMAT+(NO*(NO+1))/2
       END DO
-      CALL DCOPY_(NDMAT,[0.0D00],0,DMAT,1)
+      CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
 C First, put in the reference density matrix.
       IDMOFF=0
       DO ISYM=1,NSYM
@@ -68,15 +68,15 @@ C First, put in the reference density matrix.
 C Add the 1st and 2nd order density matrices:
       CALL GETMEM('DPT','ALLO','REAL',LDPT,NDPT)
       CALL GETMEM('DSUM','ALLO','REAL',LDSUM,NDPT)
-      CALL DCOPY_(NDPT,[0.0D00],0,WORK(LDSUM),1)
+      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDSUM),1)
 
 C The 1st order contribution to the density matrix
-      CALL DCOPY_(NDPT,[0.0D00],0,WORK(LDPT),1)
+      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
       CALL TRDNS1(IVEC,WORK(LDPT))
       CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *     WRITE(*,*)' DPT after TRDNS1.'
 *     WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-      CALL DCOPY_(NDPT,[0.0D00],0,WORK(LDPT),1)
+      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
       CALL TRDNS2D(IVEC,IVEC,WORK(LDPT),NDPT)
       IF(IFDENS) THEN
 C The exact density matrix evaluation:
@@ -88,7 +88,7 @@ C The approximate density matrix evaluation:
       CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *     WRITE(*,*)' DPT after TRDNS2D.'
 *     WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-      CALL DCOPY_(NDPT,[0.0D00],0,WORK(LDPT),1)
+      CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
       CALL TRDNS2O(IVEC,IVEC,WORK(LDPT))
       CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *     WRITE(*,*)' DPT after TRDNS2O.'
@@ -118,7 +118,7 @@ C so that the slaves have the same density matrix as the master.
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (.NOT.KING()) THEN
-          CALL DCOPY_(NDMAT,[0.0D00],0,DMAT,1)
+          CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
         END IF
         CALL GADSUM(DMAT,NDMAT)
       END IF

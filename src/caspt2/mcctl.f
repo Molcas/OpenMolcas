@@ -38,8 +38,8 @@
 
       Call mma_allocate( cpu_timing,nstate,'timing in mcctl')
       Call mma_allocate(wall_timing,nstate,'timing in mcctl')
-      Call dcopy_(nstate,[0.d0],0, cpu_timing,1)
-      Call dcopy_(nstate,[0.d0],0,wall_timing,1)
+      Call dcopy_(nstate,[0.0d0],0, cpu_timing,1)
+      Call dcopy_(nstate,[0.0d0],0,wall_timing,1)
 C The ket state is JSTATE.
 C Loop over the bra states
       DO ISTATE=1,NSTATE
@@ -47,7 +47,7 @@ C Loop over the bra states
      &     'Multistate coupling between state',ISTATE,' and',JSTATE,
      &     ' out of ',NSTATE
         Call StatusLine('CASPT2: MCCTL: ',trim(string))
-        TOTCPU1=0.d0; TOTWALL1=0.d0; TOTCPU2=0.d0; TOTWALL2=0.d0;
+        TOTCPU1=0.0d0; TOTWALL1=0.0d0; TOTCPU2=0.0d0; TOTWALL2=0.0d0;
         Call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
         IF(ISTATE.EQ.JSTATE) THEN

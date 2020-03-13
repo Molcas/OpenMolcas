@@ -157,9 +157,12 @@ class Group(Statement):
       return None
     if (self.grouptype == 'foreach'):
       self.values = expandvars(self.val, default='UNKNOWN_VARIABLE')
-      re_match = match(r'(\d+)\s*\.\.\s*(\d+)', self.values)
+      re_match = match(r'(-?\d+)\s*\.\.\s*(-?\d+)', self.values)
       if (re_match):
-        self.values = range(int(re_match.group(1)), int(re_match.group(2))+1)
+        ini = int(re_match.group(1))
+        fin = int(re_match.group(2))
+        sign = -1 if (fin < ini) else 1
+        self.values = range(ini, fin + sign, sign)
         self.values = list(map(text_type, self.values))
       else:
         self.values = [x.strip() for x in self.values.split(',')]

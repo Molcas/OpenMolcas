@@ -21,14 +21,14 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       INTEGER AixRm
-      EXTERNAL IsFreeUnit,AixRm
+      EXTERNAL IsFreeUnit,AixRm,IsStructure
       PARAMETER   (nTasks=3)
       PARAMETER  (nh=6)
-      CHARACTER   StdIn*16, caption*15
+      CHARACTER   StdIn*16, caption*15, ENV*8
       REAL*8      time, mean, kb
       REAL*8      Epot,Ekin,Etot0
       REAL*8      NHC(nh)
-      INTEGER     Task(nTasks),natom,IsFreeUnit,irc
+      INTEGER     Task(nTasks),natom,IsFreeUnit,irc,Itr,MxItr
       INTEGER     iRlxRoot,nRoots,i
       LOGICAL     Found,lHop
       INTEGER     VelVer, VV_First, VV_Second, Gromacs, VV_Dump
@@ -38,7 +38,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       PARAMETER  (VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
       PARAMETER  (iQ1=1,iQ2=2,iX1=3,iX2=4,iVx1=5,iVx2=6)
       CHARACTER, ALLOCATABLE :: atom(:)*2
-      REAL*8, ALLOCATABLE ::    Mass(:),vel(:)
+      REAL*8, ALLOCATABLE ::    Mass(:),vel(:),pcoo(:,:)
       INTEGER Iso
 
 *
@@ -99,6 +99,7 @@ C     Check if the RESTART keyword was used.
          CALL mma_allocate(atom,natom)
          CALL mma_allocate(Mass,natom)
          CALL mma_allocate(vel,natom*3)
+         CALL mma_allocate(pcoo,POUT,natom*3)
 
          CALL Get_nAtoms_All(matom)
          CALL Get_Mass_All(Mass,matom)
@@ -124,6 +125,17 @@ C Initialize Thermostat Variables
 
 
          END IF
+
+C Check if nuclear coordinates to project out from the dynamics
+         IF (POUT.eq.0) THEN
+            WRITE(6,'(5X,A,T55)') 'Dynamics in full dimensionality.'
+         ELSE
+            WRITE(6,'(5X,A,T55)') 'Dynamics in reduced dimensionality.'
+            CALL DxRdOut(pcoo,POUT,natom)
+C Save on RUNFILE
+            CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
+         ENDIF
+
 
          IF (VELO.eq.1) THEN
             CALL DxRdVel(vel,natom)
@@ -229,6 +241,7 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL mma_deallocate(atom)
          CALL mma_deallocate(Mass)
          CALL mma_deallocate(vel)
+         CALL mma_deallocate(pcoo)
       END IF
 
 C
@@ -283,6 +296,8 @@ C
                   Write (LuInput,*) THERMO
                   Write (LuInput,'(A)') 'VELO'
                   Write (LuInput,*) VELO
+                  Write (LuInput,'(A)') 'OUT'
+                  Write (LuInput,*) POUT
                   Write (LuInput,'(A)') 'End of Input'
                   Write (LuInput,'(A)')
      &                  '>export MOLCAS_TRAP=$DYN_OLD_TRAP'
@@ -327,9 +342,9 @@ C
          END IF
       END DO
 
-*
-*-----Remove the GRADS file
-*
+C
+C-----Remove the GRADS file
+C
       Call f_Inquire('GRADS',Found)
       If (Found) Then
          If (AixRm('GRADS').ne.0) Call Abend()
@@ -339,8 +354,31 @@ C
       call mh5_close_file(dyn_fileid)
 #endif
 
+C
+C-----If running in a DoWhile loop, we turn a successful
+C     return code into "continue loop", except on the
+C     last iteration
+C
+      If ((IsStructure().eq.1).and.(irc.eq.0)) Then
+         MxItr=0
+         Call GetEnvf('MOLCAS_MAXITER', ENV)
+         If (ENV.ne.' ') Then
+            Read (ENV,*) MxItr
+         End If
+         Itr=1
+         Call GetEnvf('MOLCAS_ITER', ENV)
+         If (ENV.ne.' ') Then
+            Read (ENV,*) Itr
+         End If
+         If (Itr.lt.MxItr) Then
+            iReturn=_RC_CONTINUE_LOOP_
+         Else
+            iReturn=irc
+         End If
+      Else
+         iReturn=irc
+      End If
       CALL QExit('Dynamix')
-      iReturn=irc
       RETURN
 *
       END

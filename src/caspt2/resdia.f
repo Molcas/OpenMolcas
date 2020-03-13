@@ -41,14 +41,14 @@ C Apply the resolvent of the diagonal part of H0 to a coefficient
 C vector in vector nr. IVEC on LUSOLV. Put the results in vector
 C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
 
-      OVLTOT=0.0D00
+      OVLTOT=0.0D0
       DO ISYM=1,NSYM
-        OVLAPS(ISYM,0)=0.0D00
+        OVLAPS(ISYM,0)=0.0D0
       END DO
       DO 200 ICASE=1,13
-        OVLSUM=0.0D00
+        OVLSUM=0.0D0
         DO 100 ISYM=1,NSYM
-          OVL=0.0D00
+          OVL=0.0D0
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.EQ.0) GOTO 90
           NAS=NASUP(ISYM,ICASE)

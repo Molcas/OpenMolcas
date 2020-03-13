@@ -25,7 +25,7 @@ c        nc - # of Cholesky vectors
 c        nfr- # if frozen orbitals
 c
 c        mhkey - FTN/BLAS switch
-c        maxiter - Maximal nuber of iterations
+c        maxiter - Maximal number of iterations
 c        restkey - key for restart [1/0]
 c        generkey - key for generation of integrals from L vectors [1/0]
 c        intkey - key for generation of (vv|vv) and (vv|vo) integrals [1/0]

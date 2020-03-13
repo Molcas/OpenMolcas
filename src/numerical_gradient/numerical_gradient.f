@@ -1056,7 +1056,7 @@ C_MPP End Do
       If (Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' ) Then
          Call Get_iScalar('Relax CASSCF root',irlxroot1)
-         Call Get_iScalar('Relax Original ro',irlxroot2)
+         Call Get_iScalar('Relax Original root',irlxroot2)
          If (iRlxRoot1.ne.iRlxRoot2) Then
             Call Put_iScalar('Relax CASSCF root',irlxroot2)
             Call Put_iScalar('NumGradRoot',irlxroot2)

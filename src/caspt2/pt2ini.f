@@ -101,15 +101,18 @@ C     Cholesky
 * The one-electron Hamiltonian
       NHONE=NOTRI
       CALL GETMEM('LHONE','ALLO','REAL',LHONE,NHONE)
-* The fock matrix with contributions from active orbitals, only.
+* The fock matrix with contributions from inactive orbitals, only.
       NFIMO=NOTRI
       CALL GETMEM('LFIMO','ALLO','REAL',LFIMO,NFIMO)
 * The fock matrix with contributions from active orbitals, only.
       NFAMO=NOTRI
       CALL GETMEM('LFAMO','ALLO','REAL',LFAMO,NFAMO)
 * Density matrices, active indices.
-      CALL GETMEM('DREF','ALLO','REAL',LDREF,NDREF)
-      CALL GETMEM('PREF','ALLO','REAL',LPREF,NPREF)
+      CALL GETMEM('LDREF','ALLO','REAL',LDREF,NDREF)
+      CALL GETMEM('LPREF','ALLO','REAL',LPREF,NPREF)
+* All the density matrices kept in memory
+      CALL GETMEM('LDMIX','ALLO','REAL',LDMIX,NDREF*NSTATE)
+      CALL GETMEM('LDWGT','ALLO','REAL',LDWGT,NSTATE*NSTATE)
 
 * Print input data
       CALL PRINP_CASPT2
@@ -207,6 +210,8 @@ C     Deallocate MAGEB, etc, superindex tables:
       CALL GETMEM('LFAMO','FREE','REAL',LFAMO,NFAMO)
       CALL GETMEM('LDREF','FREE','REAL',LDREF,NDREF)
       CALL GETMEM('LPREF','FREE','REAL',LPREF,NPREF)
+      CALL GETMEM('LDMIX','FREE','REAL',LDMIX,NDREF*NSTATE)
+      CALL GETMEM('LDWGT','FREE','REAL',LDWGT,NSTATE*NSTATE)
 * Deallocate global orbital transformation arrays:
       CALL GETMEM('TORB','FREE','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','FREE','REAL',LTAT,NTAT)

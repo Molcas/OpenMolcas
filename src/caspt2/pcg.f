@@ -102,7 +102,7 @@ C---------------------
       CALL PSCAVEC(DSCALE,IVECP,IVECP)
       CALL POVLVEC(IVECP,IVECR,OVLAPS)
       PR=OVLAPS(0,0)
-      CALL SIGMA_CASPT2(1.0D00,0.0D00,IVECP,IVECT)
+      CALL SIGMA_CASPT2(1.0D00,0.0D0,IVECP,IVECT)
       CALL POVLVEC(IVECP,IVECT,OVLAPS)
       PT=OVLAPS(0,0)
       ALPHA=PR/PT
@@ -143,7 +143,7 @@ C---------------------
       ICONV = 16
  900  CONTINUE
       IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,'(23A5)')('-----',I=1,23)
+       WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,*)
        WRITE(6,*)' FINAL CASPT2 RESULT:'
       END IF
