@@ -38,8 +38,7 @@
       implicit none
       save
       private
-      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, init, cleanup,
-     &    fciqmc_solver_t
+      public :: DoNECI, DoEmbdNECI, fciqmc_solver_t
       logical :: DoEmbdNECI = .false., DoNECI = .false.
 #include "para_info.fh"
 
