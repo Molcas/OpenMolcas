@@ -39,7 +39,8 @@
       real(8) U0(Nstate,Nstate)
       INTEGER LUXMS,IsFreeUnit
       CHARACTER(len=128) filename,swapname
-      CHARACTER(len=:),allocatable::xmsfmt
+      CHARACTER(len=11)xmsfmt1
+      CHARACTER(len=12)xmsfmt2
       External IsFreeUnit
 
       CALL QENTER('GRPINI')
@@ -207,18 +208,16 @@ c Modify the Fock matrix if needed
         LUXMS=IsFreeUnit(LUXMS)
         Call Molcas_Open(LUXMS,FileName)
         if(NGRP.LT.10) then
-         allocate(character(11)::xmsfmt)
-         if(allocated(xmsfmt))
-     &   write(xmsfmt,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
+         write(xmsfmt1,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
+         DO J=1,NGRP
+          WRITE(LUXMS,xmsfmt1)(U0(I,J),I=1,NGRP)
+         END DO
         else if(NGRP.LT.100) then
-         allocate(character(12)::xmsfmt)
-         if(allocated(xmsfmt))
-     &   write(xmsfmt,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
+         write(xmsfmt2,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
+         DO J=1,NGRP
+          WRITE(LUXMS,xmsfmt2)(U0(I,J),I=1,NGRP)
+         END DO
         end if
-        DO J=1,NGRP
-         if(allocated(xmsfmt))
-     &    WRITE(LUXMS,xmsfmt)(U0(I,J),I=1,NGRP)
-        END DO
         close (LUXMS)
         write(FileName,'(a)') 'H0_Rotate.txt'
         write(SwapName,'(a)') 'H0_Rotate0.txt'
@@ -226,11 +225,16 @@ c Modify the Fock matrix if needed
         If(Found)  Call RENAME(FileName,SwapName)
         LUXMS=IsFreeUnit(LUXMS)
         Call Molcas_Open(LUXMS,FileName)
-        DO J1=1,NSTATE
-         WRITE(LUXMS,xmsfmt)(HEFF(J1,J2),J2=1,NSTATE)
-        END DO
+        if(NGrp.lt.10)then
+         DO J1=1,NSTATE
+          WRITE(LUXMS,xmsfmt1)(HEFF(J1,J2),J2=1,NSTATE)
+         END DO
+        else
+         DO J1=1,NSTATE
+          WRITE(LUXMS,xmsfmt2)(HEFF(J1,J2),J2=1,NSTATE)
+         END DO
+        endif
         Close(LUXMS)
-        if(allocated(xmsfmt)) deallocate(xmsfmt)
        end if
 
 
