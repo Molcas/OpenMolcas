@@ -28,10 +28,11 @@
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
+      LOGICAL Do_Rotate
+      COMMON /MSPDFT/ Do_Rotate
 #include "WrkSpc.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
-#include "mspdft.fh"
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)

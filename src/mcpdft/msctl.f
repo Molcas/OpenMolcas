@@ -49,7 +49,6 @@
 #include "rasscf_lucia.fh"
 #include "raswfn.fh"
 #include "ksdft.fh"
-#include "mspdft.fh"
       Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
       Integer ALGO
@@ -75,6 +74,8 @@
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
       integer LUGS
+      LOGICAL Do_Rotate
+      COMMON /MSPDFT/ Do_Rotate
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
