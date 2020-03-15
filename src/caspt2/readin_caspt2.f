@@ -39,6 +39,8 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
+!     skip PT2 and MS-PT2 calculation. For XMC-PDFT calculation
+      Logical :: ZeroHOnly = .False.
 !     DWMS      use dynamical weighting to construct Fock
       Logical :: DWMS = .False.
       Integer :: ZETA = 50
@@ -278,6 +280,40 @@ C end of input
 
       Case('XMUL')
       Input % XMUL = .True.
+      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Read(Line,*) Word
+      Call UpCase(Word)
+      If (Word=='ALL') Then
+        nStates = 0
+        Input%AllXMult = .True.
+      Else
+        Read(Line,*,Err=9920,End=9920) nStates
+        If (nStates.le.0) Then
+          Write(6,*)' number of XMUL states must be > 0, quitting!'
+          Call Quit_OnUserError
+        End If
+      End If
+      Allocate(Input%XMulGroup%State(nStates))
+      Input%nXMulState = nStates
+      iSplit = SCAN(Line,' ')
+      alloc_dline
+      dLine = Line(iSplit:)
+      iError = -1
+      Do While (iError.lt.0)
+        Read(dLine,*,IOStat=iError)
+     &      (Input%XMulGroup%State(i), i=1,nStates)
+        If (iError.gt.0) GoTo 9920
+        If (iError.lt.0) Then
+          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+          Call ExtendLine(dLine,Line)
+        End If
+      End Do
+      dealloc_dline
+
+      Case('XROH')
+      Input % XMUL = .True.
+      Input % ZeroHOnly = .true.
+      write (6,*)'Only calculating XMS-CASPT2 0th Hamiltonian'
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
       Read(Line,*) Word
       Call UpCase(Word)

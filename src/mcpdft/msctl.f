@@ -49,6 +49,7 @@
 #include "rasscf_lucia.fh"
 #include "raswfn.fh"
 #include "ksdft.fh"
+#include "mspdft.fh"
       Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
       Integer ALGO
@@ -611,7 +612,15 @@ c         call xflush(6)
      &         jroot,Ref_Ener)
 c         call xflush(6)
 
-         Energies(jroot)=CASDFT_E
+
+         IF(Do_Rotate) Then
+            Energies(jroot)=CASDFT_Funct
+*JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
+            Ref_Ener(jroot)=CASDFT_E
+         ELSE
+            Energies(jroot)=CASDFT_E
+         END IF
+
 
          CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)

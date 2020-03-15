@@ -864,6 +864,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        Call SetPos(LUInput,'CION',Line,iRc)
        Call ChkIfKey()
       End If
+*---  Process ROST command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if ROtSTate case.'
+      If (KeyROST) Then
+       If (DBG) Write(6,*) ' ROtSTate keyword was used.'
+       iRotPsi=1
+       Call SetPos(LUInput,'ROST',Line,iRc)
+       Call ChkIfKey()
+      End If
 *---  Process RFPE command ----- (new!) -------------------------------*
       If(KeyRFPE) Then
        If (DBG) Then

@@ -12,6 +12,7 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
+      USE INPUTDATA
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -31,11 +32,15 @@
 #include "eqsolv.fh"
 #include "warnings.fh"
 #include "stdalloc.fh"
-      LOGICAL IF_TRNSF
+      LOGICAL IF_TRNSF,Found
       CHARACTER(27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
+      INTEGER LUXMS,IsFreeUnit
+      CHARACTER(len=128) filename,swapname
+      CHARACTER(len=:),allocatable::xmsfmt
+      External IsFreeUnit
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -57,11 +62,13 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
+       If(.not.Input % ZeroHOnly) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
+       End If
       END IF
 * ---------------------------------------------------------------------
 
@@ -184,6 +191,47 @@ c Modify the Fock matrix if needed
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
+       if(Input%XMUL) then
+        write(6,*)
+        write(6,*) 'Writing Hamiltonian matrix for rotated states ',
+     &  'and the rotation matrix'
+*JB  Do_Rotate.txt is used to store vectors for new states as linear
+*JB  combination of original CASSCf states. Used for XMC-PDFT
+*JB  calculation on diagonal elements of the XMC-PDFT "Fock" matrix
+*JB  H0_Rotate.txt is used to store Hamiltonian for rotated states.
+        write(FileName,'(a)') 'Do_Rotate.txt'
+        write(SwapName,'(a)') 'Do_Rotate0.txt'
+        Call F_Inquire(FileName,Found)
+        If(Found)  Call RENAME(FileName,SwapName)
+        LUXMS=233
+        LUXMS=IsFreeUnit(LUXMS)
+        Call Molcas_Open(LUXMS,FileName)
+        if(NGRP.LT.10) then
+         allocate(character(11)::xmsfmt)
+         write(xmsfmt,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
+        else if(NGRP.LT.100) then
+         allocate(character(12)::xmsfmt)
+         write(xmsfmt,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
+        end if
+        DO J=1,NGRP
+        WRITE(LUXMS,xmsfmt)(U0(I,J),I=1,NGRP)
+        END DO
+        close (LUXMS)
+        write(FileName,'(a)') 'H0_Rotate.txt'
+        write(SwapName,'(a)') 'H0_Rotate0.txt'
+        Call F_Inquire(FileName,Found)
+        If(Found)  Call RENAME(FileName,SwapName)
+        LUXMS=IsFreeUnit(LUXMS)
+        Call Molcas_Open(LUXMS,FileName)
+        DO J1=1,NSTATE
+         WRITE(LUXMS,xmsfmt)(HEFF(J1,J2),J2=1,NSTATE)
+        END DO
+        Close(LUXMS)
+        if(allocated(xmsfmt)) deallocate(xmsfmt)
+       end if
+
+
+
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
@@ -232,7 +280,7 @@ c Modify the Fock matrix if needed
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      call orbctl(WORK(LCMO))
+      CALL ORBCTL(WORK(LCMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then

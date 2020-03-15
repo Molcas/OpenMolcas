@@ -181,9 +181,11 @@ C
        END IF
 
        IF (IPRGLB.GE.USUAL) THEN
+        If(.not.Input % ZeroHOnly) Then
          WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
          CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
+        End If
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -191,6 +193,10 @@ C
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
+CProducing XMS Rotated States
+       If(Input % ZeroHOnly) then
+        GOTO 9999
+       END IF
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -363,17 +369,25 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
+        If(.not.Input % ZeroHOnly) Then
          CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
+        End If
        END IF
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
+9999    write (6,*) 'Second-Order calculation turned off'
       END DO STATELOOP
 
 1000  CONTINUE
 
       IF (IRETURN.NE.0) GOTO 9000
-
+       If(Input % ZeroHOnly) then  !XMS Skip multistate calculation.
+        write(6,*)'PT2 calculation is skipped with the keyword XROH'
+        write(6,*)
+        CALL MMA_DEALLOCATE(UEFF)
+        CALL MMA_DEALLOCATE(U0)
+       Else
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -438,6 +452,7 @@ C End of long loop over groups
 
       CALL MMA_DEALLOCATE(UEFF)
       CALL MMA_DEALLOCATE(U0)
+      End If  !Skipping MultiState calculation when ZeroHOnly=true
 9000  CONTINUE
 
 C Free resources, close files
