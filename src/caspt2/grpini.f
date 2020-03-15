@@ -208,7 +208,7 @@ c Modify the Fock matrix if needed
         Call Molcas_Open(LUXMS,FileName)
         if(NGRP.LT.10) then
          allocate(character(11)::xmsfmt)
-         if(allocated(xmsfmt)
+         if(allocated(xmsfmt))
      &   write(xmsfmt,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
         else if(NGRP.LT.100) then
          allocate(character(12)::xmsfmt)
@@ -216,7 +216,8 @@ c Modify the Fock matrix if needed
      &   write(xmsfmt,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
         end if
         DO J=1,NGRP
-        WRITE(LUXMS,xmsfmt)(U0(I,J),I=1,NGRP)
+         if(allocated(xmsfmt))
+     &    WRITE(LUXMS,xmsfmt)(U0(I,J),I=1,NGRP)
         END DO
         close (LUXMS)
         write(FileName,'(a)') 'H0_Rotate.txt'
