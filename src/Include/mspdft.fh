@@ -10,11 +10,12 @@
 ************************************************************************
 *
       Logical do_rotate
-      Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
-      Integer LRState,LRSttmp,NRState         ! storing info in Do_Rotate.txt
+CJB      Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
+CJB      Integer LRState,LRSttmp,NRState         ! storing info in Do_Rotate.txt
+      Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot                     ! storing info in H0_Rotate.txt
       Integer LXScratch,NXScratch
-      Integer rcidisk
+CJB      Integer rcidisk
       INTEGER LUMS,IsFreeUnit
       Dimension WGRONK(2)
       External IsFreeUnit
