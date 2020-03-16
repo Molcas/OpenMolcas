@@ -40,7 +40,7 @@ Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
 
->>COPY LiF.RasOrb UseOrb
+>>COPY $Project.RasOrb UseOrb
 
 &RASSCF
 CIOnly
@@ -53,7 +53,7 @@ Nactel=8 0 0
 
 
 &CASPT2
-XROH=all
+XROH=2 1 2
 
 >>COPY UseOrb INPORB
 
@@ -69,5 +69,4 @@ RoST
 
 &MCPDFT
 KSDFT=TPBE
-NoGrad
-MSPDFT
+MSPD
