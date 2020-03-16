@@ -1,0 +1,66 @@
+&Gateway
+Coord
+2
+Angstrom
+Li  0.0  0.0  0.8 
+F   0.0  0.0 -0.8
+Group=XY Y
+Basis=STO-3G
+
+*This is a comment
+
+&Seward
+
+&SCF
+
+&Gateway
+Coord
+2
+Angstrom
+Li  0.0  0.0  1.3
+F   0.0  0.0 -1.3
+Group=XY Y
+Basis=STO-3G
+
+&Seward
+
+&RASSCF
+LumOrb
+Spin=1
+Symmetry=1
+CIRoot= 2 2 1
+Inactive=2 0 0 0
+Ras2=4 1 0 1
+Nactel=8 0 0
+
+&RASSCF
+CIOnly
+Spin=1
+Symmetry=1
+CIRoot= 2 2 1
+Inactive=2 0 0 0
+Ras2=4 1 0 1
+Nactel=8 0 0
+
+>>COPY $CurrDir/LiF.RasOrb $CurrDir/UseOrb
+
+&CASPT2
+XROH=all
+
+>>COPY $CurrDir/UseOrb $Scratch/INPORB
+>>RM   $Scratch/H0_Rotate.txt
+
+&RASSCF
+CIONLY
+Spin=1
+Symmetry=1
+CIRoot= 2 2 1
+Inactive=2 0 0 0
+Ras2=4 1 0 1
+Nactel=8 0 0
+RoST
+
+&MCPDFT
+KSDFT=TPBE
+NoGrad
+MSPDFT
