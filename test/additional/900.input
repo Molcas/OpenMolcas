@@ -1,3 +1,10 @@
+* Molecule: LiF
+* Basis: STO-3G
+* Symmetry: C2V
+* Features tested: XMS-PDFT calculation
+* Responsible person: Jie J. Bao, 2020
+* Comments:
+*-------------------------------------------------------------------------------
 &Gateway
 Coord
 2
