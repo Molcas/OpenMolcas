@@ -45,7 +45,8 @@ Input
   basis=6-31G*
   group=nosym
 
-  >> FOREACH A in (1..400)
+  >> EXPORT MOLCAS_MAXITER=400
+  >> DOWHILE
 
   &Seward
 
@@ -204,11 +205,12 @@ Within the :program:`Surfacehop` module The keyword :kword:`TULLY` enables the T
    BASIS= 3-21G
    GROUP= nosym
 
-  >> FOREACH ITER in (1 .. 1000)
+  >> EXPORT MOLCAS_MAXITER=1000
+  >> DOWHILE
 
   &SEWARD
 
-  >> IF ( $ITER = 1 )
+  >> IF ( ITER = 1 )
 
   &RASSCF
     LUMORB

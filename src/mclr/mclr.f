@@ -220,22 +220,24 @@ c      idp=rtoi
 *                                                                      *
 *     Contract response to hessian etc
 *
-      If (PT2.or.SA.or.iMCPD) Then
-         Call Out_PT2(iWork(ifpK),iWork(ifpCI))
-      Else If (TimeDep) Then
-         Call Output_td(iWork(ifpK),iWork(ifpS),
-     &                  iWork(ifpCI),iWork(ifpSC),
-     &                  iWork(ifpRHS),iWork(ifpRHSCI),converged)
-      Else
-         Call Output_mclr(iWork(ifpK),iWork(ifpS),
-     &                    iWork(ifpCI),iWork(ifpSC),
-     &                    iWork(ifpRHS),iWork(ifpRHSCI),converged)
-         If (mckinley) Call isoloop(Double)
+      If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
+         If (PT2.or.SA.or.iMCPD) Then
+            Call Out_PT2(iWork(ifpK),iWork(ifpCI))
+         Else If (TimeDep) Then
+            Call Output_td(iWork(ifpK),iWork(ifpS),
+     &                     iWork(ifpCI),iWork(ifpSC),
+     &                     iWork(ifpRHS),iWork(ifpRHSCI),converged)
+         Else
+            Call Output_mclr(iWork(ifpK),iWork(ifpS),
+     &                       iWork(ifpCI),iWork(ifpSC),
+     &                       iWork(ifpRHS),iWork(ifpRHSCI),converged)
+            If (mckinley) Call isoloop(Double)
+         End If
+*
+         If (RASSI)   Call OutRAS   (iWork(ifpK),iWork(ifpCI))
+*
+         If (TimeDep) Call OutRAS_td(iWork(ifpK),iWork(ifpCI))
       End If
-*
-      If (RASSI)   Call OutRAS   (iWork(ifpK),iWork(ifpCI))
-*
-      If (TimeDep) Call OutRAS_td(iWork(ifpK),iWork(ifpCI))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -316,6 +318,8 @@ c      idp=rtoi
         End Do
         Call GetMem('CMO_inv','Free','Real',ip_CMO_inv,nOrbBas)
       End If
+
+      If(TwoStep.and.(StepType.eq.'RUN1')) irc=ipclose(-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

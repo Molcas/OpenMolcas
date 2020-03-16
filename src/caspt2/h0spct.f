@@ -36,7 +36,7 @@ C denominators, i.e. the spectrum of (H0(diag)-E0).
 
       WRITE(6,*)
       Call CollapseOutput(1,'Denominators, etc.')
-      WRITE(6,'(25A4)')('----',i=1,25)
+      WRITE(6,'(10A11)')('-----------',i=1,10)
       WRITE(6,'(A)')' Report on small energy denominators, large'//
      &   ' coefficients, and large energy contributions.'
 

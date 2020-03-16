@@ -4,7 +4,7 @@
 * Symmetry: C1
 * Features tested: SCF with muon in excited states.
 * Responsible person: Roland Lindh 2017-03-13
-* Comments: Finite nuclei, automatic FNMC
+* Comments: Finite nucleus, automatic FNMC
 *-------------------------------------------------------------------------------
 &Gateway
 Title
@@ -29,7 +29,7 @@ End of basis
 &SCF &END
 FILEORB=$Project.GssOrb
 Title
-argone nuclei + muon(1s)
+argon nucleus + muon(1s)
 ITERATIONS
 20, 20
 UHF
@@ -49,7 +49,7 @@ PrOrbitals
 &SCF &END
 FILEORB=$Project.GssOrb
 Title
-argone nuclei + muon(2p)
+argon nucleus + muon(2p)
 ITERATIONS
 20, 20
 UHF
@@ -69,7 +69,7 @@ PrOrbitals
 &SCF &END
 FILEORB=$Project.GssOrb
 Title
-argone nuclei + muon(2s)
+argon nucleus + muon(2s)
 ITERATIONS
 20, 20
 UHF
@@ -89,7 +89,7 @@ PrOrbitals
 &SCF &END
 FILEORB=$Project.GssOrb
 Title
-argone nuclei + muon(3s)
+argon nucleus + muon(3s)
 ITERATIONS
 20, 20
 UHF
@@ -109,7 +109,7 @@ PrOrbitals
 &SCF &END
 FILEORB=$Project.GssOrb
 Title
-argone nuclei + muon(3p)
+argon nucleus + muon(3p)
 ITERATIONS
 20, 20
 UHF

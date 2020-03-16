@@ -25,8 +25,8 @@ C     timers
       REAL*8 CPU0,CPU1,CPU,
      &       TIO0,TIO1,TIO
 C     indices
-      INTEGER I,J
-      INTEGER IDCI
+      INTEGER I,J,IFTEST
+      ! INTEGER IDCI
 
       CALL QENTER('STINI')
       Write(STLNE2,'(A,I4)')
@@ -40,76 +40,45 @@ C     indices
         CALL XFlush(6)
       END IF
 
-* WITH NEW CMOS, TRANSFORM ONE- AND TWO-ELECTRON INTEGRALS.
-* LUSOLV, LUSBT and LUDMAT will be reused in TRACTL.
+* Reinitialize labels for saving density matrices on disk.
+* The fields IADR10 and CLAB10 are kept in common from pt2_guga.fh
+      DO I=1,64
+        IADR10(I,1)=-1
+        IADR10(I,2)=0
+        CLAB10(I)='   EMPTY'
+      END DO
+      IADR10(1,1)=0
 
-* WITH NEW CI, RECOMPUTE 1- AND 2-DENSITY FOR ROOT STATE JSTATE:
-      CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
-      IF(.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
-        IDCI=IDTCEX
-        DO J=1,JSTATE-1
-          CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
-        END DO
-        CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
-        IF(IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          IF(NSTATE.GT.1) THEN
-            WRITE(6,'(A,I4)')
-     &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
-          ELSE
-            WRITE(6,*)' With new orbitals, the CI array is:'
-          END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
-        ENDIF
-      ELSE
-        WORK(LCI)=1.0D0
+      IF (IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*)' STINI calling POLY3...'
+      END IF
+      CALL TIMING(CPU0,CPU,TIO0,TIO)
+      CALL POLY3(1)
+      CALL TIMING(CPU1,CPU,TIO1,TIO)
+      CPUFG3=CPU1-CPU0
+      TIOFG3=TIO1-TIO0
+      IF (IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*)' STINI back from POLY3.'
       END IF
 
-      IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' STINI calling POLY2...'
-      END IF
-      CALL POLY2(WORK(LCI))
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
       CALL GETDPREF(WORK(LDREF),WORK(LPREF))
-      IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' STINI back from POLY2.'
+
+      IFTEST = 0
+      IF ( IFTEST.NE.0 ) THEN
+        WRITE(6,*)' DREF for state nr. ',MSTATE(JSTATE)
+        DO I=1,NASHT
+          WRITE(6,'(1x,14f10.6)')(WORK(LDREF+(I*(I-1))/2+J-1),J=1,I)
+        END DO
+        WRITE(6,*)
       END IF
 
       EREF=REFENE(JSTATE)
 * With new DREF, recompute EASUM:
       EASUM=0.0D0
       DO I=1,NASHT
-       EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
+        EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
       END DO
-
-* PAM March 2015: Do not recompute/modify FIFA. It is unchanged since GRPINI.
-*     If (.not.IfChol) then
-* Do we want this call at all any longer??
-*      CALL CORRMAT()
-*     End If
-*c Modify the Fock matrix:
-*      IF(FOCKTYPE.NE.'STANDARD') THEN
-*        IF(IPRGLB.GE.DEBUG) THEN
-*         WRITE(6,*)' STINI calling NEWFOCK...'
-*        END IF
-*        CALL NEWFOCK(WORK(LFIFA))
-*        IF(IPRGLB.GE.DEBUG) THEN
-*         WRITE(6,*)' STINI back from NEWFOCK.'
-*        END IF
-*      END IF
-
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' STINI calling POLY3...'
-      END IF
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-      CALL POLY3(1,WORK(LCI))
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUFG3=CPU1-CPU0
-      TIOFG3=TIO1-TIO0
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' STINI back from POLY3.'
-      END IF
-      CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
 
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,'(20A4)')('----',I=1,20)

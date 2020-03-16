@@ -37,7 +37,6 @@
 C FIND DISK ADDRESS:
       DO I=1,64
         IF(CLAB10(I).EQ.'   EMPTY') THEN
-C      write(6,*)' PT2_PUT found empty slot at I=',I
           CLAB10(I)=LAB1
           IAD=IADR10(I,1)
           IADR10(I,2)=NSIZE
