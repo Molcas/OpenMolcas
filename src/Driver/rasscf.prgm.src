@@ -33,3 +33,5 @@
 #include "geodata.inc"
  (file)  H0_Rotate.txt  "$WorkDir/"H0_Rotate.txt        rw
  (file)  Do_Rotate.txt  "$WorkDir/"Do_Rotate.txt        ro
+ (file)  H0_Rotate0.txt  "$WorkDir/"H0_Rotate0.txt        ro
+ (file)  Do_Rotate0.txt  "$WorkDir/"Do_Rotate0.txt        ro
