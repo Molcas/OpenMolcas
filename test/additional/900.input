@@ -40,6 +40,8 @@ Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
 
+>>COPY LiF.RasOrb UseOrb
+
 &RASSCF
 CIOnly
 Spin=1
@@ -49,13 +51,11 @@ Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
 
->>COPY $CurrDir/LiF.RasOrb $CurrDir/UseOrb
 
 &CASPT2
 XROH=all
 
->>COPY $CurrDir/UseOrb $Scratch/INPORB
->>RM   $Scratch/H0_Rotate.txt
+>>COPY UseOrb INPORB
 
 &RASSCF
 CIONLY
