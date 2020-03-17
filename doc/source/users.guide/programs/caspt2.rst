@@ -327,6 +327,9 @@ Keywords
     This keyword generates two files in the scratch directory, Do_Rotate.txt, 
    which stores the XMS rotation vector, and H0_Rotate.txt, which stores the 
    Hamiltonian for the XMS rotated states.
+    This keyword, however, if used together with :kword:`XMUL`, will perform
+   perturbation theory calculations and prints the matrices needed for XMS-
+   PDFT calculation.
     More information can be found on the Minnesota OpenMolcas page 
    (https://comp.chem.umn.edu/openmolcas/).
 
