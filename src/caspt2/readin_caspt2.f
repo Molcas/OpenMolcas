@@ -296,7 +296,9 @@ C end of input
           Call Quit_OnUserError
         End If
       End If
-      Allocate(Input%XMulGroup%State(nStates))
+      If(.not.Input % PrRot) Then
+       Allocate(Input%XMulGroup%State(nStates))
+      End If
       Input%nXMulState = nStates
       iSplit = SCAN(Line,' ')
       alloc_dline
@@ -329,7 +331,9 @@ C end of input
           Call Quit_OnUserError
         End If
       End If
-      Allocate(Input%XMulGroup%State(nStates))
+      If(.not.Input % XDOPT2) Then
+       Allocate(Input%XMulGroup%State(nStates))
+      End If
       Input%nXMulState = nStates
       iSplit = SCAN(Line,' ')
       alloc_dline

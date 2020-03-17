@@ -460,6 +460,12 @@ CGG03 Aug 03
       Do_Rotate=.false.
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
+       If(.not.Do_Rotate) Then
+        write(6,'(6X,A,A)')'keyword "MSPD" is used but ',
+     &  'the file of rotated Hamiltonian is not found.'
+        write(6,'(6X,2a)')'Performing regular (state-',
+     &   'specific) MC-PDFT calculation'
+       End If
       End IF
       IF(Do_Rotate) Then
         write(6,*)
@@ -486,7 +492,7 @@ CGG03 Aug 03
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
         LUMS=12
         LUMS=IsFreeUnit(LUMS)
-        CALL Molcas_Open(LUMS,'H0_Rotate.txt')
+        CALL Molcas_Open(LUMS,'ROT_HAM')
         Do Jroot=1,lroots
           read(LUMS,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &                 ,kroot=1,lroots)

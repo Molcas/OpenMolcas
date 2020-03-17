@@ -215,7 +215,7 @@ C     really parallel or not.
         end if
         IFPrRot = Input%PrRot
         IFNOPT2 = .true.
-        IF(Input%XDOPT2)IFNOPT2=.false.
+        IF(Input%XDOPT2) IFNOPT2=.false.
 * This is a XDW-CASPT2 calculation. It is actually more similar to
 * a MS-CASPT2 one since we need to put one state per group and thus
 * have as many groups as states. Nevertheless, it makes more sense
