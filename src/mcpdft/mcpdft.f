@@ -459,7 +459,7 @@ CGG03 Aug 03
       Call XFlush(6)
       Do_Rotate=.false.
       IF(iMSPDFT==1) Then
-       call f_inquire('H0_Rotate.txt',Do_Rotate)
+       call f_inquire('ROT_HAM',Do_Rotate)
       End IF
       IF(Do_Rotate) Then
         write(6,*)

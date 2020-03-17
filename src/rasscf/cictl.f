@@ -524,7 +524,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
        do_rotate=.False.
        IF (ifinal.eq.2) then
        If(IRotPsi==1) Then
-        CALL f_inquire('Do_Rotate.txt',Do_Rotate)
+        CALL f_inquire('ROT_VEC',Do_Rotate)
        End If
        If(Do_Rotate) Then
         write(LF,*)
@@ -539,7 +539,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
         CALL GETMEM('RState','ALLO','REAL',LRState,NRState)
         LUROT=183
         LUROT=IsFreeUnit(LURot)
-        CALL Molcas_Open(LURot,'Do_Rotate.txt')
+        CALL Molcas_Open(LURot,'ROT_VEC')
         LRSttmp=LRState
         Do jRoot = 1,lRoots
          read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
@@ -557,13 +557,13 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
         NHRot=lRoots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
         ReadH0=.false.
-        CALL f_inquire('H0_Rotate.txt',ReadH0)
+        CALL f_inquire('ROT_HAM',ReadH0)
         iF (ReadH0) then
         write(LF,'(6X,A)')'H0_Rotate.txt is found in scratch directory.'
         write(LF,'(6X,2A)')'Reading rotated Hamiltonian from ',
      &   'H0_Rotate.txt'
           LUROT=IsFreeUnit(LURot)
-          CALL Molcas_Open(LURot,'H0_Rotate.txt')
+          CALL Molcas_Open(LURot,'ROT_HAM')
           Do Jroot=1,lroots
             read(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &                   ,kroot=1,lroots)
@@ -590,7 +590,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &        lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
          CALL GETMEM('HScr','FREE','REAL',LHScr,NHRot)
          LUROT=IsFreeUnit(LURot)
-         CALL Molcas_Open(LURot,'H0_Rotate.txt')
+         CALL Molcas_Open(LURot,'ROT_HAM')
          Do Jroot=1,lroots
            write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &                  ,kroot=1,lroots)

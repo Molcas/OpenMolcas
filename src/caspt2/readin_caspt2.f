@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -40,7 +40,9 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
 !     skip PT2 and MS-PT2 calculation. For XMC-PDFT calculation
-      Logical :: ZeroHOnly = .False.
+      Logical :: XDOPT2 = .False.
+!     print XMS rotated Hamiltonian and rotation vector. For XMS-PDFT
+      Logical :: PrRot = .False.
 !     DWMS      use dynamical weighting to construct Fock
       Logical :: DWMS = .False.
       Integer :: ZETA = 50
@@ -280,6 +282,7 @@ C end of input
 
       Case('XMUL')
       Input % XMUL = .True.
+      Input % XDOPT2 = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
       Read(Line,*) Word
       Call UpCase(Word)
@@ -312,8 +315,7 @@ C end of input
 
       Case('XROH')
       Input % XMUL = .True.
-      Input % ZeroHOnly = .true.
-      write (6,*)'Only calculating XMS-CASPT2 0th Hamiltonian'
+      Input % PrRot =. True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
       Read(Line,*) Word
       Call UpCase(Word)

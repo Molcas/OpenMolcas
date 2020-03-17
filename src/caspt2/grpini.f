@@ -12,7 +12,6 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      USE INPUTDATA
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -32,16 +31,11 @@
 #include "eqsolv.fh"
 #include "warnings.fh"
 #include "stdalloc.fh"
-      LOGICAL IF_TRNSF,Found
+      LOGICAL IF_TRNSF
       CHARACTER(27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
-      INTEGER LUXMS,IsFreeUnit
-      CHARACTER(len=128) filename,swapname
-      CHARACTER(len=11)xmsfmt1
-      CHARACTER(len=12)xmsfmt2
-      External IsFreeUnit
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -63,7 +57,7 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-       If(.not.Input % ZeroHOnly) Then
+       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
@@ -192,49 +186,8 @@ c Modify the Fock matrix if needed
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
-       if(Input%XMUL) then
-        write(6,*)
-        write(6,*) 'Writing Hamiltonian matrix for rotated states ',
-     &  'and the rotation matrix'
-*JB  Do_Rotate.txt is used to store vectors for new states as linear
-*JB  combination of original CASSCf states. Used for XMC-PDFT
-*JB  calculation on diagonal elements of the XMC-PDFT "Fock" matrix
-*JB  H0_Rotate.txt is used to store Hamiltonian for rotated states.
-        write(FileName,'(a)') 'Do_Rotate.txt'
-        write(SwapName,'(a)') 'Do_Rotate0.txt'
-        Call F_Inquire(FileName,Found)
-        If(Found)  Call RENAME(FileName,SwapName)
-        LUXMS=233
-        LUXMS=IsFreeUnit(LUXMS)
-        Call Molcas_Open(LUXMS,FileName)
-        if(NGRP.LT.10) then
-         write(xmsfmt1,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
-         DO J=1,NGRP
-          WRITE(LUXMS,xmsfmt1)(U0(I,J),I=1,NGRP)
-         END DO
-        else if(NGRP.LT.100) then
-         write(xmsfmt2,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
-         DO J=1,NGRP
-          WRITE(LUXMS,xmsfmt2)(U0(I,J),I=1,NGRP)
-         END DO
-        end if
-        close (LUXMS)
-        write(FileName,'(a)') 'H0_Rotate.txt'
-        write(SwapName,'(a)') 'H0_Rotate0.txt'
-        Call F_Inquire(FileName,Found)
-        If(Found)  Call RENAME(FileName,SwapName)
-        LUXMS=IsFreeUnit(LUXMS)
-        Call Molcas_Open(LUXMS,FileName)
-        if(NGrp.lt.10)then
-         DO J1=1,NSTATE
-          WRITE(LUXMS,xmsfmt1)(HEFF(J1,J2),J2=1,NSTATE)
-         END DO
-        else
-         DO J1=1,NSTATE
-          WRITE(LUXMS,xmsfmt2)(HEFF(J1,J2),J2=1,NSTATE)
-         END DO
-        endif
-        Close(LUXMS)
+       if(IFXMS.and.IFPRROT) then
+        call prrotmat(NGRP,U0,HEFF,NSTATE)
        end if
 
 
