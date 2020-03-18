@@ -39,19 +39,21 @@ C MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
       CALL DCOPY_(NBTRI,[0.0D00],0,AFOLD,1)
       IJ=0
       IEND=0
-      DO 20 ISY=1,NSYM
+      DO ISY=1,NSYM
         ISTA=IEND+1
         IEND=IEND+NBAS(ISY)
-        DO 20 I=ISTA,IEND
-          DO 10 J=ISTA,I-1
+        DO I=ISTA,IEND
+          DO J=ISTA,I-1
             IJ=IJ+1
             SFOLD(IJ)=TDAO(I,J)+TDAO(J,I)
             AFOLD(IJ)=TDAO(I,J)-TDAO(J,I)
-10        CONTINUE
+          END DO
           IJ=IJ+1
           SFOLD(IJ)=TDAO(I,I)
           AFOLD(IJ)=0.0D00
-20    CONTINUE
+        END DO
+      END DO
+      NSIZ=0
       DO 100 IPROP=1,NPROP
 C PICK UP MATRIX ELEMENTS FROM ONE-ELECTRON FILE:
         CALL iRDONE(IRTC,1,PNAME(IPROP),IPCOMP(IPROP),IDUM,ISYMLB)
