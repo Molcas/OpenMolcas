@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PMATEL(ISTATE,JSTATE,PINT,SMAT,CNO,OCC,
+      SUBROUTINE PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,
      *                  SFOLD,AFOLD,TDAO)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PINT(NBTRI),SFOLD(NBTRI),AFOLD(NBTRI),CNO(NCMO)
       DIMENSION TDAO(NBAST,NBAST),SMAT(*),OCC(NBAST)
       DIMENSION IDUM(1)
+      REAL*8    PROP(NRROOT,NRROOT,NPROP)
 
 #include "SysDef.fh"
 
