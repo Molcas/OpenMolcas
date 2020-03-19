@@ -12,11 +12,12 @@
 *               2019, Stefano Battaglia                                *
 *               2020, Jie J. Bao                                       *
 ************************************************************************
-      subroutine prrotmat(NGRP,U0,HEFF,NSTATE)
+      subroutine prrotmat(NGRP,U0,HEFF,NSTATE,Silent)
 
       INTEGER NGRP,NSTATE
       real(8) Heff(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
+      Logical Silent
 
       LOGICAL FOUND
       INTEGER LUXMS,IsFreeUnit
@@ -25,9 +26,10 @@
       CHARACTER(len=12)xmsfmt2
       External IsFreeUnit
 
-
+      if(.not.silent) Then
       write(6,*) 'Writing Hamiltonian matrix for rotated states ',
      &'and the rotation matrix'
+      End if
       write(FileName,'(a)') 'ROT_VEC'
       write(SwapName,'(a)') 'ROT_VEC0'
       Call F_Inquire(FileName,Found)

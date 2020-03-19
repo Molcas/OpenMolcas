@@ -53,7 +53,8 @@ Nactel=8 0 0
 
 
 &CASPT2
-XROH=2 1 2
+XMUL=2 1 2
+XROH
 
 >>COPY UseOrb INPORB
 

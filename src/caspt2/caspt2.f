@@ -383,7 +383,7 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
        If(IFNOPT2) then  !XMS Skip multistate calculation.
-        write(6,*)'PT2 skipped with XROH, and without XMUL'
+        write(6,*)'PT2 calculation skipped with XROH keyword'
         write(6,*)
         CALL MMA_DEALLOCATE(UEFF)
         CALL MMA_DEALLOCATE(U0)

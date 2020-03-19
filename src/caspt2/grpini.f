@@ -186,8 +186,8 @@ c Modify the Fock matrix if needed
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
-       if(IFXMS.and.IFPRROT) then
-        call prrotmat(NGRP,U0,HEFF,NSTATE)
+       if(IFXMS) then
+        call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
        end if
 
 

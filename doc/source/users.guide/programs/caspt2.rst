@@ -300,9 +300,17 @@ Keywords
   in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
   are desired.
   This keyword is mutually exclusive with :kword:`MULTistate`.
+  This keyword can be used in an XMS-PDFT calculation (which needs RASSCF,
+  CASPT2 and MCPDFT modules).
+  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF 
+  or SA-RASSCF states to intermediate states (using the same rotation as in 
+  XMS-CASPT2), and the rotation matrix can be obtained in the CASPT2 module 
+  with this keyword.
   This keyword generates two files in the scratch directory, Do_Rotate.txt,
   which stores the XMS rotation vector, and H0_Rotate.txt, which stores the 
-  Hamiltonian for the XMS rotated states.
+  Hamiltonian for the XMS rotated states. If the user wants to skip the 
+  expensive perturbation-theory calculation, this keyword can be combined 
+  with :kword: `XROH` to skip the perturbation part. (see :kword:`XROH`)
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               <ALTERNATE KIND="CUSTOM" />
@@ -318,27 +326,16 @@ Keywords
 :kword:`XROH`
     This keyword can be used in an XMS-PDFT calculation (which needs RASSCF, 
    CASPT2 and MCPDFT modules). 
-    To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF 
-   or SA-RASSCF states to intermediate states (using the same rotation as in 
-   XMS-CASPT2), and the rotation matrix can be obtained in the CASPT2 module 
-   with this keyword.
-    The usage of this keyword is the same to the usage of the :kword:`XMUL`, 
-   however, XROH will not perform perturbation theory calculations.
-    This keyword generates two files in the scratch directory, Do_Rotate.txt, 
-   which stores the XMS rotation vector, and H0_Rotate.txt, which stores the 
-   Hamiltonian for the XMS rotated states.
-    This keyword, however, if used together with :kword:`XMUL`, will perform
-   perturbation theory calculations and prints the matrices needed for XMS-
-   PDFT calculation.
+    This keyword is used with :kword: `XMUL`. When this keyword is used,
+  the CASPT2 module will not perform perturbation theory calculations; instead,
+  this module will only print the rotation matrix and the Hamiltonian matrix 
+  of the intermediate states.
     More information can be found on the Minnesota OpenMolcas page 
    (https://comp.chem.umn.edu/openmolcas/).
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" APPEAR="XMS-Rotated Hamiltonian" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" APPEAR="XMS-Rotated Hamiltonian" KIND="SINGLE" SIZE="1" LEVEL="BASIC">
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
-              Enter the number of states for program to compute rotated Hamiltonian in XMS-CASPT2
-              Alternatively, enter "all' for all the states included in the RASSCF module. 
               </HELP>
               </KEYWORD>
 
