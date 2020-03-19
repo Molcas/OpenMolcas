@@ -63,14 +63,7 @@
      &          TUVX(*)
       Logical Exist,Do_ESPF,l_casdft
 *JB   variables for state rotation on final states
-      Logical do_rotate,ReadH0
-      Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
-      Integer LRState,LRSttmp,NRState         ! storing info in Do_Rotate.txt
-      Integer LHrot,NHrot                     ! storing info in H0_Rotate.txt
-      Integer LHScr                           ! calculating rotated H
-      Integer rcidisk
-      INTEGER LURot,IsFreeUnit
-      EXTERNAL IsFreeUnit
+      Logical do_rotate
 *JB   end of variables for state rotation calculation
 
 #include "rasdim.fh"
@@ -523,111 +516,17 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 *JB   staets
        do_rotate=.False.
        IF (ifinal.eq.2) then
-       If(IRotPsi==1) Then
-        CALL f_inquire('ROT_VEC',Do_Rotate)
-       End If
-       If(Do_Rotate) Then
-        write(LF,*)
-        write(LF,*) ('=',i=1,61)
-        write(LF,*)
-        write(LF,'(6X,A)')'Do_Rotate.txt is found in scratch directory.'
-        write(LF,'(6X,A)')'Following properties are for rotated states.'
-        write(LF,*)
-
-*JB     read rotation matrix in Do_Rotate.txt
-        NRState=lRoots**2
-        CALL GETMEM('RState','ALLO','REAL',LRState,NRState)
-        LUROT=183
-        LUROT=IsFreeUnit(LURot)
-        CALL Molcas_Open(LURot,'ROT_VEC')
-        LRSttmp=LRState
-        Do jRoot = 1,lRoots
-         read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-         LRSttmp=LRSttmp+lRoots
-        End Do
-        close(LURot)
-        iF(IPRLEV.GE.DEBUG) Then
-          write(LF,*)'rotation matrix'
-          LRSttmp=LRState
-          Do jRoot = 1,lRoots
-           write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-           LRSttmp=LRSttmp+lRoots
-          End Do
-        eND iF
-        NHRot=lRoots**2
-        CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
-        ReadH0=.false.
-        CALL f_inquire('ROT_HAM',ReadH0)
-        iF (ReadH0) then
-        write(LF,'(6X,A)')'H0_Rotate.txt is found in scratch directory.'
-        write(LF,'(6X,2A)')'Reading rotated Hamiltonian from ',
-     &   'H0_Rotate.txt'
-          LUROT=IsFreeUnit(LURot)
-          CALL Molcas_Open(LURot,'ROT_HAM')
-          Do Jroot=1,lroots
-            read(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &                   ,kroot=1,lroots)
-          End Do
-          Close(LUROT)
-          if(IPRLEV.GE.DEBUG) Then
-           write(LF,'(6X,A)') 'Rotated H0 matrix read from scratch'
-           write(LF,'(6X,A)') (Work(LHRot+jroot),jroot=0,NHRot-1)
-          End if
-        eLSE
-          write(LF,'(6X,2A)')'H0_Rotate.txt is not found in scratch ',
-     &    'directory.'
-          write(LF,'(6X,2A)')'Generating Hamiltonian matrix for ',
-     &    'rotated states'
-          write(LF,'(6X,A)')'and storing the matrix in H0_Rotate.txt'
-         CALL GETMEM('HScr','ALLO','REAL',LHScr,NHRot)
-         CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
-         Do I=1,lRoots
-           WORK(LHRot+(I-1)*(lRoots+1))=ENER(I,ITER)
-         End Do
-         Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LRState),
-     &        lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
-         Call DGEMM_('n','t',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
-     &        lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
-         CALL GETMEM('HScr','FREE','REAL',LHScr,NHRot)
-         LUROT=IsFreeUnit(LURot)
-         CALL Molcas_Open(LURot,'ROT_HAM')
-         Do Jroot=1,lroots
-           write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &                  ,kroot=1,lroots)
-         End Do
-         Close(LUROT)
-        eND iF
-        if(IPRLEV.GE.DEBUG) Then
-         write(LF,'(6X,A)') 'Rotated Hamialtonian matrix '
-         write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
-        End if
-
-
-*JB     read CI vector from jobiph
-        NRCIVec=lRoots*NConf
-*JB        write(6,*)'length of NRCIVec',NRCIVec
-        CALL GETMEM('RCIVEC','ALLO','REAL',LRCIVec,NRCIVec)
-        rcidisk=idisk
-        CALL GETMEM('RCIScr','ALLO','REAL',LRCIScr,NRCIVec)
-        LRCItmp=LRCIScr
-        Do jRoot = 1,lRoots
-          Call DDafile(JOBIPH,2,Work(LRCItmp),nConf,rcidisk)
-          LRCItmp=LRCItmp+NConf
-        End Do
-        Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
-     &       nConf,Work(LRState),lRoots,0.0D0,Work(LRCIVec),nConf)
-C        Call DGEMM_('n','t',lRoots,NConf,lRoots,1.0D0,Work(LRState),
-C     &       lRoots,Work(LRCIVec),nConf,0.0D0,Work(LRCIScr),lRoots)
-        CALL GETMEM('RCIScr','Free','REAL',LRCIScr,NRCIVec)
-        CALL GETMEM('RState','Free','REAL',LRState,NRState)
-        write(LF,*)
-        write(LF,*) ('=',i=1,61)
-       Else
-        iF(IRotPsi==1) tHEN
-         write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',
-     &  'MCSCF states will not be rotated'
-        eND iF
-       End If
+        If(IRotPsi==1) Then
+         CALL f_inquire('ROT_VEC',Do_Rotate)
+        End If
+        If(Do_Rotate) Then
+         CALL RotState()
+        Else
+         iF(IRotPsi==1) tHEN
+          write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',
+     &   'MCSCF states will not be rotated'
+         eND iF
+        End If
 *JB    End of condition 'Do_Rotate' to initialize rotated states
        End IF
 *JB    End IF for ifinial=2
@@ -635,12 +534,7 @@ C     &       lRoots,Work(LRCIVec),nConf,0.0D0,Work(LRCIScr),lRoots)
 * load back one CI vector at the time
 *JB      If do_rotate=.true., then we read CI vectors from Work(LRCIVec)
 *JB      Otherwise we read if from JOBIPH
-         If(.not.Do_Rotate) Then
-          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
-         Else
-          call DCopy_(nConf,Work(LRCIVec+nConf*(jRoot-1)),
-     &         1,Work(LW4),1)
-         End If
+         Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
          IF (IPRLEV.GE.DEBUG) THEN
           call DVcPrt('CI-Vec in CICTL',' ',Work(LW4),nConf )
           Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. CICTL: '
@@ -849,12 +743,7 @@ c
           jDisk=iDisk
 * load back one CI vector at the time
 *          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
-          If(.not.Do_Rotate) Then
            Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
-          Else
-           call DCopy_(nConf,Work(LRCIVec+nConf*(i-1)),
-     &          1,Work(LW4),1)
-          End If
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
      &        Work(LW4),nConf)
@@ -889,9 +778,6 @@ c         end if
               Write(LF,'(6X,A,F6.2,A,I3)')
      &                'printout of CI-coefficients larger than',
      &                 PRWTHR,' for root',i
-              if (Do_Rotate) Then
-              ENER(I,ITER)=WORK(LHRot+i-1+(i-1)*lroots)
-              End if
               Write(LF,'(6X,A,F15.6)')
      &                 'energy=',ENER(I,ITER)
                CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
@@ -976,10 +862,6 @@ C.. printout of the wave function
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
       CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 
-      If(Do_Rotate) Then
-      CALL GETMEM('RCIVEC','FREE','REAL',LRCIVec,NRCIVec)
-      CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
-      End If
  9000 Continue
 *
 *     For RF calculations make sure that the we are following the
