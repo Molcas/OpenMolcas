@@ -333,9 +333,10 @@ Keywords
     More information can be found on the Minnesota OpenMolcas page 
    (https://comp.chem.umn.edu/openmolcas/).
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" APPEAR="XMS-Rotated Hamiltonian" KIND="SINGLE" SIZE="1" LEVEL="BASIC">
-              %%Keyword: XMultistate <basic> GUI:list
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: XROH <basic> 
               <HELP>
+              Skips PT2 calculation. Only effective when XMUL is used.
               </HELP>
               </KEYWORD>
 
