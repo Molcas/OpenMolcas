@@ -1080,7 +1080,7 @@ c         End Do
           LUZee(i)=IsFreeUnit(30+i)
           Call molcas_open(LUZee(i),namefile_energy)
 
-          READ(5,*,ERR=997) (dir_weight(i,l),l=1,3)
+          READ(Input,*,ERR=997) (dir_weight(i,l),l=1,3)
 
           check_dir_weight(i)=0.0_wp
           check_dir_weight(i)=sqrt( dir_weight(i,1)**2 +
@@ -1226,11 +1226,11 @@ c        End If
 C-------------------------------------------
       If (LINE(1:4).eq.'ABCC') Then
       Do_structure_abc = .TRUE.
-      READ(5,*,ERR=997) (cryst(i),i=1,6)
+      READ(Input,*,ERR=997) (cryst(i),i=1,6)
       coord(1)=0.0_wp
       coord(2)=0.0_wp
       coord(3)=0.0_wp
-c      READ(5,*,ERR=997) (coord(i),i=1,3)
+c      READ(Input,*,ERR=997) (coord(i),i=1,3)
         LINENR=LINENR+2
         Go To 100
       End If

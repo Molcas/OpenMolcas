@@ -53,7 +53,7 @@
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
-      Write (Lu,*) ' Iter   alpha     Sqrt(dqdq)   StepMax     EigVal'
+      Write (Lu,*) ' Iter   alpha          dqdq    StepMax     EigVal'
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
@@ -187,7 +187,7 @@
 *           Write (6,*) 'iRoot=',iRoot
 *           Write (6,*) 'ZZ=',ZZ
 *           Write (6,*) 'Fact=',Fact
-*           Write (6,*) 'dqdq=',DDot_(nInter,dq,1,dq,1)
+*           Write (6,*) 'dqdq=',Sqrt(DDot_(nInter,dq,1,dq,1))
 #endif
 *
 *        Compute lambda_i according to Eq. (8a)
@@ -197,10 +197,9 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=DDot_(nInter,dq,1,dq,1)
+         dqdq=Sqrt(DDot_(nInter,dq,1,dq,1))
 #ifdef _DEBUG_
-         Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,Sqrt(dqdq),StepMax,
-     &                                 EigVal
+         Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
 #endif
 *                                                                      *
 ************************************************************************
@@ -209,7 +208,7 @@
 *
          If (.Not.Iterate.Or.Restart) Then
             A_RFO_long=A_RFO
-            dqdq_long=Sqrt(dqdq)
+            dqdq_long=dqdq
             A_RFO_short=Zero
             dqdq_short=dqdq_long+One
          End If
@@ -219,7 +218,7 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2) Then
+         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax) Then
             Iterate=.True.
             Restart=.False.
          End If
@@ -228,19 +227,19 @@
 *                                                                      *
 *        Procedure if the step length is not equal to the trust radius
 *
-         If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
+         If (Iterate.and.Abs(StepMax-dqdq).gt.Thr) Then
             Step_Trunc='*'
 #ifdef _DEBUG2_
-            Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+            Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
 #endif
 *
 *           Converge if small interval
 *
-            If ((dqdq.lt.StepMax**2).and.
+            If ((dqdq.lt.StepMax).and.
      &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
-     &                         A_RFO,Sqrt(dqdq),StepMax)
+     &                         A_RFO,dqdq,StepMax)
             If (A_RFO.eq.-One) Then
                A_RFO=One
                Step_Trunc=' '

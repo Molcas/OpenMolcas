@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2018,2019, Roland Lindh                                *
 *               2019, Mickael G. Delcey                                *
-*               2019, Ignacio Fdez Galvan                              *
+*               2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX

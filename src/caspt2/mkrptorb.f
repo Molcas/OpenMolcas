@@ -278,7 +278,7 @@ C Finally, loop again over symmetries, transforming the CI:
           NXMAT=NASHT**2
 * Workspace for transformation matrix
           CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NXMAT)
-          CALL DCOPY_(NXMAT,0.0D0,0,WORK(LXMAT),1)
+          CALL DCOPY_(NXMAT,[0.0D0],0,WORK(LXMAT),1)
           CALL MKXMAT(TORB,WORK(LXMAT))
 
           CALL block_tran2pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)

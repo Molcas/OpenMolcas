@@ -118,7 +118,7 @@
       Enddo
 *      write(6,*) 'Starting the calculation',nb2
       Do i=1,nb2
-       DPQ(i)=0.d0
+       DPQ(i)=0.0d0
       Enddo
       ib=0
       imo0=0
@@ -169,7 +169,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.d0
+          chksum=0.0d0
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -272,7 +272,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.d0
+          chksum=0.0d0
           ipp=0
           Do np=1,nbi
            ipp=ipp+np

@@ -47,6 +47,10 @@
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
       when: on_success
+    # dev/external branch, if changes in the source
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external"'
+      <<: *sources
+      when: on_success
 
 # There can only be a single "include" per file
 include:
@@ -164,11 +168,12 @@ include:
         pymolcas verify --flatlist ${tests} > filelist
         if ( ! which python && which python3 ) ; then
           sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
+          sed -i -e 's/env python/env python3/' ../Tools/verify/get_keywords.py
         fi
         ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        pymolcas verify --status --fromfile fl
+        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
-        pymolcas verify --status ${tests}
+        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
       fi
     # special post-script that may be needed in some installations
     # (not using after_script because it would be overwritten)
@@ -180,10 +185,12 @@ include:
     - |
       cp -L build/test/result result
       cp -Lr build/test/failed failed
+      cp -L build/test/tmp/keylist keylist
   artifacts:
     paths:
       - result
       - failed/
+      - keylist
     expire_in: 1 month
     when: always
   <<: *test-jobs

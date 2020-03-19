@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTCTL(HEFF,EIGVEC)
+      SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
       USE REFWFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -29,17 +29,19 @@
       EXTERNAL Cho_X_GetTol
       CHARACTER(8) INLAB
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
+      real(8) U0(Nstate,Nstate)
+      real(8),allocatable :: Utmp(:,:)
 
       CALL QENTER('MLTCTL')
 
       IF(IPRGLB.GE.TERSE) THEN
-       CALL CollapseOutput(1,'Multi-State CASPT2 section:')
-       WRITE(6,'(20A4)')('****',I=1,20)
-       WRITE(6,*)' MULTI-STATE CASPT2 SECTION'
-       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,'(20A4)')('----',I=1,20)
-        WRITE(6,*)
-       END IF
+        CALL CollapseOutput(1,'Multi-State CASPT2 section:')
+        WRITE(6,'(20A4)')('****',I=1,20)
+        WRITE(6,*)' MULTI-STATE CASPT2 SECTION'
+        IF(IPRGLB.GE.USUAL) THEN
+          WRITE(6,'(20A4)')('----',I=1,20)
+          WRITE(6,*)
+        END IF
       END IF
 
 C Write out the effective Hamiltonian, for use in e.g. RASSI:
@@ -63,15 +65,15 @@ C Analyze the effective Hamiltonian:
        END IF
 
       IF((IPRGLB.GE.VERBOSE).OR.JMS) THEN
-       WRITE(6,*)' Effective Hamiltonian matrix (Asymmetric):'
-       DO ISTA=1,NSTATE,5
-        IEND=MIN(ISTA+4,NSTATE)
-        WRITE(6,*)
-        WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
-        DO J=1,NSTATE
-          WRITE(6,'(1x,I3,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
+        WRITE(6,*)' Effective Hamiltonian matrix (Asymmetric):'
+        DO ISTA=1,NSTATE,5
+          IEND=MIN(ISTA+4,NSTATE)
+          WRITE(6,*)
+          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+          DO J=1,NSTATE
+            WRITE(6,'(1x,I3,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
+          END DO
         END DO
-       END DO
       END IF
 
 C Diagonalize:
@@ -88,18 +90,18 @@ C Use a symmetrized matrix, in triangular storage:
         END DO
       END DO
       IF(IPRGLB.GE.USUAL) THEN
-       WRITE(6,*)
-       WRITE(6,*)' Effective Hamiltonian matrix (Symmetric):'
-       DO ISTA=1,NSTATE,5
-        IEND=MIN(ISTA+4,NSTATE)
         WRITE(6,*)
-        WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
-        DO I=ISTA,NSTATE
-          II0=(I*(I-1))/2
-          WRITE(6,'(1x,I3,3X,5F16.8)')
-     &                     I,(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
+        WRITE(6,*)' Effective Hamiltonian matrix (Symmetric):'
+        DO ISTA=1,NSTATE,5
+          IEND=MIN(ISTA+4,NSTATE)
+          WRITE(6,*)
+          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+          DO I=ISTA,NSTATE
+            II0=(I*(I-1))/2
+            WRITE(6,'(1x,I3,3X,5F16.8)')
+     &            I,(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
+          END DO
         END DO
-       END DO
       END IF
       CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LUMAT),1)
       CALL DCOPY_(NSTATE,[1.0D0],0,WORK(LUMAT),NSTATE+1)
@@ -115,35 +117,51 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-       If (IFXMS) Then
-        WRITE(6,*)
-        WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
-        DO I=1,NSTATE
-         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &    'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-        END DO
-       Else
-        WRITE(6,*)
-        WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
-        DO I=1,NSTATE
-         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &    'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-        END DO
-       End If
+        If (IFXMS) Then
+          WRITE(6,*)
+          WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
+          DO I=1,NSTATE
+            Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &      'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+          END DO
+        Else
+          WRITE(6,*)
+          WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
+          DO I=1,NSTATE
+            Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &      'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+          END DO
+        End If
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN
-       WRITE(6,*)
-       WRITE(6,'(6X,A)')' Eigenvectors:'
-       DO ISTA=1,NSTATE,5
-        IEND=MIN(ISTA+4,NSTATE)
-        DO J=1,NSTATE
-          WRITE(6,'(6x,5F16.8)')(EIGVEC(J,I),I=ISTA,IEND)
-        END DO
         WRITE(6,*)
-       END DO
-       CALL CollapseOutput(0,'Multi-State CASPT2 section:')
-       WRITE(6,*)
+        WRITE(6,'(6X,A)')' Eigenvectors:'
+        DO ISTA=1,NSTATE,5
+          IEND=MIN(ISTA+4,NSTATE)
+          DO J=1,NSTATE
+            WRITE(6,'(6x,5F16.8)')(EIGVEC(J,I),I=ISTA,IEND)
+          END DO
+          WRITE(6,*)
+        END DO
+        if (IFXMS) then
+* Transform eigenvectors into the original input basis
+          call mma_allocate(Utmp,Nstate,Nstate)
+          call dgemm_('N','N',Nstate,Nstate,Nstate,
+     &                1.0d0,U0,Nstate,eigvec,Nstate,
+     &                0.0d0,Utmp,Nstate)
+          WRITE(6,'(6X,A)')' In terms of the input states:'
+          DO ISTA=1,NSTATE,5
+            IEND=MIN(ISTA+4,NSTATE)
+            DO J=1,NSTATE
+              WRITE(6,'(6x,5F16.8)')(Utmp(J,I),I=ISTA,IEND)
+            END DO
+            WRITE(6,*)
+          END DO
+          call mma_deallocate(Utmp)
+        end if
+        CALL CollapseOutput(0,'Multi-State CASPT2 section:')
+        WRITE(6,*)
       END IF
 
 * Restore original effective Hamiltonian
