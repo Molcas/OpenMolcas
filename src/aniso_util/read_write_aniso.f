@@ -155,14 +155,14 @@ c compatibility with the present version: of aniso_i.input file
       ! edmom
       Do l=1,3
         Do j1=1,nstate
-          Read(LuAniso,'(5ES24.14)') (edmom(l,j1,j2),j2=1,nstate)
+          Read(LuAniso,*) (edmom(l,j1,j2),j2=1,nstate)
         End Do
       End Do
 
       ! amfi
       Do l=1,3
         Do j1=1,nstate
-          Read(LuAniso,'(5ES24.14)') (amfi(l,j1,j2),j2=1,nstate)
+          Read(LuAniso,*) (amfi(l,j1,j2),j2=1,nstate)
         End Do
       End Do
 
