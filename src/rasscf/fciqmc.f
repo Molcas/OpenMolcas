@@ -59,7 +59,7 @@
       contains
         procedure, nopass :: init
         procedure, nopass :: run => fciqmc_ctl
-        final :: cleanup
+        procedure, nopass :: cleanup
       end type
 
 
@@ -226,12 +226,10 @@
         call RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_neci
 
-      subroutine cleanup(CI_solver)
+      subroutine cleanup()
         use fciqmc_make_inp, only : make_inp_cleanup => cleanup
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         use fcidump, only : fcidump_cleanup => cleanup
-        type(fciqmc_solver_t), intent(in) :: CI_solver
-        if (.false.) call unused(CI_solver)
         call make_inp_cleanup()
         call read_RDM_cleanup()
         call fcidump_cleanup()

@@ -51,7 +51,7 @@
       contains
         procedure, nopass :: init
         procedure, nopass :: run => CC_CI_ctl
-        final :: cleanup
+        procedure, nopass :: cleanup
       end type
 
       integer*4 :: error
@@ -168,10 +168,8 @@
       end subroutine
 
 
-      subroutine cleanup(CI_solver)
+      subroutine cleanup()
         use fcidump, only : fcidump_cleanup => cleanup
-        type(CC_CI_solver_t), intent(in) :: CI_solver
-        if (.false.) call unused(CI_solver)
         call fcidump_cleanup()
       end subroutine cleanup
 

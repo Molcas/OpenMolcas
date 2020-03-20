@@ -1981,6 +1981,9 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+      else if (allocated(CI_solver)) then
+        call CI_solver%cleanup()
+        deallocate(CI_solver)
       end if
 
 
