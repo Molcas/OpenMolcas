@@ -284,9 +284,11 @@
 
       subroutine wait_and_read(NECIen)
         real*8, intent(out) :: NECIen
-        real*8 :: real_buffer(1)
         logical :: newcycle_found(1)
         integer :: LuNewC
+#ifdef _MOLCAS_MPP_
+        real*8 :: real_buffer(1)
+#endif
         newcycle_found(1) = .false.
         do while(.not. newcycle_found(1))
           call sleep(1)
