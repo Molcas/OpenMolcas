@@ -27,7 +27,7 @@
 #include "WrkSpc.fh"
 #include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
-      Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens),
+      Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
@@ -43,6 +43,17 @@
 *                                                                      *
       call dcopy_(ndens2,[0.0d0],0,focki,1)
       call dcopy_(ndens2,[0.0d0],0,focka,1)
+      If(TwoStep.and.(StepType.eq.'RUN2')) Then
+        iaddressQDAT=0
+        Call dcopy_(ndens2,[0.0d0],0,fock,1)
+        Call dcopy_(ndens2,[0.0d0],0,Q,1)
+        Call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,2,Fock ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,2,Q    ,nDens2,iaddressQDAT)
+        goto 101
+      End If
+
 *
       nas=0
       Do is=1,nSym
@@ -442,6 +453,7 @@
 *
  300     Continue
       End Do
+ 101  Continue
       renergy=0.0d0
       rcora=0.0d0
       Do iS=1,nSym
@@ -482,6 +494,14 @@
          Write(6,*) 'Checking energy',0.5d0*renergy,potnuc,half*rcore
          write(6,*)
       End if
+
+      If(TwoStep.and.(StepType.eq.'RUN1')) Then
+        iaddressQDAT=0
+        Call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,1,Fock ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,1,Q    ,nDens2,iaddressQDAT)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

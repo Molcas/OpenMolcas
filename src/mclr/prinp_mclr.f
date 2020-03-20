@@ -262,6 +262,12 @@
                Write(6,Fmt2//'39X,A,I3,A)')'(SA root no. ',istate,')'
             End If
          End If
+         If(TwoStep) Then
+            If(StepType.eq.'RUN1') Write(6,Fmt1)
+     &                      'TwoStep activated. Run 1 (preparation).'
+            If(StepType.eq.'RUN2') Write(6,Fmt1)
+     &                      'TwoStep activated. Run 2 (final run).'
+         End If
       Else
          If (ndisp.ne.0) Then
             Write(6,*)
