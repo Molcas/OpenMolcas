@@ -99,7 +99,7 @@
        End If
 *
        If (blaAI) then
-          write (6,'(A,F10.5,A,/,A,F10.5,A)')
+          write (6,'(A,F10.5,A,/,A,F12.3,A)')
      &          '   Baseline is highest energy plus: ',blavAI,' a.u',
      &          '                                    ',
      &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,

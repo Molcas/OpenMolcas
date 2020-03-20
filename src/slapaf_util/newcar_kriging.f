@@ -56,7 +56,8 @@
      &            qTemp,Name,iOper,nSym,iSym,Smmtrc,Degen,
      &            Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
-     &            DDV_Schlegel,HWRS,.True.,iOptC,PrQ,mxdc,
+*    &            DDV_Schlegel,HWRS,.True.,iOptC,PrQ,mxdc,
+     &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,
      &            RefIter)
       Force_dB=.False.
