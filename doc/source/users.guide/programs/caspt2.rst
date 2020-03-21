@@ -324,14 +324,9 @@ Keywords
               </KEYWORD>
 
 :kword:`XROH`
-    This keyword can be used in an XMS-PDFT calculation (which needs RASSCF, 
-   CASPT2 and MCPDFT modules). 
-    This keyword is used with :kword: `XMUL`. When this keyword is used,
-  the CASPT2 module will not perform perturbation theory calculations; instead,
-  this module will only print the rotation matrix and the Hamiltonian matrix 
-  of the intermediate states.
-    More information can be found on the Minnesota OpenMolcas page 
-   (https://comp.chem.umn.edu/openmolcas/).
+  This keyword can be used in an XMS-PDFT calculation (which needs RASSCF, CASPT2 and MCPDFT modules). 
+  This keyword is used with :kword:`XMUL`. When this keyword is used, the CASPT2 module will not perform perturbation theory calculations; instead, this module will only print the rotation matrix and the Hamiltonian matrix of the intermediate states.
+  More information can be found on the Minnesota OpenMolcas page (https://comp.chem.umn.edu/openmolcas/).
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: XROH <basic> 
