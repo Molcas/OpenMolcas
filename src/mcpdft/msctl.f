@@ -74,6 +74,8 @@
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
       integer LUGS
+      LOGICAL Do_Rotate
+      COMMON /MSPDFT/ Do_Rotate
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
@@ -611,7 +613,15 @@ c         call xflush(6)
      &         jroot,Ref_Ener)
 c         call xflush(6)
 
-         Energies(jroot)=CASDFT_E
+
+         IF(Do_Rotate) Then
+            Energies(jroot)=CASDFT_Funct
+*JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
+            Ref_Ener(jroot)=CASDFT_E
+         ELSE
+            Energies(jroot)=CASDFT_E
+         END IF
+
 
          CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)

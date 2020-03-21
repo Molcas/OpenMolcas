@@ -300,6 +300,17 @@ Keywords
   in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
   are desired.
   This keyword is mutually exclusive with :kword:`MULTistate`.
+  This keyword can be used in an XMS-PDFT calculation (which needs RASSCF,
+  CASPT2 and MCPDFT modules).
+  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF 
+  or SA-RASSCF states to intermediate states (using the same rotation as in 
+  XMS-CASPT2), and the rotation matrix can be obtained in the CASPT2 module 
+  with this keyword.
+  This keyword generates two files in the scratch directory, Do_Rotate.txt,
+  which stores the XMS rotation vector, and H0_Rotate.txt, which stores the 
+  Hamiltonian for the XMS rotated states. If the user wants to skip the 
+  expensive perturbation-theory calculation, this keyword can be combined 
+  with :kword: `XROH` to skip the perturbation part. (see :kword:`XROH`)
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               <ALTERNATE KIND="CUSTOM" />
@@ -309,6 +320,23 @@ Keywords
               showing which CASSCF state to use as root state for each.
               Alternatively, enter "all" for all the states included in the CASSCF
               orbital optimization.
+              </HELP>
+              </KEYWORD>
+
+:kword:`XROH`
+    This keyword can be used in an XMS-PDFT calculation (which needs RASSCF, 
+   CASPT2 and MCPDFT modules). 
+    This keyword is used with :kword: `XMUL`. When this keyword is used,
+  the CASPT2 module will not perform perturbation theory calculations; instead,
+  this module will only print the rotation matrix and the Hamiltonian matrix 
+  of the intermediate states.
+    More information can be found on the Minnesota OpenMolcas page 
+   (https://comp.chem.umn.edu/openmolcas/).
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: XROH <basic> 
+              <HELP>
+              Skips PT2 calculation. Only effective when XMUL is used.
               </HELP>
               </KEYWORD>
 
