@@ -284,12 +284,15 @@
 
       subroutine wait_and_read(NECIen)
         real*8, intent(out) :: NECIen
-        logical :: newcycle_found
+        logical :: newcycle_found(1)
         integer :: LuNewC
-        newcycle_found = .false.
-        do while(.not. newcycle_found)
+#ifdef _MOLCAS_MPP_
+        real*8 :: real_buffer(1)
+#endif
+        newcycle_found(1) = .false.
+        do while(.not. newcycle_found(1))
           call sleep(1)
-          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
+          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found(1))
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
             call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
@@ -306,6 +309,7 @@
           write(6, *) 'I read the following energy:', NECIen
         end if
 #ifdef _MOLCAS_MPP_
+        if (myrank == 0) real_buffer(1) = NECIen
         if (is_real_par()) then
           call MPI_Bcast(NECIen, one4, MPI_REAL8,
      &                   root4, MPI_COMM_WORLD, error)
