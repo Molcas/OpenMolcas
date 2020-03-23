@@ -28,6 +28,8 @@
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
+      LOGICAL Do_Rotate
+      COMMON /MSPDFT/ Do_Rotate
 #include "WrkSpc.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
@@ -35,10 +37,15 @@
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,A,1X,I2.2,1X,27A)')'**                         '//
+      IF(Do_Rotate) Then
+      write(6,'(6X,A,1X,I2.2,1X,A)')'**                       '//
+     &    ' MS-PDFT INTERMEDIATE STATE', jroot,
+     & '                      ** '
+      ELSE
+      write(6,'(6X,A,1X,I2.2,1X,A)')'**                         '//
      &    ' MC-PDFT RESULTS, STATE', jroot,
      & '                        ** '
-
+      ENDIF
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',
      &                           Ref_Ener(jroot)
@@ -73,9 +80,13 @@
 
       write(6,'(6X,80A)')
 
-      write(6,'(6X,A20,42X,F18.8)') 'Total MC-PDFT energy',
-     &         CASDFT_E
-
+      IF(Do_Rotate) Then
+      write(6,'(6X,A43,2X,I3,14X,F18.8)')
+     &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
+      ELSE
+      write(6,'(6X,A20,2X,I3,37X,F18.8)')
+     &'Total MC-PDFT energy for state',jroot,CASDFT_E
+      END IF
       if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then
          Funcaa1 = Funcaa/CoefX
          Funcbb1 = Funcbb/CoefX
