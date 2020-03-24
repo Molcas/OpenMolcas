@@ -513,23 +513,23 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       jDisk = IADR15(3)
       IF (.not.DoSplitCAS) THEN
 *JB   Instead of RASSCF/RASCI energy, print out energy for rotated
-*JB   staets
+*JB   states
        do_rotate=.False.
-       IF (ifinal.eq.2) then
+       If (ifinal.eq.2) Then
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)
         End If
         If(Do_Rotate) Then
          CALL RotState()
         Else
-         iF(IRotPsi==1) tHEN
+         If(IRotPsi==1) Then
           write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',
      &   'MCSCF states will not be rotated'
-         eND iF
+         End If
         End If
 *JB    End of condition 'Do_Rotate' to initialize rotated states
-       End IF
-*JB    End IF for ifinial=2
+       End If
+*JB    End If for ifinal=2
        Do jRoot = 1,lRoots
 * load back one CI vector at the time
 *JB      If do_rotate=.true., then we read CI vectors from Work(LRCIVec)

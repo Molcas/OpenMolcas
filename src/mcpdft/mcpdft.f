@@ -80,6 +80,13 @@
 #include "raswfn.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
+      Integer LRState,NRState         ! storing info in Do_Rotate.txt
+      Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+      Integer LXScratch,NXScratch
+      INTEGER LUMS,IsFreeUnit
+      Dimension WGRONK(2)
+      External IsFreeUnit
+
       Logical DSCF
       Logical lTemp, lOPTO
       Character*80 Line

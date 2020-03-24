@@ -190,8 +190,6 @@ c Modify the Fock matrix if needed
         call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
        end if
 
-
-
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
