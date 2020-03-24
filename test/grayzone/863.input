@@ -1,3 +1,4 @@
+>export MOLCAS_NOCHECK=NQ_DENSITY
 &GATEWAY
   Coord 
 12
