@@ -21,30 +21,35 @@
       integer, intent(in) :: NAC, NACPAR
       real*8, intent(in)  :: DMAT(NAC), PMAT(NACPAR), PA(NACPAR)
       real*8, parameter :: thrsh = 1.0d-12
-      integer :: i, idx(4), idx1(2)
-      integer :: t_idx, u_idx, v_idx, x_idx
+      integer :: i, t_idx, u_idx, v_idx, x_idx
 
         Write(6,*) ' In printRDMs_NECI:'
 
         do i = 1, (NACPAR*(NACPAR+1)/2)
-          idx = two_el_idx(i, t_idx, u_idx, v_idx, x_idx)
+          call two_el_idx(i, t_idx, u_idx, v_idx, x_idx)
           if(v_idx /= x_idx) then
-             if(abs(PMAT(i)+PA(i)).gt.thrsh)
-     &           write(6,'(1X,4I5,F20.12)')
+             if(abs(PMAT(i)+PA(i)).gt.thrsh) then
+                 write(6,'(1X,4I5,F20.12)')
      &           t_idx, u_idx, v_idx, x_idx, (PMAT(i)+PA(i))
-             if (abs(PMAT(i)-PA(i)).gt.thrsh)
-     &           write(6,'(1X,4I5,F20.12)')
+             end if
+             if (abs(PMAT(i)-PA(i)).gt.thrsh) then
+                 write(6,'(1X,4I5,F20.12)')
      &           t_idx, u_idx, x_idx, v_idx, (PMAT(i)-PA(i))
+             end if
           else
-             if (abs(PMAT(i)*2.0d0).gt.thrsh)
-     &          write(6,'(1X,4I5,F20.12)') idx, PMAT(i)*2.0d0
+             if (abs(PMAT(i)*2.0d0).gt.thrsh) then
+                write(6,'(1X,4I5,F20.12)')
+     &          t_idx, u_idx, v_idx, x_idx, PMAT(i)*2.0d0
+             end if
           end if
         end do
 
         do i = 1, (NAC*(NAC+1)/2)
-          idx1 = one_el_idx(i, t_idx, u_idx)
-          if(abs(DMAT(i)).gt.thrsh)
-     &       write(6,'(1X,4I5,F20.12)')idx1,0,0,DMAT(i)
+          call one_el_idx(i, t_idx, u_idx)
+          if(abs(DMAT(i)).gt.thrsh) then
+             write(6,'(1X,4I5,F20.12)')
+     &          t_idx, u_idx, 0, 0, DMAT(i)
+          end if
         end do
 
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
