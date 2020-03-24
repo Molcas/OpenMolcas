@@ -27,10 +27,13 @@
 
       implicit none
       private
-      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, cleanup
+      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, cleanup, tGUGA_in
       logical ::
      &  DoEmbdNECI = .false.,
-     &  DoNECI = .false.
+     &  DoNECI = .false.,
+     &  tGUGA_in  = .false.
+      ! WD: for now hard-code the GUGA RDM flag until i know how to do it
+      ! properly
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -80,7 +83,7 @@
 !>    the RDMs are read from previous runs.
       subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
      &                      D1S_MO, DMAT, PSMAT, PAMAT,
-     &                      fake_run)
+     &                      fake_run, tGUGA_in)
       use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
       use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
      &    rotmax, Ener, Nac, nAcPar, nAcpr2
@@ -100,7 +103,7 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      logical, intent(in), optional :: fake_run
+      logical, intent(in), optional :: fake_run, tGUGA_in
       logical :: fake_run_
       real*8, save :: NECIen
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot,
@@ -110,6 +113,7 @@
       parameter(ROUTINE = 'FCIQMC_clt')
       character(*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
+      logical :: tGUGA
 
       call qEnter(routine)
 
@@ -117,6 +121,12 @@
         fake_run_ = fake_run
       else
         fake_run_ = .false.
+      end if
+
+      if (present(tGUGA_in)) then
+          tGUGA = tGUGA_in
+      else
+          tGUGA = .false.
       end if
 
 ! Local print level (if any)
@@ -198,7 +208,7 @@
       call run_neci(DoEmbdNECI, fake_run_, ascii_fcidmp, h5_fcidmp,
      &  doGAS=iDoGAS, reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
-     &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
+     &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT,tGUGA=tGUGA)
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
@@ -206,16 +216,26 @@
       end do
 
 ! print matrices
-      if (IPRLEV >= DEBUG) then
-        call TRIPRT('Averaged one-body density matrix, DMAT',
+      ! if (IPRLEV >= DEBUG) then
+        if (tGUGA) then
+            call TRIPRT('Averaged one-body density matrix, DMAT',
      &              ' ',DMAT,NAC)
-        call TRIPRT('Averaged one-body spin density matrix, DS',
+            call TRIPRT('Averaged two-body density matrix, P',
+     &              ' ',PSMAT,NACPAR)
+            call TRIPRT('Averaged antisym. two-body density matrix,PA',
+     &              ' ',PAMAT,NACPAR)
+        else
+
+            call TRIPRT('Averaged one-body density matrix, DMAT',
+     &              ' ',DMAT,NAC)
+            call TRIPRT('Averaged one-body spin density matrix, DS',
      &              ' ',D1S_MO,NAC)
-        call TRIPRT('Averaged two-body density matrix, P',
+            call TRIPRT('Averaged two-body density matrix, P',
      &              ' ',PSMAT,NACPAR)
         call TRIPRT('Averaged antisymmetric two-body density matrix,PA',
      &              ' ',PAMAT,NACPAR)
-      end if
+        endif
+      ! end if
 
       if (nAsh(1) /= nac) call dblock(dmat)
 
@@ -231,7 +251,7 @@
       subroutine run_neci(DoEmbdNECI, fake_run,
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
-     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
+     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS, tGUGA)
         use fciqmc_make_inp, only : make_inp
         use rasscf_data, only : nAcPar, nAcPr2
         implicit none
@@ -239,8 +259,8 @@
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
-        logical, intent(in), optional :: doGAS
-        logical :: doGAS_
+        logical, intent(in), optional :: doGAS, tGUGA
+        logical :: doGAS_, tGUGA_
         real*8, save :: previous_NECIen = 0.0d0
 
         character(*), parameter :: input_name = 'FCINP'
@@ -251,11 +271,18 @@
           doGAS_ = .false.
         end if
 
+        if (present(tGUGA)) then
+            tGUGA_ = tGUGA
+        else
+            tGUGA_ = .false.
+        end if
+
         if (fake_run) then
           NECIen = previous_NECIen
         else
           if (DoEmbdNECI) then
-            call make_inp(input_name, doGAS=doGAS_, readpops=reuse_pops)
+            call make_inp(input_name, doGAS=doGAS_,
+     &          readpops=reuse_pops, tGUGA = tGUGA_)
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
@@ -269,16 +296,17 @@
      &'for compiling or use an external NECI.')
 #endif
           else
-            call make_inp(input_name, doGAS=doGAS_)
+            call make_inp(input_name, doGAS=doGAS_, tGUGA = tGUGA_)
             if (myrank == 0) then
               call write_ExNECI_message(input_name, ascii_fcidmp,
-     &                                  h5_fcidmp)
+     &                                  h5_fcidmp, tGUGA_)
             end if
             call wait_and_read(NECIen)
           end if
           previous_NECIen = NECIen
         end if
-        call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+        call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT, tGUGA_)
+
       end subroutine run_neci
 
 
@@ -364,15 +392,27 @@
 
 
       subroutine write_ExNECI_message(
-     &      input_name, ascii_fcidmp, h5_fcidmp)
+     &      input_name, ascii_fcidmp, h5_fcidmp, tGUGA)
         character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
+        logical, intent(in), optional :: tGUGA
         character(1024) :: WorkDir
         integer :: err
+        logical :: tGUGA_
+
+        if (present(tGUGA)) then
+            tGUGA_ = tGUGA
+        else
+            tGUGA_ = .false.
+        end if
 
         call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
 
-        write(6,'(A)')'Run NECI externally.'
+        if (tGUGA_) then
+            write(6,'(A)')'Run spin-free GUGA NECI externally.'
+        else
+            write(6,'(A)')'Run NECI externally.'
+        end if
         write(6,'(A)')'Get the (example) NECI input:'
         write(6,'(4x, A, 1x, A, 1x, A)')
      &    'cp', real_path(input_name), '$NECI_RUN_DIR'
@@ -384,9 +424,13 @@
      &    'cp', real_path(h5_fcidmp), '$NECI_RUN_DIR'
         write(6, *)
         write(6,'(A)') "When finished do:"
-        write(6,'(4x, A)')
-     &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
-     &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+        if (tGUGA_) then
+          write(6,'(4x, A)') 'cp PSMAT PAMAT DMAT '//trim(WorkDir)
+        else
+          write(6,'(4x, A)')
+     &      'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
+     &      'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+        end if
         write(6,'(4x, A)')
      &    'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
         call xflush(6)
@@ -396,14 +440,15 @@
 !>   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
-      subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+      subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT, tGUGA)
         use general_data, only : JobIPH
         use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
-        use fciqmc_read_RDM, only : read_neci_RDM
+        use fciqmc_read_RDM, only : read_neci_RDM, read_neci_GUGA_RDM
         implicit none
         real*8, intent(out) ::
      &      D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+        logical, intent(in), optional :: tGUGA
         real*8, allocatable ::
 !> one-body density
      &    DTMP(:),
@@ -415,13 +460,28 @@
      &    DStmp(:)
         real*8 :: Scal
         integer :: jRoot, kRoot, iDisk, jDisk
+        logical :: tGUGA_
+
+        if (present(tGUGA)) then
+            tGUGA_ = tGUGA
+        else
+            tGUGA_ = .false.
+        end if
 
         call mma_allocate(DTMP, nAcPar, label='Dtmp ')
         call mma_allocate(DStmp, nAcPar, label='DStmp')
         call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
         call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
-        call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
+        if (tGUGA_) then
+            ! for GUGA I only need the spin-free 1 and 2-RDM
+            ! what do I do with the other variables?
+            ! i do not exactly know what happens with them later on..
+            ! can I set them to 0 and hope everything works out fine?!
+            call read_neci_GUGA_RDM(DTMP, DStmp, Ptmp, PAtmp)
+        else
+            call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
+        end if
 
 ! Compute average density matrices
         do jRoot = 1, lRoots

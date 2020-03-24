@@ -30,3 +30,5 @@ doc/doxygen/html
 /tinker*/
 #Python
 *__pycache__*
+
+build*

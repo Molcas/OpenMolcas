@@ -59,7 +59,9 @@
       use stdalloc
       use write_orbital_files, only : OrbFiles, putOrbFile
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
+      use fciqmc, only: tGUGA_in
       use fcidump, only : make_fcidumps, transform, DumpOnly
+      use print_RDMs_NECI_format, only: printRDMs_NECI
 
       use orthonormalization, only : ON_scheme
 
@@ -820,7 +822,8 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
+     &                    tGUGA_in = tGUGA_in)
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         else If(DoBlockDMRG) then
@@ -1097,7 +1100,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
-     &                    fake_run=(iter==1))
+     &                    fake_run=(iter==1),
+     &                    tGUGA_in = tGUGA_in)
           If ( IPRLEV.ge.DEBUG ) then
             Write(LF,*)
             Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
@@ -1745,7 +1749,8 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
+     &                    tGUGA_in = tGUGA_in)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
@@ -1945,6 +1950,22 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
+      CALL TRIPRT("Averaged one-body density matrix, D, in RASSCF"," ",
+     &       work(ldmat),NAC)
+      CALL TRIPRT("Averaged two-body density matrix, P"," ",
+     &       work(lpmat),NACPAR)
+      CALL TRIPRT("Averaged antisym 2-body DM PA RASSCF"," ",
+     &       work(lpa) , NACPAR)
+
+************************************************************************
+************ Priniting final RDMs in NECI format    *****************
+************************************************************************
+      Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
+************************************************************************
+******************      Closing up RASSCF    *******************
+************************************************************************
+
+
 *
 ************************************************************************
 ******************           Closing up RASSCF       *******************

@@ -63,14 +63,14 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(path, readpops, doGAS)
+      subroutine make_inp(path, readpops, doGAS, tGUGA)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       implicit none
       character(*), intent(in) :: path
-      logical, intent(in), optional :: readpops, doGAS
-      logical :: readpops_, doGAS_
+      logical, intent(in), optional :: readpops, doGAS, tGUGA
+      logical :: readpops_, doGAS_, tGUGA_
       integer :: i, isFreeUnit, file_id, indentlevel
       integer, parameter :: indentstep = 4
 
@@ -83,6 +83,11 @@
         doGAS_ = doGAS
       else
         doGAS_ = .false.
+      end if
+      if (present(tGUGA)) then
+          tGUGA_ = tGUGA
+      else
+          tGUGA_ = .false.
       end if
 
       call add_info('Default number of total walkers',
@@ -101,10 +106,20 @@
       write(file_id, A_fmt()) 'System read'
       call indent()
         write(file_id, I_fmt()) 'electrons ', nActEl
-        write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
+        if (tGUGA_) then
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits mol_guga_weighted'
+        else
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits 4ind-weighted-2'
+        end if
         write(file_id,A_fmt()) 'nobrillouintheorem'
-        if(iSpin /= 1) then
-          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+        if (tGUGA_) then
+          write(file_id, I_fmt()) 'guga', iSpin - 1
+        else
+            if(iSpin /= 1) then
+              write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+            end if
         end if
         write(file_id, A_fmt()) 'freeformat'
         if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
@@ -156,8 +171,13 @@
       write(file_id, A_fmt()) 'logging'
       call indent()
         write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
-        write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
+        if (tGUGA_) then
+            write(file_id, A_fmt()) 'fast-guga-rdms'
+            write(file_id, A_fmt()) 'print-molcas-rdms'
+        else
+            write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
+        end if
         write(file_id, A_fmt()) 'printonerdm'
 ! TODO(Oskar): As soon as RDMlinspace is widely used in NECI uncomment.
 !        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
@@ -189,7 +209,7 @@
           implicit none
           character(*), intent(in) :: value_fmt
           character(:), allocatable :: res
-          res = '('//indent_fmt()//', A, 1x, '//value_fmt//')'
+          res = '('//indent_fmt()//'A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
