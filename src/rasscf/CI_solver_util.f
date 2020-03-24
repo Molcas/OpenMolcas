@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2020, Oskar Weser                                      *
+* Copyright (C) 2019, Giovanni Li Manni                                *
+*               2020, Oskar Weser                                      *
 ************************************************************************
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
