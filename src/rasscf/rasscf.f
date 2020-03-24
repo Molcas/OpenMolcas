@@ -65,6 +65,7 @@
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
+      use print_RDMs_NECI_format, only: printRDMs_NECI
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -1926,6 +1927,12 @@ c  i_root>0 gives natural spin orbitals for that root
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
 *
+************************************************************************
+************ Priniting final RDMs in NECI format       *****************
+************************************************************************
+      If ( IPRLEV.ge.DEBUG ) then
+       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
+      End If
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************
