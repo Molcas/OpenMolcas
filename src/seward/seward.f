@@ -498,8 +498,7 @@ C-SVC: identify runfile with a fingerprint
 *     corruption of the memory.
 *
 
- 9999 Continue
-*9999 Call DumpSagit
+ 9999 Call DumpSagit
       Call ClsSew
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)

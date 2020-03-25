@@ -404,6 +404,7 @@ Optional Hessian update keywords
 
 :kword:`WINDow`
   Maximum number of previous iterations to include in the Hessian update.
+  When using RVO (see :kword:`KRIGing` keyword), the maximum number of sample points used is twice this value.
   Default is 5.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="WINDOW" APPEAR="Update window" KIND="INT" EXCLUSIVE="NOUPDATE" DEFAULT_VALUE="5" LEVEL="ADVANCED">
@@ -1047,64 +1048,59 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
-Optional GEK keywords (...work in progress...)
+Optional RVO keywords
 
 .. class:: keywordlist
 
 :kword:`KRIGing`
-  Activate optimization using kriging to describe the surrogate model.
+  Activate restricted variance optimization (RVO) using gradient-enhanced Kriging (GEK) to describe the surrogate model.
+  The maximum number of sample points (energies and gradients) is twice the value indicated by the :kword:`WINDow` keyword (i.e. 10 by default).
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="KRIGING" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="KRIGING" APPEAR="Restricted variance optimization" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Kriging <advanced>
               <HELP>
-              Activate optimization using kriging to describe the surrogate model.
-              </HELP></KEYWORD>
+              Activate restricted variance optimization (RVO) using gradient-enhanced Kriging to describe the surrogate model.
+              </HELP>
+              </KEYWORD>
 
-:kword:`AISP`
-  blabla
+:kword:`TFOFfset`
+  Trend function or baseline offset for the GEK surrogate model.
+  The surrogate model will tend to the maximum energy among the sample points plus this value (in au).
+  The default value is 10.0 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AISP" KIND="INT" LEVEL="ADVANCED">
-              %%Keyword: AISP <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TFOF" APPEAR="Trend function offset" KIND="REAL" DEFAULT_VALUE="10.0" LEVEL="ADVANCED">
+              %%Keyword: TFOFfset <advanced>
               <HELP>
-              Work in progress...
-              </HELP></KEYWORD>
-
-:kword:`AIAB`
-  blabla
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AIAB" KIND="REAL" LEVEL="ADVANCED">
-              %%Keyword: AIAB <advanced>
-              <HELP>
-              Work in progress...
-              </HELP></KEYWORD>
-
-:kword:`L-VAlue`
-  blabla
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="l-value" KIND="REAL" LEVEL="ADVANCED">
-              %%Keyword: l-value <advanced>
-              <HELP>
-              Work in progress...
-              </HELP></KEYWORD>
+              Trend function or baseline offset for the GEK surrogate model.
+              The surrogate model will tend to the maximum energy among the sample points plus this value.
+              Default: 10.0 au.
+              </HELP>
+              </KEYWORD>
 
 :kword:`MAXDisp`
-  blabla
+  Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
+  A real value is read from the input, the maximum dispersion is this value times the maximum Cartesian gradient.
+  The default value is 0.3 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" LEVEL="ADVANCED">
               %%Keyword: MAXDISP <advanced>
               <HELP>
-              Work in progress...
-              </HELP></KEYWORD>
+              Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
+              A factor, multiplied by the maximum Cartesian Gradient. Default: 0.3 au.
+              </HELP>
+              </KEYWORD>
 
-:kword:`AIMI`
-  blabla
+:kword:`MXMI`
+  Maximum number of micro iterations in each macro iteration of the RVO procedure.
+  The default value is 50.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="AIMI" KIND="INT" LEVEL="ADVANCED">
-              %%Keyword: AIMI <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" LEVEL="ADVANCED">
+              %%Keyword: MXMI <advanced>
               <HELP>
-              Work in progress...
-              </HELP></KEYWORD>
-
+              Maximum number of micro iterations in each macro iteration of the RVO procedure.
+              Default: 50.
+              </HELP>
+              </KEYWORD>
 
 Example: A complete set of input decks for a CASSCF geometry
 optimization. These are the input decks for the optimization

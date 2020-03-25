@@ -61,49 +61,35 @@
       Write (Lu,'(A,E9.2)')
      &    ' Max step length (initial seed):          ',Beta
       Else
-      Write (Lu,'(A,F9.5)')
-     &    ' Max variance accepted (fact. of abs(g.max.comp)): ',
-     &      Beta_disp
-      Write (Lu,*)
+      Write (Lu,'(A,E9.2)')
+     &    ' Max step length (micro iterations):      ',Beta
       End If
+      Write (Lu,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (Kriging) Then
-       Write (Lu,*)
-       Write (Lu,*) '-GEK activated with parameters:'
-       Write (Lu,*) '  GEK starts at iteration:                   ',
-     &               nspAI
-       Write (Lu,*) '  Max number of data sets used in GEK:       ',
-     &               nWndw/2
-*      Write (Lu,*) '  Analytical Matern derivatives:             ',anMd
-*      Write (Lu,*) '  Width of Matern: 0.1:6 # of steps:         ',lb
-*      Write (Lu,*) '  Resolution of the predicted path:          ',
-*    &               npxAI
-       Write (Lu,*) '  Parameter of diff. for Matern (p):         ',pAI
-       Write (Lu,*) '  Max iter. for opt. on surrogate model:     ',miAI
-*      Write (Lu,*) 'Minimum egergy differences at convergence;',meAI
-*      Write (Lu,*)
-*      Write (Lu,*) '*Note: for the analytical Matern the only choices'
-*      Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
-*      Write (Lu,*) '    Matern you can choose between (0->"Inf"),'
-*      Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
-*      Write (Lu,*)
-       Call Get_dScalar('Value_l',Value_l)
+       Write (Lu,*) '-RVO activated with parameters:'
+!      Write (Lu,'(A,I6)')
+!    &    '   GEK starts at iteration:                   ',nspAI
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of data points used in GEK: ',nWndw/2
+!      Write (Lu,'(A,I6)')
+!   &     '   Parameter of diff. for Matern (p):         ',pAI
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of micro iterations:        ',miAI
        If (set_l) Then
+          Call Get_dScalar('Value_l',Value_l)
           Write (Lu,*) '  Global characteristic length scale, l:     ',
      &              Value_l
        Else
-          Write (Lu,*) '  Individual characteristic length scale set '
-     &          //'to reproduce diagonal of HMF Hessian.'
+          Write (Lu,*) '  Individual characteristic length scales set '
+     &          //'to reproduce HMF Hessian.'
        End If
 *
        If (blaAI) then
-          write (6,'(A,F10.5,A,/,A,F12.3,A)')
-     &          '   Baseline is highest energy plus: ',blavAI,' a.u',
-     &          '                                    ',
-     &              blavAI * CONV_AU_TO_KJ_PER_MOLE_,
-     &              ' kJ/mol'
+          write (6,'(A,F10.5,A)')
+     &          '   Baseline is highest energy plus: ',blavAI,' a.u'
        Else
           if (mblAI) then
              write (6,*) '  Baseline set to maximum value of the energy'
@@ -116,8 +102,10 @@
      &              ' kJ/mol'
           endif
        Endif
+       write (6,'(A,F10.5,A)')
+     &       '   Maximum dispersion accepted:     ',Beta_disp,
+     &       ' * abs(g.max.comp)'
        Write (Lu,*)
-
       End If
 *                                                                      *
 ************************************************************************
@@ -181,17 +169,19 @@
             Write (Lu,'(A,F10.4)')
      &       '  b) the norm of the gradient is below:',GNrm_Threshold
             If (iAnd(iOptC,512).eq.512) Then
-               If (Kriging) Then
-                  Write (Lu,'(A)') '  TS-search by RV-I-RFO.'
-               Else
-                  Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
-               End If
+               Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               !If (Kriging) Then
+               !   Write (Lu,'(A)') '  TS-search by RV-I-RFO.'
+               !Else
+               !   Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               !End If
             Else
-               If (Kriging) Then
-                  Write (Lu,'(A)') '  TS-search by RV-P-RFO.'
-               Else
-                  Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
-               End If
+               Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               !If (Kriging) Then
+               !   Write (Lu,'(A)') '  TS-search by RV-P-RFO.'
+               !Else
+               !   Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               !End If
             End If
          End If
 *
@@ -209,7 +199,7 @@
 
          Else If (iAnd(iOptC,8).eq.8) Then
             If (Kriging) Then
-               Write (Lu,'(A)') '  Optimization method: RV-RFO.'
+               Write (Lu,'(A)') '  Optimization method: RVO.'
             Else
                Write (Lu,'(A)') '  Optimization method: RS-RFO.'
             End If
@@ -221,17 +211,19 @@
       Else
          Write (Lu,'(1X,A)') '-Optimization for transition state.'
          If (iAnd(iOptC,512).eq.512) Then
-            If (Kriging) Then
-               Write (Lu,'(A)') '  Optimization method: RV-I-RFO'
-            Else
-               Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
-            End If
+            Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            !If (Kriging) Then
+            !   Write (Lu,'(A)') '  Optimization method: RV-I-RFO'
+            !Else
+            !   Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            !End If
          Else
-            If (Kriging) Then
-               Write (Lu,'(A)') '  Optimization method: RV-P-RFO'
-            Else
-               Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
-            End If
+            Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            !If (Kriging) Then
+            !   Write (Lu,'(A)') '  Optimization method: RV-P-RFO'
+            !Else
+            !   Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            !End If
          End If
          If (Mode.gt.0) Then
             Write (Lu,'(A,I2)') '  Original mode to follow:',Mode
