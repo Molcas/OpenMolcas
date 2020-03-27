@@ -28,20 +28,20 @@ contains
 !>  @author Oskar Weser
 !>
 !>  @details
-!>  If it is the first iteration (iter == 1), the one electron
+!>  If it is the 1A or 1B iteration (0 <= actual_iter <= 1), the one electron
 !>  energies are read from the InpOrb.
 !>  Otherwise orbital_energies is a copy of DIAF.
 !>
 !>  @param[in] iter
 !>  @param[in] DIAF
 !>  @param[out] orbital_energies
-  subroutine get_orbital_E(iter, DIAF, orbital_energies)
-    integer, intent(in) :: iter
+  subroutine get_orbital_E(actual_iter, DIAF, orbital_energies)
+    integer, intent(in) :: actual_iter
     real*8, intent(in) :: DIAF(:)
     real*8, intent(out) :: orbital_energies(:)
 
     orbital_energies = 0.d0
-    if (iter == 1) then
+    if (0 <= actual_iter .or. actual_iter <= 1) then
       call read_orbital_energies(nSym, nBas, orbital_energies)
     else
       orbital_energies(:) = DIAF(:)

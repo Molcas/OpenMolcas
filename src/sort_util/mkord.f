@@ -13,32 +13,32 @@
 ************************************************************************
       Subroutine MkOrd(iDisk)
 *
-***********************************************************************
-*                                                                     *
-*    Purpose: Create the table of content of the OrdInt file          *
-*                                                                     *
-*    Called from: Sort0 ans Sort3                                     *
-*                                                                     *
-*    Calls to : DaFile                                                *
-*                                                                     *
-*    Calling parameters:                                              *
-*    iDisk  : First free entry on disk after table of contents        *
-*                                                                     *
-*    Global data declarations (Include files) :                       *
-*    TwoDat  : table of contents and auxiliary information            *
-*              on the ordered 2el file                                *
-*    TowID   : Table of file identifiers                              *
-*    TwoDef  : definitions of the record structure                    *
-*    Srt0    : common block containing information pertinent to       *
-*              the calculation of 2el integral sequence numbers       *
-*    Srt1    : common block containing information the number of      *
-*              bins and partitioning of symmetry blocks               *
-*    Srt2    : common block containing information pertinent to       *
-*              the bin sorting algorithm                              *
-*    PkCtl   : packing table                                          *
-*                                                                     *
-*    Local data declarations: none                                    *
-*                                                                     *
+************************************************************************
+*                                                                      *
+*    Purpose: Create the table of content of the OrdInt file           *
+*                                                                      *
+*    Called from: Sort0 ans Sort3                                      *
+*                                                                      *
+*    Calls to : DaFile                                                 *
+*                                                                      *
+*    Calling parameters:                                               *
+*    iDisk  : First free entry on disk after table of contents         *
+*                                                                      *
+*    Global data declarations (Include files) :                        *
+*    TwoDat  : table of contents and auxiliary information             *
+*              on the ordered 2el file                                 *
+*    TowID   : Table of file identifiers                               *
+*    TwoDef  : definitions of the record structure                     *
+*    Srt0    : common block containing information pertinent to        *
+*              the calculation of 2el integral sequence numbers        *
+*    Srt1    : common block containing information the number of       *
+*              bins and partitioning of symmetry blocks                *
+*    Srt2    : common block containing information pertinent to        *
+*              the bin sorting algorithm                               *
+*    PkCtl   : packing table                                           *
+*                                                                      *
+*    Local data declarations: none                                     *
+*                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
       Implicit Integer (A-Z)

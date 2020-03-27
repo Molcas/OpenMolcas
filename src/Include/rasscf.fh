@@ -107,8 +107,8 @@
       COMMON/CHRINP/  IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
 
 *
-      INTEGER         iCIonly,NSM(mxOrb),KTIGHT
-      COMMON/INTCI/   iCIonly,NSM,KTIGHT
+      INTEGER         iCIonly,NSM(mxOrb),KTIGHT,IRotPsi,IMSPDFT
+      COMMON/INTCI/   iCIonly,NSM,KTIGHT,IRotPsi,IMSPDFT
 *
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S

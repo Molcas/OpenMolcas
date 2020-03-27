@@ -34,3 +34,4 @@ $ (file) TWORDM3 "$WorkDir/$Project."TwoRDM_abba rw*st
 $ (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw
 #include "espffiles.inc"
 #include "geodata.inc"
+ (file)  ROT_HAM  "$WorkDir/"H0_Rotate.txt        ro

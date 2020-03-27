@@ -489,8 +489,8 @@ c
          Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
      &            rDum,Work(ipO),rDum,iDum,Note)
          Call Prpt()
-*                                                                     *
-***********************************************************************
+*                                                                      *
+************************************************************************
 *        There should now be dipole moments on the runfile which
 *        corresponds to the gradient of the energy w.r.t. the
 *        electric field. Let's update the list of values stored
@@ -518,8 +518,8 @@ c
             Call Free_Work(ipDMs)
             Call Free_Work(ipDM)
          End If
-***********************************************************************
-*                                                                     *
+************************************************************************
+*                                                                      *
        End If
        Call Getmem('TMP', 'FREE','Real',ipG1q,ng1)
 C

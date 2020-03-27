@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-***********************************************************************
-*                                                                     *
-*  Integer Function NbfShl    returns # of bf for shell,symmetry      *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*  Integer Function NbfShl    returns # of bf for shell,symmetry       *
+*                                                                      *
+************************************************************************
 c----------------------------------------------------------------------
       Integer Function nbfshl(iSkal,irp)
       use iSD_data

@@ -13,14 +13,14 @@
       SUBROUTINE MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
       IMPLICIT REAL*8 (A-H,O-Z)
-***********************************************************************
-*     Objective: to compute the transition property between state     *
-*                ISTATE and JSTATE of property IPROP.                 *
-*                                                                     *
-*     This routine will be generalized to a direct routine later.     *
-*                                                                     *
-*     Author: Roland Lindh, Uppsala University, 23 Dec. 2015          *
-***********************************************************************
+************************************************************************
+*     Objective: to compute the transition property between state      *
+*                ISTATE and JSTATE of property IPROP.                  *
+*                                                                      *
+*     This routine will be generalized to a direct routine later.      *
+*                                                                      *
+*     Author: Roland Lindh, Uppsala University, 23 Dec. 2015           *
+************************************************************************
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"

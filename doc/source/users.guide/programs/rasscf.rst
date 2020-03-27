@@ -2338,6 +2338,22 @@ A list of these keywords is given below:
               (Default: 0)
               </KEYWORD>
 
+:kword:`ROSTate`
+  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules). This keyword stands for ROtate STates, and it rotate the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation. 
+  This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated. 
+  The file :file:`Do_Rotate.txt` stores the rotation vector that rotates the states; the rotation vector is stored in a format such that the first line of the file records the first row of the rotation matrix, and so on. If there is no :file:`H0_Rotate.txt` file in the scratch directory, this keyword also writes a file called :file:`H0_Rotate.txt` in the scratch directory; :file:`H0_Rotate.txt` contains the Hamiltonian matrix of the rotated states.
+  This keyword currently does not work for wave functions optimized with the DMRG algorithm. 
+  More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+
+  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTate" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
+              </HELP>
+              </KEYWORD>
+
 A general comment concerning the input orbitals: The orbitals are ordered by
 symmetry. Within each symmetry block the order is assumed to be:
 frozen, inactive, active, external (secondary), and deleted. Note that

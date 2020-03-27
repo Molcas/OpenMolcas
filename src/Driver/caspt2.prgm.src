@@ -34,6 +34,8 @@
  (file)  RHS_04  "$WorkDir/"purge.rhs04                 rw*p
  (file)  RHS_05  "$WorkDir/"purge.rhs05                 rw*p
  (file)  RHS_06  "$WorkDir/"purge.rhs06                 rw*p
+ (file)  ROT_HAM "$WorkDir/"H0_Rotate.txt               rw
+ (file)  ROT_VEC "$WorkDir/"Do_Rotate.txt               rw
 #include "moldenfiles.inc"
 #include "espffiles.inc"
 #include "rysfiles.inc"

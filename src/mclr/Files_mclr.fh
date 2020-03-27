@@ -17,11 +17,13 @@
       Character*8 FnOne,FnJob,FnTwo,FnMol,
      &            FnRlx,FnMck,FnTemp,
      &            FnHlf1,FnHlf2,FNHlf3,FNHlf4,FnPT2,
-     &            FNTrI1,FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD
+     &            FNTrI1,FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,FnMOTRA,
+     &            FnQDAT
       Integer   LuOne,LuJob,LuTwo,LuMol,
      &          LuRlx,LuMck,LuTemp,
      &          LUHLF1,LUHlf2,LUHlf3,LUHLF4,LuPt2,
-     &          LUTrI1,LUTrI2,LUTRi3,LUTRI4,LUTRI5,LUCSF2SD
+     &          LUTrI1,LUTrI2,LUTRi3,LUTRI4,LUTRI5,LUCSF2SD,LuMOTRA,
+     &          LuQDAT
       Logical   Nofile
       Common /Files_mclr/FnOne,FnJob,FnTwo,FnMol,
      &                   FnRlx,FnMck,FnTemp,FnPt2,
@@ -32,4 +34,4 @@
      &                   FNTrI1,FNTrI2,FNTRi3,FNTRI4,FNTRI5,
      &                   LUTrI1,LUTrI2,LUTRi3,LUTRI4,LUTRI5,
      &                   LUCSF2SD,
-     &                   Nofile
+     &                   Nofile, FnMOTRA, LuMOTRA, FnQDAT, LuQDAT

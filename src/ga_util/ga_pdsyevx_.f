@@ -47,8 +47,8 @@ c
       SCALAPACKINT dimA1, dimA2
       SCALAPACKINT dimB1, dimB2
 c
-      SCALAPACKINT mpA, nqA           ! rows/cols of A held by the processor
-      SCALAPACKINT mpB, nqB           ! rows/cols of B held by the processor
+      SCALAPACKINT mpA, nqA     ! rows/cols of A held by the processor
+      SCALAPACKINT mpB, nqB     ! rows/cols of B held by the processor
 c
       integer me
       SCALAPACKINT lda, ldb
@@ -406,7 +406,8 @@ c
       Trow = nbr * nprow2
       Tcol = nbc * npcol2
       do col  = 1, dim2, nbc
-         pcol = mod(col,Tcol)/nbc        ! processor column that holds "col"
+         ! processor column that holds "col"
+         pcol = mod(col,Tcol)/nbc
          if(mycol2.eq.pcol) then
             r0im1=-9999
             r1im1=0
@@ -416,7 +417,8 @@ c
             coll=min(marg1,marg2)
 
             do row  = 1, dim1, nbr
-               prow = mod(row,Trow)/nbr  ! processor row that holds "row"
+               ! processor row that holds "row"
+               prow = mod(row,Trow)/nbr
                if(myrow2.eq.prow) then
                   if(.not.putpending) then
                      r0im1=row
@@ -483,7 +485,8 @@ c
       Tcol = nbc * npcol2
 c
       do col  = 1, dim2, nbc
-         pcol = mod(col,Tcol)/nbc        ! processor column that holds "col"
+         ! processor column that holds "col"
+         pcol = mod(col,Tcol)/nbc
          if(mycol2.eq.pcol) then
             r0im1=-9999
             r1im1=0
@@ -492,7 +495,8 @@ c
             marg2=dim2
             coll=min(marg1,marg2)
             do row  = 1, dim1, nbr
-               prow = mod(row,Trow)/nbr  ! processor row that holds "row"
+               ! processor row that holds "row"
+               prow = mod(row,Trow)/nbr
                if(myrow2.eq.prow) then
                   if(.not.putpending) then
                      r0im1=row
