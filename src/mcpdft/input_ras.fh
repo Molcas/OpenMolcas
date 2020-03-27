@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=107)
+      Parameter (NKeys=108)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -39,8 +39,8 @@
      &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyZZZZ, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF
+     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
+     &     KeyGSOR, KeyDFCF, KeyZZZZ
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -63,8 +63,8 @@
      &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyZZZZ, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF
+     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
+     &     KeyGSOR, KeyDFCF, KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -90,8 +90,8 @@
      &           'RDMP','RSPC','DEFD','DISH','EXNE',
      &           'BLOK','SOCC','RGIN','PRSD','FCID',
      &           'NOCA','SAVE','EXPA','H5OR','H5CI',
-     &           'HEXS','HEUR','ZZZZ','GRAD','NOGR',
-     &           'GSOR','DFCF'/
+     &           'HEXS','HEUR','MSPD','GRAD','NOGR',
+     &           'GSOR','DFCF','ZZZZ'/
 *------------------------------------------------------
 * Input data sets:
       Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),

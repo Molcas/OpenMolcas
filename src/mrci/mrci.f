@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MRCI(IRETURN)
-***********************************************************************
-*  MULTI REFERENCE SDCI AND AVERAGE CPF PROGRAM.                      *
-***********************************************************************
+************************************************************************
+*  MULTI REFERENCE SDCI AND AVERAGE CPF PROGRAM.                       *
+************************************************************************
 C UNITS USED IN THE PROGRAM
 C UNIT  5, INPUT
 C UNIT  6, OUTPUT
@@ -27,7 +27,7 @@ C UNIT 23=LUEIG, (DA) WORKSPACE FOR MALMQUIST DIAGONALIZATION.
 C UNIT 25, (DA) FOCK MATRIX AND DIAGONAL CSF MATRIX ELEMENTS
 C UNIT 27, (DA) SCRATCH IN IIJJ. ALSO, REFERENCE CI VECTOR.
 C UNIT 28=LUREST, (DA,MRCIVECT) CI VECTOR
-***********************************************************************
+************************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "WrkSpc.fh"

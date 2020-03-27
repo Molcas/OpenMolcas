@@ -1,13 +1,18 @@
-from typing import Sequence, Tuple, TypeVar, Type, TextIO
-import re
-from os import PathLike
-from enum import Enum
-from abc import ABCMeta, abstractmethod
-from copy import deepcopy
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2020, Oskar Weser                                      *
+#***********************************************************************
 
-import numpy as np
-from numpy import array, argsort, isclose
-from attr import attrs, attrib
+from typing import Sequence
+from os import PathLike
 
 
 from analyze_molcas._base_orbfile import (
@@ -30,7 +35,7 @@ class SpinOrbs(_Orbitals):
         return cls(orbs, coeff, occ, energy, idx)
 
     def reindex(self,
-            new_idx: Sequence[Sequence[int]], inplace: bool=False):
+                new_idx: Sequence[Sequence[int]], inplace: bool=False):
         if inplace:
             self.coeff = {
                 spin:

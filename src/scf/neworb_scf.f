@@ -69,9 +69,9 @@
 *
       Real*8 Fia
       Integer iCMO,iiBT,jEOr,iptr,nOrbmF,nOccmF,nVrt,ia,ij
-*
-***********************************************************************
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *define _SPECIAL_DEBUG_
 #ifdef _SPECIAL_DEBUG_

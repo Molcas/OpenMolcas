@@ -55,7 +55,7 @@
 *> @param[in]     lScr   size of the scratch space (&ge; \p nRow or ``0`` iff in-core)
 *> @param[in]     thr    threshold for linear dependence
 *> @param[out]    lindep integer indicating detected linear dependence (= ``1`` iff found lin dep, else = ``0``)
-***********************************************************************
+************************************************************************
       SUBROUTINE CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,
      &                      lScr,thr,lindep)
 
@@ -65,7 +65,7 @@
 #include "warnings.fh"
       Parameter ( one = 1.0d0, zero = 0.0d0 , thr_neg=-1.0d-8)
 
-**********************************************************************
+************************************************************************
 
       If (thr .lt. zero) Then
          Call WarningMessage(2,'Error in Cho_Factor')
