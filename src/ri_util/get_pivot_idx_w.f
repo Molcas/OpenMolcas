@@ -12,14 +12,14 @@
 ************************************************************************
       SUBROUTINE get_pivot_idx_w(Diag,Wg,n,m,lu_A0,lu_A,iD_A,Scr,lScr,
      &                           Thr)
-***********************************************************************
+************************************************************************
 *
 *     Author:  F. Aquilante
 *
 *       Note:  this routine differs from Get_pivot_idx because here
 *              the pivoting/convergence is decided based on weighted
 *              diagonals
-***********************************************************************
+************************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Diag(*), Wg(*), Scr(lScr)

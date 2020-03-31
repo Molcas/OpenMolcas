@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-***********************************************************************
-*                                                                     *
-*  Subroutine Shell_MxSchwz:  gets max integral estimates for each    *
-*                             shell pair...                           *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*  Subroutine Shell_MxSchwz:  gets max integral estimates for each     *
+*                             shell pair...                            *
+*                                                                      *
+************************************************************************
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 c----------------------------------------------------------------------
       use k2_setup

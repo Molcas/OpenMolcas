@@ -28,19 +28,19 @@
      &                  iuvwx,IfG,n8,ltri,moip,nAcO,
      &                  rmoin,nmoin,ntemptot,Buffer,c,nop,din,dan,
      &                  new_fock)
-***********************************************************************
-*                                                                     *
-*       Called from: Twoel                                            *
-*       takes care of the integrals                                   *
-*       integrals -> fckmatrix,MO                                     *
-*       in the near feature a disk based version                      *
-*                                                                     *
-*       Calling:   CntrDens : Gets the indexes for d1                 *
-*                  MkFck : Add up the integrals on the Fock Matrix    *
-*                                                                     *
-*       Author: Anders Bernhardsson, Theoretical Chemistry,           *
-*               University of Lund, Sweden, June '95                  *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*       Called from: Twoel                                             *
+*       takes care of the integrals                                    *
+*       integrals -> fckmatrix,MO                                      *
+*       in the near feature a disk based version                       *
+*                                                                      *
+*       Calling:   CntrDens : Gets the indexes for d1                  *
+*                  MkFck : Add up the integrals on the Fock Matrix     *
+*                                                                      *
+*       Author: Anders Bernhardsson, Theoretical Chemistry,            *
+*               University of Lund, Sweden, June '95                   *
+************************************************************************
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

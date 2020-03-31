@@ -898,6 +898,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 !       Write(6,*) ' Exchange energy scaling factor is ',CoefX
 !       Write(6,*) ' Correlation energy scaling factor is ',CoefR
       End If
+*---  Process MSPD command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
+      If (KeyMSPD) Then
+       Write(6,*) ' MSPD keyword was used.'
+       iMSPDFT=1
+       Call SetPos_m(LUInput,'MSPD',Line,iRc)
+       Call ChkIfKey_m()
+      End If
 *---  Process CION command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if CIONLY case.'
       If (KeyCION) Then

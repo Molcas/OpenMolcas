@@ -14,6 +14,7 @@
 
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
+        implicit none
         private
         public :: make_inp, cleanup
         integer, public ::
@@ -67,7 +68,6 @@
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
-      implicit none
       character(*), intent(in) :: path
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
@@ -149,7 +149,6 @@
         write(file_id, I_fmt()) 'startsinglepart', startsinglepart
         write(file_id, I_fmt()) 'pops-core', pops_core
         write(file_id, I_fmt())
-     &    'rdmsamplingiters', RDMsampling%start * RDMsampling%n_samples
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, *)
@@ -159,12 +158,9 @@
         write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
-! TODO(Oskar): As soon as RDMlinspace is widely used in NECI uncomment.
-!        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-!     &     'RDMlinspace',
-!     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
-        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-     &    'calcrdmonfly', 3, RDMsampling%start, RDMsampling%step
+       write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
+     &     'RDMlinspace',
+     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
       call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'
@@ -176,7 +172,6 @@
       contains
 
         function indent_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           if (indentlevel /= 0) then
             res = str(indentlevel)//'x, '
@@ -186,43 +181,36 @@
         end function
 
         function kw_fmt(value_fmt) result(res)
-          implicit none
           character(*), intent(in) :: value_fmt
           character(:), allocatable :: res
-          res = '('//indent_fmt()//', A, 1x, '//value_fmt//')'
+          res = '('//indent_fmt()//'A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('I0')
         end function
 
         function R_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('F0.2')
         end function
 
         function A_fmt() result(res)
-          implicit none
           character(:), allocatable :: res
           res = kw_fmt('A')
         end function
 
         subroutine indent()
-          implicit none
           indentlevel = indentlevel + indentstep
         end subroutine
 
         subroutine dedent()
-          implicit none
           indentlevel = indentlevel - indentstep
         end subroutine
       end subroutine make_inp
 
       subroutine cleanup()
-        implicit none
         if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 

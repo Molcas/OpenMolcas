@@ -189,7 +189,7 @@ contains
     do i = 1, size(Fock)
       if (abs(Fock(i)) >= cutoff_) then
         n = n + 1
-        fock_table%index(:, n) = one_el_idx(i)
+        call one_el_idx(i, fock_table%index(:, n))
         fock_table%values(n) = Fock(i)
       end if
     end do
@@ -265,7 +265,7 @@ contains
     do i = 1, size(TUVX)
       if (abs(TUVX(i)) >= cutoff_) then
         n = n + 1
-        two_el_table%index(:, n) = two_el_idx(i)
+        call two_el_idx(i, two_el_table%index(:, n))
         two_el_table%values(n) = TUVX(i)
       end if
     end do
