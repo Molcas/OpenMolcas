@@ -70,48 +70,22 @@ C Mass-weight the velocity vector
       DO p = 1,POUT
 C Mass-weight the projection vector
         DO i=1, natom
-          IF (i.GT.matom) THEN
-            CALL LeftAd(atom(i))
-            Iso=0
-            CALL Isotope(Iso,atom(i),Mass(i))
-          END IF
           DO j=1, 3
             pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)/sqrt(Mass(i))
           ENDDO
         ENDDO
 C normalise it (needed or not?)
-        norm = 0
-        DO i=1, natom
-          DO j=1, 3
-            norm = norm + pcoo_m(p,3*(i-1)+j)*pcoo_m(p,3*(i-1)+j)
-          ENDDO
-        ENDDO
-        pcoo_m = pcoo_m/norm
+        pcoo_m = pcoo_m/norm2(pcoo_m)
 C Project out
-        pvel = 0
-        DO i=1, natom
-          DO j=1, 3
-            pvel = pvel + pcoo_m(p,3*(i-1)+j)*vel_m(3*(i-1)+j)
-          ENDDO
-        ENDDO
+        pvel = dot_product(pcoo_m(p,:),vel_m)
         IF (pvel.GT.0.000001) THEN
           WRITE(6,'(5X,A,6X,D19.12)') 'Proj comp from velo:',pvel
         ENDIF
-        DO i=1, natom
-          DO j=1, 3
-            vel_m(3*(i-1)+j) = vel_m(3*(i-1)+j) -
-     & pvel*pcoo_m(p,3*(i-1)+j)
-          ENDDO
-        ENDDO
+        vel_m = vel_m - pvel*pcoo_m(p,:)
       ENDDO
 
 C Un-Mass-weight the velocity vector
       DO i=1, natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
         DO j=1, 3
           vel(3*(i-1)+j) = vel_m(3*(i-1)+j)/sqrt(Mass(i))
         ENDDO

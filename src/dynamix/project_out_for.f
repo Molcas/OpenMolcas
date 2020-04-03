@@ -70,45 +70,19 @@ C Mass-weight the force vector
       DO p = 1,POUT
 C Mass-weight the projection vector
         DO i=1, natom
-          IF (i.GT.matom) THEN
-            CALL LeftAd(atom(i))
-            Iso=0
-            CALL Isotope(Iso,atom(i),Mass(i))
-          END IF
           DO j=1, 3
             pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)/sqrt(Mass(i))
           ENDDO
         ENDDO
 C normalise it (needed or not?)
-        norm = 0
-        DO i=1, natom
-          DO j=1, 3
-            norm = norm + pcoo_m(p,3*(i-1)+j)*pcoo_m(p,3*(i-1)+j)
-          ENDDO
-        ENDDO
-        pcoo_m = pcoo_m/norm
+        pcoo_m = pcoo_m/norm2(pcoo_m)
 C Project out
-        pforce = 0
-        DO i=1, natom
-          DO j=1, 3
-            pforce = pforce + pcoo_m(p,3*(i-1)+j)*force_m(3*(i-1)+j)
-          ENDDO
-        ENDDO
-        DO i=1, natom
-          DO j=1, 3
-            force_m(3*(i-1)+j) = force_m(3*(i-1)+j) -
-     & pforce*pcoo_m(p,3*(i-1)+j)
-          ENDDO
-        ENDDO
+        pforce = dot_product(pcoo_m(p,:),force_m)
+        force_m = force_m - pforce*pcoo_m(p,:)
       ENDDO
 
 C Un-Mass-weight the force vector
       DO i=1, natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
         DO j=1, 3
           force(3*(i-1)+j) = force_m(3*(i-1)+j)*sqrt(Mass(i))
         ENDDO
