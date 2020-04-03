@@ -95,7 +95,6 @@ C     Initialize the Mass variable
 C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL project_out_vel(vel,natom)
         CALL project_out_for(force,natom)
       ENDIF
 C--------------------------------------------------------------------C
@@ -152,6 +151,11 @@ C-------------------------------------------
           totimpl = totimpl + vel(3*(i-1)+j) * Mass(i)
         END DO
       END DO
+
+C Check if reduced dimensionality (should not be needed)
+      IF (POUT .NE. 0) THEN
+        CALL project_out_vel(vel,natom)
+      ENDIF
 
       Call Add_Info('EKin',[EKin],1,6)
 

@@ -35,17 +35,19 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "stdalloc.fh"
 #include "dyn.fh"
 #include "constants2.fh"
-      INTEGER                                 :: i,j,p
-      INTEGER                                 :: natom
-      INTEGER                                 :: Iso
-      REAL*8, ALLOCATABLE                     :: Mass(:)
-      CHARACTER, ALLOCATABLE                  :: atom(:)*2
-      REAL*8, DIMENSION(natom), INTENT(INOUT) :: vel
-      REAL*8, ALLOCATABLE                     :: pcoo(:,:)
-      REAL*8                                  :: pvel,norm
+      INTEGER                                   :: i,j,p
+      INTEGER                                   :: natom
+      INTEGER                                   :: Iso
+      REAL*8, ALLOCATABLE                       :: Mass(:)
+      CHARACTER, ALLOCATABLE                    :: atom(:)*2
+      REAL*8, DIMENSION(natom*3), INTENT(INOUT) :: vel
+      REAL*8, DIMENSION(natom*3)                :: vel_m
+      REAL*8, ALLOCATABLE                       :: pcoo(:,:),pcoo_m(:,:)
+      REAL*8                                    :: pvel,norm
 C
       CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
+      CALL mma_allocate(pcoo_m,POUT,natom*3)
       CALL mma_allocate(Mass,natom)
 
       CALL Get_Name_Full(atom)
@@ -53,15 +55,20 @@ C
       CALL Get_nAtoms_All(matom)
       CALL Get_Mass_All(Mass,matom)
 
-      DO p = 1,POUT
-        norm = 0
-        DO i=1, natom
-          DO j=1, 3
-            norm = norm + pcoo(p,3*(i-1)+j)*pcoo(p,3*(i-1)+j)
-          ENDDO
+C Mass-weight the velocity vector
+      DO i=1, natom
+        IF (i.GT.matom) THEN
+          CALL LeftAd(atom(i))
+          Iso=0
+          CALL Isotope(Iso,atom(i),Mass(i))
+        END IF
+        DO j=1, 3
+          vel_m(3*(i-1)+j) = vel(3*(i-1)+j)*sqrt(Mass(i))
         ENDDO
+      ENDDO
 
-        pvel = 0
+      DO p = 1,POUT
+C Mass-weight the projection vector
         DO i=1, natom
           IF (i.GT.matom) THEN
             CALL LeftAd(atom(i))
@@ -69,19 +76,49 @@ C
             CALL Isotope(Iso,atom(i),Mass(i))
           END IF
           DO j=1, 3
-            pvel = pvel + pcoo(p,3*(i-1)+j)*vel(3*(i-1)+j)*Mass(i)
+            pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)/sqrt(Mass(i))
           ENDDO
         ENDDO
-        pvel = pvel / (norm*sum(Mass))
+C normalise it (needed or not?)
+        norm = 0
         DO i=1, natom
           DO j=1, 3
-            vel(3*(i-1)+j) = vel(3*(i-1)+j) -
-     & pvel*pcoo(p,3*(i-1)+j)
+            norm = norm + pcoo_m(p,3*(i-1)+j)*pcoo_m(p,3*(i-1)+j)
+          ENDDO
+        ENDDO
+        pcoo_m = pcoo_m/norm
+C Project out
+        pvel = 0
+        DO i=1, natom
+          DO j=1, 3
+            pvel = pvel + pcoo_m(p,3*(i-1)+j)*vel_m(3*(i-1)+j)
+          ENDDO
+        ENDDO
+        IF (pvel.GT.0.000001) THEN
+          WRITE(6,'(5X,A,6X,D19.12)') 'Proj comp from velo:',pvel
+        ENDIF
+        DO i=1, natom
+          DO j=1, 3
+            vel_m(3*(i-1)+j) = vel_m(3*(i-1)+j) -
+     & pvel*pcoo_m(p,3*(i-1)+j)
           ENDDO
         ENDDO
       ENDDO
 
+C Un-Mass-weight the velocity vector
+      DO i=1, natom
+        IF (i.GT.matom) THEN
+          CALL LeftAd(atom(i))
+          Iso=0
+          CALL Isotope(Iso,atom(i),Mass(i))
+        END IF
+        DO j=1, 3
+          vel(3*(i-1)+j) = vel_m(3*(i-1)+j)/sqrt(Mass(i))
+        ENDDO
+      ENDDO
+
       CALL mma_deallocate(pcoo)
+      CALL mma_deallocate(pcoo_m)
       CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)
 

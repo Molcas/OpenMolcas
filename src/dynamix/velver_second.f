@@ -97,7 +97,6 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
 
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL project_out_vel(vel,natom)
         CALL project_out_for(force,natom)
       ENDIF
 C
@@ -126,6 +125,10 @@ C  Calling the thermostats for canonical ensemble
          CALL NhcThermo(vel)
       END IF
 C
+C Check if reduced dimensionality (should not be needed)
+      IF (POUT .NE. 0) THEN
+        CALL project_out_vel(vel,natom)
+      ENDIF
 
 C Final kinetic energy
       DO i=1, natom
