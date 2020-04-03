@@ -205,6 +205,14 @@ C                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
          CALL DxPtTableWithoutMassForce(caption,time,natom,
      &        atom,vel)
 
+C Check if reduced dimensionality
+         IF (POUT .NE. 0) THEN
+           CALL project_out_vel(vel,natom)
+           caption='Vel (red dim)'
+           CALL DxPtTableWithoutMassForce(caption,time,natom,
+     &        atom,vel)
+         ENDIF
+
 C     Calculate the kinetic energy
          IF (VELO.gt.0) THEN
             Ekin=0.000000000000D0
