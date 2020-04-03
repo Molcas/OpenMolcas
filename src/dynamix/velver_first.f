@@ -26,7 +26,6 @@ C *********************************************************************
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE VelVer_First(irc)
-      USE Isotopes
 #include "prgm.fh"
 #include "warnings.fh"
 #include "Molcas.fh"
@@ -49,7 +48,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
-      INTEGER Iso
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
       CALL QENTER(ROUTINE)
@@ -90,8 +88,7 @@ C
       CALL Get_Velocity(vel,3*natom)
 C
 C     Initialize the Mass variable
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
+      CALL GetMassDx(Mass,natom)
 C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
@@ -129,13 +126,6 @@ C
       totimpl = 0.0D0
 *
       DO i=1, natom
-C     Determines the mass of an atom from its name
-        IF (i.GT.matom) THEN
-           CALL LeftAd(atom(i))
-           Iso=0
-           CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
-C-------------------------------------------
         DO j=1, 3
 *** Root mean square deviation ****************************
           tstxyz(3*(i-1)+j) = xyz(3*(i-1)+j)

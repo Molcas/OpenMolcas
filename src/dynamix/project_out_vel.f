@@ -24,7 +24,6 @@ C *********************************************************************
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE project_out_vel(vel,natom)
-      USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
@@ -37,31 +36,21 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "constants2.fh"
       INTEGER                                   :: i,j,p
       INTEGER                                   :: natom
-      INTEGER                                   :: Iso
       REAL*8, ALLOCATABLE                       :: Mass(:)
-      CHARACTER, ALLOCATABLE                    :: atom(:)*2
       REAL*8, DIMENSION(natom*3), INTENT(INOUT) :: vel
       REAL*8, DIMENSION(natom*3)                :: vel_m
       REAL*8, ALLOCATABLE                       :: pcoo(:,:),pcoo_m(:,:)
-      REAL*8                                    :: pvel,norm
+      REAL*8                                    :: pvel
 C
-      CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
       CALL mma_allocate(pcoo_m,POUT,natom*3)
       CALL mma_allocate(Mass,natom)
 
-      CALL Get_Name_Full(atom)
       CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
+      CALL GetMassDx(Mass,natom)
 
 C Mass-weight the velocity vector
       DO i=1, natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
         DO j=1, 3
           vel_m(3*(i-1)+j) = vel(3*(i-1)+j)*sqrt(Mass(i))
         ENDDO
@@ -75,7 +64,7 @@ C Mass-weight the projection vector
           ENDDO
         ENDDO
 C normalise it (needed or not?)
-        pcoo_m = pcoo_m/norm2(pcoo_m)
+        pcoo_m(p,:) = pcoo_m(p,:)/norm2(pcoo_m(p,:))
 C Project out
         pvel = dot_product(pcoo_m(p,:),vel_m)
         IF (pvel.GT.0.000001) THEN
@@ -93,7 +82,6 @@ C Un-Mass-weight the velocity vector
 
       CALL mma_deallocate(pcoo)
       CALL mma_deallocate(pcoo_m)
-      CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)
 
       RETURN

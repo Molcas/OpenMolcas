@@ -24,7 +24,6 @@ C *********************************************************************
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE project_out_for(force,natom)
-      USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
@@ -37,31 +36,21 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "constants2.fh"
       INTEGER                                   :: i,j,p
       INTEGER                                   :: natom
-      INTEGER                                   :: Iso
       REAL*8, ALLOCATABLE                       :: Mass(:)
-      CHARACTER, ALLOCATABLE                    :: atom(:)*2
       REAL*8, DIMENSION(natom*3), INTENT(INOUT) :: force
       REAL*8, DIMENSION(natom*3)                :: force_m
       REAL*8, ALLOCATABLE                       :: pcoo(:,:),pcoo_m(:,:)
-      REAL*8                                    :: pforce,norm
+      REAL*8                                    :: pforce
 C
-      CALL mma_allocate(atom,natom)
       CALL mma_allocate(pcoo,POUT,natom*3)
       CALL mma_allocate(pcoo_m,POUT,natom*3)
       CALL mma_allocate(Mass,natom)
 
-      CALL Get_Name_Full(atom)
       CALL Get_dArray('Proj_Coord',pcoo,POUT*natom*3)
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
+      CALL GetMassDx(Mass,natom)
 
 C Mass-weight the force vector
       DO i=1, natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
         DO j=1, 3
           force_m(3*(i-1)+j) = force(3*(i-1)+j)/sqrt(Mass(i))
         ENDDO
@@ -75,7 +64,7 @@ C Mass-weight the projection vector
           ENDDO
         ENDDO
 C normalise it (needed or not?)
-        pcoo_m = pcoo_m/norm2(pcoo_m)
+        pcoo_m(p,:) = pcoo_m(p,:)/norm2(pcoo_m(p,:))
 C Project out
         pforce = dot_product(pcoo_m(p,:),force_m)
         force_m = force_m - pforce*pcoo_m(p,:)
@@ -90,7 +79,6 @@ C Un-Mass-weight the force vector
 
       CALL mma_deallocate(pcoo)
       CALL mma_deallocate(pcoo_m)
-      CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)
 
       RETURN

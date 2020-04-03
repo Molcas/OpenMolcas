@@ -239,12 +239,14 @@ C
 C     This Subroutine reads in the coordinates to project out from the file 'out.00N.xyz'
 C
       IMPLICIT NONE
-#include "Molcas.fh"
+#include "stdalloc.fh"
+#include "real.fh"
       EXTERNAL      IsFreeUnit
-      INTEGER       i,j,p,file,natom,POUT,IsFreeUnit
+      INTEGER       i,j,p,file,natom,POUT,IsFreeUnit,mn
       REAL*8        pcoo(POUT,natom*3)
       CHARACTER*80  filname
       CHARACTER*180 OutLine, Get_Ln
+      REAL*8, ALLOCATABLE :: UMat(:,:),VMat(:,:),S(:),SqrtM(:)
 *
       file=81
       file=IsFreeUnit(file)
@@ -260,6 +262,31 @@ C
         END DO
       END DO
       CLOSE(file)
+C
+C Orthonormalize the vectors in mass-weighted coordinates
+C
+      CALL mma_Allocate(SqrtM,natom)
+      CALL GetMassDx(SqrtM,natom)
+      DO i=1, natom
+        SqrtM(i)=Sqrt(SqrtM(i))
+        j=3*(i-1)+1
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
+      END DO
+      mn=MIN(POUT,3*natom)
+      CALL mma_Allocate(UMat,POUT,mn)
+      CALL mma_Allocate(VMat,mn,3*natom)
+      CALL mma_Allocate(S,mn)
+      CALL large_svd(POUT,3*natom,pcoo,UMat,VMat,S)
+      CALL dgemm_('N','N',POUT,3*natom,mn,One,UMat,POUT,VMat,mn,
+     &                                    Zero,pcoo,POUT)
+      DO i=1, natom
+        j=3*(i-1)+1
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
+      END DO
+      CALL mma_deAllocate(UMat)
+      CALL mma_deAllocate(VMat)
+      CALL mma_deAllocate(S)
+      CALL mma_deAllocate(SqrtM)
 *
       RETURN
 
