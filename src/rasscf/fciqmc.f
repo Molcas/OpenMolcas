@@ -216,7 +216,7 @@
       end do
 
 ! print matrices
-      ! if (IPRLEV >= DEBUG) then
+       if (IPRLEV >= DEBUG) then
         if (tGUGA) then
             call TRIPRT('Averaged one-body density matrix, DMAT',
      &              ' ',DMAT,NAC)
@@ -235,7 +235,7 @@
         call TRIPRT('Averaged antisymmetric two-body density matrix,PA',
      &              ' ',PAMAT,NACPAR)
         endif
-      ! end if
+       end if
 
       if (nAsh(1) /= nac) call dblock(dmat)
 

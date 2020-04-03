@@ -139,12 +139,14 @@
       end do
       close(iunit)
 
+      IF(IPRLEV >= DEBUG) THEN
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
      &              ' ',DMAT,NAC)
         CALL TRIPRT('Averaged two-body density matrix, P',
      &              ' ',psmat,NACPAR)
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &              ' ',pamat , NACPAR)
+      end if
 
 ******* Clean evil non-positive semi-definite matrices. DMAT is input and output.
       ! hopefully this just works for GUGA-RDMs
