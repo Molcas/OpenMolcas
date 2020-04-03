@@ -155,7 +155,11 @@
         write(file_id, A_fmt()) 'allrealcoeff'
         write(file_id, R_fmt()) 'realspawncutoff', realspawncutoff
         write(file_id, A_fmt()) 'jump-shift'
-        write(file_id, A_fmt()) 'tau 0.01 search'
+        if (tGUGA_) then
+            write(file_id, A_fmt()) 'hist-tau-search 0.9999'
+        else
+            write(file_id, A_fmt()) 'tau 0.01 search'
+        end if
         write(file_id, R_fmt()) 'max-tau', max_tau
         write(file_id, I_fmt()) 'maxwalkerbloom', maxwalkerbloom
         write(file_id, R_fmt()) 'memoryfacspawn', memoryfacspawn
