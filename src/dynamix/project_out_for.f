@@ -60,7 +60,7 @@ C Mass-weight the force vector
 C Mass-weight the projection vector
         DO i=1, natom
           DO j=1, 3
-            pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)/sqrt(Mass(i))
+            pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)*sqrt(Mass(i))
           ENDDO
         ENDDO
 C normalise it (needed or not?)

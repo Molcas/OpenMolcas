@@ -270,7 +270,7 @@ C
       DO i=1, natom
         SqrtM(i)=Sqrt(SqrtM(i))
         j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
       END DO
       mn=MIN(POUT,3*natom)
       CALL mma_Allocate(UMat,POUT,mn)
@@ -281,7 +281,7 @@ C
      &                                    Zero,pcoo,POUT)
       DO i=1, natom
         j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
       END DO
       CALL mma_deAllocate(UMat)
       CALL mma_deAllocate(VMat)
