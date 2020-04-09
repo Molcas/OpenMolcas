@@ -756,7 +756,7 @@ C                                                                      C
               IF (LNCNT.EQ.0) THEN
                  If (Do_SK) Then
                     WRITE(6,*)
-                    WRITE(6,'(4x,a,3F8.4)')
+                    WRITE(6,'(4x,a,3F8.6)')
      &                 'Direction of the k-vector: ',
      &                  (k_vector(k,iVec),k=1,3)
                     WRITE(6,'(4x,a)')
@@ -848,7 +848,7 @@ C                                                                      C
             IF(LNCNT.EQ.0) THEN
              If (Do_SK) Then
                 WRITE(6,*)
-                WRITE(6,'(4x,a,3F8.4)')
+                WRITE(6,'(4x,a,3F8.6)')
      &             'Direction of the k-vector: ',
      &              (k_vector(k,iVec),k=1,3)
                 WRITE(6,'(4x,a)')
@@ -959,7 +959,7 @@ C                                                                      C
                   IF (LNCNT.EQ.0) THEN
                      If (Do_SK) Then
                         WRITE(6,*)
-                        WRITE(6,'(4x,a,3F8.4)')
+                        WRITE(6,'(4x,a,3F8.6)')
      &                        'Direction of the k-vector: ',
      &                         (k_vector(k,ivec),k=1,3)
                         WRITE(6,'(4x,a)')
@@ -1876,7 +1876,7 @@ C                                                                      C
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F8.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2110,7 +2110,7 @@ C                                                                      C
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F8.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2879,7 +2879,7 @@ C                 Why do it when we don't do the L.S-term!
      &                     'over all directions of the polarization '//
      &                     'vector'
                       End If
-                      WRITE(6,'(4x,a,3F8.4)')
+                      WRITE(6,'(4x,a,3F8.6)')
      &                  'Direction of the k-vector: ',
      &                  (k_vector(k,iVec),k=1,3)
                    Else
