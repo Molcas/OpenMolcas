@@ -10,12 +10,6 @@
 ************************************************************************
 *
       Logical do_rotate
-      Integer LRState,NRState         ! storing info in Do_Rotate.txt
-      Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
-      Integer LXScratch,NXScratch
-      INTEGER LUMS,IsFreeUnit
-      Dimension WGRONK(2)
-      External IsFreeUnit
 
       COMMON /MSPDFT/ Do_Rotate
 *

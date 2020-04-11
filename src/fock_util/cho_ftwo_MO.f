@@ -14,7 +14,7 @@
      &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
 
-**********************************************************************
+************************************************************************
 *  Author : F. Aquilante
 *
 *  Purpose:
@@ -59,7 +59,7 @@
 *  MinMem(nSym) : minimum amount of memory required to read
 *                 a single Cholesky vector in full storage
 *
-***********************************************************************
+************************************************************************
 
       Implicit Real*8 (a-h,o-z)
 

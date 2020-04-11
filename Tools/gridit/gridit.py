@@ -33,7 +33,7 @@ def get_currdir_path(path):
 
 
 def create_input(coord, basis, inporb, density='sparse', group=None,
-                 select=None):
+                 select=None, total=False):
     inp = create_module_input(
         'GATEWAY',
         coord=get_currdir_path(coord),
@@ -44,6 +44,8 @@ def create_input(coord, basis, inporb, density='sparse', group=None,
     gridit = {'NOLUSCUS': '', 'ASCII': '', density: ''}
     if select:
         gridit['select'] = select
+    if total:
+        gridit['total'] = ''
 
     inp += create_module_input('GRIDIT', **gridit)
     return inp
@@ -85,6 +87,8 @@ def cleanup(project):
               help=('Gridit keyword to select certain orbitals. '
                     'The default depends on the Molcas implementation. '
                     'Usually the active space is used.'))
+@click.option('--total/--no-total', '-t',default=False,
+              help='Total density computed from contributions of all orbitals.')
 @click.option('--project', '-p', default='make_grid', type=str,
               show_default=True,
               help=('Prefix for the grid calculations. '
@@ -94,9 +98,9 @@ def cleanup(project):
               help='Filepath of the Molcas driver script.')
 @click.option('--clean/--no-clean', default=True,
               help='Clean temporary files after calculation.')
-def main(coord, basis, inporb, density, group, select, project, molcas_exe, clean):
+def main(coord, basis, inporb, density, group, select, total, project, molcas_exe, clean):
     start_calc(
-        create_input(coord, basis, inporb, density, group, select),
+        create_input(coord, basis, inporb, density, group, select, total),
         f'{project}.inp', molcas_exe)
     if clean:
         cleanup(project)

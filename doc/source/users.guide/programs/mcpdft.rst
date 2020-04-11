@@ -133,19 +133,20 @@ The :kword:`KSDFT` is the only required keyword.
               </HELP>
               </KEYWORD>
 
-
-:kword:`MSPD`
+:kword:`MSPDFT`
   This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT).
-  This keyword is only effective when a file named H0_Rotate.txt is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. 
-  With the MSPD keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous RASSCF module in which the keyword "ROST" used) and diagonalizes the new Hamiltonian matrix (called effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below. 
-   More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page (https://comp.chem.umn.edu/openmolcas/).
-   Currently the only MS-PDFT option in the code is XMS-PDFT.
+  This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. 
+  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST` used) and diagonalizes the new Hamiltonian matrix (called effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below. 
+  More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+
+  Currently the only MS-PDFT option in the code is XMS-PDFT.
+
+  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: CIONly <basic>
+              %%Keyword: MSPDFT <basic>
               <HELP>
-              This keyword is used to disable orbital optimization, that is,
-              the CI roots are computed only for a given set of input orbitals.
+              Enable MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
               </HELP>
               </KEYWORD>
 
@@ -180,7 +181,7 @@ The first RASSCF run is a standard CASSCF calculation that leads to variationall
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding RASSCF run.
 
 The following example shows a part of the input to run XMS-PDFT calculation. 
-The system is LiF and the point group used is |Ctv|.
+The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
 
 ::
 
@@ -195,7 +196,7 @@ The system is LiF and the point group used is |Ctv|.
    >>COPY $CurrDir/LiF.RasOrb $CurrDir/UseOrb 
 
    &RASSCF 
-    CIOnly
+   CIOnly
    Spin=1
    Symmetry=1
    CIRoot= 2 2 1
@@ -207,7 +208,7 @@ The system is LiF and the point group used is |Ctv|.
    &CASPT2
    XROH =All
 
-   >>COPY $CurrDir/UseOrb $Scratch/INPORB
+   >>COPY $CurrDir/UseOrb INPORB
 
    &RASSCF 
    CIONLY

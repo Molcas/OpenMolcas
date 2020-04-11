@@ -8,9 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-*               2019, Stefano Battaglia                                *
-*               2020, Jie J. Bao                                       *
+* Copyright (C) 2020, Jie J. Bao                                       *
 ************************************************************************
       subroutine prrotmat(NGRP,U0,HEFF,NSTATE,Silent)
 

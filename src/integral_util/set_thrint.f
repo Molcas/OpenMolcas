@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-***********************************************************************
-*                                                                     *
-*  Subroutine set_thrint:     Puts integral thresholds into info.fh  *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*  Subroutine set_thrint:     Puts integral thresholds into info.fh    *
+*                                                                      *
+************************************************************************
       subroutine set_thrint(thr,cut)
 c-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)

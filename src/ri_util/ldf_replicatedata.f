@@ -78,7 +78,7 @@ C==========================
          Do iAtomPair=1,NumberOfAtomPairs
             If (isUnique(iAtomPair)) Then
                n(1)=AP_1CLinDep(1,iAtomPair)
-               Call GAiGOp_SCAL(n,'max')
+               Call GAiGOp_SCAL(n(1),'max')
                If (n(1).gt.0) Then
                   l=3*n(1)
                   If (AP_1CLinDep(1,iAtomPair).gt.0) Then
@@ -124,7 +124,7 @@ C=============================
          Do iAtomPair=1,NumberOfAtomPairs
             If (isUnique(iAtomPair)) Then
                n(1)=AP_2CFunctions(1,iAtomPair)
-               Call GAiGOp_SCAL(n,'max')
+               Call GAiGOp_SCAL(n(1),'max')
                If (n(1).gt.0) Then
                   l=4*n(1)
                   If (AP_2CFunctions(1,iAtomPair).gt.0) Then
