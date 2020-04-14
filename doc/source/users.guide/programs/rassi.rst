@@ -765,8 +765,11 @@ Keywords
               </KEYWORD>
 
 :kword:`DIPRint`
-  The next entry gives the threshold for printing dipole intensities.
-  Default is 1.0D-5.
+  The next entry gives the threshold for printing dipole intensities, reduced
+  rotatory strengths using :kword:`CD`, and reduced rotatory strenghts and 
+  oscillatory strengths using :kword:`TINTensities`. For :kword:`TINTensities`,
+  the value is printed for transitions where at least one of reduced rotatory
+  strength and oscillator strength is above the threshold. Default is 1.0D-5.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DIPR" APPEAR="Threshold dipole intensities" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="1.0D-5" LEVEL="ADVANCED">
               %%Keyword: DIPR <advanced>
