@@ -64,7 +64,8 @@ C Mass-weight the projection vector
           ENDDO
         ENDDO
 C normalise it (needed or not?)
-        pcoo_m(p,:) = pcoo_m(p,:)/norm2(pcoo_m(p,:))
+        pcoo_m(p,:) = pcoo_m(p,:)/
+     &    sqrt(dot_product(pcoo_m(p,:),pcoo_m(p,:)))
 C Project out
         pforce = dot_product(pcoo_m(p,:),force_m)
         force_m = force_m - pforce*pcoo_m(p,:)
