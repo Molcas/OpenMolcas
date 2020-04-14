@@ -627,7 +627,7 @@ C                                                                      C
 !     ZVAL(8) = 20.0D0
 !     ZVAL(9) = 25.0D0
 
-      OSTHR=1.0D-10
+      OSTHR=1.0D-16
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
 ! this is to ensure that the total transistion strength is non-zero
