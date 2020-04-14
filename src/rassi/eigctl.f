@@ -630,8 +630,7 @@ C                                                                      C
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR !All rotatory
-!  strengths and rotatory and oscillator strengths of full operator will be
-!  greater than this value (Imaad Ansari)
+! and oscillator strengths  will be greater than this value (Imaad Ansari)
 
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
