@@ -627,7 +627,7 @@ C                                                                      C
 !     ZVAL(8) = 20.0D0
 !     ZVAL(9) = 25.0D0
 
-      OSTHR=1.0D-5
+      OSTHR=1.0D-10
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
 ! this is to ensure that the total transistion strength is non-zero
@@ -2892,8 +2892,9 @@ C                 Why do it when we don't do the L.S-term!
      &                  '-------------------'
                    End If
                    IF (OSTHR.GT.0.0D0) THEN
-                      WRITE(6,30) 'for osc. strength and red. rot. strength' //
-     &                            'at least',OSTHR
+                      WRITE(6,30)
+     &                  'for osc. strength and red. rot. strength'//
+     &                  'at least',OSTHR
                    END IF
                    WRITE(6,*)
                    If (.NOT.Do_SK) Then
