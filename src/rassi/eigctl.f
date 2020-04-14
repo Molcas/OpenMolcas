@@ -627,7 +627,7 @@ C                                                                      C
 !     ZVAL(8) = 20.0D0
 !     ZVAL(9) = 25.0D0
 
-      OSTHR=1.0D-5
+      OSTHR=1.0D-10
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
 ! this is to ensure that the total transistion strength is non-zero
@@ -2023,7 +2023,7 @@ C                                                                      C
              END IF
             END IF
 *
-            IF(abs(R).LT.OSTHR) CYCLE
+            IF(ABS(R).LT.OSTHR) CYCLE
             WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_V(SF)',[R],1,6)
@@ -2258,6 +2258,7 @@ C                                                                      C
              END IF
             END IF
 *
+            IF(ABS(R).LT.OSTHR) CYCLE
             WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_M(SF)',[R],1,6)
