@@ -2023,6 +2023,7 @@ C                                                                      C
              END IF
             END IF
 *
+            IF(abs(R).LT.OSTHR) CYCLE
             WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_V(SF)',[R],1,6)
