@@ -51,6 +51,7 @@ code of OpenMolcas. They are hereby acknowledged and collectively identified as
 Christian Ander  
 Kerstin Andersson  
 János G. Ángyán  
+Imaad Ansari
 Francesco Aquilante  
 Jochen Autschbach  
 Jie J. Bao  
