@@ -2893,8 +2893,8 @@ C                 Why do it when we don't do the L.S-term!
                    End If
                    IF (OSTHR.GT.0.0D0) THEN
                       WRITE(6,30)
-     &                  'for osc. strength and red. rot. strength'//
-     &                  'at   least',OSTHR
+     &                  'for osc. strength and red. rot. strength '//
+     &                  'at least',OSTHR
                    END IF
                    WRITE(6,*)
                    If (.NOT.Do_SK) Then
