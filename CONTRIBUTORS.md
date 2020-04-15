@@ -93,8 +93,8 @@ Coen de Graaf
 Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  
-Jun-ya Hasegawa 
-Matthew R Hermes 
+Jun-ya Hasegawa  
+Matthew R Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
 Asbjørn Holt  
@@ -144,7 +144,7 @@ Michael A. Saunders
 Igor Schapiro  
 Bernd Schimmelpfennig  
 Martin Schütz  
-Thais Scott
+Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
 Kamal Sharkas  
@@ -179,4 +179,5 @@ Sebastian Wouters
 Felipe Zapata  
 Alexander Zech  
 Yan Zhao  
-J. Patrick Zobel  
+J. Patrick Zobel
+  

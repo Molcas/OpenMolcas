@@ -57,6 +57,7 @@
 *> - '``D1av``'                     Average one particle density matrix, AO basis.
 *> - '``D1mo``'                     One particle density matrix, MO basis.
 *> - '``D1sao``'                    One particle spin density matrix, AO basis.
+*> - '``D1activeao``'               One particle density matrix, AO basis, active orbitals
 *> - '``D2av``'                     Average two particle density matrix for the active space, AO basis.
 *> - '``dExcdRa``'                  The potential of the exchange-correlation functional.
 *> - '``DLAO``'

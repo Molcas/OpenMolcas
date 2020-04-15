@@ -668,8 +668,7 @@ c
 C
 C         Diagonalize the density matrix and transform orbitals
 C
-!      If (iAnd(kprint,8).eq.8) Then
-      If (.true.) Then
+      If (iAnd(kprint,8).eq.8) Then
          Write(6,*)
          Write(6,*) '           Effective natural population '
          Write(6,*) '           ============================ '
@@ -694,8 +693,7 @@ C
          END DO
          IST=IO+1
          IEND=IO+NBAS(is)
-         !If (iAnd(kprint,2).eq.2)
-      If (.true.)
+         If (iAnd(kprint,2).eq.2)
      &      Write (6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))')
      &             'sym',iS,':',(OCCN(I),I=IST,IEND)
          If (nBas(is).ge.1)
