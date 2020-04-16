@@ -284,7 +284,7 @@
      &              Work(ipin(ipST)+i*nconf1),1)
 
         else 
-        call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)+i*nconf1),1)
+        call dcopy_(nConf1,[Zero],0,Work(ipIn(ipst)+i*nconf1),1)
         end if
       Enddo
 
@@ -390,7 +390,7 @@
       deltaC=Zero
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
-      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
+      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
      &   Work(ipin(ipCId)),1)
 ********************
