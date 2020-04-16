@@ -328,6 +328,7 @@ c mess started here :)
          RecLab(168)='SPINR_NSS       '
          RecLab(169)='SPINI_NSS       '
          RecLab(170)='Proj_Coord      '
+         RecLab(171)='d1activeao      '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!
