@@ -6,19 +6,19 @@ HC=C-Cl
 Symmetry
 x y
 
-Basis
+Basis set
 H.STO-3G....
 *H    -1.08  0.0 0.0 Angstrom
      H             0.0 0.0 -5.5935781282
 End of Basis
-Basis
+Basis set
 C.STO-3G....
 *C1 0.0 0.0 0.0 Angstrom
 *C2 1.42 0.0 0.0 Angstrom
      C1            0.0 0.0 -3.5784517555
      C2            0.0 0.0 -1.3669240988
 End of Basis
-Basis
+Basis set
 Cl.STO-3G....
 *Cl 3.2 0.0 0.0 Angstrom
     CL            0.0 0.0  1.8582782795

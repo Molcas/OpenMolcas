@@ -1020,23 +1020,33 @@ c Simplistic validity check for value
 *     Read information for a basis set
 *
  920  continue
-      If (CoordSet) then
+*
+*     Check if the format is old or new style. Damn the person who used
+*     the same keword for two different styles if input and making the
+*     input to require a specific order of the keyword.
+*
+*     If (CoordSet) then
+      If (INDEX(KWORD,'SET').eq.0) Then
          GWInput=.True.
+         Key = Get_Ln(LuRd)
+         BSLbl = Key(1:80)
          If (BasisSet) Then
             KeepBasis=
-     &             KeepBasis(1:index(KeepBasis,' '))//','//Get_Ln(LuRd)
+     &             KeepBasis(1:index(KeepBasis,' '))//','//BSLbl
          Else
-            KeepBasis=Get_Ln(LuRd)
+            KeepBasis=BSLbl
+            BasisSet=.True.
          Endif
-         BasisSet=.True.
          temp1=KeepBasis
          Call UpCase(temp1)
-        if (INDEX(temp1,'INLINE').ne.0) then
-       Write(LuWr,*) 'XYZ input and Inline basis set are not compatible'
-       Write(LuWr,*) 'Consult the manual how to change inline basis set'
-       Write(LuWr,*) ' into basis set library'
-         Call Quit_OnUserError()
-         endif
+         If (INDEX(temp1,'INLINE').ne.0) then
+             Write(LuWr,*)
+     &            'XYZ input and Inline basis set are not compatible'
+             Write(LuWr,*)
+     &            'Consult the manual how to change inline basis set'
+             Write(LuWr,*) ' into basis set library'
+             Call Quit_OnUserError()
+         End If
          iOpt_XYZ=1
          Goto 998
       Else

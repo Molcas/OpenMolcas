@@ -284,7 +284,7 @@ By default, symmetry is not used in the calculation.
               The keyword can be used only in 'native' input format.
               </KEYWORD>
 
-:kword:`BASIs Set`
+:kword:`BASIS SET`
   This notes the start of a basis set definition.
   The next line always contains a basis set label.
   The basis set definition is alway terminated with the "End of Basis" keyword.
@@ -292,8 +292,8 @@ By default, symmetry is not used in the calculation.
   Below follows a description of the options associated with the
   basis set definition.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="BASIC" INPUT="REQUIRED" EXCLUSIVE="COORD">
-              %%Keyword: BASIS (non-XYZ format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS SET (old style format)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="ADVANCED" INPUT="REQUIRED" EXCLUSIVE="COORD">
+              %%Keyword: BASIS SET (old style format) <basic>
               This notes the start of a basis set definition.
               The next line always contains a basis set label.
               The basis set definition is alway terminated with the "End of Basis" keyword.
@@ -664,8 +664,8 @@ The default units are ångströms. By default, maximum possible symmetry is used
   If keyword BASIS never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: BASIS (XYZ format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: BASIS (new style format) <basic>
               <HELP>
               The keyword followed on the next line by the name of global basis set for
               all atoms, or by comma separated list of basis sets for individual atoms.
