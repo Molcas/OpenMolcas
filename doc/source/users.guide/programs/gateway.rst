@@ -284,7 +284,7 @@ By default, symmetry is not used in the calculation.
               The keyword can be used only in 'native' input format.
               </KEYWORD>
 
-:kword:`BASIS SET`
+:kword:`BASIs Set`
   This notes the start of a basis set definition.
   The next line always contains a basis set label.
   The basis set definition is alway terminated with the "End of Basis" keyword.
@@ -292,8 +292,8 @@ By default, symmetry is not used in the calculation.
   Below follows a description of the options associated with the
   basis set definition.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS SET (old style format)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="ADVANCED" INPUT="REQUIRED" EXCLUSIVE="COORD">
-              %%Keyword: BASIS SET (old style format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="ADVANCED" INPUT="REQUIRED" EXCLUSIVE="COORD">
+              %%Keyword: BASIS (non-XYZ format) <basic>
               This notes the start of a basis set definition.
               The next line always contains a basis set label.
               The basis set definition is alway terminated with the "End of Basis" keyword.
@@ -460,7 +460,7 @@ Note that coordinates in these formats use ångström as units.
       H.STO-3G
       End of basis
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: XBAS <basic>
               <HELP>
               A keyword to specify the basis for atoms. The specification is very similar
@@ -664,8 +664,8 @@ The default units are ångströms. By default, maximum possible symmetry is used
   If keyword BASIS never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: BASIS (new style format) <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: BASIS (XYZ format) <basic>
               <HELP>
               The keyword followed on the next line by the name of global basis set for
               all atoms, or by comma separated list of basis sets for individual atoms.
@@ -720,6 +720,7 @@ If keyword :kword:`nomove` is active, the molecule is not allowed to rotate, and
 a mirror plane :math:`xy` is the only symmetry element. Since the third hydrogen atom is
 slightly out of this plane, it will be corrected. Only activation of the keyword :kword:`group=C1`
 will ensure that the geometry is unchanged.
+
 
 Advanced keywords:
 

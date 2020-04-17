@@ -176,7 +176,7 @@
 * Generating Starting Orbitals for CASSCF/RASSCF in ANO-RCC-MB
 *
 &GATEWAY
-  Basis = ANO-RCC-MB
+  Basis (XYZ) = ANO-RCC-MB
   Group = Full
   RICD
 &SEWARD
