@@ -80,7 +80,7 @@ c
       If (nSym.gt.1) LocModel = 3  ! Cholesky localisation
       LocModel_UsrDef = .False.
       Test_Localisation = .False.
-      NMxIter = 100
+      NMxIter = 300
       Thrs = ThrsDef
       ThrRot = ThrRotDef
       ThrGrad = ThrGradDef
