@@ -676,7 +676,7 @@ c         call xflush(6)
       Call GetMem('ltuvx_tmp','ALLO','Real',ltuvx_tmp,nacpr2)
       Call GetMem('lpuvx_tmp','ALLO','Real',lpuvx_tmp,nfint)
 *
-      CALL DCOPY_(nacpr2,0.0D0,0,WORK(ltuvx_tmp),1)
+      CALL DCOPY_(nacpr2,[Zero],0,WORK(ltuvx_tmp),1)
       if (iprlev.ge.debug) then
             write(6,*) 'ltuvx before !!! tractl'
             do i=1, nacpr2
@@ -684,7 +684,7 @@ c         call xflush(6)
             end do
       end if 
 *
-      CALL DCOPY_(nfint,0.0D0,0,WORK(lpuvx_tmp),1)
+      CALL DCOPY_(nfint,[Zero],0,WORK(lpuvx_tmp),1)
       if (iprlev.ge.debug) then
             write(6,*) 'lpuvx before tractl'
             do i=1,nfint
@@ -1284,7 +1284,7 @@ cPS         call xflush(6)
 *TRS ams also commented out this if and endif part of this
 * statement
          !if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,0.0d0,0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
          !end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
