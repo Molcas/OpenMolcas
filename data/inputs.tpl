@@ -203,7 +203,7 @@
 * Generating Starting Orbitals for CASSCF/RASSCF
 *
 &GATEWAY
-  Basis = ANO-RCC-MB
+  Basis (XYZ) = ANO-RCC-MB
   Group = Full
   RICD
 &LOCALISATION
@@ -225,7 +225,7 @@
 * Generating Starting Orbitals for CASSCF/RASSCF in ANO-RCC-MB
 *
 &GATEWAY
-  Basis = ANO-RCC-MB
+  Basis (XYZ) = ANO-RCC-MB
   Group = Full
   RICD
 &SEWARD
@@ -263,7 +263,7 @@
 * Generating Starting Orbitals for CASSCF/RASSCF
 *
 &GATEWAY
-  Basis = ANO-RCC-MB
+  Basis (XYZ) = ANO-RCC-MB
   Group = NoSymm
   RICD
 &SEWARD
@@ -274,16 +274,12 @@
 &LOCALISATION
   FileOrb = $Project.LocOrb
   Virtual
-&GRID_IT
-  FileOrb = $Project.LocOrb
-  Name = localized
-  All
->> Unix molcas gv $Project.localized.grid
+>> shell pegamoid $Project.guessorb.h5 $Project.LocOrb
 &RASSCF
-  FileOrb = $Project.localized.GvOrb
+  FileOrb = $Project.LocOrb
 >> Copy $Project.RunFile RUNFIL1
 &GATEWAY
-  Basis = ANO-RCC-VDZP
+  Basis (XYZ) = ANO-RCC-VDZP
   Group = NoSymm
   RICD
 >> Copy $Project.RunFile RUNFIL2
