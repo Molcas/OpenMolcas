@@ -344,9 +344,7 @@ cperiod
 *
       nDone=0
  998  lTtl = .False.
-      If (Basis_Test.and.nDone.eq.0) Then
-         nDone=1
-      Else
+      If (Basis_Test.and.nDone.eq.1) Then
          nDone=0
          Basis_Test=.False.
       End If
@@ -377,8 +375,9 @@ cperiod
       KWord = Key
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
-      If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord(1:1).eq.'*') Go To 998
+      If (KWord.eq.BLine)    Go To 998
+      If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
 *
@@ -588,9 +587,22 @@ c    &       KWord(4:4).eq.'C') ) Go To 657
       If (lTtl) Go To 911
 *
       If (Basis_test) Then
+*
+*        So the Basis keyword was in the native format.
+*        We have to back step until we find the command line!
+*
          Backspace(LuRd)
          Backspace(LuRd)
+         Read(LuRd,'(A)') Key
+         Call UpCase(Key)
+         Do While(Index(Key(1:4),'BASI').eq.0)
+              Backspace(LuRd)
+              Backspace(LuRd)
+              Read(LuRd,'(A)') Key
+              Call UpCase(Key)
+         End Do
          Basis_test=.False.
+         nDone=0
          Go To 9201
       End If
       iChrct=Len(KWord)
