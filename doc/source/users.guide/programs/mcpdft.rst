@@ -133,6 +133,17 @@ The :kword:`KSDFT` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+:kword:`GRAD`
+  The keyword is needed to calculate potentials for analytical gradients.
+  This keyword can be used with both state-specific and state-averaged CASSCF reference wavefunctions.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE"  LEVEL="BASIC">
+                   %%Keyword: GRAD <basic>
+              <HELP>
+              Needed to compute  potentials for MC-PDFT  analytical gradients. 
+              </HELP>
+              </KEYWORD>
+
 :kword:`MSPDFT`
   This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT).
   This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. 

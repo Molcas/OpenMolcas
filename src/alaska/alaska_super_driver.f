@@ -484,6 +484,7 @@
 *                                                                      *
 *        Read the root, as it could be a CASSCF state-specific excited
 *        state calculation
+
 *
          iRlxRoot=0
          Call Qpg_iScalar('Relax CASSCF root',Exist)
