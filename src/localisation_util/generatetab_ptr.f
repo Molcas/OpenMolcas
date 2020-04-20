@@ -11,7 +11,7 @@
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
       Subroutine GenerateTab_ptr(nAtoms,nOrb2Loc,nBas_Start,Name,
-     &                           iTab_ptr,Debug)
+     &                           iTab_ptr,Debug,PA)
 c
 c     Author: Y. Carissan.
 c
@@ -21,6 +21,7 @@ c
 #include "Molcas.fh"
       Character*(LENIN8) Name(*),PALbl
       Integer iTab_ptr(*),nBas_Start(*)
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
 
       nSize=nOrb2Loc**2
       Do iAt=1,nAtoms

@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,
      &                           ThrGrad,
-     &                           iTab_Ptr,nBas_per_Atom,nBas_Start,
+     &                           iTab_Ptr,PA,nBas_per_Atom,nBas_Start,
      &                           Name,
      &                           nBasis,nOrb2Loc,nAtoms,nMxIter,
      &                           Maximisation,Converged,Debug,Silent)
@@ -23,13 +23,15 @@ C     Based on the original routines by Y. Carissan.
 C
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
+#include "real.fh"
+#include "stdalloc.fh"
       Real*8      CMO(nBasis,*), Ovlp(nBasis,*)
+      Real*8      PA(nOrb2Loc,nOrb2Loc,nAtoms)
       Integer     iTab_Ptr(nAtoms)
       Integer     nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
       Character*(LENIN8) Name(nBasis)
       Logical     Maximisation, Converged, Debug, Silent
-#include "real.fh"
-#include "WrkSpc.fh"
+      Real*8, Allocatable:: RMat(:,:), PACol(:,:)
 
 C     Print iteration table header.
 C     -----------------------------
@@ -47,13 +49,15 @@ C     -----------------------------
 
       If (.not.Silent) Call CWTime(C1,W1)
       nIter=0
-      lRmat = nOrb2Loc**2
-      Call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
+      Call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
+*     Call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,iTab_Ptr,
+*    &               nBas_per_Atom,nBas_Start,Debug)
       Call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,iTab_Ptr,
-     &               nBas_per_Atom,nBas_Start,Debug)
-      Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
-      Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,Work(ipRmat),
-     &                Debug)
+     &               nBas_per_Atom,nBas_Start,PA,Debug)
+*     Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
+      Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,PA,Functional,Debug)
+*     Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,RMat,Debug)
+      Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,PA,GradNorm,RMat,Debug)
       OldFunctional=Functional
       FirstFunctional=Functional
       Delta=Functional
@@ -68,18 +72,21 @@ C     -----------------------------
 C     Iterations.
 C     -----------
 
-      l_PACol = 2*nOrb2Loc
-      Call GetMem('PACol','Allo','Real',ip_PACol,l_PACol)
+      Call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
       Converged = .False.
       Do While (nIter.lt.nMxIter .and. .not.Converged)
          If (.not.Silent) Call CWTime(C1,W1)
-         Call RotateOrb(CMO,Work(ip_PACol),
-     &                  nBasis,nAtoms,iTab_Ptr,
+*        Call RotateOrb(CMO,PACol,nBasis,nAtoms,iTab_Ptr,
+*    &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
+*    &                  nBas_Start,ThrRot,PctSkp,Debug)
+         Call RotateOrb(CMO,PACol,nBasis,nAtoms,iTab_Ptr,PA,
      &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
-     &                  nBas_Start,ThrRot,PctSkp,
-     &                  Debug)
-         Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
-         Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,Work(ipRmat),
+     &                  nBas_Start,ThrRot,PctSkp,Debug)
+*        Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
+         Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,PA,Functional,Debug)
+*        Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,RMat,
+*    &                   Debug)
+         Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,PA,GradNorm,RMat,
      &                   Debug)
          nIter=nIter+1
          Delta=Functional-OldFunctional
@@ -93,8 +100,8 @@ C     -----------
          End If
          Converged=GradNorm.le.ThrGrad .and. abs(Delta).le.Thrs
       End Do
-      Call GetMem('PACol','Free','Real',ip_PACol,l_PACol)
-      Call GetMem('Rmat','Free','Real',ipRmat,lRmat)
+      Call mma_Deallocate(PACol)
+      Call mma_Deallocate(RMat)
 
 C     Print convergence message.
 C     --------------------------

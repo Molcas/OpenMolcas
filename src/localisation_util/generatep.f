@@ -11,8 +11,14 @@
 * Copyright (C) Yannick Carissan                                       *
 *               2005, Thomas Bondo Pedersen                            *
 ************************************************************************
+#define _Test4_
+#ifdef _Test4_
+      Subroutine GenerateP(Ovlp,cMO,Name,nBasis,nOrb2Loc,nAtoms,
+     &                     iTab_ptr,nBas_per_Atom,nBas_Start,PA,Debug)
+#else
       Subroutine GenerateP(Ovlp,cMO,Name,nBasis,nOrb2Loc,nAtoms,
      &                     iTab_ptr,nBas_per_Atom,nBas_Start,Debug)
+#endif
 c
 c     Author: Yannick Carissan.
 c
@@ -21,22 +27,37 @@ c        - October 6, 2005 (Thomas Bondo Pedersen):
 c          Reduce operation count and use BLAS.
 c
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
+      Real*8, Allocatable:: SBar(:,:)
       Integer nBas_per_Atom(*),nBas_Start(*),iTab_Ptr(*)
       Real*8 cMO(nBasis,*),Ovlp(nBasis,nBasis)
+#ifdef _Test4_
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
+#endif
       Logical Debug
       Character*(LENIN8) Name(*)
 
-      l_Sbar = nBasis*nOrb2Loc
-      Call GetMem('Sbar','Allo','Real',ip_Sbar,l_Sbar)
-      Call GenerateP_1(Ovlp,cMO,Work(ip_Sbar),Name,nBasis,nOrb2Loc,
-     &                 nAtoms,iTab_ptr,nBas_per_Atom,nBas_Start,Debug)
-      Call GetMem('Sbar','Free','Real',ip_Sbar,l_Sbar)
+      Call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
+#ifdef _Test4_
+      Call GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,
+     &                 nAtoms,iTab_ptr,nBas_per_Atom,nBas_Start,PA,
+     &                 Debug)
+#else
+      Call GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,
+     &                 nAtoms,iTab_ptr,nBas_per_Atom,nBas_Start,
+     &                 Debug)
+#endif
+      Call mma_deallocate(SBar)
 
       End
+#ifdef _Test4_
+      Subroutine GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,nAtoms,
+     &                       iTab_ptr,nBas_per_Atom,nBas_Start,PA,Debug)
+#else
       Subroutine GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,nAtoms,
      &                       iTab_ptr,nBas_per_Atom,nBas_Start,Debug)
+#endif
 c
 c     Author: Yannick Carissan.
 c
@@ -51,6 +72,9 @@ c
       Integer nBas_per_Atom(*),nBas_Start(*),iTab_Ptr(*)
       Real*8 cMO(nBasis,*),Ovlp(nBasis,nBasis)
       Real*8 Sbar(nBasis,nOrb2Loc)
+#ifdef _Test4_
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
+#endif
       Logical Debug
       Character*(LENIN8) Name(*),PALbl
 c
@@ -75,6 +99,16 @@ c
      &             One,cMO(nBas_Start(iAt),1),nBasis,
      &                 Sbar(nBas_Start(iAt),1),nBasis,
      &             Zero,Work(ip),nOrb2Loc)
+      Call RecPrt('Work(ip)',' ',Work(ip),nOrb2Loc,nOrb2Loc)
+*
+#ifdef _Test4_
+        Call DGEMM_('T','N',
+     &             nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),
+     &             One,cMO(nBas_Start(iAt),1),nBasis,
+     &                 Sbar(nBas_Start(iAt),1),nBasis,
+     &             Zero,PA(1,1,iAt),nOrb2Loc)
+      Call RecPrt('PA(1,1,iAt)',' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+#endif
 c
 c------ Compute <s|PA|t> by symmetrization of MA.
 c
@@ -86,6 +120,14 @@ c
             PAts = Work(ip0+mAd_ts)
             Work(ip0+mAd_st) = Half*(PAst+PAts)
             Work(ip0+mAd_ts) = Work(ip0+mAd_st)
+      Call RecPrt('Work(iq)',' ',Work(ip),nOrb2Loc,nOrb2Loc)
+#ifdef _Test4_
+            PAst = PA(iMO_s,iMO_t,iAt)
+            PAts = PA(iMO_t,iMO_s,iAt)
+            PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
+            PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
+      Call RecPrt('QA(1,1,iAt)',' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+#endif
           End Do !iMO_t
         End Do !iMO_s
 c
@@ -98,6 +140,9 @@ c
           PALbl='PA__'//Name(nBas_Start(iAt))(1:LENIN)
           ip=iTab_ptr(iAt)
           Call RecPrt(PALbl,' ',Work(ip),nOrb2Loc,nOrb2Loc)
+#ifdef _Test4_
+          Call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+#endif
         End Do
       End If
 c

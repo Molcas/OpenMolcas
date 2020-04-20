@@ -28,6 +28,8 @@ C
       Logical Maximisation, Converged, Debug, Silent
       Character*(LENIN8) Name(*) ! dimension should be tot. #bf
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: PA(:,:,:)
 
       Character*10 SecNam
       Parameter (SecNam = 'PipekMezey')
@@ -96,10 +98,11 @@ C     -----------------------------------------------------------
 
 C     Allocate PA array.
 C     ------------------
-
+      Call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
+      PA(:,:,:)=0.0D0
       Call GetMem('Ptr_PA','Allo','Inte',ip_Ptr_PA,nAtoms)
       Call GenerateTab_Ptr(nAtoms,nOrb2LocT,iWork(ip_nBas_Start),
-     &                     Name,iWork(ip_Ptr_PA),Debug)
+     &                     Name,iWork(ip_Ptr_PA),Debug,PA)
 
 C     Localise orbitals.
 C     ------------------
@@ -107,7 +110,7 @@ C     ------------------
       kOffC = nBasT*nFroT + 1
       Call PipekMezey_Iter(Functional,CMO(kOffC),
      &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,
-     &                     iWork(ip_Ptr_PA),
+     &                     iWork(ip_Ptr_PA),PA,
      &                     iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
      &                     Name,
      &                     nBasT,nOrb2LocT,nAtoms,nMxIter,
@@ -116,6 +119,7 @@ C     ------------------
 C     De-allocations.
 C     ---------------
 
+      Call mma_deallocate(PA)
       Call DestroyTab_Ptr(nAtoms,nOrb2LocT,iWork(ip_Ptr_PA))
       Call GetMem('Ptr_PA','Free','Inte',ip_Ptr_PA,nAtoms)
       Call GetMem('nB_Start','Free','Inte',
