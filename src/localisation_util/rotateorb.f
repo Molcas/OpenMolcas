@@ -11,18 +11,10 @@
 * Copyright (C) Yannick Carissan                                       *
 *               2005, Thomas Bondo Pedersen                            *
 ************************************************************************
-#define _TEST3_
-#ifdef _TEST3_
-      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,iTab_ptr,PA,
+      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,
      &                     Maximisation,nOrb2loc,Name,
      &                     nBas_per_Atom,nBas_Start,ThrRot,PctSkp,
      &                     Debug)
-#else
-      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,iTab_ptr,
-     &                     Maximisation,nOrb2loc,Name,
-     &                     nBas_per_Atom,nBas_Start,ThrRot,PctSkp,
-     &                     Debug)
-#endif
 c
 c     Author: Yannick Carissan.
 c
@@ -35,10 +27,8 @@ c
 #include "real.fh"
 #include "Molcas.fh"
       Real*8 cMO(nBasis,*), PACol(nOrb2Loc,2)
-      Integer iTab_ptr(nAtoms),nBas_per_Atom(*),nBas_Start(*)
-#ifdef _TEST3_
+      Integer nBas_per_Atom(*),nBas_Start(*)
       Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-#endif
       Logical Maximisation, Debug
       Character*80 Txt
       Character*(LENIN8) Name(*),PALbl
@@ -64,27 +54,14 @@ c
           SumA=Zero
           SumB=Zero
           Do iAt=1,nAtoms
-#ifdef _TEST3_
             PAst=PA(iMO_t,iMO_s,iAt)
             PAss=PA(iMO_s,iMO_s,iAt)
             PAtt=PA(iMO_t,iMO_t,iAt)
-*           Write (*,*) 'PAst,PAss,PAtt=',PAst,PAss,PAtt
-#else
-            ip=iTab_ptr(iAt)
-            PAst=Work(ip+(iMO_s-1)*nOrb2Loc+iMO_t-1)
-            PAss=Work(ip+(iMO_s-1)*nOrb2Loc+iMO_s-1)
-            PAtt=Work(ip+(iMO_t-1)*nOrb2Loc+iMO_t-1)
-*           Write (*,*) 'PAst,PAss,PAtt=',PAst,PAss,PAtt
-#endif
             If (Debug) Then
               Write(6,*) 'In RotateOrb'
               Write(6,*) '------------'
               PALbl='PA__'//Name(nBas_Start(iAt))(1:LENIN)
-#ifdef _TEST3_
               Call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
-#else
-              Call RecPrt(PALbl,' ',Work(ip),nOrb2Loc,nOrb2Loc)
-#endif
               Write(6,*) '**************************'
               Write(6,*) 'A :',iAt
               Write(6,*) '<',iMO_s,'|PA|',iMO_t,'> = ',PAst
@@ -145,7 +122,7 @@ c
              Call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,
      &                   Debug)
              Call UpdateP(PACol,Name,nBas_Start,
-     &                    nOrb2Loc,nAtoms,iTab_ptr,PA,Gamma_rot,
+     &                    nOrb2Loc,nAtoms,PA,Gamma_rot,
      &                    iMO_s,iMO_t,Debug)
              xDone = xDone + 1.0d0
           End If

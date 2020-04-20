@@ -10,44 +10,22 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
-#define _TEST1_
-#ifdef _TEST1_
-      Subroutine ComputeFunc(nAtoms,nOrb2Loc,iTab_ptr,PA,Functional,
-     &                       Debug)
-#else
-      Subroutine ComputeFunc(nAtoms,nOrb2Loc,iTab_ptr,Functional,
-     &                       Debug)
-#endif
+      Subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 c
 c     Author: Y. Carissan
 c
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
-#ifdef _TEST1_
       Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-#endif
-      Integer iTab_ptr(*)
       Logical Debug
 c
-#ifdef _TEST1_
       Functional=Zero
       Do iAt=1,nAtoms
         Do iMO_s=1,nOrb2Loc
           Functional=Functional+PA(iMO_s,iMO_s,iAt)**2
         End Do
       End Do
-*        Write(6,*) 'ComputeFunc: Functional: ',Functional
-#else
-      Functional=Zero
-      Do iAt=1,nAtoms
-        ip=iTab_ptr(iAt)
-        Do iMO_s=1,nOrb2Loc
-          Functional=Functional+(Work(ip+(iMO_s-1)*nOrb2Loc+iMO_s-1))**2
-        End Do
-      End Do
-*        Write(6,*) 'ComputeFunc: Functional: ',Functional
-#endif
 c
       If (Debug) Then
          Write(6,*) 'ComputeFunc: Functional: ',Functional

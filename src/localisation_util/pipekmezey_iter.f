@@ -50,14 +50,10 @@ C     -----------------------------
       If (.not.Silent) Call CWTime(C1,W1)
       nIter=0
       Call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
-*     Call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,iTab_Ptr,
-*    &               nBas_per_Atom,nBas_Start,Debug)
-      Call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,iTab_Ptr,
+      Call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,
      &               nBas_per_Atom,nBas_Start,PA,Debug)
-*     Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
-      Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,PA,Functional,Debug)
-*     Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,RMat,Debug)
-      Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,PA,GradNorm,RMat,Debug)
+      Call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+      Call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
       OldFunctional=Functional
       FirstFunctional=Functional
       Delta=Functional
@@ -76,18 +72,11 @@ C     -----------
       Converged = .False.
       Do While (nIter.lt.nMxIter .and. .not.Converged)
          If (.not.Silent) Call CWTime(C1,W1)
-*        Call RotateOrb(CMO,PACol,nBasis,nAtoms,iTab_Ptr,
-*    &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
-*    &                  nBas_Start,ThrRot,PctSkp,Debug)
-         Call RotateOrb(CMO,PACol,nBasis,nAtoms,iTab_Ptr,PA,
+         Call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,
      &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
      &                  nBas_Start,ThrRot,PctSkp,Debug)
-*        Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,Functional,Debug)
-         Call ComputeFunc(nAtoms,nOrb2Loc,iTab_Ptr,PA,Functional,Debug)
-*        Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,RMat,
-*    &                   Debug)
-         Call GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,PA,GradNorm,RMat,
-     &                   Debug)
+         Call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+         Call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
          nIter=nIter+1
          Delta=Functional-OldFunctional
          OldFunctional=Functional
