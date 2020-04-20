@@ -11,10 +11,8 @@
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
       SubRoutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,
-     &                           ThrGrad,
-     &                           iTab_Ptr,PA,nBas_per_Atom,nBas_Start,
-     &                           Name,
-     &                           nBasis,nOrb2Loc,nAtoms,nMxIter,
+     &                           ThrGrad,PA,nBas_per_Atom,nBas_Start,
+     &                           Name,nBasis,nOrb2Loc,nAtoms,nMxIter,
      &                           Maximisation,Converged,Debug,Silent)
 C
 C     Author: T.B. Pedersen
@@ -27,7 +25,6 @@ C
 #include "stdalloc.fh"
       Real*8      CMO(nBasis,*), Ovlp(nBasis,*)
       Real*8      PA(nOrb2Loc,nOrb2Loc,nAtoms)
-      Integer     iTab_Ptr(nAtoms)
       Integer     nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
       Character*(LENIN8) Name(nBasis)
       Logical     Maximisation, Converged, Debug, Silent

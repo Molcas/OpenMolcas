@@ -100,28 +100,21 @@ C     Allocate PA array.
 C     ------------------
       Call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
       PA(:,:,:)=0.0D0
-      Call GetMem('Ptr_PA','Allo','Inte',ip_Ptr_PA,nAtoms)
-      Call GenerateTab_Ptr(nAtoms,nOrb2LocT,iWork(ip_nBas_Start),
-     &                     Name,iWork(ip_Ptr_PA),Debug,PA)
 
 C     Localise orbitals.
 C     ------------------
 
       kOffC = nBasT*nFroT + 1
       Call PipekMezey_Iter(Functional,CMO(kOffC),
-     &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,
-     &                     iWork(ip_Ptr_PA),PA,
+     &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,
      &                     iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
-     &                     Name,
-     &                     nBasT,nOrb2LocT,nAtoms,nMxIter,
+     &                     Name,nBasT,nOrb2LocT,nAtoms,nMxIter,
      &                     Maximisation,Converged,Debug,Silent)
 
 C     De-allocations.
 C     ---------------
 
       Call mma_deallocate(PA)
-      Call DestroyTab_Ptr(nAtoms,nOrb2LocT,iWork(ip_Ptr_PA))
-      Call GetMem('Ptr_PA','Free','Inte',ip_Ptr_PA,nAtoms)
       Call GetMem('nB_Start','Free','Inte',
      &            ip_nBas_Start,l_nBas_Start)
       Call GetMem('nB_per_Atom','Free','Inte',
