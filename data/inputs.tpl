@@ -187,16 +187,10 @@
 &LOCALISATION
   FileOrb = $Project.LocOrb
   Virtual
-&GRID_IT
-  FileOrb = $Project.LocOrb
-  All
->> Unix molcas gv $Project.grid
+>> shell pegamoid.py $Project.guessorb.h5 $Project.LocOrb
 &RASSCF
-  FileOrb = $Project.GvOrb
-&GRID_IT
-  FileOrb=$Project.RasOrb
-  All
->> Unix molcas gv $Project.grid
+  FileOrb = $Project.LocOrb
+>> shell pegamoid.py $Project.guessorb.h5 $Project.RasOrb
 
 @Localized Atomic Orbitals for CASSCF/RASSCF
 *
@@ -209,20 +203,14 @@
 &LOCALISATION
   FileOrb = $Project.GssOrb
   All
-&GRID_IT
-  FileOrb = $Project.LocOrb
-  All
->> Unix molcas gv $Project.grid
+>> shell pegamoid.py $Project.guessorb.h5 $Project.LocOrb
 &RASSCF
-  FileOrb = $Project.GvOrb
-&GRID_IT
-  FileOrb = $Project.RasOrb
-  All
->> Unix molcas gv $Project.grid
+  FileOrb = $Project.LocOrb
+>> shell pegamoid.py $Project.guessorb.h5 $Project.RasOrb
 
 @SCF Orbitals for CASSCF/RASSCF
 *
-* Generating Starting Orbitals for CASSCF/RASSCF in ANO-RCC-MB
+* Generating SCF Starting Orbitals for CASSCF/RASSCF in ANO-RCC-MB
 *
 &GATEWAY
   Basis (XYZ) = ANO-RCC-MB
@@ -230,16 +218,10 @@
   RICD
 &SEWARD
 &SCF
-&GRID_IT
-  All
-  FileOrb = $Project.ScfOrb
->> UnIX molcas gv $Project.grid
+>> shell pegamoid.py $Project.guessorb.h5 $Project.ScfOrb
 &RASSCF
-  FileOrb = $Project.GvOrb
-&GRID_IT
-  FileOrb = $Project.RasOrb
-  All
->> Unix molcas gv $Project.grid
+  FileOrb = $Project.ScfOrb
+>> shell pegamoid.py $Project.guessorb.h5 $Project.RasOrb
 
 @Expand Orbitals from one basis set to another
 *
@@ -274,7 +256,7 @@
 &LOCALISATION
   FileOrb = $Project.LocOrb
   Virtual
->> shell pegamoid $Project.guessorb.h5 $Project.LocOrb
+>> shell pegamoid.py $Project.guessorb.h5 $Project.LocOrb
 &RASSCF
   FileOrb = $Project.LocOrb
 >> Copy $Project.RunFile RUNFIL1
@@ -288,9 +270,6 @@
 &SEWARD
 &RASSCF
   FileOrb = $Project.ExpOrb
-&GRID_IT
-  File = $Project.RasOrb
-  All
 
 @MEP with surface hopping
 *
