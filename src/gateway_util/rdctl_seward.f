@@ -4472,8 +4472,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
-      If (DKroll.or.NEMO) Call Fill_rInfo1(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      If (DKroll.or.NEMO) Call Fill_rInfo1(DInf,nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4517,6 +4516,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
+      Call Gen_RelPointers(Info-1)
       Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
@@ -4552,6 +4552,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
+      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
