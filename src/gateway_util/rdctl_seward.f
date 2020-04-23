@@ -4516,7 +4516,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call Gen_RelPointers(Info-1)
       Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
@@ -4596,7 +4595,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(Work(ixyz),iOper,nOper,iChCar)
+               iChxyz=iChAtm(DInf(ixyz),iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
@@ -4612,7 +4611,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                End Do
                Do j=0,2
                   If (iAnd(jTmp,2**j).eq.0) Then
-                     Work(ixyz+j)=Work(ixyz+j)+
+                     DInf(ixyz+j)=DInf(ixyz+j)+
      &                           Shake*(Two*Random_Molcas(iSeed)-One)
                   End If
                End Do
@@ -4648,7 +4647,6 @@ C     Mx_mdc=mdc
 *     Set structures for TS optimization according to the Saddle
 *     method.
 *
-      Call Gen_RelPointers(-(Info-1))
       If (Run_Mode.ne.G_Mode) Then
          Call Saddle(DInf,nDInf)
 *                                                                      *
