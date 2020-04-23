@@ -4661,8 +4661,7 @@ C     Mx_mdc=mdc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_GeoList(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      Call Gen_GeoList(DInf,nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4692,14 +4691,14 @@ C     Mx_mdc=mdc
 *
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,Work(ipOAM),1)
+         call dcopy_(3,OAMt,1,DInf(ipOAM),1)
          Call mma_deallocate(OAMt)
          ipExp(Mx_Shll) = ipOAM + 3
          nInfo = nInfo + 3
       Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
          lOAM=.True.
          ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,CoM,1,Work(ipOAM),1)
+         call dcopy_(3,CoM,1,DInf(ipOAM),1)
          ipExp(Mx_Shll) = ipOAM + 3
          nInfo = nInfo + 3
       End If
@@ -4711,7 +4710,7 @@ C     Mx_mdc=mdc
 *
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
+         Call DCopy_(3,OMQt,1,DInf(ipOMQ),1)
          Call mma_deallocate(OMQt)
          ipExp(Mx_Shll) = ipOMQ + 3
          nInfo = nInfo + 3
@@ -4741,6 +4740,7 @@ C     Mx_mdc=mdc
 *     Release unused core. This section should be the last section in
 *     this routine. DON'T MOVE IT!
 *
+      Call Gen_RelPointers(Info-1)
       If (Run_Mode.ne.S_Mode) Then
 *
          Call Allocate_Work(Info_tmp,nInfo)
