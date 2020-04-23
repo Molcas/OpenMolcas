@@ -2,7 +2,7 @@
 coord = 1
 comment: Fe atom
 Fe 0.0 0.0 0.0
-Basis set
+Basis
 Fe. ano-rcc...3s2p1d.
 Xfield = 3 Angstrom 0
  2.0  0.0  0.0 -10.1

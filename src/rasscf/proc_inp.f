@@ -20,10 +20,11 @@
       use qcmaquis_interface_cfg
 #endif
       use active_space_solver_cfg
-      use write_orbital_files, only : OrbFiles
-      use fcidump, only : DumpOnly
-      use fcidump_reorder, only : ReOrInp, ReOrFlag
-      use fciqmc, only : DoEmbdNECI, DoNECI
+      use write_orbital_files, only: OrbFiles
+      use fcidump, only: DumpOnly
+      use fcidump_reorder, only: ReOrInp, ReOrFlag
+      use fciqmc, only: DoEmbdNECI, DoNECI
+      use CC_CI_mod, only: Do_CC_CI
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
@@ -209,8 +210,6 @@ C   No changing about read in orbital information from INPORB yet.
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
 
-*    NECI flag, means that the CI eigensolver is FCIQMC
-      DoNECI = .false.
 *     The compiler thinks NASHT could be undefined later (after 100)
       NASHT=0
 
@@ -862,6 +861,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If (DBG) Write(6,*) ' CIONLY keyword was used.'
        iCIonly=1
        Call SetPos(LUInput,'CION',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process ROST command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if ROtSTate case.'
+      If (KeyROST) Then
+       If (DBG) Write(6,*) ' ROtSTate keyword was used.'
+       iRotPsi=1
+       Call SetPos(LUInput,'ROST',Line,iRc)
        Call ChkIfKey()
       End If
 *---  Process RFPE command ----- (new!) -------------------------------*
@@ -2029,6 +2036,17 @@ C orbitals accordingly
         end if
         ! call fciqmc_option_check(iDoGas, nGSSH, iGSOCCX)
       end if
+
+      if (KeyCCCI) then
+        if(DBG) write(6, *) 'CC-CI is actived'
+        Do_CC_CI = .true.
+
+        if (KeyDMPO) then
+          call WarningMessage(2, 'CC-CI and DMPOnly are mutually '//
+     &        'exclusive.')
+          GoTo 9930
+        end if
+      end if
 *
 * =======================================================================
       IF(KeySYMM) Then
@@ -3175,7 +3193,7 @@ C Test read failed. JOBOLD cannot be used.
 *
 *     Construct the Guga tables
 *
-      if (.not. (DoNECI .or. DumpOnly)) THEN
+      if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly)) THEN
 *  right now skip most part of gugactl for GAS, but only call mknsm.
         if (.not.iDoGas) then
 ! DMRG calculation no need the GugaCtl subroutine
@@ -3234,7 +3252,7 @@ C Test read failed. JOBOLD cannot be used.
 * Combinations don't work for CASVB (at least yet)!
       If (ifvb .ne. 0) iSpeed(1) = 0
 *
-      if(.not. (KeyDMRG .or. DoNECI .or. DumpOnly)) then
+      if(.not. (KeyDMRG .or. DoNECI .or. Do_CC_CI .or. DumpOnly)) then
 ! switch on/off determinants
 #ifdef _DMRG_
         if(.not.doDMRG)then
@@ -3252,18 +3270,6 @@ C Test read failed. JOBOLD cannot be used.
 #endif
       end if
 
-      IF(DoNECI) THEN
-*     ^ For NECI only orbital related arrays are allowed to be stored.
-*     ! Arrays of nConf size need to be avoided
-        CALL GETMEM('INT1  ','ALLO','REAL',KINT1,NASHT**2)
-        kint1_pointer = KINT1
-        Call FZero(Work(KINT1),NASHT**2)
-        write(6,*) ' NECI activated. List of Confs might get lengthy.'
-        write(6,*) ' Number of Configurations computed by GUGA: ',nConf
-        write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
-        nConf= 0
-      END IF
-*
       ISCF=0
       IF (ISPIN.EQ.NAC+1.AND.NACTEL.EQ.NAC) ISCF=1
       IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1

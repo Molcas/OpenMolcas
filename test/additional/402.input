@@ -9,11 +9,11 @@
  &SEWARD 
 Title
 CH3 radical
-Basis
+Basis set
 C.cc-pVDZ.....
 C             -0.0038458905        0.0000068621        2.8015161928
 End of Basis
-Basis
+Basis set
 H.cc-pVDZ.....
 H1             2.0738473919       -0.0000163143        2.8035654722
 H2            -1.0427160672       -1.7993232371        2.8013207296

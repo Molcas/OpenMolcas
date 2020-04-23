@@ -209,6 +209,7 @@
 *        iGo=-1 non-equivalent multi state SA-CASSCF
 *        iGo=0  equivalent multi state SA-CASSCF
 *        iGo=2  single root SA-CASSCF
+         mstate2=''
          if(iGo.ne.2)then
            Call Get_cArray('MCLR Root',mstate2,16)
          end if
@@ -349,6 +350,7 @@
 *        iGo=-1 non-equivalent multi state SA-CASSCF
 *        iGo=0  equivalent multi state SA-CASSCF
 *        iGo=2  single root SA-CASSCF
+         mstate2=''
          if(iGo.ne.2)then
            Call Get_cArray('MCLR Root',mstate2,16)
          end if
@@ -482,6 +484,7 @@
 *                                                                      *
 *        Read the root, as it could be a CASSCF state-specific excited
 *        state calculation
+
 *
          iRlxRoot=0
          Call Qpg_iScalar('Relax CASSCF root',Exist)

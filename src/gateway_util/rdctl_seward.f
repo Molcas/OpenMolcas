@@ -100,7 +100,7 @@
       Save iSeed
       Logical Vlct_
 *
-      Logical DoEMPC
+      Logical DoEMPC, Basis_test
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -171,6 +171,8 @@
 *
       isXfield=0
       CholeskyThr=-9.99d9
+*
+      Basis_Test=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -340,7 +342,12 @@ cperiod
 *
 *     KeyWord directed input
 *
+      nDone=0
  998  lTtl = .False.
+      If (Basis_Test.and.nDone.eq.1) Then
+         nDone=0
+         Basis_Test=.False.
+      End If
  9988 Continue
       Key = Get_Ln(LuRd)
 *
@@ -368,8 +375,9 @@ cperiod
       KWord = Key
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
-      If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord(1:1).eq.'*') Go To 998
+      If (KWord.eq.BLine)    Go To 998
+      If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
 *
@@ -577,6 +585,26 @@ c    &       KWord(4:4).eq.'C') ) Go To 657
 *
       If (KWord(1:4).eq.'END ') Go To 997
       If (lTtl) Go To 911
+*
+      If (Basis_test) Then
+*
+*        So the Basis keyword was in the native format.
+*        We have to back step until we find the command line!
+*
+         Backspace(LuRd)
+         Backspace(LuRd)
+         Read(LuRd,'(A)') Key
+         Call UpCase(Key)
+         Do While(Index(Key(1:4),'BASI').eq.0)
+              Backspace(LuRd)
+              Backspace(LuRd)
+              Read(LuRd,'(A)') Key
+              Call UpCase(Key)
+         End Do
+         Basis_test=.False.
+         nDone=0
+         Go To 9201
+      End If
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       Write (LuWr,*)
@@ -1020,28 +1048,37 @@ c Simplistic validity check for value
 *     Read information for a basis set
 *
  920  continue
-      If (CoordSet) then
-         GWInput=.True.
-         If (BasisSet) Then
-            KeepBasis=
-     &             KeepBasis(1:index(KeepBasis,' '))//','//Get_Ln(LuRd)
-         Else
-            KeepBasis=Get_Ln(LuRd)
-         Endif
-         BasisSet=.True.
-         temp1=KeepBasis
-         Call UpCase(temp1)
-        if (INDEX(temp1,'INLINE').ne.0) then
-       Write(LuWr,*) 'XYZ input and Inline basis set are not compatible'
-       Write(LuWr,*) 'Consult the manual how to change inline basis set'
-       Write(LuWr,*) ' into basis set library'
-         Call Quit_OnUserError()
-         endif
-         iOpt_XYZ=1
-         Goto 998
+*
+*     Check if the format is old or new style. Damn the person who used
+*     the same keword for two different styles of input and making the
+*     input require a specific order of the keyword. Comrade 55?
+*
+      Basis_Test=.True.
+*
+      GWInput=.True.
+      Key = Get_Ln(LuRd)
+      BSLbl = Key(1:80)
+      If (BasisSet) Then
+         KeepBasis=KeepBasis(1:index(KeepBasis,' '))//','//BSLbl
       Else
-         iOpt_XYZ=0
-      End If
+         KeepBasis=BSLbl
+         BasisSet=.True.
+      Endif
+      temp1=KeepBasis
+      Call UpCase(temp1)
+*     If (INDEX(temp1,'INLINE').ne.0) then
+*        Write(LuWr,*)
+*    &        'XYZ input and Inline basis set are not compatible'
+*        Write(LuWr,*)
+*    &        'Consult the manual how to change inline basis set'
+*        Write(LuWr,*) ' into basis set library'
+*        Call Quit_OnUserError()
+*     End If
+      iOpt_XYZ=1
+      Goto 998
+*
+ 9201 Continue
+      iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
       If (Run_Mode.eq.S_Mode) Then

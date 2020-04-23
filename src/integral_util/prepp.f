@@ -559,17 +559,37 @@ c       close (lgtoc)
 !ANDREW - modify D2: should contain only the correction pieces
 
          If ( Method.eq.'MCPDFT  ') then
+!Get the D_theta piece
+         Call Get_D1ao(ipD1ao,ndens)
+      ij = -1
+      Do  iIrrep = 0, nIrrep-1
+         Do iBas = 1, nBas(iIrrep)
+            Do jBas = 1, iBas-1
+               ij = ij + 1
+               Work(ipD1ao+ij) = Half*Work(ipD1ao+ij)
+            end do
+            ij = ij + 1
+          end do
+      end do
+          call daxpy_(ndens,-1d0,Work(ipD0+0*ndens),1,
+     &                                             Work(ipD1ao),1)
+!          write(*,*) 'do they match?'
+!          do i=1,ndens
+!            write(*,*) Work(ipd1ao-1+i),Work(ipD0+2*ndens+i-1)
+!          end do
+
           call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
+          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,
      &                                             Work(ipD0+1*ndens),1)
 !ANDREW - Generate new D5 piece:
           call dcopy_(ndens,[0.0d0],0,
      &                                             Work(ipD0+4*ndens),1)
           call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,1.0d0,Work(ipD0+2*ndens),1,
+          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,
      &                                             Work(ipD0+4*ndens),1)
+         Call Free_Work(ipD1ao)
           end if
 
 

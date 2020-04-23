@@ -89,7 +89,7 @@
 * This call is to an ACES2 routine. This has to be replaced once this
 * code is used by MOLCAS. RL 2007-10-18.
 C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
-***********************************************************************
+************************************************************************
 * Jonas B 2010. This code is used for reading nonseparable two-electron
 *               density matrices when doing conventional mp2-gradients.
             If(Case_mp2) Then
@@ -98,7 +98,7 @@ C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
                Call dDaFile(LuGam,2,Buf,iSize,iAdr)
             End If
 *
-***********************************************************************
+************************************************************************
 *           Call RecPrt('Aces_Gamma: from GetLst',' ',
 *    &                  Buf,iAB_e-iAB_s+1,nCD)
 *

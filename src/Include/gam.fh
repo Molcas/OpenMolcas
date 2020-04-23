@@ -17,4 +17,4 @@ c   Ein-Elektronen-Integrale fuer die R-Matrix.
       Common /rgam/ gammath,gammaph
       Common /igam/ lgamma
       Common /igam1/ n,m
-***********************************************************************
+************************************************************************

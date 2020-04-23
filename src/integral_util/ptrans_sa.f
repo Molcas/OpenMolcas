@@ -449,6 +449,10 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)
      &        -Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)
      &        -Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)
+!ANDREW - uncomment
+!     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)
+!     &        -Quart*DSO(ioDs+ips,5)*DSO(ioDr+irq,1)
+!END ANDREW
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
@@ -458,6 +462,10 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)
      &        -Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)
      &        -Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)
+!ANDREW - uncomment
+!     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)
+!     &        -Quart*DSO(ioDr+ipr,5)*DSO(ioDs+isq,1)
+!END ANDREW
           end if
           if(isym.eq.jsym) then
            PSOPam(ipso)=PSOPam(ipso)

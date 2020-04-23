@@ -16,7 +16,7 @@
       module filesystem
       private
       public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
-     &    mkdir_, remove_
+     &    mkdir_, remove_, real_path
 #include "molcastypes.fh"
       interface
       subroutine getcwd_c(path, n, err) bind(C, name="getcwd_wrapper")
@@ -148,5 +148,14 @@
         call remove_c(trim(path)//C_NULL_CHAR, loc_err)
         if (present(err)) err = int(loc_err)
       end subroutine
+
+      function real_path(molcas_name) result(path)
+        character(*), intent(in) :: molcas_name
+        character(:), allocatable :: path
+        character(1024) :: buffer
+        integer :: L
+        call prgmtranslate_master(molcas_name, buffer, L)
+        path = buffer(:L)
+      end function
 
       end module filesystem

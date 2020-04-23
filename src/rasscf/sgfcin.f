@@ -45,15 +45,20 @@
 *>    \f[ D^{\text{AO}, A}_S = C^A (D^A_\alpha - D^A_\beta) (C^A)^\dagger \f]
       Subroutine SGFCIN(CMO, F, FI, D1I, D1A, D1S)
 #ifdef _DMRG_
-!     module dependencies
       use qcmaquis_interface_cfg
 #endif
+      use fcidump, only: DumpOnly
+      use fciqmc, only: DoNECI
+      use CC_CI_mod, only: Do_CC_CI
+
       use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,
      &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
+
+
       implicit none
 #include "rasdim.fh"
 #include "output_ras.fh"
@@ -70,6 +75,10 @@
       Character*8 PAMlbl
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
+
+#ifndef _DMRG_
+      logical :: doDMRG = .false.
+#endif
 *
       Logical Do_OFemb, KEonly, OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
@@ -97,6 +106,7 @@ C Local print level (if any)
       IF(IPRLEV.ge.DEBUG) THEN
          WRITE(LF,*)' Entering ',ROUTINE
       END IF
+
 *
 *     Generate molecular charges
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
@@ -277,6 +287,7 @@ C Local print level (if any)
         Call Timing(Rado_2,Swatch,Swatch,Swatch)
         Rado_2 = Rado_2 - Rado_1
         Rado_3 = Rado_3 + Rado_2
+
 
         ERF1=Zero
         ERF2=dDot_(nTot1,Work(iTmp6),1,Work(iTmp4),1)
@@ -503,15 +514,12 @@ Cbjp
       END DO
 
 !Quan: Fix bug, skip Lucia stuff with DMRG
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      if (.not.(doBlockDMRG)) then
-#elif defined _DMRG_
-      if(.not.doDMRG)then
-#endif
+! and other external CI solvers.
+      if (.not. any([DoNECI, Do_CC_CI, DumpOnly,
+     &              doDMRG, doBlockDMRG])) then
         CALL CP_ONE_INT(WORK(LX0),ITU)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
       endif
-#endif
+
       CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)
       CALL GETMEM('XXX0','FREE','REAL',LX0,NTOT1)
 
@@ -525,6 +533,7 @@ Cbjp
       End If
 
       Call qExit('SGFCIN')
+
 
       Return
       End

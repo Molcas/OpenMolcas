@@ -18,12 +18,16 @@
       use rasscf_data, only : nAc, nAcPar
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
+      use CI_solver_util, only: CleanMat
+
+      implicit none
+
       private
       public :: read_neci_RDM, cleanup
       contains
 
 !>  @brief
-!>    Start and control FCIQMC.
+!>    Read NECI RDM files
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>
@@ -382,133 +386,6 @@
         if (err == 0) write(6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
-      Subroutine CleanMat(MAT)
-************* by G. Li Manni Stuttgart April 2016 *************
-*
-* MAT: One-body density matrix in MO basis as passed by QMC calculation.
-
-* It could well be an average matrix in SA calculation.
-*
-* It has following shape:
-*        11
-*        12 22
-*        ** ** 33
-*        ** ** ** 44
-*        ** ** ** 45 55
-*        ** ** ** 46 56 66
-*        ** ** ** 47 57 67 77
-*        ** ** ** ** ** ** ** 88
-*        ** ** ** ** ** ** ** 89  99
-*        ** ** ** ** ** ** ** 810 910 1010
-*        """""""""""""""""""""""""""""""""""
-* mimicking a system with (2 0 0 1 4 3 0 0)  actice orbitals (blocked by Irreps)
-
-*           DMAT will be destroyed and replaced with a positive semi-definite one.
-*           N-representability will be preserved.
-
-      implicit none
-#include "WrkSpc.fh"
-* NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
-      real*8, intent(inout) :: MAT(NacPar)
-      real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
-      integer :: rc, i, j
-      real*8 :: trace
-      character(12), parameter :: routine = 'CleanMat'
-      logical :: cleanup_required
-
-      Call qEnter(routine)
-
-      rc = 0
-      If (nacpar .lt. 1) then
-        rc= -1
-        write(6,*) 'matrix size < 1.'
-        Go To 10
-      end if
-
-      call mma_allocate(MAT_copy, NacPar)
-      MAT_copy(:) = MAT(:)
-
-* Allocate memory for eigenvectors and new DMAT
-      call mma_allocate(EVC, NAC**2)
-* Initialize eigenvectors
-      Call dCopy_(NAC**2, [0.0d0], 0, EVC, 1)
-* set eigenvector array to identity for this version of JACOB
-      Call dCopy_(NAC, [1.0d0], 0, EVC, NAC + 1)
-
-* Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
-      trace = 0.0d0
-      do i = 1, nac
-         trace = trace + mat(i * (i + 1) / 2)
-      end do
-      CALL JACOB(MAT_copy, EVC, NAC, NAC)
-
-#ifdef _DEBUG_
-      write(6,*) 'eigenvalues: '
-      do i=1,nac
-         write(6,*) MAT_copy(I*(I+1)/2)
-      end do
-      write(6,*) 'eigenvectors: '
-      do i=1, nac
-        write(6,*) (EVC(i * NAC + j), j = 0, NAC)
-      end do
-#endif
-* Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
-      cleanup_required = .false.
-      do j = 1, nac
-        if (MAT_copy(j * (j + 1) / 2) > 2.0d0) then
-          MAT_copy(j * (j + 1) / 2) = 2.0d0
-          cleanup_required = .true.
-        end if
-        if (MAT_copy(j * (j + 1) / 2) < 1.0d-12) then
-          MAT_copy(j * (j + 1) / 2) = 0.0d0
-          cleanup_required = .true.
-        end if
-      end do
-
-      if (cleanup_required) then
-        trace = 0.0d0
-        do i = 1, nac
-          trace = trace + MAT_copy(I * (I + 1) / 2)
-        end do
-        write(6,*) 'trace after removing negative eigenvalues =', trace
-* Combine pieced to form the output MAT
-* blas routine for square*triangular operation
-        call mma_allocate(Tmp, nac**2)
-        call mma_allocate(Tmp2, nac**2)
-        Call dCopy_(nac**2, [0.0d0], 0, Tmp, 1)
-        Call dCopy_(nac**2, [0.0d0], 0, Tmp2, 1)
-        do i = 1, nac
-          do j = 1, nac
-            Tmp(j + (i - 1) * nac) =
-     &          EVC(j + (i - 1) * NAC) * MAT_copy(I * (I + 1) / 2)
-          end do
-        end do
-        Call DGEMM_('N','T',nac,nac,nac,
-     &              1.0d0, Tmp, nac, EVC, nac,
-     &              0.0d0, Tmp2, nac)
-* Copy back to MAT
-        do i = 1, nac
-          do j = 1, i
-            MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
-          end do
-        end do
-#ifdef _DEBUG_
-        write(6,*) 'trace after recombination:'
-        trace = 0.0d0
-        do i = 1, nac
-           trace = trace + MAT(i * (i + 1) / 2)
-        end do
-#endif
-        call mma_deallocate(tmp)
-        call mma_deallocate(tmp2)
-      end if
-      call mma_deallocate(MAT_copy)
-      call mma_deallocate(EVC)
-****************** Exit ****************
-10    Continue
-      Call qExit(routine)
-      return
-      end subroutine cleanMat
 
       subroutine cleanup()
         implicit none

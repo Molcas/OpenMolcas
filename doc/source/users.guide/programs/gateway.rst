@@ -226,8 +226,8 @@ Molecular structure: coordinates, symmetry and basis sets
 There are three different ways to specify the molecular structure, symmetry and
 the basis sets in :program:`Gateway`:
 
-* the so-called native input (old |molcas| standard),
-* XYZ input.
+* XYZ input,
+* the so-called native input (old |molcas| standard).
 
 .. * XYZ input, and
    * Z-matrix input.
@@ -240,191 +240,6 @@ If :kword:`Coord` is used, it assumes that the input is in XYZ format.
    it assumes Z-matrix input.
 
 The three different modes will be described below.
-
-Native input
-::::::::::::
-
-If the geometry is specified in a native |molcas| format, only symmetry
-inequivalent atoms should be specified. The default units are atomic units.
-By default, symmetry is not used in the calculation.
-
-.. class:: keywordlist
-
-:kword:`SYMMetry`
-  Symmetry specification follows on next line. There may be up to
-  three different point group generators specified on that line. The
-  generators of a point group is the minimal set of symmetry operators
-  which is needed to generate all symmetry
-  operators of a specific point group. A generator is in the input
-  represented as a sequence of up to three of the characters x, y, and
-  z. The order within a given sequence is arbitrary and the generators
-  can be given in any sequence. Observe that the order of the irreps
-  is defined by the order of the generators as
-  (:math:`E`, :math:`g_1`, :math:`g_2`, :math:`g_1g_2`, :math:`g_3`, :math:`g_1g_3`, :math:`g_2g_3`,
-  :math:`g_1g_2g_3`)! Note that :math:`E` is always assumed and should never
-  be specified.
-
-  Below is listed the possible generators.
-
-  * **x** --- Reflection in the :math:`yz`-plane.
-  * **y** --- Reflection in the :math:`xz`-plane.
-  * **z** --- Reflection in the :math:`xy`-plane.
-  * **xy** --- Twofold rotation around the :math:`z`-axis.
-  * **xz** --- Twofold rotation around the :math:`y`-axis.
-  * **yz** --- Twofold rotation around the :math:`x`-axis.
-  * **xyz** --- Inversion through the origin.
-
-  The default is no symmetry.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SYMMETRY" APPEAR="Symmetry" KIND="STRING" LEVEL="BASIC" EXCLUSIVE="COORD">
-              %%Keyword: Symmetry (non-XYZ format) <basic>
-              Symmetry point group is specified by up to three group generators.
-              Possible generators are "x", "y", "z", "xy", "xz", "yz", and "xyz".
-              The order of the irreps depends on the order of the generators.
-              The keyword can be used only in 'native' input format.
-              </KEYWORD>
-
-:kword:`BASIs Set`
-  This notes the start of a basis set definition.
-  The next line always contains a basis set label.
-  The basis set definition is alway terminated with the "End of Basis" keyword.
-  For the definitions of basis set labels see the subsequent sections.
-  Below follows a description of the options associated with the
-  basis set definition.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="BASIC" INPUT="REQUIRED" EXCLUSIVE="COORD">
-              %%Keyword: BASIS (non-XYZ format) <basic>
-              This notes the start of a basis set definition.
-              The next line always contains a basis set label.
-              The basis set definition is alway terminated with the "End of Basis" keyword.
-              For details consult the manual.
-              </KEYWORD>
-
-  * **Label [/ option]** ---
-    The label is a specification of a specific basis set, e.g.
-    C.ANO...4s3p2d., which is an ANO basis set.
-    If no option is specified
-    :program:`GATEWAY` will look for the basis
-    set in the default basis directory. If an option is specified it
-    could either be the name of an alternative basis directory or
-    the wording "Inline" which defines
-    that the basis set will follow in the current input
-    file. For the format of the
-    **Inline** option see the section
-    "Basis set format". Observe that the label is arbitrary for this
-    option and will not be decoded.
-    The **Label** card is mandatory.
-
-  * **Name x, y, z (Angstrom or Bohr)** ---
-    This card specifies an arbitrary (see next sentence!) name
-    for a symmetry distinct center and its Cartesian coordinates.
-    Observe, that the
-    name "DBAS" is restricted to assign the center of the
-    diffuse basis functions required to model the continuum
-    orbitals in R-matrix calculations.
-    The label is truncated to four characters. Observe that this
-    label must be unique to each center. The coordinate unit can
-    be specified as an option. The default unit is Bohr.
-    There should at least be one card of this type in a basis set
-    definition.
-
-  * **Charge** ---
-    The real entry on the subsequent line defines
-    the charge associated with
-    this basis set. This will override the default which is defined in
-    the basis set library. The option can be used to put in ghost
-    orbitals as well as to augment the basis sets of the library.
-    The **Charge** card is optional.
-
-    .. xmldoc:: %%Keyword: Charge (non-XYZ format) <advanced>
-                The real entry on the subsequent line defines
-                the charge associated with
-                this basis set. This will override the default which is defined in
-                the basis set library. The option can be used to put in ghost
-                orbitals as well as to augment the basis sets of the library.
-                The "Charger" card is optional.
-
-  * **Spherical** [option] ---
-    Specifying which shells will be in real spherical Gaussians. Valid options
-    are "all" or a list of the shell characters separated by a blank. The
-    shell characters are s, p, d, f, etc. All shells after p are by
-    default in real spherical Gaussians, except for the d-functions in the
-    6-31G family of basis sets which are in Cartesian.
-    The **Spherical** card is optional. The s and p shells and the d-functions of
-    the 6-31G family of basis sets are by default in Cartesian Gaussians.
-
-    .. xmldoc:: %%Keyword: Spherical (non-XYZ format) <advanced>
-                Specifying which shells will be in real spherical Gaussians. Valid options
-                are "all" or a list of the shell characters separated by a blank. The
-                shell characters are s, p, d, f, etc. All shells after p are by
-                default in real spherical Gaussians, except for the d-functions in the
-                6-31G family of basis sets which are in Cartesian.
-                The "Spherical" card is optional. The s and p shells and the d-functions of
-                the 6-31G family of basis sets are by default in Cartesian Gaussians.
-
-  * **Cartesian** [option] ---
-    Specifying which shells will be in a Cartesian Gaussian representation. For syntax
-    consult the corresponding **Spherical** keyword.
-
-    .. xmldoc:: %%Keyword: Cartesian (non-XYZ format) <advanced>
-                Specifying which shells will be in a Cartesian Gaussian representation. For syntax
-                consult the corresponding Spherical keyword.
-
-  * **Contaminant** [option] ---
-    Specifying for which shells the contaminant will be kept.
-    The contaminants are functions of lower rank which are generated
-    when a Cartesian shell is transformed to a spherical representation
-    (e.g. :math:`r^2=x^2+y^2+z^2` for d-shells, p contaminants for f-shells,
-    s and d contaminants for g-shells, etc.).
-    Valid options are the same as for the **Spherical** keyword.
-    The default is no contaminant in any shell. The **Contaminant** card is optional.
-
-    .. xmldoc:: %%Keyword: Contaminant (non-XYZ format) <advanced>
-                Specifying for which shells the contaminant will be kept.
-                The contaminants are functions of lower rank which are generated
-                when a Cartesian shell is transformed to a spherical representation
-                (e.g. r^2=x^2+y^2+z^2 for d-shells, p contaminants for f-shells,
-                s and d contaminants for g-shells, etc.).
-                Valid options are the same as for the Spherical keyword.
-                The default is no contaminant in any shell. The "Contaminant" card is optional.
-
-  * **Muon** ---
-    Specifying that the basis set is muonic.
-
-    .. xmldoc:: %%Keyword: Muon (non-XYZ format) <advanced>
-                Specifying that the basis set is muonic.
-
-  * **End of Basis set** ---
-    Marks the end of the basis set specification.
-    This card is mandatory.
-
-    .. xmldoc:: %%Keyword: End of Basis set (non-XYZ format) <advanced>
-                Marks the end of the basis set specification.
-                This card is mandatory.
-
-Example of an input in native |molcas| format: ::
-
-  &GATEWAY
-  Title
-  formaldehyde
-  SYMMETRY
-  X Y
-  Basis set
-  H.STO-3G....
-  H1           0.000000    0.924258   -1.100293 /Angstrom
-  End of basis
-
-  Basis set
-  C.STO-3G....
-  C3           0.000000    0.000000   -0.519589 /Angstrom
-  End of basis
-
-  Basis set
-  O.STO-3G....
-  O            0.000000    0.000000    0.664765 /Angstrom
-  End of basis
-
-  End of input
 
 Z-matrix and XYZ input
 ::::::::::::::::::::::
@@ -460,7 +275,7 @@ Note that coordinates in these formats use ångström as units.
       H.STO-3G
       End of basis
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: XBAS <basic>
               <HELP>
               A keyword to specify the basis for atoms. The specification is very similar
@@ -720,6 +535,191 @@ If keyword :kword:`nomove` is active, the molecule is not allowed to rotate, and
 a mirror plane :math:`xy` is the only symmetry element. Since the third hydrogen atom is
 slightly out of this plane, it will be corrected. Only activation of the keyword :kword:`group=C1`
 will ensure that the geometry is unchanged.
+
+Native input
+::::::::::::
+
+If the geometry is specified in a native |molcas| format, only symmetry
+inequivalent atoms should be specified. The default units are atomic units.
+By default, symmetry is not used in the calculation.
+
+.. class:: keywordlist
+
+:kword:`SYMMetry`
+  Symmetry specification follows on next line. There may be up to
+  three different point group generators specified on that line. The
+  generators of a point group is the minimal set of symmetry operators
+  which is needed to generate all symmetry
+  operators of a specific point group. A generator is in the input
+  represented as a sequence of up to three of the characters x, y, and
+  z. The order within a given sequence is arbitrary and the generators
+  can be given in any sequence. Observe that the order of the irreps
+  is defined by the order of the generators as
+  (:math:`E`, :math:`g_1`, :math:`g_2`, :math:`g_1g_2`, :math:`g_3`, :math:`g_1g_3`, :math:`g_2g_3`,
+  :math:`g_1g_2g_3`)! Note that :math:`E` is always assumed and should never
+  be specified.
+
+  Below is listed the possible generators.
+
+  * **x** --- Reflection in the :math:`yz`-plane.
+  * **y** --- Reflection in the :math:`xz`-plane.
+  * **z** --- Reflection in the :math:`xy`-plane.
+  * **xy** --- Twofold rotation around the :math:`z`-axis.
+  * **xz** --- Twofold rotation around the :math:`y`-axis.
+  * **yz** --- Twofold rotation around the :math:`x`-axis.
+  * **xyz** --- Inversion through the origin.
+
+  The default is no symmetry.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SYMMETRY" APPEAR="Symmetry" KIND="STRING" LEVEL="BASIC" EXCLUSIVE="COORD">
+              %%Keyword: Symmetry (non-XYZ format) <basic>
+              Symmetry point group is specified by up to three group generators.
+              Possible generators are "x", "y", "z", "xy", "xz", "yz", and "xyz".
+              The order of the irreps depends on the order of the generators.
+              The keyword can be used only in 'native' input format.
+              </KEYWORD>
+
+:kword:`BASIs Set`
+  This notes the start of a basis set definition.
+  The next line always contains a basis set label.
+  The basis set definition is alway terminated with the "End of Basis" keyword.
+  For the definitions of basis set labels see the subsequent sections.
+  Below follows a description of the options associated with the
+  basis set definition.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="ADVANCED" INPUT="REQUIRED" EXCLUSIVE="COORD">
+              %%Keyword: BASIS (non-XYZ format) <basic>
+              This notes the start of a basis set definition.
+              The next line always contains a basis set label.
+              The basis set definition is alway terminated with the "End of Basis" keyword.
+              For details consult the manual.
+              </KEYWORD>
+
+  * **Label [/ option]** ---
+    The label is a specification of a specific basis set, e.g.
+    C.ANO...4s3p2d., which is an ANO basis set.
+    If no option is specified
+    :program:`GATEWAY` will look for the basis
+    set in the default basis directory. If an option is specified it
+    could either be the name of an alternative basis directory or
+    the wording "Inline" which defines
+    that the basis set will follow in the current input
+    file. For the format of the
+    **Inline** option see the section
+    "Basis set format". Observe that the label is arbitrary for this
+    option and will not be decoded.
+    The **Label** card is mandatory.
+
+  * **Name x, y, z (Angstrom or Bohr)** ---
+    This card specifies an arbitrary (see next sentence!) name
+    for a symmetry distinct center and its Cartesian coordinates.
+    Observe, that the
+    name "DBAS" is restricted to assign the center of the
+    diffuse basis functions required to model the continuum
+    orbitals in R-matrix calculations.
+    The label is truncated to four characters. Observe that this
+    label must be unique to each center. The coordinate unit can
+    be specified as an option. The default unit is Bohr.
+    There should at least be one card of this type in a basis set
+    definition.
+
+  * **Charge** ---
+    The real entry on the subsequent line defines
+    the charge associated with
+    this basis set. This will override the default which is defined in
+    the basis set library. The option can be used to put in ghost
+    orbitals as well as to augment the basis sets of the library.
+    The **Charge** card is optional.
+
+    .. xmldoc:: %%Keyword: Charge (non-XYZ format) <advanced>
+                The real entry on the subsequent line defines
+                the charge associated with
+                this basis set. This will override the default which is defined in
+                the basis set library. The option can be used to put in ghost
+                orbitals as well as to augment the basis sets of the library.
+                The "Charger" card is optional.
+
+  * **Spherical** [option] ---
+    Specifying which shells will be in real spherical Gaussians. Valid options
+    are "all" or a list of the shell characters separated by a blank. The
+    shell characters are s, p, d, f, etc. All shells after p are by
+    default in real spherical Gaussians, except for the d-functions in the
+    6-31G family of basis sets which are in Cartesian.
+    The **Spherical** card is optional. The s and p shells and the d-functions of
+    the 6-31G family of basis sets are by default in Cartesian Gaussians.
+
+    .. xmldoc:: %%Keyword: Spherical (non-XYZ format) <advanced>
+                Specifying which shells will be in real spherical Gaussians. Valid options
+                are "all" or a list of the shell characters separated by a blank. The
+                shell characters are s, p, d, f, etc. All shells after p are by
+                default in real spherical Gaussians, except for the d-functions in the
+                6-31G family of basis sets which are in Cartesian.
+                The "Spherical" card is optional. The s and p shells and the d-functions of
+                the 6-31G family of basis sets are by default in Cartesian Gaussians.
+
+  * **Cartesian** [option] ---
+    Specifying which shells will be in a Cartesian Gaussian representation. For syntax
+    consult the corresponding **Spherical** keyword.
+
+    .. xmldoc:: %%Keyword: Cartesian (non-XYZ format) <advanced>
+                Specifying which shells will be in a Cartesian Gaussian representation. For syntax
+                consult the corresponding Spherical keyword.
+
+  * **Contaminant** [option] ---
+    Specifying for which shells the contaminant will be kept.
+    The contaminants are functions of lower rank which are generated
+    when a Cartesian shell is transformed to a spherical representation
+    (e.g. :math:`r^2=x^2+y^2+z^2` for d-shells, p contaminants for f-shells,
+    s and d contaminants for g-shells, etc.).
+    Valid options are the same as for the **Spherical** keyword.
+    The default is no contaminant in any shell. The **Contaminant** card is optional.
+
+    .. xmldoc:: %%Keyword: Contaminant (non-XYZ format) <advanced>
+                Specifying for which shells the contaminant will be kept.
+                The contaminants are functions of lower rank which are generated
+                when a Cartesian shell is transformed to a spherical representation
+                (e.g. r^2=x^2+y^2+z^2 for d-shells, p contaminants for f-shells,
+                s and d contaminants for g-shells, etc.).
+                Valid options are the same as for the Spherical keyword.
+                The default is no contaminant in any shell. The "Contaminant" card is optional.
+
+  * **Muon** ---
+    Specifying that the basis set is muonic.
+
+    .. xmldoc:: %%Keyword: Muon (non-XYZ format) <advanced>
+                Specifying that the basis set is muonic.
+
+  * **End of Basis set** ---
+    Marks the end of the basis set specification.
+    This card is mandatory.
+
+    .. xmldoc:: %%Keyword: End of Basis set (non-XYZ format) <advanced>
+                Marks the end of the basis set specification.
+                This card is mandatory.
+
+Example of an input in native |molcas| format: ::
+
+  &GATEWAY
+  Title
+  formaldehyde
+  SYMMETRY
+  X Y
+  Basis set
+  H.STO-3G....
+  H1           0.000000    0.924258   -1.100293 /Angstrom
+  End of basis
+
+  Basis set
+  C.STO-3G....
+  C3           0.000000    0.000000   -0.519589 /Angstrom
+  End of basis
+
+  Basis set
+  O.STO-3G....
+  O            0.000000    0.000000    0.664765 /Angstrom
+  End of basis
+
+  End of input
 
 Advanced keywords:
 

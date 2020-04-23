@@ -347,12 +347,12 @@ Optional general keywords
 
 :kword:`ITERations`
   The following line specifies the maximum number of iterations to be
-  used by the iterative localisation procedures. The default is 100.
+  used by the iterative localisation procedures. The default is 300.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="ITER" APPEAR="Iterations" LEVEL="ADVANCED" KIND="INT">
               <HELP>
               Please, specify the maximum number of iterations to be
-              used by the iterative localisation procedures. The default is 100.
+              used by the iterative localisation procedures. The default is 300.
               </HELP>
               %%Keyword: ITER <advanced>
               The following line specifies the maximum number of iterations to be
