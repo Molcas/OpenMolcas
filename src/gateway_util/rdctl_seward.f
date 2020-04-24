@@ -1078,6 +1078,7 @@ c Simplistic validity check for value
       Goto 998
 *
  9201 Continue
+      Call Gen_RelPointers(-(Info-1))
       iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
@@ -1160,7 +1161,6 @@ c Simplistic validity check for value
       AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
-      Call Gen_RelPointers(-(Info-1))
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
      &           ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
@@ -1181,7 +1181,6 @@ c Simplistic validity check for value
      &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
      &            iAtmNr(nCnttp).le.96
@@ -1277,7 +1276,7 @@ c Simplistic validity check for value
       Do iSh = ipVal_, ipVal_+nVal-1
          RMax_R=Zero
          Do iPrim = 0, nExp(iSh)-1
-            ValExp = Work(ipExp(iSh)+iPrim)
+            ValExp = DInf(ipExp(iSh)+iPrim)
             RMax_R = Max(RMax_R,
      &                   Eval_RMax(ValExp,iAng,Thrshld_R))
          End Do
@@ -1435,10 +1434,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
-         nInfo = ipExp(iShll+1) - Info
+         nInfo = ipExp(iShll+1) - 1
 * the next line seems to convince IBM XLF 6.1 to forgo its otherwise
 * crass behaviour. Who can tell why? Peter Knowles, 7/99
          ninfo_stupid = nInfo
+         Call Gen_RelPointers(Info-1)
          Go To 998
       End If
 *
@@ -1465,10 +1465,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
       iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Call Get_F(2,Work(iOff),3)
+      Call Get_F(2,DInf(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            Work(iOff+i) = Work(iOff+i)/angstr
+            DInf(iOff+i) = DInf(iOff+i)/angstr
          End Do
       End If
 *
@@ -1517,10 +1517,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                   iOff=ipCntr(nCnttp)+(nCnt-1)*3
 
 *                 Copy old coordinate  first
-                  CALL DCOPY_(3,Work(iOff0),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Work(iOff),1)
+                  CALL DCOPY_(3,DInf(iOff0),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,DInf(iOff),1)
 *
   110          Continue
 *
