@@ -693,9 +693,10 @@ c         call xflush(6)
       end if
 *
 *
-         CALL TRACTL2(WORK(lcmo),
-     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao_FA)
-     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
+         CALL TRACTL2(WORK(lcmo),WORK(LPUVX_tmp),WORK(LTUVX_tmp),
+     &                WORK(iD1I),WORK(ifocki),
+     &                WORK(iD1ActAO),WORK(ifocka),
+     &                IPR,lSquare,ExFac)
 *        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
         if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
@@ -864,7 +865,6 @@ c         call xflush(6)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
-
 
 !***********************************************************************
 *
