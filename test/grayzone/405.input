@@ -6,6 +6,7 @@
 * Responsible person: Roland Lindh 2017-03-13
 * Comments: Finite nucleus, automatic FNMC
 *-------------------------------------------------------------------------------
+>>> EXPORT MOLCAS_NOCHECK=MLTPL
 &Gateway
 Title
 Muonic argon
