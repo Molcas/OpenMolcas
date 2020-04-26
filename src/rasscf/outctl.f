@@ -528,7 +528,30 @@ C Local print level (if any)
 
       iTol = Cho_X_GetTol(8)
       if(doDMRG) iTol = 6
-      Call Add_Info('E_RASSCF',ENER(1,ITER),NRoots,iTol)
+*     For stability reasons we will reduce the threshold for energies
+*     which have not been use in the energy minimization.
+      Do i=1, nRoots
+         iTol_=iTol
+         If (Weight(i).eq.0.0D0) iTol_=iTol-2
+         Line(1:8)='E_RASSCF'
+         j=8
+         If (nRoots.gt.1) Then
+            If (i-1.lt.10) Then
+               Write (Line(9:11),'(A,I1,A)') '[',i-1,']'
+               j=11
+            Else If (i-1.lt.100) Then
+               Write (Line(9:12),'(A,I2,A)') '[',i-1,']'
+               j=12
+            Else If (i-1.lt.100) Then
+               Write (Line(9:13),'(A,I3,A)') '[',i-1,']'
+               j=13
+            Else If (i-1.lt.1000) Then
+               Write (Line(9:14),'(A,I4,A)') '[',i-1,']'
+               j=14
+            End If
+         End If
+         Call Add_Info(Line(1:j),ENER(i,ITER),1,iTol_)
+      End Do
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
 *---------------------------------------------------------------
