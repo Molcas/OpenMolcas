@@ -528,11 +528,7 @@ C Local print level (if any)
 
       iTol = Cho_X_GetTol(8)
       if(doDMRG) iTol = 6
-*     For stability reasons we will reduce the threshold for energies
-*     which have not been use in the energy minimization.
       Do i=1, nRoots
-         iTol_=iTol
-         If (Weight(i).eq.0.0D0) iTol_=iTol-2
          Line(1:8)='E_RASSCF'
          j=8
          If (nRoots.gt.1) Then
@@ -550,7 +546,7 @@ C Local print level (if any)
                j=14
             End If
          End If
-         Call Add_Info(Line(1:j),ENER(i,ITER),1,iTol_)
+         Call Add_Info(Line(1:j),ENER(iRoot(i),ITER),1,iTol)
       End Do
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
