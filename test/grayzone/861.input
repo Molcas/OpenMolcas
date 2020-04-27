@@ -7,7 +7,7 @@
 * Comments: this test is to execute dynamixTool_test_function
 *-------------------------------------------------------------------------------
 
-> IF ( -FILE $MOLCAS/Tools/dynamixtools/dynamixtools.py )
+> IF ( -FILE $MOLCAS_SOURCE/Tools/dynamixtools/dynamixtools.py )
 >   GOTO HAVE_DYNAMIXTOOLS
 > ENDIF
 > EXIT 36
@@ -52,7 +52,7 @@
 >> EOF
 >> COPY water.freq.molden .
 
->> SHELL $MOLCAS/Tools/dynamixtools/dynamixtools.py -D -i water.freq.molden -s 123456789 -t 300 -b 1 -l $Project
+>> SHELL $MOLCAS_SOURCE/Tools/dynamixtools/dynamixtools.py -D -i water.freq.molden -s 123456789 -t 300 -b 1 -l $Project
 
 &Gateway
   coord = $Project.xyz
