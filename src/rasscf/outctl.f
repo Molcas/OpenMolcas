@@ -530,11 +530,12 @@ C Local print level (if any)
       if(doDMRG) iTol = 6
 *
       Line(1:8)='E_RASSCF'
+      j=8
       Do i=1, nRoots
          If (nRoots.gt.1) Then
             If (i-1.lt.10) Then
                j=11
-               Write (Line(9:),'(A,I1,A)') '[',i-1,']'
+               Write (Line(9:j),'(A,I1,A)') '[',i-1,']'
             Else If (i-1.lt.100) Then
                j=12
                Write (Line(9:j),'(A,I2,A)') '[',i-1,']'
