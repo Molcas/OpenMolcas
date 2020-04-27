@@ -3863,6 +3863,7 @@ c
 *                                                                      *
 *
  997  Continue
+      Call Gen_RelPointers(-(Info-1))
 c     Postprocessing for COORD
 c      ik=index(KeepBasis,'....')
 c      if(ik.ne.0) then
@@ -3896,13 +3897,16 @@ c      endif
 #endif
          end if
          DoneCoord=.true.
-      if(isXfield.eq.1) then
-         LuRd_saved=LuRd
-         filename='findsym.xfield'
-         lXF=.True.
-         goto 9753
+         if(isXfield.eq.1) then
+            LuRd_saved=LuRd
+            filename='findsym.xfield'
+            lXF=.True.
+            Call Gen_RelPointers(Info-1)
+            goto 9753
+         endif
       endif
-      endif
+      Call Gen_RelPointers(Info-1)
+*
 9755  continue
       Call Gen_RelPointers(-(Info-1))
       If (CoordSet) Then
