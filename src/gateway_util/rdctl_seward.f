@@ -3904,6 +3904,7 @@ c      endif
       endif
       endif
 9755  continue
+      Call Gen_RelPointers(-(Info-1))
       If (CoordSet) Then
          CoordSet=.false.
          LuRdSave=LuRd
@@ -3915,6 +3916,7 @@ c      endif
 #endif
          LuRd=LuFS
          GWInput=.True.
+         Call Gen_RelPointers(Info-1)
          Go To 998
       Else
          If (DoneCoord) Then
@@ -3985,11 +3987,11 @@ c      endif
 *                                                                      *
 **    post-processing for RP-Coord
 *
+*     Call Gen_RelPointers(-(Info-1))
       If (lRP.and.RPset) Then
-        Call Gen_RelPointers(-(Info-1))
         Call processRP(KeepGroup,SymThr,DInf,nDInf)
-        Call Gen_RelPointers(Info-1)
       End If
+      Call Gen_RelPointers(Info-1)
 *
 **
 *
