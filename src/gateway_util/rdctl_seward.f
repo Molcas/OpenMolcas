@@ -3991,11 +3991,9 @@ c      endif
 *                                                                      *
 **    post-processing for RP-Coord
 *
-*     Call Gen_RelPointers(-(Info-1))
       If (lRP.and.RPset) Then
         Call processRP(KeepGroup,SymThr,DInf,nDInf)
       End If
-      Call Gen_RelPointers(Info-1)
 *
 **
 *
@@ -4116,6 +4114,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &               ' ECP option not compatible with AMFI!')
          Call Quit_OnUserError()
       End If
+      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
