@@ -132,9 +132,9 @@ Optional keywords
               <HELP>
               Print a title line
               </HELP>
-              </KEYWORD>
               %%Keyword: Title <basic>
               The line following this line is regarded as a title line
+              </KEYWORD>
 
 :kword:`PRINt`
   Specifies the general print level of the calculation. An integer
@@ -404,11 +404,11 @@ Optional keywords
               <HELP>
               Multipole moments are calculated and printed.
               </HELP>
-              </KEYWORD>
               %%Keyword: PrPt <basic>
               Multipole moments (dipoles and quadrupoles) are calculated and printed.
               The computational effort is increased substantially compared to an energy-only
               calculation.
+              </KEYWORD>
 
 :kword:`GRDT`
   Variational one and two-particle MP2 densities are calculated to prepare for

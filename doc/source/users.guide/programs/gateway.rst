@@ -443,7 +443,7 @@ The default units are ångströms. By default, maximum possible symmetry is used
   The keyword may appear several times. In this case all coordinate files
   will be concatenated, and considered as individual fragments.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="CUSTOM" INPUT="REQUIRED" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="CUSTOM" INPUT="REQUIRED" LEVEL="BASIC" EXCLUSIVE="BASIS (NATIVE)">
               %%Keyword: COORD (XYZ format) <basic>
               <HELP>
               The keyword followed on the next line by the name of an HDF5 or XYZ file,
@@ -1800,9 +1800,9 @@ Keywords associated to one-electron integrals
      effects according to the so-called Douglas--Kroll transformation.
 
   ..   .. xmldoc:: %%Keyword: Douglas-Kroll <basic>
-                 Explicit request that the one-electron Hamiltonian include the scalar relativistic
-                 effects according to the so-called Douglas-Kroll transformation.
-                 This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
+                   Explicit request that the one-electron Hamiltonian include the scalar relativistic
+                   effects according to the so-called Douglas-Kroll transformation.
+                   This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DOUGLAS-KROLL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
@@ -2265,11 +2265,9 @@ fragments. (See documentation for :program:`GEO` for more details)
               Followed by two lines for each fragment.
               The first line should have 3 real numbers defining a translation and the
               second 9 real numbers defining a rotation.
-              <!--
+              </HELP>
               (See ROT and TRANS.)
               Must occur before the xyz-files are entered with coord.
-              -->
-              </HELP>
               </KEYWORD>
 
 :kword:`FRGM`

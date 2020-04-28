@@ -239,7 +239,7 @@ Optional general keywords
               %%Tested: NONE
               <HELP>
               Direct specification of orbitals to show. Follows by
-              number of calculated grids, and pairs of integers - symmetry
+              number of calculated grids, and pairs of integers -- symmetry
               and orbital within this symmetry.
               </HELP>
               </KEYWORD>
@@ -330,11 +330,11 @@ Optional general keywords
   .. :kword:`NODEnsity`
        Keyword to suppress calculation of grid for density
 
-       .. .. xmldoc:: %<KEYWORD MODULE="GRID_IT" NAME="NODENSITY" APPEAR="No Density" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="TOTAL">
-                      %Keyword: NoDensity <advanced>
-                      %<HELP>
-                      %+ Keyword to suppress calculation of grid for density
-                      %</HELP>
+       .. .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="NODENSITY" APPEAR="No Density" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="TOTAL">
+                      %%Keyword: NoDensity <advanced>
+                      <HELP>
+                      Keyword to suppress calculation of grid for density
+                      </HELP>
                       </KEYWORD>
 
 :kword:`TOTAl`
@@ -419,7 +419,7 @@ Optional general keywords
               %%Tested: NONE
               <HELP>
               Keyword to set manually coordinates of a grid. Followed by number of
-              Cartesian coordinates, and on next lines - x y z coordinates of
+              Cartesian coordinates, and on next lines -- x y z coordinates of
               a grid (in a.u.)
               </HELP>
               </KEYWORD>
