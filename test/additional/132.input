@@ -47,8 +47,6 @@ full
 &SEWARD
 
 &RASSCF
-NECI
-EXNE
 DMPOnly
 spin
 5
