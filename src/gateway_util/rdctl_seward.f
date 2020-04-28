@@ -4320,13 +4320,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo)
+            Call Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd)
+            Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
 *
          End If
       End If

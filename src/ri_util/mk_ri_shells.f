@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
-      Subroutine Mk_RI_Shells(Info,nInfo,LuRd)
+      Subroutine Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the auxiliary functions         *
@@ -28,6 +28,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
+      Real*8 DInf(nDInf)
       Logical Hit, IfTest
       Character*13 DefNm
       Character*80 Ref(2), BSLbl, BSLB*180

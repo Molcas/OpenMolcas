@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2007,2008, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_RICD_Shells(Info,nInfo)
+      Subroutine Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -38,6 +38,7 @@
 #include "print.fh"
 #include "status.fh"
 #include "stdalloc.fh"
+      Real*8 DInf(nDInf)
       Logical DoRys, Save_Logical, W2L
 *                                                                      *
 ************************************************************************
