@@ -61,6 +61,7 @@
 *
       iShll = iShll + 1
       AuxShell(iShll) = .True.
+      call Gen_RelPointers(-(Info-1))
       iStrt = ipExp(iShll)
       nExp(iShll) = nPrim
       nBasis(iShll) = nCntrc
@@ -70,16 +71,16 @@
       ipAkl(iShll) = ip_Dummy
       iEnd = iStrt + nPrim - 1
 *     Exponent
-      Work(iStrt)=Zero
+      DInf(iStrt)=Zero
 *     Coefficients
       iStrt = iEnd + 1
       ipCff(iShll) = iStrt
       ipCff_Cntrct(iShll) = iStrt
       ipCff_Prim(iShll) = iStrt
       iEnd = iStrt + nPrim*nCntrc -1
-      Work(iStrt) =One
-      Work(iEnd+1)=999999.0D0
-      call dcopy_(nPrim*nCntrc,Work(iStrt),1,Work(iEnd+1),1)
+      DInf(iStrt) =One
+      DInf(iEnd+1)=999999.0D0
+      call dcopy_(nPrim*nCntrc,DInf(iStrt),1,DInf(iEnd+1),1)
       iEnd = iEnd + nPrim*nCntrc
       If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
 *
@@ -98,9 +99,9 @@
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Work(iOff  )=Zero
-      Work(iOff+1)=Zero
-      Work(iOff+2)=Zero
+      DInf(iOff  )=Zero
+      DInf(iOff+1)=Zero
+      DInf(iOff+2)=Zero
       nCntr(nCnttp) = nCnt
       mdc = mdc + nCnt
       If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
@@ -108,7 +109,8 @@
 *     Compute the number of elements stored in the dynamic memory so
 *     far.
 *
-      nInfo = ipExp(iShll+1) - Info
+      nInfo = ipExp(iShll+1) - 1
+      call Gen_RelPointers((Info-1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
