@@ -5,6 +5,7 @@
 * Check if the FCIDUMP for NECI communication works.
 *
 
+>>> EXPORT MOLCAS_MEM=768Mb
  &GATEWAY
 RICD
 Coord
