@@ -87,7 +87,7 @@ C      iPrint=99
 *                                                                      *
 *     Add the DUMMY SHELL!
 *
-      Call Mk_Dummy_Shell(Info,nInfo)
+      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
 *                                                                      *
 ************************************************************************
 ************************************************************************

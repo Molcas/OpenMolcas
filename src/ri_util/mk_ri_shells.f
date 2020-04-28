@@ -175,7 +175,7 @@
      &        nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
      &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              Work(Info),nInfo)
+     &              DInf,nDInf)
          Call Gen_RelPointers(Info-1)
          AuxCnttp(nCnttp)=.True.
 *
@@ -514,7 +514,8 @@ C        Fixed(nCnttp)=.False.
 *                                                                      *
 *     Add the final DUMMY SHELL!
 *
- 1100 Call Mk_Dummy_Shell(Info,nInfo)
+ 1100 Continue
+      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *

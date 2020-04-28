@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_Dummy_Shell(Info,nInfo)
+      Subroutine Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *     Add the final DUMMY SHELL!                                       *
@@ -24,6 +24,7 @@
 #include "SysDef.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
