@@ -70,6 +70,7 @@
       If (iRI_Type.eq.5) Go To 1000
 
       Do iCnttp = 1, mCnttp
+         Call Gen_RelPointers(-(Info-1))
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
          mdc = mdciCnttp(iCnttp)
          nCnttp=nCnttp+1
@@ -155,7 +156,6 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call Gen_RelPointers(-(Info-1))
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
      &              ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
      &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
@@ -176,7 +176,6 @@
      &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',
      &              DInf,nDInf)
-         Call Gen_RelPointers(Info-1)
          AuxCnttp(nCnttp)=.True.
 *
          Charge(nCnttp)=Zero
@@ -232,9 +231,11 @@ C        Fixed(nCnttp)=.False.
          nCntr(nCnttp) = nCnt
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
-         nInfo = ipExp(iShll+1) - Info
+*        nInfo = ipExp(iShll+1) - Info
+         nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
          Mx_mdc=mdc
+         Call Gen_RelPointers(Info-1)
 *
       End Do
       Go To 1100
