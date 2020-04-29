@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -30,6 +30,7 @@
 #include "status.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Real*8 DInf(nDInf)
       Integer, Allocatable :: iList2_c(:,:), iList2_p(:,:), iD_c(:),
      &                        Con(:), ConR(:,:), Prm(:), Indkl_p(:),
      &                        AL(:), LTP(:,:), iD_p(:), Indkl(:)

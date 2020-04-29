@@ -97,7 +97,6 @@ C      iPrint=99
 *     corresponding aCD auxiliary basis sets. Note that there are two
 *     different types of aCD auxiliary basis sets, aCD and acCD.
 *
-      Call Gen_RelPointers(Info-1)
       Do 1100 iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) goto 1100
 #ifdef _DEBUG_
@@ -136,7 +135,9 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Gen_RelPointers(Info-1)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
+            Call Gen_RelPointers(-(Info-1))
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -161,14 +162,15 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Gen_RelPointers(Info-1)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
+            Call Gen_RelPointers(-(Info-1))
 *
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
  1100 Continue ! iCnttp
-      Call Gen_RelPointers(-(Info-1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
