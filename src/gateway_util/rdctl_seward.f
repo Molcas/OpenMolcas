@@ -4326,7 +4326,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Pick up an externally defined auxiliary basis set.
 *
+            Call Gen_RelPointers(-(Info-1))
             Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
+            Call Gen_RelPointers(Info-1)
 *
          End If
       End If
