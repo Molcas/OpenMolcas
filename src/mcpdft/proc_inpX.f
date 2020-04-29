@@ -898,6 +898,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 !       Write(6,*) ' Exchange energy scaling factor is ',CoefX
 !       Write(6,*) ' Correlation energy scaling factor is ',CoefR
       End If
+*---  Process MSPD command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
+      If (KeyMSPD) Then
+       Write(6,*) ' MSPD keyword was used.'
+       iMSPDFT=1
+       Call SetPos_m(LUInput,'MSPD',Line,iRc)
+       Call ChkIfKey_m()
+      End If
 *---  Process CION command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if CIONLY case.'
       If (KeyCION) Then
@@ -990,7 +998,9 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       End If
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
-      IF(KeyCIRO) Then
+*TRS - removing ciroots keyword
+*      IF(KeyCIRO) Then
+       If(.false.) Then
        If (DBG) Write(6,*) ' CIROOTS command was given.'
        Call SetPos_m(LUInput,'CIRO',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -1058,7 +1068,9 @@ CBOR.. End modification 001011
        KeyCIRE=.TRUE.
       END IF
 *---  Process RLXR command --------------------------------------------*
-      If(KeyRLXR) Then
+*TRS - remove rlxr keyword
+*      If(KeyRLXR) Then
+       If(.false.) Then
        Call SetPos_m(LUInput,'RLXR',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' O.K. reading after keyword RLXR.'
@@ -2524,11 +2536,18 @@ c       write(6,*)          '  --------------------------------------'
        DoGradPDFT=.true.
        Call SetPos_m(LUInput,'GRAD',Line,iRc)
        Call ChkIfKey_m()
+*TRS - Adding else statement to make nograd the default if the grad
+*keyword isn't used
+       Else
+       DoNoGrad=.true.
+*TRS
       End If
 *
 *---  Process NOGR command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if NOGRadient case.'
-      If (KeyNOGR) Then
+*TRS - removing nograd command
+*      If (KeyNOGR) Then
+       If (.false.) Then
        If (DBG) Write(6,*) ' NOGRadient keyword was used.'
        DoNoGrad=.true.
        Call SetPos_m(LUInput,'NOGR',Line,iRc)
@@ -2622,25 +2641,27 @@ c       write(6,*)          '  --------------------------------------'
 ************************************************************************
 *                                                                      *
 *     Select default root for geometry optimization
-*
-      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
+*TRS - Not overwriting rlxroot from sacasscf
+*      write(*,*)'irlxroot', irlxroot
+*      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
+*          
 *
 *        Check if multi state SA-CASSCF
 *
-         nW = 0
-         Do iR = 1, LROOTS
-            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
-         End Do
-         If (nW.ne.1) Then
-            iRlxRoot=iroot(LROOTS)
-         Else
-            Do iR = 1, LROOTS
-               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
-            End Do
-         End If
-      End If
-      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
-*                                                                      *
+*         nW = 0
+*         Do iR = 1, LROOTS
+*            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
+*         End Do
+*         If (nW.ne.1) Then
+*            iRlxRoot=iroot(LROOTS)
+*         Else
+*            Do iR = 1, LROOTS
+*               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
+*            End Do
+*         End If
+*      End If
+*      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
+*   TRS                                                                   *
 ************************************************************************
 *                                                                      *
 *---  Compute IZROT. IZROT is a matrix (lower triangular over the -----*

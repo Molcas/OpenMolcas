@@ -274,9 +274,9 @@ c         CALL TRIPRT('Averaged 1-body Dmat D in MO in SXCTL',' ',D,NAC)
 C         If(ipDMAT.ne.ip_Dummy) Call Free_Work(ipDMAT)
        END IF
       end if
-***********************************************************************
+************************************************************************
 * Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
-***********************************************************************
+************************************************************************
       WORD='FOCK'
       CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
       CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)

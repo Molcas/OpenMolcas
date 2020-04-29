@@ -18,8 +18,7 @@
             <HELP>
             This program is a general purpose facility for geometry
             optimization. At present, it is tailored to use analytical gradients
-            produced by
-            ALASKA.
+            produced by ALASKA.
             SLAPAF also computes an approximate Hessian.
             </HELP>
 
@@ -892,7 +891,7 @@ Optional force constant keywords
   This invokes a calculation of the 2nd and the 3rd order
   force constant matrix by finite difference formula.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CUBIC" APPEAR="NUmerical anharmonics force constants" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CUBIC" APPEAR="Numerical anharmonic force constants" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Cubic <basic>
               <HELP>
               This invokes a calculation of the 2nd and the 3rd order

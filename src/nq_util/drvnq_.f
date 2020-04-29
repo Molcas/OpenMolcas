@@ -98,6 +98,12 @@
 *                   ratio = 4pi/rho^2                                  *
 ************************************************************************
       IF(l_casdft) then
+!
+        PUVX_Time= 0d0
+        FA_Time = 0d0
+        sp_time = 0d0
+        FI_time = 0d0
+!
         LuMC=37
         LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
@@ -156,11 +162,15 @@ c        Call append_file(LuMT)
         CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
         Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
         Call GETMEM('FI_A','ALLO','REAL',ifav,nFckInt)
+!        Call GETMEM('FI_V','ALLO','REAL',ifiv_n,nFckInt)
+!        Call GETMEM('FI_A','ALLO','REAL',ifav_n,nFckInt)
 
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(LOE_DB),1)!NTOT1
         CALL DCOPY_(nTmpPUVX,[0.0D0],0,WORK(LTEG_DB),1)
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv),1)
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav),1)
+!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv_n),1)
+!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav_n),1)
       Else
         LOE_DB = ip_dummy
         LTEG_DB = ip_dummy
@@ -364,15 +374,33 @@ C     End Do ! number_of_subblocks
 ************************************************************************
 *                                                                      *
       If(l_casdft.and.do_pdftPot) then
+
+
+!        CALL DCOPY_(nFckInt,Work(ifav_n),1,WORK(ifav),1)
+!        CALL DCOPY_(nFckInt,Work(ifiv_n),1,WORK(ifiv),1)
+
         Call Put_dArray('ONTOPO',work(LOE_DB),nFckInt)
         Call Put_dArray('ONTOPT',work(LTEG_DB),nTmpPUVX)
         Call Put_dArray('FI_V',Work(ifiv),nFckInt)
         Call Put_dArray('FA_V',Work(ifav),nFckInt)
 
+
         CALL GETMEM('OE_OT','Free','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','Free','REAL',LTEG_DB,nTmpPUVX)
         CALL GETMEM('FI_V','FREE','REAL',ifiv,nFckInt)
+!        CALL GETMEM('FI_V','FREE','REAL',ifiv_n,nFckInt)
         CALL GETMEM('FA_V','FREE','REAL',ifav,nFckInt)
+!        CALL GETMEM('FA_V','FREE','REAL',ifav_n,nFckInt)
+
+!      write(*,*) 'Potential timings:'
+!      write(*,*) 'PUVX time: ',PUVX_Time
+!      write(*,*) 'FA time: ',FA_Time
+!      write(*,*) 'FI time: ',FI_Time
+!      write(*,*) 'SP time: ',SP_Time
+!        PUVX_Time= 0d0
+!        FA_Time = 0d0
+!        FI_time = 0d0
+!        sp_time = 0d0
       End If
 
       IF(debug. and. l_casdft) THEN

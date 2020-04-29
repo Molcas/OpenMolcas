@@ -13,12 +13,12 @@ Comparison to Turbomole
 Symmetry
 x z
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis

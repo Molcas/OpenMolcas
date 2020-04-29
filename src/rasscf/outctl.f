@@ -670,9 +670,9 @@ C Local print level (if any)
         Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,
      &            CMO,OCCN,Dum,iDum,Note)
         CALL PRPT()
-*                                                                     *
-***********************************************************************
-*       Store away the dipole moment of this state                    *
+*                                                                      *
+************************************************************************
+*       Store away the dipole moment of this state                     *
 *
         Call Qpg_dArray('Dipole Moment',Do_DM,iDum(1))
         If (Do_DM) Then
@@ -681,9 +681,9 @@ C Local print level (if any)
 *          Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
            Call DCopy_(3,Work(ipDM),1,Work(ipDMs+(KROOT-1)*3),1)
         End If
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *       Compute spin orbitals and spin population
 *       (Note: this section overwrites the pseudo natural orbitals

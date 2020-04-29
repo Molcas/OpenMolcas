@@ -251,6 +251,9 @@ C.. for GAS
       if(.not.DoSplitCAS) then  ! GLMJ
         Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                             NROOTS
+*TRS
+      Call Get_iScalar('Relax CASSCF root',iRlxRoot)
+*TRS
         If (irlxroot.ne.0)
      &  Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
      &                             IRLXROOT

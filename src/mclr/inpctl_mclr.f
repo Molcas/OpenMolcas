@@ -64,6 +64,7 @@
 
       ldisk  =ipopen(0,.True.)
 *
+      write(*,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td
@@ -147,7 +148,7 @@
 *        vectors. For Hessian calculations we pick up just one vector.
 *
 C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
-         If (SA) Then
+         If (SA.or.iMCPD) Then
             ipcii=ipget(nconf*nroots)
             call dcopy_(nconf*nroots,Work(ipCI),1,Work(ipin(ipcii)),1)
             nDisp=1

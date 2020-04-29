@@ -18,7 +18,7 @@ fi
 * No RICD, we can go up to l=iTabMx=15
 &GATEWAY
   Expert
-  Basis = H..... / inline
+  Basis Set = H..... / inline
     1.0 15
     * s functions (STO-3G)
     3   1
@@ -82,7 +82,7 @@ fi
 * (include all l values to avoid problems)
 &GATEWAY
   Expert
-  Basis = H..... / inline
+  Basis Set = H..... / inline
     1.0 6
     * s functions (STO-3G)
     3   1
