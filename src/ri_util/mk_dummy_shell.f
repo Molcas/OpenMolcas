@@ -28,7 +28,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call Gen_RelPointers(-(Info-1))
       iShll = Mx_Shll - 1
       mdc = mdciCnttp(nCnttp) + nCntr(nCnttp)
       nCnttp = nCnttp + 1
@@ -117,7 +116,6 @@
       Mx_mdc=mdc
 *
       iCnttp_Dummy=nCnttp
-      call Gen_RelPointers((Info-1))
 *                                                                      *
 ************************************************************************
 *                                                                      *

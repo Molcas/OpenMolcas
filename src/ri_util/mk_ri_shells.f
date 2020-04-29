@@ -515,7 +515,9 @@ C        Fixed(nCnttp)=.False.
 *     Add the final DUMMY SHELL!
 *
  1100 Continue
+      Call Gen_RelPointers(-(Info-1))
       Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

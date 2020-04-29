@@ -56,6 +56,7 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Gen_RelPointers(-(Info-1))
       Call qEnter('Mk_aCD_Shells')
 *
       Call StatusLine('Gateway:',
@@ -96,6 +97,7 @@ C      iPrint=99
 *     corresponding aCD auxiliary basis sets. Note that there are two
 *     different types of aCD auxiliary basis sets, aCD and acCD.
 *
+      Call Gen_RelPointers(Info-1)
       Do 1100 iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) goto 1100
 #ifdef _DEBUG_
@@ -166,6 +168,7 @@ C      iPrint=99
 ************************************************************************
 *                                                                      *
  1100 Continue ! iCnttp
+      Call Gen_RelPointers(-(Info-1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -189,6 +192,7 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Gen_RelPointers(Info-1)
       Call qExit('Mk_aCD_Shells')
       Return
       End
