@@ -15,22 +15,22 @@ c
       Integer, parameter       :: wp=SELECTED_REAL_KIND(p=15,r=307)
 c input variables:
       Integer,         intent(in) :: N
-      Real(kind=wp),   intent(in) :: H,dX,dY,dZ,zJ
-      Real(kind=wp),   intent(in) :: W(N)
-      Real(kind=wp),   intent(in) :: S(3)
-      Complex(kind=wp),intent(in) :: sM(3,N,N)
-      Complex(kind=wp),intent(in) ::  M(3,N,N)
+      Real(kind=8),   intent(in) :: H,dX,dY,dZ,zJ
+      Real(kind=8),   intent(in) :: W(N)
+      Real(kind=8),   intent(in) :: S(3)
+      Complex(kind=8),intent(in) :: sM(3,N,N)
+      Complex(kind=8),intent(in) ::  M(3,N,N)
 c output variables:
-      Real(kind=wp),    intent(out) ::  WM(N)
-      Complex(kind=wp), intent(out) :: ZM(N,N)
+      Real(kind=8),    intent(out) ::  WM(N)
+      Complex(kind=8), intent(out) :: ZM(N,N)
 c local variables:
       Integer          :: i,j,info
-      Real(kind=wp)    :: mB
-      Real(kind=wp)    :: RWORK(3*N-2)
-      Complex(kind=wp) :: HZEE(N*(N+1)/2)
-      Complex(kind=wp) :: WORK(2*N-1), R, P, RP
-      Complex(kind=wp) :: H_c, dX_c, dY_c, dZ_c, zJ_c, W_c(N), S_c(3)
-      Complex(kind=wp) :: mB_c
+      Real(kind=8)    :: mB
+      Real(kind=8)    :: RWORK(3*N-2)
+      Complex(kind=8) :: HZEE(N*(N+1)/2)
+      Complex(kind=8) :: WORK(2*N-1), R, P, RP
+      Complex(kind=8) :: H_c, dX_c, dY_c, dZ_c, zJ_c, W_c(N), S_c(3)
+      Complex(kind=8) :: mB_c
       Logical          :: DBG
       Call qEnter('ZEEM')
       mB = 0.4668643740_wp !   in cm-1*T-1

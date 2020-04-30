@@ -94,7 +94,7 @@ Gene H. Golub
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
-Matthew R Hermes  
+Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
 Asbjørn Holt  
@@ -180,5 +180,5 @@ Sebastian Wouters
 Felipe Zapata  
 Alexander Zech  
 Yan Zhao  
-J. Patrick Zobel
-  
+J. Patrick Zobel  
+

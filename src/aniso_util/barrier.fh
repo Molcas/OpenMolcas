@@ -8,6 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real(kind=wp) axes(99,3,3)
+      Real(kind=8) axes(99,3,3)
 
       common/UBAR/ axes

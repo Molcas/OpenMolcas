@@ -16,22 +16,22 @@ C This Subroutine receives the moment matrix dipso(3,dim,dim) and Returns the ma
       Implicit None
       Integer, parameter       :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)      :: dim, order, iprint
-      Real(kind=wp), intent(out) :: gtens(3)
+      Real(kind=8), intent(out) :: gtens(3)
 !     initial magnetic moment
-      Complex(kind=wp), intent(in)  ::  MM(3,dim,dim)
+      Complex(kind=8), intent(in)  ::  MM(3,dim,dim)
 !     initial spin moment
-      Complex(kind=wp), intent(in)  ::  MS(3,dim,dim)
+      Complex(kind=8), intent(in)  ::  MS(3,dim,dim)
 !     transformed magnetic moment
-      Complex(kind=wp), intent(out) :: AMM(3,dim,dim)
+      Complex(kind=8), intent(out) :: AMM(3,dim,dim)
 !     transformed spin moment
-      Complex(kind=wp), intent(out) :: AMS(3,dim,dim)
-      Complex(kind=wp), intent(out) :: Z(dim,dim)
-      Complex(kind=wp), intent(out) :: HCF2(dim,3,dim,dim)
+      Complex(kind=8), intent(out) :: AMS(3,dim,dim)
+      Complex(kind=8), intent(out) :: Z(dim,dim)
+      Complex(kind=8), intent(out) :: HCF2(dim,3,dim,dim)
 
       ! local variables:
       Integer             :: i,j,l,i1,i2,m,n
-      Real(kind=wp)       :: maxes(3,3)
-      Complex(kind=wp)    :: DIP_O(dim,dim), DIP_W(dim,dim),
+      Real(kind=8)       :: maxes(3,3)
+      Complex(kind=8)    :: DIP_O(dim,dim), DIP_W(dim,dim),
      &                       B(3,dim,-dim:dim), BNMC(3,dim,0:dim),
      &                       BNMS(3,dim,0:dim), SP_MOW, SP_DIPO(3),
      &                       SP_DIPW(3), O1, O2, m_fact, trace

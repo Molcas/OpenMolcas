@@ -16,42 +16,42 @@ c  compute KE, within various options :
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)           :: lant,OPT
-      Real(kind=wp),intent(in)      :: tpar,upar
+      Real(kind=8),intent(in)      :: tpar,upar
       !the Ln site
       Integer, intent(in)           :: N1
-      Real(kind=wp), intent(in)     :: eso1(N1)
-      Complex(kind=wp), intent(in)  :: M1(3,N1,N1)
-      Complex(kind=wp), intent(in)  :: S1(3,N1,N1)
-      Complex(kind=wp), intent(out) :: MR1(3,N1,N1)
-      Complex(kind=wp), intent(out) :: SR1(3,N1,N1)
+      Real(kind=8), intent(in)     :: eso1(N1)
+      Complex(kind=8), intent(in)  :: M1(3,N1,N1)
+      Complex(kind=8), intent(in)  :: S1(3,N1,N1)
+      Complex(kind=8), intent(out) :: MR1(3,N1,N1)
+      Complex(kind=8), intent(out) :: SR1(3,N1,N1)
       !the radical
       Integer, intent(in)           :: N2
-      Real(kind=wp), intent(in)     :: eso2(N2)
-      Complex(kind=wp), intent(in)  :: M2(3,N2,N2)
-      Complex(kind=wp), intent(in)  :: S2(3,N2,N2)
-      Complex(kind=wp), intent(out) :: MR2(3,N2,N2)
-      Complex(kind=wp), intent(out) :: SR2(3,N2,N2)
+      Real(kind=8), intent(in)     :: eso2(N2)
+      Complex(kind=8), intent(in)  :: M2(3,N2,N2)
+      Complex(kind=8), intent(in)  :: S2(3,N2,N2)
+      Complex(kind=8), intent(out) :: MR2(3,N2,N2)
+      Complex(kind=8), intent(out) :: SR2(3,N2,N2)
       ! exchange Hamiltonian
-      Complex(kind=wp) ::  HKEX(N1,N1,N2,N2)
+      Complex(kind=8) ::  HKEX(N1,N1,N2,N2)
       ! local variables:
       Integer          :: i1,i2,j1,j2,i,info,j,l,is1,is2,iprint
-      Real(kind=wp)    :: eloc1(N1)
-      Real(kind=wp)    :: eloc2(N2)
-      Complex(kind=wp) :: Z1(N1,N1)
-      Complex(kind=wp) :: Z2(N2,N2)
-      Complex(kind=wp) :: H1(N1,N1)
-      Complex(kind=wp) :: H2(N2,N2)
-      Complex(kind=wp) :: HCOV(N1,N1)
-      Complex(kind=wp) :: H1T(N1,N1)
-      Complex(kind=wp) :: HEXC( N1,N1,N2,N2)
-      Complex(kind=wp) :: ABIT( N1,N1,N2,N2)
-      Complex(kind=wp) :: MM1(3,N1,N1)
-      Complex(kind=wp) :: SM1(3,N1,N1)
-      Complex(kind=wp) :: ZZ1(N1,N1)
-      Complex(kind=wp) :: ZZ2(N2,N2)
-      Complex(kind=wp) :: ZCR(N1,N1)
-      Complex(kind=wp) :: TMP(N1,N1)
-      Real(kind=wp)    :: gtens(4,3),maxes(4,3,3),wcr(n1)
+      Real(kind=8)    :: eloc1(N1)
+      Real(kind=8)    :: eloc2(N2)
+      Complex(kind=8) :: Z1(N1,N1)
+      Complex(kind=8) :: Z2(N2,N2)
+      Complex(kind=8) :: H1(N1,N1)
+      Complex(kind=8) :: H2(N2,N2)
+      Complex(kind=8) :: HCOV(N1,N1)
+      Complex(kind=8) :: H1T(N1,N1)
+      Complex(kind=8) :: HEXC( N1,N1,N2,N2)
+      Complex(kind=8) :: ABIT( N1,N1,N2,N2)
+      Complex(kind=8) :: MM1(3,N1,N1)
+      Complex(kind=8) :: SM1(3,N1,N1)
+      Complex(kind=8) :: ZZ1(N1,N1)
+      Complex(kind=8) :: ZZ2(N2,N2)
+      Complex(kind=8) :: ZCR(N1,N1)
+      Complex(kind=8) :: TMP(N1,N1)
+      Real(kind=8)    :: gtens(4,3),maxes(4,3,3),wcr(n1)
       Logical          :: DBG
       Call qEnter('PA_ke')
       DBG=.false.

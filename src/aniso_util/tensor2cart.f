@@ -13,10 +13,10 @@
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Complex(kind=wp), intent(in) :: Jt(-1:1,-1:1)
-      Real(kind=wp), intent(out)   :: Jc(3,3)
+      Complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
+      Real(kind=8), intent(out)   :: Jc(3,3)
       ! local variables
-      Complex(kind=wp) :: i,pp,pz,pm,zp,zz,zm,mp,mz,mm
+      Complex(kind=8) :: i,pp,pz,pm,zp,zz,zm,mp,mz,mm
 
       jc(1:3,1:3)=0.0_wp
        i=(0.0_wp,1.0_wp)
@@ -66,10 +66,10 @@
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Complex(kind=wp), intent(in) :: Jt(-1:1,-1:1)
-      Real(kind=wp), intent(out)   :: Jc(3,3)
+      Complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
+      Real(kind=8), intent(out)   :: Jc(3,3)
       ! local variables
-      Complex(kind=wp) :: i,pp,pz,pm,zp,zz,zm,mp,mz,mm
+      Complex(kind=8) :: i,pp,pz,pm,zp,zz,zm,mp,mz,mm
 
       jc(1:3,1:3)=0.0_wp
        i=(0.0_wp,1.0_wp)
@@ -123,11 +123,11 @@
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Real(kind=wp), intent(in)    :: Jc(3,3)
-      Complex(kind=wp), intent(out):: Jt(-1:1,-1:1)
+      Real(kind=8), intent(in)    :: Jc(3,3)
+      Complex(kind=8), intent(out):: Jt(-1:1,-1:1)
       ! local variables
-      Complex(kind=wp) :: c2, cx2, i
-      Complex(kind=wp) :: xx,xy,xz,yx,yy,yz,zx,zy,zz
+      Complex(kind=8) :: c2, cx2, i
+      Complex(kind=8) :: xx,xy,xz,yx,yy,yz,zx,zy,zz
 
       jt(-1:1,-1:1)=(0.0_wp,0.0_wp)
 
@@ -170,11 +170,11 @@
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Real(kind=wp), intent(in)    :: Jc(3,3)
-      Complex(kind=wp), intent(out):: Jt(-1:1,-1:1)
+      Real(kind=8), intent(in)    :: Jc(3,3)
+      Complex(kind=8), intent(out):: Jt(-1:1,-1:1)
       ! local variables
-      Complex(kind=wp) :: c2, cx2, i
-      Complex(kind=wp) :: xx,xy,xz,yx,yy,yz,zx,zy,zz
+      Complex(kind=8) :: c2, cx2, i
+      Complex(kind=8) :: xx,xy,xz,yx,yy,yz,zx,zy,zz
 
       jt(-1:1,-1:1)=(0.0_wp,0.0_wp)
 

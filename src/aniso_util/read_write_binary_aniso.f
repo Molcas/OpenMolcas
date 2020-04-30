@@ -15,20 +15,20 @@
       Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
-      Real(kind=wp)      :: eso(nss), esfs(nstate)
-      Real(kind=wp)      :: angmom(3,nstate,nstate)
-      Real(kind=wp)      ::  edmom(3,nstate,nstate)
-      Real(kind=wp)      ::   amfi(3,nstate,nstate)
-      Complex(kind=wp)   :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
-      Complex(kind=wp)   :: DM(3,nss,nss)
-      Complex(kind=wp)   ::   U(nss,nss)
-      Complex(kind=wp)   :: HSO(nss,nss)
+      Real(kind=8)      :: eso(nss), esfs(nstate)
+      Real(kind=8)      :: angmom(3,nstate,nstate)
+      Real(kind=8)      ::  edmom(3,nstate,nstate)
+      Real(kind=8)      ::   amfi(3,nstate,nstate)
+      Complex(kind=8)   :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
+      Complex(kind=8)   :: DM(3,nss,nss)
+      Complex(kind=8)   ::   U(nss,nss)
+      Complex(kind=8)   :: HSO(nss,nss)
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
       Integer            :: luaniso, idisk, idum(1)
-      Real(kind=wp)      :: g_e
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8)      :: g_e
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
       Call qEnter('read_binary_aniso')
       g_e=2.0023193043718_wp
@@ -154,17 +154,17 @@
       Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
-      Real(kind=wp)      :: eso(nss), esfs(nstate)
-      Real(kind=wp)      :: angmom(3,nstate,nstate)
-      Real(kind=wp)      ::  edmom(3,nstate,nstate)
-      Real(kind=wp)      ::   amfi(3,nstate,nstate)
-      Complex(kind=wp)   :: U(nss,nss), HSO(nss,nss)
-      Complex(kind=wp)   :: MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss)
+      Real(kind=8)      :: eso(nss), esfs(nstate)
+      Real(kind=8)      :: angmom(3,nstate,nstate)
+      Real(kind=8)      ::  edmom(3,nstate,nstate)
+      Real(kind=8)      ::   amfi(3,nstate,nstate)
+      Complex(kind=8)   :: U(nss,nss), HSO(nss,nss)
+      Complex(kind=8)   :: MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss)
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
       Integer            :: luaniso, idisk
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
       Call qEnter('write_binary_aniso')
       LUANISO=8
