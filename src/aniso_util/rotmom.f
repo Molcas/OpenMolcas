@@ -30,7 +30,7 @@ c rotate the matrix
       Do l=1,3
          Do k=1,3
             RC(l,k) = (0.0_wp,0.0_wp)
-            RC(l,k) = cmplx(R(l,k),0.0d0)
+            RC(l,k) = cmplx(R(l,k),0.0d0,wp)
          End Do
       End Do
 
