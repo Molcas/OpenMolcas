@@ -1088,12 +1088,8 @@ def test_custom(lines, keyword):
           try:
             n = first_int(lines[l])
             l += 1
-            if (n > 0):
-              parts = fortran_split(lines[l])
-              m = fortran_int(parts[0])
-              nums = to_int(parts[1:m+1])
-              assert (len(nums) == m)
-              l += 1
+            for i in range(n):
+              l += test_standard(lines[l-1:], 'INTS_COMPUTED', 1) - 1
           except:
             if (find and (s in gv.syms)):
               gv.lookup['NSYM'] = s

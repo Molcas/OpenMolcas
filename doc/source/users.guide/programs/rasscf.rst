@@ -443,7 +443,7 @@ Optional important keywords are:
               ||    3
               ||    4 5 1
               ||
-               leads to an order of [4 2 3 5 1 6].
+              leads to an order of [4 2 3 5 1 6].
               </HELP>
               </KEYWORD>
 
@@ -1729,7 +1729,7 @@ A list of these keywords is given below:
               %%Keyword: QUNE <advanced>
               <HELP>
               This input keyword is used to switch on the Quasi-Newton update procedure for the
-              Hessian.(Default setting: QN update is used unless the calculation involves
+              Hessian. (Default setting: QN update is used unless the calculation involves
               numerically integrated DFT contributions.)
               </HELP>
               </KEYWORD>
@@ -1877,7 +1877,6 @@ A list of these keywords is given below:
               <HELP>
               Used to prohibit certain orbital rotations. Please consult the manual!
               </HELP>
-              </KEYWORD>
               This input is used to restrict possible orbital rotations. The
               restrictions are introduced by grouping orbitals of the same
               symmetry into additional classes. Orbitals belonging to different
@@ -1889,6 +1888,7 @@ A list of these keywords is given below:
               for each classes the following input: The dimension of the classes and
               the list of orbitals in the classes counted relative to the first orbital
               in this symmetry.
+              </KEYWORD>
 
 :kword:`HOME`
   With this keyword, the root selection in the Super-CI orbital update

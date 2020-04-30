@@ -13,15 +13,15 @@
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
-      Complex(kind=wp), intent(in)  ::
+      Complex(kind=8), intent(in)  ::
      &     J( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
-      Complex(kind=wp),intent(out)  :: HAM(n1,n1,n2,n2)
+      Complex(kind=8),intent(out)  :: HAM(n1,n1,n2,n2)
       ! local variables:
       Integer                       :: k1,k2,q1,q2,m1,m2,l1,l2
-      Real(kind=wp)                 :: C01,C02
-      Complex(kind=wp), allocatable :: O1(:,:), O2(:,:),
+      Real(kind=8)                 :: C01,C02
+      Complex(kind=8), allocatable :: O1(:,:), O2(:,:),
      &                                 W1(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
      &                                 OW(:,:,:,:), WO(:,:,:,:)
 !---------------------------------------------------------------------
 !  recover the original HAMILTONIAN using the J parameters
@@ -100,15 +100,15 @@
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
-      Complex(kind=wp), intent(in)  ::
+      Complex(kind=8), intent(in)  ::
      &     B( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
-      Complex(kind=wp),intent(out)  :: HAM(n1,n1,n2,n2)
+      Complex(kind=8),intent(out)  :: HAM(n1,n1,n2,n2)
       ! local variables:
       Integer                       :: k1,k2,q1,q2,m1,m2,l1,l2
-      Complex(kind=wp)              :: redME1,redME2
-      Complex(kind=wp), allocatable :: O1(:,:), O2(:,:),
+      Complex(kind=8)              :: redME1,redME2
+      Complex(kind=8), allocatable :: O1(:,:), O2(:,:),
      &                                 W1(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
      &                                 OW(:,:,:,:), WO(:,:,:,:)
 
 !---------------------------------------------------------------------
@@ -189,15 +189,15 @@
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
-      Complex(kind=wp), intent(in)  ::
+      Complex(kind=8), intent(in)  ::
      &     S( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
-      Complex(kind=wp),intent(out)  :: HAM(n1,n1,n2,n2)
+      Complex(kind=8),intent(out)  :: HAM(n1,n1,n2,n2)
       ! local variables:
       Integer                       :: k1,k2,q1,q2,m1,m2,l1,l2
-      Complex(kind=wp)              :: redME1,redME2
-      Complex(kind=wp), allocatable :: O1(:,:), O2(:,:),
+      Complex(kind=8)              :: redME1,redME2
+      Complex(kind=8), allocatable :: O1(:,:), O2(:,:),
      &                                 W1(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
      &                                 OW(:,:,:,:), WO(:,:,:,:)
 
 !---------------------------------------------------------------------

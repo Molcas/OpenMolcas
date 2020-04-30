@@ -23,10 +23,10 @@
 
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)        :: ln
-      Real(kind=wp), intent(out) :: a(6)
+      Real(kind=8), intent(out) :: a(6)
       ! local variables:
       Integer        :: i,j
-      Real(kind=wp)  :: an(28,6)
+      Real(kind=8)  :: an(28,6)
 
       Do i=1,28
          Do j=1,6

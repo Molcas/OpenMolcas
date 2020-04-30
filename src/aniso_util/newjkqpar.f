@@ -14,24 +14,24 @@
       Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
-      Complex(kind=wp),intent(in)   :: H(n1,n1,n2,n2)
-      Complex(kind=wp), intent(out) ::
+      Complex(kind=8),intent(in)   :: H(n1,n1,n2,n2)
+      Complex(kind=8), intent(out) ::
      &     J( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
-      Complex(kind=wp), intent(out) ::
+      Complex(kind=8), intent(out) ::
      &     B( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
-      Complex(kind=wp), intent(out) ::
+      Complex(kind=8), intent(out) ::
      &     S( (n1-1), -(n1-1):(n1-1), (n2-1), -(n2-1):(n2-1) )
       ! local variables:
       Integer                       :: k1,k2,q1,q2,m1,m2,m12,i1,i2,j1,j2
-      Real(kind=wp)                 :: cr1,cr2,C01,C02,r1,r2,F1,F2
-      Complex(kind=wp)              :: cf1,cf2,c1,c2,c12,ci,cc1,cc2,
+      Real(kind=8)                 :: cr1,cr2,C01,C02,r1,r2,F1,F2
+      Complex(kind=8)              :: cf1,cf2,c1,c2,c12,ci,cc1,cc2,
      &                                 trace_exch2
-      Complex(kind=wp), allocatable :: O1(:,:), W1(:,:)
-      Complex(kind=wp), allocatable :: O2(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: OO(:,:,:,:), WO(:,:,:,:)
-      Complex(kind=wp), allocatable :: OW(:,:,:,:), WW(:,:,:,:)
-      Complex(kind=wp), allocatable :: HAM(:,:,:,:)
-      Real(kind=wp)                 :: knm(12,0:12),dznrm2_
+      Complex(kind=8), allocatable :: O1(:,:), W1(:,:)
+      Complex(kind=8), allocatable :: O2(:,:), W2(:,:)
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WO(:,:,:,:)
+      Complex(kind=8), allocatable :: OW(:,:,:,:), WW(:,:,:,:)
+      Complex(kind=8), allocatable :: HAM(:,:,:,:)
+      Real(kind=8)                 :: knm(12,0:12),dznrm2_
       External                      :: dznrm2_,trace_exch2
       Logical                       :: dbg
 
