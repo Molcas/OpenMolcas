@@ -21,39 +21,39 @@ c  N --  dimension of the barrier
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: nBlock, nMult, iprint, imanifold
       Integer, intent(in)          :: nDim(nMult)
-      Real(kind=wp), intent(in)    :: W(nBlock)
-      Complex(kind=wp), intent(in) :: dipIn(3,nBlock,nBlock)
+      Real(kind=8), intent(in)    :: W(nBlock)
+      Complex(kind=8), intent(in) :: dipIn(3,nBlock,nBlock)
       Logical, intent(in)          :: doPLOT
 !-----------------------------------------------------------------------
       Integer          :: k,l,i,j,i1,i2,il,idim,Ifunct,j1,j2,iMult,ipar
       Integer          :: nb,maxmult
-      Real(kind=wp)    :: mave
+      Real(kind=8)    :: mave
       Character(len=90):: string2
       Character(len=5) :: s1,s2
 
       Integer, allocatable          :: ibas(:,:)
 !                                          (nmult,nBlock)
-      Real(kind=wp), allocatable    :: gtens(:)
+      Real(kind=8), allocatable    :: gtens(:)
 !                                           (3)
-      Real(kind=wp), allocatable    :: maxes(:,:), E(:)
+      Real(kind=8), allocatable    :: maxes(:,:), E(:)
 !                                           (3,3), E(nmult)
-      Real(kind=wp), allocatable    :: wz(:,:)
+      Real(kind=8), allocatable    :: wz(:,:)
 !                                        (nmult,nBlock)
-      Complex(kind=wp), allocatable :: dipN(:,:,:)
+      Complex(kind=8), allocatable :: dipN(:,:,:)
 !                                          (3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: dipN3(:,:,:)
+      Complex(kind=8), allocatable :: dipN3(:,:,:)
 !                                           (3,ndim(imanifold),ndim(imanifold))
-      Complex(kind=wp), allocatable :: CZ(:,:,:)
+      Complex(kind=8), allocatable :: CZ(:,:,:)
 !                                        (nmult,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: Ztr(:,:)
+      Complex(kind=8), allocatable :: Ztr(:,:)
 !                                         (nBlock,nBlock)
-      Complex(kind=wp), allocatable :: ML(:,:,:)
+      Complex(kind=8), allocatable :: ML(:,:,:)
 !                                        (3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: tmp(:,:)
+      Complex(kind=8), allocatable :: tmp(:,:)
 !                                         (nBlock,nBlock)
-      Complex(kind=wp), allocatable :: MM(:)
+      Complex(kind=8), allocatable :: MM(:)
 !                                        (3)
-      Complex(kind=wp), allocatable :: dipso5(:,:,:,:,:)
+      Complex(kind=8), allocatable :: dipso5(:,:,:,:,:)
 !                                            (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
       Call qEnter('barrier')
@@ -847,11 +847,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: ist
       Character(len=5), intent(in) :: s1, s2
-      Complex(kind=wp), intent(in) :: M(3)
+      Complex(kind=8), intent(in) :: M(3)
 !     local
       Character(len=30) :: fx, fy, fz
       Character(len=40) :: f1, f2
-      Real(kind=wp)     :: R
+      Real(kind=8)     :: R
 
       write(fx,'(i2,5a)') ist,'. | <',s1,' | mu_X |',s2,' > |'
       write(fy,'(i2,5a)') ist,'. | <',s1,' | mu_Y |',s2,' > |'
