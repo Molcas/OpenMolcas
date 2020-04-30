@@ -135,9 +135,7 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Gen_RelPointers(Info-1)
             Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
-            Call Gen_RelPointers(-(Info-1))
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -162,9 +160,7 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Gen_RelPointers(Info-1)
             Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
-            Call Gen_RelPointers(-(Info-1))
 *
          End If
 *                                                                      *
