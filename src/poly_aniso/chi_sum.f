@@ -15,31 +15,31 @@ c   all X tensors must be given in the general coordinate system
 c
 c definition of the variables:
 c     N  -- total number of magnetic sites, Integer, input
-c    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=wp) :: , (3,3) array, input
-c    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=wp) :: , input
-c    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=wp) :: , (N,3,3) array, input
-c    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=wp) :: , (N) array, input
-c    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=wp) :: , (N,3,3) array, input
-c    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=wp) :: , (N) array, input
+c    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=8) :: , (3,3) array, input
+c    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) :: , input
+c    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=8) :: , (N,3,3) array, input
+c    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=8) :: , (N) array, input
+c    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=8) :: , (N,3,3) array, input
+c    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=8) :: , (N) array, input
 c   iopt -- option allowing to choose the desired formula, (Integer, input):
 c           iopt=1  =>  formula for weak exchange limit ( new derivation)
 c           iopt=2  =>  formula for strong exchange limit
 c           iopt=3  =>  formula for strong exchange limit
-c    X   -- total susceptibility, Real(kind=wp) :: , (3,3) array, output
-c    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=wp) :: , output
+c    X   -- total susceptibility, Real(kind=8) :: , (3,3) array, output
+c    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) :: , output
 c---------
 c  temporary (local) variables:
 c
       Implicit None
       Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)       :: N, iopt
-      Real(kind=wp), intent(in) :: Xex(3,3), Zex
-      Real(kind=wp), intent(in) :: XL(N,3,3), ZL(N)
-      Real(kind=wp), intent(in) :: XR(N,3,3), ZR(N)
-      Real(kind=wp), intent(out):: X(3,3), Z
+      Real(kind=8), intent(in) :: Xex(3,3), Zex
+      Real(kind=8), intent(in) :: XL(N,3,3), ZL(N)
+      Real(kind=8), intent(in) :: XR(N,3,3), ZR(N)
+      Real(kind=8), intent(out):: X(3,3), Z
 c local variables
       Integer       :: i, ic, jc
-      Real(kind=wp) :: ZLT, ZRT, XLT(3,3), XRT(3,3)
+      Real(kind=8) :: ZLT, ZRT, XLT(3,3), XRT(3,3)
 
       ZLT=1.0_wp
       ZRT=1.0_wp

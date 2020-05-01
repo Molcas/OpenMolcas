@@ -15,31 +15,31 @@ c   all M vectors must be given in the general coordinate system
 c
 c definition of the variables:
 c     N  -- total number of magnetic sites, Integer, input
-c    Mex -- magnetisation vector arising from the exchange states only, Real(kind=wp) ::, (3) array, input
-c    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=wp) ::, input
-c    ML  -- magnetisation vector arising from LOCAL states (all), Real(kind=wp) ::, (N,3) array, input
-c    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=wp) ::, (N) array, input
-c    MR  -- magnetisation vector arising from LOCAL states (exchange only), Real(kind=wp) ::, (N,3) array, input
-c    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=wp) ::, (N) array, input
+c    Mex -- magnetisation vector arising from the exchange states only, Real(kind=8) ::, (3) array, input
+c    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) ::, input
+c    ML  -- magnetisation vector arising from LOCAL states (all), Real(kind=8) ::, (N,3) array, input
+c    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=8) ::, (N) array, input
+c    MR  -- magnetisation vector arising from LOCAL states (exchange only), Real(kind=8) ::, (N,3) array, input
+c    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=8) ::, (N) array, input
 c   iopt -- option allowing to choose the desired formula, (Integer, input):
 c           iopt=1  =>  formula for weak exchange limit ( new derivation)
 c           iopt=2  =>  formula for strong exchange limit ( simple sumation of moments),size consistent;
 c           iopt=3  =>  formula for strong exchange limit ( not to be used...)
-c    M   -- total magnwtisation, Real(kind=wp) ::, (3) array, output
-c    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=wp) ::, output
+c    M   -- total magnwtisation, Real(kind=8) ::, (3) array, output
+c    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) ::, output
 c---------
 c  temporary (local) variables:
 c
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer       :: N, iopt
-      Real(kind=wp) :: Mex(3), Zex
-      Real(kind=wp) :: ML(N,3), ZL(N)
-      Real(kind=wp) :: MR(N,3), ZR(N)
-      Real(kind=wp) :: M(3), Z
+      Real(kind=8) :: Mex(3), Zex
+      Real(kind=8) :: ML(N,3), ZL(N)
+      Real(kind=8) :: MR(N,3), ZR(N)
+      Real(kind=8) :: M(3), Z
 c local variables
       Integer       :: i, ic
-      Real(kind=wp) :: ZLT, ZRT, MLT(3), MRT(3)
+      Real(kind=8) :: ZLT, ZRT, MLT(3), MRT(3)
       Logical       :: DBG
       DBG=.false.
       ZLT=1.0_wp

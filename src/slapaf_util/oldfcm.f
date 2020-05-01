@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine OLDFCM(ipH,nQQ,nsAtom,iPrint,RunOld)
       Implicit Real*8 (a-h,o-z)
-***********************************************************************
-*                                                                     *
-*     Object : To read in a force constant matrix from another        *
-*              interphase.                                            *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*     Object : To read in a force constant matrix from another         *
+*              interphase.                                             *
+*                                                                      *
+************************************************************************
 #include "WrkSpc.fh"
       Character*8 Method
       Character*(*) RunOld

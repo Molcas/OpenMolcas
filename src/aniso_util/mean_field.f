@@ -15,14 +15,14 @@
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 
       Integer, intent(in)          :: EXCH, N
-      Real(kind=wp), intent(in)    :: H, X,Y,Z, zJ, T
-      Real(kind=wp), intent(in)    :: thrs
-      Real(kind=wp), intent(in)    :: W(EXCH)
-      Complex(kind=wp), intent(in) :: DM(3,EXCH,EXCH)
-      Complex(kind=wp), intent(in) :: SM(3,EXCH,EXCH)
+      Real(kind=8), intent(in)    :: H, X,Y,Z, zJ, T
+      Real(kind=8), intent(in)    :: thrs
+      Real(kind=8), intent(in)    :: W(EXCH)
+      Complex(kind=8), intent(in) :: DM(3,EXCH,EXCH)
+      Complex(kind=8), intent(in) :: SM(3,EXCH,EXCH)
       Logical, intent(in)          :: dbg
       ! output
-      Real(kind=wp), intent(out)   :: ST(3)
+      Real(kind=8), intent(out)   :: ST(3)
 
       Integer                      :: iopt
 
@@ -67,19 +67,19 @@
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 
       Integer, intent(in)       :: N
-      Real(kind=wp), intent(in) :: H, X,Y,Z, zJ, T, W(N)
-      Complex(kind=wp), intent(in) :: DM(3,N,N), SM(3,N,N)
+      Real(kind=8), intent(in) :: H, X,Y,Z, zJ, T, W(N)
+      Complex(kind=8), intent(in) :: DM(3,N,N), SM(3,N,N)
       ! output
-      Real(kind=wp), intent(out) :: ST(3)
+      Real(kind=8), intent(out) :: ST(3)
 
 #include "stdalloc.fh"
       ! local variables:
       Integer :: i, l, mxIter, iter
       Logical :: DBG
-      Real(kind=wp)    :: WM(N), S(3), ZB, SCHK, THRS, SL(3)
-      Complex(kind=wp) :: ZM(N,N), SZ(3,N,N)
-      Real(kind=wp), allocatable :: RWORK(:)
-      Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
+      Real(kind=8)    :: WM(N), S(3), ZB, SCHK, THRS, SL(3)
+      Complex(kind=8) :: ZM(N,N), SZ(3,N,N)
+      Real(kind=8), allocatable :: RWORK(:)
+      Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 
       DBG=.false.
 
@@ -203,19 +203,19 @@
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 
       Integer, intent(in)          :: EXCH, N
-      Real(kind=wp), intent(in)    :: H, X,Y,Z, zJ, T, W(EXCH)
-      Complex(kind=wp), intent(in) :: DM(3,EXCH,EXCH), SM(3,EXCH,EXCH)
+      Real(kind=8), intent(in)    :: H, X,Y,Z, zJ, T, W(EXCH)
+      Complex(kind=8), intent(in) :: DM(3,EXCH,EXCH), SM(3,EXCH,EXCH)
       ! output
-      Real(kind=wp), intent(out) :: ST(3)
+      Real(kind=8), intent(out) :: ST(3)
 
 #include "stdalloc.fh"
       ! local variables:
       Integer :: i, l, mxIter, iter
       Logical :: DBG
-      Real(kind=wp)    :: WM(EXCH), S(3), ZB, SCHK, THRS, SL(3)
-      Complex(kind=wp) :: ZM(N,N), SZ(3,EXCH,EXCH)
-      Real(kind=wp), allocatable :: RWORK(:)
-      Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
+      Real(kind=8)    :: WM(EXCH), S(3), ZB, SCHK, THRS, SL(3)
+      Complex(kind=8) :: ZM(N,N), SZ(3,EXCH,EXCH)
+      Real(kind=8), allocatable :: RWORK(:)
+      Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 
       DBG=.false.
 

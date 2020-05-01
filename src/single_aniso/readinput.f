@@ -31,8 +31,8 @@ C
 c----------------------------------------------------------------
 c   magnetization vectors:
       Integer            :: nDir,nDirZee
-      Real(kind=wp)      :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp)      :: dir_weight(nDirZee,3)
+      Real(kind=8)      :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8)      :: dir_weight(nDirZee,3)
       Logical            :: compute_Mdir_vector, zeeman_energy
 c      common/MVL/ compute_Mdir_vector
 c      common/MZEL/ zeeman_energy
@@ -47,19 +47,19 @@ c----------------------------------------------------------------
       Integer :: AngPoints
       Integer :: LUZee(nDirZee)
 
-      Real(kind=wp) :: tmin,tmax,hmin,hmax,t1,t2,zj,
+      Real(kind=8) :: tmin,tmax,hmin,hmax,t1,t2,zj,
      &                 tempmagn(nTempMagn), encut_rate
-      Real(kind=wp) :: texp(nT),chit_exp(nT)
-      Real(kind=wp) :: hexp(nH),magn_exp(nH,ntempmagn)
-      Real(kind=wp) :: zmagn(3,3),sum,tmp
-      Real(kind=wp) :: cryst(6),coord(3)
-      Real(kind=wp) :: column_check(3,3), row_check(3,3)
-      Real(kind=wp) :: check_dir_weight(nDirZee)
-      Real(kind=wp) :: zr(3,3),det_zmagn
-      Real(kind=wp) :: FindDetR
-      Real(kind=wp) :: Xfield
-      Real(kind=wp), intent(out) :: thrs
-      Real(kind=wp), intent(out) :: H_torq, T_torq
+      Real(kind=8) :: texp(nT),chit_exp(nT)
+      Real(kind=8) :: hexp(nH),magn_exp(nH,ntempmagn)
+      Real(kind=8) :: zmagn(3,3),sum,tmp
+      Real(kind=8) :: cryst(6),coord(3)
+      Real(kind=8) :: column_check(3,3), row_check(3,3)
+      Real(kind=8) :: check_dir_weight(nDirZee)
+      Real(kind=8) :: zr(3,3),det_zmagn
+      Real(kind=8) :: FindDetR
+      Real(kind=8) :: Xfield
+      Real(kind=8), intent(out) :: thrs
+      Real(kind=8), intent(out) :: H_torq, T_torq
 
       Logical :: hcheck,tcheck,poly_file
       Logical :: Ifrestart,Do_structure_abc

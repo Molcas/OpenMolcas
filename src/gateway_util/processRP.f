@@ -27,20 +27,20 @@
 #endif
 #include "itmax.fh"
 #include "info.fh"
-***********************************************************************
-*                                                                     *
-*    A silly routine to try to handle symmetry in RP-Coord section    *
-*    verify that R, P and the standard structures have one common     *
-*    symmetry. The user should preferably use a defined symmetry if   *
-*    the TS symmetry is lower than R and P                            *
-*                                                                     *
-*    M.G. Delcey     June 2010                                        *
-*    Lund University                                                  *
-*                                                                     *
-*    Adaptation to OpenMolcas                                         *
-*    I. Fdez. Galvan   July 2017                                      *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*    A silly routine to try to handle symmetry in RP-Coord section     *
+*    verify that R, P and the standard structures have one common      *
+*    symmetry. The user should preferably use a defined symmetry if    *
+*    the TS symmetry is lower than R and P                             *
+*                                                                      *
+*    M.G. Delcey     June 2010                                         *
+*    Lund University                                                   *
+*                                                                      *
+*    Adaptation to OpenMolcas                                          *
+*    I. Fdez. Galvan   July 2017                                       *
+*                                                                      *
+************************************************************************
 *
 **   If C1, all is already done
 *
@@ -141,7 +141,7 @@
 #endif
  30   Continue
       return
-***********************************************************************
+************************************************************************
  20   Continue
       Call WarningMessage(2,
      &       'Error in RP-Coord section, check symmetry')

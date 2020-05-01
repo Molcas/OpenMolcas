@@ -13,15 +13,15 @@
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: EXCH, N
-      Complex(kind=wp), intent(in)  :: M1(3,EXCH,EXCH)
-      Complex(kind=wp), intent(in)  ::  Z(N,N)
-      Complex(kind=wp), intent(out) :: M2(3,EXCH,EXCH)
+      Complex(kind=8), intent(in)  :: M1(3,EXCH,EXCH)
+      Complex(kind=8), intent(in)  ::  Z(N,N)
+      Complex(kind=8), intent(out) :: M2(3,EXCH,EXCH)
 c  local variables:
       Integer          :: L, I,J
       Logical          :: DBG
-      Real(kind=wp)    :: dznrm2_,R1,R2
+      Real(kind=8)    :: dznrm2_,R1,R2
       External         :: dznrm2_
-      Complex(kind=wp), allocatable :: TMP(:,:)
+      Complex(kind=8), allocatable :: TMP(:,:)
 
       Call qEnter('UTMU')
 
@@ -159,14 +159,14 @@ c  local variables:
       integer, parameter           :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       integer, intent(in)            :: exch, n
-      complex(kind=wp), intent(inout):: m(3,exch,exch)
-      complex(kind=wp), intent(in)   ::  z(n,n)
+      complex(kind=8), intent(inout):: m(3,exch,exch)
+      complex(kind=8), intent(in)   ::  z(n,n)
 c  local variables:
       integer          :: l, i,j, i1, j1
       logical          :: dbg
-      real(kind=wp)    :: dznrm2_,r1,r2
+      real(kind=8)    :: dznrm2_,r1,r2
       external         :: dznrm2_
-      complex(kind=wp), allocatable :: tmp(:,:), mtmp(:,:,:)
+      complex(kind=8), allocatable :: tmp(:,:), mtmp(:,:,:)
 
       call qenter('utmu2')
 
@@ -317,14 +317,14 @@ c  local variables:
 #include "stdalloc.fh"
       Integer, intent(in)            :: EXCH, N
 !     one projection is done
-      Complex(kind=wp), intent(inout):: ML(EXCH,EXCH)
-      Complex(kind=wp), intent(in)   ::  Z(N,N)
+      Complex(kind=8), intent(inout):: ML(EXCH,EXCH)
+      Complex(kind=8), intent(in)   ::  Z(N,N)
 c  local variables:
       Integer          :: I,J,i1,j1
       Logical          :: DBG
-      Real(kind=wp)    :: dznrm2_,R1,R2
+      Real(kind=8)    :: dznrm2_,R1,R2
       External         :: dznrm2_
-      Complex(kind=wp), allocatable :: TMP(:,:), MTMP(:,:)
+      Complex(kind=8), allocatable :: TMP(:,:), MTMP(:,:)
 
       Call qEnter('UTMUL')
 

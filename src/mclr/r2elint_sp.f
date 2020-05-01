@@ -13,7 +13,7 @@
       SubRoutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,nF,
      &                   iDSym,sign,Fact,jspin,D,FA)
 *
-***********************************************************************
+************************************************************************
 *
 *     Constructs the one index transformed Fock-matrixes
 *     and (pj|kl).
@@ -22,7 +22,7 @@
 *     sign   : 1:real -1:complex
 *     jspin  : 0:singlet 1:triplet
 *
-***********************************************************************
+************************************************************************
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"

@@ -20,26 +20,26 @@
       Integer, intent(in)           :: nLoc
       Integer, intent(inout)        :: nexch
       Integer, intent(inout)        :: nss, nsfs
-      Real(kind=wp), intent(in)     :: gtens_input(3)
-      Real(kind=wp), intent(in)     :: riso(3,3)
-      Real(kind=wp), intent(in)     :: D, EoverD ! ZFS factors
+      Real(kind=8), intent(in)     :: gtens_input(3)
+      Real(kind=8), intent(in)     :: riso(3,3)
+      Real(kind=8), intent(in)     :: D, EoverD ! ZFS factors
       ! spin-orbit energy states, starting from 0
-      Real(kind=wp), intent(out)    :: E(nExch)
-      Complex(kind=wp), intent(out) :: M(3,nExch,nExch)
-      Complex(kind=wp), intent(out) :: S(3,nExch,nExch)
+      Real(kind=8), intent(out)    :: E(nExch)
+      Complex(kind=8), intent(out) :: M(3,nExch,nExch)
+      Complex(kind=8), intent(out) :: S(3,nExch,nExch)
 
       ! local variables:
       Integer         :: ib(-30:30), i, j, l
       Integer         :: info
-!      Complex(kind=wp):: spin
-      Complex(kind=wp) :: redme
-      Complex(kind=wp), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
-      Complex(kind=wp), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
-      Complex(kind=wp), allocatable :: Z(:,:), tmp(:,:)
-       Complex(kind=wp), allocatable :: MTMP(:,:,:), STMP(:,:,:)
-      Real(kind=wp), allocatable    :: W(:),gtens(:),maxes(:,:)
-      Real(kind=wp)                 :: dznrm2_, RM, RS, dnrm2_
-      Real(kind=wp)                 :: g(3), ma(3,3)
+!      Complex(kind=8):: spin
+      Complex(kind=8) :: redme
+      Complex(kind=8), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
+      Complex(kind=8), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
+      Complex(kind=8), allocatable :: Z(:,:), tmp(:,:)
+       Complex(kind=8), allocatable :: MTMP(:,:,:), STMP(:,:,:)
+      Real(kind=8), allocatable    :: W(:),gtens(:),maxes(:,:)
+      Real(kind=8)                 :: dznrm2_, RM, RS, dnrm2_
+      Real(kind=8)                 :: g(3), ma(3,3)
       External                      :: spin, dznrm2_, dnrm2_
       Logical                       :: dbg
       dbg=.false.

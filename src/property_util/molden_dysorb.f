@@ -701,7 +701,7 @@ c      End If
       End Do
 *
 
-***********************************************************************
+************************************************************************
 *
 *      Construct a matrix which inverses the symmetry transformation
 *      of the basis fuctions (DESYM)

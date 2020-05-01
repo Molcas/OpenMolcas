@@ -11,7 +11,7 @@
 c   magnetization vectors:
       Integer            :: nDir
       Integer, Parameter :: MxDir=200
-      Real(kind=wp)      :: dirX(MxDir), dirY(MxDir), dirZ(MxDir)
+      Real(kind=8)      :: dirX(MxDir), dirY(MxDir), dirZ(MxDir)
       Logical            :: compute_Mdir_vector
 
       common/MVI/ nDir
@@ -20,7 +20,7 @@ c   magnetization vectors:
 
 c   Zeeman energies:
       Integer       :: nDirZee
-      Real(kind=wp) :: dir_weight(MxDir,3)
+      Real(kind=8) :: dir_weight(MxDir,3)
       Logical       :: zeeman_energy
 
       common/MZEI/ nDirZee

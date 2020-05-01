@@ -8,14 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DestroyTab_ptr(nAtoms,nOrb2loc,iTab_ptr)
-      Implicit Real*8(a-h,o-z)
-      Integer iTab_ptr(*)
-c
-      Do iAt=1,nAtoms
-        ip=iTab_ptr(iAt)
-        Call Getmem('PA__dum','Free','Real',ip,nOrb2loc**2)
-      End Do
-c
-      Return
-      End
+*
+      Logical do_rotate
+
+      COMMON /MSPDFT/ Do_Rotate
+*

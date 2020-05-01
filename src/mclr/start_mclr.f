@@ -119,7 +119,8 @@
       End If
 
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
-        ! fetch some data from existing file LuTri1 (from a previous MCLR run)
+        ! fetch some data from existing file LuTri1
+        ! (from a previous MCLR run)
         ! and make it available to ERI common block intgrl.fh
         ! (LuTRI1=LuMOTRA)
         Call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)

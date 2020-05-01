@@ -57,11 +57,13 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
+       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
+       End If
       END IF
 * ---------------------------------------------------------------------
 
@@ -184,6 +186,10 @@ c Modify the Fock matrix if needed
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
+       if(IFXMS) then
+        call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
+       end if
+
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
@@ -232,7 +238,7 @@ c Modify the Fock matrix if needed
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      call orbctl(WORK(LCMO))
+      CALL ORBCTL(WORK(LCMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
