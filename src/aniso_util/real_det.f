@@ -24,9 +24,9 @@ c         the product of the diagonal elements
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
 c Calling parameters
       Integer, intent(in)        :: N
-      Real(kind=wp)              :: matrix(N,N)
+      Real(kind=8)              :: matrix(N,N)
 c local variables:
-      Real(kind=wp), allocatable :: w(:), z(:,:)
+      Real(kind=8), allocatable :: w(:), z(:,:)
       Integer                    :: i, info
 
       info=0

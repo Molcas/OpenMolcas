@@ -38,45 +38,45 @@ c
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)       :: ldimcf, iprint, iopt, nlanth, iDIM
-      Real(kind=wp), intent(in) :: esfs(ldimcf)
-      Real(kind=wp), intent(in) :: angmom(3,ldimcf,ldimcf)
-      Real(kind=wp), intent(in) :: amfi(3,ldimcf,ldimcf)
-      Real(kind=wp), intent(in) :: maxes2(3,3)
+      Real(kind=8), intent(in) :: esfs(ldimcf)
+      Real(kind=8), intent(in) :: angmom(3,ldimcf,ldimcf)
+      Real(kind=8), intent(in) :: amfi(3,ldimcf,ldimcf)
+      Real(kind=8), intent(in) :: maxes2(3,3)
 
-      Real(kind=wp)                 :: finddetr, dnrm2
-!      Real(kind=wp)                 :: knm(12,0:12)
-      Real(kind=wp), allocatable    :: maxes(:,:)
-      Real(kind=wp), allocatable    :: gtens(:)
-      Real(kind=wp), allocatable    :: eloc(:) ! lDIMcf
-      Real(kind=wp), allocatable    :: Winit(:) ! lDIMcf
+      Real(kind=8)                 :: finddetr, dnrm2
+!      Real(kind=8)                 :: knm(12,0:12)
+      Real(kind=8), allocatable    :: maxes(:,:)
+      Real(kind=8), allocatable    :: gtens(:)
+      Real(kind=8), allocatable    :: eloc(:) ! lDIMcf
+      Real(kind=8), allocatable    :: Winit(:) ! lDIMcf
 
-      Real(kind=wp)                 :: BNC(lDIMcf,0:lDIMcf)
-      Real(kind=wp)                 :: BNS(lDIMcf,0:lDIMcf)
-      Real(kind=wp)                 :: Bstev(lDIMcf,-lDIMcf:lDIMcf)
-      Complex(kind=wp)              ::
+      Real(kind=8)                 :: BNC(lDIMcf,0:lDIMcf)
+      Real(kind=8)                 :: BNS(lDIMcf,0:lDIMcf)
+      Real(kind=8)                 :: Bstev(lDIMcf,-lDIMcf:lDIMcf)
+      Complex(kind=8)              ::
      &                            Akq((lDIMcf-1),-(lDIMcf-1):(lDIMcf-1))
-      Complex(kind=wp)              :: trace
-      Complex(kind=wp), allocatable :: Angm(:,:,:) ! 3,ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: dipso(:,:,:) ! 3,ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: amfi_c(:,:,:) ! 3,ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: amfi2(:,:,:) ! 3,ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: amfi_l(:,:,:) ! 3,ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: Z(:,:) !ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: tmp(:,:) !ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: HCF(:,:) !ldimcf,ldimcf
-      Complex(kind=wp), allocatable :: Zinit(:,:) !ldimcf,ldimcf
+      Complex(kind=8)              :: trace
+      Complex(kind=8), allocatable :: Angm(:,:,:) ! 3,ldimcf,ldimcf
+      Complex(kind=8), allocatable :: dipso(:,:,:) ! 3,ldimcf,ldimcf
+      Complex(kind=8), allocatable :: amfi_c(:,:,:) ! 3,ldimcf,ldimcf
+      Complex(kind=8), allocatable :: amfi2(:,:,:) ! 3,ldimcf,ldimcf
+      Complex(kind=8), allocatable :: amfi_l(:,:,:) ! 3,ldimcf,ldimcf
+      Complex(kind=8), allocatable :: Z(:,:) !ldimcf,ldimcf
+      Complex(kind=8), allocatable :: tmp(:,:) !ldimcf,ldimcf
+      Complex(kind=8), allocatable :: HCF(:,:) !ldimcf,ldimcf
+      Complex(kind=8), allocatable :: Zinit(:,:) !ldimcf,ldimcf
 
       Integer       :: i, j, l, info, i1, i2
       External      :: finddetr, trace, dnrm2
       Logical       :: debug =.false.
-      Real(kind=wp) :: au2cm=2.194746313705d5
+      Real(kind=8) :: au2cm=2.194746313705d5
 
 !
-      Real(kind=wp) :: tS, tL, tJ, coeffCG, spinM, orbM,tJM,CF(100,100)
+      Real(kind=8) :: tS, tL, tJ, coeffCG, spinM, orbM,tJM,CF(100,100)
       Integer       :: MS, ML, MJ
       Integer       :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
       Integer       :: irootL(100), ir, icas, k
-      complex(kind=wp) :: CFC(100,100),zl(lDIMcf,lDIMcf)
+      complex(kind=8) :: CFC(100,100),zl(lDIMcf,lDIMcf)
       Call qEnter('TERMCF')
 !============== End of variable declarations ==========================
       Call mma_allocate(maxes,3,3,'maxes')

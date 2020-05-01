@@ -23,13 +23,13 @@
       Implicit None
       Integer, parameter          :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)         :: N
-      Real(kind=wp),intent(in)    :: E(N), T
-      Complex(kind=wp),intent(in) :: M(N,N)
+      Real(kind=8),intent(in)    :: E(N), T
+      Complex(kind=8),intent(in) :: M(N,N)
 
-      Real(kind=wp),intent(out)   :: Z, MT
+      Real(kind=8),intent(out)   :: Z, MT
 !-- local variables:
       Integer                 :: im,mp1,i
-      Real(kind=wp)           :: kB
+      Real(kind=8)           :: kB
 !----------------------------------------------------------------------
       Call qEnter('calcmagn1')
       kB=0.6950356000_wp !   in cm^-1*K-1

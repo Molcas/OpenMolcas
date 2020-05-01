@@ -32,11 +32,11 @@
       Implicit none
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n,k,q
-      Real(kind=wp), intent(out)   :: C0
-      Complex(kind=wp), intent(out):: Cp(n,n), Cm(n,n)
+      Real(kind=8), intent(out)   :: C0
+      Complex(kind=8), intent(out):: Cp(n,n), Cm(n,n)
       ! local
       Integer       :: m1, m2
-      Real(kind=wp) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
+      Real(kind=8) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
       External      :: fct
 
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
@@ -68,9 +68,9 @@
       Implicit none
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n,k,q
-      Complex(kind=wp), intent(out):: O(n,n), W(n,n), redME
+      Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
-      Real(kind=wp) :: CR, C0
+      Real(kind=8) :: CR, C0
 
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
@@ -94,9 +94,9 @@
       Implicit none
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n,k,q
-      Complex(kind=wp), intent(out):: O(n,n), W(n,n), redME
+      Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
-      Real(kind=wp) :: F, knm(12,0:12)
+      Real(kind=8) :: F, knm(12,0:12)
 
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
@@ -120,12 +120,12 @@
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)          :: n,k,q
-      Complex(kind=wp), intent(out):: O(n,n), W(n,n), redME
+      Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
       Integer                      :: m1, m2
-      Real(kind=wp)                :: CR, C0, knm(12,0:12), F
-      Complex(kind=wp)             :: mQ, HALF_R, FALF_I
-      Complex(kind=wp), allocatable:: Cp(:,:), Cm(:,:)
+      Real(kind=8)                :: CR, C0, knm(12,0:12), F
+      Complex(kind=8)             :: mQ, HALF_R, FALF_I
+      Complex(kind=8), allocatable:: Cp(:,:), Cm(:,:)
 
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
       Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
@@ -168,12 +168,12 @@
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)          :: n,k,q
-      Complex(kind=wp), intent(out):: O(n,n), W(n,n), redME
+      Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
       Integer                      :: m1, m2
-      Real(kind=wp)                :: CR, C0
-      Complex(kind=wp)             :: Om, Op, mQ
-      Complex(kind=wp), allocatable:: Cp(:,:), Cm(:,:)
+      Real(kind=8)                :: CR, C0
+      Complex(kind=8)             :: Om, Op, mQ
+      Complex(kind=8), allocatable:: Cp(:,:), Cm(:,:)
 
       Call mma_allocate(Cp,n,n,'Cp')
       Call mma_allocate(Cm,n,n,'Cm')
@@ -213,12 +213,12 @@ C
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer,intent(in)            :: N, M, dim, IPRINT
-      Complex(kind=wp), intent(out) :: ITO_O(dim,dim),
+      Complex(kind=8), intent(out) :: ITO_O(dim,dim),
      &                                 ITO_W(dim,dim)
       Integer                       :: npar,i,j,ms1,ms2
-      Real(kind=wp)                 :: a,al,b,bt,c,gm, COEFF_REDUS,
+      Real(kind=8)                 :: a,al,b,bt,c,gm, COEFF_REDUS,
      &                                 coeffCG
-      Complex(kind=wp)              ::
+      Complex(kind=8)              ::
      &                             ITO_PLUS(-dim:dim,-dim:dim),
      &                            ITO_MINUS(-dim:dim,-dim:dim)
 !***********************************************************************
@@ -398,7 +398,7 @@ C
       Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: n
       Integer             :: i
-      Real(kind=wp)       :: xct
+      Real(kind=8)       :: xct
       ! this function provides correct answer till n=169 only
 
       xct=1.0_wp
@@ -448,9 +448,9 @@ cCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Implicit None
       Integer, Parameter         :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)        :: N, dim
-      Real(kind=wp), intent(out) :: COEFF_REDUS
+      Real(kind=8), intent(out) :: COEFF_REDUS
       Integer                    :: i
-      Real(kind=wp)              :: SZ, FCT, Norm(100), s1, s2
+      Real(kind=8)              :: SZ, FCT, Norm(100), s1, s2
       external                   :: fct
 
       COEFF_REDUS=0.0_wp
@@ -556,9 +556,9 @@ C  new method
       Subroutine Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
-      Real(kind=wp),intent(in)  :: a, al, b, bt, c, gm
-      Real(kind=wp),intent(out) :: coeffCG
-      Real(kind=wp)             :: u, fct, s1, s2
+      Real(kind=8),intent(in)  :: a, al, b, bt, c, gm
+      Real(kind=8),intent(out) :: coeffCG
+      Real(kind=8)             :: u, fct, s1, s2
       Integer                   :: lb1, lb2, i
       Logical                   :: check_triangle
       External                  :: check_triangle, fct
@@ -641,7 +641,7 @@ c
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a,b,c,d,e,f,g,h,j
       Integer             :: n,nlow,nhig
-      Real(kind=wp)       :: dlt,fct,W6J
+      Real(kind=8)       :: dlt,fct,W6J
       Logical             :: check_triangle
       External            :: fct,dlt,W6J,check_triangle
 
@@ -692,7 +692,7 @@ c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a,b,c,d,e,f
       Integer             :: n,nlow,nhig
-      Real(kind=wp)       :: dlt,sum,fct,isum
+      Real(kind=8)       :: dlt,sum,fct,isum
       Logical             :: check_triangle
       External            :: fct,dlt,check_triangle
 
@@ -746,7 +746,7 @@ c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Implicit None
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: j1, j2, j3, m1, m2, m3
-      Real(kind=wp)       :: fct, dlt, coeffCG
+      Real(kind=8)       :: fct, dlt, coeffCG
       Logical             :: check_triangle
       External            :: check_triangle, fct, dlt
 
@@ -775,7 +775,7 @@ c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a, al, b, bt, c, gm
       Integer             :: lb1,lb2,i
-      Real(kind=wp)       :: u,fct,dlt
+      Real(kind=8)       :: u,fct,dlt
       External            :: fct,dlt
 
       WCG=0.0_wp
@@ -843,7 +843,7 @@ c  their values are DoUBLE than their original value
       Implicit None
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a,b,c
-      Real(kind=wp)       :: fct
+      Real(kind=8)       :: fct
       Logical             :: check_triangle
       External            :: check_triangle, fct
 
@@ -904,7 +904,7 @@ c of the |J,M1,M2> around three  angles(alpha,beta,gamma).
 c The rotation is either active (ik=1) or passive (ik=2).
 c   J, M1, M2 are specIfied as Integer numbers, with a value DoUBLE than their actual size;
 c   i.e. J = 2*J (Real); M1= 2*M1(Real); M2=2*M2(Real);
-c   alpha, beta, gamma are specIfied as Double precision (Real(kind=wp) ::). These values must be defined in
+c   alpha, beta, gamma are specIfied as Double precision (Real(kind=8) ::). These values must be defined in
 c   radians ( i.e. in units of Pi)
 c
 c
@@ -915,9 +915,9 @@ c    "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)       :: J, M1, M2
-      Real(kind=wp), intent(in) :: al, bt, gm
-      Complex(kind=wp)          :: m1_fact, m2_fact, wig_fac
-      Real(kind=wp)             :: wigner_d
+      Real(kind=8), intent(in) :: al, bt, gm
+      Complex(kind=8)          :: m1_fact, m2_fact, wig_fac
+      Real(kind=8)             :: wigner_d
       External                  :: wigner_d
 
 c  check correctness
@@ -944,8 +944,8 @@ c    "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)       :: J, M1, M2
-      Real(kind=wp), intent(in) :: bt
-      Real(kind=wp)             :: ksum, fct
+      Real(kind=8), intent(in) :: bt
+      Real(kind=8)             :: ksum, fct
       Integer                   :: kmin, kmax, i
       External                  :: fct
 
@@ -983,7 +983,7 @@ c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: La, Sa, LaP, SaP, L, S
       Integer             :: Ja, JaP, jm, js, s_orb, l_orb
-      Real(kind=wp)       :: WCG, W9J, temp, factor
+      Real(kind=8)       :: WCG, W9J, temp, factor
       external            :: WCG, W9J
 
       RedME=0.0_wp
@@ -1035,8 +1035,8 @@ c    Substitutions:
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)       :: L,ML, S,MS, La,Sa, LaP,SaP
       Integer                   :: Ja, JaP, l_orb
-      Real(kind=wp), intent(in) :: t
-      Real(kind=wp)             :: W9J, WCG, RedME, txt
+      Real(kind=8), intent(in) :: t
+      Real(kind=8)             :: W9J, WCG, RedME, txt
       External                  :: W9J, WCG, RedME
 
       jot1 = 0.0_wp
@@ -1078,8 +1078,8 @@ c    Substitutions:
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)       :: L, ML, La, Sa, LaP, SaP
       Integer                   :: Ja, l_orb
-      Real(kind=wp), intent(in) :: t
-      Real(kind=wp)             :: W6J, WCG, RedME, txt, W9Jl
+      Real(kind=8), intent(in) :: t
+      Real(kind=8)             :: W6J, WCG, RedME, txt, W9Jl
       External                  :: W6J, WCG, RedME
 
       jot0 = 0.0_wp
