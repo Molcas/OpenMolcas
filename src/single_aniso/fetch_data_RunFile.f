@@ -174,21 +174,21 @@
 #include "stdalloc.fh"
       Integer :: nss, nstate
       Integer :: multiplicity(nstate)
-      Real(kind=wp) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),
+      Real(kind=8) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),
      &                 eDmom(3,nstate,nstate), amfi(3,nstate,nstate)
-      Complex(kind=wp) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
-      Complex(kind=wp) :: DM(3,nss,nss)
-      Complex(kind=wp) :: U(nss,nss), HSO(nss,nss)
+      Complex(kind=8) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
+      Complex(kind=8) :: DM(3,nss,nss)
+      Complex(kind=8) :: U(nss,nss), HSO(nss,nss)
       ! local variables:
       Integer              :: njob, mxjob, iss, ibas(nstate,-50:50)
       Integer              :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer              :: l, ipar, info
-      Real(kind=wp)        :: g_e, au2cm, thr_deg, diff
+      Real(kind=8)        :: g_e, au2cm, thr_deg, diff
       ! allocatable local arrays:
       Integer, allocatable :: mltplt(:), jbnum(:) !,lroot(:)
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
-      Complex(kind=wp), allocatable :: tmp(:,:)
-      Complex(kind=wp) :: Spin
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
+      Complex(kind=8), allocatable :: tmp(:,:)
+      Complex(kind=8) :: Spin
       External         :: Spin
       Logical          :: found_edmom, found_amfi, found_hsor,
      &                    found_hsoi

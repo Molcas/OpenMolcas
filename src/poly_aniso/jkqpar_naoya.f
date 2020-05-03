@@ -13,14 +13,14 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
 
       Integer, intent(in)           :: N1, N2
-      Complex(kind=wp), intent(in)  :: HEXCH(N1,N1,N2,N2)
-      Complex(kind=wp), intent(out) :: Jpar( (N1-1), (-N1+1):(N1-1),
+      Complex(kind=8), intent(in)  :: HEXCH(N1,N1,N2,N2)
+      Complex(kind=8), intent(out) :: Jpar( (N1-1), (-N1+1):(N1-1),
      &                                       (N2-1), (-N2+1):(N2-1) )
       ! local variables
       Integer          :: is1,is2,js1,js2,ms1,ms2,ns1,ns2,
      &                    k1,k2,q1,q2,j1,j2
-      Complex(kind=wp) :: QMAT(N1,N1,N2,N2), trace
-      Real(kind=wp)    :: WCG, OPER, FACT
+      Complex(kind=8) :: QMAT(N1,N1,N2,N2), trace
+      Real(kind=8)    :: WCG, OPER, FACT
       External         :: WCG
       Logical DBG
       DBG=.false.

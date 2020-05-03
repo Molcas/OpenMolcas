@@ -190,7 +190,7 @@ Basic Keywords:
   Index of the reference state for 1TDM and 1DDM analysis (default: 1).
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="REFSTATE" APPEAR="Reference state" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="1">
-            : %%Keyword:REFState <basic>
+              %%Keyword:REFState <basic>
               <HELP>
               Index of the reference state for 1TDM and 1DDM analysis.
               </HELP>
@@ -246,7 +246,7 @@ Advanced keywords for fine grain output options and debug information:
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="DOCTNUMBERS" APPEAR="Charge transfer numbers" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword:DOCTnumbers <advanced>
               <HELP>
-              Activate charge transfer number analysis and creation of \*.om files.
+              Activate charge transfer number analysis and creation of *.om files.
               </HELP>
               </KEYWORD>
 

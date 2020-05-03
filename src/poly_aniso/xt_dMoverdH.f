@@ -28,151 +28,151 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Integer, intent(in)          :: neq(nneq), nss(nneq), nexch(nneq)
 
 
-      Real(kind=wp), intent(in)    :: Tmin, Tmax
-      Real(kind=wp), intent(in)    :: eso(nneq,nLoc)
-      Real(kind=wp), intent(in)    :: W(exch)
-      Real(kind=wp), intent(in)    :: zJ
-      Real(kind=wp), intent(in)    :: RROT(nneq,neqv,3,3)
-      Real(kind=wp), intent(in)    :: T(nT+nTempMagn)
-      Real(kind=wp), intent(in)    :: chit_exp(nT)
-      Real(kind=wp), intent(in)    :: XT_no_field(nT+nTempMagn)
-      Real(kind=wp), intent(in)    :: Xfield
-      Real(kind=wp), intent(in)    :: EM
-      Real(kind=wp), intent(in)    :: THRS
-      Complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-      Complex(kind=wp), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
-      Complex(kind=wp), intent(in) :: dipexch(3,exch,exch)
-      Complex(kind=wp), intent(in) ::  s_exch(3,exch,exch)
+      Real(kind=8), intent(in)    :: Tmin, Tmax
+      Real(kind=8), intent(in)    :: eso(nneq,nLoc)
+      Real(kind=8), intent(in)    :: W(exch)
+      Real(kind=8), intent(in)    :: zJ
+      Real(kind=8), intent(in)    :: RROT(nneq,neqv,3,3)
+      Real(kind=8), intent(in)    :: T(nT+nTempMagn)
+      Real(kind=8), intent(in)    :: chit_exp(nT)
+      Real(kind=8), intent(in)    :: XT_no_field(nT+nTempMagn)
+      Real(kind=8), intent(in)    :: Xfield
+      Real(kind=8), intent(in)    :: EM
+      Real(kind=8), intent(in)    :: THRS
+      Complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) :: dipexch(3,exch,exch)
+      Complex(kind=8), intent(in) ::  s_exch(3,exch,exch)
       Logical, intent(in)          :: tinput, smagn, m_paranoid
 cccc local variables ccc
       Integer                      :: nDirX
       Integer       :: iM,iT,jT,i,j,l,n,isite !,nP
 
-      Real(kind=wp), allocatable :: WEX0(:)
-      Real(kind=wp), allocatable :: WEX1(:)
-      Real(kind=wp), allocatable :: WEX2(:)   ! Zeeman exchange energies
-      Real(kind=wp), allocatable :: WL0(:,:)    ! Zeeman local energies
-      Real(kind=wp), allocatable :: WL1(:,:)
-      Real(kind=wp), allocatable :: WL2(:,:)    ! Zeeman local energies
+      Real(kind=8), allocatable :: WEX0(:)
+      Real(kind=8), allocatable :: WEX1(:)
+      Real(kind=8), allocatable :: WEX2(:)   ! Zeeman exchange energies
+      Real(kind=8), allocatable :: WL0(:,:)    ! Zeeman local energies
+      Real(kind=8), allocatable :: WL1(:,:)
+      Real(kind=8), allocatable :: WL2(:,:)    ! Zeeman local energies
 !     Zeeman local reduced energies, using only NEXCH states;
-      Real(kind=wp), allocatable :: WR0(:,:)
-      Real(kind=wp), allocatable :: WR1(:,:)
+      Real(kind=8), allocatable :: WR0(:,:)
+      Real(kind=8), allocatable :: WR1(:,:)
 !     Zeeman local reduced energies, using only NEXCH states;
-      Real(kind=wp), allocatable :: WR2(:,:)
+      Real(kind=8), allocatable :: WR2(:,:)
 
 !     local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZL0(:,:)
+      Real(kind=8), allocatable :: ZL0(:,:)
 !     local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZR0(:,:)
+      Real(kind=8), allocatable :: ZR0(:,:)
 !     local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZL1(:,:)
+      Real(kind=8), allocatable :: ZL1(:,:)
 !     local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZR1(:,:)
+      Real(kind=8), allocatable :: ZR1(:,:)
 !     local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZL2(:,:)
+      Real(kind=8), allocatable :: ZL2(:,:)
 !     local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZR2(:,:)
+      Real(kind=8), allocatable :: ZR2(:,:)
 !     spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SL0(:,:,:)
+      Real(kind=8), allocatable :: SL0(:,:,:)
 !     spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SR0(:,:,:)
+      Real(kind=8), allocatable :: SR0(:,:,:)
 !     spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SL1(:,:,:)
+      Real(kind=8), allocatable :: SL1(:,:,:)
 !     spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SR1(:,:,:)
+      Real(kind=8), allocatable :: SR1(:,:,:)
 !     spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SL2(:,:,:)
+      Real(kind=8), allocatable :: SL2(:,:,:)
 !     spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SR2(:,:,:)
+      Real(kind=8), allocatable :: SR2(:,:,:)
 !     magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: ML0(:,:,:)
+      Real(kind=8), allocatable :: ML0(:,:,:)
 !     magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: MR0(:,:,:)
+      Real(kind=8), allocatable :: MR0(:,:,:)
 !     magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: ML1(:,:,:)
+      Real(kind=8), allocatable :: ML1(:,:,:)
 !     magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: MR1(:,:,:)
+      Real(kind=8), allocatable :: MR1(:,:,:)
 !     magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: ML2(:,:,:)
+      Real(kind=8), allocatable :: ML2(:,:,:)
 !     magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: MR2(:,:,:)
+      Real(kind=8), allocatable :: MR2(:,:,:)
 
 !     spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX0(:,:)
+      Real(kind=8), allocatable :: SEX0(:,:)
 !     spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX1(:,:)
+      Real(kind=8), allocatable :: SEX1(:,:)
 !     spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX2(:,:)
+      Real(kind=8), allocatable :: SEX2(:,:)
 !     magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX0(:,:)
+      Real(kind=8), allocatable :: MEX0(:,:)
 !     magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX1(:,:)
+      Real(kind=8), allocatable :: MEX1(:,:)
 !     magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX2(:,:)
+      Real(kind=8), allocatable :: MEX2(:,:)
 !     exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX0(:)
+      Real(kind=8), allocatable :: ZEX0(:)
 !     exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX1(:)
+      Real(kind=8), allocatable :: ZEX1(:)
 !     exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX2(:)
+      Real(kind=8), allocatable :: ZEX2(:)
 c total vectors in general coordinate system:
-      Real(kind=wp), allocatable :: ZRT0(:,:)
-      Real(kind=wp), allocatable :: ZLT0(:,:)
-      Real(kind=wp), allocatable :: ZRT1(:,:)
-      Real(kind=wp), allocatable :: ZLT1(:,:)
-      Real(kind=wp), allocatable :: ZRT2(:,:)
-      Real(kind=wp), allocatable :: ZLT2(:,:)
-      Real(kind=wp), allocatable :: MRT0(:,:,:)
-      Real(kind=wp), allocatable :: MLT0(:,:,:)
-      Real(kind=wp), allocatable :: SRT0(:,:,:)
-      Real(kind=wp), allocatable :: SLT0(:,:,:)
-      Real(kind=wp), allocatable :: MRT1(:,:,:)
-      Real(kind=wp), allocatable :: MLT1(:,:,:)
-      Real(kind=wp), allocatable :: SRT1(:,:,:)
-      Real(kind=wp), allocatable :: SLT1(:,:,:)
-      Real(kind=wp), allocatable :: MRT2(:,:,:)
-      Real(kind=wp), allocatable :: MLT2(:,:,:)
-      Real(kind=wp), allocatable :: SRT2(:,:,:)
-      Real(kind=wp), allocatable :: SLT2(:,:,:)
+      Real(kind=8), allocatable :: ZRT0(:,:)
+      Real(kind=8), allocatable :: ZLT0(:,:)
+      Real(kind=8), allocatable :: ZRT1(:,:)
+      Real(kind=8), allocatable :: ZLT1(:,:)
+      Real(kind=8), allocatable :: ZRT2(:,:)
+      Real(kind=8), allocatable :: ZLT2(:,:)
+      Real(kind=8), allocatable :: MRT0(:,:,:)
+      Real(kind=8), allocatable :: MLT0(:,:,:)
+      Real(kind=8), allocatable :: SRT0(:,:,:)
+      Real(kind=8), allocatable :: SLT0(:,:,:)
+      Real(kind=8), allocatable :: MRT1(:,:,:)
+      Real(kind=8), allocatable :: MLT1(:,:,:)
+      Real(kind=8), allocatable :: SRT1(:,:,:)
+      Real(kind=8), allocatable :: SLT1(:,:,:)
+      Real(kind=8), allocatable :: MRT2(:,:,:)
+      Real(kind=8), allocatable :: MLT2(:,:,:)
+      Real(kind=8), allocatable :: SRT2(:,:,:)
+      Real(kind=8), allocatable :: SLT2(:,:,:)
 c data for total system:
 ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT0(:)
+      Real(kind=8), allocatable :: ZT0(:)
 ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT1(:)
+      Real(kind=8), allocatable :: ZT1(:)
 ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT2(:)
-      Real(kind=wp), allocatable :: MT0(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ST0(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: ST1(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: ST2(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT2(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT2(:)
+      Real(kind=8), allocatable :: MT0(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: MT1(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ST0(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: ST1(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: ST2(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT2(:,:) ! total magnetisation
 c standard deviation data:
-      Real(kind=wp)              :: dev
-      Real(kind=wp), allocatable :: XTM_MH(:)
-      Real(kind=wp), allocatable :: XTM_dMdH(:)
-      Real(kind=wp), allocatable :: XTtens_MH(:,:,:)
-      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:)
+      Real(kind=8)              :: dev
+      Real(kind=8), allocatable :: XTM_MH(:)
+      Real(kind=8), allocatable :: XTM_dMdH(:)
+      Real(kind=8), allocatable :: XTtens_MH(:,:,:)
+      Real(kind=8), allocatable :: XTtens_dMdH(:,:,:)
 
       Integer                    :: nTempTotal
-      Real(kind=wp)              :: Xfield_1, Xfield_2, dltXF
-      !Real(kind=wp)             :: XTS(nT+nTempMagn)
+      Real(kind=8)              :: Xfield_1, Xfield_2, dltXF
+      !Real(kind=8)             :: XTS(nT+nTempMagn)
 c Zeeman energy and M vector
-c      Real(kind=wp)             :: dirX(nDir), dirY(nDir), dirZ(nDir)
-c      Real(kind=wp)             :: dir_weight(nDirZee,3)
+c      Real(kind=8)             :: dirX(nDir), dirY(nDir), dirZ(nDir)
+c      Real(kind=8)             :: dir_weight(nDirZee,3)
 
-      Real(kind=wp)              :: dHX(3)
-      Real(kind=wp)              :: dHY(3)
-      Real(kind=wp)              :: dHZ(3)
-      Real(kind=wp)              :: dHW(3)
+      Real(kind=8)              :: dHX(3)
+      Real(kind=8)              :: dHY(3)
+      Real(kind=8)              :: dHZ(3)
+      Real(kind=8)              :: dHW(3)
       Integer                    :: RtoB, mem_local
 
       Integer                    :: info, ibuf, ibuf1, ibuf3
-      Real(kind=wp)              :: wt(3), zt(3,3)
+      Real(kind=8)              :: wt(3), zt(3,3)
 
-      Real(kind=wp)              :: dnrm2_
+      Real(kind=8)              :: dnrm2_
       External                   :: dev, dnrm2_
-      Real(kind=wp)              :: cm3tomB
+      Real(kind=8)              :: cm3tomB
       logical                    :: DBG, m_accurate
       Call qEnter('PA_XTdMdH')
       DBG=.false.

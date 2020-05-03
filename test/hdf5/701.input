@@ -5,6 +5,15 @@
 * Features tested: CASSCF,RASSCF/RASPT2,HDF5
 * Responsible person: S. Vancoillie
 *-------------------------------------------------------------------------------
+>> RM -FORCE TEST_HDF5
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+>> IF ( -FILE TEST_HDF5 )
+>>   EXIT 36
+>> ENDIF
+
  &GATEWAY
 Title
 Benzene, STO-3g Basis set

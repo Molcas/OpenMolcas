@@ -15,13 +15,13 @@
       Implicit None
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer          , intent(in) ::  nss, iprint, nT, nTempMagn, mem
-      Real (kind=wp)   , intent(in) :: eso(nss)
-      Real (kind=wp)   , intent(in) :: zJ, tmin, tmax
-      Real (kind=wp)   , intent(in) ::          T(nT+nTempMagn)
-      Real (kind=wp)   , intent(in) ::      XTexp(nT+nTempMagn)
-      Real (kind=wp)   , intent(out):: chit_theta(nT+nTempMagn )
-      Complex (kind=wp), intent(in) ::   s_so(3,nss,nss)
-      Complex (kind=wp), intent(in) ::  dipso(3,nss,nss)
+      Real (kind=8)   , intent(in) :: eso(nss)
+      Real (kind=8)   , intent(in) :: zJ, tmin, tmax
+      Real (kind=8)   , intent(in) ::          T(nT+nTempMagn)
+      Real (kind=8)   , intent(in) ::      XTexp(nT+nTempMagn)
+      Real (kind=8)   , intent(out):: chit_theta(nT+nTempMagn )
+      Complex (kind=8), intent(in) ::   s_so(3,nss,nss)
+      Complex (kind=8), intent(in) ::  dipso(3,nss,nss)
       Logical          , intent(in) :: tinput
       Logical          , intent(in) :: doplot
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -30,23 +30,23 @@ c      the units are cgsemu: cm^3*k/mol
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "stdalloc.fh"
       Integer :: ic,jc,it,im,jm,j,i,info,jT,mem_local,RtoB
-      Real (kind=wp) :: det, xxm, Zst
-      Real (kind=wp) :: coeff_X, boltz_k, dev
+      Real (kind=8) :: det, xxm, Zst
+      Real (kind=8) :: coeff_X, boltz_k, dev
       Logical        :: DBG
       External       :: dev
-      Real(kind=wp)  :: gtens(3), maxes(3,3)
-      Real (kind=wp), allocatable ::        chit_tens(:,:,:)
-      Real (kind=wp), allocatable ::  chit_theta_tens(:,:,:)
-      Real (kind=wp), allocatable ::           zstat1(:)
-      Real (kind=wp), allocatable ::             chit(:)
-      Real (kind=wp), allocatable ::      chi_theta_1(:)
-      Real (kind=wp), allocatable :: XMM(:,:)
+      Real(kind=8)  :: gtens(3), maxes(3,3)
+      Real (kind=8), allocatable ::        chit_tens(:,:,:)
+      Real (kind=8), allocatable ::  chit_theta_tens(:,:,:)
+      Real (kind=8), allocatable ::           zstat1(:)
+      Real (kind=8), allocatable ::             chit(:)
+      Real (kind=8), allocatable ::      chi_theta_1(:)
+      Real (kind=8), allocatable :: XMM(:,:)
       ! tensors for zJ /= 0
-      Real (kind=wp), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:),
+      Real (kind=8), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:),
      &                               unity(:,:), a_dir(:,:), a_inv(:,:)
       ! main values and axes of XT tensors:
-      Real (kind=wp), allocatable :: WT(:), ZT(:,:)
-      Real (kind=wp) :: rdummy(1)
+      Real (kind=8), allocatable :: WT(:), ZT(:,:)
+      Real (kind=8) :: rdummy(1)
       Character(len=50) :: label
       Call qEnter('SUSCEPTIBILITY')
 c constants used in this subrutine

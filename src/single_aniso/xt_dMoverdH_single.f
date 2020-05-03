@@ -18,78 +18,78 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 !#include "mgrid.fh"
 #include "stdalloc.fh"
       Integer, intent(in) :: nss, nTempMagn, nT, NM, mem
-      Real(kind=wp), intent(in) :: Tmin, Tmax
-      Real(kind=wp), intent(in) :: zJ
-      Real(kind=wp), intent(in) :: Xfield
-      Real(kind=wp), intent(in) :: EM
-      Real(kind=wp), intent(in) :: eso(nss)
-      Real(kind=wp), intent(in) :: T(nT+nTempMagn)
-      Real(kind=wp), intent(in) :: chit_exp(nT)
-      Real(kind=wp), intent(in) :: XT_no_field( nT+nTempMagn )
-      Complex(kind=wp), intent(in) :: dM(3,nss,nss)
-      Complex(kind=wp), intent(in) :: sM(3,nss,nss)
+      Real(kind=8), intent(in) :: Tmin, Tmax
+      Real(kind=8), intent(in) :: zJ
+      Real(kind=8), intent(in) :: Xfield
+      Real(kind=8), intent(in) :: EM
+      Real(kind=8), intent(in) :: eso(nss)
+      Real(kind=8), intent(in) :: T(nT+nTempMagn)
+      Real(kind=8), intent(in) :: chit_exp(nT)
+      Real(kind=8), intent(in) :: XT_no_field( nT+nTempMagn )
+      Complex(kind=8), intent(in) :: dM(3,nss,nss)
+      Complex(kind=8), intent(in) :: sM(3,nss,nss)
       Logical, intent(in)          :: tinput, smagn
 cccc local variables ccc
       Integer       :: iM,iT,jT,i,j,l, nDirX
       Logical       :: m_paranoid
-      Real(kind=wp) :: THRS
-      Real(kind=wp), allocatable :: WM1(:), WM2(:), WM3(:), WM4(:),
+      Real(kind=8) :: THRS
+      Real(kind=8), allocatable :: WM1(:), WM2(:), WM3(:), WM4(:),
      &                              WM5(:), WM6(:), WM7(:)
       !WM0(nm), WM1(nm), WM2(nm) ! Zeeman exchange energies
 c data for total system:
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT1(:)
-      Real(kind=wp), allocatable :: ST1(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT1(:)
+      Real(kind=8), allocatable :: ST1(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT1(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT2(:)
-      Real(kind=wp), allocatable :: ST2(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT2(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT2(:)
+      Real(kind=8), allocatable :: ST2(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT2(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT3(:)
-      Real(kind=wp), allocatable :: ST3(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT3(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT3(:)
+      Real(kind=8), allocatable :: ST3(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT3(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT4(:)
-      Real(kind=wp), allocatable :: ST4(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT4(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT4(:)
+      Real(kind=8), allocatable :: ST4(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT4(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT5(:)
-      Real(kind=wp), allocatable :: ST5(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT5(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT5(:)
+      Real(kind=8), allocatable :: ST5(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT5(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT6(:)
-      Real(kind=wp), allocatable :: ST6(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT6(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT6(:)
+      Real(kind=8), allocatable :: ST6(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT6(:,:) ! total magnetisation
 !total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT7(:)
-      Real(kind=wp), allocatable :: ST7(:,:) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT7(:,:) ! total magnetisation
+      Real(kind=8), allocatable :: ZT7(:)
+      Real(kind=8), allocatable :: ST7(:,:) ! total spin magnetisation,
+      Real(kind=8), allocatable :: MT7(:,:) ! total magnetisation
 c standard deviation data:
-      Real(kind=wp) :: dev
+      Real(kind=8) :: dev
       external dev
-      Real(kind=wp), allocatable :: XTM_MH(:) !XTM_MH(  nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTM_dMdH(:) !XTM_dMdH(nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_MH(:,:,:)
+      Real(kind=8), allocatable :: XTM_MH(:) !XTM_MH(  nT+nTempMagn)
+      Real(kind=8), allocatable :: XTM_dMdH(:) !XTM_dMdH(nT+nTempMagn)
+      Real(kind=8), allocatable :: XTtens_MH(:,:,:)
 !                                   XTtens_MH(  3,3,nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:)
+      Real(kind=8), allocatable :: XTtens_dMdH(:,:,:)
 !                                   XTtens_dMdH(3,3,nT+nTempMagn)
 
       Integer       :: nTempTotal
-      Real(kind=wp) :: Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5,
+      Real(kind=8) :: Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5,
      &                 Xfield_6, Xfield_7
-      Real(kind=wp) :: hp
+      Real(kind=8) :: hp
 
-      Real(kind=wp) :: dHX(3)
-      Real(kind=wp) :: dHY(3)
-      Real(kind=wp) :: dHZ(3)
-      Real(kind=wp) :: dHW(3)
+      Real(kind=8) :: dHX(3)
+      Real(kind=8) :: dHY(3)
+      Real(kind=8) :: dHZ(3)
+      Real(kind=8) :: dHW(3)
 
       Integer       :: Info
-      Real(kind=wp) :: WT(3), ZT(3,3)
+      Real(kind=8) :: WT(3), ZT(3,3)
 
       Integer       :: mem_local, RtoB
-      Real(kind=wp) :: cm3tomB
+      Real(kind=8) :: cm3tomB
       logical       :: DBG
 
       Call qEnter('XT_dMdH')
