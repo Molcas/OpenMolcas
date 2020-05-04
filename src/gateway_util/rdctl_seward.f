@@ -4365,7 +4365,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and contaminants.
 *
       Call Sphere(iAngMx)
-      Call Gen_RelPointers(Info-1) ! Work Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4376,7 +4375,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (nOrdEF.ge.0.and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipEF=ipExp(Mx_Shll)
          If (nEF.ne.0) Then
-            call dcopy_(3*nEF,EFt,1,Work(ipEF),1)
+            call dcopy_(3*nEF,EFt,1,DInf(ipEF),1)
             Call mma_deallocate(EFt)
          Else
             nEF = 0
@@ -4389,7 +4388,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
                   ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iEF),1)
+                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iEF),1)
                   iEF = iEF + 3*nCntr(iCnttp)
                End If
             End Do
@@ -4407,7 +4406,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (lDMS.and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipDMS=ipExp(Mx_Shll)
          If (nDMS.ne.0) Then
-            call dcopy_(3*nDMS,DMSt,1,Work(ipDMS),1)
+            call dcopy_(3*nDMS,DMSt,1,DInf(ipDMS),1)
             call mma_deallocate(DMSt)
          Else
             nDMS = 0
@@ -4418,7 +4417,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iDMS = ipDMS
             Do iCnttp = 1, nCnttp
                ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iDMS),1)
+               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iDMS),1)
                iDMS = iDMS + 3*nCntr(iCnttp)
             End Do
          End If
@@ -4437,6 +4436,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Max_Cnt=Max(Max_Cnt,nCntr(iCnttp))
          End Do
       End If
+      Call Gen_RelPointers(Info-1) ! Work Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
