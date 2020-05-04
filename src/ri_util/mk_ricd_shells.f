@@ -56,7 +56,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_RelPointers(-(Info-1))
       Call qEnter('Mk_aCD_Shells')
 *
       Call StatusLine('Gateway:',
@@ -190,7 +189,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_RelPointers(Info-1)
       Call qExit('Mk_aCD_Shells')
       Return
       End
