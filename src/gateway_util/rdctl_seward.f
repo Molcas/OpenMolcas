@@ -4306,10 +4306,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      Call Gen_RelPointers(-(Info-1))
+      Call Gen_RelPointers(-(Info-1)) ! DInt Mode
       If (lFAIEMP.and.Run_Mode.ne.S_Mode)
      &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4326,9 +4325,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Gen_RelPointers(-(Info-1))
             Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
-            Call Gen_RelPointers(Info-1)
 *
          End If
       End If
@@ -4347,7 +4344,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
       ip = ipWel
       Do iWel = 1, nWel
-         If (Work(ip).lt.Zero) Then
+         If (DInf(ip).lt.Zero) Then
             If (.Not.lRF) Then
                Call WarningMessage(2,
      &                        '; Input inconsistency!; ;'
@@ -4356,7 +4353,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                      //' has been specified!')
                Call Quit_OnUserError()
             End If
-            Work(ip)=rds+Abs(Work(ip))
+            DInf(ip)=rds+Abs(DInf(ip))
          End If
          ip = ip + 3
       End Do
@@ -4368,6 +4365,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and contaminants.
 *
       Call Sphere(iAngMx)
+      Call Gen_RelPointers(Info-1) ! Work Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
