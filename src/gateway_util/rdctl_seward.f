@@ -3863,7 +3863,7 @@ c
 *                                                                      *
 *
  997  Continue
-      Call Gen_RelPointers(-(Info-1))
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
 c     Postprocessing for COORD
 c      ik=index(KeepBasis,'....')
 c      if(ik.ne.0) then
@@ -3905,10 +3905,10 @@ c      endif
             goto 9753
          endif
       endif
-      Call Gen_RelPointers(Info-1)
+      Call Gen_RelPointers(Info-1) ! Work Mode
 *
 9755  continue
-      Call Gen_RelPointers(-(Info-1))
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (CoordSet) Then
          CoordSet=.false.
          LuRdSave=LuRd
@@ -3920,7 +3920,7 @@ c      endif
 #endif
          LuRd=LuFS
          GWInput=.True.
-         Call Gen_RelPointers(Info-1)
+         Call Gen_RelPointers(Info-1) !Work Mode
          Go To 998
       Else
          If (DoneCoord) Then
@@ -4114,7 +4114,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &               ' ECP option not compatible with AMFI!')
          Call Quit_OnUserError()
       End If
-      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4306,7 +4305,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      Call Gen_RelPointers(-(Info-1)) ! DInt Mode
       If (lFAIEMP.and.Run_Mode.ne.S_Mode)
      &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
 *                                                                      *
@@ -4436,7 +4434,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Max_Cnt=Max(Max_Cnt,nCntr(iCnttp))
          End Do
       End If
-      Call Gen_RelPointers(Info-1) ! Work Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4468,7 +4465,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Fix the fock matrix fields in Info while the memory has not
 *     been fixed in size.
 *
-      Call Gen_RelPointers(-(Info-1))
       If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
          Call Fix_FockOp(1,nInfo,LuRd,DInf,nDInf)
       End If
