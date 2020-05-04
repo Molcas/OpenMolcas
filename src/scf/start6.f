@@ -489,6 +489,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Logical REORD,DECO
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
       Integer ipFLT(2), ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
+      Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
       Real*8, Dimension(:,:), Allocatable:: Porb, Dm, FCNO, KLT
 *
@@ -514,7 +515,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       EndIf
 *
       Call mma_allocate(PLT,nBDT,Label='PLT')
-      ipPLT=ip_of_Work(PLT(1))
+      ipPLT(1)=ip_of_Work(PLT(1))
+      ipPLT(2)=ipPLT(1)
       If (DFTX) Then
          Call FZero(PLT,nBDT) ! to exclude Coulomb contrib
       Else
@@ -570,13 +572,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       ipKLT(2)=ipKLT(1)+nBDT
 *
       dFmat=0.0d0
-! BIGOT FIXME
-      Call WarningMessage(2,
-     &     'There is probably a bug here, ipPLT should have two '//
-     &     'elements.')
-      Call Abend()
-!     Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
-!    &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+      Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
+     &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend
@@ -628,7 +625,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Rewind(LU)
  55   READ(LU,'(A80)',END=888,ERR=888) Line
       If(Line(1:22).ne.'* ACTIVE TWO-EL ENERGY') goto 55
-      READ(LU,'(E18.11)',err=888,end=888) E2act
+      READ(LU,'(E19.12)',err=888,end=888) E2act
 
       Close(LU)
       Return

@@ -1,6 +1,5 @@
 * on some machines this test requires more memory, so export EXTRAMEM
->eval MM=64+$EXTRAMEM
-> export MOLCAS_MEM=$MM
+> export MOLCAS_MEM=64
 
 &SEWARD  &END
 Title

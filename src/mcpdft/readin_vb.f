@@ -75,8 +75,9 @@
 *---  process DELE command --------------------------------------------*
       call imove_cvb(ndel_j,ndel,mxsym)
 *---
-      If (nroots.gt.1.and.irlxroot.eq.0) iRlxRoot=iroot(nroots)
-      If (nroots.eq.1) iRlxRoot=0
+*TRS
+*      If (nroots.gt.1.and.irlxroot.eq.0) iRlxRoot=iroot(nroots)
+*      If (nroots.eq.1) iRlxRoot=0
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,mxsym
          NASH(ISYM)=NRS1(ISYM)+NRS2(ISYM)+NRS3(ISYM)

@@ -121,7 +121,7 @@ The :kword:`KSDFT` is the only required keyword.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.
@@ -130,6 +130,17 @@ The :kword:`KSDFT` is the only required keyword.
               If the values are 1.0 (default), then the original functional is used.
               For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
               Example: DFCF=1.25 0.5
+              </HELP>
+              </KEYWORD>
+
+:kword:`GRAD`
+  The keyword is needed to calculate potentials for analytical gradients.
+  This keyword can be used with both state-specific and state-averaged CASSCF reference wavefunctions.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE"  LEVEL="BASIC">
+              %%Keyword: GRAD <basic>
+              <HELP>
+              Needed to compute potentials for MC-PDFT analytical gradients. 
               </HELP>
               </KEYWORD>
 

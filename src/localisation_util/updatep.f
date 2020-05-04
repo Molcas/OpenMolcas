@@ -12,7 +12,7 @@
 *               2005, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine UpdateP(PACol,Name,nBas_Start,
-     &                   nOrb2Loc,nAtoms,iTab_ptr,gamma_rot,
+     &                   nOrb2Loc,nAtoms,PA,gamma_rot,
      &                   iMO_s,iMO_t,Debug)
 c
 c     Author: Yannick Carissan.
@@ -25,8 +25,9 @@ c
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Integer iTab_Ptr(*),nBas_Start(*)
+      Integer nBas_Start(*)
       Real*8 PACol(nOrb2Loc,2)
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
       Character*(LENIN8) Name(*),PALbl
       Logical Debug
 c
@@ -37,26 +38,16 @@ c
       cosing = cosg*sing
 c
       Do iAt=1,nAtoms
-c
-c------ The array iTab_ptr contains the value of the pointer on the
-c       PA array for atom iAt
-c
-        ip  = iTab_ptr(iAt)
-        ip0 = ip - 1
+*       Call RecPrt('PA(1,1,iAt)',' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
 c
 c------ Copy out the PAss, PAtt, and PAst elements.
 c
-        kOff_s = ip0 + nOrb2Loc*(iMO_s-1)
-        kOff_t = ip0 + nOrb2Loc*(iMO_t-1)
-        kOff_ss = kOff_s + iMO_s
-        kOff_ts = kOff_s + iMO_t
-        kOff_st = kOff_t + iMO_s
-        kOff_tt = kOff_t + iMO_t
-        PAss = Work(kOff_ss)
-        PAst = Work(kOff_st)
-        PAtt = Work(kOff_tt)
+        PAss = PA(iMO_s,iMO_s,iAt)
+        PAst = PA(iMO_s,iMO_t,iAt)
+        PAtt = PA(iMO_t,iMO_t,iAt)
+*       Write (6,*) 'updateP:',PAss,PAst,PAtt
 #if defined (_DEBUG_)
-        PAts = Work(kOff_ts)
+        PAts = PA(iMO_t,iMO_s,iAt)
         Tst  = PAst - PAts
         If (abs(Tst) .gt. 1.0d-14) Then
            Write(6,*) 'Broken symmetry in UpdateP!!'
@@ -70,29 +61,29 @@ c
 c
 c------ Copy out columns s and t of PA.
 c
-        Call dCopy_(nOrb2Loc,Work(kOff_s+1),1,PACol(1,1),1)
-        Call dCopy_(nOrb2Loc,Work(kOff_t+1),1,PACol(1,2),1)
+        Call dCopy_(nOrb2Loc,PA(1,iMO_s,iAt),1,PACol(1,1),1)
+        Call dCopy_(nOrb2Loc,PA(1,iMO_t,iAt),1,PACol(1,2),1)
 c
 c------ Compute transformed columns.
 c
-        Call dScal_(nOrb2Loc,cosg,Work(kOff_s+1),1)
-        Call dAXPY_(nOrb2Loc,sing,PACol(1,2),1,Work(kOff_s+1),1)
-        Call dScal_(nOrb2Loc,cosg,Work(kOff_t+1),1)
-        Call dAXPY_(nOrb2Loc,-sing,PACol(1,1),1,Work(kOff_t+1),1)
+        Call dScal_(nOrb2Loc,cosg,PA(1,iMO_s,iAt),1)
+        Call dAXPY_(nOrb2Loc, sing,PACol(1,2),1,PA(1,iMO_s,iAt),1)
+        Call dScal_(nOrb2Loc,cosg,PA(1,iMO_t,iAt),1)
+        Call dAXPY_(nOrb2Loc,-sing,PACol(1,1),1,PA(1,iMO_t,iAt),1)
 c
 c------ Compute PAss, PAtt, PAst, and PAts (= PAst).
 c
-        Work(kOff_s+iMO_s) = PAss*cos2g + PAtt*sin2g
+        PA(iMO_s,iMO_s,iAt)= PAss*cos2g + PAtt*sin2g
      &                     + Two*PAst*cosing
-        Work(kOff_s+iMO_t) = (PAtt-PAss)*cosing + PAst*(cos2g-sin2g)
-        Work(kOff_t+iMO_s) = Work(kOff_s+iMO_t)
-        Work(kOff_t+iMO_t) = PAtt*cos2g + PAss*sin2g
+        PA(iMO_t,iMO_s,iAt)= (PAtt-PAss)*cosing + PAst*(cos2g-sin2g)
+        PA(iMO_s,iMO_t,iAt)= PA(iMO_t,iMO_s,iAt)
+        PA(iMO_t,iMO_t,iAt)= PAtt*cos2g + PAss*sin2g
      &                     - Two*PAst*cosing
 c
 c------ Copy columns to rows.
 c
-        Call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Work(ip0+iMO_s),nOrb2Loc)
-        Call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Work(ip0+iMO_t),nOrb2Loc)
+        Call dCopy_(nOrb2Loc,PA(1,iMO_s,iAt),1,PA(iMO_s,1,iAt),nOrb2Loc)
+        Call dCopy_(nOrb2Loc,PA(1,iMO_t,iAt),1,PA(iMO_t,1,iAt),nOrb2Loc)
 c
       End Do
 c
@@ -101,8 +92,7 @@ c
         Write(6,*) '----------'
         Do iAt=1,nAtoms
           PALbl='PA__'//Name(nBas_Start(iAt))(1:LENIN)
-          ip=iTab_ptr(iAt)
-          Call RecPrt(PALbl,' ',Work(ip),nOrb2Loc,nOrb2Loc)
+          Call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
         End Do
       End If
 c
