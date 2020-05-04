@@ -33,6 +33,7 @@
       call IDAFILE(LUIPH,2,ITOC15,15,IAD)
       call getIphInfo(LUIPH,NCI,NSTATE,ITOC15)
       call mma_allocate(CIBigArray,NCI*NSTATE)
+      CIBigArray(:)=0.0D0
 
       IDISK=ITOC15(4)
       do I=1, NSTATE

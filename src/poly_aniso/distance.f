@@ -12,10 +12,10 @@
       Implicit None
       Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)       :: N
-      Real(kind=wp), intent(in) :: C1(N), C2(N)
+      Real(kind=8), intent(in) :: C1(N), C2(N)
       ! local variables
       Integer       :: i
-      Real(kind=wp) :: X, R
+      Real(kind=8) :: X, R
       distance=0.0_wp
       X=0.0_wp
       Do i=1,N
