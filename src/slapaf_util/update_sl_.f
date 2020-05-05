@@ -20,7 +20,8 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,Kriging_Hessian,qBeta,iOpt_RS)
+     &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
+     &                     lWrite)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -89,13 +90,12 @@
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
-      Logical Line_Search, Smmtrc(3*nsAtom),
-     &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear, Kriging_Hessian
+      Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
+     &        Found, Curvilinear, Kriging_Hessian, lWrite
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
-      Real*8, Allocatable:: Hessian(:,:)
+      Real*8, Allocatable:: Hessian(:,:), Wess(:,:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -134,9 +134,10 @@
 *        Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
 *        Write (6,*) 'Before corrections'
 *        Call DiagMtrx(Hessian,nInter,iNeg)
-         iOptH = iOr(8,iAnd(iOptH,32))
+         iOptH_ = iOr(8,iAnd(iOptH,32))
       Else
          Call Mk_Hss_Q()
+         iOptH_ = iOptH
       End If
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *
@@ -155,7 +156,7 @@
       Call Update_H(nWndw,Hessian,nInter,
      &              mIter,iOptC,Mode,ipMF,
      &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
-     &              iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
+     &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,IRC,.True.)
 *
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
@@ -372,8 +373,11 @@ C           Write (*,*) 'tBeta=',tBeta
          Call GetMem('dEdq_', 'Allo','Real',ipdEdq_,nInter*kIter)
          Call GetMem('du',    'Allo','Real',ipdu,nInter)
          Call GetMem('x','Allo','Real',ipx,(nInter-nLambda)*(kIter+1))
+         Call FZero(Work(ipx),(nInter-nLambda)*(kIter+1))
          Call GetMem('dEdx','Allo','Real',ipdEdx,(nInter-nLambda)*kIter)
-         Call GetMem('W   ','Allo','Real',ipW   ,(nInter-nLambda)**2)
+         Call mma_allocate(Wess,nInter-nLambda,nInter-nLambda,
+     &                     Label='Wess')
+         Wess(:,:)=0.0D0
          Call GetMem('Energy','Allo','Real',ipEnergy,kIter)
 *
          call dcopy_(kIter,Energy,1,Work(ipEnergy),1)
@@ -415,7 +419,8 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Work(ipBMx),nLambda,nsAtom,iRow_c,
      &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                   Lbl(nInter+1),AtomLbl,Work(ipCoor_l),
-     &                   (lIter.eq.kIter),nSym,iOper,jStab,nStab,mxdc,
+     &                   (lIter.eq.kIter).and.lWrite,
+     &                   nSym,iOper,jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)
 *
@@ -603,9 +608,9 @@ C           Write (*,*) 'tBeta=',tBeta
             Call Con_Opt(Work(ipr),Work(ipdrdq),Work(ipT),Grad,
      &                rLambda,qInt,Shift,Work(ipdy),Work(ipdx),
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
-     &                Work(ipW),GNrm(kIter),
+     &                Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,
-     &                iOptC,Mode_,ipMF,iOptH,HUpMet,jPrint,
+     &                iOptC,Mode_,ipMF,iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,
@@ -639,7 +644,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *
          Call Free_Work(ipd2L   )
          Call Free_Work(ipEnergy)
-         Call Free_Work(ipW     )
+         Call mma_deallocate(Wess)
          Call Free_Work(ipdEdx  )
          Call Free_Work(ipx     )
          Call Free_Work(ipdu    )

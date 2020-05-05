@@ -63,25 +63,27 @@
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup, Trunc
+      Logical Line_Search, Found, IRC_setup
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
 *                                                                      *
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-      If (jPrint.ge.99) Then
-         Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
-         Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
-     &                                         nLambda*nIter)
-         Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
-         Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
-         Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
-         Do iLambda = 1, nLambda
-            Call RecPrt('Con_Opt: d2rdq2',' ',d2rdq2(1,1,iLambda),
-     &                                        nInter,nInter)
-         End Do
-      End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
+      Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
+     &                                      nLambda*nIter)
+      Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
+      Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
+      Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
+      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
+      Do iLambda = 1, nLambda
+         Call RecPrt('Con_Opt: d2rdq2',' ',d2rdq2(1,1,iLambda),
+     &                                     nInter,nInter)
+      End Do
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,7 +99,6 @@
       Sf=Sqrt(Two)
       dxdx=Zero
       Thr=1.0D-6
-      Trunc=.False.
       Call GetMem('dqtmp','Allo','Real',ipdq,nInter)
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Do iIter = iOff_Iter+1, nIter
@@ -172,9 +173,10 @@ c    &              dEdq(iInter,iIter)
                   If (Abs(dEdq(iInter,iIter)).le.1.0D-6)
      &               drdq(iInter,iLambda,iIter) = Zero
                End Do
-               If (jPrint.ge.99)
-     &         Call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,
+#ifdef _DEBUG_
+               Call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,
      &                                            nLambda*nIter)
+#endif
 *
 *------------- Orthogonalize against the gradient and all other
 *              constraints
@@ -199,9 +201,10 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
                End Do
 *
                Continue
-               If (jPrint.ge.99)
-     &         Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
+#ifdef _DEBUG_
+               Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
      &                                            nLambda*nIter)
+#endif
             End If
          End Do
 *                                                                      *
@@ -212,8 +215,9 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
 *        the complemental subspace.
 *
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
-         If (jPrint.ge.99) Call RecPrt('Con_Opt: T-Matrix',' ',T,
-     &                                  nInter,nInter)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -238,7 +242,9 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
          Call Free_Work(ipRTInv)
 *
          Call DScal_(nLambda,-One,dy,1)
-         If (jPrint.ge.99) Call RecPrt('Con_Opt: dy',' ',dy,nLambda,1)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: dy',' ',dy,nLambda,1)
+#endif
 *
 *                                                                      *
 ************************************************************************
@@ -479,13 +485,11 @@ C           Write (6,*) 'gBeta=',gBeta
 *
          dydymax=CnstWght*max(dxdx,Half*Beta)
          If (dydy.gt.dydymax) Then
-            Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
-            Trunc=.True.
+*           Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
             Call DScal_(nLambda,dydymax/dydy,dy,1)
             dydy=dydymax
          Else
-            Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
-            Trunc=.False.
+*           Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
          End If
 *
 *        The step reduction in the space which we minimize is such that
@@ -519,8 +523,9 @@ C        Write (6,*) 'dydy=',dydy
          dydy_last=dydy
 C        Write (6,*) 'yBeta=',yBeta
 *
-         If (jPrint.ge.99) Call RecPrt('Con_Opt: dy(actual)',' ',dy,
-     &                                 nLambda,1)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: dy(actual)',' ',dy,nLambda,1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -530,12 +535,12 @@ C        Write (6,*) 'yBeta=',yBeta
 ************************************************************************
 *                                                                      *
 *
-      If (jPrint.ge.99) Then
-         Call RecPrt('Con_Opt: dEdx',' ',dEdx,nInter-nLambda,nIter)
-         Call RecPrt('Con_Opt: Lambda',' ',rLambda,nLambda,nIter)
-         Call RecPrt('Con_Opt: x',' ',x,nInter-nLambda,nIter)
-         Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdx',' ',dEdx,nInter-nLambda,nIter)
+      Call RecPrt('Con_Opt: Lambda',' ',rLambda,nLambda,nIter)
+      Call RecPrt('Con_Opt: x',' ',x,nInter-nLambda,nIter)
+      Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -544,8 +549,9 @@ C        Write (6,*) 'yBeta=',yBeta
 *     gradient.
 *
       call dcopy_(nInter*nIter,dEdq,1,dEdq_,1)
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: dEdq',' ',dEdq,
-     &                              nInter,nIter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
+#endif
       Do iIter = iOff_iter+1, nIter
          Do iLambda = 1, nLambda
             Call DaXpY_(nInter,rLambda(iLambda,nIter), ! Sign
@@ -553,8 +559,9 @@ C        Write (6,*) 'yBeta=',yBeta
      &                 dEdq_(1,iIter),1)
          End Do
       End Do
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,
-     &                              nInter,nIter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,nInter,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -567,20 +574,21 @@ C        Write (6,*) 'yBeta=',yBeta
          End Do
          Energy(iIter)=Temp
       End Do
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: Energy',' ',Energy,
-     &                              nIter,1)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Update the Hessian in the n subspace
 *     There should be no negative eigenvalue, if so change the sign.
 *
-      If (jPrint.ge.6) Then
-         Write (6,*)
-         Write (6,*)
-         Write (6,*) ' *** Updating the reduced Hessian ***'
-         Write (6,*)
-      End If
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*)
+      Write (6,*) ' *** Updating the reduced Hessian ***'
+      Write (6,*)
+#endif
 *
       If (iAnd(iOptC,4096).eq.4096) Then
 *
@@ -598,8 +606,9 @@ C        Write (6,*) 'yBeta=',yBeta
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
 
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: Hess',' ',Hess,
-     &                              nInter,nInter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Hess',' ',Hess,nInter,nInter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -623,9 +632,9 @@ C        Write (6,*) 'yBeta=',yBeta
      &               T(1,ipTti),nInter,
      &               0.0d0,W,nInter-nLambda)
          Call Free_Work(ipTmp)
-         If (jPrint.ge.99)
-     &      Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,
-     &                  nInter-nLambda)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,nInter-nLambda)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -649,12 +658,21 @@ C           Write (6,*) 'tBeta=',tBeta
          Else
             Beta_Disp_Min=1.0D-10
             tmp=0.0D0
-            Do i = 1, nInter-nLambda
-               tmp = Max(tmp,Abs(dEdx(i,nIter)))
+C           Do i = 1, nInter-nLambda
+C              tmp = Max(tmp,Abs(dEdx(i,nIter)))
+C           End Do
+            Do i = 1, nLambda
+               tmp = Max(tmp,Abs(dy(i)))
             End Do
+C           Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
+C   this is a desperate measure until I have figured out an alternative.
+            Beta_Disp_=Beta_Disp
             tBeta=Beta_Disp_
             Thr_RS=1.0D-5
+*
+*           Copy stuff so that the restricted_disp_Cons routine
+*           can figure out how to compute the dispersion.
 *
             nInter_=nInter
             nLambda_=nLambda
@@ -683,18 +701,9 @@ C           Write (6,*) 'tBeta=',tBeta
          GNrm=-One
       End If
 *
-*     A small trick here to avoid a false convergence.
-*
-c     If (GNrm.lt.2.0D-4.or.nIter.eq.iOff_Iter+1) Then
-c        Do iLambda = 1, nLambda
-c           GNrm=GNrm+Sqrt((rLambda(iLambda,nIter)*
-c    &                            r(iLambda,nIter))**2)
-c        End Do
-c        GNrm=Min(1.0D-2,GNrm)
-c        If (nIter.eq.iOff_Iter+1) GNrm=1.0D-2
-c     End If
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: dx',' ',dx,
-     &                              nInter-nLambda,nIter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -748,7 +757,9 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
 *
       call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
       Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-      If (jPrint.ge.99) Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -777,10 +788,6 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
          Call Free_Work(ipLbl)
 *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Trunc) Step_Trunc='*'
 *                                                                      *
 ************************************************************************
 *                                                                      *

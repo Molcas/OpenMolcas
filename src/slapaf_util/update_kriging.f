@@ -50,6 +50,7 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+      Character GrdLbl_Save*8
       Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:),
      &                      BMx_HMF(:,:)
 *                                                                      *
@@ -94,6 +95,8 @@
       iterK=0
       dqdq=Zero
       qBeta=Beta
+      GrdMax_Save=GrdMax
+      GrdLbl_Save=GrdLbl
 #ifdef _DEBUG_
       Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
       Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
@@ -287,35 +290,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     At this point let us modify the value of the trend function such
-*     that it is proportional to the norm of the gradient
-*
-c     blavai_orig=blavai
-c     blavai_min=1.0D-2*blavai
-c     blavai_min=0.01D0
-c     blavai_max=blavai_orig
-c     blavai_max=10.0D0
-c     Write (6,*) 'blavai_orig=',blavai_orig
-c     Write (6,*) 'blavai_min=',blavai_min
-c     Write (6,*) 'blavai_max=',blavai_max
-*     Do iRaw = iter-nRaw+1, iter-1
-*        Factor= 1.0D-1
-*        Write (*,*) GNrm(iRaw+1)/GNrm(iRaw)
-*        Write (*,*) LOG10(GNrm(iRaw+1)/GNrm(iRaw))
-*        Write (*,*) Factor*LOG10(GNrm(iRaw+1)/GNrm(iRaw))
-*        fact=10.0**(Factor*LOG10(GNrm(iRaw+1)/GNrm(iRaw)))
-*        Write (*,*) 'fact=',fact
-*        blavai=Min(blavai_orig,
-*    &          Max(blavai_min,
-*    &              blavai*fact))
-*     End Do
-c     blavai=Max(blavai_orig*GNrm(iter)/0.000050D0,blavai_min)
-c     blavai=Min(blavai,blavai_max)
-c     Write (6,*) 'blavai=',blavai
-c     Write (6,*)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Select between setting all l's to a single value or go in
 *     multiple l-value mode in which the l-value is set such that
 *     the kriging hessian reproduce the diagonal value of the HMF
@@ -388,52 +362,7 @@ c     Write (6,*)
 *     variance threshold.
 *
 *
-c     Beta_Disp_Tmp=Beta_Disp
       Beta_Disp_Min=1.0D-10
-*     Beta_Disp_Min=Beta_Disp*1.0D-3
-c     mRaw=Min(5,nRaw)
-c     Do i = Max(1,iter-mRaw), iter-1
-cifdef _OLD_
-c        If (GNrm(i+1).gt.Five*GNrm(i)) Then
-c           Write (6,*) 'Reduce1'
-c           fact=1.0D-2
-c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-c        Else If (GNrm(i+1).gt.Two*GNrm(i)) Then
-c           Write (6,*) 'Reduce2'
-c           fact=1.0D-1
-c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-c        Else If (GNrm(i+1).gt.GNrm(i)) Then
-c           Write (6,*) 'Reduce3'
-c           fact=5.0D-1
-c           Beta_Disp_Tmp=Max(Beta_Disp*1.0D-3,Beta_Disp_Tmp*fact)
-c        Else If (Five*GNrm(i+1).lt.GNrm(i)) Then
-c           Write (6,*) 'Increase1'
-c           fact=1.0D1
-c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-c        Else If (Two*GNrm(i+1).lt.GNrm(i)) Then
-c           Write (6,*) 'Increase2'
-c           fact=5.0D0
-c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-c        Else If (GNrm(i+1).lt.GNrm(i)) Then
-c           Write (6,*) 'Increase2'
-c           fact=2.5D0
-c           Beta_Disp_Tmp=Min(Beta_Disp,Beta_Disp_Tmp*fact)
-c        End If
-celse
-c           Factor=-4.0D0
-c           Factor=-2.9D0
-c           Factor=-3.5D0
-c           Write (6,*) GNrm(i+1)/GNrm(i)
-c           Write (6,*) LOG10(GNrm(i+1)/GNrm(i))
-c           Write (6,*) Factor*LOG10(GNrm(i+1)/GNrm(i))
-c           fact=10.0**(Factor*LOG10(GNrm(i+1)/GNrm(i)))
-c           Write (6,*) 'fact=',fact
-c           Beta_Disp_Tmp=Min(Beta_Disp,
-c    &                    Max(Beta_Disp_Min,
-c    &                        Beta_Disp_Tmp*fact))
-cendif
-c        Write (6,*) 'i, Beta_Disp_tmp=',i,'   ',Beta_Disp_tmp
-c     End Do
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
       tmp=0.0D0
@@ -448,12 +377,6 @@ c     End Do
          Beta_Disp_=Beta_Disp
          Beta_=Beta
       End If
-*     Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
-*     Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
-*     Write (6,*) 'Beta_Disp_=',Beta_Disp_
-*     Write (6,*) 'Max_Disp_=',1.96D0*Sqrt(variance)
-*
-*     Beta_=Beta
 *
 #ifdef _RS_RFO_
 *     Switch over to RS-RFO once the gradient is low.
@@ -497,12 +420,17 @@ c     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*        Convergence is based on the gradient of the current iteration.
+*
+         GNrm(iterAI)=Sqrt(DDot_(nInter,Grad_s(1,iterAI),1,
+     &                                  Grad_s(1,iterAI),1))
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        Compute the updated structure.
 *
          Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
-fully.
-[100%]  Installation of QCMaquis, ALPS and Boost was successful!
      &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -513,7 +441,20 @@ fully.
      &                nWndw/2,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,iOpt_RS)
+     &                Kriging_Hessian,qBeta,iOpt_RS,iterAI.eq.iter)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        In case of a constrained optimization GrdMax and GNrm has been
+*        updated to reflect the contribution from the constraint.
+*        GrdMax, however, is a scalar and we need to save it such that
+*        it has the correct value on exit. That is, the value of itera-
+*        tion iter.
+*
+         If (iterAI.eq.iter) Then
+            GrdMax_Save=GrdMax
+            GrdLbl_Save=GrdLbl
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -529,14 +470,14 @@ fully.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Compute the energy and gradient according to the
-*        surrogate model for the new coordinates.
-*
 *        Transform the new internal coordinates to Cartesians
 *
          Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
      &                       Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
      &                       Work(ipCx),U,.True.,iter)
+*
+*        Compute the energy and gradient according to the
+*        surrogate model for the new coordinates.
 *
          Call Energy_Kriging(qInt_s(1,iterAI+1),Energy(iterAI+1),nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI+1),E_Disp,nInter)
@@ -570,21 +511,21 @@ fully.
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criteria
-            Write (6,*) 'GNrm(iterAI)=',GNrm(iterAI)=
-            FAbs=Sqrt(DDot_(nInter,Grad_s(1,iterAI),1,
-     &                            Grad_s(1,iterAI),1)/DBLE(nInter))
+            FAbs=GNrm(iterAI-1)/SQRT(DBLE(nInter-nLambda))
+C           Write (*,*)
+C           Write (*,*) 'iter=',iterAI-1
+C           Write (*,*) 'FAbs=',GNrm(iterAI-1)
+C           Write (*,*) 'GrdMax=',GrdMax
             RMS =Sqrt(DDot_(nInter,Shift_s(1,iterAI-1),1,
      &                          Shift_s(1,iterAI-1),1)/DBLE(nInter))
-            GrdMx=Zero
             RMSMx=Zero
             Do iInter = 1, nInter
-               GrdMx=Max(GrdMx,Abs(Grad_s(iInter,iterAI)))
                RMSMx=Max(RMSMx,Abs(Shift_s(iInter,iterAI-1)))
             End Do
 *
             Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
             Not_Converged = Not_Converged .or.
-     &                      GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
+     &                      GrdMax.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
             Not_Converged = Not_Converged .or.
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
@@ -692,23 +633,16 @@ fully.
 *
       Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &            Grad(1,iter),Shift(1,iter),Lbl)
+*
+*     Stick in the correct value for GrdMax, which might contain a
+*     contribution due to constraints.
+*
+      GrdMax=GrdMax_Save
+      GrdLbl=GrdLbl_Save
 #ifdef _DEBUG_
       Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
       Call RecPrt('Shift:',' ',Shift,nInter,iter)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Reset Step_trunc flag if gradient is below the convergence
-*     theshold. If not we might end up in a loop of no displacements
-*     and eventually numerical problems.
-*
-*     FAbs=Sqrt(
-*    &          DDot_(nInter,Grad(1,iter),1,Grad(1,iter),1)
-*    &         / DBLE(nInter)
-*    &         )
-*     GrdMax=Abs(GrdMax)
-*     If (GrdMax.le.ThrGrd*OneHalf .and. Fabs.lt.ThrGrd) Step_trunc=' '
 *                                                                      *
 ************************************************************************
 *                                                                      *

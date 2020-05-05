@@ -43,7 +43,7 @@
 *
 *     Call RecPrt('dx',' ',dx,1,mInter)
       Call DCopy_(mInter,dx,1,du(1+nLambda),1)
-      Call DCopy_(nLambda,dy_,1,du,1)
+C     Call DCopy_(nLambda,dy_,1,du,1)
 *     Call RecPrt('du',' ',du,1,nInter)
 *     Call RecPrt('T_',' ',T_,nInter,nInter)
       Call DGEMM_('N','N',

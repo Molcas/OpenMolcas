@@ -47,7 +47,7 @@
       UpMeth='RS-RFO'
       Lu=6
 *#define _DEBUG_
-*define _DEBUG2_
+*#define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)

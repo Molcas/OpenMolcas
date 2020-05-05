@@ -142,7 +142,7 @@
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,iOpt_RS)
+     &                   Kriging_Hessian,qBeta,iOpt_RS,.True.)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -175,7 +175,7 @@
      &                nWndw,Mode,ipMF,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,iOpt_RS)
+     &                Kriging_Hessian,qBeta,iOpt_RS,.True.)
 *                                                                      *
 ************************************************************************
 *                                                                      *
