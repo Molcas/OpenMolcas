@@ -1950,7 +1950,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
-      If ( IPRLEV.ge.DEBUG ) then
+!       If ( IPRLEV.ge.DEBUG ) then
        CALL TRIPRT("Averaged one-body density matrix, D, in RASSCF"," ",
      &       work(ldmat),NAC)
        CALL TRIPRT("Averaged two-body density matrix, P"," ",
@@ -1962,7 +1962,7 @@ c  i_root>0 gives natural spin orbitals for that root
 ************ Priniting final RDMs in NECI format    *****************
 ************************************************************************
        Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-      end if
+!       end if
 ************************************************************************
 ******************      Closing up RASSCF    *******************
 ************************************************************************
