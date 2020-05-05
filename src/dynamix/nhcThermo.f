@@ -26,7 +26,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE NhcThermo (vel)
-      USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "Molcas.fh"
@@ -43,9 +42,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       PARAMETER   (kb = CONST_BOLTZMANN_/
      &             (CONV_AU_TO_KJ_*1.0D3))
       REAL*8      NHC(nh), vel(*)
-      CHARACTER, ALLOCATABLE ::   atom(:)*2
       REAL*8, ALLOCATABLE ::      Mass(:)
-      INTEGER Iso
 
 *nh stands for the number of variables in the thermostat
 * NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
@@ -59,10 +56,7 @@ CC READ PARAMETERS FROM RUNFILE
 
       CALL Get_nAtoms_Full(natom)
 
-      CALL mma_allocate(atom,natom)
       CALL mma_allocate(Mass,natom)
-
-      CALL Get_Name_Full(atom)
 
       natom3=3*natom
 
@@ -77,20 +71,12 @@ C     Read Thermostat Variables
       Vx2 = NHC(6)
 
 C     Initialize the Mass variable
-C
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
+      CALL GetMassDx(Mass,natom)
 
       Ekin = 0.0D0
 
 
       DO i=1, natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
-C-------------------------------------------
         DO j=1, 3
           Ekin = Ekin + 5.0D-01 * Mass(i) * (vel(3*(i-1)+j) ** 2.D0)
         END DO
@@ -139,7 +125,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       call mh5_put_dset(dyn_nh,NHC)
 #endif
 
-      CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)
 
       RETURN
