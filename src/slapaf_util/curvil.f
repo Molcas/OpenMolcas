@@ -95,6 +95,8 @@
          nqInt=nQQ*MaxItr
          Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
          Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+         Call FZero(Work(ip_rInt),nqInt)
+         Call FZero(Work(ip_drInt),nqInt)
       End If
 *
       Call Allocate_Work(ipDegen,nDim)

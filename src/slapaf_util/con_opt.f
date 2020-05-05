@@ -43,11 +43,13 @@
 *             University of Lund, SWEDEN                               *
 *             July '03                                                 *
 ************************************************************************
+      use RDC
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step, Restriction_Dispersion
-      Real*8 Restriction_Step, Restriction_Dispersion
+      External Restriction_Step, Restriction_Disp_Con
+      Real*8 Restriction_Step, Restriction_Disp_Con
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
      &       T(nInter,nInter), dEdq(nInter,nIter),
      &       rLambda(nLambda,nIter+1), q(nInter,nIter+1),
@@ -61,7 +63,7 @@
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup
+      Logical Line_Search, Found, IRC_setup, Trunc
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
 *                                                                      *
@@ -69,14 +71,15 @@
 *                                                                      *
       jPrint=jPrint_
       If (jPrint.ge.99) Then
-         Call RecPrt('r',' ',r,nLambda,nIter)
-         Call RecPrt('drdq(orig)',' ',drdq,nInter,nLambda*nIter)
-         Call RecPrt('dEdq',' ',dEdq,nInter,nIter)
-         Call RecPrt('Energy',' ',Energy,nIter,1)
-         Call RecPrt('q',' ',q,nInter,nIter+1)
-         Call RecPrt('T',' ',T,nInter,nInter)
+         Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
+         Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
+     &                                         nLambda*nIter)
+         Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
+         Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
+         Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
          Do iLambda = 1, nLambda
-            Call RecPrt('d2rdq2',' ',d2rdq2(1,1,iLambda),nInter,nInter)
+            Call RecPrt('Con_Opt: d2rdq2',' ',d2rdq2(1,1,iLambda),
+     &                                        nInter,nInter)
          End Do
       End If
 *                                                                      *
@@ -94,6 +97,7 @@
       Sf=Sqrt(Two)
       dxdx=Zero
       Thr=1.0D-6
+      Trunc=.False.
       Call GetMem('dqtmp','Allo','Real',ipdq,nInter)
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Do iIter = iOff_Iter+1, nIter
@@ -169,7 +173,8 @@ c    &              dEdq(iInter,iIter)
      &               drdq(iInter,iLambda,iIter) = Zero
                End Do
                If (jPrint.ge.99)
-     &         Call RecPrt('drdq(1)',' ',drdq,nInter,nLambda*nIter)
+     &         Call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,
+     &                                            nLambda*nIter)
 *
 *------------- Orthogonalize against the gradient and all other
 *              constraints
@@ -195,7 +200,8 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
 *
                Continue
                If (jPrint.ge.99)
-     &         Call RecPrt('drdq(2)',' ',drdq,nInter,nLambda*nIter)
+     &         Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
+     &                                            nLambda*nIter)
             End If
          End Do
 *                                                                      *
@@ -206,7 +212,8 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
 *        the complemental subspace.
 *
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
-C        Call RecPrt('T-Matrix',' ',T,nInter,nInter)
+         If (jPrint.ge.99) Call RecPrt('Con_Opt: T-Matrix',' ',T,
+     &                                  nInter,nInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -231,7 +238,7 @@ C        Call RecPrt('T-Matrix',' ',T,nInter,nInter)
          Call Free_Work(ipRTInv)
 *
          Call DScal_(nLambda,-One,dy,1)
-         If (jPrint.ge.99) Call RecPrt('dy',' ',dy,nLambda,1)
+         If (jPrint.ge.99) Call RecPrt('Con_Opt: dy',' ',dy,nLambda,1)
 *
 *                                                                      *
 ************************************************************************
@@ -472,9 +479,13 @@ C           Write (6,*) 'gBeta=',gBeta
 *
          dydymax=CnstWght*max(dxdx,Half*Beta)
          If (dydy.gt.dydymax) Then
-*           Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
+            Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
+            Trunc=.True.
             Call DScal_(nLambda,dydymax/dydy,dy,1)
             dydy=dydymax
+         Else
+            Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
+            Trunc=.False.
          End If
 *
 *        The step reduction in the space which we minimize is such that
@@ -508,7 +519,8 @@ C        Write (6,*) 'dydy=',dydy
          dydy_last=dydy
 C        Write (6,*) 'yBeta=',yBeta
 *
-         If (jPrint.ge.99) Call RecPrt('dy(actual)',' ',dy,nLambda,1)
+         If (jPrint.ge.99) Call RecPrt('Con_Opt: dy(actual)',' ',dy,
+     &                                 nLambda,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -519,10 +531,10 @@ C        Write (6,*) 'yBeta=',yBeta
 *                                                                      *
 *
       If (jPrint.ge.99) Then
-         Call RecPrt('dEdx',' ',dEdx,nInter-nLambda,nIter)
-         Call RecPrt('Lambda',' ',rLambda,nLambda,nIter)
-         Call RecPrt('x',' ',x,nInter-nLambda,nIter)
-         Call RecPrt('dx',' ',dx,nInter-nLambda,nIter)
+         Call RecPrt('Con_Opt: dEdx',' ',dEdx,nInter-nLambda,nIter)
+         Call RecPrt('Con_Opt: Lambda',' ',rLambda,nLambda,nIter)
+         Call RecPrt('Con_Opt: x',' ',x,nInter-nLambda,nIter)
+         Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
       End If
 *                                                                      *
 ************************************************************************
@@ -532,7 +544,8 @@ C        Write (6,*) 'yBeta=',yBeta
 *     gradient.
 *
       call dcopy_(nInter*nIter,dEdq,1,dEdq_,1)
-      If (jPrint.ge.99) Call RecPrt('dEdq',' ',dEdq,nInter,nIter)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: dEdq',' ',dEdq,
+     &                              nInter,nIter)
       Do iIter = iOff_iter+1, nIter
          Do iLambda = 1, nLambda
             Call DaXpY_(nInter,rLambda(iLambda,nIter), ! Sign
@@ -540,7 +553,8 @@ C        Write (6,*) 'yBeta=',yBeta
      &                 dEdq_(1,iIter),1)
          End Do
       End Do
-      If (jPrint.ge.99) Call RecPrt('dEdq_',' ',dEdq_,nInter,nIter)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,
+     &                              nInter,nIter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -553,7 +567,8 @@ C        Write (6,*) 'yBeta=',yBeta
          End Do
          Energy(iIter)=Temp
       End Do
-      If (jPrint.ge.99) Call RecPrt('Energy',' ',Energy,nIter,1)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: Energy',' ',Energy,
+     &                              nIter,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -583,7 +598,8 @@ C        Write (6,*) 'yBeta=',yBeta
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
 
-      If (jPrint.ge.99) Call RecPrt('Hess',' ',Hess,nInter,nInter)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: Hess',' ',Hess,
+     &                              nInter,nInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -608,7 +624,8 @@ C        Write (6,*) 'yBeta=',yBeta
      &               0.0d0,W,nInter-nLambda)
          Call Free_Work(ipTmp)
          If (jPrint.ge.99)
-     &      Call RecPrt('W',' ',W,nInter-nLambda,nInter-nLambda)
+     &      Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,
+     &                  nInter-nLambda)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -630,13 +647,33 @@ C           Write (6,*) 'tBeta=',tBeta
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
      &                Restriction_Step,Thr_RS)
          Else
-            tBeta=Beta_Disp
+            Beta_Disp_Min=1.0D-10
+            tmp=0.0D0
+            Do i = 1, nInter-nLambda
+               tmp = Max(tmp,Abs(dEdx(i,nIter)))
+            End Do
+            Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
+            tBeta=Beta_Disp_
             Thr_RS=1.0D-5
-C           Write (6,*) 'tBeta=',tBeta
+*
+            nInter_=nInter
+            nLambda_=nLambda
+            Call mma_allocate(q_,nInter,Label='q_')
+            Call DCopy_(nInter,q(1,nIter),1,q_,1)
+            Call mma_allocate(T_,nInter,nInter,Label='T_')
+            Call DCopy_(nInter**2,T,1,T_,1)
+            Call mma_allocate(dy_,nLambda,Label='dy_')
+            Call DCopy_(nLambda,dy,1,dy_,1)
+*
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &                Restriction_Dispersion,Thr_RS)
+     &                Restriction_Disp_Con,Thr_RS)
+*
+            Call mma_deallocate(dy_)
+            Call mma_deallocate(T_)
+            Call mma_deallocate(q_)
+*
          End If
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
@@ -656,7 +693,8 @@ c        End Do
 c        GNrm=Min(1.0D-2,GNrm)
 c        If (nIter.eq.iOff_Iter+1) GNrm=1.0D-2
 c     End If
-      If (jPrint.ge.99) Call RecPrt('dx',' ',dx,nInter-nLambda,nIter)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: dx',' ',dx,
+     &                              nInter-nLambda,nIter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -710,7 +748,7 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
 *
       call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
       Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-      If (jPrint.ge.99) Call RecPrt('q',' ',q,nInter,nIter+1)
+      If (jPrint.ge.99) Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -739,6 +777,10 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
          Call Free_Work(ipLbl)
 *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Trunc) Step_Trunc='*'
 *                                                                      *
 ************************************************************************
 *                                                                      *

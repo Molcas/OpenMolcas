@@ -50,7 +50,8 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
-      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:)
+      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:),
+     &                      BMx_HMF(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,6 +135,21 @@
 #ifdef _DEBUG_
       Call RecPrt('U','',U,nInter,nInter)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     We need to transform the B-matrix to the new coordinates.
+*
+      Call mma_allocate(BMx_HMF,3*nsAtom,3*nsAtom,Label='BMx_HMF')
+      BMx_HMF(:,:)=0.0D0
+      Call DGEMM_('N','N',3*nsAtom,nInter,nInter,
+     &            1.0D0,BMx,3*nsAtom,
+     &                  U,nInter,
+     &            0.0D0,BMx_HMF,3*nsAtom)
+      Call DCopy_(3*nsAtom*(3*nsAtom-nInter),BMx(1,nInter+1),1,
+     &                                     BMx_HMF(1,nInter+1),1)
+*     Call RecPrt('BMx',' ',BMx,3*nsAtom,3*nsAtom)
+*     Call RecPrt('BMx_HMF',' ',BMx_HMF,3*nsAtom,3*nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -425,14 +441,19 @@ c     End Do
          tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
 *     Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp_tmp)
-      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
+      if (nLambda.eq.0) Then
+         Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
+         Beta_=Min(1.0D3*GNrm(iter),Beta)
+      Else
+         Beta_Disp_=Beta_Disp
+         Beta_=Beta
+      End If
 *     Write (6,*) 'Beta_Disp,tmp=',Beta_Disp,tmp
 *     Write (6,*) 'Beta_Disp_tmp=',Beta_Disp_tmp
 *     Write (6,*) 'Beta_Disp_=',Beta_Disp_
 *     Write (6,*) 'Max_Disp_=',1.96D0*Sqrt(variance)
 *
 *     Beta_=Beta
-      Beta_=Min(1.0D3*GNrm(iter),Beta)
 *
 #ifdef _RS_RFO_
 *     Switch over to RS-RFO once the gradient is low.
@@ -480,11 +501,13 @@ c     End Do
 *
          Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
+fully.
+[100%]  Installation of QCMaquis, ALPS and Boost was successful!
      &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                nStab,BMx_HMF,Smmtrc,nDimBC,rLambda,ipCx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
      &                nWndw/2,Mode,ipMF,
@@ -547,6 +570,7 @@ c     End Do
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criteria
+            Write (6,*) 'GNrm(iterAI)=',GNrm(iterAI)=
             FAbs=Sqrt(DDot_(nInter,Grad_s(1,iterAI),1,
      &                            Grad_s(1,iterAI),1)/DBLE(nInter))
             RMS =Sqrt(DDot_(nInter,Shift_s(1,iterAI-1),1,
@@ -693,6 +717,7 @@ c     End Do
       Call mma_deallocate(qInt_s)
       Call mma_deallocate(Grad_s)
       Call mma_deallocate(Shift_s)
+      Call mma_deallocate(BMx_HMF)
       Call mma_deallocate(U)
       Call mma_deallocate(Hessian)
       Call Finish_Kriging()
