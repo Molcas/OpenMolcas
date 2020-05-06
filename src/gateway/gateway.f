@@ -123,6 +123,8 @@ C-SVC: identify runfile with a fingerprint
       lOPTO = .False.
       Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
      &                  Work(Info),nDInf)
+      Call Gen_RelPointers(Info-1) ! Work Mode
+#include "release_core.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -4738,33 +4738,6 @@ C     Mx_mdc=mdc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Release unused core. This section should be the last section in
-*     this routine. DON'T MOVE IT!
-*
-      Call Gen_RelPointers(Info-1)
-      If (Run_Mode.ne.S_Mode) Then
-*
-         Call Allocate_Work(Info_tmp,nInfo)
-         Call dCopy_(nInfo,Work(Info),1,Work(Info_tmp),1)
-         Call Free_Work(Info)
-         Call Gen_RelPointers(-(LctInf-1))
-         Call Allocate_Work(Info,nInfo)
-         LctInf=Info
-         Call Gen_RelPointers(LctInf-1)
-         Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
-         Call Free_Work(Info_tmp)
-*
-         If (iPrint.ge.99) Then
-            Write (LuWr,*) ' ****            nPrint           ****'
-            Write (LuWr,'(26(1X,10I4,/))') nPrint
-            Write (LuWr,*) ' *************************************'
-            Write (LuWr,*) ' nInfo=',nInfo
-C           Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
-         End If
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call qExit('RdCtl')
       Return
 6666  Call WarningMessage(2,'Unable to read data from '//KWord)
