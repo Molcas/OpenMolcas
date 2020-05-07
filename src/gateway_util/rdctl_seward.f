@@ -1819,7 +1819,6 @@ c     Go To 998
       lenXMolnr=2*((nXMolnr*nXF+1)/2)
       lenXEle=2*((nXF+1)/2)
 
-      Call Gen_RelPointers(Info-1) ! Work Mode
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
       ipXMolnr=ipXF+lenXF
@@ -1832,7 +1831,7 @@ c     Go To 998
 *
       ip = ipXF
       Do iXF = 1, nXF
-         Work(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
+         DInf(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
 *
 *        If reading from external file, use free format to allow
 *        long lines of input. On the other hand, comments are
@@ -1843,17 +1842,13 @@ c     Go To 998
      &                        Label='iScratch')
             Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
      &                  (iScratch(nXMolnr+k),k=1,nReadEle),
-     &           (Work(ip+k),k=0,nDataRead-1)
+     &           (DInf(ip+k),k=0,nDataRead-1)
             Do i = 1, nXMolnr
-               Work(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
+               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
             End Do
             Do i = 1, nReadEle
-               Work(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
+               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
             End Do
-*           Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
-*    &           k=0,nXMolnr-1),
-*    &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
-*    &           (Work(ip+k),k=0,nDataRead-1)
             Call mma_deallocate(iScratch)
          Else
             KWord = Get_Ln(LuRd)
@@ -1862,24 +1857,22 @@ c     Go To 998
 
             Do i = 1, nXMolnr
                Call Get_I1(i,iTemp)
-               Work(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
+               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
             End Do
-*           Call Get_I(1,iWork(ipXMolnr+(iXF-1)*nXMolnr),nXMolnr)
             Do i = 1, nReadEle
                Call Get_I1(nXMolnr+i,iTemp)
-               Work(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
+               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
             End Do
-*           Call Get_I(nXMolnr+1,iWork(ipXEle+(iXF-1)),nReadEle)
-            Call Get_F(nXMolnr+nReadEle+1,Work(ip),nDataRead)
+            Call Get_F(nXMolnr+nReadEle+1,DInf(ip),nDataRead)
          EndIf
 *
-         Work(ip  ) = Work(ip  )*ScaleFactor
-         Work(ip+1) = Work(ip+1)*ScaleFactor
-         Work(ip+2) = Work(ip+2)*ScaleFactor
+         DInf(ip  ) = DInf(ip  )*ScaleFactor
+         DInf(ip+1) = DInf(ip+1)*ScaleFactor
+         DInf(ip+2) = DInf(ip+2)*ScaleFactor
          If (Convert) Then
-            Work(ip  ) = Work(ip  )/angstr
-            Work(ip+1) = Work(ip+1)/angstr
-            Work(ip+2) = Work(ip+2)/angstr
+            DInf(ip  ) = DInf(ip  )/angstr
+            DInf(ip+1) = DInf(ip+1)/angstr
+            DInf(ip+2) = DInf(ip+2)/angstr
          End If
          ip = ip + nData_XF
 *
@@ -1890,6 +1883,7 @@ c     Go To 998
          Close(LuRd)
          LuRd = LuRd_saved
       EndIf
+      Call Gen_RelPointers(Info-1) ! Work Mode
       If (isXfield.eq.1) goto 9755
       Go To 998
 *                                                                      *
