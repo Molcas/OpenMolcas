@@ -49,6 +49,7 @@
       Character*80 Blank
       Character*180 aDebug
       Character*12 Angstring
+#include "constants.fh"
 #include "g_zmatconv.fh"
       Logical IfTest
         character *(*) xb_label(*)
@@ -153,7 +154,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
 * Calculate coordinates
-      torad = 3.14159265358979323846d0 / 180.0d0
+      torad = CONST_PI_ / 180.0d0
 *     Atom #1
       If (nAtoms+nXAtoms.EQ.1) GoTo 2000
 *     Atom #2

@@ -17,18 +17,19 @@
         icount=0
         iglobal=0
         ierr=0
-100        read(LuRd,'(a)',err=300,end=300) Line
+100     read(LuRd,'(a)',err=300,end=300) Line
         if(Line.eq.' '.or.Line(1:3).eq.'END'.or.Line(1:3).eq.'end'
      &        .or. Line(1:3).eq.'End') goto 200
-        i=2
-        if(icount.eq.0) then
-          i=index(Line,'.')
-          if(i.eq.0) then
+        i=index(Line,'.')
+        if(i.eq.0) then
+          if(icount.eq.0) then
             iglobal=1
             xb_bas(1)=Line
             goto 200
-           endif
-         endif
+          else
+            goto 300
+          endif
+        endif
         icount=icount+1
         nxbas=icount
         xb_label(nxbas)=Line(1:i-1)

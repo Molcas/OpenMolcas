@@ -45,6 +45,8 @@ xml_re = re.compile(r'(\s*)..\s+xmldoc::\s*')
 xmldocs = {}
 for root, subdirs, files in os.walk(os.path.join(docdir, 'source')):
   for fname in files:
+    if (not fname.endswith('.rst')):
+      continue
     docs = []
     with open(os.path.join(root, fname), 'rb') as f:
       inxml = False
