@@ -125,6 +125,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iRout=3
       iPrint = nPrint(iRout)
       Call qEnter('RdCtl')
@@ -269,9 +270,8 @@
             Oper(i)=' '
          End Do
          nOper=0
-      ipExp(1) = Info
-*     CLightAU = 137.036d0
-      CLightAU = CONST_C_IN_AU_
+         ipExp(1) = 1
+         CLightAU = CONST_C_IN_AU_
       End If
 *
       nDKfull = 0
@@ -343,6 +343,7 @@ cperiod
 *     KeyWord directed input
 *
       nDone=0
+      Call Gen_RelPointers(Info-1) ! Work  Mode
  998  lTtl = .False.
       If (Basis_Test.and.nDone.eq.1) Then
          nDone=0
