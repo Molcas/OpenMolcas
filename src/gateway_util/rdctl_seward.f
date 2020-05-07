@@ -845,16 +845,16 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in Z-Matrix format
 *
 1920  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
       If (iErr.ne.0) Call Quit_OnUserError()
+      Call Gen_RelPointers(Info-1)   ! Work Mode
       Go To 998
 *                                                                      *
 ****** XBAS ************************************************************
@@ -1078,7 +1078,7 @@ c Simplistic validity check for value
       Goto 998
 *
  9201 Continue
-      Call Gen_RelPointers(-(Info-1))
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
@@ -1438,7 +1438,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 * the next line seems to convince IBM XLF 6.1 to forgo its otherwise
 * crass behaviour. Who can tell why? Peter Knowles, 7/99
          ninfo_stupid = nInfo
-         Call Gen_RelPointers(Info-1)
+         Call Gen_RelPointers(Info-1) ! Work Mode
          Go To 998
       End If
 *
@@ -1729,12 +1729,13 @@ c     Go To 998
 *     User specified external field
 *
  975  lXF=.True.
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
-*       Note that the "Err" signal cannot be completely trusted, since
-*       a slash (i.e., an absolute path) marks end of input and gives
-*       no error
+*     Note that the "Err" signal cannot be completely trusted, since
+*     a slash (i.e., an absolute path) marks end of input and gives
+*     no error
       LuRd_saved=LuRd
       ibla = -1
       Read(KWord,*,Err=9751) ibla
@@ -1767,10 +1768,11 @@ c     Go To 998
       Call Get_I1(3,iXPolType)
       Call Get_I1(4,nXMolnr)
       Call Get_I1(5,nReadEle)
-
+*
 *     Set defaults: ch+dip, no polarisabilities,
 *                   exclude only its own multipole,
 *                   no element read
+*
       if(nOrd_XF.eq.-2) nOrd_XF=1
       if(iXPolType.eq.-2) iXPolType=0
       if(nXMolnr.eq.-2) nXMolnr=0
@@ -1800,7 +1802,6 @@ c     Go To 998
       nData_XF=3
       Do iOrd_XF = 0, nOrd_XF
          nData_XF = nData_XF +  (iOrd_XF+1)*(iOrd_XF+2)/2
-C        nData_XF = nData_XF +  2*iOrd_XF+1
       End Do
 
       if(iXPolType.gt.0) then
@@ -1818,6 +1819,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       lenXMolnr=2*((nXMolnr*nXF+1)/2)/RtoI
       lenXEle=2*((nXF+1)/2)/RtoI
 
+      Call Gen_RelPointers(Info-1) ! Work Mode
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
       ipXMolnr_r=ipXF+lenXF
@@ -1835,10 +1837,11 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Do iXF = 1, nXF
          iWork(ipXEle+(iXF-1))=0   ! default: no element spec.
 *
-*     If reading from external file, use free format to allow
-*     long lines of input. On the other hand, comments are
-*     not allowed in external files.
-         If(LuRd.ne.LuRd_saved) then
+*        If reading from external file, use free format to allow
+*        long lines of input. On the other hand, comments are
+*        not allowed in external files.
+*
+         If (LuRd.ne.LuRd_saved) then
             Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
      &           k=0,nXMolnr-1),
      &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
@@ -1853,9 +1856,9 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             Call Get_F(nXMolnr+nReadEle+1,Work(ip),nDataRead)
          EndIf
 *
-            Work(ip  ) = Work(ip  )*ScaleFactor
-            Work(ip+1) = Work(ip+1)*ScaleFactor
-            Work(ip+2) = Work(ip+2)*ScaleFactor
+         Work(ip  ) = Work(ip  )*ScaleFactor
+         Work(ip+1) = Work(ip+1)*ScaleFactor
+         Work(ip+2) = Work(ip+2)*ScaleFactor
          If (Convert) Then
             Work(ip  ) = Work(ip  )/angstr
             Work(ip+1) = Work(ip+1)/angstr
@@ -1870,7 +1873,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
          Close(LuRd)
          LuRd = LuRd_saved
       EndIf
-      if(isXfield.eq.1) goto 9755
+      If (isXfield.eq.1) goto 9755
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -3901,7 +3904,7 @@ c      endif
             LuRd_saved=LuRd
             filename='findsym.xfield'
             lXF=.True.
-            Call Gen_RelPointers(Info-1)
+            Call Gen_RelPointers(Info-1) !Work Mode
             goto 9753
          endif
       endif

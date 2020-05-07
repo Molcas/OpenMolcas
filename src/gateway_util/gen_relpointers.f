@@ -42,9 +42,9 @@
       ipOMQ= ipOMQ+ ibase
       ipDMS= ipDMS+ ibase
       ipWel= ipWel+ ibase
-      ipXF = ipXF + ibase
       ipAMP= ipAMP+ ibase
       ipRP1=ipRP1 + ibase
+      ipXF = ipXF + ibase
       ipXMolnr=ipXMolnr + RtoI*ibase
       ipXEle=ipXEle + RtoI*ibase
 *
