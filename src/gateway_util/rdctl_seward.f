@@ -70,7 +70,7 @@
       Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
-      Integer, Allocatable :: ITmp(:), nIsot(:,:)
+      Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
       Character*180 STDINP(mxAtom*2)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
@@ -1773,10 +1773,10 @@ c     Go To 998
 *                   exclude only its own multipole,
 *                   no element read
 *
-      if(nOrd_XF.eq.-2) nOrd_XF=1
-      if(iXPolType.eq.-2) iXPolType=0
-      if(nXMolnr.eq.-2) nXMolnr=0
-      if(nReadEle.eq.-2) nReadEle=0
+      if (nOrd_XF  .eq.-2) nOrd_XF  =1
+      if (iXPolType.eq.-2) iXPolType=0
+      if (nXMolnr  .eq.-2) nXMolnr  =0
+      if (nReadEle .eq.-2) nReadEle =0
 
       If ((nOrd_XF.gt.2).or.(nOrd_XF.lt.-1)) Then
          Call WarningMessage(2,'Error! Illegal value of nOrd_XF')
@@ -1816,43 +1816,60 @@ c     Go To 998
       Endif
 *
       lenXF=nXF*nData_XF
-      lenXMolnr=2*((nXMolnr*nXF+1)/2)/RtoI
-      lenXEle=2*((nXF+1)/2)/RtoI
+      lenXMolnr=2*((nXMolnr*nXF+1)/2)
+      lenXEle=2*((nXF+1)/2)
 
       Call Gen_RelPointers(Info-1) ! Work Mode
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
-      ipXMolnr_r=ipXF+lenXF
-      ipXEle_r=ipXMolnr_r+lenXMolnr
+      ipXMolnr=ipXF+lenXF
+      ipXEle=ipXMolnr+lenXMolnr
 *---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXEle_r+lenXEle
+      ipExp(iShll+1)=ipXEle+lenXEle
       nInfo = nInfo + lenXF + lenXMolnr + lenXEle
-*
-      ipXMolnr=ip_of_iWork_d(Work(ipXMolnr_r))
-      ipXEle=ip_of_iWork_d(Work(ipXEle_r))
 *
       Call Upcase(KWord)
 *
       ip = ipXF
       Do iXF = 1, nXF
-         iWork(ipXEle+(iXF-1))=0   ! default: no element spec.
+         Work(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
 *
 *        If reading from external file, use free format to allow
 *        long lines of input. On the other hand, comments are
 *        not allowed in external files.
 *
          If (LuRd.ne.LuRd_saved) then
-            Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
-     &           k=0,nXMolnr-1),
-     &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
+            Call mma_Allocate(iScratch,nXMolnr+nReadEle,
+     &                        Label='iScratch')
+            Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
+     &                  (iScratch(nXMolnr+k),k=1,nReadEle),
      &           (Work(ip+k),k=0,nDataRead-1)
+            Do i = 1, nXMolnr
+               Work(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
+            End Do
+            Do i = 1, nReadEle
+               Work(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
+            End Do
+*           Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
+*    &           k=0,nXMolnr-1),
+*    &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
+*    &           (Work(ip+k),k=0,nDataRead-1)
+            Call mma_deallocate(iScratch)
          Else
             KWord = Get_Ln(LuRd)
             KWord(170:180)=' 0.0 0.0 0.0'
             Call Put_Ln(KWord)
 
-            Call Get_I(1,iWork(ipXMolnr+(iXF-1)*nXMolnr),nXMolnr)
-            Call Get_I(nXMolnr+1,iWork(ipXEle+(iXF-1)),nReadEle)
+            Do i = 1, nXMolnr
+               Call Get_I1(i,iTemp)
+               Work(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
+            End Do
+*           Call Get_I(1,iWork(ipXMolnr+(iXF-1)*nXMolnr),nXMolnr)
+            Do i = 1, nReadEle
+               Call Get_I1(nXMolnr+i,iTemp)
+               Work(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
+            End Do
+*           Call Get_I(nXMolnr+1,iWork(ipXEle+(iXF-1)),nReadEle)
             Call Get_F(nXMolnr+nReadEle+1,Work(ip),nDataRead)
          EndIf
 *
