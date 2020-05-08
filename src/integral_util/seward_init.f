@@ -38,6 +38,7 @@
 #include "nac.fh"
 #include "srint.fh"
       Logical lGENINT,Reduce_Prt
+      Character*180 Env
       External Reduce_Prt
       Parameter(MxAO8=MxAO*8, MxAng1=MxAng+1, MxMx=Mxdbsc*MxAng1)
 *                                                                      *
@@ -87,7 +88,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       nWel=0
       ipWel=ip_Dummy
       iRI_type=0
-*     iRI_type=4
       jMax = 5
       nTtl=0
       Max_Center=15
@@ -177,7 +177,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       MolWgh=2
       NEMO=.False.
       Do_RI=.False.
-*     Do_RI=.True.
       Primitive_Pass=.True.
       DKroll=.False.
       LDKroll=.False.
@@ -235,6 +234,13 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       VarT=.False.
       VarR=.False.
       FNMC=.False.
+*
+      Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
+      Call UpCase(Env)
+      If (Env.eq.'YES') Then
+         Do_RI=.True.
+         iRI_Type=4
+      End If
 *
       Shake=-One
 *

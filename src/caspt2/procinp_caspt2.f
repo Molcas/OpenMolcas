@@ -36,6 +36,8 @@ C initialize global common-block variables appropriately.
       Integer Algo
       COMMON /CHORAS  / REORD,DECO,ALGO
       COMMON /CHOTIME / timings
+* Environment
+      Character(Len=180) Env
 
       Integer I, J, M, N
       Integer ISYM
@@ -86,8 +88,14 @@ C initialize global common-block variables appropriately.
         if (input%IPEA) then
           BSHIFT = input%BSHIFT
         else
-* Set default IPEA to 0.25 Eh
-          BSHIFT = 0.25d0
+* Set default IPEA to 0.25 Eh or 0.0
+          call getenvf('MOLCAS_NEW_DEFAULTS', Env)
+          call upcase(Env)
+          if (Env.eq.'YES') then
+            BSHIFT = 0.0d0
+          else
+            BSHIFT = 0.25d0
+          end if
         end if
       end if
 
