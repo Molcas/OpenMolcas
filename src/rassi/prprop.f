@@ -652,8 +652,6 @@ C printing threshold
 
             END IF
             Call Add_Info('TMS(SO,Len)',[F],1,6)
-            CYCLE
-
 
            END IF
           END DO
