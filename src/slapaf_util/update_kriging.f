@@ -61,7 +61,6 @@
 *     Note that turning off the sorting will result in a poorer kriging!
 *
 *#define _DEBUG_
-#define _UNSORTED_
 #define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
@@ -167,7 +166,6 @@
       Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
       Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
 *
-#ifdef _UNSORTED_
 *
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
@@ -176,112 +174,6 @@
       Call DScal_(nInter*nRaw,-One,Grad_s,1)
       Call DCopy_(nRaw,Energy(iFirst),1,Energy_s,1)
 *
-#else
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Sort the data so that the points are ordered by distance
-*     to the last point. Make sure that the reference point is
-*     the last point. This is important when the bias is defined
-*     relative to the last point energy.
-*
-*     This code will have to be cleaned up up later.
-*
-      ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
-*
-      Call DCopy_(nInter,qInt(1,iter),1,qInt_s(1,nRaw),1)
-      Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
-      Energy_s(nRaw)=Energy(iter)
-*
-*     Pick up the coordinates in descending order starting with the ones
-*     that are the closest to the current structure.
-*
-*     Print_it=.False.
-*666  Continue
-      iSt=Max(1,iter-nWndw+1)
-      Thr_low = Zero
-      Thr_high= 1.0D99
-      Do iRaw = nRaw-1, 1, -1
-*
-         kter=-1
-         Do jter = iSt, iter-1
-*
-*           Compute the distance in Cartesian coordinates.
-*
-#ifdef _CARTESIAN_
-            Distance=Zero
-            Do ix = 1, 3*nsAtom
-               Distance= Distance +
-     &                   Degen(ix) *
-     &                  (Work(ipCx_ref+ix-1) -
-     &                   Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
-            End Do
-#else
-            Distance=0.0d0
-            If (set_l) Then
-               Do inter = 1, nInter
-                  Distance = Distance +
-     &                       (
-     &                        ( qInt(inter,iter) - qInt(inter,jter) )
-     &                       / Value_l
-     &                       )**2
-               End Do
-            Else
-               Do inter = 1, nInter
-                  Distance = Distance +
-     &                       (
-     &                        ( qInt(inter,iter) - qInt(inter,jter) )
-     &                       / Array_l(inter)
-     &                       )**2
-               End Do
-            End If
-#endif
-            Distance = sqrt(Distance)
-*           If (Print_it) Then
-*              Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
-*              Write (6,*) 'Distance=',Distance
-*              Write (6,*) 'Thr_low=',Thr_low
-*              Write (6,*) 'Thr_high=',Thr_high
-*           End If
-*
-            If (Distance.gt.Thr_low .and.
-     &          Distance.lt.Thr_high) Then
-               kter=jter
-               Thr_high=Distance
-            End If
-*           If (Print_it) Then
-*              Write (6,*) 'iRaw,jter,kter=',iRaw,jter,kter
-*              Write (6,*) 'Thr_high=',Thr_high
-*           End If
-         End Do
-         If (kter.eq.-1) Then
-            Write (6,*) 'kter not set!'
-*           If (Print_it) Then
-               Call Abend()
-*           Else
-*              Print_it=.True.
-*              Go To 666
-*           End if
-         Else
-            Write (6,*) 'Use iteration: kter=',kter
-            Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
-            Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
-            Energy_s(iRaw)=Energy(kter)
-            Thr_low=Thr_high
-            Thr_high= 1.0D99
-         End If
-      End Do
-*
-*     Transform to the basis which diagonalizes the HMF Hessian.
-*
-      Call mma_allocate(Temp,nInter,nRaw,Label='Temp')
-      Call Trans_K(U,qInt_s,Temp,nInter,nRaw)
-      qInt_s(:,:) = Temp
-      Call Trans_K(U,Grad_s,Temp,nInter,nRaw)
-      Grad_s(:,:) = -Temp
-      Call mma_deallocate(Temp)
-*
-#endif
 #ifdef _DEBUG_
       Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
       Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
@@ -295,10 +187,11 @@
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
+      Call mma_Allocate(Array_l,nInter,Label='Array_l')
       If (Set_l) Then
          Call Get_dScalar('Value_l',Value_l)
+         Array_l(:)=Value_l
       Else
-         Call mma_Allocate(Array_l,nInter,Label='Array_l')
          Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
       End If
 *                                                                      *
@@ -319,13 +212,8 @@
 *     computation of the covariance matrix, and solve related GEK
 *     equations.
 *
-      If (Set_l) Then
-         Call set_l_kriging([Value_l],1)
-         Call Put_dScalar('Value_l',Value_l)
-      Else
-         Call Set_l_Kriging(Array_l,nInter)
-         Call mma_deAllocate(Array_l)
-      End If
+      Call Set_l_Kriging(Array_l,nInter)
+      Call mma_deAllocate(Array_l)
 *                                                                      *
 ************************************************************************
 *                                                                      *
