@@ -117,6 +117,7 @@
 *     Select between numerical evaluation of the Hessian or a molcular
 *     geometry optimization.
 *
+      Step_Trunc=' '
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *                                                                      *
 ************************************************************************

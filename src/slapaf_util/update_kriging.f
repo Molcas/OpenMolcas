@@ -91,6 +91,7 @@
       iterAI=iter
       dEner=meAI
       nRaw=Min(iter,nWndw/2)
+      nRaw=1
       iFirst = iter - nRaw + 1
       iterK=0
       dqdq=Zero
@@ -553,6 +554,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *        If RS rather than RV don not micro iterate
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
+         Not_Converged=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

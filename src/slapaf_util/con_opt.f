@@ -66,11 +66,13 @@
       Logical Line_Search, Found, IRC_setup
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
+      Real*8, Allocatable:: dqTmp(:), Trans(:), Tmp1(:), Tmp2(:,:),
+     &                      Tmp3(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-*#define _DEBUG_
+#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
       Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
@@ -99,7 +101,7 @@
       Sf=Sqrt(Two)
       dxdx=Zero
       Thr=1.0D-6
-      Call GetMem('dqtmp','Allo','Real',ipdq,nInter)
+      Call mma_allocate(dqTmp,nInter,Label='dqTmp')
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Do iIter = iOff_Iter+1, nIter
 *                                                                      *
@@ -152,14 +154,13 @@
                If (RR.lt.1.0D-12) Then
                   Call qpg_dArray('Transverse',Found,nTrans)
                   If (Found.and.(nTrans.eq.3*nsAtom)) Then
-                     Call Allocate_Work(ipTrans,3*nsAtom)
-                     Call Get_dArray('Transverse',Work(ipTrans),nTrans)
-                     Call ReacQ(Work(ipTrans),3*nsAtom,
-     &                          dEdq(1,iIter),nInter)
+                     Call mma_Allocate(Trans,3*nsAtom,Label='Trans')
+                     Call Get_dArray('Transverse',Trans,nTrans)
+                     Call ReacQ(Trans,3*nsAtom,dEdq(1,iIter),nInter)
                      RR=Sqrt(DDot_(nInter,dEdq(1,iIter),1,
      &                                   dEdq(1,iIter),1))
                      Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
-                     Call Free_Work(ipTrans)
+                     Call mma_deallocate(Trans)
                   End If
                Else
                   Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
@@ -334,8 +335,8 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
      &                     nInter,1,nInter,
      &                     One,T,nInter,
      &                     du,nInter,
-     &                     Zero,Work(ipdq),nInter)
-               dxdx=Sqrt(DDot_(nInter,Work(ipdq),1,Work(ipdq),1))
+     &                     Zero,dqTmp,nInter)
+               dxdx=Sqrt(DDot_(nInter,dqTmp,1,dqTmp,1))
 *              dxdx=Sqrt(DDot_(nInter-nLambda,dx(1,iIter),1,
 *    &                                       dx(1,iIter),1))
 *
@@ -361,43 +362,40 @@ C              Write (6,*) 'xBeta=',xBeta
 *
 *           See text after Eqn. 13.
 *
-            Call Allocate_Work(ipTmp1,nInter)
-            Call Allocate_Work(ipTmp3,nInter)
-            Call FZero(Work(ipTmp3),nInter)
-            Call Allocate_Work(ipTmp2,nInter*nLambda)
-            Call FZero(Work(ipTmp2),nInter*nLambda)
-            call dcopy_(nInter,dEdq(1,iIter),1,Work(ipTmp1),1)
+            Call mma_allocate(Tmp1,nInter,Label='Tmp1')
+            Call mma_allocate(Tmp3,nInter,Label='Tmp3')
+            Tmp3(:)=0.0D0
+            Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
+            Tmp2(:,:)=0.0D0
+            Tmp1(:)=dEdq(:,iIter)
 *
-            Call DGEMM_('N','N',
-     &                  nInter,nLambda,nInter,
+            Call DGEMM_('N','N',nInter,nLambda,nInter,
      &                  1.0d0,Hess,nInter,
-     &                  T(1,ipTb),nInter,
-     &                  0.0d0,Work(ipTmp2),nInter)
+     &                        T(1,ipTb),nInter,
+     &                  0.0d0,Tmp2,nInter)
 *
-            Call DGEMM_('N','N',
-     &                  nInter,1,nLambda,
-     &                  1.0d0,Work(ipTmp2),nInter,
-     &                  dy,nLambda,
-     &                  0.0d0,Work(ipTmp3),nInter)
-            Call Free_Work(ipTmp2)
+            Call DGEMM_('N','N',nInter,1,nLambda,
+     &                  1.0d0,Tmp2,nInter,
+     &                        dy,nLambda,
+     &                  0.0d0,Tmp3,nInter)
+            Call mma_deallocate(Tmp2)
 !           Sign
-            Call DaXpY_(nInter,-One,Work(ipTmp3),1,Work(ipTmp1),1)
+            Call DaXpY_(nInter,-One,Tmp3,1,Tmp1,1)
 *
-            Call Free_Work(ipTmp3)
-            Call FZero(dEdx(1,iIter),nInter-nLambda)
-            Call DGEMM_('T','N',
-     &                  nInter-nLambda,1,nInter,
+            Call mma_deallocate(Tmp3)
+            dEdx(:,iIter)=0.0D0
+            Call DGEMM_('T','N',nInter-nLambda,1,nInter,
      &                  1.0d0,T(1,ipTti),nInter,
-     &                  Work(ipTmp1),nInter,
+     &                        Tmp1,nInter,
      &                  0.0d0,dEdx(1,iIter),nInter-nLambda)
-            Call Free_Work(ipTmp1)
+            Call mma_deallocate(Tmp1)
 *
 *           Compute step restriction based on information from the
 *           minimization in the x subspace. This restriction is based
 *           on the gradient in the x subspace.
 *
             gg=Sqrt(DDot_(nInter-nLambda,dEdx(1,iIter),1,
-     &                                  dEdx(1,iIter),1))
+     &                                   dEdx(1,iIter),1))
             If (gg.lt.0.75D0*gg_last.and.gg.lt.(Beta-Thr)) Then
 *              Increase trust radius
                gBeta=Min(One,gBeta*Sf)
@@ -477,8 +475,8 @@ C           Write (6,*) 'gBeta=',gBeta
      &               nInter,1,nInter,
      &               One,T,nInter,
      &               du,nInter,
-     &               Zero,Work(ipdq),nInter)
-         dydy=Sqrt(DDot_(nInter,Work(ipdq),1,Work(ipdq),1))
+     &               Zero,dqTmp,nInter)
+         dydy=Sqrt(DDot_(nInter,dqTmp,1,dqTmp,1))
 *
 *        Reduce y step size if larger than some maximum size
 *        (the x step or half the total max step times a factor)
@@ -488,8 +486,10 @@ C           Write (6,*) 'gBeta=',gBeta
 *           Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
             Call DScal_(nLambda,dydymax/dydy,dy,1)
             dydy=dydymax
+            Step_Trunc='*'
          Else
 *           Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
+            Step_Trunc=' '
          End If
 *
 *        The step reduction in the space which we minimize is such that
@@ -530,7 +530,7 @@ C        Write (6,*) 'yBeta=',yBeta
 ************************************************************************
 *                                                                      *
       End Do
-      Call GetMem('dqtmp','Free','Real',ipdq,nInter)
+      Call mma_deallocate(dqTmp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -601,13 +601,17 @@ C        Write (6,*) 'yBeta=',yBeta
       End If
 *
       Dummy = 0.0D0
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
+      Write (6,*) 'iOptH=',iOptH
+#endif
       Call Update_H(nWndw,Hess,nInter,
      &              nIter,iOptC_Temp,Mode,ipMF,
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
 
 #ifdef _DEBUG_
-      Call RecPrt('Con_Opt: Hess',' ',Hess,nInter,nInter)
+      Call RecPrt('Con_Opt: Hess(out)',' ',Hess,nInter,nInter)
 #endif
 *                                                                      *
 ************************************************************************
