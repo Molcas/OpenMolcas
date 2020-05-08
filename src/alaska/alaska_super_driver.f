@@ -119,9 +119,8 @@
       if(Method .eq. 'DMRGSCFS')then
         Call Get_iScalar('SA ready',iGo)
       end if
-*                                                                      *
+*
       If (Numerical              .OR.
-     &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
      &    Method .eq. 'GASSCFSA' .OR.
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
@@ -313,7 +312,7 @@
             Call Finish(_RC_INVOKED_OTHER_MODULE_)
 *
            End If
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Method.eq.'MCPDFT') Then
