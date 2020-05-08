@@ -379,11 +379,15 @@ Note that coordinates in these formats use ångström as units.
 
   In this case :program:`SLAPAF` will not regenerate the Z-matrix.
 
-  .. xmldoc:: %%Keyword: ZMAT <basic>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ZMAT" APPEAR="Z-matrix" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: ZMAT <basic>
+              <HELP>
               Alternative format to give coordinates in the form of Z-matrix.
               Only numerical values must be used (no variable names) and angstroms
               and degrees are assumed as units. Special ghost Z and dummy X atoms
               are allowed. 'End of ZMAT' or a blank line marks the end of the section.
+              </HELP>
+              </KEYWORD>
 
 :kword:`XYZ`
   The keyword is followed by XYZ formatted file (a reference to a file),
@@ -407,8 +411,12 @@ Note that coordinates in these formats use ångström as units.
   Currently, the :kword:`XYZ` keyword does not operate with symmetry, and
   the calculation is always performed without symmetry.
 
-  .. xmldoc:: %%Keyword: XYZ <basic>
-              Alternative format to set up geometry as XYZ formatted file
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XYZ" KIND="CUSTOM" LEVEL="ADVANCED" REQUIRE="XBAS">
+              %%Keyword: XYZ <advanced>
+              <HELP>
+              Alternative format to set up geometry as XYZ formatted file.
+              </HELP>
+              </KEYWORD>
 
 Advanced XYZ input
 ::::::::::::::::::

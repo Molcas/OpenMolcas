@@ -106,7 +106,7 @@
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
     pre_compile_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
     pre_make_script: |
@@ -114,7 +114,7 @@
       # notruncated_source to work around intel13 bug, which includes full path of #include'd files and then reports truncated lines
       cmake -D EXTRA_FFLAGS="-warn notruncated_source" .
     pre_run_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
     CC: "icc"
