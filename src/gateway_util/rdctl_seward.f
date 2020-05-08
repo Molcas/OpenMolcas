@@ -860,25 +860,26 @@ c     Call Quit_OnUserError()
 *                                                                      *
 ****** XBAS ************************************************************
 *                                                                      *
-1924   Continue
-       call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
-       GWInput=.True.
-       isxbas=1
-       if(ierr.eq.1) Call Quit_OnUserError()
-       goto 998
+1924  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
+      GWInput=.True.
+      isxbas=1
+      if(ierr.eq.1) Call Quit_OnUserError()
+      Call Gen_RelPointers(Info-1) ! Work Mode
+      goto 998
 *                                                                      *
 ****** XYZ  ************************************************************
 *                                                                      *
 1917  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
       If (iErr.ne.0) Call Quit_OnUserError()
       XYZdirect=.true.
 *      If (SymmSet) Then
@@ -891,6 +892,7 @@ c     Call Quit_OnUserError()
      &                 'GROUP keyword is not compatible with XYZ')
          Call Quit_OnUserError()
       End If
+      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 
 *                                                                      *
@@ -898,7 +900,9 @@ c     Call Quit_OnUserError()
 *                                                                      *
 *     Read Basis Sets & Coordinates in xyz format
 *
-6000  If (SymmSet) Then
+6000  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with COORD')
          Call Quit_OnUserError()
@@ -924,13 +928,16 @@ c      End If
 #else
       Call Read_XYZ(LuRd,OrigRot,OrigTrans)
 #endif
+      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** GROUP ***********************************************************
 *                                                                      *
 *     Read information for a group
 *
-6010  If (SymmSet) Then
+6010  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with GROUP')
          Call Quit_OnUserError()
@@ -961,6 +968,7 @@ c Simplistic validity check for value
       GroupSet=.true.
       GWInput=.True.
       DoneCoord=.True.
+      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** BSSE ************************************************************
@@ -1884,8 +1892,10 @@ c     Go To 998
          Close(LuRd)
          LuRd = LuRd_saved
       EndIf
+      If (isXfield.eq.1) Then
+         goto 9755
+      End If
       Call Gen_RelPointers(Info-1) ! Work Mode
-      If (isXfield.eq.1) goto 9755
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -3916,14 +3926,11 @@ c      endif
             LuRd_saved=LuRd
             filename='findsym.xfield'
             lXF=.True.
-            Call Gen_RelPointers(Info-1) !Work Mode
             goto 9753
          endif
       endif
-      Call Gen_RelPointers(Info-1) ! Work Mode
 *
 9755  continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (CoordSet) Then
          CoordSet=.false.
          LuRdSave=LuRd
