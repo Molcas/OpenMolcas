@@ -99,7 +99,12 @@
 *
          If( (Method .eq. 'KS-DFT  ') .or.
      &       (Method .eq. 'UHF-SCF ') .or.
-     &       (Method .eq. 'RHF-SCF ') ) Then
+     &       (Method .eq. 'RHF-SCF ') .or.
+     &       (Method .eq. 'CASSCF  ') .or.
+     &       (Method .eq. 'RASSCF  ') .or.
+     &       (Method .eq. 'GASSCF  ') .or.
+     &       (Method .eq. 'DMRGSCF ') .or.
+     &       (Method .eq. 'CASSCFSA') ) Then
             Do_Numerical_Cholesky= .False.
      &
          Else If(Method.eq.'MBPT2   ' .and.nSym.eq.1) Then
@@ -121,6 +126,7 @@
       end if
 *
       If (Numerical              .OR.
+     &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
      &    Method .eq. 'GASSCFSA' .OR.
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
