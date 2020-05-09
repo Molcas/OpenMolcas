@@ -30,7 +30,7 @@
 *                                                                      *
 *    (see update_sl)                                                   *
 ************************************************************************
-      Use kriging_mod, only: miAI, meAI, blavAI, set_l !, variance
+      Use kriging_mod, only: miAI, meAI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -66,7 +66,6 @@
 ************************************************************************
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged, Force_RS
-      Real*8, Allocatable:: Array_l(:)
       Real*8, Allocatable:: Energy_s(:)
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
 *#define _OVERSHOOT_
@@ -182,38 +181,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select between setting all l's to a single value or go in
-*     multiple l-value mode in which the l-value is set such that
-*     the kriging hessian reproduce the diagonal value of the HMF
-*     Hessian of the current structure.
-*
-      Call mma_Allocate(Array_l,nInter,Label='Array_l')
-      If (Set_l) Then
-         Call Get_dScalar('Value_l',Value_l)
-         Array_l(:)=Value_l
-      Else
-         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Pass the sample points to the GEK procedure and deallocate the
 *     memory -- to be reused for another purpose later.
 *
-      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy_s)
+      Call Setup_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy_s,Hessian)
 *
       Call mma_deAllocate(Energy_s)
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Pass the l-values to the GEK routine. This will initiate the
-*     computation of the covariance matrix, and solve related GEK
-*     equations.
-*
-      Call Set_l_Kriging(Array_l,nInter)
-      Call mma_deAllocate(Array_l)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -537,7 +512,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
       Call mma_deallocate(BMx_HMF)
       Call mma_deallocate(U)
       Call mma_deallocate(Hessian)
-      Call Finish_Kriging()
+      Call Close_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
