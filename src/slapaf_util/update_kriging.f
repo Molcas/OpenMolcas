@@ -277,7 +277,7 @@
 *        Compute the Kriging Hessian
 *
          If (Kriging_Hessian) Then
-            Call Hessian_Kriging(qInt_s(1,iterAI),Hessian,nInter)
+            Call Hessian_Kriging_Layer(qInt_s(1,iterAI),Hessian,nInter)
             Call Put_dArray('Hss_Q',Hessian,nInter**2)
          End If
 *                                                                      *
@@ -540,36 +540,3 @@ c Avoid unused argument warnings
 *
       Return
       End Subroutine Update_Kriging
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Subroutine Trans_K(U,X,Y,nInter,nIter)
-      Implicit None
-      Integer nInter, nIter
-      Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
-*
-*     Call RecPrt('U',' ',U,nInter,nInter)
-*     Call RecPrt('X',' ',X,nInter,nIter)
-      Call DGEMM_('T','N',nInter,nIter,nInter,
-     &            1.0D0,U,nInter,
-     &                  X,nInter,
-     &            0.0D0,Y,nInter)
-*     Call RecPrt('Y',' ',Y,nInter,nIter)
-*
-      Return
-      End Subroutine Trans_K
-*
-      Subroutine BackTrans_K(U,X,Y,nInter,nIter)
-      Implicit None
-      Integer nInter, nIter
-      Real*8 U(nInter,nInter), X(nInter,nIter), Y(nInter,nIter)
-*
-*     Call RecPrt('U',' ',U,nInter,nInter)
-*     Call RecPrt('X',' ',X,nInter,nIter)
-      Call DGEMM_('N','N',nInter,nIter,nInter,
-     &            1.0D0,U,nInter,
-     &                  X,nInter,
-     &            0.0D0,Y,nInter)
-*     Call RecPrt('Y',' ',Y,nInter,nIter)
-*
-      End Subroutine BackTrans_K

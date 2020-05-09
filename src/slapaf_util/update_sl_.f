@@ -131,9 +131,6 @@
 *
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       If (Kriging_Hessian) Then
-*        Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
-*        Write (6,*) 'Before corrections'
-*        Call DiagMtrx(Hessian,nInter,iNeg)
          iOptH_ = iOr(8,iAnd(iOptH,32))
       Else
          Call Mk_Hss_Q()
@@ -661,9 +658,6 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Call Hessian_Kriging(qInt(1,kIter+1),Hessian,nInter)
-*        Write (6,*) 'at convergence'
-*        Call DiagMtrx(Hessian,nInter,iNeg)
       Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
