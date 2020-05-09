@@ -58,17 +58,15 @@
 *                                                                      *
 *     Different hardwired kriging options
 *
-*     Note that turning off the sorting will result in a poorer kriging!
-*
 *#define _DEBUG_
-#define _DIAG_HESS_
+*#define _OVERSHOOT_
+*#define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged, Force_RS
       Real*8, Allocatable:: Energy_s(:)
       Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
-*#define _OVERSHOOT_
 #ifdef _OVERSHOOT_
       Real*8, Allocatable:: Step_k(:,:)
 #endif
