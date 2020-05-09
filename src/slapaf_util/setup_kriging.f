@@ -20,7 +20,8 @@
       Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw),
      &       Hessian_HMF(nInter,nInter)
       Real*8 Value_l
-      Real*8, Allocatable:: Array_l(:), HTri(:), Hessian(:,:)
+      Real*8, Allocatable:: Array_l(:), HTri(:), Hessian(:,:),
+     &                      qInt_s(:,:), Grad_s(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -69,7 +70,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Start_Kriging(nRaw,nInter,qInt,Grad,Energy)
+      Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
+      Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
+*
+*     Transform to the basis which diagonalizes the HMF Hessian.
+*
+      Call Trans_K(U,qInt,qInt_s,nInter,nRaw)
+      Call Trans_K(U,Grad,Grad_s,nInter,nRaw)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
+*
+      Call mma_deAllocate(qInt_s)
+      Call mma_deAllocate(Grad_s)
 *                                                                      *
 ************************************************************************
 *                                                                      *

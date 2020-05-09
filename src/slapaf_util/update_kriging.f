@@ -335,7 +335,8 @@
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
-         Call Energy_Kriging(qInt_s(1,iterAI+1),Energy(iterAI+1),nInter)
+         Call Energy_Kriging_layer(qInt_s(1,iterAI+1),Energy(iterAI+1),
+     &                             nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI+1),E_Disp,nInter)
          Call Gradient_Kriging(qInt_s(1,iterAI+1),
      &                         Grad_s(1,iterAI+1),nInter)
@@ -446,7 +447,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
          Call dCopy_(nInter,qInt_s(1,i),1,qInt_s(1,iterAI),1)
          Call dAXpY_(nInter,One+OS_Factor,Step_k(1,2),1,
      &                                    qInt_s(1,iterAI),1)
-         Call Energy_Kriging(qInt_s(1,iterAI),OS_Energy,nInter)
+         Call Energy_Kriging_Layer(qInt_s(1,iterAI),OS_Energy,nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI),OS_Disp,nInter)
          Write(6,*) 'Max_OS=',Max_OS
          Write(6,*) OS_Disp,E_Disp,Beta_Disp_
