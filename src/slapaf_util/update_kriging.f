@@ -338,8 +338,8 @@
          Call Energy_Kriging_layer(qInt_s(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
          Call Dispersion_Kriging(qInt_s(1,iterAI+1),E_Disp,nInter)
-         Call Gradient_Kriging(qInt_s(1,iterAI+1),
-     &                         Grad_s(1,iterAI+1),nInter)
+         Call Gradient_Kriging_layer(qInt_s(1,iterAI+1),
+     &                               Grad_s(1,iterAI+1),nInter)
          Call DScal_(nInter,-One,Grad_s(1,iterAI+1),1)
 *                                                                      *
 ************************************************************************
