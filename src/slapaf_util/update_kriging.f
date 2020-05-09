@@ -51,8 +51,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Character GrdLbl_Save*8
-      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:),
-     &                      BMx_HMF(:,:)
+      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -112,43 +111,6 @@
       Call mma_allocate(U,nInter,nInter,Label='U')
       U(:,:)=Zero
       Forall (i=1:nInter) U(i,i)=One
-#ifdef _DIAG_HESS_
-*
-      Call mma_allocate(HTri,nInter*(nInter+1)/2,Label='HTri')
-      Do iInter = 1, nInter
-         Do jInter = 1, iInter
-            ij = iInter*(iInter-1)/2 + jInter
-            HTri(ij)=Hessian(iInter,jInter)
-         End Do
-      End Do
-*     Call TriPrt('HTri(raw)',' ',HTri,nInter)
-      Call NIDiag_new(HTri,U,nInter,nInter,0)
-*     U(:,:)=Zero
-*     Forall (i=1:nInter) U(i,i)=One
-*     Call TriPrt('HTri',' ',HTri,nInter)
-      Hessian(:,:) = Zero
-      Forall (i=1:nInter) Hessian(i,i)=HTri(i*(i+1)/2)
-      Call mma_deallocate(HTri)
-*     Call RecPrt('Hessian(D)',' ',Hessian,nInter,nInter)
-#endif
-#ifdef _DEBUG_
-      Call RecPrt('U','',U,nInter,nInter)
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     We need to transform the B-matrix to the new coordinates.
-*
-      Call mma_allocate(BMx_HMF,3*nsAtom,3*nsAtom,Label='BMx_HMF')
-      BMx_HMF(:,:)=0.0D0
-      Call DGEMM_('N','N',3*nsAtom,nInter,nInter,
-     &            1.0D0,BMx,3*nsAtom,
-     &                  U,nInter,
-     &            0.0D0,BMx_HMF,3*nsAtom)
-      Call DCopy_(3*nsAtom*(3*nsAtom-nInter),BMx(1,nInter+1),1,
-     &                                     BMx_HMF(1,nInter+1),1)
-*     Call RecPrt('BMx',' ',BMx,3*nsAtom,3*nsAtom)
-*     Call RecPrt('BMx_HMF',' ',BMx_HMF,3*nsAtom,3*nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -289,7 +251,7 @@
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                nStab,BMx_HMF,Smmtrc,nDimBC,rLambda,ipCx,
+     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
      &                nWndw/2,Mode,ipMF,
@@ -508,7 +470,6 @@ C           Write (*,*) 'GrdMax=',GrdMax
       Call mma_deallocate(qInt_s)
       Call mma_deallocate(Grad_s)
       Call mma_deallocate(Shift_s)
-      Call mma_deallocate(BMx_HMF)
       Call mma_deallocate(U)
       Call mma_deallocate(Hessian)
       Call Close_Kriging()
