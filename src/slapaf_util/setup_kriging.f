@@ -56,9 +56,11 @@
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
+#ifdef _DEBUG_
       Call RecPrt('Energy',' ',Energy,1,nRaw)
       Call RecPrt('qInt',' ',qInt,nInter,nRaw)
       Call RecPrt('Grad',' ',Grad,nInter,nRaw)
+#endif
       Call mma_Allocate(Array_l,nInter,Label='Array_l')
       If (Set_l) Then
          Call Get_dScalar('Value_l',Value_l)

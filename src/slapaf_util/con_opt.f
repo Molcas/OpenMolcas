@@ -72,7 +72,7 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-#define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
       Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,

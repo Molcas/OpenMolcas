@@ -51,7 +51,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Character GrdLbl_Save*8
-      Real*8, Allocatable:: Hessian(:,:), U(:,:), HTri(:), Temp(:,:)
+      Real*8, Allocatable:: Hessian(:,:), HTri(:), Temp(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -72,11 +72,11 @@
       iPrint=nPrint(iRout)
       Call QEnter('Update')
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
-         Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
+      Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
+      Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
+#endif
 *
       Kriging_Hessian =.TRUE.
       Force_RS=.FALSE.
@@ -105,10 +105,6 @@
       Call Mk_Hss_Q()
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *     Call RecPrt('HMF Hessian',' ',Hessian,nInter,nInter)
-*
-      Call mma_allocate(U,nInter,nInter,Label='U')
-      U(:,:)=Zero
-      Forall (i=1:nInter) U(i,i)=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -254,7 +250,7 @@
 *
          Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
      &                       Lbl,Shift,qInt,Grad,AtomLbl,
-     &                       Work(ipCx),U,.True.,iter)
+     &                       Work(ipCx),.True.,iter)
 *
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
@@ -380,7 +376,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
      &                          dMass,Lbl,Shift,qInt,Grad,AtomLbl,
-     &                          Work(ipCx),U,.True.,iter)
+     &                          Work(ipCx),.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
@@ -428,7 +424,6 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *                                                                      *
 *     Deallocating memory used by Kriging
 *
-      Call mma_deallocate(U)
       Call mma_deallocate(Hessian)
       Call Close_Kriging()
 *                                                                      *
