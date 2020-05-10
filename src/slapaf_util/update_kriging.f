@@ -121,34 +121,16 @@
 *                                                                      *
 *     Note that we could have some kind of sorting here if we like!
 *
-      Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
-      Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
-      Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
-*
-*
-*     Transform to the basis which diagonalizes the HMF Hessian.
-*
-      Call Trans_K(U,qInt(1,iFirst),qInt_s,nInter,nRaw)
-      Call Trans_K(U,Grad(1,iFirst),Grad_s,nInter,nRaw)
-      Call DScal_(nInter*nRaw,-One,Grad_s,1)
-      Call DCopy_(nRaw,Energy(iFirst),1,Energy_s,1)
-*
-#ifdef _DEBUG_
-      Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
-      Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
-      Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
-#endif
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     Pass the sample points to the GEK procedure and deallocate the
 *     memory -- to be reused for another purpose later.
 *
-      Call Setup_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy_s,Hessian)
-*
-      Call mma_deAllocate(Energy_s)
-      Call mma_deAllocate(qInt_s)
-      Call mma_deAllocate(Grad_s)
+      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+      Call Setup_Kriging(nRaw,nInter,qInt(1,iFirst),
+     &                               Grad(1,iFirst),
+     &                               Energy(iFirst),Hessian)
+      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
