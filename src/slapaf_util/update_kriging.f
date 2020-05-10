@@ -64,8 +64,6 @@
 ************************************************************************
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged, Force_RS
-      Real*8, Allocatable:: Energy_s(:)
-      Real*8, Allocatable:: qInt_s(:,:), Grad_s(:,:), Shift_s(:,:)
 #ifdef _OVERSHOOT_
       Real*8, Allocatable:: Step_k(:,:)
 #endif
@@ -134,31 +132,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     There is a small tweak here. We need to send the transformed
-*     original coordinates, shifts, and gradients to update_sl_. Note
-*     that this does NOT correspond to the data set to the GEK.
-*
-      Call mma_allocate(qInt_s,nInter,MaxItr,Label='qInt_s')
-      Call mma_allocate(Grad_s,nInter,MaxItr,Label='Grad_s')
-      Call mma_allocate(Shift_s,nInter,MaxItr,Label='Shift_s')
-      qInt_s(:,:)=Zero
-      Grad_s(:,:)=Zero
-      Shift_s(:,:)=Zero
-      Call Trans_K(U,qInt,qInt_s,nInter,iter)
-      Call Trans_K(U,Grad,Grad_s,nInter,iter)
-      Call Trans_K(U,Shift,Shift_s,nInter,iter)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Save initial gradient
 *     This is for the case the gradient is already converged, we want
 *     the microiterations to still reduce the gradient
 *
-      FAbs_ini=Sqrt(DDot_(nInter,Grad_s(1,iter),1,
-     &                           Grad_s(1,iter),1)/DBLE(nInter))
+      FAbs_ini=Sqrt(DDot_(nInter,Grad(1,iter),1,
+     &                           Grad(1,iter),1)/DBLE(nInter))
       GrdMx_ini=Zero
       Do iInter = 1, nInter
-         GrdMx_ini=Max(GrdMx_ini,Abs(Grad_s(iInter,iterAI)))
+         GrdMx_ini=Max(GrdMx_ini,Abs(Grad(iInter,iterAI)))
       End Do
 *                                                                      *
 ************************************************************************
@@ -219,7 +201,7 @@
 *        Compute the Kriging Hessian
 *
          If (Kriging_Hessian) Then
-            Call Hessian_Kriging_Layer(qInt_s(1,iterAI),Hessian,nInter)
+            Call Hessian_Kriging_Layer(qInt(1,iterAI),Hessian,nInter)
             Call Put_dArray('Hss_Q',Hessian,nInter**2)
          End If
 *                                                                      *
@@ -228,7 +210,7 @@
 *        Compute the updated structure.
 *
          Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt_s,Shift_s,Grad_s,iOptC,Beta_,
+     &                qInt,Shift,Grad,iOptC,Beta_,
      &                Beta_Disp_,
      &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -261,8 +243,8 @@
 *
          dqdq=Zero
          Do iInter=1,nInter
-            dqdq=(qInt_s(iInter,iterAI+1)
-     &           -qInt_s(iInter,iFirst+nRaw-1))**2
+            dqdq=(qInt(iInter,iterAI+1)
+     &           -qInt(iInter,iFirst+nRaw-1))**2
          End Do
          If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
 *                                                                      *
@@ -271,18 +253,18 @@
 *        Transform the new internal coordinates to Cartesians
 *
          Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
-     &                       Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
+     &                       Lbl,Shift,qInt,Grad,AtomLbl,
      &                       Work(ipCx),U,.True.,iter)
 *
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
-         Call Energy_Kriging_layer(qInt_s(1,iterAI+1),Energy(iterAI+1),
+         Call Energy_Kriging_layer(qInt(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
-         Call Dispersion_Kriging_Layer(qInt_s(1,iterAI+1),E_Disp,nInter)
-         Call Gradient_Kriging_layer(qInt_s(1,iterAI+1),
-     &                               Grad_s(1,iterAI+1),nInter)
-         Call DScal_(nInter,-One,Grad_s(1,iterAI+1),1)
+         Call Dispersion_Kriging_Layer(qInt(1,iterAI+1),E_Disp,nInter)
+         Call Gradient_Kriging_layer(qInt(1,iterAI+1),
+     &                               Grad(1,iterAI+1),nInter)
+         Call DScal_(nInter,-One,Grad(1,iterAI+1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -290,9 +272,9 @@
          iterAI = iterAI + 1
          dEner = Energy(iterAI) - Energy(iterAI-1)
 #ifdef _DEBUG_
-         Call RecPrt('qInt(x):',' ',qInt_s,nInter,iterAI)
+         Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
-         Call RecPrt('Grad(x):',' ',Grad_s,nInter,iterAI)
+         Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
 *
 *        Change label of updating method
@@ -315,13 +297,13 @@ C           Write (*,*)
 C           Write (*,*) 'iter=',iterAI-1
 C           Write (*,*) 'FAbs=',GNrm(iterAI-1)
 C           Write (*,*) 'GrdMax=',GrdMax
-            RMS =Sqrt(DDot_(nInter,Shift_s(1,iterAI-1),1,
-     &                          Shift_s(1,iterAI-1),1)/DBLE(nInter))
+            RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
+     &                             Shift(1,iterAI-1),1)/DBLE(nInter))
             GrdMx=Zero
             RMSMx=Zero
             Do iInter = 1, nInter
-               GrdMx=Max(GrdMx,Abs(Grad_s(iInter,iterAI)))
-               RMSMx=Max(RMSMx,Abs(Shift_s(iInter,iterAI-1)))
+               GrdMx=Max(GrdMx,Abs(Grad(iInter,iterAI)))
+               RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
             End Do
 *
             Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
@@ -368,12 +350,12 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *
       Call mma_allocate(Step_k,nInter,2)
       i=iFirst+nRaw-1
-      Call dCopy_(nInter,qInt_s(1,iterAI),1,Step_k(1,2),1)
-      Call dAXpY_(nInter,-One,qInt_s(1,i),1,Step_k(1,2),1)
+      Call dCopy_(nInter,qInt(1,iterAI),1,Step_k(1,2),1)
+      Call dAXpY_(nInter,-One,qInt(1,i),1,Step_k(1,2),1)
 *     Call RecPrt('q(i+1)-q(f)','',Step_k(1,2),nInter,1)
       If (i.gt.1) Then
-         Call dCopy_(nInter,qInt_s(1,i),1,Step_k(1,1),1)
-         Call dAXpY_(nInter,-One,qInt_s(1,i-1),1,Step_k(1,1),1)
+         Call dCopy_(nInter,qInt(1,i),1,Step_k(1,1),1)
+         Call dAXpY_(nInter,-One,qInt(1,i-1),1,Step_k(1,1),1)
 *        Call RecPrt('q(f)-q(f-1)','',Step_k(1,1),nInter,1)
          dsds=dDot_(nInter,Step_k(1,1),1,Step_k(1,2),1)
          dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,1),1,Step_k(1,1),1))
@@ -386,18 +368,18 @@ C           Write (*,*) 'GrdMax=',GrdMax
       If ((dsds.gt.dsds_min).And.(Step_Trunc.eq.' ')) Then
         Do Max_OS=9,0,-1
          OS_Factor=Max_OS*((dsds-dsds_min)/(One-dsds_min))**4
-         Call dCopy_(nInter,qInt_s(1,i),1,qInt_s(1,iterAI),1)
+         Call dCopy_(nInter,qInt(1,i),1,qInt(1,iterAI),1)
          Call dAXpY_(nInter,One+OS_Factor,Step_k(1,2),1,
-     &                                    qInt_s(1,iterAI),1)
-         Call Energy_Kriging_Layer(qInt_s(1,iterAI),OS_Energy,nInter)
-         Call Dispersion_Kriging_Layer(qInt_s(1,iterAI),OS_Disp,nInter)
+     &                                    qInt(1,iterAI),1)
+         Call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nInter)
+         Call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nInter)
          Write(6,*) 'Max_OS=',Max_OS
          Write(6,*) OS_Disp,E_Disp,Beta_Disp_
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
-     &                                   Shift_s(1,iterAI-1),1)
+     &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
-     &                          dMass,Lbl,Shift_s,qInt_s,Grad_s,AtomLbl,
+     &                          dMass,Lbl,Shift,qInt,Grad,AtomLbl,
      &                          Work(ipCx),U,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
@@ -416,10 +398,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *     Save the optimized kriging coordinates as the coordinates
 *     for the next macro iteration.
 *
-      Call mma_allocate(Temp,nInter,1,Label='Temp')
-      Call BackTrans_K(U,qInt_s(1,iterAI),Temp,nInter,1)
-      qInt(:,iter+1)=Temp(:,1)
-      Call mma_deallocate(Temp)
+      qInt(:,iter+1)=qInt(:,iterAI)
       Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*(3*nsAtom)),1,
      &                     Work(ipCx+iter*(3*nsAtom)),1)
 *
@@ -449,9 +428,6 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *                                                                      *
 *     Deallocating memory used by Kriging
 *
-      Call mma_deallocate(qInt_s)
-      Call mma_deallocate(Grad_s)
-      Call mma_deallocate(Shift_s)
       Call mma_deallocate(U)
       Call mma_deallocate(Hessian)
       Call Close_Kriging()
