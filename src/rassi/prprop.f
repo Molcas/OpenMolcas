@@ -594,6 +594,27 @@ C printing threshold
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
+
+! Print full COMPLEX transition dipole moment vectors?
+! J. Norell 7/5 2020
+         IF(PRDIPCOM) THEN
+
+          Call CollapseOutput(1,
+     & 'Complex transition dipole vectors (SO states):')
+          WRITE(6,'(3X,A)') '----------------------------------------'
+          IF(OSTHR.GT.0.0D0) THEN
+           WRITE(6,*)'   for osc. strength at least ',OSTHR
+           WRITE(6,*)
+          END IF
+          WRITE(6,*) '     From   To',
+     &'       Re(Dx)       Im(Dx)',
+     &'       Re(Dy)       Im(Dy)',
+     &'       Re(Dz)       Im(Dz)'
+          WRITE(6,32)
+          GOTO 137 ! Skip past "regular" print
+         END IF
+! END print COMPLEX vectors
+
          Call CollapseOutput(1,
      &                     'Dipole transition strengths (SO states):')
          WRITE(6,'(3X,A)') '----------------------------------------'
@@ -615,9 +636,23 @@ C printing threshold
      &               'Total A (sec-1)'
          WRITE(6,32)
                End If
-             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A
+
+! Print full COMPLEX transition dipole moment vectors?
+137      IF(PRDIPCOM) THEN
+             WRITE(6,'(5X,I5,I5,A,A,E12.3,A,E12.3,A,E12.3,A,E12.3,A,
+     &       E12.3,A,E12.3)')
+     &       ISS,JSS,'   ',
+     &       ' ',REAL(T0(1)),' ',AIMAG(T0(1)),
+     &       ' ',REAL(T0(2)),' ',AIMAG(T0(2)),
+     &       ' ',REAL(T0(3)),' ',AIMAG(T0(3))
+        ELSE
+             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A ! "Regular" print instead
+         END IF
+! END print COMPLEX vectors
+
             END IF
             Call Add_Info('TMS(SO,Len)',[F],1,6)
+
            END IF
           END DO
          END DO
