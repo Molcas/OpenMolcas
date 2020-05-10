@@ -99,13 +99,14 @@
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
-      If (iPrint.ge.99) Then
-         Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
-     &                        iOpt_RS,Beta,Beta_Dispa
-         Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
-         Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
-         Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
-      End If
+#define _DEBUG_
+#ifdef _DEBUG_
+      Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
+     &                     iOpt_RS,Beta,Beta_Disp
+      Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
+      Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
+      Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
+#endif
 *
       GrdMax=Zero
       StpMax=Zero
@@ -142,12 +143,12 @@
 *     modify the Hessian if it is needed to guide 2nd order
 *     optimization towards a minimum or a TS.
 *
-      If (iPrint.ge.6) Then
-         Write (Lu,*)
-         Write (Lu,*)
-         Write (Lu,*) ' *** Updating the molecular Hessian ***'
-         Write (Lu,*)
-      End If
+#ifdef _DEBUG_
+      Write (Lu,*)
+      Write (Lu,*)
+      Write (Lu,*) ' *** Updating the molecular Hessian ***'
+      Write (Lu,*)
+#endif
       iRout=154
       jPrint=nPrint(iRout)
       Call Update_H(nWndw,Hessian,nInter,

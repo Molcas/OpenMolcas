@@ -67,5 +67,8 @@ C     Call DCopy_(nLambda,dy_,1,du,1)
       Call mma_Deallocate(du)
       Call mma_Deallocate(qNext)
 *
+      If (.False.) Then
+         Call Unused_real_array(x)
+      End If
       Return
       End

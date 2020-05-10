@@ -24,8 +24,7 @@
      &          Cx(3*nAtom,kIter+1)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
-      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:),
-     &                       qInt_bck(:,:),kShift_bck(:,:)
+      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:)
       Integer :: ipBMx,ip_qInt,ip_dqInt,ipShift
       Logical :: Numerical,PrQ,SaveBMx
       Integer, External :: ip_of_Work

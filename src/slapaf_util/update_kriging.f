@@ -84,6 +84,7 @@
       iterAI=iter
       dEner=meAI
       nRaw=Min(iter,nWndw/2)
+*     nRaw=1
       iFirst = iter - nRaw + 1
       iterK=0
       dqdq=Zero
@@ -205,19 +206,16 @@
 *                                                                      *
 *        Compute the updated structure.
 *
-         Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt,Shift,Grad,iOptC,Beta_,
-     &                Beta_Disp_,
-     &                Lbl,GNrm,Energy,
-     &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
-     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                Labels,nLabels,FindTS,TSC,nRowH,
-     &                nWndw/2,Mode,ipMF,
-     &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
-     &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,iOpt_RS)
+         Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
+     &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
+     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw/2,Mode,
+     &                   ipMF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
+     &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   Kriging_Hessian,qBeta,iOpt_RS,iterAI.eq.iter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -332,6 +330,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *        If RS rather than RV don not micro iterate
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
+         Not_Converged=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

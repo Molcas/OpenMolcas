@@ -72,7 +72,7 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-*#define _DEBUG_
+#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
       Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
@@ -363,12 +363,19 @@ C              Write (6,*) 'xBeta=',xBeta
 *           See text after Eqn. 13.
 *
             Call mma_allocate(Tmp1,nInter,Label='Tmp1')
-            Call mma_allocate(Tmp3,nInter,Label='Tmp3')
-            Tmp3(:)=0.0D0
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
+            Call mma_allocate(Tmp3,nInter,Label='Tmp3')
+            Tmp1(:)  =dEdq(:,iIter)
             Tmp2(:,:)=0.0D0
-            Tmp1(:)=dEdq(:,iIter)
+            Tmp3(:)  =0.0D0
 *
+#ifdef _DEBUG_
+            Call RecPrt('Con_Opt: dEdq',' ',Tmp1,1,nInter)
+            Call RecPrt('Con_Opt: Hess',' ',Hess,nInter,nInter)
+            Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
+            Write (6,*) 'ipTb,ipTti=',ipTb,ipTti
+            Call RecPrt('Con_Opt: dy',' ',dy,1,nInter)
+#endif
             Call DGEMM_('N','N',nInter,nLambda,nInter,
      &                  1.0d0,Hess,nInter,
      &                        T(1,ipTb),nInter,
@@ -389,6 +396,10 @@ C              Write (6,*) 'xBeta=',xBeta
      &                        Tmp1,nInter,
      &                  0.0d0,dEdx(1,iIter),nInter-nLambda)
             Call mma_deallocate(Tmp1)
+#ifdef _DEBUG_
+            Call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,
+     &                  nInter-nLambda)
+#endif
 *
 *           Compute step restriction based on information from the
 *           minimization in the x subspace. This restriction is based
@@ -476,6 +487,8 @@ C           Write (6,*) 'gBeta=',gBeta
      &               One,T,nInter,
      &               du,nInter,
      &               Zero,dqTmp,nInter)
+*
+*        If (iOpt_RS.eq.0) Then
          dydy=Sqrt(DDot_(nInter,dqTmp,1,dqTmp,1))
 *
 *        Reduce y step size if larger than some maximum size
@@ -510,6 +523,8 @@ C           yBeta=yBeta*Sf
 *           Otherwise decrease step direction.
             yBeta=Max(One/Ten,yBeta/Sf)
          End If
+*        Else
+*        End If
 *
 *        Twist for MEP optimizations.
 *
