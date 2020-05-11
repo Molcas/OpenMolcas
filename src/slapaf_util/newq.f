@@ -53,13 +53,14 @@
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
-         Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
-         Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-         Call RecPrt(' Newq: g',' ',g,nInter,nIter)
-         Call RecPrt(' Newq: H   ',' ',H   ,nInter,nInter)
-      End If
+#define _DEBUG_
+#ifdef _DEBUG_
+      Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
+      Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
+      Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+      Call RecPrt(' Newq: g',' ',g,nInter,nIter)
+      Call RecPrt(' Newq: H   ',' ',H   ,nInter,nInter)
+#endif
 *
 *---- Print out of the Hessian and determination of the Hessian index.
 *
@@ -259,12 +260,12 @@ C     Call View(H,nInter,print)
         q(i,nIter+1) = q(i,nIter) + dq(i,nIter)
       End Do
 *
-      If (iPrint.ge.99) Then
-         Write (Lu,*) ' dqHdq=',dqHdq
-         Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
-         Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
-         Call RecPrt('Newq: g',' ',g,nInter,nIter)
-      End If
+#ifdef _DEBUG_
+      Write (Lu,*) ' dqHdq=',dqHdq
+      Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
+      Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
+      Call RecPrt('Newq: g',' ',g,nInter,nIter)
+#endif
       Call QExit('Newq')
       Return
 c Avoid unused argument warnings
