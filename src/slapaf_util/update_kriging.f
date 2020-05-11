@@ -51,7 +51,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Character GrdLbl_Save*8
-      Real*8, Allocatable:: Hessian(:,:), HTri(:), Temp(:,:)
+      Real*8, Allocatable:: Hessian(:,:), Temp(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
