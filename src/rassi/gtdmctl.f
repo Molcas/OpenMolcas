@@ -1004,6 +1004,11 @@ C             Write density 1-matrices in AO basis to disk.
      &                    TDMAB,TDM2,CMO1,CMO2)
           END IF
 
+          !Store SIJ temporarily
+          IF (IFEJOB.and.(ISTATE.ne.JSTATE)) THEN
+            HAM(ISTATE,JSTATE) = SIJ
+            HAM(JSTATE,ISTATE) = SIJ
+          EndIf
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
             HIJ                = HZERO+HONE+HTWO
@@ -1037,6 +1042,23 @@ C             Write density 1-matrices in AO basis to disk.
         END DO job1_loop
 
       END DO job2_loop
+*
+** For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
+*
+      IF (IFEJOB) THEN
+        DO JST=1,NSTAT(JOB2)
+          JSTATE=ISTAT(JOB2)-1+JST
+          DO IST=1,NSTAT(JOB1)
+            ISTATE=ISTAT(JOB1)-1+IST
+            IF(ISTATE.LE.JSTATE) cycle
+            SIJ=HAM(ISTATE,JSTATE)
+            HII=HAM(ISTATE,ISTATE)
+            HJJ=HAM(JSTATE,JSTATE)
+           HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*0.5D0
+           HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*0.5D0
+          End Do
+        End Do
+      EndIf
 
       IF(DoGSOR) then
         if(job1.ne.job2) then
