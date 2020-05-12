@@ -16,7 +16,7 @@
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter),
-     &       g(nInter,nIter), MF(3*nsAtom)
+     &       g(nInter,nIter), MF(3*nAtoms)
       Integer iNeg(2)
       Logical Old_MF, Store
       Character*6 HUpMet

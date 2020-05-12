@@ -153,7 +153,10 @@
       Do i = 1, 3*nsAtom
          tmp = Max(tmp,Abs(Gx(i,iter)))
       End Do
-*     Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp_tmp)
+*
+*     Temporary code until we have figured out this for constrained
+*     optimizations.
+*
       if (nLambda.eq.0) Then
          Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
          Beta_=Min(1.0D3*GNrm(iter),Beta)
@@ -293,13 +296,20 @@
             Write (6,*) 'GrdMax=',GrdMax
             RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
      &                             Shift(1,iterAI-1),1)/DBLE(nInter))
-            GrdMx=Zero
+            Write (6,*) 'RMS=',RMS
             RMSMx=Zero
             Do iInter = 1, nInter
-               GrdMx=Max(GrdMx,Abs(Grad(iInter,iterAI)))
                RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
             End Do
+            GrdMx=GrdMax
+            Write (6,*) 'GrdMx=',GrdMx
+            Write (6,*) 'RMSMx=',RMSMx
 *
+
+            Write (6,*) FAbs.gt.Min(ThrGrd,FAbs_ini)
+            Write (6,*) GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
+            Write (6,*) RMS.gt.ThrGrd*Four
+            Write (6,*) RMSMx.gt.ThrGrd*Six
             Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
             Not_Converged = Not_Converged .or.
      &                      GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
@@ -327,7 +337,7 @@
 *
          If (Step_trunc.eq.'*') Not_Converged=.False.
 *
-*        If RS rather than RV don not micro iterate
+*        If RS rather than RV do not micro iterate
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
 *        Not_Converged=.False. ! Force single iteration scheme.
@@ -336,7 +346,7 @@
 *                                                                      *
 *     End of the micro iteration loop
 *
-      End Do  ! Do While
+      End Do  ! Do While (Not_Converged)
 #ifdef _OVERSHOOT_
 *                                                                      *
 ************************************************************************
