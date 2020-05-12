@@ -152,7 +152,7 @@
       iRout=154
       jPrint=nPrint(iRout)
       Call Update_H(nWndw,Hessian,nInter,
-     &              mIter,iOptC,Mode,ipMF,
+     &              mIter,iOptC,Mode,Work(ipMF),
      &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
      &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,IRC,.True.)

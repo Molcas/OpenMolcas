@@ -84,7 +84,7 @@
       iterAI=iter
       dEner=meAI
       nRaw=Min(iter,nWndw/2)
-*     nRaw=1
+*     nRaw=1 ! Force HMF Hessian
       iFirst = iter - nRaw + 1
       iterK=0
       dqdq=Zero
@@ -287,10 +287,10 @@
          Else
 *           Use standard convergence criteria
             FAbs=GNrm(iterAI)/SQRT(DBLE(nInter-nLambda))
-C           Write (*,*)
-C           Write (*,*) 'iter=',iterAI-1
-C           Write (*,*) 'FAbs=',GNrm(iterAI-1)
-C           Write (*,*) 'GrdMax=',GrdMax
+            Write (6,*)
+            Write (6,*) 'iter=',iterAI-1
+            Write (6,*) 'FAbs=',GNrm(iterAI-1)
+            Write (6,*) 'GrdMax=',GrdMax
             RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
      &                             Shift(1,iterAI-1),1)/DBLE(nInter))
             GrdMx=Zero
@@ -330,7 +330,7 @@ C           Write (*,*) 'GrdMax=',GrdMax
 *        If RS rather than RV don not micro iterate
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
-         Not_Converged=.False.
+*        Not_Converged=.False. ! Force single iteration scheme.
 *                                                                      *
 ************************************************************************
 *                                                                      *

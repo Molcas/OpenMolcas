@@ -71,7 +71,8 @@
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
-     &                      RR(:,:), Tdy(:), Tr(:), WTr(:)
+     &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
+     &                      Hessian(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -84,6 +85,8 @@
       Write (6,*) '****************************************************'
       Write (6,*) '**** Con_Opt: Input data ***************************'
       Write (6,*) '****************************************************'
+      Write (6,*)
+      Write (6,*) 'iOpt_RS=',iOpt_RS
       Write (6,*)
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
       Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
@@ -112,9 +115,75 @@
       Sf=Sqrt(Two)
       dxdx=Zero
       Thr=1.0D-6
-      Call mma_allocate(dq_xy,nInter,Label='dq_xy')
       Call Get_iScalar('iOff_Iter',iOff_Iter)
+      Call mma_allocate(dq_xy,nInter,Label='dq_xy')
+      Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
 *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      Do iIter = iOff_Iter+1, nIter
+#ifdef _DEBUG_
+         Write (6,*)
+         Write (6,*) '>>>>>> iIter=',iIter
+         Write (6,*)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- Compute the lambdas values (Eqn. 17)
+*
+*        dEdq=drdq l ; from  h(q_0,l)=dEdq - drdq l = 0
+*
+*        drdq^T dEdq= (drdq^T drdq) l
+*
+*        l =  (drdq^T drdq)^{-1} drdq^T dEdq
+*
+         Call mma_allocate(RRR,nLambda,nInter,Label='RRR')
+         Call mma_allocate(RRInv,nLambda,nLambda,Label='RRInv')
+         Call mma_allocate(RR,nLambda,nLambda,Label='RR')
+*
+*        drdq^T drdq
+*
+         RR(:,:)=Zero
+         Call DGEMM_('T','N',nLambda,nLambda,nInter,
+     &               1.0d0,drdq(1,1,iIter),nInter,
+     &                     drdq(1,1,iIter),nInter,
+     &               0.0d0,RR,nLambda)
+*
+*        (drdq^T drdq)^{-1}
+*
+         Call MInv(RR,RRInv,iSing,Det,nLambda)
+         Call mma_deallocate(RR)
+*
+*        (drdq^T drdq)^{-1} drdq^T
+*
+         RRR(:,:)=Zero
+         Call DGEMM_('N','T',nLambda,nInter,nLambda,
+     &               1.0d0,RRInv,nLambda,
+     &                     drdq(1,1,iIter),nInter,
+     &               0.0d0,RRR,nLambda)
+         Call mma_deallocate(RRInv)
+*
+*        l = (T_b^T drdq)^{-1} drdq^T dEdq
+*
+*        Note the sign conflict due to dEdq stored as a force.
+*
+         rLambda(:,iIter)=Zero
+         Call DGEMM_('N','N',nLambda,1,nInter,
+     &              -1.0d0,RRR,nLambda,    ! Sign conflict
+     &                     dEdq(1,iIter),nInter,
+     &               0.0d0,rLambda(1,iIter),nLambda)
+         Call mma_deallocate(RRR)
+#ifdef _DEBUG_
+         Call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
+#endif
+      End Do
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Do iIter = iOff_Iter+1, nIter
 #ifdef _DEBUG_
          Write (6,*)
@@ -263,7 +332,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*------- Compute delta y  (Eqn. 11)
+*------- Compute delta y  (Eqn. 11) -- in case of full relaxation --
 *
 *        r(q)+drdq^T dq=0
 *
@@ -298,57 +367,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
      &               0.0d0,dy,nLambda)
          Call mma_deallocate(RTInv)
 #ifdef _DEBUG_
-         Call RecPrt('Con_Opt: dy',' ',dy,nLambda,1)
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Compute new lambdas (Eqn. 17)
-*
-*        dEdq=drdq l ; from  h(q_0,l)=dEdq - drdq l = 0
-*
-*        drdq^T dEdq= (drdq^T drdq) l
-*
-*        l =  (drdq^T drdq)^{-1} drdq^T dEdq
-*
-         Call mma_allocate(RRR,nLambda,nInter,Label='RRR')
-         Call mma_allocate(RRInv,nLambda,nLambda,Label='RRInv')
-         Call mma_allocate(RR,nLambda,nLambda,Label='RR')
-*
-*        drdq^T drdq
-*
-         RR(:,:)=Zero
-         Call DGEMM_('T','N',nLambda,nLambda,nInter,
-     &               1.0d0,drdq(1,1,iIter),nInter,
-     &                     drdq(1,1,iIter),nInter,
-     &               0.0d0,RR,nLambda)
-*
-*        (drdq^T drdq)^{-1}
-*
-         Call MInv(RR,RRInv,iSing,Det,nLambda)
-         Call mma_deallocate(RR)
-*
-*        (drdq^T drdq)^{-1} drdq^T
-*
-         RRR(:,:)=Zero
-         Call DGEMM_('N','T',nLambda,nInter,nLambda,
-     &               1.0d0,RRInv,nLambda,
-     &                     drdq(1,1,iIter),nInter,
-     &               0.0d0,RRR,nLambda)
-         Call mma_deallocate(RRInv)
-*
-*        l = (T_b^T drdq)^{-1} drdq^T dEdq
-*
-*        Note the sign conflict due to dEdq stored as a force.
-*
-         rLambda(:,iIter)=Zero
-         Call DGEMM_('N','N',nLambda,1,nInter,
-     &              -1.0d0,RRR,nLambda,    ! Sign conflict
-     &                     dEdq(1,iIter),nInter,
-     &               0.0d0,rLambda(1,iIter),nLambda)
-         Call mma_deallocate(RRR)
-#ifdef _DEBUG_
-         Call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
+         Call RecPrt('Con_Opt: dy(full)',' ',dy,nLambda,1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -359,16 +378,24 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        The Hessian of the Lagranian expressed in the full space.
 *
 *        W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)
-*
-         If (iIter.eq.nIter) Then
+         If (iOpt_RS.eq.0) Then
+            Hessian(:,:) = Hess(:,:)
+            If (iIter.eq.nIter) Then
+               Do iLambda = 1, nLambda
+                  Call DaXpY_(nInter**2,-rLambda(iLambda,nIter),
+     &                                  d2rdq2(1,1,iLambda),1,Hessian,1)
+               End Do
+            End If
+         Else
+            Call Hessian_Kriging_Layer(q(1,iIter),Hessian,nInter)
             Do iLambda = 1, nLambda
-               Call DaXpY_(nInter**2,-rLambda(iLambda,nIter),
-     &                               d2rdq2(1,1,iLambda),1,Hess,1)
+               Call DaXpY_(nInter**2,-rLambda(iLambda,iIter),
+     &                               d2rdq2(1,1,iLambda),1,Hessian,1)
             End Do
-#ifdef _DEBUG_
-            Call RecPrt('W^0',' ',Hess,nInter,nInter)
-#endif
          End If
+#ifdef _DEBUG_
+         Call RecPrt('W',' ',Hessian,nInter,nInter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -438,7 +465,9 @@ C
 C              Write (6,*) 'dxdx=',dxdx
 C              Write (6,*) 'xBeta=',xBeta
             End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *---------- Compute the reduced gradient, observe again that we store
 *           the forces rather than the gradients.
 *
@@ -451,17 +480,17 @@ C              Write (6,*) 'xBeta=',xBeta
 *
 #ifdef _DEBUG_
             Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
-            Call RecPrt('Con_Opt: Hess',' ',Hess,nInter,nInter)
+            Call RecPrt('Con_Opt: W',' ',Hessian,nInter,nInter)
             Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
             Write (6,*) 'ipTb,ipTti=',ipTb,ipTti
-            Call RecPrt('Con_Opt: dy',' ',dy,1,nInter)
+            Call RecPrt('Con_Opt: dy',' ',dy,1,nLambda)
 #endif
 *
 *           W_{ex} T_b
 *
             Tmp2(:,:)=Zero
             Call DGEMM_('N','N',nInter,nLambda,nInter,
-     &                  1.0d0,Hess,nInter,
+     &                  1.0d0,Hessian,nInter,
      &                        T(1,ipTb),nInter,
      &                  0.0d0,Tmp2,nInter)
 #ifdef _DEBUG_
@@ -517,6 +546,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
          End If
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *------- Add contributions to the Lagranian energy change
@@ -578,7 +608,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             WTr(:)=Zero
             Call DGEMM_('N','N',nInter,1,nInter,
-     &                  1.0d0,Hess,nInter,
+     &                  1.0d0,Hessian,nInter,
      &                        Tr,nInter,
      &                  0.0d0,WTr,nInter)
 *
@@ -588,6 +618,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Call mma_deallocate(Tr)
          End If
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *------- Restrict actual step, dy
@@ -663,10 +694,12 @@ C        Write (6,*) 'yBeta=',yBeta
 #endif
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
       End Do
       Call mma_deallocate(dq_xy)
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *
@@ -741,16 +774,16 @@ C        Write (6,*) 'yBeta=',yBeta
 *
       Dummy = 0.0D0
 #ifdef _DEBUG_
-      Call RecPrt('Con_Opt: Hess(raw)',' ',Hess,nInter,nInter)
+      Call RecPrt('Con_Opt: Hessian(raw)',' ',Hessian,nInter,nInter)
       Write (6,*) 'iOptH=',iOptH
 #endif
-      Call Update_H(nWndw,Hess,nInter,
-     &              nIter,iOptC_Temp,Mode,ipMF,
+      Call Update_H(nWndw,Hessian,nInter,
+     &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
 
 #ifdef _DEBUG_
-      Call RecPrt('Con_Opt: Hess(updated)',' ',Hess,nInter,nInter)
+      Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
 #endif
 *                                                                      *
 ************************************************************************
@@ -767,7 +800,7 @@ C        Write (6,*) 'yBeta=',yBeta
          Tmp2(:,:)=Zero
          Call DGEMM_('T','N',nInter-nLambda,nInter,nInter,
      &               1.0d0,T(1,ipTti),nInter,
-     &                     Hess,nInter,
+     &                     Hessian,nInter,
      &               0.0d0,Tmp2,nInter-nLambda)
          W(:,:)=Zero
          Call DGEMM_('N','N',nInter-nLambda,nInter-nLambda,nInter,
@@ -790,7 +823,7 @@ C        Write (6,*) 'yBeta=',yBeta
             tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
             Thr_RS=1.0D-7
 C           Write (6,*) 'tBeta=',tBeta
-            tBeta=1.0D0 ! Temporary bugging
+C           tBeta=1.0D0 ! Temporary bugging
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
@@ -809,7 +842,7 @@ C           Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
 C   this is a desperate measure until I have figured out an alternative.
             Beta_Disp_=Beta_Disp
             tBeta=Beta_Disp_
-            tBeta=1.0D0 ! Temporary bugging
+C           tBeta=1.0D0 ! Temporary bugging
             Thr_RS=1.0D-5
 *
 *           Copy stuff so that the restricted_disp_Cons routine
@@ -934,5 +967,6 @@ C   this is a desperate measure until I have figured out an alternative.
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(Hessian)
       Return
       End

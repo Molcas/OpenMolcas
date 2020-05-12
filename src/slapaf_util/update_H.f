@@ -9,17 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Update_H(nWndw,H,nInter,nIter,
-     &                    iOptC,Mode,ipMF,dq,g,iNeg,iOptH,
+     &                    iOptC,Mode,MF,dq,g,iNeg,iOptH,
      &                    HUpMet,nRowH,jPrint,GNrm,
      &                    GNrm_Threshold,nAtoms,IRC,Store)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter),
-     &       g(nInter,nIter)
+     &       g(nInter,nIter), MF(3*nsAtom)
       Integer iNeg(2)
       Logical Old_MF, Store
       Character*6 HUpMet
+      Real*8, Allocatable:: Tmp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -40,13 +41,13 @@
 *                                                                      *
 *     Check if we have an old reaction mode
 *
-      Old_MF=DDot_(3*nAtoms,Work(ipMF),1,Work(ipMF),1).ne.Zero
+      Old_MF=DDot_(3*nAtoms,MF,1,MF,1).ne.Zero
       Old_MF = Old_MF .and. Mode.ne.0 .and. IRC.eq.0
-      Call Allocate_Work(ipTmp,3*nAtoms)
+      Call mma_allocate(Tmp,3*nAtoms,Label='Tmp')
       If (Old_MF) Then
          If (jPrint.ge.6)
      &      Write (6,*) ' Reading old reaction mode from disk'
-         call dcopy_(3*nAtoms,Work(ipMF),1,Work(ipTmp),1)
+         Tmp(:) = MF(:)
          Mode=1  ! any number between 1 and nInter
          iOptC=iOr(iOptC,8192)
       End If
@@ -55,7 +56,7 @@
 *                                                                      *
 *     Massage the new Hessian
 *
-      Call FixHess(H,nInter,iOptC,Mode,nIter,ipTmp,GNrm,
+      Call FixHess(H,nInter,iOptC,Mode,nIter,Tmp,GNrm,
      &             GNrm_Threshold,iNeg,nAtoms,(IterHess.eq.nIter))
 *                                                                      *
 ************************************************************************
@@ -65,9 +66,9 @@
       If (Mode.gt.0 .and. Mode.le.nInter) Then
          If (jPrint.ge.6) Write (6,*)
      %      ' Storing new reaction mode on disk'
-         call dcopy_(3*nAtoms,Work(ipTmp),1,Work(ipMF),1)
+         MF(:)=Tmp(:)
       End If
-      Call Free_Work(ipTmp)
+      Call mma_deallocate(Tmp)
 *                                                                      *
 ************************************************************************
 ************************************************************************

@@ -17,6 +17,10 @@
       Integer nInter
       Real*8 qInt(nInter), Hessian(nInter,nInter)
       Real*8, Allocatable:: qInt_s(:), Hessian_s(:,:)
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Call RecPrt('KHL: qInt',' ',qInt,1,nInter)
+#endif
 *
       Call mma_allocate(qInt_s,nInter,Label='qInt_s')
       Call mma_allocate(Hessian_s,nInter,nInter,Label='Hessian_s')
@@ -28,5 +32,8 @@
 *
       Call mma_deallocate(Hessian_s)
       Call mma_deallocate(qInt_s)
+#ifdef _DEBUG_
+      Call RecPrt('KHL: Hessian',' ',Hessian,nInter,nInter)
+#endif
 *
       End Subroutine Hessian_Kriging_Layer
