@@ -608,7 +608,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
      &                Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,
-     &                iOptC,Mode_,ipMF,iOptH_,HUpMet,jPrint,
+     &                iOptC,Mode_,Work(ipMF),iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,

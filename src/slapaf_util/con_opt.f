@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2003, Roland Lindh                                     *
+* Copyright (C) 2003, 2020 Roland Lindh                                *
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
-     &                   Hess,nInter,nIter,iOptC,Mode,ipMF,
+     &                   Hess,nInter,nIter,iOptC,Mode,MF,
      &                   iOptH,HUpMet,jPrint_,Energy,nLambda,
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
@@ -51,7 +51,6 @@
       External Restriction_Step, Restriction_Disp_Con
       Real*8 Restriction_Step, Restriction_Disp_Con
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
      &       T(nInter,nInter), dEdq(nInter,nIter),
@@ -64,13 +63,15 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda)
+     &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
+     &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
       Logical Line_Search, Found, IRC_setup
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
-      Real*8, Allocatable:: RT(:,:), RTInv(:,:)
+      Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
+     &                      RR(:,:), Tdy(:), Tr(:), WTr(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -79,6 +80,11 @@
 #define _SIGN_CONFLICT3_
 #define _DEBUG_
 #ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*) '****************************************************'
+      Write (6,*) '**** Con_Opt: Input data ***************************'
+      Write (6,*) '****************************************************'
+      Write (6,*)
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
       Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
      &                                      nLambda*nIter)
@@ -108,7 +114,13 @@
       Thr=1.0D-6
       Call mma_allocate(dq_xy,nInter,Label='dq_xy')
       Call Get_iScalar('iOff_Iter',iOff_Iter)
+*
       Do iIter = iOff_Iter+1, nIter
+#ifdef _DEBUG_
+         Write (6,*)
+         Write (6,*) '>>>>>> iIter=',iIter
+         Write (6,*)
+#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -121,9 +133,9 @@
 *        it with the reaction vector.
 *
          Do iLambda = 1, nLambda
-            RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+            RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                          drdq(1,iLambda,iIter),1))
-            If (RR.lt.1.0D-12) Then
+            If (RR_.lt.1.0D-12) Then
 *
                xBeta = xBeta*Half
 *
@@ -149,27 +161,26 @@
                End If
                r(iLambda,iIter)=Zero
 *
-               If (IRC_SetUp) Then
-                  Call ReacQ(Work(ipMF),3*nsAtom,
-     &                       dEdq(1,        iIter),nInter)
-               End If
+               If (IRC_SetUp) Call ReacQ(MF,3*nsAtom,dEdq(1,iIter),
+     &                                   nInter)
 *
-*              Try to use the transverse direction if the gradient is too small
+*              Try to use the transverse direction if the gradient is
+*              too small
 *
-               RR=Sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
-               If (RR.lt.1.0D-12) Then
+               RR_=Sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
+               If (RR_.lt.1.0D-12) Then
                   Call qpg_dArray('Transverse',Found,nTrans)
                   If (Found.and.(nTrans.eq.3*nsAtom)) Then
                      Call mma_Allocate(Trans,3*nsAtom,Label='Trans')
                      Call Get_dArray('Transverse',Trans,nTrans)
                      Call ReacQ(Trans,3*nsAtom,dEdq(1,iIter),nInter)
-                     RR=Sqrt(DDot_(nInter,dEdq(1,iIter),1,
+                     RR_=Sqrt(DDot_(nInter,dEdq(1,iIter),1,
      &                                   dEdq(1,iIter),1))
-                     Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
+                     Call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
                      Call mma_deallocate(Trans)
                   End If
                Else
-                  Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
+                  Call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
                End If
 *
                Do iInter = 1, nInter
@@ -192,18 +203,18 @@ c    &              dEdq(iInter,iIter)
      &                        dEdq(1,        iIter),1)
                Call DaXpY_(nInter,-RG,dEdq(1,        iIter),1,
      &                                drdq(1,iLambda,iIter),1)
-               RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+               RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                             drdq(1,iLambda,iIter),1))
-C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
+C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                Do jLambda = 1, nLambda
                   If (jLambda.ne.iLambda) Then
                      RG=DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                              drdq(1,jLambda,iIter),1)
                      Call DaXpY_(nInter,-RG,drdq(1,jLambda,iIter),1,
      &                                     drdq(1,iLambda,iIter),1)
-                     RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+                     RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                                   drdq(1,iLambda,iIter),1))
-                     Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
+                     Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                   End If
                End Do
 *
@@ -275,10 +286,8 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
      &                     T(1,ipTb),nInter,
      &               0.0d0,RT,nLambda)
 *
-         Call RecPrt('RT',' ',RT,nLambda,nLambda)
          Call MInv(RT,RTInv,iSing,Det,nLambda)
          Call mma_deallocate(RT)
-         Call RecPrt('RTInv',' ',RTInv,nLambda,nLambda)
 *
 *        dy = - (drdq^T T_b)^{-1} r(q)
 *
@@ -302,41 +311,45 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
 *
 *        l =  (drdq^T drdq)^{-1} drdq^T dEdq
 *
-         Call Allocate_Work(ipTRT,nLambda*nInter)
-         Call FZero(Work(ipTRT),nLambda*nInter)
-         Call Allocate_Work(ipTRInv,nLambda**2)
-         Call Allocate_Work(ipTR,nLambda**2)
-         Call FZero(Work(ipTR),nLambda**2)
+         Call mma_allocate(RRR,nLambda,nInter,Label='RRR')
+         Call mma_allocate(RRInv,nLambda,nLambda,Label='RRInv')
+         Call mma_allocate(RR,nLambda,nLambda,Label='RR')
 *
 *        drdq^T drdq
 *
+         RR(:,:)=Zero
          Call DGEMM_('T','N',nLambda,nLambda,nInter,
      &               1.0d0,drdq(1,1,iIter),nInter,
      &                     drdq(1,1,iIter),nInter,
-     &               0.0d0,Work(ipTR),nLambda)
+     &               0.0d0,RR,nLambda)
 *
 *        (drdq^T drdq)^{-1}
 *
-         Call MInv(Work(ipTR),Work(ipTRInv),iSing,Det,nLambda)
-         Call Free_Work(ipTR)
+         Call MInv(RR,RRInv,iSing,Det,nLambda)
+         Call mma_deallocate(RR)
 *
 *        (drdq^T drdq)^{-1} drdq^T
+*
+         RRR(:,:)=Zero
          Call DGEMM_('N','T',nLambda,nInter,nLambda,
-     &               1.0d0,Work(ipTRInv),nLambda,
+     &               1.0d0,RRInv,nLambda,
      &                     drdq(1,1,iIter),nInter,
-     &               0.0d0,Work(ipTRT),nLambda)
-         Call Free_Work(ipTRInv)
-         Call FZero(rLambda(1,iIter),nLambda)
+     &               0.0d0,RRR,nLambda)
+         Call mma_deallocate(RRInv)
 *
 *        l = (T_b^T drdq)^{-1} drdq^T dEdq
 *
 *        Note the sign conflict due to dEdq stored as a force.
 *
+         rLambda(:,iIter)=Zero
          Call DGEMM_('N','N',nLambda,1,nInter,
-     &              -1.0d0,Work(ipTRT),nLambda,    ! Sign conflict
+     &              -1.0d0,RRR,nLambda,    ! Sign conflict
      &                     dEdq(1,iIter),nInter,
      &               0.0d0,rLambda(1,iIter),nLambda)
-         Call Free_Work(ipTRT)
+         Call mma_deallocate(RRR)
+#ifdef _DEBUG_
+         Call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -352,6 +365,9 @@ C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
                Call DaXpY_(nInter**2,-rLambda(iLambda,nIter),
      &                               d2rdq2(1,1,iLambda),1,Hess,1)
             End Do
+#ifdef _DEBUG_
+            Call RecPrt('W^0',' ',Hess,nInter,nInter)
+#endif
          End If
 *                                                                      *
 ************************************************************************
@@ -434,7 +450,7 @@ C              Write (6,*) 'xBeta=',xBeta
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
 *
 #ifdef _DEBUG_
-            Call RecPrt('Con_Opt: dEdq',' ',Tmp1,1,nInter)
+            Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
             Call RecPrt('Con_Opt: Hess',' ',Hess,nInter,nInter)
             Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
             Write (6,*) 'ipTb,ipTti=',ipTb,ipTti
@@ -448,6 +464,9 @@ C              Write (6,*) 'xBeta=',xBeta
      &                  1.0d0,Hess,nInter,
      &                        T(1,ipTb),nInter,
      &                  0.0d0,Tmp2,nInter)
+#ifdef _DEBUG_
+            Call RecPrt('W_{ex} T_b',' ',Tmp2,nInter,nLambda)
+#endif
 *
 *           dEdq + W_{ex} T_b dy
 *
@@ -460,6 +479,9 @@ C              Write (6,*) 'xBeta=',xBeta
      &                        dy,nLambda,
      &                  1.0d0,Tmp1,nInter)
             Call mma_deallocate(Tmp2)
+#ifdef _DEBUG_
+            Call RecPrt('dEdq + W_{ex} T_b dy',' ',Tmp1,1,nInter)
+#endif
 *
 *           dEdx = T^t_{ti} (dEdq + W_{ex} T_b dy)
 *
@@ -469,6 +491,7 @@ C              Write (6,*) 'xBeta=',xBeta
      &                        Tmp1,nInter,
      &                  0.0d0,dEdx(1,iIter),nInter-nLambda)
 #ifdef _DEBUG_
+            Write (6,*) 'iIter=',iIter
             Call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,
      &                  nInter-nLambda)
 #endif
@@ -502,67 +525,67 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *---------- Term due to constraint
 *
-            Call Allocate_Work(ipTmp,nLambda)
-            Call FZero(Work(ipTmp),nLambda)
-            Call Allocate_Work(ip_Tdy,nInter)
-            Call FZero(Work(ip_Tdy),nInter)
+            Call mma_allocate(Tmp1,nLambda,Label='Tmp1')
+            Call mma_allocate(Tdy,nInter,Label='Tdy')
 *
 *           T_b dy
 *
+            Tdy(:)=Zero
             Call DGEMM_('N','N',nInter,1,nLambda,
      &                  1.0d0,T(1,ipTb),nInter,
      &                        dy,nLambda,
-     &                  0.0d0,Work(ip_Tdy),nInter)
+     &                  0.0d0,Tdy,nInter)
 *
 *           drdq^T dq = drdq^T T_b dy
 *
+            Tmp1(:)=Zero
             Call DGEMM_('T','N',nLambda,1,nInter,
      &                  1.0d0,drdq(1,1,iIter),nInter,
-     &                        Work(ip_Tdy),nInter,
-     &                  0.0d0,Work(ipTmp),nLambda)
-            Call Free_Work(ip_Tdy)
+     &                        Tdy,nInter,
+     &                  0.0d0,Tmp1,nLambda)
+            Call mma_deallocate(Tdy)
 *
 *           r + drdq^T dq
 *
-            Call DaXpY_(nLambda,One,r(1,iIter),1,Work(ipTmp),1)
+            Call DaXpY_(nLambda,One,r(1,iIter),1,Tmp1,1)
 *
 *           l^T (r + drdq^T dq)
 *
-            ed = ed - DDot_(nLambda,rLambda(1,iIter),1,Work(ipTmp),1)
-            Call Free_Work(ipTmp)
+            ed = ed - DDot_(nLambda,rLambda(1,iIter),1,Tmp1,1)
+            Call mma_deallocate(Tmp1)
 *
 *---------- Term due to coupling
 *
-            Call Allocate_Work(ip_Tr,nInter)
-            Call FZero(Work(ip_Tr),nInter)
+            Call mma_allocate(Tr,nInter,Label='Tr')
 *
 *           T_b dy
 *
+            Tr(:)=Zero
             Call DGEMM_('N','N',nInter,1,nLambda,
      &                  1.0d0,T(1,ipTb),nInter,
      &                        dy,nLambda,
-     &                  0.0d0,Work(ip_Tr),nInter)
+     &                  0.0d0,Tr,nInter)
 *
 *           dEdq^T T_b dy
 *
 *           Note the sign conflict.
 *
-            ed = ed - DDot_(nInter,Work(ip_Tr),1,dEdq,1)
+            ed = ed - DDot_(nInter,Tr,1,dEdq,1)
 *
-            Call Allocate_Work(ip_WTr,nInter)
-            Call FZero(Work(ip_WTr),nInter)
+            Call mma_allocate(WTr,nInter,Label='WTr')
 *
 *           W T_b dy
 *
+            WTr(:)=Zero
             Call DGEMM_('N','N',nInter,1,nInter,
      &                  1.0d0,Hess,nInter,
-     &                        Work(ip_Tr),nInter,
-     &                  0.0d0,Work(ip_WTr),nInter)
+     &                        Tr,nInter,
+     &                  0.0d0,WTr,nInter)
 *
 *            dy^T T_b^T W T_b dy
-            ed = ed + Half * DDot_(nInter,Work(ip_Tr),1,Work(ip_WTr),1)
-            Call Free_Work(ip_WTr)
-            Call Free_Work(ip_Tr)
+            ed = ed + Half * DDot_(nInter,Tr,1,WTr,1)
+            Call mma_deallocate(WTr)
+            Call mma_deallocate(Tr)
          End If
 *                                                                      *
 ************************************************************************
@@ -696,7 +719,7 @@ C        Write (6,*) 'yBeta=',yBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Update the Hessian in the n subspace
+*---- Update the Hessian in the m subspace
 *     There should be no negative eigenvalue, if so change the sign.
 *
 #ifdef _DEBUG_
@@ -829,12 +852,13 @@ C   this is a desperate measure until I have figured out an alternative.
 *
 *     See Eqn. 10.
 *
+#define _TEMPORARY_CODE_
 #ifdef _TEMPORARY_CODE_
 *
 *     dy only, constraint
 *
-      Call FZero(du,nInter)
-      call dcopy_(nLambda,dy,1,du,1)
+      du(:)=Zero
+      du(1:nLambda)=dy(:)
       Call DGEMM_('N','N',
      &            nInter,1,nInter,
      &            One,T,nInter,
@@ -847,8 +871,8 @@ C   this is a desperate measure until I have figured out an alternative.
 *
 *     dx only, constraint minimization
 *
-      Call FZero(du,nInter)
-      call dcopy_(nInter-nLambda,dx(1,nIter),1,du(1+nLambda),1)
+      du(:)=Zero
+      du(1+nLambda:nInter)=dx(:,nIter)
       Call DGEMM_('N','N',
      &            nInter,1,nInter,
      &            One,T,nInter,
@@ -893,8 +917,8 @@ C   this is a desperate measure until I have figured out an alternative.
 *
          StpMax_Save=StpMax
          StpLbl_Save=StpLbl
-         Call Allocate_Work(ipLbl,nInter-nLambda)
-         Call Char2Real(Lbl,Work(ipLbl),(nInter-nLambda)*8)
+         Call mma_allocate(Tmp1,nInter-nLambda,Label='Tmp1')
+         Call Char2Real(Lbl,Tmp1,(nInter-nLambda)*8)
          GrdMax=Zero
          Do i = 1, nInter-nLambda
             Write (Lbl(i),'(A,I3.3)') 'dEdx',i
@@ -903,8 +927,8 @@ C   this is a desperate measure until I have figured out an alternative.
      &               dEdx(1,nIter),dx(1,nIter),Lbl)
          StpMax=StpMax_Save
          StpLbl=StpLbl_Save
-         Call Real2Char(Work(ipLbl),Lbl,(nInter-nLambda)*8)
-         Call Free_Work(ipLbl)
+         Call Real2Char(Tmp1,Lbl,(nInter-nLambda)*8)
+         Call mma_deallocate(Tmp1)
 *
       End If
 *                                                                      *
