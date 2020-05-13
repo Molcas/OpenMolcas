@@ -87,13 +87,16 @@
       Write (6,*)
       Write (6,*) 'iOpt_RS=',iOpt_RS
       Write (6,*)
-      Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
-      Call RecPrt('Con_Opt: drdq(orig)',' ',drdq,nInter,
-     &                                      nLambda*nIter)
       Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
+      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter)
       Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
       Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
-      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
+      Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
+      Do iIter = 1, nIter
+         Write (6,*)' iIter=',iIter
+         Call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),
+     &               nInter,nLambda)
+      End Do
       Do iLambda = 1, nLambda
          Call RecPrt('Con_Opt: d2rdq2(iLambda)',' ',
      &                            d2rdq2(1,1,iLambda),nInter,nInter)
@@ -130,7 +133,9 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Do iIter = iOff_Iter+1, nIter
+      iSt=Max(iOff_Iter+1,nIter-nWndw+1)
+      Do iIter = iSt, nIter
+*     Do iIter = iOff_Iter+1, nIter
 #ifdef _DEBUG_
          Write (6,*)
          Write (6,*) '>>>>>> iIter=',iIter
@@ -191,7 +196,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Do iIter = iOff_Iter+1, nIter
+      Do iIter = iSt, nIter
+*     Do iIter = iOff_Iter+1, nIter
 #ifdef _DEBUG_
          Write (6,*)
          Write (6,*) '>>>>>> iIter=',iIter
@@ -211,7 +217,12 @@
          Do iLambda = 1, nLambda
             RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                          drdq(1,iLambda,iIter),1))
-            If (RR_.lt.1.0D-12) Then
+*
+*           Make sure that we dont mess up gradients which are zero vectors.
+*
+            If ( RR_.lt.1.0D-12 ) Then
+*           If ( RR_.lt.1.0D-12 .and.
+*    &           Abs(r(iLambda,iIter)).gt.1.0D-12 ) Then
 *
                xBeta = xBeta*Half
 *
@@ -362,9 +373,15 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
      &               1.0d0,drdq(1,1,iIter),nInter,
      &                     T(1,ipTb),nInter,
      &               0.0d0,RT,nLambda)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: RT',' ',RT,nLambda,nLambda)
+#endif
 *
          Call MInv(RT,RTInv,iSing,Det,nLambda)
          Call mma_deallocate(RT)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: RTInv',' ',RTInv,nLambda,nLambda)
+#endif
 *
 *        dy = - (drdq^T T_b)^{-1} r(q)
 *
@@ -695,6 +712,9 @@ C           Write (6,*) 'gBeta=',gBeta
                   tmp = Max(tmp,Abs(drdq(j,i,iIter)))
                End Do
             End Do
+            tmp=Min(tmp,0.10D0) ! Some none geometrical constraints
+                                ! can have huge gradients. So be
+                                ! a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
             q_(:)=q(:,iIter)
@@ -705,11 +725,15 @@ C           Write (6,*) 'gBeta=',gBeta
             dydy_long=dydy
             Fact_short=0.0D0
             dydy_short=dydy_long+One
+*           Write (6,*) 'Beta_Disp_=',Beta_Disp_
+*           Write (6,*) 'Start: dy(:)=',dy(:)
+            If (DDot_(nLambda,dy,1,dy,1).lt.1.0D012) Go To 667
 *
  666        Continue
             dy_(:)=(One/Fact)*dy(:)
 *
             dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
+*           Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
             If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
                If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
                iCount=iCount+1
@@ -725,6 +749,7 @@ C           Write (6,*) 'gBeta=',gBeta
             End If
  667        Continue
             dy(:)=(One/Fact)*dy(:)
+*           Write (6,*) 'Final: dy(:)=',dy(:)
 *
          End If
 *
