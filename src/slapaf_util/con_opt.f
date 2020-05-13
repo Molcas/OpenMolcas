@@ -114,6 +114,7 @@
       Sf=Sqrt(Two)
       dxdx=Zero
       Thr=1.0D-6
+      Beta_Disp_Min=1.0D-10
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Call mma_allocate(dq_xy,nInter,Label='dq_xy')
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
@@ -687,7 +688,15 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             iCount=1
             iCount_Max=100
-            Beta_Disp_=Beta_Disp  ! Temporary
+*
+            tmp=0.0D0
+            Do i = 1, nLambda
+               Do j = 1, nInter
+                  tmp = Max(tmp,Abs(drdq(j,i,iIter)))
+               End Do
+            End Do
+            Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
+*
             q_(:)=q(:,iIter)
             du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
 *
@@ -867,18 +876,12 @@ C           tBeta=1.0D0 ! Temporary bugging
          Else
             Beta_Disp_Min=1.0D-10
             tmp=0.0D0
-C           Do i = 1, nInter-nLambda
-C              tmp = Max(tmp,Abs(dEdx(i,nIter)))
-C           End Do
-            Do i = 1, nLambda
-               tmp = Max(tmp,Abs(dy(i)))
+            Do i = 1, nInter-nLambda
+               tmp = Max(tmp,Abs(dEdx(i,nIter)))
             End Do
 C           Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
-            Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
-C   this is a desperate measure until I have figured out an alternative.
-            Beta_Disp_=Beta_Disp
+            Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
             tBeta=Beta_Disp_
-C           tBeta=1.0D0 ! Temporary bugging
             Thr_RS=1.0D-5
 *
 *           Copy stuff so that the restricted_disp_Cons routine
