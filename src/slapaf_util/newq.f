@@ -53,7 +53,7 @@
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
-#define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
       Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)

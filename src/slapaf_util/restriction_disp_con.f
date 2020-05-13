@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2019, Roland Lindh                                     *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Real*8 Function Restriction_Disp_Con(x,dx,mInter)
 ************************************************************************
@@ -42,8 +42,8 @@
       dq(:)=0.0D0
 *
 *     Call RecPrt('dx',' ',dx,1,mInter)
-      Call DCopy_(mInter,dx,1,du(1+nLambda),1)
-C     Call DCopy_(nLambda,dy_,1,du,1)
+      du(nLambda+1:mInter)=dx(1:mInter)
+      du(1:nLambda)=dy_(1:nLambda)
 *     Call RecPrt('du',' ',du,1,nInter)
 *     Call RecPrt('T_',' ',T_,nInter,nInter)
       Call DGEMM_('N','N',

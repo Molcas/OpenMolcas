@@ -99,7 +99,7 @@
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
-#define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
@@ -590,6 +590,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *        If the maximum displacement is more than 2*Beta, reduce the step.
 *
 *        Initial setup to ensure fCart=1.0 at first iteration.
+         Thr_RS=1.0D-7
          rInter=Beta
          fCart=Ten
          rCart=fCart*rInter

@@ -78,8 +78,7 @@
 *                                                                      *
       jPrint=jPrint_
       jPrint=jPrint_
-#define _SIGN_CONFLICT3_
-#define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) '****************************************************'
@@ -118,6 +117,13 @@
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Call mma_allocate(dq_xy,nInter,Label='dq_xy')
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
+      If (iOpt_RS.ne.0) Then
+         nInter_=nInter
+         nLambda_=nLambda
+         Call mma_allocate(q_,nInter,Label='q_')
+         Call mma_allocate(T_,nInter,nInter,Label='T_')
+         Call mma_allocate(dy_,nLambda,Label='dy_')
+      End If
 *
 *                                                                      *
 ************************************************************************
@@ -319,6 +325,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        T_{ti}^T T_{ti} = 1
 *
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
+         If (iOpt_RS.ne.0) T_(:,:)=T(:,:)
 #ifdef _DEBUG_
          Call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
          Call RecPrt('Con_Opt: T_b',' ',T(1,ipTB),nInter,nLambda)
@@ -627,67 +634,96 @@ C           Write (6,*) 'gBeta=',gBeta
 *        priority. This step is only reduced if it is larger than
 *        half the overall step restriction.
 *
-*        Compute dq step in the y subspace
+         If (iOpt_RS.eq.0) Then
 *
-*        dq_y = T [dy, 0]^T
+*           Compute dq step in the y subspace
+*
+*           dq_y = T [dy, 0]^T
 
-         du(:)=Zero
-         du(1:nLambda)=dy(:)
-         dq_xy(:)=Zero
-         Call DGEMM_('N','N',nInter,1,nInter,
-     &               One,T,nInter,
-     &                   du,nInter,
-     &               Zero,dq_xy,nInter)
+            du(:)=Zero
+            du(1:nLambda)=dy(:)
+            dq_xy(:)=Zero
+            Call DGEMM_('N','N',nInter,1,nInter,
+     &                  One,T,nInter,
+     &                      du,nInter,
+     &                  Zero,dq_xy,nInter)
 *
-*        If (iOpt_RS.eq.0) Then
-         dydy=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
+            dydy=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 *
-*        Reduce y step size if larger than some maximum size
-*        (the x step or half the total max step times a factor)
 *
-         dydymax=CnstWght*max(dxdx,Half*Beta)
-         If (dydy.gt.dydymax) Then
-*           Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
-            Call DScal_(nLambda,dydymax/dydy,dy,1)
-            dydy=dydymax
-            Step_Trunc='*'
+*           Reduce y step size if larger than some maximum size
+*           (the x step or half the total max step times a factor)
+*
+            dydymax=CnstWght*max(dxdx,Half*Beta)
+            If (dydy.gt.dydymax) Then
+*              Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
+               Call DScal_(nLambda,dydymax/dydy,dy,1)
+               dydy=dydymax
+               Step_Trunc='*'
+            Else
+*              Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
+               Step_Trunc=' '
+            End If
+*
+*           The step reduction in the space which we minimize is such
+*           that while the fulfillment of the constraint is not
+*           improving from step to step we reduce the step length in
+*           the subspace in which we do the minimization.
+
+            If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-2) Then
+*------------- Recent step in the space for the restriction is smaller
+*              than the previous, or the recent step is smaller than
+*              some threshold. Then increase step length for x, however
+*              not more than the overall step restriction.
+               yBeta=Min(Two,yBeta*Sf)
+            Else If (dydy.gt.1.25D0*dydy_last.and.dydy.ge.1.0D-5) Then
+*              Otherwise decrease step direction.
+               yBeta=Max(One/Ten,yBeta/Sf)
+            End If
          Else
-*           Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
-            Step_Trunc=' '
-         End If
 *
-*        The step reduction in the space which we minimize is such that
-*        while the fulfillment of the constraint is not improving from
-*        step to step we reduce the step length in the subspace in which
-*        we do the minimization.
-
-C        If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-5) Then
-         If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-2) Then
-*---------- Recent step in the space for the restriction is smaller than
-*           the previous, or the recent step is smaller than some
-*           threshold. Then increase step length for x, however not
-*           more than the overall step restriction.
-C           yBeta=Min(One,yBeta*Sf)
-C           yBeta=yBeta*Sf
-            yBeta=Min(Two,yBeta*Sf)
-         Else If (dydy.gt.1.25D0*dydy_last.and.dydy.ge.1.0D-5) Then
-*           Otherwise decrease step direction.
-            yBeta=Max(One/Ten,yBeta/Sf)
+*           Here in the case of kriging and restricted-variance
+*           optimization.
+*
+            iCount=1
+            iCount_Max=100
+            Beta_Disp_=Beta_Disp  ! Temporary
+            q_(:)=q(:,iIter)
+            du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
+*
+            Fact=One
+            Fact_long=Fact
+            dydy_long=dydy
+            Fact_short=0.0D0
+            dydy_short=dydy_long+One
+*
+ 666        Continue
+            dy_(:)=(One/Fact)*dy(:)
+*
+            dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
+            If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
+               If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
+               iCount=iCount+1
+               If (iCount.gt.iCount_Max) Then
+                  Write (6,*) 'iCount.gt.iCount_Max'
+                  Call Abend()
+               End If
+               Call Find_RFO_Root(Fact_long,dydy_long,
+     &                            Fact_short,dydy_short,
+     &                            Fact,dydy,Beta_Disp_)
+               Step_Trunc='*'
+               Go To 666
+            End If
+ 667        Continue
+            dy(:)=(One/Fact)*dy(:)
+*
          End If
-*        Else
-*        End If
 *
 *        Twist for MEP optimizations.
 *
          If (iIter.eq.iOff_iter+1 .and. dydy.lt.1.0D-4
-     &       .and. iIter.ne.1) Then
-*           yBeta=Beta/Ten
-            xBeta=xBeta*Half
-         End If
-C        Write (6,*) 'dydy_last=',dydy_last
-C        Write (6,*) 'dydy=',dydy
+     &       .and. iIter.ne.1) xBeta=xBeta*Half
          dydy_last=dydy
-C        Write (6,*) 'yBeta=',yBeta
 *
 #ifdef _DEBUG_
          Call RecPrt('Con_Opt: dy(actual)',' ',dy,nLambda,1)
@@ -696,7 +732,7 @@ C        Write (6,*) 'yBeta=',yBeta
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      End Do
+      End Do ! Do iIter = iOff_Iter+1, nIter
       Call mma_deallocate(dq_xy)
 *                                                                      *
 ************************************************************************
@@ -724,7 +760,7 @@ C        Write (6,*) 'yBeta=',yBeta
       dEdq_(:,:) = dEdq(:,:)
       Do iIter = iOff_iter+1, nIter
          Do iLambda = 1, nLambda
-            Call DaXpY_(nInter,rLambda(iLambda,nIter),    ! Sign conflict
+            Call DaXpY_(nInter,rLambda(iLambda,nIter),   ! Sign conflict
      &                          drdq(1,iLambda,iIter),1,
      &                          dEdq_(1,iIter),1)
          End Do
@@ -848,23 +884,14 @@ C           tBeta=1.0D0 ! Temporary bugging
 *           Copy stuff so that the restricted_disp_Cons routine
 *           can figure out how to compute the dispersion.
 *
-            nInter_=nInter
-            nLambda_=nLambda
-            Call mma_allocate(q_,nInter,Label='q_')
-            Call DCopy_(nInter,q(1,nIter),1,q_,1)
-            Call mma_allocate(T_,nInter,nInter,Label='T_')
-            Call DCopy_(nInter**2,T,1,T_,1)
-            Call mma_allocate(dy_,nLambda,Label='dy_')
-            Call DCopy_(nLambda,dy,1,dy_,1)
+            q_(:)=q(:,nIter)
+            dy_(:)=dy(:)
 *
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
      &                Restriction_Disp_Con,Thr_RS)
 *
-            Call mma_deallocate(dy_)
-            Call mma_deallocate(T_)
-            Call mma_deallocate(q_)
 *
          End If
          GNrm=
@@ -885,8 +912,7 @@ C           tBeta=1.0D0 ! Temporary bugging
 *
 *     See Eqn. 10.
 *
-#define _TEMPORARY_CODE_
-#ifdef _TEMPORARY_CODE_
+#ifdef _DEBUG_
 *
 *     dy only, constraint
 *
@@ -967,6 +993,11 @@ C           tBeta=1.0D0 ! Temporary bugging
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (iOpt_RS.ne.0) Then
+         Call mma_deallocate(dy_)
+         Call mma_deallocate(T_)
+         Call mma_deallocate(q_)
+      End If
       Call mma_deallocate(Hessian)
       Return
       End

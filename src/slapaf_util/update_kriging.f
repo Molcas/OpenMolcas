@@ -159,11 +159,10 @@
 *
       if (nLambda.eq.0) Then
          Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
-         Beta_=Min(1.0D3*GNrm(iter),Beta)
       Else
          Beta_Disp_=Beta_Disp
-         Beta_=Beta
       End If
+      Beta_=Min(1.0D3*GNrm(iter),Beta)
 *
 #ifdef _RS_RFO_
 *     Switch over to RS-RFO once the gradient is low.
@@ -290,26 +289,26 @@
          Else
 *           Use standard convergence criteria
             FAbs=GNrm(iterAI)/SQRT(DBLE(nInter-nLambda))
-            Write (6,*)
-            Write (6,*) 'iter=',iterAI-1
-            Write (6,*) 'FAbs=',GNrm(iterAI-1)
-            Write (6,*) 'GrdMax=',GrdMax
             RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
      &                             Shift(1,iterAI-1),1)/DBLE(nInter))
-            Write (6,*) 'RMS=',RMS
             RMSMx=Zero
             Do iInter = 1, nInter
                RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
             End Do
             GrdMx=GrdMax
+#ifdef _DEBUG_
+            Write (6,*)
+            Write (6,*) 'iter=',iterAI-1
+            Write (6,*) 'FAbs=',GNrm(iterAI-1)
+            Write (6,*) 'GrdMax=',GrdMax
+            Write (6,*) 'RMS=',RMS
             Write (6,*) 'GrdMx=',GrdMx
             Write (6,*) 'RMSMx=',RMSMx
-*
-
             Write (6,*) FAbs.gt.Min(ThrGrd,FAbs_ini)
             Write (6,*) GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
             Write (6,*) RMS.gt.ThrGrd*Four
             Write (6,*) RMSMx.gt.ThrGrd*Six
+#endif
             Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
             Not_Converged = Not_Converged .or.
      &                      GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
