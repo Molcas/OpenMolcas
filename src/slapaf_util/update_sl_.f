@@ -95,7 +95,9 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
-      Real*8, Allocatable:: Hessian(:,:), Wess(:,:)
+      Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
+     &                      RHS(:)
+      Integer, Allocatable:: Pvt(:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -114,14 +116,13 @@
 *
       mInter=nInter
       nA = (Max(mInter,kIter)+1)**2
-      nAF= (Max(mInter,kIter)+1)**2
-      Call GetMem(' A ','Allo','Real',ipA,nA)
-      Call GetMem(' dg','Allo','Real',ipdg,mInter)
-      Call GetMem(' Pivot','Allo','Inte',iPvt,kIter+1)
+      Call mma_Allocate(AMat,nA,Label='AMat')
+      Call mma_Allocate(dg,mInter,Label='dg')
+      Call mma_Allocate(Pvt,kIter+1,Label='Pvt')
       Call GetMem(' Index','Allo','Inte',iP,kIter)
       Call GetMem('ErrVec','Allo','Real',ipErr,mInter*(kIter+1))
       Call GetMem('EMtrx ','Allo','Real',ipEMx,(kIter+1)**2)
-      Call GetMem('RHS   ','Allo','Real',ipRHS,kIter+1)
+      Call mma_Allocate(RHS,kIter+1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -234,7 +235,6 @@
             End If
             mInter=nInter+nLambda
             nA = (Max(mInter,kIter)+1)**2
-            nAF= (Max(mInter,kIter)+1)**2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -290,8 +290,8 @@ C           Write (*,*) 'tBeta=',tBeta
                qBeta=fCart*tBeta
                Thr_RS=1.0D-7
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
-     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
@@ -299,8 +299,8 @@ C           Write (*,*) 'tBeta=',tBeta
                qBeta=Beta_Disp
                Thr_RS=1.0D-3*qBeta
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
-     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Dispersion,Thr_RS)
@@ -311,8 +311,8 @@ C           Write (*,*) 'tBeta=',tBeta
             Thr_RS=1.0D-7
             Do
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),Work(ipRHS),
-     &                   iWork(iPvt),Work(ipdg),Work(ipA),nA,
+     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
@@ -611,8 +611,8 @@ C           Write (*,*) 'tBeta=',tBeta
      &                nWndw,Hessian,nInter,kIter,
      &                iOptC,Mode_,Work(ipMF),iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
-     &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
-     &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,
+     &                Work(ipErr),Work(ipEMx),RHS,Pvt,
+     &                dg,AMat,nA,ed,qBeta,Beta_Disp,nFix,
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
      &                IRC,CnstWght,iOpt_RS,Thr_RS)
@@ -661,13 +661,13 @@ C           Write (*,*) 'tBeta=',tBeta
 ************************************************************************
 *                                                                      *
       Call mma_Deallocate(Hessian)
-      Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
+      Call mma_Deallocate(RHS)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
       Call GetMem('ErrVec','Free','Real',ipErr,mInter*(kIter+1))
       Call GetMem(' Index','Free','Inte',iP,kIter)
-      Call GetMem(' Pivot','Free','Inte',iPvt,kIter+1)
-      Call GetMem(' dg','Free','Real',ipdg,mInter)
-      Call GetMem(' A ','Free','Real',ipA,nA)
+      Call mma_deallocate(Pvt)
+      Call mma_deallocate(dg)
+      Call mma_deallocate(AMat)
 *
       Return
       End

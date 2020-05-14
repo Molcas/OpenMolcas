@@ -711,9 +711,8 @@ C           Write (6,*) 'gBeta=',gBeta
                   tmp = Max(tmp,Abs(drdq(j,i,iIter)))
                End Do
             End Do
-            tmp=Min(tmp,0.10D0) ! Some none geometrical constraints
-                                ! can have huge gradients. So be
-                                ! a bit careful.
+            tmp=Min(tmp,0.10D0) ! Some constraints can have huge
+                                ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
             q_(:)=q(:,iIter)
@@ -724,15 +723,19 @@ C           Write (6,*) 'gBeta=',gBeta
             dydy_long=dydy
             Fact_short=0.0D0
             dydy_short=dydy_long+One
-*           Write (6,*) 'Beta_Disp_=',Beta_Disp_
-*           Write (6,*) 'Start: dy(:)=',dy(:)
-            If (DDot_(nLambda,dy,1,dy,1).lt.1.0D012) Go To 667
+#ifdef _DEBUG_
+            Write (6,*) 'Beta_Disp_=',Beta_Disp_
+            Write (6,*) 'Start: dy(:)=',dy(:)
+#endif
+            If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
 *
  666        Continue
             dy_(:)=(One/Fact)*dy(:)
 *
             dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
-*           Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
+#ifdef _DEBUG_
+            Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
+#endif
             If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
                If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
                iCount=iCount+1
@@ -748,7 +751,9 @@ C           Write (6,*) 'gBeta=',gBeta
             End If
  667        Continue
             dy(:)=(One/Fact)*dy(:)
-*           Write (6,*) 'Final: dy(:)=',dy(:)
+#ifdef _DEBUG_
+            Write (6,*) 'Final: dy(:)=',dy(:)
+#endif
 *
          End If
 *
