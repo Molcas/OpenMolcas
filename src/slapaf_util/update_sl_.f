@@ -96,8 +96,8 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
-     &                      RHS(:)
-      Integer, Allocatable:: Pvt(:)
+     &                      RHS(:), ErrVec(:,:)
+      Integer, Allocatable:: Pvt(:), Index(:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -119,8 +119,8 @@
       Call mma_Allocate(AMat,nA,Label='AMat')
       Call mma_Allocate(dg,mInter,Label='dg')
       Call mma_Allocate(Pvt,kIter+1,Label='Pvt')
-      Call GetMem(' Index','Allo','Inte',iP,kIter)
-      Call GetMem('ErrVec','Allo','Real',ipErr,mInter*(kIter+1))
+      Call mma_Allocate(Index,kIter,Label='Index')
+      Call mma_Allocate(ErrVec,mInter,(kIter+1),Label='ErrVec')
       Call GetMem('EMtrx ','Allo','Real',ipEMx,(kIter+1)**2)
       Call mma_Allocate(RHS,kIter+1)
 *                                                                      *
@@ -290,18 +290,18 @@ C           Write (*,*) 'tBeta=',tBeta
                qBeta=fCart*tBeta
                Thr_RS=1.0D-7
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   ErrVec,Work(ipEMx),RHS,
      &                   Pvt,dg,AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
             Else
                qBeta=Beta_Disp
                Thr_RS=1.0D-3*qBeta
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   ErrVec,Work(ipEMx),RHS,
      &                   Pvt,dg,AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Dispersion,Thr_RS)
             End If
@@ -311,9 +311,9 @@ C           Write (*,*) 'tBeta=',tBeta
             Thr_RS=1.0D-7
             Do
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   Work(ipErr),Work(ipEMx),RHS,
+     &                   ErrVec,Work(ipEMx),RHS,
      &                   Pvt,dg,AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
+     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
                If (iOpt_RS.eq.0) Exit
@@ -611,9 +611,9 @@ C           Write (*,*) 'tBeta=',tBeta
      &                nWndw,Hessian,nInter,kIter,
      &                iOptC,Mode_,Work(ipMF),iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
-     &                Work(ipErr),Work(ipEMx),RHS,Pvt,
+     &                ErrVec,Work(ipEMx),RHS,Pvt,
      &                dg,AMat,nA,ed,qBeta,Beta_Disp,nFix,
-     &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
+     &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
      &                IRC,CnstWght,iOpt_RS,Thr_RS)
 *
@@ -643,7 +643,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *
          Call Free_Work(ipd2L   )
          Call Free_Work(ipEnergy)
-         Call mma_deallocate(Wess)
+         Call mma_Deallocate(Wess)
          Call Free_Work(ipdEdx  )
          Call Free_Work(ipx     )
          Call Free_Work(ipdu    )
@@ -663,11 +663,11 @@ C           Write (*,*) 'tBeta=',tBeta
       Call mma_Deallocate(Hessian)
       Call mma_Deallocate(RHS)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
-      Call GetMem('ErrVec','Free','Real',ipErr,mInter*(kIter+1))
-      Call GetMem(' Index','Free','Inte',iP,kIter)
-      Call mma_deallocate(Pvt)
-      Call mma_deallocate(dg)
-      Call mma_deallocate(AMat)
+      Call mma_Deallocate(ErrVec)
+      Call mma_Deallocate(Index)
+      Call mma_Deallocate(Pvt)
+      Call mma_Deallocate(dg)
+      Call mma_Deallocate(AMat)
 *
       Return
       End
