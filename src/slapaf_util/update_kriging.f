@@ -20,7 +20,7 @@
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,ipCx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                     nWndw,Mode,ipMF,
+     &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,ThrEne,ThrGrd)
@@ -41,7 +41,7 @@
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), dEner,
-     &       Gx(3*nsatom,Iter)
+     &       Gx(3*nsatom,Iter), MF(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -216,7 +216,7 @@
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw/2,Mode,
-     &                   ipMF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
+     &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration)

@@ -17,7 +17,7 @@
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                     nWndw,Mode,ipMF,
+     &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
@@ -86,7 +86,7 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
-     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom)
+     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
@@ -96,7 +96,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
-     &                      RHS(:), ErrVec(:,:)
+     &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Pvt(:), Index(:)
       iRout=153
       iPrint=nPrint(iRout)
@@ -121,7 +121,7 @@
       Call mma_Allocate(Pvt,kIter+1,Label='Pvt')
       Call mma_Allocate(Index,kIter,Label='Index')
       Call mma_Allocate(ErrVec,mInter,(kIter+1),Label='ErrVec')
-      Call GetMem('EMtrx ','Allo','Real',ipEMx,(kIter+1)**2)
+      Call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
       Call mma_Allocate(RHS,kIter+1)
 *                                                                      *
 ************************************************************************
@@ -153,7 +153,7 @@
       iRout=154
       jPrint=nPrint(iRout)
       Call Update_H(nWndw,Hessian,nInter,
-     &              mIter,iOptC,Mode,Work(ipMF),
+     &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
      &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,IRC,.True.)
@@ -282,36 +282,14 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*----------... Compute updated geometry in Internal coordinates
+*---------- Compute updated geometry in Internal coordinates
 *
-*           Select restriction if step or variance.
-#ifdef _OLD_
-            If (iOpt_RS.eq.0) Then
-               qBeta=fCart*tBeta
-               Thr_RS=1.0D-7
-               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   ErrVec,Work(ipEMx),RHS,
-     &                   Pvt,dg,AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
-     &                   Energy,Line_Search,Step_Trunc,
-     &                   Restriction_Step,Thr_RS)
-            Else
-               qBeta=Beta_Disp
-               Thr_RS=1.0D-3*qBeta
-               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   ErrVec,Work(ipEMx),RHS,
-     &                   Pvt,dg,AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
-     &                   Energy,Line_Search,Step_Trunc,
-     &                   Restriction_Dispersion,Thr_RS)
-            End If
-#else
             fact=One
             qBeta=fCart*tBeta
             Thr_RS=1.0D-7
             Do
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
-     &                   ErrVec,Work(ipEMx),RHS,
+     &                   ErrVec,EMtrx,RHS,
      &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
@@ -328,7 +306,7 @@ C           Write (*,*) 'tBeta=',tBeta
                   Exit
                End If
             End Do
-#endif
+*
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *
@@ -609,9 +587,9 @@ C           Write (*,*) 'tBeta=',tBeta
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
      &                Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,
-     &                iOptC,Mode_,Work(ipMF),iOptH_,HUpMet,jPrint,
+     &                iOptC,Mode_,MF,iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
-     &                ErrVec,Work(ipEMx),RHS,Pvt,
+     &                ErrVec,EMtrx,RHS,Pvt,
      &                dg,AMat,nA,ed,qBeta,Beta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
@@ -662,7 +640,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
       Call mma_Deallocate(Hessian)
       Call mma_Deallocate(RHS)
-      Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
+      Call mma_Deallocate(EMtrx)
       Call mma_Deallocate(ErrVec)
       Call mma_Deallocate(Index)
       Call mma_Deallocate(Pvt)

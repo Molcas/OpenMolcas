@@ -704,6 +704,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             iCount=1
             iCount_Max=100
+*           Step_Trunc=' '
 *
             tmp=0.0D0
             Do i = 1, nLambda
@@ -711,7 +712,7 @@ C           Write (6,*) 'gBeta=',gBeta
                   tmp = Max(tmp,Abs(drdq(j,i,iIter)))
                End Do
             End Do
-            tmp=Min(tmp,0.10D0) ! Some constraints can have huge
+            tmp=Min(tmp,0.20D0) ! Some constraints can have huge
                                 ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
@@ -721,12 +722,18 @@ C           Write (6,*) 'gBeta=',gBeta
             Fact=One
             Fact_long=Fact
             dydy_long=dydy
-            Fact_short=0.0D0
+            Fact_short=Zero
             dydy_short=dydy_long+One
 #ifdef _DEBUG_
+            Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
             Write (6,*) 'Start: dy(:)=',dy(:)
 #endif
+*
+*           We only need this for the last point.
+*
+            If (iIter.ne.nIter) Go to 667
+*
             If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
 *
  666        Continue
@@ -752,6 +759,7 @@ C           Write (6,*) 'gBeta=',gBeta
  667        Continue
             dy(:)=(One/Fact)*dy(:)
 #ifdef _DEBUG_
+            Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Final: dy(:)=',dy(:)
 #endif
 *
@@ -858,6 +866,7 @@ C           Write (6,*) 'gBeta=',gBeta
 
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
+      Write (6,*) 'Step_Trunc=',Step_trunc
 #endif
 *                                                                      *
 ************************************************************************
@@ -908,7 +917,9 @@ C           tBeta=1.0D0 ! Temporary bugging
             Do i = 1, nInter-nLambda
                tmp = Max(tmp,Abs(dEdx(i,nIter)))
             End Do
-C           Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
+#ifdef _DEBUG_
+            Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
+#endif
             Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
             tBeta=Beta_Disp_
             Thr_RS=1.0D-5
@@ -935,6 +946,7 @@ C           Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
       End If
 *
 #ifdef _DEBUG_
+      Write (6,*) 'Step_Trunc=',Step_trunc
       Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
 #endif
 *                                                                      *
