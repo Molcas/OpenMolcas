@@ -21,7 +21,7 @@
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
-     &                     lWrite)
+     &                     First_MicroIteration)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -91,7 +91,7 @@
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
-     &        Found, Curvilinear, Kriging_Hessian, lWrite
+     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -187,7 +187,7 @@
 *     TS regime.
 *
       Call qpg_darray('TanVec',Found,nRP)
-      If (FindTS) Then
+      If (FindTS.and.First_MicroIteration) Then
          File1='UDC'
          File2='TSC'
          If (.not.TSC) File2=''
@@ -417,7 +417,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Work(ipBMx),nLambda,nsAtom,iRow_c,
      &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                   Lbl(nInter+1),AtomLbl,Work(ipCoor_l),
-     &                   (lIter.eq.kIter).and.lWrite,
+     &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   nSym,iOper,jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)

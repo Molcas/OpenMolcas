@@ -45,8 +45,8 @@
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
-     &        FindTS, TSC, HrmFrq_Show, Curvilinear
-*    &        FindTS, TSC, HrmFrq_Show, Curvilinear, Print_it
+     &        FindTS, TSC, HrmFrq_Show, Curvilinear,
+     &        First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
@@ -208,6 +208,7 @@
 *                                                                      *
 *        Compute the updated structure.
 *
+         First_MicroIteration=iterAI.eq.iter
          Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -217,7 +218,8 @@
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw/2,Mode,
      &                   ipMF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,iOpt_RS,iterAI.eq.iter)
+     &                   Kriging_Hessian,qBeta,iOpt_RS,
+     &                   First_MicroIteration)
 *                                                                      *
 ************************************************************************
 *                                                                      *

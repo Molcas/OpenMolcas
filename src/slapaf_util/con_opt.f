@@ -77,7 +77,6 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-      jPrint=jPrint_
 *#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
