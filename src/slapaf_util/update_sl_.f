@@ -302,8 +302,8 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
-               If (iOpt_RS.eq.0) Exit
                If (Step_Trunc.eq.'N') Step_Trunc=' '
+               If (iOpt_RS.eq.0) Exit
                disp=Restriction_Dispersion(qInt(1,kIter),Shift(1,kIter),
      &                                     mInter)
 #ifdef _DEBUG_
