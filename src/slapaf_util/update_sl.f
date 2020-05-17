@@ -111,6 +111,8 @@
 *
       iOpt_RS=0
       Kriging_Hessian =.FALSE.
+      qBeta=Beta
+      qBeta_Disp=Beta_Disp
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,7 +145,8 @@
      &                   nWndw,Mode,MF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,iOpt_RS,.True.)
+     &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
+     &                   qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -176,7 +179,8 @@
      &                nWndw,Mode,MF,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,iOpt_RS,.True.)
+     &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
+     &                qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *

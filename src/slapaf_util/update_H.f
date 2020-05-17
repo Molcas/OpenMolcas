@@ -11,14 +11,15 @@
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,Mode,MF,dq,g,iNeg,iOptH,
      &                    HUpMet,nRowH,jPrint,GNrm,
-     &                    GNrm_Threshold,nAtoms,IRC,Store)
+     &                    GNrm_Threshold,nAtoms,IRC,Store,
+     &                    Corrected)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter),
      &       g(nInter,nIter), MF(3*nAtoms)
       Integer iNeg(2)
-      Logical Old_MF, Store
+      Logical Old_MF, Store, Corrected
       Character*6 HUpMet
       Real*8, Allocatable:: Tmp(:)
 *                                                                      *
@@ -57,7 +58,8 @@
 *     Massage the new Hessian
 *
       Call FixHess(H,nInter,iOptC,Mode,nIter,Tmp,GNrm,
-     &             GNrm_Threshold,iNeg,nAtoms,(IterHess.eq.nIter))
+     &             GNrm_Threshold,iNeg,nAtoms,(IterHess.eq.nIter),
+     &             Corrected)
 *                                                                      *
 ************************************************************************
 *                                                                      *

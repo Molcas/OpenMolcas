@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FixHess(H,nH,iOptC,Mode,Iter,MF,GNrm,
-     &                   GNrm_Threshold, iNeg,nAtoms,AnalHess)
+     &                   GNrm_Threshold, iNeg,nAtoms,AnalHess,
+     *                   Corrected)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -339,7 +340,7 @@
 *
             End If
 *
-            Work(Mode+ipFixVal-1) = -Abs(Work(Mode+ipFixVal-1))
+            Work(Mode+ipFixVal-1) = - Half * Abs(Work(Mode+ipFixVal-1))
             Corrected=.True.
             If (iPrint.ge.6) Then
                Write (Lu,'(A,I2,A)')

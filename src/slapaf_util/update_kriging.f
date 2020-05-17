@@ -59,7 +59,6 @@
 *
 *#define _DEBUG_
 *#define _OVERSHOOT_
-*#define _DIAG_HESS_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,6 +88,7 @@
       iterK=0
       dqdq=Zero
       qBeta=Beta
+      qBeta_Disp=Beta_Disp
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
 #ifdef _DEBUG_
@@ -157,11 +157,7 @@
 *     Temporary code until we have figured out this for constrained
 *     optimizations.
 *
-      if (nLambda.eq.0) Then
-         Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
-      Else
-         Beta_Disp_=Beta_Disp
-      End If
+      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
       Beta_=Min(1.0D3*GNrm(iter),Beta)
 *
 #ifdef _RS_RFO_
@@ -187,6 +183,7 @@
 *     Start the Kriging loop.
 *
       Not_Converged = .True.
+      Step_Trunc='N'  ! not defined
       do while (Not_Converged)
 *                                                                      *
 ************************************************************************
@@ -209,17 +206,23 @@
 *        Compute the updated structure.
 *
          First_MicroIteration=iterAI.eq.iter
+         nWndw_=nWndw/2 + (iterAI-iter)
          Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw/2,Mode,
+     &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
-     &                   First_MicroIteration)
+     &                   First_MicroIteration,iter,qBeta_Disp)
+#ifdef _DEBUG_
+         Write (6,*) 'Update_kriging: Step_Trunc',Step_Trunc
+         Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
+         Call RecPrt('Grad',' ',Grad,nInter,iterAI)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -232,6 +235,17 @@
          If (iterAI.eq.iter) Then
             GrdMax_Save=GrdMax
             GrdLbl_Save=GrdLbl
+         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        During the micro iterations we need to set GNrm to some
+*        reasonable value. Normally it is set by the force routine or
+*        the con_opt routine.
+*
+         If (nLambda.eq.0 .and. iterAI.gt.iter) Then
+            GNrm(iterAI)=Sqrt(DDot_(nInter,Grad(1,iterAI),1,
+     &                                    Grad(1,iterAI),1))
          End If
 *                                                                      *
 ************************************************************************
@@ -273,6 +287,7 @@
          Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
          Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+         Write (6,*) 'UpMeth=',UpMeth
 #endif
 *
 *        Change label of updating method
@@ -290,7 +305,7 @@
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criteria
-            FAbs=GNrm(iterAI)/SQRT(DBLE(nInter-nLambda))
+            FAbs=GNrm(iterAI-1)/SQRT(DBLE(nInter-nLambda))
             RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
      &                             Shift(1,iterAI-1),1)/DBLE(nInter))
             RMSMx=Zero
@@ -301,7 +316,7 @@
 #ifdef _DEBUG_
             Write (6,*)
             Write (6,*) 'iter=',iterAI-1
-            Write (6,*) 'FAbs=',GNrm(iterAI-1)
+            Write (6,*) 'FAbs=',FAbs
             Write (6,*) 'GrdMax=',GrdMax
             Write (6,*) 'RMS=',RMS
             Write (6,*) 'GrdMx=',GrdMx
@@ -331,17 +346,24 @@
             Call mma_deAllocate(Temp)
          End If
          Not_Converged = Not_Converged .and. iterK.lt.miAI
+#ifdef _DEBUG_
+         Write (6,*) 'Not_Converged=',Not_Converged
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        If the step restriction is invoked, terminate anyhow.
+*        If the step restriction is invoked or Hessian has been
+*        corrected for wrong curvature, terminate anyhow.
 *
-         If (Step_trunc.eq.'*') Not_Converged=.False.
+         If (Step_trunc.ne.' ') Not_Converged=.False.
 *
 *        If RS rather than RV do not micro iterate
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
 *        Not_Converged=.False. ! Force single iteration scheme.
+#ifdef _DEBUG_
+         Write (6,*) 'Not_Converged=',Not_Converged
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

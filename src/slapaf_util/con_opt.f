@@ -18,7 +18,7 @@
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
-     &                   iOpt_RS,Thr_RS)
+     &                   iOpt_RS,Thr_RS,iter_)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -66,7 +66,7 @@
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup
+      Logical Line_Search, Found, IRC_setup, Corrected
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
@@ -430,9 +430,9 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *
          If (nInter-nLambda.gt.0) Then
 *
-*           q = T_b y + T_{ti} x
+*           q = T_b y + T_{ti} x = T [y,x]^T
 *
-*           x = T_{ti} q
+*           x = T_{ti}^T q, since T_{ti}^T T_b = 0
 *
             x(:,iIter)=Zero
             Call DGEMM_('T','N',nInter-nLambda,1,nInter,
@@ -442,7 +442,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *
 *---------- Compute dx
 *
-*           dx = T_{ti} dq
+*           dx = T_{ti}^T dq
 *
             dx(:,iIter)=Zero
             Call DGEMM_('T','N',nInter-nLambda,1,nInter,
@@ -497,7 +497,7 @@ C              Write (6,*) 'xBeta=',xBeta
 *
 *           See text after Eqn. 13.
 *
-*           dEdx = T^t_{ti}(dEdq + W_{ex}T_b dy)
+*           dEdx = T_{ti}^T (dEdq + W_{ex}T_b dy)
 *
             Call mma_allocate(Tmp1,nInter,Label='Tmp1')
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
@@ -704,7 +704,12 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             iCount=1
             iCount_Max=100
-*           Step_Trunc=' '
+            If (Step_Trunc.eq.'N') Step_Trunc=' '
+            Fact=One
+*
+*           We only need this for the last point.
+*
+            If (iIter.ne.nIter) Go to 667
 *
             tmp=0.0D0
             Do i = 1, nLambda
@@ -712,27 +717,19 @@ C           Write (6,*) 'gBeta=',gBeta
                   tmp = Max(tmp,Abs(drdq(j,i,iIter)))
                End Do
             End Do
-            tmp=Min(tmp,0.20D0) ! Some constraints can have huge
+            tmp=Min(tmp,0.30D0) ! Some constraints can have huge
                                 ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
             q_(:)=q(:,iIter)
             du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
 *
-            Fact=One
-            Fact_long=Fact
-            dydy_long=dydy
-            Fact_short=Zero
-            dydy_short=dydy_long+One
+*
 #ifdef _DEBUG_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
             Write (6,*) 'Start: dy(:)=',dy(:)
 #endif
-*
-*           We only need this for the last point.
-*
-            If (iIter.ne.nIter) Go to 667
 *
             If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
 *
@@ -740,6 +737,12 @@ C           Write (6,*) 'gBeta=',gBeta
             dy_(:)=(One/Fact)*dy(:)
 *
             dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
+            If (iCount.eq.1) Then
+               Fact_long=Fact
+               dydy_long=dydy
+               Fact_short=Zero
+               dydy_short=dydy_long+One
+            End If
 #ifdef _DEBUG_
             Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
 #endif
@@ -859,10 +862,12 @@ C           Write (6,*) 'gBeta=',gBeta
       Call RecPrt('Con_Opt: Hessian(raw)',' ',Hessian,nInter,nInter)
       Write (6,*) 'iOptH=',iOptH
 #endif
+      If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
-     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
+     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,Corrected)
+      If (Corrected) Step_Trunc='#'
 
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
@@ -902,6 +907,9 @@ C           Write (6,*) 'gBeta=',gBeta
 *        Set threshold depending on if restriction is w.r.t. step size
 *        or variance.
 *
+*
+* O B S E R V E: this code should be updated as IFGs version.
+*
          If (iOpt_RS.eq.0) Then
             tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
             Thr_RS=1.0D-7
@@ -912,10 +920,14 @@ C           tBeta=1.0D0 ! Temporary bugging
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
      &                Restriction_Step,Thr_RS)
          Else
+*
+*           Note that we use the dEdx data for the last point on the
+*           real PES.
+*
             Beta_Disp_Min=1.0D-10
             tmp=0.0D0
             Do i = 1, nInter-nLambda
-               tmp = Max(tmp,Abs(dEdx(i,nIter)))
+               tmp = Max(tmp,Abs(dEdx(i,iIter)))
             End Do
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp

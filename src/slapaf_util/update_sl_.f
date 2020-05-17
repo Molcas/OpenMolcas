@@ -21,7 +21,7 @@
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
-     &                     First_MicroIteration)
+     &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -91,7 +91,8 @@
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
-     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
+     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration,
+     &        Corrected
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -112,9 +113,9 @@
 *
       GrdMax=Zero
       StpMax=Zero
-      qBeta=Beta
 *
       mInter=nInter
+      Step_Trunc='N'
       nA = (Max(mInter,kIter)+1)**2
       Call mma_Allocate(AMat,nA,Label='AMat')
       Call mma_Allocate(dg,mInter,Label='dg')
@@ -156,7 +157,8 @@
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
      &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
-     &              GNrm_Threshold,nsAtom,IRC,.True.)
+     &              GNrm_Threshold,nsAtom,IRC,.True.,Corrected)
+      If (Corrected) Step_Trunc='#'
 *
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
 *     Write (6,*) 'After corrections'
@@ -243,9 +245,15 @@
             gg_last=Beta
             dxdx_last=Beta
             Sf=Sqrt(Two)
-            kStart=Max(1,kIter-4)
+            If (iOpt_RS.eq.0) Then
+               kStart=Max(1,kIter-4)
+               iEnd=kIter
+            Else
+               kStart=Max(1,Iter-4)
+               iEnd=Iter
+            End If
             Thr=1.0D-6
-            Do iIter = kStart, kIter
+            Do iIter = kStart, iEnd
 *
                If (iIter.ne.kIter) Then
                   dxdx=
@@ -278,7 +286,7 @@ C                 gBeta=gBeta*Sf
 *
             End Do
             tBeta= Max(Beta*Min(xBeta,gBeta),Beta/Ten)
-C           Write (*,*) 'tBeta=',tBeta
+C           Write (6,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -295,17 +303,21 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Energy,Line_Search,Step_Trunc,
      &                   Restriction_Step,Thr_RS)
                If (iOpt_RS.eq.0) Exit
-               Step_Trunc=' '
+               If (Step_Trunc.eq.'N') Step_Trunc=' '
                disp=Restriction_Dispersion(qInt(1,kIter),Shift(1,kIter),
      &                                     mInter)
+#ifdef _DEBUG_
+               Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
+#endif
                fact=Half*fact
                qBeta=Half*qBeta
-               If (One-disp/Beta_Disp.gt.1.0D-3) Exit
-               If ((fact.lt.1.0D-5).or.(disp.lt.Beta_Disp)) Then
-                  Step_Trunc='*'
-                  Exit
-               End If
+               If ((One-disp/Beta_Disp.gt.1.0D-3)) Exit
+               If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
+               Step_Trunc='*'
             End Do
+#ifdef _DEBUG_
+               Write (6,*) 'Step_Trunc=',Step_Trunc
+#endif
 *
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
@@ -590,10 +602,10 @@ C           Write (*,*) 'tBeta=',tBeta
      &                iOptC,Mode_,MF,iOptH_,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                ErrVec,EMtrx,RHS,Pvt,
-     &                dg,AMat,nA,ed,qBeta,Beta_Disp,nFix,
+     &                dg,AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght,iOpt_RS,Thr_RS)
+     &                IRC,CnstWght,iOpt_RS,Thr_RS,iter)
 *
 *           Rough conversion to Cartesians
 *
