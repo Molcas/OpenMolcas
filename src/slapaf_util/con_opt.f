@@ -927,7 +927,7 @@ C           tBeta=1.0D0 ! Temporary bugging
             Beta_Disp_Min=1.0D-10
             tmp=0.0D0
             Do i = 1, nInter-nLambda
-               tmp = Max(tmp,Abs(dEdx(i,iIter)))
+               tmp = Max(tmp,Abs(dEdx(i,iter_)))
             End Do
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
