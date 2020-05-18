@@ -982,6 +982,9 @@ C           tBeta=1.0D0 ! Temporary bugging
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
          tBeta= Min(1.0D3*GNrm,Beta)
          Thr_RS=1.0D-7
+#ifdef _DEBUG_
+            Write (6,*) 'Step_Trunc(0)=',Step_Trunc
+#endif
          Do
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
@@ -992,12 +995,18 @@ C           tBeta=1.0D0 ! Temporary bugging
 *
             disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
      &                                nInter-nLambda)
+#ifdef _DEBUG_
+            Write (6,*) 'disp=',disp
+#endif
             fact=Half*fact
             tBeta=Half*tBeta
             If ((One-disp/Beta_Disp_.gt.1.0D-3)) Exit
             If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
             Step_Trunc='*'
          End Do
+#ifdef _DEBUG_
+            Write (6,*) 'Step_Trunc(n)=',Step_Trunc
+#endif
 #endif
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
@@ -1025,7 +1034,7 @@ C           tBeta=1.0D0 ! Temporary bugging
       du(:)=Zero
       du(1:nLambda)=dy(:)
       Call DGEMM_('N','N',
-     &            nInter,1,nInter,
+     &           nInter,1,nInter,
      &            One,T,nInter,
      &            du,nInter,
      &            Zero,dq(1,nIter),nInter)

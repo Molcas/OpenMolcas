@@ -606,6 +606,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
      &                IRC,CnstWght,iOpt_RS,Thr_RS,iter)
+            If (iOpt_RS.eq.1) Exit
 *
 *           Rough conversion to Cartesians
 *
