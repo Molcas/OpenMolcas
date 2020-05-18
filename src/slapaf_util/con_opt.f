@@ -745,7 +745,7 @@ C           Write (6,*) 'gBeta=',gBeta
             du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
             dy_(:)=(One/Fact)*dy(:)
 *
-            dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
+*           dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
             Write (6,*) 'dydy(2)=',dydy
             If (iCount.eq.1) Then
                Fact_long=Fact
@@ -968,8 +968,8 @@ C           Write (6,*) 'gBeta=',gBeta
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
             Write (6,*) 'Disp(1)=',Disp
 
-            disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
-     &                                nInter-nLambda)
+*           disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
+*    &                                nInter-nLambda)
             Write (6,*) 'Disp(2)=',Disp
 #ifdef _DEBUG_
             Write (6,*) 'disp=',disp
