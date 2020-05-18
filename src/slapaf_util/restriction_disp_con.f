@@ -44,7 +44,7 @@
 *     Call RecPrt('dx',' ',dx,1,mInter)
       du(nLambda+1:mInter)=dx(1:mInter)
       du(1:nLambda)=dy_(1:nLambda)
-*     Call RecPrt('du',' ',du,1,nInter)
+      Call RecPrt('du(2)',' ',du,1,nInter)
 *     Call RecPrt('T_',' ',T_,nInter,nInter)
       Call Backtrans_K(T_,du,dq,nInter,1)
 *     Call DGEMM_('N','N',

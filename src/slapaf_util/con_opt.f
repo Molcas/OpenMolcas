@@ -733,9 +733,20 @@ C           Write (6,*) 'gBeta=',gBeta
             If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
 *
  666        Continue
+            du(1:nLambda)=(One/Fact)*dy(:)
+            du(1+nLambda:nInter)=Zero
+            Call RecPrt('du(1)',' ',du,1,nInter)
+            Call Backtrans_K(T,du,dq_xy,nInter,1)
+            q(:,iIter+1)=q(:,iIter)+dq_xy(:)
+*
+            Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
+            Write (6,*) 'dydy(1)=',dydy
+*
+            du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
             dy_(:)=(One/Fact)*dy(:)
 *
             dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
+            Write (6,*) 'dydy(2)=',dydy
             If (iCount.eq.1) Then
                Fact_long=Fact
                dydy_long=dydy
@@ -764,6 +775,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Final: dy(:)=',dy(:)
 #endif
+            Write (6,*) 'Done dy!'
 *
          End If
 *
@@ -781,7 +793,6 @@ C           Write (6,*) 'gBeta=',gBeta
 ************************************************************************
 *                                                                      *
       End Do ! Do iIter = iOff_Iter+1, nIter
-      Call mma_deallocate(dq_xy)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -948,8 +959,18 @@ C           Write (6,*) 'gBeta=',gBeta
             If (Step_Trunc.eq.'N') Step_Trunc=' '
             If (iOpt_RS.eq.0) Exit
 *
+            du(1:nLambda)=dy(:)
+            du(1+nLambda:nInter)=dx(:,nIter)
+            Call RecPrt('du(1)',' ',du,1,nInter)
+            Call Backtrans_K(T,du,dq_xy,nInter,1)
+            q(:,nIter+1)=q(:,nIter)+dq_xy(:)
+*
+            Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
+            Write (6,*) 'Disp(1)=',Disp
+
             disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
      &                                nInter-nLambda)
+            Write (6,*) 'Disp(2)=',Disp
 #ifdef _DEBUG_
             Write (6,*) 'disp=',disp
 #endif
@@ -1067,6 +1088,7 @@ C           Write (6,*) 'gBeta=',gBeta
          Call mma_deallocate(T_)
          Call mma_deallocate(q_)
       End If
+      Call mma_deallocate(dq_xy)
       Call mma_deallocate(Hessian)
       Return
       End
