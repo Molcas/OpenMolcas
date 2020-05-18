@@ -76,8 +76,8 @@
 *             2000                                                     *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step, Restriction_Dispersion
-      Real*8 Restriction_Step, Restriction_Dispersion
+      External Restriction_Step
+      Real*8 Restriction_Step
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -304,8 +304,10 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   Restriction_Step,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
                If (iOpt_RS.eq.0) Exit
-               disp=Restriction_Dispersion(qInt(1,kIter),Shift(1,kIter),
-     &                                     mInter)
+*
+               qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
+               Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
+     &                                       nInter)
 #ifdef _DEBUG_
                Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
 #endif

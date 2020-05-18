@@ -91,7 +91,7 @@
       Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
       Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
-      Do iIter = 1, nIte
+      Do iIter = 1, nIter
          Write (6,*)' iIter=',iIter
          Call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),
      &               nInter,nLambda)
@@ -906,51 +906,6 @@ C           Write (6,*) 'gBeta=',gBeta
 *        Set threshold depending on if restriction is w.r.t. step size
 *        or variance.
 *
-*
-* O B S E R V E: this code should be updated as IFGs version.
-*
-*#define _OLD_CODE_
-#ifdef _OLD_CODE_
-         If (iOpt_RS.eq.0) Then
-            tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
-            Thr_RS=1.0D-7
-C           Write (6,*) 'tBeta=',tBeta
-C           tBeta=1.0D0 ! Temporary bugging
-            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &                Restriction_Step,Thr_RS)
-         Else
-*
-*           Note that we use the dEdx data for the last point on the
-*           real PES.
-*
-            Beta_Disp_Min=1.0D-10
-            tmp=0.0D0
-            Do i = 1, nInter-nLambda
-               tmp = Max(tmp,Abs(dEdx(i,iter_)))
-            End Do
-#ifdef _DEBUG_
-            Write (6,*) 'tmp,Beta_Disp=',tmp,Beta_Disp
-#endif
-            Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
-            tBeta=Beta_Disp_
-            Thr_RS=1.0D-5
-*
-*           Copy stuff so that the restricted_disp_Cons routine
-*           can figure out how to compute the dispersion.
-*
-            q_(:)=q(:,nIter)
-            dy_(:)=dy(:)
-*
-            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &                Restriction_Disp_Con,Thr_RS)
-*
-*
-         End If
-#else
          fact=One
          If (iOpt_RS.eq.0) Then
             Beta_Disp_= 1.0D0 ! Dummy assign
@@ -1006,7 +961,6 @@ C           tBeta=1.0D0 ! Temporary bugging
          End Do
 #ifdef _DEBUG_
             Write (6,*) 'Step_Trunc(n)=',Step_Trunc
-#endif
 #endif
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
