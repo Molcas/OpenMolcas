@@ -46,11 +46,12 @@
       du(1:nLambda)=dy_(1:nLambda)
 *     Call RecPrt('du',' ',du,1,nInter)
 *     Call RecPrt('T_',' ',T_,nInter,nInter)
-      Call DGEMM_('N','N',
-     &            nInter,1,nInter,
-     &            1.0D0,T_,nInter,
-     &            du,nInter,
-     &            0.0D0,dq,nInter)
+      Call Backtrans_K(T_,du,dq,nInter,1)
+*     Call DGEMM_('N','N',
+*    &            nInter,1,nInter,
+*    &            1.0D0,T_,nInter,
+*    &                  du,nInter,
+*    &            0.0D0,dq,nInter)
 *     Call RecPrt('dq',' ',dq,1,nInter)
 *     Call RecPrt('q_',' ',q_,1,nInter)
 *
