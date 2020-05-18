@@ -91,7 +91,7 @@
       Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
       Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
       Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
-      Do iIter = 1, nIter
+      Do iIter = 1, nIte
          Write (6,*)' iIter=',iIter
          Call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),
      &               nInter,nLambda)
@@ -724,7 +724,6 @@ C           Write (6,*) 'gBeta=',gBeta
             q_(:)=q(:,iIter)
             du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
 *
-*
 #ifdef _DEBUG_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
@@ -910,6 +909,8 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 * O B S E R V E: this code should be updated as IFGs version.
 *
+*#define _OLD_CODE_
+#ifdef _OLD_CODE_
          If (iOpt_RS.eq.0) Then
             tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
             Thr_RS=1.0D-7
@@ -949,6 +950,55 @@ C           tBeta=1.0D0 ! Temporary bugging
 *
 *
          End If
+#else
+         fact=One
+         If (iOpt_RS.eq.0) Then
+            Beta_Disp_= 1.0D0 ! Dummy assign
+         Else
+*
+*           Note that we use the dEdx data for the last point on the
+*           real PES.
+*
+#ifdef _DEBUG_
+            Write (6,*) 'Beta_Disp_=',Beta_Disp_
+#endif
+            Beta_Disp_Min=1.0D-10
+            tmp=0.0D0
+            Do i = 1, nInter-nLambda
+               tmp = Max(tmp,Abs(dEdx(i,iter_)))
+            End Do
+            Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
+#ifdef _DEBUG_
+            Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
+#endif
+*
+*           Copy stuff so that the restricted_disp_Cons routine
+*           can figure out how to compute the dispersion.
+*
+            q_(:)=q(:,nIter)
+            dy_(:)=dy(:)
+         End If
+         GNrm=
+     &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
+         tBeta= Min(1.0D3*GNrm,Beta)
+         Thr_RS=1.0D-7
+         Do
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Restriction_Step,Thr_RS)
+            If (Step_Trunc.eq.'N') Step_Trunc=' '
+            If (iOpt_RS.eq.0) Exit
+*
+            disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
+     &                                nInter-nLambda)
+            fact=Half*fact
+            tBeta=Half*tBeta
+            If ((One-disp/Beta_Disp_.gt.1.0D-3)) Exit
+            If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
+            Step_Trunc='*'
+         End Do
+#endif
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *

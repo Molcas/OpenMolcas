@@ -60,7 +60,6 @@
 *     Call RecPrt('qNext',' ',qNext,1,nInter)
 *
       Call Dispersion_Kriging_Layer(qNext,y,nInter)
-*     Write (*,*) 'Dipersion=',y
       Restriction_Disp_Con=y
 *
       Call mma_Deallocate(dq)
