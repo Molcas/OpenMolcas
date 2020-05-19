@@ -13,7 +13,7 @@
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,dg,
      &                Scrt1,nScrt1,dqHdq,iOptC,
      &                Beta,nFix,iP,UpMeth,Energy,
-     &                Line_Search,Step_Trunc,Restriction,Thr_RS)
+     &                Line_Search,Step_Trunc,Thr_RS)
 ************************************************************************
 *                                                                      *
 * Object: Driver for optimization procedures.                          *
@@ -33,8 +33,6 @@
 *             December '94                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External Restriction
-      Real*8 Restriction
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -176,15 +174,13 @@ C     Call View(H,nInter,print)
 *------------- Restricted Step Partitioned RFO
 *
                Call RS_P_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc,
-     &                       Restriction)
+     &                       UpMeth,dqHdq,Beta,Step_Trunc)
             Else
 *
 *------------- Restricted Step Image RFO
 *
                Call RS_I_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc,
-     &                       Restriction,Thr_RS)
+     &                       UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
             End If
 *
          Else
@@ -193,8 +189,7 @@ C     Call View(H,nInter,print)
 *
 *
             Call RS_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                  UpMeth,dqHdq,Beta,Step_Trunc,
-     &                  Restriction,Thr_RS)
+     &                  UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
 *
          End If
 *                                                                      *

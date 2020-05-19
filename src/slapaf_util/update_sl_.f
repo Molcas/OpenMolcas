@@ -76,8 +76,6 @@
 *             2000                                                     *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step
-      Real*8 Restriction_Step
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -300,8 +298,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   ErrVec,EMtrx,RHS,
      &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
-     &                   Energy,Line_Search,Step_Trunc,
-     &                   Restriction_Step,Thr_RS)
+     &                   Energy,Line_Search,Step_Trunc,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
                If (iOpt_RS.eq.0) Exit
 *

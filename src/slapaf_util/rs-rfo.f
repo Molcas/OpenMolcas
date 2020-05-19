@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -12,7 +12,7 @@
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
-     &                  Restriction,Thr_RS)
+     &                  Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -29,8 +29,6 @@
 *     Remove references to work, Roland Lindh                          *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction
-      Real*8 Restriction
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
@@ -195,7 +193,7 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=Restriction(q,dq,nInter)
+         dqdq=Sqrt(DDot_(nInter,dq,1,dq,1))
 #ifdef _DEBUG_
          Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
 *        Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq

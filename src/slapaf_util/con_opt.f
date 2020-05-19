@@ -46,10 +46,7 @@
 *             University of Lund, SWEDEN                               *
 *             July '03                                                 *
 ************************************************************************
-      use RDC
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step, Restriction_Disp_Con
-      Real*8 Restriction_Step, Restriction_Disp_Con
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
@@ -120,13 +117,6 @@
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Call mma_allocate(dq_xy,nInter,Label='dq_xy')
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
-      If (iOpt_RS.ne.0) Then
-         nInter_=nInter
-         nLambda_=nLambda
-         Call mma_allocate(q_,nInter,Label='q_')
-         Call mma_allocate(T_,nInter,nInter,Label='T_')
-         Call mma_allocate(dy_,nLambda,Label='dy_')
-      End If
 *
 *                                                                      *
 ************************************************************************
@@ -336,7 +326,6 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        T_{ti}^T T_{ti} = 1
 *
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
-         If (iOpt_RS.ne.0) T_(:,:)=T(:,:)
 #ifdef _DEBUG_
          Call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
          Call RecPrt('Con_Opt: T_b',' ',T(1,ipTB),nInter,nLambda)
@@ -721,9 +710,6 @@ C           Write (6,*) 'gBeta=',gBeta
                                 ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
-            q_(:)=q(:,iIter)
-            du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
-*
 #ifdef _DEBUG_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
@@ -735,18 +721,11 @@ C           Write (6,*) 'gBeta=',gBeta
  666        Continue
             du(1:nLambda)=(One/Fact)*dy(:)
             du(1+nLambda:nInter)=Zero
-            Call RecPrt('du(1)',' ',du,1,nInter)
             Call Backtrans_K(T,du,dq_xy,nInter,1)
             q(:,iIter+1)=q(:,iIter)+dq_xy(:)
 *
             Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
-            Write (6,*) 'dydy(1)=',dydy
 *
-            du(1:nInter-nLambda)=Zero ! Fake dx(:)=Zero
-            dy_(:)=(One/Fact)*dy(:)
-*
-*           dydy=Restriction_Disp_Con(x(1,iIter),du,nInter-nLambda)
-            Write (6,*) 'dydy(2)=',dydy
             If (iCount.eq.1) Then
                Fact_long=Fact
                dydy_long=dydy
@@ -937,12 +916,6 @@ C           Write (6,*) 'gBeta=',gBeta
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
 #endif
-*
-*           Copy stuff so that the restricted_disp_Cons routine
-*           can figure out how to compute the dispersion.
-*
-            q_(:)=q(:,nIter)
-            dy_(:)=dy(:)
          End If
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
@@ -955,7 +928,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
-     &                Restriction_Step,Thr_RS)
+     &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
             If (iOpt_RS.eq.0) Exit
 *
@@ -1083,11 +1056,6 @@ C           Write (6,*) 'gBeta=',gBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iOpt_RS.ne.0) Then
-         Call mma_deallocate(dy_)
-         Call mma_deallocate(T_)
-         Call mma_deallocate(q_)
-      End If
       Call mma_deallocate(dq_xy)
       Call mma_deallocate(Hessian)
       Return
