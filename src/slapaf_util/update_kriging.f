@@ -18,8 +18,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,ipCx,
-     &                     Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
@@ -339,10 +338,6 @@
          If (Force_RS) Then
             Call mma_allocate(Temp,3*nsAtom,1)
             Temp(:,1)=Cx(:,iterAI)-Cx(:,iter)
-*           Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*3*nsAtom),1,
-*    &                           Temp,1)
-*           Call daXpY_(3*nsAtom,-One,Work(ipCx+(iter-1)*3*nsAtom),1,
-*    &                                Temp,1)
             RMS =Sqrt(DDot_(3*nsAtom,Temp,1,Temp,1)/DBLE(3*nsAtom))
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
@@ -430,14 +425,10 @@
 *
       qInt(:,iter+1)=qInt(:,iterAI)
       Cx(:,iter+1)=Cx(:,iterAI)
-*     Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*(3*nsAtom)),1,
-*    &                     Work(ipCx+iter*(3*nsAtom)),1)
 *
 *     Update the shift vector
 *
       Shift(:,iter)=qInt(:,iter+1)-qInt(:,iter)
-*     Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
-*     Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
 *
 *     Update the predicted energy change
 *
