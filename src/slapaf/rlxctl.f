@@ -253,7 +253,7 @@
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),ipCx,GrdMax,
+     &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
