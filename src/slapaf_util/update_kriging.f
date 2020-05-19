@@ -211,7 +211,7 @@
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,Work(ipCx),
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,

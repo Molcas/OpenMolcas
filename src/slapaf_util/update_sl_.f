@@ -15,7 +15,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
@@ -54,7 +54,7 @@
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      rLambda        : vector for Lagrange multipliers                *
-*      ipCx           : pointer to cartesian coordinates               *
+*      Cx             : Cartesian coordinates                          *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
 *      nLabels        : length of Labels                               *
@@ -84,7 +84,8 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
-     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom)
+     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom),
+     &       Cx(3*nsAtom,kIter+1)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
@@ -401,11 +402,10 @@ C           Write (6,*) 'tBeta=',tBeta
          n2=n1**2
          ip_drdq=ipdrdq
          Do lIter = 1, kIter
-            ipCoor_l=ipCx + (lIter-1)*n1
             Call DefInt2(Work(ipBVec),Work(ipdBVec),nBVec,Labels,
      &                   Work(ipBMx),nLambda,nsAtom,iRow_c,
      &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
-     &                   Lbl(nInter+1),AtomLbl,Work(ipCoor_l),
+     &                   Lbl(nInter+1),AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   nSym,iOper,jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
