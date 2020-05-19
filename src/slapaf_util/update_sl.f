@@ -79,7 +79,6 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
@@ -94,6 +93,7 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:)
 *
       Logical Kriging_Hessian
 *
@@ -130,13 +130,13 @@
 *
          If (iPrint.ge.99) Write(6,*)'UpDate_SL: first iteration'
          iter_=1
-         Call GetMem('t_Shift','Allo','Real',iptmp1,nInter*iter_)
-         Call GetMem('t_qInt ','Allo','Real',iptmp2,nInter*(iter_+1))
+         Call mma_Allocate(t_Shift,nInter,iter_,Label='t_Shift')
+         Call mma_Allocate(t_qInt,nInter,iter_+1,Label='t_qInt')
 *
-         call dcopy_(nInter,qInt,1,Work(iptmp2),1)
+         t_qInt(:,1)=qInt(:,1)
 *
-         Call Update_sl_(iter_,iInt,nFix,nInter,Work(iptmp2),
-     &                   Work(iptmp1),Grad,iOptC,Beta,Beta_Disp,
+         Call Update_sl_(iter_,iInt,nFix,nInter,t_qInt,
+     &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,nSym,
      &                   iOper,mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -153,13 +153,11 @@
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
 *
-         iOffq=iptmp2+nInter
-         call dcopy_(nInter,Work(iOffq),1,qInt(1,iter+1),1)
-         call dcopy_(nInter,Work(iOffq),1,Shift(1,iter),1)
-         Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
+         qInt(:,iter+1)=t_qInt(:,2)
+         Shift(:,iter)=t_qInt(:,2)-qInt(:,iter)
 *
-         Call GetMem('t_qInt ','Free','Real',iptmp2,nInter*(iter_+1))
-         Call GetMem('t_Shift','Free','Real',iptmp1,nInter*iter_)
+         Call mma_deallocate(t_qInt)
+         Call mma_deallocate(t_Shift)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -201,8 +199,9 @@
       End If
 *
 *---- Remove unneeded fields from the runfile
-      Call Put_dArray('BMxOld',Work(ip_Dummy),0)
-      Call Put_dArray('TROld',Work(ip_Dummy),0)
+      Dummy=Zero
+      Call Put_dArray('BMxOld',Dummy,0)
+      Call Put_dArray('TROld',Dummy,0)
 *
       Call QExit('Update')
       Return
