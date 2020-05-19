@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1994,2004,2014,2017,2019, Roland Lindh                 *
+* Copyright (C) 1994,2004,2014,2017,2019, 2020, Roland Lindh           *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+      Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
      &                  Thr_RS)
 ************************************************************************
 *                                                                      *
@@ -32,7 +32,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 H(nInter,nInter), g(nInter), q(nInter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 StepMax
 *

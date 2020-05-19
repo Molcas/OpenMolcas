@@ -112,6 +112,7 @@
       dxdx_last=Beta
       Sf=Sqrt(Two)
       dxdx=Zero
+      dydy=Zero
       Thr=1.0D-6
       Beta_Disp_Min=1.0D-10
       Call Get_iScalar('iOff_Iter',iOff_Iter)
@@ -754,7 +755,6 @@ C           Write (6,*) 'gBeta=',gBeta
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Final: dy(:)=',dy(:)
 #endif
-            Write (6,*) 'Done dy!'
 *
          End If
 *
@@ -934,16 +934,11 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             du(1:nLambda)=dy(:)
             du(1+nLambda:nInter)=dx(:,nIter)
-            Call RecPrt('du(1)',' ',du,1,nInter)
             Call Backtrans_K(T,du,dq_xy,nInter,1)
             q(:,nIter+1)=q(:,nIter)+dq_xy(:)
 *
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
-            Write (6,*) 'Disp(1)=',Disp
 
-*           disp=Restriction_Disp_Con(x(1,nIter),dx(1,nIter),
-*    &                                nInter-nLambda)
-            Write (6,*) 'Disp(2)=',Disp
 #ifdef _DEBUG_
             Write (6,*) 'disp=',disp
 #endif

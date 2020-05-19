@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994,1997, Roland Lindh                                *
 ************************************************************************
-      Subroutine RS_I_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,
+      Subroutine RS_I_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,
      &                    Step_Trunc,Thr_RS)
 ************************************************************************
 *                                                                      *
@@ -39,7 +39,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 H(nInter,nInter), q(nInter), g(nInter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), dq(nInter)
 *
       Character*6 UpMeth
       Character*1 Step_Trunc
@@ -135,7 +135,7 @@
       Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
       Call GetMem('Values','Free','Real',ipVal,NumVal)
 *
-      Call RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+      Call RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
      &            Thr_RS)
 *
 *     Restore the original gradient
