@@ -18,7 +18,8 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,ipCx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,ipCx,
+     &                     Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
@@ -41,7 +42,7 @@
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), dEner,
-     &       Gx(3*nsatom,Iter), MF(3*nsAtom)
+     &       Cx(3*nsAtom,Iter+1), Gx(3*nsAtom,Iter), MF(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -211,7 +212,7 @@
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,Work(ipCx),
+     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,Cx,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
@@ -266,7 +267,7 @@
 *
          Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
      &                       Lbl,Shift,qInt,Grad,AtomLbl,
-     &                       Work(ipCx),.True.,iter)
+     &                       Cx,.True.,iter)
 *
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
@@ -337,6 +338,7 @@
 *        Check total displacement from initial structure
          If (Force_RS) Then
             Call mma_allocate(Temp,3*nsAtom,1)
+*           Temp(:,1)=Cx(:,iterAI)-Cx(:,iter)
             Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*3*nsAtom),1,
      &                           Temp,1)
             Call daXpY_(3*nsAtom,-One,Work(ipCx+(iter-1)*3*nsAtom),1,
@@ -408,7 +410,7 @@
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
      &                          dMass,Lbl,Shift,qInt,Grad,AtomLbl,
-     &                          Work(ipCx),.True.,iter)
+     &                          Cx,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
@@ -427,6 +429,7 @@
 *     for the next macro iteration.
 *
       qInt(:,iter+1)=qInt(:,iterAI)
+*     Cx(:,iter-1)=Cx(:,iterAI)
       Call dCopy_(3*nsAtom,Work(ipCx+(iterAI-1)*(3*nsAtom)),1,
      &                     Work(ipCx+iter*(3*nsAtom)),1)
 *
