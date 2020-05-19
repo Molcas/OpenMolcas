@@ -1185,6 +1185,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`TRDC`
+  Prints out COMPLEX valued components of the transition dipole vector
+  for spin-orbit calculations,
+  otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: TRDC <advanced>
+              <HELP>
+              Prints out COMPLEX valued components of the transition dipole vector for spin-orbit calculations,
+              otherwise functionally equivalent to TRDI TDMN.
+              </HELP>
+              </KEYWORD>
+
 :kword:`TDMN`
   Prints out the components and the module of the transition dipole
   vector. On the next line, the minimum size, in a.u., for the dipole

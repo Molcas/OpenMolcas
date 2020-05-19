@@ -98,7 +98,7 @@
       Real*8 HypParam(3)
       Integer iSeed
       Save iSeed
-      Logical Vlct_
+      Logical Vlct_, nmwarn
 *
       Logical DoEMPC, Basis_test
       Common /EmbPCharg/ DoEMPC
@@ -255,6 +255,7 @@
       itype=0
       ExtBasDir=' '
       isxbas=0
+      nmwarn=.True.
 *
 *     Selective initialization
 *
@@ -1220,10 +1221,13 @@ c Simplistic validity check for value
 *
       If (ign.eq.0) Then
          ign=BasisTypes(4)
-      Else If (BasisTypes(4).ne.ign) Then
-         Call WarningMessage(1,
-     &     'SEWARD found basis sets of mixed nuclear charge model. '
-     &   //'The most advanced one will be used.')
+      Else If (Abs(BasisTypes(4)).ne.Abs(ign)) Then
+         If (nmwarn) Then
+            Call WarningMessage(1,
+     &        'SEWARD found basis sets of mixed nuclear charge model. '
+     &      //'The most advanced one will be used.')
+         End If
+         nmwarn=.False.
          ign=Max(ign,BasisTypes(4))
          BasisTypes(4)=ign
       End If
@@ -4098,20 +4102,28 @@ c      endif
       End If
 *
       If (imix.eq.1) Then
-         Call WarningMessage(2,
-     &      ' input is inconsistent!;'
-     &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' (or non-relativistic) types!')
-         if(.not.Expert) Call Quit_OnUserError()
+         if (Expert) then
+           Call WarningMessage(1,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!;'
+     &      //'No relativistic option will be automatically enabled')
+         else
+           Call WarningMessage(2,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!')
+           Call Quit_OnUserError()
+         endif
       End If
-      If (ifnr.eq.1) Then
+      If (ifnr.eq.1.and..not.Expert) Then
          If (DKroll) Then
          Call WarningMessage(1,
      *    ';you requested the DK-option for;'
      *   //'a non-relativistic basis.;'
      *   //'This request will be ignored')
          End If
-         If (.Not.Expert) DKroll=.False.
+         DKroll=.False.
       Else If (ifnr.eq.0) Then
          lAMFI=.True. .and. .NOT. NoAMFI
          If (.Not.DKroll) Then

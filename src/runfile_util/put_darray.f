@@ -93,7 +93,6 @@
 *> - '``Unique Coordinates``'       Cartesian coordinates for the symmetry unique atoms.
 *> - '``Last energies``'            Energies for all roots in the last calculation.
 *> - '``Dipole moment``'            The last computed dipole moment.
-*> - '``GeoPC``'                    The Cartesian coordinates for the unique point charges.
 *> - '``MkNemo.vDisp``'             The displacements matrix as specified in the mknemo module.
 *> - '``MkNemo.tqCluster``'         The transformation matrix for clusters as specified in the mknemo module.
 *> - '``MkNemo.Energies``'          The energies of super-system and clusters as specified in the mknemo module.
@@ -237,7 +236,7 @@ c mess started here :)
          RecLab( 77)='MpProp Orb Ener '
          RecLab( 78)='LoProp H0       '
          RecLab( 79)='Dipole moment   '
-         RecLab( 80)='GeoPC           '
+         RecLab( 80)='****************' ! Unused
          RecLab( 81)='BMtrx           '
          RecLab( 82)='CList           '
          RecLab( 83)='DList           '
