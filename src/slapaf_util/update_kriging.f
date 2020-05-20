@@ -33,7 +33,6 @@
       Use kriging_mod, only: miAI, meAI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -51,6 +50,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Character GrdLbl_Save*8
+      Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:)
 *                                                                      *
 ************************************************************************
@@ -468,8 +468,9 @@
       End If
 *
 *---- Remove unneeded fields from the runfile
-      Call Put_dArray('BMxOld',Work(ip_Dummy),0)
-      Call Put_dArray('TROld',Work(ip_Dummy),0)
+      Dummy(1)=-Zero
+      Call Put_dArray('BMxOld',Dummy,0)
+      Call Put_dArray('TROld',Dummy,0)
 *
       Call QExit('Update')
       Return
