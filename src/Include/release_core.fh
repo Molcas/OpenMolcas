@@ -25,11 +25,11 @@
          Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
          Call Free_Work(Info_tmp)
 *
-         If (iPrint.ge.99) Then
-            Write (LuWr,*) ' ****            nPrint           ****'
-            Write (LuWr,'(26(1X,10I4,/))') nPrint
-            Write (LuWr,*) ' *************************************'
-            Write (LuWr,*) ' nInfo=',nInfo
-C           Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
-         End If
+#ifdef _DEBUG_
+         Write (LuWr,*) ' ****            nPrint           ****'
+         Write (LuWr,'(26(1X,10I4,/))') nPrint
+         Write (LuWr,*) ' *************************************'
+         Write (LuWr,*) ' nInfo=',nInfo
+C        Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
+#endif
       End If
