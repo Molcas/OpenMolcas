@@ -27,9 +27,6 @@
 C     Cholesky
       Integer iSym, iRC
 
-      character(128) StartFile
-      COMMON /datafiles/StartFile
-
       CALL QENTER('PT2INI')
 *
 * Probe the RunFile for some basic information
@@ -70,7 +67,7 @@ C     Cholesky
 * Finally read the MO and CI data from the refwfn file, and close it as
 * we have no more need for it and the same filename might be reused for
 * the pt2wfn file. We do this after input processing because we need to
-* know which roots to pick up. The MOs are stored on LUONEM, at adress
+* know which roots to pick up. The MOs are stored on LUONEM, at address
 * IAD1M(1), and the CI arrays on LUCIEX at IDCIEX.
       Call refwfn_data
       Call refwfn_close

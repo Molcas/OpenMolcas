@@ -26,7 +26,7 @@
 C Transform to orbitals that diagonalize the diagonal
 C blocks of FIFA. Affected data sets are CMO,
 C EPS, EPSI, EPSA, and EPSE. Also, the CI arrays are
-C transformed on file LUONEM. Note: FIFA is unchanged
+C transformed on file LUCIEX. Note: FIFA is unchanged
 C and is not valid for the new orbitals. It will be
 C recomputed later.
 C The transformation matrices are returned in TORB.
