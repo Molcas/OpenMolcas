@@ -16,18 +16,18 @@
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)           :: iprint, iDIM
       Integer, intent(in)           :: nDIMcf, iopt, nlanth
-      Real(kind=wp), intent(in)     :: ESOJ(nDIMcf)
-      Real(kind=wp), intent(in)     :: ZMAGN2(3,3)
-      Complex(kind=wp), intent(in)  :: DIPSO(3,nDIMcf,nDIMcf)
-      Complex(kind=wp), intent(in)  ::  S_SO(3,nDIMcf,nDIMcf)
+      Real(kind=8), intent(in)     :: ESOJ(nDIMcf)
+      Real(kind=8), intent(in)     :: ZMAGN2(3,3)
+      Complex(kind=8), intent(in)  :: DIPSO(3,nDIMcf,nDIMcf)
+      Complex(kind=8), intent(in)  ::  S_SO(3,nDIMcf,nDIMcf)
       Logical, intent(in)           :: GRAD
       ! local variables
       Integer :: info
-      Real(kind=wp), allocatable :: wtmp(:)
-      Complex(kind=wp), allocatable ::  DIPJ(:,:,:)
-      Complex(kind=wp), allocatable ::    SJ(:,:,:), ztmp(:,:)
+      Real(kind=8), allocatable :: wtmp(:)
+      Complex(kind=8), allocatable ::  DIPJ(:,:,:)
+      Complex(kind=8), allocatable ::    SJ(:,:,:), ztmp(:,:)
       Integer                       :: i,j
-      Real(kind=wp), allocatable    :: gtens(:), zmagn(:,:)
+      Real(kind=8), allocatable    :: gtens(:), zmagn(:,:)
 
       Call qEnter('SA_CF')
 
@@ -194,20 +194,20 @@ C================== Variable declarations =============================
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)           :: nDIMcf, nlanth, iprint
       Logical, intent(in)           :: GRAD
-      Real(kind=wp), intent(in)     :: ESOJ(nDIMcf)
-      Complex(kind=wp), intent(in)  :: MM(3,nDIMcf,nDIMcf)
+      Real(kind=8), intent(in)     :: ESOJ(nDIMcf)
+      Complex(kind=8), intent(in)  :: MM(3,nDIMcf,nDIMcf)
       ! local variables:
       Integer                       :: info, i, j, k, q
       Integer                       :: LuCF, IsFreeUnit
-      Real(kind=wp)                 :: dznrm2
-      Real(kind=wp), allocatable    :: Winit(:), Eloc(:), a(:)
-      Real(kind=wp)                 :: BNC(nDIMcf,0:nDIMcf)
-      Real(kind=wp)                 :: BNS(nDIMcf,0:nDIMcf)
-      Real(kind=wp)                 :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
-      Complex(kind=wp)              :: trace
-      Complex(kind=wp)              ::
+      Real(kind=8)                 :: dznrm2
+      Real(kind=8), allocatable    :: Winit(:), Eloc(:), a(:)
+      Real(kind=8)                 :: BNC(nDIMcf,0:nDIMcf)
+      Real(kind=8)                 :: BNS(nDIMcf,0:nDIMcf)
+      Real(kind=8)                 :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
+      Complex(kind=8)              :: trace
+      Complex(kind=8)              ::
      &                   Akq((nDIMcf-1),-(nDIMcf-1):(nDIMcf-1))
-      Complex(kind=wp), allocatable :: Zinit(:,:), Z(:,:),
+      Complex(kind=8), allocatable :: Zinit(:,:), Z(:,:),
      &                                  HCF(:,:)
       External           :: trace, dznrm2, IsFreeUnit
 
@@ -351,17 +351,17 @@ c-----------------------------------------------------------------------
       Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n
-      Complex(kind=wp),intent(in)   :: H(n,n)
-      Complex(kind=wp), intent(out) :: A( (n-1), -(n-1):(n-1) )
-      Real(kind=wp), intent(out)    :: B(n,0:n), C(n,0:n)
-      Real(kind=wp), intent(out)    :: Bstev(n,-n:n)
+      Complex(kind=8),intent(in)   :: H(n,n)
+      Complex(kind=8), intent(out) :: A( (n-1), -(n-1):(n-1) )
+      Real(kind=8), intent(out)    :: B(n,0:n), C(n,0:n)
+      Real(kind=8), intent(out)    :: Bstev(n,-n:n)
       ! local variables:
       Integer                       :: ik,iq
-      Real(kind=wp)                 :: rfact,cr,mfact,C0
-      Complex(kind=wp)              :: trace, cfact
-      Complex(kind=wp), allocatable :: Cp(:,:), Cm(:,:)
-      Complex(kind=wp)              :: mf
-      Real(kind=wp)                 :: knm(12,0:12)
+      Real(kind=8)                 :: rfact,cr,mfact,C0
+      Complex(kind=8)              :: trace, cfact
+      Complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
+      Complex(kind=8)              :: mf
+      Real(kind=8)                 :: knm(12,0:12)
       External                      :: trace
       Logical                       :: dbg
 
@@ -457,16 +457,16 @@ c-----------------------------------------------------------------------
       Implicit none
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=wp), intent(in) :: HAM(n,n)
-      Complex(kind=wp), intent(in) :: Akq((n-1), -(n-1):(n-1))
-      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
+      Complex(kind=8), intent(in) :: HAM(n,n)
+      Complex(kind=8), intent(in) :: Akq((n-1), -(n-1):(n-1))
+      Real(kind=8), intent(in)    :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
 
       Integer          :: k,q,i,j,info
-      Real(kind=wp)    :: tdiff
-      Complex(kind=wp) :: Cp(n,n), Cm(n,n), redME
-      Complex(kind=wp) :: O(n,n), W(n,n),zfact
-      Complex(kind=wp) :: HCF(n,n), Z(n,n)
-      Real(kind=wp)    :: w1(n), w2(n),c0,dznrm2_
+      Real(kind=8)    :: tdiff
+      Complex(kind=8) :: Cp(n,n), Cm(n,n), redME
+      Complex(kind=8) :: O(n,n), W(n,n),zfact
+      Complex(kind=8) :: HCF(n,n), Z(n,n)
+      Real(kind=8)    :: w1(n), w2(n),c0,dznrm2_
       External         :: dznrm2_
 
       Do k=2,n-1

@@ -270,7 +270,10 @@ Optional general keywords to control the input
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="TMAG" KIND="REAL" LEVEL="BASIC">
               %%Keyword: TMAG <basic>
               <HELP>
-              Specifies the temperature(s) at which the field-dependent magnetization is calculated. The program will read the number of temperature points (NTemp) and then an array of
+              Specifies the temperature(s) at which the field-dependent magnetization is calculated.
+              The program will read the number of temperature points (NTemp) and then an array of
+              numbers specifying the temperatures (in kelvin) at which magnetization is to be computed.
+              Default is to compute magnetization at one temperature point (2.0 K).
               </HELP>
               </KEYWORD>
 
@@ -422,7 +425,7 @@ Optional general keywords to control the input
               This keyword allows computation of the magnetic susceptibility at experimental
               temperature points. On the line below the keyword, the number of experimental
               points NT is defined, and on the next NT lines the program reads the experimental
-              temperature (in K) and the experimental magnetic susceptibility (in cm^3Kmol^{-1} ).
+              temperature (in K) and the experimental magnetic susceptibility (in cm^3 K mol^-1).
               TEXP and TINT keywords are mutually exclusive. The SINGLE_ANISO will also print the
               standard deviation from the experiment.
               </HELP>

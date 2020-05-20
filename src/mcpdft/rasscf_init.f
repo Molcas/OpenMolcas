@@ -190,7 +190,8 @@ C        ICIRST=1 ! to be activated!
 * State used in response calculation
       iPCMROOT=1
 * State to alaska
-      iRLXROOT=0
+*TRS
+*      iRLXROOT=0
 * number of roots required in CI
       NROOTS=1
 * number of roots actually used in CI-DAVIDSON
