@@ -542,7 +542,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module in ['GATEWAY', 'SEWARD']):
-    if (name == 'COORD'):
+    if (name in ['COORD', 'XYZ']):
       try:
         assert (first_word(lines[l])[0] != '$')
         n = first_int(lines[l])
@@ -782,11 +782,27 @@ def test_custom(lines, keyword):
       l += 1
       if ('.' in lab):
         while (l < len(lines)):
-          if (cmp_str(lines[l].split()[0], 'END')):
-            break
           l += 1
+          if (cmp_str(lines[l-1].split()[0], 'END')):
+            break
         else:
           return None
+    elif (name == 'ZMAT'):
+      n = 0
+      while (l < len(lines)):
+        parts = lines[l].split()
+        l += 1
+        if ((len(parts) == 0) or cmp_str(parts[0], 'END')):
+          break
+        try:
+          for i in range(n):
+            num = fortran_int(parts[2*i+1])
+            num = fortran_float(parts[2*i+2])
+        except:
+          return None
+        n = min(n+1, 3)
+      else:
+        return None
     elif (name == 'XFIELD'):
       nmul = [0, 1, 4, 10]
       npol = [0, 1, 6]
@@ -1422,7 +1438,7 @@ def validate(inp, db):
             group = stack.pop(-1)
           bad = False
           found.append(name)
-          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS', 'TINKER'])):
+          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'TINKER'])):
             enable_xyz(kw.getparent())
           break
       else:
@@ -1466,8 +1482,10 @@ def validate(inp, db):
     # skip disabled keywords
     if (name[0] in ['*', '#']):
       continue
-    # special case
+    # special cases
     if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS', 'TINKER']])):
+      continue
+    if ((name == 'BASIS (NATIVE)') and ('XBAS' in found)):
       continue
     if (name not in found):
       result.append('*** Keyword {} is required, but was not found'.format(name))

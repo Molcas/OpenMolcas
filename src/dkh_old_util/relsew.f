@@ -844,7 +844,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C     ----- CONSTRUCT RE1R -----
 C
-      write(6,*) 'Hello from Even3R'
+C     write(6,*) 'Hello from Even3R'
       Call xflush(6)
       CALL DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
 C
