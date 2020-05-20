@@ -94,6 +94,7 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+      Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:)
 *
       Logical Kriging_Hessian
@@ -200,9 +201,9 @@
       End If
 *
 *---- Remove unneeded fields from the runfile
-      Dummy=Zero
-      Call Put_dArray('BMxOld',Dummy,0)
-      Call Put_dArray('TROld',Dummy,0)
+      Dummy(1)=-Zero
+      Call Put_dArray('BMxOld',Dummy(1),0)
+      Call Put_dArray('TROld',Dummy(1),0)
 *
       Call QExit('Update')
       Return

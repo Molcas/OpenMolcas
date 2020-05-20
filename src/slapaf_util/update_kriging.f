@@ -469,8 +469,8 @@
 *
 *---- Remove unneeded fields from the runfile
       Dummy(1)=-Zero
-      Call Put_dArray('BMxOld',Dummy,0)
-      Call Put_dArray('TROld',Dummy,0)
+      Call Put_dArray('BMxOld',Dummy(1),0)
+      Call Put_dArray('TROld',Dummy(1),0)
 *
       Call QExit('Update')
       Return
