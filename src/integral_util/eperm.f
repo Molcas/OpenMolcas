@@ -233,7 +233,7 @@ c         End If
 
 *        Field contribution from XF
          Call EFXF(Work(ipCc),Work(ipXF),nXF,nOrd_XF,iXPolType,
-     &        xfEF(1,iGrid), iWork(ipXMolnr),nXMolnr,iGrid,scal14)
+     &        xfEF(1,iGrid),  Work(ipXMolnr),nXMolnr,iGrid,scal14)
 *
       End Do
 

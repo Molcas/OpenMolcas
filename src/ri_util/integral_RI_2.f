@@ -18,6 +18,7 @@
      &                         nShOffi,nShOffj,nShOffk,nShOffl,
      &                         Dens,Fock,LDens,ExFac,NDens,
      &                         ind,nind,FckNoClmb,FckNoExch)
+      use Wrj12
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -25,8 +26,6 @@
 *
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
-#include "wrj12.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
@@ -40,11 +39,11 @@
         Call PLF_RI_2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                iBas,jBas,kBas,lBas,kOp,TInt,nTInt,
-     &                iWork(ipSO2Ind),iOffA,nSOs)
+     &                SO2Ind,iOffA,nSOs)
       Else
         Call IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                   iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
-     &                   TInt,nTInt,iTOffs,iWork(ipSO2Ind),iOffA)
+     &                   TInt,nTInt,iTOffs,SO2Ind,iOffA)
       End If
 *
       Return
