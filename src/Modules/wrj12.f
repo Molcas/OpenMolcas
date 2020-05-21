@@ -8,5 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+       Module Wrj12
        Integer iOffA(4,0:7), Lu_Q(0:7), Lu_A(0:7), nChV(0:7)
-       Common /Wrj12/ iOffA,ipSO2Ind,Lu_Q,Lu_A,nChV
+       Integer, Allocatable:: SO2Ind(:)
+       End Module Wrj12
