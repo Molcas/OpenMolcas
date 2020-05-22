@@ -11,10 +11,9 @@
       Module PSO_Stuff
       Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
       Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3),ipAOrb(0:7,2)
-      Real*8, Allocatable:: DMdiag(:,:), Thpkl(:)
-      Integer nDens, nG2, mCMO, nG1, nV_K, nZ_p_k, n_Txy, n_ij2K,
-     &        nSOs1
-      Integer ipD0, ipDVar,ipDS,ipDSVar,iD0Lbl,ipG2,
-     &        ipCMO,ipG1,ipCMOa,ipCMOb,ip_V_K,ip_U_K,
-     &        ip_Z_p_k,ip_Txy,ip_ij2K
+      Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:)
+      Integer nG2, mG2
+      Integer nDens, mCMO, nG1, nV_K, nZ_p_k, n_Txy, n_ij2K, nSOs1
+      Integer ipD0, ipDVar,ipDS,ipDSVar,iD0Lbl,
+     &        ipCMO,ipG1,ip_V_K,ip_U_K,ip_Z_p_k,ip_Txy,ip_ij2K
       End Module PSO_Stuff

@@ -53,7 +53,7 @@
       End If
 *
       If (lPSO) Then
-         Call GetMem(' G2 ','Free','Real',ipG2,nG2)
+         Call mma_deallocate(G2)
          Call GetMem(' G1 ','Free','Real',ipG1,nG1)
       End If
       Call GetMem('CMO  ','Free','Real',ipCMO  ,mCMO)

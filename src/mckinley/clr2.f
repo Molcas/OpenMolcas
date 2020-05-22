@@ -127,7 +127,7 @@
                  if(iij.ge.kl .and. k.eq.l) fact=2.0d00
                  if(iij.lt.kl .and. ih.eq.jh) fact=2.0d00
                   If (k.ne.l) FacT=fact*2.0d0
-                 rd=Work(ipg2-1+itri(iij,kl))*fact
+                 rd=G2(itri(iij,kl),1)*fact
                  Temp4(iB,ic,i)=Temp4(ib,ic,i)+
      &                 Temp1(ib,ic,iash)*rd
                 End Do
@@ -175,7 +175,7 @@
                   if(iij.ge.kl .and. k.eq.l) fact=2.0d00
                   if(iij.lt.kl .and. ih.eq.jh) fact=2.0d00
                   If (k.ne.l) FacT=fact*2.0d0
-                  rd=Work(ipg2-1+itri(iij,kl))*fact
+                  rd=G2(itri(iij,kl),1)*fact
                   Temp5(jB,jc,i)=Temp5(jb,jc,i)+Temp3(jb,jc,iash)*rd
                  End Do
                 End Do

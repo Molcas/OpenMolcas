@@ -40,6 +40,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "etwas.fh"
 #include "nac.fh"
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
@@ -261,8 +262,6 @@
             If (lsa) nsa=2
          End If
          Call GetMem('CMO','Allo','Real',ipCMO,nsa*mCMO)
-         ipCMOa=ipCMO
-         ipCMOb=ipCMO+(nsa-1)*mCMO
          Call Get_CMO(ipTemp,nTemp)
          call dcopy_(nTemp,Work(ipTemp),1,Work(ipCMO),1)
          Call Free_Work(ipTemp)
@@ -320,11 +319,12 @@
          nG2 = nG1*(nG1+1)/2
          nsa=1
          if (lsa) nsa=2
-         Call GetMem(' G2 ','Allo','Real',ipG2,nsa*nG2)
+         mG2=nsa
+         Call mma_allocate(G2,nG2,mG2,Label='G2')
          Call Get_P2MO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipG2),1)
+         call dcopy_(nTemp,Work(ipTemp),1,G2(1,1),1)
          Call Free_Work(ipTemp)
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 
 *  CMO1 Ordinary CMO's
@@ -350,11 +350,11 @@
 *   P2=sum_i <i|e_pqrs|i>
 *
            Call Get_PLMO(ipPLMO,Length)
-           call dcopy_(Length,Work(ipPLMO),1,Work(ipG2+ng2),1)
+           call dcopy_(Length,Work(ipPLMO),1,G2(1,2),1)
            Call Free_Work(ipPLMO)
-           Call Daxpy_(ng2,1.0d0,Work(ipG2+ng2),1,Work(ipG2),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',Work(ipG2+ng2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',Work(ipG2),nG1)
+           Call Daxpy_(ng2,1.0d0,G2(1,2),1,G2(1,1),1)
+           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(1,2),nG1)
+           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(1,1),nG1)
 *
            Call Get_D2AV(ipD2AV,Length)
            If (ng2.ne.Length) Then
@@ -362,10 +362,9 @@
               Write (6,*) 'ng2,Length=',ng2,Length
               Call Abend()
            End If
-           call dcopy_(Length,Work(ipD2AV),1,Work(ipG2+ng2),1)
+           call dcopy_(Length,Work(ipD2AV),1,G2(1,2),1)
            Call Free_Work(ipD2AV)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',
-     &                Work(ipG2+ng2),nG2)
+           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(1,2),nG2)
 *
 *
 *  Densities are stored as:
@@ -410,7 +409,7 @@
            call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
            Call Free_Work(ipDLAO)
          End If
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
 *
 *...  Close 'RELAX' file
 1000     Continue

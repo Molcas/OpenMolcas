@@ -176,7 +176,7 @@
          Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
          Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
          Call iZero(nnP,nIrrep)
-         Call Compute_txy(Work(ipG2),Work(ipG1),nG1,Work(ip_Txy),
+         Call Compute_txy(Work(ipG1),nG1,Work(ip_Txy),
      &                   n_Txy,nAdens,nIrrep,DMdiag,
      &                   Work(ipDMtmp),nAct)
          Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
