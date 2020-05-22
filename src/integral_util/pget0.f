@@ -35,6 +35,7 @@
 *                                                                      *
 *             Modified for RI Feb. 2007                                *
 ************************************************************************
+      use aces_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,7 +48,6 @@
 #include "WrkSpc.fh"
 #include "pso.fh"
 #include "etwas.fh"
-#include "aces_gamma.fh"
 #include "columbus_gamma.fh"
       Real*8 PSO(ijkl,nPSO)
       Integer iShell(4), iAO(4), iCmp(4), kOp(4), iAOst(4)
@@ -198,21 +198,21 @@
                If (gamma_mrcisd) Then
                Call Read_Bin_Columbus
      &                (iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       Work(ipG_Toc),nQuad,
+     &                       G_Toc,nQuad,
      &                       Work(ipGamma),nGamma,
-     &                       LuGamma,Work(ipBin),lBin)
+     &                       LuGamma,Bin,lBin)
                Else
                Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       Work(ipG_Toc),nQuad,
+     &                       G_Toc,nQuad,
      &                       Work(ipGamma),nGamma,
-     &                       LuGamma,Work(ipBin),lBin)
+     &                       LuGamma,Bin,lBin)
                Endif
                Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
      &                         iShell,iAO,iAOst,Shijij,
      &                         iBas,jBas,kBas,lBas,kOp,Work(ipD0),
      &                         Work(ipDVar),Work(ipDS),Work(ipDSVar),
      &                         nDens,Work(ipGamma),nGamma,
-     &                         iWork(ipSO2cI),nSOs,iWork(ipSOsh),PMax)
+     &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then
@@ -264,14 +264,14 @@
                If (gamma_mrcisd) Then
                Call Read_Bin_Columbus
      &                (iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       Work(ipG_Toc),nQuad,
+     &                       G_Toc,nQuad,
      &                       Work(ipGamma),nGamma,
-     &                       LuGamma,Work(ipBin),lBin)
+     &                       LuGamma,Bin,lBin)
                else
                Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       Work(ipG_Toc),nQuad,
+     &                       G_Toc,nQuad,
      &                       Work(ipGamma),nGamma,
-     &                       LuGamma,Work(ipBin),lBin)
+     &                       LuGamma,Bin,lBin)
                endif
                Call PGet2_Aces(iCmp,iShell,
      &                         iBas,jBas,kBas,lBas,
@@ -279,7 +279,7 @@
      &                         Work(ipD0),Work(ipDVar),Work(ipDS),
      &                         Work(ipDSVar),nDens, Work(ipGamma),
      &                         nGamma,
-     &                         iWork(ipSO2cI),nSOs,iWork(ipSOsh),PMax)
+     &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then

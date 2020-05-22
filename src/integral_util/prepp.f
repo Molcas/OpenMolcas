@@ -31,15 +31,16 @@
 *             January '92                                              *
 ************************************************************************
       use iSD_data
+      use aces_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "pso.fh"
 #include "etwas.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
 #include "nsd.fh"
 #include "dmrginfo_mclr.fh"
@@ -169,7 +170,7 @@
 
 *---- Allocate Table Of Content for half sorted gammas.
 *
-      Call GetMem('G_Toc','Allo','Real',ipG_Toc,nQuad+2)
+      Call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
 
 *  find free unit number
         lgtoc=61
@@ -177,22 +178,16 @@
         idisk=0
 *  read table of contents of half-sorted gamma file
          Call DaName(lgtoc,'gtoc')
-         Call ddafile(lgtoc,2,Work(ipg_toc),nQuad+2,idisk)
+         Call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
          Call Daclos(lgtoc)
-         n=int(Work(ipg_toc+nQuad))
-         lbin=int(Work(ipg_toc+nQuad+1))
+         n=int(G_Toc(nQuad+1))
+         lbin=int(G_Toc(nQuad+2))
          if (n.ne.nQuad) then
            Call WarningMessage(2,'n.ne.nQuad')
            Write (6,*) 'n,nQuad=',n,nQuad
            Call Abend()
          endif
 
-c       open(unit=lgtoc,file='gtoc',form='unformatted')
-c        read(lgtoc) n
-c        if (n.ne.nquad) stop 'quad error'
-c        call read_lgtoc(lgtoc,Work(ipg_toc),n)
-c        read(lgtoc) lbin
-c       close (lgtoc)
         Gamma_On=.True.
         Gamma_mrcisd=.TRUE.
 *       open gamma file
@@ -201,10 +196,10 @@ c       close (lgtoc)
 *        closed in closep
          Call DaName_MF(LuGamma,'GAMMA')
 *  allocate space for bins
-         Call GetMem('Bin','Allo','Real',ipBin,2*lBin)
+         Call mma_Allocate(Bin,2,lBin,Label='Bin')
 *  compute SO2cI array
-         Call GetMem('SO2cI','Allo','Inte',ipSO2cI,2*nSOs)
-         call so2ci(iWork(ipSO2cI),iWork(ipSOsh),nsos)
+         Call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
+         call Mk_SO2cI(SO2cI,iWork(ipSOsh),nsos)
 *                                                                      *
 ************************************************************************
 *                                                                      *

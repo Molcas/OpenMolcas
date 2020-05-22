@@ -23,13 +23,14 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use aces_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "pso.fh"
 #include "setup.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky
 *
@@ -45,13 +46,10 @@
       End If
       If (Gamma_On) Then
 ************ columbus interface ****************************************
-*  using Close instead of DaClos for the half-sorted effective
-*  two-particle density matrix produces internal errors
-c        Close(LuGamma)
          Call DaClos(LuGamma)
-         Call GetMem('Bin','Free','Real',ipBin,2*lBin)
-         Call GetMem('G_Toc','Free','Real',ipG_Toc,iDummy)
-         Call GetMem('SO2cI','Free','Inte',ipSO2cI,iDummy)
+         Call mma_deallocate(Bin)
+         Call mma_deallocate(G_Toc)
+         Call mma_deallocate(SO2cI)
       End If
 *
       If (lPSO) Then

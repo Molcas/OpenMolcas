@@ -11,10 +11,10 @@
       Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,iOff,Buf,nBuf,
      &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,
      &                       iSO2cI,CutInt)
+      use aces_stuff, only: LuGamma
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
 #include "real.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
 #include "pso.fh"
       Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
@@ -33,7 +33,7 @@
 *---- Generate table SO to contigous index
 *
 *     Write (*,*) 'nQuad=',nQuad
-      Call SO2cI(iSO2cI,iSO2Shell,nSOs)
+      Call Mk_SO2cI(iSO2cI,iSO2Shell,nSOs)
 *                                                                      *
 ************************************************************************
 *                                                                      *

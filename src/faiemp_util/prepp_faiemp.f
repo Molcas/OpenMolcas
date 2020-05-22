@@ -32,6 +32,7 @@
 * Based on PrepP                                                       *
 *                                                                      *
 ************************************************************************
+      use aces_stuff, only: Gamma_On
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -40,7 +41,6 @@
 #include "WrkSpc.fh"
 #include "pso.fh"
 #include "etwas.fh"
-#include "aces_gamma.fh"
 #include "nac.fh"
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
