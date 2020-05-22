@@ -183,6 +183,7 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 72)='nEFP_Coor       '
          RecLab( 73)='Relax Original r' !oot
          RecLab( 74)='Unique centers  '
+         RecLab( 75)='nXF             '
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line

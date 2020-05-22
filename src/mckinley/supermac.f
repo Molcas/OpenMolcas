@@ -19,12 +19,14 @@
 *
       Call Get_cArray('Relax Method',Method,8)
 *
-      Numerical = Method .eq. 'RASSCFSA'    .or.
+      Numerical = Method(1:6) .eq. 'RASSCF' .or.
+     &            Method(1:6) .eq. 'GASSCF' .or.
+     &            Method .eq. 'CASSCFSA'    .or.
+     &            Method .eq. 'DMRGSCFS'    .or.
      &            Method .eq. 'CASPT2'      .or.
      &            Method .eq. 'UHF-SCF'     .or.
      &            Method .eq. 'MBPT2'       .or.
      &            Method .eq. 'CCSDT'       .or.
-     &            Method .eq. 'CASSCFSA'    .or.
      &            Method .eq. 'KS-DFT'      .or.
      &            Method .eq. 'UKS-DFT'
 *
@@ -36,8 +38,11 @@
       Call DecideOnCholesky(Do_Cholesky)
       If (Do_Cholesky) Numerical=.true.
 *
-      Call Qpg_dArray('GeoPC',Found,nData)
-      Numerical = Numerical .or. (Found.and.nData.gt.0)
+      Call Qpg_iScalar('nXF',Found)
+      If (Found) Then
+         Call Get_iScalar('nXF',nXF)
+         Numerical = Numerical .or. (nXF.gt.0)
+      End If
       Call DecideOnESPF(Do_ESPF)
       Numerical = Numerical .or. Do_ESPF
 *
