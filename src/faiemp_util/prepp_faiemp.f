@@ -33,13 +33,13 @@
 *                                                                      *
 ************************************************************************
       use aces_stuff, only: Gamma_On
+      use pso_stuff
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "pso.fh"
 #include "etwas.fh"
 #include "nac.fh"
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)

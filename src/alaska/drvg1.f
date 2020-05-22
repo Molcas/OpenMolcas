@@ -44,6 +44,7 @@
 ************************************************************************
       use k2_setup
       use iSD_data
+      use PSO_Stuff
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "real.fh"
@@ -54,7 +55,6 @@
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "pso.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

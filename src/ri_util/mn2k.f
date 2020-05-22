@@ -10,10 +10,9 @@
 ************************************************************************
 
       INTEGER FUNCTION mn2K(iab,lSym)
-
+      use pso_stuff
       Integer  iab, lSym
 #include "WrkSpc.fh"
-#include "pso.fh"
 
       lab = iOff_ij2K(lSym) + iab
       mn2K = iWork(lab)

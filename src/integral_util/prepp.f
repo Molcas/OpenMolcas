@@ -32,6 +32,7 @@
 ************************************************************************
       use iSD_data
       use aces_stuff
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -39,7 +40,6 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "pso.fh"
 #include "etwas.fh"
 #include "mp2alaska.fh"
 #include "nsd.fh"

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc)
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
 #include "itmax.fh"
@@ -18,7 +19,6 @@
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "etwas.fh"
-#include "pso.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Logical Timings, DoExchange, DoCAS, Estimate, Update

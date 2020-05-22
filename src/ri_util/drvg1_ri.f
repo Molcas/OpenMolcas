@@ -21,12 +21,12 @@
 *             January '07                                              *
 *                                                                      *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "para_info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"

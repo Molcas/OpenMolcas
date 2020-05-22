@@ -50,6 +50,7 @@
 *             Modified to first order derivatives. January '92         *
 ************************************************************************
       use aces_stuff, only: nGamma, Gamma_On
+      use PSO_Stuff
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -58,7 +59,6 @@
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
-#include "pso.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
      &          iShela(4), iFnc(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail

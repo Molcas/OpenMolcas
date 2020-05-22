@@ -45,6 +45,7 @@
 ************************************************************************
       use k2_setup
       use iSD_data
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -57,7 +58,6 @@
 #include "setup.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-#include "pso.fh"
 #include "para_info.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_

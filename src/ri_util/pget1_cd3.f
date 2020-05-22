@@ -36,12 +36,12 @@
 *             R. Lindh                                                 *
 *                                                                      *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"

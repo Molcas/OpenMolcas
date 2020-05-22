@@ -51,6 +51,7 @@
 ************************************************************************
       use k2_setup
       use iSD_data
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
 #include "real.fh"
@@ -59,7 +60,6 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "pso.fh"
 #include "nsd.fh"
 #include "cholesky.fh"
 #include "setup.fh"

@@ -35,13 +35,13 @@
 *             Modified for 3-center RI gradients, March 2007           *
 *                                                                      *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),

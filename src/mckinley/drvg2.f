@@ -47,6 +47,7 @@
       use k2_setup
       use iSD_data
       use k2_arrays
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -56,7 +57,6 @@
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "pso.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "cputime.fh"

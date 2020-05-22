@@ -33,11 +33,11 @@
 *             January '92.                                             *
 *             Modified from PGet1, June '92                            *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),

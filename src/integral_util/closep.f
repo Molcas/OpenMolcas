@@ -24,12 +24,12 @@
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       use aces_stuff
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-#include "pso.fh"
 #include "setup.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky

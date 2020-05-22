@@ -31,12 +31,12 @@
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)

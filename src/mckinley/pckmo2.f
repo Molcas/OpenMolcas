@@ -12,11 +12,11 @@
      &                  nAcO,
      &                  ishell,icmpi,iBasi,jcmpj,jBasj,
      &                  iaoi,jaoj)
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
 #include "etwas.fh"
-#include "pso.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 COUT(*)

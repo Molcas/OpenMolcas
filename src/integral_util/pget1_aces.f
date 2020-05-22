@@ -38,12 +38,12 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"

@@ -14,6 +14,7 @@
      &                iaoi,iaoj,naco,ishell,
      &                temp1,temp2,temp3,temp4,temp5,temp6)
 *
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -22,7 +23,6 @@
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "pso.fh"
 #include "WrkSpc.fh"
 *
       Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,

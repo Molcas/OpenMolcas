@@ -18,9 +18,9 @@
 *             nDM    = size of the one-body DM                         *
 *                                                                      *
 ************************************************************************
+      use pso_stuff
       Implicit none
 #include "real.fh"
-#include "pso.fh"
       Integer nTxy,nAct(0:7),nCumAct(0:7),nCumAct2(0:7)
       Integer nDM,i,j,icol,iline
       Integer ista,iend,jsta,jend,ksta,kend,lsta,lend,isym,jsym,

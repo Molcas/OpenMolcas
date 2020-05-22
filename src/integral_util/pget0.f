@@ -36,6 +36,7 @@
 *             Modified for RI Feb. 2007                                *
 ************************************************************************
       use aces_stuff
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,7 +47,6 @@
 #include "shinf.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
-#include "pso.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
       Real*8 PSO(ijkl,nPSO)

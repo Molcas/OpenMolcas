@@ -15,10 +15,10 @@
 *      and MO for RASSCF, this will hopefully be changed, but if you
 *      see this mess before that I apologize
 *
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "pso.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"
