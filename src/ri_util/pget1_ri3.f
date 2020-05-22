@@ -13,7 +13,7 @@
       SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iShell,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,
-     &                 U_K,mV_k,ZpK,nnP1,Thpkl,nThpkl,nSA,nAct)
+     &                 U_K,mV_k,ZpK,nnP1,nSA,nAct)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
@@ -45,8 +45,7 @@
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
-     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*),
-     &       Thpkl(nThpkl)
+     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)

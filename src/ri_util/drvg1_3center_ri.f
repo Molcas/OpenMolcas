@@ -58,6 +58,7 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -514,17 +515,20 @@ cVV: ifort 11 can't handle the code without this dummy print.
          nBas_Aux(0)=nBas_Aux(0)-1
          Call GetMem('Thhalf','Allo','Real',ip_Thhalf,maxnnP)
          nThpkl=MxChVInShl*MxInShl**2
-         Call GetMem('Thkxy','Allo','Real',ip_Thpkl,nThpkl)
+         Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 *
          Call contract_Zpk_Tpxy(Work(ip_Z_p_k) ,nZ_p_k,
      &                          Work(ip_Txy)   ,n_Txy,
      &                          Work(ip_Thhalf),maxnnP,
-     &                          Work(ipDMdiag) ,nG1,
+     &                          DMdiag ,nG1,
      &                          nnP,nBas_Aux,
      &                          nADens,nAvec,nAct,nIrrep)
 *
          Call GetMem('Thhalf','Free','Real',ip_Thhalf,maxnnP)
          nBas_Aux(0)=nBas_Aux(0)+1
+      Else
+         nThpkl=1
+         Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
       End If
 *                                                                      *
 ************************************************************************
@@ -926,9 +930,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
          End Do
       End If
 *
-      If (lPSO) Then
-         Call GetMem('Thpkl','Free','Real',ip_Thpkl,nThpkl)
-      EndIf
+      If (Allocated(Thpkl)) Call mma_deallocate(Thpkl)
 *
       Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
       Call Free_Tsk2(id)

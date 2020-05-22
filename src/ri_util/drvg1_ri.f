@@ -31,6 +31,7 @@
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -172,16 +173,16 @@
            mAO=mAO+nAct(ijsym)*nBas(ijsym)
          EndDo
          Call GetMem('Txy','Allo','Real',ip_Txy,n_Txy*nAdens)
-         Call GetMem('DM2diag','Allo','Real',ipDMdiag,nG1*nAdens)
+         Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
          Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
          Call iZero(nnP,nIrrep)
          Call Compute_txy(Work(ipG2),Work(ipG1),nG1,Work(ip_Txy),
-     &                   n_Txy,nAdens,nIrrep,Work(ipDMdiag),
+     &                   n_Txy,nAdens,nIrrep,DMdiag,
      &                   Work(ipDMtmp),nAct)
          Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
       Else
+         Call mma_allocate(DMdiag,1,1,Label='DMdiag')
          ip_Txy=ip_Dummy
-         ipDMdiag=ip_Dummy
       EndIf
       n_ij2K=0
       nZ_p_k=0
@@ -201,7 +202,6 @@
       Else
          ip_Z_p_k=ip_Dummy
       EndIf
-      ip_Thpkl=ip_Dummy
 *
 *     Preprocess the RI and Q vectors as follows
 *
@@ -396,8 +396,8 @@
       Case_3C=.False.
       If (lPSO) Then
         Call GetMem('Txy','Free','Real',ip_Txy,n_Txy)
-        Call GetMem('DM2diag','Free','Real',ipDMdiag,nG1*nAdens)
       EndIf
+      If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
       Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
 *                                                                      *
 ************************************************************************

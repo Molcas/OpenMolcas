@@ -395,7 +395,7 @@
                         jpSOl=CumnnP2(j2)+(lSOl-1)*nnP(j2)
                         Do jp=1,nnP(j2)
                           temp2=temp2+sign(1.0d0,
-     &                          Work(ipDMdiag+CumnnP(j2)+jp-1))*
+     &                          DMdiag(CumnnP(j2)+jp,1))*
      &                          Z_p_K(jpSOj+jp,1)*Z_p_K(jpSOl+jp,1)
                         End Do
                         temp=temp+temp2

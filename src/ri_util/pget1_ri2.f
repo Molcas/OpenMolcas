@@ -350,7 +350,7 @@
                      temp2=0.0d0
                      Do jp=1,nnP(0)
                        temp2 = temp2 +
-     &                         sign(1.0d0,Work(ipDMdiag+jp-1))*
+     &                         sign(1.0d0,DMdiag(jp,1))*
      &                         Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)
                      End Do
                      temp=temp+temp2
@@ -465,9 +465,9 @@
                      temp2=0.0d0
                      Do jp=1,nnP(0)
                        temp2 = temp2 +
-     &                           sign(1.0d0,Work(ipDMdiag+jp-1))*
+     &                           sign(1.0d0,DMdiag(jp,1))*
      &                         Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)+
-     &                           sign(2.0d0,Work(ipDMdiag+jp-1+nG1))*
+     &                           sign(2.0d0,DMdiag(jp,2))*
      &                         (Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+
      &                          Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
                      End Do
