@@ -344,14 +344,13 @@
             ipAOrb(iIrrep,1) = ipAOrb(0,1) + lCount
             ipAOrb(iIrrep,2) = ipAOrb(iIrrep,1)+mAO
             Do i=1,nASh(iIrrep)
-               kOff1 = ipCMO + jCount + nBas(iIrrep)*(i-1)
+               kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
                kOff2 = ipAOrb(iIrrep,1) + i - 1
-               Call dCopy_(nBas(iIrrep),Work(kOff1),1,
+               Call dCopy_(nBas(iIrrep),CMO(kOff1,1),1,
      &                               Work(kOff2),nASh(iIrrep))
                If (lSA) Then
-                 kOff1 = ipCMO + jCount + nBas(iIrrep)*(i-1)+mCMO
                  kOff2 = ipAOrb(iIrrep,2) + i - 1
-                 Call dCopy_(nBas(iIrrep),Work(kOff1),1,
+                 Call dCopy_(nBas(iIrrep),CMO(kOff1,2),1,
      &                               Work(kOff2),nASh(iIrrep))
                EndIf
             End Do

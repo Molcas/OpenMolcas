@@ -87,12 +87,12 @@
 *     Get the scrambled 2nd order density matrix
 *
       If (LSA) Then
-      Call PTrans_sa(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
      &            DAO,PAOPam,nPSOPam,Work(ipG1),nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
      &            nScr1)
       Else
-       Call PTrans(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
+       Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
      &            DAO,PAOPam,nPSOPam,Work(ipG1),nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If

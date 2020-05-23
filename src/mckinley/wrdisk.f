@@ -44,7 +44,7 @@
       nin=0
       nIn2=0
       nna=0
-      ipCC=0
+      ipCC=1
       Do jIrrep=0,nIrrep-1
          kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
          If (kIrrep.lt.jIrrep) Then
@@ -96,11 +96,11 @@
                Call DGEMM_('N','N',
      &                     nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),
      &                1.0d0,rIn(ipDisp(jDisp)+ip(jIrrep)),nBas(jIrrep),
-     &                     Work(ipCMO+ipCM(kIrrep)),nBas(kIrrep),
+     &                     CMO(ipCM(kIrrep),1),nBas(kIrrep),
      &                     0.0d0,Work(ipY),nBas(jIrrep))
                Call DGEMM_('T','N',
      &                     nBas(jIrrep),nBas(kirrep),nBas(jIrrep),
-     &                     1.0d0,Work(ipCMO+ipCM(jIrrep)),nBas(jIrrep),
+     &                     1.0d0,CMO(ipCM(jIrrep),1),nBas(jIrrep),
      &                     Work(ipY),nBas(jIrrep),
      &                     0.0d0,Work(ipAct+ip2(kIrrep)),nBas(jIrrep))
             If (Show) Then
@@ -116,12 +116,12 @@
      &                    rIn(ipDisp(jDisp)+ip(jIrrep)),1)
                Write (6,'(A,G20.10)') 'ipCM(kIrrep):',
      &               DDot_(nBas(kIrrep)*nBas(kIrrep),
-     &                    Work(ipCMO+ipCM(kIrrep)),1,
-     &                    Work(ipCMO+ipCM(kIrrep)),1)
+     &                    CMO(ipCM(kIrrep),1),1,
+     &                    CMO(ipCM(kIrrep),1),1)
                Write (6,'(A,G20.10)') 'ipCM(jIrrep):',
      &               DDot_(nBas(jIrrep)*nBas(jIrrep),
-     &                    Work(ipCMO+ipCM(jIrrep)),1,
-     &                    Work(ipCMO+ipCM(jIrrep)),1)
+     &                    CMO(ipCM(jIrrep),1),1,
+     &                    CMO(ipCM(jIrrep),1),1)
             End If
                Call DGetMO(Work(ipAct+ip2(kIrrep)),Nbas(jIrrep),
      &                  nbas(jIrrep),nBas(kIrrep),
@@ -132,11 +132,11 @@
                Call DGEMM_('N','N',
      &                     nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),
      &                     1.0d0,work(ipX),nBas(jIrrep),
-     &                     Work(ipCMO+ipCM(kIrrep)),nBas(kIrrep),
+     &                     CMO(ipCM(kIrrep),1),nBas(kIrrep),
      &                     0.0d0,Work(ipY),nBas(jIrrep))
                Call DGEMM_('T','N',
      &                     nBas(jIrrep),nBas(kirrep),nBas(jIrrep),
-     &                     1.0d0,Work(ipCMO+ipCM(jIrrep)),nBas(jIrrep),
+     &                     1.0d0,CMO(ipCM(jIrrep),1),nBas(jIrrep),
      &                     Work(ipY),nBas(jIrrep),
      &                     0.0d0,Work(ipAct+ip2(jIrrep)),nBas(jIrrep))
             End If
@@ -169,22 +169,22 @@
                   Call DGEMM_('N','N',
      &                        nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),
      &                        1.0d0,Work(ipX),nBas(jIrrep),
-     &                        Work(ipCMO+ipCM(kIrrep)),nBas(kIrrep),
+     &                        CMO(ipCM(kIrrep),1),nBas(kIrrep),
      &                        0.0d0,Work(ipY),nBas(jIrrep))
                   Call DGEMM_('T','N',
      &                     nBas(jIrrep),nBas(kirrep),nBas(jIrrep),
-     &                     1.0d0,Work(ipCMO+ipCM(jIrrep)),nBas(jIrrep),
+     &                     1.0d0,CMO(ipCM(jIrrep),1),nBas(jIrrep),
      &                     Work(ipY),nBas(jIrrep),
      &                     0.0d0,Work(ipIn+ip2(jIrrep)),nBas(jIrrep))
                 Else If (kirrep.lt.jirrep) Then
                    Call DGEMM_('N','N',
      &                nBas(jIrrep),nBas(kIrrep),nBas(kIrrep),
      &                1.0d0,rin(ipDisp2(jDisp)+ip(jIrrep)),nBas(jIrrep),
-     &                Work(ipCMO+ipCM(kIrrep)),nBas(kIrrep),
+     &                CMO(ipCM(kIrrep),1),nBas(kIrrep),
      &                0.0d0,Work(ipY),nBas(jIrrep))
                    Call DGEMM_('T','N',
      &                    nBas(jIrrep),nBas(kirrep),nBas(jIrrep),
-     &                    1.0d0,Work(ipCMO+ipCM(jIrrep)),nBas(jIrrep),
+     &                    1.0d0,CMO(ipCM(jIrrep),1),nBas(jIrrep),
      &                    Work(ipY),nBas(jIrrep),
      &                    0.0d0,Work(ipIn+ip2(kIrrep)),nBas(jIrrep))
                    Call DGetMO(Work(ipIn+ip2(kIrrep)),Nbas(jIrrep),
@@ -247,7 +247,7 @@
                End If
                Call DGEMM_('T','N',
      &                     nBas(jIrrep),nAsh(kIrrep),nBas(jIrrep),
-     &                     1.0d0,Work(ipCMO+ipCM(jIrrep)),nBas(jIrrep),
+     &                     1.0d0,CMO(ipCM(jIrrep),1),nBas(jIrrep),
      &                     rin(ipDisp3(jDisp)+iii),nBas(jIrrep),
      &                     0.0d0,Work(ipY),nBas(jIrrep))
                Call DaXpY_(nAsh(kIrrep)*nBas(jIrrep),1.0d0,

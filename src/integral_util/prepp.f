@@ -359,15 +359,16 @@
             nsa=1
             If (lsa) nsa=2
          End If
-         Call GetMem('CMO','Allo','Real',ipCMO,nsa*mCMO)
+         kCMO=nsa
+         Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
          Call Get_CMO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipCMO),1)
+         call dcopy_(nTemp,Work(ipTemp),1,CMO(1,1),1)
          Call Free_Work(ipTemp)
          If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt(' CMO''s',' ',
-     &                     Work(ipTmp1),nBas(iIrrep),
+     &                     CMO(ipTmp1,1),nBas(iIrrep),
      &                     nBas(iIrrep))
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
@@ -437,13 +438,13 @@
 *  CMO2 CMO*Kappa
 *
            Call Get_LCMO(ipLCMO,Length)
-           call dcopy_(Length,Work(ipLCMO),1,Work(ipCMO+mcmo),1)
+           call dcopy_(Length,Work(ipLCMO),1,CMO(1,2),1)
            Call Free_Work(ipLCMO)
            If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO+mcmo
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt('LCMO''s',' ',
-     &                     Work(ipTmp1),nBas(iIrrep),
+     &                     CMO(ipTmp1,2),nBas(iIrrep),
      &                     nBas(iIrrep))
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
@@ -510,7 +511,7 @@
 
 
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
-           Call Get_D1I(Work(ipCMO),Work(ipD0+0*ndens),Work(ipT),
+           Call Get_D1I(CMO(1,1),Work(ipD0+0*ndens),Work(ipT),
      &                  nish,nbas,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
 
@@ -538,7 +539,7 @@
               end if
               Call Abend()
            End If
-           Call Get_D1A(Work(ipCMO),Work(ipD1AV),Work(ipD0+2*ndens),
+           Call Get_D1A(CMO(1,1),Work(ipD1AV),Work(ipD0+2*ndens),
      &                 nIrrep,nbas,nish,nash,ndens)
            Call Free_Work(ipD1AV)
 !************************

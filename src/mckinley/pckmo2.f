@@ -36,7 +36,7 @@
          nA=nA+nAsh(iIrrep)
       End Do
       Do iCnt=1,2
-         ipC=ipCMO-1
+         ipC=0
          Do iIrrep=0,nIrrep-1
             iOrb=nIsh(iIrrep)
             Do iAsh=1,nAsh(iIrrep)
@@ -46,7 +46,7 @@
                   ip1=ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
                   If (iAnd(IrrCmp(IndS(iShell(iCnt))+i1),
      &                iTwoj(iIrrep)).ne.0) Then
-                     call dcopy_(nBs(iCnt),Work(ip1),1,COUT(ip2),1)
+                     call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
                   Else
                      call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)
                   End If
