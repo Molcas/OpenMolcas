@@ -32,7 +32,6 @@
       write(FileName,'(a)') 'ROT_VEC'
       write(SwapName,'(a)') 'ROT_VEC0'
       Call F_Inquire(FileName,Found)
-      !If(Found)  Call RENAME(FileName,SwapName)  -- it is a GCC extension
       If(Found)  Then
           write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
           Call execute_command_line (cmd)
@@ -55,7 +54,6 @@
       write(FileName,'(a)') 'ROT_HAM'
       write(SwapName,'(a)') 'ROT_HAM0'
       Call F_Inquire(FileName,Found)
-      !If(Found)  Call RENAME(FileName,SwapName)  -- it is a GCC extension
       If(Found)  Then
           write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
           Call execute_command_line (cmd)
