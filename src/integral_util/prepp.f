@@ -408,12 +408,13 @@
          nG1 = nAct*(nAct+1)/2
          nsa=1
          If (lsa) nsa=0
-         Call GetMem(' G1 ','Allo','Real',ipG1,nG1*nsa)
+         mG1=nsa
+         Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
             Call Get_D1MO(ipTemp,nTemp)
-            call dcopy_(nTemp,Work(ipTemp),1,Work(ipG1),1)
+            call dcopy_(nTemp,Work(ipTemp),1,G1(1,1),1)
             Call Free_Work(ipTemp)
-            If (iPrint.ge.99) Call TriPrt(' G1',' ',Work(ipG1),nAct)
+            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(1,1),nAct)
          End If
 *
 *...  Get the two body density for the active orbitals

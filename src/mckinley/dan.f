@@ -46,10 +46,10 @@
                iiB=nA(iS)+iB
                Do jB=1,nAsh(iS)
                   jjB=nA(iS)+jB
-                  ijB=ipG1+iTri(iiB,jjB)-1
+                  ijB=iTri(iiB,jjB)
                   ip1=ipTemp1+
      &                nBas(iS)*(nISh(iS)+iB-1)+nIsh(is)+jb -1
-                  Work(ip1)=Work(ijB)
+                  Work(ip1)=G1(ijB,1)
                End Do
             End Do
 *

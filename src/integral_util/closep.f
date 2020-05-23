@@ -54,7 +54,7 @@
 *
       If (lPSO) Then
          Call mma_deallocate(G2)
-         Call GetMem(' G1 ','Free','Real',ipG1,nG1)
+         Call mma_deallocate(G1)
       End If
       call mma_deallocate(CMO)
       Call GetMem('DSVar','Free','Real',ipDSVar,nDens)

@@ -176,7 +176,7 @@
          Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
          Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
          Call iZero(nnP,nIrrep)
-         Call Compute_txy(Work(ipG1),nG1,Work(ip_Txy),
+         Call Compute_txy(G1(1,1),nG1,Work(ip_Txy),
      &                   n_Txy,nAdens,nIrrep,DMdiag,
      &                   Work(ipDMtmp),nAct)
          Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
@@ -276,8 +276,8 @@
 *              Map from Cholesky auxiliary basis to the full
 *              1-center valence product basis.
 *
-         Call GetMem('ij2K','Allo','INTE',ip_ij2K,n_ij2K)
-         Call IZero(iWork(ip_ij2K),n_ij2K)
+         Call mma_allocate(ij2K,n_ij2K,Label='ij2K')
+         ij2K(:)=0
          nV_k_New=nBas(0)*(nBas(0)+1)/2
          Call GetMem('V_k_New','Allo','Real',ip_V_k_New,nV_k_New*nJdens)
          Call FZero(Work(ip_V_k_New),nV_k_New*nJdens)
@@ -302,11 +302,12 @@
      &              Work(ip_U_k_New),nV_k_New,
      &              iWork(ipSO_ab))
             End If
-            iOff_ij2K(iSym) = iOff_ij2K(iSym) + ip_ij2K - 1
+            m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
               Call ReMap_V_k(iSym,Work(ip_V_k+i*NumCho(1)),nV_k,
      &                     Work(ip_V_k_New+i*nV_k_New),nV_k_New,
-     &                     iWork(ipSO_ab+iOff),iWork(iOff_ij2K(iSym)+1))
+     &                     iWork(ipSO_ab+iOff),ij2K(iOff_ij2K(iSym)+1),
+     &                     m_ij2K)
             EndDo
             iOff = iOff + 2*nBas_Aux(iSym-1)
          End Do
@@ -420,7 +421,7 @@
 
       If (Cholesky.and..Not.Do_RI) Then
          Call Free_iWork(ip_ij2)
-         Call Free_iWork(ip_ij2K)
+         Call mma_deallocate(ij2K)
       End If
       Call CloseP
       Call Free_iWork(iZk)

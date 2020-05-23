@@ -224,8 +224,7 @@
             If (nBas(jIrrep).gt.0) Then
                Do jAsh=1,nAsh(kIrrep)
                   Do kAsh=1,nAsh(kIrrep)
-                     rDe=  Work(ipG1+iTri(nA(kIrrep)+jAsh,
-     &                          nA(kIrrep)+kAsh)-1)
+                     rDe=  G1(iTri(nA(kIrrep)+jAsh,nA(kIrrep)+kAsh),1)
                      ipOut=ipOut1+ip2(kIrrep)+nIsh(kIrrep)*nBas(jIrrep)+
      &                     nBas(jIrrep)*(kAsh-1)
                      ipIn1=ipIn+ip2(kIrrep)
