@@ -36,7 +36,7 @@ C
 #include "stdalloc.fh"
 
       DIMENSION F(*),CMO(*)
-      REAL*8 , ALLOCATABLE :: FOCC(:)
+      REAL*8, ALLOCATABLE :: FOCC(:)
 
 C     CALL QENTER('FOCKOC')
 C
@@ -44,7 +44,7 @@ C
       Do iSym = 1, nSym
          nFock = nFock + (nISh(iSym)+nASh(iSym))**2
       End Do
-      CALL MMA_ALLOCATE(FOCC(nFock))
+      CALL MMA_ALLOCATE( FOCC, nFock, 'FOCC' )
       CALL DCOPY_(nFock,[0.d0],0,FOCC,1)
       ISTFCK=0
       IPQ=0
