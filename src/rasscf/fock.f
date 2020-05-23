@@ -348,7 +348,7 @@ C
 *********************************************************************************
 *     Calculate Fock matrix for occupied orbitals.
 *********************************************************************************
-      If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
+      If (iFinal.eq.1) CALL FOCKOC(F,CMO)
 C
       If(ipFint.ne.ip_Dummy) Then
         Call GetMem('TmpPUVX','Free','Real',ipFint,nFint)
