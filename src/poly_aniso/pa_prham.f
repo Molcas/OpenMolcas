@@ -27,14 +27,14 @@ c it does not compute any new infromation
       Integer, intent(in)          :: nexch(nneq)
       Integer, intent(in)          :: nmax
       Integer, intent(in)          :: lmax
-      Real(kind=wp), intent(in)    :: eso(nneq,nmax)
-      Complex(kind=wp), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HKEX(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
+      Real(kind=8), intent(in)    :: eso(nneq,nmax)
+      Complex(kind=8), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HKEX(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
       Logical, intent(in)          :: Dipol
       Logical, intent(in)          :: DM_exchange
       Logical, intent(in)          :: KE
@@ -43,7 +43,7 @@ c it does not compute any new infromation
       Logical, intent(in)          :: AnisoLines9
       Logical, intent(in)          :: JITO_exchange
 c local variables
-      Complex(kind=wp), allocatable :: HTOT(:), H1(:), H2(:), H3(:),
+      Complex(kind=8), allocatable :: HTOT(:), H1(:), H2(:), H3(:),
      &                                 H4(:)
 
       Integer  :: nind(lmax,2), intc(lmax), ibas(exch,lmax),
@@ -52,7 +52,7 @@ c local variables
      &            js1, js2, nb, i, j, l, lp, lb, lpr, ibuf
       Integer  :: CtoB, RtoB, ItoB, mem_local
       Integer  :: norder
-      Real(kind=wp) :: dznrm2_
+      Real(kind=8) :: dznrm2_
       External :: norder, dznrm2_
 
       Call qEnter('PA_prham')

@@ -25,7 +25,7 @@
 
 #include "cicisp_mclr.fh"
        Character NT
-       integer kic(2),opout
+       integer kic(2),opout,nbb(8)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -44,7 +44,11 @@
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
-*
+       if (ipint1.eq.ipfimo) then
+        Call icopy(nsym,nbas,1,nbb,1)
+       Else
+         Call icopy(nsym,norb,1,nbb,1)
+       End if
 *
        KINT2=ipint2s
 *

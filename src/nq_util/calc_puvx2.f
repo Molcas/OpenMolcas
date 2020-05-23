@@ -4011,6 +4011,7 @@
       Integer count_tmp
       Real*8 DVX
       real*8 Fact
+      Real*8 time1,time2
       Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
@@ -4023,6 +4024,8 @@
 
       Call Unused_real_array(RhoI)
       Call Unused_real_array(RhoA)
+
+      Call CPU_Time(time1)
 
       iStack  = 0
       iStack1 = 0
@@ -4109,7 +4112,7 @@
                 If ( kSym.eq.lSym ) lMax = iV
                 Do iX = 1,lMax
                   jX = iX + off_BasAsh(lSym)
-
+!                        MO1=TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
@@ -4127,35 +4130,44 @@
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+!                      interm1 = 1/(zeta*dTot)
+!                      interm2 = interm1/dTot
                       PUVX(iPUVX) = PUVX(iPUVX) +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
      &                   Weights(iGrid)*dble(nIrrep)*(
      &                   1.0D0/(Zeta*dTot)*
+!     &                   interm1*
      &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
                          !gradient part
                          !x alpha part
+!     &                    +RHOPx/interm2
      &                    +RHOPx/(dTot**2*Zeta)
      &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
+!     &                    +RHOPx/interm2
      &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
+!     &                    +RHOPy/interm2
      &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
+!     &                    +RHOPy/interm2
      &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
+!     &                    +RHOPz/interm2
      &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
+!     &                    +RHOPz/interm2
      &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
      &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
      &                    )
@@ -4173,6 +4185,8 @@
         End Do
       End Do
 
+      Call CPU_Time(time2)
+      PUVX_Time = PUVX_time + (time2-time1)
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
@@ -4590,6 +4604,9 @@
                     end do
                   end do
                 end do !V
+
+      Call CPU_Time(time1)
+      FI_time = FI_Time + (time1-time2)
 !ACTIVE CONTRIBUTIONS
                 Do iV = 1,kAsh
                   jV = iV + off_basAsh(ksym)
@@ -4896,6 +4913,8 @@
                   end do
                 end do !X
                 end do !V
+      Call CPU_Time(time2)
+      FA_time = FA_Time + (time2-time1)
                 Goto 500
 !Symmetry case (II|KK)
 200             Continue
@@ -5203,6 +5222,8 @@
                     end do
                   end do
                 end do !V
+      Call CPU_Time(time1)
+      FI_time = FI_Time + (time1-time2)
 !ACTIVE CONTRIBUTIONS
                 Do iV = 1,kAsh
                   jV = iV + off_basAsh(ksym)
@@ -5510,6 +5531,8 @@
                   end do
                 end do !X
                 end do !V
+      Call CPU_Time(time2)
+      FA_time = FA_Time + (time2-time1)
                 Goto 500
 *               symmetry case (IJ!IJ)
 300             Continue
@@ -10822,5 +10845,1967 @@
         End Do
       End Do
            lsym=lsym_tmp
+      Return
+      End
+      Subroutine Calc_OTPUVXGGA_2(PUVX,TabMO,mAO,nCoor,nTabMOs
+     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
+     &                      Weights,D1MO,nD1MO,nIrrep)
+      Implicit Real*8 (A-H,O-Z)
+      Dimension PUVX(*)
+#include "rasdim.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "ksdft.fh"
+      Integer nIrrep
+      Integer off_Ash(mxSym), off_BasAsh(mxSym),
+     &        off_PUVX(mxSym),off_Bas(mxSym),
+     &        off_ish(mxSym),off_BasIsh(mxSym),
+     &        off_BasVsh(mxSym)
+      Integer   off_Dmat, off_Fmat
+      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+
+      Dimension TabMO(mAO,nCoor,nTabMOs),
+     &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
+      Real*8 D1MO(nD1MO)
+      Integer count_tmp
+      Real*8 DVX
+      real*8 Fact
+      Real*8 time1,time2
+      Integer iftmpo,sztmp,ipq
+      Real*8 junk_test,junk_test_t
+      Integer case
+      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+      iTri(i)=(i*i-i)/2
+*
+      thrsrho=1.0d-15
+      thrsrho2=1.0d-15
+      thrspi=1.0d-30
+*
+      lsym_tmp=lsym
+
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
+
+      Call CPU_Time(time1)
+
+      iStack  = 0
+      iStack1 = 0
+      iStack2 = 0
+      off_ish(:) = 0
+      off_Ash(:) = 0
+      off_Bas(:) = 0
+      off_BasAsh(:) = 0
+      off_BasIsh(:) = 0
+      off_BasVsh(:) = 0
+      ntot1 = 0
+
+      Do iSym = 1,nSym
+        off_ish(isym)    = iStack2
+        off_Ash(iSym)    = iStack
+        off_Bas(iSym)    = iStack1
+        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
+        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
+        off_BasIsh(iSym) = iStack1+nFro(iSym)
+        ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
+        iStack2 = iStack2 + nIsh(iSym)
+        iStack1 = iStack1 + nBas(iSym)
+        iStack  = iStack  + nAsh(iSym)
+      End Do
+
+!count the number of tmp_pot:
+      count_tmp = 0
+      do isym=1,nsym
+        do jsym=1,nsym
+        count_tmp = count_tmp + nIsh(isym)*(nIsh(jsym)+nAsh(jsym))**2
+        end do
+      end do
+
+*
+!Calculate PUVX offsets
+      iStack = 0
+      Do iSym = 1,nSym
+        off_PUVX(iSym) = iStack
+        iOrb = nOrb(iSym)
+        Do jSym = 1,nSym
+          jAsh = nAsh(jSym)
+          ijSym = 1 + ieor(iSym-1,jSym-1)
+          Do kSym = 1,nSym
+            kAsh = nAsh(kSym)
+            Do lSym = 1,kSym
+              lAsh = nAsh(lSym)
+              klSym = 1 + ieor(kSym-1,lSym-1)
+              If ( ijSym.eq.klSym) then
+                kl_Orb_pairs = kAsh*lAsh
+                If ( kSym.eq.lSym ) kl_Orb_pairs = (kAsh*kAsh+kAsh)/2
+                iStack = iStack + iOrb*jAsh*kl_Orb_pairs
+              End If
+            End Do
+          End Do
+        End Do
+      End Do
+*
+!First build the "other stuff" - non-orbital grid-based info
+!       Call GetMEM('other_st','ALLO','REAL',izet_stu,nCoor)
+!       Call DCOPY_(1,0d0,0,Work(izet_stu),1)
+!         Do iGrid=1,nCoor
+!            dTot=Rho(1,iGrid)+Rho(2,iGrid)
+!            ratio = 0.0d0
+!            if(dTot.ge.thrsrho.and.
+!     &           P2_ontop(1,iGrid).ge.thrspi) then
+!               ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+!                if((1.0d0-ratio).gt.thrsrho2) then
+!                    Zeta  = sqrt(1.0d0-ratio)
+!                    RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+!                    RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+!                    RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+!                         izet_stu =
+!     &                   Weights(iGrid)*dble(nIrrep)*(
+!     &                   1.0D0/(Zeta*dTot)*
+!     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+!                         !gradient part
+!                         !x alpha part
+!     &                    +RHOPx/(dTot**2*Zeta)
+!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+!                         !x beta part
+!     &                    +RHOPx/(dTot**2*Zeta)
+!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+!                         !y alpha part
+!     &                    +RHOPy/(dTot**2*Zeta)
+!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+!                         !y beta part
+!     &                    +RHOPy/(dTot**2*Zeta)
+!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+!                         !z alpha part
+!     &                    +RHOPz/(dTot**2*Zeta)
+!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+!     &                    +RHOPz/(dTot**2*Zeta)
+!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+!     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+!     &                    )
+!                else
+!                  PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
+!                end if
+!              end if
+!           End Do
+!Now build pairs of active orbitals:
+!      NASHT = 0
+!      Do iSym = 1,nSym
+!        NASHT = NASHT + nAsh(isym)
+!      end do
+!
+!      counter =0
+!      counter1 = 0
+!      c_grid = 0
+!       Call GetMEM('orb_pair','ALLO','REAL',iorb_pair,nCoor*nD1MO)
+!      Do iSym = 1,nSym
+!        iOrb = nOrb(iSym)
+!        iAsh = nAsh(iSym)
+!        iIsh = nIsh(iSym)
+!        Do iV = 1,iAsh
+!           jV = iV + off_basAsh(isym)
+!           do iX=1,iV
+!              jX = iX + off_basAsh(isym)
+!              counter1 = counter1+1
+!             do iGrid=1,nCoor
+!               Work(iorb_pair+c_grid+counter1) =
+!     &         TabMO(1,iGrid,jV)*TabMO(1,iGrid,JX)
+!             end do
+!           end do
+!         end do
+!       end do
+!
+!       Call GetMEM('orb_pair','FREE','REAL',iorb_pair,nCoor*nD1MO)
+!       Call GetMEM('other_st','FREE','REAL',izet_stu,nCoor)
+
+
+***********************************************************************
+* BUILD PUVX potentials
+!Note - I really only need the TUVX potentials.  Area for speedup.
+***********************************************************************
+      Fact = 1.00d0
+      Do iSym = 1,nSym
+        iOrb = nOrb(iSym)
+        iAsh = nAsh(iSym)
+        iIsh = nIsh(iSym)
+        iPUVX = off_PUVX(iSym)
+        Do jSym = 1,nSym
+          jAsh = nAsh(jSym)
+          ijSym = 1 + ieor(iSym-1,jSym-1)
+          Do kSym = 1,nSym
+            kAsh = nAsh(kSym)
+            lSym = 1 + ieor(ijSym-1,kSym-1)
+            lAsh = nAsh(lSym)
+
+            If ( lSym.le.kSym .and.
+     &           iAsh*jAsh*kAsh*lAsh.ne.0 ) then
+              Do iV = 1,kAsh
+                jV = iV + off_BasAsh(kSym)
+                lMax = lAsh
+                If ( kSym.eq.lSym ) lMax = iV
+                Do iX = 1,lMax
+                  jX = iX + off_BasAsh(lSym)
+!                        MO1=TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)
+                  Do iU = 1,jAsh
+                  jU = iU + off_BasAsh(jSym)
+                    Do iP = 1,iOrb
+                      iT = iP - iIsh
+                      iPUVX=iPUVX+1
+                      jP = iP     +   off_Bas(iSym)
+                    Do iGrid=1,nCoor
+                       dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                     ratio = 0.0d0
+                  if(dTot.ge.thrsrho.and.
+     &               P2_ontop(1,iGrid).ge.thrspi) then
+              ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                      if((1.0d0-ratio).gt.thrsrho2) then
+                      Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+!                      interm1 = 1/(zeta*dTot)
+!                      interm2 = interm1/dTot
+                      PUVX(iPUVX) = PUVX(iPUVX) +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*dble(nIrrep)*(
+     &                   1.0D0/(Zeta*dTot)*
+!     &                   interm1*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+!     &                    +RHOPx/interm2
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+!     &                    +RHOPx/interm2
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+!     &                    +RHOPy/interm2
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+!     &                    +RHOPy/interm2
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+!     &                    +RHOPz/interm2
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+!     &                    +RHOPz/interm2
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                      else
+                     PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
+                     end if
+                   end if
+                      End Do
+                    End Do
+                  End Do
+                End Do
+              End Do
+            End If
+          End Do
+        End Do
+      End Do
+
+!Construction of Fock matrix pieces
+      iStack = 0
+      Do iSym = 1,nSym
+         off_Dmat(iSym) = iStack
+         iAsh = nAsh(iSym)
+         iStack = iStack+ (iAsh*iAsh+iAsh)/2
+      End Do
+
+      iStack = 0
+      Do iSym = 1,nSym
+         off_Fmat(iSym) = iStack
+         iOrb = nOrb(iSym)
+         iStack = iStack+ (iOrb*iOrb+iOrb)/2
+      End Do
+!I think I can generate the contributions from the potentials to the new
+!FI and FA terms at this level.  Then there will be no need to store a
+!large number of V_TE potentials.
+!*********************************
+      Call CPU_Time(time3)
+      PUVX_Time = PUVX_time + (time3-time1)
+
+      iFoff=0
+      ksym=1
+      junk_test=0d0
+      do iSym=1,nSym
+        iOrb = nOrb(iSym)
+        iAsh = nAsh(iSym)
+        iIsh = nIsh(iSym)
+        iPUVX = off_PUVX(iSym)
+        sztmp = iTrii(nOrb(iSym),nOrb(iSym))
+        if(iOrb.eq.0) cycle
+        CALL GETMEM('TMP_other','ALLO','REAL',iftmpo,sztmp*nCoor)
+        CALL DCOPY_(sztmp*nCoor,[0.0d0],0,Work(iftmpo),1)
+
+        do iP=1,iOrb
+          jP = iP + off_basIsh(iSym)
+          do iU=1,iOrb
+            jU = iU + off_basIsh(iSym)
+            iPU = iTrii(iP,iU)
+            do iGrid=1,nCoor
+              dTot=Rho(1,iGrid)+Rho(2,iGrid)
+              ratio = 0.0d0
+              if(dTot.ge.thrsrho.and.
+     &                P2_ontop(1,iGrid).ge.thrsrho) then
+                      ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                if((1.0d0-ratio).gt.thrsrho2) then
+                   Zeta  = sqrt(1.0d0-ratio)
+                   Work(iftmpo + (iPU-1)*nCoor + iGrid - 1) =
+     &             TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)
+     &             *Weights(iGrid)
+     &             *1.0D0/(Zeta*dTot)
+                else
+                  Work(iftmpo + (iPU-1)*nCoor + iGrid - 1) = 0d0
+                end if
+              end if
+            end do!iGrid
+          end do!iU
+        end do!iP
+
+        do iGrid=1,nCoor
+          dTot=Rho(1,iGrid)+Rho(2,iGrid)
+          if(dTot.ge.thrsrho.and.
+     &     P2_ontop(1,iGrid).ge.thrsrho) then
+            ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+            if((1.0d0-ratio).gt.thrsrho2) then
+              RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+              RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+              RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+              junk_test = !Work(iftmpo+(ipq-1)*nCoor+iGrid)*
+!     &               TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                ((-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !x alpha part
+     &                   +(RHOPx/dTot)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+!            Work(ifav_n+iFoff+ipq-1) = Work(ifav_n+iFoff+ipq-1) +
+!     &                               DVX*junk_test*dble(nIrrep)
+            else
+              junk_test=0
+              cycle!skip this gridpt
+            end if
+          end if
+          do iPQ=1,sztmp
+            junk_test_t = Work(iftmpo+(iPQ-1)*nCoor+iGrid-1)
+            do kSym = 1, nSym
+              kOrb = nOrb(kSym)
+              kAsh = nAsh(kSym)
+              kIsh = nIsh(kSym)
+              do ik = 1,nIsh(kSym)
+                jK = iK + off_basIsh(kSym)
+                Work(ifiv+iFoff+iPQ-1) = Work(ifiv+iFoff+iPQ-1) +
+     &                               junk_test*dble(nIrrep)*junk_test_t*
+     &                               TabMO(1,iGrid,jK)**2
+              end do!iK
+              do iV = 1,nAsh(kSym)
+                jV = iV + off_BasAsh(kSym)
+                do iX=1,iV
+                  jX = iX + off_BasAsh(kSym)
+                  iVX = iTri(iV+off_Ash(ksym)) + iX + off_Ash(ksym)
+                  DVX=D1MO(iVX)
+                  If (iX.eq.iV) DVX=DVX*0.5d0
+                  Work(ifav+iFoff+iPQ-1) = Work(ifav+iFoff+iPQ-1) +
+     &                DVX*junk_test*dble(nIrrep)*junk_test_t*
+     &                TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)
+                end do!1X
+              end do!iV
+            end do!kSym
+          end do!ipq
+        end do!igrid
+!
+        iFoff = iFoff + sztmp
+        CALL GETMEM('TMP_other','FREE','REAL',iftmpo,sztmp*nCoor)
+!
+      end do!iSym
+      Call CPU_Time(time2)
+      SP_Time = SP_time + (time2-time3)
+
+      Return
+!*********************************
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
+
+      Do iSym = 1,nSym !sym for p
+        iOrb = nOrb(iSym)
+        iAsh = nAsh(iSym)
+        iIsh = nIsh(iSym)
+        iPUVX = off_PUVX(iSym)
+        Do jSym = 1,nSym !sym for u
+          jOrb = nOrb(jSym)
+          jAsh = nAsh(jSym)
+          jIsh = nIsh(jSym)
+          ijSym = 1 + ieor(iSym-1,jSym-1)
+          Do kSym = 1,nSym !Sym for v
+            kOrb = nOrb(kSym)
+            kAsh = nAsh(kSym)
+            kIsh = nIsh(kSym)
+            Do lSym = 1,kSym !sym for x
+              lOrb = nOrb(lSym)
+              lAsh = nAsh(lSym)
+              lIsh = nIsh(lSym)
+              klSym = 1 + ieor(kSym-1,lSym-1)
+
+*             find cases
+              case = 4
+              If ( iSym.eq.jSym ) case = case-2
+              If ( iSym.eq.kSym ) case = case-1
+
+              If ( ijSym.eq.klSym .and.
+!     &             iAsh*jAsh*kAsh*lAsh.ne.0 ) then
+     &             iOrb*jOrb*kOrb*lOrb.ne.0 ) then
+
+                Goto (100,200,300,400) case
+
+!Symmetry case (II|II)
+100             Continue
+                iFoff = off_Fmat(iSym)
+                iDoff = off_Dmat(iSym)
+                Do iV = 1,kIsh
+                  jV = iV + off_basIsh(kSym)
+                  iX=iV
+                  jX=jV
+                  DVX=2.0D0
+                  If ( iX.eq.iV ) DVX = DVX*0.5
+                  !inact/inact case, p <= u
+                  do iU=1,jIsh
+                    jU = iu + off_basIsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iAsh
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !virt/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)+iAsh
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh+iAsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                end do !V
+
+      Call CPU_Time(time1)
+      FI_time = FI_Time + (time1-time2)
+!ACTIVE CONTRIBUTIONS
+                Do iV = 1,kAsh
+                  jV = iV + off_basAsh(ksym)
+                do iX=1,iV
+                    jX = iX + off_basAsh(ksym)
+                    iVX = iTri(iV+off_Ash(ksym)) + iX + off_Ash(ksym)
+                    DVX=D1MO(iVX)
+                    !iVX = iTri(iV) + iX
+                    !DVX=2.0D0*D1MO(iDoff+iVX)!Why *2?
+                    If (iX.eq.iV) DVX=DVX*0.5
+                  !inact/inact case, p <= u
+                  do iU=1,jIsh
+                    jU = iu + off_basIsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/act case
+                  do iU=1,jAsh
+                    jU = iU + off_basAsh(jSym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(iSym)
+                      iPU  = iTri(jIsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iAsh
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !virt/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)+iAsh
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh+iAsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                end do !X
+                end do !V
+      Call CPU_Time(time2)
+      FA_time = FA_Time + (time2-time1)
+                Goto 500
+!Symmetry case (II|KK)
+200             Continue
+                iFoff = off_Fmat(iSym)
+                iDoff = off_Dmat(kSym)
+                Do iV = 1,kIsh
+                  jV = iV + off_basIsh(ksym)
+                  iX=iV
+                  jX=jV
+                  DVX=2.0D0
+                  If ( iX.eq.iV ) DVX = DVX*0.5
+                  !inact/inact case, p <= u
+                  do iU=1,jIsh
+                    jU = iu + off_basIsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+nAsh(jsym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iAsh
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !virt/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)+iAsh
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh+iAsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifiv+iFoff+iPU-1) = Work(ifiv+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                end do !V
+      Call CPU_Time(time1)
+      FI_time = FI_Time + (time1-time2)
+!ACTIVE CONTRIBUTIONS
+                Do iV = 1,kAsh
+                  jV = iV + off_basAsh(ksym)
+                  do iX=1,iV
+                    jX = iX + off_basAsh(ksym)
+                    iVX = iTri(iV+off_Ash(ksym)) + iX + off_Ash(ksym)
+                    DVX=D1MO(iVX)
+                    !iVX = iTri(iV) + iX
+                    !DVX=2.0D0*D1MO(iDoff+iVX)
+                    If (iX.eq.iV) DVX=DVX*0.5
+                  !inact/inact case, p <= u
+                  do iU=1,jIsh
+                    jU = iu + off_basIsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !Inact/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+nAsh(jsym)
+                    do iP = 1,iIsh
+                      jP = iP + off_basIsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/act case
+                  do iU=1,jAsh
+                    jU = iu + off_basAsh(jsym)
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+iU) + iP+iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !act/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iAsh
+                      jP = iP + off_basAsh(isym)
+                      iPU  = iTri(jIsh+jAsh+iU) + iP + iIsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                  !virt/virt case
+                  do iU=1,jOrb-jAsh-jIsh
+                    jU = iu + off_basAsh(jsym)+jAsh
+                    do iP = 1,iU
+                      jP = iP + off_basAsh(isym)+iAsh
+                      iPU  = iTri(jIsh+jAsh+iU) + iP+iIsh+iAsh
+                      V_PUVX = 0.0d0
+                      Do iGrid=1,nCoor
+                        dTot=Rho(1,iGrid)+Rho(2,iGrid)
+                        ratio = 0.0d0
+                        if(dTot.ge.thrsrho.and.
+     &                  P2_ontop(1,iGrid).ge.thrsrho) then
+                          ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
+                          if((1.0d0-ratio).gt.thrsrho2) then
+                            Zeta  = sqrt(1.0d0-ratio)
+                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
+                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
+                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      V_PUVX = V_PUVX +
+     &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
+     &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
+     &                   Weights(iGrid)*(
+     &                   1.0D0/(Zeta*dTot)*
+     &                   (-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
+                         !gradient part
+                         !x alpha part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+                         !x beta part
+     &                    +RHOPx/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+                         !y alpha part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+                         !y beta part
+     &                    +RHOPy/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+                         !z alpha part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+                         !z beta part
+     &                    +RHOPz/(dTot**2*Zeta)
+     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
+     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    )
+                          else
+                            V_PUVX = V_PUVX + 0.0d0
+                          end if
+                        end if
+                      End Do!gridpt
+            Work(ifav+iFoff+iPU-1) = Work(ifav+iFoff+iPU-1) +
+     &                               DVX*V_PUVX*dble(nIrrep)
+                    end do
+                  end do
+                end do !X
+                end do !V
+      Call CPU_Time(time2)
+      FA_time = FA_Time + (time2-time1)
+                Goto 500
+*               symmetry case (IJ!IJ)
+300             Continue
+                Do iV = 1,kAsh
+                  Do iX = 1,lAsh
+                   ! off_PUVX(iSym) = off_PUVX(iSym) + jAsh*iOrb
+                   ! off_PUVX(jSym) = off_PUVX(jSym) + iAsh*jOrb
+                  End Do
+                End Do
+                Goto 500
+*               symmetry case (IJ!KL)
+400             Continue
+                Do iV = 1,kAsh
+                  Do iX = 1,lAsh
+                  !  off_PUVX(iSym) = off_PUVX(iSym) + jAsh*iOrb
+                  !  off_PUVX(jSym) = off_PUVX(jSym) + iAsh*jOrb
+                  End Do
+                End Do
+                Goto 500
+
+500             Continue
+              End If
+
+            End Do
+          End Do
+        End Do
+      End Do
+
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+      lsym=lsym_tmp
+*
       Return
       End

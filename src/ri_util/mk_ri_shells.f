@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
-      Subroutine Mk_RI_Shells(Info,nInfo,LuRd)
+      Subroutine Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the auxiliary functions         *
@@ -28,6 +28,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
+      Real*8 DInf(nDInf)
       Logical Hit, IfTest
       Character*13 DefNm
       Character*80 Ref(2), BSLbl, BSLB*180
@@ -46,6 +47,7 @@
       Integer BasisTypes(4), nDel(MxAng)
       Data DefNm/'basis_library'/
 
+*     Call Gen_RelPointers(-(Info-1))
       Call qEnter('Mk_RI_Shells')
       iRout = 2
       iPrint = nPrint(iRout)
@@ -68,6 +70,7 @@
 *
       If (iRI_Type.eq.5) Go To 1000
 
+*     Call Gen_RelPointers(-(Info-1))
       Do iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
          mdc = mdciCnttp(iCnttp)
@@ -154,7 +157,6 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call Gen_RelPointers(-(Info-1))
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
      &              ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
      &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
@@ -174,8 +176,7 @@
      &        nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
      &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)
+     &              DInf,nDInf)
          AuxCnttp(nCnttp)=.True.
 *
          Charge(nCnttp)=Zero
@@ -231,11 +232,13 @@ C        Fixed(nCnttp)=.False.
          nCntr(nCnttp) = nCnt
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
-         nInfo = ipExp(iShll+1) - Info
+*        nInfo = ipExp(iShll+1) - Info
+         nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
          Mx_mdc=mdc
 *
       End Do
+*     Call Gen_RelPointers(Info-1)
       Go To 1100
 *                                                                      *
 ************************************************************************
@@ -252,6 +255,7 @@ C        Fixed(nCnttp)=.False.
 *
       Do iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
+*        Call Gen_RelPointers(-(Info-1))
          mdc = mdciCnttp(iCnttp)
 *
          Hit=.True.
@@ -303,7 +307,9 @@ C        Fixed(nCnttp)=.False.
 *
          nSet=-1
 
+*        Call Gen_RelPointers(Info-1)
          Do While (nSet.ne.0)
+*           Call Gen_RelPointers(-(Info-1))
             Line=Get_Ln(Lu_lib)
             If (IfTest) Then
                Write(6,*) 'nSet=',nSet
@@ -337,7 +343,9 @@ C        Fixed(nCnttp)=.False.
 *           Loop over the angular shells
 *
             jShll = iShll
+*           Call Gen_RelPointers(Info-1)
             Do iAng = 0, lAng
+*              Call Gen_RelPointers(-(Info-1))
                iShll=iShll+1
                Line=Get_Ln(Lu_lib)
                Call Get_I1(1,nPrim)
@@ -358,7 +366,7 @@ C        Fixed(nCnttp)=.False.
                iEnd = iStrt + nPrim - 1
                If (nPrim.gt.0) then
                   If (IfTest) Write(6,*) ' Read gaussian exponents'
-                  Call Read_v(Lu_lib,Work,iStrt,iEnd,1,Ierr)
+                  Call Read_v(Lu_lib,DInf,iStrt,iEnd,1,Ierr)
                   If (Ierr.ne.0) Then
                      Call WarningMessage(2,
      &                     'GetBS: Error while reading the exponents')
@@ -366,7 +374,7 @@ C        Fixed(nCnttp)=.False.
                   End If
                   If (IfTest) Write(6,*) ' Done with exponents'
                If (iPrint.ge.99.or.IfTest)
-     &            Call RecPrt(' Exponents',' ',Work(iStrt),nPrim,1)
+     &            Call RecPrt(' Exponents',' ',DInf(iStrt),nPrim,1)
                End If
                iStrt = iEnd + 1
 *
@@ -390,45 +398,45 @@ C        Fixed(nCnttp)=.False.
 *
                If (IfTest) Write (6,*) ' Standard case'
                If (nPrim*nCntrc.gt.0) Then
-                  Call FZero(Work(iStrt),2*nPrim*nCntrc)
+                  Call FZero(DInf(iStrt),2*nPrim*nCntrc)
 *
 *              Do iPrim = 0, nPrim-1
-*                 Call Read_v(Lu_lib,Work,iStrt+iPrim,iEndc,nPrim,Ierr)
+*                 Call Read_v(Lu_lib,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
 *                 If (Ierr.ne.0) Then
 *                    Call WarningMessage(2,
 *    &                      'GetBS: Error reading coeffs in GC format')
 *                    Call Quit_OnUserError()
 *                 End If
 *              End Do
-*              Call Read_v(Lu_lib,Work(iEnd+1),1,nPrim*nCntrc,1,Ierr)
-               Read (Lu_lib,*) (Work(iEnd+i),i=1,nPrim*nCntrc)
+*              Call Read_v(Lu_lib,DInf(iEnd+1),1,nPrim*nCntrc,1,Ierr)
+               Read (Lu_lib,*) (DInf(iEnd+i),i=1,nPrim*nCntrc)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                   'GetBS: Error reading coeffs in GC format')
                   Call Quit_OnUserError()
                End If
-               If (IfTest) Call RecPrt(' Coeffs',' ',Work(iEnd+1),
+               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iEnd+1),
      &                                 nCntrc*nPrim,1)
-               Call Trnsps(nCntrc,nPrim,Work(iEnd+1),Work(iStrt))
-               If (IfTest) Call RecPrt(' Coeffs',' ',Work(iStrt),nPrim,
+               Call Trnsps(nCntrc,nPrim,DInf(iEnd+1),DInf(iStrt))
+               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iStrt),nPrim,
      &                                 nCntrc)
 *
 *              Put in unit matrix of uncontracted set
 *
-               Call DCopy_(nPrim*nPrim,[Zero],0,Work(ipCff_p),1)
-               Call DCopy_(nPrim,[One],0,Work(ipCff_p),nPrim+1)
+               Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
+               Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
 *
                iOff = nPrim*nPrim
-               Call DCopy_(nPrim*nPrim ,Work(ipCff_p),1,
-     &                                  Work(ipCff_p+iOff),1)
-               Call Nrmlz(Work(ipExp(iShll)),nPrim,
-     &                    Work(ipCff_p),nPrim ,iAng)
+               Call DCopy_(nPrim*nPrim ,DInf(ipCff_p),1,
+     &                                  DInf(ipCff_p+iOff),1)
+               Call Nrmlz(DInf(ipExp(iShll)),nPrim,
+     &                    DInf(ipCff_p),nPrim ,iAng)
 
                iOff = nPrim*nCntrc
-               Call DCopy_(nPrim*nCntrc,Work(ipCff_c),1,
-     &                                  Work(ipCff_c+iOff),1)
-               Call Fix_Coeff(nPrim,nCntrc,Work(ipCff_c+iOff),
-     &                        Work(ipCff_p),'F')
+               Call DCopy_(nPrim*nCntrc,DInf(ipCff_c),1,
+     &                                  DInf(ipCff_c+iOff),1)
+               Call Fix_Coeff(nPrim,nCntrc,DInf(ipCff_c+iOff),
+     &                        DInf(ipCff_p),'F')
                End If
 *
                iEnd =iEnds
@@ -454,8 +462,10 @@ C        Fixed(nCnttp)=.False.
                ipAkl(iShll)=ip_Dummy
                ipExp(iShll+1)=iEnd+1
 *
-            End Do
+*              Call Gen_RelPointers(Info-1)
+            End Do ! iAng
 *
+*           Call Gen_RelPointers(-(Info-1))
             AuxCnttp(nCnttp)=.True.
             Charge(nCnttp)=Zero
             PAM2(nCnttp)=.False.
@@ -497,12 +507,13 @@ C        Fixed(nCnttp)=.False.
             nCntr(nCnttp) = nCnt
 *           Compute the number of elements stored in the dynamic memory
 *           so far.
-            nInfo = ipExp(iShll+1) - Info
+            nInfo = ipExp(iShll+1) - 1
             Mx_Shll=iShll+1
             Mx_mdc=mdc
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)
+*           Call Gen_RelPointers(Info-1)
          End Do ! Do While (nSet.ne.0)
 *
       End Do ! iCnttp
@@ -513,7 +524,10 @@ C        Fixed(nCnttp)=.False.
 *                                                                      *
 *     Add the final DUMMY SHELL!
 *
- 1100 Call Mk_Dummy_Shell(Info,nInfo)
+ 1100 Continue
+*     Call Gen_RelPointers(-(Info-1))
+      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+*     Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

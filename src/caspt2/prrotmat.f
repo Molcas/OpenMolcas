@@ -20,6 +20,7 @@
       LOGICAL FOUND
       INTEGER LUXMS,IsFreeUnit
       CHARACTER(len=128) filename,swapname
+      CHARACTER(len=256) cmd
       CHARACTER(len=11)xmsfmt1
       CHARACTER(len=12)xmsfmt2
       External IsFreeUnit
@@ -31,7 +32,11 @@
       write(FileName,'(a)') 'ROT_VEC'
       write(SwapName,'(a)') 'ROT_VEC0'
       Call F_Inquire(FileName,Found)
-      If(Found)  Call RENAME(FileName,SwapName)
+      !If(Found)  Call RENAME(FileName,SwapName)  -- it is a GCC extension
+      If(Found)  Then
+          write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
+          Call execute_command_line (cmd)
+      End If
       LUXMS=233
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
@@ -50,7 +55,11 @@
       write(FileName,'(a)') 'ROT_HAM'
       write(SwapName,'(a)') 'ROT_HAM0'
       Call F_Inquire(FileName,Found)
-      If(Found)  Call RENAME(FileName,SwapName)
+      !If(Found)  Call RENAME(FileName,SwapName)  -- it is a GCC extension
+      If(Found)  Then
+          write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
+          Call execute_command_line (cmd)
+      End If
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
       if(NGrp.lt.10)then

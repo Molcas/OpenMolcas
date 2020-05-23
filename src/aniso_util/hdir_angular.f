@@ -20,11 +20,11 @@
       Implicit None
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer       :: nP, L, iprint
-      Real(kind=wp) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
+      Real(kind=8) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
       !local variables
       Integer       :: i
-      Real(kind=wp) :: AngStep,AngRad
-      Real(kind=wp) :: pi
+      Real(kind=8) :: AngStep,AngRad
+      Real(kind=8) :: pi
 
       Call qEnter('hdir_angular')
       pi=3.1415926535897932384626433832795028841971_wp

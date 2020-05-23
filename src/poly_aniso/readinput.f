@@ -48,12 +48,12 @@ c  definition of the cluster:
       Integer       :: nneq, neqv, neq(nneq), nCenter
       Logical       :: ifHDF
 c  definition of the local metal sites
-      Real(kind=wp) :: R_LG( nneq,neqv,3,3)
-      Real(kind=wp) :: R_ROT(nneq,neqv,3,3)
-      Real(kind=wp) :: gtens_input(3,nneq)
-      Real(kind=wp) :: D_fact(nneq)
-      Real(kind=wp) :: EoverD_fact(nneq)
-      Real(kind=wp), intent(out) :: riso(nneq,3,3)
+      Real(kind=8) :: R_LG( nneq,neqv,3,3)
+      Real(kind=8) :: R_ROT(nneq,neqv,3,3)
+      Real(kind=8) :: gtens_input(3,nneq)
+      Real(kind=8) :: D_fact(nneq)
+      Real(kind=8) :: EoverD_fact(nneq)
+      Real(kind=8), intent(out) :: riso(nneq,3,3)
       Character(1)  :: itype(nneq)
 c  definition of the exchange:
 !     total number of exchange states
@@ -67,29 +67,29 @@ c  definition of the exchange:
       Logical       :: AnisoLines1, AnisoLines3, AnisoLines9
       Logical       :: Dipol, DM_exchange
 !     Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp) :: Jex(nPair)
+      Real(kind=8) :: Jex(nPair)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp) :: JAex(nPair,3)
+      Real(kind=8) :: JAex(nPair,3)
 !     Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp) :: JAex9(nPair,3,3)
-      Real(kind=wp) :: JDMex(nPair,3)
+      Real(kind=8) :: JAex9(nPair,3,3)
+      Real(kind=8) :: JDMex(nPair,3)
       ! options used in connection with ITO exchange:
       Logical             :: JITO_exchange
       Integer, intent(in) :: MxRank1, MxRank2
       Integer, intent(out):: imaxrank(npair,2)
-      Real(kind=wp), intent(out) ::
+      Real(kind=8), intent(out) ::
      &                 JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
      &                               MxRank2,-MxRank2:MxRank2)
-      Real(kind=wp), intent(out) ::
+      Real(kind=8), intent(out) ::
      &                 JITOexI(nPair,MxRank1,-MxRank1:MxRank1,
      &                               MxRank2,-MxRank2:MxRank2)
 
       ! options used in connection with KE
       Integer       :: lant, KEOPT, multLn
       Logical       :: KE
-      Real(kind=wp) :: tpar, upar
+      Real(kind=8) :: tpar, upar
       ! options used in connection with Dipol-Dipol interaction
-      Real(kind=wp) :: MagnCoords(nneq,3)
+      Real(kind=8) :: MagnCoords(nneq,3)
 
 c  definition of g and D tensors
       Integer       :: nMult
@@ -98,18 +98,18 @@ c  definition of g and D tensors
 c  definition of data for susceptibility
       Integer       :: nT
       Logical       :: tinput, compute_susceptibility
-      Real(kind=wp) :: tmin, tmax
-      Real(kind=wp) :: chit_exp(nT), Texp(nT)
+      Real(kind=8) :: tmin, tmax
+      Real(kind=8) :: chit_exp(nT), Texp(nT)
       ! options related to XT_MoverH
-      Real(kind=wp) :: Xfield
+      Real(kind=8) :: Xfield
 c  definition of data for magnetization:
       Integer       :: nH
       Integer       :: nTempMagn
       Integer       :: iopt
-      Real(kind=wp) :: TempMagn(nTempMagn)
-      Real(kind=wp) :: Hexp(nH), Mexp(nH,nTempMagn)
-      Real(kind=wp) :: thrs
-      Real(kind=wp) :: hmin, hmax
+      Real(kind=8) :: TempMagn(nTempMagn)
+      Real(kind=8) :: Hexp(nH), Mexp(nH,nTempMagn)
+      Real(kind=8) :: thrs
+      Real(kind=8) :: hmin, hmax
       Logical       :: hinput
       Logical       :: compute_magnetization
       Logical       :: compute_Mdir_vector
@@ -121,7 +121,7 @@ c  definition of data for magnetization:
       Integer       :: encut_definition
       Integer       :: nK, mG ! encut_definition=1;
       Integer       :: ncut   ! encut_definition=2;
-      Real(kind=wp) :: encut_rate ! encut_definition=3;
+      Real(kind=8) :: encut_rate ! encut_definition=3;
 c decompose exchange
       Logical       :: decompose_exchange
 
@@ -132,15 +132,15 @@ c  magnetization torque
 c  Zeeman energy and M vector
       Integer       :: nDir, nDirZee
       Integer       :: LUZee(nDirZee)
-      Real(kind=wp) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp) :: dir_weight(nDirZee,3)
+      Real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8) :: dir_weight(nDirZee,3)
 c  definition of mean field parameter
-      Real(kind=wp) :: zJ
+      Real(kind=8) :: zJ
 c  definintion of the crystal axes:
       Logical       :: Do_structure_abc
-      Real(kind=wp) :: cryst(6) ! a, b, c, alpha, beta, gamma
+      Real(kind=8) :: cryst(6) ! a, b, c, alpha, beta, gamma
 !     Cartesian coordinates of the main metal site, or center
-      Real(kind=wp) :: coord(3)
+      Real(kind=8) :: coord(3)
 c  definitions for blocking barrier
       Logical       :: compute_barrier
 c  options for automatic fitting of parameters:
@@ -155,7 +155,7 @@ c  definition of print level
 
 c--------- LOCAL VARIABLES --------------------
       Integer       :: Input
-      Real(kind=wp) :: check_dir_weight(3*nDirZee),tmp,sum
+      Real(kind=8) :: check_dir_weight(3*nDirZee),tmp,sum
       Integer       :: ll,i,j,l,k,m,n,icount_b_sites,lp,ic,jc
       Integer       :: linenr, inneq, irank1, irank2, iproj1, iproj2
       Integer       :: duplicate_check(nPair), nind(exch,2)
@@ -165,8 +165,8 @@ c--------- LOCAL VARIABLES --------------------
 c      Integer       :: nind(nPair,2)
 c      Integer       :: ind_exch(nneq)
 c      Real(lind=wp) :: magncoords(2*maxanisofiles,3)
-      Real(kind=wp) :: finddetr, detR
-      Real(kind=wp) :: tmpR(3,3)
+      Real(kind=8) :: finddetr, detR
+      Real(kind=8) :: tmpR(3,3)
       Logical       :: nosym
       External      :: finddetr
 
@@ -176,7 +176,7 @@ c variables connected to computation of g and d tensors
       Logical       :: check_symm_presence
       Logical       :: checktmag
 
-      Real(kind=wp) :: t2, t1
+      Real(kind=8) :: t2, t1
 
       Character(2)  :: lanth
 c      Character(14) :: namefile_energy(nDirZee)

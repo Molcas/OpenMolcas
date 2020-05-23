@@ -55,9 +55,8 @@
       end type
 
       integer*4 :: error
-      integer*4, parameter :: one4=1, root4=0
-
       integer, parameter :: mpi_arg = kind(error)
+
 
       contains
 
@@ -255,11 +254,11 @@
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
             call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
-     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
             call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
-     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
             call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
-     &                     MPI_REAL8, 0, MPI_COMM_WORLD, error)
+     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
         end if
 #endif
       end subroutine read_CC_RDM

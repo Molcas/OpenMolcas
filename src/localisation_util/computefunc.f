@@ -10,21 +10,20 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
-      Subroutine ComputeFunc(nAtoms,nOrb2Loc,iTab_ptr,Functional,Debug)
+      Subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 c
 c     Author: Y. Carissan
 c
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
-      Integer iTab_ptr(*)
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
       Logical Debug
 c
       Functional=Zero
       Do iAt=1,nAtoms
-        ip=iTab_ptr(iAt)
         Do iMO_s=1,nOrb2Loc
-          Functional=Functional+(Work(ip+(iMO_s-1)*nOrb2Loc+iMO_s-1))**2
+          Functional=Functional+PA(iMO_s,iMO_s,iAt)**2
         End Do
       End Do
 c

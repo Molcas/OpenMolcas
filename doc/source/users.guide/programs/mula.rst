@@ -218,14 +218,14 @@ Keywords
   cm\ :math:`^{-1}`. Default is in eV.
 
   .. xmldoc:: %%Keyword: CM-1 <basic>
-              If this keyword is included, the plot file will be in cm-1.
+              If this keyword is included, the plot file will be in cm^-1.
               Default is in eV.
 
 :kword:`PLOT`
   Enter the limits (in eV, cm\ :math:`^{-1}`, or in nm) for the plot file.
 
   .. xmldoc:: %%Keyword: PLOT <basic>
-              Enter the limits (in eV, cm-1, or in nm) for the plot file.
+              Enter the limits (in eV, cm^-1, or in nm) for the plot file.
 
 :kword:`VIBWrite`
   If this keyword is included, the vibrational levels of the two states will
