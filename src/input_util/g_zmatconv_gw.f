@@ -19,6 +19,7 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+#include "constants.fh"
 #include "g_zmatconv.fh"
 
       nAtoms = 0
@@ -55,7 +56,7 @@
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
 * Calculate coordinates
-      torad = 3.14159265358979323846d0 / 180.0d0
+      torad = CONST_PI_ / 180.0d0
 *     Atom #1
       If (nAtoms+nXAtoms.EQ.1) GoTo 2000
 *     Atom #2

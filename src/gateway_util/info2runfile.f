@@ -233,7 +233,7 @@
       Call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
       Call Put_cArray('Unique Atom Names',xLblCnt(1),(LENIN)*nNuc)
       Call Put_iArray('nStab',nStab,nNuc)
-      If (lXF) Call Put_dArray('GeoPC',DInf(ipXF),nXF*nData_XF)
+      If (lXF) Call Put_iScalar('nXF',nXF)
       If (Cell_l) Then
          Call Put_dArray('Unit Cell Vector',VCell,9)
          Call Put_iArray('Spread of Coord.',ispread,3)

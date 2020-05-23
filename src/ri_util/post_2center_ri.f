@@ -37,6 +37,7 @@
 *             Modified to 2-center ERIs for RI June '05                *
 *                                                                      *
 ************************************************************************
+      use Wrj12
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,7 +47,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
       Integer  nDmA(0:7),  nDmB(0:7)
       Logical Out_of_Core
       Character Name_Q*6
