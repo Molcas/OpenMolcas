@@ -18,7 +18,7 @@
       Logical Silent
 
       LOGICAL FOUND
-      INTEGER LUXMS,IsFreeUnit
+      INTEGER LUXMS,IsFreeUnit, iErr
       CHARACTER(len=128) filename,swapname
       CHARACTER(len=256) cmd
       CHARACTER(len=11)xmsfmt1
@@ -34,7 +34,7 @@
       Call F_Inquire(FileName,Found)
       If(Found)  Then
           write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
-          Call execute_command_line (cmd)
+          CALL systemf ( cmd, iErr )
       End If
       LUXMS=233
       LUXMS=IsFreeUnit(LUXMS)
@@ -56,7 +56,7 @@
       Call F_Inquire(FileName,Found)
       If(Found)  Then
           write(cmd,'(4A)') 'mv ',trim(FileName),' ',trim(SwapName)
-          Call execute_command_line (cmd)
+          CALL systemf ( cmd, iErr )
       End If
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
