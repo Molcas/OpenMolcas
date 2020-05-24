@@ -297,17 +297,21 @@
 *        endif
          Call Free_Work(ipD1ao_Var)
 *
+         Call GetMem('DS   ','Allo','Real',ipDS,nDens)
+         Call mma_Allocate(DSVar,nDens,Label='DSVar')
          If (Method.eq.'UHF-SCF ' .or.
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(ipDS,Length)
-            Call Get_D1sao_Var(ipDSVar,Length)
+            Call Get_D1sao(ipDS1,Length)
+            Call Get_D1sao_Var(ipDSVar1,Length)
+            Call DCopy_(Length,Work(ipDS1),1,Work(ipDS),1)
+            Call DCopy_(Length,Work(ipDSVar1),1,DSVar,1)
+            Call GetMem('DS   ','Free','Real',ipDS1,nDens)
+            Call GetMem('DSVar','Free','Real',ipDSVar1,nDens)
          Else
-            Call GetMem('DS   ','Allo','Real',ipDS,nDens)
-            Call GetMem('DSVar','Allo','Real',ipDSVar,nDens)
             Call FZero(Work(ipDS),nDens)
-            Call FZero(Work(ipDSVar),nDens)
+            DSVar(:)=Zero
          End If
 *
 *   This is necessary for the ci-lag
@@ -326,7 +330,7 @@
                Work(ipDVar +ij) = Half*Work(ipDVar +ij)
                Work(ipD0   +ij) = Half*Work(ipD0   +ij)
                Work(ipDS   +ij) = Half*Work(ipDS   +ij)
-               Work(ipDSVar+ij) = Half*Work(ipDSVar+ij)
+               DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
  11      Continue
@@ -341,7 +345,7 @@
          RlxLbl='DSAO    '
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DSVar)
       End If
 
 *

@@ -208,7 +208,7 @@
                Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
      &                         iShell,iAO,iAOst,Shijij,
      &                         iBas,jBas,kBas,lBas,kOp,Work(ipD0),
-     &                         Work(ipDVar),Work(ipDS),Work(ipDSVar),
+     &                         Work(ipDVar),Work(ipDS),DSVar,
      &                         nDens,Work(ipGamma),nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
@@ -272,7 +272,7 @@
      &                         iBas,jBas,kBas,lBas,
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                         Work(ipD0),Work(ipDVar),Work(ipDS),
-     &                         Work(ipDSVar),nDens, Work(ipGamma),
+     &                         DSVar,nDens, Work(ipGamma),
      &                         nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else

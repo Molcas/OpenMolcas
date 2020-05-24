@@ -57,7 +57,7 @@
          Call mma_deallocate(G1)
       End If
       call mma_deallocate(CMO)
-      Call GetMem('DSVar','Free','Real',ipDSVar,nDens)
+      call mma_deallocate(DSVar)
       Call GetMem('DS   ','Free','Real',ipDS   ,nDens)
       Call GetMem('DVar ','Free','Real',ipDVar ,nDens)
       Call GetMem('D0   ','Free','Real',ipD0   ,nDens)
