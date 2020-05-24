@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOCKOC(FOCC,F,CMO)
+      SUBROUTINE FOCKOC(F,CMO)
 C
 C     RASSCF program version IBM-3090: SX section
 C
@@ -33,11 +33,19 @@ C
       Parameter (ROUTINE='FOCKOC  ')
 #include "wadr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      DIMENSION FOCC(*),F(*),CMO(*)
+      DIMENSION F(*),CMO(*)
+      REAL*8, ALLOCATABLE :: FOCC(:)
 
 C     CALL QENTER('FOCKOC')
 C
+      nFock = 0
+      Do iSym = 1, nSym
+         nFock = nFock + (nISh(iSym)+nASh(iSym))**2
+      End Do
+      CALL MMA_ALLOCATE( FOCC, nFock, 'FOCC' )
+      CALL DCOPY_(nFock,[0.d0],0,FOCC,1)
       ISTFCK=0
       IPQ=0
 * Loop over symmetry:
@@ -58,7 +66,8 @@ C
       END DO
 C
       IAD15=IADR15(5)
-      CALL DDAFILE(JOBIPH,1,FOCC,IPQ,IAD15)
+      CALL DDAFILE(JOBIPH,1,FOCC,nFock,IAD15)
+      CALL MMA_DEALLOCATE(FOCC)
 C
 c fock matrices added -- R L 921008.
 *
@@ -73,10 +82,6 @@ c fock matrices added -- R L 921008.
 #ifdef _DEBUG_
       Write(LF,*) 'nTot1=',nTot1
 #endif
-      nFock = 0
-      Do iSym = 1, nSym
-         nFock = nFock + (nISh(iSym)+nASh(iSym))**2
-      End Do
       Call GetMem('Fockoc','ALLO','REAL',ipFock,nFock)
       iAd15 = iAdr15(5)
 *-----Read Fock matrix in MO basis from JOBIPH.
