@@ -211,16 +211,16 @@
          Call AddFragDens(Work(ipD0),nDens,nDens_Valence,nBas_Valence)
          Call AddFragDens(Work(ipDVar),nDens,nDens_Valence,nBas_Valence)
 *
-         Call GetMem('DS   ','Allo','Real',ipDS,nDens)
+         Call mma_allocate(DS,nDens,Label='DS')
          Call mma_allocate(DSVar,nDens,Label='DSVar')
-         Call FZero(Work(ipDS),nDens)
+         DS(:)=Zero
          DSVar(:)=Zero
          If(Method.eq.'UHF-SCF ' .or.
      &      Method.eq.'ROHF    ' .or.
      &      Method.eq.'Corr. WF'      ) Then
            Call Get_D1sao(ipDS1,Length)
            Call Get_D1sao_Var(ipDSVar1,Length)
-           call dcopy_(nDens_Valence,Work(ipDS1),1,Work(ipDS),1)
+           call dcopy_(nDens_Valence,Work(ipDS1),1,DS,1)
            call dcopy_(nDens_Valence,Work(ipDSVar1),1,DSVar,1)
            Call Free_Work(ipDS1)
            Call Free_Work(ipDSVar1)
@@ -235,7 +235,7 @@
                ij = ij + 1
                Work(ipD0   +ij) = Half*Work(ipD0   +ij)
                Work(ipDVar +ij) = Half*Work(ipDVar +ij)
-               Work(ipDS   +ij) = Half*Work(ipDS   +ij)
+               DS   (1+ij) = Half*DS   (1+ij)
                DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
@@ -247,7 +247,7 @@
          RlxLbl='D1AO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DS)
          RlxLbl='DSAO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DSVar)
       End If

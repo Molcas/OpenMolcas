@@ -297,7 +297,7 @@
 *        endif
          Call Free_Work(ipD1ao_Var)
 *
-         Call GetMem('DS   ','Allo','Real',ipDS,nDens)
+         Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')
          If (Method.eq.'UHF-SCF ' .or.
      &       Method.eq.'ROHF    ' .or.
@@ -305,12 +305,12 @@
      &       Method.eq.'Corr. WF' ) Then
             Call Get_D1sao(ipDS1,Length)
             Call Get_D1sao_Var(ipDSVar1,Length)
-            Call DCopy_(Length,Work(ipDS1),1,Work(ipDS),1)
+            Call DCopy_(Length,Work(ipDS1),1,DS,1)
             Call DCopy_(Length,Work(ipDSVar1),1,DSVar,1)
             Call GetMem('DS   ','Free','Real',ipDS1,nDens)
             Call GetMem('DSVar','Free','Real',ipDSVar1,nDens)
          Else
-            Call FZero(Work(ipDS),nDens)
+            DS   (:)=Zero
             DSVar(:)=Zero
          End If
 *
@@ -329,7 +329,7 @@
                ij = ij + 1
                Work(ipDVar +ij) = Half*Work(ipDVar +ij)
                Work(ipD0   +ij) = Half*Work(ipD0   +ij)
-               Work(ipDS   +ij) = Half*Work(ipDS   +ij)
+               DS   (1+ij) = Half*DS   (1+ij)
                DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
@@ -343,7 +343,7 @@
          RlxLbl='D1AO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DS)
          RlxLbl='DSAO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DSVar)
       End If
