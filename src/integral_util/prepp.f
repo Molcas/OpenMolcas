@@ -274,9 +274,10 @@
          If (lsa) nsa=4
          If ( Method.eq.'MCPDFT  ') nsa=4
 !AMS modification: add a fifth density slot
+         mDens=nsa+1
          Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa+nDens)
          call dcopy_(nDens*nsa+nDens,[0.0d0],0,Work(ipD0),1)
-         Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
+         Call mma_allocate(DVar,nDens,nsa,Label='DVar')
          if (.not.gamma_mrcisd) then
          Call Get_D1ao(ipD1ao,length)
          If ( length.ne.nDens ) Then
@@ -291,7 +292,7 @@
 *
 
          Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipDVar),1)
+         call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
 *        if (gamma_mrcisd) then
 *         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipD0),1)
 *        endif
@@ -327,8 +328,8 @@
          Do 11 iBas = 1, nBas(iIrrep)
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
-               Work(ipDVar +ij) = Half*Work(ipDVar +ij)
                Work(ipD0   +ij) = Half*Work(ipD0   +ij)
+               DVar (1+ij,1) = Half*DVar (1+ij,1)
                DS   (1+ij) = Half*DS   (1+ij)
                DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
@@ -341,7 +342,7 @@
          RlxLbl='D1AO    '
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DVar)
          RlxLbl='DSAO    '
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DS)
          RlxLbl='DSAO-Var'
@@ -524,7 +525,7 @@
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
 *
-           Call dcopy_(ndens,Work(ipDVar),1,Work(ipD0+1*ndens),1)
+           Call dcopy_(ndens,DVar,1,Work(ipD0+1*ndens),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
 !         RlxLbl='D1COMBO  '

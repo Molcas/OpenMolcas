@@ -69,7 +69,7 @@
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
-         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
          Write (6,*) 'iSO2Sh=',iSO2Sh
          Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)

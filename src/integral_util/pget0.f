@@ -111,7 +111,7 @@
                   Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
      &                           iShell,iAO,iAOst,Shijij,
      &                           iBas,jBas,kBas,lBas,kOp,Work(ipD0),
-     &                           DS,Work(ipDVar),nDens,
+     &                           DS,DVar,nDens,
      &                           ExFac,CoulFac,PMax,
      &                           Work(ip_V_K),Work(ip_U_K),nV_K,
      &                           Work(ip_Z_p_k),nnP(0),nSA,nAsh)
@@ -208,7 +208,7 @@
                Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
      &                         iShell,iAO,iAOst,Shijij,
      &                         iBas,jBas,kBas,lBas,kOp,Work(ipD0),
-     &                         Work(ipDVar),DS,DSVar,
+     &                         DVar,DS,DSVar,
      &                         nDens,Work(ipGamma),nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
@@ -233,7 +233,7 @@
                      Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
      &                              iBas,jBas,kBas,lBas,kOp,Work(ipD0),
-     &                              DS,Work(ipDVar),nDens,
+     &                              DS,DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
      &                              Work(ip_Z_p_k),nnP(0),nSA,nAsh)
@@ -241,7 +241,7 @@
                      Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
      &                              iBas,jBas,kBas,lBas,kOp,Work(ipD0),
-     &                              DS,Work(ipDVar),nDens,
+     &                              DS,DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K)
                   End If
@@ -271,7 +271,7 @@
                Call PGet2_Aces(iCmp,iShell,
      &                         iBas,jBas,kBas,lBas,
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                         Work(ipD0),Work(ipDVar),DS,
+     &                         Work(ipD0),DVar,DS,
      &                         DSVar,nDens, Work(ipGamma),
      &                         nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)

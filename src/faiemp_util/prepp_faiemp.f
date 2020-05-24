@@ -186,10 +186,11 @@
 *...  density matrix in AO/SO basis
          nsa=1
          If (lsa) nsa=4
+         mDens=nsa
          Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa)
-         Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
+         Call mma_allocate(DVar,nDens,mDens,Label='DVar')
          Call FZero(Work(ipD0),nDens*nsa)
-         Call FZero(Work(ipDVar),nDens*nsa)
+         DVar(:,:)=Zero
          Call Get_D1ao(ipD1ao,length)
          If ( length.ne.nDens_Valence ) Then
             Write (6,*) 'PrepP_FAIEMP: length.ne.nDens'
@@ -201,15 +202,15 @@
          Call Free_Work(ipD1ao)
 *
          Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,Work(ipDVar),1)
+         call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,DVar,1)
          Call Free_Work(ipD1ao_Var)
 *
          Call ReIndexFrag(Work(ipD0),nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
-         Call ReIndexFrag(Work(ipDVar),nDens,nDens_Valence,nBas,
+         Call ReIndexFrag(DVar,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
          Call AddFragDens(Work(ipD0),nDens,nDens_Valence,nBas_Valence)
-         Call AddFragDens(Work(ipDVar),nDens,nDens_Valence,nBas_Valence)
+         Call AddFragDens(DVar,nDens,nDens_Valence,nBas_Valence)
 *
          Call mma_allocate(DS,nDens,Label='DS')
          Call mma_allocate(DSVar,nDens,Label='DSVar')
@@ -234,7 +235,7 @@
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
                Work(ipD0   +ij) = Half*Work(ipD0   +ij)
-               Work(ipDVar +ij) = Half*Work(ipDVar +ij)
+               DVar (1+ij,1) = Half*DVar (1+ij,1)
                DS   (1+ij) = Half*DS   (1+ij)
                DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
@@ -245,7 +246,7 @@
          RlxLbl='D1AO    '
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DVar)
          RlxLbl='DSAO    '
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DS)
          RlxLbl='DSAO-Var'
@@ -388,7 +389,7 @@
      &                nish,nBas_Valence,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipt,ndens)
 
-           Call dcopy_(nDens_Valence,Work(ipDVar),1,
+           Call dcopy_(nDens_Valence,DVar,1,
      &                               Work(ipD0+1*ndens),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)

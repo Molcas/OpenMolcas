@@ -59,7 +59,7 @@
       call mma_deallocate(CMO)
       call mma_deallocate(DSVar)
       call mma_deallocate(DS)
-      Call GetMem('DVar ','Free','Real',ipDVar ,nDens)
+      call mma_deallocate(DVar)
       Call GetMem('D0   ','Free','Real',ipD0   ,nDens)
 *
 *      If (ip_Z_p_k.ne.ip_Dummy) Call Free_Work(ip_Z_p_k)
