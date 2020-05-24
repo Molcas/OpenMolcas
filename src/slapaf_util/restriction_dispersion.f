@@ -15,7 +15,7 @@
 *                                                                      *
 *     Object: External routine to evaluate a general constraint,       *
 *             to be used in a constrained optimization. In this case   *
-*             the constraint is a step size constraint.                *
+*             the constraint is a dispersion constraint.               *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Chemistry - BMC                   *
 *             University of Uppsala, Sweden                            *
