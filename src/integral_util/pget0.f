@@ -136,7 +136,7 @@
      &                           iBas,jBas,kBas,lBas,
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           ExFac,CoulFac,
-     &                           PMax,V_K,U_K,nV_K,
+     &                           PMax,V_K,nV_K,
      &                           Z_p_k,nSA,nZ_p_k)
 !yma                  write(*,*)"PGet2_RI2 ==========="
                Else
@@ -283,7 +283,7 @@
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
-     &                              PMax,V_K,U_K,nV_K,
+     &                              PMax,V_K,nV_K,
      &                              Z_p_k, nSA,nZ_p_k)
                   Else
                      Call PGet2_CD2(iCmp,iShell,
