@@ -172,17 +172,18 @@
            n_Txy=n_Txy+ntmp**2
            mAO=mAO+nAct(ijsym)*nBas(ijsym)
          EndDo
-         Call GetMem('Txy','Allo','Real',ip_Txy,n_Txy*nAdens)
+         m_Txy=nAdens
+         Call mma_allocate(Txy,n_Txy,nAdens,Label='Txy')
          Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
          Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
          Call iZero(nnP,nIrrep)
-         Call Compute_txy(G1(1,1),nG1,Work(ip_Txy),
+         Call Compute_txy(G1(1,1),nG1,Txy,
      &                   n_Txy,nAdens,nIrrep,DMdiag,
      &                   Work(ipDMtmp),nAct)
          Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
       Else
+         Call mma_allocate(Txy,1,1,Label='Txy')
          Call mma_allocate(DMdiag,1,1,Label='DMdiag')
-         ip_Txy=ip_Dummy
       EndIf
       n_ij2K=0
       nZ_p_k=0
@@ -395,9 +396,7 @@
      &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
       Call DaXpY_(nGrad,Two,Work(ipTemp),1,Temp,1)
       Case_3C=.False.
-      If (lPSO) Then
-        Call GetMem('Txy','Free','Real',ip_Txy,n_Txy)
-      EndIf
+      If(Allocated(Txy))  Call mma_deallocate(Txy)
       If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
       Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
 *                                                                      *

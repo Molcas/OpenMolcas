@@ -518,7 +518,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
          Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 *
          Call contract_Zpk_Tpxy(Work(ip_Z_p_k) ,nZ_p_k,
-     &                          Work(ip_Txy)   ,n_Txy,
+     &                          Txy   ,n_Txy,
      &                          Work(ip_Thhalf),maxnnP,
      &                          DMdiag ,nG1,
      &                          nnP,nBas_Aux,

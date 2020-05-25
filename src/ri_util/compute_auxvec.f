@@ -322,7 +322,7 @@
                Else
                   Go To 100
                EndIf
-               ipTxy(iIrrep,jIrrep,1) = ip_Txy + iOff2+iOff
+               ipTxy(iIrrep,jIrrep,1) = 1 + iOff2+iOff
                ipTxy(jIrrep,iIrrep,1) = ipTxy(iIrrep,jIrrep,1)
                If (lSA) Then
                  ipTxy(iIrrep,jIrrep,2) = ipTxy(iIrrep,jIrrep,1)+n_Txy
@@ -371,7 +371,8 @@
 *         dmpK=One
          Estimate=.False.
          Update=.True.
-         Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,ipTxy,
+         Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
+     &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
      &                     DoCAS,Estimate,Update,Work(jp_V_k),
      &                     Work(jp_U_k),Work(jp_Z_p_k),nnP,npos,

@@ -12,7 +12,8 @@
 *               2011, Thomas Bondo Pedersen                            *
 ************************************************************************
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
-     &                        ipDLT,ipDLT2,ipMSQ,ipTxy,DoExchange,lSA,
+     &                        ipDLT,ipDLT2,ipMSQ,
+     &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,ipAorb,nAorb,DoCAS,
      &                        Estimate,Update,
      &                        V_k,U_k,Z_p_k,nnP,npos,nZpk)
@@ -116,7 +117,7 @@
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
-      Real*8    V_k(*),Z_p_k(nZpk,*), U_k(*)
+      Real*8    Txy(nTxy),V_k(*),Z_p_k(nZpk,*), U_k(*)
       Character*6  Fname
       Character*50 CFmt
       Character*12 SECNAM
@@ -1642,7 +1643,7 @@ C --- subtraction is done in the 1st reduced set
                             If (iMO1.eq.iMO2) Then
                               CALL DGEMM_('T','N',nnP(jSym),JNUM,
      &                                         nnA(iSymx,iSymy),
-     &                               ONE,Work(ipTxy(iSymx,iSymy,iTxy)),
+     &                               ONE,Txy(ipTxy(iSymx,iSymy,iTxy)),
      &                                   nnP(jSym),
      &                                   Work(ipLxy(iSymx)),
      &                                   nnA(iSymx,iSymy),
@@ -1660,7 +1661,7 @@ C --- subtraction is done in the 1st reduced set
                                   Do k=0,nAOrb(iSymx)-1
                                     Do l=0,k
                                        temp=temp+0.5d0*
-     &                                     Work(ioff+k*(k+1)/2+l)*
+     &                                     Txy(ioff+k*(k+1)/2+l)*
      &                                    (Work(jOff+k*nAOrb(iSymx)+l)+
      &                                     Work(jOff+l*nAOrb(iSymx)+k))
                                     End Do
