@@ -45,7 +45,7 @@
       Character*8 Method
       Logical Found
       Integer nAct(0:7)
-      Real*8, Allocatable:: V_k_new(:,:)
+      Real*8, Allocatable:: V_k_new(:,:), U_k_new(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -284,11 +284,9 @@
          Call mma_allocate(V_k_new,nV_k_New,nJdens,Label="V_k_new")
          V_k_new(:,:)=Zero
 *
-         If(iMp2prpt .eq. 2) Then
-            Call GetMem('U_k_New','Allo','Real',ip_U_k_New,nV_k_New)
-            Call FZero(Work(ip_U_k_New),nV_k_New)
-         Else
-            ip_U_k_New = ip_Dummy
+         If (iMp2prpt .eq. 2) Then
+            Call mma_allocate(U_k_new,nV_k_New,Label="U_k_new")
+            U_k_new(:)=Zero
          End If
 
 *
@@ -300,9 +298,8 @@
             Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
-               Call ReMap_U_k(Work(ip_U_k),nV_k,
-     &              Work(ip_U_k_New),nV_k_New,
-     &              iWork(ipSO_ab))
+               Call ReMap_U_k(Work(ip_U_k),nV_k,U_k_New,nV_k_New,
+     &                        iWork(ipSO_ab))
             End If
             m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
@@ -323,6 +320,8 @@
          If(iMp2prpt .eq. 2) Then
             Call Free_Work(ip_U_k)
             ip_U_k=ip_U_k_New
+            Call GetMem('U_k','Allo','Real',ip_U_k,nV_k)
+            Call DCopy_(nV_k,U_k_new,1,Work(ip_U_K),1)
          End If
 
 *                                                                      *

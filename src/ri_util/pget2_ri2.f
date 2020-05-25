@@ -12,7 +12,8 @@
 ************************************************************************
       SubRoutine PGet2_RI2(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
-     &                  ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
+     &                  ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA,
+     &                  nZ_p_k)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *

@@ -137,7 +137,7 @@
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           ExFac,CoulFac,
      &                           PMax,Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                           Z_p_k,nSA)
+     &                           Z_p_k,nSA,nZ_p_k)
 !yma                  write(*,*)"PGet2_RI2 ==========="
                Else
 *Not modified yet
@@ -284,7 +284,7 @@
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
      &                              PMax,Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                              Z_p_k, nSA)
+     &                              Z_p_k, nSA,nZ_p_k)
                   Else
                      Call PGet2_CD2(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,
