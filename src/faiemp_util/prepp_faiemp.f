@@ -244,13 +244,13 @@
  10   Continue
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,D0)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DVar)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DS)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DSVar)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
       End If
 *
 *...  Get the MO-coefficients
