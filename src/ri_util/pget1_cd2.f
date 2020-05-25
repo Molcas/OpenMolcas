@@ -38,7 +38,7 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 *                                                                      *
 ************************************************************************
-      use pso_stuff
+*     use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

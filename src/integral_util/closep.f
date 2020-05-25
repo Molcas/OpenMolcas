@@ -62,8 +62,6 @@
       call mma_deallocate(DVar)
       call mma_deallocate(D0)
 *
-*      If (ip_Z_p_k.ne.ip_Dummy) Call Free_Work(ip_Z_p_k)
-*
 *     Call qExit('CloseP')
       Return
       End

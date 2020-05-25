@@ -12,12 +12,16 @@
       Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
       Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3),ipAOrb(0:7,2)
       Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:),
+     &                      Txy(:,:), Z_p_k(:,:),
      &                      G1(:,:), D0(:,:), DVar(:,:), DS(:), DSVar(:)
       Integer, Allocatable:: ij2K(:)
       Integer nG2, mG2
       Integer nG1, mG1
       Integer mCMO, kCMO
       Integer nDens, mDens
-      Integer nV_K, nZ_p_k, n_Txy, n_ij2K, nSOs1
-      Integer iD0Lbl,ip_V_K,ip_U_K,ip_Z_p_k,ip_Txy
+      Integer n_Txy, m_Txy
+      Integer n_ij2K
+      Integer nZ_p_k
+      Integer nV_K, nSOs1
+      Integer iD0Lbl,ip_V_K,ip_U_K
       End Module PSO_Stuff

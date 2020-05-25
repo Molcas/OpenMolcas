@@ -34,7 +34,7 @@
 *             Modified to RI-DFT, March 2007                           *
 *                                                                      *
 ************************************************************************
-      use pso_stuff
+      use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

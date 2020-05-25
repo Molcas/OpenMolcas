@@ -100,7 +100,7 @@
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           ExFac,CoulFac,PMax,
      &                           Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                           Work(ip_Z_p_k),nSA)
+     &                           Z_p_k,nSA)
 !                  write(*,*)"PGet1_RI2 ===========" yma
                Else
 *Not modified yet
@@ -114,7 +114,7 @@
      &                           DS,DVar,nDens,
      &                           ExFac,CoulFac,PMax,
      &                           Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                           Work(ip_Z_p_k),nnP(0),nSA,nAsh)
+     &                           Z_p_k,nnP(0),nSA,nAsh)
                Else
 *Not modified yet
                   Call Abend()
@@ -137,7 +137,7 @@
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           ExFac,CoulFac,
      &                           PMax,Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                           Work(ip_Z_p_k),nSA)
+     &                           Z_p_k,nSA)
 !yma                  write(*,*)"PGet2_RI2 ==========="
                Else
 *Not modified yet
@@ -150,7 +150,7 @@
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           D0,DS,nDens,ExFac,
      &                           CoulFac,PMax,Work(ip_V_K),nV_K,
-     &                           Work(ip_Z_p_k),nSA,nAsh)
+     &                           Z_p_k,nSA,nAsh)
 
                Else
 *Not modified yet
@@ -219,14 +219,14 @@
      &                              iBas,jBas,kBas,lBas,kOp,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                              Work(ip_Z_p_k), nSA)
+     &                              Z_p_k, nSA)
                   Else
                      Call PGet1_CD2(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
      &                              iBas,jBas,kBas,lBas,kOp,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                              Work(ip_Z_p_k),nnP(0))
+     &                              Z_p_k,nnP(0))
                   End If
                Else If (Case_3C) Then
                   If (Do_RI) Then
@@ -236,7 +236,7 @@
      &                              DS,DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                              Work(ip_Z_p_k),nnP(0),nSA,nAsh)
+     &                              Z_p_k,nnP(0),nSA,nAsh)
                   Else
                      Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
@@ -284,7 +284,7 @@
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
      &                              PMax,Work(ip_V_K),Work(ip_U_K),nV_K,
-     &                              Work(ip_Z_p_k), nSA)
+     &                              Z_p_k, nSA)
                   Else
                      Call PGet2_CD2(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,
@@ -299,7 +299,7 @@
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              D0,DS,nDens,ExFac,
      &                              CoulFac,PMax,Work(ip_V_K),nV_K,
-     &                              Work(ip_Z_p_k),nSA,nAsh)
+     &                              Z_p_k,nSA,nAsh)
                   Else
                      Call PGet2_CD3(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,

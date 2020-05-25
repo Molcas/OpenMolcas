@@ -84,7 +84,6 @@
       Case_2C=.False.
       Case_3C=.False.
       Case_mp2=.False.
-*      ip_Z_p_k=ip_Dummy
 
       nDens = 0
       Do 1 iIrrep = 0, nIrrep - 1

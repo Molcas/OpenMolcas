@@ -375,7 +375,7 @@
      &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
      &                     DoCAS,Estimate,Update,Work(jp_V_k),
-     &                     Work(jp_U_k),Work(jp_Z_p_k),nnP,npos,
+     &                     Work(jp_U_k),Z_p_k(jp_Z_p_k,1),nnP,npos,
      &                     nZ_p_k)
 *
          If (irc.ne.0) Then
@@ -396,7 +396,8 @@
 *     For parallel run: reordering of the V_k(tilde) vector from
 *     the "node storage" to the Q-vector storage
 *MGD will probably not work for SA-CASSCF
-      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1)
+      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,
+     &                               Work)
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *
@@ -439,16 +440,16 @@
 
          Call GetMem('Zv','Allo','Real',ipZv,nZ_p_k)
 *
-         Do iAvec=0,nAvec-1
+         Do iAvec=1,nAvec
 *MGD wrong
            If (nProc.gt.1)  Call Reord_Vk(ipZpk(1),nProc,myProc,
-     &                    nV_l,nV_t,nnP,nIrrep)
+     &                    nV_l,nV_t,nnP,nIrrep,Z_p_k)
 *
-           Call Mult_Zp_Qv_s(Work(ipZpk(1)+iAvec*nZ_p_k),nZ_p_k,
+           Call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,
      &                       Work(ipQv),nQv,Work(ipZv),nZ_p_k,nV_t,nnP,
      &                       nBas_Aux,nIrrep,'T')
 *
-          call dcopy_(nZ_p_k,Work(ipZv),1,Work(ipZpk(1)+iAvec*nZ_p_k),1)
+          call dcopy_(nZ_p_k,Work(ipZv),1,Z_p_k(ipZpk(1),iAvec),1)
          End Do
          Call GetMem('Zv','Free','Real',ipZv,nZ_p_k)
       EndIf

@@ -198,10 +198,10 @@
       End Do
       If (Do_RI) nZ_p_k=nZ_p_k-nnP(0)
       If (lPSO) Then
-         Call GetMem('Z_p_k','Allo','Real',ip_Z_p_k,nZ_p_k*nAvec)
-         Call FZero(Work(ip_Z_p_k),nZ_p_k*nAvec)
+         Call mma_allocate(Z_p_k,nZ_p_k,nAvec,Label='Z_p_k')
+         Z_p_k(:,:)=Zero
       Else
-         ip_Z_p_k=ip_Dummy
+         Call mma_allocate(Z_p_k,1,1,Label='Z_p_k')
       EndIf
 *
 *     Preprocess the RI and Q vectors as follows
@@ -241,7 +241,7 @@
       Call GAIGOP(iWork(iVk),nProcs,'+')
       Call GAIGOP(iWork(iZk),nProcs,'+')
       iStart=ip_V_k
-      jStart=ip_Z_p_k
+      jStart=1
       Do j=0,nProcs-1
          itmp=iWork(iVk+j)
          iWork(iVk+j)=iStart
@@ -425,7 +425,7 @@
       Call CloseP
       Call Free_iWork(iZk)
       Call Free_iWork(iVk)
-      if (lPSO) Call Free_Work(ip_Z_p_k)
+      If (Allocated(Z_p_k)) Call mma_deallocate(Z_p_k)
       Call Free_Work(ip_V_k)
       If(iMp2prpt .eq. 2) Then
          Call Free_iWork(iUk)
