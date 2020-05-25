@@ -18,7 +18,7 @@
 *             nDM    = size of the one-body DM                         *
 *                                                                      *
 ************************************************************************
-      use pso_stuff, only: lsa, G2, nG2, mG2, nnP
+      use pso_stuff, only: lsa, G2, nnP
       Implicit none
 #include "real.fh"
       Integer nTxy,nAct(0:7),nCumAct(0:7),nCumAct2(0:7)
