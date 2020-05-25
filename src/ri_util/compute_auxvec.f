@@ -374,8 +374,8 @@
          Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
      &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
-     &                     DoCAS,Estimate,Update,Work(jp_V_k),
-     &                     Work(jp_U_k),Z_p_k(jp_Z_p_k,1),nnP,npos,
+     &                     DoCAS,Estimate,Update,V_k(jp_V_k,1),
+     &                     U_k(jp_U_k),Z_p_k(jp_Z_p_k,1),nnP,npos,
      &                     nZ_p_k)
 *
          If (irc.ne.0) Then
@@ -397,7 +397,7 @@
 *     the "node storage" to the Q-vector storage
 *MGD will probably not work for SA-CASSCF
       If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,
-     &                               Work)
+     &                               V_k)
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *
@@ -419,19 +419,19 @@
 **    Coulomb
 *
       Do i=0,nJdens-1
-         Call Mult_Vk_Qv_s(Work(ipVk(1)+i*NumCho(1)),nV_t(0),
+         Call Mult_Vk_Qv_s(V_k(ipVk(1),1+i),nV_t(0),
      &               Work(ipQv),nQv,
      &               Work(ipScr),nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
-         call dcopy_(nV_k,Work(ipScr),1,Work(ipVk(1)+i*NumCho(1)),1)
+         call dcopy_(nV_k,Work(ipScr),1,V_k(ipVk(1),1+i),1)
       End Do
 *
 **    MP2
 *
       If(iMp2prpt.eq.2) Then
-         Call Mult_Vk_Qv_s(Work(ipUk(1)),nU_t(0),Work(ipQv),nQv,
+         Call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Work(ipQv),nQv,
      &                     Work(ipScr),nQMax,nBas_Aux,nU_t(0),nIrrep,
      &                     'T')
-         call dcopy_(nV_k,Work(ipScr),1,Work(ipUk(1)),1)
+         call dcopy_(nV_k,Work(ipScr),1,U_k(ipUk(1)),1)
       End If
 *
 **    Active term

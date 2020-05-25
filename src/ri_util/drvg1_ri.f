@@ -218,13 +218,13 @@
       End Do
 *
 *
-      Call GetMem('V_k','Allo','Real',ip_V_k,nV_k*nJdens)
-      Call FZero(Work(ip_V_k),nV_k*nJdens)
+      call mma_allocate(V_K,nV_k,nJdens,Label='V_k')
+      V_k(:,:)=Zero
       If(iMp2prpt .eq. 2) Then
-         Call GetMem('U_k','Allo','Real',ip_U_k,nV_k)
-         Call FZero(Work(ip_U_k),nV_k)
+         call mma_allocate(U_K,nV_k,Label='U_k')
+         U_k(:)=Zero
       Else
-         ip_U_k = ip_Dummy
+         call mma_allocate(U_K,1,Label='U_k')
       End If
 *                    ~
 *     1) Compute the V_k vector
@@ -241,7 +241,7 @@
       iWork(iZk+myRank) = nZ_p_l*nAvec
       Call GAIGOP(iWork(iVk),nProcs,'+')
       Call GAIGOP(iWork(iZk),nProcs,'+')
-      iStart=ip_V_k
+      iStart=1
       jStart=1
       Do j=0,nProcs-1
          itmp=iWork(iVk+j)
@@ -257,7 +257,7 @@
          Call IZero(iWork(iUk),nProcs)
          iWork(iUk+myRank) = NumCho(1)
          Call GAIGOP(iWork(iUk),nProcs,'+')
-         kStart=ip_U_k
+         kStart=1
          Do j = 0,nProcs-1
             kTmp=iWork(iUk+j)
             iWork(iUk+j)=kStart
@@ -298,30 +298,32 @@
             Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
-               Call ReMap_U_k(Work(ip_U_k),nV_k,U_k_New,nV_k_New,
+               Call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,
      &                        iWork(ipSO_ab))
             End If
             m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
-              Call ReMap_V_k(iSym,Work(ip_V_k+i*NumCho(1)),nV_k,
+              Call ReMap_V_k(iSym,V_k(1,1+i),nV_k,
      &                     V_k_new(1,1+i),nV_k_New,
      &                     iWork(ipSO_ab+iOff),ij2K(iOff_ij2K(iSym)+1),
      &                     m_ij2K)
             EndDo
             iOff = iOff + 2*nBas_Aux(iSym-1)
          End Do
-         Call Free_iWork(ipSO_ab)
-         Call Free_Work(ip_V_k)
+*
          nV_k=nV_k_new
-         Call GetMem('V_k','Allo','Real',ip_V_k,nV_k*nJdens)
-         Call DCopy_(nV_k*nJdens,V_k_new,1,Work(ip_V_k),1)
+*
+         Call Free_iWork(ipSO_ab)
+         Call mma_deallocate(V_k)
+         Call mma_allocate(V_k,nV_k,nJdens,Label='V_k')
+         V_k(:,:)=V_k_new(:,:)
          Call mma_deallocate(V_k_new)
 
          If(iMp2prpt .eq. 2) Then
-            Call Free_Work(ip_U_k)
-            ip_U_k=ip_U_k_New
-            Call GetMem('U_k','Allo','Real',ip_U_k,nV_k)
-            Call DCopy_(nV_k,U_k_new,1,Work(ip_U_K),1)
+            Call mma_deallocate(U_k)
+            Call mma_allocate(U_k,nV_k,Label='U_k')
+            U_k(:)=U_k_new(:)
+            Call mma_deallocate(U_k_new)
          End If
 
 *                                                                      *
@@ -427,12 +429,10 @@
       Call CloseP
       Call Free_iWork(iZk)
       Call Free_iWork(iVk)
+      If(iMp2prpt .eq. 2) Call Free_iWork(iUk)
       If (Allocated(Z_p_k)) Call mma_deallocate(Z_p_k)
-      Call Free_Work(ip_V_k)
-      If(iMp2prpt .eq. 2) Then
-         Call Free_iWork(iUk)
-         Call Free_Work(ip_U_k)
-      End If
+      If (Allocated(V_k)) Call mma_deallocate(V_k)
+      If (Allocated(U_k)) Call mma_deallocate(U_k)
       Call Cho_X_Final(irc)
       If (irc.ne.0) Then
          Call WarningMessage(2,' Drvg1_RI: Cho_X_Final failed')

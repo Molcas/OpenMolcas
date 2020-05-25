@@ -35,7 +35,7 @@
 *             Modified for 3-center RI gradients, March 2007           *
 *                                                                      *
 ************************************************************************
-      use pso_stuff
+      use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
