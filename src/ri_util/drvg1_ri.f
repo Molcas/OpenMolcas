@@ -45,6 +45,7 @@
       Character*8 Method
       Logical Found
       Integer nAct(0:7)
+      Real*8, Allocatable:: V_k_new(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -280,8 +281,8 @@
          Call mma_allocate(ij2K,n_ij2K,Label='ij2K')
          ij2K(:)=0
          nV_k_New=nBas(0)*(nBas(0)+1)/2
-         Call GetMem('V_k_New','Allo','Real',ip_V_k_New,nV_k_New*nJdens)
-         Call FZero(Work(ip_V_k_New),nV_k_New*nJdens)
+         Call mma_allocate(V_k_new,nV_k_New,nJdens,Label="V_k_new")
+         V_k_new(:,:)=Zero
 *
          If(iMp2prpt .eq. 2) Then
             Call GetMem('U_k_New','Allo','Real',ip_U_k_New,nV_k_New)
@@ -306,7 +307,7 @@
             m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
               Call ReMap_V_k(iSym,Work(ip_V_k+i*NumCho(1)),nV_k,
-     &                     Work(ip_V_k_New+i*nV_k_New),nV_k_New,
+     &                     V_k_new(1,1+i),nV_k_New,
      &                     iWork(ipSO_ab+iOff),ij2K(iOff_ij2K(iSym)+1),
      &                     m_ij2K)
             EndDo
@@ -314,14 +315,16 @@
          End Do
          Call Free_iWork(ipSO_ab)
          Call Free_Work(ip_V_k)
-         ip_V_k=ip_V_k_New
+         nV_k=nV_k_new
+         Call GetMem('V_k','Allo','Real',ip_V_k,nV_k*nJdens)
+         Call DCopy_(nV_k*nJdens,V_k_new,1,Work(ip_V_k),1)
+         Call mma_deallocate(V_k_new)
 
          If(iMp2prpt .eq. 2) Then
             Call Free_Work(ip_U_k)
             ip_U_k=ip_U_k_New
          End If
 
-         nV_k  =nV_k_New
 *                                                                      *
 ************************************************************************
 *                                                                      *
