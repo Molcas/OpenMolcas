@@ -27,7 +27,6 @@
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "setup.fh"

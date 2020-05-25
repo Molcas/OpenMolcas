@@ -512,7 +512,7 @@
 *
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
 
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
@@ -522,12 +522,12 @@
 
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 *
            Call dcopy_(ndens,DVar,1,D0(1,2),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 !         RlxLbl='D1COMBO  '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,2))
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
 *
 *   This is necessary for the kap-lag
 *
@@ -548,7 +548,7 @@
            Call Free_Work(ipD1AV)
 !************************
          RlxLbl='D1AOA   '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,3))
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
 *
            Call Get_DLAO(ipDLAO,Length)
            call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
@@ -594,7 +594,7 @@
            !Call dscal_(Length,0.0d0,D0(1,4),1)
 
          RlxLbl='DLAO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,4))
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
 ! DMRG with the reduced AS
            if(doDMRG)then
              length=ndim1  !yma

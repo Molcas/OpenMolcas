@@ -391,7 +391,7 @@
 
            Call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,1,D0)
+           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
 *
 *   This is necessary for the kap-lag
 *
