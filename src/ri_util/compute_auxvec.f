@@ -106,7 +106,7 @@
                Do i=2,nSA
                  ipDMLT(i)=ipDMLT(i-1)+nDens
                End Do
-               call dcopy_(nDens*nSA,Work(ipD0),1,Work(ipDMLT(1)),1)
+               call dcopy_(nDens*nSA,D0,1,Work(ipDMLT(1)),1)
 *Refold some density matrices
                ij = -1
                Do iIrrep = 0, nIrrep-1

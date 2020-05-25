@@ -187,9 +187,9 @@
          nsa=1
          If (lsa) nsa=4
          mDens=nsa
-         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa)
+         Call mma_allocate(D0  ,nDens,mDens,Label='D0')
          Call mma_allocate(DVar,nDens,mDens,Label='DVar')
-         Call FZero(Work(ipD0),nDens*nsa)
+         D0  (:,:)=Zero
          DVar(:,:)=Zero
          Call Get_D1ao(ipD1ao,length)
          If ( length.ne.nDens_Valence ) Then
@@ -198,18 +198,18 @@
             Write (6,*) 'nDens=',nDens_Valence
             Call Abend()
          End If
-         call dcopy_(nDens_Valence,Work(ipD1ao),1,Work(ipD0),1)
+         call dcopy_(nDens_Valence,Work(ipD1ao),1,D0,1)
          Call Free_Work(ipD1ao)
 *
          Call Get_D1ao_Var(ipD1ao_Var,length)
          call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,DVar,1)
          Call Free_Work(ipD1ao_Var)
 *
-         Call ReIndexFrag(Work(ipD0),nDens,nDens_Valence,nBas,
+         Call ReIndexFrag(D0,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
          Call ReIndexFrag(DVar,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
-         Call AddFragDens(Work(ipD0),nDens,nDens_Valence,nBas_Valence)
+         Call AddFragDens(D0,nDens,nDens_Valence,nBas_Valence)
          Call AddFragDens(DVar,nDens,nDens_Valence,nBas_Valence)
 *
          Call mma_allocate(DS,nDens,Label='DS')
@@ -234,17 +234,17 @@
          Do 11 iBas = 1, nBas(iIrrep)
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
-               Work(ipD0   +ij) = Half*Work(ipD0   +ij)
+               D0   (1+ij,1) = Half*D0   (1+ij,1)
                DVar (1+ij,1) = Half*DVar (1+ij,1)
-               DS   (1+ij) = Half*DS   (1+ij)
-               DSVar(1+ij) = Half*DSVar(1+ij)
+               DS   (1+ij)   = Half*DS   (1+ij)
+               DSVar(1+ij)   = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
  11      Continue
  10   Continue
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,D0)
          RlxLbl='D1AO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DVar)
          RlxLbl='DSAO    '
@@ -385,15 +385,13 @@
 *       G1 = <i|e_ab|i>
 *       G2 = sum i <i|e_ab|i>
            Call Getmem('TMP','ALLO','REAL',ipt,2*ndens)
-           Call Get_D1I(CMO(1,1),Work(ipD0+0*ndens),Work(ipT),
+           Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
      &                nish,nBas_Valence,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipt,ndens)
 
-           Call dcopy_(nDens_Valence,DVar,1,
-     &                               Work(ipD0+1*ndens),1)
-           If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
-           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[ipD0],Work)
+           Call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
+           If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,1,D0)
 *
 *   This is necessary for the kap-lag
 *
@@ -404,12 +402,12 @@
               Write (6,*) 'nG1,Length=',nG1,Length
               Call Abend()
            End If
-           Call Get_D1A(CMO(1,1),Work(ipD1AV),Work(ipD0+2*ndens),
+           Call Get_D1A(CMO(1,1),Work(ipD1AV),D0(1,3),
      &                 nIrrep,nBas_Valence,nish,nash,nDens_Valence)
            Call Free_Work(ipD1AV)
 *
            Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
+           call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
            Call Free_Work(ipDLAO)
          End If
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)

@@ -65,7 +65,7 @@
 *                                                                      *
 *
 !      write(*,*)"Print out in integral_util/pget0 starting"
-!      Call RecPrt('DSO in PGet0',' ',Work(ipD0),ndens,5)  ! ====== yma ======
+!      Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
       PMax=One
       nSA=1
@@ -110,7 +110,7 @@
                If (Do_RI) Then
                   Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
      &                           iShell,iAO,iAOst,Shijij,
-     &                           iBas,jBas,kBas,lBas,kOp,Work(ipD0),
+     &                           iBas,jBas,kBas,lBas,kOp,D0,
      &                           DS,DVar,nDens,
      &                           ExFac,CoulFac,PMax,
      &                           Work(ip_V_K),Work(ip_U_K),nV_K,
@@ -122,7 +122,7 @@
             Else
                Call PGet3(PSO,ijkl,nPSO,iCmp,
      &                    iShell,iAO,iAOst,Shijij,
-     &                    iBas,jBas,kBas,lBas,kOp,Work(ipD0),nDens,
+     &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,
      &                    Work(ipPam),n1,n2,n3,n4,
      &                    iWork(ipiPam),iWork(ipMap),nDim,
      &                    Work(ipC),nCred,Work(ipS1),nScr1,
@@ -148,7 +148,7 @@
                   Call PGet2_RI3(iCmp,iShell,
      &                           iBas,jBas,kBas,lBas,
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                           Work(ipD0),DS,nDens,ExFac,
+     &                           D0,DS,nDens,ExFac,
      &                           CoulFac,PMax,Work(ip_V_K),nV_K,
      &                           Work(ip_Z_p_k),nSA,nAsh)
 
@@ -166,11 +166,11 @@
 
 
 !      write(*,*)"Print out in integral_util/pget0 before"
-!      Call RecPrt('DSO in PGet0',' ',Work(ipD0),ndens,5)  ! ====== yma ======
+!      Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
                Call PGet4(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                    Work(ipD0),nDens,
+     &                    D0,nDens,
      &                    Work(ipPam),n1,n2,n3,n4,
      &                    iWork(ipiPam),iWork(ipMap),nDim,
      &                    Work(ipC),nCred,Work(ipS1),nScr1,
@@ -207,7 +207,7 @@
                Endif
                Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
      &                         iShell,iAO,iAOst,Shijij,
-     &                         iBas,jBas,kBas,lBas,kOp,Work(ipD0),
+     &                         iBas,jBas,kBas,lBas,kOp,D0,
      &                         DVar,DS,DSVar,
      &                         nDens,Work(ipGamma),nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
@@ -232,7 +232,7 @@
                   If (Do_RI) Then
                      Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
-     &                              iBas,jBas,kBas,lBas,kOp,Work(ipD0),
+     &                              iBas,jBas,kBas,lBas,kOp,D0,
      &                              DS,DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
@@ -240,7 +240,7 @@
                   Else
                      Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
-     &                              iBas,jBas,kBas,lBas,kOp,Work(ipD0),
+     &                              iBas,jBas,kBas,lBas,kOp,D0,
      &                              DS,DVar,nDens,
      &                              ExFac,CoulFac,PMax,
      &                              Work(ip_V_K),Work(ip_U_K),nV_K)
@@ -248,7 +248,7 @@
                Else
                   Call PGet1(PSO,ijkl,nPSO,iCmp,
      &                       iShell,iAO,iAOst,Shijij,
-     &                       iBas,jBas,kBas,lBas,kOp,Work(ipD0),
+     &                       iBas,jBas,kBas,lBas,kOp,D0,
      &                       DS,nDens,ExFac,CoulFac,PMax)
                End If
             End If
@@ -271,7 +271,7 @@
                Call PGet2_Aces(iCmp,iShell,
      &                         iBas,jBas,kBas,lBas,
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                         Work(ipD0),DVar,DS,
+     &                         D0,DVar,DS,
      &                         DSVar,nDens, Work(ipGamma),
      &                         nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
@@ -297,14 +297,14 @@
                      Call PGet2_RI3(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                              Work(ipD0),DS,nDens,ExFac,
+     &                              D0,DS,nDens,ExFac,
      &                              CoulFac,PMax,Work(ip_V_K),nV_K,
      &                              Work(ip_Z_p_k),nSA,nAsh)
                   Else
                      Call PGet2_CD3(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                              Work(ipD0),DS,nDens,ExFac,
+     &                              D0,DS,nDens,ExFac,
      &                              CoulFac,PMax,Work(ip_V_K),nV_K)
                   End If
 *
@@ -312,7 +312,7 @@
                   Call PGet2(iCmp,iShell,
      &                       iBas,jBas,kBas,lBas,
      &                       Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                       Work(ipD0),DS,nDens,ExFac,CoulFac,
+     &                       D0,DS,nDens,ExFac,CoulFac,
      &                       PMax)
                End If
             End If

@@ -56,7 +56,7 @@
       Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
       End If
 #endif
       lOper=1

@@ -275,8 +275,8 @@
          If ( Method.eq.'MCPDFT  ') nsa=4
 !AMS modification: add a fifth density slot
          mDens=nsa+1
-         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa+nDens)
-         call dcopy_(nDens*nsa+nDens,[0.0d0],0,Work(ipD0),1)
+         Call mma_allocate(D0,nDens,mDens,Label='D0')
+         D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
          if (.not.gamma_mrcisd) then
          Call Get_D1ao(ipD1ao,length)
@@ -286,7 +286,7 @@
             Write (6,*) 'nDens=',nDens
             Call Abend()
          End If
-         call dcopy_(nDens,Work(ipD1ao),1,Work(ipD0),1)
+         call dcopy_(nDens,Work(ipD1ao),1,D0(1,1),1)
          Call Free_Work(ipD1ao)
          endif
 *
@@ -294,7 +294,7 @@
          Call Get_D1ao_Var(ipD1ao_Var,length)
          call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
 *        if (gamma_mrcisd) then
-*         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipD0),1)
+*         call dcopy_(nDens,Work(ipD1ao_Var),1,D0,1)
 *        endif
          Call Free_Work(ipD1ao_Var)
 *
@@ -328,7 +328,7 @@
          Do 11 iBas = 1, nBas(iIrrep)
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
-               Work(ipD0   +ij) = Half*Work(ipD0   +ij)
+               D0   (1+ij,1) = Half*D0   (1+ij,1)
                DVar (1+ij,1) = Half*DVar (1+ij,1)
                DS   (1+ij) = Half*DS   (1+ij)
                DSVar(1+ij) = Half*DSVar(1+ij)
@@ -340,7 +340,7 @@
 
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,D0)
          RlxLbl='D1AO-Var'
          Call PrMtrx(RlxLbl,[iD0Lbl],iComp,1,DVar)
          RlxLbl='DSAO    '
@@ -513,23 +513,22 @@
 *
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0)
 
 
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
-           Call Get_D1I(CMO(1,1),Work(ipD0+0*ndens),Work(ipT),
+           Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
      &                  nish,nbas,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
 
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0)
 *
-           Call dcopy_(ndens,DVar,1,Work(ipD0+1*ndens),1)
-           If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
+           Call dcopy_(ndens,DVar,1,D0(1,2),1)
+           If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 !         RlxLbl='D1COMBO  '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+1*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,2))
 *
 *   This is necessary for the kap-lag
 *
@@ -545,15 +544,15 @@
               end if
               Call Abend()
            End If
-           Call Get_D1A(CMO(1,1),Work(ipD1AV),Work(ipD0+2*ndens),
+           Call Get_D1A(CMO(1,1),Work(ipD1AV),D0(1,3),
      &                 nIrrep,nbas,nish,nash,ndens)
            Call Free_Work(ipD1AV)
 !************************
          RlxLbl='D1AOA   '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+2*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,3))
 *
            Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
+           call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
 
 !ANDREW - modify D2: should contain only the correction pieces
 
@@ -570,41 +569,33 @@
             ij = ij + 1
           end do
       end do
-          call daxpy_(ndens,-1d0,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD1ao),1)
+          call daxpy_(ndens,-1d0,D0(1,1),1,Work(ipD1ao),1)
 !          write(*,*) 'do they match?'
 !          do i=1,ndens
-!            write(*,*) Work(ipd1ao-1+i),Work(ipD0+2*ndens+i-1)
+!            write(*,*) Work(ipd1ao-1+i),DO(i,3)
 !          end do
 
-          call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,
-     &                                             Work(ipD0+1*ndens),1)
+          call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,D0(1,2),1)
 !ANDREW - Generate new D5 piece:
-          call dcopy_(ndens,[0.0d0],0,
-     &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,
-     &                                             Work(ipD0+4*ndens),1)
+          D0(:,5)=Zero
+          call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
+          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,D0(1,5),1)
          Call Free_Work(ipD1ao)
           end if
 
 
-!          call dcopy_(ndens*5,0.0d0,0,
-!     &                                             Work(ipD0),1)
-!          call dcopy_(nG2,0.0d0,0,
-!     &                                             Work(ipG2),1)
+!          call dcopy_(ndens*5,0.0d0,0,D0,1)
+!          call dcopy_(nG2,0.0d0,0,G2,1)
 
 
            Call Free_Work(ipDLAO)
 !************************
-           !Call dscal_(Length,0.5d0,Work(ipD0+3*ndens),1)
-           !Call dscal_(Length,0.0d0,Work(ipD0+3*ndens),1)
+           !Call dscal_(Length,0.5d0,D0(1,4),1)
+           !Call dscal_(Length,0.0d0,D0(1,4),1)
 
          RlxLbl='DLAO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+3*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,1,D0(1,4))
 ! DMRG with the reduced AS
            if(doDMRG)then
              length=ndim1  !yma

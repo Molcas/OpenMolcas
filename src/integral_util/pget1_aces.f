@@ -68,7 +68,7 @@
       Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
          Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
          Write (6,*) 'iSO2Sh=',iSO2Sh

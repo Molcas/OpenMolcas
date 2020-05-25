@@ -60,7 +60,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
       End If
 #endif
 *                                                                      *

@@ -70,7 +70,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
          Write (6,*)
          Write (6,*) 'Distribution of Ymnij'
