@@ -12,7 +12,6 @@
      &                     nr_of_Densities)
       use k2_arrays
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 #include "k2.fh"
 *
       ipDij = ipOffD(1,ijS)
