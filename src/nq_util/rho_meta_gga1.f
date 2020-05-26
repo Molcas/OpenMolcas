@@ -26,7 +26,6 @@
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
       use iSD_data
-      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -194,8 +193,6 @@
                Write (6,*) 'iShell,jshell=', iShell,jshell
                Write (6,*) 'kDCRE,kDCRR=', kDCRE,kDCRR
                Write (6,*) 'iER,lDCRER=',iER,lDCRER
-               Write (6,*) 'MaxDe,MaxDCR=',MaxDe,MaxDCR
-               Write (6,*) 'ipDeDe,nDeDe_DFT=',ipDeDe, nDeDe_DFT
                Write (6,*) 'ip_D_a=',ip_D_a
                Call RecPrt('DAij',' ',Work(ip_D_a),nBB,nCC)
                If (nD.ne.1)

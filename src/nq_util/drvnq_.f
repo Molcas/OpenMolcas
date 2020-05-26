@@ -35,7 +35,6 @@
 *             August 1999                                              *
 ************************************************************************
       use Real_Spherical
-      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -130,33 +129,6 @@ c        Call append_file(LuMT)
       Call Allok2_Funi(nD)
       Call DeDe_Funi(Density,nFckInt,nD,mDens,ipDq)
 *
-*----- Setup for differential Rho
-*
-#ifdef _RDIFF_
-      iDisk_Now=iDisk_Grid
-      If (Grid_Status.eq.Use_Old.and..Not.Do_Grad.and.
-     &    Functional_Type.eq.Old_Functional_Type) Then
-*
-*---------Read desymmetrized densities from previous iteration
-*
-         Call Allocate_Work(ipDOld,nDeDe_DFT)
-         Call dDaFile(Lu_Grid,2,Work(ipDOld),nDeDe_DFT,iDisk_Now)
-*
-      End If
-*
-      Call dDaFile(Lu_Grid,1,Work(ipDeDe),nDeDe_DFT,iDisk_Grid)
-*
-      If (Grid_Status.eq.Use_Old.and..Not.Do_Grad.and.
-     &    Functional_Type.eq.Old_Functional_Type) Then
-*
-*------- Form the differential desymmetrized density
-*
-         Call DaXpY_(nDeDe_DFT,-One,Work(ipDOld),1,Work(ipDeDe),1)
-         Call Free_Work(ipDOld)
-*
-      End If
-#endif
-
       If(l_casdft.and.do_pdftPot) then
         CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
