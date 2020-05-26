@@ -17,7 +17,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
-      Integer  nDens, mDens, nr_of_Densities, ipDq, ipFq
+      Integer  nDens, mDens, nr_of_Densities, ipDq, ipFq, ipD00
       Real*8   Dens(nDens), TwoHam(nDens)
       Logical  Special_NoSym, DFT_Storage
 * local variables

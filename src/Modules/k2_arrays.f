@@ -10,7 +10,7 @@
 ************************************************************************
       Module k2_arrays
       Integer, Dimension(:,:), Allocatable :: ipOffD
-      Integer  ipDeDe, ipD00
+      Integer  ipDeDe
       Integer  nDeDe, nDeDe_DFT, MaxDe
       Logical  DoGrad_, DoHess_
 
