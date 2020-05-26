@@ -20,6 +20,7 @@
 *             January '90                                              *
 ************************************************************************
       use EFP_Module
+      use k2_arrays
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -30,7 +31,6 @@
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
-#include "k2.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "relae.fh"

@@ -29,6 +29,7 @@
 *             University of Lund, Sweden. Jun '95                      *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -40,7 +41,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
 *     declaration of local vars...
       Logical Debug

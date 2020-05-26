@@ -29,6 +29,7 @@
 *             University of Lund, Sweden. Jun '95                      *
 ************************************************************************
       use iSD_data
+      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -39,7 +40,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
 *     Call QEnter('AlloK2')
 *

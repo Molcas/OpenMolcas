@@ -54,7 +54,7 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-
+      use k2_arrays
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
@@ -62,7 +62,6 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "real.fh"
-#include "k2.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Logical NoCoul,NoExch

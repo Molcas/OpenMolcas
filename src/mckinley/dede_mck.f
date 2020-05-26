@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DeDe_Mck(FD,nFD,ipOffD,nOffD,DDen,lDDen,mDeDe,mIndij)
-#include "k2.fh"
+      use k2_arrays, only: ipD00, MaxDe
 #include "WrkSpc.fh"
       Real*8 FD(nFD), DDen(lDDen)
       Integer ipOffD(nOffD)

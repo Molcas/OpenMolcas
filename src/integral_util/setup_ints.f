@@ -26,6 +26,7 @@
       use Her_RW
       use vRys_RW
       use iSD_data
+      use k2_arrays
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -35,7 +36,6 @@
 #include "WrkSpc.fh"
 #include "lundio.fh"
 #include "setup.fh"
-#include "k2.fh"
 #include "nsd.fh"
 #include "real.fh"
 #include "shinf.fh"

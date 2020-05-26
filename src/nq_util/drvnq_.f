@@ -35,6 +35,7 @@
 *             August 1999                                              *
 ************************************************************************
       use Real_Spherical
+      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -46,7 +47,6 @@
 #include "info.fh"
 #include "nq_info.fh"
 #include "grid_on_disk.fh"
-#include "k2.fh"
 #include "debug.fh"
 #include "ksdft.fh"
       Integer Maps2p(nShell,0:nSym-1),

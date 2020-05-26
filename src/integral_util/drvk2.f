@@ -53,7 +53,6 @@
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "k2.fh"
 #include "status.fh"
 *     Local arrays
       Real*8  Coor(3,4)

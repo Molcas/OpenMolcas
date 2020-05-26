@@ -16,7 +16,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "k2.fh"
 #include "setup.fh"
 *
       Real*8 Dens(nDens), TwoHam(nDens)

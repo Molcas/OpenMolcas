@@ -16,7 +16,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "k2.fh"
 #include "setup.fh"
       Real*8 Dens(nDens,nr_of_Densities)
       Logical Special_NoSym, DFT_Storage

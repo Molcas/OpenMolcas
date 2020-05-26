@@ -23,6 +23,7 @@
 *             of Lund, Sweden. November '92                            *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -30,7 +31,6 @@
 #include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
       If (.Not.Allocated(Data_k2)) Return
 

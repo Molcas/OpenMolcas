@@ -26,6 +26,7 @@
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
       use iSD_data
+      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -36,7 +37,6 @@
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "k2.fh"
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
       Real*8 Rho(nRho,mGrid), Fact(mdc**2),

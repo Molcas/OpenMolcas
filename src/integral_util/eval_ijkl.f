@@ -88,6 +88,7 @@
 *             Total rehack May '99                                     *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
@@ -112,7 +113,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-#include "k2.fh"
 #include "setup.fh"
 #include "status.fh"
 *
