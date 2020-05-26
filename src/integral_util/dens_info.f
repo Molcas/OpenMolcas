@@ -11,13 +11,18 @@
       Subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,
      &                     nr_of_Densities)
       use k2_arrays
+#include "WrkSpc.fh"
       Implicit Real*8 (a-h,o-z)
 *
       ipDij = ipOffD(1,ijS)
       mDCRij= ipOffD(2,ijS)
       nDij  = ipOffD(3,ijS)
-      ipDSij= ip_Dummy
-      If (nr_of_Densities.eq.2) ipDSij=ipOffD(4,ijS)
+      If (nr_of_Densities.eq.2) Then
+         ipDSij=ipOffD(4,ijS)
+      Else
+         ipDSij= ip_Dummy
+      End If
+*
       If (mDCRij*nDij.ne.0) Then
          ipDDij = ipTmp
          ipTmp = ipTmp + nDij*mDCRij

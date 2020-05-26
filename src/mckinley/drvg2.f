@@ -63,7 +63,8 @@
 #include "nsd.fh"
 #include "setup.fh"
 *     Local arrays
-      Real*8, Dimension(:), Allocatable :: DeDe, DeDe2
+      Real*8, Dimension(:), Allocatable :: DeDe(:), DeDe2(:)
+      Integer, Allocatable:: ipOffDA(:,:)
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
      &        iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4),
@@ -295,21 +296,23 @@
             Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
             ipDTemp=ip_Dummy
          Else
-            Call GetMem('IndDij2','Allo','Inte',indDij2,3*nIndij)
+            Call mma_allocate(ipOffDA,3,nIndij,Label='ipOffDA')
             Call mma_allocate(DeDe2,mmdede,label='DeDe2')
             Call GetMem('DIN','Allo','Real',ipDIN,ndens)
             Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
 *
-            Call Din(Work(ipDIN))
             Call Dan(Work(ipDTemp))
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
      &                    DeDe,mmDeDe,mDeDe,mIndij)
             Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
             ipDTemp=ip_Dummy
-            Call DeDe_mck(Work(ipDIN),nFck(0),iWork(indDij2),nIndij,
+
+            Call Din(Work(ipDIN))
+            Call DeDe_mck(Work(ipDIN),nFck(0),ipOffDA,nIndij,
      &                    DeDe2,mmDeDe,mDeDe,mIndij)
             Call GetMem('DIN','Free','Real',ipDIN,ndens)
             ipDIN=ip_Dummy
+
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
                Write (6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
@@ -669,7 +672,7 @@ C              Do lS = 1, kS
                   If (lpick) Then
                   ipDij = ipOffD(1,ijS)
                   If (nMethod.eq.RASSCF)
-     &               ipDij2 = iWork((indDij2-1)+(ijS-1)*3+1)+ipdex2
+     &               ipDij2 = ipOffDA(1,ijS) + ipdex2
                   mDCRij= ipOffD(2,ijS)
                   nDij  = ipOffD(3,ijS)
                   ipTmp = ipDijs
@@ -686,7 +689,7 @@ C              Do lS = 1, kS
 *
                   ipDkl = ipOffD(1,klS)
                   If (nMethod.eq.RASSCF)
-     &               ipDkl2 = iWork((indDij2-1)+(klS-1)*3+1)+ipdex2
+     &               ipDkl2 = ipOffDA(1,klS)+ipdex2
                   mDCRkl= ipOffD(2,klS)
                   nDkl  = ipOffD(3,klS)
                   If (mDCRkl.ne.0) Then
@@ -702,7 +705,7 @@ C              Do lS = 1, kS
 *
                   ipDik = ipOffD(1,ikS)
                   If (nMethod.eq.RASSCF)
-     &               ipDik2 = iWork((indDij2-1)+(ikS-1)*3+1)+ipdex2
+     &               ipDik2 = ipOffDA(1,ikS)+ipdex2
                   mDCRik= ipOffD(2,ikS)
                   nDik  = ipOffD(3,ikS)
                   If (mDCRik.ne.0) Then
@@ -718,7 +721,7 @@ C              Do lS = 1, kS
 *
                   ipDil = ipOffD(1,ilS)
                   If (nMethod.eq.RASSCF)
-     &               ipDil2 = iWork((indDij2-1)+(ilS-1)*3+1)+ipdex2
+     &               ipDil2 = ipOffDA(1,ilS)+ipdex2
                   mDCRil= ipOffD(2,ilS)
                   nDil  = ipOffD(3,ilS)
                   If (mDCRil.ne.0) Then
@@ -734,7 +737,7 @@ C              Do lS = 1, kS
 *
                   ipDjk = ipOffD(1,jkS)
                   If (nMethod.eq.RASSCF)
-     &               ipDjk2 = iWork((indDij2-1)+(jkS-1)*3+1)+ipdex2
+     &               ipDjk2 = ipOffDA(1,jkS)+ipdex2
                   mDCRjk= ipOffD(2,jkS)
                   nDjk  = ipOffD(3,jkS)
                   If (mDCRjk.ne.0) Then
@@ -750,7 +753,7 @@ C              Do lS = 1, kS
 *
                   ipDjl = ipOffD(1,jlS)
                   If (nMethod.eq.RASSCF)
-     &               ipDjl2 = iWork((indDij2-1)+(jlS-1)*3+1)+ipdex2
+     &               ipDjl2 = ipOffDA(1,jlS)+ipdex2
                   mDCRjl= ipOffD(2,jlS)
                   nDjl  = ipOffD(3,jlS)
                   If (mDCRjl.ne.0) Then
@@ -1145,7 +1148,7 @@ C     End Do !  iS
          Call mma_deallocate(DeDe)
          If (nMethod.eq.RASSCF) Then
             Call mma_deallocate(DeDe2)
-            Call GetMem('IndDij2','Free','Inte',indDij2,3*nIndij)
+            Call mma_deallocate(ipOffDA)
          End If
       End If
       If (ipDIN.ne.ip_Dummy)
