@@ -70,7 +70,7 @@
       Parameter(nTInt=1)
       Real*8 Dens(nDens), TwoHam(nDens), TInt(nTInt)
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
-     &        PreSch, Density, Free_K2, Verbose, Indexation,
+     &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
       Integer iTOffs(8,8,8),
      &        nShi(8), nShj(8), nShk(8), nShl(8),
@@ -112,8 +112,6 @@ c       iPrint=200
       nInd=1
       Nr_Dens=1
       DoIntegrals=.False.
-      DoFock=.True.
-      DoGrad=.False.
       NoExch=ExFac.eq.Zero
 *                                                                      *
 ************************************************************************
@@ -135,16 +133,17 @@ c       iPrint=200
 *     canonical, i.e. the relative order of the indices are canonically
 *     ordered.
 *
-      Density=.True.       ! Use density information in prescreening.
       Call DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
 
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ThrAO=Zero           ! Do not modify CutInt
       Indexation=.False.
+      ThrAO=Zero           ! Do not modify CutInt
+      DoFock=.True.
+      DoGrad=.False.
 *
-      Call SetUp_Ints(nSkal,Indexation,ThrAO,Density,DoGrad)
+      Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *                                                                      *
 ************************************************************************
 *                                                                      *

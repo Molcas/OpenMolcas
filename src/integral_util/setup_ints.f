@@ -36,7 +36,6 @@
 #include "WrkSpc.fh"
 #include "lundio.fh"
 #include "setup.fh"
-#include "nsd.fh"
 #include "real.fh"
 #include "shinf.fh"
 #include "status.fh"
@@ -111,7 +110,7 @@
          Call GetMem('ICNTR','ALLO','Inte',ipicntr,nSkal)
          Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
      &               iWork(ipSOSh),iWork(ipicntr),nSkal,nIrrep,nSOs,
-     &               nSD,iSD,nShIrp,nShBFmx)
+     &               nShIrp,nShBFmx)
       End If
 *                                                                      *
 ************************************************************************
