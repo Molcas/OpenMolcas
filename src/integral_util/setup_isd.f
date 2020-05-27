@@ -13,15 +13,42 @@
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Allocated(iSD)) Call mma_deallocate(iSD)
       Call Nr_Shells(nSkal)
       mSkal=nSkal
       nSkal_iSD=nSkal+4  ! Add four slots for future use.
       call mma_allocate(iSD,[0,nSD],[1,nSkal_iSD],label='iSD')
       Call Def_Shells(iSD,nSD,nSkal)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*.... Compute the size of and allocate auxiliary memory
 *
+      Call Get_iScalar('nSym',nIrrep)
+      MxPrm = 0
+      MxFT = 0
+      MxDij = 0
+      Do iS = 1, nSkal
+         iCmp =iSD(2,iS)
+         iBas =iSD(3,iS)
+         iPrim=iSD(5,iS)
+         MxPrm=Max(MxPrm,iPrim)
+         If (nIrrep.eq.1) Then
+            MxFT=1 ! Dummay assignment
+            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
+         Else
+            MxFT = Max(MxFT,6*(iBas*iCmp)**2)
+            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
+         End If
+      End Do
+      MxDij = 6 * nIrrep * MxDij
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

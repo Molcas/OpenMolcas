@@ -131,24 +131,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*.... Compute the size of and allocate auxiliary memory
-*
-      MxPrm = 0
-      MxFT = 0
-      MxDij = 0
-      Do iS = 1, nSkal
-         iCmp =iSD(2,iS)
-         iBas =iSD(3,iS)
-         iPrim=iSD(5,iS)
-         MxPrm=Max(MxPrm,iPrim)
-         If (nIrrep.eq.1) Then
-            MxFT=1 ! Dummay assignment
-            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
-         Else
-            MxFT = Max(MxFT,6*(iBas*iCmp)**2)
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-         End If
-      End Do
+*     Allocate auxiliary memory needed for direct integral evaluation
+*     if the Fock matrix
 *
       If (DoFock) Then
          DoFock_Status=Active

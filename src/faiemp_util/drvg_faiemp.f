@@ -80,7 +80,7 @@ cend
       Integer  jPrInc,k2ij,k2kl,jPrimj,kBasAO,kBasn,kBask,kBsInc
       Integer  kBtch,klS,kpCffk,kPrimk,kPrInc,kS,lBasAO,lBasl,lBasn
       Integer  lBsInc,lpCffl,lPriml,lPrInc,mBtch,lS,mdci,mdcj,mdck,mdcl
-      Integer  MemPSO,MxPrm,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
+      Integer  MemPSO,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
       Integer  nij,nijkl,nPairs,nQuad,nRys,nSkal,nSkal_Fragments
       Integer  nSkal_Valence,nSO,nZeta,nBtch
       Real*8   TMax,PMax,ExFac,CoulFac,Aint,Count,P_Eff,Prem,Pren
