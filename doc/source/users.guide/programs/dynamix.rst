@@ -211,6 +211,20 @@ General keywords
               </HELP>
               </KEYWORD>
 
+:kword:`IN`
+  Enables dynamics in reduced dimensionality.
+  This keyword is followed by an integer on the next line, which defines the number of nuclear coordinates to keep in in the trajectory (default 3 * number of atoms).
+  The coordinates to keep in are then read from the files `in.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
+  The projection is performed in mass-weighted coordinates and can be applied directly to normal modes for instance.
+  Note: In case of several coordinates to keep in, these are first orthogonalised (in mass-weighted coordinates).
+
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="IN" APPEAR="Number of coordinates to keep in" KIND="INT" LEVEL="ADVANCED" DEFAULT_VALUE="3*NATOMS">
+              %%Keyword: IN <advanced>
+              <HELP>
+              Enables reduced dimensionality.
+              </HELP>
+              </KEYWORD>
+
 :kword:`RESTART`
   This keyword allows to restart the trajectory at a given time.
   The time is given on the next line in atomic units.
