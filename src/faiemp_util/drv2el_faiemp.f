@@ -106,26 +106,7 @@ c     W2Disc=.False.
         nBVT = nBVT + nBas(i)*(nBas(i)+1)/2
         nBas(i) = nBas(i) + nBas_Frag(i)
         nBT = nBT + nBas(i)*(nBas(i)+1)/2
-c       write(*,*) 'For irrep ',i,', nBas_Valence, nBas_Frag, nBas =',
-c     &                            nBas_Valence(i), nBas_Frag(i), nBas(i)
       enddo
-c     write(*,*) 'nBT, nBVT =',nBT, nBVT
-c     write(*,*) 'iOper =',(iOper(i),i=0,nIrrep-1)
-c     mdc = 0
-c     Do iCnttp = 1, nCnttp
-c       Do iCnt = 1, nCntr(iCnttp)
-c         mdc = mdc + 1
-c         write(*,*) 'For iCnttp, iCnt, mdc:',iCnttp,iCnt,mdc
-c         write(*,*) '   iChCnt  =',iChCnt(mdc),'(',
-c    &     (iAnd(iChCnt(mdc),i),i=0,nIrrep-1),')'
-c         write(*,*) '   jStab() =',(jStab(i,mdc),i=0,nIrrep-1)
-c        write(*,*) 'nStab, nIrrep/nStab =',nStab(mdc),nIrrep/nStab(mdc)
-c         Do iIrrep = 0, nIrrep - 1
-c           If(iAnd(iChCnt(mdc),iIrrep).eq.iOper(iIrrep))
-c    &        write(*,*) '               center appears in irrep',iIrrep
-c         End Do
-c       End Do
-c     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -145,13 +126,8 @@ c     End Do
         If(nFragType(iCnttp).gt.0) maxDens = Max(maxDens,
      &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
       End Do
-c      write(*,*) 'maxDens =',maxDens
       Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
-c      If(nIrrep.ne.1) Then
-c        Call GetMem('FragDAO','Allo','Real',ipFragDensAO,maxDens)
-c      Else
-        ipFragDensAO = ipFragDensSO
-c      End If
+      ipFragDensAO = ipFragDensSO
 
       iDpos = 1 ! position in the total density matrix
       Do iIrrep = 0, nIrrep - 1
@@ -165,19 +141,11 @@ c      End If
           End If
 * construct the density matrix
           EnergyWeight = .false.
-c          write(6,*) 'Drv2ElFrag: call MakeDens:',nFragDens(iCnttp),
-c     &                                            nFragEner(iCnttp)
-c          call xFlush(6)
-c         Call MakeDens(nFragDens(iCurCnttp),nFragEner(iCurCnttp),
-c     &                Work(ipFragCoef(iCurCnttp)),Work(ipFragEner(iCurCnttp)),
-c     &                EnergyWeight,Array)
           Call MakeDens(nFragDens(iCnttp),nFragEner(iCnttp),
      &                Work(ipFragCoef(iCnttp)),Work(ipFragEner(iCnttp)),
      &                EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
-C         If(nIrrep.ne.1) Call SymmDens(Work(ipFragDensAO),
-C    &      Work(ipFragDensSO))
           If(iPrint.ge.99) Call TriPrt('Fragment density',' ',
      &      Work(ipFragDensSO),nFragDens(iCnttp))
 
@@ -235,13 +203,8 @@ c              ! position in fragment density matrix
 * Should be possible to reduce the storage space for the Fock matrix
 * and only store the top nBas_Valence(0) rows (non-symmetry case tested)
 *
-c      write(6,*) 'Drv2ElFrag: call AlloK2:'
-c      call xFlush(6)
       Call AlloK2()
-c      write(6,*) 'Drv2ElFrag: call DEDE2_FAIEMP: nBT,mDens: ',nBT,mDens
-c      call xFlush(6)
-      Call DeDe_FAIEMP(Work(ipDens),Work(ipFock),nBT,mDens,ipDq,ipFq)
-c     write(*,*) 'Drv2El_FAIEMP: mDens =',mDens
+      Call DeDe_SCF(Work(ipDens),Work(ipFock),nBT,mDens,ipDq,ipFq)
       If(iPrint.ge.99) Then
         If(nIrrep.eq.1) Then
           Call RecPrt('Desymmetrized Density:',' ',Work(ipDq),nBas(0),
@@ -264,8 +227,6 @@ c     write(*,*) 'Drv2El_FAIEMP: mDens =',mDens
       Indexation = .False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
       nSkal_Fragments=nSkal-nSkal_Valence
-c      write(*,*) 'Drv2El_FAIEMP: nSkal =',nSkal,' (nSkal_Valence =',
-c     &        nSkal_Valence,' and nSkal_Fragments =',nSkal_Fragments,')'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -291,7 +252,6 @@ c     &        nSkal_Valence,' and nSkal_Fragments =',nSkal_Fragments,')'
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
-c     write(*,*) 'Drv2El_FAIEMP: TMax_All =',TMax_All
       Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
       Call Shell_MxDens(Work(ipDens),work(ipDMax),nSkal)
 *                                                                      *
@@ -443,16 +403,6 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
         Write (6,'(A,A)') 'Label=',Label
         Call Abend()
       End If
-c     If(nIrrep.eq.1) Then
-c       Call TriPrt('OneHam as read from OneInt',' ',Work(ipOneHam),
-c    &              nBas_Valence(0))
-c     Else
-c       iFD = ipOneHam
-c       Do iIrrep = 0, nIrrep - 1
-c        Call TriPrt('OneHam before',' ',Work(iFD),nBas_Valence(iIrrep))
-c         iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-c       End Do
-c     End If
 * add the calculated results
       nOneHam = 0 ! counter in the ipOneHam matrices (small)
       nFock = 0   ! counter in the ipFock matrices (larger)
@@ -506,8 +456,6 @@ c     End If
 ************************************************************************
 *                                                                      *
       Call QExit('Drv2ElFrag')
-c      write(6,*) 'Exiting Drv2ElFrag'
-c      call xFlush(6)
 
       Return
       End
