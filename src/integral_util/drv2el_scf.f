@@ -128,6 +128,22 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Allocate auxiliary memory needed for direct integral evaluation
+*     if the Fock matrix
+*
+      DoFock=.True.
+      If (DoFock) Then
+         nFT = MxFT
+         Call GetMem('FT','Allo','Real',ipFT,nFT)
+         MxDij = 6 * nIrrep * MxDij
+         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
+      Else
+         ipFT=ip_iDummy
+         ipDijs=ip_iDummy
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *-----Desymmetrize differential densities.
 *     Observe that the desymmetrized 1st order density matrices are
 *     canonical, i.e. the relative order of the indices are canonically
@@ -140,7 +156,6 @@ c       iPrint=200
 *                                                                      *
       Indexation=.False.
       ThrAO=Zero           ! Do not modify CutInt
-      DoFock=.True.
       DoGrad=.False.
 *
       Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)

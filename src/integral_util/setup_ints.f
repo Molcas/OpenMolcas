@@ -131,19 +131,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate auxiliary memory needed for direct integral evaluation
-*     if the Fock matrix
-*
-      If (DoFock) Then
-         DoFock_Status=Active
-         nFT = MxFT
-         Call GetMem('FT','Allo','Real',ipFT,nFT)
-         MxDij = 6 * nIrrep * MxDij
-         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
-      Else
-         ipFT=ip_iDummy
-         ipDijs=ip_iDummy
-      End If
+      If (DoFock) DoFock_Status=Active
 *                                                                      *
 ************************************************************************
 *                                                                      *

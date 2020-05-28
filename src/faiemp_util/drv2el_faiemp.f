@@ -35,6 +35,7 @@
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"
+#include "setup.fh"
 #include "WrkSpc.fh"
       Integer      nTInt
       Parameter(   nTInt=1)
@@ -83,7 +84,6 @@
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.False.
-      DoFock=.True.
       DoGrad=.False.
       NoCoul=.False.
       NoExch=.False.
@@ -210,6 +210,22 @@ c              ! position in fragment density matrix
         End Do
       End If
       Call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Allocate auxiliary memory needed for direct integral evaluation
+*     if the Fock matrix
+*
+      DoFock=.True.
+      If (DoFock) Then
+         nFT = MxFT
+         Call GetMem('FT','Allo','Real',ipFT,nFT)
+         MxDij = 6 * nIrrep * MxDij
+         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
+      Else
+         ipFT=ip_iDummy
+         ipDijs=ip_iDummy
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
