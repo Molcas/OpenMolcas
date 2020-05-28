@@ -93,6 +93,8 @@ C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
         CALL project_out_for(force,natom)
+      ELSEIF (PIN .NE. natom*3) THEN
+        CALL project_in_for(force,natom)
       ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
@@ -145,6 +147,8 @@ C
 C Check if reduced dimensionality (should not be needed)
       IF (POUT .NE. 0) THEN
         CALL project_out_vel(vel,natom)
+      ELSEIF (PIN .NE. natom*3) THEN
+        CALL project_in_vel(vel,natom)
       ENDIF
 
       Call Add_Info('EKin',[EKin],1,6)
