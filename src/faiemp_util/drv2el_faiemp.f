@@ -29,6 +29,7 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
+      use k2_arrays, only: FT, nFT
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -37,6 +38,7 @@
 #include "real.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer      nTInt
       Parameter(   nTInt=1)
       Real*8       TInt(nTInt)
@@ -219,11 +221,10 @@ c              ! position in fragment density matrix
       DoFock=.True.
       If (DoFock) Then
          nFT = MxFT
-         Call GetMem('FT','Allo','Real',ipFT,nFT)
+         Call mma_allocate(FT,nFT,Label='FT')
          MxDij = 6 * nIrrep * MxDij
          Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
       Else
-         ipFT=ip_iDummy
          ipDijs=ip_iDummy
       End If
 *                                                                      *

@@ -54,12 +54,13 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays
+      use k2_arrays, only: FT, nFT
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
 #include "nsd.fh"
@@ -134,11 +135,10 @@ c       iPrint=200
       DoFock=.True.
       If (DoFock) Then
          nFT = MxFT
-         Call GetMem('FT','Allo','Real',ipFT,nFT)
+         Call mma_allocate(FT,nFT,Label='FT')
          MxDij = 6 * nIrrep * MxDij
          Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
       Else
-         ipFT=ip_iDummy
          ipDijs=ip_iDummy
       End If
 *                                                                      *

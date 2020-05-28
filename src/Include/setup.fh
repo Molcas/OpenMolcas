@@ -10,12 +10,12 @@
 ************************************************************************
       Integer
      &        ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
-     &        mSkal, ipiSOSym,nSOs, ipPD, ipFT, MxFT, ipDijs,
-     &        MxDij, ipmem_int, MemMax_int, MxPrm, nFT
+     &        mSkal, ipiSOSym,nSOs, ipPD, MxFT, ipDijs,
+     &        MxDij, ipmem_int, MemMax_int, MxPrm
       Common /iSetup/
      &                ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
-     &                mSkal, ipiSOSym,nSOs, ipPD, ipFT, MxFT, ipDijs,
-     &                MxDij, ipmem_int, MemMax_int, MxPrm,  nFT
+     &                mSkal, ipiSOSym,nSOs, ipPD, MxFT, ipDijs,
+     &                MxDij, ipmem_int, MemMax_int, MxPrm
       Logical Swapping
       Common /lSetup/ Swapping
       Real*8 TCP3, rnint

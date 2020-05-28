@@ -10,6 +10,8 @@
 ************************************************************************
       Module k2_arrays
       Integer, Dimension(:,:), Allocatable :: ipOffD
+      Real*8, Allocatable:: FT(:)
+      Integer  nFT
       Integer  ipDeDe
       Integer  nDeDe, nDeDe_DFT, MaxDe
       Logical  DoGrad_, DoHess_

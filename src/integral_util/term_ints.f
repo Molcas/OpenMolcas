@@ -19,12 +19,14 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
+      use k2_arrays, only: FT, nFT
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
 #include "shinf.fh"
 #include "status.fh"
@@ -41,8 +43,8 @@
       If (DoFock_Status.eq.Active) Then
          DoFock_Status=Inactive
          Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
-         Call GetMem('FT','Free','Real',ipFT,nFT)
       End If
+      If (Allocated(FT)) Call mma_deallocate(FT)
 *
       If (Ind0_Status.eq.InActive) Then
          Call GetMem('MemI','Free','Inte',ipiZet,MemI)
