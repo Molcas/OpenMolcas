@@ -71,6 +71,7 @@
       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
      &           KSDFT(1:6).eq.'TLSDA5'  .or.
      &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:5).eq.'TOPBE'   .or.
      &           KSDFT(1:6).eq.'TSSBSW'  .or.
      &           KSDFT(1:5).eq.'TSSBD'  .or.
      &           KSDFT(1:5).eq.'TS12G'  .or.
@@ -79,6 +80,7 @@
      &           KSDFT(1:7).eq.'TREVPBE' .or.
      &           KSDFT(1:8).eq.'FTREVPBE'.or.
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTOPBE'  .or.
      &           KSDFT(1:6).eq.'FTBLYP'
 
       If( l_casdft ) then

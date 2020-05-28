@@ -666,7 +666,8 @@ C  read the input
 
       If (Xfield .ne. 0.0_wp ) Then
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter XT_dMoverdH_single'
-         Call XT_dMoverdH_single( nss, nTempMagn, nT, nM, Tmin, Tmax,
+         ! nM = nss
+         Call XT_dMoverdH_single( nss, nTempMagn, nT, nss, Tmin, Tmax,
      &                            XTexp, ESO, T, zJ, Xfield, EM, MM, MS,
      &                            XT_no_field, tinput, smagn, mem )
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
@@ -676,8 +677,9 @@ C  read the input
       If( compute_torque ) Then
 
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter TORQUE'
-        Call torque( Nss, NM, AngPoints, EM, eso, mm, ms, zJ, thrs, mem,
-     &                  m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
+         ! nM = nss
+        Call torque( Nss, Nss, AngPoints, EM, eso, mm, ms, zJ, thrs,
+     &               mem, m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit TORQUE'
 
       End If

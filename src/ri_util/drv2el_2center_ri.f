@@ -39,6 +39,7 @@
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Wrj12
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -49,7 +50,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
 #define _no_nShs_
 #include "iTOffs.fh"
@@ -91,8 +92,8 @@
       Indexation = .True.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *
-      Call GetMem('SO2Ind','Allo','Inte',ipSO2Ind,nSOs)
-      Call Mk_iSO2Ind(iWork(ipSOSh),iWork(ipSO2Ind),nSOs,nSkal)
+      Call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
+      Call Mk_iSO2Ind(iWork(ipSOSh),SO2Ind,nSOs,nSkal)
 *
        nSO_Aux=nSOs-1
       If (LDF) Then
@@ -265,7 +266,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
       Call xRlsMem_Ints
       Call GetMem('Am', 'Free','Real',ipTInt,nTInt)
       Call GetMem('TMax','Free','Real',ipTMax,nSkal)
-      Call GetMem('SO2Ind','Free','Inte',ipSO2Ind,nSOs)
+      Call mma_deallocate(SO2Ind)
 *                                                                      *
 ************************************************************************
 *                                                                      *
