@@ -362,7 +362,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
 *
-      Call Free_DeDe_FAIEMP(Work(ipDens),Work(ipFock),nBT,ipDq,ipFq)
+      Call Free_DeDe(Work(ipDens),Work(ipFock),nBT,ipDq,ipFq)
 
       Call GetMem('Density','Free','Real',ipDens,nBT)
       If(iPrint.ge.10) Then

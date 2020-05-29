@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Free_DeDe2(Dens,TwoHam,nDens,ipDq,ipFq)
+      Subroutine Free_DeDe(Dens,TwoHam,nDens,ipDq,ipFq)
       use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

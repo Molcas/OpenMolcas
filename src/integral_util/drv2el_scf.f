@@ -342,7 +342,7 @@ c       iPrint=200
       Free_K2=.False. ! Call to freek2 is external to the driver.
       Call Term_Ints(Verbose,Free_K2)
 *
-      Call Free_DeDe2(Dens,TwoHam,nDens,ipDq,ipFq)
+      Call Free_DeDe(Dens,TwoHam,nDens,ipDq,ipFq)
 *
       Call QExit('Drv2El')
 *

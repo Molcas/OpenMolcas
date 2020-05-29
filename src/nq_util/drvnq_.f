@@ -274,7 +274,7 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 *---- Free memory associated with the density
 *
-      Call Free_DeDe_Funi(Density,nFckInt,ipDq)
+      Call Free_DeDe_Funi()
 *
 *---- Free memory for angular grids
 *
