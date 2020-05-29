@@ -207,7 +207,6 @@ C     really parallel or not.
       IOFF=NSTATE
 * This is the case for XMS-CASPT2 and XDW-CASPT2
       if (Input%XMUL) then
-        IFXMS = Input%XMUL
         if (Input%MULT) then
           call WarningMessage(2,'Keyword XMULtistate cannot be used '//
      &                          'together with keyword MULTistate.')
@@ -405,6 +404,7 @@ C     really parallel or not.
       IFMIX  = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
+      IFXMS = Input % XMUL
       IFDW = Input % DWMS
 * Set exponent for DWMS
       if (IFDW) then

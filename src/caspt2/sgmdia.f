@@ -62,7 +62,7 @@ C positioning.
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V1,WORK(LBD),WORK(LID))
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NAS,NIS,lg_V1)
+              CALL RHS_FREE (NIN,NIS,lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V2,WORK(LBD),WORK(LID))
@@ -71,7 +71,7 @@ C positioning.
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (NIN,NIS,lg_V2)
           CALL GETMEM('BD','FREE','REAL',LBD,NAS)
           CALL GETMEM('ID','FREE','REAL',LID,NIS)
  100  CONTINUE
