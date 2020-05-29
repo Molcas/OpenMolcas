@@ -127,19 +127,19 @@ c Modify the Fock matrix if needed
             write(6,*) 'Fock matrix couplings'
             write(6,*) '---------------------'
             write(6,*)
-            write(6,'(10X,6X,A3,I4,A3)') ' | ', Jstate, ' > '
+            write(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(Jstate), ' > '
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
                 call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
-* Then set it to zero becuase we are within the diagonal approximation
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
+* Then set it to zero because we are within the diagonal approximation
                 H0(Istate,Jstate) = 0.0d0
               else
 * Just print out the already computed diagonal element
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
               end if
             end do
             write(6,*)

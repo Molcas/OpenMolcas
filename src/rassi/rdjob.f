@@ -41,6 +41,7 @@
       integer :: ref_nactel, ref_nhole1, ref_nelec3, ref_nconf
       integer :: ref_nstates, ref_nroots
       integer, allocatable :: ref_rootid(:)
+      integer :: root2state(MxRoot)
 
       character(1), allocatable :: typestring(:)
 
@@ -138,6 +139,14 @@
 
       call mma_allocate(ref_rootid,ref_nstates)
       call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
+      call iCopy(MxRoot,[0],0,root2state,1)
+      If (mh5_exists_attr(refwfn_id, 'ROOT2STATE')) Then
+         call mh5_fetch_attr (refwfn_id,'ROOT2STATE', root2state)
+      Else
+        Do i=1,ref_nstates
+          root2state(i)=i
+        End Do
+      End if
       if (read_states) then
 *  Do not update the state number here, because it's already read in
 *  rdjob_nstates()
@@ -151,8 +160,8 @@
       end if
       LROT1=ref_nroots
       DO I=0,NSTAT(JOB)-1
-        NROOT0=LROOT(ISTAT(JOB)+I)
-        IF (NROOT0.GT.LROT1) THEN
+        NROOT0=root2state(LROOT(ISTAT(JOB)+I))
+        IF (NROOT0.LE.0.OR.NROOT0.GT.LROT1) THEN
           GOTO 9002
         END IF
       END DO
@@ -178,7 +187,8 @@
 !    &    ' elements will be ignored!')
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
-            Work(LREFENE+istate-1)=ref_Heff(I,I)
+            ISNUM=root2state(LROOT(ISTATE))
+            Work(LREFENE+istate-1)=ref_Heff(ISNUM,ISNUM)
           END DO
         Else
           write(6,'(2x,a)')
@@ -187,10 +197,12 @@
      &   ' ------------------------------------------'
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
+            ISNUM=root2state(LROOT(ISTATE))
             DO J=1,NSTAT(JOB)
               JSTATE=ISTAT(JOB)-1+J
+              JSNUM=root2state(LROOT(JSTATE))
               iadr=(istate-1)*nstate+jstate-1
-              Work(l_heff+iadr)=ref_Heff(I,J)
+              Work(l_heff+iadr)=ref_Heff(ISNUM,JSNUM)
 !             write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
 !    &        Work(l_heff+iadr)
 !             call xflush(6)
@@ -206,7 +218,8 @@
      &         pt2_e_string,ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          Work(LREFENE+istate-1)=ref_energies(I)
+          ISNUM=root2state(LROOT(ISTATE))
+          Work(LREFENE+istate-1)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
 * read rasscf energies
@@ -217,7 +230,8 @@
      &         'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          Work(LREFENE+istate-1)=ref_energies(LROOT(ISTATE))
+          ISNUM=root2state(LROOT(ISTATE))
+          Work(LREFENE+istate-1)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
       End If

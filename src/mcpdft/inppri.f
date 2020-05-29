@@ -407,6 +407,7 @@ C.. for GAS
        EndIf
        IF(KSDFT.eq.'TBLYP'.or.KSDFT.eq.'TPBE'.or.KSDFT.eq.'TLSDA'
      &  .or.KSDFT.eq.'FTPBE'.or.KSDFT.eq.'FTLSDA'
+     &  .or.KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE'
      &  .or.KSDFT.eq.'FTBLYP'.or.KSDFT.eq.'TREVPBE'
      &  .or.KSDFT.eq.'FTREVPBE') then
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//

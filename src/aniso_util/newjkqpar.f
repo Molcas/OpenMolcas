@@ -175,8 +175,10 @@
        Do q1=-k1,k1
         Do k2=1,n2-1
          Do q2=-k2,k2
-           F1=knm(k1,abs(q1))
-           F2=knm(k2,abs(q2))
+           F1=0.0_wp
+           F2=0.0_wp
+           If(k1<=12) F1=knm(k1,abs(q1))
+           If(k2<=12) F2=knm(k2,abs(q2))
            S(k1,q1,k2,q2) = S(k1,q1,k2,q2)*cmplx(F1*F2,0.0_wp,wp)
          End Do
         End Do
