@@ -408,7 +408,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
-     &                     mDCRij,ipDij,ipDDij,mDij,nIrrep)
+     &                     mDCRij,ipDij,ipDDij,mDij,nIrrep,
+     &                     Work,nDeDe)
             End If
 *
             Do kBasAO = 1, kBask, kBsInc
@@ -419,14 +420,16 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
-     &                        mDCRik,ipDik,ipDDik,mDik,nIrrep)
+     &                        mDCRik,ipDik,ipDDik,mDik,nIrrep,
+     &                        Work,nDeDe)
                End If
 *
                If (DoFock) Then
                   Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
-     &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep)
+     &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep,
+     &                        Work,nDeDe)
                End If
 *
                 Do lBasAO = 1, lBasl, lBsInc
@@ -437,21 +440,24 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                       Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
-     &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep)
+     &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep,
+     &                            Work,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
-     &                            mDCRil,ipDil,ipDDil,mDil,nIrrep)
+     &                            mDCRil,ipDil,ipDDil,mDil,nIrrep,
+     &                            Work,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
-     &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep)
+     &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep,
+     &                            Work,nDeDe)
                    End If
 *                                                                      *
 ************************************************************************
