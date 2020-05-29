@@ -29,7 +29,7 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
-      use k2_arrays, only: FT, nFT
+      use k2_arrays, only: FT, MxFT
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -86,7 +86,6 @@
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.False.
-      DoGrad=.False.
       NoCoul=.False.
       NoExch=.False.
 c     W2Disc=.False.
@@ -183,18 +182,7 @@ c              ! position in fragment density matrix
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate auxiliary memory needed for direct integral evaluation
-*     if the Fock matrix
-*
-      DoFock=.True.
-      If (DoFock) Then
-         nFT = MxFT
-         Call mma_allocate(FT,nFT,Label='FT')
-         MxDij = 6 * nIrrep * MxDij
-         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
-      Else
-         ipDijs=ip_iDummy
-      End If
+         Call mma_allocate(FT,MxFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -225,6 +213,8 @@ c              ! position in fragment density matrix
 *
       ThrAO = Zero
       Indexation = .False.
+      DoFock=.True.
+      DoGrad=.False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
       nSkal_Fragments=nSkal-nSkal_Valence
 *                                                                      *

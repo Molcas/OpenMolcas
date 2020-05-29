@@ -19,7 +19,7 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
-      use k2_arrays, only: FT, nFT
+      use k2_arrays, only: FT
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -40,10 +40,6 @@
 *
       If (XMem_Status.eq.InActive) Call RlsMem_Ints
 *
-      If (DoFock_Status.eq.Active) Then
-         DoFock_Status=Inactive
-         Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
-      End If
       If (Allocated(FT)) Call mma_deallocate(FT)
 *
       If (Ind0_Status.eq.InActive) Then

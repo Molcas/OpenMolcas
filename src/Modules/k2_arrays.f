@@ -11,9 +11,8 @@
       Module k2_arrays
       Integer, Dimension(:,:), Allocatable :: ipOffD
       Real*8, Allocatable:: FT(:)
-      Integer  nFT
-      Integer  ipDeDe
-      Integer  nDeDe, nDeDe_DFT, MaxDe
+      Integer  ipDeDe, ipD00, ipDijS
+      Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT
       Logical  DoGrad_, DoHess_
 
       End Module

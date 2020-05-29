@@ -28,10 +28,18 @@
       nIndij=nShlls*(nShlls+1)/2
       nField=2+nr_of_Densities
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
-      Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe+MaxDe*MaxDCR)
-*     D00 is a null matrix, which should simplify the logic.
+*
+*     The array with desymmetrized densities contain two additional
+*     fields.
+*     ipD00 is a null matrix, which should simplify the logic.
+*     ipDijS is an auxilliary memory if not the whole set of a
+*      desymmetrized density could be used.
+*
+      nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
+      Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe_tot)
       ipD00 = ipDeDe + nDeDe
-      call dcopy_(MaxDe*MaxDCR,[Zero],0,Work(ipD00),1)
+      ipDijS= ipD00  + MaxDe*MaxDCR
+      call dcopy_(nDeDe_tot,[Zero],0,Work(ipDeDe),1)
 *
       Special_NoSym=.True.
       DFT_Storage=.False.

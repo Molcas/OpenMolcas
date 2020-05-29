@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine SetUp_iSD()
       use iSD_data
+      use k2_arrays, only: MxDij, MxFT
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
 #include "setup.fh"

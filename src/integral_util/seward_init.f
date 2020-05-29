@@ -333,7 +333,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       RctFld_Status=InActive
       Info_Status=InActive
       ERI_Status=InActive
-      DoFock_Status=Inactive
       Indexation_Status=Inactive
       Ind0_Status=Inactive
       XMem_Status=Inactive

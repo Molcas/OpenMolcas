@@ -74,4 +74,6 @@
       Common /Quad_c /cQStrt,
      &                Quadrature, Pad, MBC,
      &                cQEnd
+      Integer ipDijS
+      Common /DijS/ ipDijS
 *

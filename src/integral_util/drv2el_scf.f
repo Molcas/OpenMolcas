@@ -54,7 +54,7 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: FT, nFT
+      use k2_arrays, only: FT, MxFT
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
@@ -129,18 +129,7 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate auxiliary memory needed for direct integral evaluation
-*     if the Fock matrix
-*
-      DoFock=.True.
-      If (DoFock) Then
-         nFT = MxFT
-         Call mma_allocate(FT,nFT,Label='FT')
-         MxDij = 6 * nIrrep * MxDij
-         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
-      Else
-         ipDijs=ip_iDummy
-      End If
+         Call mma_allocate(FT,MxFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -150,12 +139,12 @@ c       iPrint=200
 *     ordered.
 *
       Call DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Indexation=.False.
       ThrAO=Zero           ! Do not modify CutInt
+      DoFock=.True.
       DoGrad=.False.
 *
       Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
