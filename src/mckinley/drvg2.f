@@ -135,12 +135,13 @@
       mDCRjl=0
       mDCRil=0
       mDCRjk=0
+      ipDijS =0
+      ipDijS2=0
 *
       Call CtrlMO(moip,nAco)
 *
       iiii=0
       ipdex=0
-      ipdex2=0
       ndisp=0
       naco=0
       New_Fock=nirrep.eq.1
@@ -180,6 +181,35 @@
       nAux = nIrrep**3
       If (Petite) nAux = 1
       Call GetMem('AuxBuf','ALLO','REAL',ipAux,nAux)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Allocate working area
+*
+      MxPrm = 0
+      MxDij = 0
+      MxBsC = 0
+      Do iAng = 0, iAngMx
+         MxPrm = Max(MxPrm,MaxPrm(iAng))
+         Do 2900 iCnttp = 1,nCnttp
+            iShll = ipVal(iCnttp) + iAng
+            If (nExp(iShll).eq.0) Go To 2900
+            If (nBasis(iShll).eq.0) Go To 2900
+            iPrim = nExp(iShll)
+            iBas  = nBasis(iShll)
+            iCmp  = (iAng+1)*(iAng+2)/2
+            MxBsC=Max(MxBsC,iBas*iCmp)
+            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
+ 2900    Continue
+      End Do
+      MxDij = 6 * nIrrep * MxDij
+      nZeta = MxPrm * MxPrm
+      nEta  = MxPrm * MxPrm
+      iii=nDens*10+10
+      MemR=9*nZeta + 9*nEta +nZeta*nEta
+      Call Getmem('Indeta','ALLO','INTE',ipIndeta,nEta)
+      Call Getmem('Indeta','ALLO','INTE',ipIndzet,nEta)
+      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -288,7 +318,8 @@
       Else
          mmdede=ndede
          Call mma_allocate(ipOffD,3,nIndij,label='ipOffD')
-         Call mma_allocate(DeDe,mmdede,label='DeDe')
+         Call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
+         ipDijS = ip_of_Work(DeDe) + mmDeDe
          If (nMethod.ne.RASSCF) Then
             Call Get_D1ao_Var(ipDTemp,Length)
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
@@ -297,7 +328,8 @@
             ipDTemp=ip_Dummy
          Else
             Call mma_allocate(ipOffDA,3,nIndij,Label='ipOffDA')
-            Call mma_allocate(DeDe2,mmdede,label='DeDe2')
+            Call mma_allocate(DeDe2,mmDeDe+MxDij,label='DeDe2')
+            ipDijS2 = ip_of_Work(DeDe2) + mmDeDe
             Call GetMem('DIN','Allo','Real',ipDIN,ndens)
             Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
 *
@@ -328,37 +360,6 @@
       End Do
 *
       End If ! lGrad
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate working area
-*
-      MxPrm = 0
-      MxDij = 0
-      MxBsC = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
-         Do 2900 iCnttp = 1,nCnttp
-            iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 2900
-            If (nBasis(iShll).eq.0) Go To 2900
-            iPrim = nExp(iShll)
-            iBas  = nBasis(iShll)
-            iCmp  = (iAng+1)*(iAng+2)/2
-            MxBsC=Max(MxBsC,iBas*iCmp)
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
- 2900    Continue
-      End Do
-      MxDij = 6 * nIrrep * MxDij
-      If (.not.New_Fock)
-     &   Call GetMem('Dijs','Allo','Real',ipDijs,2*MxDij)
-      nZeta = MxPrm * MxPrm
-      nEta  = MxPrm * MxPrm
-      iii=nDens*10+10
-      MemR=9*nZeta + 9*nEta +nZeta*nEta
-      Call Getmem('Indeta','ALLO','INTE',ipIndeta,nEta)
-      Call Getmem('Indeta','ALLO','INTE',ipIndzet,nEta)
-      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -659,7 +660,8 @@ C              Do lS = 1, kS
                   nDCRR = Indk2(2,ijS)
                   k2kl  = Indk2(1,klS)
                   nDCRS = Indk2(2,klS)
-                  if (ltri) then
+*
+                  If (ltri) Then
 *
 *-------------------------------------------------------------------*
 *
@@ -670,104 +672,105 @@ C              Do lS = 1, kS
 *                 density matrices follows the contraction index.
 *
                   If (lpick) Then
+*
                   ipDij = ipOffD(1,ijS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDij2 = ipOffDA(1,ijS) + ipdex2
                   mDCRij= ipOffD(2,ijS)
                   nDij  = ipOffD(3,ijS)
+*
                   ipTmp = ipDijs
+                  If (nMethod.eq.RASSCF) Then
+                     ipDij2 = ipOffDA(1,ijS)
+                     ipTmp2= ipDijs2
+                  End If
+*
                   If (mDCRij.ne.0) Then
                      ipDDij = ipTmp
                      ipTmp = ipTmp + nDij*mDCRij
                      If (nMethod.eq.RASSCF) Then
-                      ipDDij2=ipTmp
-                      ipTmp= ipTmp + nDij*mDCRij
+                        ipDDij2=ipTmp2
+                        ipTmp2= ipTmp2+ nDij*mDCRij
                      End If
                   Else
                      ipDDij = ip_Dummy
                   End If
 *
                   ipDkl = ipOffD(1,klS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDkl2 = ipOffDA(1,klS)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDkl2 = ipOffDA(1,klS)
                   mDCRkl= ipOffD(2,klS)
                   nDkl  = ipOffD(3,klS)
                   If (mDCRkl.ne.0) Then
                      ipDDkl = ipTmp
                      ipTmp = ipTmp + nDkl*mDCRkl
                     If (nMethod.eq.RASSCF) Then
-                      ipDDkl2=ipTmp
-                      ipTmp= ipTmp + nDkl*mDCRkl
+                      ipDDkl2=ipTmp2
+                      ipTmp2= ipTmp2+ nDkl*mDCRkl
                     End If
                   Else
                      ipDDkl = ip_Dummy
                   End If
 *
                   ipDik = ipOffD(1,ikS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDik2 = ipOffDA(1,ikS)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDik2 = ipOffDA(1,ikS)
                   mDCRik= ipOffD(2,ikS)
                   nDik  = ipOffD(3,ikS)
                   If (mDCRik.ne.0) Then
                      ipDDik = ipTmp
                      ipTmp = ipTmp + nDik*mDCRik
                     If (nMethod.eq.RASSCF) Then
-                      ipDDik2=ipTmp
-                      ipTmp= ipTmp + nDik*mDCRik
+                      ipDDik2=ipTmp2
+                      ipTmp2= ipTmp2+ nDik*mDCRik
                     End If
                   Else
                      ipDDik = ip_Dummy
                   End If
 *
                   ipDil = ipOffD(1,ilS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDil2 = ipOffDA(1,ilS)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDil2 = ipOffDA(1,ilS)
                   mDCRil= ipOffD(2,ilS)
                   nDil  = ipOffD(3,ilS)
                   If (mDCRil.ne.0) Then
                      ipDDil = ipTmp
                      ipTmp = ipTmp + nDil*mDCRil
                      If (nMethod.eq.RASSCF) Then
-                      ipDDil2=ipTmp
-                      ipTmp= ipTmp + nDil*mDCRil
+                      ipDDil2=ipTmp2
+                      ipTmp2= ipTmp2+ nDil*mDCRil
                      End If
                   Else
                      ipDDil = ip_Dummy
                   End If
 *
                   ipDjk = ipOffD(1,jkS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDjk2 = ipOffDA(1,jkS)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDjk2 = ipOffDA(1,jkS)
                   mDCRjk= ipOffD(2,jkS)
                   nDjk  = ipOffD(3,jkS)
                   If (mDCRjk.ne.0) Then
                      ipDDjk = ipTmp
                      ipTmp = ipTmp + nDjk*mDCRjk
                      If (nMethod.eq.RASSCF) Then
-                      ipDDjk2=ipTmp
-                      ipTmp= ipTmp + nDjk*mDCRjk
+                      ipDDjk2=ipTmp2
+                      ipTmp2= ipTmp2 + nDjk*mDCRjk
                      End If
                   Else
                      ipDDjk = ip_Dummy
                   End If
 *
                   ipDjl = ipOffD(1,jlS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDjl2 = ipOffDA(1,jlS)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDjl2 = ipOffDA(1,jlS)
                   mDCRjl= ipOffD(2,jlS)
                   nDjl  = ipOffD(3,jlS)
                   If (mDCRjl.ne.0) Then
                      ipDDjl = ipTmp
                      ipTmp = ipTmp + nDjl*mDCRjl
                      If (nMethod.eq.RASSCF) Then
-                      ipDDjl2=ipTmp
-                      ipTmp= ipTmp + nDjl*mDCRjl
+                      ipDDjl2=ipTmp2
+                      ipTmp2= ipTmp2+ nDjl*mDCRjl
                      End If
                   Else
                      ipDDjl = ip_Dummy
                   End If
-                  End If
-                  End If
+*
+                  End If  ! If (lpick) Then
+                  End If  ! If (ltri) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1139,11 +1142,8 @@ C     End Do !  iS
       Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
       Call Free_iSD()
       Call GetMem('MemR','Free','REAL',ipZeta,MemR)
-      Call Getmem('Indeta','Free','INTE',ipIndzet,nEta)
-      Call Getmem('Indeta','Free','INTE',ipIndeta,nEta)
 *
       If (.not.New_Fock) Then
-         Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
          Call mma_deallocate(ipOffD)
          Call mma_deallocate(DeDe)
          If (nMethod.eq.RASSCF) Then
@@ -1151,6 +1151,10 @@ C     End Do !  iS
             Call mma_deallocate(ipOffDA)
          End If
       End If
+*
+      Call Getmem('Indeta','Free','INTE',ipIndzet,nEta)
+      Call Getmem('Indeta','Free','INTE',ipIndeta,nEta)
+*
       If (ipDIN.ne.ip_Dummy)
      &   Call GetMem('DIN','Free','Real',ipDIN,ndens)
       If (ipDTemp.ne.ip_Dummy)
