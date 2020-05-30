@@ -122,7 +122,7 @@
 
 * As well as Heff
       call transmat(Heff,U0,Nstate)
-      if (IPRGLB.ge.DEBUG) then
+      if (IPRGLB.ge.VERBOSE) then
         write(6,*)' Heff[1] in the rotated model space basis:'
         call prettyprint(Heff,Nstate,Nstate)
       end if

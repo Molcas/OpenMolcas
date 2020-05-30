@@ -37,16 +37,22 @@
           Ebeta = H(I,I)
 * Compute normalization factor
           do J=1,Nstate
-            Ealpha = H(J,J)
+            ! Ealpha = H(J,J)
             factor = 0.0D0
+            pref = 1.0d-6
             do K=1,Nstate
-              Egamma = H(K,K)
-              factor = factor + exp(-zeta*(Ealpha - Egamma)**2)
+              ! Egamma = H(K,K)
+              ! Dag = Ealpha - Egamma
+              Hag = H(J,K)
+              factor = factor + exp(-pref*zeta*(1.0d0/Hag)**2)
             end do
             IJ = (I-1) + Nstate*(J-1)
 * Compute weight according to XDW prescription
-            WORK(LDWGT+IJ) = exp(-zeta*(Ealpha - Ebeta)**2)/factor
+            ! Dab = Ealpha - Ebeta
+            Hab = H(J,I)
+            WORK(LDWGT+IJ) = exp(-pref*zeta*(1.0d0/Hab)**2)/factor
           end do
+          write(6,*)
 
 * If it is an XMS-CASPT2 calculation, all the weights are equal,
 * i.e. they all are 1/Nstate
