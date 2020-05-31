@@ -104,7 +104,7 @@
 *     can be done elsewhere and then this call will simply result in
 *     a return.
 *
-      Call Allok2
+      Call Allok2()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -301,7 +301,7 @@
      &                  nZeta,ijInc,Work(ipCon),
      &                  Work(ipMem2),Mem2,Cmpct,
      &                  nScree,mScree,mdci,mdcj,
-     &                  Work(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
+     &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
      &                  ipTmp1,ipTmp2,ipTmp3,
      &                  ipKnew,ipLnew,ipPnew,ipQnew,DoGrad,
      &                  Work(ipHrrMtrx),nHrrMtrx)

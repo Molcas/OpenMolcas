@@ -421,7 +421,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
      &                     mDCRij,ipDij,ipDDij,mDij,nIrrep,
-     &                     Work,nDeDe)
+     &                     DeDe,nDeDe)
             End If
 *
             Do kBasAO = 1, kBask, kBsInc
@@ -433,7 +433,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
      &                        mDCRik,ipDik,ipDDik,mDik,nIrrep,
-     &                        Work,nDeDe)
+     &                        DeDe,nDeDe)
                End If
 *
                If (DoFock) Then
@@ -441,7 +441,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
      &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep,
-     &                        Work,nDeDe)
+     &                        DeDe,nDeDe)
                End If
 *
                 Do lBasAO = 1, lBasl, lBsInc
@@ -453,7 +453,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
      &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep,
-     &                            Work,nDeDe)
+     &                            DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
@@ -461,7 +461,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
      &                            mDCRil,ipDil,ipDDil,mDil,nIrrep,
-     &                            Work,nDeDe)
+     &                            DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
@@ -469,7 +469,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
      &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep,
-     &                            Work,nDeDe)
+     &                            DeDe,nDeDe)
                    End If
 *                                                                      *
 ************************************************************************
@@ -489,11 +489,11 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            Data_k2(k2ij),mData1,nDCRR,
      *                            Data_k2(k2kl),mData2,nDCRS,
      &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            Work(ipDDij),mDij,mDCRij,
-     &                            Work(ipDDkl),mDkl,mDCRkl,
-     & Work(ipDDik),mDik,mDCRik,Work(ipDDil),mDil,mDCRil,Work(ipDDjk),
-     & mDjk,mDCRjk, Work(ipDDjl),mDjl,mDCRjl,Fock,Dens,lDens,
-     &                            Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
+     &                            DeDe(ipDDij),mDij,mDCRij,
+     &                            DeDe(ipDDkl),mDkl,mDCRkl,
+     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
+     & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
+     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
      &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
@@ -518,11 +518,11 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
      &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            Work(ipDDij),mDij,mDCRij,
-     &                            Work(ipDDkl),mDkl,mDCRkl,
-     & Work(ipDDik),mDik,mDCRik,Work(ipDDil),mDil,mDCRil,Work(ipDDjk),
-     & mDjk,mDCRjk, Work(ipDDjl),mDjl,mDCRjl,Fock,Dens,lDens,
-     &                            Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
+     &                            DeDe(ipDDij),mDij,mDCRij,
+     &                            DeDe(ipDDkl),mDkl,mDCRkl,
+     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
+     & DeDe(ipDDjk),mDjk,mDCRjk, DeDe(ipDDjl),mDjl,mDCRjl,
+     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
      &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,

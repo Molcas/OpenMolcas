@@ -36,21 +36,17 @@
 *      desymmetrized density could be used.
 *
       nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
-      Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe_tot)
+      Call mma_allocate(DeDe,nDeDe_tot,Label='DeDe')
+      ipDeDe = 1
       ipD00 = ipDeDe + nDeDe
       ipDijS= ipD00  + MaxDe*MaxDCR
-      call dcopy_(nDeDe_tot,[Zero],0,Work(ipDeDe),1)
+      DeDe(:)=Zero
 *
       Special_NoSym=.True.
       DFT_Storage=.False.
-      Call DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
-     &          ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &          Work,1)
-      If (mDeDe.ne.nDeDe) Then
-         Write (6,*) ' mDeDe =', mDeDe,' nDeDe =', nDeDe
-         Call ErrTra
-         Call Abend
-      End If
+      Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
+     &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
+     &             Work,1,DeDe,nDeDe)
 *                                                                      *
 ************************************************************************
 *                                                                      *

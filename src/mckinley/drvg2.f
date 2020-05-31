@@ -40,7 +40,7 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
+*             March 1990                                               *
 *             Anders Bernhardsson 1995-1996                            *
 ************************************************************************
       use Real_Spherical
@@ -63,7 +63,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 *     Local arrays
-      Real*8, Dimension(:), Allocatable :: DeDe(:), DeDe2(:)
+      Real*8, Dimension(:), Allocatable :: DeDe2(:)
       Integer, Allocatable:: ipOffDA(:,:)
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
@@ -319,7 +319,7 @@
          mmdede=ndede
          Call mma_allocate(ipOffD,3,nIndij,label='ipOffD')
          Call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
-         ipDijS = ip_of_Work(DeDe) + mmDeDe
+         ipDijS = 1 + mmDeDe
          If (nMethod.ne.RASSCF) Then
             Call Get_D1ao_Var(ipDTemp,Length)
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
@@ -329,7 +329,7 @@
          Else
             Call mma_allocate(ipOffDA,3,nIndij,Label='ipOffDA')
             Call mma_allocate(DeDe2,mmDeDe+MxDij,label='DeDe2')
-            ipDijS2 = ip_of_Work(DeDe2) + mmDeDe
+            ipDijS2 = 1 + mmDeDe
             Call GetMem('DIN','Allo','Real',ipDIN,ndens)
             Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
 *
@@ -838,17 +838,17 @@ C              Do lS = 1, kS
                     jBasn=Min(jBsInc,jBasj-jBasAO+1)
                     iAOst(2) = jBasAO-1
                     If (lpick.and.nDij*mDCRij.ne.0) Then
-                     Call Picky(Work(ipDij),iBasi,jBasj,
+                     Call Picky(DeDe(ipDij),iBasi,jBasj,
      &                         iPrimi*jPrimj,
      &                         iCmpV(1)*iCmpV(2),mDCRij,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         jBasAO,jBasAO+jBasn-1,Work(ipDDij))
+     &                         jBasAO,jBasAO+jBasn-1,DeDe(ipDDij))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDij2),iBasi,jBasj,
+     &              Call Picky(DeDe2(ipDij2),iBasi,jBasj,
      &                         iPrimi*jPrimj,
      &                         iCmpV(1)*iCmpV(2),mDCRij,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         jBasAO,jBasAO+jBasn-1,Work(ipDDij2))
+     &                         jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
                     End If
                     mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2) +
      &                     iPrimi*jPrimj + 1
@@ -858,33 +858,33 @@ C              Do lS = 1, kS
                     kBasn=Min(kBsInc,kBask-kBasAO+1)
                     iAOst(3) = kBasAO-1
                     If (lpick.and.nDik*mDCRik.ne.0) Then
-                     Call Picky(Work(ipDik),iBasi,kBask,
+                     Call Picky(DeDe(ipDik),iBasi,kBask,
      &                         iPrimi*kPrimk,
      &                         iCmpV(1)*iCmpV(3),mDCRik,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDik))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe(ipDDik))
                      If (nMethod.eq.RASSCF)
-     &               Call Picky(Work(ipDik2),iBasi,kBask,
+     &               Call Picky(DeDe2(ipDik2),iBasi,kBask,
      &                         iPrimi*kPrimk,
      &                         iCmpV(1)*iCmpV(3),mDCRik,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDik2))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
                     End If
                     mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3) +
      &                     iPrimi*kPrimk + 1
                     mDik = Min(nDik,mDik)
                     If (lpick.and.nDjk*mDCRjk.ne.0) Then
-                     Call Picky(Work(ipDjk),jBasj,kBask,
+                     Call Picky(DeDe(ipDjk),jBasj,kBask,
      &                         jPrimj*kPrimk,
      &                         iCmpV(2)*iCmpV(3),mDCRjk,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDjk))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe(ipDDjk))
                     If (nMethod.eq.RASSCF)
-     &               Call Picky(Work(ipDjk2),jBasj,kBask,
+     &               Call Picky(DeDe2(ipDjk2),jBasj,kBask,
      &                         jPrimj*kPrimk,
      &                         iCmpV(2)*iCmpV(3),mDCRjk,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDjk2))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
                     End If
                     mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3) +
      &                     jPrimj*kPrimk + 1
@@ -894,49 +894,49 @@ C              Do lS = 1, kS
                     lBasn=Min(lBsInc,lBasl-lBasAO+1)
                     iAOst(4) = lBasAO-1
                     If (lpick.and.nDkl*mDCRkl.ne.0) Then
-                    Call Picky(Work(ipDkl),kBask,lBasl,
+                    Call Picky(DeDe(ipDkl),kBask,lBasl,
      &                         kPrimk*lPriml,
      &                         iCmpV(3)*iCmpV(4),mDCRkl,
      &                         kBasAO,kBasAO+kBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDkl))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDkl))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDkl2),kBask,lBasl,
+     &              Call Picky(DeDe2(ipDkl2),kBask,lBasl,
      &                         kPrimk*lPriml,
      &                         iCmpV(3)*iCmpV(4),mDCRkl,
      &                         kBasAO,kBasAO+kBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDkl2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
                     End If
                     mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4) +
      &                     kPrimk*lPriml + 1
                     mDkl = Min(nDkl,mDkl)
                     If (lpick.and.nDil*mDCRil.ne.0) Then
-                    Call Picky(Work(ipDil),iBasi,lBasl,
+                    Call Picky(DeDe(ipDil),iBasi,lBasl,
      &                         iPrimi*lPriml,
      &                         iCmpV(1)*iCmpV(4),mDCRil,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDil))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDil))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDil2),iBasi,lBasl,
+     &              Call Picky(DeDe2(ipDil2),iBasi,lBasl,
      &                         iPrimi*lPriml,
      &                         iCmpV(1)*iCmpV(4),mDCRil,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDil2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
                     End If
                     mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4) +
      &                     iPrimi*lPriml + 1
                     mDil = Min(nDil,mDil)
                     If (lpick.and.nDjl*mDCRjl.ne.0) Then
-                    Call Picky(Work(ipDjl),jBasj,lBasl,
+                    Call Picky(DeDe(ipDjl),jBasj,lBasl,
      &                         jPrimj*lPriml,
      &                         iCmpV(2)*iCmpV(4),mDCRjl,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDjl))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDjl))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDjl2),jBasj,lBasl,
+     &              Call Picky(DeDe2(ipDjl2),jBasj,lBasl,
      &                         jPrimj*lPriml,
      &                         iCmpV(2)*iCmpV(4),mDCRjl,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDjl2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
                     End If
                     mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4) +
      &                     jPrimj*lPriml + 1
@@ -1025,12 +1025,12 @@ C              Do lS = 1, kS
      &                   Work(ip_PP), nSO,Work(ipMem2),Mem2,
      &                   Work(ipMem3),Mem3,Work(ipMem4),Mem4,
      &                   Work(ipAux),nAux,Work(ipMemX),MemX,Shijij,
-     &                   Work(ipDDij),Work(ipDDij2),mDij,mDCRij,
-     &                   Work(ipDDkl),Work(ipDDkl2),mDkl,mDCRkl,
-     &                   Work(ipDDik),Work(ipDDik2),mDik,mDCRik,
-     &                   Work(ipDDil),Work(ipDDil2),mDil,mDCRil,
-     &                   Work(ipDDjk),Work(ipDDjk2),mDjk,mDCRjk,
-     &                   Work(ipDDjl),Work(ipDDjl2),mDjl,mDCRjl,
+     &                   DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,
+     &                   DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,
+     &                   DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,
+     &                   DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,
+     &                   DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,
+     &                   DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,
      &                   iCmpV,Work(ipFin),MemFin,
      &                   Work(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
      &                   iWork(ipIndEta),iWork(ipIndZet),Work(ipInt),
@@ -1141,7 +1141,6 @@ C     End Do !  iS
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
       Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
       Call Free_iSD()
-      Call GetMem('MemR','Free','REAL',ipZeta,MemR)
 *
       If (.not.New_Fock) Then
          Call mma_deallocate(ipOffD)
@@ -1152,6 +1151,7 @@ C     End Do !  iS
          End If
       End If
 *
+      Call GetMem('MemR','Free','REAL',ipZeta,MemR)
       Call Getmem('Indeta','Free','INTE',ipIndzet,nEta)
       Call Getmem('Indeta','Free','INTE',ipIndeta,nEta)
 *

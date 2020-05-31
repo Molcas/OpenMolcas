@@ -25,20 +25,17 @@
 *
 *
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
-      Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe_DFT+MaxDe*MaxDCR)
+      Call mma_allocate(DeDe,nDeDe_DFT+MaxDe*MaxDCR,Label='DeDe')
+      ipDeDe= 1
       ipD00 = ipDeDe + nDeDe_DFT
-      Call FZero(Work(ipD00),MaxDe*MaxDCR)
+      ipDijs = -1  ! Dummy value
+      DeDe(:)=Zero
 *
       Special_NoSym=.False.
       DFT_Storage=.True.
-      Call DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
-     &          ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &          Work,1)
-      If (mDeDe.ne.nDeDe_DFT) Then
-         Call WarningMessage(2,'DeDe_Funi: mDeDe.ne.nDeDe_DFT')
-         Write (6,*) ' mDeDe =', mDeDe,' nDeDe_DFT =', nDeDe_DFT
-         Call Abend()
-      End If
+      Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
+     &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
+     &             Work,1,DeDe,nDeDe_DFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

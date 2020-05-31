@@ -43,7 +43,7 @@
       End If
 *
       Call mma_deallocate(ipOffD)
-      Call GetMem('DeDe2','Free','Real',ipDeDe,nDeDe)
+      Call mma_deallocate(DeDe)
 *
       Return
       End

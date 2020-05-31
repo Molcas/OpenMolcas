@@ -14,7 +14,7 @@
 #include "stdalloc.fh"
 *
       Call mma_deallocate(ipOffD)
-      Call GetMem('DeDe2','Free','Real',ipDeDe,nDeDe_DFT)
+      Call mma_deallocate(DeDe)
 *
       Return
       End
