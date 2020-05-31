@@ -127,7 +127,7 @@ c        Call append_file(LuMT)
 *----- Desymmetrize the 1-particle density matrix
 *
       Call Allok2_Funi(nD)
-      Call DeDe_Funi(Density,nFckInt,nD,mDens,ipDq)
+      Call DeDe_Funi(Density,nFckInt,nD)
 *
       If(l_casdft.and.do_pdftPot) then
         CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,nFckInt)
@@ -220,7 +220,7 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     AOInt,nAOInt,FckInt,nFckDim,nFckInt,
      &                     SOTemp,nSOTemp,
-     &                     Work(ipDq),mDens,nD,
+     &                     Density,nFckInt,nD,
      &                     Grid,Weights,Rho,mGrid,nRho,
      &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,

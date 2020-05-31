@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DeDe_Funi(Dens,nDens,nr_of_Densities,mDens,ipDq)
+      Subroutine DeDe_Funi(Dens,nDens,nr_of_Densities)
       use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -39,8 +39,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ipDq=ip_of_Work(Dens(1,1))
-      mDens=nDens
-*
       Return
       End
