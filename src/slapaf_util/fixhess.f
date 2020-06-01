@@ -15,6 +15,7 @@
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
+*#define _DEBUG_
       Real*8 H(nH,nH), MF(3*nAtoms)
       Integer iNeg(2)
       Logical AnalHess, Corrected, Too_Small, Found
@@ -23,15 +24,16 @@
       iPrint=nPrint(iRout)
       Call QEnter('FixHess')
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
+#endif
 *
       Lu=6
       Corrected=.False.
       HTh=1.0d-3
       Too_Small=.False.
       ZTh=1.0D-12
+      HHigh=1.0D0
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
 *
@@ -46,11 +48,12 @@
          SumHii=SumHii+H(i,i)
       End Do
 *
-      If (iPrint.ge.99) Then
-         Write (Lu,*) 'FixHess: SumHii=',SumHii
-         Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
-         Call TriPrt('FixHess: H',' ',Work(ipEVal),nH)
-      End If
+#ifdef _DEBUG_
+      Write (Lu,*) 'FixHess: SumHii=',SumHii
+      Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
+      Call TriPrt('FixHess: H',' ',Work(ipEVal),nH)
+#endif
+
 *
 *---- Compute eigenvalues and eigenvectors
 *
@@ -71,10 +74,10 @@
       Do While (.Not.Found)
         Call Davidson(Work(ipEVal),nH,
      &                NumVal,Work(ipLowVal),Work(ipLowVec),iStatus)
-        If (iPrint.ge.99) Then
-          Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
-          Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
-        End IF
+#ifdef _DEBUG_
+        Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
+        Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+#endif
         If (iStatus.gt.0) Then
           Call SysWarnMsg('FixHess',
      &      'Davidson procedure did not converge','')
@@ -104,10 +107,10 @@
 *---- Apply corrections if any ...
 *
       Call GetMem('FixVal','Allo','Real',ipFixVal,NumVal)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
-         Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
+      Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+#endif
       iNeg(1)=0
       jNeg=0
       rLow=Ten
@@ -142,7 +145,11 @@
             If (.Not.AnalHess .and.
      &          iAnd(iOptC,128).eq.128 .and.
      &          iAnd(iOptC,4096).ne.4096) Then
-               Work(i+ipFixVal-1)=Abs(Work(i+ipFixVal-1))
+*
+*             Change the sign and if just too large reduce the value
+*             to the default of HHigh.
+*
+               Work(i+ipFixVal-1)=Min(HHigh,Abs(Work(i+ipFixVal-1)))
                Corrected=.True.
             End If
          End If
@@ -172,10 +179,12 @@
 ************************************************************************
 *                                                                      *
 *
-      If (Too_Small.and.iPrint.ge.6) Then
+#ifdef _DEBUG_
+      If (Too_Small) Then
          Write (Lu,*) ' Some too small eigenvalues has been corrected'
          Write (Lu,*)
       End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -185,12 +194,13 @@
 *                                                                      *
       If (iAnd(iOptC,128).eq.128) Then
 *
-         If (iNeg(1).ne.0.and.iAnd(iOptC,256).ne.256.and.iPrint.ge.6)
-     &   Then
+#ifdef _DEBUG_
+         If (iNeg(1).ne.0.and.iAnd(iOptC,256).ne.256) Then
             Write (Lu,*) ' Some negative eigenvalues has been corrected'
             Write (Lu,*) 'iNeg=',iNeg(1)
             Write (Lu,*)
          End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -214,17 +224,18 @@
                Mode=jNeg
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-                  Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,I3)') ' Store Original mode:',Mode
+               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             Else
 *
 *------------- Check that it is the correct eigenvector!
 *
-               If (iPrint.ge.6) Call RecPrt(' Old Reaction mode',' ',
-     &                                      MF,3,nAtoms)
+#ifdef _DEBUG_
+               Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+#endif
                iTest=0
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
@@ -238,8 +249,9 @@
                      Test=rq
                   End If
                   Temp=Work(i+ipFixVal-1)
-                  If (iPrint.ge.6)
-     &               Write (6,*) '<old|new>,H_new=',rq,Temp
+#ifdef _DEBUG_
+                  Write (6,*) '<old|new>,H_new=',rq,Temp
+#endif
                End Do
                Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
 *
@@ -247,33 +259,36 @@
                If (iTest.eq.jNeg) Then
                   Mode = jNeg
                Else
-                  If (iPrint.ge.6)
-     &               Write (Lu,*) ' Warning: wrong eigenvector has'
-     &                          //' negative eigenvalue.'
+#ifdef _DEBUG_
+                  Write (Lu,*) ' Warning: wrong eigenvector has'
+     &                       //' negative eigenvalue.'
+#endif
 *                 Keep the old vector if there is significant overlap
 *                 Note: there could be a better vector not in the computed set
                   If (.Not.AnalHess.and.(Test.gt.0.50d0)) Then
                      Mode = iTest
-                     If (iPrint.ge.6)
-     &                  Write (Lu,*) 'Keep old eigenvector!',Mode
+#ifdef _DEBUG_
+                     Write (Lu,*) 'Keep old eigenvector!',Mode
+#endif
                      Work(jNeg+ipFixVal-1) = Abs(Work(jNeg+ipFixVal-1))
                      Corrected=.True.
 *                 Prefer the new eigenvector if the Hessian is analytical
 *                 or if the best overlap is poor
                   Else
                      Mode = jNeg
-                     If (iPrint.ge.6)
-     &                  Write (Lu,*) 'Take new eigenvector!',Mode
+#ifdef _DEBUG_
+                     Write (Lu,*) 'Take new eigenvector!',Mode
+#endif
                   End if
                End If
 *
                Work(Mode+ipFixVal-1) = -Abs(Work(Mode+ipFixVal-1))
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-                  Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
+               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             End If
 *                                                                      *
@@ -290,17 +305,18 @@
                Mode=iLow
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-                  Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,I3)') ' Store Original mode:',Mode
+               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             Else
 *
 *------------- Find the eigenvector with the best overlap
 *
-               If (iPrint.ge.6) Call RecPrt(' Old Reaction mode',' ',
-     &                                      MF,3,nAtoms)
+#ifdef _DEBUG_
+               Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+#endif
                iTest=0
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
@@ -314,8 +330,9 @@
                      Test=rq
                   End If
                   Temp=Work(i+ipFixVal-1)
-                  If (iPrint.ge.6)
-     &               Write (6,*) '<old|new>,H_new=',rq,Temp
+#ifdef _DEBUG_
+                  Write (6,*) '<old|new>,H_new=',rq,Temp
+#endif
                End Do
                Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
 *
@@ -326,28 +343,29 @@
 *              Prefer the lowest eigenvector if the best overlap is poor
                Else
                   Mode = iLow
-                  If (iPrint.ge.6)
-     &               Write (Lu,*) ' Warning: no good overlap among'
-     &                          //' the computed set of eigenvectors.'
+#ifdef _DEBUG_
+                  Write (Lu,*) ' Warning: no good overlap among'
+     &                       //' the computed set of eigenvectors.'
+#endif
                End if
 *
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-                  Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
+               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             End If
 *
             Work(Mode+ipFixVal-1) = - Half * Abs(Work(Mode+ipFixVal-1))
             Corrected=.True.
-            If (iPrint.ge.6) Then
-               Write (Lu,'(A,I2,A)')
-     &                   ' No negative eigenvalue, correction: mode ',
-     &                   Mode,' was changed to negative'
-               Write (Lu,*)
-            End If
+#ifdef _DEBUG_
+            Write (Lu,'(A,I2,A)')
+     &                ' No negative eigenvalue, correction: mode ',
+     &                Mode,' was changed to negative'
+            Write (Lu,*)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -362,17 +380,18 @@
                Mode=iLow
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-                  Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,I3)') ' Store Original mode:',Mode
+               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             Else
 *
 *------------- Find the eigenvector with the best overlap
 *
-               If (iPrint.ge.6) Call RecPrt(' Old Reaction mode',' ',
-     &                                      MF,3,nAtoms)
+#ifdef _DEBUG_
+              Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+#endif
                iTest=0
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
@@ -386,8 +405,9 @@
                      Test=rq
                   End If
                   Temp=Work(i+ipFixVal-1)
-                  If (iPrint.ge.6)
-     &               Write (6,*) '<old|new>,H_new=',rq,Temp
+#ifdef _DEBUG_
+                  Write (6,*) '<old|new>,H_new=',rq,Temp
+#endif
                End Do
                Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
 *
@@ -398,17 +418,18 @@
 *              Prefer the lowest eigenvector if the best overlap is poor
                Else
                   Mode = iLow
-                  If (iPrint.ge.6)
-     &               Write (Lu,*) ' Warning: no good overlap among'
-     &                          //' the computed set of eigenvectors.'
+#ifdef _DEBUG_
+                  Write (Lu,*) ' Warning: no good overlap among'
+     &                       //' the computed set of eigenvectors.'
+#endif
                End if
 *
                ipFrom=ipLowVec + (Mode-1)*nH
                Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
-               If (iPrint.ge.6) Then
-                  Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-                  Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
-               End If
+#ifdef _DEBUG_
+               Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
+               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+#endif
 *
             End If
 *
@@ -428,31 +449,33 @@
                End If
             End Do
             Corrected=.True.
-            If (iPrint.ge.6) Then
-               Write (Lu,'(A,I2,A)')
-     &               ' Too many negative eigenvalue, correction: mode ',
-     &               Mode,' was kept'
-               Write (Lu,*)
-            End If
+#ifdef _DEBUG_
+            Write (Lu,'(A,I2,A)')
+     &            ' Too many negative eigenvalue, correction: mode ',
+     &            Mode,' was kept'
+            Write (Lu,*)
+#endif
 *
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUG_
       Else
-         If (iPrint.ge.6) Write (6,*) 'No Hessian massage!'
+         Write (6,*) 'No Hessian massage!'
+#endif
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
-      If (iPrint.ge.49) Then
-         Write (Lu,*)
-         Write (Lu,*)' Analysis of the Hessian'
-         Write (Lu,*)
-         Call RecPrt(' Eigenvalues',' ',Work(ipFixVal),1,NumVal)
-         Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
-      End If
+#ifdef _DEBUG_
+      Write (Lu,*)
+      Write (Lu,*)' Analysis of the Hessian'
+      Write (Lu,*)
+      Call RecPrt(' Eigenvalues',' ',Work(ipFixVal),1,NumVal)
+      Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
