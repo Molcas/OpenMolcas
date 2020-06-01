@@ -17,7 +17,10 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical First, Dff, NonEq
+      Real*8, Allocatable:: Cord(:,:), Chrg(:)
+      Real*8, Allocatable:: PCM_charge(:,:)
 *
       iRout = 1
       iPrint = nPrint(iRout)
@@ -44,8 +47,8 @@
 *
       Call Get_nAtoms_All(MaxAto)
 *
-      Call GetMem('Cord','Allo','Real',ipCord,3*MaxAto)
-      Call GetMem('Chrg','Allo','Real',ipChrg,MaxAto)
+      Call mma_allocate(Cord,3,MaxAto,Label='Cord')
+      Call mma_allocate(Chrg,  MaxAto,Label='Chrg')
 *
       ndc = 0
       nc = 1
@@ -63,10 +66,10 @@
                iFacx=iPhase(1,iCoset(i,0,ndc))
                iFacy=iPhase(2,iCoset(i,0,ndc))
                iFacz=iPhase(3,iCoset(i,0,ndc))
-               Work(ipCord+(nc-1)*3  ) = x1*DBLE(iFacx)
-               Work(ipCord+(nc-1)*3+1) = y1*DBLE(iFacy)
-               Work(ipCord+(nc-1)*3+2) = z1*DBLE(iFacz)
-               Work(ipChrg+(nc-1)) = Z
+               Cord(1,nc)  = x1*DBLE(iFacx)
+               Cord(2,nc)  = y1*DBLE(iFacy)
+               Cord(3,nc)  = z1*DBLE(iFacz)
+               Chrg(nc)    = Z
                nc = nc + 1
             End Do
             jxyz = jxyz + 3
@@ -75,7 +78,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('PCM-Chg','Allo','Real',ip_Q,2*nTs)
+      Call mma_allocate(PCM_Charge,2,nTS,Label='PCM_Charge')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -84,9 +87,9 @@
       Call GetMem('Q_Slow','Allo','Real',ip_QSlow,nTs)
       Call GetMem('V_Slow','Allo','Real',ip_VSlow,nTs)
       Call DrvPCM_(h1,TwoHam,D,RepNuc,nh1,First,NonEq,
-     &             Work(ipChrg),Work(ipCord),MaxAto,
+     &             Chrg,Cord,MaxAto,
      &             Work(ip_Tess),Work(ip_DM),Work(ip_V_Ts),
-     &             Work(ip_VSave),Work(ip_Q),Work(ip_QSlow),
+     &             Work(ip_VSave),PCM_Charge,Work(ip_QSlow),
      &             Work(ip_VSlow),nTs,Eps,EpsInf)
       Call GetMem('V_Slow','Free','Real',ip_VSlow,nTs)
       Call GetMem('Q_Slow','Free','Real',ip_QSlow,nTs)
@@ -97,13 +100,13 @@
 *                                                                      *
 *---- Put the current set of PCM charges on the run file.
 *
-      Call Put_dArray('PCM Charges',Work(ip_Q),2*nTs)
-      Call GetMem('PCM-Chg','Free','Real',ip_Q,2*nTs)
+      Call Put_dArray('PCM Charges',PCM_Charge,2*nTs)
+      Call mma_deallocate(PCM_Charge)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Chrg','Free','Real',ipChrg,MaxAto)
-      Call GetMem('Cord','Free','Real',ipCord,3*MaxAto)
+      Call mma_deallocate(Chrg)
+      Call mma_deallocate(Cord)
       Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
 *                                                                      *
 ************************************************************************
