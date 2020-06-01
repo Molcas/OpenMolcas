@@ -12,7 +12,6 @@
      &                     nr_of_Densities)
       use k2_arrays
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 *
       ipDij = ipOffD(1,ijS)
       mDCRij= ipOffD(2,ijS)
@@ -20,14 +19,14 @@
       If (nr_of_Densities.eq.2) Then
          ipDSij=ipOffD(4,ijS)
       Else
-         ipDSij= ip_Dummy
+         ipDSij= 1
       End If
 *
       If (mDCRij*nDij.ne.0) Then
          ipDDij = ipTmp
          ipTmp = ipTmp + nDij*mDCRij
       Else
-         ipDDij = ip_Dummy
+         ipDDij = 1
       End If
 *
       Return

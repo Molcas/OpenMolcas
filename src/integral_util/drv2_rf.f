@@ -64,6 +64,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -74,6 +75,7 @@
       Integer   nOp(2), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Statement functions
@@ -94,10 +96,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call mma_allocate(Zeta,m2Max,Label='Zeta')
+      Call mma_allocate(ZI,m2Max,Label='ZI')
+      Call mma_allocate(Kappa,m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -182,8 +184,7 @@
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Work(iExp),Work(jExp))
 *
             AeqB = iS.eq.jS
 *
@@ -269,13 +270,13 @@
 *            Compute kappa and P.
 *
              Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                   A,B,Work(iKappa),Work(iPCoor),Work(ipZI))
+     &                   A,B,Kappa,PCoor,ZI)
 *
 *            Compute primitive integrals. Result is ordered ij,ab.
 *
              Call RFInt(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                   Work(iZeta),Work(ipZI),
-     &                   Work(iKappa),Work(iPcoor),
+     &                   Zeta,ZI,
+     &                   Kappa,Pcoor,
      &                   Work(ipFnl),iPrim*jPrim,nComp,
      &                   iAng,jAng,A,B,nOrder,Work(iKern),
      &                   MemKer,Ccoor,lMax)
@@ -396,12 +397,10 @@
       End Do
  100  Continue
 *
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
-*
-c     Call GetMem('Drv2_RF','CHEC','REAL',iDum,iDum)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       Call qExit('Drv2_RF')
       Return

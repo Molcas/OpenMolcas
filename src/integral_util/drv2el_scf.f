@@ -54,7 +54,7 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT, Dq, Fq, pDq, pFq
+      use k2_arrays, only: FT, MxFT, pDq, pFq
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
@@ -69,7 +69,8 @@
 #include "IOBuf.fh"
 *
       Parameter(nTInt=1)
-      Real*8 Dens(nDens), TwoHam(nDens), TInt(nTInt)
+      Real*8, Target:: Dens(nDens), TwoHam(nDens)
+      Real*8 TInt(nTInt)
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
@@ -79,14 +80,15 @@
       Logical Debug
       Character*72 SLine
       Dimension Ind(1,1,2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Statement functions
+      Real*8, Allocatable:: TMax(:,:), DMax(:,:)
+      Integer, Allocatable:: ip_ij(:,:)
 *
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
-      DMax(i,j)=Work((j-1)*nSkal+i+ipDMax-1)
-
+      Interface
+         Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
+         Integer nDens, mDens
+         Real*8, Target:: Dens(nDens), TwoHam(nDens)
+         End Subroutine DeDe_SCF
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -160,29 +162,29 @@ c       iPrint=200
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
-      Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
-      Call Shell_MxDens(Dens,work(ipDMax),nSkal)
+      Call mma_allocate(DMax,nSkal,nSkal,Label='DMax')
+      Call Shell_MxDens(Dens,DMax,nSkal)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(ip_ij,2,nSkal*(nSkal+1),Label='ip_ij')
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               ip_ij(1,nij)=iS
+               ip_ij(2,nij)=jS
             End If
          End Do
       End Do
@@ -228,11 +230,11 @@ c       iPrint=200
 *     Now do a quadruple loop over shells
 *
       ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      iS = iWork((ijS-1)*2+ip_ij)
-      jS = iWork((ijS-1)*2+ip_ij+1)
+      iS = ip_ij(1,ijS)
+      jS = ip_ij(2,ijS)
       klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      kS = iWork((klS-1)*2+ip_ij)
-      lS = iWork((klS-1)*2+ip_ij+1)
+      kS = ip_ij(1,klS)
+      lS = ip_ij(2,klS)
       Count=TskLw
       If (Count-TskHi.gt.1.0D-10) Go To 12
   13  Continue
@@ -296,10 +298,10 @@ c       iPrint=200
             ijS = ijS + 1
             klS = 1
          End If
-         iS = iWork((ijS-1)*2+ip_ij  )
-         jS = iWork((ijS-1)*2+ip_ij+1)
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         iS = ip_ij(1,ijS)
+         jS = ip_ij(2,ijS)
+         kS = ip_ij(1,klS)
+         lS = ip_ij(2,klS)
          Go To 13
 *
 *     Task endpoint
@@ -334,9 +336,9 @@ c       iPrint=200
       If (Semi_Direct) Call Close_SemiDSCF
       FstItr=.False.
 *
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      Call mma_deallocate(ip_ij)
+      Call mma_deallocate(DMax)
+      Call mma_deallocate(TMax)
 *
       Verbose=.False.
       Free_K2=.False. ! Call to freek2 is external to the driver.
@@ -413,12 +415,12 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             else if(lbufold.gt.lbuf) then
               write(6,*) 'Inconsistent buffer lengths. Old:',lbufold,
      &                   '  current:',lbuf
-              call Abend
+              call Abend()
             end if
             if(nbuf.ne.nbufold) then
               write(6,*) 'Inconsistent buffer number. Old:',nbufold,
      &                   '  current:',nbuf
-              call Abend
+              call Abend()
             end if
             if(abs(thize-thizeold).gt.1.d-10) then
               write(6,*) 'Resetting thize from',thize,' to',thizeold
@@ -427,7 +429,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             if(cutintold.gt.cutint) then
               write(6,*) 'Inconsistent Cutint. Old:',cutintold,
      &                   '  current:',cutint
-              call Abend
+              call Abend()
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
@@ -439,7 +441,7 @@ c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *     Write (*,*) 'Exit: Init_SemiDSCF'
       Return
       End
-      Subroutine Close_SemiDSCF
+      Subroutine Close_SemiDSCF()
 #include "IOBuf.fh"
 #include "WrkSpc.fh"
 *     Write (6,*) 'Enter: Close_SemiDSCF'
@@ -472,7 +474,7 @@ C  If buffer empty force the write :
       Else
          If (iStatIO.eq.Mode_Write) Then
             Write (6,*) 'Change from Write to Read mode not implemented'
-            Call Abend
+            Call Abend()
          End If
       End If
 *

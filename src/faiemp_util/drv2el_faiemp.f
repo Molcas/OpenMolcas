@@ -53,7 +53,7 @@
       Character*80 Line
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFD, iFpos, iIrrep, ijS,
-     &             Ind, iOpt, ip_ij, ipDens, ipDMax, ipFock,
+     &             Ind, iOpt, ip_ij, ipDMax, ipFock,
      &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
@@ -64,6 +64,13 @@
       Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
+      Real*8, Allocatable, Target:: Dens(:), Fock(:)
+      Interface
+         Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
+         Integer nDens, mDens
+         Real*8, Target:: Dens(nDens), TwoHam(nDens)
+         End Subroutine DeDe_SCF
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -111,12 +118,11 @@ c     W2Disc=.False.
 *                                                                      *
 *---  Construct custom density matrix
 *
-
-      Call GetMem('Density','Allo','Real',ipDens,nBT)
-      Call GetMem('Result','Allo','Real',ipFock,nBT)
+      Call mma_allocate(Dens,nBT,Label='Dens')
+      Call mma_allocate(Fock,nBT,Label='Fock')
 * Valence part is zero
-      call dcopy_(nBT, [Zero], 0, Work(ipDens), 1)
-      call dcopy_(nBT, [Zero], 0, Work(ipFock), 1)
+      Dens(:)=Zero
+      Fock(:)=Zero
 * Each fragment needs it's (symmetrized) density matrix added along the diagonal
 * This density matrix first has to be constructed from the MO coefficients
 * so allocate space for the largest possible density matrix
@@ -160,7 +166,7 @@ c              ! position in fragment density matrix
               Do i = 1, nFragDens(iCnttp)
                 iDpos = iDpos + nBasC
                 Do j = 0, i-1
-                  Work(ipDens + iDpos + j - 1) =
+                  Dens(iDpos + j) =
      &                          Work(ipFragDensSO + iFpos + j - 1)
                 End Do
                 iDpos = iDpos + i
@@ -172,9 +178,9 @@ c              ! position in fragment density matrix
  1000   Continue
       End Do
       If(iPrint.ge.19) Then
-        iFD = ipDens
+        iFD = 1
         Do iIrrep = 0, nIrrep - 1
-          Call TriPrt('Combined density',' ',Work(iFD),nBas(iIrrep))
+          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
           iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
         End Do
       End If
@@ -192,7 +198,7 @@ c              ! position in fragment density matrix
 * and only store the top nBas_Valence(0) rows (non-symmetry case tested)
 *
       Call AlloK2()
-      Call DeDe_SCF(Work(ipDens),Work(ipFock),nBT,mDens)
+      Call DeDe_SCF(Dens,Fock,nBT,mDens)
       If(iPrint.ge.99) Then
         If(nIrrep.eq.1) Then
           Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
@@ -242,7 +248,7 @@ c              ! position in fragment density matrix
          End Do
       End Do
       Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
-      Call Shell_MxDens(Work(ipDens),work(ipDMax),nSkal)
+      Call Shell_MxDens(Dens,work(ipDMax),nSkal)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -361,18 +367,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
 *
-      Call Free_DeDe(Work(ipDens),Work(ipFock),nBT)
+      Call Free_DeDe(Dens,Fock,nBT)
 
-      Call GetMem('Density','Free','Real',ipDens,nBT)
+      Call mma_deallocate(Dens)
       If(iPrint.ge.10) Then
         write(6,*)
         write(6,*)
         write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
-        iFD = ipFock
+        iFD = 1
         Do iIrrep = 0, nIrrep - 1
           Write (Line,'(1X,A,I1)')
      &      ' Diagonal Symmetry Block ', iIrrep+1
-          Call TriPrt(Line,' ',Work(iFD),nBas_Valence(iIrrep))
+          Call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
           iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
         End Do
       End If
@@ -394,10 +400,10 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       End If
 * add the calculated results
       nOneHam = 0 ! counter in the ipOneHam matrices (small)
-      nFock = 0   ! counter in the ipFock matrices (larger)
+      nFock = 1   ! counter in the ipFock matrices (larger)
       Do iIrrep = 0, nIrrep - 1
         nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-        call daxpy_(nBVTi,One,Work(ipFock+nFock),1,
+        call daxpy_(nBVTi,One,Fock(nFock),1,
      &                       Work(ipOneHam+nOneHam),1)
         nOneHam = nOneHam + nBVTi
         nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -429,7 +435,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
 
 * cleanup
       Call GetMem('Temp','Free','Real',ipOneHam,nBVT+4)
-      Call GetMem('Result','Free','Real',ipFock,nBT)
+      Call mma_deallocate(Fock)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -438,13 +444,12 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       Call Free_iSD
       Call Set_Basis_Mode('Valence')
       Call SetUp_iSD
-      do i = 0, nIrrep - 1
-      nBas(i) = nBas_Valence(i)
-      enddo
+      Do i = 0, nIrrep - 1
+         nBas(i) = nBas_Valence(i)
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call QExit('Drv2ElFrag')
-
       Return
       End

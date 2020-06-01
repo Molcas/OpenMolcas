@@ -17,6 +17,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
+      Integer nDens, mDens
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
