@@ -54,7 +54,7 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT
+      use k2_arrays, only: FT, MxFT, Dq, Fq, pDq, pFq
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
@@ -138,7 +138,7 @@ c       iPrint=200
 *     canonical, i.e. the relative order of the indices are canonically
 *     ordered.
 *
-      Call DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
+      Call DeDe_SCF(Dens,TwoHam,nDens,mDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -282,7 +282,7 @@ c       iPrint=200
      &                   iTOffs,nShi,nShj,nShk,nShl,
      &                   nShOffi,nShOffj,nShOffk,nShOffl,
      &                   No_Routine,
-     &                   Work(ipDq),Work(ipFq),mDens,[ExFac],Nr_Dens,
+     &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
      &                   Ind,nInd,[NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
@@ -342,7 +342,7 @@ c       iPrint=200
       Free_K2=.False. ! Call to freek2 is external to the driver.
       Call Term_Ints(Verbose,Free_K2)
 *
-      Call Free_DeDe(Dens,TwoHam,nDens,ipDq,ipFq)
+      Call Free_DeDe(Dens,TwoHam,nDens)
 *
       Call QExit('Drv2El')
 *

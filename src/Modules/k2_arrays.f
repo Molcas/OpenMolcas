@@ -31,5 +31,7 @@
       Integer  ipDeDe, ipD00, ipDijS
       Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT
       Logical  DoGrad_, DoHess_
+      Real*8, Target, Allocatable:: Fq(:), Dq(:)
+      Real*8, Pointer:: pFq(:), pDq(:)
 
       End Module

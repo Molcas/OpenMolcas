@@ -29,7 +29,7 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT
+      use k2_arrays, only: FT, MxFT, Dq, Fq, pDq, pFq
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -53,7 +53,7 @@
       Character*80 Line
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFD, iFpos, iIrrep, ijS,
-     &             Ind, iOpt, ip_ij, ipDens, ipDMax, ipDq, ipFock, ipFq,
+     &             Ind, iOpt, ip_ij, ipDens, ipDMax, ipFock,
      &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
@@ -192,15 +192,14 @@ c              ! position in fragment density matrix
 * and only store the top nBas_Valence(0) rows (non-symmetry case tested)
 *
       Call AlloK2()
-      Call DeDe_SCF(Work(ipDens),Work(ipFock),nBT,mDens,ipDq,ipFq)
+      Call DeDe_SCF(Work(ipDens),Work(ipFock),nBT,mDens)
       If(iPrint.ge.99) Then
         If(nIrrep.eq.1) Then
-          Call RecPrt('Desymmetrized Density:',' ',Work(ipDq),nBas(0),
-     &                nBas(0))
+          Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
         Else
-          iFD = ipDens
+          iFD = 1
           Do iIrrep = 0, nIrrep - 1
-         Call TriPrt('Desymmetrized density',' ',Work(iFD),nBas(iIrrep))
+         Call TriPrt('Desymmetrized density',' ',pDq(iFD),nBas(iIrrep))
             iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
           End Do
         End If
@@ -304,18 +303,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
      &                     iTOffs,nShi,nShj,nShk,nShl,
      &                     nShOffi,nShOffj,nShOffk,nShOffl,
      &                     No_Routine,
-     &                     Work(ipDq),Work(ipFq),mDens,[ExFac],Nr_Dens,
+     &                     pDq,pFq,mDens,[ExFac],Nr_Dens,
      &                     Ind,nInd,[NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
            If(iPrint.ge.99) Then
             write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
              If(nIrrep.eq.1) Then
-              Call RecPrt('updated Fock',' ',Work(ipFq),nBas(0),nBas(0))
+              Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
              Else
-               iFD = ipFq
+               iFD = 1
                Do iIrrep = 0, nIrrep - 1
-                 Call TriPrt('updated Fock',' ',Work(iFD),nBas(iIrrep))
+                 Call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
                  iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
                End Do
              End If
@@ -362,7 +361,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
 *
-      Call Free_DeDe(Work(ipDens),Work(ipFock),nBT,ipDq,ipFq)
+      Call Free_DeDe(Work(ipDens),Work(ipFock),nBT)
 
       Call GetMem('Density','Free','Real',ipDens,nBT)
       If(iPrint.ge.10) Then

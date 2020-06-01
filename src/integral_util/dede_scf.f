@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
+      Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -17,7 +17,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
-      Real*8 Dens(nDens), TwoHam(nDens)
+      Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
 #ifdef _DEBUG_
@@ -64,14 +64,17 @@
             Dens(ij)=Two*Dens(ij)
          End Do
          mDens=nbas(0)*nbas(0)
-         Call GetMem('DENQ','Allo','Real',ipDq,mDens)
-         Call GetMem('FMAQ','Allo','Real',ipFq,mDens)
-         Call Square(Dens,Work(ipDq),1,nbas(0),nbas(0))
-         Call fzero(work(ipFq),mDens)
+         Call mma_allocate(Dq,mDens,Label='Dq')
+         Call Square(Dens,Dq,1,nbas(0),nbas(0))
+         pDq => Dq(:)
+*
+         Call mma_allocate(Fq,mDens,Label='Fq')
+         Fq(:)=Zero
+         pFq => Fq(:)
       Else
-         ipDq=ip_of_Work(Dens(1))
-         ipFq=ip_of_Work(TwoHam(1))
          mDens=nDens
+         pDq => Dens(:)
+         pFq => Twoham(:)
       End If
 #ifdef _DEBUG_
       Call qExit('DeDe_SCF')

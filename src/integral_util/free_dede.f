@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Free_DeDe(Dens,TwoHam,nDens,ipDq,ipFq)
+      Subroutine Free_DeDe(Dens,TwoHam,nDens)
       use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -18,7 +18,10 @@
 #include "stdalloc.fh"
 #include "setup.fh"
 *
-      Real*8 Dens(nDens), TwoHam(nDens)
+      Real*8, Target:: Dens(nDens), TwoHam(nDens)
+*
+      Nullify(pDq)
+      Nullify(pFq)
 *
       If (nIrrep.eq.1) Then
 * symmetrize fock matrix
@@ -26,20 +29,20 @@
          Call DScal_(nDens,Two,Dens,1)
          nc=nbas(0)
          mDens=nBas(0)**2
-         ijq=ipFq-1
-         jiq=ipFq-nc
+         ijq=0
+         jiq=1-nc
          ij=0
          do i=1,nc
            do j=1,i
              ij=ij+1
-             TwoHam(ij) = Half*(Work(ijq+j) + Work(jiq+j*nc))
+             TwoHam(ij) = Half*(Fq(ijq+j) + Fq(jiq+j*nc))
            end do
            Dens(ij)  =Half*Dens(ij)
            jiq = jiq + 1
            ijq = ijq + nc
          end do
-         Call GetMem('FMAQ','Free','Real',ipFq,mDens)
-         Call GetMem('DENQ','Free','Real',ipDq,mDens)
+         Call mma_deallocate(Dq)
+         Call mma_deallocate(Fq)
       End If
 *
       Call mma_deallocate(ipOffD)
