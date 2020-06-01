@@ -29,7 +29,7 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT, Dq, Fq, pDq, pFq
+      use k2_arrays, only: FT, MxFT, pDq, pFq
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -53,7 +53,7 @@
       Character*80 Line
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFD, iFpos, iIrrep, ijS,
-     &             Ind, iOpt, ip_ij, ipDMax, ipFock,
+     &             Ind, iOpt, ip_ij, ipDMax,
      &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
