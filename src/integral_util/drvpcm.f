@@ -387,8 +387,6 @@ c Avoid unused argument warnings
       Call Free_Work(ipQ)
       Call Free_Work(ipC)
       PrPrt=Save_tmp
-c     Call PrMtrx('h1',1,1,ip_of_Work(h1),Work)
-c     Call PrMtrx('TwoHam',1,1,ip_of_Work(TwoHam),Work)
 *                                                                      *
 ************************************************************************
 *                                                                      *

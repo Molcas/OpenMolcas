@@ -284,7 +284,7 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Debug=.True.
       If (Debug.and..Not.Do_Grad) Then
