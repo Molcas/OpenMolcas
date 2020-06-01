@@ -671,6 +671,8 @@ C              Do lS = 1, kS
 *                 matrices. Observe that the desymmetrized 1st order
 *                 density matrices follows the contraction index.
 *
+                  ipTmp =0
+                  ipTmp2=0
                   If (lpick) Then
 *
                   ipDij = ipOffD(1,ijS)
@@ -701,10 +703,10 @@ C              Do lS = 1, kS
                   If (mDCRkl.ne.0) Then
                      ipDDkl = ipTmp
                      ipTmp = ipTmp + nDkl*mDCRkl
-                    If (nMethod.eq.RASSCF) Then
-                      ipDDkl2=ipTmp2
-                      ipTmp2= ipTmp2+ nDkl*mDCRkl
-                    End If
+                     If (nMethod.eq.RASSCF) Then
+                       ipDDkl2=ipTmp2
+                       ipTmp2= ipTmp2+ nDkl*mDCRkl
+                     End If
                   Else
                      ipDDkl = ip_Dummy
                   End If
