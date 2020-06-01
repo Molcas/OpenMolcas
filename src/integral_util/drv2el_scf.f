@@ -55,18 +55,17 @@
 *             total repacking of code September '96                    *
 ************************************************************************
       use k2_arrays, only: FT, MxFT, pDq, pFq
+      use IOBUF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Logical NoCoul,NoExch
-#include "IOBuf.fh"
 *
       Parameter(nTInt=1)
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
@@ -364,10 +363,9 @@ CMAW end
       End
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
       use dEAF
+      use IOBUF
       implicit real*8 (a-h,o-z)
-#include "IOBuf.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
       real*8 control(4)
       Logical FstItr
 *     Write (6,*) 'Enter: Init_SemiDSCF'
@@ -433,8 +431,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
-            Call dEAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
-     &                               lBuf*RtoI,Disk,id)
+            Call dEAFARead(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
          End If
       End If
 *
@@ -442,8 +439,7 @@ c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
       Return
       End
       Subroutine Close_SemiDSCF()
-#include "IOBuf.fh"
-#include "WrkSpc.fh"
+      use IOBUF
 *     Write (6,*) 'Enter: Close_SemiDSCF'
 *
 *---- If data was transfered to the I/O buffer write buffer on disc.
@@ -461,7 +457,7 @@ C  If buffer empty force the write :
       Return
       End
       Subroutine Mode_SemiDSCF(Wr_Mode)
-#include "IOBuf.fh"
+      use IOBUF
       Logical Wr_Mode
 *
 *     Write (6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode

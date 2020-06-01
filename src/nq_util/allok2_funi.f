@@ -30,13 +30,12 @@
 ************************************************************************
       use iSD_data
       use k2_arrays
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
-#include "IOBuf.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
@@ -83,7 +82,5 @@ C           iDeSiz = 1 + iPrim*jPrim + (iBas*jBas+1)*iCmp*jCmp
          End Do
       End Do
 *
-c     Call GetMem('Allok2','List','Real',iDum,iDum)
-*     Call QExit('AlloK2')
       Return
       End

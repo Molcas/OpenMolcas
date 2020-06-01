@@ -31,13 +31,13 @@
       use k2_setup
       use k2_arrays
       use iSD_data
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"
-#include "IOBuf.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
