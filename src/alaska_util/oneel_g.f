@@ -61,6 +61,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -75,6 +76,7 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
      &          IndGrd(3,2), nOp(2), iStabO(0:7), lOper(nComp)
       Logical AeqB, EQ, DiffOp, IfGrad(3,3)
       Logical FreeiSD
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Statement functions
@@ -88,10 +90,10 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call mma_allocate(Zeta,m2Max,Label='Zeta')
+      Call mma_allocate(ZI,m2Max,Label='ZI')
+      Call mma_allocate(Kappa,m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -196,8 +198,7 @@ C        Do jS = 1, iS
 *
 *           At this point we can compute Zeta.
 *
-            Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Work(iExp),Work(jExp))
 *
             Do iCar = 0, 2
                IndGrd(iCar+1,1) = iSD(iCar+16,iS)
@@ -352,14 +353,13 @@ c VV: gcc bug: one has to use this if!
 *--------------Compute kappa and P.
 *
                Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
+     &                     A,RB,Kappa,PCoor,ZI)
 *
 *--------------Compute gradients of the primitive integrals and
 *              trace the result.
 *
                Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                     Work(iZeta),Work(ipZI),
-     &                     Work(iKappa),Work(iPcoor),
+     &                     Zeta,ZI,Kappa,Pcoor,
      &                     Work(ipFnl),iPrim*jPrim,
      &                     iAng,jAng,A,RB,nOrder,Work(iKern),
      &                     MemKer,Ccoor,nOrdOp,Grad,nGrad,
@@ -384,10 +384,10 @@ C     End Do
       End Do
 *
       If (FreeiSD) Call Free_iSD()
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       If (iPrint.ge.15) Call PrGrad(Label,Grad,nGrad,lIrrep,ChDisp,5)
 *
