@@ -27,7 +27,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              Kntc                                                    *
 *              CmbnT1                                                  *

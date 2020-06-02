@@ -29,7 +29,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              Rysg1                                                   *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *

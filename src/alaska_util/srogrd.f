@@ -31,7 +31,6 @@
 *              DGeTMO  (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *

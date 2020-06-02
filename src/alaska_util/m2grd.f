@@ -34,7 +34,6 @@
 *              Assmbl                                                  *
 *              CmbnMP                                                  *
 *              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *

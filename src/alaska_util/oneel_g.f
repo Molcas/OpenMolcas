@@ -26,7 +26,6 @@
 * Called from: Drvh1                                                   *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              ZXia                                                    *
 *              SetUp1                                                  *
 *              Kernel                                                  *

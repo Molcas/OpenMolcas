@@ -26,7 +26,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              CmbnS1                                                  *
 *              QExit                                                   *

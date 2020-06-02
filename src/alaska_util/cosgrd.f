@@ -28,7 +28,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              XRysg1                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *             M. Diedenhofen Nov. 2003                                 *
