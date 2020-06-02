@@ -568,7 +568,6 @@
          kdc = kdc + nCntr(kCnttp)
  1960 Continue
 *
-*     Call GetMem(' Exit SROGrd','LIST','REAL',iDum,iDum)
 *     Call QExit('SROGrd')
       Return
 c Avoid unused argument warnings

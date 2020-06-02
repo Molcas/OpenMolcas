@@ -93,7 +93,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     Call QEnter('M2Grd')
-*     Call GetMem(' Enter M2Grd','LIST','REAL',iDum,iDum)
 *
       iIrrep = 0
       iuvwx(1) = nStab(mdc)
@@ -319,7 +318,6 @@
  100  Continue
 *
 *
-*     Call GetMem(' Exit M2Grd','LIST','REAL',iDum,iDum)
 *     Call QExit('M2Grd')
       Return
 c Avoid unused argument warnings

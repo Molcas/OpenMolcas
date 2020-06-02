@@ -150,7 +150,6 @@
      &            Grad,nGrad,DAO,IfGrad,IndGrd,
      &            nStab(mdc),nStab(ndc),nIrrep,kOp,iChBas,MxFnc)
 *
-*     Call GetMem(' Exit KnEGrd','LIST','REAL',iDum,iDum)
 *     Call qExit('KnEGrd')
       Return
 c Avoid unused argument warnings

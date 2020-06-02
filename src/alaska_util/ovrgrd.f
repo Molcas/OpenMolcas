@@ -134,7 +134,6 @@
      &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
      &            kOp,iChBas,MxFnc)
 *
-*     Call GetMem(' Exit OvrGrd','LIST','REAL',iDum,iDum)
 *     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings

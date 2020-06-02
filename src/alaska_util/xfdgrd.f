@@ -278,7 +278,6 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
       End Do     ! End loop over charges and dipole moments
 *
-*     Call GetMem(' Exit XFdGrd','LIST','REAL',iDum,iDum)
       Call qExit('XFdGrd')
       Return
 c Avoid unused argument warnings

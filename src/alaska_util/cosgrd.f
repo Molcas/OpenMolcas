@@ -257,7 +257,6 @@ c             skip 2 center
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-*     Call GetMem(' Exit COSgrd','LIST','REAL',iDum,iDum)
       Call qExit('COSgrd')
       Return
 c Avoid unused argument warnings
