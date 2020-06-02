@@ -70,6 +70,10 @@
          Integer nDens, mDens
          Real*8, Target:: Dens(nDens), TwoHam(nDens)
          End Subroutine DeDe_SCF
+         Subroutine Free_DeDe(Dens,TwoHam,nDens)
+         Integer nDens
+         Real*8, Target:: Dens(nDens), TwoHam(nDens)
+         End Subroutine Free_DeDe
       End Interface
 *                                                                      *
 ************************************************************************
@@ -151,8 +155,10 @@ c     W2Disc=.False.
      &                EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
-          If(iPrint.ge.99) Call TriPrt('Fragment density',' ',
+#ifdef _DEBUG_
+          Call TriPrt('Fragment density',' ',
      &      Work(ipFragDensSO),nFragDens(iCnttp))
+#endif
 
           Do iCnt = 1, nCntr(iCnttp)
             mdc = mdc + 1
@@ -177,13 +183,13 @@ c              ! position in fragment density matrix
           End Do
  1000   Continue
       End Do
-      If(iPrint.ge.19) Then
-        iFD = 1
-        Do iIrrep = 0, nIrrep - 1
-          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
-          iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-        End Do
-      End If
+#ifdef _DEBUG_
+      FD = 1
+      Do iIrrep = 0, nIrrep - 1
+         Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
+         iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      End Do
+#endif
       Call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
 *                                                                      *
 ************************************************************************
@@ -199,17 +205,18 @@ c              ! position in fragment density matrix
 *
       Call AlloK2()
       Call DeDe_SCF(Dens,Fock,nBT,mDens)
-      If(iPrint.ge.99) Then
-        If(nIrrep.eq.1) Then
-          Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
-        Else
-          iFD = 1
-          Do iIrrep = 0, nIrrep - 1
-         Call TriPrt('Desymmetrized density',' ',pDq(iFD),nBas(iIrrep))
+#ifdef _DEBUG_
+      If (nIrrep.eq.1) Then
+         Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
+      Else
+         iFD = 1
+         Do iIrrep = 0, nIrrep - 1
+            Call TriPrt('Desymmetrized density',' ',
+     &                  pDq(iFD),nBas(iIrrep))
             iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-          End Do
-        End If
+         End Do
       End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -313,18 +320,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
      &                     Ind,nInd,[NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
-           If(iPrint.ge.99) Then
+#ifdef _DEBUG_
             write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
-             If(nIrrep.eq.1) Then
-              Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
-             Else
+            If (nIrrep.eq.1) Then
+               Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
+            Else
                iFD = 1
                Do iIrrep = 0, nIrrep - 1
                  Call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
                  iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
                End Do
-             End If
-           End If
+            End If
+#endif
          End If
          klS = klS + 1
          If (klS.gt.ijS) Then
@@ -370,18 +377,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       Call Free_DeDe(Dens,Fock,nBT)
 
       Call mma_deallocate(Dens)
-      If(iPrint.ge.10) Then
-        write(6,*)
-        write(6,*)
-        write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
-        iFD = 1
-        Do iIrrep = 0, nIrrep - 1
-          Write (Line,'(1X,A,I1)')
+#ifdef _DEBUG_
+      write(6,*)
+      write(6,*)
+      write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
+      iFD = 1
+      Do iIrrep = 0, nIrrep - 1
+         Write (Line,'(1X,A,I1)')
      &      ' Diagonal Symmetry Block ', iIrrep+1
-          Call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
-          iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-        End Do
-      End If
+         Call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
+         iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+      End Do
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -410,13 +417,13 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       End Do
 
 * write out the results
-      If(iPrint.ge.15) Then
-        iFD = ipOneHam
-        Do iIrrep = 0, nIrrep - 1
-        Call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
-          iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-        End Do
-      End If
+#ifdef _DEBUG_
+      iFD = ipOneHam
+      Do iIrrep = 0, nIrrep - 1
+         Call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
+         iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+      End Do
+#endif
       iRC = -1
       Call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
       If(iRC.ne.0) Then
