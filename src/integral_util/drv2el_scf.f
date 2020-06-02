@@ -82,12 +82,7 @@
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
 *
-      Interface
-         Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
-         Integer nDens, mDens
-         Real*8, Target:: Dens(nDens), TwoHam(nDens)
-         End Subroutine DeDe_SCF
-      End Interface
+#include "dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

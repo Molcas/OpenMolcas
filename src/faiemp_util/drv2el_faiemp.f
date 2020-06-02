@@ -69,16 +69,7 @@
       Integer      iFD
       Character*80 Line
 #endif
-      Interface
-         Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
-         Integer nDens, mDens
-         Real*8, Target:: Dens(nDens), TwoHam(nDens)
-         End Subroutine DeDe_SCF
-         Subroutine Free_DeDe(Dens,TwoHam,nDens)
-         Integer nDens
-         Real*8, Target:: Dens(nDens), TwoHam(nDens)
-         End Subroutine Free_DeDe
-      End Interface
+#include "../integral_util/dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
