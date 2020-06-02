@@ -44,7 +44,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #ifdef _DEBUG_
 #include "print.fh"
 #endif

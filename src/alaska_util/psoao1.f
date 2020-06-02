@@ -49,7 +49,6 @@
 *             Modified to first order derivatives. January '92         *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
