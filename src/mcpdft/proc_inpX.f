@@ -843,6 +843,10 @@ C   No changing about read in orbital information from INPORB yet.
      &     write(6,*) ' FTBLYP functional aka BLYP for MCPDFT'
          If(KSDFT(1:6).eq.'FTLSDA')
      &     write(6,*) ' FTLSDA functional aka LSDA for MCPDFT'
+         If(KSDFT(1:6).eq.'FTOPBE')
+     &     write(6,*) ' FTOPBE functional aka OPBE for MCPDFT'
+         If(KSDFT(1:5).eq.'TOPBE')
+     &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
        End if
 CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        If ( KSDFT(1:4).eq.'NEWF') Then

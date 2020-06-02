@@ -294,6 +294,66 @@ C
 *
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 *
+      SUBROUTINE DxRdIn(pcoo,PIN,natom)
+C
+C     This Subroutine reads in the coordinates to keep in from the file 'in.00N.xyz'
+C
+      IMPLICIT NONE
+#include "stdalloc.fh"
+#include "real.fh"
+      EXTERNAL      IsFreeUnit
+      INTEGER       i,j,p,file,natom,PIN,IsFreeUnit,mn
+      REAL*8        pcoo(PIN,natom*3)
+      CHARACTER*80  filname
+      CHARACTER*180 OutLine, Get_Ln
+      REAL*8, ALLOCATABLE :: UMat(:,:),VMat(:,:),S(:),SqrtM(:)
+*
+      file=81
+      file=IsFreeUnit(file)
+      DO P=1,PIN
+        WRITE(filname,'(A,I3.3,A)') 'in.',p,'.xyz'
+        CALL Molcas_Open(file,filname)
+        DO i=1,natom
+          OutLine = Get_Ln(file)
+          DO j=1,3
+            pcoo(p,3*(i-1)+j)=0.0D0
+            CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
+          END DO
+        END DO
+      END DO
+      CLOSE(file)
+C
+C Orthonormalize the vectors in mass-weighted coordinates
+C
+      CALL mma_Allocate(SqrtM,natom)
+      CALL GetMassDx(SqrtM,natom)
+      DO i=1, natom
+        SqrtM(i)=Sqrt(SqrtM(i))
+        j=3*(i-1)+1
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
+      END DO
+      mn=MIN(PIN,3*natom)
+      CALL mma_Allocate(UMat,PIN,mn)
+      CALL mma_Allocate(VMat,mn,3*natom)
+      CALL mma_Allocate(S,mn)
+      CALL large_svd(PIN,3*natom,pcoo,UMat,VMat,S)
+      CALL dgemm_('N','N',PIN,3*natom,mn,One,UMat,PIN,VMat,mn,
+     &                                    Zero,pcoo,PIN)
+      DO i=1, natom
+        j=3*(i-1)+1
+        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
+      END DO
+      CALL mma_deAllocate(UMat)
+      CALL mma_deAllocate(VMat)
+      CALL mma_deAllocate(S)
+      CALL mma_deAllocate(SqrtM)
+*
+      RETURN
+
+      END
+*
+C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+*
       SUBROUTINE DxRdVel(vel,natom)
 C
 C     This Subroutine reads in the velocities from the file 'velocity.xyz'

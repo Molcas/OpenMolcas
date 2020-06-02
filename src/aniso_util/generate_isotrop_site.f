@@ -141,9 +141,19 @@
                Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,S2,1)
                Call dcopy_(nExch     , [0.0_wp],        0,W,1)
 
-               SX2(:,:)=MATMUL(S(1,:,:),S(1,:,:))
-               SY2(:,:)=MATMUL(S(2,:,:),S(2,:,:))
-               SZ2(:,:)=MATMUL(S(3,:,:),S(3,:,:))
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(1,:,:), nEXCH,
+     &                                    S(1,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SX2(:,:), nEXCH )
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(2,:,:), nEXCH,
+     &                                    S(2,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SY2(:,:), nEXCH )
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(3,:,:), nEXCH,
+     &                                    S(3,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SZ2(:,:), nEXCH )
+
                S2(:,:)=SX2(:,:)+SY2(:,:)+SZ2(:,:)
 
                If(dbg) Call pa_prMat('GENERATE_SITE: SX2',SX2,nexch)

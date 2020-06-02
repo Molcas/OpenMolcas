@@ -43,10 +43,12 @@ C#endif
 C
 C     Set the defalut values
 C
+      CALL Get_nAtoms_Full(natom)
       THERMO=0
       TEMP=298.15
       VELO=0
       POUT=0
+      PIN=natom*3
       iPrint=2
       DT=1.0D1
       TIME=0.0D0
