@@ -50,9 +50,8 @@
      &             nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
       Integer      nBas_Valence(0:7)
       Character*8  Label
-      Character*80 Line
       Logical      lNoSkip, EnergyWeight
-      Integer      i, j, iCnt, iCnttp, iDpos, iFD, iFpos, iIrrep, ijS,
+      Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
      &             Ind, iOpt, ip_ij, ipDMax,
      &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
@@ -65,6 +64,11 @@
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
+*define _DEBUG_
+#ifdef _DEBUG_
+      Integer      iFD
+      Character*80 Line
+#endif
       Interface
          Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
          Integer nDens, mDens
@@ -75,10 +79,6 @@
          Real*8, Target:: Dens(nDens), TwoHam(nDens)
          End Subroutine Free_DeDe
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
