@@ -54,7 +54,7 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT, pDq, pFq
+      use k2_arrays, only: FT, nFT, MxFT, pDq, pFq
       use IOBUF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
@@ -130,7 +130,8 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call mma_allocate(FT,MxFT,Label='FT')
+      nFT=MxFT
+      Call mma_allocate(FT,MxFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *

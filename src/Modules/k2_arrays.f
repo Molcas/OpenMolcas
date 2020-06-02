@@ -29,7 +29,7 @@
       Integer, Dimension(:,:), Allocatable :: ipOffD
       Real*8, Allocatable:: FT(:), DeDe(:)
       Integer  ipDeDe, ipD00, ipDijS
-      Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT
+      Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT, nFT
       Logical  DoGrad_, DoHess_
       Real*8, Target, Allocatable:: Fq(:), Dq(:)
       Real*8, Pointer:: pFq(:), pDq(:)
