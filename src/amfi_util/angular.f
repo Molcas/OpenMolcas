@@ -445,6 +445,8 @@ c#######################################################################
      *                       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
              endif
+*
+             if (NFINI) Then
              if (l1.eq.l2.and.l3.eq.l4) then
              if (m1.eq.m2.and.l3.ne.0.and.l3.ne.l1) then
              if (m3.lt.m4.and.iabs(m4+m3).eq.1) then
@@ -500,6 +502,7 @@ cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              endif
              endif
              endif
+             endif ! If (NFINI) Then
 c#######################################################################
 c############  mean-field-part #########################################
 c#######################################################################
@@ -540,6 +543,8 @@ c#######################################################################
      *       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
              endif
+*
+             If (NFINI) Then
              if (l1.eq.l2.and.l3.eq.l4) then
              if (m1.eq.m2.and.l3.ne.0.and.l3.ne.l1) then
              if (m3.lt.m4.and.iabs(m3-m4).eq.1) then
@@ -593,6 +598,7 @@ cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              endif
              endif
              endif
+             endif ! If (NFINI) Then
 c#######################################################################
 c############  mean-field-part #########################################
 c#######################################################################
@@ -633,6 +639,8 @@ c#######################################################################
      *       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
              endif
+*
+             If (NFINI) Then
              if (l1.eq.l2.and.l3.eq.l4) then
              if (m1.eq.m2.and.l3.ne.0.and.l3.ne.l1) then
              if (m3.lt.m4.and.m3.eq.-m4) then
@@ -687,6 +695,7 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              endif
              endif
              endif
+             endif ! If (NFINI) Then
 c#######################################################################
 c############  mean-field-part #########################################
 c#######################################################################
