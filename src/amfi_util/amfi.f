@@ -234,9 +234,9 @@ cbs
       Call mma_deallocate(preY)
       endif
       if (ifinite.eq.1) then ! redo everything for finite core
-CBS   write(6,*) 'once more the two-electron integrals'
-      ifinite=2
-      goto 123
+CBS      write(6,*) 'once more the two-electron integrals'
+         ifinite=2
+         goto 123
       endif
 cbs ####################################################################
 cbs ####################################################################
@@ -244,13 +244,16 @@ cbs ####################################################################
 CBS   write(6,*) '***************************************************'
 CBS   write(6,*) '*******   beginning the 1-electron-part  **********'
 CBS   write(6,*) '***************************************************'
-cbs    the one-electron spin-orbit integrals
+*
+cbs   The one-electron spin-orbit integrals
+*
       call gen1overR3(Lhigh,oneoverR3)
-! 1/r**3  for normalized functions
+*
+!     1/r**3  for normalized functions
+*
       call contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,LUPROP,
-     &                 ifinite,
-     &                 CartOne(1,1),CartOne(1,2),CartOne(1,3),OneContr,
-     &                 oneoverR3,iCenter)
+     &                 ifinite,CartOne,OneContr,oneoverR3,iCenter)
+*
 cbs   multiplies radial integrals with l,m-dependent
 cbs   factors and contraction coefficients
       Call mma_deallocate(CoulOvlp)

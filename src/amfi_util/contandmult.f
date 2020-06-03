@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,
-     &                       LUPROP,ifinite,onecartX,onecartY,onecartZ,
+     &                       LUPROP,ifinite,onecart,
      &                       onecontr,oneoverR3,iCenter)
       implicit real*8 (a-h,o-z)
 #include "para.fh"
@@ -20,14 +20,9 @@
       logical makemean,AIMP,oneonly
       character*8 xa,ya,za
       dimension xa(4),ya(4),za(4),
-     *onecartX(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
-     *onecartY(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
-     *onecartZ(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
-     *onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax),
-     *oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
+     *   onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3),
+     *   onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax),
+     *   oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
       common /nucleus/ charge,Exp_Finite
       IPNT(I,J)=(J*J-J)/2+I
 cbs   get back the real number of functions for the finite nucleus
@@ -52,14 +47,13 @@ c
 cbs   clean the arrays for cartesian integrals
 C
       length3=(numbalLcart*numbalLcart+numbalLcart)/2
-      iloca=length3
-      Call GetMem('OCAX','Allo','Real',iocax,6*iloca+MxContL*MxContL)
-      iocay=iocax+iloca
-      iocaz=iocay+iloca
-      iocax2=iocaz+iloca
-      iocay2=iocax2+iloca
-      iocaz2=iocay2+iloca
-      idummy=iocaz2+iloca
+      Call GetMem('OCAX','Allo','Real',iocax,6*length3+MxContL*MxContL)
+      iocay=iocax+length3
+      iocaz=iocay+length3
+      iocax2=iocaz+length3
+      iocay2=iocax2+length3
+      iocaz2=iocay2+length3
+      idummy=iocaz2+length3
       call dzero(work(iocax),6*length3+MxContL*MxContL)
 c
 c
@@ -70,9 +64,9 @@ cbs   1. index: number of first contracted function
 cbs   2. index: number of second contracted function
 cbs   3. index: pointer(m1,m2)    m1< m2 otherwise change sign of integral
 cbs   4. index: L-value
-cbs    onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
-cbs    onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
-cbs    onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax)
+cbs    onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,1),
+cbs    onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,2),
+cbs    onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3)
 c
 c
 c
@@ -81,10 +75,12 @@ cbs   generate one-electron integrals for all L greater/equal 1
 cbs                                  are modelled for finite nucleus somewhere else
       do L=1,Lhigh
               call contone(L,oneoverr3(1,L),onecontr(1,1,-Lmax,1,L),
-     *  Lmax,contrarray(iaddtyp3(L)),nprimit(L),ncontrac(L),
-     *        MxcontL,work(idummy),
-     *        onecartx(1,1,1,L),onecartY(1,1,1,L),onecartZ(1,1,1,L),
-     *        charge,oneonly)
+     *                     Lmax,contrarray(iaddtyp3(L)),nprimit(L),
+     *                     ncontrac(L),MxcontL,work(idummy),
+     *                     onecart(1,1,1,L,1),
+     *                     onecart(1,1,1,L,2),
+     *                     onecart(1,1,1,L,3),
+     *                     charge,oneonly)
       Enddo
 c
 cbs   ***********************************************************************
@@ -118,7 +114,7 @@ cbs     calculate shift to get to the beginning of the block
                       do icartsec=1,ncontrac(Lrun)   ! loop second index
                       work(iocax+iredired+(icartsec-1))=
      *                work(iocax+iredired+(icartsec-1))
-     *                +onecartx(icartfirst,icartsec,mrun,Lrun)
+     *                +onecart(icartfirst,icartsec,mrun,Lrun,1)
                       enddo
 cbs             shift pointer by number of functions in IR
                       iredired=iredired+itotalperIR(iredsec)
@@ -130,7 +126,7 @@ cbs             shift pointer by number of functions in IR
                       do icartsec=1,ncontrac(Lrun)   ! loop second index
                       work(iocay+iredired+(icartsec-1))=
      *                work(iocay+iredired+(icartsec-1))
-     *                +onecarty(icartfirst,icartsec,mrun,Lrun)
+     *                +onecart(icartfirst,icartsec,mrun,Lrun,2)
                       enddo
 cbs             shift pointer by number of functions in IR
                       iredired=iredired+itotalperIR(iredsec)
@@ -142,7 +138,7 @@ cbs             shift pointer by number of functions in IR
                       do icartsec=1,ncontrac(Lrun)   ! loop second index
                       work(iocaz+iredired+(icartsec-1))=
      *                work(iocaz+iredired+(icartsec-1))
-     *                +onecartz(icartfirst,icartsec,mrun,Lrun)
+     *                +onecart(icartfirst,icartsec,mrun,Lrun,3)
                       enddo
 cbs             shift pointer by number of functions in IR
                       iredired=iredired+itotalperIR(iredsec)
@@ -163,7 +159,7 @@ cbs     calculate shift to get to the beginning of the block
                       do icartfirst=1,ncontrac(Lrun) !loop first index
                       work(iocax+iredired+(icartfirst-1))=
      *                work(iocax+iredired+(icartfirst-1))
-     *         -onecartx(icartsec,icartfirst,mrun,Lrun)
+     *               -onecart(icartsec,icartfirst,mrun,Lrun,1)
                       enddo
 cbs             shift pointer by number of functions in IR
                       iredired=iredired+itotalperIR(iredfirst)
@@ -175,7 +171,7 @@ cbs             shift pointer by number of functions in IR
                       do icartfirst=1,ncontrac(Lrun) !loop first index
                       work(iocay+iredired+(icartfirst-1))=
      *                work(iocay+iredired+(icartfirst-1))
-     *               -onecarty(icartsec,icartfirst,mrun,Lrun)
+     *               -onecart(icartsec,icartfirst,mrun,Lrun,2)
                       enddo
 cbs             shift pointer by number of functions in IR
                       iredired=iredired+itotalperIR(iredfirst)
@@ -187,7 +183,7 @@ cbs             shift pointer by number of functions in IR
                       do icartfirst=1,ncontrac(Lrun) !loop first index
                       work(iocaz+iredired+(icartfirst-1))=
      *                work(iocaz+iredired+(icartfirst-1))
-     *               -onecartz(icartsec,icartfirst,mrun,Lrun)
+     *               -onecart(icartsec,icartfirst,mrun,Lrun,3)
                       enddo
                       iredired=iredired+itotalperIR(iredfirst)
                       enddo
@@ -290,7 +286,7 @@ CBS   close(luprop)
 cbs
 cbs   that is it!!
 cbs
-      Call GetMem('OCAX','free','Real',iocax,6*iloca+MxContL*MxContL)
+      Call GetMem('OCAX','free','Real',iocax,6*length3+MxContL*MxContL)
       return
 c Avoid unused argument warnings
       if (.false.) call Unused_logical(makemean)
