@@ -20,7 +20,7 @@
 #include "sbs.fh"
       Integer, Intent(In) :: nAtom
       Real*8, Intent(In) :: Ref(3*nAtom),Dir(3*nAtom),Fact,Dist
-      Real*8, Intent(Out) :: Point
+      Real*8, Intent(Out) :: Point(3*nAtom)
       Logical, Intent(Out) :: BadConstraint
       Real*8, Allocatable :: OldRef(:),Dummy(:)
       Real*8 :: R,CurFact,PrevR,Correct
@@ -53,10 +53,10 @@
         If (Invar) Call Align(Point,Ref,nAtom)
         If (MEP_Type.eq.'SPHERE') Then
           Call SphInt(Point,nAtom,R,Dummy,
-     &                .False.,.False.,'dummy',Work(ip_Dummy),.False.)
+     &                .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
         Else If (MEP_Type.eq.'TRANSVERSE') Then
           Call Transverse(Point,nAtom,R,Dummy,
-     &                .False.,.False.,'dummy',Work(ip_Dummy),.False.)
+     &                .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
         End If
 
 *       Stop if too many iterations or if the constraint is moving
