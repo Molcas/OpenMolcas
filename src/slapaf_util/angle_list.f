@@ -17,7 +17,7 @@
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
-     &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+     &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -112,8 +112,8 @@
 *
             iBond = iTabAtoms(2,iNeighbor,mAtom_)
             iBondType=iTabBonds(3,iBond)
-            If (iBondType.eq.vdW_Bond) Go To 200
-            If (iBondType.gt.Magic_Bond) Go To 200
+            If (iBondType.eq.vdW_Bond.or.
+     &          iBondType.gt.Magic_Bond) Go To 200
 #ifdef _DEBUG_
             Write (6,*)
             Write (6,*) 'iAtom,mAtom=',iAtom,mAtom
@@ -149,8 +149,8 @@
 *
                jBond = iTabAtoms(2,jNeighbor,mAtom_)
                jBondType=iTabBonds(3,jBond)
-               If (jBondType.eq.vdW_Bond) Go To 300
-               If (jBondType.gt.Magic_Bond) Go To 300
+               If (jBondType.eq.vdW_Bond.or.
+     &             jBondType.gt.Magic_Bond) Go To 300
 #ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'jAtom,mAtom=',jAtom,mAtom
@@ -329,7 +329,6 @@
 *
 *------------- Skip cases with a too small angle.
 *
-               Thr_Small=(30.D00/180.D00)*Pi
                If (Abs(Val_Ref).lt.Thr_Small .and.
      &             iBondType.ne.Fragments_Bond .and.
      &             jBondType.ne.Fragments_Bond) Go To 300
@@ -362,8 +361,8 @@
 *
                   If (Abs(Val-Pi).lt.1.0D-11 .and.
      &                .Not.(Abs(Val_Ref-Pi).lt.Delta)) Then
-*                   Case b
-                    nk=1
+*                    Case b
+                     nk=1
                   Else
 *                    Case a
                      nk=2

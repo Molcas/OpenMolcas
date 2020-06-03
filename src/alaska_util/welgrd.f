@@ -36,7 +36,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "wldata.fh"
 #include "print.fh"
 #include "disp.fh"
