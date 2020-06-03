@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -19,9 +19,9 @@ cbs
 #include "para.fh"
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: AMFI_Int(:,:)
+      Real*8, Allocatable:: AMFI_Int(:,:), Scr(:,:)
+      Integer, Allocatable:: iSO_info(:,:)
       parameter(maxorbs=MxOrb)
       parameter(maxcent=MxAtom)
       Real*8 SOInt(LenTot)
@@ -37,7 +37,7 @@ CBS   namelist /SYMTRA/ none
      *          Lhighcent(maxcent),Lcent(MxCart),Mcent(MxCart),
      *          ncontcent(0:Lmax),
      *          numballcart(maxcent),ifirstLM(0:Lmax,-Lmax:Lmax,maxcent)
-      Integer ip(nComp), nBas(0:nIrrep-1), lOper(nComp), ipC(3,MxAtom)
+      Integer ip(nComp), nBas(0:nIrrep-1), lOper(nComp), ipC(MxAtom)
       Character Label*8
 c#######################################################################
       IPNT(I,J)=(max(i,j)*max(i,j)-max(i,j))/2 +min(i,j)
@@ -108,15 +108,15 @@ c     clean up arrays for new integrals
       Do iIrrep = 0, nIrrep-1
          nSOs=nSOs+nBas(iIrrep)
       End Do
-      Call GetMem('iSO','Allo','Inte',ipiSO,nSOs*2)
+      Call mma_allocate(iSO_info,2,nSOs,Label='iSO_info')
       iSO_a=0
       Do iIrrep=0,nIrrep-1
          iSO_r=0
          Do iBas = 1, nBas(iIrrep)
             iSO_a=iSO_a+1
             iSO_r=iSO_r+1
-            iWork(ipiSO+(iSO_a-1)*2  )=iIrrep
-            iWork(ipiSO+(iSO_a-1)*2+1)=iSO_r
+            iSO_info(1,iSO_a)=iIrrep
+            iSO_info(2,iSO_a)=iSO_r
          End Do
       End Do
 *
@@ -124,20 +124,16 @@ c     clean up arrays for new integrals
 *
       iunit=LUPROP
       nSCR=numboffunct3*3
-      Call GetMem('SCR','Allo','Real',ipSCR,nSCR)
-      Call FZero(Work(ipSCR),nSCR)
-      ipSCRX=ipSCR
-      ipSCRY=ipSCRX+numboffunct3
-      ipSCRZ=ipSCRY+numboffunct3
+      Call mma_allocate(Scr,numboffunct3,3,Label='Scr')
+      Scr(:,:)=Zero
+      ipSCR=1
       length3_tot=0
 *
 *     In a MPI run not all atomic block will be available in
 *     all processes. Make up so we know later if a particular
 *     atom is present.
 *
-      do jcent=1,numbofcent
-         ipC(1,jCent)=ip_Dummy
-      End Do
+      ipC(1:numbofcent)=-99
       do jcent=1,numbofcent
 *
 #ifdef _DEBUG_
@@ -160,17 +156,13 @@ c     clean up arrays for new integrals
      &        'functions on centre ',icent
 #endif
               length3=ipnt(numballcart(icent),numballcart(icent))
-              ipC(1,iCent)=ipSCRX
-              ipC(2,iCent)=ipSCRY
-              ipC(3,iCent)=ipSCRZ
-              read(iunit) (Work(i),i=ipSCRX,ipSCRX+length3-1)
+              ipC(iCent)=ipSCR
+              read(iunit) (Scr(i,1),i=ipSCR,ipSCR+length3-1)
               read(iunit)  Ya
-              read(iunit) (Work(i),i=ipSCRY,ipSCRY+length3-1)
+              read(iunit) (Scr(i,2),i=ipSCR,ipSCR+length3-1)
               read(iunit)  Za
-              read(iunit) (Work(i),i=ipSCRZ,ipSCRZ+length3-1)
-              ipSCRX=ipSCRX+length3
-              ipSCRY=ipSCRY+length3
-              ipSCRZ=ipSCRZ+length3
+              read(iunit) (Scr(i,3),i=ipSCR,ipSCR+length3-1)
+              ipScr=ipScr+length3
               length3_tot=length3_tot+length3
 culf
 c      check if any L-value is missing
@@ -209,15 +201,12 @@ cbs   check if all of them were found
       enddo    !end of loop over centres
  199  Continue
 #ifdef _DEBUG_
-      ipSCRX=ipSCR
-      ipSCRY=ipSCRX+numboffunct3
-      ipSCRZ=ipSCRY+numboffunct3
       Write (6,*) 'length3_tot=',length3_tot
-      Call RecPrt('SCRX',' ',Work(ipSCRX),1,length3_tot)
-      Call RecPrt('SCRY',' ',Work(ipSCRY),1,length3_tot)
-      Call RecPrt('SCRZ',' ',Work(ipSCRZ),1,length3_tot)
+      Call RecPrt('SCR(1,1)',' ',Scr(1,1),1,length3_tot)
+      Call RecPrt('SCR(1,2)',' ',Scr(1,2),1,length3_tot)
+      Call RecPrt('SCR(1,3)',' ',Scr(1,3),1,length3_tot)
       Do iCent = 1, numbofcent
-         Write (6,*) ipC(1,iCent),ipC(2,iCent),ipC(3,iCent)
+         Write (6,*) ipC(iCent)
       End Do
 #endif
 *     If this process does not have any blocks of integrals proceed
@@ -286,24 +275,18 @@ cbs   determine indices of atomic integrals
       indexj=ifirstLM(lval(irun),mval(jrun),ncent(irun))+jsame-1
       laufalt=ipnt(indexi,indexj)
 *
-      If (ipC(1,nCent(iRun)).ne.ip_Dummy) Then
-      ipSCRX=ipC(1,ncent(irun))-1+laufalt
-      ipSCRY=ipC(2,ncent(irun))-1+laufalt
-      ipSCRZ=ipC(3,ncent(irun))-1+laufalt
+      If (ipC(nCent(iRun)).ne.-99) Then
+         ipSCR=ipC(ncent(irun))-1+laufalt
 cDebugDebug
-c     Write (*,*) 'laufalt=',laufalt
-c     Write (*,*) 'ip''s:',ipSCRX,ipSCRY,ipSCRZ
-c     Write (*,*) Work(ipSCRX),Work(ipSCRY),Work(ipSCRZ)
+c        Write (6,*) 'laufalt=',laufalt
+c        Write (6,*) 'ip''s:',ipSCR
+c        Write (6,*) Scr(ipSCR,1),Scr(ipSCR,2),Scr(ipSCR,3)
 cDebugDebug
-      if (indexi.gt.indexj) then
-         AMFI_Int(lauf,1)=-coeff*Work(ipSCRX)
-         AMFI_Int(lauf,2)=-coeff*Work(ipSCRY)
-         AMFI_Int(lauf,3)=-coeff*Work(ipSCRZ)
-      else
-         AMFI_Int(lauf,1)=coeff*Work(ipSCRX)
-         AMFI_Int(lauf,2)=coeff*Work(ipSCRY)
-         AMFI_Int(lauf,3)=coeff*Work(ipSCRZ)
-      endif
+         Sgn=One
+         if (indexi.gt.indexj) Sgn=-Sgn
+         AMFI_Int(lauf,1)=Sgn*coeff*Scr(ipScr,1)
+         AMFI_Int(lauf,2)=Sgn*coeff*Scr(ipScr,2)
+         AMFI_Int(lauf,3)=Sgn*coeff*Scr(ipScr,3)
       End If
 *
 *
@@ -319,11 +302,11 @@ cDebugDebug
 *    & Call SysAbendMsg('symtrafo', 'error in numbering ',' ' )
       Do iComp = 1, nComp
          Do iSO=1, numboffunct
-            j1=iWork(ipiSO+(iSO-1)*2  )
-            iSO_r=iWork(ipiSO+(iSO-1)*2+1)
+            j1=   iSO_info(1,iSO)
+            iSO_r=iSO_info(2,iSO)
             Do jSO = 1, iSO
-               j2=iWork(ipiSO+(jSO-1)*2  )
-               jSO_r=iWork(ipiSO+(jSO-1)*2+1)
+               j2=   iSO_info(1,jSO)
+               jSO_r=iSO_info(2,jSO)
                j12=iEor(j1,j2)
                If (iAnd(lOper(iComp),2**j12).eq.0) Go To 99
 *
@@ -365,8 +348,8 @@ cDebugDebug
       Call PrMtrx(Label,lOper,nComp,ip,SOInt)
 #endif
 *
-      Call GetMem('iSO','Free','Inte',ipiSO,nSOs*2)
-      Call GetMem('SCR','Free','Real',ipSCR,nSCR)
+      Call mma_deallocate(iSO_info)
+      Call mma_deallocate(Scr)
       Call mma_deallocate(AMFI_Int)
 CBS   write(6,*) 'Symmetry transformation successfully done'
       Return
