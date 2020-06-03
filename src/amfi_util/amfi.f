@@ -118,7 +118,12 @@ cbs                         ! integrals in memory
       character*4  symmetry
 #include "datapow.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: oneoverR3(:), CartOne(:,:), OneContr(:),
+     &                      CoulOvlp(:), PowExp(:), preY(:), preXZ(:)
+      Integer, Allocatable:: checkxy(:), checkz(:), interxyz(:,:),
+     &                       SgnProd(:)
+*
       common /ipowxyz/ ipowxyz(3,-Lmax:Lmax,0:Lmax)
 c##########################################################################
 cbs  #####################################################################
@@ -153,27 +158,24 @@ cbs   check if Lpowmax is high enough..
       enddo
 cbs   move some powers of x,y,z to the right place   END
 cbs   read the input
-      call readbas(Lhigh,makemean,bonn,breit,
-     *symmetry,sameorb,AIMP,oneonly,ncont4,numballcart,IN,
-     *ifinite)
+      call readbas(Lhigh,makemean,bonn,breit,symmetry,sameorb,AIMP,
+     &             oneonly,ncont4,numballcart,IN,ifinite)
 cbs
       icartdim=mxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)*Lmax
       ionecontrdim=mxcontL*MxcontL*(2*Lmax+1)*3*Lmax
       ioneoverR3dim=Lmax*(MxprimL*MxprimL+MxprimL)/2
       ipowexpdim=MxprimL*MxprimL*(Lmax+1)*(Lmax+1)*(Lmax+Lmax+6)
       icoulovlpdim=MxprimL*MxprimL*(Lmax+1)*(Lmax+1)*10
-      Call GetMem('oneoverR3','Allo','Real',ioneoverR3,ioneoverR3dim)
-      Call GetMem('cartone','Allo','Real',icartx,3*icartdim)
-      Call GetMem('onecontr','Allo','Real',ionecontr,ionecontrdim)
-      Call GetMem('powexp','Allo','Real',ipowexp,ipowexpdim)
-      Call GetMem('coulovlp','Allo','Real',icoulovlp,icoulovlpdim)
-      call dzero(work(ioneoverR3),ioneoverR3dim)
-      call dzero(work(icartx),3*icartdim)
-      call dzero(work(ionecontr),ionecontrdim)
-      call dzero(work(ipowexp),ipowexpdim)
-      call dzero(work(icoulovlp),icoulovlpdim)
-      icarty=icartx+icartdim
-      icartz=icarty+icartdim
+      Call mma_allocate(oneoverR3,ioneoverR3dim,Label='oneoverR3')
+      Call mma_allocate(cartone,icartdim,3,Label='cartone')
+      Call mma_allocate(OneContr,ionecontrdim,Label='OneContr')
+      Call mma_allocate(CoulOvlp,icoulovlpdim,Label='coulovlp')
+      Call mma_allocate(PowExp,iPowExpDim,Label='PowExp')
+      oneoverR3(:)=0.0D0
+      cartone(:,:)=0.0D0
+      OneContr(:)=0.0D0
+      CoulOvlp(:)=0.0D0
+      PowExp(:)=0.0D0
 cbs
 cbs
  123  if (ifinite.eq.2) call finite
@@ -181,19 +183,19 @@ cbs
 cbs
 ! Lhigh is the highest l-value in the basis set
       if (makemean.and.(.not.oneonly).and.ifinite.le.1)
-     *call getAOs(Lhigh)
-      call genpowers(Lhigh,work(ipowexp),work(icoulovlp))
+     &   call getAOs(Lhigh)
+      call genpowers(Lhigh,PowExp,CoulOvlp)
 !generate powers of exponents and overlaps
 cbs   start generating modified contraction coefficients
 cbs   generate starting adresses of contraction coefficients  on
 cbs   contrarray
       call genstar(Lhigh)
 cbs   generate ovlp of normalized primitives
-      call genovlp(Lhigh,work(icoulovlp))
+      call genovlp(Lhigh,CoulOvlp)
       do lrun=0,Lhigh
-cbs   cont(L) arranges all the contraction coefficients for a given L-value
-cbs   and renormalizes them
-      call cont(lrun,breit,ifinite)
+cbs      cont(L) arranges all the contraction coefficients for a given
+cbs      L-value and renormalizes them
+         call cont(lrun,breit,ifinite)
       enddo
 cbs
 cbs        beginning the angular part
@@ -202,67 +204,73 @@ CBS   write(6,*) '***************************************************'
 CBS   write(6,*) '********   beginning the 2e-part ******************'
 CBS   write(6,*) '***************************************************'
 cbs
-cbs  #####################################################################################
-cbs  #####################################################################################
-cbs  #####################################################################################
+cbs  ###################################################################
+cbs  ###################################################################
+cbs  ###################################################################
 cbs
 cbs
       idim1=(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)*(2*Lmax+1)
       idim2=(Lmax+1)*(Lmax+1)*(Lmax+1)*(Lmax+1)
-      Call GetMem('preY','Allo','Real',ipreY,idim1)
-      Call GetMem('preXZ','Allo','Real',ipreXZ,idim1)
-      Call GetMem('icheckxy','Allo','Inte',iicheckxy,idim2)
-      Call GetMem('icheckz','Allo','Inte',iicheckz,idim2)
-      Call GetMem('interxyz','Allo','Inte',iinterxyz,16*idim2)
-      Call GetMem('isgnprod','Allo','Inte',iisgnprod,idim1)
+      Call mma_allocate(preY,idim1,Label='preY')
+      Call mma_allocate(preXZ,idim1,Label='preXZ')
+      Call mma_allocate(checkxy,idim2,Label='CheckXY')
+      Call mma_allocate(checkz,idim2,Label='CheckZ')
+      Call mma_allocate(interxyz,16,idim2,Label='InterXYZ')
+      Call mma_allocate(SgnProd,idim1,Label='SgnProd')
+*
+!     subroutine for angular part
+*
       call angular(Lhigh,keep,keepcart,makemean,bonn,breit,
-     *sameorb,ifinite,work(icartx),work(icarty),work(icartz),
-     *work(ipowexp),work(icoulovlp),work(ipreXZ),work(ipreY),
-     *iwork(iicheckxy),iwork(iicheckz),iwork(iinterxyz),
-     *iwork(iisgnprod)) ! subroutine for angular part
-      Call GetMem('isgnprod','Free','Inte',iisgnprod,idim1)
-      Call GetMem('interxyz','Free','Inte',iinterxyz,16*idim2)
-      Call GetMem('icheckz','Free','Inte',iicheckz,idim2)
-      Call GetMem('icheckxy','Free','Inte',iicheckxy,idim2)
-      Call GetMem('preXZ','Free','Real',ipreXZ,idim1)
-      Call GetMem('preY','Free','Real',ipreY,idim1)
+     &             sameorb,ifinite,
+     &             cartone(1,1),cartone(1,2),cartone(1,3),
+     &             PowExp,CoulOvlp,preXZ,preY,
+     &             checkxy,checkz,InterXYZ,SgnProd)
+*
+      Call mma_deallocate(SgnProd)
+      Call mma_deallocate(InterXYZ)
+      Call mma_deallocate(CheckZ)
+      Call mma_deallocate(CheckXY)
+      Call mma_deallocate(preXZ)
+      Call mma_deallocate(preY)
       endif
       if (ifinite.eq.1) then ! redo everything for finite core
 CBS   write(6,*) 'once more the two-electron integrals'
       ifinite=2
       goto 123
       endif
-cbs ########################################################################################
-cbs ########################################################################################
-cbs ########################################################################################
+cbs ####################################################################
+cbs ####################################################################
+cbs ####################################################################
 CBS   write(6,*) '***************************************************'
 CBS   write(6,*) '*******   beginning the 1-electron-part  **********'
 CBS   write(6,*) '***************************************************'
 cbs    the one-electron spin-orbit integrals
-      call gen1overR3(Lhigh,work(ioneoverR3))
+      call gen1overR3(Lhigh,oneoverR3)
 ! 1/r**3  for normalized functions
       call contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,LUPROP,
-     *ifinite,work(icartx),work(icarty),work(icartz),work(ionecontr),
-     *work(ioneoverR3),iCenter)
+     &                 ifinite,
+     &                 CartOne(1,1),CartOne(1,2),CartOne(1,3),OneContr,
+     &                 oneoverR3,iCenter)
 cbs   multiplies radial integrals with l,m-dependent
 cbs   factors and contraction coefficients
-      Call GetMem('coulovlp','free','Real',icoulovlp,icoulovlpdim)
-      Call GetMem('powexp','free','Real',ipowexp,ipowexpdim)
-      Call GetMem('onecontr','free','Real',ionecontr,ionecontrdim)
-      Call GetMem('cartone','free','Real',icartx,3*icartdim)
-      Call GetMem('oneoverR3','free','Real',ioneoverR3,ioneoverR3dim)
+      Call mma_deallocate(CoulOvlp)
+      Call mma_deallocate(PowExp)
+      Call mma_deallocate(OneContr)
+      Call mma_deallocate(CartOne)
+      Call mma_deallocate(oneoverR3)
 CBS   write(6,*) '***************************************************'
 CBS   write(6,*) '*******   end of  the 1-electron-part    **********'
 CBS   write(6,*) '***************************************************'
-cbs ########################################################################################
-cbs ########################################################################################
-cbs ########################################################################################
+cbs ####################################################################
+cbs ####################################################################
+cbs ####################################################################
       Return
-      end
+      End Subroutine Amfi
       subroutine finite
 cbs
-cbs   subroutine to set up parameters for finite nucleus. The s-functions are replaced
-cbs   by just one exponent which models the nucleus.
+cbs   subroutine to set up parameters for finite nucleus. The
+cbs   s-functions are replaced by just one exponent which models the
+cbs   nucleus.
 cbs
       implicit real*8(a-h,o-z)
 #include "para.fh"
@@ -270,7 +278,7 @@ cbs
       common /nucleus/ charge,Exp_finite
       noccorb(0)=1
       do l=1,lmax_occ
-      noccorb(l)=0
+         noccorb(l)=0
       enddo
       occup(1,0)=-charge
       nprimit_keep=nprimit(0)
@@ -279,4 +287,4 @@ cbs
       ncontrac(0)=1
       exponents(1,0)=0.5d0*Exp_finite
       return
-      end
+      end subroutine finite
