@@ -29,9 +29,9 @@ cbs   integrals are thrown away after each l,l,l,l-block
 #include "para.fh"
 #include "param.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: ConOO(:), ConSO(:), CartOO(:), CartSO(:)
+      Real*8, Allocatable:: ConOO(:), ConSO(:), CartOO(:), CartSO(:),
+     &                      AngOO(:), AngSO(:)
       logical keep,keepcart,makemean,bonn,
      *        breiT,sameorb,cleaner,NFINI
 cbs   NFINI means not finite nucleus
@@ -93,47 +93,46 @@ cbs   isgnprod gives the sign due to powers (-1)**M  this are again
 cbs   angular m-values
 cbs #####################################################################
       do M4=-Lmax,Lmax
-      if (M4.gt.0) then
-      inter4=isignM(M4)
-      else
-      inter4=1
-      endif
-      do M3=-Lmax,Lmax
-      if (M3.gt.0) then
-      inter3=inter4*isignM(M3)
-      else
-      inter3=inter4
-      endif
-      do M2=-Lmax,Lmax
-      if (M2.gt.0) then
-      inter2=inter3*isignM(M2)
-      else
-      inter2=inter3
-      endif
-      do M1=-Lmax,Lmax
-      if (M1.gt.0) then
-      isgnprod(m1,m2,m3,m4)=inter2*isignM(M1)
-      else
-      isgnprod(m1,m2,m3,m4)=inter2
-      endif
+         if (M4.gt.0) then
+            inter4=isignM(M4)
+         else
+            inter4=1
+         endif
+         do M3=-Lmax,Lmax
+            if (M3.gt.0) then
+               inter3=inter4*isignM(M3)
+            else
+               inter3=inter4
+            endif
+            do M2=-Lmax,Lmax
+               if (M2.gt.0) then
+                  inter2=inter3*isignM(M2)
+               else
+                  inter2=inter3
+               endif
+               do M1=-Lmax,Lmax
+                  if (M1.gt.0) then
+                     isgnprod(m1,m2,m3,m4)=inter2*isignM(M1)
+                  else
+                     isgnprod(m1,m2,m3,m4)=inter2
+                  endif
+               enddo
+            enddo
+         enddo
       enddo
-      enddo
-      enddo
-      enddo
-cbs #####################################################################
-cbs   some preparation of factors needed later on..  finished           #
-cbs #####################################################################
+cbs ####################################################################
+cbs   some preparation of factors needed later on..  finished          #
+cbs ####################################################################
 c
-c
-c
-cbs   counter for total number of cartesian integrals                   !  set some counters
+!     set some counters
+cbs   counter for total number of cartesian integrals
       numbcart=0
 cbs   same orbit integrals integrals  on carteXSO carteYSO and carteSO
 cbs   other orbit integrals  on carteXOO carteYOO and carteOO
       iangfirst=0 ! first block of angular integrals
-cbs #####################################################################
-cbs   loop over all (l,l,l,l) blocks generated in the radial part       #
-cbs #####################################################################
+cbs ####################################################################
+cbs   loop over all (l,l,l,l) blocks generated in the radial part      #
+cbs ####################################################################
       do lrun4=0,Lmax
       do lrun3=0,Lmax
       do lrun2=0,Lmax
@@ -152,7 +151,8 @@ CBS   write(6,'(A)') '   L1   L2   L3   L4'
 cbs   check parity
       if (mod(l1+l2+l3+l4,2).eq.0) then
 cbs   check that Lleft and Lright do not always differ by more than one
-cbs   a difference of two means two spin flips and is therefore not allowed
+cbs   a difference of two means two spin flips and is therefore not
+cbs   allowed
       Lleftmax=l1+l2
       Lrightmax=l3+l4
       Lleftmin=iabs(l1-l2)
@@ -203,10 +203,10 @@ cbs     number of contracted integrals for each block
      *  ncontrac(l3)*ncontrac(l4)
       mxangint=jblock*ncont
 cbs   determine the size icont4 for the radial integrals
-      call gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,
-     *                sameorb,icont4)
-      Call GetMem('ANGSO','Allo','Real',iangSO,2*mxangint)
-      iangOO=iangSO+mxangint
+      call gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,sameorb,icont4)
+*
+      Call mma_allocate(ANGSO,mxangint,Label='AngSO')
+      Call mma_allocate(ANGOO,mxangint,Label='AngOO')
       Call mma_allocate(CartSO,nCont,Label='CartSO')
       Call mma_allocate(CartOO,nCont,Label='CartOO')
       Call mma_allocate(ConSO,iCont4,Label='ConSO')
@@ -237,11 +237,11 @@ cbs     which means integrals start at address 0
         do m2=-l2,l2
         do m3=-l3,l3
 cbs     m4 is more or less fixed by m1-3
-c####################################################################################
-c####################################################################################
-c########## the L- -type block to be combined with sigma+ ###########################
-c####################################################################################
-c####################################################################################
+c#######################################################################
+c#######################################################################
+c########## the L- -type block to be combined with sigma+ ##############
+c#######################################################################
+c#######################################################################
         m4=m1+m2-m3+1
         if (iabs(m4).le.l4) then !the L- -block to  combine with sigma+
 cbs     not all m-combinations are needed for the mean-field
@@ -261,8 +261,8 @@ cbs mkangLmin = make_angular_integrals_for_L- type operator
 cbs really generates  the angular prefactors and combines them with
 cbs the radial integrals
         call mkangLmin(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,
-     *       work(iangSO+locstar),
-     *       work(iangOO+locstar),
+     *       AngSO(1+locstar),
+     *       AngOO(1+locstar),
      *       Lfirst(1),Llast(1),Lblocks(1),
      *       ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),
      *       ConSO(Lstarter(1)),
@@ -277,14 +277,15 @@ cbs the radial integrals
      *       sameorb)
         locstar=locstar+ncont ! increase starting address
         mcombina(2,m1,m2,m3,m4)=mblock  ! set the block number
-c####################################################################################
-c####################################################################################
-c########## the L+ -type block to be combined with sigma- ###########################
-c####################################################################################
-c####################################################################################
+c#######################################################################
+c#######################################################################
+c########## the L+ -type block to be combined with sigma- ##############
+c#######################################################################
+c#######################################################################
 c
 c   these integrals are obtained by changing the signs of the m-values.
-c   As the integrals are the same, the pointer points to the same integrals...
+c   As the integrals are the same, the pointer points to the same
+c   integrals...
 c
 c
         mcombina(1,-m1,-m2,-m3,-m4)=3
@@ -294,11 +295,11 @@ c
         enddo
         enddo
         enddo
-c####################################################################################
-c####################################################################################
-c########## the L0 -type block to be combined with sigma0 ###########################
-c####################################################################################
-c####################################################################################
+c#######################################################################
+c#######################################################################
+c########## the L0 -type block to be combined with sigma0 ##############
+c#######################################################################
+c#######################################################################
         do m1=  0,l1
         do m2=-l2,l2
         do m3=-l3,l3
@@ -321,8 +322,8 @@ c
         Call Abend()
         endif
         call mkangL0(Lmax,l1,l2,l3,l4,m1,m2,m3,m4,
-     *       work(iangSO+locstar),
-     *       work(iangOO+locstar),
+     *       angSO(1+locstar),
+     *       AngOO(1+locstar),
      *       Lfirst(1),Llast(1),Lblocks(1),
      *       ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),
      *       ConSO(Lstarter(1)),
@@ -343,18 +344,15 @@ c
         enddo
         enddo
         enddo
-cbs  ##################################################################################
-cbs  ##################################################################################
+cbs  ###################################################################
+cbs  ###################################################################
 cbs     transformation to l,m dependent integrals is finished
-cbs  ##################################################################################
+cbs  ###################################################################
 c
-c
-c
-c
-cbs  ##################################################################################
+cbs  ###################################################################
 cbs     begin transformation to cartesian integrals
-cbs  ##################################################################################
-cbs  ##################################################################################
+cbs  ###################################################################
+cbs  ###################################################################
 cbs     check out, which combinations of m-values will
 cbs     contribute to cartesian integrals
         do m1=-l1,l1       !
@@ -372,14 +370,16 @@ cbs     contribute to cartesian integrals
         mblockz=0
         do m3=-l3,l3
         do m4=-l4,l4
-cbs     if the l-values are the same : triangular matrix over m-values is sufficient
+cbs     if the l-values are the same : triangular matrix over m-values
+cbs     is sufficient
         if (l1.eq.l3) then
         m1upper=m3
         else
         m1upper=l1
         endif
         if (makemean) m1upper=l1
-cbs     if the l-values are the same : triangular matrix over m-values is sufficient
+cbs     if the l-values are the same : triangular matrix over m-values
+cbs     is sufficient
         if (l2.eq.l4) then
         m2upper=m4
         else
@@ -388,8 +388,8 @@ cbs     if the l-values are the same : triangular matrix over m-values is suffic
         if (makemean) m2upper=l2
         do m1=-l1,m1upper
         If (l1.eq.l3.and.m1.eq.m3) then ! clean real zeros by symmetry
-cbs     this a problem of the spin-other-orbit integrals, as they are by formula
-cbs     not antisymmetric in the indices for particle 1.
+cbs     this a problem of the spin-other-orbit integrals, as they are by
+cbs     formula not antisymmetric in the indices for particle 1.
         cleaner=.true.
         else
         cleaner=.false.
@@ -409,11 +409,11 @@ C
         indx=mod(indx,2)
         indy=mod(indy,2)
         indz=mod(indz,2)
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C++++++++++++++++      SIGMA X      ++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C++++++++++++++++      SIGMA X      ++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (indx.eq.0.and.indy.eq.1.and.indz.eq.1.and.
      *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! Y*Z ->  transforms like  L_x (B1)
@@ -421,22 +421,22 @@ cbs     integrals for sigma_x
         mblockx=mblockx+1
         mcombcart(1,m1,m2,m3,m4)=1
         mcombcart(2,m1,m2,m3,m4)=mblockx
-        call tosigX(m1,m2,m3,m4,work(iangSO+iangfirst),
+        call tosigX(m1,m2,m3,m4,AngSO(1+iangfirst),
      *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
      *              ncontrac(l4),CartSO,preXZ,
      *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
      *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breiT))
-     *  call tosigX(m1,m2,m3,m4,work(iangOO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),cartOO,preXZ,
-     *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
-     *  cleaner)
+     *  call tosigX(m1,m2,m3,m4,AngOO(1+iangfirst),
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),cartOO,preXZ,
+     *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
+     *              isgnprod,cleaner)
         if (makemean) then ! generate mean-field-contributions
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.and.
      *       iabs(m1+m3).eq.1.and.l1.ne.0) then
@@ -516,22 +516,22 @@ cbs     integrals for sigma_y
         mblocky=mblocky+1
         mcombcart(1,m1,m2,m3,m4)=2
         mcombcart(2,m1,m2,m3,m4)=mblocky
-        call tosigY(m1,m2,m3,m4,work(iangSO+iangfirst),
+        call tosigY(m1,m2,m3,m4,AngSO(1+iangfirst),
      *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
      *              ncontrac(l4),CartSO,preY,
      *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
      *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breit))
-     *  call tosigY(m1,m2,m3,m4,work(iangOO+iangfirst),
+     *  call tosigY(m1,m2,m3,m4,AngOO(1+iangfirst),
      *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
      *              ncontrac(l4),cartOO,preY,
      *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
      *  cleaner)
         if (makemean) then ! generate mean-field-contributions
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.
      *       and.iabs(m3-m1).eq.1.and.l1.ne.0) then
@@ -593,15 +593,15 @@ cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              endif
              endif
              endif
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
         endif
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C++++++++++++++++      SIGMA Z      ++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C++++++++++++++++      SIGMA Z      ++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         elseif (indx.eq.1.and.indy.eq.1.and.indz.eq.0.and.
      *  icheckz(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! X*Y transforms like L_z  (A2)
@@ -609,22 +609,22 @@ cbs     integrals for sigma_z
         mblockz=mblockz+1
         mcombcart(1,m1,m2,m3,m4)=3
         mcombcart(2,m1,m2,m3,m4)=mblockz
-        call tosigZ(m1,m2,m3,m4,work(iangSO+iangfirst),
+        call tosigZ(m1,m2,m3,m4,angSO(1+iangfirst),
      *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
      *              ncontrac(l4),CartSO,preXZ,
      *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
      *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breit))
-     *  call tosigZ(m1,m2,m3,m4,work(iangOO+iangfirst),
+     *  call tosigZ(m1,m2,m3,m4,AngOO(1+iangfirst),
      *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
      *              ncontrac(l4),CartOO,preXZ,
      *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
      *              isgnprod,cleaner)
         if (makemean) then ! generate mean-field-contributions
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.
      *       and.m1.eq.-m3.and.l1.ne.0) then
@@ -687,22 +687,23 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              endif
              endif
              endif
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
         endif
         endif
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         endif ! for check of significance for meanfield.
         enddo
         enddo
         enddo
         enddo
         numbcart=numbcart+(mblockx+mblocky+mblockz)*ncont
-cbs   just controlling if x and y integrals have the same number of blocks
+cbs   just controlling if x and y integrals have the same number of
+cbs   blocks
       if (mblockx.ne.mblocky) then
       write(6,*)
      *'numbers of integrals for sigma_x and sigma_y not equal!'
@@ -712,7 +713,8 @@ cbs   just controlling if x and y integrals have the same number of blocks
       Call Abend()
       endif
 cbs   start adresses for the next <ll|ll> block of integrals
-      Call GetMem('ANGSO','free','real',iangSO,2*mxangint)
+      Call mma_deallocate(AngSO)
+      Call mma_deallocate(AngOO)
       Call mma_deallocate(CartSO)
       Call mma_deallocate(CartOO)
       Call mma_deallocate(ConSO)
