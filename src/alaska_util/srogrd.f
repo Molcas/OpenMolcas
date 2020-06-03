@@ -31,7 +31,6 @@
 *              DGeTMO  (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
@@ -568,7 +567,6 @@
          kdc = kdc + nCntr(kCnttp)
  1960 Continue
 *
-*     Call GetMem(' Exit SROGrd','LIST','REAL',iDum,iDum)
 *     Call QExit('SROGrd')
       Return
 c Avoid unused argument warnings
