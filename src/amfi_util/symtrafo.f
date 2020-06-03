@@ -18,8 +18,10 @@ cbs
       implicit real*8 (a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: AMFI_Int(:,:)
       parameter(maxorbs=MxOrb)
       parameter(maxcent=MxAtom)
       Real*8 SOInt(LenTot)
@@ -31,13 +33,13 @@ CBS   namelist /SYMTRA/ none
       dimension xa(4),ya(4),za(4)
       dimension xa2(4)
       dimension ncent(maxorbs), Lval(maxorbs),mval(maxorbs),
-     *nadpt(maxorbs),nphase(8,maxorbs),idummy(8),
-     *Lhighcent(maxcent),Lcent(MxCart),Mcent(MxCart),
-     *ncontcent(0:Lmax)   ,
-     *numballcart(maxcent),ifirstLM(0:Lmax,-Lmax:Lmax,maxcent)
+     *          nadpt(maxorbs),nphase(8,maxorbs),idummy(8),
+     *          Lhighcent(maxcent),Lcent(MxCart),Mcent(MxCart),
+     *          ncontcent(0:Lmax),
+     *          numballcart(maxcent),ifirstLM(0:Lmax,-Lmax:Lmax,maxcent)
       Integer ip(nComp), nBas(0:nIrrep-1), lOper(nComp), ipC(3,MxAtom)
       Character Label*8
-c###############################################################################
+c#######################################################################
       IPNT(I,J)=(max(i,j)*max(i,j)-max(i,j))/2 +min(i,j)
 *
       END='   '  ! added due to cray warnings. B.S. 04/10/04
@@ -99,11 +101,8 @@ c
 c     clean up arrays for new integrals
       numboffunct3=(numboffunct*numboffunct+numboffunct)/2
 *
-      Call GetMem('AMFII','Allo','Real',ipInt,numboffunct3*3)
-      ipX=ipInt-1
-      ipY=ipX+numboffunct3
-      ipZ=ipY+numboffunct3
-      call dcopy_(numboffunct3*3,[Zero],0,Work(ipInt),1)
+      Call mma_allocate(AMFI_Int,numboffunct3,3,Label='AMFI_Int')
+      AMFI_Int(:,:)=Zero
 *
       nSOs=0
       Do iIrrep = 0, nIrrep-1
@@ -297,13 +296,13 @@ c     Write (*,*) 'ip''s:',ipSCRX,ipSCRY,ipSCRZ
 c     Write (*,*) Work(ipSCRX),Work(ipSCRY),Work(ipSCRZ)
 cDebugDebug
       if (indexi.gt.indexj) then
-         Work(ipX+lauf)=-coeff*Work(ipSCRX)
-         Work(ipY+lauf)=-coeff*Work(ipSCRY)
-         Work(ipZ+lauf)=-coeff*Work(ipSCRZ)
+         AMFI_Int(lauf,1)=-coeff*Work(ipSCRX)
+         AMFI_Int(lauf,2)=-coeff*Work(ipSCRY)
+         AMFI_Int(lauf,3)=-coeff*Work(ipSCRZ)
       else
-         Work(ipX+lauf)=coeff*Work(ipSCRX)
-         Work(ipY+lauf)=coeff*Work(ipSCRY)
-         Work(ipZ+lauf)=coeff*Work(ipSCRZ)
+         AMFI_Int(lauf,1)=coeff*Work(ipSCRX)
+         AMFI_Int(lauf,2)=coeff*Work(ipSCRY)
+         AMFI_Int(lauf,3)=coeff*Work(ipSCRZ)
       endif
       End If
 *
@@ -331,15 +330,15 @@ cDebugDebug
                iOff = iPntSO(Max(j1,j2),Min(j1,j2),lOper(iComp),nBas)
                iOff = iOff + ip(iComp)-1
 *
-               iOff2=ipInt + (iComp-1)*numboffunct3 -1 + iPnt(iSO,jSO)
+               iOff2= iPnt(iSO,jSO)
 *
+               tmp=-AMFI_Int(iOff2,iComp)
                If (j1.eq.j2) Then
                   ijSO=iPnt(iSO_r,jSO_r)
-                  SOInt(iOff+ijSO)=-Work(iOff2)
                Else
-                  nRow=nBas(j1)
-                  SOInt(iOff+(jSO_r-1)*nRow+iSO_r)=-Work(iOff2)
+                  ijSO=(jSO_r-1)*nBas(j1)+iSO_r
                End If
+               SOInt(iOff+ijSO)=tmp
 *
  99            Continue
             End Do
@@ -368,7 +367,7 @@ cDebugDebug
 *
       Call GetMem('iSO','Free','Inte',ipiSO,nSOs*2)
       Call GetMem('SCR','Free','Real',ipSCR,nSCR)
-      Call GetMem('AMFII','Free','Real',ipInt,numboffunct3*3)
+      Call mma_deallocate(AMFI_Int)
 CBS   write(6,*) 'Symmetry transformation successfully done'
       Return
       End
