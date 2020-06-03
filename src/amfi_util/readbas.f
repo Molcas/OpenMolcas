@@ -230,7 +230,6 @@
 *
       Call mma_allocate(nOff,numbofcart,2,Label='nOff')
 *
-      inoft=inoff+numbofcart
       Do iredrun=1,numbofsym
          nfunctperIRED(iredrun)=0
       End Do
