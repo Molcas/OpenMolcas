@@ -77,6 +77,8 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       Logical AeqB, EQ, DiffOp, IfGrad(3,3)
       Logical FreeiSD
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
+      Real*8, Allocatable:: Krnl(:), Final(:), Scr1(:), Scr2(:)
+      Real*8, Allocatable:: DAO(:), DSOpr(:), DSO(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Statement functions
@@ -174,27 +176,27 @@ C        Do jS = 1, iS
 *
             Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
             MemKrn=MemKer*m2Max
-            Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
+            Call mma_allocate(Krnl,MemKrn,Label='Krnl')
 *
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
 *
             lFinal = 6 * MaxPrm(iAng) * MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng) * nComp
-            Call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
+            Call mma_allocate(Final,lFinal,Label='Final')
 *
 *           Scratch area for contraction step
 *
             nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) * nElem(iAng)*nElem(jAng)
-            Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
+            Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
             nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
-            Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
+            Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
-            Call GetMem(' DAO ','Allo','Real',ipDAO,iPrim*jPrim*
-     &                  nElem(iAng)*nElem(jAng))
+            Call mma_allocate(DAO,iPrim*jPrim*nElem(iAng)*nElem(jAng),
+     &                        Label='DAO')
 *
 *           At this point we can compute Zeta.
 *
@@ -222,12 +224,12 @@ C        Do jS = 1, iS
 *           density matrix which are associated with the current shell
 *           pair.
 *
-            Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
-            Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
+            Call mma_allocate(DSOpr,nSO*iPrim*jPrim,Label='DSOpr')
+            Call mma_allocate(DSO,nSO*iPrim*jPrim,Label='DSO')
 *
 *           Gather the elements from 1st order density / Fock matrix.
 *
-            Call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,
+            Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
      &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 *
@@ -244,23 +246,23 @@ C        Do jS = 1, iS
 *           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBas*nSO,iPrim,iBas,
-     &                  1.0d0,Work(ipDSO),iBas,
+     &                  1.0d0,DSO,iBas,
      &                  Work(iCff),iPrim,
-     &                  0.0d0,Work(ipDSOp),jBas*nSO)
+     &                  0.0d0,DSOpr,jBas*nSO)
 *           Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrim,jPrim,jBas,
-     &                  1.0d0,Work(ipDSOp),jBas,
+     &                  1.0d0,DSOpr,jBas,
      &                  Work(jCff),jPrim,
-     &                  0.0d0,Work(ipDSO),nSO*iPrim)
+     &                  0.0d0,DSO,nSO*iPrim)
 *           Transpose to ij,AB
-            Call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),
+            Call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,
      &                  iPrim*jPrim)
-            Call GetMem('DSO ','Free','Real',ipDSO,nSO*iBas*jBas)
+            Call mma_deallocate(DSO)
 *
             If (iPrint.ge.99) Call
      &         RecPrt(' Decontracted 1st order density/Fock matrix',
-     &                ' ',Work(ipDSOp),iPrim*jPrim,nSO)
+     &                ' ',DSOpr,iPrim*jPrim,nSO)
 *
 *           Loops over symmetry operations.
 *
@@ -325,8 +327,8 @@ c VV: gcc bug: one has to use this if!
 *
                Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     Work(ipDAO),iPrim,jPrim,
-     &                     Work(ipDSOp),nSO,nOp,FactNd)
+     &                     DAO,iPrim,jPrim,
+     &                     DSOpr,nSO,nOp,FactNd)
 *
 *--------------Project the spherical harmonic space onto the
 *              cartesian space.
@@ -335,20 +337,20 @@ c VV: gcc bug: one has to use this if!
                If (Transf(iShll).or.Transf(jShll)) Then
 *
 *-----------------ij,AB --> AB,ij
-                  Call DGeTmO(Work(ipDAO),iPrim*jPrim,iPrim*jPrim,
-     &                        iCmp*jCmp,Work(iScrt1),iCmp*jCmp)
+                  Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,
+     &                        iCmp*jCmp,Scr1,iCmp*jCmp)
 *-----------------AB,ij --> ij,ab
-                  Call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,
-     &                        Work(iScrt2),nScr2,
+                  Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
+     &                        Scr2,nScr2,
      &                        RSph(ipSph(iAng)),
      &                        iAng,Transf(iShll),Prjct(iShll),
      &                        RSph(ipSph(jAng)),
      &                        jAng,Transf(jShll),Prjct(jShll),
-     &                        Work(ipDAO),kk)
+     &                        DAO,kk)
                End If
                If (iPrint.ge.99) Call RecPrt(
      &                  ' Decontracted FD in the cartesian space',
-     &                  ' ',Work(ipDAO),iPrim*jPrim,kk)
+     &                  ' ',DAO,iPrim*jPrim,kk)
 *
 *--------------Compute kappa and P.
 *
@@ -360,10 +362,10 @@ c VV: gcc bug: one has to use this if!
 *
                Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
      &                     Zeta,ZI,Kappa,Pcoor,
-     &                     Work(ipFnl),iPrim*jPrim,
-     &                     iAng,jAng,A,RB,nOrder,Work(iKern),
+     &                     Final,iPrim*jPrim,
+     &                     iAng,jAng,A,RB,nOrder,Krnl,
      &                     MemKer,Ccoor,nOrdOp,Grad,nGrad,
-     &                     IfGrad,IndGrd,Work(ipDAO),
+     &                     IfGrad,IndGrd,DAO,
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM)
                If (iPrint.ge.49) Call PrGrad(' In Oneel',
@@ -371,13 +373,12 @@ c VV: gcc bug: one has to use this if!
 *
  140        Continue
           endif
-            Call GetMem('DSOpr ','Free','REAL',ipDSOp,nSO*iPrim*jPrim)
-            Call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*
-     &                nElem(iAng)*nElem(jAng))
-            Call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
-            Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
-            Call GetMem('Final','Free','Real',ipFnl,lFinal)
-            Call GetMem('Kernel','Free','Real',iKern,MemKrn)
+            Call mma_deallocate(DSOpr)
+            Call mma_deallocate(DAO)
+            Call mma_deallocate(Scr2)
+            Call mma_deallocate(Scr1)
+            Call mma_deallocate(Final)
+            Call mma_deallocate(Krnl)
  131        Continue
 C        End Do
 C     End Do
