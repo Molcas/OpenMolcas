@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine angular(Lhigh,keep,keepcart,makemean,bonn,
-     *breit,sameorb,ifinite,onecartx,onecarty,onecartz,powexp,coulovlp,
-     *preXZ,preY,icheckxy,icheckz,interxyz,isgnprod)
+     *                   breit,sameorb,ifinite,
+     *                   onecartx,onecarty,onecartz,powexp,coulovlp,
+     *                   preXZ,preY,icheckxy,icheckz,interxyz,isgnprod)
 
 c
 cbs   COMBINES THE RADIAL INTEGRALS WITH THE ANGULAR FACTORS
@@ -29,16 +30,15 @@ cbs   integrals are thrown away after each l,l,l,l-block
 #include "param.fh"
 #include "Molcas.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: ConOO(:), ConSO(:), CartOO(:), CartSO(:)
       logical keep,keepcart,makemean,bonn,
-     *breiT,sameorb,cleaner,NFINI
+     *        breiT,sameorb,cleaner,NFINI
 cbs   NFINI means not finite nucleus
       dimension l2block(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
-     *onecartX(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
-     *onecartY(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
-     *onecartZ(mxcontL,MxcontL,
-     *(Lmax+Lmax+1)*(Lmax+1),Lmax),
+     *          onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
+     *          onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
+     *          onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
      *powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)),coulovlp(*),
      *preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),
      *preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),
@@ -46,23 +46,23 @@ cbs   NFINI means not finite nucleus
      *icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
      *interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax),
      *isgnprod(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
-cbs #####################################################################
-cbs   some preparation of factors needed later on..                     #
-cbs ######################################################################
+cbs ####################################################################
+cbs   some preparation of factors needed later on..                    #
+cbs ####################################################################
       ipnt(i,j)=(max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
       roottwo=sqrt(2d0)
 cbs   calculate some prefactors that will be needed quite often
       call prefac(Lmax,preroots,clebsch)
-        if (ifinite.ne.2) then
-cbs     clean array for one electron integrals
-        iprod=MxcontL*MxcontL*(Lmax+Lmax+1)*(Lmax+1)*Lmax
-        call dzero(onecartX,iprod)
-        call dzero(onecartY,iprod)
-        call dzero(onecartZ,iprod)
-        NFINI=.true.
-        else
-        NFINI=.false.
-        endif
+      if (ifinite.ne.2) then
+cbs      clean array for one electron integrals
+         onecartX(:,:,:,:)=0.0D0
+         onecartY(:,:,:,:)=0.0D0
+         onecartZ(:,:,:,:)=0.0D0
+         NFINI=.true.
+      else
+         NFINI=.false.
+      endif
+*
 cbs   generate an array with sign for (even/odd) m-values
       isignM(0)=1
       do I=2,Lmax,2
@@ -204,16 +204,16 @@ cbs     number of contracted integrals for each block
       mxangint=jblock*ncont
 cbs   determine the size icont4 for the radial integrals
       call gencoulDIM(l1,l2,l3,l4,makemean,bonn,breit,
-     *sameorb,icont4)
-      Call GetMem('ANGSO','Allo','Real',iangSO,
-     *    2*mxangint+2*ncont+2*icont4)
+     *                sameorb,icont4)
+      Call GetMem('ANGSO','Allo','Real',iangSO,2*mxangint)
       iangOO=iangSO+mxangint
-      icartSO=iangOO+mxangint
-      icartOO=icartSO+ncont
-      iconSO=icartOO+ncont
-      iconOO=iconSO+icont4
+      Call mma_allocate(CartSO,nCont,Label='CartSO')
+      Call mma_allocate(CartOO,nCont,Label='CartOO')
+      Call mma_allocate(ConSO,iCont4,Label='ConSO')
+      Call mma_allocate(ConOO,iCont4,Label='ConOO')
+*
       call gencoul(l1,l2,l3,l4,makemean,bonn,breit,
-     *sameorb,work(iconSO),work(iconOO),icont4,powexp,coulovlp)
+     *             sameorb,conSO,conOO,icont4,powexp,coulovlp)
 !gen and trans integrals
         l2block(l1,l2,l3,l4)=1  ! can be used for getting the
 cbs   local counter for integral adresses
@@ -265,14 +265,14 @@ cbs the radial integrals
      *       work(iangOO+locstar),
      *       Lfirst(1),Llast(1),Lblocks(1),
      *       ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),
-     *       work(iconSO+Lstarter(1)-1),
-     *       work(iconSO+Lstarter(2)-1),
-     *       work(iconSO+Lstarter(3)-1),
-     *       work(iconSO+Lstarter(4)-1),
-     *       work(iconOO+Lstarter(1)-1),
-     *       work(iconOO+Lstarter(2)-1),
-     *       work(iconOO+Lstarter(3)-1),
-     *       work(iconOO+Lstarter(4)-1),
+     *       ConSO(Lstarter(1)),
+     *       ConSO(Lstarter(2)),
+     *       ConSO(Lstarter(3)),
+     *       ConSO(Lstarter(4)),
+     *       ConOO(Lstarter(1)),
+     *       ConOO(Lstarter(2)),
+     *       ConOO(Lstarter(3)),
+     *       ConOO(Lstarter(4)),
      *       preroots,clebsch,scratch4,bonn,breit,
      *       sameorb)
         locstar=locstar+ncont ! increase starting address
@@ -325,14 +325,14 @@ c
      *       work(iangOO+locstar),
      *       Lfirst(1),Llast(1),Lblocks(1),
      *       ncontrac(l1),ncontrac(l2),ncontrac(l3),ncontrac(l4),
-     *       work(iconSO+Lstarter(1)-1),
-     *       work(iconSO+Lstarter(2)-1),
-     *       work(iconSO+Lstarter(3)-1),
-     *       work(iconSO+Lstarter(4)-1),
-     *       work(iconOO+Lstarter(1)-1),
-     *       work(iconOO+Lstarter(2)-1),
-     *       work(iconOO+Lstarter(3)-1),
-     *       work(iconOO+Lstarter(4)-1),
+     *       ConSO(Lstarter(1)),
+     *       ConSO(Lstarter(2)),
+     *       ConSO(Lstarter(3)),
+     *       ConSO(Lstarter(4)),
+     *       ConOO(Lstarter(1)),
+     *       ConOO(Lstarter(2)),
+     *       ConOO(Lstarter(3)),
+     *       ConOO(Lstarter(4)),
      *       preroots,clebsch,scratch4,bonn,breit,
      *       sameorb)
         locstar=locstar+ncont
@@ -422,15 +422,15 @@ cbs     integrals for sigma_x
         mcombcart(1,m1,m2,m3,m4)=1
         mcombcart(2,m1,m2,m3,m4)=mblockx
         call tosigX(m1,m2,m3,m4,work(iangSO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartSO),preXZ,
-     *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
-     *  cleaner)
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),CartSO,preXZ,
+     *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
+     *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breiT))
      *  call tosigX(m1,m2,m3,m4,work(iangOO+iangfirst),
      *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartOO),preXZ,
+     *  ncontrac(l4),cartOO,preXZ,
      *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
      *  cleaner)
         if (makemean) then ! generate mean-field-contributions
@@ -440,9 +440,9 @@ c##########################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.and.
      *       iabs(m1+m3).eq.1.and.l1.ne.0) then
-             call two2mean13(work(icartSO),occup(1,l2),
-     *       AOcoeffs(1,1,l2),onecartx(1,1,ipnt(m1+l1+1,m3+l3+1),l1),
-     *       ncontrac(l1),ncontrac(l2),noccorb(l2))
+             call two2mean13(CartSO,occup(1,l2),AOcoeffs(1,1,l2),
+     *                       onecartx(1,1,ipnt(m1+l1+1,m3+l3+1),l1),
+     *                       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
              endif
              if (l1.eq.l2.and.l3.eq.l4) then
@@ -450,31 +450,25 @@ c##########################################################################
              if (m3.lt.m4.and.iabs(m4+m3).eq.1) then
 cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34a(work(icartSO),
-     *       work(icartSO),
-     *       occup(1,l1),
+             if (NFINI) call two2mean34a(cartSO,cartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if(NFINI) call two2mean34a(work(icartSO),
-     *       work(icartOO),
-     *       occup(1,l1),
-     *       AOcoeffs(1,1,l1),onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
-     *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
+             if(NFINI) call two2mean34a(cartSO,cartOO,
+     *                                  occup(1,l1),AOcoeffs(1,1,l1),
+     *                           onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
+     *                                  ncontrac(l3),ncontrac(l1),
+     *                                  noccorb(l2),sameorb)
              endif
              endif
              if (m3.gt.m4.and.iabs(m4+m3).eq.1) then
 cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartSO),
-     *       occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartOO),
-     *       occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartOO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartx(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              endif
@@ -483,13 +477,11 @@ cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (m1.lt.m2.and.iabs(m1+m2).eq.1) then
 cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartSO),occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartOO),occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,cartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
@@ -497,28 +489,26 @@ cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (m1.gt.m2.and.iabs(m1+m2).eq.1) then
 cbs   for the "Bonn-approach"   exchange cartexOO by cartexSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartSO),occup(1,l3),
+             if (NFINI) call two2mean12b(cartSO,CartSO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartOO),occup(1,l3),
+             if (NFINI) call two2mean12b(CartSO,CartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartx(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
              endif
              endif
              endif
-c##########################################################################
-c############  mean-field-part ############################################
-c##########################################################################
+c#######################################################################
+c############  mean-field-part #########################################
+c#######################################################################
         endif
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C++++++++++++++++      SIGMA Y      ++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C++++++++++++++++      SIGMA Y      ++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         elseif (indx.eq.1.and.indy.eq.0.and.indz.eq.1.and.
      *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! X*Z transforms like L_y  (B2)
@@ -527,15 +517,15 @@ cbs     integrals for sigma_y
         mcombcart(1,m1,m2,m3,m4)=2
         mcombcart(2,m1,m2,m3,m4)=mblocky
         call tosigY(m1,m2,m3,m4,work(iangSO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartSO),preY,
-     *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
-     *  cleaner)
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),CartSO,preY,
+     *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
+     *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breit))
      *  call tosigY(m1,m2,m3,m4,work(iangOO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartOO),preY,
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),cartOO,preY,
      *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
      *  cleaner)
         if (makemean) then ! generate mean-field-contributions
@@ -545,7 +535,7 @@ c##########################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.
      *       and.iabs(m3-m1).eq.1.and.l1.ne.0) then
-             call two2mean13(work(icartSO),occup(1,l2),
+             call two2mean13(CartSO,occup(1,l2),
      *       AOcoeffs(1,1,l2),onecartY(1,1,ipnt(m1+l1+1,m3+l3+1),l1),
      *       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
@@ -555,13 +545,11 @@ c##########################################################################
              if (m3.lt.m4.and.iabs(m3-m4).eq.1) then
 cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34a(work(icartSO),
-     *       work(icartSO),occup(1,l1),
+             if (NFINI) call two2mean34a(CartSO,CartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if (NFINI) call two2mean34a(work(icartSO),
-     *       work(icartOO),occup(1,l1),
+             if (NFINI) call two2mean34a(CartSO,CartOO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              endif
@@ -569,13 +557,11 @@ cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              if (m3.gt.m4.and.iabs(m3-m4).eq.1) then
 cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartSO),occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartOO),occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartOO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartY(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              endif
@@ -584,13 +570,11 @@ cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              if (m1.lt.m2.and.iabs(m1-m2).eq.1) then
 cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartSO),occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartOO),occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,CartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
@@ -598,13 +582,11 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (m1.gt.m2.anD.Iabs(m1-m2).eq.1) then
 cbs   for the "Bonn-approach"   exchange carteYOO by carteYSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartSO),occup(1,l3),
+             if (NFINI) call two2mean12b(CartSO,CartSO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartOO),occup(1,l3),
+             if (NFINI) call two2mean12b(CartSO,CartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartY(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
@@ -628,17 +610,17 @@ cbs     integrals for sigma_z
         mcombcart(1,m1,m2,m3,m4)=3
         mcombcart(2,m1,m2,m3,m4)=mblockz
         call tosigZ(m1,m2,m3,m4,work(iangSO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartSO),preXZ,
-     *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
-     *  cleaner)
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),CartSO,preXZ,
+     *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
+     *              isgnprod,cleaner)
 c
         if (.not.bonn.and.(.not.breit))
      *  call tosigZ(m1,m2,m3,m4,work(iangOO+iangfirst),
-     *  mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
-     *  ncontrac(l4),work(icartOO),preXZ,
-     *  interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),isgnprod,
-     *  cleaner)
+     *              mcombina,ncontrac(l1),ncontrac(l2),ncontrac(l3),
+     *              ncontrac(l4),CartOO,preXZ,
+     *              interxyz(1,iabs(m1),iabs(m2),iabs(m3),iabs(m4)),
+     *              isgnprod,cleaner)
         if (makemean) then ! generate mean-field-contributions
 c##########################################################################
 c############  mean-field-part ############################################
@@ -646,7 +628,7 @@ c##########################################################################
              if (l1.eq.l3.and.l2.eq.l4) then
              if (m2.eq.m4.and.m1.lt.m3.
      *       and.m1.eq.-m3.and.l1.ne.0) then
-             call two2mean13(work(icartSO),occup(1,l2),
+             call two2mean13(CartSO,occup(1,l2),
      *       AOcoeffs(1,1,l2),onecartz(1,1,ipnt(m1+l1+1,m3+l3+1),l1),
      *       ncontrac(l1),ncontrac(l2),noccorb(l2))
              endif
@@ -656,13 +638,11 @@ c##########################################################################
              if (m3.lt.m4.and.m3.eq.-m4) then
 cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34a(work(icartSO),
-     *       work(icartSO),occup(1,l1),
+             if (NFINI) call two2mean34a(CartSO,CartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if (NFINI) call two2mean34a(work(icartSO),
-     *       work(icartOO),occup(1,l1),
+             if (NFINI) call two2mean34a(CartSO,CartOO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              endif
@@ -670,14 +650,11 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (m3.gt.m4.and.m3.eq.-m4) then
 cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartSO),occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartSO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              else
-             if (NFINI) call two2mean34b(work(icartSO),
-     *       work(icartOO),
-     *       occup(1,l1),
+             if (NFINI) call two2mean34b(CartSO,CartOO,occup(1,l1),
      *       AOcoeffs(1,1,l1),onecartz(1,1,ipnt(m3+l3+1,m4+l4+1),l3),
      *       ncontrac(l3),ncontrac(l1),noccorb(l2),sameorb)
              endif
@@ -686,14 +663,11 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (m1.lt.m2.and.m1.eq.-m2) then
 cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartSO),occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,CartSO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12a(work(icartSO),
-     *       work(icartOO),
-     *       occup(1,l3),
+             if (NFINI) call two2mean12a(CartSO,CartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
@@ -701,15 +675,12 @@ cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (m1.gt.m2.and.m1.eq.-m2) then
 cbs   for the "Bonn-approach"   exchange carteOO by carteSO
              if (bonn.or.breiT) then
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartSO),
+             if (NFINI) call two2mean12b(cartSO,CartSO,
      *       occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              else
-             if (NFINI) call two2mean12b(work(icartSO),
-     *       work(icartOO),
-     *       occup(1,l3),
+             if (NFINI) call two2mean12b(cartSO,cartOO,occup(1,l3),
      *       AOcoeffs(1,1,l3),onecartz(1,1,ipnt(m1+l1+1,m2+l2+1),l1),
      *       ncontrac(l1),ncontrac(l3),noccorb(l3),sameorb)
              endif
@@ -741,8 +712,11 @@ cbs   just controlling if x and y integrals have the same number of blocks
       Call Abend()
       endif
 cbs   start adresses for the next <ll|ll> block of integrals
-      Call GetMem('ANGSO','free','real',iangSO,
-     * 2*mxangint+2*ncont+2*icont4)
+      Call GetMem('ANGSO','free','real',iangSO,2*mxangint)
+      Call mma_deallocate(CartSO)
+      Call mma_deallocate(CartOO)
+      Call mma_deallocate(ConSO)
+      Call mma_deallocate(ConOO)
       endif
       endif
       endif
