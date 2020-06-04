@@ -24,22 +24,24 @@
 *> and current MEP points.
 *> All calculations are done in weighted coordinates (mass-weighted by default).
 *>
-*> @param[in,out] Cx         Cartesian coordinates in all iterations
-*> @param[in]     Gx         Cartesian gradient in all iterations
-*> @param[in]     nAtom      Number of symmetry-unique atoms
-*> @param[in]     iMEP       Number of this MEP point
-*> @param[in]     iOff_iter  Iteration of the previous MEP point
-*> @param[in]     iPrint     Print level
-*> @param[in]     IRCRestart Flag to mark the start of a backward IRC search
+*> @param[in,out] Cx            Cartesian coordinates in all iterations
+*> @param[in]     Gx            Cartesian gradient in all iterations
+*> @param[in]     nAtom         Number of symmetry-unique atoms
+*> @param[in]     iMEP          Number of this MEP point
+*> @param[in]     iOff_iter     Iteration of the previous MEP point
+*> @param[in]     iPrint        Print level
+*> @param[in]     IRCRestart    Flag to mark the start of a backward IRC search
+*> @param[out]    BadConstraint Flag to signal constraint problems
 ************************************************************************
-      Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart)
+      Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
+     &                   BadConstraint)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "weighting.fh"
 #include "info_slapaf.fh"
       Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
-      Logical IRCRestart
+      Logical IRCRestart,BadConstraint
       Parameter ( RadToDeg=180.0D0/Pi )
       Dimension iDum(1)
 *
@@ -54,6 +56,7 @@
       Call Allocate_Work(ipDisp,nCoor)
       Call Allocate_Work(ipGrad,nCoor)
       Call Allocate_Work(ipDir,nCoor)
+      Call Allocate_Work(ipCen,nCoor)
 *
 *     Obtain some useful vectors:
 *     PrevDir: difference between ref. structure and previous MEP point
@@ -207,8 +210,8 @@
       Call Free_Work(ipLen)
       Call Free_Work(ipCur)
 *
-*        Do not mess with the geometry or reference if the next iteration
-*        will be the start of a reverse IRC search.
+*     Do not mess with the geometry or reference if the next iteration
+*     will be the start of a reverse IRC search.
 *
       If (.Not.IRCRestart) Then
 *
@@ -298,15 +301,18 @@
 *       For an IRC first step, keep the initial structure as reference
 *
         Fact=dMEPStep*Sqrt(TWeight)/dDir
-        Call dCopy_(nCoor,Cx(1,iter),1,Cx(1,iter+1),1)
+        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipCen),1)
         If (MEP_Algo.eq.'GS') Then
           If ((IRC.eq.0).or.(iMEP.ne.0))
-     &      Call DaXpY_(nCoor,Half*Fact,Work(ipDir),1,Cx(1,iter+1),1)
-          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cx(1,iter+1),nCoor)
-          Call DaXpY_(nCoor,Half*Fact,Work(ipDir),1,Cx(1,iter+1),1)
+     &      Call Find_Distance(Cx(1,iter),Work(ipCen),Work(ipDir),
+     &                Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
+          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Work(ipCen),nCoor)
+          Call Find_Distance(Work(ipCen),Cx(1,iter+1),Work(ipDir),
+     &              Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
         Else If (MEP_Algo.eq.'MB') Then
           If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cx(1,iter),nCoor)
-          Call DaXpY_(nCoor,Fact,Work(ipDir),1,Cx(1,iter+1),1)
+          Call Find_Distance(Cx(1,iter),Cx(1,iter+1),Work(ipDir),
+     &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
       End If
@@ -318,6 +324,7 @@
       Call Free_Work(ipDisp)
       Call Free_Work(ipGrad)
       Call Free_Work(ipDir)
+      Call Free_Work(ipCen)
       Call QExit('MEP_dir')
       Return
       End
