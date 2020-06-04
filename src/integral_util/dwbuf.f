@@ -70,6 +70,5 @@ c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
       If(mArray.gt.0) goto 10
 *
 *     Write (6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
-*     Call GetMem('WBuf','Check','Real',iDum,iDum)
       Return
       End

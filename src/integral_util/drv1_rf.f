@@ -21,7 +21,6 @@
 * Called from: RctFld                                                  *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              ZXia                                                    *
 *              SetUp1                                                  *
 *              MltInt                                                  *

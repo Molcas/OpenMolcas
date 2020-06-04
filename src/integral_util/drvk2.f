@@ -21,7 +21,6 @@
 * Called from: Drv2El or Server (DP case)                              *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              mHrr                                                    *
 *              DCopy   (ESSL)                                          *
 *              MemRys                                                  *

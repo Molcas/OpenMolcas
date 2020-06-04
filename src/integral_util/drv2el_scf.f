@@ -33,7 +33,6 @@
 *              DeDe_SCF                                                *
 *              DrvK2                                                   *
 *              StatP                                                   *
-*              GetMem                                                  *
 *              mHrr                                                    *
 *              DCopy   (ESSL)                                          *
 *              Swap                                                    *
@@ -391,7 +390,6 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 *------- Initiate first read ahead of time.
 *
 *        Write (6,*) 'lBuf*RtoI=',lbuf*RtoI,' rtoi=',Rtoi
-*        Call GetMem('ISemi','List','Real',iDum,iDum)
          If (OnDisk) then
 C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             Call dEAFread(LuTmp,control,4*RtoI,Disk)
@@ -440,7 +438,6 @@ c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *
 *---- If data was transfered to the I/O buffer write buffer on disc.
 *
-*     Call GetMem('CSemi','List','Real',iDum,iDum)
 C  If buffer empty force the write :
       If (iPos.EQ.1) iPos=2
       If (OnDisk) Call WLBuf
