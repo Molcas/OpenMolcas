@@ -48,6 +48,7 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -59,6 +60,7 @@
       Logical DoFock, force_part_save, DoGrad, ReOrder
       Character*100 Get_ProgName, ProgName
       Character*8 Method
+      Real*8, Allocatable:: HRRMtrx(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,7 +97,7 @@
       mabMax_=nabSz(la_+la_)
       ne_=(mabMax_-mabMin_+1)
       nHrrMtrx=ne_*nElem(la_)*nElem(la_)
-      Call GetMem('HrrMtrx','Allo','Real',ipHrrMtrx,2*nHrrMtrx)
+      call mma_allocate(HRRMtrx,nHRRMtrx,2,Label='HRRMatrix')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -303,7 +305,7 @@
      &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
      &                  ipTmp1,ipTmp2,ipTmp3,
      &                  ipKnew,ipLnew,ipPnew,ipQnew,DoGrad,
-     &                  Work(ipHrrMtrx),nHrrMtrx)
+     &                  HrrMtrx,nHrrMtrx)
 *
             Indk2(1,ijS) = jpk2
             Indk2(2,ijS) = nDCRR
@@ -327,7 +329,7 @@
       Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
       Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
       Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('HrrMtrx','Free','Real',ipHrrMtrx,nHrrMtrx)
+      Call mma_deallocate(HRRMtrx)
 *                                                                      *
 ************************************************************************
 *                                                                      *

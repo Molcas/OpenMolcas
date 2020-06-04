@@ -26,10 +26,12 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 xyz(3,mCentr)
       Character*(LENIN) Lbls(mCentr)
+      Real*8, Allocatable:: BST(:)
+      Integer, Allocatable:: iBST(:,:)
 *
       lu=6
       iRout = 125
@@ -99,10 +101,9 @@ CVV Set .false. to get faster printing without sorting.
       if(.true.) then
        Thr_R=(3.0D0/Angstr)**2
        Thr_D=1D-4
-       call getmem('rBST','ALLO','REAL',ipBST,mCentr**2)
-       call getmem('iBST','ALLO','INTE',ipiBST,mCentr**2)
-       call getmem('jBST','ALLO','INTE',ipjBST,mCentr**2)
-       iiBST=0
+       Call mma_allocate(BST,mCentr**2,Label='BST')
+       Call mma_allocate(iBST,2,mCentr**2,Label='iBST')
+       iiBST=1
       Do icc = 1, mCentr
          x1 = xyz(1,icc)
          y1 = xyz(2,icc)
@@ -113,53 +114,52 @@ CVV Set .false. to get faster printing without sorting.
             z2 = xyz(3,jcc)
             R = (x2-x1)**2+(y2-y1)**2+(z2-z1)**2
             If (R.le.Thr_R) then
-               Work(ipBST+iiBST)=R
-               iWork(ipiBST+iiBST)=icc
-               iWork(ipjBST+iiBST)=jcc
+               BST(iiBST)=R
+               iBST(1,iiBST)=icc
+               iBST(2,iiBST)=jcc
                iiBST=iiBST+1
             End If
          End Do
       End Do
 c     debug
-c      do ii=0,iiBST-1
-c          R=sqrt(Work(ipBST+ii))
+c      do ii=1,iiBST
+c          R=sqrt(BST(ii))
 c          Write (Lu,'(2(I5,1X,A4),2(F10.6,6X))')
-c     &         iWork(ipiBST+ii),Lbls(iWork(ipiBST+ii)),
-c     &         iWork(ipjBST+ii),Lbls(iWork(ipjBST+ii)),
+c     &         iBST(1,ii),Lbls(iBST(1,ii)),
+c     &         iBST(2,ii),Lbls(iBST(2,ii)),
 c     &         R,R*Angstr
 c      enddo
 c     debug
 666     continue
        R=100D0
-        do ii=0,iiBST-1
-           R=MIN(R,Work(ipBST+ii))
+        do ii=1,iiBST
+           R=MIN(R,BST(ii))
         enddo
         if(R.gt.90D0) goto 667
         moretogo=0
         isfirst=1
-        do ii=0,iiBST-1
-           if(abs(R-Work(ipBST+ii)).lt.Thr_D) then
+        do ii=1,iiBST
+           if(abs(R-BST(ii)).lt.Thr_D) then
            if(isfirst.eq.1) then
            RR=SQRT(R)
           Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
-     &         iWork(ipiBST+ii),Lbls(iWork(ipiBST+ii)),
-     &         iWork(ipjBST+ii),Lbls(iWork(ipjBST+ii)),
+     &         iBST(1,ii),Lbls(iBST(1,ii)),
+     &         iBST(2,ii),Lbls(iBST(2,ii)),
      &         RR,RR*Angstr
           isfirst=0
           else
           Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
-     &         iWork(ipiBST+ii),Lbls(iWork(ipiBST+ii)),
-     &         iWork(ipjBST+ii),Lbls(iWork(ipjBST+ii))
+     &         iBST(1,ii),Lbls(iBST(1,ii)),
+     &         iBST(2,ii),Lbls(iBST(2,ii))
           endif
-          Work(ipBST+ii)=100D0
+          BST(ii)=100D0
           moretogo=1
           endif
          enddo
          if(moretogo.eq.1) goto 666
 667    continue
-       call getmem('jBST','FREE','INTE',ipjBST,mCentr**2)
-       call getmem('iBST','FREE','INTE',ipiBST,mCentr**2)
-       call getmem('rBST','FREE','REAL',ipBST,mCentr**2)
+       Call mma_deallocate(iBST)
+       Call mma_deallocate(BST)
 
 
       else
