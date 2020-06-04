@@ -28,6 +28,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "weighting.fh"
+#include "sbs.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -42,7 +43,7 @@
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
-     &        HWRS, Analytic_Hessian, PrQ, lOld
+     &        HWRS, Analytic_Hessian, PrQ, lOld, Invar
       Save        BSet, HSet, lOld
 *
 C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
@@ -242,7 +243,8 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
 *     Finally, just to be safe align the new Cartesian structure with
 *     the reference structure (see init2.f)
 *
-      If (WeightedConstraints)
+      Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
+      If (WeightedConstraints.and.Invar)
      &   Call Align(Cx(1,iter+1),Work(ipRef),nAtom)
 *                                                                      *
 ************************************************************************

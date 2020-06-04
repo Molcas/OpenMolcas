@@ -97,7 +97,6 @@ C     Check if the RESTART keyword was used.
          CALL mma_allocate(atom,natom)
          CALL mma_allocate(Mass,natom)
          CALL mma_allocate(vel,natom*3)
-         CALL mma_allocate(pcoo,POUT,natom*3)
 
          CALL Get_Name_Full(atom)
          CALL GetMassDx(Mass,natom)
@@ -125,13 +124,21 @@ C Initialize Thermostat Variables
          END IF
 
 C Check if nuclear coordinates to project out from the dynamics
-         IF (POUT.eq.0) THEN
+         IF ((POUT.eq.0) .AND. (PIN.eq.natom*3)) THEN
             WRITE(6,'(5X,A,T55)') 'Dynamics in full dimensionality.'
          ELSE
             WRITE(6,'(5X,A,T55)') 'Dynamics in reduced dimensionality.'
-            CALL DxRdOut(pcoo,POUT,natom)
+            IF (POUT .NE. 0) THEN
+              CALL mma_allocate(pcoo,POUT,natom*3)
+              CALL DxRdOut(pcoo,POUT,natom)
 C Save on RUNFILE
-            CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
+              CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
+            ELSEIF (PIN .NE. natom*3) THEN
+              CALL mma_allocate(pcoo,PIN,natom*3)
+              CALL DxRdIn(pcoo,PIN,natom)
+C Save on RUNFILE
+              CALL Put_dArray('Keep_Coord',pcoo,PIN*natom*3)
+            ENDIF
          ENDIF
 
 
@@ -190,6 +197,8 @@ C                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
 C Check if reduced dimensionality
          IF (POUT .NE. 0) THEN
            CALL project_out_vel(vel,natom)
+         ELSEIF (PIN .NE. natom*3) THEN
+           CALL project_in_vel(vel,natom)
            caption='Vel (red dim)'
            CALL DxPtTableWithoutMassForce(caption,time,natom,
      &        atom,vel)
@@ -224,7 +233,9 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL mma_deallocate(atom)
          CALL mma_deallocate(Mass)
          CALL mma_deallocate(vel)
-         CALL mma_deallocate(pcoo)
+         IF ((POUT.NE.0) .OR. (PIN.NE.natom*3)) THEN
+           CALL mma_deallocate(pcoo)
+         ENDIF
       END IF
 
 C
@@ -281,6 +292,8 @@ C
                   Write (LuInput,*) VELO
                   Write (LuInput,'(A)') 'OUT'
                   Write (LuInput,*) POUT
+                  Write (LuInput,'(A)') 'IN'
+                  Write (LuInput,*) PIN
                   Write (LuInput,'(A)') 'End of Input'
                   Write (LuInput,'(A)')
      &                  '>export MOLCAS_TRAP=$DYN_OLD_TRAP'

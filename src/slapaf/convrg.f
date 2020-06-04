@@ -36,7 +36,7 @@
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
-     &        IRCRestart, Conv2, ConvTmp, TSReg
+     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint
       Character*8 Temp
 *
       Lu=6
@@ -804,6 +804,79 @@ C              Write (6,*) 'SubProject=.Prod'
             If (IRC.ne.0) Then
                If (IRC.eq.1) Then
                   IRCRestart=.True.
+               End If
+            End If
+         End If
+*
+         Call Chkpnt_update_MEP(IRCRestart)
+*
+         Call Free_Work(ipE)
+         Call Free_Work(ipG)
+         Call Free_Work(ipC)
+*
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*-----List internal coordinates and gradients
+*
+      kkIter=iter+1
+      If (iPrint.ge.8) Then
+         Call List(' Internal coordinates ',Lbl,qInt,nInter,kkIter)
+         Call List(' Internal forces    ',Lbl,Grad,nInter,iter)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Put out the new reference structure and the new starting
+*     structure to be used for the next MEP point.
+*     For rMEP keep the reference structure!
+*     Note that this is done in weighted Cartesian coordinates!
+*
+      If ((Conv1.or.(iter.eq.1)).and.(MEP.or.rMEP)) Then
+         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
+            Write (6,*)
+            Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
+         End If
+*
+         Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
+     &                BadConstraint)
+         Call Put_iScalar('iOff_Iter',iter)
+*
+*        Test on constraint misbehavior
+         If (BadConstraint.and.(.not.Terminate)) Then
+            Terminate=.True.
+            If (iPrint.ge.5) Then
+               Write (6,*)
+               If (MEP) Then
+                  If (IRC.eq.0) Then
+                     Write (6,'(A)') ' MEP-search '//
+     &                   'terminated due to problematic constraint!'
+                  Else If (IRC.eq.1) Then
+                     Write (6,'(A)') ' IRC(forward)-search '//
+     &                   'terminated due to problematic constraint!'
+                  Else
+                     Write (6,'(A)') ' IRC(backward)-search '//
+     &                   'terminated due to problematic constraint!'
+                  End If
+               Else If (rMEP) Then
+                  Write (6,'(A)') ' rMEP-search '//
+     &                'terminated due to problematic constraint!'
+               End If
+               Write (6,*)
+            End If
+         End If
+*
+         If (Conv1.and.Terminate) Then
+            If (IRC.ne.0) Then
+               Call Allocate_Work(ipE,nMEP+1)
+               Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
+               Call Allocate_Work(ipG,3*nAtom*(nMEP+1))
+               Call Get_dArray('MEP-Energies',Work(ipE),nMEP+1)
+               Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
+               Call Get_dArray('MEP-Grad',Work(ipG),3*nAtom*(nMEP+1))
+               If (IRC.eq.1) Then
+                  IRCRestart=.True.
                   IRC=-1
                   Call Put_iScalar('IRC',IRC)
 *
@@ -845,19 +918,14 @@ C              Write (6,*) 'SubProject=.Prod'
      &                          Work(ipG_IRC+(j-1)*3*nAtom),1)
                   End Do
 *
-                  Call Get_dArray('IRC-Energies',Work(ipE),nForward)
-                  Call Get_dArray('IRC-Coor',Work(ipC),3*nAtom*nForward)
-                  Call Get_dArray('IRC-Grad',Work(ipG),3*nAtom*nForward)
-*
-                  call dcopy_(nForward,
-     &                       Work(ipE),1,
-     &                       Work(ipE_IRC+(nBackward-1)),1)
-                  call dcopy_(nForward*3*nAtom,
-     &                       Work(ipC),1,
-     &                       Work(ipC_IRC+(nBackward-1)*3*nAtom),1)
-                  call dcopy_(nForward*3*nAtom,
-     &                       Work(ipG),1,
-     &                       Work(ipG_IRC+(nBackward-1)*3*nAtom),1)
+                  Call Get_dArray('IRC-Energies',
+     &                            Work(ipE_IRC+(nBackward-1)),nForward)
+                  Call Get_dArray('IRC-Coor',
+     &                            Work(ipC_IRC+(nBackward-1)*3*nAtom),
+     &                            nForward*3*nAtom)
+                  Call Get_dArray('IRC-Grad',
+     &                            Work(ipG_IRC+(nBackward-1)*3*nAtom),
+     &                            nForward*3*nAtom)
 *
                   Call Intergeo('MD_IRC',Work(ipE_IRC),Work(ipC_IRC),
      &                          Work(ipG_IRC),nAtom,nIRC)
@@ -866,48 +934,16 @@ C              Write (6,*) 'SubProject=.Prod'
                   Call Free_Work(ipC_IRC)
                   Call Free_Work(ipE_IRC)
                End If
+               Call Free_Work(ipG)
+               Call Free_Work(ipC)
+               Call Free_Work(ipE)
             End If
-*
          End If
 *
-         Call Chkpnt_update_MEP(IRCRestart)
-*
-         Call Free_Work(ipE)
-         Call Free_Work(ipG)
-         Call Free_Work(ipC)
-*
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----List internal coordinates and gradients
-*
-      kkIter=iter+1
-      If (iPrint.ge.8) Then
-         Call List(' Internal coordinates ',Lbl,qInt,nInter,kkIter)
-         Call List(' Internal forces    ',Lbl,Grad,nInter,iter)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Put out the new reference structure and the new starting
-*     structure to be used for the next MEP point.
-*     For rMEP keep the reference structure!
-*     Note that this is done in weighted Cartesian coordinates!
-*
-      If ((Conv1.or.(iter.eq.1)).and.(MEP.or.rMEP)) Then
          If (.Not.Terminate) Then
            iStop=1
            Stop=.False.
          End If
-*
-         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
-            Write (6,*)
-            Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
-         End If
-*
-         Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart)
-         Call Put_iScalar('iOff_Iter',iter)
 *
 *        Print out the path so far
 *
