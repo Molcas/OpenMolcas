@@ -32,6 +32,7 @@
       Thr=0.001D+00 ! Threshold for printout.
 *
       If (iPrint.le.5) Go To 99
+      Write (Lu,*)
       Call CollapseOutput(1,'Internal coordinate section')
 *
       If (iPrint.ge.6) Then
