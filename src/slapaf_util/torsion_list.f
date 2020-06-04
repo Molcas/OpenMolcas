@@ -85,7 +85,7 @@
 *     A-R(B)-TS(D)-T(C). Hence we put no restriction on the
 *     pairs AB and CD. However, for the pair of pairs we have
 *     that order is irrelevant, i.e. ABCD is identical to
-*     DCBA. To garantee this we limit the pairs to the unique
+*     DCBA. To guarantee this we limit the pairs to the unique
 *     combinations.
 *
       Do iBond = 1, nBonds

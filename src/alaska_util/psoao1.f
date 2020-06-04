@@ -39,7 +39,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              Change                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
@@ -52,7 +51,6 @@
       use aces_stuff, only: nGamma, Gamma_On
       use PSO_Stuff
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
@@ -105,7 +103,6 @@
       iPrInc = iPrim
       kPrInc = kPrim
 *
-*     Call GetMem(' ','MAX ','REAL',iDum,MemMax)
  999  Continue
       QjPrim = .False.
       QlPrim = .True.
@@ -350,7 +347,6 @@
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call GetMem('PSOAO1','CHECK','REAL',iDum,iDum)
 *     Call qExit('PSOAO1')
       Return
       End

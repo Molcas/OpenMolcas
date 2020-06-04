@@ -29,7 +29,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              Rysg1                                                   *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
@@ -336,7 +335,6 @@
  100  Continue
 *
 *
-*     Call GetMem(' Exit M1Grd','LIST','REAL',iDum,iDum)
 *     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings
