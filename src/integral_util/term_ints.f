@@ -19,7 +19,7 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
-      use k2_arrays, only: FT
+      use k2_arrays, only: FT, Mem_DBLE, Mem_INT
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -43,8 +43,8 @@
       If (Allocated(FT)) Call mma_deallocate(FT)
 *
       If (Ind0_Status.eq.InActive) Then
-         Call GetMem('MemI','Free','Inte',ipiZet,MemI)
-         Call GetMem('MemR','Free','Real',ipZeta,MemR)
+         Call mma_deallocate(Mem_INT)
+         Call mma_deallocate(Mem_DBLE)
          Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
       End If
 *

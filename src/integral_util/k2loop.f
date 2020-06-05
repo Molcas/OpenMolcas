@@ -36,7 +36,6 @@
 *              DoZeta                                                  *
 *              Rys                                                     *
 *              DGeTMO  (ESSL)                                          *
-*              GetMem                                                  *
 *              RecPrt                                                  *
 *              Hrr                                                     *
 *              CrSph1                                                  *
@@ -502,7 +501,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
@@ -531,7 +530,6 @@
 #endif
  100  Continue ! lDCRR
 *
-*     Call GetMem(' Exit k2Loop','CHECK','REAL',iDum,iDum)
 *     Call QExit('k2Loop')
       Return
       End Subroutine k2loop_internal

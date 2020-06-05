@@ -34,6 +34,7 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
@@ -136,9 +137,11 @@
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
       MemR=(nDArray-1)*nZeta + (nDArray-1)*nEta
-      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
+      Call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
+      ipZeta=1
       MemI=nZeta+nEta+2
-      Call GetMem('MemI','ALLO','INTE',ipiZet,MemI)
+      Call mma_allocate(Mem_INT,MemI,Label='Mem_INT')
+      ipiZet=1
 *                                                                      *
 ************************************************************************
 *                                                                      *

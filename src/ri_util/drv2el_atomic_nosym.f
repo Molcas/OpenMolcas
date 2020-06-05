@@ -97,7 +97,6 @@ C     Write (6,*) 'Do_RI_Basis=',Do_RI_Basis
       DoFock=.False.
       Indexation = .False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-C     Write (6,*) 'nSkal=',nSkal
 *                                                                      *
 ************************************************************************
 *                                                                      *

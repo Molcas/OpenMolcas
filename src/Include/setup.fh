@@ -9,14 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer
-     &        ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
+     &        ipAux, nAux,
      &        mSkal, ipiSOSym,nSOs, ipPD,
      &        ipmem_int, MemMax_int, MxPrm
       Common /iSetup/
-     &                ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
+     &                ipAux, nAux,
      &                mSkal, ipiSOSym,nSOs, ipPD,
      &                ipmem_int, MemMax_int, MxPrm
-      Logical Swapping
-      Common /lSetup/ Swapping
       Real*8 TCP3, rnint
       Common /rSetUp/ TCP3, rnint

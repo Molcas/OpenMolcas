@@ -30,7 +30,6 @@
 * Calling    : QEnter                                                  *
 *              StatP                                                   *
 *              Drvk2                                                   *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              Swap                                                    *
 *              MemRg2 Calculate memory requirement for calc area       *
@@ -207,9 +206,11 @@
       nEta  = MxPrm * MxPrm
       iii=nDens*10+10
       MemR=9*nZeta + 9*nEta +nZeta*nEta
-      Call Getmem('Indeta','ALLO','INTE',ipIndeta,nEta)
-      Call Getmem('Indeta','ALLO','INTE',ipIndzet,nEta)
-      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
+      Call mma_allocate(Mem_INT,nZeta+nEta,Label='Mem_INT')
+      ipIndZet=1
+      ipIndEta=ipIndZet+nZeta
+      Call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
+      ipZeta=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1019,10 +1020,13 @@ C              Do lS = 1, kS
      &                   Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                   Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      &                   Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &           Work(ipZeta),Work(ipZI),Work(ipP),Work(ipKab),nZeta,
-     &           Work(ipEta), Work(ipEI),Work(ipQ),Work(ipKcd),nEta,
-     &           Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),
-     &                   Work(ipxPre),
+     &           Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
+     &           Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,
+     &           Mem_DBLE(ipEta), Mem_DBLE(ipEI),
+     &           Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,
+     &           Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &           Mem_DBLE(ipxG),Mem_DBLE(ipxD),
+     &                   Mem_DBLE(ipxPre),
      &                   Hess, nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,
      &                   Work(ip_PP), nSO,Work(ipMem2),Mem2,
      &                   Work(ipMem3),Mem3,Work(ipMem4),Mem4,
@@ -1035,8 +1039,8 @@ C              Do lS = 1, kS
      &                   DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,
      &                   iCmpV,Work(ipFin),MemFin,
      &                   Work(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
-     &                   iWork(ipIndEta),iWork(ipIndZet),Work(ipInt),
-     &                   ipd0,Work(ipBuffer),MemBuffer,
+     &                   Mem_INT(ipIndEta),Mem_INT(ipIndZet),
+     &                   Work(ipInt),ipd0,Work(ipBuffer),MemBuffer,
      &                   lgrad,ldot2,n8,ltri,Work(ipDTemp),Work(ipDIN),
      &                   moip,nAco,Work(ipMOC),MemCMO,new_fock)
                   Post_Process=.True.
@@ -1153,9 +1157,8 @@ C     End Do !  iS
          End If
       End If
 *
-      Call GetMem('MemR','Free','REAL',ipZeta,MemR)
-      Call Getmem('Indeta','Free','INTE',ipIndzet,nEta)
-      Call Getmem('Indeta','Free','INTE',ipIndeta,nEta)
+      Call mma_deallocate(Mem_DBLE)
+      Call mma_deallocate(Mem_INT)
 *
       If (ipDIN.ne.ip_Dummy)
      &   Call GetMem('DIN','Free','Real',ipDIN,ndens)

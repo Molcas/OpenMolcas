@@ -52,6 +52,7 @@
       use k2_setup
       use iSD_data
       use pso_stuff
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Mem_INT
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
 #include "real.fh"
@@ -838,9 +839,10 @@ cVV: ifort 11 can't handle the code without this dummy print.
      &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &          Work(ipZeta),Work(ipZI),Work(ipP),nZeta,
-     &          Work(ipEta), Work(ipEI),Work(ipQ),nEta,
-     &          Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),Temp,nGrad,
+     &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
+     &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
+     &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
      &          Work(ipAux),nAux,Shijij)
 #ifdef _CD_TIMING_

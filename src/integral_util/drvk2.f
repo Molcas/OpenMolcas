@@ -140,14 +140,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _OLD_
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
-#else
       Call mma_maxDBLE(MemMax)
       Call mma_allocate(Wrk,MemMax,Label='Wkr')
       ipMem1=1
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,7 +211,7 @@
 *
             nZeta = iPrimi * jPrimj
 *
-            Call ConMax(Work(ipCon),iPrimi,jPrimj,
+            Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
      &                  Work(ipCffi),nBasi,Work(ipCffj),nBasj)
 *
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
@@ -300,17 +295,13 @@
      &                  iDCRR,nDCRR,Data_k2(jpk2),
      &                  Work(ipExpi),iPrimi,
      &                  Work(jpExpj),jPrimj,
-     &                  Work(ipAlpha),Work(ipBeta),
+     &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
      &                  Work(ipCffi),nBasi,
      &                  Work(ipCffj),nBasj,
-     &                  Work(ipZeta),Work(ipZInv),
-     &                  Work(ipKab),Work(ipP),iWork(ipInd),
-     &                  nZeta,ijInc,Work(ipCon),
-#ifdef _OLD_
-     &                  Work(ipMem2),Mem2,Cmpct,
-#else
+     &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
+     &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
+     &                  nZeta,ijInc,Mem_DBLE(ipCon),
      &                  Wrk(ipMem2),Mem2,Cmpct,
-#endif
      &                  nScree,mScree,mdci,mdcj,
      &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
      &                  Scr, MemTmp,
@@ -331,11 +322,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _OLD_
-      Call GetMem('MemMax', 'Free','Real',ipMem1, MemMax )
-#else
       Call mma_deallocate(Wrk)
-#endif
       Call mma_deallocate(Qnew)
       Call mma_deallocate(Pnew)
       Call mma_deallocate(Lnew)
