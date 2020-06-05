@@ -9,19 +9,22 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine gencoul(l1,l2,l3,l4,makemean,
-     *bonn,breit,sameorb,cont4SO,cont4OO,icont4,powexp
-     *,coulovlp)
+     *                   bonn,breit,sameorb,cont4SO,cont4OO,icont4,
+     *                   powexp,coulovlp)
       implicit real*8(a-h,o-z)
 cbs   SUBROUTINE to generate all required radial
 cbs   integrals for the four angular momenta l1-l4
 #include "para.fh"
 #include "param.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Scr1(:), Scr2(:), Prim(:),
+     &                      Quot1(:), Quot2(:), QuotP1(:), QuotP2(:)
       logical makemean,bonn,breit,sameorb
       dimension cont4SO(*),cont4OO(*),
-     *powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5))
-     *,coulovlp(*)
+     *          powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)),
+     *          coulovlp(*)
+*
       max1=1  !starting values for limits of precalculated
 c             ! powers of function Cfunct(X)
       max2=1
@@ -33,11 +36,11 @@ cbs   no (ss|ss) contributions
       if (l1.eq.0.and.l2.eq.0.and.l3.eq.0.and.l4.eq.0) return
 c      ! no integrals for <ss|ss>
       if (makemean) then
-            nblock=1  ! sp sp are the first, so the first block
-            Lstarter(1)=1
+         nblock=1  ! sp sp are the first, so the first block
+         Lstarter(1)=1
       else
-      Call SysAbendMsg('gencoul',
-     & 'only mean-field with this version',' ')
+         Call SysAbendMsg('gencoul',
+     &                    'only mean-field with this version',' ')
       endif
 cbs   keep track of L-values for later purposes
       Lvalues(1)=l1
@@ -47,17 +50,18 @@ cbs   keep track of L-values for later purposes
 cbs   now nanz is given the new value
       nanz=ncontrac(l1)*ncontrac(l2)*ncontrac(l3)*ncontrac(l4)
       nprimprod=nprimit(l1)*nprimit(l2)*nprimit(l3)*nprimit(l4)
-      Call GetMem('QUOT1','Allo','Real',iquot1,7*nprimprod)
-      iquot2=iquot1+nprimprod
-      iquotp1=iquot2+nprimprod
-      iquotp2=iquotp1+nprimprod
-      iprim=iquotp2+nprimprod
-      iscr1=iprim+nprimprod
-      iscr2=iscr1+nprimprod
+*
+      Call mma_allocate(Quot1,nPrimProd,Label='Quot1')
+      Call mma_allocate(Quot2,nPrimProd,Label='Quot2')
+      Call mma_allocate(QuotP1,nPrimProd,Label='QuotP1')
+      Call mma_allocate(QuotP2,nPrimProd,Label='QuotP2')
+      Call mma_allocate(Prim,nPrimProd,Label='Prim')
+      Call mma_allocate(Scr1,nPrimProd,Label='Scr1')
+      Call mma_allocate(Scr2,nPrimProd,Label='Scr2')
 c
       call initfrac(nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4),
-     *Work(iquot1),Work(iquot2),exponents(1,l1),exponents(1,l2),
-     *exponents(1,l3),exponents(1,l4))
+     *              Quot1,Quot2,exponents(1,l1),exponents(1,l2),
+     *              exponents(1,l3),exponents(1,l4))
 cbs   prepare the powers needed for cfunctx
 c
 c
@@ -104,28 +108,28 @@ cbs   now loop over possible L-values
                       ipow1=2+(l2+l4+Lrun)/2
                       ipow2=2+(l1+l3+incl1+incl3+Lrun)/2
 cbs   those powers have to be generated...
-      call getpow(ipow1,Work(iquot1),Work(iquotp1),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow1,Quot1,QuotP1,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
 cbs   those powers have to be generated...
-      call getpow(ipow2,Work(iquot2),Work(iquotp2),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow2,Quot2,QuotP2,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
 c     in buildcoul the radial integrals are calculated
                       call buildcoul(l1,l2,l3,l4,incl1,incl3,
-     *         Lrun,Work(iprim),nprimit(l1),nprimit(l2),nprimit(l3),
+     *         Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),
      *                nprimit(l4),
      *                exponents(1,l1),exponents(1,l2),
      *                exponents(1,l3),exponents(1,l4),
      *                powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),
-     *                Work(iquotp1),Work(iquotp2),coulovlp)
+     *                QuotP1,QuotP2,coulovlp)
 cbs   in the contcas_ routines the integrals are contracted, including exponents as prefactors...
                       if (bonn.or.breit.or.sameorb) then
-                      call contcasASO(l1,l2,l3,l4,istart,Work(iprim),
-     *           Work(iscr1),Work(iscr2),cont4SO)
+                      call contcasASO(l1,l2,l3,l4,istart,Prim,
+     *                                Scr1,Scr2,cont4SO)
                 else
-                      call contcasASO(l1,l2,l3,l4,istart,Work(iprim),
-     *           Work(iscr1),Work(iscr2),cont4SO)
-                call contcasAOO(l1,l2,l3,l4,istart,Work(iprim),
-     *           Work(iscr1),Work(iscr2),cont4OO)
+                      call contcasASO(l1,l2,l3,l4,istart,Prim,
+     *                                Scr1,Scr2,cont4SO)
+                call contcasAOO(l1,l2,l3,l4,istart,Prim,
+     *                          Scr1,Scr2,cont4OO)
                 endif
                 istart=istart+nanz! start for next block  contr integr.
       enddo
@@ -164,31 +168,31 @@ cbs### check, whether integrals fit on array ################
       do Lrun= Lfirst(2),Llast(2),2
       ipow1=2+(l2+l4+Lrun)/2
       ipow2=2+(l1+l3+incl1+incl3+Lrun)/2
-      call getpow(ipow1,Work(iquot1),Work(iquotp1),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
-      call getpow(ipow2,Work(iquot2),Work(iquotp2),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow1,Quot1,QuotP1,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow2,Quot2,QuotP2,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
       call buildcoul(l1,l2,l3,l4,incl1,incl3,
-     *Lrun,Work(iprim),nprimit(l1),nprimit(l2),nprimit(l3),
-     *nprimit(l4),
-     *exponents(1,l1),exponents(1,l2),
-     *exponents(1,l3),exponents(1,l4),
-     *powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),
-     *Work(iquotp1),Work(iquotp2),coulovlp)
+     *               Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),
+     *               nprimit(l4),
+     *               exponents(1,l1),exponents(1,l2),
+     *               exponents(1,l3),exponents(1,l4),
+     *               powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),
+     *               QuotP1,QuotP2,coulovlp)
       if (bonn.or.breit.or.sameorb) then
-      call contcasB1SO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
-      call contcasB2SO(l1,l2,l3,l4,istart2,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
+      call contcasB1SO(l1,l2,l3,l4,istart,Prim,
+     *                 Scr1,Scr2,cont4SO)
+      call contcasB2SO(l1,l2,l3,l4,istart2,Prim,
+     *                 Scr1,Scr2,cont4SO)
       else
-      call contcasB1SO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
-      call contcasB2SO(l1,l2,l3,l4,istart2,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
-      Call contcasB1OO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4OO)
-      Call contcasB2OO(l1,l2,l3,l4,istart2,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4OO)
+      call contcasB1SO(l1,l2,l3,l4,istart,Prim,
+     *                 Scr1,Scr2,cont4SO)
+      call contcasB2SO(l1,l2,l3,l4,istart2,Prim,
+     *                 Scr1,Scr2,cont4SO)
+      Call contcasB1OO(l1,l2,l3,l4,istart,Prim,
+     *                 Scr1,Scr2,cont4OO)
+      Call contcasB2OO(l1,l2,l3,l4,istart2,Prim,
+     *                 Scr1,Scr2,cont4OO)
       endif
       istart=istart+nanz
       istart2=istart2+nanz
@@ -224,29 +228,33 @@ cbs### check, whether integrals fit on array ################
       do Lrun= Lfirst(4),Llast(4),2
       ipow1=2+(l2+l4+Lrun)/2
       ipow2=2+(l1+l3+incl1+incl3+Lrun)/2
-      call getpow(ipow1,Work(iquot1),Work(iquotp1),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
-      call getpow(ipow2,Work(iquot2),Work(iquotp2),
-     *nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow1,Quot1,QuotP1,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
+      call getpow(ipow2,Quot2,QuotP2,
+     *            nprimit(l1),nprimit(l2),nprimit(l3),nprimit(l4))
       call buildcoul(l1,l2,l3,l4,incl1,incl3,
-     *Lrun,Work(iprim),nprimit(l1),nprimit(l2),nprimit(l3),
-     *nprimit(l4),
-     *exponents(1,l1),exponents(1,l2),
-     *exponents(1,l3),exponents(1,l4),
-     *powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),
-     *Work(iquotp1),Work(iquotp2),coulovlp)
+     *               Lrun,Prim,nprimit(l1),nprimit(l2),nprimit(l3),
+     *               nprimit(l4),
+     *               exponents(1,l1),exponents(1,l2),
+     *               exponents(1,l3),exponents(1,l4),
+     *               powexp(1,1,l3,l1,lrun),powexp(1,1,l4,l2,lrun),
+     *               QuotP1,QuotP2,coulovlp)
       if (bonn.or.breit.or.sameorb) then
-      call contcasCSO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
+         call contcasCSO(l1,l2,l3,l4,istart,Prim,Scr1,Scr2,cont4SO)
       else
-      call contcasCSO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4SO)
-      call contcasCOO(l1,l2,l3,l4,istart,Work(iprim),
-     *Work(iscr1),Work(iscr2),cont4OO)
+         call contcasCSO(l1,l2,l3,l4,istart,Prim,Scr1,Scr2,cont4SO)
+         call contcasCOO(l1,l2,l3,l4,istart,prim,Scr1,Scr2,cont4OO)
       endif
       istart=istart+nanz
       enddo
       endif
-      Call GetMem('QUOT1','Free','Real',iquot1,7*nprimprod)
+*
+      Call mma_deallocate(Quot2)
+      Call mma_deallocate(Quot1)
+      Call mma_deallocate(QuotP2)
+      Call mma_deallocate(QuotP1)
+      Call mma_deallocate(Prim)
+      Call mma_deallocate(Scr2)
+      Call mma_deallocate(Scr1)
       return
       end
