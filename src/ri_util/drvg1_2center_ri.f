@@ -46,7 +46,7 @@
       use k2_setup
       use iSD_data
       use pso_stuff
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Mem_INT
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
