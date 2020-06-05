@@ -170,7 +170,6 @@
 *
       If (XMem_Status.eq.Inactive) Call SetMem_Ints(0,0)
 *
-*     Call GetMem('S_I','Check','Real',iDum,iDum)
 *     Call QExit('S_I')
       Return
       End

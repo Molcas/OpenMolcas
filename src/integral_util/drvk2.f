@@ -60,7 +60,9 @@
       Logical DoFock, force_part_save, DoGrad, ReOrder
       Character*100 Get_ProgName, ProgName
       Character*8 Method
-      Real*8, Allocatable:: HRRMtrx(:,:)
+      Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
+      Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
+      Real*8, Allocatable:: Wrk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -130,18 +132,22 @@
       Do iAng = 0, iAngMx
          MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
       End Do
-      Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
-      Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
-      Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*m2Max)
+      Call mma_allocate(Scr,MemTmp,3,Label='Scr')
+      Call mma_allocate(Knew,m2Max,Label='Knew')
+      Call mma_allocate(Lnew,m2Max,Label='Lnew')
+      Call mma_allocate(Pnew,m2Max*3,Label='Pnew')
+      Call mma_allocate(Qnew,m2Max*3,Label='Qnew')
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _OLD_
       Call GetMem('MemMax','Max','Real',iDum,MemMax)
       Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+#else
+      Call mma_maxDBLE(MemMax)
+      Call mma_allocate(Wrk,MemMax,Label='Wkr')
+      ipMem1=1
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -300,11 +306,15 @@
      &                  Work(ipZeta),Work(ipZInv),
      &                  Work(ipKab),Work(ipP),iWork(ipInd),
      &                  nZeta,ijInc,Work(ipCon),
+#ifdef _OLD_
      &                  Work(ipMem2),Mem2,Cmpct,
+#else
+     &                  Wrk(ipMem2),Mem2,Cmpct,
+#endif
      &                  nScree,mScree,mdci,mdcj,
      &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
-     &                  ipTmp1,ipTmp2,ipTmp3,
-     &                  ipKnew,ipLnew,ipPnew,ipQnew,DoGrad,
+     &                  Scr, MemTmp,
+     &                  Knew,Lnew,Pnew,Qnew,m2Max,DoGrad,
      &                  HrrMtrx,nHrrMtrx)
 *
             Indk2(1,ijS) = jpk2
@@ -321,14 +331,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _OLD_
       Call GetMem('MemMax', 'Free','Real',ipMem1, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, m2Max  )
-      Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
-      Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
-      Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
+#else
+      Call mma_deallocate(Wrk)
+#endif
+      Call mma_deallocate(Qnew)
+      Call mma_deallocate(Pnew)
+      Call mma_deallocate(Lnew)
+      Call mma_deallocate(Knew)
+      Call mma_deallocate(Scr)
       Call mma_deallocate(HRRMtrx)
 *                                                                      *
 ************************************************************************

@@ -121,10 +121,10 @@
  100     Continue
       End Do
 *     now ... allocate memory
-      Call mma_allocate(Data_k2,nk2)
-      Call FZero(Data_k2,nk2)
+      Call mma_allocate(Data_k2,nk2,Label='Data_k2')
+      Data_k2(:)=Zero
       nIndk2=nShlls*(nShlls+1)/2
-      call mma_allocate(Indk2,2,nIndk2)
+      call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return
       End

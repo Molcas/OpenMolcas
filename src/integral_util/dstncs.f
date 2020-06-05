@@ -98,86 +98,85 @@
       Write (Lu,'(A)') '     Atom centers     '//
      &                 '    Bohr        Angstrom'
 CVV Set .false. to get faster printing without sorting.
-      if(.true.) then
-       Thr_R=(3.0D0/Angstr)**2
-       Thr_D=1D-4
-       Call mma_allocate(BST,mCentr**2,Label='BST')
-       Call mma_allocate(iBST,2,mCentr**2,Label='iBST')
-       iiBST=1
-      Do icc = 1, mCentr
-         x1 = xyz(1,icc)
-         y1 = xyz(2,icc)
-         z1 = xyz(3,icc)
-         Do jcc = 1, icc-1
-            x2 = xyz(1,jcc)
-            y2 = xyz(2,jcc)
-            z2 = xyz(3,jcc)
-            R = (x2-x1)**2+(y2-y1)**2+(z2-z1)**2
-            If (R.le.Thr_R) then
-               BST(iiBST)=R
-               iBST(1,iiBST)=icc
-               iBST(2,iiBST)=jcc
-               iiBST=iiBST+1
-            End If
+      if (.true.) then
+         Thr_R=(3.0D0/Angstr)**2
+         Thr_D=1D-4
+         Call mma_allocate(BST,mCentr**2,Label='BST')
+         Call mma_allocate(iBST,2,mCentr**2,Label='iBST')
+         iiBST=0
+         Do icc = 1, mCentr
+            x1 = xyz(1,icc)
+            y1 = xyz(2,icc)
+            z1 = xyz(3,icc)
+            Do jcc = 1, icc-1
+               x2 = xyz(1,jcc)
+               y2 = xyz(2,jcc)
+               z2 = xyz(3,jcc)
+               R = (x2-x1)**2+(y2-y1)**2+(z2-z1)**2
+               If (R.le.Thr_R) then
+                  iiBST=iiBST+1
+                  BST(iiBST)=R
+                  iBST(1,iiBST)=icc
+                  iBST(2,iiBST)=jcc
+               End If
+            End Do
          End Do
-      End Do
-c     debug
-c      do ii=1,iiBST
-c          R=sqrt(BST(ii))
-c          Write (Lu,'(2(I5,1X,A4),2(F10.6,6X))')
-c     &         iBST(1,ii),Lbls(iBST(1,ii)),
-c     &         iBST(2,ii),Lbls(iBST(2,ii)),
-c     &         R,R*Angstr
-c      enddo
-c     debug
-666     continue
-       R=100D0
-        do ii=1,iiBST
-           R=MIN(R,BST(ii))
-        enddo
-        if(R.gt.90D0) goto 667
-        moretogo=0
-        isfirst=1
-        do ii=1,iiBST
-           if(abs(R-BST(ii)).lt.Thr_D) then
-           if(isfirst.eq.1) then
-           RR=SQRT(R)
-          Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
-     &         iBST(1,ii),Lbls(iBST(1,ii)),
-     &         iBST(2,ii),Lbls(iBST(2,ii)),
-     &         RR,RR*Angstr
-          isfirst=0
-          else
-          Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
-     &         iBST(1,ii),Lbls(iBST(1,ii)),
-     &         iBST(2,ii),Lbls(iBST(2,ii))
-          endif
-          BST(ii)=100D0
-          moretogo=1
-          endif
+*#define _DEBUG_
+#ifdef _DEBUG_
+         do ii=1,iiBST
+             R=sqrt(BST(ii))
+             Write (Lu,'(2(I5,1X,A4),2(F10.6,6X))')
+     &            iBST(1,ii),Lbls(iBST(1,ii)),
+     &            iBST(2,ii),Lbls(iBST(2,ii)),
+     &            R,R*Angstr
+         end do
+#endif
+666      continue
+         R=100D0
+         do ii=1,iiBST
+            R=MIN(R,BST(ii))
          enddo
+         if(R.gt.90D0) goto 667
+         moretogo=0
+         isfirst=1
+         do ii=1,iiBST
+            if (abs(R-BST(ii)).lt.Thr_D) then
+               if (isfirst.eq.1) then
+                  RR=SQRT(R)
+                  Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
+     &                   iBST(1,ii),Lbls(iBST(1,ii)),
+     &                   iBST(2,ii),Lbls(iBST(2,ii)),
+     &                   RR,RR*Angstr
+                  isfirst=0
+               else
+                  Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
+     &            iBST(1,ii),Lbls(iBST(1,ii)),
+     &            iBST(2,ii),Lbls(iBST(2,ii))
+               endif
+               BST(ii)=100D0
+               moretogo=1
+            endif
+         end do
          if(moretogo.eq.1) goto 666
-667    continue
-       Call mma_deallocate(iBST)
-       Call mma_deallocate(BST)
-
-
+667      continue
+         Call mma_deallocate(iBST)
+         Call mma_deallocate(BST)
       else
-      Thr_R=3.0D0
-      Do icc = 1, mCentr
-         x1 = xyz(1,icc)
-         y1 = xyz(2,icc)
-         z1 = xyz(3,icc)
-         Do jcc = 1, icc-1
-            x2 = xyz(1,jcc)
-            y2 = xyz(2,jcc)
-            z2 = xyz(3,jcc)
-            R = Sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
-            If (R*Angstr.le.Thr_R)
-     &         Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
-     &         icc,Lbls(icc), jcc,Lbls(jcc), R, R*Angstr
+         Thr_R=3.0D0
+         Do icc = 1, mCentr
+            x1 = xyz(1,icc)
+            y1 = xyz(2,icc)
+            z1 = xyz(3,icc)
+            Do jcc = 1, icc-1
+               x2 = xyz(1,jcc)
+               y2 = xyz(2,jcc)
+               z2 = xyz(3,jcc)
+               R = Sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
+               If (R*Angstr.le.Thr_R)
+     &            Write (Lu,'(2(I5,1X,A),2(F10.6,6X))')
+     &            icc,Lbls(icc), jcc,Lbls(jcc), R, R*Angstr
+            End Do
          End Do
-      End Do
       endif
 *
  100  Continue
