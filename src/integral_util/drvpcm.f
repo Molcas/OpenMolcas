@@ -19,8 +19,9 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical First, Dff, NonEq
-      Real*8, Allocatable:: Cord(:,:), Chrg(:)
-      Real*8, Allocatable:: PCM_charge(:,:)
+      Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),
+     &                      V_Slow(:), Q_Slow(:), V_Save(:,:),
+     &                      V_Tile(:,:)
 *
       iRout = 1
       iPrint = nPrint(iRout)
@@ -28,7 +29,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
 *     Get the total 1st order AO density matrix
 *
 *     (unused?)
@@ -82,19 +82,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('V_Tile','Allo','Real',ip_V_Ts,2*nTs)
-      Call GetMem('V_Save','Allo','Real',ip_VSave,2*nTs)
-      Call GetMem('Q_Slow','Allo','Real',ip_QSlow,nTs)
-      Call GetMem('V_Slow','Allo','Real',ip_VSlow,nTs)
+      Call mma_allocate(V_Tile,2,nTs,Label='V_Tile')
+      Call mma_allocate(V_Save,2,nTs,Label='V_Save')
+      Call mma_allocate(Q_Slow,nTs,Label='Q_Slow')
+      Call mma_allocate(V_Slow,nTs,Label='V_Slow')
+*
       Call DrvPCM_(h1,TwoHam,D,RepNuc,nh1,First,NonEq,
      &             Chrg,Cord,MaxAto,
-     &             Work(ip_Tess),Work(ip_DM),Work(ip_V_Ts),
-     &             Work(ip_VSave),PCM_Charge,Work(ip_QSlow),
-     &             Work(ip_VSlow),nTs,Eps,EpsInf)
-      Call GetMem('V_Slow','Free','Real',ip_VSlow,nTs)
-      Call GetMem('Q_Slow','Free','Real',ip_QSlow,nTs)
-      Call GetMem('V_Save','Free','Real',ip_VSave,2*nTs)
-      Call GetMem('V_Tile','Free','Real',ip_V_Ts,2*nTs)
+     &             Work(ip_Tess),Work(ip_DM),V_Tile,
+     &             V_Save,PCM_Charge,Q_Slow,V_Slow,nTs,Eps,EpsInf)
+*
+      Call mma_deallocate(V_Slow)
+      Call mma_deallocate(Q_Slow)
+      Call mma_deallocate(V_Save)
+      Call mma_deallocate(V_Tile)
 *                                                                      *
 ************************************************************************
 *                                                                      *
