@@ -120,6 +120,7 @@ c Avoid unused argument warnings
      &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
      &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
      &                   EpsInf)
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       External PCMInt, NaMem
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Z_Nuc(MaxAto),
@@ -133,7 +134,6 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "pcm_pointers.fh"
       Real*8, Allocatable:: FactOp(:)
       Integer, Allocatable:: lOper2(:)
       Logical First
@@ -340,12 +340,10 @@ c Avoid unused argument warnings
 *                                                                      *
 *     Now add terms to h1 and TwoHam!
 *
-      Call Allocate_Work(ipC,3*nTs)
+      Call mma_allocate(C_Tessera,3,nTs,Label='C_Tessera')
       nTiles=nTs
-      call dcopy_(nTiles,Tessera(1,1),4,Work(ipC  ),3)
-      call dcopy_(nTiles,Tessera(2,1),4,Work(ipC+1),3)
-      call dcopy_(nTiles,Tessera(3,1),4,Work(ipC+2),3)
-      Call Allocate_Work(ipQ,nTs)
+      C_Tessera(:,:)=Tessera(1:3,:)
+      Call mma_allocate(Q_Tessera,nTs,Label='Q_Tessera')
       Label='<Q|V>'
 *
 *
@@ -354,8 +352,8 @@ c Avoid unused argument warnings
 *------- PCM-integrals weighted by Q(1)
 *        h1 + correction
 *
-         call dcopy_(nTs,QTessera,2,Work(ipQ),1)
-         If (NonEq) Call DaXpY_(nTs,One,QTessera_Slow,1,Work(ipQ),1)
+         Q_Tessera(:)=QTessera(1,:)
+         If (NonEq) Call DaXpY_(nTs,One,QTessera_Slow,1,Q_Tessera,1)
          Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,
      &                        Origin,nOrdOp,rHrmt,[kOper])
          nInt=n2Tri(lOper)
@@ -375,7 +373,7 @@ c Avoid unused argument warnings
 *---- PCM-integrals weighted by Q(2)
 *     TwoHam + correction
 *
-      call dcopy_(nTs,QTessera(2,1),2,Work(ipQ),1)
+      Q_Tessera(:)=QTessera(2,:)
       Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,
      &                     nOrdOp,rHrmt,[kOper])
       nInt=n2Tri(lOper)
@@ -386,8 +384,8 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipQ)
-      Call Free_Work(ipC)
+      Call mma_deallocate(Q_Tessera)
+      Call mma_deallocate(C_Tessera)
       PrPrt=Save_tmp
 *                                                                      *
 ************************************************************************

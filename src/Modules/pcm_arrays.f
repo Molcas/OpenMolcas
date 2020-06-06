@@ -8,4 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Common /pcm_pointers/ nTiles,ipC,ipQ
+      Module PCM_arrays
+      Integer nTiles
+      Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
+      End Module PCM_arrays
