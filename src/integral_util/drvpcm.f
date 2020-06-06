@@ -132,7 +132,10 @@ c Avoid unused argument warnings
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "pcm_pointers.fh"
+      Real*8, Allocatable:: FactOp(:)
+      Integer, Allocatable:: lOper2(:)
       Logical First
       Character*8 Label
       Logical Save_tmp, NonEq
@@ -208,16 +211,15 @@ c Avoid unused argument warnings
 *
 *---- Do the electronic contribution
 *
-      Call Allocate_Work(ipFactOp,nTs)
-      Call Allocate_iWork(iplOper,nTs)
-      call dcopy_(nTs,[One],0,Work(ipFactOp),1)
-      Call ICopy(nTs,[255],0,iWork(iplOper),1)
+      call mma_allocate(FactOp,nTs,Label='FactOp')
+      call mma_allocate(lOper2,nTs,Label='lOper2')
+      FactOp(:)=One
+      lOper2(:)=255
 *
-      Call Drv1_PCM(Work(ipFactOp),nTs,D,nh1,Tessera,iWork(iplOper),
-     &              VTessera,nOrdOp)
+      Call Drv1_PCM(FactOp,nTs,D,nh1,Tessera,lOper2,VTessera,nOrdOp)
 *
-      Call Free_iWork(iplOper)
-      Call Free_Work(ipFactOp)
+      Call mma_deallocate(lOper2)
+      Call mma_deallocate(FactOp)
 *
 *     Save the electrostatic potential
 *
