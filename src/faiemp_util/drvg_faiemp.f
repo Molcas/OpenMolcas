@@ -44,7 +44,7 @@ cend
 ************************************************************************
       use k2_setup
       use iSD_data
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Mem_INT
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE
 
       Implicit None
       External King, Rsv_GTList, MPP
