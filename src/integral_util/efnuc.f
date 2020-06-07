@@ -31,9 +31,10 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2),
      &       CoOp(3)
+      Integer, Allocatable:: C_ESIT(:)
 *
 *---- Statement function
 *
@@ -50,8 +51,8 @@
       call dcopy_(nComp,[Zero],0,ESIT,1)
 *
       nTot=(nOrdOp+1)**6
-      Call GetMem('ESIT','Allo','Inte',ipC,nTot)
-      Call InitIA(iWork(ipC),nOrdOp)
+      Call mma_allocate(C_ESIT,nTot,Label='ESIT')
+      Call InitIA(C_ESIT,nOrdOp)
 *
       iPowR=2*nOrdOp+1
       Fact=One
@@ -84,14 +85,14 @@
                   End If
                   temp=Fact*EIx*EIy*EIz*r
 *
-                  Call ContEI(iWork(ipC),nOrdOp,ESIT,ix,iy,iz,temp)
+                  Call ContEI(C_ESIT,nOrdOp,ESIT,ix,iy,iz,temp)
 *
                End Do
             End Do       ! End loop over cartesian combinations
          End If
       End Do             ! End loop over atoms
 *
-      Call GetMem('ESIT','Free','Inte',ipC,nTot)
+      Call mma_deallocate(C_ESIT)
 *
       If (iPrint.ge.99) Call RecPrt(' The Electrostatic Interaction'
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
