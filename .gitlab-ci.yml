@@ -203,7 +203,7 @@ checks:
   script:
     - |
       if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
-        TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
+        TARGET_BRANCH="origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
       else
         TARGET_BRANCH="origin/master"
       fi
