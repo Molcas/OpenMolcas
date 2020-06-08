@@ -67,7 +67,6 @@
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
-*              GetMem                                                  *
 *              Int_Setup                                               *
 *              Dens_Info                                               *
 *              MemRys                                                  *
@@ -283,7 +282,6 @@
      &             iShelV(1),iShelV(2),iShelV(3),iShelV(4))
       If (nSO.eq.0) Then
         Return
-*       Call GetMem('0Exit_DrvTwo0','Check','Real',iDum,iDum)
       End If
       If (.Not.DoIntegrals) nSO = 0
 *
@@ -491,7 +489,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Work(ipMem1),nSO,Work(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   Else
@@ -522,7 +520,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipQ),nEta,
      & Work(ipMem1),nSO,Work(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   End If
@@ -548,7 +546,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Work(ipMem2),Work(ipMem1),nSO,
-     &                                  iWork(ipiSOSym),mSkal,nSOs,
+     &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
      &                                  nShi,nShj,nShk,nShl,

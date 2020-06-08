@@ -72,8 +72,8 @@
 *     The first entry gives the irrep of a SO and the second entry
 *     gives the relative index of a SO in its irrep.
 *
-      Call GetMem('iSOSym','Allo','Inte',ipiSOSym,nSOs*2)
-      iSOs = ipiSOSym
+      Call mma_allocate(iSOSym,2,nSOs,Label='iSOSym')
+      iSOs = 1
       nBas_iIrrep=0
       Do iIrrep = 0, nIrrep-1
          If (Basis_Mode.eq.Valence_Mode) Then
@@ -84,9 +84,9 @@
             nBas_iIrrep=nBas(iIrrep)+nBas_Aux(iIrrep)
          End If
          Do i = 1, nBas_iIrrep
-            iWork(iSOs  )=iIrrep          ! Irreducible reps.
-            iWork(iSOs+1)=i               ! Relative index in irrep.
-            iSOs = iSOs + 2
+            iSOSym(1,iSOs)=iIrrep          ! Irreducible reps.
+            iSOSym(2,iSOs)=i               ! Relative index in irrep.
+            iSOs = iSOs + 1
          End Do
       End Do
 *                                                                      *
@@ -128,7 +128,7 @@
 *
       nAux = nIrrep**3
       If (Petite) nAux = 1
-      Call GetMem('AuxBuf','ALLO','REAL',ipAux,nAux)
+      Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -158,11 +158,6 @@
       Call StatP(0)
       nUt=0
       iDisk=0
-*                                                                      *
-************************************************************************
-*                                                                      *
-      TCP3  = Zero
-      rnint = Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *

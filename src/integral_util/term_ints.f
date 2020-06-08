@@ -19,7 +19,7 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
-      use k2_arrays, only: FT, Mem_DBLE, Mem_INT
+      use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -45,12 +45,10 @@
       If (Ind0_Status.eq.InActive) Then
          Call mma_deallocate(Mem_INT)
          Call mma_deallocate(Mem_DBLE)
-         Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
+         Call mma_deallocate(Aux)
       End If
 *
-      Call GetMem('iSOSym','Free','Inte',ipiSOSym,nSOs*2)
-*
-*     Complete Lund IO of two-electron integrals
+      Call mma_deallocate(iSOSym)
 *
 *     Generate statistic of partioning
 *

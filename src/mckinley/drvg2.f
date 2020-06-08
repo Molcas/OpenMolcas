@@ -179,7 +179,7 @@
 *
       nAux = nIrrep**3
       If (Petite) nAux = 1
-      Call GetMem('AuxBuf','ALLO','REAL',ipAux,nAux)
+      Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1030,7 +1030,7 @@ C              Do lS = 1, kS
      &                   Hess, nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,
      &                   Work(ip_PP), nSO,Work(ipMem2),Mem2,
      &                   Work(ipMem3),Mem3,Work(ipMem4),Mem4,
-     &                   Work(ipAux),nAux,Work(ipMemX),MemX,Shijij,
+     &                   Aux,nAux,Work(ipMemX),MemX,Shijij,
      &                   DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,
      &                   DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,
      &                   DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,
@@ -1166,7 +1166,7 @@ C     End Do !  iS
      &   Call GetMem('DTemp','Free','Real',ipDTemp,ndens)
       Call GetMem('Integrals','Free','REAL',ipInt,nInt)
 *
-      Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
+      Call mma_deallocate(Aux)
 *
 *-----Generate statistic of partioning
 *

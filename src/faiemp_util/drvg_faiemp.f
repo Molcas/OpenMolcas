@@ -44,7 +44,7 @@ cend
 ************************************************************************
       use k2_setup
       use iSD_data
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux
 
       Implicit None
       External King, Rsv_GTList, MPP
@@ -384,7 +384,7 @@ cend
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Aux,nAux,Shijij)
 *
 *
             If (iPrint.ge.15)

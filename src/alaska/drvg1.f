@@ -45,7 +45,7 @@
       use k2_setup
       use iSD_data
       use PSO_Stuff
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Mem_INT
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Mem_INT, Aux
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "real.fh"
@@ -394,7 +394,7 @@
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel_CPU = Twoel_CPU + TwoelCPU2-TwoelCPU1
