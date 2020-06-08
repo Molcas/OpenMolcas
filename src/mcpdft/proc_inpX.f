@@ -2648,7 +2648,7 @@ c       write(6,*)          '  --------------------------------------'
 *TRS - Not overwriting rlxroot from sacasscf
 *      write(*,*)'irlxroot', irlxroot
 *      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
-*          
+*
 *
 *        Check if multi state SA-CASSCF
 *

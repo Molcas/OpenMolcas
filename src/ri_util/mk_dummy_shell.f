@@ -119,10 +119,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(Info)
-      End If
-*
       Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_integer(Info)
+*
       End

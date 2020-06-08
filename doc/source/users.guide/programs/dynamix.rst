@@ -200,28 +200,30 @@ General keywords
 :kword:`OUT`
   Enables dynamics in reduced dimensionality.
   This keyword is followed by an integer on the next line, which defines the number of nuclear coordinates to project out from the trajectory (default 0).
-  The coordinates to project out are then read from the files `out.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
+  The coordinates to project out are then read from the files :file:`out.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
   The projection is performed in mass-weighted coordinates and can be applied directly to normal modes for instance.
   Note: In case of several coordinates to project out, these are first orthogonalised (in mass-weighted coordinates).
 
-  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="OUT" APPEAR="Number of coordinates to project out" KIND="INT" LEVEL="ADVANCED" DEFAULT_VALUE="0">
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="OUT" APPEAR="Number of coordinates to project out" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: OUT <advanced>
               <HELP>
-              Enables reduced dimensionality.
+              Enables reduced dimensionality by projecting out the selected modes.
+              Specify an integer N, and provide N files out.00X.xyz.
               </HELP>
               </KEYWORD>
 
 :kword:`IN`
   Enables dynamics in reduced dimensionality.
   This keyword is followed by an integer on the next line, which defines the number of nuclear coordinates to keep in in the trajectory (default 3 * number of atoms).
-  The coordinates to keep in are then read from the files `in.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
+  The coordinates to keep in are then read from the files :file:`in.00X.xyz`, in the xyz format given in the same order as the atoms in coordinate file.
   The projection is performed in mass-weighted coordinates and can be applied directly to normal modes for instance.
   Note: In case of several coordinates to keep in, these are first orthogonalised (in mass-weighted coordinates).
 
-  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="IN" APPEAR="Number of coordinates to keep in" KIND="INT" LEVEL="ADVANCED" DEFAULT_VALUE="3*NATOMS">
+  .. xmldoc:: <KEYWORD MODULE="DYNAMIX" NAME="IN" APPEAR="Number of coordinates to keep in" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: IN <advanced>
               <HELP>
-              Enables reduced dimensionality.
+              Enables reduced dimensionality by keeping only the selected modes.
+              Specify an integer N, and provide N files in.00X.xyz.
               </HELP>
               </KEYWORD>
 

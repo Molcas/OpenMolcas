@@ -16,15 +16,17 @@ C
 *      SUBROUTINE DxRdNAtomHbrd(natom)
 *      SUBROUTINE DxRdStnd(natom,atom,xyz,force)
 *      SUBROUTINE DxRdHbrd(natom,atom,xyz,force)
-*      SUBROUTINE DxPtTableCo(caption,time,natom,atom,xyz,lastline)
+*      SUBROUTINE DxPtTableCo(caption,time,natom,atom,xyz,lastline,M,fo)
+*      SUBROUTINE DxPtTableWithoutMassForce(caption,time,natom,atom,xyz)
+*      SUBROUTINE DxRdOut(pcoo,POUT,natom)
 *      SUBROUTINE DxRdVel(vel,natom)
 *      SUBROUTINE DxWtVel(vel,natom3)
-*      SUBROUTINE DxCoord(natom,atom,xyz)
+*      SUBROUTINE DxCoord(natom,atom,xyz,hybrid)
 *      SUBROUTINE DxEnergies(time,Epot,Ekin,Etot)
-*      SUBROUTINE Put_Velocity(vel,3*natom)
-*      SUBROUTINE Get_Velocity(vel,3*natom)
-*      SUBROUTINE Put_NHC(NHC,nh)
+*      SUBROUTINE Put_Velocity(vel,natom3)
+*      SUBROUTINE Get_Velocity(vel,natom3)
 *      SUBROUTINE Get_NHC(NHC,nh)
+*      SUBROUTINE Put_NHC(NHC,nh)
 ************************************************************************
 *
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8

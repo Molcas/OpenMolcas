@@ -839,6 +839,7 @@ C              Write (6,*) 'SubProject=.Prod'
             Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
          End If
 *
+         BadConstraint=.False.
          Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                BadConstraint)
          Call Put_iScalar('iOff_Iter',iter)
