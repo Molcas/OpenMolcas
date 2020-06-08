@@ -45,7 +45,7 @@
       use k2_setup
       use iSD_data
       use PSO_Stuff
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "real.fh"
@@ -184,7 +184,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-------Compute FLOP's for the transfer equation.
+*-------Compute FLOPs for the transfer equation.
 *
         Do iAng = 0, iAngMx
            Do jAng = 0, iAng
@@ -226,8 +226,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_memDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1 = 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -361,10 +362,10 @@
 #endif
            Call PGet0(iCmpa,iShela,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                Work(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
            If (AInt*PMax.lt.CutInt) Go To 430
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
@@ -393,7 +394,7 @@
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
      &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
@@ -448,7 +449,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate('Sew_Scr')
       Call Free_GTList
       Call Free_PPList
       Call Free_TList
