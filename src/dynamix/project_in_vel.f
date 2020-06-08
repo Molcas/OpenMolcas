@@ -13,7 +13,7 @@
 C
 C *********************************************************************
 C *                                                                   *
-C * Surboutine to keep in only some nuclear coordinates for the       *
+C * Subroutine to keep in only some nuclear coordinates for the       *
 C * velocities and do dynamics in reduced dimensionality.             *
 C *                                                                   *
 C * 27/05/2020                                                        *

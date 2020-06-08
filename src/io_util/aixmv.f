@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1990, Per-Olof Widmark                                 *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
 ************************************************************************
 *                                                                      *
@@ -16,70 +17,54 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-* rc=AixRm(FileName)                                                   *
+* rc=AixMv(FileName,NewName)                                           *
 *                                                                      *
-* Erase file with specified file name.                                 *
+* Rename (move) file.                                                  *
 *                                                                      *
-* Input:  FileName - This file will be erased. Given as a character    *
+* Input:  FileName - This file will be renamed. Given as a character   *
+*                    string.                                           *
+* Input:  NewName  - New name for the file. Given as a character       *
 *                    string.                                           *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          S&TC, ACIS, IBM Sweden                                      *
-* Written: November 1990                                               *
+* Author:  Ignacio Fdez. Galvan                                        *
+* Written: April 2020                                                  *
+*          (based on AixRm)                                            *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 * History:                                                             *
 *                                                                      *
 ************************************************************************
-      Integer Function AixRm(name)
+      Integer Function AixMv(FileName,NewName)
       Implicit Integer (a-z)
-#include "switch.fh"
-#include "ctl.fh"
       External Get_Progname
       Character*100 Get_Progname
       Integer StrnLn
       External StrnLn
 
-      Character*(*) name
-      Character*256 tmp, out
+      Character*(*) FileName, NewName
+      Character*256 out1, out2
       Character*80 ErrTxt
 *----------------------------------------------------------------------*
-* Entry to AixRm                                                       *
+* Entry to AixMv                                                       *
 *----------------------------------------------------------------------*
-      AixRm=0
+      AixMv=0
 *----------------------------------------------------------------------*
-* Strip file name and append string terminator                         *
+* rename file                                                          *
 *----------------------------------------------------------------------*
-      n=Len(name)
-100   If(name(n:n).eq.' ') Then
-         n=n-1
-         If(n.le.0) Then
-            AixRm=eBlNme
-            Return
-         End If
-         Go To 100
-      End If
-      n=n+1
-      If(n.ge.Len(tmp)) Then
-         AixRm=eTlFn
-         Return
-      End If
-      tmp=name
-      tmp(n:n)=Char(0)
-*----------------------------------------------------------------------*
-* erase file                                                           *
-*----------------------------------------------------------------------*
-      out=' '
+      out1=' '
+      out2=' '
 
-      Call PrgmTranslate(Name,out,ltmp)
-      out(ltmp+1:ltmp+1)=Char(0)
-      rc=c_remove(out)
+      Call PrgmTranslate(FileName,out1,ltmp)
+      out1(ltmp+1:ltmp+1)=Char(0)
+      Call PrgmTranslate(NewName,out2,ltmp)
+      out2(ltmp+1:ltmp+1)=Char(0)
+      rc=c_rename(out1,out2)
       If(rc.ne.0) Then
-         AixRm=AixErr(ErrTxt)
-      Call SysAbendMsg('AixRm','MSG: delete', ErrTxt)
+         AixMv=AixErr(ErrTxt)
+         Call SysAbendMsg('AixMv','MSG: rename', ErrTxt)
          Return
       End If
 *----------------------------------------------------------------------*

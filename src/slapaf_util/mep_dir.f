@@ -315,6 +315,7 @@
      &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
+        if (iter.eq.1) BadConstraint=.False.
       End If
 *                                                                      *
 ************************************************************************

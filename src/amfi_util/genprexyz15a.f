@@ -13,7 +13,6 @@
       dimension icheckxy(*),icheckz(*),interxyz(16,*)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 cbs   the following M values are the ones from the cartesian
 cbs   linear combinations. interxyz gives the sign sequence
 cbs   for interacting spherical functions, starting with
