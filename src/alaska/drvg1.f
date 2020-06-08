@@ -52,6 +52,7 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -72,17 +73,13 @@
      &        FreeK2, Verbose, Triangular
       Character Format*72
       Character*8 Method_chk
+      Real*8, Allocatable:: TMax(:,:)
+      Integer, Allocatable:: Ind_ij(:,:)
 ************ columbus interface ****************************************
       Integer  Columbus
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -156,8 +153,8 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -169,14 +166,14 @@
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,Label='Ind_ij')
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               Ind_ij(1,nij)=iS
+               Ind_ij(2,nij)=jS
             End If
          End Do
       End Do
@@ -226,7 +223,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_memDBLE(MemMax)
+      Call mma_MaxDBLE(MemMax)
       Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       ipMem1 = 1
 *                                                                      *
@@ -241,11 +238,11 @@
 *     Now do a quadruple loop over shells
 *
       ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      iS = iWork((ijS-1)*2+ip_ij)
-      jS = iWork((ijS-1)*2+ip_ij+1)
+      iS = Ind_ij(1,ijS)
+      jS = Ind_ij(2,ijS)
       klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      kS = iWork((klS-1)*2+ip_ij)
-      lS = iWork((klS-1)*2+ip_ij+1)
+      kS = Ind_ij(1,klS)
+      lS = Ind_ij(2,klS)
       Count=TskLw
       Call CWTime(TCpu1,TWall1)
   13  Continue
@@ -421,10 +418,10 @@
             ijS = ijS + 1
             klS = 1
          End If
-         iS = iWork((ijS-1)*2+ip_ij  )
-         jS = iWork((ijS-1)*2+ip_ij+1)
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         iS = Ind_ij(1,ijS)
+         jS = Ind_ij(2,ijS)
+         kS = Ind_ij(1,klS)
+         lS = Ind_ij(2,klS)
          Go To 13
 *
 *     Task endpoint
@@ -449,12 +446,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deallocate('Sew_Scr')
+      Call mma_deallocate(Sew_Scr)
       Call Free_GTList
       Call Free_PPList
       Call Free_TList
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      Call mma_deallocate(Ind_ij)
+      Call mma_deallocate(TMax)
 *                                                                      *
 ************************************************************************
 *                                                                      *
