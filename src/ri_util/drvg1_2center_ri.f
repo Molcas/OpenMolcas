@@ -449,7 +449,7 @@ C        End If
      &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Work(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
            Pget2_CPU = Pget2_CPU + Pget0CPU2-Pget0CPU1

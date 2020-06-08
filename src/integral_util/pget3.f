@@ -43,8 +43,8 @@
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer iShell(4), iAO(4), kOp(4),
-     &          iAOst(4), nPam(4), iPam(n1+n2+n3+n4), iiBas(4),
-     &          MapPam(4,mDim), iCmp(4)
+     &          iAOst(4), nPam(4), iiBas(4), iCmp(4)
+      Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *
       iRout = 39
@@ -77,8 +77,8 @@
             Do 12 iAOi = 0, iiBas(jPam)-1
                iSOi = iSO + iAOi
                in2 = in2 + 1
-               iPam(in1+in2) = iSOi
-               MapPam(jPam,iSOi) = in2
+               iPam(in1+in2) = DBLE(iSOi)
+               MapPam(jPam,iSOi) = DBLE(in2)
  12         Continue
  11      Continue
          in1 = in1 + in2
@@ -119,16 +119,16 @@
                 nijkl = 0
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
-                   k4 = MapPam(4,lSOl)
+                   k4 = INT(MapPam(4,lSOl))
                    Do 220 kAOk = 0, kBas-1
                       kSOk = kSO + kAOk
-                      k3 = MapPam(3,kSOk)
+                      k3 = INT(MapPam(3,kSOk))
                       Do 320 jAOj = 0, jBas-1
                          jSOj = jSO + jAOj
-                         k2 = MapPam(2,jSOj)
+                         k2 = INT(MapPam(2,jSOj))
                          Do 420 iAOi = 0, iBas-1
                             iSOi = iSO + iAOi
-                            k1 = MapPam(1,iSOi)
+                            k1 = INT(MapPam(1,iSOi))
                             nijkl = nijkl + 1
 *
                             PMax=Max(PMax,Abs(PAOPam(k1,k2,k3,k4)))

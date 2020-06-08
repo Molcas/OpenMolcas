@@ -1,4 +1,4 @@
-************************************************************************
+p************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -12,9 +12,8 @@
 ************************************************************************
       SubRoutine PGet0(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                 Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                 n1,n2,n3,n4,MemPSO,ipMem2,
-     &                 iShell_A,iShell_B,iShell_C,iShell_D,nQuad,
-     &                 PMax)
+     &                 n1,n2,n3,n4,MemPSO,Mem2,nMem2,
+     &                 iShell_A,iShell_B,iShell_C,iShell_D,nQuad,PMax)
 ************************************************************************
 *                                                                      *
 * Object: to act as a shell towards the manipulations of generating or *
@@ -49,7 +48,7 @@
 #include "WrkSpc.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
-      Real*8 PSO(ijkl,nPSO)
+      Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
       Integer iShell(4), iAO(4), iCmp(4), kOp(4), iAOst(4)
       Logical Shijij
 *                                                                      *
@@ -69,25 +68,25 @@
 
       PMax=One
       nSA=1
-*
-      ipPam=ipMem2
-      ipiPam = ipPam + MemPSO
-      ipMap = ipiPam + n1+n2+n3+n4
-      ipC = ipMap + 4*nDim
-      ipS1 = ipC + nCred
-      ipS2 = ipS1 + 2*nScr1
-*
-*     Correction to get correct types in subsequent calls
-*
-      ipiPam = ip_of_iWork_d(Work(ipiPam))
-      ipMap = ip_of_iWork_d(Work(ipMap))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *       RASSCF wavefunction
 *
         If (lPSO) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*
+         ipPam=1
+         ipiPam = ipPam + MemPSO
+         ipMap = ipiPam + n1+n2+n3+n4
+         ipC = ipMap + 4*nDim
+         ipS1 = ipC + nCred
+         ipS2 = ipS1 + 2*nScr1
+*
          If (lSA) nSA=4
+*
          If (nIrrep.eq.1) Then
             kOp(1) = 0
             kOp(2) = 0
@@ -123,10 +122,10 @@
                Call PGet3(PSO,ijkl,nPSO,iCmp,
      &                    iShell,iAO,iAOst,Shijij,
      &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,
-     &                    Work(ipPam),n1,n2,n3,n4,
-     &                    iWork(ipiPam),iWork(ipMap),nDim,
-     &                    Work(ipC),nCred,Work(ipS1),nScr1,
-     &                    Work(ipS2),nScr2,PMax)
+     &                    Mem2(ipPam),n1,n2,n3,n4,
+     &                    Mem2(ipiPam),Mem2(ipMap),nDim,
+     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
+     &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet3 ==========="
             End If
          Else
@@ -171,18 +170,26 @@
                Call PGet4(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                    D0,nDens,
-     &                    Work(ipPam),n1,n2,n3,n4,
-     &                    iWork(ipiPam),iWork(ipMap),nDim,
-     &                    Work(ipC),nCred,Work(ipS1),nScr1,
-     &                    Work(ipS2),nScr2,PMax)
+     &                    Mem2(ipPam),n1,n2,n3,n4,
+     &                    Mem2(ipiPam),Mem2(ipMap),nDim,
+     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
+     &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet4 ============"
             End If
          End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       Else
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        SCF and DFT wavefunction
+*
+         If (Gamma_On .and. nGamma.gt.nMem2) Then
+            Write (6,*) 'pGet0: nGamma.lt.nMem2'
+            Call abend()
+         End If
 *
          iComp = 1
          If (nIrrep.eq.1) Then
@@ -192,24 +199,23 @@
             kOp(4) = 0
             If (Gamma_On) Then
                If (Do_RI) Call Abend()
-               ipGamma=ipMem2
                If (gamma_mrcisd) Then
                Call Read_Bin_Columbus
      &                (iShell_A,iShell_B,iShell_C,iShell_D,
      &                       G_Toc,nQuad,
-     &                       Work(ipGamma),nGamma,
+     &                       Mem2,nGamma,
      &                       LuGamma,Bin,lBin)
                Else
                Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
      &                       G_Toc,nQuad,
-     &                       Work(ipGamma),nGamma,
+     &                       Mem2,nGamma,
      &                       LuGamma,Bin,lBin)
                Endif
                Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
      &                         iShell,iAO,iAOst,Shijij,
      &                         iBas,jBas,kBas,lBas,kOp,D0,
      &                         DVar,DS,DSVar,
-     &                         nDens,Work(ipGamma),nGamma,
+     &                         nDens,Mem2,nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
                If (Case_2C) Then
@@ -255,25 +261,23 @@
          Else
             If (Gamma_On) Then
                If (Do_RI) Call Abend()
-               ipGamma=ipMem2
                If (gamma_mrcisd) Then
                Call Read_Bin_Columbus
      &                (iShell_A,iShell_B,iShell_C,iShell_D,
      &                       G_Toc,nQuad,
-     &                       Work(ipGamma),nGamma,
+     &                       Mem2,nGamma,
      &                       LuGamma,Bin,lBin)
                else
                Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
      &                       G_Toc,nQuad,
-     &                       Work(ipGamma),nGamma,
+     &                       Mem2,nGamma,
      &                       LuGamma,Bin,lBin)
                endif
                Call PGet2_Aces(iCmp,iShell,
      &                         iBas,jBas,kBas,lBas,
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                         D0,DVar,DS,
-     &                         DSVar,nDens, Work(ipGamma),
-     &                         nGamma,
+     &                         DSVar,nDens,Mem2,nGamma,
      &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
             Else
                If (Case_2C) Then
@@ -317,6 +321,9 @@
                End If
             End If
          End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
 *
 *                                                                      *

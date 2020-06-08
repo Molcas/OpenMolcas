@@ -1003,7 +1003,7 @@ C              Do lS = 1, kS
      &                         iAOV,iAOst,nijkl,Work(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                         iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                         ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                         Work(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
                     Call Timing(dum,Time,Dum,Dum)
                     CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
