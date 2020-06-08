@@ -116,14 +116,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (.Not.Allocated(HerR) .or.
-     &    .Not.Allocated(iHerR2)) Then
-         Ind0_Status=Active
-         Return
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Allocate auxiliary array for symmetry transformation
 *
       nAux = nIrrep**3

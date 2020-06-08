@@ -76,6 +76,8 @@
 #ifdef _DEBUG_
       Character*40 format
 #endif
+      Real*8, Allocatable:: TMax(:,:)
+      Integer, Allocatable:: Ind_ij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,7 +85,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -376,8 +377,8 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -389,14 +390,14 @@
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(Ind_ij,2,nSkal*(nSkal+1)/2,Label='Ind_ij')
       nijS=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nijS = nijS + 1
-               iWork((nijS-1)*2+ip_ij  )=iS
-               iWork((nijS-1)*2+ip_ij+1)=jS
+               Ind_ij(1,nijS)=iS
+               Ind_ij(2,nijS)=jS
             End If
          End Do
       End Do
@@ -404,8 +405,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem,MemMax-iii)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
+      ipMem=1
       memmax=memmax-iii
 *                                                                      *
 ************************************************************************
@@ -415,8 +417,8 @@
 *     make reservation of a task on global task list and get task range
 *     in return. Function will be false if no more tasks to execute.
       If (.Not.Rsv_Tsk(id_Tsk,ijSh)) Go To 11
-      iS = iWork((ijSh-1)*2+ip_ij)
-      jS = iWork((ijSh-1)*2+ip_ij+1)
+      iS = Ind_ij(1,ijSh)
+      jS = Ind_ij(2,ijSh)
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
@@ -500,7 +502,7 @@ C        Do jS = 1, iS
                   Call QTrace()
                   Call Abend()
                End If
-               call dcopy_(iMemb,[Zero],0,Work(ipMem),1)
+               Sew_Scr(1:iMemb)=Zero
             Else
                iMemb=0
             End If
@@ -509,8 +511,8 @@ C        Do jS = 1, iS
 *                                                                      *
             Post_Process=.False.
             Do klSh = 1, nijS
-               kS = iWork((klSh-1)*2+ip_ij)
-               lS = iWork((klSh-1)*2+ip_ij+1)
+               ks = Ind_ij(1,klSh)
+               ls = Ind_ij(2,klSh)
 *
                Aint=TMax(iS,jS)*TMax(kS,lS)
 C              Write (*,*) 'is,js,ks,ls=',is,js,ks,ls
@@ -992,7 +994,7 @@ C              Do lS = 1, kS
                     nijkl = iBasn*jBasn*kBasn*lBasn
                     Call Timing(dum,Time,Dum,Dum)
                     If (n8)
-     &              Call PickMO(Work(ipMOC),MemCMO,
+     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
      &                          nAcO,
      &                          iShelV,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
@@ -1000,10 +1002,11 @@ C              Do lS = 1, kS
                     If (ldot2)
      &               Call PGet0(iCmpV,iShelV,
      &                         iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                         iAOV,iAOst,nijkl,Work(ip_PP),nSO,
+     &                         iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                         iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                         Work(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+     &                         Sew_Scr(ipMem2),Mem2,
+     &                         iS,jS,kS,lS,nQuad,PMax)
                     Call Timing(dum,Time,Dum,Dum)
                     CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
@@ -1028,21 +1031,21 @@ C              Do lS = 1, kS
      &           Mem_DBLE(ipxG),Mem_DBLE(ipxD),
      &                   Mem_DBLE(ipxPre),
      &                   Hess, nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,
-     &                   Work(ip_PP), nSO,Work(ipMem2),Mem2,
-     &                   Work(ipMem3),Mem3,Work(ipMem4),Mem4,
-     &                   Aux,nAux,Work(ipMemX),MemX,Shijij,
+     &                   Sew_Scr(ip_PP), nSO,Sew_Scr(ipMem2),Mem2,
+     &                   Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,
+     &                   Aux,nAux,Sew_Scr(ipMemX),MemX,Shijij,
      &                   DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,
      &                   DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,
      &                   DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,
      &                   DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,
      &                   DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,
      &                   DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,
-     &                   iCmpV,Work(ipFin),MemFin,
-     &                   Work(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
+     &                   iCmpV,Sew_Scr(ipFin),MemFin,
+     &                   Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
      &                   Mem_INT(ipIndEta),Mem_INT(ipIndZet),
-     &                   Work(ipInt),ipd0,Work(ipBuffer),MemBuffer,
+     &                   Work(ipInt),ipd0,Sew_Scr(ipBuffer),MemBuffer,
      &                   lgrad,ldot2,n8,ltri,Work(ipDTemp),Work(ipDIN),
-     &                   moip,nAco,Work(ipMOC),MemCMO,new_fock)
+     &                   moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
                   Post_Process=.True.
 
 *----------------------------------------------------------------------*
@@ -1064,11 +1067,11 @@ C           End Do ! kS
                ip4=ip3+jcmp*jBas*naco
                ip5=ip4+iCmp*naco*iBas
                ip6=ip5+jcmp*jbas*naco
-               Call CLR2(Work(ipBuffer),Work(ipInt),
+               Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
      &                   naco,ishelV,
-     &                   Work(ip1),Work(ip2),work(ip3),
-     &                   Work(ip4),work(ip5),work(ip6))
+     &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
+     &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If
 *
 C        End Do ! jS
@@ -1131,7 +1134,7 @@ C     End Do !  iS
      &   ' A total of', Pren,' entities were prescreened and',
      &                  Prem,' were kept.'
 #endif
-      Call GetMem('MemMax','Free','Real',ipMem,MemMax-iii)
+      Call mma_deallocate(Sew_Scr)
       Call Free_Tsk(id_Tsk)
 *
 *    YIPPIEEEE Finished OK fill it UP!!
@@ -1144,8 +1147,9 @@ C     End Do !  iS
            Call WrDisk(Work(ipInt),nInt,jdisp,iIrr)
         End Do
       End Do
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+*
+      Call mma_deallocate(Ind_ij)
+      Call mma_deallocate(TMax)
       Call Free_iSD()
 *
       If (.not.New_Fock) Then

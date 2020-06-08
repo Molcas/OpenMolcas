@@ -42,7 +42,7 @@
 *
       If (Allocated(FT)) Call mma_deallocate(FT)
 *
-      If (Ind0_Status.eq.InActive) Then
+      If (Allocated(Mem_INT)) Then
          Call mma_deallocate(Mem_INT)
          Call mma_deallocate(Mem_DBLE)
          Call mma_deallocate(Aux)

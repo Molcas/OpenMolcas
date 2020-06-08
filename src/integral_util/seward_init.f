@@ -334,7 +334,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Info_Status=InActive
       ERI_Status=InActive
       Indexation_Status=Inactive
-      Ind0_Status=Inactive
       XMem_Status=Inactive
       NQ_Status=Inactive
       Seward_Status=Active
