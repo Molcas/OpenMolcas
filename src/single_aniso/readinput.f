@@ -1308,7 +1308,7 @@ C-------------------------------------------
 
 200   continue
       If(IPRINT.gt.2) Then
-      Write(6,'(5X,A)') 'NO ERORR WAS LOCATED WHILE READING INPUT'
+      Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
       End If
 
 

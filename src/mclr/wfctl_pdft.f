@@ -53,6 +53,7 @@
       Real*8 rchc(mxroot)
 
       Integer ipFT99,iptemp5
+      External IsFreeUnit
 *
       Call QEnter('WfCtl_SA')
 *----------------------------------------------------------------------*
@@ -124,7 +125,6 @@
 
 !____________________
       Call CIDia_SA(State_Sym,rCHC,Work(ipS))
-      Call xflush(6)
       irc=ipOut(ipdia)
 
 
@@ -205,9 +205,8 @@
 !AMS _____________________________________________________
 !Read in the Fock operator for the calculation of the CI part of the RHS
 !ipF1 and ipF2.
-      Call xflush(6)
-      Open(unit=87,file='TmpFock',action='read',iostat=ios)
-      if (ios.ne.0) write(6,*) "error opening file TmpFock"
+      LUTMP=87
+      Call Molcas_Open(LUTMP,'TmpFock')
       nTri = 0
       nTri2 = 0
       nOrbAct = 0
@@ -226,8 +225,7 @@
       nacpr2=(nacpar+1)*nacpar/2
       Call GetMem('FockTt','Allo','Real',ipFMO2t,nacpr2)
       do i=1,nTri
-      Call xflush(6)
-        read(87,*) Work(ipFMO1t-1+i)
+        read(LUTMP,*) Work(ipFMO1t-1+i)
       end do
 
       ioff = 0
@@ -244,7 +242,6 @@
             Work(ipFMO1-2+ipMat(is,js) +(j-1)*nbas(iS)+i) =
      &                Work(ipFMO1t+ioff)
                end if
-      Call xflush(6)
                ioff = ioff+1
               end do
             end do
@@ -263,11 +260,10 @@
 
 
       do i=1,nacpr2
-        read(87,*) Work(ipFMO2t-1+i)
+        read(LUTMP,*) Work(ipFMO2t-1+i)
       end do
-      Close(87)
+      Close(LUTMP)
 
-      Call xflush(6)
       iprci = ipget(nconf3)
       Call CISigma_sa(0,State_sym,State_sym,ipFMO1,ipFMO2t,0,
      & ipci,ipST,'N')
@@ -283,7 +279,7 @@
           Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)+i*nconf1),1,
      &              Work(ipin(ipST)+i*nconf1),1)
 
-        else 
+        else
         call dcopy_(nConf1,[Zero],0,Work(ipIn(ipst)+i*nconf1),1)
         end if
       Enddo
@@ -363,8 +359,6 @@
 !preconditioner inverse?
 !___________________________________________________________
 
-      Call xFlush(6)
-
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
@@ -400,10 +394,10 @@
        Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
        Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
 *
-      call Dcopy(ndens,Zero,
+      call Dcopy_(ndens,Zero,
      &     0,work(kap_new_temp),1)
 *
-      call Dcopy(ndensc,Zero,
+      call Dcopy_(ndensc,Zero,
      &     0,work(kap_new),1)
 *
         Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
@@ -411,33 +405,33 @@
      & 1,0.0d0,work(lmroots),1)
 *SA-SA rotations w/in SA space in eigen state basis
       if(debug) then
-      write(*,*) 'lmroots'
+      write(6,*) 'lmroots'
        do i=1,nroots
-        write(*,*) work(lmroots-1+i)
-      end do       
+        write(6,*) work(lmroots-1+i)
+      end do
       end if
 *SA-SA rotations w/in SA space in CSF basis
-        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)), 
+        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
      & nconf1, work(lmroots),1,0.0d0,
-     & work(ipin(ipcid)+(irlxroot-1)*nconf1),1) 
+     & work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
 *SA-SA rotations w/in SA space for new lagrange multipliers
        do i=0, nroots-1
        if (i.eq.(irlxroot-1)) then
        work(lmroots_new+i)=0.0d0
        else
          diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
-        if(debug) write(*,*) 'diff',diff
+        if(debug) write(6,*) 'diff',diff
          wscale = (1.0d0/(2.0d0*diff))*(1.0d0/weight(i+1))
-        if(debug) write(*,*)'wscale',wscale
-        if(debug) write(*,*) 'weight', weight(i+1)        
+        if(debug) write(6,*)'wscale',wscale
+        if(debug) write(6,*) 'weight', weight(i+1)
         work(lmroots_new+i)= wscale*work(lmroots+i)
        end if
        end do
 *
       if(debug) then
-      write(*,*) 'lmroots_new'
+      write(6,*) 'lmroots_new'
        do i=1,nroots
-        write(*,*) work(lmroots_new-1+i)
+        write(6,*) work(lmroots_new-1+i)
       end do
       end if
 *SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
@@ -454,9 +448,9 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ipst this should be 1lmroots'
+       write(6,*) 'lmroots_ipst this should be 1lmroots'
        do i=1,nroots
-        write(*,*) work(lmroots-1+i)
+        write(6,*) work(lmroots-1+i)
        end do
        end if
 *
@@ -465,9 +459,9 @@
      & 1,0.0d0,work(lmroots),1)
 *
        if(debug) then
-       write(*,*) 'lmroots_ips1 thisshould be -lmroots'
+       write(6,*) 'lmroots_ips1 thisshould be -lmroots'
        do i=1,nroots
-        write(*,*) work(lmroots-1+i)
+        write(6,*) work(lmroots-1+i)
        end do
        end if
 * Initializing some of the elements of the PCG
@@ -505,9 +499,9 @@
      & 1,0.0d0,work(lmroots),1)
 *
       if(debug) then
-       write(*,*) 'lmroots_ipst this should be zero'
+       write(6,*) 'lmroots_ipst this should be zero'
        do i=1,nroots
-        write(*,*) work(lmroots-1+i)
+        write(6,*) work(lmroots-1+i)
        end do
        end if
        Call GetMem('lmroots','Free','Real',lmroots,nroots)
@@ -525,19 +519,19 @@
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Work(ipdKap),1,Work(ipSigma),1)
       delta=deltac+deltaK
-*         write(*,*)'deltac and deltak', deltac,deltak
+*         write(6,*)'deltac and deltak', deltac,deltak
       delta0=delta
       iter=1
       If (delta.eq.Zero) Goto 300
 * Naming System:
 * ipKap: accumulates Lagrange multiplier orbital parts (ipdKap * ralpha)
-* ipdKap: orbital input of Hessian matrix-vector; 
+* ipdKap: orbital input of Hessian matrix-vector;
 * ipTemp4: orbital output of Hessian matrix-vector
-* ipSigma: accumulates error vector orbital part 
+* ipSigma: accumulates error vector orbital part
 * ipCIT: accumulates Lagrange multiplier CI parts (ipCId * ralpha)
-* ipCId: CI input of Hessian matrix-vector; 
+* ipCId: CI input of Hessian matrix-vector;
 * ipS1: CI output of Hessian matrix-vector
-* ipST: accumulates error vector CI part 
+* ipST: accumulates error vector CI part
 
 
 *-----------------------------------------------------------------------------

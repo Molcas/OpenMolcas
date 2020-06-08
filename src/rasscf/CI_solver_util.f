@@ -15,9 +15,6 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
-#ifdef NAGFOR
-      use f90_unix_proc, only: sleep
-#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_data, only: lRoots, nRoots, iAdr15,
      &                       iRoot, Weight, nAc, nAcPar, nAcpr2
