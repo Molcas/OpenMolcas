@@ -394,10 +394,10 @@
        Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
        Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
 *
-      call Dcopy_(ndens,Zero,
+      call Dcopy_(ndens,[Zero],
      &     0,work(kap_new_temp),1)
 *
-      call Dcopy_(ndensc,Zero,
+      call Dcopy_(ndensc,[Zero],
      &     0,work(kap_new),1)
 *
         Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
