@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Markus P. Fuelscher                              *
 *               2012,2013, Victor P. Vysotskiy                         *
+*               2020, Ignacio Fdez. Galvan                             *
 ***********************************************************************/
 /******************************************************************************/
 /*                                                                            */
@@ -31,6 +32,8 @@
 /*            - collect all declarations in the 'cio.h' header file           */
 /*            - thread-safe pwrite/pread IO                                   */
 /*            - filesize information via 'c_stat'                             */
+/*            Ignacio Fdez. Galvan, 2020                                      */
+/*            - add c_rename                                                  */
 /*                                                                            */
 /******************************************************************************/
 
@@ -279,4 +282,30 @@ INT c_stat(FileDescriptor)
  (void)rc;
  fsize=flstat.st_size;
  return fsize;
+}
+
+/*--- c_rename --------------------------------------------------------------*/
+INT c_rename(FileName,NewName)
+ char *FileName;
+ char *NewName;
+
+{
+ INT rc;
+#ifdef _CAPITALS_
+ char fn[256];
+ char nn[256];
+#endif
+
+#ifdef _CAPITALS_
+ (void)strcpy(fn,FileName);
+ (void)strcpy(nn,FileName);
+ rc = rename(fn,nn);
+#else
+#ifndef _WIN32_
+ rc = rename(FileName,NewName);
+#else
+ rc = MoveFile(FileName,NewName);
+#endif
+#endif
+ return rc;
 }
