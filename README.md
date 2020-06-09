@@ -14,10 +14,15 @@ General Public License (LGPL). Some parts of Molcas remain under a different
 license by decision of their authors (or impossibility to reach them), and are
 therefore not included in OpenMolcas.
 
-**Latest reference**:
-"OpenMolcas: From Source Code to Insight."
-*J. Chem. Theory Comput.* **15** (2019) 5925-5964.
-DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+**Latest references**:
+
+* "OpenMolcas: From Source Code to Insight."
+  *J. Chem. Theory Comput.* **15** (2019) 5925-5964.
+  DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+
+* "Modern quantum chemistry with [Open]Molcas."
+  *J. Chem. Phys.* **152** (2020) 214117.
+  DOI: [10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
 
 Installation
 ------------

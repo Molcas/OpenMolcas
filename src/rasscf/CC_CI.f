@@ -14,9 +14,6 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
-#ifdef NAGFOR
-      use f90_unix_proc, only: sleep
-#endif
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
       use fortran_strings, only: str
