@@ -97,6 +97,7 @@
 *
       Call Nr_Shells(nSkal)
 *                                                                      *
+*                                                                      *
 ************************************************************************
 *                                                                      *
 *     allocate Integer memory for resulting SO info...
@@ -153,13 +154,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Initialize memory for eval_int. Observe that semi-direct
-*     calculations require the memory to be fix in between the
-*     iterations. Hence, the memory pool must be handled externally in
-*     those cases.
-*
-      If (XMem_Status.eq.Inactive) Call SetMem_Ints(0,0)
-*
 *     Call QExit('S_I')
       Return
       End

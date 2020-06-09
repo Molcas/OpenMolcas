@@ -38,7 +38,7 @@
 *
 *     In case of semi-direct mode the memory is released externally.
 *
-      If (XMem_Status.eq.InActive) Call RlsMem_Ints
+      Call RlsMem_Ints
 *
       If (Allocated(FT)) Call mma_deallocate(FT)
 *

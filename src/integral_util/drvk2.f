@@ -57,12 +57,11 @@
 *     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
-      Logical DoFock, force_part_save, DoGrad, ReOrder
+      Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
       Character*100 Get_ProgName, ProgName
       Character*8 Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
-      Real*8, Allocatable:: Wrk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -140,8 +139,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_maxDBLE(MemMax)
-      Call mma_allocate(Wrk,MemMax,Label='Wkr')
+      If (Allocated(Sew_Scr)) Then
+         Rls=.False.
+         MemMax=SIZE(Sew_Scr)
+C        Write (*,*) 'Drvk2: Memory already allocated:',MemMax
+      Else
+         Rls=.True.
+         Call mma_maxDBLE(MemMax)
+         Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
+      End If
       ipMem1=1
 *                                                                      *
 ************************************************************************
@@ -301,7 +308,7 @@
      &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
      &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
      &                  nZeta,ijInc,Mem_DBLE(ipCon),
-     &                  Wrk(ipMem2),Mem2,Cmpct,
+     &                  Sew_Scr(ipMem2),Mem2,Cmpct,
      &                  nScree,mScree,mdci,mdcj,
      &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
      &                  Scr, MemTmp,
@@ -322,7 +329,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deallocate(Wrk)
+      If (Rls) Then
+C        Write (6,*) 'Drvk2: Release Sew_Scr'
+         Call mma_deallocate(Sew_Scr)
+      End If
       Call mma_deallocate(Qnew)
       Call mma_deallocate(Pnew)
       Call mma_deallocate(Lnew)

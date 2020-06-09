@@ -52,7 +52,7 @@
       use k2_setup
       use iSD_data
       use pso_stuff
-      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
 #include "real.fh"
@@ -589,8 +589,9 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1=1
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -810,10 +811,10 @@ cVV: ifort 11 can't handle the code without this dummy print.
 #endif
            Call PGet0(iCmpa,iShela,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                Work(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
            Pget3_CPU = Pget3_CPU + Pget0CPU2-Pget0CPU1
@@ -843,7 +844,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
      &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
@@ -934,7 +935,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *
       If (Allocated(Thpkl)) Call mma_deallocate(Thpkl)
 *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate(Sew_Scr)
       Call Free_Tsk2(id)
       Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))

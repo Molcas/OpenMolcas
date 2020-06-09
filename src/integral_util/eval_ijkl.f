@@ -111,6 +111,7 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "setup.fh"
 #include "status.fh"
@@ -188,15 +189,16 @@
 *                                                                      *
 *     If memory not allocated already at this point allocate!          *
 *                                                                      *
-      If (MemMax_int.eq.0) Then
-        Call GetMem('MaxMem','Max','Real',iDum,MemMax)
-        Call GetMem('MaxMem','Allo','Real',ipMem1,MemMax)
-        MemMax_int=MemMax
-        ipMem_int =ipMem1
+      If (.Not.Allocated(Sew_Scr)) Then
+C        Write (*,*) 'Eval_ints: Allocate memory'
+         Call mma_MaxDBLE(MemMax)
+         Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       Else
-        MemMax=MemMax_int
-        ipMem1=ipMem_int
+C        Write (*,*) 'Eval_ints: Memory already allocated'
+         MemMax=SIZE(Sew_Scr)
       End If
+C     Write (*,*) 'Eval_ints: MemMax=',MemMax
+      ipMem1=1
 *
       Map4(1)=1
       Map4(2)=2
@@ -487,7 +489,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
-     & Work(ipMem1),nSO,Work(ipMem2),Mem2,
+     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
      & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
@@ -518,7 +520,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      & Mem_DBLE(ipQ),nEta,
-     & Work(ipMem1),nSO,Work(ipMem2),Mem2,
+     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
      & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
@@ -540,12 +542,14 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                         ip=ipMem1
                      End If
                      Tmax=max(Tmax,
-     &                        abs(Work(ip+iDAMax_(n,Work(ip),1)-1)))
+     &                        abs(Sew_Scr(ip+
+     &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
                         Call Integ_Proc(iCmpV,iShelV,Map4,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
-     &                                  Work(ipMem2),Work(ipMem1),nSO,
+     &                                  Sew_Scr(ipMem2),
+     &                                  Sew_Scr(ipMem1),nSO,
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,

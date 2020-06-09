@@ -41,7 +41,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use k2_arrays, only: FT, nFT
+      use k2_arrays, only: FT, nFT, Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -132,11 +132,9 @@ C     Write (6,*) 'nij=',nij
 *                                                                      *
 *     Preallocate some core for Seward!
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemSew)
-*
+      Call mma_MaxDBLE(MemSew)
       MemLow=Min(MemSew/2,1024*128)
       MemSew=Max(MemSew/10,MemLow)
-      Call xSetMem_Ints(MemSew)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -150,7 +148,7 @@ C     Write (6,*) 'nij=',nij
 *                                                                      *
 *     Choose between in-core and out-of-core options
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemT)
+      Call mma_MaxDBLE(MemT)
       MemT=MemT/2
 *
       If (Only_DB) Then
@@ -344,7 +342,6 @@ C     Write (6,*) 'nij=',nij
 ************************************************************************
 *
       If (Out_of_Core) Call mma_deallocate(TInt)
-      Call xRlsMem_Ints
       Call mma_deallocate(IJInd)
 *                                                                      *
 ************************************************************************
@@ -374,7 +371,7 @@ C    &               TInt,nTInt,nTInt)
       Else If (.Not.Do_RI_Basis) Then
 *
          nij=nBas(0)*(nBas(0)+1)/2
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+         Call mma_MaxDBLE(MaxMem)
          Call Square_A(LuA,nij,MaxMem,Force_Out_of_Core)
 *
       End If
