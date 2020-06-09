@@ -135,6 +135,7 @@ C     Write (6,*) 'nij=',nij
       Call mma_MaxDBLE(MemSew)
       MemLow=Min(MemSew/2,1024*128)
       MemSew=Max(MemSew/10,MemLow)
+      Call mma_allocate(Sew_Scr,MemSew,Label='Sew_Scr')
 *                                                                      *
 ************************************************************************
 *                                                                      *
