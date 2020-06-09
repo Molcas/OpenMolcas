@@ -709,7 +709,8 @@ C           Write (6,*) 'gBeta=',gBeta
             End Do
             tmp=Min(tmp,0.30D0) ! Some constraints can have huge
                                 ! gradients. So be a bit careful.
-            Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
+            Beta_Disp_=Max(Beta_Disp_Min,
+     &                     tmp*CnstWght/(CnstWght+One)*Beta_Disp)
 *
 #ifdef _DEBUG_
             Write (6,*) 'Step_trunc=',Step_trunc
