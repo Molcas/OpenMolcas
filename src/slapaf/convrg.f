@@ -219,7 +219,7 @@
          Thr3=ThrGrd*6.0D0
          ConvTmp=Val3.lt.Thr3
          Conv2=Conv2.and.ConvTmp
-         If (Conv2) Then
+         If (ConvTmp) Then
             If (Step_Trunc.eq.' ') Then
                ConLbl(3)=' Yes '
             Else

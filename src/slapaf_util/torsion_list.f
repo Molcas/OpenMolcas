@@ -552,15 +552,15 @@
      &                   .False.,'        ',Hess,.False.)
                Call Bend(A(1,1),mCent,Fi2_a,Grad,.False.,
      &                   .False.,'        ',Hess,.False.)
-               If (Fi2.gt.Pi-delta) Go To 401
-               If (Fi2.lt.delta) Go To 401
+               If (Fi2.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
+               If (Fi2.lt.delta.and.nAtoms.ne.4) Go To 401
                Call Bend(Ref(1,2),mCent,Fi3,Grad_ref,
      &                   .False.,
      &                   .False.,'        ',Hess,.False.)
                Call Bend(A(1,2),mCent,Fi3_a,Grad,.False.,
      &                   .False.,'        ',Hess,.False.)
-               If (Fi3.gt.Pi-delta) Go To 401
-               If (Fi3.lt.delta) Go To 401
+               If (Fi3.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
+               If (Fi3.lt.delta.and.nAtoms.ne.4) Go To 401
 *              Write (6,*) ' T Force Constant:',f_Const
 *
                nq = nq + 1

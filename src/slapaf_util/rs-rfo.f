@@ -11,7 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017,2019, Roland Lindh                 *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
+      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+     &                  Restriction,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -28,10 +29,12 @@
 *     Remove references to work, Roland Lindh                          *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction
+      Real*8 Restriction
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 H(nInter,nInter), g(nInter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), q(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 StepMax
 *
@@ -61,12 +64,7 @@
       Iter=0
       Iterate=.False.
       Restart=.False.
-      Thr=1.0D-7
-*ifdef _DEBUG_
-*     NumVal=nInter+1
-*else
       NumVal=Min(6,nInter)+1
-*endif
       Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Matrix,(nInter+1)*(nInter+2)/2,Label='Matrix')
@@ -187,7 +185,7 @@
 *           Write (6,*) 'iRoot=',iRoot
 *           Write (6,*) 'ZZ=',ZZ
 *           Write (6,*) 'Fact=',Fact
-*           Write (6,*) 'dqdq=',Sqrt(DDot_(nInter,dq,1,dq,1))
+*           Write (6,*) 'dqdq=',Restriction(q,dq,nInter)
 #endif
 *
 *        Compute lambda_i according to Eq. (8a)
@@ -197,9 +195,11 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=Sqrt(DDot_(nInter,dq,1,dq,1))
+         dqdq=Restriction(q,dq,nInter)
 #ifdef _DEBUG_
          Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
+*        Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
+*        Write (Lu,*) 'Thr_RS=',Thr_RS
 #endif
 *                                                                      *
 ************************************************************************
@@ -227,7 +227,7 @@
 *                                                                      *
 *        Procedure if the step length is not equal to the trust radius
 *
-         If (Iterate.and.Abs(StepMax-dqdq).gt.Thr) Then
+         If (Iterate.and.Abs(StepMax-dqdq).gt.Thr_RS) Then
             Step_Trunc='*'
 #ifdef _DEBUG2_
             Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
@@ -236,11 +236,12 @@
 *           Converge if small interval
 *
             If ((dqdq.lt.StepMax).and.
-     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
+     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr_RS)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,dqdq,StepMax)
             If (A_RFO.eq.-One) Then
+*              Write (Lu,*) 'reset Step_Trunc'
                A_RFO=One
                Step_Trunc=' '
                Restart=.True.
@@ -279,6 +280,10 @@
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
       Call mma_deallocate(Matrix)
+*     Write (6,*) 'dqdq=',dqdq,dqdq**2
+*     Write (6,*) 'StepMax=',StepMax,StepMax**2
+*     Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq
+*     Write (Lu,*) dqdq.lt.StepMax
 *
       Return
       End

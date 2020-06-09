@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RlxCtl(iStop)
       Use Chkpnt
+      Use kriging_mod, only: Kriging, nspAI
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -124,6 +125,7 @@
       Numerical = lNmHss .and.iter.le.NmIter .and.iter.ne.1
 *
       If (Numerical) nWndw=NmIter
+      iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,
      &           iOper,Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
@@ -223,11 +225,31 @@
       Step_Trunc=' '
       ed=zero
       If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
+*define UNIT_MM
+#ifdef UNIT_MM
+      Call Setup_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+#endif
 *
 *     Update geometry
 *
-      Call Update_sl(Iter,NmIter,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,
+      If (Kriging .and. Iter.ge.nspAI) Then
+         Call Update_Kriging(
+     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
+     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
+     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               Smmtrc,nDimBC,Work(ipL),ipCx,Work(ipGx),GrdMax,
+     &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
+     &               nWndw,Mode,ipMF,
+     &               iOptH,HUpMet,kIter,GNrm_Threshold,
+     &               IRC,Work(ipCM),HrmFrq_Show,
+     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
+      Else
+         Call Update_sl(
+     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
@@ -237,7 +259,12 @@
      &               nWndw,Mode,ipMF,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Redundant,Degen)
+     &               CnstWght,Curvilinear,Degen)
+      End If
+*
+#ifdef UNIT_MM
+      Call Free_UpdMask()
+#endif
 *
  666  Continue
 *                                                                      *
@@ -245,22 +272,26 @@
 ************************************************************************
 *                                                                      *
 *-----Transform the new internal coordinates to Cartesians
+*     (if not already done by Kriging)
 *
-      Call GetMem(' DCF  ', 'Allo','Real',ipDCF, 3*nsAtom)
-      Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
-      Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
-      PrQ=.False.
-      Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
-     &            ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
-     &            ipdqInt,Work(ipDCF),Work(ipdss),Work(ipTmp),
-     &            Stop,AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
-     &            Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
-     &            User_Def,nStab,jStab,Curvilinear,Numerical,
-     &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr)
-      Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
-      Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
-      Call GetMem(' DCF  ', 'Free','Real',ipDCF, 3*nsAtom)
+      If (.not.(Kriging .and. Iter.ge.nspAI)) Then
+         Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
+         Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
+         Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
+         PrQ=.False.
+         iRef=0
+         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
+     &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
+     &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
+     &               AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &               User_Def,nStab,jStab,Curvilinear,Numerical,
+     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef)
+         Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
+         Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
+         Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
