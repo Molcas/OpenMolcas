@@ -62,14 +62,13 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 *---------------------------------------------------------------------*
 *                                                                     *
 *     Stack information pertinent to phase2 of sorting                *
@@ -84,6 +83,7 @@ C     Integer IOStk(lStk)
 C     Common /SRT3/ nStk,IOStk
       Common /SRT3/ nStk,ip_IOStk,lStk
 *
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "print.fh"
@@ -106,7 +106,7 @@ C     Common /SRT3/ nStk,IOStk
 *     Initialize the IO-stack                                          *
 *----------------------------------------------------------------------*
 *
-      Call GetMem('IOStkMax','Max','INTE',iDummy,lStk_Max)
+      Call mma_MaxINT(lStk_Max)
       lStk=Max(64*1024,lStk_Max/5)
       Call GetMem('IOStk','Allo','Inte',ip_IOStk,lStk)
       Call IZero(iWork(ip_IOStk),lStk)
@@ -188,8 +188,7 @@ C     Common /SRT3/ nStk,IOStk
                          lSrtA=min(mxij,nij)*kbl
                          Call FZero(Work(isSrtA),lSrtA)
                          Call SORT2A(iBin,lSrtA,work(isSrtA),
-     &                               Work(ip_ValBin),iWork(ip_IndBin),
-     &                               lBin,iWork(ip_IOStk),lStk,nStk)
+     &                               iWork(ip_IOStk),lStk,nStk)
 *
 *----------------------------------------------------------------------*
 *     Sort the IO-stack in ascending order, i.e., preference is        *
@@ -241,8 +240,8 @@ C     Common /SRT3/ nStk,IOStk
       Call GetMem('IOStk','Free','Inte',ip_IOStk,lStk)
 *
       If (.Not.RAMD) Then
-         Call GetMem('ValBin','Free','Real',ip_ValBin,lBin)
-         Call GetMem('IndBin','Free','Inte',ip_IndBin,lBin)
+         Call mma_deallocate(ValBin)
+         Call mma_deallocate(IndBin)
       End If
 *
 *----------------------------------------------------------------------*

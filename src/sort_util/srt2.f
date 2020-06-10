@@ -56,7 +56,8 @@
 *                                                                     *
 *---------------------------------------------------------------------*
 *
-cc #include <mxbin.fh>
+      Module Srt2
+#include "TwoDef.fh"
       Parameter ( mxBin = 2048 )
       Parameter ( lBin_tce   = 4*lDaRec          )
       Parameter ( lBin_rle   =32*lDaRec          )
@@ -65,9 +66,11 @@ cc #include <mxbin.fh>
       Integer nRec(mxBin),nByte(mxBin),nInt(mxBin),mInt(3,mxBin)
       Integer nOff1(mxBin),nOff2(mxBin)
 *
-      Common /Srt2/ lwIBin,lwVBin,
-     &              nRec,nByte,nInt,mInt,
-     &              iDIBin,iDVBin,
-     &              nOff1,nOff2,
-     &              LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,
-     &              MxOrd,lbin,ip_ValBin,ip_IndBin,ip_lIndx,ip_lInts
+      Integer LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,MxOrd,lbin
+*
+      Real*8, Allocatable:: ValBin(:)
+      Integer, Allocatable:: IndBin(:), lIndx(:), lInts(:)
+      Integer lwIBin, lwVBin
+*     Integer, Allocatable:: lwIBin(:,:)
+*     Real*8,  Allocatable:: lwVBin(:,:)
+      End Module Srt2

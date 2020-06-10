@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Markus P. Fuelscher                              *
 *               1991, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine SORT2A(iBin,lSrtA,SrtArr,ValBin,IndBin,l_Bin,
-     &                  IOStk,lStk,nStk)
+      Subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 ************************************************************************
 *                                                                      *
 *     Purpose: Reload all integral belonging to a given slice          *
@@ -45,13 +44,12 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
 #include "TwoDat.fh"
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "PkCtl.fh"
@@ -60,7 +58,6 @@
       Dimension SrtArr(lSrtA)
       Dimension PkVBin(lStRec)
       Integer   PkIBin(lStRec)
-      Dimension ValBin(l_Bin),IndBin(l_Bin)
       Integer IOStk(lStk)
 *
 *----------------------------------------------------------------------*
@@ -157,13 +154,13 @@ C        Write (*,*) 'Mode: Sparse'
             Call Abend
           End If
           nInts=nInts1
-          If ( nInts.gt.l_Bin ) then
+          If ( nInts.gt.lBin ) then
             iRC=003
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'nInts>l_Bin'
+            Write(6,'(2X,A)') 'nInts>lBin'
             Write(6,*)
             Call qTrace
             Call xFlush(6)

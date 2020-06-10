@@ -12,7 +12,7 @@
 *               1991, Per Ake Malmqvist                                *
 *               1998, Roland Lindh                                     *
 ************************************************************************
-      Subroutine SaveBin(iBin,ValBin,IndBin,lIndx,lInts,l_Bin,iOpt)
+      Subroutine SaveBin(iBin,iOpt)
 ************************************************************************
 *                                                                      *
 *     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -27,7 +27,7 @@
 *     Calls to : PKI4,PKR8,DaFile,SetVec,ErrTra,ISORTX,I4Len,R8Len     *
 *                                                                      *
 *     Calling Parameters:                                              *
-*     iBin   : Bin numberto be saved                                   *
+*     iBin   : Bin number to be saved                                  *
 *                                                                      *
 *     Global data declarations (Include files) :                       *
 *     TwoDef  : definitions of the record structure                    *
@@ -52,20 +52,17 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
 #include "PkCtl.fh"
 
-      Dimension ValBin(l_Bin),IndBin(l_Bin)
-      Dimension lIndx(l_Bin),lInts(l_Bin)
       Integer iScr(lStRec)
       Real*8   Scr(lStRec)
       Integer rc

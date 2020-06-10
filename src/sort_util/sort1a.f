@@ -60,15 +60,15 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 *
       Real*8 vInt(nUt),nSqNum(nUt),nSyBlk(nUt)
@@ -118,10 +118,7 @@ C       Call QExit('Sort1A')
 *----------------------------------------------------------------------*
 *
          If ( next.ge.(lBin-1) ) Then
-            Call SaveBin(iBin,Work(ip_ValBin),
-     &                       iWork(ip_IndBin),
-     &                       iWork(ip_lIndx),
-     &                       iWork(ip_lInts),lBin,iOpt)
+            Call SaveBin(iBin,iOpt)
          End If
       End Do
 *

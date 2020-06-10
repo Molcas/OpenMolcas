@@ -41,12 +41,11 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Integer (A-Z)
 *
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 
 #include "SysDef.fh"
 #include "print.fh"

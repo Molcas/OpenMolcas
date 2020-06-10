@@ -82,16 +82,16 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Integer (A-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
 #include "TwoDat.fh"
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "warnings.fh"
       Logical PkMode
@@ -153,10 +153,10 @@
       Call GETMEM('VBin','ALLO','REAL',lwVBin,nBin*lBin)
       Call GETMEM('IBin','ALLO','INTE',lwIBin,nBin*lBin)
 *
-      Call GetMem('lIndx ','Allo','Inte',ip_lIndx ,lBin)
-      Call GetMem('lInts ','Allo','Inte',ip_lInts ,lBin)
-      Call GetMem('ValBin','Allo','Real',ip_ValBin,lBin)
-      Call GetMem('IndBin','Allo','Inte',ip_IndBin,lBin)
+      Call mma_allocate(lIndx,lBin,Label='lIndx')
+      Call mma_allocate(lInts,lBin,Label='lInts')
+      Call mma_allocate(ValBin,lBin,Label='ValBin')
+      Call mma_allocate(IndBin,lBin,Label='IndBin')
 *
 *----------------------------------------------------------------------*
 *     compute various offsets for each Bin and also                    *

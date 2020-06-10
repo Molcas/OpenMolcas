@@ -61,14 +61,13 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 
 #include "SysDef.fh"
 #include "print.fh"
