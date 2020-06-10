@@ -57,7 +57,6 @@
 #include "srt0.fh"
 #include "srt1.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 *
 *----------------------------------------------------------------------*
@@ -89,8 +88,8 @@
 *     release the work space used to store bins                        *
 *----------------------------------------------------------------------*
 *
-      Call GETMEM('VBin','FREE','REAL',lwVBin,nBin*lBin)
-      Call GETMEM('IBin','FREE','INTE',lwIBin,nBin*lBin)
+      call mma_deallocate(lwVBin)
+      call mma_deallocate(lwIBin)
 *
       call mma_deallocate(lIndx)
       call mma_deallocate(lInts)

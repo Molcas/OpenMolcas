@@ -35,8 +35,8 @@
 *     mxSrtA : maximum sorting area to be used                        *
 *                                                                     *
 *     Entries to common SRT2:                                         *
-*     lwIBin : pointer to work space used to store index Bins         *
-*     lwVBin : pointer to work space used to store value Bins         *
+*     lwIBin : array used to store index Bins                         *
+*     lwVBin : array  used to store value Bins                        *
 *     nRec   : number of record per slice                             *
 *     iDIBin : disk adresses of index bins                            *
 *     iDVBin : disk adresses of value bins                            *
@@ -70,7 +70,6 @@
 *
       Real*8, Allocatable:: ValBin(:)
       Integer, Allocatable:: IndBin(:), lIndx(:), lInts(:)
-      Integer lwIBin, lwVBin
-*     Integer, Allocatable:: lwIBin(:,:)
-*     Real*8,  Allocatable:: lwVBin(:,:)
+      Integer, Allocatable:: lwIBin(:)
+      Real*8,  Allocatable:: lwVBin(:)
       End Module Srt2

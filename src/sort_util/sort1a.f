@@ -44,7 +44,6 @@
 *               bins and partitioning of symmetry blocks               *
 *     Srt2    : common block containing information pertinent to       *
 *               the bin sorting algorithm                              *
-*     WSpc    : dynamic work space                                     *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -67,7 +66,6 @@
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 *
@@ -106,8 +104,8 @@ C       Call QExit('Sort1A')
       Do iUt=1,nUt
          iBin=INT(nSyBlk(iUt))
          next=nInt(iBin)+1
-         work(nOffV(iBin)+next)=vInt(iUt)
-         iwork(nOffI(iBin)+next)=INT(nSqNum(iUt))
+         lwVBin(nOffV(iBin)+next)=vInt(iUt)
+         lwIBin(nOffI(iBin)+next)=INT(nSqNum(iUt))
          nInt(iBin)=next
          mInt(1,iBin)=mInt(1,iBin)+1
 *

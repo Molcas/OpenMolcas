@@ -52,8 +52,8 @@
 *----------------------------------------------------------------------*
 *
       iBin=0
-      iOffV=lwVBin-1
-      iOffI=lwIBin-1
+      iOffV=0
+      iOffI=0
       Do iSyBlk=1,mSyBlk
          nSlice=nSln(iSyBlk)
          lSlice=lSll(iSyBlk)

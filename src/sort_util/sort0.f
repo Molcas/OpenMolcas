@@ -90,7 +90,6 @@
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "warnings.fh"
@@ -150,8 +149,8 @@
 *     allocate the space required in phase1 of the bin sort algoritm   *
 *----------------------------------------------------------------------*
 *
-      Call GETMEM('VBin','ALLO','REAL',lwVBin,nBin*lBin)
-      Call GETMEM('IBin','ALLO','INTE',lwIBin,nBin*lBin)
+      Call mma_allocate(lwVBin,nBin*lBin,Label='lwVBin')
+      Call mma_allocate(lwIBin,nBin*lBin,Label='lwIBin')
 *
       Call mma_allocate(lIndx,lBin,Label='lIndx')
       Call mma_allocate(lInts,lBin,Label='lInts')
