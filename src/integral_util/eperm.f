@@ -260,8 +260,6 @@
       End Do ! iGrid
 
 c      Call RecPrt('eperm: dEF ',' ',dEF,4,nGrid_)
-
 *
-*     Call GetMem('EPerm','Check','Real',idum,idum)
       Return
       End

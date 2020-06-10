@@ -27,7 +27,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
 #include "status.fh"

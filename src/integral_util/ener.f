@@ -49,6 +49,9 @@
       Character*8 Label
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:)
+      Real*8, Allocatable:: Integrals(:)
+*
+#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -253,7 +256,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *
          Call OneEl_Integrals(EFInt,EFMem,Label,
      &                        ips,lOper,nComp,C_Coor,
-     &                        nOrdOp,rHrmt,kOper)
+     &                        nOrdOp,rHrmt,kOper,Integrals)
 *
          Eeldip=Zero
          Do iComp = 1, nComp
@@ -266,7 +269,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *
             nInt=n2Tri(iSmLbl)
             If (nInt.ne.0.and.Abs(DipMom(iComp,iGrid)).gt.1.0D-20) Then
-               Call CmpInt(Work(ip),nInt,nBas,nIrrep,iSmLbl)
+               Call CmpInt(Integrals(ip),nInt,nBas,nIrrep,iSmLbl)
                If (nInt.ne.nh1) Then
                   Call WarningMessage(2,'Ener: nInt.ne.nh1')
                   Write (6,*) 'nInt=',nInt
@@ -277,19 +280,21 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *------------- Accumulate contribution to h1
 *
                alfa=Sig*DipMom(iComp,iGrid)
-               Call DaXpY_(nInt,alfa,Work(ip),1,h1,1)
-               EelDip=EelDip-alfa*DDot_(nh1,D_tot,1,Work(ip),1)
+               Call DaXpY_(nInt,alfa,Integrals(ip),1,h1,1)
+               EelDip=EelDip-alfa*DDot_(nh1,D_tot,1,Integrals(ip),1)
 *
             End If
 *
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------- Deallocate memory for integral
-*
-            Call GetMem(' ','Free','Real',ip,n2Tri(iSmLbl)+4)
 *
          End Do ! iComp
+*
+*------- Deallocate memory for integral
+*
+         Call mma_deallocate(Integrals)
+*
          RepHlp=RepHlp+EelDip*half
 !        Write (6,*) 'Eeldip=',Eeldip,RepHlp
 *

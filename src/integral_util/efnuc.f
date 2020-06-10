@@ -96,7 +96,6 @@
 *
       If (iPrint.ge.99) Call RecPrt(' The Electrostatic Interaction'
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
-*     Call GetMem(' Exit ESIT','CHECK','REAL',iDum,iDum)
       Call qExit('EFNuc')
       Return
       End
