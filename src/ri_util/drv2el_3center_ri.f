@@ -45,7 +45,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use k2_array2, only: FT, nFT
+      use k2_arrays, only: FT, nFT
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"
