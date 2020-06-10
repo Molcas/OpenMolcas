@@ -84,13 +84,13 @@ C     Call QEnter('Savebin')
 *                                                                      *
 *----------------------------------------------------------------------*
       nInts=nInt(iBin)
-      iOff1=nOff1(iBin)
-      iOff2=nOff2(iBin)
+      iOffV=nOffV(iBin)
+      iOffI=nOffI(iBin)
 *----------------------------------------------------------------------*
 *         precompute the packed length of a record                     *
 *----------------------------------------------------------------------*
-      Call I4LEN(nInts,iwork(iOff2+1),lIndx)
-      Call R8LEN(iOpt,nInts,work(iOff1+1),lInts)
+      Call I4LEN(nInts,iwork(iOffI+1),lIndx)
+      Call R8LEN(iOpt,nInts,work(iOffV+1),lInts)
       mxIRec=((lDaRec/idiv)-lTop-1)*ItoB
       mxVRec=(lDaRec-lTop-1)*RtoB
       nSave=0
@@ -110,7 +110,7 @@ C     Call QEnter('Savebin')
 *----------------------------------------------------------------------*
 *         now pack and check the packed record length again            *
 *----------------------------------------------------------------------*
-      Call PKI4(nSave,lIBin,iwork(iOff2+1),IndBin(lTop+1))
+      Call PKI4(nSave,lIBin,iwork(iOffI+1),IndBin(lTop+1))
       mInds=(lIBin+ItoB-1)/ItoB
       mInt(3,iBin)=mInt(3,iBin)+mInds
       If ( lIBin.gt.mxIRec ) then
@@ -137,7 +137,7 @@ C     Call QEnter('Savebin')
          call xFlush(6)
          Call Abend
       End If
-      Call PKR8(iOpt,nSave,lVBin,Work(iOff1+1),ValBin(lTop+1))
+      Call PKR8(iOpt,nSave,lVBin,Work(iOffV+1),ValBin(lTop+1))
       mInts=(lVBin+RtoB-1)/RtoB
       mInt(2,iBin)=mInt(2,iBin)+mInts
       If ( lVBin.gt.mxVRec ) then
@@ -210,8 +210,8 @@ C     Call QEnter('Savebin')
       nKeep=nInts-nSave
       If ( nKeep.gt.0 ) Then
          Do i=1,nKeep
-            iwork(iOff2+i)=iwork(iOff2+nSave+i)
-            work(iOff1+i)=work(iOff1+nSave+i)
+            iwork(iOffI+i)=iwork(iOffI+nSave+i)
+            work(iOffV+i)=work(iOffV+nSave+i)
          End Do
       End If
       nInt(iBin)=nKeep

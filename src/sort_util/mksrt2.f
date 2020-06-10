@@ -52,8 +52,8 @@
 *----------------------------------------------------------------------*
 *
       iBin=0
-      iOff1=lwVBin-1
-      iOff2=lwIBin-1
+      iOffV=lwVBin-1
+      iOffI=lwIBin-1
       Do iSyBlk=1,mSyBlk
          nSlice=nSln(iSyBlk)
          lSlice=lSll(iSyBlk)
@@ -61,10 +61,10 @@
          If ( nSlice.ne.0 ) then
             Do iSlice=1,nSlice
                iBin=iBin+1
-               nOff1(iBin)=iOff1
-               nOff2(iBin)=iOff2
-               iOff1=iOff1+lBin
-               iOff2=iOff2+lBin
+               nOffV(iBin)=iOffV
+               nOffI(iBin)=iOffI
+               iOffV=iOffV+lBin
+               iOffI=iOffI+lBin
             End Do
          End If
 *

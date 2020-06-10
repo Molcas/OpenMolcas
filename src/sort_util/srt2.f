@@ -64,7 +64,7 @@
 *
       Integer iDIBin(3,mxBin),iDVBin(4,mxBin)
       Integer nRec(mxBin),nByte(mxBin),nInt(mxBin),mInt(3,mxBin)
-      Integer nOff1(mxBin),nOff2(mxBin)
+      Integer nOffV(mxBin),nOffI(mxBin)
 *
       Integer LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,MxOrd,lbin
 *
