@@ -45,7 +45,7 @@
 *                                                                      *
 *     Called from: Seward_main                                         *
 *                                                                      *
-*     Calls to : MkSrt0,MkSrt1,MkSrt2,OpnOrd,ErrOrd,IniPkR8,GetMem     *
+*     Calls to : MkSrt0,MkSrt1,MkSrt2,OpnOrd,ErrOrd,IniPkR8            *
 *                                                                      *
 *     Calling parameters: none                                         *
 *                                                                      *
@@ -148,8 +148,6 @@
 *     allocate the space required in phase1 of the bin sort algoritm   *
 *----------------------------------------------------------------------*
 *
-*     Call mma_allocate(lwVBin,nBin*lBin,Label='lwVBin')
-*     Call mma_allocate(lwIBin,nBin*lBin,Label='lwIBin')
       Call mma_allocate(lwVBin,lBin,nBin,Label='lwVBin')
       Call mma_allocate(lwIBin,lBin,nBin,Label='lwIBin')
 *

@@ -196,7 +196,6 @@ C        Write (*,*) 'Mode: Sparse'
         iDaTwo=Int(PkVBin(1))
       End Do
       If ( iPrint.ge.99 ) Call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
-*     Call GetMem('Sort2a','Check',' ',junk,junk)
 *
       Return
       End

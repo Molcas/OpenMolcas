@@ -47,28 +47,6 @@
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT2 <<<'
       Call qEnter('MkSrt2')
-*----------------------------------------------------------------------*
-*     compute various offsets for each Bin                             *
-*----------------------------------------------------------------------*
-*
-*     iBin=0
-*     iOffV=0
-*     iOffI=0
-*     Do iSyBlk=1,mSyBlk
-*        nSlice=nSln(iSyBlk)
-*        lSlice=lSll(iSyBlk)
-*
-*        If ( nSlice.ne.0 ) then
-*           Do iSlice=1,nSlice
-*              iBin=iBin+1
-*              nOffV(iBin)=iOffV
-*              nOffI(iBin)=iOffI
-*              iOffV=iOffV+lBin
-*              iOffI=iOffI+lBin
-*           End Do
-*        End If
-*
-*     End Do
 *
 *----------------------------------------------------------------------*
 *     initialize various pointers, counters and disk adresses          *
