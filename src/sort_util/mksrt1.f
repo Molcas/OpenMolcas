@@ -81,7 +81,7 @@
       End If
       lSrtA = lSrtA*lBin
       lSrtA = ((1+RtoI)*lSrtA)/RtoI
-      Call GetMem(' ','Max','Real',iDum,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
       lSrtA=Max(lSrtA,MaxMem/2)
 *
 *----------------------------------------------------------------------*

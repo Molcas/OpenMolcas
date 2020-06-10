@@ -71,9 +71,10 @@
 
 #include "SysDef.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension Buf(2*lStRec)
+      Integer, Allocatable:: SrtKey(:), SrtAdr(:)
 
 *
 *----------------------------------------------------------------------*
@@ -97,22 +98,22 @@
 *     key as well as disk addresses                                    *
 *----------------------------------------------------------------------*
 *
-      Call GetMem('SrtKey','Allo','Inte',isKey,mxOrd)
-      Call GetMem('SrtAdr','Allo','Inte',isAdr,mxOrd)
+      Call mma_allocate(SrtKey,mxOrd,Label='SrtKey')
+      Call mma_allocate(SrtAdr,mxOrd,Label='SrtAdr')
       iOpt = 2
       iDisk = iDaTw0
       MaxDax=0
-      Do iOrd = 0,mxOrd-1
-         iWork(isAdr+iOrd) = iDisk
+      Do iOrd = 1,mxOrd
+         SrtAdr(iOrd) = iDisk
          MaxDax=Max(iDisk,MaxDax)
          Call dDAFILE(LuTwo,iOpt,Buf,lStRec,iDisk)
-         iWork(isKey+iOrd) = Int(Buf(2))
+         SrtKey(iOrd) = Int(Buf(2))
       End Do
       MaxDax=iDisk
 #ifdef _DEBUG_
       If ( iPrint.ge.10 ) then
-        Call iVcPrt('Sort keys',' ',iWork(isKey),mxOrd)
-        Call iVcPrt('Disk addresses',' ',iWork(isAdr),mxOrd)
+        Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
+        Call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
       End If
 #endif
 *
@@ -127,32 +128,32 @@
 *
       Do i = 1,mxOrd
         j1 = i
-        j2 = iWork(isKey+i-1)
+        j2 = SrtKey(i)
         If ( j2.ne.i ) then
           iB1 = 1
           iB2 = lStRec+1
-          iDisk = iWork(isAdr+j1-1)
+          iDisk = SrtAdr(j1)
           Call dDAFILE(LuTwo,iRd,Buf(iB1),lStRec,iDisk)
           Do while ( j2.ne.i )
-            iDisk = iWork(isAdr+j2-1)
+            iDisk = SrtAdr(j2)
             Call dDAFILE(LuTwo,iRd,Buf(iB2),lStRec,iDisk)
-            iDisk = iWork(isAdr+j2-1)
+            iDisk = SrtAdr(j2)
             Call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
             iTmp=iB2
             iB2 = iB1
             iB1 = iTmp
             j1 = j2
-            j2 = iWork(isKey+j2-1)
-            iWork(isKey+j1-1) = j1
+            j2 = SrtKey(j2)
+            SrtKey(j1) = j1
           End Do
-          iDisk = iWork(isAdr+j2-1)
+          iDisk = SrtAdr(j2)
           Call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
-          iWork(isKey+j2-1) = j2
+          SrtKey(j2) = j2
         End If
       End Do
 #ifdef _DEBUG_
       If ( iPrint.ge.10 ) then
-        Call iVcPrt('Sort keys',' ',iWork(isKey),mxOrd)
+        Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
       End If
 #endif
 *
@@ -160,13 +161,13 @@
 *     Update the disk start adressed of each slice                     *
 *----------------------------------------------------------------------*
 *
-      j = 0
+      j = 1
       Do iBin=1,nBin
-        iDVBin(2,iBin) = iWork(isAdr+j)
+        iDVBin(2,iBin) = SrtAdr(j)
         j = j+nRec(iBin)
       End Do
-      Call GetMem('SrtKey','Free','Inte',isKey,mxOrd)
-      Call GetMem('SrtAdr','Free','Inte',isAdr,mxOrd)
+      Call mma_deallocate(SrtKey)
+      Call mma_deallocate(SrtAdr)
 *
 *----------------------------------------------------------------------*
 *     Write the final table of content to disk                         *

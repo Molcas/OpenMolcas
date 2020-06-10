@@ -27,7 +27,7 @@
 *                                                                      *
 *     Called from: Seward_main                                         *
 *                                                                      *
-*     Calls to : Sort2A,Sort2B,Sort3,SetVec,GetMem                     *
+*     Calls to : Sort2A,Sort2B,Sort3                                   *
 *                                                                      *
 *     Calling parameters: none                                         *
 *                                                                      *
@@ -42,7 +42,6 @@
 *               the bin sorting algorithm                              *
 *     Srt3    : dynamic stack to control inout and output of           *
 *               integral buffers                                       *
-*     WSpc    : dynamic work space                                     *
 *                                                                      *
 *     local data declarations: none                                    *
 *                                                                      *
@@ -81,12 +80,14 @@
 C     Parameter ( lStk = 64*1024 )
 C     Integer IOStk(lStk)
 C     Common /SRT3/ nStk,IOStk
-      Common /SRT3/ nStk,ip_IOStk,lStk
+C     Common /SRT3/ nStk,ip_IOStk,lStk
+      Integer nStk,lStk
 *
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "print.fh"
+      Integer, Allocatable:: IOStk(:)
+      Real*8, Allocatable:: SrtA(:), Scr(:)
 *
 *----------------------------------------------------------------------*
 *     pick up the print level                                          *
@@ -108,8 +109,8 @@ C     Common /SRT3/ nStk,IOStk
 *
       Call mma_MaxINT(lStk_Max)
       lStk=Max(64*1024,lStk_Max/5)
-      Call GetMem('IOStk','Allo','Inte',ip_IOStk,lStk)
-      Call IZero(iWork(ip_IOStk),lStk)
+      Call mma_allocate(IOStk,lStk,Label='IOStk')
+      IOStk(:)=0
       nStk=0
 *
 *----------------------------------------------------------------------*
@@ -160,7 +161,7 @@ C     Common /SRT3/ nStk,IOStk
                       iBatch=nBatch(iSyBlk)
                       iOff = RAMD_Adr(iBatch)+1
                       Call SORT2B(iBin,lSrtA,iOrd,lSrtA,RAMD_Ints(iOff),
-     &                            iWork(ip_IOStk),lStk,nStk)
+     &                            IOStk,lStk,nStk)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -176,7 +177,7 @@ C     Common /SRT3/ nStk,IOStk
                       mxij=ibj
 *
                       lSrtA_=min(mxij,nij)*kbl
-                      Call GETMEM('SrtArea','ALLO','REAL',isSrtA,lSrtA_)
+                      Call mma_allocate(SrtA,lSrtA_,Label='SrtA')
 *
 *----------------------------------------------------------------------*
 *     Allocate space to keep all integrals of a slice in memory,       *
@@ -186,27 +187,26 @@ C     Common /SRT3/ nStk,IOStk
                       Do iSlice=1,nSlice
                          iBin=iBin+1
                          lSrtA=min(mxij,nij)*kbl
-                         Call FZero(Work(isSrtA),lSrtA)
-                         Call SORT2A(iBin,lSrtA,work(isSrtA),
-     &                               iWork(ip_IOStk),lStk,nStk)
+                         SrtA(1:lSrtA)=0.0D0
+                         Call SORT2A(iBin,lSrtA,SrtA,IOStk,lStk,nStk)
 *
 *----------------------------------------------------------------------*
 *     Sort the IO-stack in ascending order, i.e., preference is        *
 *     always given to the lowest available disk adresses.              *
 *----------------------------------------------------------------------*
 *
-                         Call ILASRT('D',nStk,iWork(ip_IOStk),iErr)
+                         Call ILASRT('D',nStk,IOStk,iErr)
 *
 *----------------------------------------------------------------------*
 *     Restore integrals on LuTwo                                       *
 *----------------------------------------------------------------------*
 *
-                         Call SORT2B(iBin,lSrtA,iOrd,lSrtA,work(isSrtA),
-     &                               iWork(ip_IOStk),lStk,nStk)
+                         Call SORT2B(iBin,lSrtA,iOrd,lSrtA,SrtA,
+     &                               IOStk,lStk,nStk)
                          mxij=mxij-nij
                       End Do
 *
-                      Call GETMEM('SrtArea','FREE','REAL',isSrtA,lSrtA_)
+                      Call mma_deallocate(SrtA)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -225,19 +225,18 @@ C     Common /SRT3/ nStk,IOStk
 *     Clean the remaining records in the I/O Stack                     *
 *----------------------------------------------------------------------*
 *
-      Call GETMEM('Scratch','ALLO','REAL',isScr,lStRec)
-      Zero=0.0D0
-      call dcopy_(lStRec,[Zero],0,work(isScr),1)
+      Call mma_allocate(Scr,lStRec,Label='Scr')
+      Scr(:)=0.0D0
       Do iStk=1,nStk
         iOrd=iOrd+1
-        iDisk=iWork(ip_IOStk-1+iStk)
-        work(isScr+1)=iOrd
+        iDisk=IOStk(iStk)
+        Scr(2)=DBLE(iOrd)
         iOpt=1
-        Call dDAFILE(LuTwo,iOpt,work(isScr),lStRec,iDisk)
+        Call dDAFILE(LuTwo,iOpt,Scr,lStRec,iDisk)
       End Do
       MxOrd=iOrd
-      Call GETMEM('Scratch','FREE','REAL',isScr,lStRec)
-      Call GetMem('IOStk','Free','Inte',ip_IOStk,lStk)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(IOStk)
 *
       If (.Not.RAMD) Then
          Call mma_deallocate(ValBin)
