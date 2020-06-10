@@ -30,7 +30,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Check box indicies for consistency
+*     Check box indices for consistency
 *
       If (ix.lt.1.or.ix.gt.nx) Go To 199
       If (iy.lt.1.or.iy.gt.ny) Go To 199

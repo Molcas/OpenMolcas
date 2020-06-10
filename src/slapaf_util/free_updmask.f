@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1995, Roland Lindh                                     *
+* Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
-      Module NewH_mod
-      Implicit None
-      Integer, Dimension(:), Allocatable, Save :: UpdMask
-      Real*8, Save :: DiagMM=1.0d0
-
-      End Module NewH_mod
+      Subroutine free_UpdMask()
+      Use NewH_mod
+#include "stdalloc.fh"
+      If (Allocated(UpdMask)) Call mma_deallocate(UpdMask)
+      Return
+      End

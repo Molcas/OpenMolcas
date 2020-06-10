@@ -18,7 +18,7 @@
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,
-     &              nB_Tot,ndB_Tot,mqB)
+     &              nB_Tot,ndB_Tot,mqB,Thr_small)
       Implicit Real*8 (a-h,o-z)
       Real*8 Cx(3,nAtoms,nIter), fconst(nB),
      &       Value(nB,nIter), rMult(nB), dMass(nAtoms),
@@ -55,7 +55,7 @@
       nqRF=nq-nq_
 *
       nq_=nq
-      Call Bond_list(
+      Call Bond_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
@@ -76,7 +76,7 @@
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,
-     &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
+     &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB,Thr_small)
       nqA=nq-nq_
 *
       nq_=nq

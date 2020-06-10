@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2012-2013, Victor P. Vysotskiy                         *
+*               2020, Ignacio Fdez. Galvan                             *
 ***********************************************************************/
 /**************************************************************************/
 /*                                                                        */
@@ -40,6 +41,7 @@
 #define c_fsync  C_FSYNC
 #define c_copy   C_COPY
 #define c_stat   C_STAT
+#define c_rename C_RENAME
 #else
 #ifndef ADD_
 #define c_open   c_open_
@@ -54,6 +56,7 @@
 #define c_fsync  c_fsync_
 #define c_copy   c_copy_
 #define c_stat   c_stat_
+#define c_rename c_rename_
 #endif
 #endif
 
@@ -69,3 +72,4 @@ INT c_remove(char *FileName);
 INT c_fsync(INT *FileDescriptor);
 INT c_copy(INT *FileDescriptor1, INT *FileDescriptor2);
 INT c_stat(INT *FileDescriptor);
+INT c_rename(char *FileName,char *NewName);

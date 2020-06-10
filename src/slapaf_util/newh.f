@@ -28,7 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             January '95                                              *
 ************************************************************************
-      Use NewH_mod
+      Use NewH_Mod
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

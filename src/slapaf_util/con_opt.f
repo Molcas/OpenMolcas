@@ -15,9 +15,10 @@
      &                   Hess,nInter,nIter,iOptC,Mode,ipMF,
      &                   iOptH,HUpMet,jPrint_,Energy,nLambda,
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
-     &                   Beta,nFix,iP,UpMeth,
+     &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
-     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght)
+     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
+     &                   iOpt_RS,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -43,6 +44,8 @@
 *             July '03                                                 *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction_Step, Restriction_Dispersion
+      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
@@ -614,11 +617,27 @@ C        Write (6,*) 'yBeta=',yBeta
 C        Write (6,*) 'yBeta=',yBeta
 C        Write (6,*) 'gBeta=',gBeta
 C        Write (6,*) 'xBeta=',xBeta
-         tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
-C        Write (6,*) 'tBeta=',tBeta
-         Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc)
+*
+*        Set threshold depending on if restriction is w.r.t. step size
+*        or variance.
+*
+         If (iOpt_RS.eq.0) Then
+            tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
+            Thr_RS=1.0D-7
+C           Write (6,*) 'tBeta=',tBeta
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Restriction_Step,Thr_RS)
+         Else
+            tBeta=Beta_Disp
+            Thr_RS=1.0D-5
+C           Write (6,*) 'tBeta=',tBeta
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Restriction_Dispersion,Thr_RS)
+         End If
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *

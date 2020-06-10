@@ -9,4 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer MxFile
-      Parameter (MxFile = 99)
+      Parameter (MxFile =199)
