@@ -64,12 +64,14 @@
 *
       Integer iDIBin(3,mxBin),iDVBin(4,mxBin)
       Integer nRec(mxBin),nByte(mxBin),nInt(mxBin),mInt(3,mxBin)
-      Integer nOffV(mxBin),nOffI(mxBin)
+C     Integer nOffV(mxBin),nOffI(mxBin)
 *
       Integer LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,MxOrd,lbin
 *
       Real*8, Allocatable:: ValBin(:)
       Integer, Allocatable:: IndBin(:), lIndx(:), lInts(:)
-      Integer, Allocatable:: lwIBin(:)
-      Real*8,  Allocatable:: lwVBin(:)
+*     Integer, Allocatable:: lwIBin(:)
+*     Real*8,  Allocatable:: lwVBin(:)
+      Integer, Allocatable:: lwIBin(:,:)
+      Real*8,  Allocatable:: lwVBin(:,:)
       End Module Srt2

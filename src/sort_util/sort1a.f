@@ -104,8 +104,11 @@ C       Call QExit('Sort1A')
       Do iUt=1,nUt
          iBin=INT(nSyBlk(iUt))
          next=nInt(iBin)+1
-         lwVBin(nOffV(iBin)+next)=vInt(iUt)
-         lwIBin(nOffI(iBin)+next)=INT(nSqNum(iUt))
+*        lwVBin(nOffV(iBin)+next)=vInt(iUt)
+*        lwIBin(nOffI(iBin)+next)=INT(nSqNum(iUt))
+*        next=nInt(iBin)
+         lwVBin(next,iBin)=vInt(iUt)
+         lwIBin(next,iBin)=INT(nSqNum(iUt))
          nInt(iBin)=next
          mInt(1,iBin)=mInt(1,iBin)+1
 *

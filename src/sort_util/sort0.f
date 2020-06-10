@@ -58,7 +58,6 @@
 *     Srt2    : common block containing information pertinent to       *
 *               the bin sorting algorithm                              *
 *     PkCtl   : packing table                                          *
-*     WSpc    : dynamic work space                                     *
 *     iTMax   : SEWARD's definition of highest angular momentum        *
 *     Info    : SEWARD's tables of definitions                         *
 *                                                                      *
@@ -149,8 +148,10 @@
 *     allocate the space required in phase1 of the bin sort algoritm   *
 *----------------------------------------------------------------------*
 *
-      Call mma_allocate(lwVBin,nBin*lBin,Label='lwVBin')
-      Call mma_allocate(lwIBin,nBin*lBin,Label='lwIBin')
+*     Call mma_allocate(lwVBin,nBin*lBin,Label='lwVBin')
+*     Call mma_allocate(lwIBin,nBin*lBin,Label='lwIBin')
+      Call mma_allocate(lwVBin,lBin,nBin,Label='lwVBin')
+      Call mma_allocate(lwIBin,lBin,nBin,Label='lwIBin')
 *
       Call mma_allocate(lIndx,lBin,Label='lIndx')
       Call mma_allocate(lInts,lBin,Label='lInts')
