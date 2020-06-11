@@ -229,6 +229,5 @@
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit IndSft','CHECK','REAL',iDum,iDum)
       Return
       End

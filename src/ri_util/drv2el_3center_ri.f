@@ -45,7 +45,6 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use k2_arrays, only: FT, nFT
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"
@@ -115,9 +114,6 @@
       iPrint = nPrint(iRout)
 *
       If (iPrint.ge.6) Call CWTime(TC0,TW0)
-*
-      nFT=1
-      Call mma_allocate(FT,nFT,Label='FT')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -772,10 +768,6 @@ C      End Do    ! klS
      &                  '      CPU time :',TC0-TC1,' sec.',
      &                  '      Wall time:',TW0-TW1,' sec.'
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Allocated(FT)) Call mma_deallocate(FT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

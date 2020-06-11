@@ -30,8 +30,6 @@
 *
       iRout = 113
       iPrint = nPrint(iRout)
-*     Call qEnter('ZXia')
-*     Call GetMem(' Enter ZXia','CHECK','REAL',iDum,iDum)
       If (iPrint.ge.99) Then
          Call RecPrt(' Alpha',' ',Alpha,N,1)
          Call RecPrt(' Beta ',' ',Beta ,M,1)
@@ -46,8 +44,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt( ' In ZXia: Zeta',' ',Zeta,N,M)
       End If
-*     Call GetMem('Exit ZXia','CHECK','REAL',iDum,iDum)
 *
-*     Call qExit('ZXia')
       Return
       End

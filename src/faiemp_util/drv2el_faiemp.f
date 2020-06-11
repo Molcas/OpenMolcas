@@ -29,7 +29,7 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
-      use k2_arrays, only: FT, MxFT, pDq, pFq
+      use k2_arrays, only: pDq, pFq
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -182,10 +182,6 @@ c              ! position in fragment density matrix
       End Do
 #endif
       Call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
-*                                                                      *
-************************************************************************
-*                                                                      *
-         Call mma_allocate(FT,MxFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *

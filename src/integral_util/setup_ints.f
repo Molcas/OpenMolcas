@@ -138,6 +138,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (DoFock) Then
+         nFT=MxFT
+      Else
+         nFT=1
+      End If
+      Call mma_allocate(FT,MxFT,Label='FT')
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Precompute k2 entities
 *
       If (lSchw) Then

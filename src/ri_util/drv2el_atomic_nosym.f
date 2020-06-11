@@ -71,9 +71,6 @@
 *                                                                      *
 *     Temporary modifications to facilitate atomic calculations
 *
-      nFT = 1
-      Call mma_allocate(FT,nFT,Label='FT')
-*
       nIrrep_Save=nIrrep
       nIrrep=1
       Petite=.True.

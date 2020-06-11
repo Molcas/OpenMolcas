@@ -34,7 +34,6 @@
 *             Modified driver. Jan. '98                                *
 ************************************************************************
       use iSD_data
-      use k2_arrays, only: nFT, FT
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
 #include "itmax.fh"
@@ -74,9 +73,6 @@
       DoGrad=.False.
       FckNoClmb=.False.
       FckNoExch=.False.
-*
-      nFT = 1
-      Call mma_allocate(FT,nFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *
