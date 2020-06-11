@@ -49,7 +49,6 @@
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
-      Call RecPrt(' In RS_RFO: q',' ', q,nInter,1)
       Write (Lu,*) 'Trust radius=',StepMax
 *
       Write (Lu,*)

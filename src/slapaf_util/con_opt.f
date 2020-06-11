@@ -74,7 +74,6 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-*#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) '****************************************************'
@@ -687,15 +686,15 @@ C           Write (6,*) 'gBeta=',gBeta
 *              Otherwise decrease step direction.
                yBeta=Max(One/Ten,yBeta/Sf)
             End If
+*                                                                      *
+************************************************************************
+*                                                                      *
          Else
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *           Here in the case of kriging and restricted-variance
 *           optimization.
-*
-            iCount=1
-            iCount_Max=100
-            If (Step_Trunc.eq.'N') Step_Trunc=' '
-            Fact=One
 *
 *           We only need this for the last point.
 *
@@ -720,36 +719,40 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
 *
+            iCount=1
+            iCount_Max=100
+            If (Step_Trunc.eq.'N') Step_Trunc=' '
+            Fact=One
  666        Continue
-            du(1:nLambda)=(One/Fact)*dy(:)
-            du(1+nLambda:nInter)=Zero
-            Call Backtrans_K(T,du,dq_xy,nInter,1)
-            q(:,iIter+1)=q(:,iIter)+dq_xy(:)
+               du(1:nLambda)=(One/Fact)*dy(:)
+               du(1+nLambda:nInter)=Zero
+               Call Backtrans_K(T,du,dq_xy,nInter,1)
+               q(:,iIter+1)=q(:,iIter)+dq_xy(:)
 *
-            Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
+               Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
 *
-            If (iCount.eq.1) Then
-               Fact_long=Fact
-               dydy_long=dydy
-               Fact_short=Zero
-               dydy_short=dydy_long+One
-            End If
-#ifdef _DEBUG_
-            Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
-#endif
-            If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
-               If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
-               iCount=iCount+1
-               If (iCount.gt.iCount_Max) Then
-                  Write (6,*) 'iCount.gt.iCount_Max'
-                  Call Abend()
+               If (iCount.eq.1) Then
+                  Fact_long=Fact
+                  dydy_long=dydy
+                  Fact_short=Zero
+                  dydy_short=dydy_long+One
                End If
-               Call Find_RFO_Root(Fact_long,dydy_long,
-     &                            Fact_short,dydy_short,
-     &                            Fact,dydy,Beta_Disp_)
-               Step_Trunc='*'
-               Go To 666
-            End If
+#ifdef _DEBUG_
+               Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
+#endif
+               If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
+                  If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
+                  iCount=iCount+1
+                  If (iCount.gt.iCount_Max) Then
+                     Write (6,*) 'iCount.gt.iCount_Max'
+                     Call Abend()
+                  End If
+                  Call Find_RFO_Root(Fact_long,dydy_long,
+     &                               Fact_short,dydy_short,
+     &                               Fact,dydy,Beta_Disp_)
+                  Step_Trunc='*'
+                  Go To 666
+               End If
  667        Continue
             dy(:)=(One/Fact)*dy(:)
 #ifdef _DEBUG_
@@ -757,8 +760,13 @@ C           Write (6,*) 'gBeta=',gBeta
             Write (6,*) 'Final: dy(:)=',dy(:)
 #endif
 *
+*                                                                      *
+************************************************************************
+*                                                                      *
          End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        Twist for MEP optimizations.
 *
          If (iIter.eq.iOff_iter+1 .and. dydy.lt.1.0D-4
@@ -894,10 +902,9 @@ C           Write (6,*) 'gBeta=',gBeta
 *                                                                      *
 *----    Update dx
 *
-*        Set threshold depending on if restriction is w.r.t. step size
+*        Set threshold depending on if restriction is w.r.t. step-size
 *        or variance.
 *
-         fact=One
          If (iOpt_RS.eq.0) Then
             Beta_Disp_= 1.0D0 ! Dummy assign
          Else
@@ -908,16 +915,23 @@ C           Write (6,*) 'gBeta=',gBeta
 #ifdef _DEBUG_
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
 #endif
-            Beta_Disp_Min=1.0D-10
             tmp=0.0D0
             Do i = 1, nInter-nLambda
                tmp = Max(tmp,Abs(dEdx(i,iter_)))
             End Do
-            Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
+*           Add the allowed dispersion in the y subspace.
+            Beta_Disp_=Max(Beta_Disp_+tmp*Beta_Disp,
+     &                     Beta_Disp_Min)
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
 #endif
          End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- Compute updated geometry in internal coordinates
+*
+         fact=One
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
          tBeta= Min(1.0D3*GNrm,Beta)

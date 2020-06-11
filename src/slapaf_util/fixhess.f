@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine FixHess(H,nH,iOptC,Mode,Iter,MF,GNrm,
      &                   GNrm_Threshold, iNeg,nAtoms,AnalHess,
-     *                   Corrected)
+     &                   Corrected)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -25,6 +25,7 @@
       Call QEnter('FixHess')
 *
 #ifdef _DEBUG_
+      Write (6,*) 'AnalHess=',AnalHess
       Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
 #endif
 *

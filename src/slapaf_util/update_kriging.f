@@ -199,6 +199,8 @@
          If (Kriging_Hessian) Then
             Call Hessian_Kriging_Layer(qInt(1,iterAI),Hessian,nInter)
             Call Put_dArray('Hss_Q',Hessian,nInter**2)
+*           Make fixhess.f treat the Hessian as if it was analytic.
+            Call Put_iScalar('HessIter',iterAI)
          End If
 *                                                                      *
 ************************************************************************

@@ -37,119 +37,125 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
+#include "stdalloc.fh"
       Real*8 H(nInter,nInter), g(nInter), dq(nInter)
+      Real*8, Allocatable:: Val(:), Tmp(:,:), Vec(:,:), Mat(:)
 *
       Character*6 UpMeth
       Character*1 Step_Trunc
       Logical Found
 *
-*     Call QEnter('RS_I_RFO')
-      iRout = 215
       Lu =6
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
-         Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
-         Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
-      End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
+      Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
+      Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
+#endif
 *
       NumVal=Min(2,nInter)
       nVStep=2
       Found=.False.
       Thr=1.0D-6
-      Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
-      Call GetMem('Values','Allo','Real',ipVal,NumVal)
-      Call GetMem('Matrix','Allo','Real',ipMat,nInter*(nInter+1)/2)
-      Call DZero(Work(ipVec),NumVal*nInter)
+      Call mma_allocate(Vec,nInter,NumVal,Label='Vec')
+      Vec(:,:)=Zero
+      Call mma_allocate(Val,NumVal,Label='Val')
+      Val(:)=Zero
+      Call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
       Do i = 1, nInter
          Do j = 1, i
-            ij = i*(i-1)/2+j-1
-            Work(ipMat+ij)=H(i,j)
+            ij = i*(i-1)/2+j
+            Mat(ij)=H(i,j)
          End Do
       End Do
 *
 *---- Find the negative eigenvalue(s)
 *     Stop when the highest eigenvalue found is larger than Thr
       Do While (.Not.Found)
-        Call Davidson(Work(ipMat),nInter,NumVal,
-     &                Work(ipVal),Work(ipVec),iStatus)
+        Call Davidson(Mat,nInter,NumVal,Val,Vec,iStatus)
         If (iStatus.gt.0) Then
           Call SysWarnMsg('RS_I_RFO',
      &      'Davidson procedure did not converge','')
         End If
-        If ((Work(ipVal+NumVal-1).gt.Thr).or.(NumVal.ge.nInter)) Then
+        nNeg=0
+        Do i = 1, NumVal
+           If (Val(i).lt.Zero) nNeg=nNeg+1
+        End Do
+        If ( (Val(NumVal).gt.Thr .and. nNeg.gt.0) .or.
+     &      (NumVal.ge.nInter)
+     &     ) Then
           Found=.True.
         Else
 *----     Increase the number of eigenpairs to compute
-          Call Allocate_Work(ipTmp,NumVal*nInter)
-          call dcopy_(NumVal*nInter,Work(ipVec),1,Work(ipTmp),1)
-          Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
-          Call GetMem('Values','Free','Real',ipVal,NumVal)
+          Call mma_allocate(Tmp,nInter,NumVal,Label='Tmp')
+          call dcopy_(NumVal*nInter,Vec,1,Tmp,1)
+          Call mma_deallocate(Vec)
+          Call mma_deallocate(Val)
+*
           NumVal=Min(NumVal+nVStep,nInter)
-          Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
-          Call GetMem('Values','Allo','Real',ipVal,NumVal)
-         call dcopy_((NumVal-nVStep)*nInter,Work(ipTmp),1,Work(ipVec),1)
-          Call DZero(Work(ipVec+(NumVal-nVStep)*nInter),nVStep*nInter)
-          Call DZero(Work(ipVal),NumVal)
-          Call Free_Work(ipTmp)
+*
+          Call mma_allocate(Vec,nInter,NumVal,Label='Vec')
+          Call mma_allocate(Val,NumVal,Label='Val')
+          Vec(:,:)=Zero
+          Vec(:,1:NumVal-nVStep) = Tmp(:,:)
+          Val(:)=Zero
+          Call mma_deallocate(Tmp)
         End If
       End Do
-      Call GetMem('Matrix','Free','Real',ipMat,nInter*(nInter+1)/2)
+      Call mma_deallocate(Mat)
 *
       nNeg=0
       i=NumVal
       Do While ((i.ge.0).and.(nNeg.eq.0))
+         If (Val(i).lt.Zero) nNeg=i
          i=i-1
-         If (Work(ipVal+i).lt.Zero) nNeg=i+1
       End Do
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Work(ipVal),
-     &               1,NumVal)
-         Call RecPrt(' In RS_I_RFO: Eigenvectors',' ',Work(ipVec),
-     &               nInter,NumVal)
-         Write (Lu,*) ' nNeg=',nNeg
+      If (nNeg.eq.0) Then
+         Write (Lu,*) 'RS-I-RFO: nNeq.eq.0'
+         Call Abend()
       End If
+#ifdef _DEBUG_
+      Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
+      Call RecPrt(' In RS_I_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
+      Write (Lu,*) ' nNeg=',nNeg
+#endif
 *
 *     Transform the gradient and Hessian to generate the
 *     corresponding entities for the image function. This
 *     corresponds to an elementary Householder orthogonal
 *     transformation.
 *
-      Call Allocate_Work(ipTmp,nInter)
-      call dcopy_(nInter,g,1,Work(ipTmp),1)
+      Call mma_allocate(Tmp,nInter,1,Label='Tmp')
+      call dcopy_(nInter,g,1,Tmp(1,1),1)
 *
       Do iNeg=1,nNeg
-        iVec = ipVec+(iNeg-1)*nInter
-        gi = DDot_(nInter,g,1,Work(iVec),1)
-        Call DaXpY_(nInter,-Two*gi,Work(iVec),1,g,1)
-        Fact = Two * Work(ipVal+iNeg-1)
+        gi = DDot_(nInter,g,1,Vec(1,iNeg),1)
+        Call DaXpY_(nInter,-Two*gi,Vec(1,iNeg),1,g,1)
+        Fact = Two * Val(iNeg)
         Do j = 1, nInter
            Do i = 1, nInter
-              H(i,j) = H(i,j) - Fact * Work(iVec+i-1) * Work(iVec+j-1)
+              H(i,j) = H(i,j) - Fact * Vec(i,iNeg) * Vec(j,iNeg)
            End Do
         End Do
       End Do
 *
-      Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
-      Call GetMem('Values','Free','Real',ipVal,NumVal)
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(Val)
 *
       Call RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
      &            Thr_RS)
 *
 *     Restore the original gradient
 *
-      call dcopy_(nInter,Work(ipTmp),1,g,1)
-      Call Free_Work(ipTmp)
+      call dcopy_(nInter,Tmp(1,1),1,g,1)
+      Call mma_deallocate(Tmp)
 *
       UpMeth='RSIRFO'
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
-         Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
+      Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
+#endif
 *
-*     Call QExit('RS_I_RFO')
       Return
       End
