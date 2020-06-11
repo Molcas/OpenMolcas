@@ -41,7 +41,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use k2_arrays, only: FT, nFT, Sew_Scr
+      use k2_arrays, only: Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
