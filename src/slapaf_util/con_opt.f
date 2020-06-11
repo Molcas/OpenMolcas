@@ -74,6 +74,7 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) '****************************************************'
@@ -698,6 +699,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *           We only need this for the last point.
 *
+            Fact=One
             If (iIter.ne.nIter) Go to 667
 *
             tmp=0.0D0
@@ -722,7 +724,6 @@ C           Write (6,*) 'gBeta=',gBeta
             iCount=1
             iCount_Max=100
             If (Step_Trunc.eq.'N') Step_Trunc=' '
-            Fact=One
  666        Continue
                du(1:nLambda)=(One/Fact)*dy(:)
                du(1+nLambda:nInter)=Zero
