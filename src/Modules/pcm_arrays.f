@@ -8,12 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*
-*---- Stuff for Aces 2 read of Gamma file
-*
-      Logical                Gamma_On
-      Common /Logical_Aces2/ Gamma_On
-      Integer                LuGamma, ipG_Toc, ipSO2cI, ipBin, lBin,
-     &                       ipGamma, nGamma
-      Common /Integer_Aces2/ LuGamma, ipG_Toc, ipSO2cI, ipBin, lBin,
-     &                       ipGamma, nGamma
+      Module PCM_arrays
+      Integer nTiles
+      Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
+      End Module PCM_arrays

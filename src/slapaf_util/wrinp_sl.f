@@ -106,6 +106,10 @@
      &       '   Maximum dispersion accepted:     ',Beta_disp,
      &       ' * abs(g.max.comp)'
        Write (Lu,*)
+      Else
+       Write (Lu,*) '-RFO activated with parameters:'
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of data points used in RFO: ',nWndw
       End If
 *                                                                      *
 ************************************************************************

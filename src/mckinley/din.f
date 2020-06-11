@@ -12,11 +12,11 @@
 ************************************************************************
       SubRoutine DIN(Dens)
 *
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "pso.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"
       Real*8 Dens(nDens)
@@ -28,14 +28,14 @@
          nTemp2=Max(nTemp2,nBas(iIrr))
       End Do
       Call GetMem('Temp2','ALLO','REAL',ipTemp2,nTemp2**2)
-      ip=ipCMO
+      ip=1
       ipD=0
       Do iIrr=0,nIrrep-1
          If (nBas(iIrr).ne.0) Then
             Call DGEMM_('N','T',
      &                  nBas(iIrr),nBas(iIrr),nIsh(iIrr),
-     &                  1.0d0,Work(ip),nBas(iIrr),
-     &                  Work(ip),nBas(iIrr),
+     &                  1.0d0,CMO(ip,1),nBas(iIrr),
+     &                        CMO(ip,1),nBas(iIrr),
      &                  0.0d0,Work(ipTemp2),nBas(iIrr))
             Do iBas=1,nBas(iIrr)
                Do jBas=1,iBas-1

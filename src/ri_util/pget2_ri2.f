@@ -12,7 +12,8 @@
 ************************************************************************
       SubRoutine PGet2_RI2(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
-     &                  ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
+     &                  ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,
+     &                  nZ_p_k)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
@@ -34,12 +35,12 @@
 *             Modified to RI-DFT, March 2007                           *
 *                                                                      *
 ************************************************************************
+      use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
@@ -395,7 +396,7 @@
                         jpSOl=CumnnP2(j2)+(lSOl-1)*nnP(j2)
                         Do jp=1,nnP(j2)
                           temp2=temp2+sign(1.0d0,
-     &                          Work(ipDMdiag+CumnnP(j2)+jp-1))*
+     &                          DMdiag(CumnnP(j2)+jp,1))*
      &                          Z_p_K(jpSOj+jp,1)*Z_p_K(jpSOl+jp,1)
                         End Do
                         temp=temp+temp2
@@ -676,6 +677,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)
          Call Unused_logical(Shijij)
-         Call Unused_real(U_K)
       End If
       End

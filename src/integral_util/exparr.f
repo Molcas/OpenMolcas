@@ -35,8 +35,6 @@
       iPrint = nPrint(iRout)
       Call qEnter('ExpArr')
 *
-*     Write (*,'(I3)') nArray
-*     Write (*,'(60I3)') Ind
       Do 100 iArray = nArray, 1, -1
          jArray = Ind(iArray)
          If (jArray.le.0) Then
@@ -47,7 +45,6 @@
             call dcopy_(lArray,Array(1,jArray),1,Array(1,iArray),1)
          End If
  100  Continue
-*     Call GetMem(' Exit ExpArr','Check','Real',iDum,iDum)
       Call qExit('ExpArr')
       Return
       End

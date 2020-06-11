@@ -36,9 +36,9 @@
       iRout=136
       iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then
-         Call RecPrt(' In NewCar: q',' ',Work(ip_qInt),nInter,kIter+1)
-         Call RecPrt(' In NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
-         Call RecPrt(' In NewCar: Shift',' ',Shift,nInter,kIter)
+         Call RecPrt('NewCar: q',' ',Work(ip_qInt),nInter,kIter+1)
+         Call RecPrt('NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
+         Call RecPrt('NewCar: Shift',' ',Shift,nInter,kIter)
       End If
 *
 *-----Form the new set of symmetry distinct cartesian coordinates.

@@ -19,15 +19,12 @@
       Integer T_Status
       Integer Info_Status
       Integer ERI_Status
-      Integer DoFock_Status
       Integer Indexation_Status
-      Integer Ind0_Status
       Integer XMem_Status
       Integer NQ_Status
       Integer Seward_Status
       Common /Status_Fields/ k2_Status, RctFld_Status, GT_Status,
      &                       PP_Status, T_Status,
-     &                       Info_Status,
-     &                       ERI_Status, DoFock_Status,
-     &                       Indexation_Status,Ind0_Status,
+     &                       Info_Status, ERI_Status,
+     &                       Indexation_Status,
      &                       XMem_Status, NQ_Status, Seward_Status
