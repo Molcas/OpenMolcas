@@ -933,9 +933,10 @@ C           Write (6,*) 'gBeta=',gBeta
 *------- Compute updated geometry in internal coordinates
 *
          fact=One
-         GNrm=
-     &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
-         tBeta= Min(1.0D3*GNrm,Beta)
+C        GNrm=
+C    &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
+C        tBeta= Min(1.0D3*GNrm,Beta)
+         tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
          Thr_RS=1.0D-7
 #ifdef _DEBUG_
             Write (6,*) 'Step_Trunc(0)=',Step_Trunc
