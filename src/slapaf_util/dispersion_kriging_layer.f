@@ -7,12 +7,22 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      subroutine setmem_ints(ipt,mem)
-      implicit real*8 (a-h,o-z)
-#include "setup.fh"
-c
-      ipmem_int=ipt
-      MemMax_int=mem
-      return
-      end
+      Subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
+      Use Limbo
+      Implicit None
+#include "stdalloc.fh"
+      Integer nInter
+      Real*8 qInt(nInter), E_Disp
+      Real*8, Allocatable:: qInt_s(:)
+*
+      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
+*
+      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Dispersion_Kriging(qInt_s,E_Disp,nInter)
+*
+      Call mma_deallocate(qInt_s)
+*
+      End Subroutine Dispersion_Kriging_Layer

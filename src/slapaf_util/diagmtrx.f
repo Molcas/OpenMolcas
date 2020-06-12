@@ -72,7 +72,6 @@
 *
 *        Read linear combinations from disc
 *
-
          LuTmp=11
          call molcas_binaryopen_Vanilla(luTmp,filnam)
 c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
@@ -80,12 +79,6 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
          Read (LuTmp) nq,nQQ
 *
-         If (nQQ.ne.nH) then
-           Write (Lu,*)
-           Write (Lu,*) 'Eigenvalues of the Hessian'
-           Write (Lu,*)
-           Write (Lu,'(1X,10F10.5)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
-         EndIf
          If (nQQ.eq.nH) Then
 *
            Call GetMem('rK','Allo','Real',iprK,nq*nQQ)
@@ -99,6 +92,10 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
          Else
 *
+           Write (Lu,*)
+           Write (Lu,*) 'Eigenvalues of the Hessian'
+           Write (Lu,*)
+           Write (Lu,'(1X,10F10.5)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
            Write (Lu,*)
            Write (Lu,*) 'Eigenvectors of the Hessian'
            Write (Lu,*)

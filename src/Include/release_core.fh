@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* (c) 2020, Roland Lindh                                               *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
 *     Release unused core. This section should be the last section in
 *     this routine. DON'T MOVE IT!

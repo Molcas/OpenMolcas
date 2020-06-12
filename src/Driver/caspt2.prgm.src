@@ -14,28 +14,28 @@
 #include "choints.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
- (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
- (file)  JOBIPH  "$WorkDir/$Project$SubProject."JobIph  ro
- (file)  JOBMIX  "$WorkDir/$Project$SubProject."JobMix  ro
- (file)  LUHLF1  "$WorkDir/"purge.hlf1                  rw*p
- (file)  LUHLF2  "$WorkDir/"purge.hlf2                  rw*p
- (file)  LUHLF3  "$WorkDir/"purge.hlf3                  rw*p
- (file)  MOLINT  "$WorkDir/"purge.molint                rw*p
- (file)  DRARR   "$WorkDir/"purge.drarr                 rw*p
- (file)  DRARRT  "$WorkDir/"purge.drarrt                rw*p
- (file)  LUDMAT  "$WorkDir/"purge.dmat                  rw*p
- (file)  LUCIEX  "$WorkDir/"purge.ciex                  rwp
- (file)  LUSOLV  "$WorkDir/"purge.solv                  rw*p
- (file)  MOLONE  "$WorkDir/"purge.molone                rwp
- (file)  LUSBT   "$WorkDir/"purge.sbt                   rw*p
- (file)  RHS_01  "$WorkDir/"purge.rhs01                 rw*p
- (file)  RHS_02  "$WorkDir/"purge.rhs02                 rw*p
- (file)  RHS_03  "$WorkDir/"purge.rhs03                 rw*p
- (file)  RHS_04  "$WorkDir/"purge.rhs04                 rw*p
- (file)  RHS_05  "$WorkDir/"purge.rhs05                 rw*p
- (file)  RHS_06  "$WorkDir/"purge.rhs06                 rw*p
- (file)  ROT_HAM "$WorkDir/"H0_Rotate.txt               rw
- (file)  ROT_VEC "$WorkDir/"Do_Rotate.txt               rw
+ (file)  MPPROP   "$WorkDir/$Project."MpProp             rw
+ (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph  ro
+ (file)  JOBMIX   "$WorkDir/$Project$SubProject."JobMix  ro
+ (file)  LUHLF1   "$WorkDir/"purge.hlf1                  rw*p
+ (file)  LUHLF2   "$WorkDir/"purge.hlf2                  rw*p
+ (file)  LUHLF3   "$WorkDir/"purge.hlf3                  rw*p
+ (file)  MOLINT   "$WorkDir/"purge.molint                rw*p
+ (file)  DRARR    "$WorkDir/"purge.drarr                 rw*p
+ (file)  DRARRT   "$WorkDir/"purge.drarrt                rw*p
+ (file)  LUDMAT   "$WorkDir/"purge.dmat                  rw*p
+ (file)  LUCIEX   "$WorkDir/"purge.ciex                  rwp
+ (file)  LUSOLV   "$WorkDir/"purge.solv                  rw*p
+ (file)  MOLONE   "$WorkDir/"purge.molone                rwp
+ (file)  LUSBT    "$WorkDir/"purge.sbt                   rw*p
+ (file)  RHS_01   "$WorkDir/"purge.rhs01                 rw*p
+ (file)  RHS_02   "$WorkDir/"purge.rhs02                 rw*p
+ (file)  RHS_03   "$WorkDir/"purge.rhs03                 rw*p
+ (file)  RHS_04   "$WorkDir/"purge.rhs04                 rw*p
+ (file)  RHS_05   "$WorkDir/"purge.rhs05                 rw*p
+ (file)  RHS_06   "$WorkDir/"purge.rhs06                 rw*p
+ (file)  ROT_HAM  "$WorkDir/"H0_Rotate.txt               rw
+ (file)  ROT_VEC  "$WorkDir/"Do_Rotate.txt               rw
 #include "moldenfiles.inc"
 #include "espffiles.inc"
 #include "rysfiles.inc"

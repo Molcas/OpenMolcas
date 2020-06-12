@@ -1491,13 +1491,10 @@ C                          Thrs= 1.0D-12
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(DInf)
-         Call Unused_integer(nDInf)
-      End If
-*
       Call qExit('Mk_aCD_acCD_Shells')
       Call Gen_RelPointers(-(Info-1))
       Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_real_array(DInf)
+*
       End

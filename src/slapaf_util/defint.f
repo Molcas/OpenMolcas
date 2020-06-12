@@ -57,7 +57,6 @@
       lErr = .False.
       iRout = 30
       iPrint = nPrint(iRout)
-      iPrint=99
       If (iPrint.ge.6) lWrite = .True.
       Call qEnter('DefInt')
       Do i = 1, 6*nAtom

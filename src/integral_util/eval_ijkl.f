@@ -67,7 +67,6 @@
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
-*              GetMem                                                  *
 *              Int_Setup                                               *
 *              Dens_Info                                               *
 *              MemRys                                                  *
@@ -88,6 +87,7 @@
 *             Total rehack May '99                                     *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
@@ -111,8 +111,8 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
-#include "k2.fh"
 #include "setup.fh"
 #include "status.fh"
 *
@@ -189,15 +189,16 @@
 *                                                                      *
 *     If memory not allocated already at this point allocate!          *
 *                                                                      *
-      If (MemMax_int.eq.0) Then
-        Call GetMem('MaxMem','Max','Real',iDum,MemMax)
-        Call GetMem('MaxMem','Allo','Real',ipMem1,MemMax)
-        MemMax_int=MemMax
-        ipMem_int =ipMem1
+      If (.Not.Allocated(Sew_Scr)) Then
+C        Write (*,*) 'Eval_ints: Allocate memory'
+         Call mma_MaxDBLE(MemMax)
+         Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       Else
-        MemMax=MemMax_int
-        ipMem1=ipMem_int
+C        Write (*,*) 'Eval_ints: Memory already allocated'
+         MemMax=SIZE(Sew_Scr)
       End If
+C     Write (*,*) 'Eval_ints: MemMax=',MemMax
+      ipMem1=1
 *
       Map4(1)=1
       Map4(2)=2
@@ -283,7 +284,6 @@
      &             iShelV(1),iShelV(2),iShelV(3),iShelV(4))
       If (nSO.eq.0) Then
         Return
-*       Call GetMem('0Exit_DrvTwo0','Check','Real',iDum,iDum)
       End If
       If (.Not.DoIntegrals) nSO = 0
 *
@@ -408,7 +408,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
-     &                     mDCRij,ipDij,ipDDij,mDij,nIrrep)
+     &                     mDCRij,ipDij,ipDDij,mDij,nIrrep,
+     &                     DeDe,nDeDe)
             End If
 *
             Do kBasAO = 1, kBask, kBsInc
@@ -419,14 +420,16 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
-     &                        mDCRik,ipDik,ipDDik,mDik,nIrrep)
+     &                        mDCRik,ipDik,ipDDik,mDik,nIrrep,
+     &                        DeDe,nDeDe)
                End If
 *
                If (DoFock) Then
                   Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
-     &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep)
+     &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep,
+     &                        DeDe,nDeDe)
                End If
 *
                 Do lBasAO = 1, lBasl, lBsInc
@@ -437,21 +440,24 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                       Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
-     &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep)
+     &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep,
+     &                            DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
-     &                            mDCRil,ipDil,ipDDil,mDil,nIrrep)
+     &                            mDCRil,ipDil,ipDDil,mDil,nIrrep,
+     &                            DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
-     &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep)
+     &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep,
+     &                            DeDe,nDeDe)
                    End If
 *                                                                      *
 ************************************************************************
@@ -471,19 +477,21 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            Data_k2(k2ij),mData1,nDCRR,
      *                            Data_k2(k2kl),mData2,nDCRS,
      &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            Work(ipDDij),mDij,mDCRij,
-     &                            Work(ipDDkl),mDkl,mDCRkl,
-     & Work(ipDDik),mDik,mDCRik,Work(ipDDil),mDil,mDCRil,Work(ipDDjk),
-     & mDjk,mDCRjk, Work(ipDDjl),mDjl,mDCRjl,Fock,Dens,lDens,
-     &                            Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
+     &                            DeDe(ipDDij),mDij,mDCRij,
+     &                            DeDe(ipDDkl),mDkl,mDCRkl,
+     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
+     & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
+     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
      &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, Work(ipFT),nFT,
-     &Work(ipZeta),Work(ipZI),iWork(ipiZet),Work(ipKab),Work(ipP),nZeta,
-     &Work(ipEta), Work(ipEI),iWork(ipiEta),Work(ipKcd),Work(ipQ),nEta,
-     & Work(ipMem1),nSO,Work(ipMem2),Mem2,
+     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
+     & Mem_DBLE(ipP),nZeta,
+     & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
+     & Mem_DBLE(ipQ),nEta,
+     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   Else
@@ -500,19 +508,21 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            Data_k2(k2ij),mData1,nDCRR,
      &                            Data_k2(k2kl),mData2,nDCRS,
      &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
-     &                            Work(ipDDij),mDij,mDCRij,
-     &                            Work(ipDDkl),mDkl,mDCRkl,
-     & Work(ipDDik),mDik,mDCRik,Work(ipDDil),mDil,mDCRil,Work(ipDDjk),
-     & mDjk,mDCRjk, Work(ipDDjl),mDjl,mDCRjl,Fock,Dens,lDens,
-     &                            Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
+     &                            DeDe(ipDDij),mDij,mDCRij,
+     &                            DeDe(ipDDkl),mDkl,mDCRkl,
+     & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
+     & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
+     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
      &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, Work(ipFT),nFT,
-     &Work(ipZeta),Work(ipZI),iWork(ipiZet),Work(ipKab),Work(ipP),nZeta,
-     &Work(ipEta), Work(ipEI),iWork(ipiEta),Work(ipKcd),Work(ipQ),nEta,
-     & Work(ipMem1),nSO,Work(ipMem2),Mem2,
+     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
+     & Mem_DBLE(ipP),nZeta,
+     & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
+     & Mem_DBLE(ipQ),nEta,
+     & Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Aux,nAux,
      & ExFac(1))
 *
                   End If
@@ -532,13 +542,15 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                         ip=ipMem1
                      End If
                      Tmax=max(Tmax,
-     &                        abs(Work(ip+iDAMax_(n,Work(ip),1)-1)))
+     &                        abs(Sew_Scr(ip+
+     &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
                         Call Integ_Proc(iCmpV,iShelV,Map4,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
-     &                                  Work(ipMem2),Work(ipMem1),nSO,
-     &                                  iWork(ipiSOSym),mSkal,nSOs,
+     &                                  Sew_Scr(ipMem2),
+     &                                  Sew_Scr(ipMem1),nSO,
+     &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
      &                                  nShi,nShj,nShk,nShl,
