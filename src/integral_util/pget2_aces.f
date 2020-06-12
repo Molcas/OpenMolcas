@@ -38,12 +38,12 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 ************ columbus interface ****************************************
@@ -75,8 +75,8 @@
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh
          iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,[ipD0],Work)
-         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
+         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
       End If
 #endif
       lOper = 1

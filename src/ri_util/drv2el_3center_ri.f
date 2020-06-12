@@ -53,6 +53,7 @@
 #include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 *
 #include "lRI.fh"

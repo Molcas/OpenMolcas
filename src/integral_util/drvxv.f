@@ -16,7 +16,6 @@
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nq_info.fh"
 #include "debug.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2)

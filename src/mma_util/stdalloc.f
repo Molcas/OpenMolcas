@@ -58,6 +58,22 @@
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
 
+      subroutine mma_maxDBLE(mma_avail)
+        implicit none
+#include "SysDef.fh"
+        integer, intent(out) :: mma_avail
+        integer, external :: mma_avmem
+        mma_avail = mma_avmem()/RtoB
+      end subroutine
+
+      subroutine mma_maxINT(mma_avail)
+        implicit none
+#include "SysDef.fh"
+        integer, intent(out) :: mma_avail
+        integer, external :: mma_avmem
+        mma_avail = mma_avmem()/ItoB
+      end subroutine
+
       subroutine mma_maxbytes(mma_avail)
         implicit none
         integer, intent(out) :: mma_avail

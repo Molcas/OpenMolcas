@@ -316,6 +316,7 @@
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work2')
+            Write (6,*) Mem0
             Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,
      &                  jPrInc,jBsInc,lPrInc,lBsInc
             Call Abend()

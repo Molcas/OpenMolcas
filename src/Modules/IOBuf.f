@@ -19,6 +19,8 @@
 *     iDiskMx : Max disk space -1 in units of Byte                    *
 *                                                                     *
 *---------------------------------------------------------------------*
+      Module IOBUF
+*
       Real*8 DiskMx_MByte, DiskMx_Byte
       Parameter ( lDaRec  = 2**10        ) ! 1024
       Parameter ( nSect   = 2**5         ) ! 32
@@ -32,6 +34,6 @@ C     Parameter ( DiskMx_Byte =2.0D00**31)
       Integer iPos, LuTmp, iStatIO, id, iBuf, ipBuf, nBuf, lBuf
       Real*8 Disk, Disk_1, Disk_2
       Logical IODone,InCore,OnDisk
-      Common /rIOBuf/ Disk, Disk_1, Disk_2, DiskMx_Byte, DiskMx_MByte
-      Common /iIOBuf/ iPos, LuTmp, iStatIO, id, iBuf,ipBuf,nBuf,lBuf
-      Common /lIOBuf/ IODone,InCore,OnDisk
+      Real*8, Allocatable:: Buffer(:,:)
+*
+      End Module IOBUF

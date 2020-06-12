@@ -16,9 +16,9 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                     nWndw,Mode,ipMF,
+     &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen)
@@ -55,7 +55,7 @@
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      rLambda        : vector for Lagrange multipliers                *
-*      ipCx           : pointer to cartesian coordinates               *
+*      Cx             : pointer to cartesian coordinates               *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
 *      nLabels        : length of Labels                               *
@@ -86,7 +86,8 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom)
+     &       dMass(nsAtom), Degen(3*nsAtom), MF(3*nsAtom),
+     &       Cx(3*nsAtom,MaxItr+1)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -94,6 +95,8 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+      Real*8 Dummy(1)
+      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:)
 *
       Logical Kriging_Hessian
 *
@@ -111,12 +114,15 @@
 *
       iOpt_RS=0
       Kriging_Hessian =.FALSE.
+      qBeta=Beta
+      qBeta_Disp=Beta_Disp
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Select between numerical evaluation of the Hessian or a molcular
 *     geometry optimization.
 *
+      Step_Trunc=' '
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *                                                                      *
 ************************************************************************
@@ -127,35 +133,34 @@
 *
          If (iPrint.ge.99) Write(6,*)'UpDate_SL: first iteration'
          iter_=1
-         Call GetMem('t_Shift','Allo','Real',iptmp1,nInter*iter_)
-         Call GetMem('t_qInt ','Allo','Real',iptmp2,nInter*(iter_+1))
+         Call mma_Allocate(t_Shift,nInter,iter_,Label='t_Shift')
+         Call mma_Allocate(t_qInt,nInter,iter_+1,Label='t_qInt')
 *
-         call dcopy_(nInter,qInt,1,Work(iptmp2),1)
+         t_qInt(:,1)=qInt(:,1)
 *
-         Call Update_sl_(iter_,iInt,nFix,nInter,Work(iptmp2),
-     &                   Work(iptmp1),Grad,iOptC,Beta,Beta_Disp,
+         Call Update_sl_(iter_,iInt,nFix,nInter,t_qInt,
+     &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,nSym,
      &                   iOper,mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                   rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                   rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                   nWndw,Mode,ipMF,
+     &                   nWndw,Mode,MF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,iOpt_RS)
+     &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
+     &                   qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
 *
-         iOffq=iptmp2+nInter
-         call dcopy_(nInter,Work(iOffq),1,qInt(1,iter+1),1)
-         call dcopy_(nInter,Work(iOffq),1,Shift(1,iter),1)
-         Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
+         qInt(:,iter+1)=t_qInt(:,2)
+         Shift(:,iter)=t_qInt(:,2)-qInt(:,iter)
 *
-         Call GetMem('t_qInt ','Free','Real',iptmp2,nInter*(iter_+1))
-         Call GetMem('t_Shift','Free','Real',iptmp1,nInter*iter_)
+         Call mma_deallocate(t_qInt)
+         Call mma_deallocate(t_Shift)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -169,13 +174,14 @@
      &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                nStab,BMx,Smmtrc,nDimBC,rLambda,Cx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
-     &                nWndw,Mode,ipMF,
+     &                nWndw,Mode,MF,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,iOpt_RS)
+     &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
+     &                qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -196,8 +202,9 @@
       End If
 *
 *---- Remove unneeded fields from the runfile
-      Call Put_dArray('BMxOld',Work(ip_Dummy),0)
-      Call Put_dArray('TROld',Work(ip_Dummy),0)
+      Dummy(1)=-Zero
+      Call Put_dArray('BMxOld',Dummy(1),0)
+      Call Put_dArray('TROld',Dummy(1),0)
 *
       Call QExit('Update')
       Return

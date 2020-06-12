@@ -10,12 +10,9 @@
 ************************************************************************
       Subroutine WLBuf
       Use dEAF
+      Use IOBUF
       Implicit Real*8 (a-h,o-z)
-#include "IOBuf.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
-*
-      jpBuf(i,j)=(j-1)*lBuf+i-1+ipBuf
 *
       If (iStatIO.eq.Mode_Read) Then
 *        Write (6,*) 'In WLbuf'
@@ -44,7 +41,7 @@ c     Disk_Save=Disk
             Disk_1 = Disk
 *           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
 c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-            If (OnDisk) Call dEAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
+            If (OnDisk) Call dEAFWrite(LuTmp,Buffer(1,iBuf),
      &                                lBuf*RtoI,Disk)
 *---------- Put a dummy record at the end
             temp=Disk+DBLE(lBuf*RtoB)
@@ -52,8 +49,8 @@ c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
             If (temp.le.DiskMx_Byte.and.OnDisk) Then
 c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
                Zero=0.0D0
-               Call dCopy_(lBuf,[Zero],0,Work(jpBuf(1,iBuf)),1)
-               Call dEAFWrite(LuTmp,Work(jpBuf(1,iBuf)),lBuf*RtoI,Disk)
+               Call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
+               Call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
             End If
          Else
             Call WarningMessage(2,'WLBuf: Disc is full!')

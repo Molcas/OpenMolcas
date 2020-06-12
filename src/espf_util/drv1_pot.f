@@ -388,13 +388,13 @@ c----------------------------------------------------------------------
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 ************************************************************************
+      use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "k2.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 

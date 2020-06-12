@@ -53,8 +53,8 @@
 #include "rctfld.fh"
 #include "file.fh"
 *
-      Real*8 Dens(nDT,nD,NumDT),OneHam(nDT)
-      Real*8, Dimension(:,:,:), Target:: TwoHam(nDT,nD,NumDT)
+      Real*8, Target:: Dens(nDT,nD,NumDT), TwoHam(nDT,nD,NumDT)
+      Real*8 OneHam(nDT)
       Real*8 XCf(nXCf,nD), E_DFT(nE_DFT), Vxc(nDT,nD,NumDT)
       Real*8 Fock(nDT,nD)
       Logical FstItr, NoCoul
@@ -74,11 +74,23 @@
       Data First /.true./
       Save First
       Real*8, Dimension(:), Allocatable:: RFfld, D
-      Real*8, Dimension(:,:), Allocatable:: DnsS, Temp
+      Real*8, Dimension(:,:), Allocatable:: DnsS
+      Real*8, Allocatable, Target:: Temp(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Dimension Dummy(1),iDummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
+*
+      Interface
+        SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,
+     &                         FstItr,NoCoul,ExFac)
+        Integer nDens, nDisc
+        Real*8, Target:: Dens(nDens), TwoHam(nDens)
+        Real*8 Thize, ExFac
+        Logical NoCoul,NoExch
+        Logical FstItr, PreSch
+        End Subroutine Drv2El_dscf
+      End Interface
 
 *
 *----------------------------------------------------------------------*

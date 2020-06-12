@@ -12,10 +12,10 @@
 ************************************************************************
       SubRoutine DAN(Dens)
 *
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "pso.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"
       Real*8 Dens(nDens)
@@ -23,11 +23,10 @@
 *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
-      ip=ipcmo
       ipD=0
       nnA=0
       ndenssq=0
-      ipCC=0
+      ipCC=1
       Do i=0,nIrrep-1
          nDenssq=ndenssq+nBas(i)**2
          nA(i)=nnA
@@ -47,22 +46,22 @@
                iiB=nA(iS)+iB
                Do jB=1,nAsh(iS)
                   jjB=nA(iS)+jB
-                  ijB=ipG1+iTri(iiB,jjB)-1
+                  ijB=iTri(iiB,jjB)
                   ip1=ipTemp1+
      &                nBas(iS)*(nISh(iS)+iB-1)+nIsh(is)+jb -1
-                  Work(ip1)=Work(ijB)
+                  Work(ip1)=G1(ijB,1)
                End Do
             End Do
 *
             Call DGEMM_('N','N',
      &                  nBas(is),nBas(is),nBas(is),
-     &                  1.0d0,Work(ipCMO+ipCM(iS)),nBas(is),
+     &                  1.0d0,CMO(ipCM(iS),1),nBas(is),
      &                  Work(ipTemp1),nBas(is),
      &                  0.0d0,Work(ipUrk),nBas(is))
             Call DGEMM_('N','T',
      &                  nBas(is),nBas(is),nBas(is),
      &                  1.0d0,Work(ipUrk),nBas(is),
-     &                  Work(ipCMO+ipCM(is)),nBas(is),
+     &                  CMO(ipCM(is),1),nBas(is),
      &                  0.0d0,Work(ipTemp2),nBas(is))
 *
             Do iBas=1,nBas(iS)

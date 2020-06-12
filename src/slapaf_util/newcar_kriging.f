@@ -11,7 +11,7 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
-     &                          dMass,Lbl,kShift,qInt,dqInt,Name,Cx,U,
+     &                          dMass,Lbl,kShift,qInt,dqInt,Name,Cx,
      &                          SaveBMx,RefIter)
       Implicit None
 #include "info_slapaf.fh"
@@ -21,11 +21,10 @@
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
       Real*8 :: BMx(3*nAtom,nInter),dMass(nAtom),kShift(nInter,kIter),
      &          qInt(nInter,MaxItr),dqInt(nInter,MaxItr),
-     &          Cx(3*nAtom,kIter+1),U(nInter,nInter)
+     &          Cx(3*nAtom,kIter+1)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
-      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:),
-     &                       qInt_bck(:,:),kShift_bck(:,:)
+      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:)
       Integer :: ipBMx,ip_qInt,ip_dqInt,ipShift
       Logical :: Numerical,PrQ,SaveBMx
       Integer, External :: ip_of_Work
@@ -33,17 +32,10 @@
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
       Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
 *
-      Call mma_allocate(qInt_bck,nInter,2,Label='qInt_bck')
-      Call BackTrans_K(U,qInt(1,kIter),qInt_bck(1,1),nInter,2)
-      Call dSwap_(nInter*2,qInt(1,kIter),1,qInt_bck(1,1),1)
       ip_qInt=ip_of_Work(qInt(1,1))
-*
-      Call mma_allocate(kShift_bck,nInter,1,Label='kShift_bck')
-      Call BackTrans_K(U,kShift(1,kIter),kShift_bck(1,1),nInter,1)
-      Call dSwap_(nInter,kShift(1,kIter),1,kShift_bck(1,1),1)
-*
       ip_dqInt=ip_of_Work(dqInt(1,1))
       ipShift=ip_of_Work(kShift(1,1))
+*
       Numerical=.False.
       PrQ=.False.
 *
@@ -51,23 +43,20 @@
       Call mma_allocate(dss,nInter,Label='dss')
       Call mma_allocate(qTemp,nInter,Label='qTemp')
       Force_dB=SaveBMx
+*
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Work(ipCoor),
      &            ipBMx,dMass,Lbl,kShift,ip_qInt,ip_dqInt,DFC,dss,
      &            qTemp,Name,iOper,nSym,iSym,Smmtrc,Degen,
      &            Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
-*    &            DDV_Schlegel,HWRS,.True.,iOptC,PrQ,mxdc,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,
      &            RefIter)
+*
       Force_dB=.False.
-      Call dSwap_(nInter*2,qInt(1,kIter),1,qInt_bck(1,1),1)
-      Call dSwap_(nInter,kShift(1,kIter),1,kShift_bck(1,1),1)
       Call mma_deallocate(DFC)
       Call mma_deallocate(dss)
       Call mma_deallocate(qTemp)
-      Call mma_deallocate(qInt_bck)
-      Call mma_deallocate(kShift_bck)
       If (SaveBMx) Call dCopy_((3*nAtom)*nInter,Work(ipBMx),1,BMx,1)
       Call GetMem('BMx','FREE','REAL',ipBMx,(3*nAtom)**2)
 *

@@ -90,13 +90,12 @@
 *|      |               |       |integrals      |               |          |
 *---------------------------------------------------------------------------
 *
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-c#include "print.fh"
 #include "pstat.fh"
-#include "pso.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
