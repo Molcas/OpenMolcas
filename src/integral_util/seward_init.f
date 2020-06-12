@@ -20,6 +20,7 @@
 *             January '90                                              *
 ************************************************************************
       use EFP_Module
+      use k2_arrays
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -30,7 +31,6 @@
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
-#include "k2.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "relae.fh"
@@ -333,9 +333,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       RctFld_Status=InActive
       Info_Status=InActive
       ERI_Status=InActive
-      DoFock_Status=Inactive
       Indexation_Status=Inactive
-      Ind0_Status=Inactive
       XMem_Status=Inactive
       NQ_Status=Inactive
       Seward_Status=Active

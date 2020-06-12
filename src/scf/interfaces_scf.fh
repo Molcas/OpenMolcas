@@ -32,7 +32,8 @@
       SubRoutine PMat_SCF(Dens,OneHam,TwoHam,nDT,NumDT,nXCf,FstItr,XCf,
      &                    nD,E_DFT,nE_DFT,Vxc,Fock)
         Integer :: nDT,NumDT,nXCf,nD,nE_DFT
-        Real*8 :: Dens(nDT,nD,NumDT),OneHam(nDT),XCf(nXCf,nD),
+        Real*8, Target :: Dens(nDT,nD,NumDT)
+        Real*8 :: OneHam(nDT),XCf(nXCf,nD),
      &            E_DFT(nE_DFT),Vxc(nDT,nD,NumDT),Fock(nDT,nD)
         Real*8, Target :: TwoHam(nDT,nD,NumDT)
         Logical :: FstItr

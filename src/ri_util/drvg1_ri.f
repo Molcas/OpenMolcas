@@ -21,16 +21,17 @@
 *             January '07                                              *
 *                                                                      *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "para_info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -44,6 +45,7 @@
       Character*8 Method
       Logical Found
       Integer nAct(0:7)
+      Real*8, Allocatable:: V_k_new(:,:), U_k_new(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -171,17 +173,18 @@
            n_Txy=n_Txy+ntmp**2
            mAO=mAO+nAct(ijsym)*nBas(ijsym)
          EndDo
-         Call GetMem('Txy','Allo','Real',ip_Txy,n_Txy*nAdens)
-         Call GetMem('DM2diag','Allo','Real',ipDMdiag,nG1*nAdens)
+         m_Txy=nAdens
+         Call mma_allocate(Txy,n_Txy,nAdens,Label='Txy')
+         Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
          Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
          Call iZero(nnP,nIrrep)
-         Call Compute_txy(Work(ipG2),Work(ipG1),nG1,Work(ip_Txy),
-     &                   n_Txy,nAdens,nIrrep,Work(ipDMdiag),
+         Call Compute_txy(G1(1,1),nG1,Txy,
+     &                   n_Txy,nAdens,nIrrep,DMdiag,
      &                   Work(ipDMtmp),nAct)
          Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
       Else
-         ip_Txy=ip_Dummy
-         ipDMdiag=ip_Dummy
+         Call mma_allocate(Txy,1,1,Label='Txy')
+         Call mma_allocate(DMdiag,1,1,Label='DMdiag')
       EndIf
       n_ij2K=0
       nZ_p_k=0
@@ -196,12 +199,11 @@
       End Do
       If (Do_RI) nZ_p_k=nZ_p_k-nnP(0)
       If (lPSO) Then
-         Call GetMem('Z_p_k','Allo','Real',ip_Z_p_k,nZ_p_k*nAvec)
-         Call FZero(Work(ip_Z_p_k),nZ_p_k*nAvec)
+         Call mma_allocate(Z_p_k,nZ_p_k,nAvec,Label='Z_p_k')
+         Z_p_k(:,:)=Zero
       Else
-         ip_Z_p_k=ip_Dummy
+         Call mma_allocate(Z_p_k,1,1,Label='Z_p_k')
       EndIf
-      ip_Thpkl=ip_Dummy
 *
 *     Preprocess the RI and Q vectors as follows
 *
@@ -216,13 +218,13 @@
       End Do
 *
 *
-      Call GetMem('V_k','Allo','Real',ip_V_k,nV_k*nJdens)
-      Call FZero(Work(ip_V_k),nV_k*nJdens)
+      call mma_allocate(V_K,nV_k,nJdens,Label='V_k')
+      V_k(:,:)=Zero
       If(iMp2prpt .eq. 2) Then
-         Call GetMem('U_k','Allo','Real',ip_U_k,nV_k)
-         Call FZero(Work(ip_U_k),nV_k)
+         call mma_allocate(U_K,nV_k,Label='U_k')
+         U_k(:)=Zero
       Else
-         ip_U_k = ip_Dummy
+         call mma_allocate(U_K,1,Label='U_k')
       End If
 *                    ~
 *     1) Compute the V_k vector
@@ -239,8 +241,8 @@
       iWork(iZk+myRank) = nZ_p_l*nAvec
       Call GAIGOP(iWork(iVk),nProcs,'+')
       Call GAIGOP(iWork(iZk),nProcs,'+')
-      iStart=ip_V_k
-      jStart=ip_Z_p_k
+      iStart=1
+      jStart=1
       Do j=0,nProcs-1
          itmp=iWork(iVk+j)
          iWork(iVk+j)=iStart
@@ -255,7 +257,7 @@
          Call IZero(iWork(iUk),nProcs)
          iWork(iUk+myRank) = NumCho(1)
          Call GAIGOP(iWork(iUk),nProcs,'+')
-         kStart=ip_U_k
+         kStart=1
          Do j = 0,nProcs-1
             kTmp=iWork(iUk+j)
             iWork(iUk+j)=kStart
@@ -276,17 +278,15 @@
 *              Map from Cholesky auxiliary basis to the full
 *              1-center valence product basis.
 *
-         Call GetMem('ij2K','Allo','INTE',ip_ij2K,n_ij2K)
-         Call IZero(iWork(ip_ij2K),n_ij2K)
+         Call mma_allocate(ij2K,n_ij2K,Label='ij2K')
+         ij2K(:)=0
          nV_k_New=nBas(0)*(nBas(0)+1)/2
-         Call GetMem('V_k_New','Allo','Real',ip_V_k_New,nV_k_New*nJdens)
-         Call FZero(Work(ip_V_k_New),nV_k_New*nJdens)
+         Call mma_allocate(V_k_new,nV_k_New,nJdens,Label="V_k_new")
+         V_k_new(:,:)=Zero
 *
-         If(iMp2prpt .eq. 2) Then
-            Call GetMem('U_k_New','Allo','Real',ip_U_k_New,nV_k_New)
-            Call FZero(Work(ip_U_k_New),nV_k_New)
-         Else
-            ip_U_k_New = ip_Dummy
+         If (iMp2prpt .eq. 2) Then
+            Call mma_allocate(U_k_new,nV_k_New,Label="U_k_new")
+            U_k_new(:)=Zero
          End If
 
 *
@@ -298,28 +298,34 @@
             Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
-               Call ReMap_U_k(Work(ip_U_k),nV_k,
-     &              Work(ip_U_k_New),nV_k_New,
-     &              iWork(ipSO_ab))
+               Call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,
+     &                        iWork(ipSO_ab))
             End If
-            iOff_ij2K(iSym) = iOff_ij2K(iSym) + ip_ij2K - 1
+            m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
-              Call ReMap_V_k(iSym,Work(ip_V_k+i*NumCho(1)),nV_k,
-     &                     Work(ip_V_k_New+i*nV_k_New),nV_k_New,
-     &                     iWork(ipSO_ab+iOff),iWork(iOff_ij2K(iSym)+1))
+              Call ReMap_V_k(iSym,V_k(1,1+i),nV_k,
+     &                     V_k_new(1,1+i),nV_k_New,
+     &                     iWork(ipSO_ab+iOff),ij2K(iOff_ij2K(iSym)+1),
+     &                     m_ij2K)
             EndDo
             iOff = iOff + 2*nBas_Aux(iSym-1)
          End Do
+*
+         nV_k=nV_k_new
+*
          Call Free_iWork(ipSO_ab)
-         Call Free_Work(ip_V_k)
-         ip_V_k=ip_V_k_New
+         Call mma_deallocate(V_k)
+         Call mma_allocate(V_k,nV_k,nJdens,Label='V_k')
+         V_k(:,:)=V_k_new(:,:)
+         Call mma_deallocate(V_k_new)
 
          If(iMp2prpt .eq. 2) Then
-            Call Free_Work(ip_U_k)
-            ip_U_k=ip_U_k_New
+            Call mma_deallocate(U_k)
+            Call mma_allocate(U_k,nV_k,Label='U_k')
+            U_k(:)=U_k_new(:)
+            Call mma_deallocate(U_k_new)
          End If
 
-         nV_k  =nV_k_New
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -394,10 +400,8 @@
      &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
       Call DaXpY_(nGrad,Two,Work(ipTemp),1,Temp,1)
       Case_3C=.False.
-      If (lPSO) Then
-        Call GetMem('Txy','Free','Real',ip_Txy,n_Txy)
-        Call GetMem('DM2diag','Free','Real',ipDMdiag,nG1*nAdens)
-      EndIf
+      If(Allocated(Txy))  Call mma_deallocate(Txy)
+      If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
       Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
 *                                                                      *
 ************************************************************************
@@ -420,17 +424,15 @@
 
       If (Cholesky.and..Not.Do_RI) Then
          Call Free_iWork(ip_ij2)
-         Call Free_iWork(ip_ij2K)
+         Call mma_deallocate(ij2K)
       End If
       Call CloseP
       Call Free_iWork(iZk)
       Call Free_iWork(iVk)
-      if (lPSO) Call Free_Work(ip_Z_p_k)
-      Call Free_Work(ip_V_k)
-      If(iMp2prpt .eq. 2) Then
-         Call Free_iWork(iUk)
-         Call Free_Work(ip_U_k)
-      End If
+      If(iMp2prpt .eq. 2) Call Free_iWork(iUk)
+      If (Allocated(Z_p_k)) Call mma_deallocate(Z_p_k)
+      If (Allocated(V_k)) Call mma_deallocate(V_k)
+      If (Allocated(U_k)) Call mma_deallocate(U_k)
       Call Cho_X_Final(irc)
       If (irc.ne.0) Then
          Call WarningMessage(2,' Drvg1_RI: Cho_X_Final failed')

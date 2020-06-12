@@ -11,8 +11,9 @@
 * Copyright (C) 1990-1992, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,mDeDe,
-     &                mIndij,Special_NoSym,DFT_Storage,DInf,nDInf)
+      SubRoutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,
+     &                   mDeDe,mIndij,Special_NoSym,DFT_Storage,
+     &                   DInf,nDInf,DeDe,nDeDe)
 ************************************************************************
 *                                                                      *
 * Object: to decontract, desymmetrize the 1st order density matrix.    *
@@ -58,13 +59,12 @@
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 DInf(*)
+      Real*8 DInf(*), DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)
       Character ChOper(0:7)*3
@@ -347,7 +347,7 @@ C     Call QEnter('DeDe')
 *
 *                 D(iBas*iCmp,jBas*jCmp)
 *
-                  Call ResortD(DAO,Work(ipStart),
+                  Call ResortD(DAO,DeDe(ipStart),
      &                         iBas,iCmp,jBas,jCmp)
                   jOffD = jOffD + iBas*iCmp*jBas*jCmp
 *
@@ -361,13 +361,13 @@ C     Call QEnter('DeDe')
                   Do ijCmp = 1, iCmp*jCmp
                      If (nIrrep.ne.1.or..Not.Special_NoSym) Then
                         call dcopy_(iBas*jBas,DAO(jpDAO),1,
-     &                                       Work(ipDeDe+jOffD),1)
+     &                                       DeDe(ipDeDe+jOffD),1)
                         jOffD = jOffD + iBas*jBas
                      End If
 *--------------------Find the largest density for this angular
 *                    combination
                      iHigh = iDAMax_(iBas*jBas,DAO(jpDAO),1)
-                     Work(ipDeDe+jOffD) = Abs(DAO(jpDAO+iHigh-1))
+                     DeDe(ipDeDe+jOffD) = Abs(DAO(jpDAO+iHigh-1))
                      If (Temp.lt.Abs(DAO(jpDAO+iHigh-1))) Then
                         Temp=Abs(DAO(jpDAO+iHigh-1))
                      End If
@@ -376,7 +376,7 @@ C     Call QEnter('DeDe')
                   End Do
                   If ( (nIrrep.ne.1.or..Not.Special_NoSym) .and.
      &                iPrint.ge.99) Call RecPrt(' DAO(+AMax)',' ',
-     &               Work(ipStart),iBas*jBas+1,iCmp*jCmp)
+     &               DeDe(ipStart),iBas*jBas+1,iCmp*jCmp)
                End If
 *
                If (DFT_Storage) Go To 99
@@ -400,17 +400,17 @@ C     Call QEnter('DeDe')
                      ij = (j-1)*iPrimi + i
                      iHigh = IDAMax_(iCmpi*jCmpj,DAO(ij),
      &                       iPrimi*jPrimj)-1
-                     Work(ipDeDe+jOffD) =
+                     DeDe(ipDeDe+jOffD) =
      &                       Abs(DAO(ij+iHigh*iPrimi*jPrimj))
                      jOffD = jOffD + 1
                   End Do
                End Do
 *--------------Find the overall largest density
-               Work(ipDeDe+jOffD) = Temp
+               DeDe(ipDeDe+jOffD) = Temp
                jOffD = jOffD + 1
                If (iPrint.ge.99) Then
                   Call RecPrt(' D,prim',' ',
-     &               Work(ipStart),iPrimi,jPrimj)
+     &               DeDe(ipStart),iPrimi,jPrimj)
                   Write (6,*) ' Max(DAO)=',Temp
                End If
 *
@@ -436,7 +436,12 @@ C     Call QEnter('DeDe')
       End Do
       mDeDe = jOffD
 *
-C     Call QExit('DeDe')
+      If (mDeDe.ne.nDeDe) Then
+         Write (6,*) 'DeDe:  mDeDe =', mDeDe,' nDeDe =', nDeDe
+         Call ErrTra
+         Call Abend
+      End If
+*
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       Return

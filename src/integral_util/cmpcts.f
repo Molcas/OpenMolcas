@@ -42,7 +42,7 @@
       Logical AeqB
 *
 *     Call QEnter('Cmpct')
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('Cmpct:Zeta',' ',Zeta,mijkl,1)
       Call RecPrt('Cmpct:KappAB',' ',KappAB,mijkl,1)

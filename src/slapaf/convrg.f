@@ -164,10 +164,10 @@
          Val2= RMSMax
          Thr2= ThrGrd
          If (Val2.lt.Thr2) Then
-            If (Step_Trunc.eq.' ') Then
-               ConLbl(2)=' Yes '
-            Else
+            If (Step_Trunc.eq.'*') Then
                ConLbl(2)=' No *'
+            Else
+               ConLbl(2)=' Yes '
             End If
          Else
             ConLbl(2)=' No  '
@@ -180,7 +180,7 @@
             ConLbl(3)=' No  '
          End If
          Conv1= Val1.lt.Thr1.and.kIter.gt.1
-         Conv1= Conv1.or. (Val2.lt.Thr2 .and. Step_Trunc.eq.' ')
+         Conv1= Conv1.or. (Val2.lt.Thr2 .and. Step_Trunc.ne.'*')
          Conv1= Conv1.and. Val3.lt.Thr3
       Else
          Val2=Abs(Fabs/Sqrt(DBLE(mIntEff)))
@@ -201,16 +201,16 @@
          Else
             ConLbl(4)=' No  '
          End If
-         Conv2= RMS.lt.ThrGrd*4.D0 .and. Step_Trunc.eq.' '
+         Conv2= RMS.lt.ThrGrd*4.D0 .and. Step_Trunc.ne.'*'
          Val1=RMS
          Thr1=ThrGrd*4.0D0
          ConvTmp=Val1.lt.Thr1
-         Conv2=ConvTmp .and. Step_Trunc.eq.' '
+         Conv2=ConvTmp .and. Step_Trunc.ne.'*'
          If (ConvTmp) Then
-            If (Step_Trunc.eq.' ') Then
-               ConLbl(1)=' Yes '
-            Else
+            If (Step_Trunc.eq.'*') Then
                ConLbl(1)=' No *'
+            Else
+               ConLbl(1)=' Yes '
             End If
          Else
             ConLbl(1)=' No  '
@@ -219,11 +219,11 @@
          Thr3=ThrGrd*6.0D0
          ConvTmp=Val3.lt.Thr3
          Conv2=Conv2.and.ConvTmp
-         If (Conv2) Then
-            If (Step_Trunc.eq.' ') Then
-               ConLbl(3)=' Yes '
-            Else
+         If (ConvTmp) Then
+            If (Step_Trunc.eq.'*') Then
                ConLbl(3)=' No *'
+            Else
+               ConLbl(3)=' Yes '
             End If
          Else
             ConLbl(3)=' No  '

@@ -83,7 +83,7 @@
          Fact=One
       End If
       nCent=3
-*     Write (*,*)
+*     Write (6,*)
 *
       Do mAtom_ = 1, mAtoms
          mAtom = iTabAI(1,mAtom_)
@@ -336,10 +336,25 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*              We'd like to avoid the problem with angles that have the
+*              value Pi. We introduce "linear" angles under two
+*              conditions.
+*              (1) the reference angle is within delta of Pi.
+*              (2) the actual angle is within 1.0D-11 of Pi.(?)
+*              Delta is set to 1.0D-11 if there are 3 atoms.(?)
+*
                delta=(45.0D0/180.0D0)*Pi
-               If (mAtoms.eq.3) delta=1.0D-11
-               If (Abs(Val_Ref-Pi).lt.Delta .or.
-     &             Abs(Val-Pi).lt.1.0D-11) Then
+*              If (mAtoms.eq.3) delta=1.0D-11 ! I do not understand
+*              although it is probably me who introduced it!
+*
+               If ( (Abs(Val_Ref-Pi).lt.Delta .or.
+     &               Abs(Val-Pi).lt.1.0D-11) .and.
+     &            .NOT.(
+     &                  (iBondType.eq.Fragments_Bond .or.
+     &                   jBondType.eq.Fragments_Bond)
+     &                   .and. mAtoms.le.4
+     &                  )
+     &            ) Then
 *
 *---------------- Reference is linear(a) or
 *---------------- reference is NOT linear but the new structure is(b).
@@ -415,12 +430,10 @@ C                 Do k = 1, 2
 *
 *---------------------- Flip Angle value and gradient if needed!
 *
-                        BB=DDot_(9,Grad_all(1,nq,iPrv),1,
-     &                            Grad_all(1,nq,iIter),1)
+                        BB=DDot_(9,Grad_all(1,nq, iPrv),1,
+     &                             Grad_all(1,nq,iIter),1)
                         If (BB.lt.Zero) Then
-*                          Write (*,*) 'BB=',BB
-*                          Write (*,*) ' Angle flips, corrected!'
-*                          Write (*,*) ' iPrv,iIter=', iPrv,iIter
+*                          Write (6,*) ' Angle flips, corrected!'
                            Val=Two*Pi-Val
                            Call DScal_(9,-One,
      &                                Grad_all(1,nq,iIter),1)
@@ -501,7 +514,6 @@ C                 Do k = 1, 2
      &                       Lbls(1)(iF1:iE1),
      &                   ' ',Lbls(2)(iF2:iE2),
      &                   ' ',Lbls(3)(iF3:iE3)
-*                 Write (*,*) 'iDeg=',iDeg
 #endif
                   Label=' '
                   Write (Label,'(A,I3.3)') 'a',nqA

@@ -47,7 +47,7 @@ C
      7          0.00D0,1.63D0,1.72D0,1.58D0,1.93D0,2.17D0,0.00D0,
      8          2.06D0,1.98D0,2.16D0/
 C
-c     Criterions ?
+c     Criteria ?
 C
       iPL = iPL_espf()-1
       RMax=dble(IRMax)

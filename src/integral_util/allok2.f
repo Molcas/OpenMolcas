@@ -29,19 +29,18 @@
 *             University of Lund, Sweden. Jun '95                      *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "IOBuf.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
 *     declaration of local vars...
       Logical Debug
@@ -122,10 +121,10 @@
  100     Continue
       End Do
 *     now ... allocate memory
-      Call mma_allocate(Data_k2,nk2)
-      Call FZero(Data_k2,nk2)
+      Call mma_allocate(Data_k2,nk2,Label='Data_k2')
+      Data_k2(:)=Zero
       nIndk2=nShlls*(nShlls+1)/2
-      call mma_allocate(Indk2,2,nIndk2)
+      call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return
       End

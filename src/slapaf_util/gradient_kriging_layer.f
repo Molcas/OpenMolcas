@@ -8,11 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1995, Roland Lindh                                     *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Module NewH_mod
+      Subroutine Gradient_Kriging_Layer(qInt,Grad,nInter)
+      Use Limbo
       Implicit None
-      Integer, Dimension(:), Allocatable, Save :: UpdMask
-      Real*8, Save :: DiagMM=1.0d0
-
-      End Module NewH_mod
+#include "stdalloc.fh"
+      Integer nInter
+      Real*8 qInt(nInter), Grad(nInter)
+      Real*8, Allocatable:: qInt_s(:), Grad_s(:)
+*
+      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
+      Call mma_allocate(Grad_s,nInter,Label='Grad_s')
+*
+      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Gradient_Kriging(qInt_s,Grad_s,nInter)
+      Call BackTrans_K(U,Grad_s,Grad,nInter,1)
+*
+      Call mma_deallocate(Grad_s)
+      Call mma_deallocate(qInt_s)
+*
+      End Subroutine Gradient_Kriging_Layer

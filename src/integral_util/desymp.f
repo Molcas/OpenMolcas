@@ -32,7 +32,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              RecPrt                                                  *
-*              GetMem                                                  *
 *              DCopy    (ESSL)                                         *
 *              DYaX     (ESSL)                                         *
 *              DnaXpY   (ESSL)                                         *
@@ -221,7 +220,6 @@
         write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
         write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
       End If
-      Call GetMem('X_DesymP','CHECK','REAL',iDum,iDum)
 #endif
       Return
       End
