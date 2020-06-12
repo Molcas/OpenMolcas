@@ -24,6 +24,7 @@
       iPrint=nPrint(iRout)
       Call QEnter('FixHess')
 *
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*) 'AnalHess=',AnalHess
       Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)

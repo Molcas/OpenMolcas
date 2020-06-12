@@ -111,8 +111,9 @@
          i=i-1
       End Do
       If (nNeg.eq.0) Then
-         Write (Lu,*) 'RS-I-RFO: nNeq.eq.0'
-         Call Abend()
+         Write (Lu,*) 'Warning RS-I-RFO: Neq.eq.0'
+         Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
+*        Call Abend()
       End If
 #ifdef _DEBUG_
       Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
@@ -125,19 +126,21 @@
 *     corresponds to an elementary Householder orthogonal
 *     transformation.
 *
-      Call mma_allocate(Tmp,nInter,1,Label='Tmp')
-      call dcopy_(nInter,g,1,Tmp(1,1),1)
+      If (nNeg.gt.0) Then
+         Call mma_allocate(Tmp,nInter,1,Label='Tmp')
+         call dcopy_(nInter,g,1,Tmp(1,1),1)
 *
-      Do iNeg=1,nNeg
-        gi = DDot_(nInter,g,1,Vec(1,iNeg),1)
-        Call DaXpY_(nInter,-Two*gi,Vec(1,iNeg),1,g,1)
-        Fact = Two * Val(iNeg)
-        Do j = 1, nInter
-           Do i = 1, nInter
-              H(i,j) = H(i,j) - Fact * Vec(i,iNeg) * Vec(j,iNeg)
+         Do iNeg=1,nNeg
+           gi = DDot_(nInter,g,1,Vec(1,iNeg),1)
+           Call DaXpY_(nInter,-Two*gi,Vec(1,iNeg),1,g,1)
+           Fact = Two * Val(iNeg)
+           Do j = 1, nInter
+              Do i = 1, nInter
+                 H(i,j) = H(i,j) - Fact * Vec(i,iNeg) * Vec(j,iNeg)
+              End Do
            End Do
-        End Do
-      End Do
+         End Do
+      End If
 *
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
@@ -147,8 +150,10 @@
 *
 *     Restore the original gradient
 *
-      call dcopy_(nInter,Tmp(1,1),1,g,1)
-      Call mma_deallocate(Tmp)
+      If (nNeg.gt.0) Then
+         call dcopy_(nInter,Tmp(1,1),1,g,1)
+         Call mma_deallocate(Tmp)
+      End If
 *
       UpMeth='RSIRFO'
 *
