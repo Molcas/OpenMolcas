@@ -22,9 +22,10 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, Sweden. October '98                  *
 ************************************************************************
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "IOBuf.fh"
+#include "stdalloc.fh"
       External AllocDisk
       Integer AllocDisk
 *
@@ -60,7 +61,6 @@
 *
 *---- Adjust buffer size and allocate memory for the buffer.
 *
-      ipBuf = -99
       If (OnDisk.or.InCore) Then
          MemMin_Seward=1024**2 ! Real*8
          Call GetMem('IniBuf','Max','Real',iDum,MaxMem)
@@ -90,11 +90,8 @@ C        Write (6,*) 'nCore=',nCore,'kByte'
 C        Write (6,*) 'lBuf=',lBuf
 *
 *------- Allocate I/O Buffer
-         Call GetMem('IOBuf','Allo','Real',ipBuf,lBuf*nBuf)
-*debug
-c        call dcopy_(lBuf*nBuf,Work(ipBuf),1,Zero,0)
+         Call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
       End If
-*     Write (6,*) 'ipBuf=',ipBuf
 *
 #ifdef _DEBUG_
       Call QExit('IniBuf')

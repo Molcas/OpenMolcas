@@ -8,11 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine setmem_ints(ipt,mem)
-      implicit real*8 (a-h,o-z)
-#include "setup.fh"
-c
-      ipmem_int=ipt
-      MemMax_int=mem
-      return
-      end
+      Module PCM_arrays
+      Integer nTiles
+      Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
+      End Module PCM_arrays

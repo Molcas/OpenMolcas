@@ -8,4 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Common /pcm_pointers/ nTiles,ipC,ipQ
+      Module Aces_Stuff
+*
+*---- Stuff for Aces 2 read of Gamma file
+*
+      Logical                Gamma_On
+      Integer                LuGamma, lBin, nGamma
+      Real*8, Allocatable:: G_Toc(:), Bin(:,:)
+      Integer, Allocatable:: SO2cI(:,:)
+*
+      End Module Aces_Stuff

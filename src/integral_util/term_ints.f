@@ -19,12 +19,14 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
+      use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
 #include "shinf.fh"
 #include "status.fh"
@@ -36,23 +38,17 @@
 *
 *     In case of semi-direct mode the memory is released externally.
 *
-      If (XMem_Status.eq.InActive) Call RlsMem_Ints
+      Call RlsMem_Ints
 *
-      If (DoFock_Status.eq.Active) Then
-         DoFock_Status=Inactive
-         Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
-         Call GetMem('FT','Free','Real',ipFT,nFT)
+      If (Allocated(FT)) Call mma_deallocate(FT)
+*
+      If (Allocated(Mem_INT)) Then
+         Call mma_deallocate(Mem_INT)
+         Call mma_deallocate(Mem_DBLE)
+         Call mma_deallocate(Aux)
       End If
 *
-      If (Ind0_Status.eq.InActive) Then
-         Call GetMem('MemI','Free','Inte',ipiZet,MemI)
-         Call GetMem('MemR','Free','Real',ipZeta,MemR)
-         Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
-      End If
-*
-      Call GetMem('iSOSym','Free','Inte',ipiSOSym,nSOs*2)
-*
-*     Complete Lund IO of two-electron integrals
+      Call mma_deallocate(iSOSym)
 *
 *     Generate statistic of partioning
 *

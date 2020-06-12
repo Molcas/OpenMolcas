@@ -8,30 +8,40 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+      Subroutine Mk_SO2cI(SO2cI,iSO2Shell,nSOs)
+      Implicit Real*8 (a-h,o-z)
+      Integer SO2cI(2,nSOs), iSO2Shell(nSOs)
+*                                                                      *
 ************************************************************************
 *                                                                      *
-*  Subroutine CoordShl        returns coordinates of a given shell     *
-*                                                                      *
-************************************************************************
-      SubRoutine CoordShl(xi,yi,zi,iskal)
-c----------------------------------------------------------------------
-      use iSD_data
-      Implicit Real*8 (A-H,O-Z)
-#include "shinf.fh"
-#include "nsd.fh"
-#include "itmax.fh"
-#include "setup.fh"
-#include "WrkSpc.fh"
+*-----Set up table SO to contigues index over the shell
 *
-************************************************************************
-*                                                                      *
-* returns coordinates of a shell                                       *
-*                                                                      *
-************************************************************************
+*     Write (*,*) 'Enter SO2cI'
+      Call ICopy(2*nSOs,[0],0,SO2cI,1)
+      Call Nr_Shells(nShell)
+      Do iShell = 1, nShell
 *
-      jpcn=iSD(8,iSkal)
-      xi=work(jpcn)
-      yi=work(jpcn+1)
-      zi=work(jpcn+2)
-      return
-      end
+*------- Generate contigues index for this shell
+*
+         Index=0
+         Do iSO = 1, nSOs
+            If (iSO2Shell(iSO).eq.iShell) Then
+               Index = Index + 1
+               SO2cI(1,iSO) = Index
+            End If
+         End Do
+*
+*------- Store dimension for this shell
+*
+         Do iSO = 1, nSOs
+            If (iSO2Shell(iSO).eq.iShell) Then
+               SO2cI(2,iSO) = Index
+            End If
+         End Do
+*
+      End Do ! iShell
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Return
+      End

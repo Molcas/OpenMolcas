@@ -37,6 +37,7 @@
 *                                                                      *
 *             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 ************************************************************************
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -47,7 +48,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-#include "pcm_pointers.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
@@ -104,8 +104,8 @@
 *     Loop over tiles.
 *
       Do iTile = 1, nTiles
-         QTessera = Work(ipQ+iTile-1)
-         call dcopy_(3,Work(ipC+(iTile-1)*3),1,C,1)
+         QTessera = Q_Tessera(iTile)
+         C(:)=C_Tessera(:,iTile)
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *--------Find the DCR for M and S

@@ -36,40 +36,17 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Integer (A-Z)
 *
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "print.fh"
 *
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT2 <<<'
       Call qEnter('MkSrt2')
-*----------------------------------------------------------------------*
-*     compute various offsets for each Bin                             *
-*----------------------------------------------------------------------*
-*
-      iBin=0
-      iOff1=lwVBin-1
-      iOff2=lwIBin-1
-      Do iSyBlk=1,mSyBlk
-         nSlice=nSln(iSyBlk)
-         lSlice=lSll(iSyBlk)
-*
-         If ( nSlice.ne.0 ) then
-            Do iSlice=1,nSlice
-               iBin=iBin+1
-               nOff1(iBin)=iOff1
-               nOff2(iBin)=iOff2
-               iOff1=iOff1+lBin
-               iOff2=iOff2+lBin
-            End Do
-         End If
-*
-      End Do
 *
 *----------------------------------------------------------------------*
 *     initialize various pointers, counters and disk adresses          *
