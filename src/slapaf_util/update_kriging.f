@@ -72,9 +72,9 @@
       Call QEnter('Update')
 *
 #ifdef _DEBUG_
-      Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
-      Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
-      Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
+      Call RecPrt('Update_Kriging: qInt',' ',qInt,nInter,Iter)
+      Call RecPrt('Update_Kriging: Shift',' ',Shift,nInter,Iter-1)
+      Call RecPrt('Update_Kriging: GNrm',' ',GNrm,Iter,1)
 #endif
 *
       Kriging_Hessian =.TRUE.

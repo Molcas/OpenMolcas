@@ -98,16 +98,17 @@
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Pvt(:), Index(:)
+      Real*8, Allocatable:: R(:,:), dRdq(:,:,:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
 *#define _DEBUG_
 #ifdef _DEBUG_
-      Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
+      Write (Lu,*)'Update_sl_:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
-      Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
-      Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
-      Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
+      Call RecPrt('Update_sl_: qInt',' ',qInt,nInter,kIter)
+      Call RecPrt('Update_sl_: Shift',' ',Shift,nInter,kIter-1)
+      Call RecPrt('Update_sl_: GNrm',' ',GNrm,kIter,1)
 #endif
 *
       GrdMax=Zero
@@ -351,8 +352,8 @@ C           Write (6,*) 'tBeta=',tBeta
 *
 *        Allocate memory for the new arrays
 *
-         Call Getmem('ipR',   'Allo','Real',ipR,nLambda*kIter)
-         Call Getmem('ipdRdq','Allo','Real',ipdRdq,nInter*nLambda*kIter)
+         Call mma_allocate(R,nLambda,kIter,Label='R')
+         Call mma_allocate(dRdq,nInter,nLambda,kIter,Label='dRdq')
          Call Getmem('ipT',   'Allo','Real',ipT,nInter*nInter)
          Call FZero(Work(ipT),nInter**2)
          Call Getmem('ipdy',  'Allo','Real',ipdy,nLambda)
@@ -400,7 +401,6 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          n1=3*nsAtom
          n2=n1**2
-         ip_drdq=ipdrdq
          Do lIter = 1, kIter
             Call DefInt2(Work(ipBVec),Work(ipdBVec),nBVec,Labels,
      &                   Work(ipBMx),nLambda,nsAtom,iRow_c,
@@ -414,16 +414,15 @@ C           Write (6,*) 'tBeta=',tBeta
 *           Assemble r
 *
             iOff = ipr + (lIter-1)*nLambda
-            Do j = 0, nLambda-1
-               Ci=Work(ipcInt+j)-Work(ipcInt0+j)
-               Work(iOff)=Ci
+            Do j = 1, nLambda
+               Ci=Work(ipcInt-1+j)-Work(ipcInt0-1+j)
+               R(j,lIter)=Ci
                iOff = iOff + 1
             End Do
 *
 *           Assemble dr/dq: Solve  B dr/dq = dr/dx
 *
-            ip_drdq=ipdrdq+(lIter-1)*nInter*nLambda
-            Call FZero(Work(ip_drdq),nInter*nLambda)
+            dRdq(:,:,lIter)=Zero
 *           Call RecPrt('BMx',' ',BMx,3*nsAtom,nInter)
 *           Call RecPrt('Work(ipBMx)',' ',Work(ipBMx),3*nsAtom,nLambda)
 *
@@ -450,8 +449,9 @@ C           Write (6,*) 'tBeta=',tBeta
             Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*3*nsAtom,iAd)
             Call DaClos(LudRdX)
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,
-     &                     Work(ipBMx),Work(ip_drdq))
-*           Call RecPrt('drdq',' ',Work(ip_drdq),nInter,nLambda)
+     &                     Work(ipBMx),dRdq(1,1,lIter))
+*           Call RecPrt('drdq(1,1,lIter)',' ',
+*    &                   drdq(1,1,lIter),nInter,nLambda)
 *
          End Do     ! lIter
          Call GetMem('dBVec','Free','Real',ipdBVec,nBVec*(3*nsAtom)**2)
@@ -464,8 +464,8 @@ C           Write (6,*) 'tBeta=',tBeta
          Call GetMem('BVec', 'Free','Real',ipBVec,3*nsAtom*nBVec)
 *
          If (iPrint.ge.99) Then
-            Call RecPrt('r',' ',Work(ipr),nLambda,kIter)
-            Call RecPrt('drdq',' ',Work(ipdrdq),nInter*nLambda,kIter)
+            Call RecPrt('R',' ',R,nLambda,kIter)
+            Call RecPrt('drdq',' ',dRdq,nInter*nLambda,kIter)
             Call RecPrt('dC/dx',' ',Work(ipBMx),n1,nLambda)
             Call RecPrt('dQ/dx',' ',BMx,n1,nInter)
             Do i = 1, nLambda
@@ -494,9 +494,9 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          Call GetMem('d2Qdx2_dCdQ','Allo','Real',ip_QC,
      &                nDimBC**2*nLambda)
-         If (Curvilinear)
-     &      Call dBMult(Work(ip_drdq),Work(ip_QC),nInter,nDimBC,nLambda)
-         Call RecPrt('Work(ip_drdq)',' ',Work(ip_drdq),n1,1)
+         If (Curvilinear) Call dBMult(dRdq(1,1,kIter),
+     &                                Work(ip_QC),nInter,nDimBC,nLambda)
+         Call RecPrt('drdq(1,1,kIter)',' ',drdq(1,1,kIter),n1,1)
          Call RecPrt('Work(ip_QC)',' ',Work(ip_QC),nDimBC**2,nLambda)
 *
 *        Subtract the term d^2C/dx^2
@@ -593,7 +593,7 @@ C           Write (6,*) 'tBeta=',tBeta
               fCart=fCart*0.9D0
             End If
             qBeta=fCart*Beta
-            Call Con_Opt(Work(ipr),Work(ipdrdq),Work(ipT),Grad,
+            Call Con_Opt(R,dRdq,Work(ipT),Grad,
      &                rLambda,qInt,Shift,Work(ipdy),Work(ipdx),
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
      &                Wess,GNrm(kIter),
@@ -604,7 +604,8 @@ C           Write (6,*) 'tBeta=',tBeta
      &                dg,AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght,iOpt_RS,Thr_RS,iter)
+     &                IRC,CnstWght,iOpt_RS,Thr_RS,iter,
+     &                First_Microiteration)
             If (iOpt_RS.eq.1) Exit
 *
 *           Rough conversion to Cartesians
@@ -641,8 +642,8 @@ C           Write (6,*) 'tBeta=',tBeta
          Call Free_Work(ipdx    )
          Call Free_Work(ipdy    )
          Call Free_Work(ipT     )
-         Call Free_Work(ipdrdq  )
-         Call Free_Work(ipr     )
+         Call mma_deallocate(dRdq)
+         Call mma_deallocate(R)
 *                                                                      *
 ************************************************************************
 *                                                                      *

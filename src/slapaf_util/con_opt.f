@@ -18,7 +18,8 @@
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
-     &                   iOpt_RS,Thr_RS,iter_)
+     &                   iOpt_RS,Thr_RS,iter_,
+     &                   First_Microiteration)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -63,13 +64,15 @@
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup, Corrected
+      Logical Line_Search, Found, IRC_setup, Corrected,
+     &        First_MicroIteration
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
      &                      Hessian(:,:)
+      Real*8, Save:: Beta_Disp_Save
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,6 +84,8 @@
       Write (6,*) '****************************************************'
       Write (6,*)
       Write (6,*) 'iOpt_RS=',iOpt_RS
+      Write (6,*)
+      Write (6,*) 'First_Microiteration=',First_Microiteration
       Write (6,*)
       Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
       Call RecPrt('Con_Opt: q',' ',q,nInter,nIter)
@@ -712,6 +717,12 @@ C           Write (6,*) 'gBeta=',gBeta
                                 ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,
      &                     tmp*CnstWght/(CnstWght+One)*Beta_Disp)
+            If (First_MicroIteration) Then
+               Beta_Disp_Save=Beta_Disp_
+            Else
+               Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Save)
+               Beta_Disp_Save=Beta_Disp_
+            End If
 *
 #ifdef _DEBUG_
             Write (6,*) 'Step_trunc=',Step_trunc
@@ -730,32 +741,31 @@ C           Write (6,*) 'gBeta=',gBeta
                Call Backtrans_K(T,du,dq_xy,nInter,1)
                q(:,iIter+1)=q(:,iIter)+dq_xy(:)
 *
-               Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
+               Call Dispersion_Kriging_Layer(q(1,iIter+1),disp,nInter)
 *
                If (iCount.eq.1) Then
                   Fact_long=Fact
-                  dydy_long=dydy
+                  disp_long=disp
                   Fact_short=Zero
-                  dydy_short=dydy_long+One
+                  disp_short=disp_long+One
                End If
 #ifdef _DEBUG_
-               Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
+               Write (6,*) 'disp,Fact,iCount=', disp,Fact,iCount
 #endif
-               If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
-                  If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
+               If (disp.gt.Beta_Disp_ .or. iCount.gt.1) Then
+                  If (Abs(Beta_Disp_-disp).lt.Thr_RS) Go To 667
                   iCount=iCount+1
                   If (iCount.gt.iCount_Max) Then
                      Write (6,*) 'iCount.gt.iCount_Max'
                      Call Abend()
                   End If
-                  Call Find_RFO_Root(Fact_long,dydy_long,
-     &                               Fact_short,dydy_short,
-     &                               Fact,dydy,Beta_Disp_)
+                  Call Find_RFO_Root(Fact_long,disp_long,
+     &                               Fact_short,disp_short,
+     &                               Fact,disp,Beta_Disp_)
                   Step_Trunc='*'
                   Go To 666
                End If
  667        Continue
-*           Write(6,*) 'Factor=',(One/Fact)
             dy(:)=(One/Fact)*dy(:)
 #ifdef _FindTS_
 *
@@ -935,6 +945,12 @@ C           Write (6,*) 'gBeta=',gBeta
 *           Add the allowed dispersion in the y subspace.
             Beta_Disp_=Max(Beta_Disp_+tmp*Beta_Disp,
      &                     Beta_Disp_Min)
+            If (First_MicroIteration) Then
+               Beta_Disp_Save=Max(Beta_Disp_,Beta_Disp_Save)
+            Else
+               Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Save)
+               Beta_Disp_Save=Beta_Disp_
+            End If
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
 #endif

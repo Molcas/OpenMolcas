@@ -56,10 +56,11 @@
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
+*#define _DEBUG_
 #ifdef _DEBUG_
-      Call RecPrt('Energy',' ',Energy,1,nRaw)
-      Call RecPrt('qInt',' ',qInt,nInter,nRaw)
-      Call RecPrt('Grad',' ',Grad,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Energy',' ',Energy,1,nRaw)
+      Call RecPrt('Setup_kriging: qInt',' ',qInt,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Grad',' ',Grad,nInter,nRaw)
 #endif
       Call mma_Allocate(Array_l,nInter,Label='Array_l')
       If (Set_l) Then
@@ -82,6 +83,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUG_
+      Call RecPrt('Setup_kriging: qInt_s',' ',qInt_s,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Grad_s',' ',Grad_s,nInter,nRaw)
+#endif
       Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
 *
       Call mma_deAllocate(qInt_s)
