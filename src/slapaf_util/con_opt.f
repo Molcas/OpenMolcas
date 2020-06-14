@@ -13,7 +13,7 @@
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,iOptC,Mode,MF,
-     &                   iOptH,HUpMet,jPrint_,Energy,nLambda,
+     &                   iOptH,HUpMet,jPrint,Energy,nLambda,
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
@@ -73,7 +73,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      jPrint=jPrint_
 *#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
@@ -664,7 +663,8 @@ C           Write (6,*) 'gBeta=',gBeta
             dydymax=CnstWght*max(dxdx,Half*Beta)
             If (dydy.gt.dydymax) Then
 *              Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
-               Call DScal_(nLambda,dydymax/dydy,dy,1)
+               dy(:) = (dydymax/dydy) * dy(:)
+*              Write(6,*) 'Factor=',(dydymax/dydy)
                dydy=dydymax
                Step_Trunc='*'
             Else
@@ -755,10 +755,22 @@ C           Write (6,*) 'gBeta=',gBeta
                   Go To 666
                End If
  667        Continue
+*           Write(6,*) 'Factor=',(One/Fact)
             dy(:)=(One/Fact)*dy(:)
-#ifdef _DEBUG_
-            Write (6,*) 'Step_trunc=',Step_trunc
-            Write (6,*) 'Final: dy(:)=',dy(:)
+#ifdef _FindTS_
+*
+*           If a FindTS optimization hold back a bit. The purpose of
+*           the constrained optimization phase is actually not to
+*           find the constrained structure.
+*
+            If (iAnd(iOptC,4096).eq.4096) Then
+               dydy=DDot_(nLambda,dy,1,dy,1)
+               Thrdy=0.075D0
+               If (dydy.gt.Thrdy**2) Then
+                  dy(:) = (Thrdy/Sqrt(dydy)) * dy(:)
+                  Step_Trunc='*'
+               End If
+            End If
 #endif
 *
 *                                                                      *
