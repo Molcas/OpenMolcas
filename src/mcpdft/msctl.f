@@ -838,7 +838,7 @@ c         call xflush(6)
          CASDFT_Funct = 0
          Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-         CASDFT_E = ECAS-EVAC+CASDFT_Funct
+         CASDFT_E = ECAS+CASDFT_Funct
 
 !         Write(6,*)
 !         '**************************************************'
