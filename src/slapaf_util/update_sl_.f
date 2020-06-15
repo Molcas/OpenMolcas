@@ -98,7 +98,7 @@
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Pvt(:), Index(:)
-      Real*8, Allocatable:: R(:,:), dRdq(:,:,:)
+      Real*8, Allocatable:: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:)
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -391,8 +391,8 @@ C           Write (6,*) 'tBeta=',tBeta
          Call GetMem('BVec', 'Allo','Real',ipBVec,3*nsAtom*nBVec)
          Call GetMem('Value','Allo','Real',ipValue,nBVec)
          Call GetMem('Value0','Allo','Real',ipValue0,nBVec)
-         Call GetMem('cInt', 'Allo','Real',ipcInt,nLambda)
-         Call GetMem('cInt0','Allo','Real',ipcInt0,nLambda)
+         Call mma_allocate(CInt,nLambda,Label='CInt')
+         Call mma_allocate(CInt0,nLambda,Label='CInt0')
          Call GetMem('Mult', 'Allo','Real',ipMult,nBVec**2)
          Call GetMem('iFlip','Allo','Inte',ip_iFlip,nBVec)
          Call GetMem('dBVec','Allo','Real',ipdBVec,nBVec*(3*nsAtom)**2)
@@ -404,7 +404,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Do lIter = 1, kIter
             Call DefInt2(Work(ipBVec),Work(ipdBVec),nBVec,Labels,
      &                   Work(ipBMx),nLambda,nsAtom,iRow_c,
-     &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
+     &                   Work(ipValue),cInt,cInt0,
      &                   Lbl(nInter+1),AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   nSym,iOper,jStab,nStab,mxdc,
@@ -413,12 +413,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *
 *           Assemble r
 *
-            iOff = ipr + (lIter-1)*nLambda
-            Do j = 1, nLambda
-               Ci=Work(ipcInt-1+j)-Work(ipcInt0-1+j)
-               R(j,lIter)=Ci
-               iOff = iOff + 1
-            End Do
+            R(:,lIter)=cInt(:)-cInt0(:)
 *
 *           Assemble dr/dq: Solve  B dr/dq = dr/dx
 *
@@ -457,8 +452,8 @@ C           Write (6,*) 'tBeta=',tBeta
          Call GetMem('dBVec','Free','Real',ipdBVec,nBVec*(3*nsAtom)**2)
          Call GetMem('iFlip','Free','Inte',ip_iFlip,nBVec)
          Call GetMem('Mult', 'Free','Real',ipMult,nBVec**2)
-         Call GetMem('cInt0','Free','Real',ipcInt0,nLambda)
-         Call GetMem('cInt', 'Free','Real',ipcInt,nLambda)
+         Call mma_deallocate(cInt)
+         Call mma_deallocate(cInt0)
          Call GetMem('Value0','Free','Real',ipValue0,nBVec)
          Call GetMem('Value','Free','Real',ipValue,nBVec)
          Call GetMem('BVec', 'Free','Real',ipBVec,3*nsAtom*nBVec)
