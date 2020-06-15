@@ -196,13 +196,14 @@
 *                                                                      *
       If (iAnd(iOptC,128).eq.128) Then
 *
-#ifdef _DEBUG_
          If (iNeg(1).ne.0.and.iAnd(iOptC,256).ne.256) Then
+            Corrected=.True.
+#ifdef _DEBUG_
             Write (Lu,*) ' Some negative eigenvalues has been corrected'
             Write (Lu,*) 'iNeg=',iNeg(1)
             Write (Lu,*)
-         End If
 #endif
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
