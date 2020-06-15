@@ -416,6 +416,29 @@ latex_elements['preamble'] = r'''\usepackage{molcas}
 \nobibintoc
 \renewcommand{\bibsection}{\relax}
 \frenchspacing'''
+
+# Fix issues with sphinx.sty
+latex_elements['preamble'] += r'''
+% These should be done after loading hyperref
+\makeatletter%
+\@addtoreset{figure}{subsection}%
+\@addtoreset{table}{subsection}%
+\@addtoreset{literalblock}{subsection}%
+\ifspx@opt@mathnumfig%
+  \@addtoreset{equation}{subsection}%
+\fi%
+\makeatother%
+% Add part to numbers
+\let\oldthefigure\thefigure%
+\renewcommand{\thefigure}{\thepart.\oldthefigure}%
+\let\oldthetable\thetable%
+\renewcommand{\thetable}{\thepart.\oldthetable}%
+\let\oldtheliteralblock\theliteralblock%
+\renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
+\let\oldtheequation\theequation%
+\renewcommand{\theequation}{\thepart.\oldtheequation}%
+'''
+
 latex_additional_files = [ '_latex/molcas.sty' ]
 
 pngmath_dvipng_args = ['-Q', '10']
