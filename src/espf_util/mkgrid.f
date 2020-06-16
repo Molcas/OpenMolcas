@@ -104,6 +104,7 @@ c
             End Do
             If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,
      &                                            Work(ipDGrd ),1)
+            Call mma_deallocate(PCMTess)
             Call mma_deallocate(PCMSph)
             Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
             If (DoDeriv) Then

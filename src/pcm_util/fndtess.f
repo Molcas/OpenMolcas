@@ -105,10 +105,6 @@
       End If
 *
       ! PCMSph
-*     call dcopy_(nS,Xs,1,Work(ip_Sph  ),4)
-*     call dcopy_(nS,Ys,1,Work(ip_Sph+1),4)
-*     call dcopy_(nS,Zs,1,Work(ip_Sph+2),4)
-*     call dcopy_(nS,Rs, 1,Work(ip_Sph+3),4)
       Do iS = 1, NS
          PCMSph(1,iS)=Xs(iS)
          PCMSph(2,iS)=Ys(iS)
@@ -117,10 +113,6 @@
       End Do
 *
       ! PCMTess
-*     call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)
-*     call dcopy_(nTs,Yt,1,Work(ip_Tess+1),4)
-*     call dcopy_(nTs,Zt,1,Work(ip_Tess+2),4)
-*     call dcopy_(nTs,At,1,Work(ip_Tess+3),4)
       Do iTs = 1, nTs
          PCMTess(1,iTs)=Xt(iTs)
          PCMTess(2,iTs)=Yt(iTs)
