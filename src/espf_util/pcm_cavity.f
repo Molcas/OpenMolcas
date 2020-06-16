@@ -99,7 +99,7 @@
          Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
          Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $               Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
-     $               Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
+     $               PCMSph,iWork(ip_ISph),iWork(ip_IntS),
      $               iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
      $               dTes,dPnt,dRad,dCntr)
          If (nPCM_info.eq.0) Then

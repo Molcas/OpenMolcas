@@ -18,13 +18,12 @@
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              Allok2                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
-*             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
+*             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
@@ -93,6 +92,11 @@ cpcm_solvent end
 *
          Call Allocate_Work(ip_Sph,nPCM_info)
          Call Get_dArray('PCM Info',Work(ip_Sph),nPCM_info)
+*
+*        Evolving the new code
+*
+         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+         Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
 *
 *------- Update the pointers
 *
@@ -192,6 +196,9 @@ cpcm_solvent end
       Real*8, Pointer :: p_rRF(:)
 *
       Call Put_iScalar('PCM info length',nPCM_info)
+*
+*-----Gather the information.
+      Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph),1)
       Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
       iCharge_ref=iCharg
       NonEq_ref=NonEq

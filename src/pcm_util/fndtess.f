@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
+      use PCM_arrays, only: PCMSph
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -73,6 +74,9 @@
          Call GetMem('PCMSph','Allo','Real',ip_Sph,nPCM_info)
          Call FZero(Work(ip_Sph),nPCM_info)
 *
+*--------Allocate PCM arrays
+         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+*
          mChunk=0
          Call Init_a_Chunk(ip_Sph,mChunk)
          Call Get_a_Chunk('PCMSph','Real',ip_Sph,4*NS)
@@ -100,10 +104,16 @@
       End If
 *
       ! PCMSph
-      call dcopy_(nS,Xs,1,Work(ip_Sph  ),4)
-      call dcopy_(nS,Ys,1,Work(ip_Sph+1),4)
-      call dcopy_(nS,Zs,1,Work(ip_Sph+2),4)
-      call dcopy_(nS,Rs, 1,Work(ip_Sph+3),4)
+*     call dcopy_(nS,Xs,1,Work(ip_Sph  ),4)
+*     call dcopy_(nS,Ys,1,Work(ip_Sph+1),4)
+*     call dcopy_(nS,Zs,1,Work(ip_Sph+2),4)
+*     call dcopy_(nS,Rs, 1,Work(ip_Sph+3),4)
+      Do iS = 1, NS
+         PCMSph(1,iS)=Xs(iS)
+         PCMSph(2,iS)=Ys(iS)
+         PCMSph(3,iS)=Zs(iS)
+         PCMSph(4,iS)=Rs(iS)
+      End Do
 *
       ! PCMTess
       call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)

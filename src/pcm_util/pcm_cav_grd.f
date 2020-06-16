@@ -32,7 +32,7 @@
       Call Get_nAtoms_All(MaxAto)
       Call GetMem('PCMGrd','Allo','Real',ip_PCMGrd,3*MaxAto)
       LcNAtm = ISlPar(42)
-      Call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,Work(ip_Sph),
+      Call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,PCMSph,
      &            iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),
      &            PCM_SQ,Work(ip_DerDM),Work(ip_PCMGrd),
      &            dTes,dPnt,dRad,dCntr)

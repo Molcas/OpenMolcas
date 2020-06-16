@@ -21,7 +21,7 @@
       Logical NonEq
       Dimension RJunk(1)
       Real*8, Allocatable:: Xs(:), Ys(:), Zs(:), Rs(:)
-      Integer, Allocatable:: pNs(:)
+      Integer, Allocatable:: pNs(:), VTS(:)
 *
 *     Build the cavity.
 *     Write the input file for GeomView.
@@ -83,12 +83,11 @@
 *
 *---- Prepare an input file for GeomView visualization tool
 *
-      Call GetMem('IVTS','Allo','Inte',ip_VTS,MxVert*nTs)
-      Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,Work(ip_Sph),
+      Call mma_allocate(VTS,MxVert*nTs,Label='VTS')
+      Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,PCMSph,
      &             Work(ip_Tess),iWork(ip_NVert),
-     &             Work(ip_Vert),iWork(ip_ISph),RJunk,iWork(ip_VTS),
-     &             MxVert)
-      Call GetMem('IVTS','Free','Inte',ip_VTS,MxVert*nTs)
+     &             Work(ip_Vert),iWork(ip_ISph),RJunk,VTS,MxVert)
+      Call mma_deallocate(VTS)
 
 *
 *---- If needed compute the geometrical derivatives
@@ -97,7 +96,7 @@
         RSolv = RSlPar(19)
         Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $              Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
-     $              Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
+     $              PCMSph,iWork(ip_ISph),iWork(ip_IntS),
      $              iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
      $              DTes,dPnt,dRad,dCntr)
       EndIf
@@ -106,8 +105,7 @@
 *
       TAbs = RSlPar(16)
       Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,
-     &                TCE,RSolv,Work(ip_Sph),Work(ip_Tess),
-     &                iWork(ip_ISph))
+     &                TCE,RSolv,PCMSph,Work(ip_Tess),iWork(ip_ISph))
 *
 *---- Define PCM matrix: the inverse is stored in ip_DM
 *
@@ -123,7 +121,7 @@ c     LenScr = 2 * nTs
          Eps_=Eps
       End If
       Call MatPCM(nTs,Eps_,Conductor,iWork(ip_ISph),
-     &            Work(ip_Sph), Work(ip_Tess),
+     &            PCMSph, Work(ip_Tess),
      &            Work(ip_DM),Work(ip_SM),Work(ip_SDM),
      &            Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
