@@ -21,6 +21,8 @@
       Integer IAtm(NAtm),IsAtMM(NAtm),LcIAtm(NAtm)
       Save Rad_Cor,Surf_Inc
       Data Rad_Cor/2.0d0/,Surf_Inc/0.5d0/
+      Real*8, Allocatable:: Xs(:), Ys(:), Zs(:), Rs(:)
+      Integer, Allocatable:: pNs(:)
 *
       Call qEnter('PCM_Cavity')
 *
@@ -65,27 +67,25 @@
 *---- Define atomic/group spheres
 *     Allocate space for X, Y, Z, Radius and NOrd for MxSph spheres
 *
-      Call GetMem('XSph','Allo','Real',ipp_Xs,MxSph)
-      Call GetMem('YSph','Allo','Real',ipp_Ys,MxSph)
-      Call GetMem('ZSph','Allo','Real',ipp_Zs,MxSph)
-      Call GetMem('RSph','Allo','Real',ipp_R ,MxSph)
-      Call GetMem('NOrd','Allo','Inte',ipp_N ,MxSph)
+      Call mma_allocate(Xs,MxSph,Label='Xs')
+      Call mma_allocate(Ys,MxSph,Label='Ys')
+      Call mma_allocate(Zs,MxSph,Label='Zs')
+      Call mma_allocate(Rs,MxSph,Label='Rs')
+      Call mma_allocate(pNs,MxSph,Label='pNs')
 *
       NSinit = 0
       Call FndSph(LcNAtm,ICharg,ToAng,LcAtmC,LcIAtm,ISlPar(9),
-     &            ISlPar(14),RSlPar(9),Work(ipp_Xs),Work(ipp_Ys),
-     &            Work(ipp_Zs),Work(ipp_R),iWork(ipp_N),iPrint)
+     &            ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,iPrint)
 *
 *---- Define surface tesserae
 *
-      Call FndTess(iPrint,ToAng,LcNAtm,
-     &             ipp_Xs,ipp_Ys,ipp_Zs,ipp_R,ipp_N)
+      Call FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,MxSph)
 *
-      Call GetMem('NOrd','Free','Inte',ipp_N ,MxSph)
-      Call GetMem('RSph','Free','Real',ipp_R ,MxSph)
-      Call GetMem('ZSph','Free','Real',ipp_Zs,MxSph)
-      Call GetMem('YSph','Free','Real',ipp_Ys,MxSph)
-      Call GetMem('XSph','Free','Real',ipp_Xs,MxSph)
+      Call mma_deallocate(pNs)
+      Call mma_deallocate(Rs)
+      Call mma_deallocate(Zs)
+      Call mma_deallocate(Ys)
+      Call mma_deallocate(Xs)
 *
 *---- If needed compute the geometrical derivatives
 *

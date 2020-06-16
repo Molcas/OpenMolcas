@@ -8,13 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FndTess(iPrint,ToAng,LcNAtm,ipp_Xs,ipp_Ys,ipp_Zs,
-     &                   ipp_R,ipp_N)
+      Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "status.fh"
+      Real*8 Xs(nn), Ys(nn), Zs(nn), Rs(nn)
+      Integer pNs(nn)
       Real*8, Allocatable:: Xt(:),Yt(:),Zt(:),At(:),
      &                      pVert(:),pCentr(:),pSSph(:),
      &                      CV(:)
@@ -55,7 +56,7 @@
       ITsNum = ISlPar(11)
 *
       Call FndTess_(iPrint,ToAng,LcNAtm,MxSph,MxTs,
-     &             Work(ipp_Xs),Work(ipp_Ys),Work(ipp_Zs),Work(ipp_R),
+     &             Xs,Ys,Zs,Rs,
      &             Ret,Omega,Fro,RSolv,NSinit,NS,ITsNum,TsAre,nTs,
      &             Xt,Yt,Zt,At,pISph,pNVert,pVert,
      &             pCentr,pIntS,pNewS,pSSph,JTR,CV)
@@ -99,10 +100,10 @@
       End If
 *
       ! PCMSph
-      call dcopy_(nS,Work(ipp_Xs),1,Work(ip_Sph  ),4)
-      call dcopy_(nS,Work(ipp_Ys),1,Work(ip_Sph+1),4)
-      call dcopy_(nS,Work(ipp_Zs),1,Work(ip_Sph+2),4)
-      call dcopy_(nS,Work(ipp_R), 1,Work(ip_Sph+3),4)
+      call dcopy_(nS,Xs,1,Work(ip_Sph  ),4)
+      call dcopy_(nS,Ys,1,Work(ip_Sph+1),4)
+      call dcopy_(nS,Zs,1,Work(ip_Sph+2),4)
+      call dcopy_(nS,Rs, 1,Work(ip_Sph+3),4)
 *
       ! PCMTess
       call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)
@@ -121,7 +122,7 @@
 *
 *
       ! nOrd
-      Call ICopy(nS,iWork(ipp_N),1,iWork(ip_N),1)
+      Call ICopy(nS,pNs,1,iWork(ip_N),1)
 *
       ! ISph
       Call ICopy(nTs,pISph,1,iWork(ip_ISph),1)
