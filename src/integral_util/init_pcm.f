@@ -42,7 +42,8 @@
       Integer  iix(2)
       Real*8   rix(2)
 #include "periodic_table.fh"
-      Real*8, Allocatable:: Coor(:,:)
+      Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
+      Integer, Allocatable:: ANr(:), LcANr(:)
 *
       If (.Not.PCM) Return
 *
@@ -127,14 +128,14 @@ cpcm_solvent end
       Call mma_allocate(Coor,3,nAtoms,Label='Coor')
       Call Get_Coord_All(Coor,nAtoms)
       Call Get_Name_All(Elements)
-      Call GetMem('ANr','Allo','Inte',ipANr,nAtoms)
+      Call mma_Allocate(ANr,nAtoms,Label='ANr')
       Do i = 1, nAtoms
          Do j = 0, Num_Elem
-            If (PTab(j).eq.Elements(i)) iWork(ipANr+i-1)=j
+            If (PTab(j).eq.Elements(i)) ANr(i)=j
          End Do
       End Do
-      Call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*nAtoms)
-      Call GetMem('LcANr','Allo','Inte',ip_LcANr,nAtoms)
+      Call mma_allocate(LcCoor,3,nAtoms,Label='LcCoor')
+      Call mma_allocate(LcANr,nAtoms,Label='LcANr')
 *
 *---- Initialize PCM model
 *
@@ -142,10 +143,10 @@ cpcm_solvent end
 *     ICharg: Molecular charge
 *     nAtoms: total number of atoms
 *     angstr: conversion factor from bohr to Angstrom
-*     Work(ipCoor): Coordinates of atoms
-*     iWork(ipANr): atomic numbers
-*     Work(ip_LcCoor): local array for atomic coordinates
-*     Work(ip_LcANr): local array for atomic numbers
+*     Coor: Coordinates of atoms
+*     ANr: atomic numbers
+*     LcCoor: local array for atomic coordinates
+*     LcANr: local array for atomic numbers
 *     Solvent: string with explicit solvent name
 *     Conductor: logical flag to activate conductor approximation
 *     aArea: average area of a tessera
@@ -153,17 +154,16 @@ cpcm_solvent end
 *     ip_Ts: pointer to tesserae
 *     nTs  : number of tesserae
 *
-      Call PCM_Init(iPrint,ICharg,nAtoms,angstr,
-     &              Coor,iWork(ipANr),Work(ip_LcCoor),
-     &              iWork(ip_LcANr),nIrrep,NonEq)
+      Call PCM_Init(iPrint,ICharg,nAtoms,angstr,Coor,ANr,LcCoor,
+     &              LcANr,nIrrep,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
          Write (6,*)
       End If
 *
-      Call GetMem('LcANr','Free','Inte',ip_LcANr,nAtoms)
-      Call GetMem('LcCoor','Free','Real',ip_LcCoor,3*nAtoms)
-      Call GetMem('ANr','Free','Inte',ipANr,nAtoms)
+      Call mma_deallocate(LcANr)
+      Call mma_deallocate(LcCoor)
+      Call mma_deallocate(ANr)
       Call mma_deallocate(Coor)
 *                                                                      *
 ************************************************************************
