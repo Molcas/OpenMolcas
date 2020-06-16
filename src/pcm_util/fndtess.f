@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
-      use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr
+      use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -66,6 +66,13 @@
 *     Re-allocate with actual dimensioning                             *
       If (RctFld_Status.ne.Active) Then
 *
+*--------Allocate PCM arrays
+         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+         Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
+         Call mma_allocate(SSph,NS,Label='SSph')
+*
          nPCM_info_r = 4*NS +  4*nTs + 3*MxVert*nTs + 3*MxVert*nTs
      &             + NS + nTs**2
          nPCM_info_i = NS +nTs + nTs + MxVert*nTs + 2*NS + nTs**2
@@ -73,12 +80,6 @@
 *
          Call GetMem('PCMSph','Allo','Real',ip_Sph,nPCM_info)
          Call FZero(Work(ip_Sph),nPCM_info)
-*
-*--------Allocate PCM arrays
-         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
-         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
-         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
-         Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
 *
          mChunk=0
          Call Init_a_Chunk(ip_Sph,mChunk)
@@ -129,7 +130,7 @@
       call dcopy_(3*MxVert*nTs,pCentr,1,Centr,1)
 *
       ! SSph
-      call dcopy_(nS,pSSph,1,Work(ip_SSph),1)
+      call dcopy_(nS,pSSph,1,SSph,1)
 *
 *
       ! nOrd

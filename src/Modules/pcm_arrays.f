@@ -8,6 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*     PCMSph: coordinates and radii of spheres                         *
+*     PCMTess: coordinates and area of tesserae                        *
+*     Vert: coordinates of tesserae vertices (3,*)                     *
+*     Centr: coordinates of tesserae centers (3,*)                     *
+*     SSph: exposed surface of each sphere                             *
+*     PCMDM: PCM matrix                                                *
+*     ip_N: atoms where the spheres are centered                       *
+*     ip_ISph: sphere to which each tessera belongs                    *
+*     ip_NVert: number of vertices of each tessera                     *
+*     ip_IntS: sphere intersecated by each tessera edge (MxVert,*)     *
+*     ip_NewS: parent spheres for each added sphere (2,*)              *
+************************************************************************
       Module PCM_arrays
       Integer nTiles
       Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
@@ -15,5 +27,5 @@
      &                      dCntr(:,:,:,:)
       Real*8, Allocatable:: PCM_SQ(:,:)   ! PCM solvation charges
       Real*8, Allocatable:: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:),
-     &                      Centr(:,:,:)
+     &                      Centr(:,:,:), SSph(:)
       End Module PCM_arrays
