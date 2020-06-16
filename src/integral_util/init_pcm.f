@@ -206,8 +206,10 @@ cpcm_solvent end
 *-----Gather the information -- temporary code
       Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph),1)
       Call DCopy_(4*nTs,PCMTess,1,Work(ip_Tess),1)
+      Call DCopy_(3*MxVert*nTs,Vert,1,Work(ip_Vert),1)
 *
       Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
+*
       iCharge_ref=iCharg
       NonEq_ref=NonEq
 *
