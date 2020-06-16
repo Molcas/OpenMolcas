@@ -11,9 +11,11 @@
       Subroutine FndTess(iPrint,ToAng,LcNAtm,ipp_Xs,ipp_Ys,ipp_Zs,
      &                   ipp_R,ipp_N)
       Implicit Real*8(A-H,O-Z)
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "status.fh"
+      Real*8, Allocatable:: Xt(:),Yt(:),Zt(:),At(:)
 *
 *     Definition of solute cavity and computation of vertices,
 *     representative points and surfaces of the tesserae by the
@@ -26,15 +28,16 @@
 *     Finally, allocate temporary space for NVert (number of vertices for
 *     any tessera), Vert (coordinates of vertices), Centr (center of arcs).
 *
-      Call GetMem('XTs'    ,'Allo','Real',ipp_Xt    ,MxTs)
-      Call GetMem('YTs'    ,'Allo','Real',ipp_Yt    ,MxTs)
-      Call GetMem('ZTs'    ,'Allo','Real',ipp_Zt    ,MxTs)
-      Call GetMem('ATs'    ,'Allo','Real',ipp_At    ,MxTs)
+      Call mma_allocate(Xt,MxTs,Label='Xt')
+      Call mma_allocate(Yt,MxTs,Label='Yt')
+      Call mma_allocate(Zt,MxTs,Label='Zt')
+      Call mma_allocate(At,MxTs,Label='At')
       Call GetMem('Vert'   ,'Allo','Real',ipp_Vert  ,3*MxVert*MxTs)
       Call GetMem('Centr'  ,'Allo','Real',ipp_Centr ,3*MxVert*MxTs)
       Call GetMem('SSph'   ,'Allo','Real',ipp_SSph  ,MxSph)
-      Call GetMem('JTR'    ,'Allo','Inte',ipp_JTR   ,3*MxTs)
       Call GetMem('CV'     ,'Allo','Real',ipp_CV    ,3000)
+*
+      Call GetMem('JTR'    ,'Allo','Inte',ipp_JTR   ,3*MxTs)
       Call GetMem('ISph'   ,'Allo','Inte',ipp_ISph  ,MxTs)
       Call GetMem('NVert'  ,'Allo','Inte',ipp_NVert ,MxTs)
       Call GetMem('IntSph' ,'Allo','Inte',ipp_IntS  ,MxVert*MxTs)
@@ -50,7 +53,7 @@
       Call FndTess_(iPrint,ToAng,LcNAtm,MxSph,MxTs,
      &             Work(ipp_Xs),Work(ipp_Ys),Work(ipp_Zs),Work(ipp_R),
      &             Ret,Omega,Fro,RSolv,NSinit,NS,ITsNum,TsAre,nTs,
-     &             Work(ipp_Xt),Work(ipp_Yt),Work(ipp_Zt),Work(ipp_At),
+     &             Xt,Yt,Zt,At,
      &             iWork(ipp_ISph),iWork(ipp_NVert),Work(ipp_Vert),
      &             Work(ipp_Centr),iWork(ipp_IntS),iWork(ipp_NewS),
      &             Work(ipp_SSph),iWork(ipp_JTR),Work(ipp_CV))
@@ -59,8 +62,9 @@
 *     Re-allocate with actual dimensioning                             *
       If (RctFld_Status.ne.Active) Then
 *
-         nPCM_info = 4*NS + NS + 4*nTs + 3*MxVert*nTs + 3*MxVert*nTs
-     &             + NS + nTs + nTs + MxVert*nTs + 2*NS + nTs**2
+         nPCM_info = 4*NS +  4*nTs + 3*MxVert*nTs + 3*MxVert*nTs
+     &             + NS + nTs**2
+     &             + NS +nTs + nTs + MxVert*nTs + 2*NS + nTs**2
 *
          Call GetMem('PCMSph','Allo','Real',ip_Sph,nPCM_info)
          Call FZero(Work(ip_Sph),nPCM_info)
@@ -96,18 +100,19 @@
       call dcopy_(nS,Work(ipp_Zs),1,Work(ip_Sph+2),4)
       call dcopy_(nS,Work(ipp_R), 1,Work(ip_Sph+3),4)
 *
-      Call ICopy(nS,iWork(ipp_N),1,iWork(ip_N),1)
-*
-      call dcopy_(nTs,Work(ipp_Xt),1,Work(ip_Tess  ),4)
-      call dcopy_(nTs,Work(ipp_Yt),1,Work(ip_Tess+1),4)
-      call dcopy_(nTs,Work(ipp_Zt),1,Work(ip_Tess+2),4)
-      call dcopy_(nTs,Work(ipp_At),1,Work(ip_Tess+3),4)
+      call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)
+      call dcopy_(nTs,Yt,1,Work(ip_Tess+1),4)
+      call dcopy_(nTs,Zt,1,Work(ip_Tess+2),4)
+      call dcopy_(nTs,At,1,Work(ip_Tess+3),4)
 *
       call dcopy_(3*MxVert*nTs,Work(ipp_Vert),1,Work(ip_Vert),1)
 *
       call dcopy_(3*MxVert*nTs,Work(ipp_Centr),1,Work(ip_Centr),1)
 *
       call dcopy_(nS,Work(ipp_SSph),1,Work(ip_SSph),1)
+*
+*
+      Call ICopy(nS,iWork(ipp_N),1,iWork(ip_N),1)
 *
       Call ICopy(nTs,iWork(ipp_ISph),1,iWork(ip_ISph),1)
 *
@@ -130,10 +135,10 @@
       Call GetMem('SSph'   ,'Free','Real',ipp_SSph  ,MxSph)
       Call GetMem('Centr'  ,'Free','Real',ipp_Centr ,3*MxVert*MxTs)
       Call GetMem('Vert'   ,'Free','Real',ipp_Vert  ,3*MxVert*MxTs)
-      Call GetMem('ATs'    ,'Free','Real',ipp_At    ,MxTs)
-      Call GetMem('ZTs'    ,'Free','Real',ipp_Zt    ,MxTs)
-      Call GetMem('YTs'    ,'Free','Real',ipp_Yt    ,MxTs)
-      Call GetMem('XTs'    ,'Free','Real',ipp_Xt    ,MxTs)
+      Call mma_deallocate(At)
+      Call mma_deallocate(Zt)
+      Call mma_deallocate(Yt)
+      Call mma_deallocate(Xt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
