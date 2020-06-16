@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
-      use PCM_arrays, only: PCMSph, PCMTess
+      use PCM_arrays, only: PCMSph, PCMTess, Vert
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -77,6 +77,7 @@
 *--------Allocate PCM arrays
          Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
          Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
 *
          mChunk=0
          Call Init_a_Chunk(ip_Sph,mChunk)

@@ -122,6 +122,7 @@ cpcm_solvent end
 *
          Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
          Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
 *
          Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
          Call DCopy_(4*nTs,Work(ip_Tess),1,PCMTess,1)

@@ -37,6 +37,7 @@
        End If
        If (PCM) Then
           Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
+          Call mma_deallocate(Vert)
           Call mma_deallocate(PCMTess)
           Call mma_deallocate(PCMSph)
 *
