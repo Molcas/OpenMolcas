@@ -126,6 +126,7 @@ cpcm_solvent end
 *
          Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
          Call DCopy_(4*nTs,Work(ip_Tess),1,PCMTess,1)
+         Call DCopy_(3*MxVert*nTs,Work(ip_Vert),1,Vert,1)
 
          Go To 999
       End If

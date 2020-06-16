@@ -122,7 +122,8 @@
       End Do
 *
       ! Vert
-      call dcopy_(3*MxVert*nTs,pVert,1,Work(ip_Vert),1)
+      call dcopy_(3*MxVert*nTs,pVert,1,Vert,1)
+*     call dcopy_(3*MxVert*nTs,pVert,1,Work(ip_Vert),1)
 *
       ! Centr
       call dcopy_(3*MxVert*nTs,pCentr,1,Work(ip_Centr),1)
