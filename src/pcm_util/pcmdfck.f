@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCMDFck(nFck,PCMFck)
+      use PCM_arrays
       Implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "Molcas.fh"
@@ -79,14 +80,14 @@ C
 C     Compute the derivatives of the total potential on tesserae
       Call VDer_PCM(nAtoms,nTs,nS,Work(ipCoor),Work(ipChrg),
      &     Work(ip_EF_n),Work(ip_EF_e),Work(ip_Tess),iWork(ip_ISph),
-     &     Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr),
+     &     dTes,Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr),
      &     Work(ip_VDer))
 C
 C     Actually compute the PCM correction
       Call PCM_Der_Fock(nFck,nAtoms,nTs,nS,Eps,Work(ip_Sph),
      &     iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),Work(ip_Q),
      &     Work(ip_Qtot),Work(ip_DM),Work(ip_DerMat),
-     &     Work(ip_DTes),Work(ip_DPnt),Work(ip_DCntr),
+     &     dTes,Work(ip_DPnt),Work(ip_DCntr),
      &     Work(ip_V),Work(ip_VMN),Work(ip_VDer),Work(ip_VDerMN),
      &     Work(ip_Temp1),Work(ip_Temp2),PCMFck)
 C

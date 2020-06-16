@@ -11,4 +11,5 @@
       Module PCM_arrays
       Integer nTiles
       Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
+      Real*8, Allocatable:: dTes(:,:,:)
       End Module PCM_arrays

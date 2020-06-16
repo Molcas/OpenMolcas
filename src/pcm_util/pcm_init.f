@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,
-     $                    AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
+     &                    AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
+      use PCM_arrays
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "rctfld.fh"
@@ -97,7 +98,7 @@
      $              Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
      $              Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
      $              iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
-     $              Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),
+     $              DTes,Work(ip_DPnt),Work(ip_DRad),
      $              Work(ip_DCntr))
       EndIf
 *

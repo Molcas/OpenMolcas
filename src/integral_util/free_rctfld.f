@@ -9,9 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine Free_RctFld(iXPolType)
+       use PCM_arrays
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
+#include "stdalloc.fh"
 *
        If (RctFld_Status.eq.InActive) Return
        Call GetMem('MM','Free','Real',ipMM,nMM)
@@ -41,7 +43,7 @@
           If (DoDeriv) Then
              LcNAtm = ISlPar(42)
              NDeg = 3*LcNAtm
-             Call GetMem('DerTes'  ,'Free','Real',ip_DTes ,nTs*NDeg)
+             Call mma_deallocate(dTes)
              Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
              Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
              Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)

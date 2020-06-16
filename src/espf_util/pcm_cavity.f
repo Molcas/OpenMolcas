@@ -9,12 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCM_Cavity(iPrint,ICharg,NAtm,ToAng,AtmC,IAtm,IsAtMM,
-     $                      LcAtmC,LcIAtm,JSurf)
+     &                      LcAtmC,LcIAtm,JSurf)
+      use PCM_arrays
       Implicit Real*8 (a-h,o-z)
 #include "espf.fh"
 *
 #include "rctfld.fh"
 #include "status.fh"
+#include "stdalloc.fh"
       Real*8 AtmC(3,NAtm),LcAtmC(3,NAtm)
       Integer IAtm(NAtm),IsAtMM(NAtm),LcIAtm(NAtm)
       Save Rad_Cor,Surf_Inc
@@ -91,7 +93,7 @@
          RSolv = RSlPar(19)
          LcNAtm = ISlPar(42)
          nDeg=3*LcNAtm
-         Call GetMem('DerTes'  ,'Allo','Real',ip_DTes ,nTs*NDeg)
+         Call mma_allocate(dTes,nTs,LcNAtm,3,Label='dTes')
          Call GetMem('DerPunt' ,'Allo','Real',ip_DPnt ,3*nTs*NDeg)
          Call GetMem('DerRad'  ,'Allo','Real',ip_DRad ,nS*NDeg)
          Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)
@@ -100,8 +102,7 @@
      $               Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
      $               Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
      $               iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
-     $               Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),
-     $               Work(ip_DCntr))
+     $               dTes,Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr))
          If (nPCM_info.eq.0) Then
             Write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
             Write(6,'(A)') ' Reduce the number of surfaces.'

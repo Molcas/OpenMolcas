@@ -26,6 +26,7 @@
 *                                                                      *
 *             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 ************************************************************************
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -34,6 +35,7 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
@@ -65,7 +67,7 @@ cpcm_solvent end
       If (DoDeriv) Then
          LcNAtm = ISlPar(42)
          nDeg=3*LcNAtm
-         Call GetMem('DerTes'  ,'Allo','Real',ip_DTes ,nTs*NDeg)
+         Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
          Call GetMem('DerPunt' ,'Allo','Real',ip_DPnt ,3*nTs*NDeg)
          Call GetMem('DerRad'  ,'Allo','Real',ip_DRad ,nS*NDeg)
          Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)

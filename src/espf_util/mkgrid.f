@@ -10,11 +10,13 @@
 ************************************************************************
       Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,
      &                  Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 *
 #include "espf.fh"
 *
 #include "rctfld.fh"
+#include "stdalloc.fh"
       Logical Forces,Process,Dirty
 *
       Call QEnter('mkgrid')
@@ -106,7 +108,7 @@ c
             If (DoDeriv) Then
                LcNAtm = ISlPar(42)
                NDeg = 3*LcNAtm
-               Call GetMem('DerTes'  ,'Free','Real',ip_DTes ,nTs*NDeg)
+               Call mma_deallocate(dTes)
                Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
                Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
                Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
