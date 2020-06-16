@@ -42,6 +42,7 @@
       Integer  iix(2)
       Real*8   rix(2)
 #include "periodic_table.fh"
+      Real*8, Allocatable:: Coor(:,:)
 *
       If (.Not.PCM) Return
 *
@@ -123,8 +124,8 @@ cpcm_solvent end
 *---- Initial processing for PCM
 *
  888  Call Get_nAtoms_All(nAtoms)
-      Call Allocate_Work(ipCoor,3*nAtoms)
-      Call Get_Coord_All(Work(ipCoor),nAtoms)
+      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
+      Call Get_Coord_All(Coor,nAtoms)
       Call Get_Name_All(Elements)
       Call GetMem('ANr','Allo','Inte',ipANr,nAtoms)
       Do i = 1, nAtoms
@@ -153,7 +154,7 @@ cpcm_solvent end
 *     nTs  : number of tesserae
 *
       Call PCM_Init(iPrint,ICharg,nAtoms,angstr,
-     &              Work(ipCoor),iWork(ipANr),Work(ip_LcCoor),
+     &              Coor,iWork(ipANr),Work(ip_LcCoor),
      &              iWork(ip_LcANr),nIrrep,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
@@ -163,7 +164,7 @@ cpcm_solvent end
       Call GetMem('LcANr','Free','Inte',ip_LcANr,nAtoms)
       Call GetMem('LcCoor','Free','Real',ip_LcCoor,3*nAtoms)
       Call GetMem('ANr','Free','Inte',ipANr,nAtoms)
-      Call Free_Work(ipCoor)
+      Call mma_deallocate(Coor)
 *                                                                      *
 ************************************************************************
 *                                                                      *
