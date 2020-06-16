@@ -14,5 +14,6 @@
       Real*8, Allocatable:: dTes(:,:,:), dPnt(:,:,:,:), dRad(:,:,:),
      &                      dCntr(:,:,:,:)
       Real*8, Allocatable:: PCM_SQ(:,:)   ! PCM solvation charges
-      Real*8, Allocatable:: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:)
+      Real*8, Allocatable:: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:),
+     &                      Centr(:,:,:)
       End Module PCM_arrays

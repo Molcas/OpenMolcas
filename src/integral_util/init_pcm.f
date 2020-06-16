@@ -123,10 +123,12 @@ cpcm_solvent end
          Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
          Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
          Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+         Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
 *
          Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
          Call DCopy_(4*nTs,Work(ip_Tess),1,PCMTess,1)
          Call DCopy_(3*MxVert*nTs,Work(ip_Vert),1,Vert,1)
+         Call DCopy_(3*MxVert*nTs,Work(ip_Centr),1,Centr,1)
 
          Go To 999
       End If
@@ -207,6 +209,7 @@ cpcm_solvent end
       Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph),1)
       Call DCopy_(4*nTs,PCMTess,1,Work(ip_Tess),1)
       Call DCopy_(3*MxVert*nTs,Vert,1,Work(ip_Vert),1)
+      Call DCopy_(3*MxVert*nTs,Centr,1,Work(ip_Centr),1)
 *
       Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
 *

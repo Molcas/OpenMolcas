@@ -95,7 +95,7 @@
       If(DoDeriv) then
         RSolv = RSlPar(19)
         Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
-     $              PCMTess,Vert,Work(ip_Centr),
+     $              PCMTess,Vert,Centr,
      $              PCMSph,iWork(ip_ISph),iWork(ip_IntS),
      $              iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
      $              DTes,dPnt,dRad,dCntr)
