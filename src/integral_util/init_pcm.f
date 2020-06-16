@@ -70,7 +70,7 @@ cpcm_solvent end
          Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
          Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
-         Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)
+         Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
          Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)
          Call Get_dArray('PCM Charges',Work(ip_Q),2*nTs)
          Go To 888

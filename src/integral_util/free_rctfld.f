@@ -41,12 +41,10 @@
 *---- Free the space for geometric derivatives
 *
           If (DoDeriv) Then
-             LcNAtm = ISlPar(42)
-             NDeg = 3*LcNAtm
              Call mma_deallocate(dTes)
              Call mma_deallocate(dPnt)
              Call mma_deallocate(dRad)
-             Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
+             Call mma_deallocate(dCntr)
              Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)
           End If
 *

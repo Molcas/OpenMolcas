@@ -126,8 +126,7 @@
 *     Now form the correct combinations
 *
       Call Cmbn_EF_DPnt(Work(ip_EF),nTs,dPnt,MaxAto,
-     &                  Work(ip_DCntr),nS,iWork(ip_iSph),Work(ip_Q),
-     &                  Grad,nGrad)
+     &                  dCntr,nS,iWork(ip_iSph),Work(ip_Q),Grad,nGrad)
 *
 *                                                                      *
 ************************************************************************

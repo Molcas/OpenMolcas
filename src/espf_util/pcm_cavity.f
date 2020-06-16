@@ -92,17 +92,16 @@
       If(DoDeriv) then
          RSolv = RSlPar(19)
          LcNAtm = ISlPar(42)
-         nDeg=3*LcNAtm
          Call mma_allocate(dTes,nTs,LcNAtm,3,Label='dTes')
          Call mma_allocate(dPnt,nTs,LcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,LcNAtm,3,Label='dRad')
-         Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)
+         Call mma_allocate(dCntr,nS ,LcNAtm,3,3,Label='dCntr')
          Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)
          Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $               Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
      $               Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
      $               iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
-     $               dTes,dPnt,dRad,Work(ip_DCntr))
+     $               dTes,dPnt,dRad,dCntr)
          If (nPCM_info.eq.0) Then
             Write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
             Write(6,'(A)') ' Reduce the number of surfaces.'
