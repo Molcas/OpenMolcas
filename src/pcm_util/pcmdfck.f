@@ -80,7 +80,7 @@ C
 C     Compute the derivatives of the total potential on tesserae
       Call VDer_PCM(nAtoms,nTs,nS,Work(ipCoor),Work(ipChrg),
      &     Work(ip_EF_n),Work(ip_EF_e),Work(ip_Tess),iWork(ip_ISph),
-     &     dTes,dPnt,Work(ip_DRad),Work(ip_DCntr),
+     &     dTes,dPnt,dRad,Work(ip_DCntr),
      &     Work(ip_VDer))
 C
 C     Actually compute the PCM correction

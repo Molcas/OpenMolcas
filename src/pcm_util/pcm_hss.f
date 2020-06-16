@@ -68,7 +68,7 @@
      &     Work(ipCoor),Work(ipChrg),Work(ip_EF_n),Work(ip_EF_e),
      &     Work(ip_Sph),iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),
      &     Work(ip_Q),Work(ip_Qtot),Work(ip_DM),Work(ip_HssPCM),
-     &     Work(ip_DerMat),dTes,dPnt,Work(ip_DRad),
+     &     Work(ip_DerMat),dTes,dPnt,dRad,
      &     Work(ip_DCntr),Work(ip_QDer),Work(ip_Der1),Work(ip_Der2),
      &     Work(ip_VDer))
       Call GetMem('HssPCM','Free','Real',ip_HssPCM,nHss)
