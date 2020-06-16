@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
+      use PCM_arrays, only: PCMTess
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -88,8 +89,7 @@
       Call mma_allocate(V_Slow,nTs,Label='V_Slow')
 *
       Call DrvPCM_(h1,TwoHam,D,RepNuc,nh1,First,NonEq,
-     &             Chrg,Cord,MaxAto,
-     &             Work(ip_Tess),Work(ip_DM),V_Tile,
+     &             Chrg,Cord,MaxAto,PCMTess,Work(ip_DM),V_Tile,
      &             V_Save,PCM_Charge,Q_Slow,V_Slow,nTs,Eps,EpsInf)
 *
       Call mma_deallocate(V_Slow)

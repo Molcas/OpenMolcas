@@ -27,7 +27,7 @@
 *                                                                      *
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
-      use PCM_arrays, only: PCM_SQ
+      use PCM_arrays, only: PCM_SQ, PCMTess
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -532,9 +532,7 @@
          NoLoop = ZA.eq.Zero
          ZA = ZA / DBLE(nIrrep)
          If (NoLoop) Go To 112
-         A(1) = Work((iTs-1)*4+ip_Tess  )
-         A(2) = Work((iTs-1)*4+ip_Tess+1)
-         A(3) = Work((iTs-1)*4+ip_Tess+2)
+         A(1:3) = PCMTess(1:3,iTs)
 *
 *------- Tile only stabilized by the unit operator
 *

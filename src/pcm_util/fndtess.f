@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
-      use PCM_arrays, only: PCMSph
+      use PCM_arrays, only: PCMSph, PCMTess
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -76,6 +76,7 @@
 *
 *--------Allocate PCM arrays
          Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
 *
          mChunk=0
          Call Init_a_Chunk(ip_Sph,mChunk)
@@ -116,10 +117,16 @@
       End Do
 *
       ! PCMTess
-      call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)
-      call dcopy_(nTs,Yt,1,Work(ip_Tess+1),4)
-      call dcopy_(nTs,Zt,1,Work(ip_Tess+2),4)
-      call dcopy_(nTs,At,1,Work(ip_Tess+3),4)
+*     call dcopy_(nTs,Xt,1,Work(ip_Tess  ),4)
+*     call dcopy_(nTs,Yt,1,Work(ip_Tess+1),4)
+*     call dcopy_(nTs,Zt,1,Work(ip_Tess+2),4)
+*     call dcopy_(nTs,At,1,Work(ip_Tess+3),4)
+      Do iTs = 1, nTs
+         PCMTess(1,iTs)=Xt(iTs)
+         PCMTess(2,iTs)=Yt(iTs)
+         PCMTess(3,iTs)=Zt(iTs)
+         PCMTess(4,iTs)=At(iTs)
+      End Do
 *
       ! Vert
       call dcopy_(3*MxVert*nTs,pVert,1,Work(ip_Vert),1)

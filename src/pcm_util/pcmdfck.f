@@ -74,17 +74,17 @@ C
 C     Compute the potential and the electric field on tesserae
       DoPot = .True.
       DoFld = .True.
-      Call V_EF_PCM(nAtoms,nTs,DoPot,DoFld,Work(ipCoor),Work(ip_Tess),
+      Call V_EF_PCM(nAtoms,nTs,DoPot,DoFld,Work(ipCoor),PCMTess,
      &     Work(ip_V),Work(ip_EF_n),Work(ip_EF_e))
 C
 C     Compute the derivatives of the total potential on tesserae
       Call VDer_PCM(nAtoms,nTs,nS,Work(ipCoor),Work(ipChrg),
-     &     Work(ip_EF_n),Work(ip_EF_e),Work(ip_Tess),iWork(ip_ISph),
+     &     Work(ip_EF_n),Work(ip_EF_e),PCMTess,iWork(ip_ISph),
      &     dTes,dPnt,dRad,dCntr,Work(ip_VDer))
 C
 C     Actually compute the PCM correction
       Call PCM_Der_Fock(nFck,nAtoms,nTs,nS,Eps,PCMSph,
-     &     iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),PCM_SQ,
+     &     iWork(ip_ISph),iWork(ip_N),PCMTess,PCM_SQ,
      &     Work(ip_Qtot),Work(ip_DM),Work(ip_DerMat),
      &     dTes,dPnt,dCntr,Work(ip_V),Work(ip_VMN),Work(ip_VDer),
      &     Work(ip_VDerMN),Work(ip_Temp1),Work(ip_Temp2),PCMFck)

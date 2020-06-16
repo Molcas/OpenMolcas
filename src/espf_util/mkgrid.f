@@ -99,7 +99,7 @@ c
             If (DoDeriv) Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,
      &                               3*nGrdPt*nDer)
             Do I = 1, nTs
-               call dcopy_(3,Work(ip_Tess + 4*(I-1)),1,
+               call dcopy_(3,PCMTess(1,I),1,
      &                      Work(ipTmp   + 3*nTmp+3*(I-1)),1)
             End Do
             If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,

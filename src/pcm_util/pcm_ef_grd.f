@@ -84,9 +84,8 @@
 *
       ip_EF_n=ip_EF_nuclear
       ip_EF_e=ip_EF_electronic
-      ip_Ts  =ip_Tess
       Do iTile = 1, nTs
-         Call EFNuc(Work(ip_Ts),Chrg,Cord,MaxAto,EF_temp,nOrdOp)
+         Call EFNuc(PCMTess(1,iTile),Chrg,Cord,MaxAto,EF_temp,nOrdOp)
          Work(ip_EF_n  )=EF_Temp(1)
          Work(ip_EF_n+1)=EF_Temp(2)
          Work(ip_EF_n+2)=EF_Temp(3)
@@ -95,7 +94,6 @@
          Work(ip_EF_e+2)=Zero
          ip_EF_n = ip_EF_n + 2*nComp
          ip_EF_e = ip_EF_e + 2*nComp
-         ip_Ts   = ip_Ts   + 4
       End Do
 *
       Call mma_deallocate(Cord)
@@ -114,8 +112,7 @@
       Call ICopy(nTs,[255],0,lOper,1)
 *
       Call Drv1_PCM(FactOp,nTs,Work(ipD1ao),nDens,
-     &              Work(ip_Tess),lOper,
-     &              Work(ip_EF),nOrdOp)
+     &              PCMTess,lOper,Work(ip_EF),nOrdOp)
 *
       Call mma_deallocate(lOper)
       Call mma_deallocate(FactOp)

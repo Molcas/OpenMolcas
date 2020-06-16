@@ -66,7 +66,7 @@
 
       Call PCM_Cav_Hss(Angstr,nAtoms,nAt3,nTs,nS,Eps,iWork(ipANr),
      &     Work(ipCoor),Work(ipChrg),Work(ip_EF_n),Work(ip_EF_e),
-     &     PCMSph,iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),
+     &     PCMSph,iWork(ip_ISph),iWork(ip_N),PCMTess,
      &     PCM_SQ,Work(ip_Qtot),Work(ip_DM),Work(ip_HssPCM),
      &     Work(ip_DerMat),dTes,dPnt,dRad,
      &     dCntr,Work(ip_QDer),Work(ip_Der1),Work(ip_Der2),

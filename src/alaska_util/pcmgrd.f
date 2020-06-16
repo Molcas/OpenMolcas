@@ -35,7 +35,7 @@
 *             Modified to PCM gradients September 2001, Lund, by       *
 *             R. Lindh.                                                *
 ************************************************************************
-      use PCM_arrays, only: PCM_SQ
+      use PCM_arrays, only: PCM_SQ, PCMTess
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -135,8 +135,7 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
          NoLoop = Q.eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the tile coordinates
-         kxyz = ip_Tess + (iTs-1)*4
-         call dcopy_(3,Work(kxyz),1,C,1)
+         C(1:3)=PCMTess(1:3,iTs)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
          Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
