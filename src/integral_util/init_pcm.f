@@ -93,16 +93,6 @@ cpcm_solvent end
          Call Allocate_Work(ip_Sph,nPCM_info)
          Call Get_dArray('PCM Info',Work(ip_Sph),nPCM_info)
 *
-*        Evolving the new code
-*
-         ip_Sph_=ip_Sph
-         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
-         Call DCopy_(4*NS,Work(ip_Sph_),1,PCMSph,1)
-         ip_Sph_=ip_Sph_+4*NS
-         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
-         Call DCopy_(4*nTs,Work(ip_Sph_),1,PCMTess,1)
-         ip_Sph_=ip_Sph_+4*nTs
-*
 *------- Update the pointers
 *
          mChunk=0
@@ -127,6 +117,15 @@ cpcm_solvent end
             Write (6,*) 'nPCM_Info=',nPCM_Info
             Call Abend()
          End If
+*
+*        Evolving the new code
+*
+         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+*
+         Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
+         Call DCopy_(4*nTs,Work(ip_Tess),1,PCMTess,1)
+
          Go To 999
       End If
 *                                                                      *
@@ -203,11 +202,8 @@ cpcm_solvent end
       Call Put_iScalar('PCM info length',nPCM_info)
 *
 *-----Gather the information -- temporary code
-      ip_Sph_=ip_Sph
-      Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph_),1)
-      ip_Sph_=ip_Sph_+4*NS
-      Call DCopy_(4*nTs,PCMTess,1,Work(ip_Sph_),1)
-      ip_Sph_=ip_Sph_+4*nTs
+      Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph),1)
+      Call DCopy_(4*nTs,PCMTess,1,Work(ip_Tess),1)
 *
       Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
       iCharge_ref=iCharg
