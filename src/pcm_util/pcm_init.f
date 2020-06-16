@@ -107,7 +107,7 @@
       Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,
      &                TCE,RSolv,PCMSph,PCMTess,iWork(ip_ISph))
 *
-*---- Define PCM matrix: the inverse is stored in ip_DM
+*---- Define PCM matrix: the inverse is stored in PCMDM
 *
       nTs2 = nTs * nTs
 c     LenScr = 2 * nTs
@@ -121,8 +121,7 @@ c     LenScr = 2 * nTs
          Eps_=Eps
       End If
       Call MatPCM(nTs,Eps_,Conductor,iWork(ip_ISph),
-     &            PCMSph, PCMTess,
-     &            Work(ip_DM),Work(ip_SM),Work(ip_SDM),
+     &            PCMSph, PCMTess,PCMDM,Work(ip_SM),Work(ip_SDM),
      &            Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
       Call GetMem('TMat','Free','Real',ip_TM,nTs2)

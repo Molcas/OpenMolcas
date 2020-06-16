@@ -534,7 +534,7 @@ c     Call qEnter('DrvN2')
       Do jTs = 1, iTs
          Fact=Two
          If (jTs.eq.iTs) Fact=One
-         Q_ij = DMElm(nTs,iTs,jTs,Work(ip_DM))
+         Q_ij = DMElm(nTs,iTs,jTs,PCMDM)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
          C(1:3) = PCMTess(1:3,jTs)
@@ -806,7 +806,7 @@ c     Call qEnter('DrvN2')
         Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
      &   iWork(ip_ISph),iWork(ip_N),PCMTess,PCM_SQ,
-     &   Work(ip_DM),Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
+     &   PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
      &   dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
         Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
         Call GetMem('Der1','Free','Real',ip_Der1,nTs)
