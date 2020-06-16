@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2003, 2020 Roland Lindh                                *
+* Copyright (C) 2003,2020, Roland Lindh                                *
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
@@ -919,7 +919,7 @@ C           Write (6,*) 'gBeta=',gBeta
          End If
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
-         tBeta= Min(1.0D3*GNrm,Beta)
+         tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
          Thr_RS=1.0D-7
 #ifdef _DEBUG_
             Write (6,*) 'Step_Trunc(0)=',Step_Trunc
