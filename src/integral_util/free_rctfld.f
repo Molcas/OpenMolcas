@@ -44,7 +44,7 @@
              LcNAtm = ISlPar(42)
              NDeg = 3*LcNAtm
              Call mma_deallocate(dTes)
-             Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
+             Call mma_deallocate(dPnt)
              Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
              Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
              Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)

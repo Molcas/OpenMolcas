@@ -68,7 +68,7 @@ cpcm_solvent end
          LcNAtm = ISlPar(42)
          nDeg=3*LcNAtm
          Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
-         Call GetMem('DerPunt' ,'Allo','Real',ip_DPnt ,3*nTs*NDeg)
+         Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
          Call GetMem('DerRad'  ,'Allo','Real',ip_DRad ,nS*NDeg)
          Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)
          Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PCM_EF_grd(Grad,nGrad)
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
 #include "itmax.fh"
@@ -124,7 +125,7 @@
 *                                                                      *
 *     Now form the correct combinations
 *
-      Call Cmbn_EF_DPnt(Work(ip_EF),nTs,Work(ip_DPnt),MaxAto,
+      Call Cmbn_EF_DPnt(Work(ip_EF),nTs,dPnt,MaxAto,
      &                  Work(ip_DCntr),nS,iWork(ip_iSph),Work(ip_Q),
      &                  Grad,nGrad)
 *

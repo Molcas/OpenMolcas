@@ -102,14 +102,14 @@ c
                call dcopy_(3,Work(ip_Tess + 4*(I-1)),1,
      &                      Work(ipTmp   + 3*nTmp+3*(I-1)),1)
             End Do
-            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,Work(ip_DPnt),1,
+            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,
      &                                            Work(ipDGrd ),1)
             Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
             If (DoDeriv) Then
                LcNAtm = ISlPar(42)
                NDeg = 3*LcNAtm
                Call mma_deallocate(dTes)
-               Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
+               Call mma_deallocate(dPnt)
                Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
                Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
                Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)

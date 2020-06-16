@@ -89,7 +89,7 @@
      &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
      &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
-     &              ip_DPnt,ip_DRad,ip_DCntr,
+     &              ip_DRad,ip_DCntr,
      &              iRFEnd
       common /iRct/ iRFStrt,
      &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
@@ -100,7 +100,7 @@
      &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
      &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
-     &              ip_DPnt,ip_DRad,ip_DCntr,
+     &              ip_DRad,ip_DCntr,
      &              iRFEnd
       real(kind=8) :: Cordsi(3,4), rRfStrt,
      &              EpsInf_User,

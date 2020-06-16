@@ -98,8 +98,7 @@
      $              Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
      $              Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),
      $              iWork(ip_N),iWork(ip_NVert),iWork(ip_NewS),
-     $              DTes,Work(ip_DPnt),Work(ip_DRad),
-     $              Work(ip_DCntr))
+     $              DTes,dPnt,Work(ip_DRad),Work(ip_DCntr))
       EndIf
 *
 *---- Compute cavitation energy
