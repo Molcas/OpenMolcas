@@ -110,7 +110,7 @@ c
                Call mma_deallocate(dPnt)
                Call mma_deallocate(dRad)
                Call mma_deallocate(dCntr)
-               Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)
+               Call mma_deallocate(PCM_SQ)
             End If
          End Do
          Call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*nGrdPt)

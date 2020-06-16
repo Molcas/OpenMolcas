@@ -27,6 +27,7 @@
 *                                                                      *
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -527,7 +528,7 @@
 *
 *
       Do iTs = 1, nTs
-         ZA   = Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         ZA   = PCM_SQ(1,iTs)+PCM_SQ(2,iTS)
          NoLoop = ZA.eq.Zero
          ZA = ZA / DBLE(nIrrep)
          If (NoLoop) Go To 112

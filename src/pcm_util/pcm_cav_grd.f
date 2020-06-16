@@ -34,7 +34,7 @@
       LcNAtm = ISlPar(42)
       Call GeoDer(LcNAtm,Conductor,nTs,nS,Eps,Work(ip_Sph),
      &            iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),
-     &            Work(ip_Q),Work(ip_DerDM),Work(ip_PCMGrd),
+     &            PCM_SQ,Work(ip_DerDM),Work(ip_PCMGrd),
      &            dTes,dPnt,dRad,dCntr)
 *     Call RecPrt('PCM_Cav_Grd','(5G20.10)',Work(ip_PCMGrd),3,MaxAto)
       Call GrdTr_Alaska(Work(ip_PCMGrd),MaxAto,Grad,nGrad)

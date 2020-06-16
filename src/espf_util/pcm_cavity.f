@@ -96,7 +96,7 @@
          Call mma_allocate(dPnt,nTs,LcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,LcNAtm,3,Label='dRad')
          Call mma_allocate(dCntr,nS ,LcNAtm,3,3,Label='dCntr')
-         Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)
+         Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
          Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $               Work(ip_Tess),Work(ip_Vert),Work(ip_Centr),
      $               Work(ip_Sph),iWork(ip_ISph),iWork(ip_IntS),

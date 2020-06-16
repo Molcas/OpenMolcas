@@ -60,7 +60,6 @@
 *     ip_IntS: sphere intersecated by each tessera edge (MxVert,*)     *
 *     ip_NewS: parent spheres for each added sphere (2,*)              *
 *     ip_DM: PCM matrix                                                *
-*     ip_Q: PCM solvation charges
 *                                                                      *
 ************************************************************************
 *     !!!!!!!!!!!!!!!!!!!!!!!
@@ -87,7 +86,7 @@
      &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
      &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
      &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
+     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       common /iRct/ iRFStrt,
@@ -97,7 +96,7 @@
      &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
      &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
      &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
+     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       real(kind=8) :: Cordsi(3,4), rRfStrt,

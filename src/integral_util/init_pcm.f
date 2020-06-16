@@ -71,8 +71,8 @@ cpcm_solvent end
          Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
          Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
-         Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)
-         Call Get_dArray('PCM Charges',Work(ip_Q),2*nTs)
+         Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
+         Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
          Go To 888
       End If
 *                                                                      *

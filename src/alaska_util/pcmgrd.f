@@ -35,6 +35,7 @@
 *             Modified to PCM gradients September 2001, Lund, by       *
 *             R. Lindh.                                                *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -130,7 +131,7 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *     Loop over the tiles
 *
       Do iTs = 1, nTs
-         Q=Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         Q=PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          NoLoop = Q.eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the tile coordinates

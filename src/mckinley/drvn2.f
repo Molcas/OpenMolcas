@@ -335,7 +335,7 @@ c     Call qEnter('DrvN2')
 *
 *
       Do iTs = 1, nTs
-         ZA   = Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         ZA   = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          NoLoop = ZA.eq.Zero
          If (NoLoop) Go To 112
          ZA = ZA / DBLE(nIrrep)
@@ -811,7 +811,7 @@ c     Call qEnter('DrvN2')
         Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
         Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,Work(ip_Sph),
-     &   iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),Work(ip_Q),
+     &   iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),PCM_SQ,
      &   Work(ip_DM),Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
      &   dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
         Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)

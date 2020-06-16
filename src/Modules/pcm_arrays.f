@@ -13,4 +13,5 @@
       Real*8, Allocatable:: C_Tessera(:,:), Q_Tessera(:)
       Real*8, Allocatable:: dTes(:,:,:), dPnt(:,:,:,:), dRad(:,:,:),
      &                      dCntr(:,:,:,:)
+      Real*8, Allocatable:: PCM_SQ(:,:)   ! PCM solvation charges
       End Module PCM_arrays

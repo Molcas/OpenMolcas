@@ -135,7 +135,7 @@ c     Do iTs = 1, nTs
       Do iTs = 1, 1
 cpcm_solvent end
 cpcm_solvent put "charge" to 1
-c        Q=Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+c        Q=PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          Q=One
 cpcm_solvent end
          NoLoop = Q.eq.Zero
