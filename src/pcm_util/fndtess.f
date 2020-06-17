@@ -85,33 +85,6 @@
          nPCM_info_i = NS +nTs + nTs + MxVert*nTs + 2*NS + nTs**2
          nPCM_info = nPCM_info_r + nPCM_info_i
 *
-         Call GetMem('PCMSph','Allo','Real',ip_Sph,nPCM_info)
-         Call FZero(Work(ip_Sph),nPCM_info)
-*
-         mChunk=0
-         Call Init_a_Chunk(ip_Sph,mChunk)
-         Call Get_a_Chunk('PCMSph','Real',ip_Sph,4*NS)
-         Call Get_a_Chunk('PCMTess','Real',ip_Tess,4*nTs)
-         Call Get_a_Chunk('Vert','Real',ip_Vert,3*MxVert*nTs)
-         Call Get_a_Chunk('Centr','Real',ip_Centr,3*MxVert*nTs)
-         Call Get_a_Chunk('SSph','Real',ip_SSph,NS)
-         Call Get_a_Chunk('DM','Real',ip_DM,nTs**2)
-*
-         Call Get_a_Chunk('NOrd','Inte',ip_N ,NS)
-         Call Get_a_Chunk('ISph','Inte',ip_ISph,nTs)
-         Call Get_a_Chunk('NVert','Inte',ip_NVert,nTs)
-         Call Get_a_Chunk('IntSph','Inte',ip_IntS,MxVert*nTs)
-         Call Get_a_Chunk('NewSph','Inte',ip_NewS,2*NS)
-         Call nChunk(mChunk)
-         If (mChunk.gt.nPCM_info) Then
-            Write (6,*) 'FndTss: mChunk.gt.nPCM_info!'
-            Write (6,*) 'mChunk=',mChunk
-            Write (6,*) 'nPCM_Info=',nPCM_Info
-            Call QTrace()
-            Call Abend()
-         End If
-         nPCM_info=mChunk
-*
       End If
 *
       ! PCMSph
