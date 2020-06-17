@@ -68,14 +68,14 @@
      &              lAmberPol,
      &              Done_Lattice,lFirstIter,lDiprestart,
      &              lRFEnd
-      integer :: lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
+      integer :: lMax, nMM, latato, nexpo, maxa, maxb, maxc,
      &              iRFStrt, nabc, nCavxyz,
      &              nGrid, nGrid_Eff,nSparse,
      &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       common /iRct/ iRFStrt,
-     &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
+     &              lMax, nMM, latato, nexpo, maxa, maxb, maxc,
      &              nabc, nCavxyz, nGrid, nGrid_Eff,nSparse,
      &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
