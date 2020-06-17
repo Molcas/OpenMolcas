@@ -181,7 +181,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 
 
 
-      Call eperm(Work(ipD1ao),nh1,Work(ipRavxyz),Work(ipCavxyz),nCavxyz,
+      Call eperm(Work(ipD1ao),nh1,Ravxyz,Cavxyz,nCavxyz,
      &           dField,Grid,nGrid_Eff,Work(ipCord),
      &           MaxAto,Work(ipChrg),Work(ippField))
 
@@ -239,23 +239,22 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       If(lDiprestart .or. lFirstIter) Then
          Field(:,:)=Zero
          Dip(:,:)=Zero
-         Call FZero(Work(ipDavxyz),nCavxyz)
+         Davxyz(:)=Zero
       EndIf
 
 *---- Subtract the static MM from the previous iteration
 *     from the static MM of this iteration, and save the
-*     untouched static MM of this iteration into Work(ipDavxyz)
-*     for use in the next iteration. Work(ipRavxyz) is
+*     untouched static MM of this iteration into Davxyz
+*     for use in the next iteration. Ravxyz is
 *     just a temporary array
 
-      call dcopy_(nCavxyz,Work(ipCavxyz),1,Work(ipRavxyz),1)
-      Call DaXpY_(nCavxyz,-One,Work(ipDavxyz),1,Work(ipCavxyz),1)
-      call dcopy_(nCavxyz,Work(ipRavxyz),1,Work(ipDavxyz),1)
+      call dcopy_(nCavxyz,Cavxyz,1,Ravxyz,1)
+      Call DaXpY_(nCavxyz,-One,Davxyz,1,Cavxyz,1)
+      call dcopy_(nCavxyz,Ravxyz,1,Davxyz,1)
 
-
-
-
-
+*     Ravxyz(:)=Cavxyz(:)
+*     Cavxyz(:)=Cavxyz(:)-Davxyz(:)
+*     Davxyz(:)=Ravxyz(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -265,8 +264,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 *     Field : total EF of the Langevin grid
 *     Dip   : dipole momement on the Langevin grid
 *
-      Call edip(Work(ipRavxyz),
-     &          Work(ipCavxyz),lmax,
+      Call edip(Ravxyz,Cavxyz,lmax,
      &          Field,Dip,dField,
      &          PolEf,DipEf,
      &          Grid,nGrid_Eff,nPolComp,nAnisopol,

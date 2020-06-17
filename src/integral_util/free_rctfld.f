@@ -31,10 +31,10 @@
           Call mma_deallocate(DipEf)
           Call mma_deallocate(Grid)
 *
-          Call GetMem('favxyz','Free','Real',ipfavxyz,nCavxyz)
-          Call GetMem('davxyz','Free','Real',ipdavxyz,nCavxyz)
-          Call GetMem('cavxyz','Free','Real',ipcavxyz,nCavxyz)
-          Call GetMem('ravxyz','Free','Real',ipravxyz,nCavxyz)
+          Call mma_deallocate(favxyz)
+          Call mma_deallocate(davxyz)
+          Call mma_deallocate(cavxyz)
+          Call mma_deallocate(ravxyz)
        End If
        If (PCM) Then
           Call mma_deallocate(NewSph)
