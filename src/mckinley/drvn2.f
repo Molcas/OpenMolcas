@@ -805,9 +805,9 @@ c     Call qEnter('DrvN2')
         Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
         Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
-     &               iWork(ip_ISph),PCM_N,PCMTess,PCM_SQ,
-     &   PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
-     &   dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
+     &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
+     &               PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
+     &               dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
         Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
         Call GetMem('Der1','Free','Real',ip_Der1,nTs)
         Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)

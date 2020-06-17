@@ -123,7 +123,7 @@
 *     Now form the correct combinations
 *
       Call Cmbn_EF_DPnt(Work(ip_EF),nTs,dPnt,MaxAto,
-     &                  dCntr,nS,iWork(ip_iSph),PCM_SQ,Grad,nGrad)
+     &                  dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
 *
 *                                                                      *
 ************************************************************************

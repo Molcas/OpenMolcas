@@ -86,7 +86,7 @@
       Call mma_allocate(VTS,MxVert*nTs,Label='VTS')
       Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,PCMSph,
      &             PCMTess,iWork(ip_NVert),
-     &             Vert,iWork(ip_ISph),RJunk,VTS,MxVert)
+     &             Vert,PCMiSph,RJunk,VTS,MxVert)
       Call mma_deallocate(VTS)
 
 *
@@ -96,7 +96,7 @@
         RSolv = RSlPar(19)
         Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $              PCMTess,Vert,Centr,
-     $              PCMSph,iWork(ip_ISph),iWork(ip_IntS),
+     $              PCMSph,PCMiSph,iWork(ip_IntS),
      $              PCM_N,iWork(ip_NVert),iWork(ip_NewS),
      $              DTes,dPnt,dRad,dCntr)
       EndIf
@@ -105,7 +105,7 @@
 *
       TAbs = RSlPar(16)
       Call Cavitation(DoDeriv,ToAng,LcNAtm,NS,nTs,RSlPar(46),VMol,TAbs,
-     &                TCE,RSolv,PCMSph,PCMTess,iWork(ip_ISph))
+     &                TCE,RSolv,PCMSph,PCMTess,PCMiSph)
 *
 *---- Define PCM matrix: the inverse is stored in PCMDM
 *
@@ -120,9 +120,8 @@ c     LenScr = 2 * nTs
       Else
          Eps_=Eps
       End If
-      Call MatPCM(nTs,Eps_,Conductor,iWork(ip_ISph),
-     &            PCMSph, PCMTess,PCMDM,Work(ip_SM),Work(ip_SDM),
-     &            Work(ip_TM),Work(ip_RM))
+      Call MatPCM(nTs,Eps_,Conductor,PCMiSph,PCMSph, PCMTess,PCMDM,
+     &            Work(ip_SM),Work(ip_SDM),Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
       Call GetMem('TMat','Free','Real',ip_TM,nTs2)
       Call GetMem('SDMat','Free','Real',ip_SDM,nTs2)

@@ -79,15 +79,16 @@ C     Compute the potential and the electric field on tesserae
 C
 C     Compute the derivatives of the total potential on tesserae
       Call VDer_PCM(nAtoms,nTs,nS,Work(ipCoor),Work(ipChrg),
-     &     Work(ip_EF_n),Work(ip_EF_e),PCMTess,iWork(ip_ISph),
-     &     dTes,dPnt,dRad,dCntr,Work(ip_VDer))
+     &              Work(ip_EF_n),Work(ip_EF_e),PCMTess,PCMiSph,
+     &              dTes,dPnt,dRad,dCntr,Work(ip_VDer))
 C
 C     Actually compute the PCM correction
       Call PCM_Der_Fock(nFck,nAtoms,nTs,nS,Eps,PCMSph,
-     &                  iWork(ip_ISph),PCM_N,PCMTess,PCM_SQ,
-     &     Work(ip_Qtot),PCMDM,Work(ip_DerMat),
-     &     dTes,dPnt,dCntr,Work(ip_V),Work(ip_VMN),Work(ip_VDer),
-     &     Work(ip_VDerMN),Work(ip_Temp1),Work(ip_Temp2),PCMFck)
+     &                  PCMiSph,PCM_N,PCMTess,PCM_SQ,
+     &                  Work(ip_Qtot),PCMDM,Work(ip_DerMat),
+     &                  dTes,dPnt,dCntr,Work(ip_V),Work(ip_VMN),
+     &                  Work(ip_VDer),Work(ip_VDerMN),Work(ip_Temp1),
+     &                  Work(ip_Temp2),PCMFck)
 C
 C     Free the space
       Call GetMem('Qtot','Free','Real',ip_Qtot,nTs)
