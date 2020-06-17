@@ -27,9 +27,9 @@
           Call mma_deallocate(Field)
           Call mma_deallocate(dField)
           Call mma_deallocate(Dip)
-          Call GetMem('PolEf ','Free','Real',ipPolEf ,nGrid*nPolComp)
-          Call GetMem('DipEf ','Free','Real',ipDipEf ,nGrid  )
-          Call GetMem('Grid  ','Free','Real',ipGrid  ,nGrid*3)
+          Call mma_deallocate(PolEf)
+          Call mma_deallocate(DipEf)
+          Call mma_deallocate(Grid)
 *
           Call GetMem('favxyz','Free','Real',ipfavxyz,nCavxyz)
           Call GetMem('davxyz','Free','Real',ipdavxyz,nCavxyz)

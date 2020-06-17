@@ -39,9 +39,9 @@
           Call mma_allocate(Field,4,nGrid,Label='Field')
           Call mma_allocate(dField,4,nGrid,Label='dField')
           Call mma_allocate(Dip,3,nGrid,Label='Dip')
-          Call GetMem('PolEf ','Allo','Real',ipPolEf ,nGrid*nPolComp)
-          Call GetMem('DipEf ','Allo','Real',ipDipEf ,nGrid  )
-          Call GetMem('Grid  ','Allo','Real',ipGrid  ,nGrid*3)
+          Call mma_allocate(PolEf,nPolComp,nGrid,Label='PolEf')
+          Call mma_allocate(DipEf,nGrid,Label='DipEf')
+          Call mma_allocate(Grid,3,nGrid,Label='Grid')
 *
           nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
           Call GetMem('favxyz','Allo','Real',ipfavxyz,nCavxyz)

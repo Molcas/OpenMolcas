@@ -138,17 +138,15 @@ c            Call System_clock(iSeed,j,k)
          nGrid_Eff=0
 *        Both these subroutines can increase nGrid_Eff
          If(iXPolType.gt.0) Then
-            Call lattXPol(Work(ipGrid),nGrid,nGrid_Eff,
-     &           Work(ipPolEf),Work(ipDipEf),Work(ipXF),nXF,
-     &           nOrd_XF,nPolComp)
+            Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,Work(ipXF),
+     &                    nXF,nOrd_XF,nPolComp)
          EndIf
          If(lLangevin) Then
 *            Note: Gen_Grid is now a part of the lattcr subroutine
 c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
-            Call lattcr(Work(ipGrid),nGrid,nGrid_Eff,
-     &           Work(ipPolEf),Work(ipDipEf),
-     &           Work(ipCord),maxato,Work(ipAtod),nPolComp,
-     &           Work(ipXF),nXF,nOrd_XF,Work(ipXEle),iXPolType)
+            Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
+     &                  Work(ipCord),maxato,Work(ipAtod),nPolComp,
+     &                  Work(ipXF),nXF,nOrd_XF,Work(ipXEle),iXPolType)
          EndIf
          Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
@@ -184,7 +182,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 
 
       Call eperm(Work(ipD1ao),nh1,Work(ipRavxyz),Work(ipCavxyz),nCavxyz,
-     &           dField,Work(ipGrid),nGrid_Eff,Work(ipCord),
+     &           dField,Grid,nGrid_Eff,Work(ipCord),
      &           MaxAto,Work(ipChrg),Work(ippField))
 
 *                                                                      *
@@ -222,9 +220,10 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       EndDo
       Write(Lu,*)nGrid_eff,nAnisopol
       do i=0,nGrid_eff-1
-         Write(Lu,12)(Work(ipGrid+i*3+j),j=0,2),
-     &        Work(ipPolEf+i),Work(ipDipEf+i),
-     &        (dField(j+1,i+1),j=0,2),(Work(ippField+i*4+j),j=0,2)
+         Write(Lu,12)(Grid(j,i+1),j=1,3),
+     &        PolEf(:,i+1),
+     &        DipEf(i+1),
+     &        (dField(j,i+1),j=1,3),(Work(ippField+i*4+j),j=0,2)
  12      format(11f20.10)
       enddo
       Write(Lu,*)polsi,dipsi,scala,One/tK/3.1668D-6
@@ -269,8 +268,8 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       Call edip(Work(ipRavxyz),
      &          Work(ipCavxyz),lmax,
      &          Field,Dip,dField,
-     &          Work(ipPolEf),Work(ipDipEf),
-     &          Work(ipGrid),nGrid_Eff,nPolComp,nAnisopol,
+     &          PolEf,DipEf,
+     &          Grid,nGrid_Eff,nPolComp,nAnisopol,
      &          nXF,iXPolType,nXMolnr,iWork(ipXMolnr))
 
 *                                                                      *
@@ -279,8 +278,8 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 *---- Compute contributions to RepNuc, h1, and TwoHam
 *
       Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,Work(ipD1ao),
-     &          Work(ipGrid),nGrid_Eff,Dip, Field,
-     &          Work(ipDipEf),Work(ipPolEf),Work(ipCord),MaxAto,
+     &          Grid,nGrid_Eff,Dip, Field,
+     &          DipEf,PolEf,Work(ipCord),MaxAto,
      &          Work(ipChrg),nPolComp,nAnisopol,Work(ippField),
      &     Work(iptmpField))
 

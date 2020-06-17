@@ -9,5 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Module Langevin_arrays
-      Real*8, Allocatable:: Field(:,:), dField(:,:), Dip(:,:)
+      Real*8, Allocatable:: Field(:,:), dField(:,:), Dip(:,:),
+     &                      PolEf(:,:), DipEf(:), Grid(:,:)
       End Module Langevin_arrays
