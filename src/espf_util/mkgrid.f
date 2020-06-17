@@ -115,7 +115,9 @@ c
             Call mma_deallocate(Vert)
             Call mma_deallocate(PCMTess)
             Call mma_deallocate(PCMSph)
+#ifdef _OLD_CODE
             Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
+#endif
             If (DoDeriv) Then
                Call mma_deallocate(dTes)
                Call mma_deallocate(dPnt)

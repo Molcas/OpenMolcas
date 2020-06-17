@@ -90,6 +90,7 @@ cpcm_solvent end
          If (iCharge_ref.ne.  iCharg) Go To 888
          If (NonEq_ref  .neqv.NonEq ) Go To 888
 *
+#ifdef _OLD_CODE_
          Call Allocate_Work(ip_Sph,nPCM_info)
          Call Get_dArray('PCM Info',Work(ip_Sph),nPCM_info)
 *
@@ -117,6 +118,7 @@ cpcm_solvent end
             Write (6,*) 'nPCM_Info=',nPCM_Info
             Call Abend()
          End If
+#endif
 *
 *        Evolving the new code
 *
@@ -132,6 +134,7 @@ cpcm_solvent end
          Call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
          Call mma_allocate(NewSph,2,NS,Label='NewSph')
 *
+#ifdef _OLD_CODE_
          Call DCopy_(4*NS,Work(ip_Sph),1,PCMSph,1)
          Call DCopy_(4*nTs,Work(ip_Tess),1,PCMTess,1)
          Call DCopy_(3*MxVert*nTs,Work(ip_Vert),1,Vert,1)
@@ -143,6 +146,19 @@ cpcm_solvent end
          Call ICopy(nTs,iWork(ip_NVert),1,NVert,1)
          Call ICopy(MxVert*nTs,iWork(ip_IntS),1,IntSph,1)
          Call ICopy(2*NS,iWork(ip_NewS),1,NewSph,1)
+#else
+         Call Get_dArray('PCMSph',PCMSph,4*NS)
+         Call Get_dArray('PCMTess',PCMTess,4*nTs)
+         Call Get_dArray('Vert',Vert,3*MxVert*nTs)
+         Call Get_dArray('Centr',Centr,3*MxVert*nTs)
+         Call Get_dArray('SSph',SSph,NS)
+         Call Get_dArray('PCMDM',PCMDM,nTs**2)
+         Call Get_iArray('PCM_N',PCM_N,NS)
+         Call Get_iArray('PCMiSph',PCMiSph,nTs)
+         Call Get_iArray('NVert',NVert,nTs)
+         Call Get_iArray('IntSph',IntSph,MxVert*nTs)
+         Call Get_iArray('NewSph',NewSph,2*NS)
+#endif
 
          Go To 999
       End If
@@ -171,7 +187,7 @@ cpcm_solvent end
 *     nAtoms: total number of atoms
 *     angstr: conversion factor from bohr to Angstrom
 *     Coor: Coordinates of atoms
-*     ANr: atomic numbers
+*    MxVert*nTs ANr: atomic numbers
 *     LcCoor: local array for atomic coordinates
 *     LcANr: local array for atomic numbers
 *     Solvent: string with explicit solvent name
@@ -218,6 +234,8 @@ cpcm_solvent end
       Real*8, Pointer :: p_rRF(:)
 *
       Call Put_iScalar('PCM info length',nPCM_info)
+
+#ifdef _OLD_CODE_
 *
 *-----Gather the information -- temporary code
       Call DCopy_(4*NS,PCMSph,1,Work(ip_Sph),1)
@@ -233,6 +251,19 @@ cpcm_solvent end
       Call ICopy(2*NS,NewSph,1,iWork(ip_NewS),1)
 *
       Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
+#else
+         Call Put_dArray('PCMSph',PCMSph,4*NS)
+         Call Put_dArray('PCMTess',PCMTess,4*nTs)
+         Call Put_dArray('Vert',Vert,3*MxVert*nTs)
+         Call Put_dArray('Centr',Centr,3*MxVert*nTs)
+         Call Put_dArray('SSph',SSph,NS)
+         Call Put_dArray('PCMDM',PCMDM,nTs**2)
+         Call Put_iArray('PCM_N',PCM_N,NS)
+         Call Put_iArray('PCMiSph',PCMiSph,nTs)
+         Call Put_iArray('NVert',NVert,nTs)
+         Call Put_iArray('IntSph',IntSph,MxVert*nTs)
+         Call Put_iArray('NewSph',NewSph,2*NS)
+#endif
 *
       iCharge_ref=iCharg
       NonEq_ref=NonEq

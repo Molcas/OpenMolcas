@@ -36,7 +36,9 @@
           Call GetMem('ravxyz','Free','Real',ipravxyz,nCavxyz)
        End If
        If (PCM) Then
+#ifdef _OLD_CODE_
           Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
+#endif
           Call mma_deallocate(NewSph)
           Call mma_deallocate(IntSph)
           Call mma_deallocate(NVert)
