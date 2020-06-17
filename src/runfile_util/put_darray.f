@@ -329,6 +329,12 @@ c mess started here :)
          RecLab(170)='Proj_Coord      '
          RecLab(171)='d1activeao      '
          RecLab(172)='Keep_Coord      '
+         RecLab(173)='PCMSph          '
+         RecLab(174)='PCMTess         '
+         RecLab(175)='Vert            '
+         RecLab(176)='Centr           '
+         RecLab(177)='SSph            '
+         RecLab(178)='PCMDM           '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!
