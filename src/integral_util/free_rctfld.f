@@ -10,6 +10,7 @@
 ************************************************************************
        Subroutine Free_RctFld(iXPolType)
        use PCM_arrays
+       use Langevin_arrays
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
@@ -23,9 +24,9 @@
           Else
              nPolComp = 1
           EndIf
-          Call GetMem('Field ','Free','Real',ipField ,nGrid*4)
-          Call GetMem('dField','Free','Real',ipdField,nGrid*4)
-          Call GetMem('Dip   ','Free','Real',ipDip   ,nGrid*3)
+          Call mma_deallocate(Field)
+          Call mma_deallocate(dField)
+          Call mma_deallocate(Dip)
           Call GetMem('PolEf ','Free','Real',ipPolEf ,nGrid*nPolComp)
           Call GetMem('DipEf ','Free','Real',ipDipEf ,nGrid  )
           Call GetMem('Grid  ','Free','Real',ipGrid  ,nGrid*3)

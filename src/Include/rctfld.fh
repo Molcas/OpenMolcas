@@ -49,17 +49,6 @@
 *     nTs: number of surface tesserae                                  *
 *     NOrdInp: number of atom where explicit spheres are centered      *
 *     RadInp: radius of spheres explicitly given in the input          *
-*     ip_Sph: coordinates and radii of spheres                         *
-*     ip_N: atoms where the spheres are centered                       *
-*     ip_Tess: coordinates and area of tesserae                        *
-*     ip_Vert: coordinates of tesserae vertices (3,*)                  *
-*     ip_Centr: coordinates of tesserae centers (3,*)                  *
-*     ip_SSph: exposed surface of each sphere                          *
-*     ip_ISph: sphere to which each tessera belongs                    *
-*     ip_NVert: number of vertices of each tessera                     *
-*     ip_IntS: sphere intersecated by each tessera edge (MxVert,*)     *
-*     ip_NewS: parent spheres for each added sphere (2,*)              *
-*     ip_DM: PCM matrix                                                *
 *                                                                      *
 ************************************************************************
 *     !!!!!!!!!!!!!!!!!!!!!!!
@@ -85,8 +74,6 @@
      &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
      &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
      &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
-     &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       common /iRct/ iRFStrt,
@@ -95,8 +82,6 @@
      &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
      &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
      &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
-     &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       real(kind=8) :: Cordsi(3,4), rRfStrt,

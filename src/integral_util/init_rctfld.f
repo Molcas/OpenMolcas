@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine Init_RctFld(NonEq,iCharge)
+       use Langevin_arrays
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "itmax.fh"
 #include "info.fh"
        Logical NonEq
@@ -35,9 +36,9 @@
           Else
              nPolComp = 1
           EndIf
-          Call GetMem('Field ','Allo','Real',ipField ,nGrid*4)
-          Call GetMem('dField','Allo','Real',ipdField,nGrid*4)
-          Call GetMem('Dip   ','Allo','Real',ipDip   ,nGrid*3)
+          Call mma_allocate(Field,4,nGrid,Label='Field')
+          Call mma_allocate(dField,4,nGrid,Label='dField')
+          Call mma_allocate(Dip,3,nGrid,Label='Dip')
           Call GetMem('PolEf ','Allo','Real',ipPolEf ,nGrid*nPolComp)
           Call GetMem('DipEf ','Allo','Real',ipDipEf ,nGrid  )
           Call GetMem('Grid  ','Allo','Real',ipGrid  ,nGrid*3)

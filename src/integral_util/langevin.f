@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
+      Use Langevin_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -183,7 +184,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 
 
       Call eperm(Work(ipD1ao),nh1,Work(ipRavxyz),Work(ipCavxyz),nCavxyz,
-     &           Work(ipdField),Work(ipGrid),nGrid_Eff,Work(ipCord),
+     &           dField,Work(ipGrid),nGrid_Eff,Work(ipCord),
      &           MaxAto,Work(ipChrg),Work(ippField))
 
 *                                                                      *
@@ -223,7 +224,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       do i=0,nGrid_eff-1
          Write(Lu,12)(Work(ipGrid+i*3+j),j=0,2),
      &        Work(ipPolEf+i),Work(ipDipEf+i),
-     &        (Work(ipdField+i*4+j),j=0,2),(Work(ippField+i*4+j),j=0,2)
+     &        (dField(j+1,i+1),j=0,2),(Work(ippField+i*4+j),j=0,2)
  12      format(11f20.10)
       enddo
       Write(Lu,*)polsi,dipsi,scala,One/tK/3.1668D-6
@@ -234,11 +235,11 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       Endif
       Close(Lu)
 
-      call dcopy_(nGrid_Eff*4,Work(ipdField),1,Work(iptmpField),1)
+      call dcopy_(nGrid_Eff*4,dField,1,Work(iptmpField),1)
 
       If(lDiprestart .or. lFirstIter) Then
-         Call FZero(Work(ipField ),nGrid*4)
-         Call FZero(Work(ipDip   ),nGrid*3)
+         Field(:,:)=Zero
+         Dip(:,:)=Zero
          Call FZero(Work(ipDavxyz),nCavxyz)
       EndIf
 
@@ -267,8 +268,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 *
       Call edip(Work(ipRavxyz),
      &          Work(ipCavxyz),lmax,
-     &          Work(ipField),
-     &          Work(ipDip),Work(ipdField),
+     &          Field,Dip,dField,
      &          Work(ipPolEf),Work(ipDipEf),
      &          Work(ipGrid),nGrid_Eff,nPolComp,nAnisopol,
      &          nXF,iXPolType,nXMolnr,iWork(ipXMolnr))
@@ -279,7 +279,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 *---- Compute contributions to RepNuc, h1, and TwoHam
 *
       Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,Work(ipD1ao),
-     &          Work(ipGrid),nGrid_Eff,Work(ipDip), Work(ipField),
+     &          Work(ipGrid),nGrid_Eff,Dip, Field,
      &          Work(ipDipEf),Work(ipPolEf),Work(ipCord),MaxAto,
      &          Work(ipChrg),nPolComp,nAnisopol,Work(ippField),
      &     Work(iptmpField))
@@ -287,10 +287,10 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
 
 *     Subtract the static field from the self-consistent field
 *     This gives the field from the induced dipoles (saved
-*     in Work(ipField), to be used in the next iteration if
+*     in Field, to be used in the next iteration if
 *     not DRES has been requested
 
-      Call DaXpY_(nGrid*4,-One,Work(iptmpField),1,Work(ipField),1)
+      Call DaXpY_(nGrid*4,-One,Work(iptmpField),1,Field,1)
       lFirstIter=.False.
 
 
