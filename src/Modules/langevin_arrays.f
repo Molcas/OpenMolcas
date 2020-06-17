@@ -11,5 +11,5 @@
       Module Langevin_arrays
       Real*8, Allocatable:: Field(:,:), dField(:,:), Dip(:,:),
      &                      PolEf(:,:), DipEf(:), Grid(:,:),
-     &                      favxyz(:), davxyz(:), cavxyz(:), ravxyz(:)
+     &                      davxyz(:), cavxyz(:), ravxyz(:)
       End Module Langevin_arrays

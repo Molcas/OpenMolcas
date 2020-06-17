@@ -31,7 +31,6 @@
           Call mma_deallocate(DipEf)
           Call mma_deallocate(Grid)
 *
-          Call mma_deallocate(favxyz)
           Call mma_deallocate(davxyz)
           Call mma_deallocate(cavxyz)
           Call mma_deallocate(ravxyz)

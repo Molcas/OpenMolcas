@@ -44,7 +44,6 @@
           Call mma_allocate(Grid,3,nGrid,Label='Grid')
 *
           nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
-          Call mma_allocate(favxyz,nCavxyz,Label='favxyz')
           Call mma_allocate(davxyz,nCavxyz,Label='davxyz')
           Call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
           Call mma_allocate(ravxyz,nCavxyz,Label='ravxyz')

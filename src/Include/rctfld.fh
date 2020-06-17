@@ -69,18 +69,14 @@
      &              Done_Lattice,lFirstIter,lDiprestart,
      &              lRFEnd
       integer :: lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
-     &              iRFStrt, nabc, ipField, ipDip, ipdField, ipPolEf,
-     &              ipDipEf,
-     &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
-     &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
+     &              iRFStrt, nabc, nCavxyz,
+     &              nGrid, nGrid_Eff,nSparse,
      &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
       common /iRct/ iRFStrt,
      &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
-     &              nabc, ipField, ipDip, ipdField, ipPolEf, ipDipEf,
-     &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
-     &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
+     &              nabc, nCavxyz, nGrid, nGrid_Eff,nSparse,
      &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              iRFEnd
