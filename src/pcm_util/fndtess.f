@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
-      use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM
+      use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM,
+     &                      PCM_N
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -73,6 +74,7 @@
          Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
          Call mma_allocate(SSph,NS,Label='SSph')
          Call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
+         Call mma_allocate(PCM_N,NS,Label='PCM_N')
 *
          nPCM_info_r = 4*NS +  4*nTs + 3*MxVert*nTs + 3*MxVert*nTs
      &             + NS + nTs**2
@@ -135,7 +137,7 @@
 *
 *
       ! nOrd
-      Call ICopy(nS,pNs,1,iWork(ip_N),1)
+      Call ICopy(nS,pNs,1,PCM_N,1)
 *
       ! ISph
       Call ICopy(nTs,pISph,1,iWork(ip_ISph),1)
