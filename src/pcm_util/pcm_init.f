@@ -93,9 +93,9 @@
 *
       If(DoDeriv) then
         RSolv = RSlPar(19)
-        Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
-     $              PCMTess,Vert,Centr,PCMSph,PCMiSph,iWork(ip_IntS),
-     $              PCM_N,NVert,iWork(ip_NewS),DTes,dPnt,dRad,dCntr)
+        Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,
+     &              Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,
+     &              NewSph,DTes,dPnt,dRad,dCntr)
       EndIf
 *
 *---- Compute cavitation energy

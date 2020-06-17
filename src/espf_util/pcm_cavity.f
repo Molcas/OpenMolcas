@@ -98,10 +98,8 @@
          Call mma_allocate(dCntr,nS ,LcNAtm,3,3,Label='dCntr')
          Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
          Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
-     $               PCMTess,Vert,Centr,
-     $               PCMSph,PCMiSph,iWork(ip_IntS),
-     $               PCM_N,NVert,iWork(ip_NewS),
-     $               dTes,dPnt,dRad,dCntr)
+     $               PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,
+     $               PCM_N,NVert,NewSph,dTes,dPnt,dRad,dCntr)
          If (nPCM_info.eq.0) Then
             Write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
             Write(6,'(A)') ' Reduce the number of surfaces.'
