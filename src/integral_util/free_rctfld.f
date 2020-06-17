@@ -17,7 +17,7 @@
 #include "stdalloc.fh"
 *
        If (RctFld_Status.eq.InActive) Return
-       Call GetMem('MM','Free','Real',ipMM,nMM)
+       Call mma_deallocate(MM)
        If (lLangevin .or. (iXPolType.gt.0)) Then
           If(iXPolType.eq.2) Then
              nPolComp = 6

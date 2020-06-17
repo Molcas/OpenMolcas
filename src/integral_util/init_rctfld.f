@@ -10,6 +10,7 @@
 ************************************************************************
        Subroutine Init_RctFld(NonEq,iCharge)
        use Langevin_arrays
+       use PCM_arrays, only: MM
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
@@ -21,7 +22,7 @@
        If (RctFld_Status.eq.Active) Return
        mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
        nMM = 2 * mMM
-       Call GetMem('MM','Allo','Real',ipMM,nMM)
+       Call mma_allocate(MM,mMM,2,Label='MM')
        If (iXPolType.gt.0) nGrid = nXF
        If (lLangevin .or. (iXPolType.gt.0)) Then
           If(lLangevin) Then
