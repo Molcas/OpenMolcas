@@ -85,8 +85,7 @@
 *
       Call mma_allocate(VTS,MxVert*nTs,Label='VTS')
       Call GVWrite(1,nTs,NSinit,LcNAtm,LcAtmC,LcIAtm,PCMSph,
-     &             PCMTess,iWork(ip_NVert),
-     &             Vert,PCMiSph,RJunk,VTS,MxVert)
+     &             PCMTess,NVert,Vert,PCMiSph,RJunk,VTS,MxVert)
       Call mma_deallocate(VTS)
 
 *
@@ -95,10 +94,8 @@
       If(DoDeriv) then
         RSolv = RSlPar(19)
         Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
-     $              PCMTess,Vert,Centr,
-     $              PCMSph,PCMiSph,iWork(ip_IntS),
-     $              PCM_N,iWork(ip_NVert),iWork(ip_NewS),
-     $              DTes,dPnt,dRad,dCntr)
+     $              PCMTess,Vert,Centr,PCMSph,PCMiSph,iWork(ip_IntS),
+     $              PCM_N,NVert,iWork(ip_NewS),DTes,dPnt,dRad,dCntr)
       EndIf
 *
 *---- Compute cavitation energy

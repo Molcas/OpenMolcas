@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine FndTess(iPrint,ToAng,LcNAtm,Xs,Ys,Zs,Rs,pNs,nn)
       use PCM_arrays, only: PCMSph, PCMTess, Vert, Centr, SSph, PCMDM,
-     &                      PCM_N, PCMiSph
+     &                      PCM_N, PCMiSph, NVert
       Implicit Real*8(A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -76,6 +76,7 @@
          Call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
          Call mma_allocate(PCM_N,NS,Label='PCM_N')
          Call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
+         Call mma_allocate(NVert,nTs,Label='NVert')
 *
          nPCM_info_r = 4*NS +  4*nTs + 3*MxVert*nTs + 3*MxVert*nTs
      &             + NS + nTs**2
@@ -144,7 +145,7 @@
       Call ICopy(nTs,pISph,1,PCMiSph,1)
 *
       ! NVert
-      Call ICopy(nTs,pNVert,1,iWork(ip_NVert),1)
+      Call ICopy(nTs,pNVert,1,NVert,1)
 *
       ! IntSph
       Call ICopy(MxVert*nTs,pIntS,1,iWork(ip_IntS),1)

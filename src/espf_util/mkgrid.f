@@ -104,6 +104,12 @@ c
             End Do
             If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,
      &                                            Work(ipDGrd ),1)
+            Call mma_deallocate(NVert)
+            Call mma_deallocate(PCMiSph)
+            Call mma_deallocate(PCM_N)
+            Call mma_deallocate(PCMDM)
+            Call mma_deallocate(SSph)
+            Call mma_deallocate(Centr)
             Call mma_deallocate(Vert)
             Call mma_deallocate(PCMTess)
             Call mma_deallocate(PCMSph)

@@ -16,7 +16,7 @@
 *     PCMDM: PCM matrix                                                *
 *     PCM_N: atoms where the spheres are centered                      *
 *     PCMiSph: sphere to which each tessera belongs                    *
-*     ip_NVert: number of vertices of each tessera                     *
+*     NVert: number of vertices of each tessera                        *
 *     ip_IntS: sphere intersecated by each tessera edge (MxVert,*)     *
 *     ip_NewS: parent spheres for each added sphere (2,*)              *
 ************************************************************************
@@ -28,5 +28,5 @@
       Real*8, Allocatable:: PCM_SQ(:,:)   ! PCM solvation charges
       Real*8, Allocatable:: PCMSph(:,:), PCMTess(:,:), Vert(:,:,:),
      &                      Centr(:,:,:), SSph(:), PCMDM(:,:)
-      Integer, Allocatable:: PCM_N(:), PCMiSph(:)
+      Integer, Allocatable:: PCM_N(:), PCMiSph(:), nVert(:)
       End Module PCM_arrays

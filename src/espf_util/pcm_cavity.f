@@ -100,7 +100,7 @@
          Call Deriva(0,ToAng,LcNAtm,nTs,nS,nSInit,RSolv,
      $               PCMTess,Vert,Centr,
      $               PCMSph,PCMiSph,iWork(ip_IntS),
-     $               PCM_N,iWork(ip_NVert),iWork(ip_NewS),
+     $               PCM_N,NVert,iWork(ip_NewS),
      $               dTes,dPnt,dRad,dCntr)
          If (nPCM_info.eq.0) Then
             Write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
