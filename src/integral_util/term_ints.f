@@ -20,6 +20,7 @@
 *             Sweden. January '98.                                     *
 ************************************************************************
       use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
+      use Index_arrays
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -60,7 +61,7 @@
          Call GetMem('ShLwC','Free','Inte',ipShLC,mSkal*nIrrep)
          Call GetMem('ShPSh','Free','Inte',ipShSh,mSkal*nIrrep)
          Call GetMem('SOShl','Free','Inte',ipSOSh,nSOs)
-         Call GetMem('ICNTR','Free','Inte',ipicntr,mSkal)
+         Call mma_deallocate(iCntr)
       End If
 *
 *---- Free memory for K2 data

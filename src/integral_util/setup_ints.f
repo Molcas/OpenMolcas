@@ -27,6 +27,7 @@
       use vRys_RW
       use iSD_data
       use k2_arrays
+      use index_arrays
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -109,9 +110,9 @@
          Call GetMem('ShLwC','ALLO','Inte',ipShLC,nSkal*nIrrep)
          Call GetMem('ShPSh','ALLO','Inte',ipShSh,nSkal*nIrrep)
          Call GetMem('SOShl','ALLO','Inte',ipSOSh,nSOs)
-         Call GetMem('ICNTR','ALLO','Inte',ipicntr,nSkal)
+         Call mma_allocate(iCntr,nSkal,Label='iCntr')
          Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
-     &               iWork(ipSOSh),iWork(ipicntr),nSkal,nIrrep,nSOs,
+     &               iWork(ipSOSh),iCntr,nSkal,nIrrep,nSOs,
      &               nShIrp,nShBFmx)
       End If
 *                                                                      *

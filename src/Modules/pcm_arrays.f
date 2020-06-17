@@ -30,4 +30,5 @@
      &                      Centr(:,:,:), SSph(:), PCMDM(:,:)
       Integer, Allocatable:: PCM_N(:), PCMiSph(:), nVert(:),
      &                       IntSph(:,:), NewSph(:,:)
+      Real*8, Allocatable:: MM(:,:)
       End Module PCM_arrays

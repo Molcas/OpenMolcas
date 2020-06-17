@@ -27,7 +27,7 @@
 *                                                                      *
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
-      use PCM_arrays, only: PCM_SQ, PCMTess
+      use PCM_arrays, only: PCM_SQ, PCMTess, MM
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -406,16 +406,15 @@
 *
 *------- Get the multipole moments
 *
-         Call Get_dArray('RCTFLD',Work(ipMM),nCav*2)
+         Call Get_dArray('RCTFLD',MM,nCav*2)
          If (iPrint.ge.99) Call RecPrt('Total Multipole Moments',' ',
-     &                                 Work(ipMM),1,nCav)
-         ipEF=ipMM+nCav
+     &                                 MM(1,1),1,nCav)
          If (iPrint.ge.99) Call RecPrt('Total Electric Field',
-     &                                 ' ',Work(ipEF),1,nCav)
+     &                                 ' ',MM(1,2),1,nCav)
 *
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *
-      ip = ipMM + nCav -1
+      ip = 0
       Do ir = 0, lMax
          Do ix = ir, 0, -1
             Do iy = ir-ix, 0, -1
@@ -472,9 +471,9 @@
                         CCoMz =A(3)**iz
                         CCoMzd=DBLE(iz)*A(3)**(iz-1)
                      End If
-                     tempd(1)= Work(ip) *ZA * CCoMxd* CCoMy * CCoMz
-                     tempd(2)= Work(ip) *ZA * CCoMx * CCoMyd* CCoMz
-                     tempd(3)= Work(ip) *ZA * CCoMx * CCoMy * CCoMzd
+                     tempd(1)= MM(ip,2) *ZA * CCoMxd* CCoMy * CCoMz
+                     tempd(2)= MM(ip,2) *ZA * CCoMx * CCoMyd* CCoMz
+                     tempd(3)= MM(ip,2) *ZA * CCoMx * CCoMy * CCoMzd
                      If (iPrint.ge.99) Then
                         Write (6,*) CCoMx, CCoMy, CCoMz
                         Write (6,*) 'Work(ip)=',Work(ip)
