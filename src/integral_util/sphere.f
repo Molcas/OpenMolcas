@@ -28,8 +28,7 @@
 *                                                                      *
 * Called from: Input                                                   *
 *                                                                      *
-* Calling    : GetMem                                                  *
-*              Real_Sphere                                             *
+* Calling    : Real_Sphere                                             *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -96,6 +95,7 @@
         jjj = jjj + nElem
 50    Continue
 *
+*#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) ' Spherical Harmonic expansions '
@@ -105,12 +105,12 @@
          nElem = (n+1)*(n+2)/2
          ii  = 0
          Write (6,*)
-         Write (6,'(6X,31(2X,I1,I1,I1))') ((i,j,n-i-j,
+         Write (6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,
      &         j=n-i,0,-1),i=n,0,-1)
          Write (6,*)
          Do m = n, 0, -2
             Do l = -m, m
-               Write (6,'(1X,A4,1X,31F5.2)')
+               Write (6,'(1X,A6,1X,31F5.2)')
      &            LblSbs(iLbl),(RSph(i+ii+ipSph(n)),i=0,nElem-1)
                ii = ii + nElem
                iLbl = iLbl + 1
@@ -125,12 +125,8 @@
       End
       Subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-#include "real.fh"
       Real*8 RSph(nSphr)
       Integer ipSph(0:lMax)
-*
-*     Call QEnter('Real_Sphere')
 *
       i00 = ipSph(0)
       i10 = ipSph(0)
@@ -138,8 +134,9 @@
          i2  = ipSph(i)
          nElem = (i+1)*(i+2)/2
          i20= i2 + i*nElem
-*        Write (*,*) i00,i10,i20,i
+*        First generate the coefficients for Y(i,0) -- always real
          Call Recurse(RSph(i00),RSph(i10),RSph(i20),i)
+*        Use ladder operators to generate Y(i,m)
          Call Ladder(RSph(i2),i)
 *
 *        Now do the contaminant, by simply multiply with r**2
@@ -169,25 +166,33 @@
       Return
       End
       Subroutine Recurse(P0,P1,P2,n2)
+***********************************************************************
+*                                                                     *
+*     The Legendre polynomial is identical to Y(l,0).                 *
+*     Note that it is real and that there is no Condon-Shortly phase  *
+*     factor to consider.                                             *
+*                                                                     *
+***********************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2),P2((n2+1)*(n2+2)/2)
 *     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 *
-*     Call QEnter('Recurse')
-*
-      call dcopy_((n2+1)*(n2+2)/2,[Zero],0,P2,1)
+      P2(:)=Zero
 *
 *---- Use recurrence relation for Legendre polynomials
-*
 *
 *     (n+1) P_{n+1} = (2n+1) z P_n - n r^2 P_{n-1}
 *
       If (n2.eq.0) then
+*
          P2(1)=One
 *
       Else
+*
+*        P_{n+1} = (2n+1)/(n+1) z P_n
+*
          Fact_1=DBLE(2*n2-1)/DBLE(n2)
          n1=n2-1
          Do ix = n1, 0, -1
@@ -197,6 +202,8 @@
      &            + Fact_1*P1(iad(ix,iy,iz))
            End Do
          End Do
+*
+*        P_{n+1} = - n/(n+1) (x^2+y^2+z^2) P_{n-1}
 *
          Fact_2=DBLE(n2-1)/DBLE(n2)
          n0=n1-1
@@ -211,39 +218,32 @@
      &                             - Fact_2*P0(iad(ix,iy,iz))
             End Do
          End Do
+*
       End if
 
-*     m=(n2-1)*n2/2
-*     If (m.ge.1) Call RecPrt('P0',' ',P0,m,1)
-*     m=n2*(n2+1)/2
-*     If (m.ge.1) Call RecPrt('P1',' ',P1,m,1)
-*     m = (n2+1)*(n2+2)/2
-*     If (m.ge.1) Call RecPrt('P2',' ',P2,m,1)
-*
-*     Call QExit('Recurse')
       Return
       End
       Subroutine Ladder(P0,n)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n+1)*(n+2)/2,-n:n)
-*
+*     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 *
-*     Call QEnter('Ladder')
+*     Generate Y(l,m) from Y(l,m-1), starting the process from Y(l,0)
 *
-*     Call RecPrt('Ladder (in)',' ',P0,(n+1)*(n+2)/2,2*n+1)
       Do m = 0, n-1
-         m_p=m+1
+         m_p=  m+1
          m_m=-(m+1)
-         call dcopy_((n+1)*(n+2)/2,[Zero],0,P0(1,m_p),1)
-         call dcopy_((n+1)*(n+2)/2,[Zero],0,P0(1,m_m),1)
+         P0(:,m_p)=Zero
+         P0(:,m_m)=Zero
          Fact=One/(Two*Sqrt(DBLE(n*(n+1)-m*(m-1))))
 *
 *        The spherical harmonic is a two component (real,imaginary)
 *        function.
 *
-*....... Y(n,m) =(S(+,m),S(-,m)) and Y(n,-m)=(S(+,m),-S(-,m))
+*....... Y(n, m) =(-1)**  m  x (S(+,m), S(-,m)) and
+*        Y(n,-m) =(-1)**(-m) x (S(+,m),-S(-,m))
 *
 *        with S(-,0)=0
 *
@@ -299,9 +299,18 @@
 *
             End Do
          End Do
-      End Do
 *
-*     Call QExit('Ladder')
+*        Up to this point we have been operating on the Legendre and
+*        associated Legendre polynomials. Let us now put in the
+*        Condon-Shortly phase factor
+*
+         If (MOD(m+1,2).ne.0) Then
+            P0(:,m_p)=-P0(:,m_p)
+            P0(:,m_m)=-P0(:,m_m)
+         End If
+*
+      End Do ! m
+*
       Return
       End
       Subroutine Contaminant(P0,i,Px,j,l)
@@ -312,11 +321,12 @@
       Real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
 *     Declare statement function
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
-*
 *     Call QEnter('Contaminant')
 *
+*     Px = (x^2+y^2+z^2) x P0
+*
       Do m = -l, l
-         call dcopy_((i+1)*(i+2)/2,[Zero],0,P0(1,m),1)
+         P0(:,m)=Zero
          Do ix = j, 0, -1
             Do iy = j-ix, 0, -1
                iz = j-ix-iy
