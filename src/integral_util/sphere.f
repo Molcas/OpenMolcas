@@ -10,6 +10,9 @@
 *                                                                      *
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
+*               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
+*                     M. Navarrete; C. Gonzalez-Espinoza; G. Raggi;    *
+*                     N. F. Chilton @ OpenMolcas2020                   *
 ************************************************************************
       SubRoutine Sphere(lMax)
 ************************************************************************
@@ -33,13 +36,15 @@
 ************************************************************************
       use Real_Spherical
       Implicit real*8 (a-h,o-z)
+*     find MxAng, limiting the highest ang mom, in itmax.fh
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"
-*
+*     iAngMx is the largest ang mom in the current basis
       iAngMx=Max(iAngMx,lMax)
+*     check if required ang mom is greater than hard-coded limit
       If (iAngMx.gt.MxAng) Then
          Call WarningMessage(2,' Sphere: Increase MxAng!')
          Call Abend()
@@ -48,26 +53,31 @@
       If (Allocated(RSph)) Return
 *
 *     Make the labels
+*     Gives info on basis function angular momenta
+*     n, l, ml or assigns it as a diffuse/polarising function with '*'
 *
       Call Make_Labels(LblCbs,LblSbs,MxFnc,iAngMx)
 *
 *     Allocate memory for transformation matrices
-*
+*     Here, ipSph are the pointers to memory locations in RSph, for the
+*     transformation matrices of given ang mom
       nSphr = 0
       Do iAng = 0, lMax
          nSphr = nSphr + (iAng*(iAng+1)/2 + iAng + 1)**2
       End Do
       Call mma_allocate(RSph,nSphr,label='RSph')
-      Call mma_allocate(ipSph,[0,lMax],label='iSph')
+      Call mma_allocate(ipSph,[0,lMax],label='ipSph')
       ipSph(0)=1
       Do 2 iAng = 0, lMax-1
          ipSph(iAng+1) = ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
  2    Continue
-*
+
+*     Here the transformation matrices from cartesian to spherical are
+*     made
       Call Real_Sphere(ipSph,lMax,RSph,nSphr)
 *
 *     Set up the symmetry properties of the spherical gaussians
-*
+*     We are not sure if this Condon and Shortley phase....
       iii = 0
       jjj = 0
       Do 50 n = 0, lMax
@@ -162,14 +172,14 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2),P2((n2+1)*(n2+2)/2)
-*
+*     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 *
 *     Call QEnter('Recurse')
 *
       call dcopy_((n2+1)*(n2+2)/2,[Zero],0,P2,1)
 *
-*---- Use recurrence relation for Lagrange polynomials
+*---- Use recurrence relation for Legendre polynomials
 *
 *
 *     (n+1) P_{n+1} = (2n+1) z P_n - n r^2 P_{n-1}
@@ -295,10 +305,12 @@
       Return
       End
       Subroutine Contaminant(P0,i,Px,j,l)
+*     This subroutine generates the lower ang mom contaminants for the
+*     given ang mom
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
-*
+*     Declare statement function
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 *
 *     Call QEnter('Contaminant')
