@@ -34,7 +34,6 @@
 #include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "lundio.fh"
 #include "setup.fh"
@@ -106,12 +105,12 @@
 *
       If (Indexation) Then
          Indexation_Status=Active
-         Call GetMem('nShBF','ALLO','Inte',ipShBF,nSkal*nIrrep)
+         Call mma_allocate(nShBF,[0,nIrrep-1],[1,nSkal],Label='nShBF')
          Call mma_allocate(iShOff,[0,nIrrep-1],[1,nSkal],Label='iShOff')
          Call mma_allocate(iSh2Sh,[0,nIrrep-1],[1,nSkal],Label='iSh2Sh')
          Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
          Call mma_allocate(iCntr,nSkal,Label='iCntr')
-         Call SOFSh1(iWork(ipShBF),iShOff,iSh2Sh,
+         Call SOFSh1(nShBF,iShOff,iSh2Sh,
      &               iSO2Sh,iCntr,nSkal,nIrrep,nSOs,nShIrp,nShBFmx)
       End If
 *                                                                      *

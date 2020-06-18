@@ -30,7 +30,7 @@
 *          University of Lund, Sweden                                  *
 *          august '95                                                  *
 ************************************************************************
-      use index_arrays, only: iShOff
+      use index_arrays, only: iShOff, nShBF
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -62,7 +62,7 @@ c    &            +indSOo(k))*nSOiSh(l)
 *     compute 1st index of components and # functions of
 *     the shells ...unscrambled...
       Do i = 1, 4
-        nSOiSh(i) = iWork(ipShBF+iShell(i)-1)
+        nSOiSh(i) = nShBF(0,iShell(i))
         indSOb(i) = iShOff(0,iShell(i))
       End Do
 *

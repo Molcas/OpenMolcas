@@ -746,7 +746,7 @@ c Avoid unused argument warnings
 *          Martin Schuetz, Theoretische Chemie Stuttgart               *
 *          version march'98                                            *
 ************************************************************************
-      use index_arrays, only: iShOff
+      use index_arrays, only: iShOff, nShBF
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -762,17 +762,17 @@ c Avoid unused argument warnings
       Logical IntOrd_jikl
 *
       Do 100 Kirp = 0, nIrrep-1
-        nShBFk=iWork(ipShBF+(kS-1)*nIrrep+Kirp)
+        nShBFk=nShBF(Kirp,kS)
         If (nShBFk.eq.0) Go To 100
         kSOb=iShOff(Kirp,kS)
         Do 110 Jirp = 0, nIrrep-1
-          nShBFj=iWork(ipShBF+(jS-1)*nIrrep+Jirp)
+          nShBFj=nShBF(Jirp,jS)
           If (nShBFj.eq.0) Go To 110
           jSOb=iShOff(Jirp,jS)
           Do 120 Iirp = 0, nIrrep-1
-            nShBFi=iWork(ipShBF+(iS-1)*nIrrep+Iirp)
+            nShBFi=nShBF(Iirp,iS)
             Lirp=iEor(iEor(Jirp,Iirp),Kirp)
-            nShBFl=iWork(ipShBF+(lS-1)*nIrrep+Lirp)
+            nShBFl=nShBF(Lirp,lS)
             If (nShBFi*nShBFl.eq.0) Go To 120
             iSOb=iShOff(Iirp,iS)
             lSOb=iShOff(Lirp,lS)

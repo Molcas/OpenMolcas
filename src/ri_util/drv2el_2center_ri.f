@@ -40,7 +40,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use Index_arrays, only: iSO2Sh
+      use Index_arrays, only: iSO2Sh, nShBF
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -158,7 +158,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
       nTInt=0
       Do jS = 1, nSkal-1
          nTInt = Max( nTInt,
-     &                  nMemAm(iWork(ipShBF),nIrrep,nSkal-1,jS,iOffA,
+     &                  nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,
      &                         .True.) )
       End Do
       Call GetMem('Am','Allo','Real',ipTInt,nTInt)
@@ -196,7 +196,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *                                                                      *
 *        Initialize the buffer
 *
-         nTInt_=nMemAm(iWork(ipShBF),nIrrep,nSkal-1,jS,iOffA,.True.)
+         nTInt_=nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.True.)
          Call FZero(Work(ipTInt),nTInt_)
 *                                                                      *
 *----------------------------------------------------------------------*

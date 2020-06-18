@@ -26,7 +26,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "shinf.fh"
@@ -35,11 +34,10 @@
 *
       If (ERI_Status.eq.Inactive) Return
       ERI_Status=Inactive
-*     Call QEnter('T_I')
 *
 *     In case of semi-direct mode the memory is released externally.
 *
-      Call RlsMem_Ints
+      Call RlsMem_Ints()
 *
       If (Allocated(FT)) Call mma_deallocate(FT)
 *
@@ -57,7 +55,7 @@
 *
       If (Indexation_Status.eq.Active) Then
          Indexation_Status=Inactive
-         Call GetMem('nShBF','Free','Inte',ipShBF,mSkal*nIrrep)
+         Call mma_deallocate(nShBF)
          Call mma_deallocate(iShOff)
          Call mma_deallocate(iSh2Sh)
          Call mma_deallocate(iSO2Sh)
@@ -65,8 +63,7 @@
       End If
 *
 *---- Free memory for K2 data
-      If (Free_K2) Call FreeK2
+      If (Free_K2) Call FreeK2()
 *
-*     Call QExit('T_I')
       Return
       End
