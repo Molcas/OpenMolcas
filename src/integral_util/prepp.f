@@ -53,7 +53,6 @@
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
 #include "setup.fh"
-#include "shinf.fh"
 ************************************************************************
       Integer nFro(0:7)
       Integer Columbus

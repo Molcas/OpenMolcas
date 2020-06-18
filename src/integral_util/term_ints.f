@@ -28,7 +28,6 @@
 #include "setup.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
-#include "shinf.fh"
 #include "status.fh"
       Logical Verbose, Free_K2
 *

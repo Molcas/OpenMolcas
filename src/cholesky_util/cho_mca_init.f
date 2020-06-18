@@ -20,7 +20,6 @@ C
 #include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
-#include "shinf.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')

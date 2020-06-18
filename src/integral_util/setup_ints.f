@@ -27,7 +27,6 @@
       use vRys_RW
       use iSD_data
       use k2_arrays
-      use index_arrays
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -38,7 +37,6 @@
 #include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "status.fh"
 #include "ndarray.fh"
 *
@@ -105,13 +103,7 @@
 *
       If (Indexation) Then
          Indexation_Status=Active
-         Call mma_allocate(nShBF,[0,nIrrep-1],[1,nSkal],Label='nShBF')
-         Call mma_allocate(iShOff,[0,nIrrep-1],[1,nSkal],Label='iShOff')
-         Call mma_allocate(iSh2Sh,[0,nIrrep-1],[1,nSkal],Label='iSh2Sh')
-         Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
-         Call mma_allocate(iCntr,nSkal,Label='iCntr')
-         Call SOFSh1(nShBF,iShOff,iSh2Sh,
-     &               iSO2Sh,iCntr,nSkal,nIrrep,nSOs,nShIrp,nShBFmx)
+         Call SOFSh1(nSkal,nIrrep,nSOs)
       End If
 *                                                                      *
 ************************************************************************

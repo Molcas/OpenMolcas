@@ -25,7 +25,6 @@ C
 #include "itmax.fh"
 #include "info.fh"
 #include "localdf_bas.fh"
-#include "shinf.fh"
 #include "WrkSpc.fh"
 
       Integer nBT, nST
@@ -57,7 +56,7 @@ C
       ! Total number of shells (val+aux) + 1 dummy
       nST=nShell_Valence+nShell_Auxiliary+1
 
-      ! Get iSOShl from shinf.fh
+      ! Get iSOShl from index_arrays
       l_iSOShl=nBT
       Call GetMem('LDF_iSOShl','Allo','Inte',ip_iSOShl,l_iSOShl)
       Call iCopy(l_iSOShl,iSO2Sh,1,iWork(ip_iSOShl),1)

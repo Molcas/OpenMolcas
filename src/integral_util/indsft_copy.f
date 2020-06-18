@@ -752,7 +752,6 @@ c Avoid unused argument warnings
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-#include "shinf.fh"
 *
 *     declaration of subroutine parameters ...
       Integer iS,jS,kS,lS, nShi(0:7),nShj(0:7),nShk(0:7),nShl(0:7),

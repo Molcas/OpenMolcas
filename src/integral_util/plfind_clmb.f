@@ -38,7 +38,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
-#include "shinf.fh"
 *
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iadSO

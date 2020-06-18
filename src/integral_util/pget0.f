@@ -44,7 +44,6 @@
 #include "Basis_Mode.fh"
 #include "print.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
 #include "etwas.fh"
