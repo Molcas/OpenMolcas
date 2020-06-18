@@ -110,8 +110,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 70    IrrCmp(i)=0
       do 80 i=-20,9
 80    NrInt(i)=0
-      nEF=0
-      ipEF=ip_Dummy
       nOrdEF=-1
       nDMS=0
       ipDMS=ip_Dummy

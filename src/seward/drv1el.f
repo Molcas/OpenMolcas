@@ -30,6 +30,7 @@
       Use GeoList
       Use MpmC
       Use PrpPnt
+      Use External_Centers
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -649,7 +650,7 @@ c           iPAMcount=iPAMcount+1
 *        Note that this parsing is a bit different here!
 *
          Write (Label,'(A,I1,I5)') 'EF',nOrdOp,iEF
-         Call dcopy_(3,Work(ipEF+(iEF-1)*3),1,Ccoor,1)
+         Ccoor(:)=EF_Centers(:,iEF)
 *
          iSymR(0) = 1
          If (Ccoor(1).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymX)
@@ -1481,7 +1482,7 @@ C decomposition of the totally symmetric irrep of Gsub.
       nOrdOp = 1
       Do iCnt = 1, mCnt
          Write (Label,'(A,I5)') 'Cnt',iCnt
-         Call dcopy_(3,Work(ipEF+(iCnt-1)*3),1,Ccoor,1)
+         CCoor(:)=EF_Centers(:,iCnt)
          Call Allocate_Auxiliary()
 *
          iSymR(0) = 1

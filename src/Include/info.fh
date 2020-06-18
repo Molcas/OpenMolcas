@@ -263,11 +263,11 @@
 ************************************************************************
 *                                                                      *
       Integer          iCnttp_Dummy,iLbls,      IntTot,ipAMP,
-     &          ipDMS,ipEF,ipOAM,ipOMQ,ipWel,ipXEle,ipXF,
+     &          ipDMS,ipOAM,ipOMQ,ipWel,ipXEle,ipXF,
      &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
-     &          nDim,nDMS,nEF,nIrrep,nMltpl,nOrdEF,nShlls,nWel,nXF,
+     &          nDim,nDMS,nIrrep,nMltpl,nOrdEF,nShlls,nWel,nXF,
      &          Ind_Shell(MxShll)
       Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
      &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
@@ -310,8 +310,8 @@
      &              iChBas, iSphCr,  nOrdEF,                  kOffAO,
      &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
-     &              nMltpl,  IsChi,                   iLbls,  ipEF,
-     &              nEF,     ipOAM,  ipOMQ,  ipAMP,  ipDMS,
+     &              nMltpl,  IsChi,                   iLbls,
+     &              ipOAM,  ipOMQ,  ipAMP,  ipDMS,
      &              nDMS,    ipWel,  nWel,   nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,

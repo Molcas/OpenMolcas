@@ -33,11 +33,15 @@
 *
       If (ERI_Status.eq.Inactive) Return
       ERI_Status=Inactive
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     In case of semi-direct mode the memory is released externally.
 *
       Call RlsMem_Ints()
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Allocated(FT)) Call mma_deallocate(FT)
 *
       If (Allocated(Mem_INT)) Then
@@ -47,11 +51,9 @@
       End If
 *
       Call mma_deallocate(iSOSym)
-*
-*     Generate statistic of partioning
-*
-      If (Verbose) Call StatP(1)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Indexation_Status.eq.Active) Then
          Indexation_Status=Inactive
          Call mma_deallocate(nShBF)
@@ -60,9 +62,20 @@
          Call mma_deallocate(iSO2Sh)
          Call mma_deallocate(iCntr)
       End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *---- Free memory for K2 data
-      If (Free_K2) Call FreeK2()
 *
+      If (Free_K2) Call FreeK2()
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Generate statistic of partioning
+*
+      If (Verbose) Call StatP(1)
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

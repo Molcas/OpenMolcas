@@ -14,6 +14,7 @@
       use MpmC
       use EFP_Module
       use fortran_strings, only : str
+      use External_Centers
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -4406,9 +4407,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (nOrdEF.ge.0.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipEF=ipExp(Mx_Shll)
          If (nEF.ne.0) Then
-            call dcopy_(3*nEF,EFt,1,DInf(ipEF),1)
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+            EF_Centers(:,:) = EFt(:,:)
             Call mma_deallocate(EFt)
          Else
             nEF = 0
@@ -4416,18 +4417,19 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
      &         nEF = nEF + nCntr(iCnttp)
             End Do
-            iEF = ipEF
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+*
+            iEF = 1
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
                   ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iEF),1)
-                  iEF = iEF + 3*nCntr(iCnttp)
+                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+     &                                        EF_Centers(1,iEF),1)
+                  iEF = iEF + nCntr(iCnttp)
                End If
             End Do
          End If
-         ipExp(Mx_Shll) = ipEF + nEF*3
-         nInfo = nInfo + nEF*3
       End If
 *                                                                      *
 ************************************************************************

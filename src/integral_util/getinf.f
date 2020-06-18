@@ -31,6 +31,7 @@
 ************************************************************************
       use Real_Spherical
       use Her_RW
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -74,6 +75,22 @@
 *     Load the dynamic input area.
 *
       Call Get_Info_Dynamic(Info_,nInfo,ioffr,icase)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call qpg_dArray('EF_Centers',Found,Len2)
+      If (Found) Then
+         nEF=Len2/3
+         If (Allocated(EF_Centers)) Then
+            If (SIZE(EF_Centers,2).ne.nEF) Then
+               Write (6,*) 'SIZE(EF_Centers,2).ne.nEF'
+               Call Abend()
+            End If
+         Else
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+         End If
+         Call Get_dArray('EF_Centers',EF_Centers,3*nEF)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

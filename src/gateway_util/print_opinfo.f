@@ -13,6 +13,7 @@
       Use EFP_Module
       Use EFP
 #endif
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -80,10 +81,8 @@
      &      'Centers for electric field gradient and contact option:',
      &      nEF
         End If
-        j=ipEF
         Do i=1,nEF
-          Write(LuWr,'(4X,I8,3(1X,F14.8))') i,(DInf(jj),jj=j,j+2)
-          j=j+3
+          Write(LuWr,'(4X,I8,3(1X,F14.8))') i,(EF_Centers(j,i),j=1,3)
         End Do
       End If
 *                                                                      *

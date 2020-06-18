@@ -26,6 +26,7 @@
       use Her_RW
       use Real_Spherical
       use EFP_module
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,10 +47,26 @@
 *
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Info_Status.eq.Active) Then
          Call GetMem('Info','Free','Real',LctInf,nInfo)
          Info_Status=InActive
+*                                                                      *
+*        Process "external" centers
+*
+         If (Allocated(EF_Centers)) Then
+            Call mma_deallocate(EF_Centers)
+            nEF=0
+         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       Call Free_iSD()
       Call Freek2()
@@ -61,6 +78,7 @@
          Deallocate(EFP_COORS)
          lEFP=.FALSE.
       End If
+
 *
       Seward_Status=InActive
       Return
