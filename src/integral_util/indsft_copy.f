@@ -746,6 +746,7 @@ c Avoid unused argument warnings
 *          Martin Schuetz, Theoretische Chemie Stuttgart               *
 *          version march'98                                            *
 ************************************************************************
+      use index_arrays, only: iShOff
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -763,18 +764,18 @@ c Avoid unused argument warnings
       Do 100 Kirp = 0, nIrrep-1
         nShBFk=iWork(ipShBF+(kS-1)*nIrrep+Kirp)
         If (nShBFk.eq.0) Go To 100
-        kSOb=iWork(ipShLC+(kS-1)*nIrrep+Kirp)
+        kSOb=iShOff(Kirp,kS)
         Do 110 Jirp = 0, nIrrep-1
           nShBFj=iWork(ipShBF+(jS-1)*nIrrep+Jirp)
           If (nShBFj.eq.0) Go To 110
-          jSOb=iWork(ipShLC+(jS-1)*nIrrep+Jirp)
+          jSOb=iShOff(Jirp,jS)
           Do 120 Iirp = 0, nIrrep-1
             nShBFi=iWork(ipShBF+(iS-1)*nIrrep+Iirp)
             Lirp=iEor(iEor(Jirp,Iirp),Kirp)
             nShBFl=iWork(ipShBF+(lS-1)*nIrrep+Lirp)
             If (nShBFi*nShBFl.eq.0) Go To 120
-            iSOb=iWork(ipShLC+(iS-1)*nIrrep+Iirp)
-            lSOb=iWork(ipShLC+(lS-1)*nIrrep+Lirp)
+            iSOb=iShOff(Iirp,iS)
+            lSOb=iShOff(Lirp,lS)
             ipSO3G_n=iTOffs(Kirp,Jirp,Iirp)+1
             ipSO3G_t=iTOffs(Lirp,Jirp,Iirp)+1
             Incl_n = 1

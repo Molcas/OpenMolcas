@@ -30,6 +30,7 @@
 *          University of Lund, Sweden                                  *
 *          august '95                                                  *
 ************************************************************************
+      use index_arrays, only: iShOff
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -62,7 +63,7 @@ c    &            +indSOo(k))*nSOiSh(l)
 *     the shells ...unscrambled...
       Do i = 1, 4
         nSOiSh(i) = iWork(ipShBF+iShell(i)-1)
-        indSOb(i) = iWork(ipShLC+iShell(i)-1)
+        indSOb(i) = iShOff(0,iShell(i))
       End Do
 *
       If (usShij) Then

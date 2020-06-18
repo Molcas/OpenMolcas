@@ -58,8 +58,8 @@
       If (Indexation_Status.eq.Active) Then
          Indexation_Status=Inactive
          Call GetMem('nShBF','Free','Inte',ipShBF,mSkal*nIrrep)
-         Call GetMem('ShLwC','Free','Inte',ipShLC,mSkal*nIrrep)
-         Call GetMem('ShPSh','Free','Inte',ipShSh,mSkal*nIrrep)
+         Call mma_deallocate(iShOff)
+         Call mma_deallocate(iSh2Sh)
          Call mma_deallocate(iSO2Sh)
          Call mma_deallocate(iCntr)
       End If

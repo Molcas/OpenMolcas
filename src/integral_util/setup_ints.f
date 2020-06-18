@@ -107,11 +107,11 @@
       If (Indexation) Then
          Indexation_Status=Active
          Call GetMem('nShBF','ALLO','Inte',ipShBF,nSkal*nIrrep)
-         Call GetMem('ShLwC','ALLO','Inte',ipShLC,nSkal*nIrrep)
-         Call GetMem('ShPSh','ALLO','Inte',ipShSh,nSkal*nIrrep)
+         Call mma_allocate(iShOff,[0,nIrrep-1],[1,nSkal],Label='iShOff')
+         Call mma_allocate(iSh2Sh,[0,nIrrep-1],[1,nSkal],Label='iSh2Sh')
          Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
          Call mma_allocate(iCntr,nSkal,Label='iCntr')
-         Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
+         Call SOFSh1(iWork(ipShBF),iShOff,iSh2Sh,
      &               iSO2Sh,iCntr,nSkal,nIrrep,nSOs,nShIrp,nShBFmx)
       End If
 *                                                                      *
