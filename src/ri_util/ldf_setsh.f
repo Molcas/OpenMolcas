@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, June 2010.
 C
 C     Set data in localdf_bas.fh
 C
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (a-h,o-z) ! info.fh misses declarations
       Integer nShell_Val
       Integer nShell_Aux
@@ -59,7 +60,7 @@ C
       ! Get iSOShl from shinf.fh
       l_iSOShl=nBT
       Call GetMem('LDF_iSOShl','Allo','Inte',ip_iSOShl,l_iSOShl)
-      Call iCopy(l_iSOShl,iWork(ipSOSh),1,iWork(ip_iSOShl),1)
+      Call iCopy(l_iSOShl,iSO2Sh,1,iWork(ip_iSOShl),1)
 
       ! Get nBasSh
       l_nBasSh=nST

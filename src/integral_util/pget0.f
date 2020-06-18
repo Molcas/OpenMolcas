@@ -36,6 +36,7 @@
 ************************************************************************
       use aces_stuff
       use pso_stuff
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -216,7 +217,7 @@
      &                         iBas,jBas,kBas,lBas,kOp,D0,
      &                         DVar,DS,DSVar,
      &                         nDens,Mem2,nGamma,
-     &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
+     &                         SO2cI,nSOs,iSO2Sh,PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then
@@ -278,7 +279,7 @@
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                         D0,DVar,DS,
      &                         DSVar,nDens,Mem2,nGamma,
-     &                         SO2cI,nSOs,iWork(ipSOsh),PMax)
+     &                         SO2cI,nSOs,iSO2Sh,PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then

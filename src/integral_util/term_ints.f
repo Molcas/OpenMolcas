@@ -60,7 +60,7 @@
          Call GetMem('nShBF','Free','Inte',ipShBF,mSkal*nIrrep)
          Call GetMem('ShLwC','Free','Inte',ipShLC,mSkal*nIrrep)
          Call GetMem('ShPSh','Free','Inte',ipShSh,mSkal*nIrrep)
-         Call GetMem('SOShl','Free','Inte',ipSOSh,nSOs)
+         Call mma_deallocate(iSO2Sh)
          Call mma_deallocate(iCntr)
       End If
 *

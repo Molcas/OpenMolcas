@@ -40,6 +40,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -93,14 +94,14 @@
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *
       Call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
-      Call Mk_iSO2Ind(iWork(ipSOSh),SO2Ind,nSOs,nSkal)
+      Call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
 *
        nSO_Aux=nSOs-1
       If (LDF) Then
          Call GetMem('SO2C','Allo','Inte',ipSO2C,nSO_Aux)
          MaxCntr=0
          Do i = 1, nSO_Aux
-            iSh = iWork(ipSOSh+i-1)
+            iSh = iSO2Sh(i)
             iCenter=iSD(10,iSh)
             MaxCntr=Max(MaxCntr,iCenter)
             iWork(ipSO2C+i-1)=iCenter

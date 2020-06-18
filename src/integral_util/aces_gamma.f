@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Aces_Gamma()
       use Aces_Stuff
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -101,10 +102,8 @@
 *---- Read the blocks off the Aces 2 file and put into half sorted bin
 *     file. The second half sort is done on the fly as needed.
 *
-      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,
-     &                 iOffSO,Buf,nReq,
-     &                 iWork(ipSOSh),nSOs,Bin3,lBin,nQuad,
-     &                 G_Toc,SO2cI,CutInt)
+      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,iOffSO,Buf,nReq,
+     &                 iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -109,11 +109,10 @@
          Call GetMem('nShBF','ALLO','Inte',ipShBF,nSkal*nIrrep)
          Call GetMem('ShLwC','ALLO','Inte',ipShLC,nSkal*nIrrep)
          Call GetMem('ShPSh','ALLO','Inte',ipShSh,nSkal*nIrrep)
-         Call GetMem('SOShl','ALLO','Inte',ipSOSh,nSOs)
+         Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
          Call mma_allocate(iCntr,nSkal,Label='iCntr')
          Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
-     &               iWork(ipSOSh),iCntr,nSkal,nIrrep,nSOs,
-     &               nShIrp,nShBFmx)
+     &               iSO2Sh,iCntr,nSkal,nIrrep,nSOs,nShIrp,nShBFmx)
       End If
 *                                                                      *
 ************************************************************************
