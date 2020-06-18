@@ -781,10 +781,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 3
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1  ),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+3),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+6),1)
-         Call dcopy_(3,Work(ipOAM),1,Ccoor,1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1  ),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+3),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+6),1)
+         Call dcopy_(3,OAM_Center,1,Ccoor,1)
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
          ixyz=2

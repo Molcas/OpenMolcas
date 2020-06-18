@@ -4728,17 +4728,12 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,DInf(ipOAM),1)
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         call dcopy_(3,OAMt,1,OAM_Center,1)
          Call mma_deallocate(OAMt)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
       Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
          lOAM=.True.
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,CoM,1,DInf(ipOAM),1)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
+         call dcopy_(3,CoM,1,OAM_Center,1)
       End If
 *                                                                      *
 ************************************************************************

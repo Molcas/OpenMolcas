@@ -60,6 +60,7 @@
             Call mma_deallocate(EF_Centers)
             nEF=0
          End If
+         If (Allocated(OAM_Center)) Call mma_deallocate(OAM_Center)
 *                                                                      *
 ************************************************************************
 *                                                                      *

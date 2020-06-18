@@ -11,4 +11,5 @@
       Module External_Centers
       Integer :: nEF=0
       Real*8, Allocatable:: EF_Centers(:,:)
+      Real*8, Allocatable:: OAM_Center(:)
       End Module External_Centers

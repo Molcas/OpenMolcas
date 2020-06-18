@@ -37,7 +37,6 @@
          ipPAM2xp(i)   = ipPAM2xp(i)   + ibase
          ipPAM2cf(i)   = ipPAM2cf(i)   + ibase
       End Do
-      ipOAM= ipOAM+ ibase
       ipOMQ= ipOMQ+ ibase
       ipDMS= ipDMS+ ibase
       ipWel= ipWel+ ibase
