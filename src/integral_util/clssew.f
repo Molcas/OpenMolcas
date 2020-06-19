@@ -61,6 +61,15 @@
             nEF=0
          End If
          If (Allocated(OAM_Center)) Call mma_deallocate(OAM_Center)
+         If (Allocated(OMQ_Center)) Call mma_deallocate(OMQ_Center)
+         If (Allocated(DMS_Centers)) Then
+            Call mma_deallocate(DMS_Centers)
+            nDMS=0
+         End If
+         If (Allocated(Wel_Info)) Then
+            Call mma_deallocate(Wel_Info)
+            nWel=0
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

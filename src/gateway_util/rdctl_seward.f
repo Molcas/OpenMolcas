@@ -2115,36 +2115,30 @@ c     Go To 998
  986  KWord = Get_Ln(LuRd)
       GWInput=.True.
       Call Get_I1(1,nWel)
-*---- Get pointer to the next free space in dynamic memory
-      ipWel=ipExp(iShll+1)
-      ipW = ipWel
       If (nWel.le.0) Then
 *--------Use automatic set up for well integrals
          nWel=3
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
-            Work(ipW+2)=WellCff(iWel)
-            Work(ipW+1)=WellExp(iWel)
-            Work(ipW  )=WellRad(iWel)
-            ipW = ipW + 3
+            Wel_Info(3,iWel)=WellCff(iWel)
+            Wel_Info(2,iWel)=WellExp(iWel)
+            Wel_Info(1,iWel)=WellRad(iWel)
          End Do
       Else
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
 *---------- Read the Coefficient, Exponent, and Radius
             KWord = Get_Ln(LuRd)
-            call Get_F1(1,Work(ipW+2))
-            call Get_F1(2,Work(ipW+1))
-            call Get_F1(3,Work(ipW  ))
+            call Get_F1(1,Wel_Info(3,iWel))
+            call Get_F1(2,Wel_Info(2,iWel))
+            call Get_F1(3,Wel_Info(1,iWel))
             Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0) Then
-               Work(ipW)=Work(ipW)/angstr
-               Work(ipW+1)=Work(ipW+1)*angstr
+               Wel_Info(1,iWel)=Wel_Info(1,iWel)/angstr
+               Wel_Info(2,iWel)=Wel_Info(2,iWel)*angstr
             End If
-            ipW = ipW + 3
          End Do
       End If
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipW
-      nInfo = nInfo + nWel*3
       Go To 998
 *                                                                      *
 ****** NODK ************************************************************
@@ -4376,9 +4370,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for Well integrals
 *
-      ip = ipWel
       Do iWel = 1, nWel
-         If (DInf(ip).lt.Zero) Then
+         If (Wel_Info(1,iWel).lt.Zero) Then
             If (.Not.lRF) Then
                Call WarningMessage(2,
      &                        '; Input inconsistency!; ;'
@@ -4387,9 +4380,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                      //' has been specified!')
                Call Quit_OnUserError()
             End If
-            DInf(ip)=rds+Abs(DInf(ip))
+            Wel_Info(1,iWel)=rds+Abs(Wel_Info(1,iWel))
          End If
-         ip = ip + 3
       End Do
 *                                                                      *
 ************************************************************************
@@ -4439,25 +4431,24 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (lDMS.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipDMS=ipExp(Mx_Shll)
          If (nDMS.ne.0) Then
-            call dcopy_(3*nDMS,DMSt,1,DInf(ipDMS),1)
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            DMS_Centers(:,:)=DMSt(:,:)
             call mma_deallocate(DMSt)
          Else
             nDMS = 0
             Do iCnttp = 1, nCnttp
                nDMS = nDMS + nCntr(iCnttp)
             End Do
-            ipDMS=ipExp(Mx_Shll)
-            iDMS = ipDMS
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            iDMS = 1
             Do iCnttp = 1, nCnttp
                ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iDMS),1)
-               iDMS = iDMS + 3*nCntr(iCnttp)
+               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+     &                                     DMS_Centers(1,iDMS),1)
+               iDMS = iDMS + nCntr(iCnttp)
             End Do
          End If
-         ipExp(Mx_Shll)=ipDMS + nDMS*3
-         nInfo = nInfo + nDMS*3
       End If
 *                                                                      *
 ************************************************************************
@@ -4733,6 +4724,7 @@ C     Mx_mdc=mdc
          Call mma_deallocate(OAMt)
       Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
          lOAM=.True.
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,CoM,1,OAM_Center,1)
       End If
 *                                                                      *
@@ -4742,11 +4734,9 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,DInf(ipOMQ),1)
+         Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
+         Call DCopy_(3,OMQt,1,OMQ_Center,1)
          Call mma_deallocate(OMQt)
-         ipExp(Mx_Shll) = ipOMQ + 3
-         nInfo = nInfo + 3
       End If
 *                                                                      *
 ************************************************************************

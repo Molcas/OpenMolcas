@@ -247,6 +247,15 @@
       If (Allocated(OAM_Center)) Then
          Call Put_dArray('OAM_Center',OAM_Center,3)
       End If
+      If (Allocated(OMQ_Center)) Then
+         Call Put_dArray('OMQ_Center',OMQ_Center,3)
+      End If
+      If (Allocated(DMS_Centers)) Then
+         Call Put_dArray('DMS_Centers',DMS_Centers,3*nDMS)
+      End If
+      If (Allocated(Wel_Info)) Then
+         Call Put_dArray('Wel_Info',Wel_Info,3*nWel)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

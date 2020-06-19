@@ -85,7 +85,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       m2Max=0
       iAngMx=-1
       nWel=0
-      ipWel=ip_Dummy
       iRI_type=0
 *     iRI_type=4
       jMax = 5

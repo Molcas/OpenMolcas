@@ -92,7 +92,7 @@
          Call RecPrt(' Gauge Origin for diamagnetic shielding',' ',
      &               Dxyz,1,3)
          Call RecPrt(' Centers for diamagnetic shielding',
-     &               ' ',DInf(ipDMS),3,nDMS)
+     &               ' ',DMS_Centers,3,nDMS)
       End If
 *                                                                      *
 ************************************************************************
@@ -102,10 +102,10 @@
          Write (LuWr,*) ' Spherical well specification in au'
          Write (LuWr,*) ' =================================='
          Write (LuWr,*) '   Coeff.      Exp.        R0      '
-         ip = ipWel
          Do iWel = 1, nWel
-            Write (LuWr,'(3(F10.6,2x))') DInf(ip+2),DInf(ip+1),DInf(ip)
-            ip=ip+3
+            Write (LuWr,'(3(F10.6,2x))') Wel_Info(3,iWel),
+     &                                   Wel_Info(2,iWel),
+     &                                   Wel_Info(1,iWel)
          End Do
          Write (LuWr,*)
       End If

@@ -98,6 +98,39 @@
          End If
          Call Get_dArray('OAM_Center',OAM_Center,3)
       End If
+      Call qpg_dArray('OMQ_Center',Found,Len2)
+      If (Found) Then
+         If (.Not.Allocated(OMQ_Center)) Then
+            Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
+         End If
+         Call Get_dArray('OMQ_Center',OMQ_Center,3)
+      End If
+      Call qpg_dArray('DMS_Centers',Found,Len2)
+      If (Found) Then
+         nDMS=Len2/3
+         If (Allocated(DMS_Centers)) Then
+            If (SIZE(DMS_Centers,2).ne.nDMS) Then
+               Write (6,*) 'SIZE(DMS_Centers,2).ne.nDMS'
+               Call Abend()
+            End If
+         Else
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+         End If
+         Call Get_dArray('DMS_Centers',DMS_Centers,3*nDMS)
+      End If
+      Call qpg_dArray('Wel_Info',Found,Len2)
+      If (Found) Then
+         nWel=Len2/3
+         If (Allocated(Wel_Info)) Then
+            If (SIZE(Wel_Info,2).ne.nWel) Then
+               Write (6,*) 'SIZE(Wel_Info,2).ne.nWel'
+               Call Abend()
+            End If
+         Else
+            Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
+         End If
+         Call Get_dArray('Wel_Info',Wel_Info,3*nWel)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

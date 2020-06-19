@@ -903,10 +903,10 @@ c           iPAMcount=iPAMcount+1
          nOrdOp = 3
          Call Allocate_Auxiliary()
 *
-         Call dcopy_(nComp,[Work(ipOMQ  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipOMQ+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipOMQ+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipOMQ),1,Ccoor,1)
+         Call dcopy_(nComp,[OMQ_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[OMQ_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[OMQ_Center(3)],0,CoorO(1+2),3)
+         Ccoor(:)=OMQ_Center(:)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
@@ -1162,8 +1162,8 @@ c           iPAMcount=iPAMcount+1
          OperI(1) = 1
          OperC(1) = iChBas(1)
          Do 1600 iWel = 1, nWel
-            r0   = Work(ipWel+(iWel-1)*3  )
-            ExpB = Work(ipWel+(iWel-1)*3+1)
+            r0   = Wel_Info(1,iWel)
+            ExpB = Wel_Info(2,iWel)
             Write (Label,'(A,I4)') 'Well',iWel
             Call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,
      &                 CoorO,iWel,[Zero],rHrmt,OperC,
@@ -1317,7 +1317,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (nWel.ne.0) Then
             Do iWel = 1, nWel
-               Fact=Work(ipWel-1+(iWel-1)*3+3)
+               Fact=Wel_Info(3,iWel)
                Write (Label,'(A,I4)') 'Well',iWel
                iRC = -1
                Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)

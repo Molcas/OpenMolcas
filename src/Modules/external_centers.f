@@ -12,4 +12,9 @@
       Integer :: nEF=0
       Real*8, Allocatable:: EF_Centers(:,:)
       Real*8, Allocatable:: OAM_Center(:)
+      Real*8, Allocatable:: OMQ_Center(:)
+      Integer :: nDMS=0
+      Real*8, Allocatable:: DMS_Centers(:,:)
+      Integer :: nWel=0
+      Real*8, Allocatable:: Wel_Info(:,:)
       End Module External_Centers
