@@ -144,6 +144,8 @@ C Local print level (if any)
      & .and. KSDFT.ne.'FTLSDA'
      & .and. KSDFT.ne.'TPBE'
      & .and. KSDFT.ne.'FTPBE'
+     & .and. KSDFT.ne.'TOPBE'
+     & .and. KSDFT.ne.'FTOPBE'
      & .and. KSDFT.ne.'TBLYP'
      & .and. KSDFT.ne.'FTBLYP'
      & .and. KSDFT.ne.'TREVPBE'
@@ -263,6 +265,8 @@ c**************************************************************************
      &  KSDFT(1:5).ne.'TBLYP'.and.
      &  KSDFT(1:6).ne.'FTLSDA'.and.
      &  KSDFT(1:5).ne.'FTPBE'.and.
+     &  KSDFT(1:6).ne.'FTOPBE'.and.
+     &  KSDFT(1:5).ne.'TOPBE'.and.
      &  KSDFT(1:7).ne.'TREVPBE'.and.
      &  KSDFT(1:8).ne.'FTREVPBE'.and.
      &  KSDFT(1:6).ne.'FTBLYP'.and.

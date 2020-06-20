@@ -95,6 +95,8 @@
          nqInt=nQQ*MaxItr
          Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
          Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+         Call FZero(Work(ip_rInt),nqInt)
+         Call FZero(Work(ip_drInt),nqInt)
       End If
 *
       Call Allocate_Work(ipDegen,nDim)
@@ -123,7 +125,9 @@
       Proc=.False.     ! Flag for processing B
       Proc_dB=.False.  ! Flag for processing dB
 *
-      Call Get_Curvil
+      Thr_small=(30.0D0/180.0D0)*Pi
+      Do While (Thr_small.gt.1.0D-6)
+         Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
      &           nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &           nStab,nDim,Smmtrc,Proc,Dum,1,iANr,cDum,
@@ -133,7 +137,10 @@
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &           mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,
-     &           iDum)
+     &           iDum,Thr_small)
+         If (nq.ge.nQQ) Exit
+         Thr_small=Thr_small-(5.0D0/180.0D0)*Pi
+      End Do
 
       Rewind(LuIC)
 *
@@ -197,7 +204,7 @@
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &           nB_Tot,ndB_Tot,
      &           Work(ip_B),Dum,iWork(ip_iB),iDum,
-     &           mB_Tot,mdB_Tot,iWork(ip_nqB))
+     &           mB_Tot,mdB_Tot,iWork(ip_nqB),Thr_small)
       Rewind(LuIC)
 *
       If (iq.ne.nq) Then
@@ -334,6 +341,13 @@
          Write (6,'(A,I5)')' Out-of-plane angles       :     ',nqO
          Write (6,*)
       End If
+      If (nq.lt.nQQ) Then
+         Call WarningMessage(2,' Error in Curvil')
+         Write (6,*) 'In Curvil: nq.lt.nQQ'
+         Write (6,*) 'nq=',nq
+         Write (6,*) 'nQQ=',nQQ
+         Call Abend
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -407,7 +421,7 @@ C        iEnd = 1
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              nB_Tot,ndB_Tot,
      &              Work(ip_B),Work(ip_dB),iWork(ip_iB),iWork(ip_idB),
-     &              mB_Tot,mdB_Tot,iWork(ip_nqB))
+     &              mB_Tot,mdB_Tot,iWork(ip_nqB),Thr_small)
          Rewind(LuIC)
 *
          If (iq.ne.nq) Then

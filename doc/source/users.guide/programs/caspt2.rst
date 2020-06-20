@@ -339,19 +339,21 @@ Keywords
               </KEYWORD>
 
 :kword:`DWMS`
-  It constructs the Fock matrices used in the zeroth-order Hamiltonian
-  using dynamically weighted densities. Used in conjunction with
-  :kword:`XMULtistate` it performs a XDW-CASPT2 calculation
-  according to :cite:`Battaglia2020`.
-  It is possible to use this option also with :kword:`MULTistate`, in
-  such case the original CASSCF states are used as inputs for the dynamically
-  weighted densities, rather than the rotated references as in XDW-CASPT2.
-  An integer number for the exponential factor :math:`\zeta` can be specified,
-  if not, the default value of 50 is used. By specifying any negative integer
-  number, the limit :math:`\zeta\to\infty` is taken, resulting in the
-  same weights as in MS-CASPT2. The other limiting case is :math:`\zeta=0`,
-  for which equal weights are assigned to all states and thus XDW-CASPT2
-  is exactly equivalent to XMS-CASPT2.
+  Used in conjunction with :kword:`XMULtistate` it performs a XDW-CASPT2
+  calculation according to :cite:`Battaglia2020`, thereby rotating the
+  input states to diagonalize the state-average Fock operator and
+  constructing the zeroth-order Hamiltonian using dynamically
+  weighted densities.
+  It is also possible to use this option with :kword:`MULTistate`, in
+  which case the original CASSCF states are used instead of the rotated
+  ones.
+  An integer number for the exponential factor :math:`\zeta` has to be
+  explicitly specified; a reasonable value is 50 (see :cite:`Battaglia2020`
+  for more details). By specifying any negative integer number, the
+  limit :math:`\zeta\to\infty` is taken, resulting in unit weights
+  as in MS-CASPT2. The other limit case is :math:`\zeta=0`, for which
+  equal weights are assigned to all states and thus XDW-CASPT2 is
+  exactly equivalent to XMS-CASPT2.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INT" LEVEL="BASIC">
               %%Keyword: DWMS <basic> GUI:number

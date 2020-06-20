@@ -202,7 +202,7 @@
         call mma_deallocate(BUF)
 
         call mma_allocate(BUF,NCMO)
-        IDISK = 0
+        IDISK = IAD1M(1)
         CALL DDAFILE(LUONEM,2,BUF,NCMO,IDISK)
         call mh5_put_dset_array_real(pt2wfn_mocoef,BUF)
         call mma_deallocate(BUF)

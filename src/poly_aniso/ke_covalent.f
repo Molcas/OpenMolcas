@@ -13,13 +13,13 @@ c this function computes the covalent CF Hamiltonian ofr a given Lanthanide
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer N,OPT,lant
-      Real(kind=wp) ::  t,u
-      Real(kind=wp) ::  WCG ! Clebsh_Gordan Coefficeints
-      Complex(kind=wp) ::  HCOV(N,N)
+      Real(kind=8) ::  t,u
+      Real(kind=8) ::  WCG ! Clebsh_Gordan Coefficeints
+      Complex(kind=8) ::  HCOV(N,N)
 c local variables
       Integer i,j,JLn,ms1,ns1
-      Real(kind=wp) ::  HCOV1(N,N)
-      Real(kind=wp) ::  test1
+      Real(kind=8) ::  HCOV1(N,N)
+      Real(kind=8) ::  test1
       external WCG
 #include "jcoeff.fh"
 

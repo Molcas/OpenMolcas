@@ -128,8 +128,14 @@
       End Do
 
       If(inUse.eq.0) Then
-        NProfFiles=NProfFiles+1
-        LuNameProf(NProfFiles)=StdNam
+        If (NProfFiles+1.le.MxFile) Then
+           NProfFiles=NProfFiles+1
+           LuNameProf(NProfFiles)=StdNam
+        Else
+           Write (6,*) 'IO error: NProfFiles+1.gt.MxFile'
+           Write (6,*) 'Increase MxFile in src/Include/MxFile.fh!'
+           Call Abend()
+        End If
       End If
 #endif
       Call SetLuMark(Lu)

@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine  ReMap_V_k(iSym,V_k,nV_k,V_k_New,nV_k_New,iSO_ab,ij2K)
+      Subroutine  ReMap_V_k(iSym,V_k,nV_k,V_k_New,nV_k_New,iSO_ab,ij2K,
+     &                      m_ij2K)
       Implicit Real*8 (A-H,O-Z)
       Real*8 V_k(nV_k), V_k_New(nV_k_New)
-      Integer iSym, iSO_ab(2,nV_k), ij2K(*)
+      Integer iSym, iSO_ab(2,nV_k), ij2K(m_ij2K)
 *
       If (iSym .eq. 1) Then
          Do k=1,nV_k

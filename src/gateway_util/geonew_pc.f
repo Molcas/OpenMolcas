@@ -47,7 +47,7 @@
         End Subroutine
       End Interface
 *
-*     Check if there is a data field called 'NewGeoPC'
+*     Check if there is a data field called 'GeoNewPC'
 *
       Call Get_PC_Coord_New(CN,lBuf)
       nAtoms=lbuf/nData_XF
