@@ -322,7 +322,7 @@
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            correction = 0.d0
+            correction = 0._dp
             call mult(S, curr, v)
 
             do j = 1, n_new
@@ -330,9 +330,9 @@
      &                     + ONB(:, j) * dot_product(ONB(:, j), v)
             end do
             curr = curr - correction
-            improve_solution = norm(correction, S=S) > 0.1d0
+            improve_solution = norm(correction, S=S) > 0.1_dp
             L = norm(curr, S=S)
-            lin_dep_detected = L < 1.0d-10
+            lin_dep_detected = L < 1.0e-10_dp
             if (.not. lin_dep_detected) then
               curr = curr / L
             end if
