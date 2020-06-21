@@ -19,7 +19,7 @@
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
         use sorting_funcs, only : ge_r
-        use linalg_util, only: mult
+        use linalg_mod, only: mult
 
         implicit none
         save

@@ -11,7 +11,7 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
-module linalg_util
+module linalg_mod
     use constants, only: dp
     implicit none
     private
@@ -83,8 +83,8 @@ contains
         K = K_1
 
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
-                    M, N, K, 1.d0, A, size(A, 1), B, size(B, 1), &
-                    0.d0, C, size(C, 1))
+                    M, N, K, 1._dp, A, size(A, 1), B, size(B, 1), &
+                    0._dp, C, size(C, 1))
     end subroutine
 
 !>  @brief
@@ -120,8 +120,8 @@ contains
         call assert_(K == size(x, 1), 'Shape mismatch.')
 
         call dgemm_(merge('T', 'N', transpA_), 'N', &
-                    M, N, K, 1.d0, A, size(A, 1), x, size(x, 1), &
-                    0.d0, y, size(y, 1))
+                    M, N, K, 1._dp, A, size(A, 1), x, size(x, 1), &
+                    0._dp, y, size(y, 1))
     end subroutine
 
 
@@ -181,17 +181,17 @@ contains
         N = merge(shapeB(2), shapeB(1), .not. transpB_)
         shapeC = [M, N]
 
-        additional_shape_test : block
+        block
             integer :: K_1, K_2
             K_1 = merge(shapeA(2), shapeA(1), .not. transpA_)
             K_2 = merge(shapeB(1), shapeB(2), .not. transpB_)
             call assert_(K_1 == K_2, 'Shape mismatch.')
             K = K_1
-        end block additional_shape_test
+        end block
 
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
-                    M, N, K, 1.d0, A, shapeA(1), B, shapeB(1), &
-                    0.d0, C, shapeC(1))
+                    M, N, K, 1._dp, A, shapeA(1), B, shapeB(1), &
+                    0._dp, C, shapeC(1))
     end subroutine
 
     subroutine abort_(message)
