@@ -164,6 +164,7 @@ contains
 
         integer :: shapeA(2), shapeB(2), shapeC(2)
         integer :: M, N, K
+        integer :: K_1, K_2
 
         if (present(transpA)) then
             transpA_ = transpA
@@ -183,13 +184,10 @@ contains
         N = merge(shapeB(2), shapeB(1), .not. transpB_)
         shapeC = [M, N]
 
-        block
-            integer :: K_1, K_2
-            K_1 = merge(shapeA(2), shapeA(1), .not. transpA_)
-            K_2 = merge(shapeB(1), shapeB(2), .not. transpB_)
-            call assert_(K_1 == K_2, 'Shape mismatch.')
-            K = K_1
-        end block
+        K_1 = merge(shapeA(2), shapeA(1), .not. transpA_)
+        K_2 = merge(shapeB(1), shapeB(2), .not. transpB_)
+        call assert_(K_1 == K_2, 'Shape mismatch.')
+        K = K_1
 
         call assert_(wp == r8, 'Precision mismatch for DGEMM')
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
