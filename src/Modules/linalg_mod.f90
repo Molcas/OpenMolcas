@@ -12,7 +12,7 @@
 !***********************************************************************
 
 module linalg_mod
-    use constants, only: dp
+    use constants, only: wp, r8
     implicit none
     private
     public :: mult
@@ -55,8 +55,8 @@ contains
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
     subroutine mult_2D(A, B, C, transpA, transpB)
-        real(dp), intent(in) :: A(:, :), B(:, :)
-        real(dp), intent(out) :: C(:, :)
+        real(wp), intent(in) :: A(:, :), B(:, :)
+        real(wp), intent(out) :: C(:, :)
         logical, intent(in), optional :: transpA, transpB
         logical :: transpA_, transpB_
 
@@ -82,9 +82,10 @@ contains
         call assert_(K_1 == K_2, 'Shape mismatch.')
         K = K_1
 
+        call assert_(wp == r8, 'Precision mismatch for DGEMM')
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
-                    M, N, K, 1._dp, A, size(A, 1), B, size(B, 1), &
-                    0._dp, C, size(C, 1))
+                    M, N, K, 1._wp, A, size(A, 1), B, size(B, 1), &
+                    0._wp, C, size(C, 1))
     end subroutine
 
 !>  @brief
@@ -100,8 +101,8 @@ contains
 !>  @paramin[in] transpA, Optional argument to specify that A
 !>      should be transposed.
     subroutine mult_2D_1D(A, x, y, transpA)
-        real(dp), intent(in) :: A(:, :), x(:)
-        real(dp), intent(out) :: y(:)
+        real(wp), intent(in) :: A(:, :), x(:)
+        real(wp), intent(out) :: y(:)
         logical, intent(in), optional :: transpA
         logical :: transpA_
 
@@ -119,9 +120,10 @@ contains
         K = size(A, merge(2, 1, .not. transpA_))
         call assert_(K == size(x, 1), 'Shape mismatch.')
 
+        call assert_(wp == r8, 'Precision mismatch for DGEMM')
         call dgemm_(merge('T', 'N', transpA_), 'N', &
-                    M, N, K, 1._dp, A, size(A, 1), x, size(x, 1), &
-                    0._dp, y, size(y, 1))
+                    M, N, K, 1._wp, A, size(A, 1), x, size(x, 1), &
+                    0._wp, y, size(y, 1))
     end subroutine
 
 
@@ -152,11 +154,11 @@ contains
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
     subroutine mult_2D_raw(A, rows_A, B, rows_B, C, transpA, transpB)
-        real(dp), intent(in) :: A(:)
+        real(wp), intent(in) :: A(:)
         integer, intent(in) :: rows_A
-        real(dp), intent(in) :: B(:)
+        real(wp), intent(in) :: B(:)
         integer, intent(in) :: rows_B
-        real(dp), intent(out) :: C(:)
+        real(wp), intent(out) :: C(:)
         logical, intent(in), optional :: transpA, transpB
         logical :: transpA_, transpB_
 
@@ -189,9 +191,10 @@ contains
             K = K_1
         end block
 
+        call assert_(wp == r8, 'Precision mismatch for DGEMM')
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
-                    M, N, K, 1._dp, A, shapeA(1), B, shapeB(1), &
-                    0._dp, C, shapeC(1))
+                    M, N, K, 1._wp, A, shapeA(1), B, shapeB(1), &
+                    0._wp, C, shapeC(1))
     end subroutine
 
     subroutine abort_(message)

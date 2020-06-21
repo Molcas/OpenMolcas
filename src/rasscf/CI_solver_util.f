@@ -15,20 +15,20 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
+      use constants, only: wp, MPIArg
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_data, only: lRoots, nRoots, iAdr15,
      &                       iRoot, Weight, nAc, nAcPar, nAcpr2
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, assert_, RDM_to_runfile, dp,
+      public :: wait_and_read, abort_, assert_, RDM_to_runfile,
      &      cleanMat
-      integer, parameter :: dp = kind(1.0d0)
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-      integer*4 :: error
-      integer*4, parameter :: one4=1, root4=0
+      integer(MPIArg) :: error
+      integer(MPIArg), parameter :: ROOT = 0_MPIArg
 #endif
 
       interface
@@ -54,8 +54,8 @@
           if (myrank == 0) call f_Inquire(trim(filename),newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, one4, MPI_LOGICAL,
-     &                     root4, MPI_COMM_WORLD, error)
+            call MPI_Bcast(newcycle_found, 1_MPIArg, MPI_LOGICAL,
+     &                     ROOT, MPI_COMM_WORLD, error)
           end if
 #endif
         end do
@@ -69,8 +69,8 @@
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call MPI_Bcast(energy, one4, MPI_REAL8,
-     &                   root4, MPI_COMM_WORLD, error)
+          call MPI_Bcast(energy, 1_MPIArg, MPI_REAL8,
+     &                   ROOT, MPI_COMM_WORLD, error)
         end if
 #endif
       end subroutine wait_and_read

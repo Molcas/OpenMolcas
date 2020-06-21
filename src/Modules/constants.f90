@@ -12,15 +12,34 @@
 !***********************************************************************
 
 module constants
+    use iso_fortran_env, only: int32, int64, real32, real64
     implicit none
     private
-    public :: r4, r8, i4, i8, dp, MPIArg
+    public :: wp, MPIArg, HDF5Arg
+    public :: r4, r8, i4, i8
+
+
+    ! This is the type of MPI arguments
+    ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIArg)
+    !       we can support 32bit and 64bit versions.
+    !       Which will require appropiate compile flags here.
+    integer, parameter :: MPIArg = int32
+
+    ! This is the type of HDF5 arguments
+    ! NOTE: If legacy integer*4 declarations are replaced with integer(HDF5Arg)
+    !       we can support 32bit and 64bit versions.
+    !       Which will require appropiate compile flags here.
+    integer, parameter :: HDF5Arg = int32
+
+    ! This is the working precision and should be preferably used.
+    integer, parameter :: wp = real64
+
 
     ! Although the constants from iso_fortran_env or `selected_real_kind`
     ! are preferred over non-standard real*8 etc.
-    ! We define our standard-conforming kinds to be of same kind as
-    ! an example variable of real*8 etc, to maintain backwards
-    ! compatibility
+    ! We define some kinds to refer to the non-standard notation.
+    ! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO real*8 etc.**
+    ! `wp` etc. are always preferred.
 
     real*4 :: r4_example
     real*8 :: r8_example
@@ -33,8 +52,5 @@ module constants
         r8 = kind(r8_example), &
         i4 = kind(i4_example), &
         i8 = kind(i8_example)
-
-    integer, parameter :: MPIArg = i4
-    integer, parameter :: dp = r8
 
 end module

@@ -12,7 +12,7 @@
 ************************************************************************
 #include "intent.h"
       module orthonormalization
-        use constants, only: dp
+        use constants, only: wp
         use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
@@ -121,9 +121,9 @@
 
       subroutine orthonormalize_raw(CMO, scheme, ONB_v)
         use general_data, only : nBas, nSym
-        real(dp), intent(in) :: CMO(:)
+        real(wp), intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real(dp), intent(out) :: ONB_v(:)
+        real(wp), intent(out) :: ONB_v(:)
 
         type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
@@ -154,11 +154,11 @@
 
 
       subroutine Lowdin_Array(basis, S, ONB)
-        real(dp), intent(in) :: basis(:, :), S(:, :)
-        real(dp), intent(out) :: ONB(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(out) :: ONB(:, :)
 
         integer :: i
-        real(dp), allocatable :: U(:, :), s_diag(:), X(:, :),
+        real(wp), allocatable :: U(:, :), s_diag(:), X(:, :),
      &        S_transf(:, :), tmp(:, :)
 
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
@@ -218,15 +218,15 @@
 
 
       subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
-        real(dp), intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real(dp), intent(out) :: ONB(:, :)
+        real(wp), intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
         logical :: lin_dep_detected
         integer :: i
         integer, allocatable :: idx(:)
-        real(dp), allocatable :: U(:, :), s_diag(:), S_transf(:, :),
+        real(wp), allocatable :: U(:, :), s_diag(:), S_transf(:, :),
      &      X(:, :), tmp(:, :)
 
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
@@ -297,17 +297,17 @@
 
 
       subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
-        real(dp), intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real(dp), target, intent(out) :: ONB(:, :)
+        real(wp), target, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
-        real(dp) :: L
+        real(wp) :: L
         integer :: i, j
         logical :: lin_dep_detected, improve_solution
 
-        real(dp), allocatable :: previous(:), correction(:), v(:)
-        real(dp), pointer :: curr(:)
+        real(wp), allocatable :: previous(:), correction(:), v(:)
+        real(wp), pointer :: curr(:)
 
         call mma_allocate(previous, size(S, 1))
         call mma_allocate(correction, size(S, 1))
@@ -322,7 +322,7 @@
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            correction = 0._dp
+            correction = 0._wp
             call mult(S, curr, v)
 
             do j = 1, n_new
@@ -330,9 +330,9 @@
      &                     + ONB(:, j) * dot_product(ONB(:, j), v)
             end do
             curr = curr - correction
-            improve_solution = norm(correction, S=S) > 0.1_dp
+            improve_solution = norm(correction, S=S) > 0.1_wp
             L = norm(curr, S=S)
-            lin_dep_detected = L < 1.0e-10_dp
+            lin_dep_detected = L < 1.0e-10_wp
             if (.not. lin_dep_detected) then
               curr = curr / L
             end if
@@ -404,7 +404,7 @@
 
 
       subroutine read_raw_S(S_buffer)
-        real(dp), intent(inout) :: S_buffer(:)
+        real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
 #include "warnings.fh"
 
@@ -433,8 +433,8 @@
 
         parameter(ROUTINE='update_orb_numbe')
         integer :: size_S_buffer
-        real(dp) :: Mol_Charge
-        real(dp), allocatable :: S_buffer(:)
+        real(wp) :: Mol_Charge
+        real(wp), allocatable :: S_buffer(:)
 
         call qEnter(ROUTINE)
 
@@ -456,13 +456,13 @@
       end subroutine
 
       subroutine diagonalize(A, V, lambda)
-        real(dp), intent(in) :: A(:, :)
-        real(dp), intent(out) :: V(:, :), lambda(:)
+        real(wp), intent(in) :: A(:, :)
+        real(wp), intent(out) :: V(:, :), lambda(:)
 
         integer, parameter :: do_worksize_query = -1
         integer :: info
-        real(dp), allocatable :: work(:)
-        real(dp) :: dummy(2), query_result(2)
+        real(wp), allocatable :: work(:)
+        real(wp) :: dummy(2), query_result(2)
 
         V(:, :) = A(:, :)
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
@@ -511,11 +511,11 @@
 ! One cannot use matmul + customly allocated arrays.
 ! .and. One cannot overload dot_product with a non pure function
 ! => call it dot_product_
-        real(dp), intent(in) :: v1(:), v2(:)
-        real(dp), intent(in), optional :: S(:, :)
-        real(dp) :: dot
+        real(wp), intent(in) :: v1(:), v2(:)
+        real(wp), intent(in), optional :: S(:, :)
+        real(wp) :: dot
 
-        real(dp), allocatable :: tmp(:)
+        real(wp), allocatable :: tmp(:)
 
         if (present(S)) then
           call mma_allocate(tmp, size(v1))
@@ -528,9 +528,9 @@
       end function
 
       function norm(v, S) result(L)
-        real(dp), intent(in) :: v(:)
-        real(dp), intent(in), optional :: S(:, :)
-        real(dp) :: L
+        real(wp), intent(in) :: v(:)
+        real(wp), intent(in), optional :: S(:, :)
+        real(wp) :: L
         if (present(S)) then
           L = sqrt(dot_product_(v, v, S))
         else
