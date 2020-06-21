@@ -262,7 +262,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Integer          iCnttp_Dummy,iLbls,      IntTot,ipAMP,
+      Integer          iCnttp_Dummy,iLbls,      IntTot,
      &          ipXEle,ipXF,
      &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
@@ -290,7 +290,7 @@
      &          ipM1xp(Mxdbsc),ipM1cf(Mxdbsc),nM1(Mxdbsc), nTtl,
      &          ipM2xp(Mxdbsc),ipM2cf(Mxdbsc),nM2(Mxdbsc),ipBk(Mxshll),
      &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
-     &          kCentr, iRelae_Info, Nuclear_Model, ipRP1,nRP
+     &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
      &          nFragDens(Mxdbsc),ipFragType(Mxdbsc),ipFragCoor(Mxdbsc),
      &          ipFragEner(Mxdbsc),ipFragCoef(Mxdbsc),nBas_Frag(0:7),
@@ -311,7 +311,6 @@
      &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
      &              nMltpl,  IsChi,                   iLbls,
-     &              ipAMP,
      &              nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,
@@ -324,7 +323,7 @@
      &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
      &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,
      &              kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
-     &              Nuclear_Model, ipRP1, nRP,nCtrLD,iCtrLD,iSigma,
+     &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              iCnttp_Dummy, nData_XF, nPAMFI, iPAMFI, nPSOI,
      &              Ind_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!

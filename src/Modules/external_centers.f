@@ -17,4 +17,7 @@
       Real*8, Allocatable:: DMS_Centers(:,:)
       Integer :: nWel=0
       Real*8, Allocatable:: Wel_Info(:,:)
+      Real*8, Allocatable:: AMP_Center(:)
+      Integer :: nRP=0
+      Real*8, Target, Allocatable:: RP_Centers(:,:,:)
       End Module External_Centers

@@ -65,6 +65,7 @@
       Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
+      Real*8, Allocatable:: RP_Temp(:,:,:)
 *
 *     Prologue
 *
@@ -255,6 +256,16 @@
       End If
       If (Allocated(Wel_Info)) Then
          Call Put_dArray('Wel_Info',Wel_Info,3*nWel)
+      End If
+      If (Allocated(AMP_Center)) Then
+         Call Put_dArray('AMP_Center',AMP_Center,3)
+      End If
+      If (Allocated(RP_Centers)) Then
+         Call mma_allocate(RP_Temp,3,nRP/3,2)
+         RP_Temp(:,:,1)=RP_Centers(:,1:nRP/3,1)
+         RP_Temp(:,:,2)=RP_Centers(:,1:nRP/3,2)
+         Call Put_dArray('RP_Centers',RP_Temp,nRP*2)
+         Call mma_deallocate(RP_Temp)
       End If
 *                                                                      *
 ************************************************************************

@@ -91,6 +91,7 @@
          End If
          Call Get_dArray('EF_Centers',EF_Centers,3*nEF)
       End If
+*
       Call qpg_dArray('OAM_Center',Found,Len2)
       If (Found) Then
          If (.Not.Allocated(OAM_Center)) Then
@@ -98,6 +99,15 @@
          End If
          Call Get_dArray('OAM_Center',OAM_Center,3)
       End If
+*
+      Call qpg_dArray('OAM_Center',Found,Len2)
+      If (Found) Then
+         If (.Not.Allocated(OAM_Center)) Then
+            Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         End If
+         Call Get_dArray('OAM_Center',OAM_Center,3)
+      End If
+*
       Call qpg_dArray('OMQ_Center',Found,Len2)
       If (Found) Then
          If (.Not.Allocated(OMQ_Center)) Then
@@ -105,6 +115,7 @@
          End If
          Call Get_dArray('OMQ_Center',OMQ_Center,3)
       End If
+*
       Call qpg_dArray('DMS_Centers',Found,Len2)
       If (Found) Then
          nDMS=Len2/3
@@ -118,6 +129,7 @@
          End If
          Call Get_dArray('DMS_Centers',DMS_Centers,3*nDMS)
       End If
+*
       Call qpg_dArray('Wel_Info',Found,Len2)
       If (Found) Then
          nWel=Len2/3
@@ -130,6 +142,28 @@
             Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          End If
          Call Get_dArray('Wel_Info',Wel_Info,3*nWel)
+      End If
+*
+      Call qpg_dArray('AMP_Center',Found,Len2)
+      If (Found) Then
+         If (.Not.Allocated(AMP_Center)) Then
+            Call mma_allocate(AMP_Center,3,Label='AMP_Center')
+         End If
+         Call Get_dArray('AMP_Center',AMP_Center,3)
+      End If
+*
+      Call qpg_dArray('RP_Centers',Found,Len2)
+      If (Found) Then
+         nRP=Len2/2
+         If (Allocated(RP_Centers)) Then
+            If (SIZE(RP_Centers,2).ne.nRP/3) Then
+               Write (6,*) 'SIZE(RP_Centers,2).ne.nRP/3'
+               Call Abend()
+            End If
+         Else
+            Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
+         End If
+         Call Get_dArray('RP_Centers',RP_Centers,2*nRP)
       End If
 *                                                                      *
 ************************************************************************

@@ -279,7 +279,7 @@
      &   (Coor_MPM(i,3),i=1,3),')'
       If (lAMP) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      & '   Products of Orbital angular momentum operators around (',
-     &   (DInf(ipAMP+i),i=0,2),')'
+     &   (AMP_Center(i),i=1,3),')'
       If (nWel.ne.0) Write (LuWr,'(15X,A,I4,A)')
      &             '   Spherical well for', nWel,
      &             ' exponent(s) added to the'

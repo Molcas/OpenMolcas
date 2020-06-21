@@ -111,8 +111,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 80    NrInt(i)=0
       nOrdEF=-1
       nDMS=0
-      ipDMS=ip_Dummy
-      ipRP1=ip_Dummy
       nRP=0
       Do i=0,7
          iSkip(i)=0

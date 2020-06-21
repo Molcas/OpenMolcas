@@ -70,6 +70,11 @@
             Call mma_deallocate(Wel_Info)
             nWel=0
          End If
+         If (Allocated(AMP_Center)) Call mma_deallocate(AMP_Center)
+         If (Allocated(RP_Centers)) Then
+            Call mma_deallocate(RP_Centers)
+            nRP=0
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

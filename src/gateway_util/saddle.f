@@ -25,10 +25,10 @@
 *             University of Lund, SWEDEN                               *
 *             January 2009                                             *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -41,6 +41,8 @@
       Real*8, Dimension(:), Allocatable :: TanVec, TmpA, W
       Real*8, Dimension(:,:), Allocatable :: Vec, MEP
       Integer, Dimension(:), Allocatable :: iStab
+      Integer ipX2, ipX3
+      Integer ipRef ipOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
       Real*8 DInf(nDInf)
 #include "periodic_table.fh"
@@ -49,9 +51,6 @@
 *                            Prologue                                  *
 *                                                                      *
 ************************************************************************
-      iRout = 219
-      iPrint = nPrint(iRout)
-      Call qEnter('Saddle')
 *
       nSaddle_Max=100
       Delta_Max=0.10D0
@@ -65,8 +64,6 @@
       R1R2=Zero
       iX0=-1
       iX1=-1
-      ipX2=-1
-      ipX3=-1
 *
 **    If lRP true in Info and Saddle block active but set to zero then
 **    this is after the Saddle procedure is terminated and lRP should
@@ -89,7 +86,6 @@
          Call Get_iScalar('System BitSwitch',iSBS)
          Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
 *
-         ipRP2=ipRP1+nRP
          nAt = nRP / 3
          Call qpg_dArray('Saddle',Not_First_Iter,nData)
          nSaddle=2*nRP+5
@@ -106,8 +102,8 @@
             End If
             Update=Zero
 *
-            call dcopy_(3*nAt,TmpA(1      ),1,DInf(ipRP1),1)
-            call dcopy_(3*nAt,TmpA(1+3*nAt),1,DInf(ipRP2),1)
+            call dcopy_(3*nAt,TmpA(1      ),1,RP_Centers(1,1,1),1)
+            call dcopy_(3*nAt,TmpA(1+3*nAt),1,RP_Centers(1,1,2),1)
             E1    =TmpA(6*nAt+1)
             E2    =TmpA(6*nAt+2)
             HSR0  =TmpA(6*nAt+3)
@@ -126,9 +122,9 @@
             Call mma_Allocate(XYZ,3*nAt*8,2,label='XYZ')
             iReac=1
             iProd=2
-            Call Expand_Coor(DInf(ipRP1),nAt,XYZ(1,iReac),mAt,
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iReac),mAt,
      &                       nIrrep,iOper)
-            Call Expand_Coor(DInf(ipRP2),nAt,XYZ(1,iProd),mAt,
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iProd),mAt,
      &                       nIrrep,iOper)
             Call Qpg_dArray('Weights',Found,nData)
             If (Found.And.(nData.ge.mAt)) Then
@@ -165,8 +161,8 @@
                Call Fix_Symmetry(XYZ(1,iReac),nAt,iStab)
                Call Add_Info('RMSD',[RMS],1,6)
                Call Add_Info('RMSMax',[RMSMax],1,6)
-               call dcopy_(3*nAt,XYZ(1,iReac),1,DInf(ipRP1),1)
-               call dcopy_(3*nAt,XYZ(1,iProd),1,DInf(ipRP2),1)
+               call dcopy_(3*nAt,XYZ(1,iReac),1,RP_Centers(1,1,1),1)
+               call dcopy_(3*nAt,XYZ(1,iProd),1,RP_Centers(1,1,2),1)
 *
                If (Align_Only) Then
 *
@@ -252,8 +248,10 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRA1=1
          iRA2=2
-         Call Expand_Coor(DInf(ipRP1),nAt,XYZ(1,iRA1),mAt,nIrrep,iOper)
-         Call Expand_Coor(DInf(ipRP2),nAt,XYZ(1,iRA2),mAt,nIrrep,iOper)
+         Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,nIrrep,
+     &                    iOper)
+         Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,nIrrep,
+     &                    iOper)
          Call Qpg_dArray('Weights',Found,nData)
          If (Found.And.(nData.ge.mAt)) Then
            Call mma_allocate(W,nData,label='W')
@@ -318,11 +316,11 @@
 *
                Call mma_allocate(TanVec,3*nAt,label='TanVec')
                If (Mode.eq.'R') Then
-                 Call Calc_LSTvec(3*nAt,DInf(ipRP2),DInf(ipRP1),
-     &                            TanVec,Invar)
+                 Call Calc_LSTvec(3*nAt,RP_Centers(1,1,2),
+     &                                  RP_Centers(1,1,1),TanVec,Invar)
                Else
-                 Call Calc_LSTvec(3*nAt,DInf(ipRP1),DInf(ipRP2),
-     &                            TanVec,Invar)
+                 Call Calc_LSTvec(3*nAt,RP_Centers(1,1,1),
+     &                                  RP_Centers(1,1,2),TanVec,Invar)
                End If
                Call Put_dArray('TanVec',TanVec,3*nAt)
                Call mma_deallocate(TanVec)
@@ -345,11 +343,11 @@
                   iX0=iSaddle-2
                   iX1=iSaddle-1
                   if (Mode.eq.'R') Then
-                     ipX2=ipRP1
-                     ipX3=ipRP2
+                     ipX2 = 1
+                     ipX3 = 2
                   Else
-                     ipX2=ipRP2
-                     ipX3=ipRP1
+                     ipX2 = 2
+                     ipX3 = 1
                   End If
                   If (iSaddle.lt.3) iX0=iX1
 *
@@ -364,9 +362,9 @@
      &                             mAt,nIrrep,iOper)
                   Call Expand_Coor(MEP(1,iX1),nAt,XYZ(1,iXA1),
      &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(DInf(ipX2),nAt,XYZ(1,iXA2),
+                  Call Expand_Coor(RP_Centers(1,1,ipX2),nAt,XYZ(1,iXA2),
      &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(DInf(ipX3),nAt,XYZ(1,iXA3),
+                  Call Expand_Coor(RP_Centers(1,1,ipX3),nAt,XYZ(1,iXA3),
      &                             mAt,nIrrep,iOper)
                   If (Invar) Then
                     Call Superpose_w(XYZ(1,iXA0),XYZ(1,iXA2),W,
@@ -390,7 +388,7 @@
                   If (iSaddle.gt.2) Then
                    call dcopy_(nRP,XYZ(1,iX1),1,Vec(1,1),1)
                    Call daxpy_(nRP,-One,XYZ(1,iX0),1,Vec(1,1),1)
-                   call dcopy_(nRP,DInf(ipX2),1,Vec(1,2),1)
+                   call dcopy_(nRP,RP_Centers(1,1,ipX2),1,Vec(1,2),1)
                    Call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,2),1)
                    deviation=dmwdot(nAt,mAt,Vec(1,1),Vec(1,2))
                    R11=dmwdot(nAt,mAt,Vec(1,2),Vec(1,2))
@@ -408,7 +406,7 @@
                   call dcopy_(nRP,XYZ(1,iX3),1,Vec(1,1),1)
                   Call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,1),1)
                   R11 = dmwdot(nAt,mAt,Vec(1,1),Vec(1,1))
-                  call dcopy_(nRP,DInf(ipX2),1,Vec(1,2),1)
+                  call dcopy_(nRP,RP_Centers(1,1,ipX2),1,Vec(1,2),1)
                   Call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,2),1)
                   R22 = dmwdot(nAt,mAt,Vec(1,2),Vec(1,2))
                   R1R2= dmwdot(nAt,mAt,Vec(1,2),Vec(1,1))
@@ -480,11 +478,11 @@
 *
                Call mma_allocate(TanVec,3*nAt,label='TanVec')
                If (Mode.eq.'R') Then
-                 Call Calc_LSTvec(3*nAt,DInf(ipRP2),DInf(ipRP1),
-     &                            TanVec,Invar)
+                 Call Calc_LSTvec(3*nAt,RP_Centers(1,1,2),
+     &                                  RP_Centers(1,1,1),TanVec,Invar)
                Else
-                 Call Calc_LSTvec(3*nAt,DInf(ipRP1),DInf(ipRP2),
-     &                            TanVec,Invar)
+                 Call Calc_LSTvec(3*nAt,RP_Centers(1,1,1),
+     &                                  RP_Centers(1,1,2),TanVec,Invar)
                End If
                Call Put_dArray('TanVec',TanVec,3*nAt)
                Call mma_deallocate(TanVec)
@@ -497,8 +495,8 @@
                HSR=HSR-dHSR
                If (Mode.eq.'P') Delta=One-Delta
             End If
-            call dcopy_(3*nAt,DInf(ipRP1),1,TmpA(1      ),1)
-            call dcopy_(3*nAt,DInf(ipRP2),1,TmpA(1+3*nAt),1)
+            call dcopy_(3*nAt,RP_Centers(1,1,1),1,TmpA(1      ),1)
+            call dcopy_(3*nAt,RP_Centers(1,1,2),1,TmpA(1+3*nAt),1)
             TmpA(6*nAt+1)=E1
             TmpA(6*nAt+2)=E2
             TmpA(6*nAt+3)=HSR0
@@ -524,15 +522,15 @@
             Call Merge_Lists(Mode,nAt)
          End If
          If (Mode.eq.'R') Then
-             ipRef=ipRP2
-             ipOpt=ipRP1
+             ipRef=2
+             ipOpt=1
             Write (6,'(A)') '     Reference structure: product side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E2
             Write (6,'(A)') '     Optimized structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
          Else
-             ipRef=ipRP1
-             ipOpt=ipRP2
+             ipRef=1
+             ipOpt=2
             Write (6,'(A)') '     Reference structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
             Write (6,'(A)') '     Optimized structure: product side'
@@ -545,10 +543,10 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRefAlign=1
          iOptExp  =2
-         Call Expand_Coor(DInf(ipRef),nAt,XYZ(1,iRefAlign),mAt,
-     &                    nIrrep,iOper)
-         Call Expand_Coor(DInf(ipOpt),nAt,XYZ(1,iOptExp),mAt,
-     &                    nIrrep,iOper)
+         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,XYZ(1,iRefAlign),
+     &                    mAt,nIrrep,iOper)
+         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),
+     &                    mAt,nIrrep,iOper)
          If (Invar) Then
            Call Superpose_w(XYZ(1,iRefAlign),XYZ(1,iOptExp),W,
      &                      mAt,RMSD,RMax)
@@ -626,9 +624,9 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(DInf(ipRP1),nAt,XYZ(1,iRA1),mAt,
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
      &                       nIrrep,iOper)
-            Call Expand_Coor(DInf(ipRP2),nAt,XYZ(1,iRA2),mAt,
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
      &                       nIrrep,iOper)
             If (Mode.eq.'R') Then
               If (Invar) Then
@@ -673,9 +671,9 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(DInf(ipRP1),nAt,XYZ(1,iRA1),mAt,
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
      &                       nIrrep,iOper)
-            Call Expand_Coor(DInf(ipRP2),nAt,XYZ(1,iRA2),mAt,
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
      &                       nIrrep,iOper)
             If (Invar) Then
               If (Mode.eq.'R') Then
@@ -729,7 +727,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Saddle')
       Return
       End
 ************************************************************************

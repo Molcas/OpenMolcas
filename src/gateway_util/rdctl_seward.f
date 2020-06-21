@@ -2308,15 +2308,12 @@ c     Go To 998
  9951 lAMP = .True.
       GWInput=.True.
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
-      ipAMP=ipExp(iShll+1)
+      Call mma_allocate(AMP_Center,3,Label='AMP_Center')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_F(1,Work(ipAMP),3)
+      Call Get_F(1,AMP_Center,3)
       If (Index(KWord,'ANGSTROM').ne.0)
-     &     Call DScal_(3,One/angstr,
-     &       Work(ipAMP),1)
-      ipExp(iShll+1)=ipAMP+3
-      nInfo = nInfo + 3
+     &   AMP_Center(:)=(One/angstr)*AMP_Center(:)
       Go To 998
 *                                                                      *
 ****** DSHD ************************************************************
@@ -2615,7 +2612,10 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
            isnumber=0
         endif
       enddo
+*
       if(isnumber.eq.0) goto 9082
+      nRP=3*nRP
+      Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
 *
 **    Inline input
 *
@@ -2625,18 +2625,15 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       Else
          Fact=One
       End If
-      nRP=3*nRP
-      ipRP1=ipExp(iShll+1)
-      nInfo=nInfo + 2*nRP
-      ipExp(iShll+1)=ipRP1 + 2*nRP
+*
+*
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E1)
-      Call Read_v(LuRd,Work(ipRP1),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1    ),1)
+      Call Read_v(LuRd,RP_Centers(1,1,1),1,nRP,1,iErr)
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E2)
-      Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
+      Call Read_v(LuRd,RP_Centers(1,1,2),1,nRP,1,iErr)
+      RP_Centers(:,:,:)=Fact*RP_Centers(:,:,:)
       GWInput = .True.
       Go To 998
 *
@@ -2683,6 +2680,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       End IF
       nRP_prev=nRP
       nRP=3*nRP
+      If (.NOT.Allocated(RP_Centers))
+     &   Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
       KWord = Get_Ln(LuIn)
       Call UpCase(KWord)
       If (Index(KWord,'BOHR').ne.0) Then
@@ -2694,9 +2693,6 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          LuRP=10
          LuRP=isFreeUnit(LuRP)
          call molcas_open(LuRP,'findsym.RP1')
-         ipRP1=ipExp(iShll+1)
-         nInfo=nInfo + 2*nRP
-         ipExp(iShll+1)=ipRP1 + 2*nRP
          Read(KWord,*,err=9083) E1
 *
 **  write a separate file for findsym
@@ -2709,14 +2705,14 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 #endif
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,1),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &                   (Work(ipRP1+3*(i-1)+j)*Fact,j=0,2)
+     &                   (RP_Centers(j,i,1)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1    ),1)
          KWord = Get_Ln(LuRd)
          close(LuIn)
          close(LuRP)
+         Call RecPrt('RP1',' ',RP_Centers(1,1,1),3,nRP/3)
          Go To 9082
       Else
          LuRP=10
@@ -2731,13 +2727,16 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          Read(KWord,*,err=9083) E2
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+nRP+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,2),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &            (Work(ipRP1+nRP+3*(i-1)+j)*Fact,j=0,2)
+     &            (RP_Centers(j,i,2)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
          close(LuRP)
+         Call RecPrt('RP2',' ',RP_Centers(1,1,2),3,nRP/3)
       End If
+      RP_Centers(:,:,:)= Fact* RP_Centers(:,:,:)
+      Call RecPrt('RP1*Fact',' ',RP_Centers(1,1,1),3,nRP/3)
+      Call RecPrt('RP2*Fact',' ',RP_Centers(1,1,2),3,nRP/3)
 *
       close(LuIn)
       GWInput = Run_Mode.eq.G_Mode

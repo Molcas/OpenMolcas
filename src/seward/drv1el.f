@@ -1393,10 +1393,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 6
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(nComp,[Work(ipAMP  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipAMP+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipAMP+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipAMP),1,Ccoor,1)
+         Call dcopy_(nComp,[AMP_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[AMP_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[AMP_Center(3)],0,CoorO(1+2),3)
+         CCoor(:)=AMP_Center(:)
 C Symmetry labels iSymX  for operator d/dx, etc.
 C Symmetry labels iSymLx for operator Lx, etc.
 C Characters iChOx for operator Lx, etc.
