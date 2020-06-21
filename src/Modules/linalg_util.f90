@@ -101,7 +101,7 @@ contains
 !>      should be transposed.
     subroutine mult_2D_1D(A, x, y, transpA)
         real(dp), intent(in) :: A(:, :), x(:)
-        real(dp), intent(out) :: y(size(x))
+        real(dp), intent(out) :: y(:)
         logical, intent(in), optional :: transpA
         logical :: transpA_
 
