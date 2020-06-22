@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Mickael G. Delcey                                *
 *               2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      subroutine processRP(KeepGroup,SymThr,DInf,nDInf)
+      subroutine processRP(KeepGroup,SymThr)
       use External_Centers
       Use Iso_C_Binding
 #ifndef _HAVE_EXTRA_
@@ -19,7 +19,6 @@
 #endif
       Implicit Real*8 (a-h,o-z)
       Character KeepGroup*180,KWord*180,KG*180
-      Real*8 DInf(nDInf)
 #ifdef _HAVE_EXTRA_
       Character*180 minGroup,Key
       Character*180, External :: Get_Ln

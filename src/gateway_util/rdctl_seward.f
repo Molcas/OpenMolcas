@@ -3995,9 +3995,7 @@ c      endif
 *                                                                      *
 **    post-processing for RP-Coord
 *
-      If (lRP.and.RPset) Then
-        Call processRP(KeepGroup,SymThr,DInf,nDInf)
-      End If
+      If (lRP.and.RPset) Call processRP(KeepGroup,SymThr)
 *
 **
 *
