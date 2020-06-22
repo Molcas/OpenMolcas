@@ -335,6 +335,14 @@ c mess started here :)
          RecLab(176)='Centr           '
          RecLab(177)='SSph            '
          RecLab(178)='PCMDM           '
+         RecLab(179)='EF_Centers      '
+         RecLab(180)='OAM_Center      '
+         RecLab(181)='OMQ_Center      '
+         RecLab(182)='DMS_Centers     '
+         RecLab(183)='Wel_Info        '
+         RecLab(184)='AMP_Center      '
+         RecLab(185)='RP_Centers      '
+         RecLab(186)='XF              '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

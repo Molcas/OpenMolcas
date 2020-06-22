@@ -193,6 +193,8 @@
          RecLab( 89)='NVert           '
          RecLab( 90)='IntSph          '
          RecLab( 91)='NewSph          '
+         RecLab( 92)='XMolnr          '
+         RecLab( 93)='XEle            '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include
