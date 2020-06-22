@@ -4668,7 +4668,7 @@ C     Mx_mdc=mdc
 *     field. Do not do this in the Gateway!
 *
          Call GeoNew(Show,DInf,nDInf)
-         If (lXF) Call GeoNew_PC(Dinf,nDInf)
+         If (lXF) Call GeoNew_PC()
       End If
 *                                                                      *
 ************************************************************************

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,2003, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GeoNew_PC(DInf,nDInf)
+      SubRoutine GeoNew_PC()
 ************************************************************************
 *                                                                      *
 * Object: to pick up the geometry from a special file. This will only  *
@@ -40,7 +40,6 @@
 #include "stdalloc.fh"
 #include "SysDef.fh"
       Real*8, Dimension(:), Allocatable :: CN
-      Real*8 DInf(nDInf)
       Interface
         Subroutine Get_PC_Coord_New(CN,lBuf)
         Real*8, Dimension(:), Allocatable :: CN
