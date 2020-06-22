@@ -70,7 +70,7 @@
       Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
-      Integer, Allocatable :: ITmp(:), nIsot(:,:)
+      Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
       Character*180 STDINP(mxAtom*2)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
@@ -98,7 +98,7 @@
       Real*8 HypParam(3)
       Integer iSeed
       Save iSeed
-      Logical Vlct_
+      Logical Vlct_, nmwarn
 *
       Logical DoEMPC, Basis_test
       Common /EmbPCharg/ DoEMPC
@@ -125,6 +125,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iRout=3
       iPrint = nPrint(iRout)
       Call qEnter('RdCtl')
@@ -254,6 +255,7 @@
       itype=0
       ExtBasDir=' '
       isxbas=0
+      nmwarn=.True.
 *
 *     Selective initialization
 *
@@ -269,9 +271,8 @@
             Oper(i)=' '
          End Do
          nOper=0
-      ipExp(1) = Info
-*     CLightAU = 137.036d0
-      CLightAU = CONST_C_IN_AU_
+         ipExp(1) = 1
+         CLightAU = CONST_C_IN_AU_
       End If
 *
       nDKfull = 0
@@ -343,6 +344,7 @@ cperiod
 *     KeyWord directed input
 *
       nDone=0
+      Call Gen_RelPointers(Info-1) ! Work  Mode
  998  lTtl = .False.
       If (Basis_Test.and.nDone.eq.1) Then
          nDone=0
@@ -845,39 +847,40 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in Z-Matrix format
 *
 1920  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
       If (iErr.ne.0) Call Quit_OnUserError()
+      Call Gen_RelPointers(Info-1)   ! Work Mode
       Go To 998
 *                                                                      *
 ****** XBAS ************************************************************
 *                                                                      *
-1924   Continue
-       call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
-       GWInput=.True.
-       isxbas=1
-       if(ierr.eq.1) Call Quit_OnUserError()
-       goto 998
+1924  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
+      GWInput=.True.
+      isxbas=1
+      if(ierr.eq.1) Call Quit_OnUserError()
+      Call Gen_RelPointers(Info-1) ! Work Mode
+      goto 998
 *                                                                      *
 ****** XYZ  ************************************************************
 *                                                                      *
 1917  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
       If (iErr.ne.0) Call Quit_OnUserError()
       XYZdirect=.true.
 *      If (SymmSet) Then
@@ -890,6 +893,7 @@ c     Call Quit_OnUserError()
      &                 'GROUP keyword is not compatible with XYZ')
          Call Quit_OnUserError()
       End If
+      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 
 *                                                                      *
@@ -897,7 +901,9 @@ c     Call Quit_OnUserError()
 *                                                                      *
 *     Read Basis Sets & Coordinates in xyz format
 *
-6000  If (SymmSet) Then
+6000  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with COORD')
          Call Quit_OnUserError()
@@ -923,13 +929,16 @@ c      End If
 #else
       Call Read_XYZ(LuRd,OrigRot,OrigTrans)
 #endif
+      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** GROUP ***********************************************************
 *                                                                      *
 *     Read information for a group
 *
-6010  If (SymmSet) Then
+6010  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with GROUP')
          Call Quit_OnUserError()
@@ -960,6 +969,7 @@ c Simplistic validity check for value
       GroupSet=.true.
       GWInput=.True.
       DoneCoord=.True.
+      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** BSSE ************************************************************
@@ -1078,6 +1088,7 @@ c Simplistic validity check for value
       Goto 998
 *
  9201 Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
@@ -1160,7 +1171,6 @@ c Simplistic validity check for value
       AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
-      Call Gen_RelPointers(-(Info-1))
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
      &           ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
@@ -1181,7 +1191,6 @@ c Simplistic validity check for value
      &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
      &            iAtmNr(nCnttp).le.96
@@ -1212,10 +1221,13 @@ c Simplistic validity check for value
 *
       If (ign.eq.0) Then
          ign=BasisTypes(4)
-      Else If (BasisTypes(4).ne.ign) Then
-         Call WarningMessage(1,
-     &     'SEWARD found basis sets of mixed nuclear charge model. '
-     &   //'The most advanced one will be used.')
+      Else If (Abs(BasisTypes(4)).ne.Abs(ign)) Then
+         If (nmwarn) Then
+            Call WarningMessage(1,
+     &        'SEWARD found basis sets of mixed nuclear charge model. '
+     &      //'The most advanced one will be used.')
+         End If
+         nmwarn=.False.
          ign=Max(ign,BasisTypes(4))
          BasisTypes(4)=ign
       End If
@@ -1277,7 +1289,7 @@ c Simplistic validity check for value
       Do iSh = ipVal_, ipVal_+nVal-1
          RMax_R=Zero
          Do iPrim = 0, nExp(iSh)-1
-            ValExp = Work(ipExp(iSh)+iPrim)
+            ValExp = DInf(ipExp(iSh)+iPrim)
             RMax_R = Max(RMax_R,
      &                   Eval_RMax(ValExp,iAng,Thrshld_R))
          End Do
@@ -1435,10 +1447,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
-         nInfo = ipExp(iShll+1) - Info
+         nInfo = ipExp(iShll+1) - 1
 * the next line seems to convince IBM XLF 6.1 to forgo its otherwise
 * crass behaviour. Who can tell why? Peter Knowles, 7/99
          ninfo_stupid = nInfo
+         Call Gen_RelPointers(Info-1) ! Work Mode
          Go To 998
       End If
 *
@@ -1465,10 +1478,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
       iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Call Get_F(2,Work(iOff),3)
+      Call Get_F(2,DInf(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            Work(iOff+i) = Work(iOff+i)/angstr
+            DInf(iOff+i) = DInf(iOff+i)/angstr
          End Do
       End If
 *
@@ -1517,10 +1530,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                   iOff=ipCntr(nCnttp)+(nCnt-1)*3
 
 *                 Copy old coordinate  first
-                  CALL DCOPY_(3,Work(iOff0),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Work(iOff),1)
+                  CALL DCOPY_(3,DInf(iOff0),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,DInf(iOff),1)
+                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,DInf(iOff),1)
 *
   110          Continue
 *
@@ -1729,12 +1742,13 @@ c     Go To 998
 *     User specified external field
 *
  975  lXF=.True.
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
-*       Note that the "Err" signal cannot be completely trusted, since
-*       a slash (i.e., an absolute path) marks end of input and gives
-*       no error
+*     Note that the "Err" signal cannot be completely trusted, since
+*     a slash (i.e., an absolute path) marks end of input and gives
+*     no error
       LuRd_saved=LuRd
       ibla = -1
       Read(KWord,*,Err=9751) ibla
@@ -1767,14 +1781,15 @@ c     Go To 998
       Call Get_I1(3,iXPolType)
       Call Get_I1(4,nXMolnr)
       Call Get_I1(5,nReadEle)
-
+*
 *     Set defaults: ch+dip, no polarisabilities,
 *                   exclude only its own multipole,
 *                   no element read
-      if(nOrd_XF.eq.-2) nOrd_XF=1
-      if(iXPolType.eq.-2) iXPolType=0
-      if(nXMolnr.eq.-2) nXMolnr=0
-      if(nReadEle.eq.-2) nReadEle=0
+*
+      if (nOrd_XF  .eq.-2) nOrd_XF  =1
+      if (iXPolType.eq.-2) iXPolType=0
+      if (nXMolnr  .eq.-2) nXMolnr  =0
+      if (nReadEle .eq.-2) nReadEle =0
 
       If ((nOrd_XF.gt.2).or.(nOrd_XF.lt.-1)) Then
          Call WarningMessage(2,'Error! Illegal value of nOrd_XF')
@@ -1800,7 +1815,6 @@ c     Go To 998
       nData_XF=3
       Do iOrd_XF = 0, nOrd_XF
          nData_XF = nData_XF +  (iOrd_XF+1)*(iOrd_XF+2)/2
-C        nData_XF = nData_XF +  2*iOrd_XF+1
       End Do
 
       if(iXPolType.gt.0) then
@@ -1815,51 +1829,63 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Endif
 *
       lenXF=nXF*nData_XF
-      lenXMolnr=2*((nXMolnr*nXF+1)/2)/RtoI
-      lenXEle=2*((nXF+1)/2)/RtoI
+      lenXMolnr=2*((nXMolnr*nXF+1)/2)
+      lenXEle=2*((nXF+1)/2)
 
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
-      ipXMolnr_r=ipXF+lenXF
-      ipXEle_r=ipXMolnr_r+lenXMolnr
+      ipXMolnr=ipXF+lenXF
+      ipXEle=ipXMolnr+lenXMolnr
 *---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXEle_r+lenXEle
+      ipExp(iShll+1)=ipXEle+lenXEle
       nInfo = nInfo + lenXF + lenXMolnr + lenXEle
-*
-      ipXMolnr=ip_of_iWork_d(Work(ipXMolnr_r))
-      ipXEle=ip_of_iWork_d(Work(ipXEle_r))
 *
       Call Upcase(KWord)
 *
       ip = ipXF
       Do iXF = 1, nXF
-         iWork(ipXEle+(iXF-1))=0   ! default: no element spec.
+         DInf(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
 *
-*     If reading from external file, use free format to allow
-*     long lines of input. On the other hand, comments are
-*     not allowed in external files.
-         If(LuRd.ne.LuRd_saved) then
-            Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
-     &           k=0,nXMolnr-1),
-     &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
-     &           (Work(ip+k),k=0,nDataRead-1)
+*        If reading from external file, use free format to allow
+*        long lines of input. On the other hand, comments are
+*        not allowed in external files.
+*
+         If (LuRd.ne.LuRd_saved) then
+            Call mma_Allocate(iScratch,nXMolnr+nReadEle,
+     &                        Label='iScratch')
+            Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
+     &                  (iScratch(nXMolnr+k),k=1,nReadEle),
+     &           (DInf(ip+k),k=0,nDataRead-1)
+            Do i = 1, nXMolnr
+               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
+            End Do
+            Do i = 1, nReadEle
+               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
+            End Do
+            Call mma_deallocate(iScratch)
          Else
             KWord = Get_Ln(LuRd)
             KWord(170:180)=' 0.0 0.0 0.0'
             Call Put_Ln(KWord)
 
-            Call Get_I(1,iWork(ipXMolnr+(iXF-1)*nXMolnr),nXMolnr)
-            Call Get_I(nXMolnr+1,iWork(ipXEle+(iXF-1)),nReadEle)
-            Call Get_F(nXMolnr+nReadEle+1,Work(ip),nDataRead)
+            Do i = 1, nXMolnr
+               Call Get_I1(i,iTemp)
+               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
+            End Do
+            Do i = 1, nReadEle
+               Call Get_I1(nXMolnr+i,iTemp)
+               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
+            End Do
+            Call Get_F(nXMolnr+nReadEle+1,DInf(ip),nDataRead)
          EndIf
 *
-            Work(ip  ) = Work(ip  )*ScaleFactor
-            Work(ip+1) = Work(ip+1)*ScaleFactor
-            Work(ip+2) = Work(ip+2)*ScaleFactor
+         DInf(ip  ) = DInf(ip  )*ScaleFactor
+         DInf(ip+1) = DInf(ip+1)*ScaleFactor
+         DInf(ip+2) = DInf(ip+2)*ScaleFactor
          If (Convert) Then
-            Work(ip  ) = Work(ip  )/angstr
-            Work(ip+1) = Work(ip+1)/angstr
-            Work(ip+2) = Work(ip+2)/angstr
+            DInf(ip  ) = DInf(ip  )/angstr
+            DInf(ip+1) = DInf(ip+1)/angstr
+            DInf(ip+2) = DInf(ip+2)/angstr
          End If
          ip = ip + nData_XF
 *
@@ -1870,7 +1896,10 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
          Close(LuRd)
          LuRd = LuRd_saved
       EndIf
-      if(isXfield.eq.1) goto 9755
+      If (isXfield.eq.1) Then
+         goto 9755
+      End If
+      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -3863,6 +3892,7 @@ c
 *                                                                      *
 *
  997  Continue
+      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
 c     Postprocessing for COORD
 c      ik=index(KeepBasis,'....')
 c      if(ik.ne.0) then
@@ -3896,13 +3926,14 @@ c      endif
 #endif
          end if
          DoneCoord=.true.
-      if(isXfield.eq.1) then
-         LuRd_saved=LuRd
-         filename='findsym.xfield'
-         lXF=.True.
-         goto 9753
+         if(isXfield.eq.1) then
+            LuRd_saved=LuRd
+            filename='findsym.xfield'
+            lXF=.True.
+            goto 9753
+         endif
       endif
-      endif
+*
 9755  continue
       If (CoordSet) Then
          CoordSet=.false.
@@ -3915,6 +3946,7 @@ c      endif
 #endif
          LuRd=LuFS
          GWInput=.True.
+         Call Gen_RelPointers(Info-1) !Work Mode
          Go To 998
       Else
          If (DoneCoord) Then
@@ -3986,9 +4018,7 @@ c      endif
 **    post-processing for RP-Coord
 *
       If (lRP.and.RPset) Then
-        Call Gen_RelPointers(-(Info-1))
         Call processRP(KeepGroup,SymThr,DInf,nDInf)
-        Call Gen_RelPointers(Info-1)
       End If
 *
 **
@@ -4072,20 +4102,28 @@ c      endif
       End If
 *
       If (imix.eq.1) Then
-         Call WarningMessage(2,
-     &      ' input is inconsistent!;'
-     &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' (or non-relativistic) types!')
-         if(.not.Expert) Call Quit_OnUserError()
+         if (Expert) then
+           Call WarningMessage(1,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!;'
+     &      //'No relativistic option will be automatically enabled')
+         else
+           Call WarningMessage(2,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!')
+           Call Quit_OnUserError()
+         endif
       End If
-      If (ifnr.eq.1) Then
+      If (ifnr.eq.1.and..not.Expert) Then
          If (DKroll) Then
          Call WarningMessage(1,
      *    ';you requested the DK-option for;'
      *   //'a non-relativistic basis.;'
      *   //'This request will be ignored')
          End If
-         If (.Not.Expert) DKroll=.False.
+         DKroll=.False.
       Else If (ifnr.eq.0) Then
          lAMFI=.True. .and. .NOT. NoAMFI
          If (.Not.DKroll) Then
@@ -4127,7 +4165,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             nMass = nInt(CntMass(iCnttp)/UToAU)
             If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(iAtmNr(iCnttp),nMass)
+     &          ExpNuc(iCnttp)=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
@@ -4290,6 +4328,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
  888  Continue
       iDummy=iPrmt(0,0)
 *                                                                      *
+*                                                                      *
 ************************************************************************
 *                                                                      *
       If (Prprt) Then
@@ -4301,10 +4340,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      Call Gen_RelPointers(-(Info-1))
       If (lFAIEMP.and.Run_Mode.ne.S_Mode)
      &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4315,13 +4352,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo)
+            Call Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd)
+            Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
 *
          End If
       End If
@@ -4340,7 +4377,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
       ip = ipWel
       Do iWel = 1, nWel
-         If (Work(ip).lt.Zero) Then
+         If (DInf(ip).lt.Zero) Then
             If (.Not.lRF) Then
                Call WarningMessage(2,
      &                        '; Input inconsistency!; ;'
@@ -4349,7 +4386,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                      //' has been specified!')
                Call Quit_OnUserError()
             End If
-            Work(ip)=rds+Abs(Work(ip))
+            DInf(ip)=rds+Abs(DInf(ip))
          End If
          ip = ip + 3
       End Do
@@ -4371,7 +4408,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (nOrdEF.ge.0.and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipEF=ipExp(Mx_Shll)
          If (nEF.ne.0) Then
-            call dcopy_(3*nEF,EFt,1,Work(ipEF),1)
+            call dcopy_(3*nEF,EFt,1,DInf(ipEF),1)
             Call mma_deallocate(EFt)
          Else
             nEF = 0
@@ -4384,7 +4421,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
                   ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iEF),1)
+                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iEF),1)
                   iEF = iEF + 3*nCntr(iCnttp)
                End If
             End Do
@@ -4402,7 +4439,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (lDMS.and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipDMS=ipExp(Mx_Shll)
          If (nDMS.ne.0) Then
-            call dcopy_(3*nDMS,DMSt,1,Work(ipDMS),1)
+            call dcopy_(3*nDMS,DMSt,1,DInf(ipDMS),1)
             call mma_deallocate(DMSt)
          Else
             nDMS = 0
@@ -4413,7 +4450,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iDMS = ipDMS
             Do iCnttp = 1, nCnttp
                ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iDMS),1)
+               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iDMS),1)
                iDMS = iDMS + 3*nCntr(iCnttp)
             End Do
          End If
@@ -4463,7 +4500,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Fix the fock matrix fields in Info while the memory has not
 *     been fixed in size.
 *
-      Call Gen_RelPointers(-(Info-1))
       If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
          Call Fix_FockOp(1,nInfo,LuRd,DInf,nDInf)
       End If
@@ -4472,8 +4508,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
-      If (DKroll.or.NEMO) Call Fill_rInfo1(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      If (DKroll.or.NEMO) Call Fill_rInfo1(DInf,nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4552,6 +4587,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
+      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4595,7 +4631,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(Work(ixyz),iOper,nOper,iChCar)
+               iChxyz=iChAtm(DInf(ixyz),iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
@@ -4611,7 +4647,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                End Do
                Do j=0,2
                   If (iAnd(jTmp,2**j).eq.0) Then
-                     Work(ixyz+j)=Work(ixyz+j)+
+                     DInf(ixyz+j)=DInf(ixyz+j)+
      &                           Shake*(Two*Random_Molcas(iSeed)-One)
                   End If
                End Do
@@ -4647,7 +4683,6 @@ C     Mx_mdc=mdc
 *     Set structures for TS optimization according to the Saddle
 *     method.
 *
-      Call Gen_RelPointers(-(Info-1))
       If (Run_Mode.ne.G_Mode) Then
          Call Saddle(DInf,nDInf)
 *                                                                      *
@@ -4662,8 +4697,7 @@ C     Mx_mdc=mdc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_GeoList(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      Call Gen_GeoList(DInf,nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4693,14 +4727,14 @@ C     Mx_mdc=mdc
 *
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,Work(ipOAM),1)
+         call dcopy_(3,OAMt,1,DInf(ipOAM),1)
          Call mma_deallocate(OAMt)
          ipExp(Mx_Shll) = ipOAM + 3
          nInfo = nInfo + 3
       Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
          lOAM=.True.
          ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,CoM,1,Work(ipOAM),1)
+         call dcopy_(3,CoM,1,DInf(ipOAM),1)
          ipExp(Mx_Shll) = ipOAM + 3
          nInfo = nInfo + 3
       End If
@@ -4712,7 +4746,7 @@ C     Mx_mdc=mdc
 *
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
+         Call DCopy_(3,OMQt,1,DInf(ipOMQ),1)
          Call mma_deallocate(OMQt)
          ipExp(Mx_Shll) = ipOMQ + 3
          nInfo = nInfo + 3
@@ -4736,32 +4770,6 @@ C     Mx_mdc=mdc
 *                                                                      *
       If (Run_Mode.eq.G_Mode)
      &   Call Put_lScalar('Invert constraints',Invert)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Release unused core. This section should be the last section in
-*     this routine. DON'T MOVE IT!
-*
-      If (Run_Mode.ne.S_Mode) Then
-*
-         Call Allocate_Work(Info_tmp,nInfo)
-         Call dCopy_(nInfo,Work(Info),1,Work(Info_tmp),1)
-         Call Free_Work(Info)
-         Call Gen_RelPointers(-(LctInf-1))
-         Call Allocate_Work(Info,nInfo)
-         LctInf=Info
-         Call Gen_RelPointers(LctInf-1)
-         Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
-         Call Free_Work(Info_tmp)
-*
-         If (iPrint.ge.99) Then
-            Write (LuWr,*) ' ****            nPrint           ****'
-            Write (LuWr,'(26(1X,10I4,/))') nPrint
-            Write (LuWr,*) ' *************************************'
-            Write (LuWr,*) ' nInfo=',nInfo
-C           Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
-         End If
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -51,7 +51,6 @@
       iPrint = nPrint(iRout)
       iQ = 1
 *     Call qEnter('CmbnW1')
-*     Call GetMem(' Enter CmbnW1','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)
@@ -226,7 +225,6 @@
  110     Continue
  100  Continue
 *
-*     Call GetMem(' Exit CmbnW1','LIST','REAL',iDum,iDum)
 *     Call qExit('CmbnW1')
       Return
       End

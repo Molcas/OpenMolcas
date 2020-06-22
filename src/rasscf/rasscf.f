@@ -300,6 +300,8 @@
      &            KSDFT(1:5).eq.'TS12G'   .or.
      &            KSDFT(1:4).eq.'TPBE'    .or.
      &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:5).eq.'TOPBE'   .or.
+     &            KSDFT(1:6).eq.'FTOPBE'  .or.
      &            KSDFT(1:7).eq.'TREVPBE' .or.
      &            KSDFT(1:8).eq.'FTREVPBE'.or.
      &            KSDFT(1:6).eq.'FTLSDA'  .or.
@@ -1297,10 +1299,6 @@ c      Call rasscf_xml(Iter)
       End If
 
 cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
-      If (DoCholesky.and.ALGO.eq.2) Then
-         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
-      EndIf
-
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' D1A in AO basis in RASSCF af SXCTL'
@@ -1938,6 +1936,10 @@ c  i_root>0 gives natural spin orbitals for that root
 ************************************************************************
 
 2010   continue
+
+      If (DoCholesky.and.ALGO.eq.2) Then
+         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
+      EndIf
 
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN

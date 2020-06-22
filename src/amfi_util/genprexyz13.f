@@ -12,7 +12,6 @@
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       integer mcheckxy
       dimension icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
 cbs #####################################################################

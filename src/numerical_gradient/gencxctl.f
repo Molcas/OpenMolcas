@@ -78,6 +78,7 @@
 *
       nFix=0
       nWndw=iter
+      iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,iOper,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
@@ -227,17 +228,18 @@
          PrQ=.False.
          BSet=.False.
          nWndw=Iter
+         iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Work(ipCoor),ipB,Work(ipCM),
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
-     &               Work(ipDCF),Work(ipdss),Work(ipTmp),Stop,
+     &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iOper,nSym,iSym,Smmtrc,
      &               Degen,Work(ipGx),Work(ipCx),mTtAtm,
      &               iWork(ipANr),iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr)
+     &               Redundant,nqInt,MaxItr,iRef)
 *
          ip_To   = ipCList + (iDisp-1)*3*nsAtom
 *

@@ -96,7 +96,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
-*     Call GetMem(' Exit Desym1','CHECK','ALLO',iDum,iDum)
 *     Call QExit('Desym1',iQ)
       Return
 c Avoid unused argument warnings

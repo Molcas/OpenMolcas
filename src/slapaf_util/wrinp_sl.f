@@ -9,11 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine WrInp_sl(iRow)
+      use kriging_mod
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
+#include "constants.fh"
 *
       iRout=3
       iPrint=nPrint(iRout)
@@ -53,9 +55,62 @@
      &      ,ThrGrd
       Write (Lu,'(A,E8.1)')' Convergence criterion on energy change <=:'
      &      ,ThrEne
+      Write (Lu,'(A)')
+     &    ' Parameters for step-restricted optimization'
+      If (.NOT.Kriging) Then
       Write (Lu,'(A,E9.2)')
-     &    ' Max change of an internal coordinate:    ',Beta
+     &    ' Max step length (initial seed):          ',Beta
+      Else
+      Write (Lu,'(A,E9.2)')
+     &    ' Max step length (micro iterations):      ',Beta
+      End If
       Write (Lu,*)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Kriging) Then
+       Write (Lu,*) '-RVO activated with parameters:'
+!      Write (Lu,'(A,I6)')
+!    &    '   GEK starts at iteration:                   ',nspAI
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of data points used in GEK: ',nWndw/2
+!      Write (Lu,'(A,I6)')
+!   &     '   Parameter of diff. for Matern (p):         ',pAI
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of micro iterations:        ',miAI
+       If (set_l) Then
+          Call Get_dScalar('Value_l',Value_l)
+          Write (Lu,*) '  Global characteristic length scale, l:     ',
+     &              Value_l
+       Else
+          Write (Lu,*) '  Individual characteristic length scales set '
+     &          //'to reproduce HMF Hessian.'
+       End If
+*
+       If (blaAI) then
+          write (6,'(A,F10.5,A)')
+     &          '   Baseline is highest energy plus: ',blavAI,' a.u'
+       Else
+          if (mblAI) then
+             write (6,*) '  Baseline set to maximum value of the energy'
+          else if (blAI) then
+             write (6,'(A,F9.5,A,/,A,F9.5,A)')
+     &              '  Baseline (trend function) changed to value:',
+     &              blvAI, 'a.u.',
+     &              '                                             ',
+     &              blvAI * CONV_AU_TO_KJ_PER_MOLE_,
+     &              ' kJ/mol'
+          endif
+       Endif
+       write (6,'(A,F10.5,A)')
+     &       '   Maximum dispersion accepted:     ',Beta_disp,
+     &       ' * abs(g.max.comp)'
+       Write (Lu,*)
+      Else
+       Write (Lu,*) '-RFO activated with parameters:'
+       Write (Lu,'(A,I6)')
+     &    '   Maximum number of data points used in RFO: ',nWndw
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -119,8 +174,18 @@
      &       '  b) the norm of the gradient is below:',GNrm_Threshold
             If (iAnd(iOptC,512).eq.512) Then
                Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               !If (Kriging) Then
+               !   Write (Lu,'(A)') '  TS-search by RV-I-RFO.'
+               !Else
+               !   Write (Lu,'(A)') '  TS-search by RS-I-RFO.'
+               !End If
             Else
                Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               !If (Kriging) Then
+               !   Write (Lu,'(A)') '  TS-search by RV-P-RFO.'
+               !Else
+               !   Write (Lu,'(A)') '  TS-search by RS-P-RFO.'
+               !End If
             End If
          End If
 *
@@ -137,7 +202,11 @@
             Write (Lu,'(A)') '  Optimization method: C2-DIIS.'
 
          Else If (iAnd(iOptC,8).eq.8) Then
-            Write (Lu,'(A)') '  Optimization method: RS-RFO.'
+            If (Kriging) Then
+               Write (Lu,'(A)') '  Optimization method: RVO.'
+            Else
+               Write (Lu,'(A)') '  Optimization method: RS-RFO.'
+            End If
          Else
             Call WarningMessage(2,' WrInp: Wrong iOptC setting!')
             Write (Lu,*) ' iOptC=',iOptC
@@ -147,8 +216,18 @@
          Write (Lu,'(1X,A)') '-Optimization for transition state.'
          If (iAnd(iOptC,512).eq.512) Then
             Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            !If (Kriging) Then
+            !   Write (Lu,'(A)') '  Optimization method: RV-I-RFO'
+            !Else
+            !   Write (Lu,'(A)') '  Optimization method: RS-I-RFO'
+            !End If
          Else
             Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            !If (Kriging) Then
+            !   Write (Lu,'(A)') '  Optimization method: RV-P-RFO'
+            !Else
+            !   Write (Lu,'(A)') '  Optimization method: RS-P-RFO'
+            !End If
          End If
          If (Mode.gt.0) Then
             Write (Lu,'(A,I2)') '  Original mode to follow:',Mode
@@ -192,11 +271,16 @@
               Write (Lu,'(1X,A)') '-Initial Hessian guessed a'
      &                //' la Schlegel.'
             Else
-              Write (Lu,'(1X,A)') '-Initial Hessian guessed by'
-     &                //' Hessian Model Function (HMF).'
-              If (iAnd(iOptC,1024).eq.1024) Then
-                Write (Lu,'(A)') '  HMF augmented with'
-     &                //' weak interactions.'
+              If (Kriging) Then
+                 Write (Lu,'(1X,A)') '-Hessian guessed by'
+     &                   //' Kriging surrogate surface.'
+              Else
+                 Write (Lu,'(1X,A)') '-Initial Hessian guessed by'
+     &                   //' Hessian Model Function (HMF).'
+                 If (iAnd(iOptC,1024).eq.1024) Then
+                   Write (Lu,'(A)') '  HMF augmented with'
+     &                   //' weak interactions.'
+                 End If
               End If
             End If
          Else If (lOld.and..Not.lNmHss) Then
@@ -219,6 +303,7 @@
 *                                                                      *
 *.....Hessian update method
 *
+      If (.NOT.Kriging) Then
       If (iAnd(iOptH,1).eq.1) Then
          Write (Lu,'(1X,A)')
      &       '-Hessian update method: Fletcher-Meyer'
@@ -254,6 +339,7 @@
      &       '  Hessian update order according to Schlegel'
       End If
       Write (Lu,*)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

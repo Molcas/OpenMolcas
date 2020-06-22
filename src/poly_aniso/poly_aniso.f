@@ -825,8 +825,9 @@ c---------------------------------------------------------------------
           If(dbg) Write(6,*) 'm_acc =',m_accurate
           If(dbg) Write(6,*) 'tinpu =',tinput
 
+          ! nm = exch
            Call XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,
-     &                       nss, nexch, nTempMagn, nT, NM, iopt, mem,
+     &                       nss, nexch, nTempMagn, nT, exch, iopt, mem,
      &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,
      &                       zJ, Xfield, EM, THRS, XT_no_field,
      &                       dipso, s_so, dipexch, s_exch,
@@ -846,8 +847,9 @@ c---------------------------------------------------------------------
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
 
+         ! nm = exch
          Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
-     &                nTempMagn, nH, nM, AngPoints, nexch,
+     &                nTempMagn, nH, exch, AngPoints, nexch,
      &                iopt, nss, mem,
      &                smagn, m_paranoid, m_accurate,
      &                TempMagn, w, hmin, hmax, dltH0, EM, zJ, THRS,

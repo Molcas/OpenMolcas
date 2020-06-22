@@ -9,5 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer ip_B,ip_dB,ip_iB,ip_idB,ip_nqB,mB_Tot,mdB_Tot,mq
-      Common/db/ ip_B,ip_dB,ip_iB,ip_idB,ip_nqB,mB_Tot,mdB_Tot,mq
+      Logical Force_dB
+      Common/db/ ip_B,ip_dB,ip_iB,ip_idB,ip_nqB,mB_Tot,mdB_Tot,mq,
+     &           Force_dB
 

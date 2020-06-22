@@ -208,6 +208,12 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF (LINE(1:4).EQ.'TRDC') THEN
+* Print COMPLEX transition dipole vectors
+        PRDIPCOM=.TRUE.
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF (LINE(1:4).EQ.'ORBI') THEN
         PRORB=.TRUE.
         GOTO 100

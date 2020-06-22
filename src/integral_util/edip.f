@@ -320,7 +320,6 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 *     charge distribution on the boundary of the cavity. The Langevin
 *     distribution of dipole moments is also internally consistent!
 *
-*     Call GetMem('EDip','Check','Real',idum,idum)
 
 c      Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
