@@ -1830,15 +1830,13 @@ c     Go To 998
       Endif
 *
       lenXF=nXF*nData_XF
-      lenXMolnr=2*((nXMolnr*nXF+1)/2)
-
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
-      ipXMolnr=ipXF+lenXF
+      Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
       Call mma_allocate(XEle,nXF,Label='XEle')
 *---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXMolnr+lenXMolnr
-      nInfo = nInfo + lenXF + lenXMolnr
+      ipExp(iShll+1)=ipXF + LenXF
+      nInfo = nInfo + lenXF
 *
       Call Upcase(KWord)
 *
@@ -1857,7 +1855,7 @@ c     Go To 998
      &                  (iScratch(nXMolnr+k),k=1,nReadEle),
      &           (DInf(ip+k),k=0,nDataRead-1)
             Do i = 1, nXMolnr
-               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
+               XMolnr(i,iXF)=iScratch(i)
             End Do
             Do i = 1, nReadEle
                XEle(iXF+(i-1))=iScratch(nXMolnr+i)
@@ -1870,7 +1868,7 @@ c     Go To 998
 
             Do i = 1, nXMolnr
                Call Get_I1(i,iTemp)
-               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
+               XMolnr(i,iXF)=iTemp
             End Do
             Do i = 1, nReadEle
                Call Get_I1(nXMolnr+i,iTemp)

@@ -172,7 +172,15 @@
          If (.Not.Allocated(XEle)) Then
             Call mma_allocate(XEle,nXF,Label='XEle')
          End If
-         Call Get_dArray('XEle',XEle,nXF)
+         Call Get_iArray('XEle',XEle,nXF)
+      End If
+      Call qpg_dArray('XMolnr',Found,Len2)
+      If (Found) Then
+         nXMolnr=Len2/nXF
+         If (.Not.Allocated(XMolnr)) Then
+            Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
+         End If
+         Call Get_iArray('XMolnr',XMolnr,nXMolnr*nXF)
       End If
 *                                                                      *
 ************************************************************************

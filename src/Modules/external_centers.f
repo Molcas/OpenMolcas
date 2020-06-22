@@ -20,5 +20,6 @@
       Real*8, Allocatable:: AMP_Center(:)
       Integer :: nRP=0
       Real*8, Target, Allocatable:: RP_Centers(:,:,:)
-      Integer, Allocatable:: XEle(:)
+      Integer :: nXMolnr=0
+      Integer, Allocatable:: XEle(:), XMolnr(:,:)
       End Module External_Centers

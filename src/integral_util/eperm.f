@@ -27,6 +27,7 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
 #include "itmax.fh"
@@ -230,7 +231,7 @@
 
 *        Field contribution from XF
          Call EFXF(C_Coor,Work(ipXF),nXF,nOrd_XF,iXPolType,
-     &        xfEF(1,iGrid),  Work(ipXMolnr),nXMolnr,iGrid,scal14)
+     &        xfEF(1,iGrid),XMolnr,nXMolnr,iGrid,scal14)
 *
       End Do
 

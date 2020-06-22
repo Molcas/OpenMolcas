@@ -264,7 +264,7 @@
 *                                                                      *
       Integer          iCnttp_Dummy,iLbls,      IntTot,
      &          ipXF,
-     &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
+     &          iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,nXF,
@@ -294,7 +294,7 @@
       Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
      &          nFragDens(Mxdbsc),ipFragType(Mxdbsc),ipFragCoor(Mxdbsc),
      &          ipFragEner(Mxdbsc),ipFragCoef(Mxdbsc),nBas_Frag(0:7),
-     &          iOrdFm, nOrd_XF,iXPolType,nXMolnr,iRI_Type,
+     &          iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
@@ -318,7 +318,7 @@
      &              LenInf,  LenSph, MolWgh, nXF,     ipXF,   iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
-     &              nSOC_Shells, nXMolnr, ipXMolnr, IsMM,
+     &              nSOC_Shells, IsMM,
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
      &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
      &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,

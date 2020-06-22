@@ -269,7 +269,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
      &          Field,Dip,dField,
      &          PolEf,DipEf,
      &          Grid,nGrid_Eff,nPolComp,nAnisopol,
-     &          nXF,iXPolType,nXMolnr,iWork(ipXMolnr))
+     &          nXF,iXPolType,nXMolnr,XMolnr)
 
 *                                                                      *
 ************************************************************************
