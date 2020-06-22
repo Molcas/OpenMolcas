@@ -42,7 +42,7 @@
       Real*8, Dimension(:,:), Allocatable :: Vec, MEP
       Integer, Dimension(:), Allocatable :: iStab
       Integer ipX2, ipX3
-      Integer ipRef ipOpt
+      Integer ipRef,ipOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
       Real*8 DInf(nDInf)
 #include "periodic_table.fh"
