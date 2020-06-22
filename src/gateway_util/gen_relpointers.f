@@ -39,7 +39,6 @@
       End Do
       ipXF = ipXF + ibase
       ipXMolnr=ipXMolnr + ibase
-      ipXEle=ipXEle + ibase
 *
       If (Allocated(iSD)) Then
          Call Nr_Shells(nSkal)

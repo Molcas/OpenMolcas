@@ -263,7 +263,7 @@
 ************************************************************************
 *                                                                      *
       Integer          iCnttp_Dummy,iLbls,      IntTot,
-     &          ipXEle,ipXF,
+     &          ipXF,
      &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
@@ -318,7 +318,7 @@
      &              LenInf,  LenSph, MolWgh, nXF,     ipXF,   iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
-     &              nSOC_Shells, nXMolnr, ipXMolnr, ipXEle, IsMM,
+     &              nSOC_Shells, nXMolnr, ipXMolnr, IsMM,
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
      &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
      &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,

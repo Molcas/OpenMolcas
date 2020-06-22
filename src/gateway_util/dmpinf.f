@@ -267,6 +267,9 @@
          Call Put_dArray('RP_Centers',RP_Temp,nRP*2)
          Call mma_deallocate(RP_Temp)
       End If
+      If (Allocated(XEle)) Then
+         Call Put_dArray('XEle',XEle,nXF)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

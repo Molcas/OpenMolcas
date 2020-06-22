@@ -75,6 +75,7 @@
             Call mma_deallocate(RP_Centers)
             nRP=0
          End If
+         If (Allocated(XEle)) Call mma_deallocate(XEle)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -82,7 +83,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
       Call Free_iSD()
       Call Freek2()
       Call CloseR()
@@ -93,12 +93,10 @@
          Deallocate(EFP_COORS)
          lEFP=.FALSE.
       End If
-
 *
       Seward_Status=InActive
       Return
       End
-*
 c
 c This code originally was included into ClsSew
 c occasionally it should be separated

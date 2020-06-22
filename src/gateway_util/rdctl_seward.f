@@ -1831,21 +1831,20 @@ c     Go To 998
 *
       lenXF=nXF*nData_XF
       lenXMolnr=2*((nXMolnr*nXF+1)/2)
-      lenXEle=2*((nXF+1)/2)
 
 *---- Get pointer to the next free space in dynamic memory
       ipXF=ipExp(iShll+1)
       ipXMolnr=ipXF+lenXF
-      ipXEle=ipXMolnr+lenXMolnr
+      Call mma_allocate(XEle,nXF,Label='XEle')
 *---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXEle+lenXEle
-      nInfo = nInfo + lenXF + lenXMolnr + lenXEle
+      ipExp(iShll+1)=ipXMolnr+lenXMolnr
+      nInfo = nInfo + lenXF + lenXMolnr
 *
       Call Upcase(KWord)
 *
       ip = ipXF
       Do iXF = 1, nXF
-         DInf(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
+         XEle(iXF)=0   ! default: no element spec.
 *
 *        If reading from external file, use free format to allow
 *        long lines of input. On the other hand, comments are
@@ -1861,7 +1860,7 @@ c     Go To 998
                DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
             End Do
             Do i = 1, nReadEle
-               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
+               XEle(iXF+(i-1))=iScratch(nXMolnr+i)
             End Do
             Call mma_deallocate(iScratch)
          Else
@@ -1875,7 +1874,7 @@ c     Go To 998
             End Do
             Do i = 1, nReadEle
                Call Get_I1(nXMolnr+i,iTemp)
-               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
+               XEle(iXF+(i-1))=iTemp
             End Do
             Call Get_F(nXMolnr+nReadEle+1,DInf(ip),nDataRead)
          EndIf

@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
       Use Langevin_arrays
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -146,7 +147,7 @@ c            Call System_clock(iSeed,j,k)
 c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
             Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
      &                  Work(ipCord),maxato,Work(ipAtod),nPolComp,
-     &                  Work(ipXF),nXF,nOrd_XF,Work(ipXEle),iXPolType)
+     &                  Work(ipXF),nXF,nOrd_XF,XEle,iXPolType)
          EndIf
          Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
@@ -209,11 +210,11 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
          xa=Work(ipXF+(iXF-1)*Inc)
          ya=Work(ipXF+(iXF-1)*Inc+1)
          za=Work(ipXF+(iXF-1)*Inc+2)
-         If(INT(Work(ipXEle+iXF-1)).le.0) Then
-            atrad=-Work(ipXEle+iXF-1)/1000.0D0
+         If(XEle(iXF).le.0) Then
+            atrad=-DBLE(XEle(iXF))/1000.0D0
             iele=0
          Else
-            iele=INT(Work(ipXEle+iXF-1))
+            iele=XEle(iXF)
             atrad=CovRadT(iele)
          EndIf
          Write(Lu,11)iele,atrad,xa,ya,za
