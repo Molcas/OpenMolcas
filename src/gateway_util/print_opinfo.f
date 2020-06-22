@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Print_OpInfo(DInf,nDInf)
+      Subroutine Print_OpInfo()
 #ifdef _EFP_
       Use EFP_Module
       Use EFP
@@ -24,7 +24,6 @@
       Logical PrintOperators
       Real*8 A(3)
       Integer iStb(0:7), jCoSet(8,8)
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *

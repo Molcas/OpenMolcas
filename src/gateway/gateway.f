@@ -145,7 +145,7 @@ C-SVC: identify runfile with a fingerprint
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
       Call Print_Basis2(Work(Info),nDInf)
-      Call Print_OpInfo(Work(Info),nDInf)
+      Call Print_OpInfo()
 *                                                                      *
 ************************************************************************
 *                                                                      *
