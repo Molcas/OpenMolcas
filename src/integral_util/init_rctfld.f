@@ -11,6 +11,7 @@
        Subroutine Init_RctFld(NonEq,iCharge)
        use Langevin_arrays
        use PCM_arrays, only: MM
+       use external_centers, only: nXF
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
