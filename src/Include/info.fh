@@ -107,9 +107,6 @@
 *             basis set                                                *
 *     nPrm  : number of primitive functions in each irrep              *
 *     iOffSO: number of SO basis functions presiding the i''th irrep   *
-*     nXF   : number of centers in the external field                  *
-*     ipXF  : pointer to external field data                           *
-*     nData_XF: number of entries per center                           *
 *     MolWgh: integer flag to indicate the normalization of the        *
 *             symmetry transformation                                  *
 *             0: double coset represetative normalization              *
@@ -263,11 +260,10 @@
 ************************************************************************
 *                                                                      *
       Integer          iCnttp_Dummy,iLbls,      IntTot,
-     &          ipXF,
      &          iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
-     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
-     &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,nXF,
+     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,
+     &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
      &          Ind_Shell(MxShll)
       Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
      &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
@@ -315,7 +311,7 @@
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,
      &              ipM1cf,  nM1,   ipM2xp,  ipM2cf,  nM2, jMax,
-     &              LenInf,  LenSph, MolWgh, nXF,     ipXF,   iAtmNr,
+     &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
      &              nSOC_Shells, IsMM,
@@ -324,7 +320,7 @@
      &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,
      &              kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
-     &              iCnttp_Dummy, nData_XF, nPAMFI, iPAMFI, nPSOI,
+     &              iCnttp_Dummy, nPAMFI, iPAMFI, nPSOI,
      &              Ind_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

@@ -139,7 +139,7 @@ c            Call System_clock(iSeed,j,k)
          nGrid_Eff=0
 *        Both these subroutines can increase nGrid_Eff
          If(iXPolType.gt.0) Then
-            Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,Work(ipXF),
+            Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,XF,
      &                    nXF,nOrd_XF,nPolComp)
          EndIf
          If(lLangevin) Then
@@ -147,7 +147,7 @@ c            Call System_clock(iSeed,j,k)
 c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
             Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
      &                  Work(ipCord),maxato,Work(ipAtod),nPolComp,
-     &                  Work(ipXF),nXF,nOrd_XF,XEle,iXPolType)
+     &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
          Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
@@ -207,9 +207,9 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
       End Do
       If(iXPolType.gt.0) Inc = Inc + 6
       Do iXF=1,nXF
-         xa=Work(ipXF+(iXF-1)*Inc)
-         ya=Work(ipXF+(iXF-1)*Inc+1)
-         za=Work(ipXF+(iXF-1)*Inc+2)
+         xa=XF(1,iXF)
+         ya=XF(2,iXF)
+         za=XF(3,iXF)
          If(XEle(iXF).le.0) Then
             atrad=-DBLE(XEle(iXF))/1000.0D0
             iele=0

@@ -32,6 +32,7 @@
 *                                                                      *
 *     Modified to work with point charges. RL 20030507                 *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -62,7 +63,7 @@
 *
 *     Replace coodinates read in subroutine input
 *
-      call dcopy_(nAtoms*nData_XF,CN,1,DInf(ipXF),1)
+      call dcopy_(nAtoms*nData_XF,CN,1,XF,1)
       Write (6,*)
       Write (6,'(A)') '    Point Charge data read from RUNFILE'
       Write (6,*)

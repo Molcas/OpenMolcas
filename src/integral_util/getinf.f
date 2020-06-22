@@ -166,21 +166,27 @@
          Call Get_dArray('RP_Centers',RP_Centers,2*nRP)
       End If
 *
-      Call qpg_dArray('XEle',Found,Len2)
+      Call qpg_iArray('XEle',Found,Len2)
       If (Found) Then
          nXF=Len2
          If (.Not.Allocated(XEle)) Then
             Call mma_allocate(XEle,nXF,Label='XEle')
          End If
          Call Get_iArray('XEle',XEle,nXF)
-      End If
-      Call qpg_dArray('XMolnr',Found,Len2)
-      If (Found) Then
+*
+         Call qpg_dArray('XMolnr',Found,Len2)
          nXMolnr=Len2/nXF
          If (.Not.Allocated(XMolnr)) Then
             Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
          End If
          Call Get_iArray('XMolnr',XMolnr,nXMolnr*nXF)
+*
+         Call qpg_dArray('XF',Found,Len2)
+         nData_XF=Len2/nXF
+         If (.Not.Allocated(XF)) Then
+            Call mma_allocate(XF,nData_XF,nXF,Label='XF')
+         End If
+         Call Get_dArray('XF',XF,nData_XF*nXF)
       End If
 *                                                                      *
 ************************************************************************

@@ -75,11 +75,14 @@
             Call mma_deallocate(RP_Centers)
             nRP=0
          End If
-         If (Allocated(XMolnr)) Then
+         If (Allocated(XF)) Then
+            Call mma_deallocate(XF)
             Call mma_deallocate(XMolnr)
+            Call mma_deallocate(XEle)
+            nData_XF=0
+            nXF=0
             nXMolnr=0
          End If
-         If (Allocated(XEle)) Call mma_deallocate(XEle)
 *                                                                      *
 ************************************************************************
 *                                                                      *

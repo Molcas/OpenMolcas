@@ -1829,18 +1829,12 @@ c     Go To 998
          nDataRead=nData_XF
       Endif
 *
-      lenXF=nXF*nData_XF
-*---- Get pointer to the next free space in dynamic memory
-      ipXF=ipExp(iShll+1)
+      Call mma_allocate(XF,nData_XF,nXF,Label='XF')
       Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
       Call mma_allocate(XEle,nXF,Label='XEle')
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXF + LenXF
-      nInfo = nInfo + lenXF
 *
       Call Upcase(KWord)
 *
-      ip = ipXF
       Do iXF = 1, nXF
          XEle(iXF)=0   ! default: no element spec.
 *
@@ -1853,7 +1847,7 @@ c     Go To 998
      &                        Label='iScratch')
             Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
      &                  (iScratch(nXMolnr+k),k=1,nReadEle),
-     &           (DInf(ip+k),k=0,nDataRead-1)
+     &           (XF(k,iXF),k=1,nDataRead)
             Do i = 1, nXMolnr
                XMolnr(i,iXF)=iScratch(i)
             End Do
@@ -1874,18 +1868,11 @@ c     Go To 998
                Call Get_I1(nXMolnr+i,iTemp)
                XEle(iXF+(i-1))=iTemp
             End Do
-            Call Get_F(nXMolnr+nReadEle+1,DInf(ip),nDataRead)
+            Call Get_F(nXMolnr+nReadEle+1,XF(1,iXF),nDataRead)
          EndIf
 *
-         DInf(ip  ) = DInf(ip  )*ScaleFactor
-         DInf(ip+1) = DInf(ip+1)*ScaleFactor
-         DInf(ip+2) = DInf(ip+2)*ScaleFactor
-         If (Convert) Then
-            DInf(ip  ) = DInf(ip  )/angstr
-            DInf(ip+1) = DInf(ip+1)/angstr
-            DInf(ip+2) = DInf(ip+2)/angstr
-         End If
-         ip = ip + nData_XF
+         XF(1:3,iXF) = XF(1:3,iXF) * ScaleFactor
+         If (Convert) XF(1:3,iXF) = XF(1:3,iXF) / angstr
 *
       End Do
 *

@@ -113,6 +113,7 @@
 ************************************************************************
 *                                                                      *
       If (lXF) Then
+*
          If (nPrint(2).lt.6) Go To 666
          If (iXPolType.gt.0) Then
             tempStr = '       a(xx)       a(xy)    '
@@ -145,28 +146,18 @@
          End If
 *
 666      Continue
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
 *
-         If (iXPolType.gt.0) Inc = Inc + 6
-*
-         Write(Format_XF,'(A,I2.2,A)') '(',Inc,'(F10.6,2x))'
-         ip=ipXF
+         Write(Format_XF,'(A,I2.2,A)') '(',nData_XF,'(F10.6,2x))'
          XnetCharg=0.0
          Do iXF = 1, nXF
-            A(1)      =DInf(ip  )
-            A(2)      =DInf(ip+1)
-            A(3)      =DInf(ip+2)
-            Charge_iXF=DInf(ip+3)
+            A(1:3)=XF(1:3,iXF)
+            Charge_iXF=XF(4,iXF)
             iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
             iDum=0
             Call Stblz(iChxyz,iOper,nIrrep,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)
-     &         Write(LuWr,Format_XF) (DInf(i),i=ip,ip+Inc-1)
-            XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*DInf(ip+3)
-            ip = ip + Inc
+     &         Write(LuWr,Format_XF) (XF(i,iXF),i=1,nData_XF)
+            XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*Charge_iXF
          End do
          Write (LuWr,*)
          Write (LuWr,*) ' Net charge from external field: ',XnetCharg

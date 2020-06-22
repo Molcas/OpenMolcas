@@ -29,18 +29,17 @@
 *              DCR                                                     *
 *              Rys                                                     *
 *              Hrr                                                     *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -70,13 +69,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *---- Loop over charges and dipole moments in the external field
 *
-      nData = 3
-      Inc = 3
-      Do iOrdOp = 0, nOrdOp
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      If(iXPolType.gt.0) Inc = Inc + 6
-*
+      nData=3
       Do iOrdOp = 0, nOrdOp
 *
       iAnga(1) = la
@@ -118,13 +111,12 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *     Loop over centers of the external field.
 *
-      ip=ipXF-1
       iDum=0
       Do iFd = 1, nXF
 *
          NoLoop=.True.
          Do jElem = 1, nElem(iOrdOp)
-            ZFd(jElem)=Work(ip+(iFd-1)*Inc+nData+jElem)
+            ZFd(jElem)=XF(nData+jElem,iFd)
 *        Divide quadrupole diagonal by 2 due to different normalisation
             if((iOrdOp.eq.2).and.
      &           (jElem.eq.1.or.jElem.eq.4.or.jElem.eq.6))
@@ -134,9 +126,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
          If (NoLoop) Go To 111
 *------- Pick up the center coordinates
-         C(1)=Work(ip+(iFd-1)*Inc+1)
-         C(2)=Work(ip+(iFd-1)*Inc+2)
-         C(3)=Work(ip+(iFd-1)*Inc+3)
+         C(1:3)=XF(1:3,iFd)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
@@ -252,13 +242,14 @@ C     nElem(ixyz) = 2*ixyz+1
                ipI=ipI+nZeta*nElem(la)*nElem(lb)
             End Do
 *
-            If (iPrint.ge.99) Then
-               Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
-               Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
-     &                 (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
-               Call RecPrt('Final',' ',Final,
-     &                 nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
-            End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+            Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
+            Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
+     &              (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
+            Call RecPrt('Final',' ',Final,
+     &              nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
+#endif
 
 *
          End Do  ! End loop over DCRs
@@ -266,11 +257,9 @@ C     nElem(ixyz) = 2*ixyz+1
 111      Continue
       End Do     ! iFd
 *
-         nData = nData + nElem(iOrdOp)
+          nData = nData + nElem(iOrdOp)
       End Do     !  iOrdOp
 *
-*     Call GetMem(' Exit XFdInt','LIST','REAL',iDum,iDum)
-*     Call qExit('XFdInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

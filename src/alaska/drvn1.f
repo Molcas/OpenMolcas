@@ -28,6 +28,7 @@
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -257,33 +258,21 @@
          Write(6,*)'higher XF than dipoles or for polarisabilities'
          Call Quit_OnUserError()
       EndIf
-      Inc = 3
-      Do iOrdOp = 0, nOrd_XF
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      If (iXPolType.gt.0) Inc = Inc + 6
 
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *
-      ip = ipXF - 1
       iDum=0
       Do iFd = 1, nXF
-         ZA   = Work(ip+(iFd-1)*Inc+4)
+         ZA   = XF(4,iFd)
          If(nOrd_XF.eq.0) Then
-            DA(1)=Zero
-            DA(2)=Zero
-            DA(3)=Zero
+            DA(1:3)=Zero
          Else
-            DA(1)= Work(ip+(iFd-1)*Inc+5)
-            DA(2)= Work(ip+(iFd-1)*Inc+6)
-            DA(3)= Work(ip+(iFd-1)*Inc+7)
+            DA(1:3)= XF(5:7,iFd)
          EndIf
          NoLoop = ZA.eq.Zero .and. DA(1).eq.Zero .and. DA(2).eq.Zero
      &            .and. DA(3).eq.Zero
          If (NoLoop) Go To 102
-         A(1) = Work(ip+(iFd-1)*Inc+1)
-         A(2) = Work(ip+(iFd-1)*Inc+2)
-         A(3) = Work(ip+(iFd-1)*Inc+3)
+         A(1:3)=XF(1:3,iFd)
          iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *

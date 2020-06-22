@@ -37,7 +37,6 @@
          ipPAM2xp(i)   = ipPAM2xp(i)   + ibase
          ipPAM2cf(i)   = ipPAM2cf(i)   + ibase
       End Do
-      ipXF = ipXF + ibase
 *
       If (Allocated(iSD)) Then
          Call Nr_Shells(nSkal)
