@@ -83,6 +83,10 @@ function fixednav(){
       $(this).css("width","100%");
       $(this).css("z-index","1");
     });
+    $("div.content-wrapper").each(function(i) {
+      $(this).css("height",available);
+      $(this).css("overflow-y","auto");
+    });
     /* Fixed sidebar */
     $("div.sidebar").each(function(i) {
       $(this).css("position","fixed");
@@ -126,6 +130,9 @@ function fixednav(){
       $(this).removeAttr("style");
     });
     $("div.footer-wrapper").each(function(i) {
+      $(this).removeAttr("style");
+    });
+    $("div.content-wrapper").each(function(i) {
       $(this).removeAttr("style");
     });
     $("div.sidebar").each(function(i) {

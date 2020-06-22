@@ -186,7 +186,7 @@ if ($opt{tmp}) {
 my $result = File::Spec->catfile ($testdir, 'result');
 my $timing = File::Spec->catfile ($testdir, 'timing.data');
 my $logroot= File::Spec->catdir  ($testdir, 'log');
-my $logdir = File::Spec->catdir  ($logroot, strftime("%F_at_%T",@DATE));
+my $logdir = File::Spec->catdir  ($logroot, strftime("%F_at_%H-%M-%S",@DATE));
 my $failed = File::Spec->catfile ($testdir, 'failed');
 
 # reset only cleans up and then quits

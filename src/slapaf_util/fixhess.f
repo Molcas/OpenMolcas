@@ -32,6 +32,7 @@
       HTh=1.0d-3
       Too_Small=.False.
       ZTh=1.0D-12
+      HHigh=1.0D0
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
 *
@@ -142,7 +143,11 @@
             If (.Not.AnalHess .and.
      &          iAnd(iOptC,128).eq.128 .and.
      &          iAnd(iOptC,4096).ne.4096) Then
-               Work(i+ipFixVal-1)=Abs(Work(i+ipFixVal-1))
+*
+*              Change the sign and if just too large reduce the value
+*              to the default of HHigh.
+*
+               Work(i+ipFixVal-1)=Min(HHigh,Abs(Work(i+ipFixVal-1)))
                Corrected=.True.
             End If
          End If
@@ -173,7 +178,7 @@
 *                                                                      *
 *
       If (Too_Small.and.iPrint.ge.6) Then
-         Write (Lu,*) ' Some too small eigenvalues has been corrected'
+         Write (Lu,*) ' Some too small eigenvalues have been corrected'
          Write (Lu,*)
       End If
 *                                                                      *
@@ -187,7 +192,8 @@
 *
          If (iNeg(1).ne.0.and.iAnd(iOptC,256).ne.256.and.iPrint.ge.6)
      &   Then
-            Write (Lu,*) ' Some negative eigenvalues has been corrected'
+            Write (Lu,*) ' Some negative eigenvalues have been'
+     &                 //' corrected'
             Write (Lu,*) 'iNeg=',iNeg(1)
             Write (Lu,*)
          End If
