@@ -477,6 +477,12 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_NEW_DEFAULTS`
+  If set to ``YES`` (case insensitive), some new default values will be activated:
+
+  * :kword:`RICD` will be enabled by default in :program:`GATEWAY`, it can be disabled with :kword:`NOCD`.
+  * The default IPEA shift in :program:`CASPT2` is set to 0.0, other values can be specified normally with the :kword:`IPEA` keyword.
+
 :variable:`MOLCAS_NEW_WORKDIR`
   If set to YES |molcas| will never reuse files in scratch area.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-old`:
