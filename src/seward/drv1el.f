@@ -1067,7 +1067,7 @@ c           iPAMcount=iPAMcount+1
          Write (Label,'(A,I2,I2)') 'DMS ',1,iDMS
          nComp = 9
          nOrdOp=2
-         Call dcopy_(3,Work(ipDMS+(iDMS-1)*3),1,Ccoor,1)
+         CCoor(:)=DMS_Center(:,iDMS)
          Call Allocate_Auxiliary()
          iSymC = 1
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
