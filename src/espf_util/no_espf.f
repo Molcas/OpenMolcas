@@ -91,8 +91,6 @@ c         Call Seward_Init()
          Qzz= Zero
 *
          PNX=Zero
-         write(6,*) 'Work(ip + ...) = ',(Work(ip+ii),ii=1,4)
-         write(6,*) 'nCnttp = ',nCnttp
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
