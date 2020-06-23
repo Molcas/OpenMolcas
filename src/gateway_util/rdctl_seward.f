@@ -2866,7 +2866,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 ***** RI   *************************************************************
 *                                                                      *
-*     Active RI approach
+*     Activate RI approach
 *
  9097 Continue
       Do_RI=.True.
@@ -4175,7 +4175,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             nMass = nInt(CntMass(iCnttp)/UToAU)
             If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(iAtmNr(iCnttp),nMass)
+     &          ExpNuc(iCnttp)=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
