@@ -31,12 +31,12 @@
 *             Modified May-June 2002 in Tokyo for DFT gradient by RL.  *
 ************************************************************************
       use iSD_data
+      use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
@@ -164,11 +164,11 @@
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
-            ix=iDAMax_(mDij,Work(ip_D_a),1)
-            DMax_ij=Abs(Work(ip_D_a-1+ix))
+            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+            DMax_ij=Abs(DeDe(ip_D_a-1+ix))
             If (nD.ne.1) Then
-               ix=iDAMax_(mDij,Work(ip_D_b),1)
-               DMax_ij=DMax_ij+Abs(Work(ip_D_a-1+ix))
+               ix=iDAMax_(mDij,DeDe(ip_D_b),1)
+               DMax_ij=DMax_ij+Abs(DeDe(ip_D_a-1+ix))
             End If
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
 #ifdef _DEBUG_
@@ -179,9 +179,9 @@
                Write (6,*) 'iShell,jShell=',iShell,jShell
                Write (6,*) 'kDCRE,kDCRR=',kDCRE,kDCRR
                Write (6,*) 'iER,lDCRER=',iER,lDCRER
-               Call RecPrt('DAij',' ',Work(ip_D_a),nBB,nCC)
+               Call RecPrt('DAij',' ',DeDe(ip_D_a),nBB,nCC)
                If (nD.ne.1)
-     &            Call RecPrt('DBij',' ',Work(ip_D_b),nBB,nCC)
+     &            Call RecPrt('DBij',' ',DeDe(ip_D_b),nBB,nCC)
             End If
 #endif
 *
@@ -208,7 +208,7 @@
             If (nD.eq.1) Then
                If (iShell.ge.jShell) Then
                Call Do_Rho2ha(dRho_dR,d2Rho_dR2,mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,Phase,
@@ -216,7 +216,7 @@
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho2ha(dRho_dR,d2Rho_dR2,mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,Phase,
@@ -226,7 +226,7 @@
             Else
                If (iShell.ge.jShell) Then
                Call Do_Rho2h_(dRho_dR,d2Rho_dR2,mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,Phase,
@@ -234,7 +234,7 @@
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho2h_(dRho_dR,d2Rho_dR2,mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,Phase,

@@ -31,11 +31,12 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "relae.fh"
 #include "RelLight.fh"
       Integer iix(2)
       Real*8 rix(2)
+      Integer, Allocatable:: AS(:,:)
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -84,14 +85,12 @@ c Avoid unused argument warnings
 *
 *     And some in iAOtSO
 *
-      Call Allocate_iWork(ip_AS,8*Mx_AO)
-      Call Get_iArray('iAOtSO',iWork(ip_AS),8*Mx_AO)
-      jp_AS = ip_AS
+      Call mma_allocate(AS,8,Mx_AO,Label='AS')
+      Call Get_iArray('iAOtSO',AS,8*Mx_AO)
       Do i = 1, Mx_AO
-         Call ICopy(8,iWork(jp_AS),1,iAOtSO(i,0),MxAO)
-         jp_AS = jp_AS + 8
+         Call ICopy(8,AS(1,i),1,iAOtSO(i,0),MxAO)
       End Do
-      Call Free_iWork(ip_AS)
+      Call mma_deallocate(AS)
 *
       iRELAE=iRELAE_Info
 *

@@ -2613,7 +2613,7 @@ c       write(6,*)          '  --------------------------------------'
         IGSOCCX(3,2) = NACTEL
       END IF
 *
-!Consideraations for gradients/geometry optimizations
+!Considerations for gradients/geometry optimizations
 
 *     Numerical gradients requested in GATEWAY
       Call Qpg_iScalar('DNG',DNG)
@@ -2628,19 +2628,21 @@ c       write(6,*)          '  --------------------------------------'
       If (ProgName(1:11).eq.'last_energy') DNG=.true.
 *
 *     Inside NUMERICAL_GRADIENT override input!
-      If (ProgName(1:18).eq.'numerical_gradient') Then
-         DNG=.true.
+      If (ProgName(1:18).eq.'numerical_gradient') DNG=.true.
+*
+*
+      If (DNG) Then
          DoGradPDFT=.false.
       End If
 *
 *     Check to see if we are in a Do While loop
-         Call GetEnvF('EMIL_InLoop',emiloop)
-         If (emiloop.eq.' ') emiloop='0'
-         Call GetEnvF('MOLCAS_IN_GEO',inGeo)
-         If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
-     &       .and. .not.DNG) Then
-            DoGradPDFT=.true.
-         End If
+      Call GetEnvF('EMIL_InLoop',emiloop)
+      If (emiloop.eq.' ') emiloop='0'
+      Call GetEnvF('MOLCAS_IN_GEO',inGeo)
+      If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
+     &    .and. .not.DNG) Then
+         DoGradPDFT=.true.
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

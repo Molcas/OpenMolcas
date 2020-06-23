@@ -13,7 +13,7 @@
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,dg,
      &                Scrt1,nScrt1,dqHdq,iOptC,
      &                Beta,nFix,iP,UpMeth,Energy,
-     &                Line_Search,Step_Trunc,Restriction,Thr_RS)
+     &                Line_Search,Step_Trunc,Thr_RS)
 ************************************************************************
 *                                                                      *
 * Object: Driver for optimization procedures.                          *
@@ -33,8 +33,6 @@
 *             December '94                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External Restriction
-      Real*8 Restriction
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -53,13 +51,14 @@
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
-         Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
-         Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-         Call RecPrt(' Newq: g',' ',g,nInter,nIter)
-         Call RecPrt(' Newq: H   ',' ',H   ,nInter,nInter)
-      End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
+      Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
+      Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+      Call RecPrt(' Newq: g',' ',g,nInter,nIter)
+      Call RecPrt(' Newq: H   ',' ',H   ,nInter,nInter)
+#endif
 *
 *---- Print out of the Hessian and determination of the Hessian index.
 *
@@ -174,16 +173,14 @@ C     Call View(H,nInter,print)
 *
 *------------- Restricted Step Partitioned RFO
 *
-               Call RS_P_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc,
-     &                       Restriction)
+               Call RS_P_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+     &                       UpMeth,dqHdq,Beta,Step_Trunc)
             Else
 *
 *------------- Restricted Step Image RFO
 *
-               Call RS_I_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc,
-     &                       Restriction,Thr_RS)
+               Call RS_I_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+     &                       UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
             End If
 *
          Else
@@ -191,9 +188,8 @@ C     Call View(H,nInter,print)
 *---------- Restricted Step RFO
 *
 *
-            Call RS_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
-     &                  UpMeth,dqHdq,Beta,Step_Trunc,
-     &                  Restriction,Thr_RS)
+            Call RS_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+     &                  UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
 *
          End If
 *                                                                      *
@@ -259,12 +255,12 @@ C     Call View(H,nInter,print)
         q(i,nIter+1) = q(i,nIter) + dq(i,nIter)
       End Do
 *
-      If (iPrint.ge.99) Then
-         Write (Lu,*) ' dqHdq=',dqHdq
-         Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
-         Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
-         Call RecPrt('Newq: g',' ',g,nInter,nIter)
-      End If
+#ifdef _DEBUG_
+      Write (Lu,*) ' dqHdq=',dqHdq
+      Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
+      Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
+      Call RecPrt('Newq: g',' ',g,nInter,nIter)
+#endif
       Call QExit('Newq')
       Return
 c Avoid unused argument warnings

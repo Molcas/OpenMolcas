@@ -34,6 +34,7 @@
 *                                                                      *
 ************************************************************************
       use OccSets
+      use IOBUF
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -44,7 +45,6 @@
 #include "infscf.fh"
 #include "infso.fh"
 #include "stdalloc.fh"
-#include "IOBuf.fh"
 #include "hflda.fh"
 #include "ldfscf.fh"
 #include "file.fh"

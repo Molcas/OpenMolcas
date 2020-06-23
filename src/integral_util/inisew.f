@@ -29,9 +29,7 @@
 #include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
-#include "print.fh"
 *
       Logical DSCF
 *

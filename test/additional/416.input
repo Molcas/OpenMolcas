@@ -10,12 +10,12 @@
 *-------------------------------------------------------------------------------
 >>> COPY C4H6.xyz .
 >>> COPY init.RasOrb .
+>>> EXPORT MOLCAS_NEW_DEFAULTS=YES
 
 &GATEWAY
   Coord = C4H6.xyz
   Basis = ANO-RCC-VDZP
   Group = NoSym
-  RICD
 
 &SEWARD
 
@@ -28,7 +28,6 @@
   Multistate = all
   NoMultistate
   Imaginary = 0.1
-  IPEA = 0.0
 
 > Copy $Project.JobMix JOB001
 

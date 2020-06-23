@@ -169,13 +169,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Let us now Gram-Schmidt orthonormalize the auxiliary basis for
-*     better numerics and balance.
-*
-*     Call ReNorm()
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call Set_Basis_Mode('Valence')
 *                                                                      *
 ************************************************************************

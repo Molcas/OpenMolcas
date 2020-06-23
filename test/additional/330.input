@@ -15,7 +15,6 @@
   ricd
 
 &SEWARD
-  DoAnalytical
 
 >>> COPY RasOrb guess.RasOrb
 &RASSCF
@@ -35,7 +34,6 @@
 >>> DOWHILE
 
   &SEWARD
-    DoAnalytical
 
   &RASSCF
     CiRestart

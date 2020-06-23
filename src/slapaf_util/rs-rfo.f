@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1994,2004,2014,2017,2019, Roland Lindh                 *
+* Copyright (C) 1994,2004,2014,2017,2019, 2020, Roland Lindh           *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
-     &                  Restriction,Thr_RS)
+      Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+     &                  Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -29,12 +29,10 @@
 *     Remove references to work, Roland Lindh                          *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction
-      Real*8 Restriction
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 H(nInter,nInter), g(nInter), q(nInter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 StepMax
 *
@@ -47,7 +45,7 @@
       UpMeth='RS-RFO'
       Lu=6
 *#define _DEBUG_
-*define _DEBUG2_
+*#define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
@@ -195,7 +193,7 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=Restriction(q,dq,nInter)
+         dqdq=Sqrt(DDot_(nInter,dq,1,dq,1))
 #ifdef _DEBUG_
          Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
 *        Write (Lu,*) 'StepMax-dqdq=',StepMax-dqdq

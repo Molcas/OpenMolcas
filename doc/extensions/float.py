@@ -69,8 +69,6 @@ def depart_float_html(self, node):
 
 def visit_float_latex(self, node):
   ids = ''
-  for id in self.pop_hyperlink_ids('float'):
-    ids += self.hypertarget(id, anchor=False)
   if node['ids']:
     ids += self.hypertarget(node['ids'][0], anchor=False)
   if (isinstance(node, table_container)):

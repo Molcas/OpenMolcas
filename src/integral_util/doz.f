@@ -21,7 +21,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              RecPrt                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
@@ -48,7 +47,6 @@
       iRout = 68
       iPrint = nPrint(iRout)
 *     Call qEnter('DoZ')
-*     Call GetMem(' Enter DoZ','Check','Real',iDum,iDum)
 *
 *     Transfer precomputer data
 *
