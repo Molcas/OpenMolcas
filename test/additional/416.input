@@ -12,6 +12,7 @@
 >>> COPY init.RasOrb .
 
 &GATEWAY
+  CSOff
   Coord = C4H6.xyz
   Basis = ANO-RCC-VDZP
   Group = NoSym

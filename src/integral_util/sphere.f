@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
-*               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
-*                     M. Navarrete; C. Gonzalez-Espinoza; G. Raggi;    *
-*                     N. F. Chilton @ OpenMolcas2020                   *
+*               2020, R. Lindh                                         *
 ************************************************************************
       SubRoutine Sphere(lMax)
 ************************************************************************
@@ -32,6 +30,11 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
+************************************************************************
+*               Credits.                                               *
+*               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
+*                     M. Navarrete; C. Gonzalez-Espinoza; G. Raggi;    *
+*                     N. F. Chilton at OpenMolcas2020                  *
 ************************************************************************
       use Real_Spherical
       Implicit real*8 (a-h,o-z)
@@ -224,6 +227,7 @@
       Return
       End
       Subroutine Ladder(P0,n)
+      Use Real_spherical, only: Condon_Shortly_phase_factor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n+1)*(n+2)/2,-n:n)
@@ -304,7 +308,8 @@
 *        associated Legendre polynomials. Let us now put in the
 *        Condon-Shortly phase factor
 *
-         If (MOD(m+1,2).ne.0) Then
+         If (Condon_Shortly_phase_factor .and.
+     &       MOD(m+1,2).ne.0) Then
             P0(:,m_p)=-P0(:,m_p)
             P0(:,m_m)=-P0(:,m_m)
          End If

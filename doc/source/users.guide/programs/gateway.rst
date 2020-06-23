@@ -743,6 +743,17 @@ Advanced keywords:
               </HELP>
               </KEYWORD>
 
+:kword:`CSOF`
+  Turn off the use of Condon-Shortly phase factors
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CSOF" APPEAR="Condon-Shorly phase factor" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CSOF <advanced>
+              <HELP>
+              Turn off the use of Condon-Shortly phase factors. Usually use in association with older orbital
+              files generated with basis functions which do not comply to the standard.
+              </HELP>
+              </KEYWORD>
+
 :kword:`MOVE`
   allow to translate and rotate molecule in order to find highest possible symmetry.
   (this is a default for all groups, except of :math:`C_1`)
