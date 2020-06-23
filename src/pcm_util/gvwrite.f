@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GVWrite(Index,NTs,NEsfP,NAt,
-     +           AtmC,IAt,Coor_Sph,Tessera,NVert,Vert,ISphe,Q,ivts,
-     &           MxVert)
+      Subroutine GVWrite(Index,NTs,NEsfP,NAt,AtmC,IAt,Coor_Sph,Tessera,
+     &                   NVert,Vert,ISphe,Q,ivts,MxVert)
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Dimension NVert(*),Vert(3,MxVert,*),IVTS(MxVert,*),
@@ -35,8 +34,8 @@ C
         qmin=0.0d0
         Do 2000 i = 1, NTs
           qt = q(i) / Tessera(4,i)
-          if(qt.ge.qmax)qmax = qt
-          if(qt.le.qmin)qmin = qt
+          if(qt.ge.qmax) qmax = qt
+          if(qt.le.qmin) qmin = qt
  2000   continue
         Write(Lu,1100)QMin, QMax
       EndIf
@@ -45,6 +44,7 @@ C
         N=ISphe(i)
         If(N.ne.Last) Write(Lu,1500)N
         Last = N
+        qt = q(i) / Tessera(4,i)
         If(Index.eq.1) Call Colour(NEsfP,NAt,AtmC,
      +                 IAt,Coor_Sph,N,C1,C2,C3)
         If(Index.eq.2) Call Colchg(i,qt,qmax,qmin,C1,C2,C3)
@@ -176,7 +176,7 @@ C
       End
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      Subroutine ColChg(i,q,qmax,qmin,C1,C2,C3)
+      Subroutine ColChg(i,q,QMAX,QMIN,C1,C2,C3)
       Implicit Real*8(A-H,O-Z)
 C
 C     Assign tesserae colours for GeomView:
