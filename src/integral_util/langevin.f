@@ -28,7 +28,6 @@
       iRout = 1
       iPrint = nPrint(iRout)
       Call qEnter('Langevin')
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -149,7 +148,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
      &                  Work(ipCord),maxato,Work(ipAtod),nPolComp,
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
-         Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
+c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
 *
       End If
