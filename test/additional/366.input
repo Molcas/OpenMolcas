@@ -16,6 +16,7 @@
 >>COPY cucl4.xyz .
 
  &GATEWAY
+CSOff
 Coord = cucl4.xyz
 Basis = ANO-RCC-VTZP
 NoCD

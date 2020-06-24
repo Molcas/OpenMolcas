@@ -7,6 +7,7 @@
 * Comments: Test of SEWARD with AIMP (Madrid)
 *-------------------------------------------------------------------------------
  &SEWARD  &END
+CSOff
 NoCD
 Title
  TiCl    C2     r(Ti-Cl)= 4.6000
