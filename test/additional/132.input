@@ -8,6 +8,7 @@
 >>> EXPORT MOLCAS_MEM=768Mb
  &GATEWAY
 RICD
+CSPF
 Coord
    29
 Angstrom
