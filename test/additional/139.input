@@ -9,6 +9,7 @@
 *-------------------------------------------------------------------------------
 >> export MOLCAS_NOCHECK=MLTPL
 &SEWARD
+CSOF
 Title
  Carbon dimer
 Symmetry

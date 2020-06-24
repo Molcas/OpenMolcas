@@ -1,6 +1,7 @@
 ****SOLVENT ORBITALS****
 >export Molcas_Solvent=$Project.Water
  &SEWARD &END
+CSOff
 TITLE
 Solvent orbitals
 Multipoles
@@ -24,6 +25,7 @@ END OF INPUT
 
 ****THE QM-REGION****
  &SEWARD &END
+CSOff
 NEMO
 TITLE
 Integrals for test of QMSTAT
