@@ -12,7 +12,7 @@
 !***********************************************************************
 
 module linalg_mod
-    use constants, only: wp, r8
+    use definitions, only: wp, r8
     implicit none
     private
     public :: mult
