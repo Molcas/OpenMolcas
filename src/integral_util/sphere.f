@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020, Roland Lindh                                *
 *               1990, IBM                                              *
-*               2020, R. Lindh                                         *
 ************************************************************************
       SubRoutine Sphere(lMax)
 ************************************************************************
@@ -172,7 +171,7 @@
 ***********************************************************************
 *                                                                     *
 *     The Legendre polynomial is identical to Y(l,0).                 *
-*     Note that it is real and that there is no Condon-Shortly phase  *
+*     Note that it is real and that there is no Condon-Shortley phase *
 *     factor to consider.                                             *
 *                                                                     *
 ***********************************************************************
@@ -227,7 +226,7 @@
       Return
       End
       Subroutine Ladder(P0,n)
-      Use Real_spherical, only: Condon_Shortly_phase_factor
+      Use Real_spherical, only: Condon_Shortley_phase_factor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n+1)*(n+2)/2,-n:n)
@@ -306,9 +305,9 @@
 *
 *        Up to this point we have been operating on the Legendre and
 *        associated Legendre polynomials. Let us now put in the
-*        Condon-Shortly phase factor
+*        Condon-Shortley phase factor
 *
-         If (Condon_Shortly_phase_factor .and.
+         If (Condon_Shortley_phase_factor .and.
      &       MOD(m+1,2).ne.0) Then
             P0(:,m_p)=-P0(:,m_p)
             P0(:,m_m)=-P0(:,m_m)

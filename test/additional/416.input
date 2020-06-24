@@ -13,7 +13,6 @@
 >>> EXPORT MOLCAS_NEW_DEFAULTS=YES
 
 &GATEWAY
-  CSOff
   Coord = C4H6.xyz
   Basis = ANO-RCC-VDZP
   Group = NoSym

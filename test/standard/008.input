@@ -7,7 +7,6 @@
 * Comments:Testing different options in CASVB 
 *-------------------------------------------------------------------------------
  &SEWARD   &END
-csoff 
 symmetry
 x y
 expert
