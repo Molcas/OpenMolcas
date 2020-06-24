@@ -12,7 +12,7 @@
 ************************************************************************
 #include "intent.h"
       module orthonormalization
-        use constants, only: wp
+        use definitions, only: wp
         use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,

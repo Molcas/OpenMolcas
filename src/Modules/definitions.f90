@@ -11,25 +11,26 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
-module constants
+module definitions
     use iso_fortran_env, only: int32, int64, real32, real64
     implicit none
     private
-    public :: wp, MPIArg, HDF5Arg
-    public :: r4, r8, i4, i8
+    public :: wp, MPIInt, HDF5Int
+    public :: int32, int64, real32, real64
+    public :: i4, i8, r4, r8
 
 
     ! This is the type of MPI arguments
-    ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIArg)
+    ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIInt)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
-    integer, parameter :: MPIArg = int32
+    integer, parameter :: MPIInt = int32
 
     ! This is the type of HDF5 arguments
-    ! NOTE: If legacy integer*4 declarations are replaced with integer(HDF5Arg)
+    ! NOTE: If legacy integer*4 declarations are replaced with integer(HDF5Int)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
-    integer, parameter :: HDF5Arg = int32
+    integer, parameter :: HDF5Int = int32
 
     ! This is the working precision and should be preferably used.
     integer, parameter :: wp = real64
@@ -53,4 +54,4 @@ module constants
         i4 = kind(i4_example), &
         i8 = kind(i8_example)
 
-end module
+end module definitions

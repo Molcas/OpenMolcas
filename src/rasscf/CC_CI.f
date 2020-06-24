@@ -14,7 +14,7 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
-      use constants, only: MPIArg, wp
+      use definitions, only: MPIInt, wp
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
       use fortran_strings, only: str
@@ -74,7 +74,7 @@
       integer, allocatable :: permutation(:)
       real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
-      integer(MPIArg) :: error
+      integer(MPIInt) :: error
 #endif
       parameter(ROUTINE = 'CC_CI_ctl')
       character(*), parameter ::
@@ -246,12 +246,12 @@
 ! Could be changed into non blocking BCast
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-            call MPI_Bcast(PSMAT, int(size(PSMAT), MPIArg),
-     &                     MPI_REAL8, 0_MPIArg, MPI_COMM_WORLD, error)
-            call MPI_Bcast(PAMAT, int(size(PAMAT), MPIArg),
-     &                     MPI_REAL8, 0_MPIArg, MPI_COMM_WORLD, error)
-            call MPI_Bcast(DMAT, int(size(DMAT), MPIArg),
-     &                     MPI_REAL8, 0_MPIArg, MPI_COMM_WORLD, error)
+            call MPI_Bcast(PSMAT, int(size(PSMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
+            call MPI_Bcast(PAMAT, int(size(PAMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
+            call MPI_Bcast(DMAT, int(size(DMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
         end if
 #endif
       end subroutine read_CC_RDM

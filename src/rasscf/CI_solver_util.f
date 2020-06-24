@@ -15,7 +15,7 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
-      use constants, only: wp, MPIArg
+      use definitions, only: wp, MPIInt
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_data, only: lRoots, nRoots, iAdr15,
      &                       iRoot, Weight, nAc, nAcPar, nAcpr2
@@ -27,8 +27,8 @@
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-      integer(MPIArg) :: error
-      integer(MPIArg), parameter :: ROOT = 0_MPIArg
+      integer(MPIInt) :: error
+      integer(MPIInt), parameter :: ROOT = 0_MPIInt
 #endif
 
       interface
@@ -54,7 +54,7 @@
           if (myrank == 0) call f_Inquire(trim(filename),newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, 1_MPIArg, MPI_LOGICAL,
+            call MPI_Bcast(newcycle_found, 1_MPIInt, MPI_LOGICAL,
      &                     ROOT, MPI_COMM_WORLD, error)
           end if
 #endif
@@ -69,7 +69,7 @@
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call MPI_Bcast(energy, 1_MPIArg, MPI_REAL8,
+          call MPI_Bcast(energy, 1_MPIInt, MPI_REAL8,
      &                   ROOT, MPI_COMM_WORLD, error)
         end if
 #endif
