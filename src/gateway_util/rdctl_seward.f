@@ -13,7 +13,7 @@
       use Period
       use MpmC
       use EFP_Module
-      use Real_Spherical, only : Condon_Shortly_phase_factor
+      use Real_Spherical, only : Condon_Shortley_phase_factor
       use fortran_strings, only : str
 #ifndef _HAVE_EXTRA_
       use XYZ
@@ -1627,9 +1627,9 @@ c     Go To 998
 *                                                                      *
 ****** CSOFf ***********************************************************
 *                                                                      *
-*     Turn off the use of Condon-Shortly phase factors
+*     Turn off the use of Condon-Shortley phase factors
 *
- 9110 Condon_Shortly_phase_factor=.False.
+ 9110 Condon_Shortley_phase_factor=.False.
       GWInput = Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *

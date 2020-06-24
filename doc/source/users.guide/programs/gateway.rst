@@ -743,14 +743,14 @@ Advanced keywords:
               </HELP>
               </KEYWORD>
 
-:kword:`CSOF`
-  Turn off the use of Condon-Shortly phase factors
+:kword:`CSOFf`
+  Turn off the use of Condon--Shortley phase factors.
+  Usually use in association with older orbital files generated with basis functions which do not comply to the standard.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CSOF" APPEAR="Condon-Shorly phase factor" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: CSOF <advanced>
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CSOF" APPEAR="Disable Condon-Shortley phase factor" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CSOFf <advanced>
               <HELP>
-              Turn off the use of Condon-Shortly phase factors. Usually use in association with older orbital
-              files generated with basis functions which do not comply to the standard.
+              Turn off the use of Condon-Shortley phase factors.
               </HELP>
               </KEYWORD>
 

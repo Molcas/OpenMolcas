@@ -150,9 +150,7 @@ In the original multi-state method,
 perturbed wave functions are computed for each of several root functions,
 separately; these are used to compute the effective Hamiltonian.
 In the XMS-CASPT2 method, the perturbations are computed with one
-common zeroth-order Hamiltonian, and the eigenstates of
-the effective Hamiltonian are written onto the :file:`JOBIPH` file rather than used
-to generate a new :file:`JOBMIX` file.
+common zeroth-order Hamiltonian.
 The new XDW-CASPT2 method interpolates between the MS and XMS variants,
 retaining the advantages of both approaches.
 
