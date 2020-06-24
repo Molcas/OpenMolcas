@@ -44,7 +44,6 @@ C
         N=ISphe(i)
         If(N.ne.Last) Write(Lu,1500)N
         Last = N
-        qt = q(i) / Tessera(4,i)
         If(Index.eq.1) Call Colour(NEsfP,NAt,AtmC,
      +                 IAt,Coor_Sph,N,C1,C2,C3)
         If(Index.eq.2) Call Colchg(i,qt,qmax,qmin,C1,C2,C3)
