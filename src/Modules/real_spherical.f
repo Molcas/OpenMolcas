@@ -11,5 +11,5 @@
       Module Real_Spherical
       Integer, Dimension(:), Allocatable :: ipSph
       Real*8, Dimension(:), Allocatable :: RSph
-      Logical :: Condon_Shortly_phase_factor=.True.
+      Logical :: Condon_Shortley_phase_factor=.False.
       End Module Real_Spherical
