@@ -74,7 +74,6 @@
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
-*              GetMem                                                  *
 *              Int_Setup                                               *
 *              Dens_Info                                               *
 *              MemRys                                                  *

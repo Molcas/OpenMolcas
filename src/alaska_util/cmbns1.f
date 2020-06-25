@@ -46,7 +46,6 @@
       iPrint = nPrint(iRout)
       iQ = 1
 *     Call qEnter('CmbnS1')
-*     Call GetMem(' Enter CmbnS1','LIST','REAL',iDum,iDum)
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -252,7 +251,6 @@
  110     Continue
  100  Continue
 *
-*     Call GetMem(' Exit CmbnS1','LIST','REAL',iDum,iDum)
 *     Call qExit('CmbnS1')
       Return
       End

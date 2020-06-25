@@ -17,6 +17,7 @@
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 c----------------------------------------------------------------------
       use k2_setup
+      use k2_arrays
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
@@ -29,7 +30,6 @@ c----------------------------------------------------------------------
 #include "setup.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-#include "k2.fh"
 *
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1

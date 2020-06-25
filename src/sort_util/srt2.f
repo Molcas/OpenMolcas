@@ -35,8 +35,8 @@
 *     mxSrtA : maximum sorting area to be used                        *
 *                                                                     *
 *     Entries to common SRT2:                                         *
-*     lwIBin : pointer to work space used to store index Bins         *
-*     lwVBin : pointer to work space used to store value Bins         *
+*     lwIBin : array used to store index Bins                         *
+*     lwVBin : array  used to store value Bins                        *
 *     nRec   : number of record per slice                             *
 *     iDIBin : disk adresses of index bins                            *
 *     iDVBin : disk adresses of value bins                            *
@@ -56,18 +56,19 @@
 *                                                                     *
 *---------------------------------------------------------------------*
 *
-cc #include <mxbin.fh>
+      Module Srt2
+#include "TwoDef.fh"
       Parameter ( mxBin = 2048 )
       Parameter ( lBin_tce   = 4*lDaRec          )
       Parameter ( lBin_rle   =32*lDaRec          )
 *
       Integer iDIBin(3,mxBin),iDVBin(4,mxBin)
       Integer nRec(mxBin),nByte(mxBin),nInt(mxBin),mInt(3,mxBin)
-      Integer nOff1(mxBin),nOff2(mxBin)
 *
-      Common /Srt2/ lwIBin,lwVBin,
-     &              nRec,nByte,nInt,mInt,
-     &              iDIBin,iDVBin,
-     &              nOff1,nOff2,
-     &              LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,
-     &              MxOrd,lbin,ip_ValBin,ip_IndBin,ip_lIndx,ip_lInts
+      Integer LuTwo,LuTmp,iDaTw0,iDaTwo,iDaTmp,mDaTwo,mDaTmp,MxOrd,lbin
+*
+      Real*8, Allocatable:: ValBin(:)
+      Integer, Allocatable:: IndBin(:), lIndx(:), lInts(:)
+      Integer, Allocatable:: lwIBin(:,:)
+      Real*8,  Allocatable:: lwVBin(:,:)
+      End Module Srt2

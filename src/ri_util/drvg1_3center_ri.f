@@ -51,15 +51,17 @@
 ************************************************************************
       use k2_setup
       use iSD_data
+      use pso_stuff
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "pso.fh"
 #include "nsd.fh"
 #include "cholesky.fh"
 #include "setup.fh"
@@ -514,17 +516,20 @@ cVV: ifort 11 can't handle the code without this dummy print.
          nBas_Aux(0)=nBas_Aux(0)-1
          Call GetMem('Thhalf','Allo','Real',ip_Thhalf,maxnnP)
          nThpkl=MxChVInShl*MxInShl**2
-         Call GetMem('Thkxy','Allo','Real',ip_Thpkl,nThpkl)
+         Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 *
-         Call contract_Zpk_Tpxy(Work(ip_Z_p_k) ,nZ_p_k,
-     &                          Work(ip_Txy)   ,n_Txy,
+         Call contract_Zpk_Tpxy(Z_p_k ,nZ_p_k,
+     &                          Txy   ,n_Txy,
      &                          Work(ip_Thhalf),maxnnP,
-     &                          Work(ipDMdiag) ,nG1,
+     &                          DMdiag ,nG1,
      &                          nnP,nBas_Aux,
      &                          nADens,nAvec,nAct,nIrrep)
 *
          Call GetMem('Thhalf','Free','Real',ip_Thhalf,maxnnP)
          nBas_Aux(0)=nBas_Aux(0)+1
+      Else
+         nThpkl=1
+         Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
       End If
 *                                                                      *
 ************************************************************************
@@ -584,8 +589,9 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1=1
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -805,10 +811,10 @@ cVV: ifort 11 can't handle the code without this dummy print.
 #endif
            Call PGet0(iCmpa,iShela,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
            Pget3_CPU = Pget3_CPU + Pget0CPU2-Pget0CPU1
@@ -834,11 +840,12 @@ cVV: ifort 11 can't handle the code without this dummy print.
      &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &          Work(ipZeta),Work(ipZI),Work(ipP),nZeta,
-     &          Work(ipEta), Work(ipEI),Work(ipQ),nEta,
-     &          Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
+     &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
+     &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
+     &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel3_CPU = Twoel3_CPU + TwoelCPU2-TwoelCPU1
@@ -926,11 +933,9 @@ cVV: ifort 11 can't handle the code without this dummy print.
          End Do
       End If
 *
-      If (lPSO) Then
-         Call GetMem('Thpkl','Free','Real',ip_Thpkl,nThpkl)
-      EndIf
+      If (Allocated(Thpkl)) Call mma_deallocate(Thpkl)
 *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate(Sew_Scr)
       Call Free_Tsk2(id)
       Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))

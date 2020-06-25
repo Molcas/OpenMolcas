@@ -134,6 +134,7 @@ Felix Plasser
 Christian Pomelli  
 Ben Pritchard  
 Juraj Raab  
+Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
 Björn O. Roos  

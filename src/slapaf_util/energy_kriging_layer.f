@@ -7,8 +7,22 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Module Sew_Scratch
-      Real*8, Allocatable :: Scratch(:)
-      Integer MemMax_Int
-      End Module Sew_Scratch
+      Subroutine Energy_Kriging_Layer(qInt,Energy,nInter)
+      Use Limbo
+      Implicit None
+#include "stdalloc.fh"
+      Integer nInter
+      Real*8 qInt(nInter), Energy
+      Real*8, Allocatable:: qInt_s(:)
+*
+      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
+*
+      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Energy_Kriging(qInt_s,Energy,nInter)
+*
+      Call mma_deallocate(qInt_s)
+*
+      End Subroutine Energy_Kriging_Layer

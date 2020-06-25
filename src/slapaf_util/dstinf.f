@@ -19,6 +19,7 @@
       Character*100 Get_SuperName, SuperName
       External Get_SuperName
 #include "angstr.fh"
+#include "weighting.fh"
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
      &        Found, Numerical
@@ -269,22 +270,29 @@ CAOM -Call HSR (HSR is a function caused hanging with pgf90/mpp)
 *
        If (iAnd(iOptC,128).ne.128 .and. Stop ) Then
 *
+           Call GetMem('ReacV','Allo','Real',ipRV,3*nsAtom)
+           Call dcopy_(3*nsAtom,Work(ipMF),1,Work(ipRV),1)
+           Do i=0,nsAtom-1
+             xWeight=Work(ipWeights+i)
+             Call DScal_(3,One/xWeight,Work(ipRV+3*i),1)
+           End Do
            Call OutCoor('* The Cartesian Reaction vector'//
      &                  '                         *',
-     &                  AtomLbl,nsAtom,Work(ipMF),3,nsAtom,.True.)
+     &                  AtomLbl,nsAtom,Work(ipRV),3,nsAtom,.True.)
 
            Call f_Inquire('RUNREAC',Found)
            If (Found) Then
               Call NameRun('RUNREAC')
-              Call Put_dArray('Reaction Vector',Work(ipMF),3*nsAtom)
+              Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
            End If
            Call f_Inquire('RUNPROD',Found)
            If (Found) Then
               Call NameRun('RUNPROD')
-              Call Put_dArray('Reaction Vector',Work(ipMF),3*nsAtom)
+              Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
            End If
            Call NameRun('RUNFILE')
-           Call Put_dArray('Reaction Vector',Work(ipMF),3*nsAtom)
+           Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
+           Call GetMem('ReacV','Free','Real',ipRV,3*nsAtom)
            iDo_dDipM=0
            Call GF_on_the_fly(iDo_dDipM)
 *

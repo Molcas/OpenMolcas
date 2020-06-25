@@ -46,7 +46,6 @@
 #include "info.fh"
 #include "nq_info.fh"
 #include "grid_on_disk.fh"
-#include "k2.fh"
 #include "debug.fh"
 #include "ksdft.fh"
       Integer Maps2p(nShell,0:nSym-1),
@@ -128,35 +127,8 @@ c        Call append_file(LuMT)
 *----- Desymmetrize the 1-particle density matrix
 *
       Call Allok2_Funi(nD)
-      Call DeDe_Funi(Density,nFckInt,nD,mDens,ipDq)
+      Call DeDe_Funi(Density,nFckInt,nD)
 *
-*----- Setup for differential Rho
-*
-#ifdef _RDIFF_
-      iDisk_Now=iDisk_Grid
-      If (Grid_Status.eq.Use_Old.and..Not.Do_Grad.and.
-     &    Functional_Type.eq.Old_Functional_Type) Then
-*
-*---------Read desymmetrized densities from previous iteration
-*
-         Call Allocate_Work(ipDOld,nDeDe_DFT)
-         Call dDaFile(Lu_Grid,2,Work(ipDOld),nDeDe_DFT,iDisk_Now)
-*
-      End If
-*
-      Call dDaFile(Lu_Grid,1,Work(ipDeDe),nDeDe_DFT,iDisk_Grid)
-*
-      If (Grid_Status.eq.Use_Old.and..Not.Do_Grad.and.
-     &    Functional_Type.eq.Old_Functional_Type) Then
-*
-*------- Form the differential desymmetrized density
-*
-         Call DaXpY_(nDeDe_DFT,-One,Work(ipDOld),1,Work(ipDeDe),1)
-         Call Free_Work(ipDOld)
-*
-      End If
-#endif
-
       If(l_casdft.and.do_pdftPot) then
         CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
@@ -248,7 +220,7 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     AOInt,nAOInt,FckInt,nFckDim,nFckInt,
      &                     SOTemp,nSOTemp,
-     &                     Work(ipDq),mDens,nD,
+     &                     Density,nFckInt,nD,
      &                     Grid,Weights,Rho,mGrid,nRho,
      &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
@@ -302,7 +274,7 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 *---- Free memory associated with the density
 *
-      Call Free_DeDe_Funi(Density,nFckInt,ipDq)
+      Call Free_DeDe_Funi()
 *
 *---- Free memory for angular grids
 *
@@ -312,6 +284,7 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*#define _DEBUG_
 #ifdef _DEBUG_
       Debug=.True.
       If (Debug.and..Not.Do_Grad) Then

@@ -623,7 +623,6 @@ c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
-      Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
       Call Free_Work(ip_Fact)
       Call GetMem('s2p','Free','Inte',ips2p,nshell)
       NQ_Status=Inactive

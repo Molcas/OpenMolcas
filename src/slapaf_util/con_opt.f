@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2003, Roland Lindh                                     *
+* Copyright (C) 2003, 2020 Roland Lindh                                *
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
-     &                   Hess,nInter,nIter,iOptC,Mode,ipMF,
+     &                   Hess,nInter,nIter,iOptC,Mode,MF,
      &                   iOptH,HUpMet,jPrint_,Energy,nLambda,
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
-     &                   Beta,nFix,iP,UpMeth,
+     &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
-     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght)
+     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
+     &                   iOpt_RS,Thr_RS,iter_)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -28,8 +29,6 @@
 *                                                                      *
 *             L(q,l) = E(q) - l^T r(q)                                 *
 *                                                                      *
-*                                                                      *
-*                                                                      *
 *             Ref:                                                     *
 *             "A Reduced-Restricted-Quasi-Newton-Raphson Method for    *
 *              Locating and Optimizing Energy Crossing Points Between  *
@@ -37,6 +36,11 @@
 *             J. M. Anglada and J. M. Bofill,                          *
 *             J. Comput. Chem., 18, 992-1003 (1997)                    *
 *                                                                      *
+*             For more details consult:                                *
+*             "New General Tools for Constrained Geometry Optimization"*
+*             L. De Vico, M. Olivucci, and R. Lindh,                   *
+*             JCTC, 1:1029-1037, 2005                                  *
+*             DOI: 10.1021/ct500949                                    *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, SWEDEN                               *
@@ -44,7 +48,7 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
      &       T(nInter,nInter), dEdq(nInter,nIter),
      &       rLambda(nLambda,nIter+1), q(nInter,nIter+1),
@@ -56,26 +60,44 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda)
+     &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
+     &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup
+      Logical Line_Search, Found, IRC_setup, Corrected
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
+      Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
+      Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
+     &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
+     &                      Hessian(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-      If (jPrint.ge.99) Then
-         Call RecPrt('r',' ',r,nLambda,nIter)
-         Call RecPrt('drdq(orig)',' ',drdq,nInter,nLambda*nIter)
-         Call RecPrt('dEdq',' ',dEdq,nInter,nIter)
-         Call RecPrt('Energy',' ',Energy,nIter,1)
-         Call RecPrt('q',' ',q,nInter,nIter+1)
-         Call RecPrt('T',' ',T,nInter,nInter)
-         Do iLambda = 1, nLambda
-            Call RecPrt('d2rdq2',' ',d2rdq2(1,1,iLambda),nInter,nInter)
-         End Do
-      End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*) '****************************************************'
+      Write (6,*) '**** Con_Opt: Input data ***************************'
+      Write (6,*) '****************************************************'
+      Write (6,*)
+      Write (6,*) 'iOpt_RS=',iOpt_RS
+      Write (6,*)
+      Call RecPrt('Con_Opt: Energy',' ',Energy,nIter,1)
+      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter)
+      Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
+      Call RecPrt('Con_Opt: Hess(in)',' ',Hess,nInter,nInter)
+      Call RecPrt('Con_Opt: r',' ',r,nLambda,nIter)
+      Do iIter = 1, nIter
+         Write (6,*)' iIter=',iIter
+         Call RecPrt('Con_Opt: drdq(orig)',' ',drdq(1,1,iIter),
+     &               nInter,nLambda)
+      End Do
+      Do iLambda = 1, nLambda
+         Call RecPrt('Con_Opt: d2rdq2(iLambda)',' ',
+     &                            d2rdq2(1,1,iLambda),nInter,nInter)
+      End Do
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -90,11 +112,89 @@
       dxdx_last=Beta
       Sf=Sqrt(Two)
       dxdx=Zero
+      dydy=Zero
       Thr=1.0D-6
-      Call GetMem('dqtmp','Allo','Real',ipdq,nInter)
+      Beta_Disp_Min=1.0D-10
       Call Get_iScalar('iOff_Iter',iOff_Iter)
-      Do iIter = iOff_Iter+1, nIter
+      Call mma_allocate(dq_xy,nInter,Label='dq_xy')
+      Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
+*
 *                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      iSt=Max(iOff_Iter+1,nIter-nWndw+1)
+      Do iIter = iSt, nIter
+*     Do iIter = iOff_Iter+1, nIter
+#ifdef _DEBUG_
+         Write (6,*)
+         Write (6,*) '>>>>>> iIter=',iIter
+         Write (6,*)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- Compute the lambdas values (Eqn. 17)
+*
+*        dEdq=drdq l ; from  h(q_0,l)=dEdq - drdq l = 0
+*
+*        drdq^T dEdq= (drdq^T drdq) l
+*
+*        l =  (drdq^T drdq)^{-1} drdq^T dEdq
+*
+         Call mma_allocate(RRR,nLambda,nInter,Label='RRR')
+         Call mma_allocate(RRInv,nLambda,nLambda,Label='RRInv')
+         Call mma_allocate(RR,nLambda,nLambda,Label='RR')
+*
+*        drdq^T drdq
+*
+         RR(:,:)=Zero
+         Call DGEMM_('T','N',nLambda,nLambda,nInter,
+     &               1.0d0,drdq(1,1,iIter),nInter,
+     &                     drdq(1,1,iIter),nInter,
+     &               0.0d0,RR,nLambda)
+*
+*        (drdq^T drdq)^{-1}
+*
+         Call MInv(RR,RRInv,iSing,Det,nLambda)
+         Call mma_deallocate(RR)
+*
+*        (drdq^T drdq)^{-1} drdq^T
+*
+         RRR(:,:)=Zero
+         Call DGEMM_('N','T',nLambda,nInter,nLambda,
+     &               1.0d0,RRInv,nLambda,
+     &                     drdq(1,1,iIter),nInter,
+     &               0.0d0,RRR,nLambda)
+         Call mma_deallocate(RRInv)
+*
+*        l = (T_b^T drdq)^{-1} drdq^T dEdq
+*
+*        Note the sign conflict due to dEdq stored as a force.
+*
+         rLambda(:,iIter)=Zero
+         Call DGEMM_('N','N',nLambda,1,nInter,
+     &              -1.0d0,RRR,nLambda,    ! Sign conflict
+     &                     dEdq(1,iIter),nInter,
+     &               0.0d0,rLambda(1,iIter),nLambda)
+         Call mma_deallocate(RRR)
+#ifdef _DEBUG_
+         Call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
+#endif
+      End Do
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      Do iIter = iSt, nIter
+*     Do iIter = iOff_Iter+1, nIter
+#ifdef _DEBUG_
+         Write (6,*)
+         Write (6,*) '>>>>>> iIter=',iIter
+         Write (6,*)
+#endif
+*                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *------- If we have that the derivative of the constraint is a null
@@ -105,9 +205,14 @@
 *        it with the reaction vector.
 *
          Do iLambda = 1, nLambda
-            RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+            RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                          drdq(1,iLambda,iIter),1))
-            If (RR.lt.1.0D-12) Then
+*
+*           Make sure that we dont mess up gradients which are zero vectors.
+*
+            If ( RR_.lt.1.0D-12 ) Then
+*           If ( RR_.lt.1.0D-12 .and.
+*    &           Abs(r(iLambda,iIter)).gt.1.0D-12 ) Then
 *
                xBeta = xBeta*Half
 *
@@ -133,28 +238,26 @@
                End If
                r(iLambda,iIter)=Zero
 *
-               If (IRC_SetUp) Then
-                  Call ReacQ(Work(ipMF),3*nsAtom,
-     &                       dEdq(1,        iIter),nInter)
-               End If
+               If (IRC_SetUp) Call ReacQ(MF,3*nsAtom,dEdq(1,iIter),
+     &                                   nInter)
 *
-*              Try to use the transverse direction if the gradient is too small
+*              Try to use the transverse direction if the gradient is
+*              too small
 *
-               RR=Sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
-               If (RR.lt.1.0D-12) Then
+               RR_=Sqrt(DDot_(nInter,dEdq(1,iIter),1,dEdq(1,iIter),1))
+               If (RR_.lt.1.0D-12) Then
                   Call qpg_dArray('Transverse',Found,nTrans)
                   If (Found.and.(nTrans.eq.3*nsAtom)) Then
-                     Call Allocate_Work(ipTrans,3*nsAtom)
-                     Call Get_dArray('Transverse',Work(ipTrans),nTrans)
-                     Call ReacQ(Work(ipTrans),3*nsAtom,
-     &                          dEdq(1,iIter),nInter)
-                     RR=Sqrt(DDot_(nInter,dEdq(1,iIter),1,
+                     Call mma_Allocate(Trans,3*nsAtom,Label='Trans')
+                     Call Get_dArray('Transverse',Trans,nTrans)
+                     Call ReacQ(Trans,3*nsAtom,dEdq(1,iIter),nInter)
+                     RR_=Sqrt(DDot_(nInter,dEdq(1,iIter),1,
      &                                   dEdq(1,iIter),1))
-                     Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
-                     Call Free_Work(ipTrans)
+                     Call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
+                     Call mma_deallocate(Trans)
                   End If
                Else
-                  Call DScal_(nInter,One/RR,dEdq(1,iIter),1)
+                  Call DScal_(nInter,One/RR_,dEdq(1,iIter),1)
                End If
 *
                Do iInter = 1, nInter
@@ -165,8 +268,10 @@ c    &              dEdq(iInter,iIter)
                   If (Abs(dEdq(iInter,iIter)).le.1.0D-6)
      &               drdq(iInter,iLambda,iIter) = Zero
                End Do
-               If (jPrint.ge.99)
-     &         Call RecPrt('drdq(1)',' ',drdq,nInter,nLambda*nIter)
+#ifdef _DEBUG_
+               Call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,
+     &                                            nLambda*nIter)
+#endif
 *
 *------------- Orthogonalize against the gradient and all other
 *              constraints
@@ -175,133 +280,164 @@ c    &              dEdq(iInter,iIter)
      &                        dEdq(1,        iIter),1)
                Call DaXpY_(nInter,-RG,dEdq(1,        iIter),1,
      &                                drdq(1,iLambda,iIter),1)
-               RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+               RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                             drdq(1,iLambda,iIter),1))
-C              Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
+C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                Do jLambda = 1, nLambda
                   If (jLambda.ne.iLambda) Then
                      RG=DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                              drdq(1,jLambda,iIter),1)
                      Call DaXpY_(nInter,-RG,drdq(1,jLambda,iIter),1,
      &                                     drdq(1,iLambda,iIter),1)
-                     RR=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
+                     RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                                   drdq(1,iLambda,iIter),1))
-                     Call DScal_(nInter,One/RR,drdq(1,iLambda,iIter),1)
+                     Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                   End If
                End Do
 *
                Continue
-               If (jPrint.ge.99)
-     &         Call RecPrt('drdq(2)',' ',drdq,nInter,nLambda*nIter)
+#ifdef _DEBUG_
+               Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
+     &                                            nLambda*nIter)
+#endif
             End If
          End Do
+************************************************************************
 *                                                                      *
+*        NOTE: for historical reasons the code stores the force rather *
+*              than the gradient. Hence, be careful of the sign when   *
+*              ever the term dEdq, dEdq_h show up.                     *
+*                                                                      *
+*                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *------- Set up the T-matrix which separates the space into the
 *        subspace in which the constraint is accomplished and
 *        the complemental subspace.
 *
+*        [T_b,T_{ti}]
+*
+*        With the properties
+*
+*        drdq^T T_b =/= 0 (but not = 1, see note below)
+*
+*        drdq^T T_{ti} = T_b^T T_{ti} = 0
+*
+*        T_{ti}^T T_{ti} = 1
+*
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
-C        Call RecPrt('T-Matrix',' ',T,nInter,nInter)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
+         Call RecPrt('Con_Opt: T_b',' ',T(1,ipTB),nInter,nLambda)
+         Call RecPrt('Con_Opt: T_ti',' ',T(1,ipTti),nInter,
+     &                                              nInter-nLambda)
+#endif
+*                                                                      *
+*       Note that the paper by Anglada and Bofill has some errors on   *
+*       the properties of T. Especially with respect to the properties *
+*       of T_b.                                                        *
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*------- Compute delta y  (Eqn. 11)
+*------- Compute delta y  (Eqn. 11) -- in case of full relaxation --
 *
-         Call Allocate_Work(ipRTInv,nLambda**2)
-         Call Allocate_Work(ipRT,nLambda**2)
-         Call FZero(Work(ipRT),nLambda**2)
-         Call DGEMM_('T','N',
-     &               nLambda,nLambda,nInter,
+*        r(q)+drdq^T dq=0
+*
+*        dq = [T_b, T_{ti}] (dy,dx)^T
+*
+*        r(q) = - drdq^T T_b dy - drdq^T T_{ti} dx
+*
+*        r(q) = - drdq^T T_b dy
+*
+*        dy = - (drdq^T T_b)^{-1} r(q)
+*
+         Call mma_Allocate(RTInv,nLambda,nLambda,Label='RTInv')
+         Call mma_Allocate(RT   ,nLambda,nLambda,Label='RT   ')
+         RT(:,:) = Zero
+*
+*        drdq^T T_b
+*
+         Call DGEMM_('T','N',nLambda,nLambda,nInter,
      &               1.0d0,drdq(1,1,iIter),nInter,
-     &               T(1,ipTb),nInter,
-     &               0.0d0,Work(ipRT),nLambda)
-         Call MInv(Work(ipRT),Work(ipRTInv),iSing,Det,nLambda)
-         Call Free_Work(ipRT)
-         Call FZero(dy,nLambda)
-         Call DGEMM_('N','N',
-     &               nLambda,1,nLambda,
-     &               1.0d0,Work(ipRTInv),nLambda,
-     &               r(1,iIter),nLambda,
+     &                     T(1,ipTb),nInter,
+     &               0.0d0,RT,nLambda)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: RT',' ',RT,nLambda,nLambda)
+#endif
+*
+         Call MInv(RT,RTInv,iSing,Det,nLambda)
+         Call mma_deallocate(RT)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: RTInv',' ',RTInv,nLambda,nLambda)
+#endif
+*
+*        dy = - (drdq^T T_b)^{-1} r(q)
+*
+         dy(:)=Zero
+         Call DGEMM_('N','N',nLambda,1,nLambda,
+     &              -1.0d0,RTInv,nLambda,
+     &                     r(1,iIter),nLambda,
      &               0.0d0,dy,nLambda)
-         Call Free_Work(ipRTInv)
-*
-         Call DScal_(nLambda,-One,dy,1)
-         If (jPrint.ge.99) Call RecPrt('dy',' ',dy,nLambda,1)
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Compute new lambdas (Eqn. 17)
-*
-         Call Allocate_Work(ipTRT,nLambda*nInter)
-         Call FZero(Work(ipTRT),nLambda*nInter)
-         Call Allocate_Work(ipTRInv,nLambda**2)
-         Call Allocate_Work(ipTR,nLambda**2)
-         Call FZero(Work(ipTR),nLambda**2)
-*
-         Call DGEMM_('T','N',
-     &               nLambda,nLambda,nInter,
-     &               1.0d0,drdq(1,1,iIter),nInter,
-     &               drdq(1,1,iIter),nInter,
-     &               0.0d0,Work(ipTR),nLambda)
-*
-         Call MInv(Work(ipTR),Work(ipTRInv),iSing,Det,nLambda)
-         Call Free_Work(ipTR)
-         Call DGEMM_('N','T',
-     &               nLambda,nInter,nLambda,
-     &               1.0d0,Work(ipTRInv),nLambda,
-     &               drdq(1,1,iIter),nInter,
-     &               0.0d0,Work(ipTRT),nLambda)
-         Call Free_Work(ipTRInv)
-         Call FZero(rLambda(1,iIter),nLambda)
-         Call DGEMM_('N','N',
-     &               nLambda,1,nInter,
-     &               1.0d0,Work(ipTRT),nLambda,
-     &               dEdq(1,iIter),nInter,
-     &               0.0d0,rLambda(1,iIter),nLambda)
-         Call Free_Work(ipTRT)
-*
-         Call DScal_(nLambda,-One,rLambda(1,iIter),1) ! Sign
+         Call mma_deallocate(RTInv)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: dy(full)',' ',dy,nLambda,1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        Add contributions from constraints according to the last
-*        iterations. See Eqn. 7
+*        iterations. See Eqn. 7,
 *
-*        W^0 = H^0 - Sum(i) l_i d2rdq2(q_0)
+*        The Hessian of the Lagranian expressed in the full space.
 *
-         If (iIter.eq.nIter) Then
+*        W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)
+         If (iOpt_RS.eq.0) Then
+            Hessian(:,:) = Hess(:,:)
+            If (iIter.eq.nIter) Then
+               Do iLambda = 1, nLambda
+                  Call DaXpY_(nInter**2,-rLambda(iLambda,nIter),
+     &                                  d2rdq2(1,1,iLambda),1,Hessian,1)
+               End Do
+            End If
+         Else
+            Call Hessian_Kriging_Layer(q(1,iIter),Hessian,nInter)
             Do iLambda = 1, nLambda
-               Call DaXpY_(nInter**2,-rLambda(iLambda,nIter),
-     &                    d2rdq2(1,1,iLambda),1,Hess,1)
+               Call DaXpY_(nInter**2,-rLambda(iLambda,iIter),
+     &                               d2rdq2(1,1,iLambda),1,Hessian,1)
             End Do
          End If
+#ifdef _DEBUG_
+         Call RecPrt('W',' ',Hessian,nInter,nInter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *------- Transform various vectors and matrices to the nInter-nLambda
 *        subspace. See Eqn. 10 and text following.
 *
-*------- Compute x
+*------- Compute x, the coordinates of the reduced space.
 *
          If (nInter-nLambda.gt.0) Then
 *
-            Call FZero(x(1,iIter),nInter-nLambda)
-            Call DGEMM_('T','N',
-     &                  nInter-nLambda,1,nInter,
+*           q = T_b y + T_{ti} x = T [y,x]^T
+*
+*           x = T_{ti}^T q, since T_{ti}^T T_b = 0
+*
+            x(:,iIter)=Zero
+            Call DGEMM_('T','N',nInter-nLambda,1,nInter,
      &                  1.0d0,T(1,ipTti),nInter,
-     &                  q(1,iIter),nInter,
+     &                        q(1,iIter),nInter,
      &                  0.0d0,x(1,iIter),nInter-nLambda)
 *
 *---------- Compute dx
 *
-            Call FZero(dx(1,iIter),nInter-nLambda)
-            Call DGEMM_('T','N',
-     &                  nInter-nLambda,1,nInter,
+*           dx = T_{ti}^T dq
+*
+            dx(:,iIter)=Zero
+            Call DGEMM_('T','N',nInter-nLambda,1,nInter,
      &                  1.0d0,T(1,ipTti),nInter,
-     &                  dq(1,iIter),nInter,
+     &                        dq(1,iIter),nInter,
      &                  0.0d0,dx(1,iIter),nInter-nLambda)
 *
 *           Compute step restriction based on information from the
@@ -312,16 +448,20 @@ C        Call RecPrt('T-Matrix',' ',T,nInter,nInter)
 *
 *              Compute dq step in the x subspace
 *
-               Call FZero(du,nInter)
+*              du = [0,dx]^T
+*
+*              dq = T [0,dx]^T
+*
+               du(:)=Zero
                call dcopy_(nInter-nLambda,dx(1,iIter),1,du(1+nLambda),1)
-               Call DGEMM_('N','N',
-     &                     nInter,1,nInter,
+               dq_xy(:)=Zero
+               Call DGEMM_('N','N',nInter,1,nInter,
      &                     One,T,nInter,
-     &                     du,nInter,
-     &                     Zero,Work(ipdq),nInter)
-               dxdx=Sqrt(DDot_(nInter,Work(ipdq),1,Work(ipdq),1))
+     &                         du,nInter,
+     &                     Zero,dq_xy,nInter)
+               dxdx=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
 *              dxdx=Sqrt(DDot_(nInter-nLambda,dx(1,iIter),1,
-*    &                                       dx(1,iIter),1))
+*    &                                        dx(1,iIter),1))
 *
                If (dxdx.lt.0.75D0*dxdx_last.and.
      &             dxdx.lt.(Beta-Thr)) Then
@@ -339,49 +479,73 @@ C
 C              Write (6,*) 'dxdx=',dxdx
 C              Write (6,*) 'xBeta=',xBeta
             End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *---------- Compute the reduced gradient, observe again that we store
 *           the forces rather than the gradients.
 *
 *           See text after Eqn. 13.
 *
-            Call Allocate_Work(ipTmp1,nInter)
-            Call Allocate_Work(ipTmp3,nInter)
-            Call FZero(Work(ipTmp3),nInter)
-            Call Allocate_Work(ipTmp2,nInter*nLambda)
-            Call FZero(Work(ipTmp2),nInter*nLambda)
-            call dcopy_(nInter,dEdq(1,iIter),1,Work(ipTmp1),1)
+*           dEdx = T_{ti}^T (dEdq + W_{ex}T_b dy)
 *
-            Call DGEMM_('N','N',
-     &                  nInter,nLambda,nInter,
-     &                  1.0d0,Hess,nInter,
-     &                  T(1,ipTb),nInter,
-     &                  0.0d0,Work(ipTmp2),nInter)
+            Call mma_allocate(Tmp1,nInter,Label='Tmp1')
+            Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
 *
-            Call DGEMM_('N','N',
-     &                  nInter,1,nLambda,
-     &                  1.0d0,Work(ipTmp2),nInter,
-     &                  dy,nLambda,
-     &                  0.0d0,Work(ipTmp3),nInter)
-            Call Free_Work(ipTmp2)
-!           Sign
-            Call DaXpY_(nInter,-One,Work(ipTmp3),1,Work(ipTmp1),1)
+#ifdef _DEBUG_
+            Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
+            Call RecPrt('Con_Opt: W',' ',Hessian,nInter,nInter)
+            Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
+            Write (6,*) 'ipTb,ipTti=',ipTb,ipTti
+            Call RecPrt('Con_Opt: dy',' ',dy,1,nLambda)
+#endif
 *
-            Call Free_Work(ipTmp3)
-            Call FZero(dEdx(1,iIter),nInter-nLambda)
-            Call DGEMM_('T','N',
-     &                  nInter-nLambda,1,nInter,
+*           W_{ex} T_b
+*
+            Tmp2(:,:)=Zero
+            Call DGEMM_('N','N',nInter,nLambda,nInter,
+     &                  1.0d0,Hessian,nInter,
+     &                        T(1,ipTb),nInter,
+     &                  0.0d0,Tmp2,nInter)
+#ifdef _DEBUG_
+            Call RecPrt('W_{ex} T_b',' ',Tmp2,nInter,nLambda)
+#endif
+*
+*           dEdq + W_{ex} T_b dy
+*
+*           Since we are computing the force we have the conflicting
+*           sign below.
+*
+            Tmp1(:)=dEdq(:,iIter)
+            Call DGEMM_('N','N',nInter,1,nLambda,
+     &                 -1.0d0,Tmp2,nInter,   ! Sign conflict
+     &                        dy,nLambda,
+     &                  1.0d0,Tmp1,nInter)
+            Call mma_deallocate(Tmp2)
+#ifdef _DEBUG_
+            Call RecPrt('dEdq + W_{ex} T_b dy',' ',Tmp1,1,nInter)
+#endif
+*
+*           dEdx = T^t_{ti} (dEdq + W_{ex} T_b dy)
+*
+            dEdx(:,iIter)=Zero
+            Call DGEMM_('T','N',nInter-nLambda,1,nInter,
      &                  1.0d0,T(1,ipTti),nInter,
-     &                  Work(ipTmp1),nInter,
+     &                        Tmp1,nInter,
      &                  0.0d0,dEdx(1,iIter),nInter-nLambda)
-            Call Free_Work(ipTmp1)
+#ifdef _DEBUG_
+            Write (6,*) 'iIter=',iIter
+            Call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,
+     &                  nInter-nLambda)
+#endif
+            Call mma_deallocate(Tmp1)
 *
 *           Compute step restriction based on information from the
 *           minimization in the x subspace. This restriction is based
 *           on the gradient in the x subspace.
 *
             gg=Sqrt(DDot_(nInter-nLambda,dEdx(1,iIter),1,
-     &                                  dEdx(1,iIter),1))
+     &                                   dEdx(1,iIter),1))
             If (gg.lt.0.75D0*gg_last.and.gg.lt.(Beta-Thr)) Then
 *              Increase trust radius
                gBeta=Min(One,gBeta*Sf)
@@ -397,54 +561,78 @@ C           Write (6,*) 'gBeta=',gBeta
          End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-*------- Add contributions to the energy change
+*------- Add contributions to the Lagranian energy change
 *
          If (iIter.eq.nIter) Then
 *
 *---------- Term due to constraint
 *
-            Call Allocate_Work(ipTmp,nLambda)
-            Call FZero(Work(ipTmp),nLambda)
-            Call Allocate_Work(ip_Tdy,nInter)
-            Call FZero(Work(ip_Tdy),nInter)
-            Call DGEMM_('N','N',
-     &                  nInter,1,nLambda,
+            Call mma_allocate(Tmp1,nLambda,Label='Tmp1')
+            Call mma_allocate(Tdy,nInter,Label='Tdy')
+*
+*           T_b dy
+*
+            Tdy(:)=Zero
+            Call DGEMM_('N','N',nInter,1,nLambda,
      &                  1.0d0,T(1,ipTb),nInter,
-     &                  dy,nLambda,
-     &                  0.0d0,Work(ip_Tdy),nInter)
-            Call DGEMM_('T','N',
-     &                  nLambda,1,nInter,
+     &                        dy,nLambda,
+     &                  0.0d0,Tdy,nInter)
+*
+*           drdq^T dq = drdq^T T_b dy
+*
+            Tmp1(:)=Zero
+            Call DGEMM_('T','N',nLambda,1,nInter,
      &                  1.0d0,drdq(1,1,iIter),nInter,
-     &                  Work(ip_Tdy),nInter,
-     &                  0.0d0,Work(ipTmp),nLambda)
-            Call Free_Work(ip_Tdy)
-            Call DaXpY_(nLambda,One,r(1,iIter),1,Work(ipTmp),1)
-            ed = ed - DDot_(nLambda,rLambda(1,iIter),1,Work(ipTmp),1)
-            Call Free_Work(ipTmp)
+     &                        Tdy,nInter,
+     &                  0.0d0,Tmp1,nLambda)
+            Call mma_deallocate(Tdy)
+*
+*           r + drdq^T dq
+*
+            Call DaXpY_(nLambda,One,r(1,iIter),1,Tmp1,1)
+*
+*           l^T (r + drdq^T dq)
+*
+            ed = ed - DDot_(nLambda,rLambda(1,iIter),1,Tmp1,1)
+            Call mma_deallocate(Tmp1)
 *
 *---------- Term due to coupling
 *
-            Call Allocate_Work(ip_Tr,nInter)
-            Call FZero(Work(ip_Tr),nInter)
-            Call DGEMM_('N','N',
-     &                  nInter,1,nLambda,
+            Call mma_allocate(Tr,nInter,Label='Tr')
+*
+*           T_b dy
+*
+            Tr(:)=Zero
+            Call DGEMM_('N','N',nInter,1,nLambda,
      &                  1.0d0,T(1,ipTb),nInter,
-     &                  dy,nLambda,
-     &                  0.0d0,Work(ip_Tr),nInter)
-            ed = ed + DDot_(nInter,Work(ip_Tr),1,dEdq,1) ! Sign
-            Call Allocate_Work(ip_WTr,nInter)
-            Call FZero(Work(ip_WTr),nInter)
-            Call DGEMM_('N','N',
-     &                  nInter,1,nInter,
-     &                  1.0d0,Hess,nInter,
-     &                  Work(ip_Tr),nInter,
-     &                  0.0d0,Work(ip_WTr),nInter)
-            ed = ed + Half * DDot_(nInter,Work(ip_Tr),1,Work(ip_WTr),1)
-            Call Free_Work(ip_WTr)
-            Call Free_Work(ip_Tr)
+     &                        dy,nLambda,
+     &                  0.0d0,Tr,nInter)
+*
+*           dEdq^T T_b dy
+*
+*           Note the sign conflict.
+*
+            ed = ed - DDot_(nInter,Tr,1,dEdq,1)
+*
+            Call mma_allocate(WTr,nInter,Label='WTr')
+*
+*           W T_b dy
+*
+            WTr(:)=Zero
+            Call DGEMM_('N','N',nInter,1,nInter,
+     &                  1.0d0,Hessian,nInter,
+     &                        Tr,nInter,
+     &                  0.0d0,WTr,nInter)
+*
+*            dy^T T_b^T W T_b dy
+            ed = ed + Half * DDot_(nInter,Tr,1,WTr,1)
+            Call mma_deallocate(WTr)
+            Call mma_deallocate(Tr)
          End If
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *------- Restrict actual step, dy
@@ -453,95 +641,177 @@ C           Write (6,*) 'gBeta=',gBeta
 *        priority. This step is only reduced if it is larger than
 *        half the overall step restriction.
 *
-*        Compute dq step in the y subspace
+         If (iOpt_RS.eq.0) Then
 *
-         Call FZero(du,nInter)
-         call dcopy_(nLambda,dy,1,du,1)
-         Call DGEMM_('N','N',
-     &               nInter,1,nInter,
-     &               One,T,nInter,
-     &               du,nInter,
-     &               Zero,Work(ipdq),nInter)
-         dydy=Sqrt(DDot_(nInter,Work(ipdq),1,Work(ipdq),1))
+*           Compute dq step in the y subspace
 *
-*        Reduce y step size if larger than some maximum size
-*        (the x step or half the total max step times a factor)
-*
-         dydymax=CnstWght*max(dxdx,Half*Beta)
-         If (dydy.gt.dydymax) Then
-*           Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
-            Call DScal_(nLambda,dydymax/dydy,dy,1)
-            dydy=dydymax
-         End If
-*
-*        The step reduction in the space which we minimize is such that
-*        while the fulfillment of the constraint is not improving from
-*        step to step we reduce the step length in the subspace in which
-*        we do the minimization.
+*           dq_y = T [dy, 0]^T
 
-C        If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-5) Then
-         If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-2) Then
-*---------- Recent step in the space for the restriction is smaller than
-*           the previous, or the recent step is smaller than some
-*           threshold. Then increase step length for x, however not
-*           more than the overall step restriction.
-C           yBeta=Min(One,yBeta*Sf)
-C           yBeta=yBeta*Sf
-            yBeta=Min(Two,yBeta*Sf)
-         Else If (dydy.gt.1.25D0*dydy_last.and.dydy.ge.1.0D-5) Then
-*           Otherwise decrease step direction.
-            yBeta=Max(One/Ten,yBeta/Sf)
+            du(:)=Zero
+            du(1:nLambda)=dy(:)
+            dq_xy(:)=Zero
+            Call DGEMM_('N','N',nInter,1,nInter,
+     &                  One,T,nInter,
+     &                      du,nInter,
+     &                  Zero,dq_xy,nInter)
+*
+            dydy=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
+*
+*
+*           Reduce y step size if larger than some maximum size
+*           (the x step or half the total max step times a factor)
+*
+            dydymax=CnstWght*max(dxdx,Half*Beta)
+            If (dydy.gt.dydymax) Then
+*              Write (6,*) 'Reduce dydy!',dydy,' -> ',dydymax
+               Call DScal_(nLambda,dydymax/dydy,dy,1)
+               dydy=dydymax
+               Step_Trunc='*'
+            Else
+*              Write (6,*) 'No reduce dydy!',dydy,' < ',dydymax
+               Step_Trunc=' '
+            End If
+*
+*           The step reduction in the space which we minimize is such
+*           that while the fulfillment of the constraint is not
+*           improving from step to step we reduce the step length in
+*           the subspace in which we do the minimization.
+
+            If (dydy.lt.0.75D0*dydy_last.or.dydy.lt.1.0D-2) Then
+*------------- Recent step in the space for the restriction is smaller
+*              than the previous, or the recent step is smaller than
+*              some threshold. Then increase step length for x, however
+*              not more than the overall step restriction.
+               yBeta=Min(Two,yBeta*Sf)
+            Else If (dydy.gt.1.25D0*dydy_last.and.dydy.ge.1.0D-5) Then
+*              Otherwise decrease step direction.
+               yBeta=Max(One/Ten,yBeta/Sf)
+            End If
+         Else
+*
+*           Here in the case of kriging and restricted-variance
+*           optimization.
+*
+            iCount=1
+            iCount_Max=100
+            If (Step_Trunc.eq.'N') Step_Trunc=' '
+            Fact=One
+*
+*           We only need this for the last point.
+*
+            If (iIter.ne.nIter) Go to 667
+*
+            tmp=0.0D0
+            Do i = 1, nLambda
+               Do j = 1, nInter
+                  tmp = Max(tmp,Abs(drdq(j,i,iIter)))
+               End Do
+            End Do
+            tmp=Min(tmp,0.30D0) ! Some constraints can have huge
+                                ! gradients. So be a bit careful.
+            Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
+*
+#ifdef _DEBUG_
+            Write (6,*) 'Step_trunc=',Step_trunc
+            Write (6,*) 'Beta_Disp_=',Beta_Disp_
+            Write (6,*) 'Start: dy(:)=',dy(:)
+#endif
+*
+            If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
+*
+ 666        Continue
+            du(1:nLambda)=(One/Fact)*dy(:)
+            du(1+nLambda:nInter)=Zero
+            Call Backtrans_K(T,du,dq_xy,nInter,1)
+            q(:,iIter+1)=q(:,iIter)+dq_xy(:)
+*
+            Call Dispersion_Kriging_Layer(q(1,iIter+1),dydy,nInter)
+*
+            If (iCount.eq.1) Then
+               Fact_long=Fact
+               dydy_long=dydy
+               Fact_short=Zero
+               dydy_short=dydy_long+One
+            End If
+#ifdef _DEBUG_
+            Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
+#endif
+            If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
+               If (Abs(Beta_Disp_-dydy).lt.Thr_RS) Go To 667
+               iCount=iCount+1
+               If (iCount.gt.iCount_Max) Then
+                  Write (6,*) 'iCount.gt.iCount_Max'
+                  Call Abend()
+               End If
+               Call Find_RFO_Root(Fact_long,dydy_long,
+     &                            Fact_short,dydy_short,
+     &                            Fact,dydy,Beta_Disp_)
+               Step_Trunc='*'
+               Go To 666
+            End If
+ 667        Continue
+            dy(:)=(One/Fact)*dy(:)
+#ifdef _DEBUG_
+            Write (6,*) 'Step_trunc=',Step_trunc
+            Write (6,*) 'Final: dy(:)=',dy(:)
+#endif
+*
          End If
 *
 *        Twist for MEP optimizations.
 *
          If (iIter.eq.iOff_iter+1 .and. dydy.lt.1.0D-4
-     &       .and. iIter.ne.1) Then
-*           yBeta=Beta/Ten
-            xBeta=xBeta*Half
-         End If
-C        Write (6,*) 'dydy_last=',dydy_last
-C        Write (6,*) 'dydy=',dydy
+     &       .and. iIter.ne.1) xBeta=xBeta*Half
          dydy_last=dydy
-C        Write (6,*) 'yBeta=',yBeta
 *
-         If (jPrint.ge.99) Call RecPrt('dy(actual)',' ',dy,nLambda,1)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: dy(actual)',' ',dy,nLambda,1)
+#endif
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-      End Do
-      Call GetMem('dqtmp','Free','Real',ipdq,nInter)
+      End Do ! Do iIter = iOff_Iter+1, nIter
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *
-      If (jPrint.ge.99) Then
-         Call RecPrt('dEdx',' ',dEdx,nInter-nLambda,nIter)
-         Call RecPrt('Lambda',' ',rLambda,nLambda,nIter)
-         Call RecPrt('x',' ',x,nInter-nLambda,nIter)
-         Call RecPrt('dx',' ',dx,nInter-nLambda,nIter)
-      End If
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdx',' ',dEdx,nInter-nLambda,nIter)
+      Call RecPrt('Con_Opt: Lambda',' ',rLambda,nLambda,nIter)
+      Call RecPrt('Con_Opt: x',' ',x,nInter-nLambda,nIter)
+      Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Compute the h vectors.   (Eqn. 16)
-*     Observe the sign again since we store the force rather than the
-*     gradient.
 *
-      call dcopy_(nInter*nIter,dEdq,1,dEdq_,1)
-      If (jPrint.ge.99) Call RecPrt('dEdq',' ',dEdq,nInter,nIter)
+*     h(q,l) = dEdq - drdq l_0^T
+*
+*     Note the sign conflict due to storage of the force rather than the
+*     gradient.
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
+#endif
+      dEdq_(:,:) = dEdq(:,:)
       Do iIter = iOff_iter+1, nIter
          Do iLambda = 1, nLambda
-            Call DaXpY_(nInter,rLambda(iLambda,nIter), ! Sign
-     &                 drdq(1,iLambda,iIter),1,
-     &                 dEdq_(1,iIter),1)
+            Call DaXpY_(nInter,rLambda(iLambda,nIter),   ! Sign conflict
+     &                          drdq(1,iLambda,iIter),1,
+     &                          dEdq_(1,iIter),1)
          End Do
       End Do
-      If (jPrint.ge.99) Call RecPrt('dEdq_',' ',dEdq_,nInter,nIter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,nInter,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the value of the Lagrangian
+*
+*     L = E + l r(q)
 *
       Do iIter = iOff_iter+1, nIter
          Temp = Energy(iIter)
@@ -550,19 +820,21 @@ C        Write (6,*) 'yBeta=',yBeta
          End Do
          Energy(iIter)=Temp
       End Do
-      If (jPrint.ge.99) Call RecPrt('Energy',' ',Energy,nIter,1)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Lagrangian',' ',Energy,nIter,1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Update the Hessian in the n subspace
+*---- Update the Hessian in the m subspace
 *     There should be no negative eigenvalue, if so change the sign.
 *
-      If (jPrint.ge.6) Then
-         Write (6,*)
-         Write (6,*)
-         Write (6,*) ' *** Updating the reduced Hessian ***'
-         Write (6,*)
-      End If
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*)
+      Write (6,*) ' *** Updating the reduced Hessian ***'
+      Write (6,*)
+#endif
 *
       If (iAnd(iOptC,4096).eq.4096) Then
 *
@@ -575,12 +847,21 @@ C        Write (6,*) 'yBeta=',yBeta
       End If
 *
       Dummy = 0.0D0
-      Call Update_H(nWndw,Hess,nInter,
-     &              nIter,iOptC_Temp,Mode,ipMF,
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Hessian(raw)',' ',Hessian,nInter,nInter)
+      Write (6,*) 'iOptH=',iOptH
+#endif
+      If (Step_Trunc.eq.'N') Step_Trunc=' '
+      Call Update_H(nWndw,Hessian,nInter,
+     &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
-     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.)
+     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,Corrected)
+      If (Corrected) Step_Trunc='#'
 
-      If (jPrint.ge.99) Call RecPrt('Hess',' ',Hess,nInter,nInter)
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
+      Write (6,*) 'Step_Trunc=',Step_trunc
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -588,37 +869,88 @@ C        Write (6,*) 'yBeta=',yBeta
 *
 *     See text after Eqn. 13.
 *
+*     T_{ti}^T W T_{ti}
+*
       If (nInter-nLambda.gt.0) Then
 *
-         Call Allocate_Work(ipTmp,(nInter-nLambda)*nInter)
-         Call FZero(Work(ipTmp),(nInter-nLambda)*nInter)
-         Call DGEMM_('T','N',
-     &               nInter-nLambda,nInter,nInter,
+         Call mma_allocate(Tmp2,nInter-nLambda,nInter,Label='Tmp2')
+         Tmp2(:,:)=Zero
+         Call DGEMM_('T','N',nInter-nLambda,nInter,nInter,
      &               1.0d0,T(1,ipTti),nInter,
-     &               Hess,nInter,
-     &               0.0d0,Work(ipTmp),nInter-nLambda)
-         Call FZero(W,(nInter-nLambda)**2)
-         Call DGEMM_('N','N',
-     &               nInter-nLambda,nInter-nLambda,nInter,
-     &               1.0d0,Work(ipTmp),nInter-nLambda,
-     &               T(1,ipTti),nInter,
+     &                     Hessian,nInter,
+     &               0.0d0,Tmp2,nInter-nLambda)
+         W(:,:)=Zero
+         Call DGEMM_('N','N',nInter-nLambda,nInter-nLambda,nInter,
+     &               1.0d0,Tmp2,nInter-nLambda,
+     &                     T(1,ipTti),nInter,
      &               0.0d0,W,nInter-nLambda)
-         Call Free_Work(ipTmp)
-         If (jPrint.ge.99)
-     &      Call RecPrt('W',' ',W,nInter-nLambda,nInter-nLambda)
+         Call mma_deallocate(Tmp2)
+#ifdef _DEBUG_
+         Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,nInter-nLambda)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *----    Update dx
 *
-C        Write (6,*) 'yBeta=',yBeta
-C        Write (6,*) 'gBeta=',gBeta
-C        Write (6,*) 'xBeta=',xBeta
-         tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
-C        Write (6,*) 'tBeta=',tBeta
-         Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc)
+*        Set threshold depending on if restriction is w.r.t. step size
+*        or variance.
+*
+         fact=One
+         If (iOpt_RS.eq.0) Then
+            Beta_Disp_= 1.0D0 ! Dummy assign
+         Else
+*
+*           Note that we use the dEdx data for the last point on the
+*           real PES.
+*
+#ifdef _DEBUG_
+            Write (6,*) 'Beta_Disp_=',Beta_Disp_
+#endif
+            Beta_Disp_Min=1.0D-10
+            tmp=0.0D0
+            Do i = 1, nInter-nLambda
+               tmp = Max(tmp,Abs(dEdx(i,iter_)))
+            End Do
+            Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
+#ifdef _DEBUG_
+            Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
+#endif
+         End If
+         GNrm=
+     &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
+         tBeta= Min(1.0D3*GNrm,Beta)
+         Thr_RS=1.0D-7
+#ifdef _DEBUG_
+            Write (6,*) 'Step_Trunc(0)=',Step_Trunc
+#endif
+         Do
+            Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
+     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                Thr_RS)
+            If (Step_Trunc.eq.'N') Step_Trunc=' '
+            If (iOpt_RS.eq.0) Exit
+*
+            du(1:nLambda)=dy(:)
+            du(1+nLambda:nInter)=dx(:,nIter)
+            Call Backtrans_K(T,du,dq_xy,nInter,1)
+            q(:,nIter+1)=q(:,nIter)+dq_xy(:)
+*
+            Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
+
+#ifdef _DEBUG_
+            Write (6,*) 'disp=',disp
+#endif
+            fact=Half*fact
+            tBeta=Half*tBeta
+            If ((One-disp/Beta_Disp_.gt.1.0D-3)) Exit
+            If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
+            Step_Trunc='*'
+         End Do
+#ifdef _DEBUG_
+            Write (6,*) 'Step_Trunc(n)=',Step_Trunc
+#endif
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *
@@ -627,17 +959,10 @@ C        Write (6,*) 'tBeta=',tBeta
          GNrm=-One
       End If
 *
-*     A small trick here to avoid a false convergence.
-*
-c     If (GNrm.lt.2.0D-4.or.nIter.eq.iOff_Iter+1) Then
-c        Do iLambda = 1, nLambda
-c           GNrm=GNrm+Sqrt((rLambda(iLambda,nIter)*
-c    &                            r(iLambda,nIter))**2)
-c        End Do
-c        GNrm=Min(1.0D-2,GNrm)
-c        If (nIter.eq.iOff_Iter+1) GNrm=1.0D-2
-c     End If
-      If (jPrint.ge.99) Call RecPrt('dx',' ',dx,nInter-nLambda,nIter)
+#ifdef _DEBUG_
+      Write (6,*) 'Step_Trunc=',Step_trunc
+      Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -645,53 +970,56 @@ c     End If
 *
 *     See Eqn. 10.
 *
-*temporary code
+#ifdef _DEBUG_
 *
 *     dy only, constraint
 *
-C     Call FZero(du,nInter)
-C     call dcopy_(nLambda,dy,1,du,1)
-C     Call DGEMM_('N','N',
-C    &            nInter,1,nInter,
-C    &            One,T,nInter,
-C    &            du,nInter,
-C    &            Zero,dq(1,nIter),nInter)
-C     dydy=Sqrt(DDot_(nInter,dq,1,dq,1))
-C     Call RecPrt('dq(dy)',' ',dq,nInter,nIter)
-C     Write (6,*) '<R(q_0)|dy>=',DDot_(nInter,
-C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
+      du(:)=Zero
+      du(1:nLambda)=dy(:)
+      Call DGEMM_('N','N',
+     &           nInter,1,nInter,
+     &            One,T,nInter,
+     &            du,nInter,
+     &            Zero,dq(1,nIter),nInter)
+      dydy=Sqrt(DDot_(nInter,dq,1,dq,1))
+      Call RecPrt('dq(dy)',' ',dq,nInter,nIter)
+      Write (6,*) '<R(q_0)|dy>=',DDot_(nInter,
+     &              dRdq(1,1,nIter),1,dq(1,nIter),1)
 *
 *     dx only, constraint minimization
 *
-C     Call FZero(du,nInter)
-C     call dcopy_(nInter-nLambda,dx(1,nIter),1,du(1+nLambda),1)
-C     Call DGEMM_('N','N',
-C    &            nInter,1,nInter,
-C    &            One,T,nInter,
-C    &            du,nInter,
-C    &            Zero,dq(1,nIter),nInter)
-C     dxdx=Sqrt(DDot_(nInter,dq,1,dq,1))
-C     Call RecPrt('dq(dx)',' ',dq,nInter,nIter)
-C     Write (6,*) '<R(q_0)|dx>=',DDot_(nInter,
-C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
-*temporary code
-*
-*     dy+dx, full step
-*
-      Call FZero(du,nInter)
-      call dcopy_(nLambda,dy,1,du,1)
-      call dcopy_(nInter-nLambda,dx(1,nIter),1,du(1+nLambda),1)
+      du(:)=Zero
+      du(1+nLambda:nInter)=dx(:,nIter)
       Call DGEMM_('N','N',
      &            nInter,1,nInter,
      &            One,T,nInter,
      &            du,nInter,
      &            Zero,dq(1,nIter),nInter)
+      dxdx=Sqrt(DDot_(nInter,dq,1,dq,1))
+      Call RecPrt('dq(dx)',' ',dq,nInter,nIter)
+      Write (6,*) '<R(q_0)|dx>=',DDot_(nInter,
+     &              dRdq(1,1,nIter),1,dq(1,nIter),1)
+#endif
+*
+*     dy+dx, full step
+*
+*     dq = T [dy, dx]
+*
+      du(:)=Zero
+      du(1:nLambda)=dy(1:nLambda)
+      du(nLambda+1:nInter)=dx(:,nIter)
+      Call DGEMM_('N','N',nInter,1,nInter,
+     &            One,T,nInter,
+     &                du,nInter,
+     &            Zero,dq(1,nIter),nInter)
 *
 *     Compute q for the next iteration
 *
-      call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
-      Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-      If (jPrint.ge.99) Call RecPrt('q',' ',q,nInter,nIter+1)
+      q(:,nIter+1) = q(:,nIter) + dq(:,nIter)
+*
+#ifdef _DEBUG_
+      Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -706,8 +1034,8 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
 *
          StpMax_Save=StpMax
          StpLbl_Save=StpLbl
-         Call Allocate_Work(ipLbl,nInter-nLambda)
-         Call Char2Real(Lbl,Work(ipLbl),(nInter-nLambda)*8)
+         Call mma_allocate(Tmp1,nInter-nLambda,Label='Tmp1')
+         Call Char2Real(Lbl,Tmp1,(nInter-nLambda)*8)
          GrdMax=Zero
          Do i = 1, nInter-nLambda
             Write (Lbl(i),'(A,I3.3)') 'dEdx',i
@@ -716,12 +1044,14 @@ C    &              dRdq(1,1,nIter),1,dq(1,nIter),1)
      &               dEdx(1,nIter),dx(1,nIter),Lbl)
          StpMax=StpMax_Save
          StpLbl=StpLbl_Save
-         Call Real2Char(Work(ipLbl),Lbl,(nInter-nLambda)*8)
-         Call Free_Work(ipLbl)
+         Call Real2Char(Tmp1,Lbl,(nInter-nLambda)*8)
+         Call mma_deallocate(Tmp1)
 *
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(dq_xy)
+      Call mma_deallocate(Hessian)
       Return
       End

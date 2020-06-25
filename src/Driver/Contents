@@ -1,7 +1,0 @@
-This directory contains prgm files and templates for makefiles
-
-*.prgm.src - Program definition files.
-*.inc      - includes for prgm files
-*.src      - Source shell scripts.
-*.in       - templates for Makefiles
-stdsuffix* - suffix rules

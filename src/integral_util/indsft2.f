@@ -24,6 +24,7 @@
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          april '90                                                   *
 ************************************************************************
+      use k2_arrays, only: Sew_Scr
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -31,7 +32,6 @@
 #include "print.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 *
       Real*8 SOint(ijkl,nSOint)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
@@ -242,13 +242,13 @@ C    &                                   iSOi,jSOj,kSOk,lSO
 C                           Write (*,*) 'ij,kl=',ij,kl
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
                             iSqNum = (kl-iBin*iPP1)*iSq1
      &                             + (ij-iBin*iPP2)*iSq2
      &                             - nkl
-                            work(lwSqN+nUt)=DBLE(iSqNum)
-                            work(lwSyB+nUt)=DBLE(iBin + iStBin(iSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
 C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
 C    &                                   iStBin(iSyBlk)
 *
@@ -277,24 +277,24 @@ C    &                                   iSOi,jSOj,kSOk,lSO
 C                           Write (*,*) 'ij,kl=',ij,kl
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
                             iSqNum = (kl-iBin*iPP1)*iSq1
      &                             + (ij-iBin*iPP2)*iSq2
      &                             - nkl
-                            work(lwSqN+nUt)=DBLE(iSqNum)
-                            work(lwSyB+nUt)=DBLE(iBin + iStBin(iSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
 C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
 C    &                                   iStBin(iSyBlk)
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             jBin=(kl-1)/iQQ3 +(ij-1)/iQQ4
                             jSqNum = (kl-jBin*iPP3)*iSq3
      &                             + (ij-jBin*iPP4)*iSq4
      &                             - nij
-                            work(lwSqN+nUt)=DBLE(jSqNum)
-                            work(lwSyB+nUt)=DBLE(jBin + iStBin(jSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(jSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(jBin+iStBin(jSyBlk))
 C                           Write (*,*) 'jSqNum,jBin=',jSqNum,jBin+
 C    &                                   iStBin(jSyBlk)
 *
@@ -317,13 +317,10 @@ C    &                                   iStBin(jSyBlk)
 *
 *     pass the integral to phase 1 of the bin sorting algorithm
 *
-      Call R8PREP(nUt+1,work(lwInt))
-      Call SORT1A(nUt+1,work(lwInt),work(lwSqN),work(lwSyB))
+      Call R8PREP(nUt+1,Sew_Scr(lwInt))
+      Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       NotZer=NotZer+nUt+1
       nUt=0
-*
-*     release work space
-*
 *     Call qExit('IndSft2')
       Return
       End

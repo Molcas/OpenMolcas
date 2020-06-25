@@ -8,16 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SO2cI(iSO2Block,iSO2Shell,nSOs)
+      Subroutine Mk_SO2cI(SO2cI,iSO2Shell,nSOs)
       Implicit Real*8 (a-h,o-z)
-      Integer iSO2Block(2,nSOs), iSO2Shell(nSOs)
+      Integer SO2cI(2,nSOs), iSO2Shell(nSOs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Set up table SO to contigues index over the shell
 *
 *     Write (*,*) 'Enter SO2cI'
-      Call ICopy(2*nSOs,[0],0,iSO2Block,1)
+      Call ICopy(2*nSOs,[0],0,SO2cI,1)
       Call Nr_Shells(nShell)
       Do iShell = 1, nShell
 *
@@ -27,7 +27,7 @@
          Do iSO = 1, nSOs
             If (iSO2Shell(iSO).eq.iShell) Then
                Index = Index + 1
-               iSO2Block(1,iSO) = Index
+               SO2cI(1,iSO) = Index
             End If
          End Do
 *
@@ -35,7 +35,7 @@
 *
          Do iSO = 1, nSOs
             If (iSO2Shell(iSO).eq.iShell) Then
-               iSO2Block(2,iSO) = Index
+               SO2cI(2,iSO) = Index
             End If
          End Do
 *

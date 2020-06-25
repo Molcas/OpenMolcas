@@ -20,7 +20,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              RecPrt                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *

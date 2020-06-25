@@ -26,6 +26,7 @@
       use Her_RW
       use vRys_RW
       use iSD_data
+      use k2_arrays
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -33,10 +34,9 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "setup.fh"
-#include "k2.fh"
-#include "nsd.fh"
 #include "real.fh"
 #include "shinf.fh"
 #include "status.fh"
@@ -72,8 +72,8 @@
 *     The first entry gives the irrep of a SO and the second entry
 *     gives the relative index of a SO in its irrep.
 *
-      Call GetMem('iSOSym','Allo','Inte',ipiSOSym,nSOs*2)
-      iSOs = ipiSOSym
+      Call mma_allocate(iSOSym,2,nSOs,Label='iSOSym')
+      iSOs = 1
       nBas_iIrrep=0
       Do iIrrep = 0, nIrrep-1
          If (Basis_Mode.eq.Valence_Mode) Then
@@ -84,9 +84,9 @@
             nBas_iIrrep=nBas(iIrrep)+nBas_Aux(iIrrep)
          End If
          Do i = 1, nBas_iIrrep
-            iWork(iSOs  )=iIrrep          ! Irreducible reps.
-            iWork(iSOs+1)=i               ! Relative index in irrep.
-            iSOs = iSOs + 2
+            iSOSym(1,iSOs)=iIrrep          ! Irreducible reps.
+            iSOSym(2,iSOs)=i               ! Relative index in irrep.
+            iSOs = iSOs + 1
          End Do
       End Do
 *                                                                      *
@@ -96,6 +96,7 @@
 *     tables(iSD).
 *
       Call Nr_Shells(nSkal)
+*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -111,15 +112,7 @@
          Call GetMem('ICNTR','ALLO','Inte',ipicntr,nSkal)
          Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
      &               iWork(ipSOSh),iWork(ipicntr),nSkal,nIrrep,nSOs,
-     &               nSD,iSD,nShIrp,nShBFmx)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (.Not.Allocated(HerR) .or.
-     &    .Not.Allocated(iHerR2)) Then
-         Ind0_Status=Active
-         Return
+     &               nShIrp,nShBFmx)
       End If
 *                                                                      *
 ************************************************************************
@@ -128,39 +121,7 @@
 *
       nAux = nIrrep**3
       If (Petite) nAux = 1
-      Call GetMem('AuxBuf','ALLO','REAL',ipAux,nAux)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*.... Compute the size of and allocate auxiliary memory
-*
-      MxPrm = 0
-      MxFT = 0
-      MxDij = 0
-      Do iS = 1, nSkal
-         iCmp =iSD(2,iS)
-         iBas =iSD(3,iS)
-         iPrim=iSD(5,iS)
-         MxPrm=Max(MxPrm,iPrim)
-         If (nIrrep.eq.1) Then
-            MxFT=1 ! Dummay assignment
-            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
-         Else
-            MxFT = Max(MxFT,6*(iBas*iCmp)**2)
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-         End If
-      End Do
-*
-      If (DoFock) Then
-         DoFock_Status=Active
-         nFT = MxFT
-         Call GetMem('FT','Allo','Real',ipFT,nFT)
-         MxDij = 6 * nIrrep * MxDij
-         Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
-      Else
-         ipFT=ip_iDummy
-         ipDijs=ip_iDummy
-      End If
+      Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -169,9 +130,20 @@
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
       MemR=(nDArray-1)*nZeta + (nDArray-1)*nEta
-      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
+      Call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
+      ipZeta=1
       MemI=nZeta+nEta+2
-      Call GetMem('MemI','ALLO','INTE',ipiZet,MemI)
+      Call mma_allocate(Mem_INT,MemI,Label='Mem_INT')
+      ipiZet=1
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (DoFock) Then
+         nFT=MxFT
+      Else
+         nFT=1
+      End If
+      Call mma_allocate(FT,MxFT,Label='FT')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -191,19 +163,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      TCP3  = Zero
-      rnint = Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Initialize memory for eval_int. Observe that semi-direct
-*     calculations require the memory to be fix in between the
-*     iterations. Hence, the memory pool must be handled externally in
-*     those cases.
-*
-      If (XMem_Status.eq.Inactive) Call SetMem_Ints(0,0)
-*
-*     Call GetMem('S_I','Check','Real',iDum,iDum)
 *     Call QExit('S_I')
       Return
       End
