@@ -5,6 +5,7 @@ Basis set
 Cl.ano-rcc.Roos.17s12p5d4f2g.8s7p5d4f2g.
  Cl     0.0000    0.0000        0.0000  Angstrom
 End of basis
+CSPF
 End of input
 
  &SCF
