@@ -91,6 +91,7 @@ C     Call QEnter('DrvNQ')
       Call GetMem('s2p','Allo','Inte',ips2p,nShell*nIrrep)
       Call GetMem('R_Min','Allo','Real',ipR_Min,LMax_NQ+1)
 *
+        NQ_Status=Inactive
       Call Setup_NQ(iWork(ips2p),nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
      &              PThr,PMode,Work(ipR_Min),LMax_NQ)
 *
@@ -622,7 +623,6 @@ c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
-      Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
       Call Free_Work(ip_Fact)
       Call GetMem('s2p','Free','Inte',ips2p,nshell)
       NQ_Status=Inactive

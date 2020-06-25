@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
+      Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -16,9 +16,9 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "k2.fh"
 #include "setup.fh"
-      Real*8 Dens(nDens), TwoHam(nDens)
+      Integer nDens, mDens
+      Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
 #ifdef _DEBUG_
@@ -29,21 +29,25 @@
       nIndij=nShlls*(nShlls+1)/2
       nField=2+nr_of_Densities
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
-      Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe+MaxDe*MaxDCR)
-*     D00 is a null matrix, which should simplify the logic.
+*
+*     The array with desymmetrized densities contain two additional
+*     fields.
+*     ipD00 is a null matrix, which should simplify the logic.
+*     ipDijS is an auxilliary memory if not the whole set of a
+*      desymmetrized density could be used.
+*
+      nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
+      Call mma_allocate(DeDe,nDeDe_tot,Label='DeDe')
+      ipDeDe = 1
       ipD00 = ipDeDe + nDeDe
-      call dcopy_(MaxDe*MaxDCR,[Zero],0,Work(ipD00),1)
+      ipDijS= ipD00  + MaxDe*MaxDCR
+      DeDe(:)=Zero
 *
       Special_NoSym=.True.
       DFT_Storage=.False.
-      Call DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
-     &          ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &          Work,1)
-      If (mDeDe.ne.nDeDe) Then
-         Write (6,*) ' mDeDe =', mDeDe,' nDeDe =', nDeDe
-         Call ErrTra
-         Call Abend
-      End If
+      Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
+     &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
+     &             Work,1,DeDe,nDeDe)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,14 +65,17 @@
             Dens(ij)=Two*Dens(ij)
          End Do
          mDens=nbas(0)*nbas(0)
-         Call GetMem('DENQ','Allo','Real',ipDq,mDens)
-         Call GetMem('FMAQ','Allo','Real',ipFq,mDens)
-         Call Square(Dens,Work(ipDq),1,nbas(0),nbas(0))
-         Call fzero(work(ipFq),mDens)
+         Call mma_allocate(Dq,mDens,Label='Dq')
+         Call Square(Dens,Dq,1,nbas(0),nbas(0))
+         pDq => Dq(:)
+*
+         Call mma_allocate(Fq,mDens,Label='Fq')
+         Fq(:)=Zero
+         pFq => Fq(:)
       Else
-         ipDq=ip_of_Work(Dens(1))
-         ipFq=ip_of_Work(TwoHam(1))
          mDens=nDens
+         pDq => Dens(:)
+         pFq => Twoham(:)
       End If
 #ifdef _DEBUG_
       Call qExit('DeDe_SCF')

@@ -29,8 +29,9 @@
 *     University of Lund, Sweden, 1995                                 *
 ************************************************************************
       SubRoutine SOFSh1(nShBF,iShOff,iSh2Sh,iSO2Sh,icntr,nSkal,nSym,
-     &                  nSOs,nSD,iSD,nShIrp,nShBFmx)
+     &                  nSOs,nShIrp,nShBFmx)
 *
+      use iSD_data
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -38,7 +39,7 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
       Integer nShBF(0:nSym-1,nSkal), iShOff(0:nSym-1,nSkal),
-     &        iSh2Sh(0:nSym-1,nSkal), iSO2Sh(nSOs), iSD(0:nSD,nSkal),
+     &        iSh2Sh(0:nSym-1,nSkal), iSO2Sh(nSOs),
      &        nShIrp(0:nSym-1),nShOff(0:7),icntr(nSkal)
       Dimension iTmp(1)
 *

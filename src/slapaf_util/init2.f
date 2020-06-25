@@ -358,6 +358,13 @@ C              Write (6,*) 'iRoot=',iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Value_l=20.0D0
+      Call Qpg_dScalar('Value_l',Found)
+      If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
+
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call QExit('Init2')
       Return
       End

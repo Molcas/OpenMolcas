@@ -154,6 +154,9 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *     Call QExit('ElRed')
       Return
       End
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,
      &                 Thr,BM,iBM,nB_Tot,nqB)
       Implicit Real*8 (a-h,o-z)

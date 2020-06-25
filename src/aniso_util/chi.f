@@ -14,26 +14,26 @@
 !     N -- number of states included in the calculation of chi, Integer, input
 !    M1 -- moment 1, Complex*16, (3,N,N) array, input
 !    M2 -- moment 2, Complex*16, (3,N,N) array, input
-!     E -- energy of the N states, Real(kind=wp) ::, (N) array, input
-!     T -- temperature at which the chi is computed, Real(kind=wp) ::, input
-!     Z -- statistical sum according to Boltzmann distribution law, Real(kind=wp) ::, output
-!     X -- susceptibility tensor, Real(kind=wp) ::, (3,3) array, output
+!     E -- energy of the N states, Real(kind=8) ::, (N) array, input
+!     T -- temperature at which the chi is computed, Real(kind=8) ::, input
+!     Z -- statistical sum according to Boltzmann distribution law, Real(kind=8) ::, output
+!     X -- susceptibility tensor, Real(kind=8) ::, (3,3) array, output
 !--------
 !  temporary (local) variables:
 ! iS,jS -- denote states over which the chi is computed
-!    pB   -- partial Boltzmann population of a given state, Real(kind=wp) ::
+!    pB   -- partial Boltzmann population of a given state, Real(kind=8) ::
 !    dE -- energy diference E(i)-E(j)
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: N
-      Real(kind=wp), intent(in)    :: E(N), T
-      Complex(kind=wp), intent(in) :: M1(3,N,N), M2(3,N,N)
-      Real(kind=wp), intent(out)   :: Z, X(3,3)
+      Real(kind=8), intent(in)    :: E(N), T
+      Complex(kind=8), intent(in) :: M1(3,N,N), M2(3,N,N)
+      Real(kind=8), intent(out)   :: Z, X(3,3)
 ! local variables
       Integer                      :: i,j,iS,jS
-      Real(kind=wp)                :: pB, dE, c2(3,3), R, F
-      Real(kind=wp)                :: boltz_k
+      Real(kind=8)                :: pB, dE, c2(3,3), R, F
+      Real(kind=8)                :: boltz_k
 
       Call qEnter('CHI')
       boltz_k=0.6950356_wp !   in cm^-1*k-1

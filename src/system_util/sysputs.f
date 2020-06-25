@@ -84,13 +84,17 @@ c  check is '\n' .eq. <CR>?
       character fmt*20
       iTooLong=60
       i=len(str)
-      if(i.gt.iTooLong+7) then
+      if(i.gt.iTooLong+8) then
 c oops! too long
       write (6,'(a,a)')   ' ###    ',str
       return
       endif
       i=iTooLong+8-i
-      write(fmt,'(a, i2,a)') '(a,a,',i,'x,a)'
+      if (i.eq.0) then
+        fmt = '(a,a,a)'
+      else
+        write(fmt,'(a, i2,a)') '(a,a,',i,'x,a)'
+      endif
       write (6,fmt) ' ###    ',str,' ###'
       return
       end

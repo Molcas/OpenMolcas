@@ -16,7 +16,6 @@
 .. xmldoc:: <MODULE NAME="RASSI">
             %%Description:
             <HELP>
-            %%Description:
             The RASSI program calculates overlaps, and matrix
             elements of one-electron operators, and of the electronic Hamiltonian,
             over a basis of RASSCF wave functions, which may each have its own
@@ -515,7 +514,7 @@ Keywords
               Enter a positive threshold value. Spin-orbit interaction matrix
               elements over the spin components of the spin-free eigenstates
               will be printed, unless smaller than this threshold.
-              The value is given in cm-1 units. The keyword is ignored unless
+              The value is given in cm^-1 units. The keyword is ignored unless
               an SO hamiltonian is actually computed.
               </HELP>
               </KEYWORD>
@@ -1186,6 +1185,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`TRDC`
+  Prints out COMPLEX valued components of the transition dipole vector
+  for spin-orbit calculations,
+  otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: TRDC <advanced>
+              <HELP>
+              Prints out COMPLEX valued components of the transition dipole vector for spin-orbit calculations,
+              otherwise functionally equivalent to TRDI TDMN.
+              </HELP>
+              </KEYWORD>
+
 :kword:`TDMN`
   Prints out the components and the module of the transition dipole
   vector. On the next line, the minimum size, in a.u., for the dipole
@@ -1213,12 +1225,12 @@ Keywords
               </KEYWORD>
 
 :kword:`TRD2`
-  Prints the 1/2-electron (transition) densities to ASCII files.
+  Prints the 1-/2-electron (transition) densities to ASCII files.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRD2" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: TRD2 <advanced>
               <HELP>
-              Prints the 1/2-electron (transition) densities to ASCII files.
+              Prints the 1-/2-electron (transition) densities to ASCII files.
               </HELP>
               </KEYWORD>
 

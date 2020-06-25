@@ -57,6 +57,7 @@
 *> - '``D1av``'                     Average one particle density matrix, AO basis.
 *> - '``D1mo``'                     One particle density matrix, MO basis.
 *> - '``D1sao``'                    One particle spin density matrix, AO basis.
+*> - '``D1activeao``'               One particle density matrix, AO basis, active orbitals
 *> - '``D2av``'                     Average two particle density matrix for the active space, AO basis.
 *> - '``dExcdRa``'                  The potential of the exchange-correlation functional.
 *> - '``DLAO``'
@@ -92,7 +93,6 @@
 *> - '``Unique Coordinates``'       Cartesian coordinates for the symmetry unique atoms.
 *> - '``Last energies``'            Energies for all roots in the last calculation.
 *> - '``Dipole moment``'            The last computed dipole moment.
-*> - '``GeoPC``'                    The Cartesian coordinates for the unique point charges.
 *> - '``MkNemo.vDisp``'             The displacements matrix as specified in the mknemo module.
 *> - '``MkNemo.tqCluster``'         The transformation matrix for clusters as specified in the mknemo module.
 *> - '``MkNemo.Energies``'          The energies of super-system and clusters as specified in the mknemo module.
@@ -236,7 +236,7 @@ c mess started here :)
          RecLab( 77)='MpProp Orb Ener '
          RecLab( 78)='LoProp H0       '
          RecLab( 79)='Dipole moment   '
-         RecLab( 80)='GeoPC           '
+         RecLab( 80)='****************' ! Unused
          RecLab( 81)='BMtrx           '
          RecLab( 82)='CList           '
          RecLab( 83)='DList           '
@@ -327,6 +327,8 @@ c mess started here :)
          RecLab(168)='SPINR_NSS       '
          RecLab(169)='SPINI_NSS       '
          RecLab(170)='Proj_Coord      '
+         RecLab(171)='d1activeao      '
+         RecLab(172)='Keep_Coord      '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

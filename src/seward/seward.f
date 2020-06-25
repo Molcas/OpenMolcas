@@ -210,6 +210,8 @@ C-SVC: identify runfile with a fingerprint
 *
       Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
      &                  Work(Info),nDInf)
+      Call Gen_RelPointers(Info-1) ! Work Mode
+#include "release_core.fh"
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
 *
@@ -238,9 +240,9 @@ C-SVC: identify runfile with a fingerprint
 *     Compute the Nuclear potential energy
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1))
+         Call Gen_RelPointers(-(Info-1)) ! DInf Mode
          Call DrvN0(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)
+         Call Gen_RelPointers(Info-1)    ! Work Mode
       End If
 *                                                                      *
 ************************************************************************
@@ -271,10 +273,10 @@ C-SVC: identify runfile with a fingerprint
 *     Write/update information on the run file.
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1))
+         Call Gen_RelPointers(-(Info-1))  ! DInf Mode
          Call DmpInf(Work(Info),nInfo)
          Call basis2run(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)
+         Call Gen_RelPointers(Info-1)     ! Work Mode
       End If
 *                                                                      *
 ************************************************************************

@@ -12,7 +12,6 @@
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       Dimension preY(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
 cbs #####################################################################
 cbs   additional (-) signs from the (-i) factors  in the

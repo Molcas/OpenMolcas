@@ -8,13 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE Reord_Vk(ip_V_k,nProcs,myProc,nV_k,nV_t,nA,jSym)
+      SUBROUTINE Reord_Vk(ip_V_k,nProcs,myProc,nV_k,nV_t,nA,jSym,Array)
       Implicit None
       Integer nProcs, myProc, nV_k(*), nV_t(*), nA(*), jSym
       Integer ip_V_k(nProcs)
-#include "WrkSpc.fh"
+      Real*8 Array(*)
 #include "cholesky.fh"
 #include "choptr.fh"
+#include "WrkSpc.fh"
 *
       Integer ipScr, ik, ifr, ito, nAV_t, jOff, kOff, iSym
 *
@@ -39,15 +40,15 @@
 *
             ifr = ip_V_k(myProc) + jOff + nA(iSym)*(ik-1)
             ito = ipScr + kOff + nA(iSym)*(InfVec(ik,5,iSym)-1)
-            call dcopy_(nA(iSym),Work(ifr),1,Work(ito),1)
+            call dcopy_(nA(iSym),Array(ifr),1,Work(ito),1)
 *
          End Do
          jOff=jOff+nA(iSym)*nV_k(iSym)
          kOff=kOff+nA(iSym)*nV_t(iSym)
       End Do
 *
-      call dcopy_(nAV_t,Work(ipScr),1,Work(ip_V_k(1)),1)
-      Call GADGOP(Work(ip_V_k(1)),nAV_t,'+')
+      call dcopy_(nAV_t,Work(ipScr),1,Array(ip_V_k(1)),1)
+      Call GADGOP(Array(ip_V_k(1)),nAV_t,'+')
 *
       Call GetMem('Vk_scr','Free','Real',ipScr,nAV_t)
 *

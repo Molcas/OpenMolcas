@@ -7,17 +7,17 @@ Chlorine calculation
 *ANO-R:   -500.57438714  (relativistic)
 
 
-Basis
+Basis set
 Cl.cc-pVDZ.....
 CL             0.0014527552        0.0000000000       -1.0552391037
 End of Basis
 
-Basis
+Basis set
 C.cc-pVDZ.....
 C             -0.0032071599        0.0000000000        2.3295350780
 End of Basis
 
-Basis
+Basis set
 H.cc-pVDZ.....
 H1             1.9290708147        0.0000000000        2.9615331954
 H2            -0.9706452266       -1.6741542337        2.9575416307

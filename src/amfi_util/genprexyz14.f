@@ -12,7 +12,6 @@
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       integer mcheckz
       dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
      *interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)

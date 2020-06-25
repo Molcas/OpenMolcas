@@ -10,13 +10,10 @@
 ************************************************************************
       Subroutine dWBuf(Array,nArray)
       Use dEAF
+      Use IOBUF
       Implicit Real*8 (a-h,o-z)
-#include "IOBuf.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
       Real*8 Array(nArray)
-*
-      jpBuf(i,j)=(j-1)*lBuf+i-1+ipBuf
 *
 *     Write (6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
@@ -29,8 +26,7 @@
       mArray=nArray
 10       Left = lBuf-iPos+1
          If (mArray.gt.Left) Then
-            Call dCopy_(Left,Array(iArray),1,
-     &                 Work(jpBuf(iPos,iBuf)),1)
+            Call dCopy_(Left,Array(iArray),1,Buffer(iPos,iBuf),1)
             iArray=iArray+Left
             mArray=mArray-Left
             iPos=1
@@ -53,8 +49,8 @@
 c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
                If (OnDisk) Then
 *                 Write (6,*) 'In dwbuf'
-                  Call dEAFAWrite(LuTmp,Work(jpBuf(1,iBuf)),
-     &                                    lBuf*RtoI,Disk,id)
+                  Call dEAFAWrite(LuTmp,Buffer(1,iBuf),
+     &                            lBuf*RtoI,Disk,id)
                End If
                If (iBuf.eq.1) Then
                   iBuf = 2
@@ -67,14 +63,12 @@ c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
             End If
          Else
 *           Write (6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
-            Call dCopy_(mArray,Array(iArray),1,
-     &                 Work(jpBuf(iPos,iBuf)),1)
+            Call dCopy_(mArray,Array(iArray),1,Buffer(iPos,iBuf),1)
             iPos=iPos+mArray
             mArray=0
          End If
       If(mArray.gt.0) goto 10
 *
 *     Write (6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
-*     Call GetMem('WBuf','Check','Real',iDum,iDum)
       Return
       End

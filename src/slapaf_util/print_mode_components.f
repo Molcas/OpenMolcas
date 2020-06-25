@@ -258,6 +258,7 @@
       PrQ=.False.
       nFix=0
       nWndw=iter
+      iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,iOper,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,

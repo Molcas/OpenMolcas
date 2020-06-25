@@ -14,6 +14,8 @@
 * This subroutine pretty prints the NxM matrix A
       implicit none
 
+#include "rasdim.fh"
+#include "caspt2.fh"
 #include "output.fh"
 
 * Input arguments
@@ -24,9 +26,9 @@
 
       do jStart=1,N,5
         jEnd = min(jStart+4, N)
-        write(6,'(1x,5i16)')(j,j=jStart,jEnd)
+        write(6,'(1x,5i16)')(mstate(j),j=jStart,jEnd)
         do i=1,N
-          write(6,'(1x,i3,2x,5f16.8)')i,(A(i,j),j=jStart,jEnd)
+          write(6,'(1x,i3,2x,5f16.8)')mstate(i),(A(i,j),j=jStart,jEnd)
         end do
         write(6,*)
       end do
