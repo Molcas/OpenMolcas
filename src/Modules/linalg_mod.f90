@@ -177,8 +177,10 @@ contains
             transpB_ = .false.
         end if
 
-        shapeA = [rows_A, int(real(size(A)) / real(rows_A))]
-        shapeB = [rows_B, int(real(size(B)) / real(rows_B))]
+        call assert_(modulo(size(A), rows_A) == 0, 'the number of rows has to be a divisor of size')
+        shapeA = [rows_A, size(A) / rows_A]
+        call assert_(modulo(size(B), rows_B) == 0, 'the number of rows has to be a divisor of size')
+        shapeB = [rows_B, size(B) / rows_B]
 
         M = merge(shapeA(1), shapeA(2), .not. transpA_)
         N = merge(shapeB(2), shapeB(1), .not. transpB_)
