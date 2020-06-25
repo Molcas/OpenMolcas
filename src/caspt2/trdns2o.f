@@ -138,7 +138,7 @@ C Form WEC1 from VEC1, if needed.
           IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) NWEC1=NIS1
           IF(NWEC1.GT.0) THEN
             CALL GETMEM('WEC1','ALLO','REAL',LWEC1,NWEC1)
-            CALL DCOPY_(NWEC1,[0.0D00],0,WORK(LWEC1),1)
+            CALL DCOPY_(NWEC1,[0.0D0],0,WORK(LWEC1),1)
             IMLTOP=1
 #ifdef _MOLCAS_MPP_
             IF (IS_REAL_PAR()) THEN

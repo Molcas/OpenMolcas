@@ -65,6 +65,7 @@ tested for 49 diatomic molecules, reducing the mean error in :math:`D_0` from 0.
 from 0.45 eV to less than 0.15 eV. Similar improvements were obtained for
 excitation and ionization energies. The IPEA modified :math:`H_0` (with a shift
 parameter of 0.25) is default in |molcas| from version 6.4.
+If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, the default will be no IPEA shift.
 
 An alternative to IPEA is to use the options, called ":math:`g_1`", ":math:`g_2`", and
 ":math:`g_3`" (See Ref. :cite:`Andersson:95a`), that stabilizes the energies of the
@@ -134,7 +135,8 @@ states.
 
 In some cases, where one can expect strong interaction between different CASSCF
 wave functions, it is advisable to use the Multi-State (MS) CASPT2 method
-:cite:`Finley:98b` or the new Extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`.
+:cite:`Finley:98b`, the extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`
+or the new extended dynamically weighted CASPT2 :cite:`Battaglia2020`.
 A second order effective Hamiltonian is constructed for a
 number of CASSCF wave functions obtained in a state-average calculation. This
 introduces interaction matrix elements at second order between the different
@@ -144,12 +146,13 @@ effective zeroth order wave functions, which are linear combinations of the
 original CASSCF states. This method has been used successfully to separate
 artificially mixed valence and Rydberg states and for transition metal compounds
 with low lying excited states of the same symmetry as the ground state.
-In the original multi-state method, perturbed wave functions are computed
-for each of several root functions, separately; these are used to compute
-the effective Hamiltonian. In the newer (XMS) method, the perturbations are
-computed with one common zeroth-order Hamiltonian, and the eigenstates of
-the effective Hamiltonian are written onto the :file:`JOBIPH` file rather than used
-to generate a new :file:`JOBMIX` file.
+In the original multi-state method,
+perturbed wave functions are computed for each of several root functions,
+separately; these are used to compute the effective Hamiltonian.
+In the XMS-CASPT2 method, the perturbations are computed with one
+common zeroth-order Hamiltonian.
+The new XDW-CASPT2 method interpolates between the MS and XMS variants,
+retaining the advantages of both approaches.
 
 It is clear from the discussion above that it is not a "black box" procedure
 to perform CASPT2 calculations on excited states. It is often necessary to
@@ -297,6 +300,18 @@ Keywords
   are desired.
   This keyword is mutually exclusive with :kword:`MULTistate`.
 
+  It can be used for an XMS-PDFT calculation (which needs :program:`RASSCF`,
+  :program:`CASPT2` and :program:`MCPDFT` modules).
+  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF 
+  or SA-RASSCF states to intermediate states (using the same rotation as in 
+  XMS-CASPT2), and the rotation matrix can be obtained in the :program:`CASPT2` module 
+  with this keyword.
+  With this, two files are generated in the scratch directory, :file:`Do_Rotate.txt`,
+  which stores the XMS rotation vector, and :file:`H0_Rotate.txt`, which stores the 
+  Hamiltonian for the XMS rotated states. If the user wants to skip the 
+  expensive perturbation-theory calculation, this keyword can be combined 
+  with :kword:`XROH` to skip the perturbation part.
+
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               <ALTERNATE KIND="CUSTOM" />
               %%Keyword: XMultistate <basic> GUI:list
@@ -305,6 +320,47 @@ Keywords
               showing which CASSCF state to use as root state for each.
               Alternatively, enter "all" for all the states included in the CASSCF
               orbital optimization.
+              </HELP>
+              </KEYWORD>
+
+:kword:`XROH`
+  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules), together with :kword:`XMUL`. 
+  When this keyword is used, the :program:`CASPT2` module will not perform perturbation theory calculations; instead, it will only print the rotation matrix and the Hamiltonian matrix of the intermediate states.
+  More information can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+
+  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: XROH <basic> 
+              <HELP>
+              Skips PT2 calculation. Only effective when XMUL is used.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DWMS`
+  Used in conjunction with :kword:`XMULtistate` it performs a XDW-CASPT2
+  calculation according to :cite:`Battaglia2020`, thereby rotating the
+  input states to diagonalize the state-average Fock operator and
+  constructing the zeroth-order Hamiltonian using dynamically
+  weighted densities.
+  It is also possible to use this option with :kword:`MULTistate`, in
+  which case the original CASSCF states are used instead of the rotated
+  ones.
+  An integer number for the exponential factor :math:`\zeta` has to be
+  explicitly specified; a reasonable value is 50 (see :cite:`Battaglia2020`
+  for more details). By specifying any negative integer number, the
+  limit :math:`\zeta\to\infty` is taken, resulting in unit weights
+  as in MS-CASPT2. The other limit case is :math:`\zeta=0`, for which
+  equal weights are assigned to all states and thus XDW-CASPT2 is
+  exactly equivalent to XMS-CASPT2.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INT" LEVEL="BASIC">
+              %%Keyword: DWMS <basic> GUI:number
+              <HELP>
+              Enter an integer value specifying the exponent zeta used to
+              compute the weights. A negative value corresponds to taking
+              the limit to infinity, completely avoiding any mixing of
+              the densities.
               </HELP>
               </KEYWORD>
 
@@ -317,7 +373,7 @@ Keywords
   :cite:`Ghigo:04a`. The modification of :math:`H_0` has been introduced (Nov 2005) to
   reduce the systematic error which leads to a relative overestimation of the
   correlation energy for open shell system. It also reduces the intruder problems.
-  Default is to use an IPEA shift of 0.25.
+  Default is to use an IPEA shift of 0.25, unless :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IPEA" APPEAR="IPEA shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.25">
               %%Keyword: IPEAshift <basic> GUI:number

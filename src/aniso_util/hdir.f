@@ -18,11 +18,11 @@ c      field according to Lebedev-Laikov grids using the the given parameters (n
       Integer                      :: nP,nDirTot,nDir,nDirZee,i,j
       Integer                      :: nsymm,ngrid
 
-      Real(kind=wp) :: dirX(nDir), dirY(nDir), dirZ(nDir),
+      Real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir),
      &                 dir_weight(nDirZee,3)
-      Real(kind=wp) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot),
+      Real(kind=8) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot),
      &                 dHW(nDirTot)
-      Real(kind=wp) :: X(nP), Y(nP), Z(nP), W(nP)
+      Real(kind=8) :: X(nP), Y(nP), Z(nP), W(nP)
 
       Call qEnter('hdir')
 

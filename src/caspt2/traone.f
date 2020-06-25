@@ -122,8 +122,8 @@ c the nuclear attraction by the cavity self-energy
          END IF
       End If
 
-      EONE=0.0d00
-      ETWO=0.0d00
+      EONE=0.0d0
+      ETWO=0.0d0
 c The following section is needed for frozen orbitals:
       IF(NFROT.EQ.0) GOTO 300
       CALL GETMEM('WDLT','ALLO','REAL',LWDLT,NBTRI)

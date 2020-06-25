@@ -29,7 +29,7 @@
       molcasdir=' '
 #ifndef _DEMO_
       Call UnixInfoC(pid, ppid,
-     +  sec,min,hour,mday,mon,year,wday,yday,isdst,
+     +  sec,mins,hour,mday,mon,year,wday,yday,isdst,
      +  username,realname,homedir,shell,
      +  molcasdir)
 #endif
@@ -92,7 +92,7 @@ C  Clear ProgName of directory part:
       Write(6,'(A,I35)')' Process ID        :',pid
       Write(6,'(A,I35)')' Parent process ID :',ppid
       Write(6,'(A,I35)')' Seconds           :',sec
-      Write(6,'(A,I35)')' Minutes           :',min
+      Write(6,'(A,I35)')' Minutes           :',mins
       Write(6,'(A,I35)')' Hours             :',hour
       Write(6,'(A,I35)')' Day of month      :',mday
       Write(6,'(A,I29,3A)')' Month             :',mon,

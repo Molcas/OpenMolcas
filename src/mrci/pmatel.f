@@ -8,15 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PMATEL(ISTATE,JSTATE,PINT,SMAT,CNO,OCC,
+      SUBROUTINE PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,
      *                  SFOLD,AFOLD,TDAO)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PINT(NBTRI),SFOLD(NBTRI),AFOLD(NBTRI),CNO(NCMO)
       DIMENSION TDAO(NBAST,NBAST),SMAT(*),OCC(NBAST)
       DIMENSION IDUM(1)
+      INTEGER   ISYMLB
+      REAL*8    PROP(NRROOT,NRROOT,NPROP)
 
 #include "SysDef.fh"
-
 #include "mrci.fh"
       SAVE ICALL
       DATA ICALL /0/
@@ -38,19 +39,21 @@ C MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
       CALL DCOPY_(NBTRI,[0.0D00],0,AFOLD,1)
       IJ=0
       IEND=0
-      DO 20 ISY=1,NSYM
+      DO ISY=1,NSYM
         ISTA=IEND+1
         IEND=IEND+NBAS(ISY)
-        DO 20 I=ISTA,IEND
-          DO 10 J=ISTA,I-1
+        DO I=ISTA,IEND
+          DO J=ISTA,I-1
             IJ=IJ+1
             SFOLD(IJ)=TDAO(I,J)+TDAO(J,I)
             AFOLD(IJ)=TDAO(I,J)-TDAO(J,I)
-10        CONTINUE
+          END DO
           IJ=IJ+1
           SFOLD(IJ)=TDAO(I,I)
           AFOLD(IJ)=0.0D00
-20    CONTINUE
+        END DO
+      END DO
+      NSIZ=0
       DO 100 IPROP=1,NPROP
 C PICK UP MATRIX ELEMENTS FROM ONE-ELECTRON FILE:
         CALL iRDONE(IRTC,1,PNAME(IPROP),IPCOMP(IPROP),IDUM,ISYMLB)
@@ -94,11 +97,11 @@ C FOR MULTIPOLES, USE NEGATIVE SIGN OF ELECTRONIC PART.
         SGN=1.0D00
         IF(PNAME(IPROP)(1:5).EQ.'MLTPL') SGN=-SGN
         IF(PTYPE(IPROP).EQ.'HERM') THEN
-          X=SGN*DDOT_(NSIZ,SFOLD,1,PINT,1)
+          X=SGN*DDOT_(NBTRI,SFOLD,1,PINT,1)
           PROP(ISTATE,JSTATE,IPROP)=X
           PROP(JSTATE,ISTATE,IPROP)=X
         ELSE
-          X=SGN*DDOT_(NSIZ,AFOLD,1,PINT,1)
+          X=SGN*DDOT_(NBTRI,AFOLD,1,PINT,1)
           PROP(ISTATE,JSTATE,IPROP)=X
           PROP(JSTATE,ISTATE,IPROP)=-X
         END IF

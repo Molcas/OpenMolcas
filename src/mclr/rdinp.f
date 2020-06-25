@@ -28,7 +28,7 @@
 #include "WrkSpc.fh"
 #include "negpre.fh"
 #include "sa.fh"
-      Parameter ( nCom=37 )
+      Parameter ( nCom=38 )
       Character*72 Line
       Character*4 Command,ComTab(nCom)
       Character*8 Label
@@ -42,7 +42,7 @@
      &            'EXPD','NEGP','LOWM','ELHE','SAVE',
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
-     &            'THER','NEWC'/
+     &            'THER','NEWC','TWOS'/
       Dimension idum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
@@ -101,6 +101,8 @@
       Deco=.true.
       Update=.true.
       Estimate=.false.
+      TwoStep=.false.
+      StepType='xxxx'
 *----------------------------------------------------------------------*
 *     Read the input stream line by line and identify key command      *
 *----------------------------------------------------------------------*
@@ -194,6 +196,8 @@
           Go to 206
         Case (37)
           Go to 210
+        Case (38)
+          Go to 220
       End Select
 *---  TITL ------------------------------------------------------------*
 10    Continue
@@ -464,6 +468,27 @@
       Goto 2061
 *---  Process the "NEWCho input card ----------------------------------*
 210   NewCho=.True.
+      Goto 100
+*---  Process the "TWOStep" input card --------------------------------*
+220   Read(5,'(A)',Err=998,End=999) Line
+      Call LeftAd(Line)
+      Call UpCase(Line)
+      If (Line(1:1).eq.'*' ) Goto 220
+      Read(Line,*,Err=998,End=999) StepType
+      If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
+      If((StepType(1:4).ne.'FIRS').and.(StepType(1:4).ne.'SECO').and.
+     &   (StepType(1:4).ne.'RUN1').and.(StepType(1:4).ne.'RUN2')) Then
+         Call WarningMessage(2,'TWOStep: input error!')
+         Call Quit_OnUserError()
+      End If
+      If (StepType(1:4).eq.'FIRS') then
+        StepType(1:4)='RUN1'
+      End If
+      If (StepType(1:4).eq.'SECO') then
+        StepType(1:4)='RUN2'
+      End If
+      TwoStep=.true.
+      If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
       Goto 100
 *----------------------------------------------------------------------*
 *     "End of input"                                                   *

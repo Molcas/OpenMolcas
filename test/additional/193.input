@@ -7,7 +7,7 @@ RF center test
 SYmmetry
  x z
 
-Basis Function
+Basis set
 O.cc-pVDZ....
 O              0.0000000000        -.6007460000        0.0000000000
 End of Basis Set
@@ -17,7 +17,7 @@ Reaction Field
 80.0 3.6  7
 End of RF_Input
 
-Basis Function
+Basis Set
 H.cc-pVDZ....
 H1             1.4325644592        0.6007460000        0.0000000000
 End of Basis Set

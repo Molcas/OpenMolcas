@@ -22,14 +22,14 @@
 
 * Compute using conventional integral file:
       IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' INTCTL1 calling TRACTL...'
-       CALL XFLUSH(6)
+        WRITE(6,*)' INTCTL1 calling TRACTL...'
+        CALL XFLUSH(6)
       END IF
       Call TRACTL(0)
       CALL TRAONE(CMO)
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' INTCTL1 back from TRAONE.'
-       CALL XFLUSH(6)
+      IF (IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*)' INTCTL1 back from TRAONE.'
+        CALL XFLUSH(6)
       END IF
 c Compute FIMO, FAMO, ...  to workspace:
       CALL FOCK_RPT2

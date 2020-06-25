@@ -1,7 +1,7 @@
 Citation for |openmolcas| and |molcas|
 ======================================
 
-The recommended citation for |openmolcas| is:
+The recommended citations for |openmolcas| are:
 
   **OpenMolcas:** Ignacio Fdez. Galván, Morgane Vacher, Ali Alavi, Celestino
   Angeli, Francesco Aquilante, Jochen Autschbach, Jie J. Bao, Sergey I. Bokarev,
@@ -20,6 +20,19 @@ The recommended citation for |openmolcas| is:
   Zobel, Roland Lindh. "OpenMolcas: From Source Code to Insight." *Journal of
   Chemical Theory and Computation*, **15** (2019), 5925--5964. DOI:
   `10.1021/acs.jctc.9b00532 <https://doi.org/10.1021/acs.jctc.9b00532>`_
+
+  **Applications:** Francesco Aquilante, Jochen Autschbach, Alberto Baiardi,
+  Stefano Battaglia, Veniamin A. Borin, Liviu F. Chibotaru, Irene Conti, Luca De
+  Vico, Mikael Delcey, Ignacio Fdez. Galván, Nicolas Ferré, Leon Freitag, Marco
+  Garavelli, Xuejun Gong, Stefan Knecht, Ernst D. Larsson, Roland Lindh, Marcus
+  Lundberg, Per Åke Malmqvist, Artur Nenov, Jesper Norell, Michael Odelius,
+  Massimo Olivucci, Thomas B. Pedersen, Laura Pedraza-González, Quan M. Phung,
+  Kristine Pierloot, Markus Reiher, Igor Schapiro, Javier Segarra-Martí,
+  Francesco Segatta, Luis Seijo, Saumik Sen, Dumitru-Claudiu Sergentu,
+  Christopher J. Stein, Liviu Ungur, Morgane Vacher, Alessio Valentini, Valera
+  Veryazov. "Modern quantum chemistry with [Open]Molcas." *The Journal of
+  Chemical Physics*, **152** (2020), 214117. DOI: `10.1063/5.0004835
+  <https://10.1063/5.0004835>`_
 
 Earlier citations for |molcas| are:
 
@@ -82,7 +95,7 @@ The following people have contributed to the development of the
   Abdul Rehaman Moughal Shahi, Thomas Müller, Takahito Nakajima, Naoki Nakatani,
   Pavel Neogrády, Jesper Norell, Anders Öhrn, Jeppe Olsen, Markus Oppel, Thomas
   Bondo Pedersen, Daoling Peng, Kurt Pfingst, Quan Phung, Michal Pitoňák, Felix
-  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Markus Reiher, H.
+  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Gerardo Raggi, Markus Reiher, H.
   Rieger, Björn O. Roos, Ulf Ryde, Pawel Salek, Andrew M. Sand, Michael A.
   Saunders, Igor Schapiro, Bernd Schimmelpfennig, Martin Schütz, Luis Seijo, Luis
   Serrano-Andrés, Kamal Sharkas, Grigory A. Shamov, Prachi Sharma, Per E. M.

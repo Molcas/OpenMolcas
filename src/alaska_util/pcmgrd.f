@@ -27,7 +27,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              XRysg1                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *

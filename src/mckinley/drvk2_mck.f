@@ -39,6 +39,7 @@
 *              Modified 1995 for 2nd derivatives by AB                 *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -51,7 +52,6 @@
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "k2.fh"
       Real*8  Coor(3,2)
       Integer iDCRR(0:7), iShllV(2), iAngV(4), iCmpV(4)
       Logical New_fock

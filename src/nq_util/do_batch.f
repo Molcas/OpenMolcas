@@ -1946,7 +1946,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 !               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
 !               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               Call Calc_OTPUVXGGA(Work(LTEG_DB),TabMO,mAO,mGrid,
+               Call Calc_OTPUVXGGA_2(Work(LTEG_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)

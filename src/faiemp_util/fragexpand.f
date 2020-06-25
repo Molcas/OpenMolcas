@@ -249,8 +249,7 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
             nInfo = ipExp(iShll+1) - 1
             ninfo_stupid = nInfo
             If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
-     &        NucExp(iAtmNr(nCnttp),
-     &        iMostAbundantIsotope(iAtmNr(nCnttp)))
+     &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
           End Do
         End Do
  1000 Continue

@@ -34,7 +34,6 @@
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
       jCan(ix,iy,iz) = iOff(ix+iy+iz) + (iy+iz)*(iy+iz+1)/2 + iz + 1
 *
-*     Call QEnter('HrrMtrx')
       iPrint=5
       If (iPrint.ge.99) Then
          Call RecPrt('A',' ',A,1,3)
@@ -438,6 +437,5 @@
          Write (6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
       End If
 *
-*     Call QExit('HrrMtrx')
       Return
       End

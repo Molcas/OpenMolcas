@@ -104,6 +104,23 @@ def write_molcasrc(molcasrc, program='molcas'):
     print('')
 
   print("\n"
+  "MOLCAS_NEW_DEFAULTS\n"
+  "-------------------\n"
+  "Specify whether or not to use the new OpenMolcas defaults, in particular,\n"
+  "with new defaults enabled:\n"
+  "\n"
+  "* RICD will be enabled (disable with NOCD)\n"
+  "* IPEA shift will be disabled (set previous default with IPEA=0.25)\n"
+  "\n"
+  "Enter y or n, or press enter to keep the default (n):\n"
+  "y) YES: The new defaults will be used.\n"
+  "n) NO:  The previous defaults will be kept.")
+  ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+  if (ans != ''):
+    config.append('MOLCAS_NEW_DEFAULTS={}'.format(ans))
+    print('')
+
+  print("\n"
   "MOLCAS_TRAP\n"
   "-----------\n"
   "Specifies whether a calculation should stop when a module reports a failure.\n"

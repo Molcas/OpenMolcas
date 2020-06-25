@@ -70,43 +70,43 @@
       Logical, intent(in)          :: m_paranoid
       Logical, intent(in)          :: dbg
 
-      Real(kind=wp), intent(in)    :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp), intent(in)    :: dir_weight(nDirZee,3)
-      Real(kind=wp), intent(in)    :: hmin, hmax
-      Real(kind=wp), intent(in)    :: zj, thrs
-      Real(kind=wp), intent(in)    :: eso(nss)
-      Real(kind=wp), intent(in)    :: EM
-      Real(kind=wp), intent(in)    :: TempMagn(nTempMagn)
-      Real(kind=wp), intent(in)    :: hexp(nH)
-      Real(kind=wp), intent(in)    :: magn_exp(nH,nTempMagn)
+      Real(kind=8), intent(in)    :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8), intent(in)    :: dir_weight(nDirZee,3)
+      Real(kind=8), intent(in)    :: hmin, hmax
+      Real(kind=8), intent(in)    :: zj, thrs
+      Real(kind=8), intent(in)    :: eso(nss)
+      Real(kind=8), intent(in)    :: EM
+      Real(kind=8), intent(in)    :: TempMagn(nTempMagn)
+      Real(kind=8), intent(in)    :: hexp(nH)
+      Real(kind=8), intent(in)    :: magn_exp(nH,nTempMagn)
 
-      Complex(kind=wp), intent(in) ::   sm(3,nss,nss)
-      Complex(kind=wp), intent(in) :: dipm(3,nss,nss)
+      Complex(kind=8), intent(in) ::   sm(3,nss,nss)
+      Complex(kind=8), intent(in) :: dipm(3,nss,nss)
 !----------------------------------------------------------------
 !     local variables
       Integer       :: nP,iTEnd,iT,IM,I,L,J,IC,IDIR,IH,iTemp
-      Real(kind=wp) :: DLTH, mv, sv, dev, Boltz_k,mu_Bohr
+      Real(kind=8) :: DLTH, mv, sv, dev, Boltz_k,mu_Bohr
       Character(len=99):: STLNE1, STLNE2
 
-      Real(kind=wp), allocatable :: WM(:)         ! WM(nm)
-      Real(kind=wp), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
-      Real(kind=wp), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
+      Real(kind=8), allocatable :: WM(:)         ! WM(nm)
+      Real(kind=8), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
+      Real(kind=8), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
       ! magnetization and spin vectors
-      Real(kind=wp), allocatable :: MVEC(:,:,:,:)
+      Real(kind=8), allocatable :: MVEC(:,:,:,:)
 !                                   MVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=wp), allocatable :: SVEC(:,:,:,:)
+      Real(kind=8), allocatable :: SVEC(:,:,:,:)
 !                                   SVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=wp), allocatable :: H(:)          ! H(nH)
+      Real(kind=8), allocatable :: H(:)          ! H(nH)
       ! average powder M and S:
-      Real(kind=wp), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
-      Real(kind=wp), allocatable :: SAV(:,:) ! SAV(nH,nTempMagn)
+      Real(kind=8), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
+      Real(kind=8), allocatable :: SAV(:,:) ! SAV(nH,nTempMagn)
 
-      Real(kind=wp), allocatable :: ZT(:,:)  ! ZT(nH,nTempMagn)
-      Real(kind=wp), allocatable :: STDEV(:) ! STDEV(nTempMagn)
-      Real(kind=wp), allocatable :: dHX(:)   ! dHX(nDirTot)
-      Real(kind=wp), allocatable :: dHY(:)   ! dHY(nDirTot)
-      Real(kind=wp), allocatable :: dHZ(:)   ! dHZ(nDirTot)
-      Real(kind=wp), allocatable :: dHW(:)   ! dHW(nDirTot)
+      Real(kind=8), allocatable :: ZT(:,:)  ! ZT(nH,nTempMagn)
+      Real(kind=8), allocatable :: STDEV(:) ! STDEV(nTempMagn)
+      Real(kind=8), allocatable :: dHX(:)   ! dHX(nDirTot)
+      Real(kind=8), allocatable :: dHY(:)   ! dHY(nDirTot)
+      Real(kind=8), allocatable :: dHZ(:)   ! dHZ(nDirTot)
+      Real(kind=8), allocatable :: dHW(:)   ! dHW(nDirTot)
 
       Integer          :: mem_local, RtoB
 

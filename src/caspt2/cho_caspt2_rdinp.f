@@ -222,10 +222,13 @@
 ************************************************************************
 *                                                                      *
 999   Continue
-      If (IPRGLB.ge.TERSE) Then
-         WRITE(6,'(1X,A,I4)') 'Cholesky algorithm in CASPT2 = ',iALGO
-         WRITE(6,*)
-      End If
+* SB: this printout is misleading if one does not use the Cholesky
+* approximation and superfluous otherwise, since the algorithms
+* are not documented. The user ignores it anyway.
+      ! If (IPRGLB.ge.TERSE) Then
+      !    WRITE(6,'(1X,A,I4)') 'Cholesky algorithm in CASPT2 = ',iALGO
+      !    WRITE(6,*)
+      ! End If
 
       Return
 *                                                                      *

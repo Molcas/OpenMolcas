@@ -47,7 +47,7 @@ C positioning.
 
           CALL RHS_ALLO (NIN,NIS,lg_V2)
 
-          IF(BETA.NE.0.0D00) THEN
+          IF(BETA.NE.0.0D0) THEN
             CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
             IF(BETA.NE.1.0D00) THEN
               CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
@@ -56,13 +56,13 @@ C positioning.
 *           CALL RHS_SCAL (NIN,NIS,lg_V2,0.0D0)
           END IF
 
-          IF(ALPHA.NE.0.0D00) THEN
-            IF(BETA.NE.0.0D00) THEN
+          IF(ALPHA.NE.0.0D0) THEN
+            IF(BETA.NE.0.0D0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V1,WORK(LBD),WORK(LID))
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NAS,NIS,lg_V1)
+              CALL RHS_FREE (NIN,NIS,lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V2,WORK(LBD),WORK(LID))
@@ -71,7 +71,7 @@ C positioning.
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (NIN,NIS,lg_V2)
           CALL GETMEM('BD','FREE','REAL',LBD,NAS)
           CALL GETMEM('ID','FREE','REAL',LID,NIS)
  100  CONTINUE

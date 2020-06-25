@@ -101,8 +101,8 @@ C Active, and non-active, energy denominators:
           CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
 C Active, and non-active, corrections:
 C (Replace this strange example with something sensible)
-          CALL DCOPY_(NAS,0.0d0,0,WORK(LC1),1)
-          CALL DCOPY_(NIS,0.0d0,0,WORK(LC2),1)
+          CALL DCOPY_(NAS,[0.0d0],0,WORK(LC1),1)
+          CALL DCOPY_(NIS,[0.0d0],0,WORK(LC2),1)
 C Modifications are added to the usual diagonal energies:
           DO I=1,NAS
             WORK(LBD-1+I)=WORK(LBD-1+I)+WORK(LC1-1+I)

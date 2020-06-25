@@ -159,9 +159,9 @@ C     Call QEnter('LYP')
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *      dF/dRho
        dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
@@ -173,14 +173,14 @@ C     Call QEnter('LYP')
 101   Continue
       End Do
 
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     iSpin=/= 1
       Else
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *         write(6,*) 'mGrid',mGrid
 *         write(6,*) 'Rho_min',Rho_min
       tmpC_tot = 0.0d0
@@ -286,9 +286,9 @@ C     Call QEnter('LYP')
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
       Work(ip_tmpB+iGrid-1)=F_xc(iGrid)-Work(ip_tmpB+iGrid-1)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *       dF/dRhoa, dF/dRhob
         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)

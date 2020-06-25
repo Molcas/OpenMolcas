@@ -32,7 +32,8 @@
       use qcmaquis_interface_environment, only: print_dmrg_info
 #endif
       use fcidump, only : DumpOnly
-      use fciqmc, only : DoNECI
+      use fciqmc, only: DoNECI
+      use CC_CI_mod, only: Do_CC_CI
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -96,6 +97,8 @@
      &           KSDFT(1:5).eq.'TS12G'   .or.
      &           KSDFT(1:4).eq.'TPBE'    .or.
      &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:5).eq.'TOPBE'   .or.
+     &           KSDFT(1:6).eq.'FTOPBE'  .or.
      &           KSDFT(1:7).eq.'TREVPBE' .or.
      &           KSDFT(1:8).eq.'FTREVPBE'.or.
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
@@ -447,8 +450,8 @@ C.. for GAS
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
 *     If (NROOTS .GT. NCSASM(LSYM)) Then
-      If (.not. (DoNECI .or. DumpOnly .or. doDMRG .or. doBlockDMRG)
-     &    .and. (NROOTS > NCSASM(LSYM))) Then
+      If (.not. any([DoNECI, Do_CC_CI, DumpOnly, doDMRG, doBlockDMRG])
+     &    .and. NROOTS > NCSASM(LSYM)) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
          Write(LF,*) ' than there are configurations '

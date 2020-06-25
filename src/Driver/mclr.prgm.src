@@ -24,6 +24,8 @@
  (file)  CHTI          "$WorkDir/$Project".ChTI                 rw*
  (file)  CHIN          "$WorkDir/$Project".ChIN                 rw
  (file)  MCLRDENS      "$WorkDir/$Project".MclrDens             rwp
+ (file)  QDAT          "$WorkDir/$Project".Qdat                 rw*
+ (file)  MOTRA         "$WorkDir/$Project".tramo                rw*
 #include "orbitals.inc"
  (file)  LUHLF         "$WorkDir/"purge.tmp00                   rw*p
 #include "moldenfiles.inc"

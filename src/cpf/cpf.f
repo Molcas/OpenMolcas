@@ -21,15 +21,15 @@
 *                                                                      *
 ************************************************************************
       SUBROUTINE CPF(IRETURN)
-***********************************************************************
-*                                                                     *
-*                                C P F                                *
-* MODIFIED TO IBM BY ROLAND LINDH 02/17/88                            *
-* MODIFIED TO MOLCAS-2 BY ROLAND LINDH 03/26/91                       *
-* MODIFIED TO MOLCAS-3 BY M.P. FUELSCHER 08/31/93                     *
-* MODIFIED TO MOLCAS-4 BY P.A. MALMQVIST AND N.W.MORTIARTY 10/25/96   *
-* MODIFIED TO MOLCAS 4.1 BY R. LINDH 02/24/98 (Multi fileing)         *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*                                C P F                                 *
+* MODIFIED TO IBM BY ROLAND LINDH 02/17/88                             *
+* MODIFIED TO MOLCAS-2 BY ROLAND LINDH 03/26/91                        *
+* MODIFIED TO MOLCAS-3 BY M.P. FUELSCHER 08/31/93                      *
+* MODIFIED TO MOLCAS-4 BY P.A. MALMQVIST AND N.W.MORTIARTY 10/25/96    *
+* MODIFIED TO MOLCAS 4.1 BY R. LINDH 02/24/98 (Multi fileing)          *
+************************************************************************
 C
 C     UNITS USED IN THE PROGRAM
 C     UNIT  5 , INPUT

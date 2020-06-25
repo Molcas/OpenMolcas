@@ -465,7 +465,7 @@ The input for each module is preceded by its name like: ::
               </HELP>
               </KEYWORD>
               %%Keyword: PRINtlevel <advanced>
-              Sets the amount of the program verbosity as 0..2. Default:0.
+              Sets the amount of the program verbosity as 0..2. Default: 0.
 
 :kword:`LOAD`
   This keyword is followed by the line which specifies the

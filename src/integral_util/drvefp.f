@@ -24,7 +24,7 @@
       Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       Integer(c_size_t) :: frag_idx
       Integer(c_size_t), Target :: n_atoms
-#define _DEBUG_
+*define _DEBUG_
 #ifdef _DEBUG_
       type(efp_energy), Target :: Energy
       Integer(c_int) :: do_gradient

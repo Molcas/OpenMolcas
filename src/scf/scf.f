@@ -69,7 +69,7 @@
       Semi_Direct = DSCF .and. (nDisc.ne.0 .or. (nCore.ne.0
      &      .and. nDisc.eq.0))
       If (Semi_Direct) Then
-         Call GetMem('MaxMem','Max','Real',iDum,MemSew)
+         Call mma_MaxDBLE(MemSew)
          MemLow=Min(MemSew/2,1024*1024)
          MemSew=Max(MemSew/10,MemLow)
          Call xsetmem_ints(MemSew)

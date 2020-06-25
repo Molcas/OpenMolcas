@@ -13,29 +13,29 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)           :: N1, N2
-      Complex(kind=wp), intent(in)  :: HEXCH(N1,N1,N2,N2)
-      Complex(kind=wp), intent(out) :: Jpar( (N1-1), -(N1-1):(N1-1),
+      Complex(kind=8), intent(in)  :: HEXCH(N1,N1,N2,N2)
+      Complex(kind=8), intent(out) :: Jpar( (N1-1), -(N1-1):(N1-1),
      &                                       (N2-1), -(N2-1):(N2-1) )
 ! local variables
       Integer                       :: k1,k2,q1,q2,ipr,i1,i2,j1,j2,i
-      Real(kind=wp)                 :: F, THRS, R, knm(12,0:12)
-      Complex(kind=wp)              :: F1, F2, F12, CI
-      Complex(kind=wp)              :: trace_exch, trace, fact
-      Complex(kind=wp), allocatable :: O1(:,:), W1(:,:)
-      Complex(kind=wp), allocatable :: O2(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: O1_O2(:,:,:,:) !(N1,N1,N2,N2)
-      Complex(kind=wp), allocatable :: O1_W2(:,:,:,:) !(N1,N1,N2,N2)
-      Complex(kind=wp), allocatable :: W1_O2(:,:,:,:) !(N1,N1,N2,N2)
-      Complex(kind=wp), allocatable :: W1_W2(:,:,:,:) !(N1,N1,N2,N2)
+      Real(kind=8)                 :: F, THRS, R, knm(12,0:12)
+      Complex(kind=8)              :: F1, F2, F12, CI
+      Complex(kind=8)              :: trace_exch, trace, fact
+      Complex(kind=8), allocatable :: O1(:,:), W1(:,:)
+      Complex(kind=8), allocatable :: O2(:,:), W2(:,:)
+      Complex(kind=8), allocatable :: O1_O2(:,:,:,:) !(N1,N1,N2,N2)
+      Complex(kind=8), allocatable :: O1_W2(:,:,:,:) !(N1,N1,N2,N2)
+      Complex(kind=8), allocatable :: W1_O2(:,:,:,:) !(N1,N1,N2,N2)
+      Complex(kind=8), allocatable :: W1_W2(:,:,:,:) !(N1,N1,N2,N2)
 
-      Complex(kind=wp) :: Jcc( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
-      Complex(kind=wp) :: Jcs( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
-      Complex(kind=wp) :: Jsc( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
-      Complex(kind=wp) :: Jss( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
+      Complex(kind=8) :: Jcc( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
+      Complex(kind=8) :: Jcs( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
+      Complex(kind=8) :: Jsc( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
+      Complex(kind=8) :: Jss( (N1-1),0:(N1-1), (N2-1),0:(N2-1) )
 
       External         :: trace_exch, trace
       Logical          :: DBG
-!      Real(kind=wp)    :: cm_to_MHz
+!      Real(kind=8)    :: cm_to_MHz
 !-----------------------------------------------------------------------
       knm=0.0_wp
       Call Set_knm(knm)

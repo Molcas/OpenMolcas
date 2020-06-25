@@ -17,7 +17,7 @@
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
-     &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+     &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -83,7 +83,7 @@
          Fact=One
       End If
       nCent=3
-*     Write (*,*)
+*     Write (6,*)
 *
       Do mAtom_ = 1, mAtoms
          mAtom = iTabAI(1,mAtom_)
@@ -112,8 +112,8 @@
 *
             iBond = iTabAtoms(2,iNeighbor,mAtom_)
             iBondType=iTabBonds(3,iBond)
-            If (iBondType.eq.vdW_Bond) Go To 200
-            If (iBondType.gt.Magic_Bond) Go To 200
+            If (iBondType.eq.vdW_Bond.or.
+     &          iBondType.gt.Magic_Bond) Go To 200
 #ifdef _DEBUG_
             Write (6,*)
             Write (6,*) 'iAtom,mAtom=',iAtom,mAtom
@@ -149,8 +149,8 @@
 *
                jBond = iTabAtoms(2,jNeighbor,mAtom_)
                jBondType=iTabBonds(3,jBond)
-               If (jBondType.eq.vdW_Bond) Go To 300
-               If (jBondType.gt.Magic_Bond) Go To 300
+               If (jBondType.eq.vdW_Bond.or.
+     &             jBondType.gt.Magic_Bond) Go To 300
 #ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'jAtom,mAtom=',jAtom,mAtom
@@ -329,7 +329,6 @@
 *
 *------------- Skip cases with a too small angle.
 *
-               Thr_Small=(30.D00/180.D00)*Pi
                If (Abs(Val_Ref).lt.Thr_Small .and.
      &             iBondType.ne.Fragments_Bond .and.
      &             jBondType.ne.Fragments_Bond) Go To 300
@@ -337,18 +336,33 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*              We'd like to avoid the problem with angles that have the
+*              value Pi. We introduce "linear" angles under two
+*              conditions.
+*              (1) the reference angle is within delta of Pi.
+*              (2) the actual angle is within 1.0D-11 of Pi.(?)
+*              Delta is set to 1.0D-11 if there are 3 atoms.(?)
+*
                delta=(45.0D0/180.0D0)*Pi
-               If (mAtoms.eq.3) delta=1.0D-11
-               If (Abs(Val_Ref-Pi).lt.Delta .or.
-     &             Abs(Val-Pi).lt.1.0D-11) Then
+*              If (mAtoms.eq.3) delta=1.0D-11 ! I do not understand
+*              although it is probably me who introduced it!
+*
+               If ( (Abs(Val_Ref-Pi).lt.Delta .or.
+     &               Abs(Val-Pi).lt.1.0D-11) .and.
+     &            .NOT.(
+     &                  (iBondType.eq.Fragments_Bond .or.
+     &                   jBondType.eq.Fragments_Bond)
+     &                   .and. mAtoms.le.4
+     &                  )
+     &            ) Then
 *
 *---------------- Reference is linear(a) or
 *---------------- reference is NOT linear but the new structure is(b).
 *
                   If (Abs(Val-Pi).lt.1.0D-11 .and.
      &                .Not.(Abs(Val_Ref-Pi).lt.Delta)) Then
-*                   Case b
-                    nk=1
+*                    Case b
+                     nk=1
                   Else
 *                    Case a
                      nk=2
@@ -416,12 +430,10 @@ C                 Do k = 1, 2
 *
 *---------------------- Flip Angle value and gradient if needed!
 *
-                        BB=DDot_(9,Grad_all(1,nq,iPrv),1,
-     &                            Grad_all(1,nq,iIter),1)
+                        BB=DDot_(9,Grad_all(1,nq, iPrv),1,
+     &                             Grad_all(1,nq,iIter),1)
                         If (BB.lt.Zero) Then
-*                          Write (*,*) 'BB=',BB
-*                          Write (*,*) ' Angle flips, corrected!'
-*                          Write (*,*) ' iPrv,iIter=', iPrv,iIter
+*                          Write (6,*) ' Angle flips, corrected!'
                            Val=Two*Pi-Val
                            Call DScal_(9,-One,
      &                                Grad_all(1,nq,iIter),1)
@@ -502,7 +514,6 @@ C                 Do k = 1, 2
      &                       Lbls(1)(iF1:iE1),
      &                   ' ',Lbls(2)(iF2:iE2),
      &                   ' ',Lbls(3)(iF3:iE3)
-*                 Write (*,*) 'iDeg=',iDeg
 #endif
                   Label=' '
                   Write (Label,'(A,I3.3)') 'a',nqA

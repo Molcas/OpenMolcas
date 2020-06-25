@@ -31,8 +31,8 @@ c   dE( iLn, iLS, iJ )
 c-----------------------------------------------------------------------
       Integer       :: iLn, iLS, iJ
       Integer       :: iK, ika, iP, iph
-      Real(kind=wp) :: Jx(5,4,17, 0:7, -5:5, 0:1, -1:1)
-      Real(kind=wp) :: dE(5,4,17)
+      Real(kind=8) :: Jx(5,4,17, 0:7, -5:5, 0:1, -1:1)
+      Real(kind=8) :: dE(5,4,17)
 
       Do iLn=1,5
         Do iLS=1,4

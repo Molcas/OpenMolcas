@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+# Copyright (C) 2017,2020, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 '''
@@ -25,7 +25,7 @@ import argparse
 from codecs import getwriter
 from locale import getpreferredencoding
 from io import open
-from os.path import isfile, join
+from os.path import isfile, join, relpath, splitext
 from os import walk
 
 try:
@@ -60,11 +60,6 @@ if sys.stdout.isatty():
 else:
   init(strip=True)
 
-#try:
-#  sys.stdout = getwriter(getpreferredencoding())(sys.stdout.detach())
-#except AttributeError:
-#  sys.stdout = getwriter(getpreferredencoding())(sys.stdout)
-
 files = []
 if (isfile(args['root'])):
   files.append(args['root'])
@@ -73,12 +68,18 @@ else:
     for fname in fnames:
       files.append(join(dname, fname))
 
+rc = 0
+
 authors = {}
 
 for filename in sorted(files):
 
   copyright = []
   if (isfile(filename)):
+    if (filename == args['root']):
+      relfile = filename
+    else:
+      relfile = relpath(filename, args['root'])
     with open(filename, 'r', encoding='utf-8') as f:
       header = False
       copy = False
@@ -86,7 +87,7 @@ for filename in sorted(files):
         for l in f:
           if (l.find('This file is part of OpenMolcas') > 0):
             header = True
-          elif (header and (l.find('Copyright (C)') >= 0)):
+          elif (header and re.search(r'copyright', l, re.IGNORECASE)):
             copy = True
           elif (header and (l.find(70*'*') >= 0)):
             break
@@ -100,39 +101,45 @@ for filename in sorted(files):
               copyright.append([year, name])
               aname = re.sub(r'\s*\(.*', '', name)
               if (aname in authors):
-                authors[aname].append(filename)
+                authors[aname].append(relfile)
               else:
-                authors[aname] = [filename]
+                authors[aname] = [relfile]
             elif (args['report']):
-              print('{0}*** {1}: Format error ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+              print('{0}*** {1}: Format error ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
               print(l)
+              rc = 1
         if (not header and args['report']):
-          print('{0}*** {1}: No header ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+          print('{0}*** {1}: No header ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
+          if (splitext(filename)[1] in ['.f', '.F', '.f90', '.F90', '.fh', '.c', '.h']):
+            rc = 1
       except UnicodeDecodeError:
         if (args['report']):
-          print('{0}*** Problem decoding {1} ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+          print('{0}*** Problem decoding {1} ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
+          rc = 1
 
   # Write all copyrights
   if (args['print']):
     fmt = '© {0}{{0}}{1}, {2}{{1}}{1}'.format(Fore.RED, Style.RESET_ALL, Fore.BLUE)
     if (len(copyright) > 0):
-      print('··· {0} ···'.format(filename))
+      print('··· {0} ···'.format(relfile))
     for item in copyright:
       print(fmt.format(item[0],item[1]))
 
   # Find issues
   if (args['no_copyright']):
     if (len(copyright) == 0):
-      print('{0}*** {1}: No copyright ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+      print('{0}*** {1}: No copyright ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
   if (args['report']):
     names = set([])
     for item in copyright:
       if (re.search('[\d,]', item[1])):
-        print('{0}*** {1}: Name error? ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+        print('{0}*** {1}: Name error? ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
         print(item[1])
+        rc = 1
       if (item[1] in names):
-        print('{0}*** {1}: Duplicate name ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+        print('{0}*** {1}: Duplicate name ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
         print(item[1])
+        rc = 1
       else:
         names.add(item[1])
 
@@ -144,3 +151,5 @@ if (args['authors']):
     print('------------------')
     for f in (authors[k]):
       print(f)
+
+sys.exit(rc)

@@ -36,6 +36,8 @@ C initialize global common-block variables appropriately.
       Integer Algo
       COMMON /CHORAS  / REORD,DECO,ALGO
       COMMON /CHOTIME / timings
+* Environment
+      Character(Len=180) Env
 
       Integer I, J, M, N
       Integer ISYM
@@ -48,54 +50,69 @@ C initialize global common-block variables appropriately.
 
       CALL QENTER('READIN')
 
-* basis of 0-order hamiltonian?
-      HZERO = Input % HZero
-      If (HZERO.NE.'STANDARD'.AND.HZERO.NE.'CUSTOM') Then
+* Hzero and Focktype are merged together into Hzero. We keep the
+* variable Focktype not to break the input keyword which is documented
+* in the manual. However, eventually we will have to keep only Hzero
+* and remove Focktype.
+      Hzero = input%Hzero
+      if (Hzero.ne.'STANDARD'.and.Hzero.ne.'CUSTOM') then
         call WarningMessage(2,
-     &   'invalid 0-order hamiltonian: '//TRIM(HZERO))
+     &   'invalid 0th-order Hamiltonian: '//TRIM(Hzero))
         call Quit_OnUserError
-      End If
+      end if
+
 * Choose Focktype, reset IPEA shift to 0 for non-standard fock matrices
-      FOCKTYPE = Input % FockType
-      IF (FOCKTYPE.ne.'STANDARD') Then
-        If (IfChol) Then
-          Call WarningMessage(2,'Requested FOCKTYPE not possible.')
+      Focktype = input%Focktype
+      if (Focktype.ne.'STANDARD') then
+        if (IfChol) then
+          Call WarningMessage(2,'Requested FOCKtype not possible.')
           WRITE(6,*)'Calculations using Cholesky vectors can only'
-          WRITE(6,*)'be used with the standard focktype!'
+          WRITE(6,*)'be used with the standard FOCKtype!'
           Call Quit_OnUserError
-        End If
-        BSHIFT=0.0D0
-        HZERO = TRIM(HZERO)//' WITHOUT IPEA'
-        If (IPRGLB.ge.TERSE) Then
-          Call WarningMessage(1,
-     &         'non-standard focktype, IPEA not active!')
-        End If
-      ELSE
+        end if
+* If both Hzero and Focktype are not standard, quit
+        if (Hzero.ne.'STANDARD') then
+          Call WarningMessage(2,'Requested combination of FOCKtype'//
+     &                          ' and HZERo not possible.')
+          Call Quit_OnUserError
+        end if
+* IPEA different from zero only for standard Focktype
+        if (BSHIFT.gt.0.0d0.or.BSHIFT.lt.0.0d0) then
+          BSHIFT = 0.0d0
+          if (IPRGLB.ge.TERSE) then
+            call WarningMessage(1,'IPEA shift reset to zero!')
+          end if
+        end if
+      else
 * user-specified IPEA shift or not?
-        If (Input % IPEA) Then
-          BSHIFT = Input % BSHIFT
-          HZERO = TRIM(HZERO)//' WITH CUSTOM IPEA'
-        Else
-          BSHIFT=0.25D0
-          HZERO = TRIM(HZERO)//' WITH DEFAULT IPEA'
-        End If
-* Notifiy that Hzero is different for XMS calculations.
-* SB: Don't talk about IPEA. Actually, I am not sure that
-* IPEA can be used with XMS
-        If (Input % XMUL) Then
-          HZERO = 'XMS'
-        End If
-      END IF
+        if (input%IPEA) then
+          BSHIFT = input%BSHIFT
+        else
+* Set default IPEA to 0.25 Eh or 0.0
+          call getenvf('MOLCAS_NEW_DEFAULTS', Env)
+          call upcase(Env)
+          if (Env.eq.'YES') then
+            BSHIFT = 0.0d0
+          else
+            BSHIFT = 0.25d0
+          end if
+        end if
+      end if
+
+* Copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
+      if (Hzero.ne.'CUSTOM') then
+        Hzero = Focktype
+      end if
+
 * print warnings if deviating from the default
-      If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.AND.
-     &    HZERO.NE.'XMS'.OR.FOCKTYPE.NE.'STANDARD') Then
-        IF (IPRGLB.ge.TERSE) THEN
-          Call WarningMessage(1,'User-modified 0-order hamiltonian!')
-        End If
-      End If
+      if (Hzero.ne.'STANDARD') then
+        call warningmessage(1,'User-modified 0th-order Hamiltonian!')
+      end if
+
 * real/imaginary shifts
       SHIFT = Input % Shift
       SHIFTI = Input % ShiftI
+
 * RHS algorithm selection
 #ifdef _MOLCAS_MPP_
 #  ifdef _GA_
@@ -171,33 +188,74 @@ C     really parallel or not.
       MSTATE = 0
       NGROUP = 0
       NGROUPSTATE = 0
-      If(Input%MULT) Then
+* This is the case for MS-CASPT2 and DW-CASPT2
+      If (Input%MULT) Then
         If (Input%XMUL) Then
           Call WarningMessage(2,'Keyword MULTistate cannot be used '//
      &                          'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
-        Do I=1,Input%nMultState
-          NGROUP = NGROUP + 1
-          NGROUPSTATE(NGROUP) = 1
-          MSTATE(I) = Input%MultGroup%State(I)
-          NSTATE = NSTATE + 1
-        End Do
+* Either the states were specified manually or the keyword "all"
+* was used, so first we check the keyword all
+        If (Input%AllMult) Then
+          NSTATE = NROOTS
+          MSTATE = IROOT
+          NGROUP = NSTATE
+          NGROUPSTATE(1:NGROUP)=1
+        Else
+* Save the states that need to be computed
+          Do I=1,Input%nMultState
+            MSTATE(I) = Input%MultGroup%State(I)
+            NSTATE = NSTATE + 1
+          End Do
+          NGROUP = Input%nMultState
+          NGROUPSTATE(1:NGROUP) = 1
+        End If
       End If
       IOFF=NSTATE
-      If(Input%XMUL) Then
-        If (Input%MULT) Then
-          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
+* This is the case for XMS-CASPT2 and XDW-CASPT2
+      if (Input%XMUL) then
+        if (Input%MULT) then
+          call WarningMessage(2,'Keyword XMULtistate cannot be used '//
      &                          'together with keyword MULTistate.')
-          Call Quit_OnUserError
-        End If
-        NGROUP = NGROUP + 1
-        NGROUPSTATE(NGROUP) = Input%nXMulState
-        Do I=1,Input%nXMulState
-          MSTATE(IOFF+I) = Input%XMulGroup%State(I)
-          NSTATE = NSTATE + 1
-        End Do
-        IOFF = IOFF + Input%nXMulState
+          call Quit_OnUserError
+        end if
+        IFSilPrRot = Input%SilentPrRot
+        IFNOPT2=Input%IFNOPT2
+* This is a XDW-CASPT2 calculation. It is actually more similar to
+* a MS-CASPT2 one since we need to put one state per group and thus
+* have as many groups as states. Nevertheless, it makes more sense
+* from the user point of view to ask for it through XMUL and DWMS
+        if (Input%DWMS) then
+          if (Input%AllXMult) Then
+            NSTATE = NROOTS
+            MSTATE = IROOT
+            NGROUP = NSTATE
+            NGROUPSTATE(1:NGROUP)=1
+          else
+            do I=1,Input%nXMulState
+              MSTATE(I) = Input%XMulGroup%State(I)
+              NSTATE = NSTATE + 1
+            end do
+            NGROUP = Input%nXMulState
+            NGROUPSTATE(1:NGROUP) = 1
+          end if
+* This is a XMS-CASPT2: one group with all the states
+        else
+          if (Input%AllXMult) Then
+            NSTATE = NROOTS
+            MSTATE = IROOT
+            NGROUP=1
+            NGROUPSTATE(1)=NSTATE
+          else
+            NGROUP = 1
+            NGROUPSTATE(NGROUP) = Input%nXMulState
+            do I=1,Input%nXMulState
+              MSTATE(I) = Input%XMulGroup%State(I)
+              NSTATE = NSTATE + 1
+            end do
+          end if
+        end if
       End If
 * After parsing mult or xmult, check that no two equal states where
 * given in the input
@@ -225,18 +283,13 @@ C     really parallel or not.
         NGROUP=1
         NGROUPSTATE(1)=1
       End If
-* If still nothing was selected, we should default to computing all the
+* If still nothing was selected we should default to compute all the
 * roots that were part of the rasscf orbital optimization.
-      IF(NSTATE.EQ.0) THEN
+      IF (NSTATE.EQ.0) THEN
         NSTATE=NROOTS
         MSTATE=IROOT
-        If (Input%AllXMult) Then
-          NGROUP=1
-          NGROUPSTATE(1)=NSTATE
-        Else
-          NGROUP=NSTATE
-          NGROUPSTATE(1:NGROUP)=1
-        End If
+        NGROUP=NSTATE
+        NGROUPSTATE(1:NGROUP)=1
       END IF
 * Find the group number for OnlyRoot
       If (NLYROOT.ne.0) Then
@@ -356,10 +409,25 @@ C     really parallel or not.
 * flags for enabling/disabling sections
       IFPROP = Input % Properties
       IFDENS = Input % DENS
-      IFMIX = .NOT.Input % NoMix
+      IFMIX  = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
       IFXMS = Input % XMUL
+      IFDW = Input % DWMS
+* Set exponent for DWMS
+      if (IFDW) then
+        zeta = Input % zeta
+      end if
+
+      IFEFOCK = Input % EFOC
+      if (Input % EFOC) then
+        if (.not.(IFXMS.and.IFDW)) then
+          Call WarningMessage(2,'Keyword EFOCk can only be used'//
+     &                          'in (X)DW-CASPT2 calculations.')
+          Call Quit_OnUserError
+        else
+        end if
+      end if
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

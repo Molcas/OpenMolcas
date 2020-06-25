@@ -17,10 +17,10 @@ c================================================= ======
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)            :: N,MA
-      Complex(kind=wp), intent(inout):: A(MA,MA)
+      Complex(kind=8), intent(inout):: A(MA,MA)
       Integer                        :: I,J,K,L,K1
-      Real(kind=wp)                  :: P,Q
-      Complex(kind=wp)               :: CP,CQ
+      Real(kind=8)                  :: P,Q
+      Complex(kind=8)               :: CP,CQ
 C
       I=0
       CDET = (0.0_wp,0.0_wp)

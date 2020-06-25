@@ -16,7 +16,7 @@
 *                                                                           *
 * Purpose: to select orbitals, which will be frozen in the CASPT2           *
 * calculations based on a selection of atoms controlled by the input        *
-* keyword ATOMS.                                                            *
+* keyword AFREeze.                                                          *
 * Each inactive orbital is checked for the fraction of electrons located    *
 * on the selected atoms. If smaller than a given threshold, the orbital     *
 * will be frozen.                                                           *
@@ -44,7 +44,8 @@
 #include "real.fh"
 #include "stdalloc.fh"
 *
-      CHARACTER(4) NAME(2,*),NAMFRO(*)
+      CHARACTER(LENIN8) NAME(*)
+      CHARACTER(4) NAMFRO(*)
       DIMENSION NBAS(NSYM),NFRO(NSYM),NISH(NSYM),NASH(NSYM),NSSH(NSYM),
      &          NDEL(NSYM)
       DIMENSION LABFRO(mxbas),DPQ(*)
@@ -118,7 +119,7 @@
       Enddo
 *      write(6,*) 'Starting the calculation',nb2
       Do i=1,nb2
-       DPQ(i)=0.d0
+       DPQ(i)=0.0d0
       Enddo
       ib=0
       imo0=0
@@ -169,7 +170,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.d0
+          chksum=0.0d0
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -187,7 +188,7 @@
           Do np=1,nbi
            ipp=ipp+np
            Do iname=1,lnfro
-            if(name(1,ib+np).eq.namfro(iname)) selch=selch+DPQ(ipp)
+            if(name(ib+np)(1:4).eq.namfro(iname)) selch=selch+DPQ(ipp)
            Enddo
           Enddo
           If(abs(selch).lt.thrfr) labfro(ni)=1
@@ -272,7 +273,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.d0
+          chksum=0.0d0
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -291,7 +292,7 @@
           Do np=1,nbi
            ipp=ipp+np
            Do iname=1,lnfro
-            if(name(1,ib+np).eq.namfro(iname)) selch=selch+DPQ(ipp)
+            if(name(ib+np)(1:4).eq.namfro(iname)) selch=selch+DPQ(ipp)
            Enddo
           Enddo
           If(abs(selch).gt.thrde) labfro(ni)=1

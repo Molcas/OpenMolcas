@@ -687,7 +687,12 @@ cmp
 #ifdef _MOLCAS_MPP_
 
         it1=NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2)
-        call gadgop (ccsdt,1,'+')
+        block
+            real*8 :: real_buffer(1)
+            real_buffer(1) = ccsdt
+            call gadgop (real_buffer, size(real_buffer), '+')
+            ccsdt = real_buffer(1)
+        end block
         call gadgop (energ,4,'+')
         call gadgop (times_parr,10,'+')
 c

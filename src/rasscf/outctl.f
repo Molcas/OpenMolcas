@@ -528,7 +528,29 @@ C Local print level (if any)
 
       iTol = Cho_X_GetTol(8)
       if(doDMRG) iTol = 6
-      Call Add_Info('E_RASSCF',ENER(1,ITER),NRoots,iTol)
+*
+      Line(1:8)='E_RASSCF'
+      j=8
+      Do i=1, nRoots
+         If (nRoots.gt.1) Then
+            If (i-1.lt.10) Then
+               j=11
+               Write (Line(9:j),'(A,I1,A)') '[',i-1,']'
+            Else If (i-1.lt.100) Then
+               j=12
+               Write (Line(9:j),'(A,I2,A)') '[',i-1,']'
+            Else If (i-1.lt.1000) Then
+               j=13
+               Write (Line(9:j),'(A,I3,A)') '[',i-1,']'
+            Else If (i-1.lt.10000) Then
+               j=14
+               Write (Line(9:j),'(A,I4,A)') '[',i-1,']'
+            End If
+         Else
+            j=8
+         End If
+         Call Add_Info(Line(1:j),ENER(iRoot(i),ITER),1,iTol)
+      End Do
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
 *---------------------------------------------------------------
@@ -670,9 +692,9 @@ C Local print level (if any)
         Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,
      &            CMO,OCCN,Dum,iDum,Note)
         CALL PRPT()
-*                                                                     *
-***********************************************************************
-*       Store away the dipole moment of this state                    *
+*                                                                      *
+************************************************************************
+*       Store away the dipole moment of this state                     *
 *
         Call Qpg_dArray('Dipole Moment',Do_DM,iDum(1))
         If (Do_DM) Then
@@ -681,9 +703,9 @@ C Local print level (if any)
 *          Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
            Call DCopy_(3,Work(ipDM),1,Work(ipDMs+(KROOT-1)*3),1)
         End If
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *       Compute spin orbitals and spin population
 *       (Note: this section overwrites the pseudo natural orbitals
