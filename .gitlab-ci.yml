@@ -216,13 +216,17 @@ checks:
       echo
       echo "POSSIBLE HEADER ISSUES"
       echo "----------------------"
-      sbin/copyright -r ${TMPDIR}
+      sbin/copyright -r ${TMPDIR} || FAILED=1
     - |
       echo
       echo "POSSIBLE STYLE ISSUES"
       echo "---------------------"
       export MOLCAS=${TMPDIR}
-      sbin/check_style
+      sbin/check_style || FAILED=1
+    - |
+      if [ "$FAILED" == "1" ] ; then
+        false
+      fi
   <<: *compile-jobs
 
 # A special job for compiling the tinker interface

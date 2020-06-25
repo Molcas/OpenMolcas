@@ -3,7 +3,6 @@
 >export Molcas_SolvDir=$WorkDir
 >export Molcas_OldDir=$WorkDir
  &SEWARD &END
-CSOff
 TITLE
 Solvent orbitals
 Multipoles
@@ -28,7 +27,6 @@ END OF INPUT
 
 ****THE REST****
  &Seward &End
-CSOff
 Nemo
 Basis Set
 C.ano-s.Pierloot.10s6p3d.4s3p1d.

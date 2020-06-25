@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1994,2004,2014,2017,2019, 2020, Roland Lindh           *
+* Copyright (C) 1994,2004,2014,2017,2019,2020, Roland Lindh            *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
