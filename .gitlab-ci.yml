@@ -202,8 +202,10 @@ checks:
   interruptible: true
   script:
     - |
-      if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_SHA}" ] ; then
-        TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_SHA}"
+      if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
+        git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
+        git fetch upstream
+        TARGET_BRANCH="upstream/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
       else
         TARGET_BRANCH="origin/master"
       fi
