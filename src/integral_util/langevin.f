@@ -22,11 +22,9 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-
       iRout = 1
       iPrint = nPrint(iRout)
       Call qEnter('Langevin')
-
 *                                                                      *
 ************************************************************************
 *                                                                      *

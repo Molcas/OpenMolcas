@@ -17,6 +17,7 @@
 #include "info.fh"
        Logical NonEq
 *
+       tK=1.0D-99 ! Boltzman factor, initial set to 0 K
        If (RctFld_Status.eq.Active) Return
        mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
        nMM = 2 * mMM
