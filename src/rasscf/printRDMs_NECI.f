@@ -32,7 +32,7 @@
         do i = 1, (NAC*(NAC+1)/2)
           idx1 = one_el_idx(i, p, q)
           if(abs(DMAT(i)).gt.thrsh)
-     &       write(6,'(I6,F20.12)') i, dmat(i)
+     &       write(6,'(2I6,F20.12)') p, q, dmat(i)
 !     &       write(6,'(1X,4I5,F20.12)')idx1,0,0,DMAT(i)
         end do
 

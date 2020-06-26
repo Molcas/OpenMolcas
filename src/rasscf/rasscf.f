@@ -1583,6 +1583,21 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
+!       If ( IPRLEV.ge.DEBUG ) then
+       CALL TRIPRT("Averaged one-body density matrix, D, in RASSCF"," ",
+     &       work(ldmat),NAC)
+       CALL TRIPRT("Averaged two-body density matrix, P"," ",
+     &       work(lpmat),NACPAR)
+       CALL TRIPRT("Averaged antisym 2-body DM PA RASSCF"," ",
+     &       work(lpa) , NACPAR)
+
+************************************************************************
+************ Priniting final RDMs in NECI format    *****************
+************************************************************************
+       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
+!       end if
+
+
 *
 * Convergence check:
 * check is done on largest BLB matrix
@@ -1950,19 +1965,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
-!       If ( IPRLEV.ge.DEBUG ) then
-       CALL TRIPRT("Averaged one-body density matrix, D, in RASSCF"," ",
-     &       work(ldmat),NAC)
-       CALL TRIPRT("Averaged two-body density matrix, P"," ",
-     &       work(lpmat),NACPAR)
-       CALL TRIPRT("Averaged antisym 2-body DM PA RASSCF"," ",
-     &       work(lpa) , NACPAR)
 
-************************************************************************
-************ Priniting final RDMs in NECI format    *****************
-************************************************************************
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-!       end if
 ************************************************************************
 ******************      Closing up RASSCF    *******************
 ************************************************************************
