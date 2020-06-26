@@ -74,7 +74,7 @@
       ip(:)=-1
       LenTot=0
       Do iComp = 1, nComp
-         ip(1)=1+LenTot
+         ip(iComp)=1+LenTot
          LenInt=n2Tri(lOper(iComp))
          LenTot=LenTot+LenInt+4
       End Do
