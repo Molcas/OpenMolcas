@@ -209,12 +209,13 @@ checks:
       else
         TARGET_BRANCH="origin/master"
       fi
+      TARGET_SHA = $(git show-ref -s ${TARGET_BRANCH})
       TMPDIR=$(mktemp -d)
-      for FILE in $(git diff-index --cached --name-only ${TARGET_BRANCH})
+      for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
       do
         git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
       done
-      echo "diff between ${CI_COMMIT_SHA} and ${TARGET_BRANCH}"
+      echo "diff between ${CI_COMMIT_SHA} and ${TARGET_SHA}"
     - |
       echo
       echo "POSSIBLE HEADER ISSUES"
