@@ -35,12 +35,12 @@
 *             R. Lindh                                                 *
 *                                                                      *
 ************************************************************************
+*     use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO), V_k(mV_k)
@@ -60,7 +60,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,1,D0)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
       End If
 #endif

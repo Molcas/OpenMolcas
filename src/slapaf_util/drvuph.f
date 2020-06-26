@@ -16,8 +16,14 @@
 #include "real.fh"
 #include "print.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
-      Logical Found, DoMask
+      Logical Found, DoMask,Test
       Character*6 HUpMet
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Statement function
+*
+      Test(i)=iAnd(iOptH,2**(i-1)).eq.2**(i-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,7 +47,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (jPrint.ge.6) Then
+      If (jPrint.ge.6 .and..Not.Test(4)) Then
          Write (Lu,*)
          If (nIter.lt.iSt) Then
             Write (Lu,*) 'No update of Hessian on the first iteration'

@@ -22,11 +22,9 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-
       iRout = 1
       iPrint = nPrint(iRout)
       Call qEnter('Langevin')
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -147,7 +145,7 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
             Call lattcr(Work(ipGrid),nGrid,nGrid_Eff,
      &           Work(ipPolEf),Work(ipDipEf),
      &           Work(ipCord),maxato,Work(ipAtod),nPolComp,
-     &           Work(ipXF),nXF,nOrd_XF,iWork(ipXEle),iXPolType)
+     &           Work(ipXF),nXF,nOrd_XF,Work(ipXEle),iXPolType)
          EndIf
          Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
@@ -210,11 +208,11 @@ c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
          xa=Work(ipXF+(iXF-1)*Inc)
          ya=Work(ipXF+(iXF-1)*Inc+1)
          za=Work(ipXF+(iXF-1)*Inc+2)
-         If(iWork(ipXEle+iXF-1).le.0) Then
-            atrad=DBLE(-iWork(ipXEle+iXF-1))/1000.0D0
+         If(INT(Work(ipXEle+iXF-1)).le.0) Then
+            atrad=-Work(ipXEle+iXF-1)/1000.0D0
             iele=0
          Else
-            iele=iWork(ipXEle+iXF-1)
+            iele=INT(Work(ipXEle+iXF-1))
             atrad=CovRadT(iele)
          EndIf
          Write(Lu,11)iele,atrad,xa,ya,za

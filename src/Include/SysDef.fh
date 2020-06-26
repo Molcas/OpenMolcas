@@ -23,7 +23,3 @@
 #else
       Parameter( ItoB = 4 , RtoB = 8 , RtoI = 2 , CtoR = 2 )
 #endif
-#ifdef MOLPRO
-      integer mxact
-      parameter(mxact=1)
-#endif

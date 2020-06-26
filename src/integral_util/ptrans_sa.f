@@ -33,7 +33,8 @@ c -------------------------------------------------------------------
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
       Implicit Real*8 (a-h,o-z)
-      Integer npam(4,0:*),ipam(nxpam),indi(4)
+      Integer npam(4,0:*),indi(4)
+      Real*8 ipam(nxpam)
       Real*8 DSO(nDSO,*), PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
      &       Cred(*), Scr1(nS1), Scr2(nS2), Cmo(ncmo,*),
      &       ScrP(nsP)
@@ -171,7 +172,7 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       nskip2=npam(4,lsym)
       ntuv=nash(isym)*nash(jsym)*nash(ksym)
       do  l=lsta,lend
-        ioff1=iocmox+ipam(iopam4+l)
+        ioff1=iocmox+INT(ipam(iopam4+l))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,indi(1)),
      &            nskip1,Cred(ioff2),nskip2)
@@ -189,7 +190,7 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       nskip2=npam(3,ksym)
       nltu=nash(isym)*nash(jsym)*npam(4,lsym)
       do  k=ksta,kend
-        ioff1=iocmov+ipam(iopam3+k)
+        ioff1=iocmov+INT(ipam(iopam3+k))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,indi(2)),
      &             nskip1,Cred(ioff2),nskip2)
@@ -207,7 +208,7 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       nskip2=npam(2,jsym)
       nklt=nash(isym)*npam(3,ksym)*npam(4,lsym)
       do  j=jsta,jend
-        ioff1=iocmou+ipam(iopam2+j)
+        ioff1=iocmou+INT(ipam(iopam2+j))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,indi(3)),
      &             nskip1,Cred(ioff2),nskip2)
@@ -226,7 +227,7 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       nskip2=npam(1,isym)
       njkl=npam(2,jsym)*npam(3,ksym)*npam(4,lsym)
       do i=ista,iend
-        ioff1=iocmot+ipam(iopam1+i)
+        ioff1=iocmot+INT(ipam(iopam1+i))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,indi(4)),
      &             nskip1,Cred(ioff2),nskip2)
@@ -308,7 +309,7 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       nskip2=npam(4,lsym)
       ntuv=nash(isym)*nash(jsym)*nash(ksym)
       do  l=lsta,lend
-        ioff1=iocmox+ipam(iopam4+l)
+        ioff1=iocmox+INT(ipam(iopam4+l))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
        End Do
@@ -325,7 +326,7 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       nskip2=npam(3,ksym)
       nltu=nash(isym)*nash(jsym)*npam(4,lsym)
       do  k=ksta,kend
-        ioff1=iocmov+ipam(iopam3+k)
+        ioff1=iocmov+INT(ipam(iopam3+k))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
        End do
@@ -342,7 +343,7 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       nskip2=npam(2,jsym)
       nklt=nash(isym)*npam(3,ksym)*npam(4,lsym)
       do  j=jsta,jend
-        ioff1=iocmou+ipam(iopam2+j)
+        ioff1=iocmou+INT(ipam(iopam2+j))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
       End Do
@@ -360,7 +361,7 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       nskip2=npam(1,isym)
       njkl=npam(2,jsym)*npam(3,ksym)*npam(4,lsym)
       do i=ista,iend
-        ioff1=iocmot+ipam(iopam1+i)
+        ioff1=iocmot+INT(ipam(iopam1+i))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
       end do
@@ -422,17 +423,17 @@ c Add contributions from 1-el density matrix:
 
  300  continue
       do 340 l=lsta,lend
-       is=ipam(iopam4+l)
+       is=INT(ipam(iopam4+l))
        loff=nnpam3*(l-1)
        do 330 k=ksta,kend
-        ir=ipam(iopam3+k)
+        ir=INT(ipam(iopam3+k))
         irs=i3adr(ir,is)
         kloff=nnpam2*(k-1+loff)
         do 320 j=jsta,jend
-         iq=ipam(iopam2+j)
+         iq=INT(ipam(iopam2+j))
          jkloff=nnpam1*(j-1+kloff)
          do 310 i=ista,iend
-          ip=ipam(iopam1+i)
+          ip=INT(ipam(iopam1+i))
           ipq=i3adr(ip,iq)
           ipso=i+jkloff
 *
@@ -449,6 +450,10 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)
      &        -Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)
      &        -Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)
+!ANDREW - uncomment
+!     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)
+!     &        -Quart*DSO(ioDs+ips,5)*DSO(ioDr+irq,1)
+!END ANDREW
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
@@ -458,6 +463,10 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)
      &        -Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)
      &        -Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)
+!ANDREW - uncomment
+!     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)
+!     &        -Quart*DSO(ioDr+ipr,5)*DSO(ioDs+isq,1)
+!END ANDREW
           end if
           if(isym.eq.jsym) then
            PSOPam(ipso)=PSOPam(ipso)

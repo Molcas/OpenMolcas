@@ -32,8 +32,8 @@ c local variables:
       Integer :: imaxrank(NMAXC,2)
       Integer :: idummy
       Integer :: irank1, irank2, iline
-      Real(kind=wp):: rdummy
-      Real(kind=wp):: TempMagn(NMAXC)
+      Real(kind=8):: rdummy
+      Real(kind=8):: TempMagn(NMAXC)
       Logical :: ab_initio_all
       Logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP, KeyHINT, KeyTINT,
      &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ

@@ -10,14 +10,11 @@
 ************************************************************************
       Subroutine dRBuf(Array,nArray,Copy)
       Use dEAF
+      use IOBUF
       Implicit Real*8 (a-h,o-z)
       Logical Copy
-#include "IOBuf.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
       Real*8 Array(nArray)
-*
-      jpBuf(i,j)=(j-1)*lBuf+i-1+ipBuf
 *
 *     Write (6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
@@ -53,15 +50,14 @@ chjw  Do While (mArray.ge.1)
 c              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
                If (OnDisk) Then
 *                 Write (6,*) 'In drbuf.'
-                  Call dEAFARead(LuTmp,Work(jpBuf(1,jBuf)),
-     &                                   lBuf*RtoI,Disk,id)
+                  Call dEAFARead(LuTmp,Buffer(1,jBuf),lBuf*RtoI,Disk,id)
                End If
             End If
          End If
          Left = lBuf-iPos+1
          If (mArray.gt.Left) Then
-            If (Copy) Call dCopy_(Left,Work(jpBuf(iPos,iBuf)),1,
-     &                 Array(iArray),1)
+            If (Copy) Call dCopy_(Left,Buffer(iPos,iBuf),1,
+     &                            Array(iArray),1)
             iArray=iArray+Left
             mArray=mArray-Left
             iPos=1
@@ -74,8 +70,8 @@ c              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
             End If
          Else
 *           Write (6,*) ' Copy ',mArray,'elements from buffer',iPos
-            If (Copy) Call dCopy_(mArray,Work(jpBuf(iPos,iBuf)),1,
-     &                 Array(iArray),1)
+            If (Copy) Call dCopy_(mArray,Buffer(iPos,iBuf),1,
+     &                            Array(iArray),1)
             iPos=iPos+mArray
             mArray=0
          End If

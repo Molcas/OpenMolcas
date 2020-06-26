@@ -7,18 +7,12 @@
 * Comments:
 *-------------------------------------------------------------------------------
 
-* Trick to check that there is enough memory,
-* the second part will be skipped if there is not.
->> FILE checkmem
-if [ $MOLCAS_MEM -lt 1420 ] ; then
-  touch not_enough
-fi
->> EOF
+>> EXPORT MOLCAS_MEM=1420
 
 * No RICD, we can go up to l=iTabMx=15
 &GATEWAY
   Expert
-  Basis = H..... / inline
+  Basis Set = H..... / inline
     1.0 15
     * s functions (STO-3G)
     3   1
@@ -72,17 +66,12 @@ fi
 &SEWARD
   OneOnly
 
->> SHELL sh checkmem
->> IF ( -FILE not_enough )
->>   EXIT 36
->> ENDIF
-
 * RICD, we can go up to l=int(iTabMx/2)=7
 * but there are some stability and memory issues
 * (include all l values to avoid problems)
 &GATEWAY
   Expert
-  Basis = H..... / inline
+  Basis Set = H..... / inline
     1.0 6
     * s functions (STO-3G)
     3   1

@@ -463,7 +463,6 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-      Call XFlush(6)
       Do_Rotate=.false.
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
@@ -519,7 +518,6 @@ CGG03 Aug 03
            Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
         end do
       End IF!End IF for Do_Rotate=.true.
-        CALL XFLUSH(6)
 
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
@@ -586,9 +584,15 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
 
-
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+*       If ( IPRLEV.ge.DEBUG ) then
+*        write(6,*) 'FA_old'
+*        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
+*        write(6,*) 'FI_old'
+*        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
+*        End if
+
        Call Put_CMO(Work(LCMO),ntot2)
 
        if (doGSOR) then
@@ -606,8 +610,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         end if
        IADR19(:)=0
        IAD19=0
-       Open(unit=87,file='CI_THETA',iostat=ios,
-     &    action='read')
+       LUCT=87
+       LUCT=IsFreeUnit(LUCT)
+       CALL Molcas_Open(LUCT,'CI_THETA')
 
       Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
           CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
@@ -627,7 +632,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
           DO jRoot=1,lroots
            do i=1,nconf
-             read(87,*) Work(LW4-1+i)
+             read(LUCT,*) Work(LW4-1+i)
            end do
            Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
@@ -652,7 +657,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
          Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
        end do
-       Close(87)
+       Close(LUCT)
 
        Call fCopy('JOBIPH','JOBGS',ierr)
 
@@ -765,6 +770,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
           Call FZero(Work(LPUVX),NFINT)
         EndIf
+
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &             WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 

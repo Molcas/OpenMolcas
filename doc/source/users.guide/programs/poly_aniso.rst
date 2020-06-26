@@ -738,7 +738,7 @@ Optional general keywords to control the input
               This keyword allows computation of the magnetic susceptibility at experimental
               temperature points. On the line below the keyword, the number of experimental
               points NT is defined, and on the next NT lines the program reads the experimental
-              temperature (in K) and the experimental magnetic susceptibility (in cm^3Kmol^{-1}).
+              temperature (in K) and the experimental magnetic susceptibility (in cm^3 K mol^-1).
               TEXP and TINT keywords are mutually exclusive. The POLY_ANISO will also print the
               standard deviation from the experiment.
               </HELP>
@@ -846,7 +846,7 @@ Optional general keywords to control the input
   The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
   The files are named: :file:`XT.dat`, :file:`XT.plt`, :file:`XT.png`, :file:`MH.dat`, :file:`MH.plt`, :file:`MH.png`, :file:`BARRIER_TME.dat`, :file:`BARRIER_ENE.dat`, :file:`BARRIER.plt` and :file:`BARRIER.png`.
 
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: PLOT <basic>
               <HELP>
               This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".

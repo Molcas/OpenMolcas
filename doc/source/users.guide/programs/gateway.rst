@@ -226,8 +226,8 @@ Molecular structure: coordinates, symmetry and basis sets
 There are three different ways to specify the molecular structure, symmetry and
 the basis sets in :program:`Gateway`:
 
-* the so-called native input (old |molcas| standard),
-* XYZ input.
+* XYZ input,
+* the so-called native input (old |molcas| standard).
 
 .. * XYZ input, and
    * Z-matrix input.
@@ -240,6 +240,309 @@ If :kword:`Coord` is used, it assumes that the input is in XYZ format.
    it assumes Z-matrix input.
 
 The three different modes will be described below.
+
+Z-matrix and XYZ input
+::::::::::::::::::::::
+
+Some times it is more convenient to set up information about coordinates in
+a standard form of Z-matrix or Cartesian coordinates. In this case,
+the basis set for the atoms should be specified after the :kword:`XBAS`
+keyword. After that either :kword:`ZMAT` or :kword:`XYZ` should appear
+to specify the coordinates.
+Note that coordinates in these formats use ångström as units.
+
+.. class:: keywordlist
+
+:kword:`XBAS`
+  A keyword to specify the basis for atoms. The specification is very similar
+  to the native format: ``ATOM.BasisSet``. Each new atom is written at a new line.
+  The end of the keyword is marked by an :kword:`End of basis` line.
+
+  If all atoms have the same basis, e.g. ANO-S-VDZ, it is possible to use
+  this name without element name. In this case there is no need to specify
+  :kword:`End of basis`.
+
+  .. compound::
+
+    Example: ::
+
+      XBAS=STO-3G
+
+    or ::
+
+      XBAS
+      C.STO-3G
+      H.STO-3G
+      End of basis
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="ADVANCED">
+              %%Keyword: XBAS <basic>
+              <HELP>
+              A keyword to specify the basis for atoms. The specification is very similar
+              to the native format: ATOM.BasisSet. Each new atom is written at a new line.
+              The end of the keyword is marked by an 'End of basis' line.
+              </HELP>
+
+              If all atoms have the same basis, e.g. ANO-S-VDZ, it is possible to use
+              this name without element name. In this case there is no need to specify
+              'End of basis'.
+              </KEYWORD>
+
+:kword:`ZMAT`
+  Alternative format to give coordinates in terms of bond lengths,
+  bond angles, and dihedral angles.
+  Each line of a Z-matrix gives the
+  internal coordinates for one of the atoms within the molecule with the following
+  syntax:
+
+  .. container:: list
+
+    **Name  I bond-length  J bond-angle  K dihedral-angle**
+
+    **Name** is the label (atomic symbol + string) for a symmetry distinct center L;
+
+    **I bond-length** distance of L from atom I;
+
+    **J bond-angle** planar angle between atoms L--I--J;
+
+    **K dihedral-angle** dihedral angle between atoms L--I--J--K.
+
+  Note that the first atom only requires the **Name** and defines the origin of
+  Cartesian axis.
+  The second atom requires **Name  I bond-length** and it will define the Z axis.
+  The third atom requires **Name  I bond-length  J bond-angle** and defines the
+  XZ plane (and implicitly, the Y axis).
+
+  Only numerical values must be used (no variable names) and ångströms
+  and degrees are assumed as units.
+
+  Two types of special atoms are allowed: *dummy* **X** atoms and
+  *ghost* **Z** atoms. The former will appear in the calculations,
+  they have a nuclear charge of 0 and have not electrons and Basis Set.
+  They will also appear in the definition of internal coordinates in :program:`SLAPAF`.
+  The latter are used only within the Z-Matrix definition of the geometry but
+  they will appear in the final Z-matrix section in :program:`SLAPAF`.
+  Both special atoms can be used to define the Cartesian axis and the symmetry elements.
+
+  **End of ZMAT** or a blank line mark the end of the section.
+
+  Here is an example for (S)-1-chloroethanol (:math:`C_1` symmetry): ::
+
+    XBAS
+    H.ANO-L...2s1p.
+    C.ANO-L...3s2p1d.
+    O.ANO-L...3s2p1d.
+    Cl.ECP.Huzinaga.7s7p1d.1s2p1d.7e-NR-AIMP.
+    End of basis
+    ZMAT
+    C1
+    O2      1   1.40000
+    C3      1   1.45000   2   109.471
+    H4      1   1.08900   2   109.471     3   120.000
+    Cl5     1   1.75000   2   109.471     3  -120.000
+    H6      2   0.94700   1   109.471     3   180.000
+    H7      3   1.08900   1   109.471     2   180.000
+    H8      3   1.08900   1   109.471     7   120.000
+    H9      3   1.08900   1   109.471     7   240.000
+    End of z-matrix
+
+  In geometry optimizations, :program:`SLAPAF` will regenerate the coordinates as
+  Z-matrix in the section with the summary concerning each iteration. This will
+  be possible only if *ghost* atoms are used within the first three atoms or
+  if they are not used at all.
+
+  Both :kword:`BASIs` and :kword:`ZMAT` keywords can be used at the same time. Here is an example
+  for a complex between methanol and water (:math:`C_s` symmetry): ::
+
+    Symmetry
+     Y
+    XBAS
+    H.ANO-L...1s.
+    C.ANO-L...2s1p.
+    O.ANO-L...2s1p.
+    End of basis
+    ZMAT
+    C1
+    O2  1 1.3350
+    H3  1 1.0890  2 109.471
+    H4  1 1.0890  2 109.471  3 -120.
+    H6  2 1.0890  1 109.471  3  180.
+    End of z-matrix
+    Basis set
+    O.ANO-L...2s1p.
+     O    -2.828427     0.000000     2.335000  / Angstrom
+    End of basis
+    Basis set
+    H.ANO-L...1s.
+     H    -2.748759     0.819593     2.808729  / Angstrom
+    End of basis
+
+  In this case :program:`SLAPAF` will not regenerate the Z-matrix.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ZMAT" APPEAR="Z-matrix" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: ZMAT <basic>
+              <HELP>
+              Alternative format to give coordinates in the form of Z-matrix.
+              Only numerical values must be used (no variable names) and angstroms
+              and degrees are assumed as units. Special ghost Z and dummy X atoms
+              are allowed. 'End of ZMAT' or a blank line marks the end of the section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`XYZ`
+  The keyword is followed by XYZ formatted file (a reference to a file),
+  or file, inlined into the input.
+
+  .. compound::
+
+    Example: ::
+
+      XBAS=STO-3G
+      XYZ=$CurrDir/Water.xyz
+
+    or ::
+
+      XBAS=STO-3G
+      XYZ
+      1
+       note Angstrom units!
+      C 0 0 0
+
+  Currently, the :kword:`XYZ` keyword does not operate with symmetry, and
+  the calculation is always performed without symmetry.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XYZ" KIND="CUSTOM" LEVEL="ADVANCED" REQUIRE="XBAS">
+              %%Keyword: XYZ <advanced>
+              <HELP>
+              Alternative format to set up geometry as XYZ formatted file.
+              </HELP>
+              </KEYWORD>
+
+Advanced XYZ input
+::::::::::::::::::
+
+If the geometry is specified in XYZ format, all atoms should be specified.
+The default units are ångströms. By default, maximum possible symmetry is used.
+
+"Molcas XYZ" file format is an extension of plain XYZ format.
+
+* First line of this file contains the number of atoms.
+
+* Second line (a comment line) can contain "a.u." or "bohr" to
+  use atomic units, instead of default ångströms.
+  Also this line can contain keyword TRANS, followed by 3 numbers,
+  and/or ROT, followed by 9 numbers (in this case coordinates
+  will be Translated by specified vector, and/or Rotated), and SCALE (or
+  SCALEX, SCALEY, SCALEZ) followed by a scale factor.
+
+* Remaining lines are used to specify Element and cartesian
+  coordinates.
+
+  Element name might be optionally followed by a Number (e.g. ``H7``),
+  a Label (separated by ``_`` sign: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
+  e.g. ``H.STO-3G``)
+
+.. class:: keywordlist
+
+:kword:`COORD`
+  The keyword followed on the next line by the name of an HDF5 (created by any module), or the name of an XYZ file,
+  or inline coordinates in XYZ format. If the file is located in the same directory, where
+  |molcas| job was submitted there is no need to specify the PATH to this file.
+  The keyword may appear several times. In this case all coordinate files
+  will be concatenated, and considered as individual fragments.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="CUSTOM" INPUT="REQUIRED" LEVEL="BASIC" EXCLUSIVE="BASIS (NATIVE)">
+              %%Keyword: COORD (XYZ format) <basic>
+              <HELP>
+              The keyword followed on the next line by the name of an HDF5 or XYZ file,
+              or inline coordinates in XYZ format.
+              The keyword may appear several times. In this case all coordinate files
+              will be concatenated, and considered as individual fragments.
+              </HELP>
+              </KEYWORD>
+
+:kword:`BASIS`
+  The keyword can be used to specify global basis set for all atoms, or for a group of atoms.
+  The keyword followed by a label of basis set, or by comma separated list of basis sets for
+  individual atoms.
+
+  Note! The basis set definition in XYZ mode does not allow to use
+  inline basis set.
+
+  Example: ::
+
+    COORD
+    4
+
+    C           0.00000 0.00000 0.00000
+    H           1.00000 0.00000 0.00000
+    H           0.00000 1.00000 0.00000
+    H           0.00000 0.00000 1.00000
+    BASIS
+    STO-3G, H.6-31G*
+
+  In this example, the C atom (in the origin) will have the basis set STO-3G and
+  the H atoms 6-31G*.
+
+  If keyword BASIS never appears in the input, the default basis,
+  ANO-S-MB, will be used.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: BASIS (XYZ format) <basic>
+              <HELP>
+              The keyword followed on the next line by the name of global basis set for
+              all atoms, or by comma separated list of basis sets for individual atoms.
+              Note! The basis set definition in XYZ mode does not allow to use
+              inline basis set.
+              </HELP>
+              </KEYWORD>
+
+:kword:`GROUP`
+  The keyword can be used to specify the symmetry of the molecule.
+
+  The keyword must be followed by one of:
+
+  * FULL (default) --- use maximum possible subgroup of :math:`D_{2h}`
+  * NOSYM (same as E, or C1)
+  * space separated list of generators: e.g. X XY (for more details see SYMMETRY keyword)
+
+  .. Limitations: in the current implementation atom labels, and basis sets are ignored
+     during symmetry recognition.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="GROUP" APPEAR="Group" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: GROUP (XYZ format) <basic>
+              <HELP>
+              The keyword followed on the next line by the list of group generators
+              (with the same syntax as SYMMETRY keyword),
+              or by FULL (highest possible group), or by NOSYM, if no symmetry operations
+              should be used. The keyword can be used only with XYZ format of input,
+              after COORD keyword.
+              </HELP>
+              </KEYWORD>
+
+If XYZ input has been used in :program:`gateway`, a file with native |molcas| input will be
+produced and stored in working directory under the name :file:`findsym.std`.
+
+Note that choosing XYZ input you are expecting that the coordinates might be transformed.
+It can be shown by the following example: ::
+
+  &gateway
+  coord
+  3
+
+  O 0 0 0
+  H 1.0000001 0 0
+  H 0 1 0.0000001
+  *nomove
+  *group=c1
+
+The geometry of the molecule is slightly distorted, but within a threshold it is :math:`C_{2v}`.
+Thus by default (keywords :kword:`nomove` and :kword:`group` are not active), the
+coordinates will be transformed to maintain the highest possible symmetry.
+If keyword :kword:`nomove` is active, the molecule is not allowed to rotate, and
+a mirror plane :math:`xy` is the only symmetry element. Since the third hydrogen atom is
+slightly out of this plane, it will be corrected. Only activation of the keyword :kword:`group=C1`
+will ensure that the geometry is unchanged.
 
 Native input
 ::::::::::::
@@ -292,7 +595,7 @@ By default, symmetry is not used in the calculation.
   Below follows a description of the options associated with the
   basis set definition.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="BASIC" INPUT="REQUIRED" EXCLUSIVE="COORD">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (NATIVE)" APPEAR="Basis set" KIND="CUSTOM" LEVEL="ADVANCED" INPUT="REQUIRED" EXCLUSIVE="COORD">
               %%Keyword: BASIS (non-XYZ format) <basic>
               This notes the start of a basis set definition.
               The next line always contains a basis set label.
@@ -426,301 +729,6 @@ Example of an input in native |molcas| format: ::
 
   End of input
 
-Z-matrix and XYZ input
-::::::::::::::::::::::
-
-Some times it is more convenient to set up information about coordinates in
-a standard form of Z-matrix or Cartesian coordinates. In this case,
-the basis set for the atoms should be specified after the :kword:`XBAS`
-keyword. After that either :kword:`ZMAT` or :kword:`XYZ` should appear
-to specify the coordinates.
-Note that coordinates in these formats use ångström as units.
-
-.. class:: keywordlist
-
-:kword:`XBAS`
-  A keyword to specify the basis for atoms. The specification is very similar
-  to the native format: ``ATOM.BasisSet``. Each new atom is written at a new line.
-  The end of the keyword is marked by an :kword:`End of basis` line.
-
-  If all atoms have the same basis, e.g. ANO-S-VDZ, it is possible to use
-  this name without element name. In this case there is no need to specify
-  :kword:`End of basis`.
-
-  .. compound::
-
-    Example: ::
-
-      XBAS=STO-3G
-
-    or ::
-
-      XBAS
-      C.STO-3G
-      H.STO-3G
-      End of basis
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XBAS" APPEAR="Basis set (alternate format)" KIND="CUSTOM" LEVEL="BASIC">
-              %%Keyword: XBAS <basic>
-              <HELP>
-              A keyword to specify the basis for atoms. The specification is very similar
-              to the native format: ATOM.BasisSet. Each new atom is written at a new line.
-              The end of the keyword is marked by an 'End of basis' line.
-              </HELP>
-
-              If all atoms have the same basis, e.g. ANO-S-VDZ, it is possible to use
-              this name without element name. In this case there is no need to specify
-              'End of basis'.
-              </KEYWORD>
-
-:kword:`ZMAT`
-  Alternative format to give coordinates in terms of bond lengths,
-  bond angles, and dihedral angles.
-  Each line of a Z-matrix gives the
-  internal coordinates for one of the atoms within the molecule with the following
-  syntax:
-
-  .. container:: list
-
-    **Name  I bond-length  J bond-angle  K dihedral-angle**
-
-    **Name** is the label (atomic symbol + string) for a symmetry distinct center L;
-
-    **I bond-length** distance of L from atom I;
-
-    **J bond-angle** planar angle between atoms L--I--J;
-
-    **K dihedral-angle** dihedral angle between atoms L--I--J--K.
-
-  Note that the first atom only requires the **Name** and defines the origin of
-  Cartesian axis.
-  The second atom requires **Name  I bond-length** and it will define the Z axis.
-  The third atom requires **Name  I bond-length  J bond-angle** and defines the
-  XZ plane (and implicitly, the Y axis).
-
-  Only numerical values must be used (no variable names) and ångströms
-  and degrees are assumed as units.
-
-  Two types of special atoms are allowed: *dummy* **X** atoms and
-  *ghost* **Z** atoms. The former will appear in the calculations,
-  they have a nuclear charge of 0 and have not electrons and Basis Set.
-  They will also appear in the definition of internal coordinates in :program:`SLAPAF`.
-  The latter are used only within the Z-Matrix definition of the geometry but
-  they will appear in the final Z-matrix section in :program:`SLAPAF`.
-  Both special atoms can be used to define the Cartesian axis and the symmetry elements.
-
-  **End of ZMAT** or a blank line mark the end of the section.
-
-  Here is an example for (S)-1-chloroethanol (:math:`C_1` symmetry): ::
-
-    XBAS
-    H.ANO-L...2s1p.
-    C.ANO-L...3s2p1d.
-    O.ANO-L...3s2p1d.
-    Cl.ECP.Huzinaga.7s7p1d.1s2p1d.7e-NR-AIMP.
-    End of basis
-    ZMAT
-    C1
-    O2      1   1.40000
-    C3      1   1.45000   2   109.471
-    H4      1   1.08900   2   109.471     3   120.000
-    Cl5     1   1.75000   2   109.471     3  -120.000
-    H6      2   0.94700   1   109.471     3   180.000
-    H7      3   1.08900   1   109.471     2   180.000
-    H8      3   1.08900   1   109.471     7   120.000
-    H9      3   1.08900   1   109.471     7   240.000
-    End of z-matrix
-
-  In geometry optimizations, :program:`SLAPAF` will regenerate the coordinates as
-  Z-matrix in the section with the summary concerning each iteration. This will
-  be possible only if *ghost* atoms are used within the first three atoms or
-  if they are not used at all.
-
-  Both :kword:`BASIs` and :kword:`ZMAT` keywords can be used at the same time. Here is an example
-  for a complex between methanol and water (:math:`C_s` symmetry): ::
-
-    Symmetry
-     Y
-    XBAS
-    H.ANO-L...1s.
-    C.ANO-L...2s1p.
-    O.ANO-L...2s1p.
-    End of basis
-    ZMAT
-    C1
-    O2  1 1.3350
-    H3  1 1.0890  2 109.471
-    H4  1 1.0890  2 109.471  3 -120.
-    H6  2 1.0890  1 109.471  3  180.
-    End of z-matrix
-    Basis set
-    O.ANO-L...2s1p.
-     O    -2.828427     0.000000     2.335000  / Angstrom
-    End of basis
-    Basis set
-    H.ANO-L...1s.
-     H    -2.748759     0.819593     2.808729  / Angstrom
-    End of basis
-
-  In this case :program:`SLAPAF` will not regenerate the Z-matrix.
-
-  .. xmldoc:: %%Keyword: ZMAT <basic>
-              Alternative format to give coordinates in the form of Z-matrix.
-              Only numerical values must be used (no variable names) and angstroms
-              and degrees are assumed as units. Special ghost Z and dummy X atoms
-              are allowed. 'End of ZMAT' or a blank line marks the end of the section.
-
-:kword:`XYZ`
-  The keyword is followed by XYZ formatted file (a reference to a file),
-  or file, inlined into the input.
-
-  .. compound::
-
-    Example: ::
-
-      XBAS=STO-3G
-      XYZ=$CurrDir/Water.xyz
-
-    or ::
-
-      XBAS=STO-3G
-      XYZ
-      1
-       note Angstrom units!
-      C 0 0 0
-
-  Currently, the :kword:`XYZ` keyword does not operate with symmetry, and
-  the calculation is always performed without symmetry.
-
-  .. xmldoc:: %%Keyword: XYZ <basic>
-              Alternative format to set up geometry as XYZ formatted file
-
-Advanced XYZ input
-::::::::::::::::::
-
-If the geometry is specified in XYZ format, all atoms should be specified.
-The default units are ångströms. By default, maximum possible symmetry is used.
-
-"Molcas XYZ" file format is an extension of plain XYZ format.
-
-* First line of this file contains the number of atoms.
-
-* Second line (a comment line) can contain "a.u." or "bohr" to
-  use atomic units, instead of default ångströms.
-  Also this line can contain keyword TRANS, followed by 3 numbers,
-  and/or ROT, followed by 9 numbers (in this case coordinates
-  will be Translated by specified vector, and/or Rotated), and SCALE (or
-  SCALEX, SCALEY, SCALEZ) followed by a scale factor.
-
-* Remaining lines are used to specify Element and cartesian
-  coordinates.
-
-  Element name might be optionally followed by a Number (e.g. ``H7``),
-  a Label (separated by ``_`` sign: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
-  e.g. ``H.STO-3G``)
-
-.. class:: keywordlist
-
-:kword:`COORD`
-  The keyword followed on the next line by the name of an HDF5 (created by any module), or the name of an XYZ file,
-  or inline coordinates in XYZ format. If the file is located in the same directory, where
-  |molcas| job was submitted there is no need to specify the PATH to this file.
-  The keyword may appear several times. In this case all coordinate files
-  will be concatenated, and considered as individual fragments.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="COORD" APPEAR="Coord" KIND="CUSTOM" INPUT="REQUIRED" LEVEL="BASIC">
-              %%Keyword: COORD (XYZ format) <basic>
-              <HELP>
-              The keyword followed on the next line by the name of an HDF5 or XYZ file,
-              or inline coordinates in XYZ format.
-              The keyword may appear several times. In this case all coordinate files
-              will be concatenated, and considered as individual fragments.
-              </HELP>
-              </KEYWORD>
-
-:kword:`BASIS`
-  The keyword can be used to specify global basis set for all atoms, or for a group of atoms.
-  The keyword followed by a label of basis set, or by comma separated list of basis sets for
-  individual atoms.
-
-  Note! The basis set definition in XYZ mode does not allow to use
-  inline basis set.
-
-  Example: ::
-
-    COORD
-    4
-
-    C           0.00000 0.00000 0.00000
-    H           1.00000 0.00000 0.00000
-    H           0.00000 1.00000 0.00000
-    H           0.00000 0.00000 1.00000
-    BASIS
-    STO-3G, H.6-31G*
-
-  In this example, the C atom (in the origin) will have the basis set STO-3G and
-  the H atoms 6-31G*.
-
-  If keyword BASIS never appears in the input, the default basis,
-  ANO-S-MB, will be used.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: BASIS (XYZ format) <basic>
-              <HELP>
-              The keyword followed on the next line by the name of global basis set for
-              all atoms, or by comma separated list of basis sets for individual atoms.
-              Note! The basis set definition in XYZ mode does not allow to use
-              inline basis set.
-              </HELP>
-              </KEYWORD>
-
-:kword:`GROUP`
-  The keyword can be used to specify the symmetry of the molecule.
-
-  The keyword must be followed by one of:
-
-  * FULL (default) --- use maximum possible subgroup of :math:`D_{2h}`
-  * NOSYM (same as E, or C1)
-  * space separated list of generators: e.g. X XY (for more details see SYMMETRY keyword)
-
-  .. Limitations: in the current implementation atom labels, and basis sets are ignored
-     during symmetry recognition.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="GROUP" APPEAR="Group" KIND="STRING" LEVEL="BASIC">
-              %%Keyword: GROUP (XYZ format) <basic>
-              <HELP>
-              The keyword followed on the next line by the list of group generators
-              (with the same syntax as SYMMETRY keyword),
-              or by FULL (highest possible group), or by NOSYM, if no symmetry operations
-              should be used. The keyword can be used only with XYZ format of input,
-              after COORD keyword.
-              </HELP>
-              </KEYWORD>
-
-If XYZ input has been used in :program:`gateway`, a file with native |molcas| input will be
-produced and stored in working directory under the name :file:`findsym.std`.
-
-Note that choosing XYZ input you are expecting that the coordinates might be transformed.
-It can be shown by the following example: ::
-
-  &gateway
-  coord
-  3
-
-  O 0 0 0
-  H 1.0000001 0 0
-  H 0 1 0.0000001
-  *nomove
-  *group=c1
-
-The geometry of the molecule is slightly distorted, but within a threshold it is :math:`C_{2v}`.
-Thus by default (keywords :kword:`nomove` and :kword:`group` are not active), the
-coordinates will be transformed to maintain the highest possible symmetry.
-If keyword :kword:`nomove` is active, the molecule is not allowed to rotate, and
-a mirror plane :math:`xy` is the only symmetry element. Since the third hydrogen atom is
-slightly out of this plane, it will be corrected. Only activation of the keyword :kword:`group=C1`
-will ensure that the geometry is unchanged.
-
 Advanced keywords:
 
 .. class:: keywordlist
@@ -732,6 +740,19 @@ Advanced keywords:
               %%Keyword: SYMThreshold (XYZ format) <advanced>
               <HELP>
               The keyword followed on the next line by the threshold for symmetry recognition code (default is 0.01)
+              </HELP>
+              </KEYWORD>
+
+:kword:`CSPF`
+  Turn on the use of Condon--Shortley phase factors.
+  Note that this changes the sign of basis functions, and orbital files will not be compatible
+  with runs without this keyword, and orbital visualizations may be wrong!
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CSPF" APPEAR="Condon-Shortley phase factor" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CSPF <advanced>
+              <HELP>
+              Turn on the use of Condon-Shortley phase factors.
+              Warning: Causes incompatibilities.
               </HELP>
               </KEYWORD>
 
@@ -934,6 +955,8 @@ auxiliary basis sets are very compact, since they are tailored for special
 wave function methods. However, they are not provided for all available valence
 basis sets. The aCD or acCD RI auxiliary basis sets are a more general option and
 provides auxiliary basis sets for any wave function model and valence basis set.
+If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, acCD RI (:kword:`RICD`)
+will be enabled by default, it can be disabled with :kword:`NOCD`.
 
 .. xmldoc:: <GROUP MODULE="GATEWAY" KIND="BOX" NAME="AUX" APPEAR="RI/DF options (optional)" LEVEL="BASIC">
             <HELP>
@@ -947,7 +970,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
   Use the RI-J basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
               %%Keyword: RIJ <basic>
               <HELP>
               Use the RI-J auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -959,7 +982,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
   Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
               %%Keyword: RIJK <basic>
               <HELP>
               Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -971,7 +994,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
   Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
               %%Keyword: RIC <basic>
               <HELP>
               Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -983,7 +1006,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
   Use the aCD or acCD approach :cite:`Aquilante:07b` to treat the two-electron integrals.
   This procedure will use an on-the-fly generated auxiliary basis set.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
               %%Keyword: RICD <basic>
               <HELP>
               Use the aCD or acCD approach to treat the two-electron integrals.
@@ -991,9 +1014,19 @@ provides auxiliary basis sets for any wave function model and valence basis set.
               </HELP>
               </KEYWORD>
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRICD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+:kword:`NOCD`
+  Disable Cholesky decomposition.
+  Useful in the case :kword:`RICD` has been made the default with :variable:`MOLCAS_NEW_DEFAULTS`.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" APPEAR="No CD" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+              %%Keyword: NOCD <basic>
+              <HELP>
+              Disable Cholesky decomposition.
+              Useful in the case RICD has been made the default with MOLCAS_NEW_DEFAULTS.
+              </HELP>
+              </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRICD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 :kword:`CDTHreshold`
   Threshold for on-the-fly generation of aCD or acCD auxiliary basis sets for RI calculations
@@ -1800,9 +1833,9 @@ Keywords associated to one-electron integrals
      effects according to the so-called Douglas--Kroll transformation.
 
   ..   .. xmldoc:: %%Keyword: Douglas-Kroll <basic>
-                 Explicit request that the one-electron Hamiltonian include the scalar relativistic
-                 effects according to the so-called Douglas-Kroll transformation.
-                 This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
+                   Explicit request that the one-electron Hamiltonian include the scalar relativistic
+                   effects according to the so-called Douglas-Kroll transformation.
+                   This option is automatically invoked for the ANO-RCC and ANO-DK3 basis sets.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DOUGLAS-KROLL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
@@ -2265,11 +2298,9 @@ fragments. (See documentation for :program:`GEO` for more details)
               Followed by two lines for each fragment.
               The first line should have 3 real numbers defining a translation and the
               second 9 real numbers defining a rotation.
-              <!--
+              </HELP>
               (See ROT and TRANS.)
               Must occur before the xyz-files are entered with coord.
-              -->
-              </HELP>
               </KEYWORD>
 
 :kword:`FRGM`

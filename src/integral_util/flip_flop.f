@@ -15,7 +15,6 @@
 #include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "WrkSpc.fh"
 *
       Call IZero(MaxBas,iTabMx+1)
       Call IZero(MaxPrm,iTabMx+1)

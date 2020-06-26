@@ -195,6 +195,40 @@ include:
     when: always
   <<: *test-jobs
 
+# A special job for running checks on the code
+
+checks:
+  stage: build
+  interruptible: true
+  script:
+    - |
+      if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
+        TARGET_BRANCH="origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
+      else
+        TARGET_BRANCH="origin/master"
+      fi
+      TMPDIR=$(mktemp -d)
+      for FILE in $(git diff-index --cached --name-only ${TARGET_BRANCH})
+      do
+        git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
+      done
+    - |
+      echo
+      echo "POSSIBLE HEADER ISSUES"
+      echo "----------------------"
+      sbin/copyright -r ${TMPDIR} || FAILED=1
+    - |
+      echo
+      echo "POSSIBLE STYLE ISSUES"
+      echo "---------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_style || FAILED=1
+    - |
+      if [ "$FAILED" == "1" ] ; then
+        false
+      fi
+  <<: *compile-jobs
+
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 

@@ -28,7 +28,8 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 coord(3),XF(*),dEF(3)
-      Integer XMolnr(nXMolnr,nXF)
+*     Integer XMolnr(nXMolnr,nXF)
+      Real*8 XMolnr(nXMolnr,nXF)
 
       Logical LExcl
 
@@ -54,8 +55,10 @@
             LExcl=.False.
             If(iFd.eq.iGrid) LExcl=.True.
             Do i=1,nXMolnr
-               If(XMolnr(1,iGrid).eq.XMolnr(i,iFd)) LExcl=.True.
-               If(XMolnr(1,iGrid).eq.-XMolnr(i,iFd)) scal=scal14
+               If (INT(XMolnr(1,iGrid)).eq.INT(XMolnr(i,iFd)))
+     &            LExcl=.True.
+               If (INT(XMolnr(1,iGrid)).eq.-INT(XMolnr(i,iFd)))
+     &            scal=scal14
             EndDo
             If(LExcl) Then
 c               Write(6,*)'EXCLUDE ',iFd,' from field at ',iGrid

@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
      &                  Coor,ipBMx,dMass,Lbl,Shift,ip_qInt,ip_dqInt,
-     &                  DFC,dss,Tmp,Stop,Name,iOper,nSym,iSym,Smmtrc,
+     &                  DFC,dss,Tmp,Name,iOper,nSym,iSym,Smmtrc,
      &                  Degen,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
-     &                  ipRef,Redundant,nqInt,MaxItr)
+     &                  ipRef,Redundant,nqInt,MaxItr,iRef)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -26,7 +26,7 @@
       Integer   iOper(0:7), iSym(3), iANr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Logical Stop, Smmtrc(3,nAtom), User_Def, Redundant,
+      Logical Smmtrc(3,nAtom), User_Def, Redundant,
      &        Curvilinear, Numerical, DDV_Schlegel, HWRS,
      &        Analytic_Hessian, PrQ
 *                                                                      *
@@ -36,9 +36,9 @@
       iRout=136
       iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then
-         Call RecPrt(' In NewCar: q',' ',Work(ip_qInt),nInter,kIter+1)
-         Call RecPrt(' In NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
-         Call RecPrt(' In NewCar: Shift',' ',Shift,nInter,kIter)
+         Call RecPrt('NewCar: q',' ',Work(ip_qInt),nInter,kIter+1)
+         Call RecPrt('NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
+         Call RecPrt('NewCar: Shift',' ',Shift,nInter,kIter)
       End If
 *
 *-----Form the new set of symmetry distinct cartesian coordinates.
@@ -63,12 +63,11 @@
      &             Degen,kIter,ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &             iCoSet,rHidden,Error,ipRef,Redundant,nqInt,MaxItr)
+     &             iCoSet,rHidden,Error,ipRef,Redundant,nqInt,MaxItr,
+     &             iRef)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call QExit('NewCar')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(Stop)
       End

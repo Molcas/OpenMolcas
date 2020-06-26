@@ -95,6 +95,7 @@ Gene H. Golub
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
+Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
 Asbjørn Holt  
@@ -134,6 +135,7 @@ Felix Plasser
 Christian Pomelli  
 Ben Pritchard  
 Juraj Raab  
+Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
 Björn O. Roos  
@@ -144,6 +146,7 @@ Michael A. Saunders
 Igor Schapiro  
 Bernd Schimmelpfennig  
 Martin Schütz  
+Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
 Kamal Sharkas  

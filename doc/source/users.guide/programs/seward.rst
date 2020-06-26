@@ -1212,7 +1212,7 @@ Optional keywords
 :kword:`GRID`
   It specifies the quadrature quality.
   The possible indexes that can follow are
-  COARSE, SG1GRID, FINE, ULTRAFINE
+  COARSE, SG1GRID, FINE, ULTRAFINE,
   following the Gaussian98 convention.
   Default is FINE.
 
@@ -1221,7 +1221,7 @@ Optional keywords
               <HELP>
               It specifies the quadrature quality.
               The possible indexes that can follow are
-              COARSE, SG1GRID, FINE, ULTRAFINE
+              COARSE, SG1GRID, FINE, ULTRAFINE,
               following the Gaussian98 convention.
               Default is FINE.
               </HELP>

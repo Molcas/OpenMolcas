@@ -44,12 +44,15 @@ cend
 ************************************************************************
       use k2_setup
       use iSD_data
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+
       Implicit None
       External King, Rsv_GTList, MPP
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -80,7 +83,7 @@ cend
       Integer  jPrInc,k2ij,k2kl,jPrimj,kBasAO,kBasn,kBask,kBsInc
       Integer  kBtch,klS,kpCffk,kPrimk,kPrInc,kS,lBasAO,lBasl,lBasn
       Integer  lBsInc,lpCffl,lPriml,lPrInc,mBtch,lS,mdci,mdcj,mdck,mdcl
-      Integer  MemPSO,MxPrm,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
+      Integer  MemPSO,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
       Integer  nij,nijkl,nPairs,nQuad,nRys,nSkal,nSkal_Fragments
       Integer  nSkal_Valence,nSO,nZeta,nBtch
       Real*8   TMax,PMax,ExFac,CoulFac,Aint,Count,P_Eff,Prem,Pren
@@ -219,8 +222,9 @@ cend
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -358,10 +362,10 @@ cend
            nijkl = iBasn*jBasn*kBasn*lBasn
            Call PGet0(iCmpa,iShela,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
            If (AInt*PMax.lt.CutInt) Go To 430
 *
 *----------Compute gradients of shell quadruplet
@@ -377,11 +381,12 @@ cend
      &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
      &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &          Work(ipZeta),Work(ipZI),Work(ipP),nZeta,
-     &          Work(ipEta), Work(ipEI),Work(ipQ),nEta,
-     &          Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
+     &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
+     &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
+     &          Aux,nAux,Shijij)
 *
 *
             If (iPrint.ge.15)
@@ -425,7 +430,7 @@ cend
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate(Sew_Scr)
       Call Free_GTList
       Call Free_PPList
       Call Free_TList

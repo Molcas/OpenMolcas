@@ -51,9 +51,9 @@
       Character(1), intent(in)  :: itype(nneq)
       Integer, intent(in)       :: nCenter
       Integer, intent(in)       :: nLoc
-      Real(kind=wp), intent(in) :: R_LG( nneq,neqv,3,3)
-      Real(kind=wp), intent(in) :: gtens_input(3,nneq)
-      Real(kind=wp), intent(in) :: eso(nneq,nLoc)
+      Real(kind=8), intent(in) :: R_LG( nneq,neqv,3,3)
+      Real(kind=8), intent(in) :: gtens_input(3,nneq)
+      Real(kind=8), intent(in) :: eso(nneq,nLoc)
       Integer, intent(in)       :: nss(nneq), nsfs(nneq)
       Character(180), intent(in) :: namefile_aniso(nneq)
 c  definition of the exchange:
@@ -69,14 +69,14 @@ c  definition of the exchange:
       Logical, intent(in)       :: Lines, AnisoLines3, AnisoLines9
       Logical, intent(in)       :: Dipol, DM_exchange, JITO_exchange
 !     Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp), intent(in) :: Jex(nPair)
+      Real(kind=8), intent(in) :: Jex(nPair)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), intent(in) :: JAex(nPair,3)
+      Real(kind=8), intent(in) :: JAex(nPair,3)
 !     Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp), intent(in) :: JAex9(nPair,3,3)
+      Real(kind=8), intent(in) :: JAex9(nPair,3,3)
 !     Dzyaloshinsky-Morya exchange
-      Real(kind=wp), intent(in) :: JDMex(nPair,3)
-      Real(kind=wp), intent(in) ::
+      Real(kind=8), intent(in) :: JDMex(nPair,3)
+      Real(kind=8), intent(in) ::
      &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
      &                                        MxRank2,-MxRank2:MxRank2),
      &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1,
@@ -85,25 +85,25 @@ c  definition of the exchange:
       ! options used in connection with KE
       Integer, intent(in)       :: lant, KEOPT, multLn
       Logical, intent(in)       :: KE
-      Real(kind=wp), intent(in) :: tpar, upar
+      Real(kind=8), intent(in) :: tpar, upar
       ! options used in connection with Dipol-Dipol interaction
-      Real(kind=wp), intent(in) :: MagnCoords(nneq,3)
+      Real(kind=8), intent(in) :: MagnCoords(nneq,3)
 
 c  definition of data for susceptibility
       Integer, intent(inout)    :: nT
       Logical, intent(in)       :: tinput
       Logical, intent(inout)    :: compute_susceptibility
-      Real(kind=wp), intent(inout) :: tmin, tmax
-      Real(kind=wp), intent(in) :: chit_exp(nT), Texp(nT)
+      Real(kind=8), intent(inout) :: tmin, tmax
+      Real(kind=8), intent(in) :: chit_exp(nT), Texp(nT)
       ! options related to XT_MoverH
-      Real(kind=wp), intent(in) :: Xfield
+      Real(kind=8), intent(in) :: Xfield
       Integer, intent(in)       :: nH
       Integer, intent(in)       :: nTempMagn
       Integer, intent(in)       :: iopt
-      Real(kind=wp), intent(inout) :: TempMagn(nTempMagn)
-      Real(kind=wp), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
-      Real(kind=wp), intent(in) :: thrs
-      Real(kind=wp), intent(in) :: hmin, hmax
+      Real(kind=8), intent(inout) :: TempMagn(nTempMagn)
+      Real(kind=8), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
+      Real(kind=8), intent(in) :: thrs
+      Real(kind=8), intent(in) :: hmin, hmax
       Logical, intent(in)       :: hinput
       Logical, intent(in)       :: compute_magnetization
       Logical, intent(in)       :: compute_Mdir_vector
@@ -115,7 +115,7 @@ c  definition of data for susceptibility
       Integer, intent(in)       :: encut_definition
       Integer, intent(in)       :: nK, mG ! encut_definition=1;
       Integer, intent(in)       :: ncut   ! encut_definition=2;
-      Real(kind=wp), intent(in) :: encut_rate ! encut_definition=3;
+      Real(kind=8), intent(in) :: encut_rate ! encut_definition=3;
 
 c  definition of g and D tensors
       Integer, intent(in)       :: nMult
@@ -127,16 +127,16 @@ c  magnetization torque
       Logical, intent(in)       :: compute_torque
 c  Zeeman energy and M vector
       Integer, intent(in)       :: nDir, nDirZee
-      Real(kind=wp), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp), intent(in) :: dir_weight(nDirZee,3)
+      Real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8), intent(in) :: dir_weight(nDirZee,3)
 c  definition of mean field parameter
-      Real(kind=wp), intent(in) :: zJ
+      Real(kind=8), intent(in) :: zJ
 c  definintion of the crystal axes:
       Logical, intent(in)       :: Do_structure_abc
 !     a, b, c, alpha, beta, gamma
-      Real(kind=wp), intent(in) :: cryst(6)
+      Real(kind=8), intent(in) :: cryst(6)
 !     Cartesian coordinates of the main metal site, or center
-      Real(kind=wp), intent(in) :: coord(3)
+      Real(kind=8), intent(in) :: coord(3)
 c  definitions for blocking barrier
       Integer, intent(inout)    :: nBlock
       Logical, intent(inout)    :: compute_barrier

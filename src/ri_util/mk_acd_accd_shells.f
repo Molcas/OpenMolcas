@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -30,6 +30,7 @@
 #include "status.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Real*8 DInf(nDInf)
       Integer, Allocatable :: iList2_c(:,:), iList2_p(:,:), iD_c(:),
      &                        Con(:), ConR(:,:), Prm(:), Indkl_p(:),
      &                        AL(:), LTP(:,:), iD_p(:), Indkl(:)
@@ -241,6 +242,7 @@ C      iPrint=99
 *                                                                      *
 *     Generate atomic two-electron integrals to decompose.
 *
+      Call Gen_RelPointers(Info-1)
       ijS_req=0
       Call Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,iCnttp,
      &                         TInt_c,nTInt_c,
@@ -1490,5 +1492,9 @@ C                          Thrs= 1.0D-12
 ************************************************************************
 *                                                                      *
       Call qExit('Mk_aCD_acCD_Shells')
+      Call Gen_RelPointers(-(Info-1))
       Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_real_array(DInf)
+*
       End

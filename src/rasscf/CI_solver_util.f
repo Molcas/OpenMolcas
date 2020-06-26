@@ -41,6 +41,9 @@
 
 
       subroutine wait_and_read(filename, energy)
+#ifdef NAGFOR
+      use f90_unix_proc, only: sleep
+#endif
         character(*), intent(in) :: filename
         real*8, intent(out) :: energy
         logical :: newcycle_found

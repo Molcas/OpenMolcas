@@ -14,9 +14,9 @@
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
 c Calling variables:
       Integer,          intent(in)  :: dim, iprint
-      Complex (kind=wp),intent(in)  :: moment(3,dim,dim)
-      Real (kind=wp),   intent(out) :: gtens(3)
-      Real (kind=wp),   intent(out) :: maxes(3,3)
+      Complex (kind=8),intent(in)  :: moment(3,dim,dim)
+      Real (kind=8),   intent(out) :: gtens(3)
+      Real (kind=8),   intent(out) :: maxes(3,3)
 c----------------------------------------------
 c  dim    -- size of the magnetic moment
 c            dim = muliplicity of the pseuDospin ( 2*S+1, where S is the pseuDospin);
@@ -31,11 +31,11 @@ c            iprint = 3 => print for debug
 c----------------------------------------------
 c local variables
       Integer           :: ic1, ic2, i, j, info
-      Real (kind=wp)    :: A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3),
+      Real (kind=8)    :: A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3),
      &                     factor, Det_gtens, diff12, diff23,
      &                     ZR(3,3), dnorm
-      Real (kind=wp)    :: dznrm2, FindDetR
-      Complex (kind=wp) :: AC_TENS(3,3), trace
+      Real (kind=8)    :: dznrm2, FindDetR
+      Complex (kind=8) :: AC_TENS(3,3), trace
       External          :: dznrm2, FindDetR, trace
 
       Call qEnter('atens')

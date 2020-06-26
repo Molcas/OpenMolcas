@@ -31,15 +31,16 @@
 *             January '92                                              *
 ************************************************************************
       use iSD_data
+      use aces_stuff
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "pso.fh"
+#include "stdalloc.fh"
 #include "etwas.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
 #include "nsd.fh"
 #include "dmrginfo_mclr.fh"
@@ -83,7 +84,6 @@
       Case_2C=.False.
       Case_3C=.False.
       Case_mp2=.False.
-*      ip_Z_p_k=ip_Dummy
 
       nDens = 0
       Do 1 iIrrep = 0, nIrrep - 1
@@ -169,7 +169,7 @@
 
 *---- Allocate Table Of Content for half sorted gammas.
 *
-      Call GetMem('G_Toc','Allo','Real',ipG_Toc,nQuad+2)
+      Call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
 
 *  find free unit number
         lgtoc=61
@@ -177,22 +177,16 @@
         idisk=0
 *  read table of contents of half-sorted gamma file
          Call DaName(lgtoc,'gtoc')
-         Call ddafile(lgtoc,2,Work(ipg_toc),nQuad+2,idisk)
+         Call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
          Call Daclos(lgtoc)
-         n=int(Work(ipg_toc+nQuad))
-         lbin=int(Work(ipg_toc+nQuad+1))
+         n=int(G_Toc(nQuad+1))
+         lbin=int(G_Toc(nQuad+2))
          if (n.ne.nQuad) then
            Call WarningMessage(2,'n.ne.nQuad')
            Write (6,*) 'n,nQuad=',n,nQuad
            Call Abend()
          endif
 
-c       open(unit=lgtoc,file='gtoc',form='unformatted')
-c        read(lgtoc) n
-c        if (n.ne.nquad) stop 'quad error'
-c        call read_lgtoc(lgtoc,Work(ipg_toc),n)
-c        read(lgtoc) lbin
-c       close (lgtoc)
         Gamma_On=.True.
         Gamma_mrcisd=.TRUE.
 *       open gamma file
@@ -201,10 +195,10 @@ c       close (lgtoc)
 *        closed in closep
          Call DaName_MF(LuGamma,'GAMMA')
 *  allocate space for bins
-         Call GetMem('Bin','Allo','Real',ipBin,2*lBin)
+         Call mma_Allocate(Bin,2,lBin,Label='Bin')
 *  compute SO2cI array
-         Call GetMem('SO2cI','Allo','Inte',ipSO2cI,2*nSOs)
-         call so2ci(iWork(ipSO2cI),iWork(ipSOsh),nsos)
+         Call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
+         call Mk_SO2cI(SO2cI,iWork(ipSOsh),nsos)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -279,9 +273,10 @@ c       close (lgtoc)
          If (lsa) nsa=4
          If ( Method.eq.'MCPDFT  ') nsa=4
 !AMS modification: add a fifth density slot
-         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa+nDens)
-         call dcopy_(nDens*nsa+nDens,[0.0d0],0,Work(ipD0),1)
-         Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
+         mDens=nsa+1
+         Call mma_allocate(D0,nDens,mDens,Label='D0')
+         D0(:,:)=Zero
+         Call mma_allocate(DVar,nDens,nsa,Label='DVar')
          if (.not.gamma_mrcisd) then
          Call Get_D1ao(ipD1ao,length)
          If ( length.ne.nDens ) Then
@@ -290,29 +285,33 @@ c       close (lgtoc)
             Write (6,*) 'nDens=',nDens
             Call Abend()
          End If
-         call dcopy_(nDens,Work(ipD1ao),1,Work(ipD0),1)
+         call dcopy_(nDens,Work(ipD1ao),1,D0(1,1),1)
          Call Free_Work(ipD1ao)
          endif
 *
 
          Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipDVar),1)
+         call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
 *        if (gamma_mrcisd) then
-*         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipD0),1)
+*         call dcopy_(nDens,Work(ipD1ao_Var),1,D0,1)
 *        endif
          Call Free_Work(ipD1ao_Var)
 *
+         Call mma_Allocate(DS,nDens,Label='DS')
+         Call mma_Allocate(DSVar,nDens,Label='DSVar')
          If (Method.eq.'UHF-SCF ' .or.
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(ipDS,Length)
-            Call Get_D1sao_Var(ipDSVar,Length)
+            Call Get_D1sao(ipDS1,Length)
+            Call Get_D1sao_Var(ipDSVar1,Length)
+            Call DCopy_(Length,Work(ipDS1),1,DS,1)
+            Call DCopy_(Length,Work(ipDSVar1),1,DSVar,1)
+            Call GetMem('DS   ','Free','Real',ipDS1,nDens)
+            Call GetMem('DSVar','Free','Real',ipDSVar1,nDens)
          Else
-            Call GetMem('DS   ','Allo','Real',ipDS,nDens)
-            Call GetMem('DSVar','Allo','Real',ipDSVar,nDens)
-            Call FZero(Work(ipDS),nDens)
-            Call FZero(Work(ipDSVar),nDens)
+            DS   (:)=Zero
+            DSVar(:)=Zero
          End If
 *
 *   This is necessary for the ci-lag
@@ -328,10 +327,10 @@ c       close (lgtoc)
          Do 11 iBas = 1, nBas(iIrrep)
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
-               Work(ipDVar +ij) = Half*Work(ipDVar +ij)
-               Work(ipD0   +ij) = Half*Work(ipD0   +ij)
-               Work(ipDS   +ij) = Half*Work(ipDS   +ij)
-               Work(ipDSVar+ij) = Half*Work(ipDSVar+ij)
+               D0   (1+ij,1) = Half*D0   (1+ij,1)
+               DVar (1+ij,1) = Half*DVar (1+ij,1)
+               DS   (1+ij) = Half*DS   (1+ij)
+               DSVar(1+ij) = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
  11      Continue
@@ -340,13 +339,13 @@ c       close (lgtoc)
 
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
       End If
 
 *
@@ -364,17 +363,16 @@ c       close (lgtoc)
             nsa=1
             If (lsa) nsa=2
          End If
-         Call GetMem('CMO','Allo','Real',ipCMO,nsa*mCMO)
-         ipCMOa=ipCMO
-         ipCMOb=ipCMO+(nsa-1)*mCMO
+         kCMO=nsa
+         Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
          Call Get_CMO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipCMO),1)
+         call dcopy_(nTemp,Work(ipTemp),1,CMO(1,1),1)
          Call Free_Work(ipTemp)
          If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt(' CMO''s',' ',
-     &                     Work(ipTmp1),nBas(iIrrep),
+     &                     CMO(ipTmp1,1),nBas(iIrrep),
      &                     nBas(iIrrep))
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
@@ -414,28 +412,30 @@ c       close (lgtoc)
          nG1 = nAct*(nAct+1)/2
          nsa=1
          If (lsa) nsa=0
-         Call GetMem(' G1 ','Allo','Real',ipG1,nG1*nsa)
+         mG1=nsa
+         Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
             Call Get_D1MO(ipTemp,nTemp)
-            call dcopy_(nTemp,Work(ipTemp),1,Work(ipG1),1)
+            call dcopy_(nTemp,Work(ipTemp),1,G1(1,1),1)
             Call Free_Work(ipTemp)
-            If (iPrint.ge.99) Call TriPrt(' G1',' ',Work(ipG1),nAct)
+            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(1,1),nAct)
          End If
 *
 *...  Get the two body density for the active orbitals
          nG2 = nG1*(nG1+1)/2
          nsa=1
          if (lsa) nsa=2
-         Call GetMem(' G2 ','Allo','Real',ipG2,nG2*nsa)
+         mG2=nsa
+         Call mma_allocate(G2,nG2,mG2,Label='G2')
 !       write(*,*) 'got the 2rdm, Ithink.'
          if(Method.eq.'MCPDFT  ') then
            Call Get_P2MOt(ipTemp,nTemp)!PDFT-modified 2-RDM
          else
            Call Get_P2MO(ipTemp,nTemp)
          end if
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipG2),1)
+         call dcopy_(nTemp,Work(ipTemp),1,G2(1,1),1)
          Call Free_Work(ipTemp)
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 
 *  CMO1 Ordinary CMOs
@@ -443,13 +443,13 @@ c       close (lgtoc)
 *  CMO2 CMO*Kappa
 *
            Call Get_LCMO(ipLCMO,Length)
-           call dcopy_(Length,Work(ipLCMO),1,Work(ipCMO+mcmo),1)
+           call dcopy_(Length,Work(ipLCMO),1,CMO(1,2),1)
            Call Free_Work(ipLCMO)
            If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO+mcmo
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt('LCMO''s',' ',
-     &                     Work(ipTmp1),nBas(iIrrep),
+     &                     CMO(ipTmp1,2),nBas(iIrrep),
      &                     nBas(iIrrep))
                ipTmp1 = ipTmp1 + nBas(iIrrep)**2
             End Do
@@ -461,7 +461,7 @@ c       close (lgtoc)
 *   P2=sum_i <i|e_pqrs|i>
 *
            Call Get_PLMO(ipPLMO,Length)
-           call dcopy_(Length,Work(ipPLMO),1,Work(ipG2+ng2),1)
+           call dcopy_(Length,Work(ipPLMO),1,G2(1,2),1)
            ndim1=0
            if(doDMRG)then
              ndim0=0  !yma
@@ -471,15 +471,13 @@ c       close (lgtoc)
              ndim1=(ndim0+1)*ndim0/2
              ndim2=(ndim1+1)*ndim1/2
              do i=1,ng2
-               if(i.gt.ndim2)then
-                 Work(ipG2+ng2+i-1)=0.0d0
-               end if
+               if(i.gt.ndim2) G2(i,2)=0.0D0
              end do
            end if
            Call Free_Work(ipPLMO)
-           Call Daxpy_(ng2,One,Work(ipG2+ng2),1,Work(ipG2),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',Work(ipG2+ng2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',Work(ipG2),nG1)
+           Call Daxpy_(ng2,One,G2(1,2),1,G2(1,1),1)
+           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(1,2),nG1)
+           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(1,1),nG1)
 *
            Call Get_D2AV(ipD2AV,Length)
            If (ng2.ne.Length) Then
@@ -492,9 +490,9 @@ c       close (lgtoc)
                 Call Abend()
               end if
            End If
-           call dcopy_(Length,Work(ipD2AV),1,Work(ipG2+ng2),1)
+           call dcopy_(Length,Work(ipD2AV),1,G2(1,2),1)
            Call Free_Work(ipD2AV)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',Work(ipG2+ng2),nG1)
+           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(1,2),nG1)
 *
 *
 *  Densities are stored as:
@@ -514,23 +512,22 @@ c       close (lgtoc)
 *
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
 
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
-           Call Get_D1I(Work(ipCMO),Work(ipD0+0*ndens),Work(ipT),
+           Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
      &                  nish,nbas,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
 
 !************************
          RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 *
-           Call dcopy_(ndens,Work(ipDVar),1,Work(ipD0+1*ndens),1)
-           If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
+           Call dcopy_(ndens,DVar,1,D0(1,2),1)
+           If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 !         RlxLbl='D1COMBO  '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+1*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
 *
 *   This is necessary for the kap-lag
 *
@@ -546,52 +543,64 @@ c       close (lgtoc)
               end if
               Call Abend()
            End If
-           Call Get_D1A(Work(ipCMO),Work(ipD1AV),Work(ipD0+2*ndens),
+           Call Get_D1A(CMO(1,1),Work(ipD1AV),D0(1,3),
      &                 nIrrep,nbas,nish,nash,ndens)
            Call Free_Work(ipD1AV)
 !************************
          RlxLbl='D1AOA   '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+2*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
 *
            Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
+           call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
 
 !ANDREW - modify D2: should contain only the correction pieces
 
          If ( Method.eq.'MCPDFT  ') then
-          call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
+!Get the D_theta piece
+         Call Get_D1ao(ipD1ao,ndens)
+      ij = -1
+      Do  iIrrep = 0, nIrrep-1
+         Do iBas = 1, nBas(iIrrep)
+            Do jBas = 1, iBas-1
+               ij = ij + 1
+               Work(ipD1ao+ij) = Half*Work(ipD1ao+ij)
+            end do
+            ij = ij + 1
+          end do
+      end do
+          call daxpy_(ndens,-1d0,D0(1,1),1,Work(ipD1ao),1)
+!          write(*,*) 'do they match?'
+!          do i=1,ndens
+!            write(*,*) Work(ipd1ao-1+i),DO(i,3)
+!          end do
+
+          call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,D0(1,2),1)
 !ANDREW - Generate new D5 piece:
-          call dcopy_(ndens,[0.0d0],0,
-     &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,1.0d0,Work(ipD0+2*ndens),1,
-     &                                             Work(ipD0+4*ndens),1)
+          D0(:,5)=Zero
+          call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
+          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,D0(1,5),1)
+         Call Free_Work(ipD1ao)
           end if
 
 
-!          call dcopy_(ndens*5,0.0d0,0,
-!     &                                             Work(ipD0),1)
-!          call dcopy_(nG2,0.0d0,0,
-!     &                                             Work(ipG2),1)
+!          call dcopy_(ndens*5,0.0d0,0,D0,1)
+!          call dcopy_(nG2,0.0d0,0,G2,1)
 
 
            Call Free_Work(ipDLAO)
 !************************
-           !Call dscal_(Length,0.5d0,Work(ipD0+3*ndens),1)
-           !Call dscal_(Length,0.0d0,Work(ipD0+3*ndens),1)
+           !Call dscal_(Length,0.5d0,D0(1,4),1)
+           !Call dscal_(Length,0.0d0,D0(1,4),1)
 
          RlxLbl='DLAO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+3*ndens,Work)
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
 ! DMRG with the reduced AS
            if(doDMRG)then
              length=ndim1  !yma
            end if
          End If
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
 *
 *...  Close 'RELAX' file
 1000     Continue

@@ -32,19 +32,19 @@
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer nPam(4,0:7), iPam(n1+n2+n3+n4), iiBas(4),
-     &          iCmp(4), iShell(4), iAO(4),
-     &          iAOst(4), MapPam(4,mDim)
+      Integer nPam(4,0:7), iiBas(4),
+     &          iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -82,8 +82,8 @@
                    Do 12 iAOi = 0, iiBas(jPam)-1
                       iSOi = iSO + iAOi
                       in2 = in2 + 1
-                      iPam(in1+in2) = iSOi
-                      MapPam(jPam,iSOi+iOffSO(j)) = in2
+                      iPam(in1+in2) = DBLE(iSOi)
+                      MapPam(jPam,iSOi+iOffSO(j)) = DBLE(in2)
  12                Continue
                End If
  11         Continue
@@ -104,14 +104,13 @@
 !        write(*,*)i,"V-ipG2",Work(ipG2+i-1)
 !      end do
 
-      Call PTrans_sa(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DSO,PSOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
      &            nScr1)
       Else
-!      write(*,*)"or this ??? in pget4"  !yma
-      Call PTrans(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DSO,PSOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+      Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
 *
@@ -188,17 +187,17 @@
                 nijkl = 0
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
-                   k4 = MapPam(4,lSOl)
+                   k4 = INT(MapPam(4,lSOl))
                    Do 220 kAOk = 0, kBas-1
                       kSOk = kSO + kAOk
-                      k3 = MapPam(3,kSOk)
+                      k3 = INT(MapPam(3,kSOk))
                       Do 320 jAOj = 0, jBas-1
                          jSOj = jSO + jAOj
-                         k2 = MapPam(2,jSOj)
+                         k2 = INT(MapPam(2,jSOj))
                          Do 420 iAOi = 0, iBas-1
                             iSOi = iSO + iAOi
                             nijkl = nijkl + 1
-                            k1 = MapPam(1,iSOi)
+                            k1 = INT(MapPam(1,iSOi))
 *
 *---------------------------Pick up the contribution.
 *

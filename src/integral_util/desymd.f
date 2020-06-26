@@ -96,8 +96,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
-      If (iPrint.ge.99) Call GetMem(' Exit DesymD','CHECK','REAL',
-     &                              iDum,iDum)
 *     Call qExit('DesymD')
       Return
       End
