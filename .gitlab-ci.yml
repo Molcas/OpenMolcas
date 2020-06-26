@@ -209,7 +209,7 @@ checks:
       else
         TARGET_BRANCH="origin/master"
       fi
-      TARGET_SHA = $(git show-ref -s ${TARGET_BRANCH})
+      TARGET_SHA=$(git show-ref -s ${TARGET_BRANCH})
       TMPDIR=$(mktemp -d)
       for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
       do
