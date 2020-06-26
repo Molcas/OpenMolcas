@@ -183,6 +183,7 @@
 *
 #ifdef _DEBUG_
       If (Too_Small) Then
+         Write (Lu,*)
          Write (Lu,*) ' Some too small eigenvalues has been corrected'
          Write (Lu,*)
       End If

@@ -13,6 +13,7 @@
       use Period
       use MpmC
       use EFP_Module
+      use Real_Spherical, only : Condon_Shortley_phase_factor
       use fortran_strings, only : str
 #ifndef _HAVE_EXTRA_
       use XYZ
@@ -412,6 +413,7 @@ cperiod
       If (KWord(1:4).eq.'CLIG') Go To 9000
       If (KWord(1:4).eq.'CONS') Go To 8010
       If (KWord(1:4).eq.'COOR') Go To 6000
+      If (KWord(1:4).eq.'CSPF') Go To 9110
       If (KWord(1:4).eq.'CUTO') Go To 942
       If (KWord(1:4).eq.'DCRN') Go To 958
       If (KWord(1:4).eq.'DIAG') Go To 9087
@@ -1621,6 +1623,14 @@ c     Go To 998
          Call Quit_OnUserError()
       End If
       Do_RI=.False.
+      Go To 998
+*                                                                      *
+****** CSPF ************************************************************
+*                                                                      *
+*     Turn on the use of Condon-Shortley phase factors
+*
+ 9110 Condon_Shortley_phase_factor=.True.
+      GWInput = Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
 ****** EXPE ************************************************************
@@ -2856,7 +2866,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 ***** RI   *************************************************************
 *                                                                      *
-*     Active RI approach
+*     Activate RI approach
 *
  9097 Continue
       Do_RI=.True.
@@ -4165,7 +4175,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             nMass = nInt(CntMass(iCnttp)/UToAU)
             If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(iAtmNr(iCnttp),nMass)
+     &          ExpNuc(iCnttp)=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear

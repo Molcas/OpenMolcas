@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2003, 2020 Roland Lindh                                *
+* Copyright (C) 2003,2020, Roland Lindh                                *
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,

@@ -59,7 +59,19 @@ legacy_functions.sort()
 
 # Generate the include files f1.fh, f2.fh, f3.fh, f4.fh, f5.fh
 
-header = '! File generated with {0}\n\n'.format(os.path.basename(__file__))
+header = '''\
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! File generated with {0}\n
+'''.format(os.path.basename(__file__))
 
 with open('f1.fh', 'w') as f:
   f.write(header)
