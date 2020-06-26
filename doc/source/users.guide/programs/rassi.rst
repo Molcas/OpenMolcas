@@ -766,7 +766,7 @@ Keywords
 
 :kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities, reduced
-  rotatory strengths using :kword:`CD`, and reduced rotatory strenghts and 
+  rotatory strengths using :kword:`CD`, and reduced rotatory strengths and 
   oscillatory strengths using :kword:`TINTensities`. For :kword:`TINTensities`,
   the value is printed for transitions where at least one of reduced rotatory
   strength and oscillator strength is above the threshold. Default is 1.0D-5.

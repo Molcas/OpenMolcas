@@ -629,8 +629,9 @@ C                                                                      C
 
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR !All rotatory
-! and oscillator strengths  will be greater than this value (Imaad Ansari)
+      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+!     All rotatory and oscillator strengths  will be greater than this
+!     value (Imaad Ansari)
 
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
@@ -2859,6 +2860,7 @@ C                 Why do it when we don't do the L.S-term!
                 IF (Do_Pol) THEN
                    LMAX_=LMAX+8*(ij_-1)
                    F_CHECK=ABS(WORK(LMAX_+0))
+                   R_CHECK=0.0D0 ! dummy assign
                 ELSE
                    F_CHECK=ABS(F)
                    R_CHECK=ABS(R)
