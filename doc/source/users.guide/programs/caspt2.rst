@@ -65,6 +65,7 @@ tested for 49 diatomic molecules, reducing the mean error in :math:`D_0` from 0.
 from 0.45 eV to less than 0.15 eV. Similar improvements were obtained for
 excitation and ionization energies. The IPEA modified :math:`H_0` (with a shift
 parameter of 0.25) is default in |molcas| from version 6.4.
+If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, the default will be no IPEA shift.
 
 An alternative to IPEA is to use the options, called ":math:`g_1`", ":math:`g_2`", and
 ":math:`g_3`" (See Ref. :cite:`Andersson:95a`), that stabilizes the energies of the
@@ -149,9 +150,7 @@ In the original multi-state method,
 perturbed wave functions are computed for each of several root functions,
 separately; these are used to compute the effective Hamiltonian.
 In the XMS-CASPT2 method, the perturbations are computed with one
-common zeroth-order Hamiltonian, and the eigenstates of
-the effective Hamiltonian are written onto the :file:`JOBIPH` file rather than used
-to generate a new :file:`JOBMIX` file.
+common zeroth-order Hamiltonian.
 The new XDW-CASPT2 method interpolates between the MS and XMS variants,
 retaining the advantages of both approaches.
 
@@ -374,7 +373,7 @@ Keywords
   :cite:`Ghigo:04a`. The modification of :math:`H_0` has been introduced (Nov 2005) to
   reduce the systematic error which leads to a relative overestimation of the
   correlation energy for open shell system. It also reduces the intruder problems.
-  Default is to use an IPEA shift of 0.25.
+  Default is to use an IPEA shift of 0.25, unless :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IPEA" APPEAR="IPEA shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.25">
               %%Keyword: IPEAshift <basic> GUI:number

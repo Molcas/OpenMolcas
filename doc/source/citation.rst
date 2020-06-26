@@ -95,7 +95,7 @@ The following people have contributed to the development of the
   Abdul Rehaman Moughal Shahi, Thomas Müller, Takahito Nakajima, Naoki Nakatani,
   Pavel Neogrády, Jesper Norell, Anders Öhrn, Jeppe Olsen, Markus Oppel, Thomas
   Bondo Pedersen, Daoling Peng, Kurt Pfingst, Quan Phung, Michal Pitoňák, Felix
-  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Markus Reiher, H.
+  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Gerardo Raggi, Markus Reiher, H.
   Rieger, Björn O. Roos, Ulf Ryde, Pawel Salek, Andrew M. Sand, Michael A.
   Saunders, Igor Schapiro, Bernd Schimmelpfennig, Martin Schütz, Luis Seijo, Luis
   Serrano-Andrés, Kamal Sharkas, Grigory A. Shamov, Prachi Sharma, Per E. M.
