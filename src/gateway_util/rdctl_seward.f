@@ -15,6 +15,7 @@
       use EFP_Module
       use Real_Spherical, only : Condon_Shortley_phase_factor
       use fortran_strings, only : str
+      use External_Centers
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -1838,23 +1839,14 @@ c     Go To 998
          nDataRead=nData_XF
       Endif
 *
-      lenXF=nXF*nData_XF
-      lenXMolnr=2*((nXMolnr*nXF+1)/2)
-      lenXEle=2*((nXF+1)/2)
-
-*---- Get pointer to the next free space in dynamic memory
-      ipXF=ipExp(iShll+1)
-      ipXMolnr=ipXF+lenXF
-      ipXEle=ipXMolnr+lenXMolnr
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXEle+lenXEle
-      nInfo = nInfo + lenXF + lenXMolnr + lenXEle
+      Call mma_allocate(XF,nData_XF,nXF,Label='XF')
+      Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
+      Call mma_allocate(XEle,nXF,Label='XEle')
 *
       Call Upcase(KWord)
 *
-      ip = ipXF
       Do iXF = 1, nXF
-         DInf(ipXEle+(iXF-1))=DBLE(0)   ! default: no element spec.
+         XEle(iXF)=0   ! default: no element spec.
 *
 *        If reading from external file, use free format to allow
 *        long lines of input. On the other hand, comments are
@@ -1865,12 +1857,12 @@ c     Go To 998
      &                        Label='iScratch')
             Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
      &                  (iScratch(nXMolnr+k),k=1,nReadEle),
-     &           (DInf(ip+k),k=0,nDataRead-1)
+     &           (XF(k,iXF),k=1,nDataRead)
             Do i = 1, nXMolnr
-               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iScratch(i))
+               XMolnr(i,iXF)=iScratch(i)
             End Do
             Do i = 1, nReadEle
-               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iScratch(nXMolnr+i))
+               XEle(iXF+(i-1))=iScratch(nXMolnr+i)
             End Do
             Call mma_deallocate(iScratch)
          Else
@@ -1880,24 +1872,17 @@ c     Go To 998
 
             Do i = 1, nXMolnr
                Call Get_I1(i,iTemp)
-               DInf(ipXMolnr+(iXF-1)*nXMolnr+(i-1))=DBLE(iTemp)
+               XMolnr(i,iXF)=iTemp
             End Do
             Do i = 1, nReadEle
                Call Get_I1(nXMolnr+i,iTemp)
-               DInf(ipXEle+(iXF-1)+(i-1))=DBLE(iTemp)
+               XEle(iXF+(i-1))=iTemp
             End Do
-            Call Get_F(nXMolnr+nReadEle+1,DInf(ip),nDataRead)
+            Call Get_F(nXMolnr+nReadEle+1,XF(1,iXF),nDataRead)
          EndIf
 *
-         DInf(ip  ) = DInf(ip  )*ScaleFactor
-         DInf(ip+1) = DInf(ip+1)*ScaleFactor
-         DInf(ip+2) = DInf(ip+2)*ScaleFactor
-         If (Convert) Then
-            DInf(ip  ) = DInf(ip  )/angstr
-            DInf(ip+1) = DInf(ip+1)/angstr
-            DInf(ip+2) = DInf(ip+2)/angstr
-         End If
-         ip = ip + nData_XF
+         XF(1:3,iXF) = XF(1:3,iXF) * ScaleFactor
+         If (Convert) XF(1:3,iXF) = XF(1:3,iXF) / angstr
 *
       End Do
 *
@@ -2124,36 +2109,30 @@ c     Go To 998
  986  KWord = Get_Ln(LuRd)
       GWInput=.True.
       Call Get_I1(1,nWel)
-*---- Get pointer to the next free space in dynamic memory
-      ipWel=ipExp(iShll+1)
-      ipW = ipWel
       If (nWel.le.0) Then
 *--------Use automatic set up for well integrals
          nWel=3
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
-            Work(ipW+2)=WellCff(iWel)
-            Work(ipW+1)=WellExp(iWel)
-            Work(ipW  )=WellRad(iWel)
-            ipW = ipW + 3
+            Wel_Info(3,iWel)=WellCff(iWel)
+            Wel_Info(2,iWel)=WellExp(iWel)
+            Wel_Info(1,iWel)=WellRad(iWel)
          End Do
       Else
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
 *---------- Read the Coefficient, Exponent, and Radius
             KWord = Get_Ln(LuRd)
-            call Get_F1(1,Work(ipW+2))
-            call Get_F1(2,Work(ipW+1))
-            call Get_F1(3,Work(ipW  ))
+            call Get_F1(1,Wel_Info(3,iWel))
+            call Get_F1(2,Wel_Info(2,iWel))
+            call Get_F1(3,Wel_Info(1,iWel))
             Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0) Then
-               Work(ipW)=Work(ipW)/angstr
-               Work(ipW+1)=Work(ipW+1)*angstr
+               Wel_Info(1,iWel)=Wel_Info(1,iWel)/angstr
+               Wel_Info(2,iWel)=Wel_Info(2,iWel)*angstr
             End If
-            ipW = ipW + 3
          End Do
       End If
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipW
-      nInfo = nInfo + nWel*3
       Go To 998
 *                                                                      *
 ****** NODK ************************************************************
@@ -2323,15 +2302,12 @@ c     Go To 998
  9951 lAMP = .True.
       GWInput=.True.
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
-      ipAMP=ipExp(iShll+1)
+      Call mma_allocate(AMP_Center,3,Label='AMP_Center')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_F(1,Work(ipAMP),3)
+      Call Get_F(1,AMP_Center,3)
       If (Index(KWord,'ANGSTROM').ne.0)
-     &     Call DScal_(3,One/angstr,
-     &       Work(ipAMP),1)
-      ipExp(iShll+1)=ipAMP+3
-      nInfo = nInfo + 3
+     &   AMP_Center(:)=(One/angstr)*AMP_Center(:)
       Go To 998
 *                                                                      *
 ****** DSHD ************************************************************
@@ -2630,7 +2606,10 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
            isnumber=0
         endif
       enddo
+*
       if(isnumber.eq.0) goto 9082
+      nRP=3*nRP
+      Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
 *
 **    Inline input
 *
@@ -2640,18 +2619,15 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       Else
          Fact=One
       End If
-      nRP=3*nRP
-      ipRP1=ipExp(iShll+1)
-      nInfo=nInfo + 2*nRP
-      ipExp(iShll+1)=ipRP1 + 2*nRP
+*
+*
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E1)
-      Call Read_v(LuRd,Work(ipRP1),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1    ),1)
+      Call Read_v(LuRd,RP_Centers(1,1,1),1,nRP,1,iErr)
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E2)
-      Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
+      Call Read_v(LuRd,RP_Centers(1,1,2),1,nRP,1,iErr)
+      RP_Centers(:,:,:)=Fact*RP_Centers(:,:,:)
       GWInput = .True.
       Go To 998
 *
@@ -2698,6 +2674,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       End IF
       nRP_prev=nRP
       nRP=3*nRP
+      If (.NOT.Allocated(RP_Centers))
+     &   Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
       KWord = Get_Ln(LuIn)
       Call UpCase(KWord)
       If (Index(KWord,'BOHR').ne.0) Then
@@ -2709,9 +2687,6 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          LuRP=10
          LuRP=isFreeUnit(LuRP)
          call molcas_open(LuRP,'findsym.RP1')
-         ipRP1=ipExp(iShll+1)
-         nInfo=nInfo + 2*nRP
-         ipExp(iShll+1)=ipRP1 + 2*nRP
          Read(KWord,*,err=9083) E1
 *
 **  write a separate file for findsym
@@ -2724,14 +2699,14 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 #endif
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,1),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &                   (Work(ipRP1+3*(i-1)+j)*Fact,j=0,2)
+     &                   (RP_Centers(j,i,1)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1    ),1)
          KWord = Get_Ln(LuRd)
          close(LuIn)
          close(LuRP)
+         Call RecPrt('RP1',' ',RP_Centers(1,1,1),3,nRP/3)
          Go To 9082
       Else
          LuRP=10
@@ -2746,13 +2721,16 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          Read(KWord,*,err=9083) E2
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+nRP+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,2),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &            (Work(ipRP1+nRP+3*(i-1)+j)*Fact,j=0,2)
+     &            (RP_Centers(j,i,2)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
          close(LuRP)
+         Call RecPrt('RP2',' ',RP_Centers(1,1,2),3,nRP/3)
       End If
+      RP_Centers(:,:,:)= Fact* RP_Centers(:,:,:)
+      Call RecPrt('RP1*Fact',' ',RP_Centers(1,1,1),3,nRP/3)
+      Call RecPrt('RP2*Fact',' ',RP_Centers(1,1,2),3,nRP/3)
 *
       close(LuIn)
       GWInput = Run_Mode.eq.G_Mode
@@ -4027,9 +4005,7 @@ c      endif
 *                                                                      *
 **    post-processing for RP-Coord
 *
-      If (lRP.and.RPset) Then
-        Call processRP(KeepGroup,SymThr,DInf,nDInf)
-      End If
+      If (lRP.and.RPset) Call processRP(KeepGroup,SymThr)
 *
 **
 *
@@ -4385,9 +4361,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for Well integrals
 *
-      ip = ipWel
       Do iWel = 1, nWel
-         If (DInf(ip).lt.Zero) Then
+         If (Wel_Info(1,iWel).lt.Zero) Then
             If (.Not.lRF) Then
                Call WarningMessage(2,
      &                        '; Input inconsistency!; ;'
@@ -4396,9 +4371,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                      //' has been specified!')
                Call Quit_OnUserError()
             End If
-            DInf(ip)=rds+Abs(DInf(ip))
+            Wel_Info(1,iWel)=rds+Abs(Wel_Info(1,iWel))
          End If
-         ip = ip + 3
       End Do
 *                                                                      *
 ************************************************************************
@@ -4416,9 +4390,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (nOrdEF.ge.0.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipEF=ipExp(Mx_Shll)
          If (nEF.ne.0) Then
-            call dcopy_(3*nEF,EFt,1,DInf(ipEF),1)
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+            EF_Centers(:,:) = EFt(:,:)
             Call mma_deallocate(EFt)
          Else
             nEF = 0
@@ -4426,18 +4400,19 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
      &         nEF = nEF + nCntr(iCnttp)
             End Do
-            iEF = ipEF
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+*
+            iEF = 1
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
                   ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iEF),1)
-                  iEF = iEF + 3*nCntr(iCnttp)
+                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+     &                                        EF_Centers(1,iEF),1)
+                  iEF = iEF + nCntr(iCnttp)
                End If
             End Do
          End If
-         ipExp(Mx_Shll) = ipEF + nEF*3
-         nInfo = nInfo + nEF*3
       End If
 *                                                                      *
 ************************************************************************
@@ -4447,25 +4422,24 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (lDMS.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipDMS=ipExp(Mx_Shll)
          If (nDMS.ne.0) Then
-            call dcopy_(3*nDMS,DMSt,1,DInf(ipDMS),1)
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            DMS_Centers(:,:)=DMSt(:,:)
             call mma_deallocate(DMSt)
          Else
             nDMS = 0
             Do iCnttp = 1, nCnttp
                nDMS = nDMS + nCntr(iCnttp)
             End Do
-            ipDMS=ipExp(Mx_Shll)
-            iDMS = ipDMS
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            iDMS = 1
             Do iCnttp = 1, nCnttp
                ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,DInf(iDMS),1)
-               iDMS = iDMS + 3*nCntr(iCnttp)
+               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+     &                                     DMS_Centers(1,iDMS),1)
+               iDMS = iDMS + nCntr(iCnttp)
             End Do
          End If
-         ipExp(Mx_Shll)=ipDMS + nDMS*3
-         nInfo = nInfo + nDMS*3
       End If
 *                                                                      *
 ************************************************************************
@@ -4702,7 +4676,7 @@ C     Mx_mdc=mdc
 *     field. Do not do this in the Gateway!
 *
          Call GeoNew(Show,DInf,nDInf)
-         If (lXF) Call GeoNew_PC(Dinf,nDInf)
+         If (lXF) Call GeoNew_PC()
       End If
 *                                                                      *
 ************************************************************************
@@ -4736,17 +4710,13 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,DInf(ipOAM),1)
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         call dcopy_(3,OAMt,1,OAM_Center,1)
          Call mma_deallocate(OAMt)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
       Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
          lOAM=.True.
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,CoM,1,DInf(ipOAM),1)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         call dcopy_(3,CoM,1,OAM_Center,1)
       End If
 *                                                                      *
 ************************************************************************
@@ -4755,11 +4725,9 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,DInf(ipOMQ),1)
+         Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
+         Call DCopy_(3,OMQt,1,OMQ_Center,1)
          Call mma_deallocate(OMQt)
-         ipExp(Mx_Shll) = ipOMQ + 3
-         nInfo = nInfo + 3
       End If
 *                                                                      *
 ************************************************************************

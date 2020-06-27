@@ -130,10 +130,6 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *     Write (*,*) ' Adding contibutions from esef!'
 
-      nInp=(nOrd_XF+1)*(nOrd_XF+2)*(nOrd_XF+3)/6
-      Inc=nInp+3
-      If(iXPolType.gt.0) Inc = Inc + 6
-
       iq = 0
       Do ix = ir, 0, -1
          Do iy = ir-ix, 0, -1
@@ -142,7 +138,6 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
             temp = Zero
 *           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 *
-            ip = ipXF-1
             Do iFd = 1, nXF
                DAx=Zero
                DAy=Zero
@@ -154,38 +149,35 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                Qyz=Zero
                Qzz=Zero
                If (nOrd_XF.eq.0) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
+                  ZA = XF(4,iFd)
                Else If (nOrd_XF.eq.1) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
-                  DAx= Work(ip+(iFd-1)*Inc+5)
-                  DAy= Work(ip+(iFd-1)*Inc+6)
-                  DAz= Work(ip+(iFd-1)*Inc+7)
+                  ZA = XF(4,iFd)
+                  DAx= XF(5,iFd)
+                  DAy= XF(6,iFd)
+                  DAz= XF(7,iFd)
                Else If (nOrd_XF.eq.2) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
-                  DAx= Work(ip+(iFd-1)*Inc+5)
-                  DAy= Work(ip+(iFd-1)*Inc+6)
-                  DAz= Work(ip+(iFd-1)*Inc+7)
-                  Qxx= Work(ip+(iFd-1)*Inc+8)
-                  Qxy= Work(ip+(iFd-1)*Inc+9)
-                  Qxz= Work(ip+(iFd-1)*Inc+10)
-                  Qyy= Work(ip+(iFd-1)*Inc+11)
-                  Qyz= Work(ip+(iFd-1)*Inc+12)
-                  Qzz= Work(ip+(iFd-1)*Inc+13)
+                  ZA = XF(4,iFd)
+                  DAx= XF(5,iFd)
+                  DAy= XF(6,iFd)
+                  DAz= XF(7,iFd)
+                  Qxx= XF(8,iFd)
+                  Qxy= XF(9,iFd)
+                  Qxz= XF(10,iFd)
+                  Qyy= XF(11,iFd)
+                  Qyz= XF(12,iFd)
+                  Qzz= XF(13,iFd)
                Else
                   Call WarningMessage(2,
      &                      'RFNuc: Option not implemented yet!')
                   Call Abend()
                End If
-               ixyz = ip+(iFd-1)*Inc+1
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
                   Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',Work(ixyz),3,1)
+                  Call RecPrt(' Centers',' ',XF(1,iXF),3,1)
                End If
 *
-               A(1) = Work(ixyz  )
-               A(2) = Work(ixyz+1)
-               A(3) = Work(ixyz+2)
+               A(1:3) = XF(1:3,iXF)
 *
 *------------- Generate Stabilazor of C
 *

@@ -28,32 +28,31 @@
 *     M. Schuetz                                                       *
 *     University of Lund, Sweden, 1995                                 *
 ************************************************************************
-      SubRoutine SOFSh1(nShBF,iShOff,iSh2Sh,iSO2Sh,icntr,nSkal,nSym,
-     &                  nSOs,nShIrp,nShBFmx)
-*
+      SubRoutine SOFSh1(nSkal,nSym,nSOs)
       use iSD_data
+      use Index_arrays
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
+#include "stdalloc.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-      Integer nShBF(0:nSym-1,nSkal), iShOff(0:nSym-1,nSkal),
-     &        iSh2Sh(0:nSym-1,nSkal), iSO2Sh(nSOs),
-     &        nShIrp(0:nSym-1),nShOff(0:7),icntr(nSkal)
-      Dimension iTmp(1)
+      Integer nSkal, nSym, nSOs, nShOff(0:7)
+      Dimension iTmp(1 )
 *
-*     Call QEnter('SOFSh1')
+*     Allocate all memory
 *
-      iTmp=0 ! Use iTmp to get round compiler bug on some machines
-      Call ICopy(nSkal*nSym,iTmp,0,nShBF,1)
+      Call mma_allocate(nShBF,[0,nSym-1],[1,nSkal],Label='nShBF')
+      Call mma_allocate(iShOff,[0,nSym-1],[1,nSkal],Label='iShOff')
+      Call mma_allocate(iSh2Sh,[0,nSym-1],[1,nSkal],Label='iSh2Sh')
+      Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
+      Call mma_allocate(iCntr,nSkal,Label='iCntr')
 *
-      iTmp=9999999
-      Call ICopy(nSkal*nSym,iTmp,0,iShOff,1)
-*
-      Do irp=0,nsym-1
-        nShOff(irp)=1
-      End Do
+*     Initialize
+      nShBF(:,:)=0
+      iShOff(:,:)=9999999
+      nShOff(:)=1
 *
       Do iSkal = 1, nSkal
          iShell      = iSD(11,iSkal)
@@ -68,7 +67,7 @@
             Do irp=0, nSym-1
                If (iAnd(IrrCmp(IndS(iShell)+i),2**irp).ne.0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
-*define _CHECK_
+*#define _CHECK_
 #ifdef _CHECK_
                   If (Basis_Mode.eq.Auxiliary_Mode) Then
                      iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),
@@ -98,12 +97,12 @@
             iShOff(irp,iSkal)=nShOff(irp)
             nShOff(irp)=nShOff(irp)+nShBF(irp,iSkal)
          End Do
-*debug
-c        Write(6,'(A)') 'nShBF'
-c        Write(6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nIrrep-1)
-c        Write(6,'(A)') 'iShOff'
-c        Write(6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nIrrep-1)
-*debug
+#ifdef _DEBUG_
+         Write(6,'(A)') 'nShBF'
+         Write(6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nSym-1)
+         Write(6,'(A)') 'iShOff'
+         Write(6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nSym-1)
+#endif
       End Do
 *
 *     and now set up SO-Shell and Shell-Psudoshell index vectors...
@@ -144,18 +143,17 @@ c        Write(6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nIrrep-1)
             iptr=iptr+nBas(irp)
          End If
       End Do
-*debug
-c     Write(6,'(A,I4)') 'max shell size:',nShBFMx
-c     Write(6,'(A)') '# of shells contributing to each irrep:'
-c     Write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)
-c     Write(6,'(A)') '# shell-psudoshell map vector:'
-c     Do irp=0, nSym-1
-c       Write(6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',
-c    &             (iSh2Sh(irp,iSkal),iSkal=1,nSkal)
-c     End Do
-c     Write(6,'(A)') 'SO-index to shell map vector:'
-c     Write(6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
-*debug
-*     Call QExit('SOFSh1')
+#ifdef _DEBUG_
+      Write(6,'(A,I4)') 'max shell size:',nShBFMx
+      Write(6,'(A)') '# of shells contributing to each irrep:'
+      Write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)
+      Write(6,'(A)') '# shell-psudoshell map vector:'
+      Do irp=0, nSym-1
+        Write(6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',
+     &             (iSh2Sh(irp,iSkal),iSkal=1,nSkal)
+      End Do
+      Write(6,'(A)') 'SO-index to shell map vector:'
+      Write(6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
+#endif
       Return
       End

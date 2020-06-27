@@ -25,6 +25,7 @@
 *             October '91                                              *
 *             Modified for various other contributions May 95', RL     *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -194,12 +195,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
 *
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
-         If (iXPolType.gt.0) Inc = Inc + 6
-*
          ZA = Zero
          DAx= Zero
          DAy= Zero
@@ -212,32 +207,31 @@ C     nElem(ixyz) = 2*ixyz+1
          Qzz= Zero
 *
          PNX=Zero
-         ip = ipXF - 1
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
+               ZA = XF(4,iFd)
                NoLoop = ZA.eq.Zero
             Else If (nOrd_XF.eq.1) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
-               DAx= DInf(ip+(iFd-1)*Inc+5)
-               DAy= DInf(ip+(iFd-1)*Inc+6)
-               DAz= DInf(ip+(iFd-1)*Inc+7)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
      &                  DAz.eq.Zero
             Else If (nOrd_XF.eq.2) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
-               DAx= DInf(ip+(iFd-1)*Inc+5)
-               DAy= DInf(ip+(iFd-1)*Inc+6)
-               DAz= DInf(ip+(iFd-1)*Inc+7)
-               Qxx= DInf(ip+(iFd-1)*Inc+8)
-               Qxy= DInf(ip+(iFd-1)*Inc+9)
-               Qxz= DInf(ip+(iFd-1)*Inc+10)
-               Qyy= DInf(ip+(iFd-1)*Inc+11)
-               Qyz= DInf(ip+(iFd-1)*Inc+12)
-               Qzz= DInf(ip+(iFd-1)*Inc+13)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
+               Qxx= XF(8,iFd)
+               Qxy= XF(9,iFd)
+               Qxz= XF(10,iFd)
+               Qyy= XF(11,iFd)
+               Qyz= XF(12,iFd)
+               Qzz= XF(13,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
@@ -253,9 +247,7 @@ C     nElem(ixyz) = 2*ixyz+1
                Call Quit_OnUserError()
             End If
             If (NoLoop) Go To 102
-            A(1) = DInf(ip+(iFd-1)*Inc+1)
-            A(2) = DInf(ip+(iFd-1)*Inc+2)
-            A(3) = DInf(ip+(iFd-1)*Inc+3)
+            A(1:3) = XF(1:3,iFd)
             iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
@@ -381,30 +373,29 @@ C     nElem(ixyz) = 2*ixyz+1
          QByz=Zero
          QBzz=Zero
 
-         ip = ipXF - 1
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
+               ZA = XF(4,iFd)
                NoLoop = ZA.eq.Zero
             ElseIf (nOrd_XF.eq.1) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
-               DAx= DInf(ip+(iFd-1)*Inc+5)
-               DAy= DInf(ip+(iFd-1)*Inc+6)
-               DAz= DInf(ip+(iFd-1)*Inc+7)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
                NoLoop = ZA.eq.Zero .and. DAx.eq.Zero .and. DAy.eq.Zero
      &              .and. DAz.eq.Zero
             ElseIf (nOrd_XF.eq.2) Then
-               ZA = DInf(ip+(iFd-1)*Inc+4)
-               DAx= DInf(ip+(iFd-1)*Inc+5)
-               DAy= DInf(ip+(iFd-1)*Inc+6)
-               DAz= DInf(ip+(iFd-1)*Inc+7)
-               QAxx=DInf(ip+(iFd-1)*Inc+8)
-               QAxy=DInf(ip+(iFd-1)*Inc+9)
-               QAxz=DInf(ip+(iFd-1)*Inc+10)
-               QAyy=DInf(ip+(iFd-1)*Inc+11)
-               QAyz=DInf(ip+(iFd-1)*Inc+12)
-               QAzz=DInf(ip+(iFd-1)*Inc+13)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
+               QAxx=XF(8,iFd)
+               QAxy=XF(9,iFd)
+               QAxz=XF(10,iFd)
+               QAyy=XF(11,iFd)
+               QAyz=XF(12,iFd)
+               QAzz=XF(13,iFd)
                NoLoop = ZA.eq.Zero .and. DAx.eq.Zero .and. DAy.eq.Zero
      &              .and. DAz.eq.Zero .and.
      &              QAxx.eq.Zero .and.
@@ -420,34 +411,32 @@ C     nElem(ixyz) = 2*ixyz+1
 
 
             If (NoLoop) Go To 103
-            A(1) = DInf(ip+(iFd-1)*Inc+1)
-            A(2) = DInf(ip+(iFd-1)*Inc+2)
-            A(3) = DInf(ip+(iFd-1)*Inc+3)
+            A(1:3) = XF(1:3,iFd)
             iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
                If (nOrd_XF.eq.0) Then
-                  ZB = DInf(ip+(jFd-1)*Inc+4)
+                  ZB = XF(4,jFd)
                   NoLoop = ZB.eq.Zero
                ElseIf (nOrd_XF.eq.1) Then
-                  ZB = DInf(ip+(jFd-1)*Inc+4)
-                  DBx= DInf(ip+(jFd-1)*Inc+5)
-                  DBy= DInf(ip+(jFd-1)*Inc+6)
-                  DBz= DInf(ip+(jFd-1)*Inc+7)
+                  ZB = XF(4,jFd)
+                  DBx= XF(5,jFd)
+                  DBy= XF(6,jFd)
+                  DBz= XF(7,jFd)
                   NoLoop=ZB.eq.Zero.and.DBx.eq.Zero .and. DBy.eq.Zero
      &                 .and. DBz.eq.Zero
                ElseIf (nOrd_XF.eq.2) Then
-                  ZB = DInf(ip+(jFd-1)*Inc+4)
-                  DBx= DInf(ip+(jFd-1)*Inc+5)
-                  DBy= DInf(ip+(jFd-1)*Inc+6)
-                  DBz= DInf(ip+(jFd-1)*Inc+7)
-                  QBxx=DInf(ip+(jFd-1)*Inc+8)
-                  QBxy=DInf(ip+(jFd-1)*Inc+9)
-                  QBxz=DInf(ip+(jFd-1)*Inc+10)
-                  QByy=DInf(ip+(jFd-1)*Inc+11)
-                  QByz=DInf(ip+(jFd-1)*Inc+12)
-                  QBzz=DInf(ip+(jFd-1)*Inc+13)
+                  ZB = XF(4,jFd)
+                  DBx= XF(5,jFd)
+                  DBy= XF(6,jFd)
+                  DBz= XF(7,jFd)
+                  QBxx=XF(8,jFd)
+                  QBxy=XF(9,jFd)
+                  QBxz=XF(10,jFd)
+                  QByy=XF(11,jFd)
+                  QByz=XF(12,jFd)
+                  QBzz=XF(13,jFd)
                   NoLoop=ZB.eq.Zero.and.DBx.eq.Zero .and. DBy.eq.Zero
      &                 .and. DBz.eq.Zero .and.
      &                 QBxx.eq.Zero .and.
@@ -463,9 +452,7 @@ C     nElem(ixyz) = 2*ixyz+1
 
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
-               B(1) = DInf(ip+(jFd-1)*Inc+1)
-               B(2) = DInf(ip+(jFd-1)*Inc+2)
-               B(3) = DInf(ip+(jFd-1)*Inc+3)
+               B(1:3) = XF(1:3,jFd)
                iChxyz=iChAtm(B,iOper,nOper,iChBas(2))
                Call Stblz(iChxyz,iOper,nIrrep,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from

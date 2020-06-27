@@ -9,43 +9,53 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine Free_RctFld(iXPolType)
+       use PCM_arrays
+       use Langevin_arrays
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
+#include "stdalloc.fh"
 *
        If (RctFld_Status.eq.InActive) Return
-       Call GetMem('MM','Free','Real',ipMM,nMM)
+       Call mma_deallocate(MM)
        If (lLangevin .or. (iXPolType.gt.0)) Then
           If(iXPolType.eq.2) Then
              nPolComp = 6
           Else
              nPolComp = 1
           EndIf
-          Call GetMem('Field ','Free','Real',ipField ,nGrid*4)
-          Call GetMem('dField','Free','Real',ipdField,nGrid*4)
-          Call GetMem('Dip   ','Free','Real',ipDip   ,nGrid*3)
-          Call GetMem('PolEf ','Free','Real',ipPolEf ,nGrid*nPolComp)
-          Call GetMem('DipEf ','Free','Real',ipDipEf ,nGrid  )
-          Call GetMem('Grid  ','Free','Real',ipGrid  ,nGrid*3)
+          Call mma_deallocate(Field)
+          Call mma_deallocate(dField)
+          Call mma_deallocate(Dip)
+          Call mma_deallocate(PolEf)
+          Call mma_deallocate(DipEf)
+          Call mma_deallocate(Grid)
 *
-          Call GetMem('favxyz','Free','Real',ipfavxyz,nCavxyz)
-          Call GetMem('davxyz','Free','Real',ipdavxyz,nCavxyz)
-          Call GetMem('cavxyz','Free','Real',ipcavxyz,nCavxyz)
-          Call GetMem('ravxyz','Free','Real',ipravxyz,nCavxyz)
+          Call mma_deallocate(davxyz)
+          Call mma_deallocate(cavxyz)
+          Call mma_deallocate(ravxyz)
        End If
        If (PCM) Then
-          Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
+          Call mma_deallocate(NewSph)
+          Call mma_deallocate(IntSph)
+          Call mma_deallocate(NVert)
+          Call mma_deallocate(PCMiSph)
+          Call mma_deallocate(PCM_N)
+          Call mma_deallocate(PCMDM)
+          Call mma_deallocate(SSph)
+          Call mma_deallocate(Centr)
+          Call mma_deallocate(Vert)
+          Call mma_deallocate(PCMTess)
+          Call mma_deallocate(PCMSph)
 *
 *---- Free the space for geometric derivatives
 *
           If (DoDeriv) Then
-             LcNAtm = ISlPar(42)
-             NDeg = 3*LcNAtm
-             Call GetMem('DerTes'  ,'Free','Real',ip_DTes ,nTs*NDeg)
-             Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
-             Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
-             Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
-             Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)
+             Call mma_deallocate(dTes)
+             Call mma_deallocate(dPnt)
+             Call mma_deallocate(dRad)
+             Call mma_deallocate(dCntr)
+             Call mma_deallocate(PCM_SQ)
           End If
 *
        End If

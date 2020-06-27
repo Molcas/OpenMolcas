@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine edip(Ravxyz,Cavxyz,lMax_,
      &                EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_,
-     &     nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
+     &                nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
 
 ************************************************************************
 *                                                                      *
@@ -57,17 +57,19 @@
       Integer XMolnr(nXMolnr,nXF)
       Logical NonEq,lExcl
 *
-c      Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
-c      Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
-c      Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_)
-c      Call RecPrt('edip: Grid ',' ',Grid,3,nGrid_)
-c      write(*,*)
-c     &'nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping',
-c     & nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping
-c      do i=1,nGrid_
-c         write(*,*) 'EDOTr ', i,Grid(1,i)*dEF(1,i)+
-c     &        Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
-c      EndDo
+#ifdef _DEBUG_
+      Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
+      Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
+      Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_)
+      Call RecPrt('edip: Grid ',' ',Grid,3,nGrid_)
+      write(6,*)
+     &'nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping',
+     & nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping
+      do i=1,nGrid_
+         write(6,*) 'EDOTr ', i,Grid(1,i)*dEF(1,i)+
+     &        Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
+      EndDo
+#endif
 
       nCavxyz_=(lMax+1)*(lMax+2)*(lMax+3)/6
       qqo = Zero
@@ -75,8 +77,10 @@ c      EndDo
       NonEq=.False.
 
 *
+#ifdef _DEBUG_
       Write (6,*)
       Write (6,*) 'Iter fmax             testa'
+#endif
       Iter=0
 555   testa=fmax*afac
       Iter=Iter+1
@@ -245,7 +249,7 @@ c     &                 ' with ', scal
                v = min(1.0D0,sqrt(r2)/s)
                d1 = 4.0*v**3 - 3.0*v**4
                d2 = v**4
-c               Write(*,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
+c               Write(6,*)'DAMP', d1, d2, Tr1, Tr2, sqrt(r2)
                dEF(1,jGrid)=dEF(1,jGrid)-(dx*d1-temp*rx*d2)*dist3*scal
                dEF(2,jGrid)=dEF(2,jGrid)-(dy*d1-temp*ry*d2)*dist3*scal
                dEF(3,jGrid)=dEF(3,jGrid)-(dz*d1-temp*rz*d2)*dist3*scal
@@ -313,7 +317,9 @@ c666     Continue
 *
 c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 
+#ifdef _DEBUG_
       Write (6,*) Iter,fmax,testa
+#endif
       If (fmax.gt.clim) Go To 555
 *
 *---- Now we have a MM from QM + Langevin grid which is consistent with the
@@ -321,31 +327,33 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 *     distribution of dipole moments is also internally consistent!
 *
 
-c      Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
+#ifdef _DEBUG_
+      Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
-c     Write out dipoles and a pointcharge representation of the dipoles
-c      Write(*,*)'QREP'
-c      do i=1,nGrid_
-c         dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)
-c         del=0.01
-c         Write(*,*)Grid(1,i)+DipMom(1,i)/dipabs*del,
-c     &             Grid(2,i)+DipMom(2,i)/dipabs*del,
-c     &             Grid(3,i)+DipMom(3,i)/dipabs*del, dipabs/del/2.0
-c         Write(*,*)Grid(1,i)-DipMom(1,i)/dipabs*del,
-c     &             Grid(2,i)-DipMom(2,i)/dipabs*del,
-c     &             Grid(3,i)-DipMom(3,i)/dipabs*del, -dipabs/del/2.0
-c      EndDo
+      Write out dipoles and a pointcharge representation of the dipoles
+      Write(6,*)'QREP'
+      do i=1,nGrid_
+         dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)
+         del=0.01
+         Write(6,*)Grid(1,i)+DipMom(1,i)/dipabs*del,
+     &             Grid(2,i)+DipMom(2,i)/dipabs*del,
+     &             Grid(3,i)+DipMom(3,i)/dipabs*del, dipabs/del/2.0
+         Write(6,*)Grid(1,i)-DipMom(1,i)/dipabs*del,
+     &             Grid(2,i)-DipMom(2,i)/dipabs*del,
+     &             Grid(3,i)-DipMom(3,i)/dipabs*del, -dipabs/del/2.0
+      EndDo
 
-c      do i=1,nGrid_
-c         ddotr=Grid(1,i)*DipMom(1,i)+
-c     &        Grid(2,i)*DipMom(2,i)+Grid(3,i)*DipMom(3,i)
-c         dipabs=sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)
-c     &        +DipMom(3,i)*DipMom(3,i))
-c         radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)
-c     &        +Grid(3,i)*Grid(3,i))
-c         write(*,*)'RADPOL',radabs,dipabs/(scala*scalb*scalc),
-c     &        ddotr/(dipabs*radabs)
-c      EndDo
+      do i=1,nGrid_
+         ddotr=Grid(1,i)*DipMom(1,i)+
+     &        Grid(2,i)*DipMom(2,i)+Grid(3,i)*DipMom(3,i)
+         dipabs=sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)
+     &        +DipMom(3,i)*DipMom(3,i))
+         radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)
+     &        +Grid(3,i)*Grid(3,i))
+         write(6,*)'RADPOL',radabs,dipabs/(scala*scalb*scalc),
+     &        ddotr/(dipabs*radabs)
+      EndDo
+#endif
 
       Return
 c Avoid unused argument warnings
