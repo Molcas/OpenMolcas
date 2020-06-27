@@ -9,10 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine Init_RctFld(NonEq,iCharge)
+       use Langevin_arrays
+       use PCM_arrays, only: MM
+       use external_centers, only: nXF
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "itmax.fh"
 #include "info.fh"
        Logical NonEq
@@ -21,7 +24,7 @@
        If (RctFld_Status.eq.Active) Return
        mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
        nMM = 2 * mMM
-       Call GetMem('MM','Allo','Real',ipMM,nMM)
+       Call mma_allocate(MM,mMM,2,Label='MM')
        If (iXPolType.gt.0) nGrid = nXF
        If (lLangevin .or. (iXPolType.gt.0)) Then
           If(lLangevin) Then
@@ -36,18 +39,17 @@
           Else
              nPolComp = 1
           EndIf
-          Call GetMem('Field ','Allo','Real',ipField ,nGrid*4)
-          Call GetMem('dField','Allo','Real',ipdField,nGrid*4)
-          Call GetMem('Dip   ','Allo','Real',ipDip   ,nGrid*3)
-          Call GetMem('PolEf ','Allo','Real',ipPolEf ,nGrid*nPolComp)
-          Call GetMem('DipEf ','Allo','Real',ipDipEf ,nGrid  )
-          Call GetMem('Grid  ','Allo','Real',ipGrid  ,nGrid*3)
+          Call mma_allocate(Field,4,nGrid,Label='Field')
+          Call mma_allocate(dField,4,nGrid,Label='dField')
+          Call mma_allocate(Dip,3,nGrid,Label='Dip')
+          Call mma_allocate(PolEf,nPolComp,nGrid,Label='PolEf')
+          Call mma_allocate(DipEf,nGrid,Label='DipEf')
+          Call mma_allocate(Grid,3,nGrid,Label='Grid')
 *
           nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
-          Call GetMem('favxyz','Allo','Real',ipfavxyz,nCavxyz)
-          Call GetMem('davxyz','Allo','Real',ipdavxyz,nCavxyz)
-          Call GetMem('cavxyz','Allo','Real',ipCavxyz,nCavxyz)
-          Call GetMem('ravxyz','Allo','Real',ipravxyz,nCavxyz)
+          Call mma_allocate(davxyz,nCavxyz,Label='davxyz')
+          Call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
+          Call mma_allocate(ravxyz,nCavxyz,Label='ravxyz')
        End If
        If (.Not.PCM) NonEq_Ref=NonEq
        Call Init_PCM(NonEq,iCharge)

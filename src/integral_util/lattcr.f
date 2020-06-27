@@ -36,8 +36,7 @@
 *
       Real*8 Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Real*8 cord(3,maxato), atorad(maxato),XF(*)
-*     Integer XEle(nXF)
-      real*8 XEle(nXF)
+      Integer XEle(nXF)
 
 
       Real*8 tr(3,3),co(3)
@@ -128,10 +127,10 @@
                   xa=XF((iXF-1)*Inc+1)
                   ya=XF((iXF-1)*Inc+2)
                   za=XF((iXF-1)*Inc+3)
-                  If(INT(XEle(iXF)).le.0) Then
-                     atrad=-XEle(iXF)/1000.0D0
+                  If(XEle(iXF).le.0) Then
+                     atrad=-DBLE(XEle(iXF))/1000.0D0
                   Else
-                     atrad=CovRadT(INT(XEle(iXF)))
+                     atrad=CovRadT(XEle(iXF))
                   EndIf
                   rrr=(atrad*rsca)**2
                   dggx=xa-xp
@@ -219,10 +218,10 @@ c     &           write(*,*)'DIST0',iGrid,sqrt(rpa2),atorad(m)
                         xa=XF((iXF-1)*Inc+1)
                         ya=XF((iXF-1)*Inc+2)
                         za=XF((iXF-1)*Inc+3)
-                        If(INT(XEle(iXF)).le.0) Then
-                           atrad=-XEle(iXF)/1000.0D0
+                        If(XEle(iXF).le.0) Then
+                           atrad=-DBLE(XEle(iXF))/1000.0D0
                         Else
-                           atrad=CovRadT(INT(XEle(iXF)))
+                           atrad=CovRadT(XEle(iXF))
                         EndIf
                         rrr=(atrad*rsca)**2
                         dggx=xa-xp

@@ -8,12 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Logical Function RF_On()
-      Implicit Real*8 (a-h,o-z)
-      Integer, Save:: iOption=-99
-*     Call Get_iOption(iOption)
-      If (iOption.eq.-99) Call Get_iScalar('System BitSwitch',iOption)
-*
-      RF_On=iAnd(iOption,4).Eq.4
-      Return
-      End
+      Module Langevin_arrays
+      Real*8, Allocatable:: Field(:,:), dField(:,:), Dip(:,:),
+     &                      PolEf(:,:), DipEf(:), Grid(:,:),
+     &                      davxyz(:), cavxyz(:), ravxyz(:)
+      End Module Langevin_arrays

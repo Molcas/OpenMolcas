@@ -16,7 +16,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "real.fh"
       Character Label*8
       Real*8 CCoor(3,nComp)
@@ -28,22 +27,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
-*     Call qEnter('OneEl_I')
-      If (iPrint.ge.19) Then
-         Write (6,*) ' In OneEl: Label', Label
-         Write (6,*) ' In OneEl: nComp'
-         Write (6,'(1X,8I5)') nComp
-         Write (6,*) ' In OneEl: lOper'
-         Write (6,'(1X,8I5)') lOper
-         Write (6,*) ' In OneEl: n2Tri'
-         Do iComp = 1, nComp
-            ip(iComp) = n2Tri(lOper(iComp))
-         End Do
-         Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-         Call RecPrt(' CCoor',' ',CCoor,3,nComp)
-      End If
+*#define _DEBUG_
+#ifdef _DEBUG_
+      Write (6,*) ' In OneEl: Label', Label
+      Write (6,*) ' In OneEl: nComp'
+      Write (6,'(1X,8I5)') nComp
+      Write (6,*) ' In OneEl: lOper'
+      Write (6,'(1X,8I5)') lOper
+      Write (6,*) ' In OneEl: n2Tri'
+      Do iComp = 1, nComp
+         ip(iComp) = n2Tri(lOper(iComp))
+      End Do
+      Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+      Call RecPrt(' CCoor',' ',CCoor,3,nComp)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,7 +55,9 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-      If (iPrint.ge.20) Write (6,*) ' nIC =',nIC
+#ifdef _DEBUG_
+      Write (6,*) ' nIC =',nIC
+#endif
       If (nIC.eq.0) Then
          Call WarningMessage(2,'OneEl_Integrals: nIC.eq.0')
          Call Abend()
@@ -93,6 +92,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('OneEl_I')
       Return
       End
