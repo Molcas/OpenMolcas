@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCM_Hss(Hess,nHss)
+      use PCM_arrays
       Implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -64,12 +65,12 @@
       Call GetMem('HssPCM','Allo','Real',ip_HssPCM,nAt3*nAt3)
 
       Call PCM_Cav_Hss(Angstr,nAtoms,nAt3,nTs,nS,Eps,iWork(ipANr),
-     &     Work(ipCoor),Work(ipChrg),Work(ip_EF_n),Work(ip_EF_e),
-     &     Work(ip_Sph),iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),
-     &     Work(ip_Q),Work(ip_Qtot),Work(ip_DM),Work(ip_HssPCM),
-     &     Work(ip_DerMat),Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),
-     &     Work(ip_DCntr),Work(ip_QDer),Work(ip_Der1),Work(ip_Der2),
-     &     Work(ip_VDer))
+     &                 Work(ipCoor),Work(ipChrg),Work(ip_EF_n),
+     &                 Work(ip_EF_e),PCMSph,PCMiSph,PCM_N,PCMTess,
+     &                 PCM_SQ,Work(ip_Qtot),PCMDM,Work(ip_HssPCM),
+     &                 Work(ip_DerMat),dTes,dPnt,dRad,dCntr,
+     &                 Work(ip_QDer),Work(ip_Der1),Work(ip_Der2),
+     &                 Work(ip_VDer))
       Call GetMem('HssPCM','Free','Real',ip_HssPCM,nHss)
       Call GetMem('DerMat','Free','Real',ip_DerMat,nTs*nTs)
       Call GetMem('Qtot','Free','Real',ip_Qtot,nTs)

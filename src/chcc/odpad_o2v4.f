@@ -743,6 +743,8 @@ c       help variables
         integer i,kery,kam,yes,ToDo
         integer cGrp,deGrp,dimc,dimde,addde
 c
+        kam=-1 ! dummy initialize
+c
 c
 c1      Define
 c         a) what need to be read (WhatNeedToRead)

@@ -42,7 +42,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
 #include "lundio.fh"
 #include "print.fh"

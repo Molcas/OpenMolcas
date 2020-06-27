@@ -29,6 +29,7 @@
 *             University of Lund, SWEDEN                               *
 *             September '95                                            *
 ************************************************************************
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
 #include "real.fh"
@@ -334,13 +335,11 @@ c     Call qEnter('DrvN2')
 *
 *
       Do iTs = 1, nTs
-         ZA   = Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         ZA   = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          NoLoop = ZA.eq.Zero
          If (NoLoop) Go To 112
          ZA = ZA / DBLE(nIrrep)
-         A(1) = Work((iTs-1)*4+ip_Tess  )
-         A(2) = Work((iTs-1)*4+ip_Tess+1)
-         A(3) = Work((iTs-1)*4+ip_Tess+2)
+         A(1:3) = PCMTess(1:3,iTs)
 *
 *------- Tile only stabilized by the unit operator
 *
@@ -525,9 +524,7 @@ c     Call qEnter('DrvN2')
 *        Sum(i,j) V_i,n^x Q_ij V_j,n^y
 *
       Do iTs = 1, nTs
-         A(1) = Work((iTs-1)*4+ip_Tess  )
-         A(2) = Work((iTs-1)*4+ip_Tess+1)
-         A(3) = Work((iTs-1)*4+ip_Tess+2)
+         A(1:3) = PCMTess(1:3,iTs)
 *
 *------- Tile only stabilized by the unit operator
 *
@@ -537,12 +534,10 @@ c     Call qEnter('DrvN2')
       Do jTs = 1, iTs
          Fact=Two
          If (jTs.eq.iTs) Fact=One
-         Q_ij = DMElm(nTs,iTs,jTs,Work(ip_DM))
+         Q_ij = DMElm(nTs,iTs,jTs,PCMDM)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
-         C(1) = Work((jTs-1)*4+ip_Tess  )
-         C(2) = Work((jTs-1)*4+ip_Tess+1)
-         C(3) = Work((jTs-1)*4+ip_Tess+2)
+         C(1:3) = PCMTess(1:3,jTs)
 *
          mStb=1
          jStb(0)=0
@@ -809,11 +804,10 @@ c     Call qEnter('DrvN2')
         Call GetMem('Der1','Allo','Real',ip_Der1,nTs)
         Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
         Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
-        Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,Work(ip_Sph),
-     &   iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),Work(ip_Q),
-     &   Work(ip_DM),Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
-     &   Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr),
-     &   Work(ip_pcmhss),nPCMHss)
+        Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
+     &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
+     &               PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
+     &               dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
         Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
         Call GetMem('Der1','Free','Real',ip_Der1,nTs)
         Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)

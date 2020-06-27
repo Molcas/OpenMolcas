@@ -33,6 +33,7 @@
       use iSD_data
       use aces_stuff
       use pso_stuff
+      use index_arrays, only: iSO2Sh
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -52,7 +53,6 @@
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
 #include "setup.fh"
-#include "shinf.fh"
 ************************************************************************
       Integer nFro(0:7)
       Integer Columbus
@@ -198,7 +198,7 @@
          Call mma_Allocate(Bin,2,lBin,Label='Bin')
 *  compute SO2cI array
          Call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
-         call Mk_SO2cI(SO2cI,iWork(ipSOsh),nsos)
+         call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
 *                                                                      *
 ************************************************************************
 *                                                                      *

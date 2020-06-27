@@ -10,11 +10,13 @@
 ************************************************************************
       Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,
      &                  Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 *
 #include "espf.fh"
 *
 #include "rctfld.fh"
+#include "stdalloc.fh"
       Logical Forces,Process,Dirty
 *
       Call QEnter('mkgrid')
@@ -97,20 +99,28 @@ c
             If (DoDeriv) Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,
      &                               3*nGrdPt*nDer)
             Do I = 1, nTs
-               call dcopy_(3,Work(ip_Tess + 4*(I-1)),1,
+               call dcopy_(3,PCMTess(1,I),1,
      &                      Work(ipTmp   + 3*nTmp+3*(I-1)),1)
             End Do
-            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,Work(ip_DPnt),1,
+            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,
      &                                            Work(ipDGrd ),1)
-            Call GetMem('PCMSph','Free','Real',ip_Sph,nPCM_info)
+            Call mma_deallocate(NewSph)
+            Call mma_deallocate(IntSph)
+            Call mma_deallocate(NVert)
+            Call mma_deallocate(PCMiSph)
+            Call mma_deallocate(PCM_N)
+            Call mma_deallocate(PCMDM)
+            Call mma_deallocate(SSph)
+            Call mma_deallocate(Centr)
+            Call mma_deallocate(Vert)
+            Call mma_deallocate(PCMTess)
+            Call mma_deallocate(PCMSph)
             If (DoDeriv) Then
-               LcNAtm = ISlPar(42)
-               NDeg = 3*LcNAtm
-               Call GetMem('DerTes'  ,'Free','Real',ip_DTes ,nTs*NDeg)
-               Call GetMem('DerPunt' ,'Free','Real',ip_DPnt ,3*nTs*NDeg)
-               Call GetMem('DerRad'  ,'Free','Real',ip_DRad ,nS*NDeg)
-               Call GetMem('DerCentr','Free','Real',ip_DCntr,3*nS*NDeg)
-               Call GetMem('PCM-Q','Free','Real',ip_Q,2*nTs)
+               Call mma_deallocate(dTes)
+               Call mma_deallocate(dPnt)
+               Call mma_deallocate(dRad)
+               Call mma_deallocate(dCntr)
+               Call mma_deallocate(PCM_SQ)
             End If
          End Do
          Call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*nGrdPt)

@@ -86,7 +86,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       m2Max=0
       iAngMx=-1
       nWel=0
-      ipWel=ip_Dummy
       iRI_type=0
       jMax = 5
       nTtl=0
@@ -110,12 +109,8 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 70    IrrCmp(i)=0
       do 80 i=-20,9
 80    NrInt(i)=0
-      nEF=0
-      ipEF=ip_Dummy
       nOrdEF=-1
       nDMS=0
-      ipDMS=ip_Dummy
-      ipRP1=ip_Dummy
       nRP=0
       Do i=0,7
          iSkip(i)=0
