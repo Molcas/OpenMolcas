@@ -203,15 +203,19 @@ checks:
   script:
     - |
       if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
-        TARGET_BRANCH="origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
+        git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
+        git fetch upstream
+        TARGET_BRANCH="upstream/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
       else
         TARGET_BRANCH="origin/master"
       fi
+      TARGET_SHA=$(git show-ref -s ${TARGET_BRANCH})
       TMPDIR=$(mktemp -d)
-      for FILE in $(git diff-index --cached --name-only ${TARGET_BRANCH})
+      for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
       do
         git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
       done
+      echo "diff between ${CI_COMMIT_SHA} and ${TARGET_SHA}"
     - |
       echo
       echo "POSSIBLE HEADER ISSUES"
@@ -258,6 +262,9 @@ tinker:
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+    - >
+      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
     # Apply the low-memory patch
     - |
       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
@@ -274,8 +281,6 @@ tinker:
       - build/
     expire_in: 1 day
   <<: *compile-jobs
-  # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
-  retry: 2
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.

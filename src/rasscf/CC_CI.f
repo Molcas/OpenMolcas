@@ -14,6 +14,7 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
+      use definitions, only: MPIInt, wp
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
       use fortran_strings, only: str
@@ -30,7 +31,7 @@
       use index_symmetry, only: one_el_idx, two_el_idx,
      &    one_el_idx_flatten, two_el_idx_flatten
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,
-     &  assert_, dp, CleanMat
+     &  assert_, CleanMat
 
       implicit none
       save
@@ -51,10 +52,6 @@
         procedure, nopass :: cleanup
       end type
 
-      integer*4 :: error
-      integer, parameter :: mpi_arg = kind(error)
-
-
       contains
 
       subroutine CC_CI_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
@@ -66,18 +63,18 @@
 #include "rctfld.fh"
 #include "timers.fh"
       integer, intent(in) :: actual_iter
-      real*8, intent(in) ::
+      real(wp), intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
      &    D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
-      real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
-      real*8, intent(out) :: DMAT(nAcpar),
+      real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+      real(wp), intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real*8 :: energy
+      real(wp) :: energy
       integer :: jRoot
       integer, allocatable :: permutation(:)
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+      real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
-      integer*4 :: error
+      integer(MPIInt) :: error
 #endif
       parameter(ROUTINE = 'CC_CI_ctl')
       character(*), parameter ::
@@ -86,7 +83,7 @@
       call qEnter(routine)
 
 ! SOME DIRTY SETUPS
-      S = 0.5d0 * dble(iSpin - 1)
+      S = 0.5_wp * dble(iSpin - 1)
 
       call check_options(lRoots, lRf, KSDFT, iDoGAS)
 
@@ -135,9 +132,9 @@
      &      fake_run, energy, D1S_MO, DMAT, PSMAT, PAMAT)
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
         logical, intent(in) :: fake_run
-        real*8, intent(out) :: energy, D1S_MO(nAcPar), DMAT(nAcpar),
+        real(wp), intent(out) :: energy, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
-        real*8, save :: previous_energy = 0.0d0
+        real(wp), save :: previous_energy = 0.0_wp
 
         character(*), parameter :: input_name = 'CC_CI.inp',
      &      energy_file = 'NEWCYCLE'
@@ -233,8 +230,7 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine read_CC_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
-        use CI_solver_util, only: dp
-        real*8, intent(out) ::
+        real(wp), intent(out) ::
      &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
 
@@ -250,39 +246,39 @@
 ! Could be changed into non blocking BCast
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-            call MPI_Bcast(PSMAT, int(size(PSMAT), mpi_arg),
-     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
-            call MPI_Bcast(PAMAT, int(size(PAMAT), mpi_arg),
-     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
-            call MPI_Bcast(DMAT, int(size(DMAT), mpi_arg),
-     &                     MPI_REAL8, 0_mpi_arg, MPI_COMM_WORLD, error)
+            call MPI_Bcast(PSMAT, int(size(PSMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
+            call MPI_Bcast(PAMAT, int(size(PAMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
+            call MPI_Bcast(DMAT, int(size(DMAT), MPIInt),
+     &                     MPI_REAL8, 0_MPIInt, MPI_COMM_WORLD, error)
         end if
 #endif
       end subroutine read_CC_RDM
 
       subroutine calc_1RDM(PSMAT, DMAT)
-        real*8, intent(in) :: PSMAT(:)
-        real*8, intent(out) :: DMAT(:)
+        real(wp), intent(in) :: PSMAT(:)
+        real(wp), intent(out) :: DMAT(:)
 
         integer :: pq, p, q, r
 
         call assert_(size(PSMAT) == triangular_number(size(DMAT)),
      &      'Dimension mismatch PSMAT, DMAT')
 
-        DMAT(:) = 0.0d0
+        DMAT(:) = 0._wp
         do pq = lbound(DMAT, 1), ubound(DMAT, 1)
           call one_el_idx(pq, p, q)
           do r = 1, inv_triang_number(size(DMAT))
             DMAT(pq) = DMAT(pq) + PSMAT(two_el_idx_flatten(p, q, r, r))
           end do
         end do
-        DMAT(:) = DMAT(:) * 2.0_dp / real(nActEl - 1, kind=dp)
+        DMAT(:) = DMAT(:) * 2.0_wp / real(nActEl - 1, kind=wp)
 
       end subroutine
 
       subroutine read_2RDM(path, RDM_2)
         character(*), intent(in) :: path
-        real*8, intent(out) :: RDM_2(:)
+        real(wp), intent(out) :: RDM_2(:)
 
         integer :: file_id, io_err, curr_line, i, n_lines
         integer, parameter :: arbitrary_magic_number = 42
@@ -312,14 +308,15 @@
       pure function inv_triang_number(n) result(res)
         integer, intent(in) :: n
         integer :: res
-        res = nint(-1.d0/2.d0 + sqrt(1.d0/4.d0 + 2.d0*real(n, kind=dp)))
+        res = nint(-1._wp/2._wp
+     &             + sqrt(1._wp/4._wp + 2._wp*real(n, kind=wp)))
       end function
 
 
       subroutine write_RDM(RDM, i_unit)
         use CI_solver_util, only: assert_
         implicit none
-        real*8, intent(in) :: RDM(:)
+        real(wp), intent(in) :: RDM(:)
         integer, intent(in) :: i_unit
 
         integer :: io_err, curr_line, i, n_lines, j

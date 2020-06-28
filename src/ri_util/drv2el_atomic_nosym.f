@@ -51,7 +51,6 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #define _no_nShs_

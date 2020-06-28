@@ -672,6 +672,8 @@ C
          koff=koff+nSsh(iSym)
       End Do
 *
+      iDummy=0
+      jDummy=0
       Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,iDummy,
      &                           jDummy,.false.)
       Call GetMem('CMON','Allo','Real',iCMO,nBB)
