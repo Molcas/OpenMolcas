@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Gen_GeoList(DInf,nDInf)
       use GeoList
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -42,7 +43,7 @@
 *
          If (ECP(jCnttp).and.nVal_Shells(jCnttp).eq.0) Go To 1212
 *
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = jCnt + mdciCnttp(jCnttp)
             x1 = DInf(jxyz)
@@ -98,7 +99,7 @@
          Z = Charge(jCnttp)
          mCnt = nCntr(jCnttp)
          If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1213
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = jCnt + mdciCnttp(jCnttp)
             Do i = 0, nIrrep/nStab(ndc) - 1

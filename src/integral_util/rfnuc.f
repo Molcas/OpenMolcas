@@ -24,6 +24,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -63,7 +64,7 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
             Do iCnttp = 1, nCnttp
                If (Charge(iCnttp).eq.Zero) Go To 101
                ZA = Charge(iCnttp)
-               ixyz = ipCntr(iCnttp)
+               ixyz = dbsc(iCnttp)%ipCntr
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
                   Write (6,*) ' ixyz=',ixyz

@@ -24,6 +24,7 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -348,7 +349,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          End Do
 *
          If (output.and.iPrint.ge.6) Then
-            iStrt = ipCntr(iCnttp)
+            iStrt = dbsc(iCnttp)%ipCntr
             Write (LuWr,*)
             Write (LuWr,'(6X,A)')
      &              ' Label   Cartesian Coordinates / Bohr'

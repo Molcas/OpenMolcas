@@ -62,6 +62,7 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -117,7 +118,7 @@
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 1961
          Do 1965 kCnt = 1,nCntr(kCnttp)
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
+            ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
             If (iPrint.ge.49) Call RecPrt(' In PrjGrd: C',' ',C,1,3)
 *

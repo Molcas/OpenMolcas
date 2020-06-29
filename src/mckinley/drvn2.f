@@ -29,6 +29,7 @@
 *             University of Lund, SWEDEN                               *
 *             September '95                                            *
 ************************************************************************
+      use Basis_Info
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
@@ -77,7 +78,7 @@ c     Call qEnter('DrvN2')
       Do iCnttp = 1, nCnttp
        If (Charge(iCnttp).eq.Zero) Go To 101
        ZA = Charge(iCnttp)
-       ixyz = ipCntr(iCnttp)
+       ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
        Do 110 iCnt = 1, nCntr(iCnttp)
          A(1) = Work(ixyz  )
@@ -89,7 +90,7 @@ c     Call qEnter('DrvN2')
            ZB=Charge(jCnttp)
            If (ZB.eq.Zero) Go To 201
            ZAZB = ZA * ZB
-           jxyz = ipCntr(jCnttp)
+           jxyz = dbsc(jCnttp)%ipCntr
            jCntMx = nCntr(jCnttp)
            If (iCnttp.eq.jCnttp) jCntMx = iCnt
            Do jCnt = 1, jCntMx
@@ -353,7 +354,7 @@ c     Call qEnter('DrvN2')
             If (pChrg(jCnttp)) Go To 212
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
-            jxyz = ipCntr(jCnttp)
+            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, nCntr(jCnttp)
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)
@@ -551,7 +552,7 @@ c     Call qEnter('DrvN2')
             If (pChrg(iCnttp)) Go To 222
             If (FragCnttp(iCnttp)) Go To 222
 *
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                B(1) = Work(ixyz+(iCnt-1)*3  )
                B(2) = Work(ixyz+(iCnt-1)*3+1)
@@ -610,7 +611,7 @@ c     Call qEnter('DrvN2')
             If (pChrg(jCnttp)) Go To 232
             If (FragCnttp(jCnttp)) Go To 232
 *
-            jxyz = ipCntr(jCnttp)
+            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, nCntr(jCnttp)
                D(1) = Work(jxyz+(jCnt-1)*3  )
                D(2) = Work(jxyz+(jCnt-1)*3+1)

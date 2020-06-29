@@ -17,6 +17,7 @@
 *                                                                      *
 * 2008 R. Lindh, Dept. of Theor. Chem., Univ. of Lund, Sweden          *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
 #include "itmax.fh"
@@ -88,7 +89,7 @@
 *
 *-----The coordinates
 *
-      ipCntr(nCnttp) = ipExp(iShll+1)
+      dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
       nCnt = 1
       If (mdc+nCnt.gt.Mxdc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
@@ -97,7 +98,7 @@
       mdciCnttp(nCnttp)=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      iOff=ipCntr(nCnttp)+(nCnt-1)*3
+      iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
       DInf(iOff  )=Zero
       DInf(iOff+1)=Zero
       DInf(iOff+2)=Zero

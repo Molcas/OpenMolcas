@@ -35,6 +35,7 @@
 *             October '91                                              *
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -126,7 +127,7 @@ c     End If
          If (nM1(kCnttp).eq.0) Go To 111
 
          Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
+            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101

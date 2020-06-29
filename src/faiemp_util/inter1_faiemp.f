@@ -18,6 +18,7 @@
 *         generation of the MOLDEN file during SCF.                    *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -45,7 +46,7 @@
            mdc = mdc + nCntr(iCnttp)
            Go To 99
          End If
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt=1,nCntr(iCnttp)
             mdc=mdc+1
             Lbl=LblCnt(mdc)(1:LENIN)

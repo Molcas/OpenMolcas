@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
+      Use Basis_Info
       Use Langevin_arrays
       use External_Centers
       Implicit Real*8 (A-H,O-Z)
@@ -55,7 +56,7 @@
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
          mCnt = nCntr(jCnttp)
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          If (iAtmNr(jCnttp).ge.1) Then
 *            Atod = CovRad (iAtmNr(jCnttp))
              Atod = CovRadT(iAtmNr(jCnttp))

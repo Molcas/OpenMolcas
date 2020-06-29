@@ -25,6 +25,7 @@
       use Period
       use GeoList
       use MpmC
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -204,7 +205,7 @@ C-SVC: identify runfile with a fingerprint
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
                iNuc = iNuc+ 1

@@ -31,6 +31,7 @@
 *                Added ability to calculate 2nd derivative as well     *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -112,7 +113,7 @@ c      print *,' iAngMx', iAngMx
 
             Do iCnt = 1, nCnt
 
-               ixyz = ipCntr(iCnttp) + (iCnt-1)*3
+               ixyz = dbsc(iCnttp)%ipCntr + (iCnt-1)*3
                iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(iCnttp,iAng)
                iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
 

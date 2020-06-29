@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MkDisp()
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -63,7 +64,7 @@ C The nuclear coordinates: First, the symmetry-unique ones.
       ic=0
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
-          ixyz=ipCntr(iCnttp)
+          ixyz=dbsc(iCnttp)%ipCntr
           Do iCnt=1,nCntr(iCnttp)
             ic=ic+1
             iWork(ipCntId+0+4*(ic-1))=iCnttp

@@ -25,6 +25,7 @@
 *             October '06                                              *
 ************************************************************************
       use Period
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -159,7 +160,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
                iNuc = iNuc+ 1
@@ -206,7 +207,7 @@
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
                iNuc = iNuc+ 1
@@ -287,7 +288,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
                iNuc = iNuc+ 1
@@ -321,7 +322,7 @@
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (pChrg(iCnttp))Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
                iNuc = iNuc+ 1

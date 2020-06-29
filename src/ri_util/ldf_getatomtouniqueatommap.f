@@ -11,6 +11,7 @@
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine LDF_GetAtomToUniqueAtomMap(A2UA,nA)
+      Use Basis_Info
 C
 C     Thomas Bondo Pedersen, June 2010.
 C     - based on Print_Geometry by Roland Lindh.
@@ -54,7 +55,7 @@ C
      &       FragCnttp(jCnttp)) Then
             ndc=ndc+mCnt
          Else
-            jxyz=ipCntr(jCnttp)
+            jxyz=dbsc(jCnttp)%ipCntr
             Do i=0,2
                Work(ip_UAR+i)=Work(jxyz+i)*
      &                               dble(iPhase(i+1,iCoset(0,0,ndc+1)))

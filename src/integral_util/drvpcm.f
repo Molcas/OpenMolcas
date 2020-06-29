@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
+      use Basis_Info
       use PCM_arrays, only: PCMTess, PCMDM
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
@@ -57,7 +58,7 @@
          Z = Charge(jCnttp)
          mCnt = nCntr(jCnttp)
          If (AuxCnttp(jCnttp)) mCnt = 0
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = Work(jxyz)

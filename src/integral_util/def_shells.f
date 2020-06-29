@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Def_Shells(iSD,nSD,mSkal)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -107,7 +108,7 @@
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !
-               iSD(8,nSkal)=ipCntr(iCnttp)           ! pointer to coor.
+               iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
      &                     + (iCnt-1)*3              !
                itemp=0                               !
                If ( Prjct(iShll)) itemp=itemp+1      !
@@ -203,7 +204,7 @@
          iSD(6,nSkal)= ipExp(iShll)            ! pointer to exp.
          iSD(7,nSkal)= iAOttp                  ! ? magic
      &               + kOffAO(iCnttp,iAng)     !
-         iSD(8,nSkal)=ipCntr(iCnttp)           ! pointer to coor.
+         iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
      &               + (iCnt-1)*3              !
          itemp=0                               !
          If ( Prjct(iShll)) itemp=itemp+1      !
@@ -259,6 +260,7 @@
       Return
       End
       Subroutine Define_Shells_kext(iSD,ikak,nSkal)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -299,7 +301,7 @@
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !
-               iSD(8,nSkal)=ipCntr(iCnttp)           ! pointer to coor.
+               iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
      &                     + (iCnt-1)*3              !
                itemp=0                               !
                If ( Prjct(iShll)) itemp=itemp+1      !

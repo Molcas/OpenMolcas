@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
+      use Basis_Info
       use external_centers
       Implicit Real*8 (a-h,o-z)
 *
@@ -142,7 +143,7 @@ c         Call Seward_Init()
                If (ZB.eq.Zero) Go To 202
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnttp)%ipCntr
                Do jCnt = 1, nCntr(jCnttp)
                   B(1) = Work(jxyz  )
                   B(2) = Work(jxyz+1)

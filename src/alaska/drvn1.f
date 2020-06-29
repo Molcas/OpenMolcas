@@ -27,6 +27,7 @@
 *                                                                      *
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
+      use Basis_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
       Implicit Real*8 (A-H,O-Z)
@@ -71,7 +72,7 @@
            ZA = Charge(iCnttp)
          End If
          If (ZA.eq.Zero) Go To 101
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
          Do iCnt = 1, nCntr(iCnttp)
             A(1) = Work(ixyz+(iCnt-1)*3)
@@ -89,7 +90,7 @@
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
                If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnppt)%ipCntr
                jCntMx = nCntr(jCnttp)
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
@@ -283,7 +284,7 @@
             If (pChrg(jCnttp)) Go To 202
             If (FragCnttp(jCnttp)) Go To 202
             ZAZB = ZA * ZB
-            jxyz = ipCntr(jCnttp)
+            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, nCntr(jCnttp)
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)
@@ -416,7 +417,7 @@
                   If (Charge(iCnttp).eq.Zero) Go To 103
                   If (FragCnttp(iCnttp)) Go To 103
                   ZA = Charge(iCnttp)
-                  ixyz = ipCntr(iCnttp)
+                  ixyz = dbsc(iCnttp)%ipCntr
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
@@ -424,9 +425,9 @@
      &                            nCntr(iCnttp))
                   End If
                   Do iCnt = 1, nCntr(iCnttp)
-                     A(1) = Work(ipCntr(iCnttp)+(iCnt-1)*3)
-                     A(2) = Work(ipCntr(iCnttp)+(iCnt-1)*3+1)
-                     A(3) = Work(ipCntr(iCnttp)+(iCnt-1)*3+2)
+                     A(1) = Work(ixyz+(iCnt-1)*3)
+                     A(2) = Work(ixyz+(iCnt-1)*3+1)
+                     A(3) = Work(ixyz+(iCnt-1)*3+2)
 
                      If (ix.eq.0) Then
                         CCoMx =One
@@ -534,7 +535,7 @@
             If (pChrg(jCnttp)) Go To 212
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
-            jxyz = ipCntr(jCnttp)
+            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, nCntr(jCnttp)
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)

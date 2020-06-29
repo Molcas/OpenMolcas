@@ -61,6 +61,7 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -142,7 +143,7 @@ c      Do 100 kCnttp = 1, nCnttp
          If (nPAM2(kCnttp).eq.-1) Go To 111
 *
          Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
+            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

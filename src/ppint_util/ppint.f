@@ -22,6 +22,7 @@
 *              QExit                                                   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -136,7 +137,7 @@ C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
 C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
          Do iCntr = 1, nCntr(iCnttp)
-            ixyz = ipCntr(iCnttp) + (iCntr-1)*3
+            ixyz = dbsc(iCnttp)%ipCntr + (iCntr-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
 *

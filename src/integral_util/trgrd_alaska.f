@@ -18,6 +18,7 @@
 *       Written by Anders Bernhardsson                             *
 *       960427                                                     *
 ********************************************************************
+      use Basis_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
@@ -45,7 +46,7 @@
  999  Continue
 *
       Do iCnttp=1,nCnttp_Valence
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt=1,nCntr(iCnttp)
             mdc=mdc+1
             call dcopy_(3,Work(ixyz),1,A,1)

@@ -22,6 +22,7 @@
 *     Author: Roland Lindh                                             *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -227,7 +228,7 @@ C        Fixed(nCnttp)=.False.
          nCnt = nCntr(iCnttp)
          nCntr(nCnttp)=nCnt
          mdciCnttp(nCnttp)=mdc
-         ipCntr(nCnttp)=ipCntr(iCnttp)
+         dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
 *
          nCntr(nCnttp) = nCnt
 *        Compute the number of elements stored in the dynamic memory
@@ -502,7 +503,7 @@ C        Fixed(nCnttp)=.False.
             nCnt = nCntr(iCnttp)
             nCntr(nCnttp)=nCnt
             mdciCnttp(nCnttp)=mdc
-            ipCntr(nCnttp)=ipCntr(iCnttp)
+            dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
 *
             nCntr(nCnttp) = nCnt
 *           Compute the number of elements stored in the dynamic memory

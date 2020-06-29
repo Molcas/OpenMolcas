@@ -25,6 +25,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -47,7 +48,7 @@
       Do 100 iCnttp = 1, nCnttp
          If (Charge(iCnttp).eq.Zero) Go To 101
          ZA = Charge(iCnttp)
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
          Do 110 iCnt = 1, nCntr(iCnttp)
             A(1) = Work(ixyz  )
@@ -58,7 +59,7 @@
             Do 200 jCnttp = 1, iCnttp
                If (Charge(jCnttp).eq.Zero) Go To 201
                ZAZB = ZA * Charge(jCnttp)
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = nCntr(jCnttp)
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do 210 jCnt = 1, jCntMx

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -39,7 +40,7 @@
         Do kCnttp = 1, nCnttp
            If (Charge(kCnttp).eq.0.d0) Go To 411
            Do kCnt = 1, nCntr(kCnttp)
-              kxyz = ipCntr(kCnttp) + (kCnt-1)*3
+              kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
               call dcopy_(3,Work(kxyz),1,C,1)
               ndc=kdc+kCnt
               Fact=-Charge(kCnttp)*ff

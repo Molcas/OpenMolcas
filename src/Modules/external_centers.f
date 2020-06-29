@@ -7,7 +7,9 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
+
       Module External_Centers
       Integer :: nEF=0
       Real*8, Allocatable:: EF_Centers(:,:)

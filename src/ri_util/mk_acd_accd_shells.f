@@ -20,6 +20,7 @@
 *     Author: Roland Lindh, Dept. of Chemistry - Angstrom              *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
 #include "itmax.fh"
@@ -1384,7 +1385,7 @@ C                          Thrs= 1.0D-12
                nCnt = nCntr(iCnttp)
                nCntr(nCnttp)=nCnt
                mdciCnttp(nCnttp)=mdc
-               ipCntr(nCnttp)=ipCntr(iCnttp)
+               dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
                nCntr(nCnttp)=nCnt
 *
 *              Compute the number of elements stored in the dynamic

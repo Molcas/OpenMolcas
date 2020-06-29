@@ -20,6 +20,7 @@
 *       Adapted by Giovanni Ghigo                                      *
 *       University of Torino, July 2006                                *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
 #include "itmax.fh"
@@ -50,7 +51,7 @@
       Do iCnttp=1,nCnttp
          If (.Not.(pChrg(iCnttp).or.FragCnttp(iCnttp).or.
      &             AuxCnttp(iCnttp))) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt=1,nCntr(iCnttp)
                mdc=mdc+1
                Do iCo=0,nIrrep/nStab(mdc)-1

@@ -34,6 +34,7 @@
 *                                                                      *
 *             Modified to complement GetInf, January '92.              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -589,7 +590,7 @@ c      EndIf
          mdc = 0
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp
-            jxyz = ipCntr(iCnttp)
+            jxyz = dbsc(iCnttp)%ipCntr
             Do 2200 iCnt = 1, nCntr(iCnttp)
                mdc = mdc + 1
 *              Call RecPrt(' Coordinates',' ',Work(jxyz),1,3)

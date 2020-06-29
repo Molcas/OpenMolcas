@@ -26,6 +26,7 @@
 *             Modified for various other contributions May 95', RL     *
 ************************************************************************
       use external_centers
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -59,7 +60,7 @@ C     nElem(ixyz) = 2*ixyz+1
          ZA = Charge(iCnttp)
          If (FragCnttp(iCnttp)) ZA = FragCharge(iCnttp)
          If (ZA.eq.Zero) Go To 101
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt = 1, nCntr(iCnttp)
             A(1) = DInf(ixyz  )
             A(2) = DInf(ixyz+1)
@@ -73,7 +74,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (FragCnttp(jCnttp)) ZB = FragCharge(jCnttp)
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = nCntr(jCnttp)
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
@@ -258,7 +259,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (ZB.eq.Zero) Go To 202
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnttp)%ipCntr
                Do jCnt = 1, nCntr(jCnttp)
                   B(1) = DInf(jxyz  )
                   B(2) = DInf(jxyz+1)

@@ -23,6 +23,7 @@
 *     Author: Ben Swerts                                               *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -183,7 +184,7 @@ c           write(*,*) 'Fname = ',Fname
             nSOC_Shells(nCnttp) = nSOC
             nPP_Shells(nCnttp)  = nPP
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-            ipCntr(nCnttp) = ipExp(iShll+1)
+            dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
             CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
             Do iSh = jShll+1,iShll
               FragShell(iSh)=.True.
@@ -209,15 +210,15 @@ c           write(*,*) 'Fname = ',Fname
             y1 = DInf(ipFragCoor(iCnttp)+2+5*(iAtom-1))
             z1 = DInf(ipFragCoor(iCnttp)+3+5*(iAtom-1))
 * make them absolute
-            x1 = x1 + DInf(ipCntr(iCnttp)  +3*(iCntr-1))
-            y1 = y1 + DInf(ipCntr(iCnttp)+1+3*(iCntr-1))
-            z1 = z1 + DInf(ipCntr(iCnttp)+2+3*(iCntr-1))
+            x1 = x1 + DInf(dbsc(iCnttp)%ipCntr  +3*(iCntr-1))
+            y1 = y1 + DInf(dbsc(iCnttp)%ipCntr+1+3*(iCntr-1))
+            z1 = z1 + DInf(dbsc(iCnttp)%ipCntr+2+3*(iCntr-1))
 c            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
 c     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 * store them
-            DInf(ipCntr(nCnttp))   = x1
-            DInf(ipCntr(nCnttp)+1) = y1
-            DInf(ipCntr(nCnttp)+2) = z1
+            DInf(dbsc(nCnttp)%ipCntr)   = x1
+            DInf(dbsc(nCnttp)%ipCntr+1) = y1
+            DInf(dbsc(nCnttp)%ipCntr+2) = z1
             If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1)+3
 * store the Mulliken charge
             FragCharge(nCnttp) = DInf(ipFragCoor(iCnttp)+4+5*(iAtom-1))

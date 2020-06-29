@@ -27,6 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             March '91                                                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Logical Print
 #include "itmax.fh"
@@ -99,7 +100,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
+            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, nCntr(iCnttp)
                DInf(ixyz  ) = CN(1,iDC)
                DInf(ixyz+1) = CN(2,iDC)

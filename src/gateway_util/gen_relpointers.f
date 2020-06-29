@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Gen_RelPointers(ibase)
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -26,7 +27,7 @@
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
       Do i = 1, Mxdbsc
-         ipCntr(i)     = ipCntr(i)     + ibase
+         dbsc(i)%ipCntr     = dbsc(i)%ipCntr     + ibase
          ipM1xp(i)     = ipM1xp(i)     + ibase
          ipM2xp(i)     = ipM2xp(i)     + ibase
          ipM1cf(i)     = ipM1cf(i)     + ibase

@@ -58,6 +58,7 @@
 *      ccoor : coordinates of the operator, zero for symmetric oper.   *
 *      nordop: order of the operator                                   *
 ************************************************************************
+      use Basis_Info
       use Real_Spherical
       implicit real*8 (a-h,o-z)
 #include "real.fh"
@@ -95,7 +96,7 @@
          if (.not.ecp(kcnttp)) Go To 1961
          if (nsro_shells(kcnttp).le.0) Go To 1961
          do 1965 kcnt = 1,ncntr(kCnttp)
-            ixyz = ipcntr(kcnttp) + (kCnt-1)*3
+            ixyz = dbsc(kCnttp)%ipcntr + (kCnt-1)*3
             call dcopy_(3,work(ixyz),1,C,1)
 *
             call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,

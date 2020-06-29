@@ -9,11 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl,DInf,nDInf)
+      use Basis_Info
       use Her_RW
       use Period
       use MpmC
       use EFP_Module
-      use Real_Spherical, only : Condon_Shortley_phase_factor
+      use Real_Spherical, only: Condon_Shortley_phase_factor, Sphere
       use fortran_strings, only : str
       use External_Centers
 #ifndef _HAVE_EXTRA_
@@ -1274,7 +1275,7 @@ c Simplistic validity check for value
       nSOC_Shells(nCnttp) = nSOC
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-      ipCntr(nCnttp) = ipExp(iShll+1)
+      dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
       nCnt = 0
       lAux = lAux .or. AuxCnttp(nCnttp)
       If (AuxCnttp(nCnttp)) Then
@@ -1480,7 +1481,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (mdc+nCnt.gt.1) then
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
-      iOff=ipCntr(nCnttp)+(nCnt-1)*3
+      iOff=dbsc(nCnttp)%ipCntr
       Call Get_F(2,DInf(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
@@ -1530,7 +1531,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 
                   Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
 
-                  iOff=ipCntr(nCnttp)+(nCnt-1)*3
+                  iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
 
 *                 Copy old coordinate  first
                   CALL DCOPY_(3,DInf(iOff0),1,DInf(iOff),1)
@@ -2227,7 +2228,7 @@ c     Go To 998
             iOff = 0
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
-               iStrt = ipCntr(iCnttp)
+               iStrt = dbsc(iCnttp)%ipCntr
                Do iCnt = iOff+1, iOff+nCntr(iCnttp)
                   If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
                      iFound_Label = 1
@@ -4406,7 +4407,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
-                  ixyz = ipCntr(iCnttp)
+                  ixyz = dbsc(iCnttp)%ipCntr
                   call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
      &                                        EF_Centers(1,iEF),1)
                   iEF = iEF + nCntr(iCnttp)
@@ -4434,7 +4435,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
             iDMS = 1
             Do iCnttp = 1, nCnttp
-               ixyz = ipCntr(iCnttp)
+               ixyz = dbsc(iCnttp)%ipCntr
                call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
      &                                     DMS_Centers(1,iDMS),1)
                iDMS = iDMS + nCntr(iCnttp)
@@ -4588,7 +4589,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       MaxDCR = nIrrep
       Do iCnttp = 1, nCnttp
          nCnt = nCntr(iCnttp)
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt = 1, nCnt
             mdc = iCnt + mdciCnttp(iCnttp)
             Mx_mdc = Max(Mx_mdc,mdc)

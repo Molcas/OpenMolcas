@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -290,7 +291,7 @@ C     Show=Show.and..Not.Primitive_Pass
                   Do iCo = 0, nIrrep/nStab(mdc)-1
                      iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
                      iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
-                     ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                     ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
                      XCoor=Dinf(ipxyz  )
                      If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
                      YCoor=Dinf(ipxyz+1)
@@ -492,7 +493,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                             iR=NrOpr(iCoSet(iCo,0,mdc),iOper,
      &                               nIrrep)
-                            ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                            ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
                             XCoor=Dinf(ipxyz  )
                             If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
                             YCoor=Dinf(ipxyz+1)
@@ -665,7 +666,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                kculf = 0
                iSh = ipVal(iCnttp) - 1
                If (nVal_Shells(iCnttp).lt.1) Then
-                  ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                  ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
                   XCoor=Dinf(ipxyz  )
                   YCoor=Dinf(ipxyz+1)
                   ZCoor=Dinf(ipxyz+2)
@@ -821,7 +822,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Else
                            iOT(iSO)=Vir
                         End If
-                        ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                        ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
                         XCoor=Dinf(ipxyz  )
                         YCoor=Dinf(ipxyz+1)
                         ZCoor=Dinf(ipxyz+2)

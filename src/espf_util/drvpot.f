@@ -28,6 +28,7 @@
 *     Modified for Properties only by HJW Aug 2001                     *
 *     Restricted to POT: Ignacio Fdez. Galvan, March 2019              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External PotInt, NAMem
 #include "stdalloc.fh"
@@ -60,7 +61,7 @@ c
       Do jCnttp = 1, nCnttp
          mCnt = nCntr(jCnttp)
          If (AuxCnttp(jCnttp)) mCnt = 0
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCntttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = Work(jxyz)

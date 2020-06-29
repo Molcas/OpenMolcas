@@ -24,6 +24,7 @@
 *              Dept. of Theoretical Chemistry,                         *
 *              University of Lund, SWEDEN                              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -119,7 +120,7 @@
 *
 *-----------Print centers
 *
-            iStrt = ipCntr(iCnttp)
+            iStrt = dbsc(iCnttp)%ipCntr
             Write (6,*)
             Write (6,*) 'Charge:',Charge(iCnttp)
             Do 14 iCnt = 1, nCntr(iCnttp)

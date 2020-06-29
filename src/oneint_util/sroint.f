@@ -63,6 +63,7 @@
 *             ical Chemistry, the Free University of Madrid, Spain,    *
 *             September '94.                                           *
 ************************************************************************
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -105,7 +106,7 @@
          If (.Not.ECP(iCnttp)) Go To 1961
          If (nSRO_Shells(iCnttp).le.0) Go To 1961
          Do 1965 iCnt = 1,nCntr(iCnttp)
-            ixyz = ipCntr(iCnttp) + (iCnt-1)*3
+            ixyz = dbsc(iCnttp)%ipCntr + (iCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

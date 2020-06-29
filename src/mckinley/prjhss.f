@@ -61,6 +61,7 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -100,7 +101,7 @@
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 1961
          Do 1965 kCnt = 1,nCntr(kCnttp)
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
+            ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

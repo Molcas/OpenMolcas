@@ -24,6 +24,7 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
+      use Basis_Info
       use Period
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -90,7 +91,7 @@
             ndc = ndc + mCnt
             Go To 32
          End If
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = Dinf(jxyz)

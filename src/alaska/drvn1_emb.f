@@ -20,6 +20,7 @@
 *                                                                      *
 * Author : F. Aquilante, Geneva, Nov 2010                              *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -92,7 +93,7 @@
             Call Abend()
          EndIf
          If (ZA.eq.Zero) Go To 101
-         ixyz = ipCntr(iCnttp)
+         ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group (A-subsystem)
          Do iCnt = 1, nCntr(iCnttp)
             A(1) = Work(ixyz+(iCnt-1)*3)
@@ -106,7 +107,7 @@
 
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
+               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = nCntr(jCnttp)
                Do jCnt = 1, jCntMx
                   B(1) = Work(jxyz+(jCnt-1)*3  )

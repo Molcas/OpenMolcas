@@ -64,6 +64,7 @@
 *                                                                      *
 *             Modified to gradients April '95. R. Lindh                *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -116,7 +117,7 @@
          If (.Not.ECP(kCnttp)) Go To 1961
          If (nSRO_Shells(kCnttp).le.0) Go To 1961
          Do 1965 kCnt = 1,nCntr(kCnttp)
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
+            ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

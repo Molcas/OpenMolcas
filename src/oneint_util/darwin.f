@@ -26,6 +26,7 @@
 *     Author: Roland Lindh, Dept. Of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -58,7 +59,7 @@
       kdc = 0
       Do 500 kCnttp = 1, nCnttp
          Do 501 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
+            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

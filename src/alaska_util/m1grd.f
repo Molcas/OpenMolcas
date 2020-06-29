@@ -61,6 +61,7 @@
 *                                                                      *
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -165,7 +166,7 @@
          If (.Not.ECP(kCnttp)) Go To 111
          If (nM1(kCnttp).eq.0) Go To 111
          Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
+            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,

@@ -21,6 +21,7 @@
 ************************************************************************
       use EFP_Module
       use k2_arrays
+      use Basis_Info
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -120,7 +121,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
       Do i=1, Mxdbsc
-         ipCntr(i)=ip_Dummy
+         dbsc(i)%ipCntr=ip_Dummy
          ipM1xp(i)=ip_Dummy
          ipM1cf(i)=ip_Dummy
          ipM2xp(i)=ip_Dummy

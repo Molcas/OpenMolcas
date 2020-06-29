@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PCM_EF_grd(Grad,nGrad)
+      use Basis_Info
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
@@ -56,7 +57,7 @@
          If (AuxCnttp(jCnttp)) Cycle
          Z = Charge(jCnttp)
          mCnt = nCntr(jCnttp)
-         jxyz = ipCntr(jCnttp)
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = Work(jxyz)

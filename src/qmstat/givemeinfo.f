@@ -12,6 +12,7 @@
       Subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA
      &,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ
      &,MxAngqNr,ipAcc,nACCSize)
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
@@ -105,7 +106,7 @@
           Do 121, kk=1,nBonA(kaunt)
             kaunter=kaunter+1
             Do 131, k=1,3
-              BasCoo(k,kaunter)=Work(ipCntr(i)+(j-1)*3+k-1)
+              BasCoo(k,kaunter)=Work(dbsc(i)%ipCntr+(j-1)*3+k-1)
 131         Continue
 121       Continue
 111     Continue

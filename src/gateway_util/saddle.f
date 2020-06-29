@@ -25,6 +25,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 2009                                             *
 ************************************************************************
+      use Basis_Info
       use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -648,7 +649,7 @@
             Do iCnttp=1,nCnttp
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=ipCntr(iCnttp)
+                ixyz=dbsc(iCnttp)%ipCntr
                 Do iCnt=1,nCntr(iCnttp)
                   Do i=0,2
                     DInf(ixyz)=Vec(j,1)
@@ -693,7 +694,7 @@
             Do iCnttp=1,nCnttp
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=ipCntr(iCnttp)
+                ixyz=dbsc(iCnttp)%ipCntr
                 Do iCnt=1,nCntr(iCnttp)
                   Do i=0,2
                     DInf(ixyz)=TmpA(j)
