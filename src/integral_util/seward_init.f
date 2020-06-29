@@ -17,7 +17,7 @@
 *     Object: to set data which is stored in common blocks             *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
-*             January '90                                              *
+*             January 1990                                             *
 ************************************************************************
       use EFP_Module
       use k2_arrays

@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Basis_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -54,6 +55,7 @@
       debug=.False.
       Epsilon_Undef=.True.
       Call Get_info_Static(iDum(1))
+      Call Basis_Info_Get()
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.
       If (debug) write(6,*) 'Got info.fh'

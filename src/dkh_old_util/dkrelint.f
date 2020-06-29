@@ -12,6 +12,7 @@
 *               2005, Markus Reiher                                    *
 ************************************************************************
       Subroutine DKRelint
+      use Basis_Info
 c
 c     modified by A. Wolf and M. Reiher, Uni Bonn, Feb. and March 2005
 c       (extended for use of generalized arbitrary-order DKH)
@@ -113,7 +114,7 @@ c
      &      nFragType(iCnttp).gt.0 ) Go To 999
 
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
            Do iAngr=0,nAngr(kC)
                rI=DBLE(iAngr)+One+Half

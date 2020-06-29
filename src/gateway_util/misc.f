@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag,DInf,nDInf)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -51,7 +52,7 @@
 *
 *        Loop over distinct centers
 *
-         Do icnt = 1, nCntr(iCnttp)
+         Do icnt = 1, dbsc(iCnttp)%nCntr
             If (IndSOff(iCnttp,iCnt).gt.MxShll) Then
                Call WarningMessage(2,'MxShll too small:')
                write(LuWr,*) 'MxShll=',MxShll

@@ -41,6 +41,7 @@
 *          1991 - February 1992.                                       *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "real.fh"
@@ -365,9 +366,9 @@
 *
          If (pChrg(iCnttp).or.nFragType(iCnttp).gt.0.or.
      &       FragCnttp(iCnttp)) Then
-            mdc=mdc+nCntr(iCnttp)
+            mdc=mdc+dbsc(iCnttp)%nCntr
          Else
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc=mdc+1
                ndc=ndc+1
                Do iCar = 1, 3

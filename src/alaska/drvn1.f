@@ -51,6 +51,7 @@
 
       iRout = 33
       iPrint = nPrint(iRout)
+      iPrint=15
 *     Call qEnter('DrvN1')
 *
       iIrrep = 0
@@ -90,7 +91,7 @@
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
                If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnppt)%ipCntr
+               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx

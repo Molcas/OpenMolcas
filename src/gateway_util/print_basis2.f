@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Print_Basis2(DInf,nDInf)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -68,7 +69,7 @@
          End If
          iShSrt = ipVal(iCnttp)
 *        Loop over distinct centers
-         Do icnt = 1, nCntr(iCnttp)
+         Do icnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             if (mdc.gt.mxdc) then
                Call WarningMessage(2,'mxdc too small')

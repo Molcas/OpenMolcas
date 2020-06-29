@@ -26,6 +26,7 @@
 *
       Subroutine SOCtl_mod(ChOper,Mamn,nMamn,nDkroll,nCall,Cnt_ico,
      &                     Phase_ico)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -60,7 +61,7 @@
 *
 *           Loop over distinct centers
 *
-            Do 202 iCnt = 1, nCntr(iCnttp)
+            Do 202 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
 *
 *              Loop over shells associated with this center

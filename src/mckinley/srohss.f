@@ -95,7 +95,7 @@
       do 1960 kcnttp = 1, ncnttp
          if (.not.ecp(kcnttp)) Go To 1961
          if (nsro_shells(kcnttp).le.0) Go To 1961
-         do 1965 kcnt = 1,ncntr(kCnttp)
+         do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
             ixyz = dbsc(kCnttp)%ipcntr + (kCnt-1)*3
             call dcopy_(3,work(ixyz),1,C,1)
 *

@@ -553,7 +553,7 @@ c     Call qEnter('DrvN2')
             If (FragCnttp(iCnttp)) Go To 222
 *
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                B(1) = Work(ixyz+(iCnt-1)*3  )
                B(2) = Work(ixyz+(iCnt-1)*3+1)
                B(3) = Work(ixyz+(iCnt-1)*3+2)
@@ -612,7 +612,7 @@ c     Call qEnter('DrvN2')
             If (FragCnttp(jCnttp)) Go To 232
 *
             jxyz = dbsc(jCnttp)%ipCntr
-            Do jCnt = 1, nCntr(jCnttp)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
                D(1) = Work(jxyz+(jCnt-1)*3  )
                D(2) = Work(jxyz+(jCnt-1)*3+1)
                D(3) = Work(jxyz+(jCnt-1)*3+2)
@@ -782,14 +782,14 @@ c     Call qEnter('DrvN2')
 *
             End Do         ! jCnt
  232        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! jCnttp
 *
                End Do      ! iR
 *
             End Do         ! iCnt
  222        Continue
-            mdc = mdc + nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
          End Do            ! jCnttp
  122     Continue
       End Do               ! jTs

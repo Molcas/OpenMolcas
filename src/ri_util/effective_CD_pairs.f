@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Effective_CD_Pairs(ip_ij2,nij_Eff)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -27,7 +28,7 @@
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShll = ipVal(iCnttp) + iAng
                If (.Not.AuxShell(iShll)) Then
-                  nSkal_Valence = nSkal_Valence + nCntr(iCnttp)
+                  nSkal_Valence = nSkal_Valence + dbsc(iCnttp)%nCntr
                End If
             End Do
          End If

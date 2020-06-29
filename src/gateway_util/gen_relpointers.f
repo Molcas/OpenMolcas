@@ -27,7 +27,7 @@
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
       Do i = 1, Mxdbsc
-         dbsc(i)%ipCntr     = dbsc(i)%ipCntr     + ibase
+         dbsc(i)%ipCntr= dbsc(i)%ipCntr+ ibase
          ipM1xp(i)     = ipM1xp(i)     + ibase
          ipM2xp(i)     = ipM2xp(i)     + ibase
          ipM1cf(i)     = ipM1cf(i)     + ibase

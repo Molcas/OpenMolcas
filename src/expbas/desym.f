@@ -38,7 +38,7 @@
 *   END                                                                *
 *                                                                      *
 ************************************************************************
-
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -170,8 +170,8 @@
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
          If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
 *
-*         write(6,*)'nCntr(iCntt)',nCntr(iCnttp)
-        Do iCntr=1,nCntr(iCnttp)     ! loop over symmetry unique centers
+*         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
+        Do iCntr=1,dbsc(iCnttp)%nCntr     ! loop over symmetry unique centers
           mdc=mdc+1
           nDeg=nIrrep/nStab(mdc)
 *            write(6,*)'nDeg', nDeg

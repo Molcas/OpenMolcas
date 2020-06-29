@@ -67,6 +67,7 @@
       use Her_RW
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -199,7 +200,7 @@ c      ! Dummy initialize
  101      Continue
           iSbasis= 1
           iCurCenter = iCurCenter + 1
-          If(iCurCenter.gt.nCntr(iCurCnttp)) Then
+          If(iCurCenter.gt.dbsc(iCurCnttp)%nCntr) Then
             iCurCenter = 1
             Do jCnttp = iCurCnttp+1, nCnttp
               If(nFragType(jCnttp).gt.0) Then

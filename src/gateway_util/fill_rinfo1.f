@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Fill_rInfo1(DInf,nDInf)
+      use Basis_Info
 #include "itmax.fh"
 #include "info.fh"
 #include "rinfo.fh"
@@ -26,7 +27,7 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
 *        Loop over distinct centers
-         Do icnt = 1, nCntr(iCnttp)
+         Do icnt = 1, dbsc(iCnttp)%nCntr
             krCnt=krCnt+1
             nAngr(krCnt)=nVal_Shells(iCnttp)-1
 *

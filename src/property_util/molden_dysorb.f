@@ -26,6 +26,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -236,7 +237,7 @@ c      End If
       y_sphere=.false.
       Do iCnttp=1,nCnttp
         If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 995
-        Do iCntr=1,nCntr(iCnttp)
+        Do iCntr=1,dbsc(iCnttp)%nCntr
           Do l=0,nVal_Shells(iCnttp)-1
 *           Test for the appearance of cartesian functions with l=2,3,4
             ishell=ipVal(iCnttp)+l
@@ -300,7 +301,7 @@ c      End If
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
         If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
 *
-        Do iCntr=1,nCntr(iCnttp)     ! loop over sym. unique centers
+        Do iCntr=1,dbsc(iCnttp)%nCntr     ! loop over sym. unique centers
           mdc=mdc+1
           nDeg=nIrrep/nStab(mdc)
           Do iDeg=1,nDeg             ! loop over centers

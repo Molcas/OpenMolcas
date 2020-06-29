@@ -23,6 +23,7 @@
 *                                                                      *
 *             Modified to complement GetInf, January '92.              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,10 +48,10 @@
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
          If (pChrg(iCnttp)) Then
-             mdc = mdc + nCntr(iCnttp)
+             mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
          End If
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
          End Do
@@ -66,7 +67,7 @@
          nDisp(iIrrep)=0
          Do iCnttp = 1, nCnttp_Valence
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
 *              Loop over the cartesian components
                Do iCar = 0, 2

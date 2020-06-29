@@ -11,6 +11,7 @@
       Subroutine Drv_AMFI(Label,ip,lOper,nComp,rHrmt,iChO, iAtmNr2,
      &                    Charge2,DInf,nDInf)
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 #include "angtp.fh"
@@ -136,7 +137,7 @@
 *
          mdci=0
          Do iCnttp = 1, nCnttp
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdci=mdci+1
                If (mdci.eq.iCenter) Then
                If ((.Not.DKroll).and.(.Not.SODK(iCnttp)))

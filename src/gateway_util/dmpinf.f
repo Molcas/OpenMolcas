@@ -33,6 +33,7 @@
 ************************************************************************
       use Real_Spherical
       use External_Centers
+      use Basis_Info, only: Basis_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -117,7 +118,6 @@
       Call Put_lArray('Transf',Transf,Len)
       Call Put_lArray('AuxShell',AuxShell,Len)
       Call Put_lArray('FragShell',FragShell,Len)
-
 *
 *     Save the common RINFO
 *
@@ -143,6 +143,10 @@
       Call Put_dArray('SewXInfo',DInf,Len)
 *
       Nullify(p_ix,p_lx,p_rx,p_cx)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Basis_Info_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

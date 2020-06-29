@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine basis2run(DInf,nDInf)
+      use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -35,7 +36,7 @@
         mdc = mdciCnttp(iCnttp)
         iShSrt = ipVal(iCnttp)
 *     Loop over distinct centers
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
           Do iCo = 0, nIrrep/nStab(mdc)-1
@@ -65,7 +66,7 @@
         mdc = mdciCnttp(iCnttp)
         iShSrt = ipVal(iCnttp)
 *     Loop over distinct centers
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
           Do iCo = 0, nIrrep/nStab(mdc)-1

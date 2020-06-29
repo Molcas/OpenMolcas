@@ -19,6 +19,7 @@
 *       960427                                                     *
 *                                                                  *
 ********************************************************************
+      use Basis_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -31,7 +32,7 @@
       Write(LUT,'(A)') '*BEGIN COORDINATES'
       Write(LUT,'(A)') '*LABEL COORDINATES CHARGE '
       Do iCnttp=1,nCnttp
-       Do iCnt=1,nCntr(iCnttp)
+       Do iCnt=1,dbsc(iCnttp)%nCntr
         mdc=mdc+1
         call dcopy_(3,Coor(1,mdc),1,A,1)
         Do iCo=0,nIrrep/nStab(mdc)-1

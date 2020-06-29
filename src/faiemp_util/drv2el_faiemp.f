@@ -30,6 +30,7 @@
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
       use k2_arrays, only: pDq, pFq
+      use Basis_Info
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -136,7 +137,7 @@ c     W2Disc=.False.
         mdc = 0
         Do 1000 iCnttp = 1, nCnttp
           If(nFragType(iCnttp).le.0) Then
-            mdc = mdc + nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
 * construct the density matrix
@@ -151,7 +152,7 @@ c     W2Disc=.False.
      &      Work(ipFragDensSO),nFragDens(iCnttp))
 #endif
 
-          Do iCnt = 1, nCntr(iCnttp)
+          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly

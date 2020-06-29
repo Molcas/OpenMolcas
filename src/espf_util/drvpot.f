@@ -61,7 +61,7 @@ c
       Do jCnttp = 1, nCnttp
          mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp)) mCnt = 0
-         jxyz = dbsc(jCntttp)%ipCntr
+         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = Work(jxyz)

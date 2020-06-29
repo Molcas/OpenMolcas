@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine Flip_Flop(Primitive)
+       use Basis_Info
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
 #include "itmax.fh"
@@ -22,7 +23,7 @@
          nTest = nVal_Shells(iCnttp)-1
          If (AuxShell(iCnttp) .and.
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
            Do 200 iAng=0, iAngMx
                If (iAng.gt.nTest)      Go To 200

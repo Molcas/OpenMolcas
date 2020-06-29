@@ -46,6 +46,7 @@
 *          '95                                                         *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 *
 #include "real.fh"
@@ -139,7 +140,7 @@ C        Call Abend()
 C     End If
       nsAtom=0
       Do  iCnttp = 1, nCnttp
-            nsAtom=nsAtom+nCntr(iCnttp)
+            nsAtom=nsAtom+dbsc(iCnttp)%nCntr
       End Do
       Call Inputh(Run_MCLR)
       iPrint=nPrint(iRout)

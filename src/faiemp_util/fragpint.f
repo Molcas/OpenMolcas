@@ -78,6 +78,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -128,8 +129,8 @@ c data for individual fragments:
          Write (6,*) ' In FragPInt:    nCnttp          = ',nCnttp
          Write (6,*) ' In FragPInt: mdciCnttp(nCnttp)  = ',
      &                                    (mdciCnttp(i),i=1,nCnttp)
-         Write (6,*) ' In FragPInt:     nCntr(nCnttp)  = ',
-     &                                        (nCntr(i),i=1,nCnttp)
+         Write (6,*) ' In FragPInt:     dbsc(nCnttp)%nCntr  = ',
+     &                                        (dbsc(i)%nCntr,i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragType(nCnttp)  = ',
      &                                    (nFragType(i),i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragCoor(nCnttp)  = ',
@@ -257,7 +258,7 @@ c      End If
      &               iSstart,iSend,iCurCnttp,iCurCenter
       End If
 
-          If(iCurCenter.gt.nCntr(iCurCnttp)) Then
+          If(iCurCenter.gt.dbsc(iCurCnttp)%nCntr) Then
             iCurCenter = 1
             Do jCnttp = iCurCnttp+1, nCnttp
               If(nFragType(jCnttp).gt.0) Then

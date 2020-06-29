@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NEMO_Opt1()
+      use Basis_Info
       Implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -68,7 +69,7 @@
 *
 *-- End check.
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
 c           Do iAngr=0,nAngr(icnt)
            Do iAngr=0,nAngr(kC)

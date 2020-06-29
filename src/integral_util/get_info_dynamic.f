@@ -29,6 +29,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      use Basis_Info, only: Basis_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -74,6 +75,13 @@
 *     (parallel distributed SCF) after broadcast
 *     LctInf is a member of IInfo common block
       LctInf=Info
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Call Basis_Info_Get()
+*                                                                     *
+***********************************************************************
+*                                                                     *
       Call Gen_RelPointers(LctInf-1)
 *
 *     Epilogue, end

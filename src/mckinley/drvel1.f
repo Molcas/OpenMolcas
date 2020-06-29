@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Drvel1(Grad)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -25,7 +26,7 @@
          mdc=0
          Do  iCnttp = 1, nCnttp
           ZA = Charge(iCnttp)
-          Do  iCnt = 1, nCntr(iCnttp)
+          Do  iCnt = 1, dbsc(iCnttp)%nCntr
            mdc=mdc+1
            Do iCar=1,3
             iComp = 2**(iCar-1)

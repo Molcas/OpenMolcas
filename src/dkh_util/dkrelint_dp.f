@@ -11,6 +11,7 @@
 * Copyright (C) 2011, Daoling Peng                                     *
 ************************************************************************
       Subroutine DKRelint_DP
+      Use Basis_Info
 *
 *     modified by D. Peng, ETH Zurich, October 2011
 *
@@ -86,7 +87,7 @@
      &      nFragType(iCnttp).gt.0 ) Go To 999
 
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
            Do iAngr=0,nAngr(kC)
                rI=DBLE(iAngr)+One+Half

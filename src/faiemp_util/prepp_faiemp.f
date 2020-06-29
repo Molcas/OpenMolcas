@@ -462,6 +462,7 @@
 * Output: Updated with fragment densities at their proper positions.   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -504,7 +505,7 @@ c     End If
         mdc = 0
         Do 1000 iCnttp = 1, nCnttp
           If(nFragType(iCnttp).le.0) Then
-            mdc = mdc + nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
 
@@ -519,7 +520,7 @@ C         If(nIrrep.ne.1) Call SymmDens(Work(ipFragDensAO),
 C    &      Work(ipFragDensSO))
           If(iPrint.ge.99) Call TriPrt('Fragment density',' ',
      &      Work(ipFragDensSO),nFragDens(iCnttp))
-          Do iCnt = 1, nCntr(iCnttp)
+          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly

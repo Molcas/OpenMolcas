@@ -18,6 +18,7 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -51,7 +52,7 @@
 *                                                                      *
       Do iCnttp = 1, nCnttp
          nTest = nVal_Shells(iCnttp)-1
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
             Do 200 iAng=0, nTest
                iShll = ipVal(iCnttp) + iAng
