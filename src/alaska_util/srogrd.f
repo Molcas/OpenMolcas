@@ -116,7 +116,7 @@
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 1961
          If (nSRO_Shells(kCnttp).le.0) Go To 1961
-         Do 1965 kCnt = 1,nCntr(kCnttp)
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
@@ -565,7 +565,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
 *     Call QExit('SROGrd')

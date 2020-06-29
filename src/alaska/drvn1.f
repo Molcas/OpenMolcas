@@ -74,7 +74,7 @@
          If (ZA.eq.Zero) Go To 101
          ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             A(1) = Work(ixyz+(iCnt-1)*3)
             A(2) = Work(ixyz+(iCnt-1)*3+1)
             A(3) = Work(ixyz+(iCnt-1)*3+2)
@@ -91,7 +91,7 @@
                If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
                ZAZB = ZA * ZB
                jxyz = dbsc(jCnppt)%ipCntr
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
                   B(1) = Work(jxyz+(jCnt-1)*3  )
@@ -221,11 +221,11 @@
 *
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
          End Do
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
       If (iPrint.ge.15) Then
          Lab=' The Nuclear Repulsion Contribution'
@@ -285,7 +285,7 @@
             If (FragCnttp(jCnttp)) Go To 202
             ZAZB = ZA * ZB
             jxyz = dbsc(jCnttp)%ipCntr
-            Do jCnt = 1, nCntr(jCnttp)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)
                B(3) = Work(jxyz+(jCnt-1)*3+2)
@@ -372,7 +372,7 @@
 *
             End Do         ! End over centers, jCnt
  202        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! End over basis set types, jCnttp
  102     Continue
       End Do               ! End of centers of the external field, iFD
@@ -422,9 +422,9 @@
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
                      Call RecPrt(' Centers',' ',Work(ixyz),3,
-     &                            nCntr(iCnttp))
+     &                            dbsc(iCnttp)%nCntr)
                   End If
-                  Do iCnt = 1, nCntr(iCnttp)
+                  Do iCnt = 1, dbsc(iCnttp)%nCntr
                      A(1) = Work(ixyz+(iCnt-1)*3)
                      A(2) = Work(ixyz+(iCnt-1)*3+1)
                      A(3) = Work(ixyz+(iCnt-1)*3+2)
@@ -489,7 +489,7 @@
 *
                   End Do
  103              Continue
-                  mdc = mdc + nCntr(iCnttp)
+                  mdc = mdc + dbsc(iCnttp)%nCntr
                End Do
 *
             End Do
@@ -536,7 +536,7 @@
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
             jxyz = dbsc(jCnttp)%ipCntr
-            Do jCnt = 1, nCntr(jCnttp)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)
                B(3) = Work(jxyz+(jCnt-1)*3+2)
@@ -615,7 +615,7 @@
 *
             End Do         ! End over centers, jCnt
  212        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! End over basis set types, jCnttp
  112     Continue
       End Do               ! End of tiles

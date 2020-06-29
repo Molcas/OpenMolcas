@@ -142,7 +142,7 @@
             iAt=1
             nsc=0
             Do i=1,nCnttp
-               Do iCnt=1,nCntr(i)
+               Do iCnt=1,dbsc(i)%nCntr
                   nsc=nsc+1
                   If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
      &                Then
@@ -174,7 +174,7 @@
                   iAtSym=nAt
                   ndc=0
                   Do iCnttp=1,nCnttp
-                    Do iCnt=1,nCntr(iCnttp)
+                    Do iCnt=1,dbsc(iCnttp)%nCntr
                       ndc=ndc+1
                       If (.Not.(pChrg(iCnttp).Or.
      &                          FragCnttp(iCnttp).Or.
@@ -237,7 +237,7 @@
          iAt=1
          nsc=0
          Do i=1,nCnttp
-            Do iCnt=1,nCntr(i)
+            Do iCnt=1,dbsc(i)%nCntr
                nsc=nsc+1
                If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
                   iStab(iAt)=jStab(1,nsc)
@@ -650,7 +650,7 @@
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
                 ixyz=dbsc(iCnttp)%ipCntr
-                Do iCnt=1,nCntr(iCnttp)
+                Do iCnt=1,dbsc(iCnttp)%nCntr
                   Do i=0,2
                     DInf(ixyz)=Vec(j,1)
                     ixyz=ixyz+1
@@ -695,7 +695,7 @@
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
                 ixyz=dbsc(iCnttp)%ipCntr
-                Do iCnt=1,nCntr(iCnttp)
+                Do iCnt=1,dbsc(iCnttp)%nCntr
                   Do i=0,2
                     DInf(ixyz)=TmpA(j)
                     ixyz=ixyz+1
@@ -734,6 +734,7 @@
 ************************************************************************
 ************************************************************************
       Real*8 function dmwdot(nAt,mAt,A,B)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       Integer nAt,mAt
       Real*8 A(3,nAt),B(3,nAt)
@@ -762,7 +763,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &       .Not.AuxCnttp(iCnttp)) Then
-             Do iCnt = 1, nCntr(iCnttp)
+             Do iCnt = 1, dbsc(iCnttp)%nCntr
                 iAt = iAt + 1
                 Fact=DBLE(iDeg(A(1,iAt),iOper,nIrrep))
                 xMass=Fact*W(iAt)
@@ -781,6 +782,7 @@
 ************************************************************************
 ************************************************************************
       subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
@@ -808,7 +810,7 @@
       iAt=1
       nsc=0
       Do i=1,nCnttp
-         Do iCnt=1,nCntr(i)
+         Do iCnt=1,dbsc(i)%nCntr
             nsc=nsc+1
             If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
                iStab(iAt)=jStab(1,nsc)

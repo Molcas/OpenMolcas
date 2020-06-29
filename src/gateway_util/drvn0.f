@@ -61,7 +61,7 @@ C     nElem(ixyz) = 2*ixyz+1
          If (FragCnttp(iCnttp)) ZA = FragCharge(iCnttp)
          If (ZA.eq.Zero) Go To 101
          ixyz = dbsc(iCnttp)%ipCntr
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             A(1) = DInf(ixyz  )
             A(2) = DInf(ixyz+1)
             A(3) = DInf(ixyz+2)
@@ -75,7 +75,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
                jxyz = dbsc(jCnttp)%ipCntr
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
 *                 Introduce factor to ensure that contributions from
@@ -165,12 +165,12 @@ C     nElem(ixyz) = 2*ixyz+1
                   jxyz = jxyz + 3
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
             ixyz = ixyz + 3
          End Do
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
 *
       If (Show) Then
@@ -260,7 +260,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
                jxyz = dbsc(jCnttp)%ipCntr
-               Do jCnt = 1, nCntr(jCnttp)
+               Do jCnt = 1, dbsc(jCnttp)%nCntr
                   B(1) = DInf(jxyz  )
                   B(2) = DInf(jxyz+1)
                   B(3) = DInf(jxyz+2)
@@ -325,7 +325,7 @@ C     nElem(ixyz) = 2*ixyz+1
                   jxyz = jxyz + 3
                End Do
  202           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
  102        Continue
          End Do

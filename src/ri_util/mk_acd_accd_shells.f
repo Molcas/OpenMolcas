@@ -1382,11 +1382,10 @@ C                          Thrs= 1.0D-12
 *
 *              Transfer the coordinate information
 *
-               nCnt = nCntr(iCnttp)
-               nCntr(nCnttp)=nCnt
+               nCnt = dbsc(iCnttp)%nCntr
+               dbsc(nCnttp)%nCntr=nCnt
                mdciCnttp(nCnttp)=mdc
                dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
-               nCntr(nCnttp)=nCnt
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.

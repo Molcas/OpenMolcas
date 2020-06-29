@@ -22,7 +22,7 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             October '06                                              *
+*             October 2006                                             *
 ************************************************************************
       use Period
       use Basis_Info
@@ -149,7 +149,7 @@
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -161,7 +161,7 @@
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1,iNuc) = DInf(ixyz  )
@@ -173,7 +173,7 @@
                ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -195,7 +195,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -208,7 +208,7 @@
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1,iNuc) = DInf(ixyz  )
@@ -220,7 +220,7 @@
                ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -261,10 +261,10 @@
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            Do iNuc = 1, nCntr(iCnttp)
+            Do iNuc = 1, dbsc(iCnttp)%nCntr
                NTC(iNTC+iNuc) = iCnttp
             End Do
-            iNTC = iNTC + nCntr(iCnttp)
+            iNTC = iNTC + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -279,7 +279,7 @@
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -289,7 +289,7 @@
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1,iNuc) = DInf(ixyz  )
@@ -298,7 +298,7 @@
                ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -313,7 +313,7 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (pChrg(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+         If (pChrg(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -323,7 +323,7 @@
       Do iCnttp = 1, nCnttp
          If (pChrg(iCnttp))Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1,iNuc) = DInf(ixyz  )
@@ -333,7 +333,7 @@
                ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *

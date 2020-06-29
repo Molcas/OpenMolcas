@@ -144,7 +144,7 @@ c         Call Seward_Init()
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
                jxyz = dbsc(jCnttp)%ipCntr
-               Do jCnt = 1, nCntr(jCnttp)
+               Do jCnt = 1, dbsc(jCnttp)%nCntr
                   B(1) = Work(jxyz  )
                   B(2) = Work(jxyz+1)
                   B(3) = Work(jxyz+2)
@@ -209,7 +209,7 @@ c         Call Seward_Init()
                   jxyz = jxyz + 3
                End Do
  202           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
  102        Continue
          End Do

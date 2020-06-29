@@ -225,12 +225,11 @@ C        Fixed(nCnttp)=.False.
             AuxShell(iSh)=.True.
          End Do
 *
-         nCnt = nCntr(iCnttp)
-         nCntr(nCnttp)=nCnt
+         nCnt = dbsc(iCnttp)%nCntr
+         dbsc(nCnttp)%nCntr=nCnt
          mdciCnttp(nCnttp)=mdc
          dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
 *
-         nCntr(nCnttp) = nCnt
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
 *        nInfo = ipExp(iShll+1) - Info
@@ -500,12 +499,11 @@ C        Fixed(nCnttp)=.False.
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
             lAux = lAux .or. AuxCnttp(nCnttp)
 *
-            nCnt = nCntr(iCnttp)
-            nCntr(nCnttp)=nCnt
+            nCnt = dbsc(iCnttp)%nCntr
+            dbsc(nCnttp)%nCntr=nCnt
             mdciCnttp(nCnttp)=mdc
             dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
 *
-            nCntr(nCnttp) = nCnt
 *           Compute the number of elements stored in the dynamic memory
 *           so far.
             nInfo = ipExp(iShll+1) - 1

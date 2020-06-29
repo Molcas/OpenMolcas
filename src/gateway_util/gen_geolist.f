@@ -32,13 +32,13 @@
 *
       nc = 1
       Do jCnttp = 1, nCnttp
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
 *
 *        Do not include Auxiliary basis sets, or fragment basis sets
 *
          If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1212
 *
-*        Do not include ECP basis sets which doesn't have any valence
+*        Do not include ECP basis sets which does not have any valence
 *        basis set.
 *
          If (ECP(jCnttp).and.nVal_Shells(jCnttp).eq.0) Go To 1212
@@ -97,7 +97,7 @@
       nc = 1
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1213
          jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt

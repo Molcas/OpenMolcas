@@ -59,7 +59,7 @@
       mdc = 0
       LenLbl=0
       Do i = 1, nCnttp
-        mdc = Max(mdc,mdciCnttp(nCnttp)+nCntr(nCnttp))
+        mdc = Max(mdc,mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr)
       End Do
       BasisTypes(1)=0
       BasisTypes(2)=0
@@ -79,8 +79,8 @@ c      write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
 c      write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
 c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
 c     &                                    (mdciCnttp(i),i=1,mCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     nCntr(nCnttp)  = ',
-c     &                                        (nCntr(i),i=1,mCnttp)
+c      write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
+c     &                                        (dbsc(i)%nCntr,i=1,mCnttp)
 c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
 c     &                                    (nFragType(i),i=1,mCnttp)
 c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
@@ -89,10 +89,10 @@ c      End If
 
       Do iCnttp = 1, mCnttp
         If(nFragType(iCnttp).le.0) Then
-          ndc = ndc + nCntr(iCnttp)
+          ndc = ndc + dbsc(iCnttp)%nCntr
           Goto 1000
         End If
-        Do iCntr = 1, nCntr(iCnttp)
+        Do iCntr = 1, dbsc(iCnttp)%nCntr
           ndc = ndc + 1
           Do iAtom = 1, nFragCoor(iCnttp)
 * create a new basis set center
@@ -197,7 +197,7 @@ c           write(*,*) 'Fname = ',Fname
             End If
             FragCnttp(nCnttp)=.True.
 * add the coordinates (1 atom / basis set center)
-            nCntr(nCnttp) = 1
+            dbsc(nCnttp)%nCntr = 1
             mdc = mdc + 1
             If (mdc.gt.Mxdc) Then
               Write (6,*) ' FragExpand: Increase Mxdc'
@@ -260,8 +260,8 @@ c      write(6,'(A,i6)') 'FragExpand: after the main DO loop'
 c      write(6,'(A,i5)') 'FragExpand:  nCnttp = ',nCnttp
 c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
 c     &                                    (mdciCnttp(i),i=1,nCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     nCntr(nCnttp)  = ',
-c     &                                        (nCntr(i),i=1,nCnttp)
+c      write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
+c     &                                        (dbsc(i)%nCntr,i=1,nCnttp)
 c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
 c     &                                    (nFragType(i),i=1,nCnttp)
 c

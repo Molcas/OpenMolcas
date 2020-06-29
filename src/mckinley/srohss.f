@@ -186,7 +186,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960    Continue
          Return
 c Avoid unused argument warnings

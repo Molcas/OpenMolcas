@@ -24,10 +24,10 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             October '91                                              *
+*             October 1991                                             *
 *             Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
 *             University of Lund, SWEDEN                               *
-*             September '95                                            *
+*             September 1995                                           *
 ************************************************************************
       use Basis_Info
       use PCM_arrays
@@ -80,7 +80,7 @@ c     Call qEnter('DrvN2')
        ZA = Charge(iCnttp)
        ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
-       Do 110 iCnt = 1, nCntr(iCnttp)
+       Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
          A(1) = Work(ixyz  )
          A(2) = Work(ixyz+1)
          A(3) = Work(ixyz+2)
@@ -91,7 +91,7 @@ c     Call qEnter('DrvN2')
            If (ZB.eq.Zero) Go To 201
            ZAZB = ZA * ZB
            jxyz = dbsc(jCnttp)%ipCntr
-           jCntMx = nCntr(jCnttp)
+           jCntMx = dbsc(jCnttp)%nCntr
            If (iCnttp.eq.jCnttp) jCntMx = iCnt
            Do jCnt = 1, jCntMx
              B(1) = Work(jxyz  )
@@ -307,12 +307,12 @@ c     Call qEnter('DrvN2')
                   jxyz = jxyz + 3
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
             ixyz = ixyz + 3
  110     Continue
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
 *                                                                      *
 ************************************************************************
@@ -355,7 +355,7 @@ c     Call qEnter('DrvN2')
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
             jxyz = dbsc(jCnttp)%ipCntr
-            Do jCnt = 1, nCntr(jCnttp)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
                B(1) = Work(jxyz+(jCnt-1)*3  )
                B(2) = Work(jxyz+(jCnt-1)*3+1)
                B(3) = Work(jxyz+(jCnt-1)*3+2)
@@ -425,7 +425,7 @@ c     Call qEnter('DrvN2')
                Call ICopy(nirrep*36,[0],0,Indhss,1)
                Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
-*          Determine which displacement in all IR's, each center is *
+*          Determine which displacement in all IRs, each center is *
 *          associated with
 *
                nnIrrep=nIrrep
@@ -444,7 +444,7 @@ c     Call qEnter('DrvN2')
                  End Do ! iCar
                End Do   ! iIrrep
 *
-*          Determine index for each 2'nd derivative
+*          Determine index for each 2nd derivative
 *
 *          Note that each term is only associated with one basis
 *          set center.
@@ -513,7 +513,7 @@ c     Call qEnter('DrvN2')
 *
             End Do         ! End over centers, jCnt
  212        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! End over basis set types, jCnttp
  112     Continue
       End Do               ! End of tiles

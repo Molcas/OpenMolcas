@@ -25,7 +25,7 @@
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
-*             March '91                                                *
+*             March 1991                                               *
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -101,7 +101,7 @@
          If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &       .Not.AuxCnttp(iCnttp)) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                DInf(ixyz  ) = CN(1,iDC)
                DInf(ixyz+1) = CN(2,iDC)
                DInf(ixyz+2) = CN(3,iDC)

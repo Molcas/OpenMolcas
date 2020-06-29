@@ -278,7 +278,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *           Loop over distinct centers
 *
-            Do 202 iCnt = 1, nCntr(iCnttp)
+            Do 202 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = iCnt + mdciCnttp(iCnttp)
 *
 *              Loop over shells associated with this center
@@ -656,7 +656,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *
 *           Loop over distinct centers
 *
-            Do 302 iCnt = 1, nCntr(iCnttp)
+            Do 302 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = iCnt + mdciCnttp(iCnttp)
 *
 *              Loop over shells associated with this center
@@ -891,7 +891,7 @@ CSVC: basis IDs of non-symmetric case
 *
 *        Loop over distinct centers
 *
-         Do 402 iCnt = 1, nCntr(iCnttp)
+         Do 402 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = iCnt + mdciCnttp(iCnttp)
             iChxyz=iChCnt(mdc)
 *

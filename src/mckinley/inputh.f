@@ -30,9 +30,9 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             September '91                                            *
+*             September 1991                                           *
 *                                                                      *
-*             Modified to complement GetInf, January '92.              *
+*             Modified to complement GetInf, January 1992              *
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -362,7 +362,7 @@ c      EndIf
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp
-         Do 20 iCnt = 1, nCntr(iCnttp)
+         Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
  20      Continue
@@ -410,7 +410,7 @@ c      EndIf
          mc = 1
          Do 110 iCnttp = 1, nCnttp
 *           Loop over unique centers associated with this basis set.
-            Do 120 iCnt = 1, nCntr(iCnttp)
+            Do 120 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components
@@ -591,7 +591,7 @@ c      EndIf
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp
             jxyz = dbsc(iCnttp)%ipCntr
-            Do 2200 iCnt = 1, nCntr(iCnttp)
+            Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
 *              Call RecPrt(' Coordinates',' ',Work(jxyz),1,3)
                Fact = Zero

@@ -43,11 +43,11 @@
       Do iCnttp=1,nCnttp
          If (pChrg(iCnttp).or.AuxCnttp(iCnttp).or.
      &       FragCnttp(iCnttp)) Then
-           mdc = mdc + nCntr(iCnttp)
+           mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
          End If
          ixyz = dbsc(iCnttp)%ipCntr
-         Do iCnt=1,nCntr(iCnttp)
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             Lbl=LblCnt(mdc)(1:LENIN)
             call dcopy_(3,Work(ixyz),1,A,1)

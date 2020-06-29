@@ -519,12 +519,12 @@ c      nprint(26)=99
       Do 10 iCnttp = 1, nCnttp_Valence
          If (pChrg(iCnttp)) Then
              TRSymm=.False.
-             mdc = mdc + nCntr(iCnttp)
+             mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
          Else If(nFragType(iCnttp).gt.0.or.FragCnttp(iCnttp)) Then
            TRSymm = .false.
          End If
-         Do 20 iCnt = 1, nCntr(iCnttp)
+         Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
  20      Continue
@@ -573,7 +573,7 @@ c      nprint(26)=99
          mc = 1
          Do iCnttp = 1, nCnttp_Valence
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components
@@ -689,7 +689,7 @@ c      nprint(26)=99
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp_Valence
             jxyz = dbsc(iCnttp)%ipCntr
-            Do 2200 iCnt = 1, nCntr(iCnttp)
+            Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
 *              Call RecPrt(' Coordinates',' ',Work(jxyz),1,3)
                Fact = Zero

@@ -43,11 +43,11 @@ C Sizes:
       ic=0
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
-          Do iCnt=1,nCntr(iCnttp)
+          Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             nAlCnt=nAlCnt+nIrrep/nStab(ic)
           End Do
-          nUqCnt=nUqCnt+nCntr(iCnttp)
+          nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If
       End Do
 
@@ -65,7 +65,7 @@ C The nuclear coordinates: First, the symmetry-unique ones.
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
           ixyz=dbsc(iCnttp)%ipCntr
-          Do iCnt=1,nCntr(iCnttp)
+          Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             iWork(ipCntId+0+4*(ic-1))=iCnttp
             iWork(ipCntId+1+4*(ic-1))=nUqCnt
@@ -76,7 +76,7 @@ C The nuclear coordinates: First, the symmetry-unique ones.
             Work(2+ipCoor+3*(ic-1))=Work(ixyz+2)
             ixyz=ixyz+3
           End Do
-          nUqCnt=nUqCnt+nCntr(iCnttp)
+          nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If
       End Do
 C Then, the symmetry related nuclei:
@@ -143,7 +143,7 @@ C-------------------------------------------
       mDisp = 0
       mdc = 0
       Do  iCnttp = 1, nCnttp
-         Do  iCnt = 1, nCntr(iCnttp)
+         Do  iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
          End Do
@@ -160,7 +160,7 @@ C-------------------------------------------
          mc  = 1
          Do iCnttp = 1, nCnttp
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components

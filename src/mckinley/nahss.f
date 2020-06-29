@@ -31,7 +31,7 @@
 *             Anders Bernhardsson & Roland Lindh,                      *
 *             Dept. of Theoretical Chemistry, University               *
 *             of Lund, SWEDEN.                                         *
-*             October '91                                              *
+*             October 1991                                             *
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -141,7 +141,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
       kdc = 0
       Do kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
-         Do kCnt = 1, nCntr(kCnttp)
+         Do kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 
@@ -307,7 +307,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *
  102        Continue
          End Do
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
 c     Call qExit('NAHSS')

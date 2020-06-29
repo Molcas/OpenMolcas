@@ -59,7 +59,7 @@ c
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp)) mCnt = 0
          jxyz = dbsc(jCntttp)%ipCntr
          Do jCnt = 1, mCnt

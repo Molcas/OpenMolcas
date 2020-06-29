@@ -273,7 +273,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
             Call WarningMessage(2,' Input error, no center specified!')
             Call Quit_OnUserError()
          End If
-         nCntr(nCnttp) = nCnt
+         dbsc(nCnttp)%nCntr = nCnt
          mdc = mdc + nCnt
          If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *        Compute the number of elements stored in the dynamic memory

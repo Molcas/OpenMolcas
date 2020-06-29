@@ -56,7 +56,7 @@
       nc = 1
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp)) mCnt = 0
          jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt

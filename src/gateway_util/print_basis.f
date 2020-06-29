@@ -22,7 +22,7 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             September '06                                            *
+*             September 2006                                           *
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -79,7 +79,7 @@
             If (dbas.eq.'DBAS') Then
                Write (LuWr,'(6X,A)') 'Diffuse basis set for R-matrix:'
                Write (LuWr,'(6X,A)') '==============================='
-               If (nCntr(iCnttp).ne.1) Then
+               If (dbsc(iCnttp)%nCntr.ne.1) Then
                   Call WarningMessage(2,
      &                        'Too many centers, should only be one!')
                   Call Quit_OnUserError()
@@ -354,7 +354,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             Write (LuWr,'(6X,A)')
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                iEnd = iStrt + 2
                Call Write_LblCnt(LuWr,LblCnt(mdc+iCnt),DInf(iStrt))
                iStrt = iEnd + 1

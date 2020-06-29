@@ -95,7 +95,7 @@
          If (ZA.eq.Zero) Go To 101
          ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group (A-subsystem)
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             A(1) = Work(ixyz+(iCnt-1)*3)
             A(2) = Work(ixyz+(iCnt-1)*3+1)
             A(3) = Work(ixyz+(iCnt-1)*3+2)
@@ -108,7 +108,7 @@
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
                jxyz = dbsc(jCnttp)%ipCntr
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                Do jCnt = 1, jCntMx
                   B(1) = Work(jxyz+(jCnt-1)*3  )
                   B(2) = Work(jxyz+(jCnt-1)*3+1)
@@ -215,11 +215,11 @@
                   End Do
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
          End Do
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
       If (iPrint.ge.15) Then
          Lab=' OFE Nuclear Repulsion Contribution'

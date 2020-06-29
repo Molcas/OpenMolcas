@@ -59,7 +59,7 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
-*             Physics, University of Stockholm, Sweden, October '93.   *
+*             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
       use Basis_Info
       use Real_Spherical
@@ -100,7 +100,7 @@
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 1961
-         Do 1965 kCnt = 1,nCntr(kCnttp)
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
@@ -189,7 +189,7 @@
  1967    Continue !DCR
  1965    Continue !cnt
  1961    Continue !cont
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue !cnttp
          Return
 c Avoid unused argument warnings

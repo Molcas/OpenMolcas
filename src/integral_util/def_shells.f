@@ -74,7 +74,7 @@
 *
          nTest = nVal_Shells(iCnttp)-1
          mdci = mdciCnttp(iCnttp)
-         Do iCnt = 1, nCntr(iCnttp)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdci = mdci + 1
 *
             Do 200 iAng=0, nTest
@@ -149,7 +149,7 @@
 *                                                                      *
  200        Continue                     ! iAng
          End Do                          ! iCnt
-         iAOttp = iAOttp + lOffAO(iCnttp)*nCntr(iCnttp)
+         iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
       End Do                             ! iCnttp
 *
       Return
@@ -286,7 +286,7 @@
             If (nBasis(iShll).eq.0) Go To 201
             iCmp  = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll)) iCmp = 2*iAng+1
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                nSkal = nSkal + 1
 *                                                                      *
 ************************************************************************
@@ -318,7 +318,7 @@
 *                                                                      *
             End Do                       ! iCnt
  201        Continue
-            iAOttp = iAOttp + lOffAO(iCnttp)*nCntr(iCnttp)
+            iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
  200     Continue                        ! iCnttp
  100  Continue                           ! iAng
 *

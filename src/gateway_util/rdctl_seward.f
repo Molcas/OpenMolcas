@@ -1446,7 +1446,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
             Call WarningMessage(2,' Input error, no center specified!')
             Call Quit_OnUserError()
          End If
-         nCntr(nCnttp) = nCnt
+         dbsc(nCnttp)%nCntr = nCnt
          mdc = mdc + nCnt
          If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *        Compute the number of elements stored in the dynamic memory
@@ -2229,7 +2229,7 @@ c     Go To 998
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
                iStrt = dbsc(iCnttp)%ipCntr
-               Do iCnt = iOff+1, iOff+nCntr(iCnttp)
+               Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
                   If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
                      iFound_Label = 1
                      Do I = 1,3
@@ -2238,7 +2238,7 @@ c     Go To 998
                   End If
                   iStrt = iStrt + 3
                End Do
-               iOff = iOff + nCntr(iCnttp)
+               iOff = iOff + dbsc(iCnttp)%nCntr
             End Do
             If (iFound_Label .Eq. 0) Then
                Call WarningMessage(2,';'
@@ -3958,7 +3958,7 @@ c      endif
 *        Loop over unique centers
          iUnique = 0
          Do iCnttp = 1, nCnttp
-            nCnt = nCntr(iCnttp)
+            nCnt = dbsc(iCnttp)%nCntr
             Do iCnt = 1, nCnt
                iUnique = iUnique+1
 *              Get the mass for this center
@@ -4399,7 +4399,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             nEF = 0
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
-     &         nEF = nEF + nCntr(iCnttp)
+     &         nEF = nEF + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
 *
@@ -4408,9 +4408,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
                   ixyz = dbsc(iCnttp)%ipCntr
-                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+                  call dcopy_(3*dbsc(iCnttp)%nCntr,DInf(ixyz),1,
      &                                        EF_Centers(1,iEF),1)
-                  iEF = iEF + nCntr(iCnttp)
+                  iEF = iEF + dbsc(iCnttp)%nCntr
                End If
             End Do
          End If
@@ -4430,15 +4430,15 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Else
             nDMS = 0
             Do iCnttp = 1, nCnttp
-               nDMS = nDMS + nCntr(iCnttp)
+               nDMS = nDMS + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
             iDMS = 1
             Do iCnttp = 1, nCnttp
                ixyz = dbsc(iCnttp)%ipCntr
-               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+               call dcopy_(3*dbsc(iCnttp)%nCntr,DInf(ixyz),1,
      &                                     DMS_Centers(1,iDMS),1)
-               iDMS = iDMS + nCntr(iCnttp)
+               iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
          End If
       End If
@@ -4451,7 +4451,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (Run_Mode.ne.S_Mode) Then
          Max_Cnt=0
          Do iCnttp = 1, nCnttp
-            Max_Cnt=Max(Max_Cnt,nCntr(iCnttp))
+            Max_Cnt=Max(Max_Cnt,dbsc(iCnttp)%nCntr)
          End Do
       End If
 *                                                                      *
@@ -4588,7 +4588,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (nIrrep.eq.2) nOper=1
       MaxDCR = nIrrep
       Do iCnttp = 1, nCnttp
-         nCnt = nCntr(iCnttp)
+         nCnt = dbsc(iCnttp)%nCntr
          ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt = 1, nCnt
             mdc = iCnt + mdciCnttp(iCnttp)

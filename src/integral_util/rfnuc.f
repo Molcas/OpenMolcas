@@ -68,9 +68,10 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
                   Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',Work(ixyz),3,nCntr(iCnttp))
+                  Call RecPrt(' Centers',' ',Work(ixyz),3,
+     &                        dbsc(iCnttp)%nCntr)
                End If
-               Do iCnt = 1, nCntr(iCnttp)
+               Do iCnt = 1, dbsc(iCnttp)%nCntr
                   A(1) = Work(ixyz  )
                   A(2) = Work(ixyz+1)
                   A(3) = Work(ixyz+2)
@@ -106,7 +107,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                   ixyz = ixyz + 3
                End Do
  101           Continue
-               ndc = ndc + nCntr(iCnttp)
+               ndc = ndc + dbsc(iCnttp)%nCntr
             End Do
             rNucMm(iq) = temp
          End Do

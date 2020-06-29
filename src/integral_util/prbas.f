@@ -61,13 +61,13 @@
          Write (6,*) ' IndS'
          Write (6,*)
          iStr=iShell+1
-         Do i = 1, nCntr(iCnttp)
+         Do i = 1, dbsc(iCnttp)%nCntr
             iEnd = iStr + nTest-1
             Write (6,*) (IndS(j),j=iStr,iEnd)
             iStr=iEnd+1
          End Do
          Write (6,*)
-         iShell = iShell + nCntr(iCnttp)*nTest
+         iShell = iShell + dbsc(iCnttp)%nCntr*nTest
          lComp = 0
          lSh = 0
 *
@@ -123,7 +123,7 @@
             iStrt = dbsc(iCnttp)%ipCntr
             Write (6,*)
             Write (6,*) 'Charge:',Charge(iCnttp)
-            Do 14 iCnt = 1, nCntr(iCnttp)
+            Do 14 iCnt = 1, dbsc(iCnttp)%nCntr
                iEnd = iStrt + 2
                mShell = Ind_Shell(IndSOff(iCnttp,iCnt))+iAng+1
                Write (6,*)
@@ -170,8 +170,8 @@
 *
             lSh = lSh + 1
  11      Continue
-         mdc = mdc + nCntr(iCnttp)
-         iAOttp = iAOttp + lOffAO(iCnttp)*nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
+         iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
  10   Continue
       Write (6,*)
       Write (6,'(A42,8I4)') 'Number of basis functions in each irrep:',

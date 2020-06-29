@@ -40,7 +40,7 @@
       mdc = 0
       MaxAto=0
       Do iCnttp = 1, nCnttp
-         nCnt = nCntr(iCnttp)
+         nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = mdc + 1
             MaxAto = MaxAto + nIrrep/nStab(mdc)
@@ -55,7 +55,7 @@
       nc = 1
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          jxyz = dbsc(jCnttp)%ipCntr
          If (iAtmNr(jCnttp).ge.1) Then
 *            Atod = CovRad (iAtmNr(jCnttp))

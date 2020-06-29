@@ -160,7 +160,7 @@
          If (.Not.ECP(kCnttp)) Go To 111
          If (nM2(kCnttp).eq.0) Go To 111
 *
-         Do 101 kCnt = 1, nCntr(kCnttp)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
@@ -313,7 +313,7 @@
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
 *
  100  Continue
 *

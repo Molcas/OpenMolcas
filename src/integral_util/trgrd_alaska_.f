@@ -52,7 +52,7 @@
          If (.Not.(pChrg(iCnttp).or.FragCnttp(iCnttp).or.
      &             AuxCnttp(iCnttp))) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt=1,nCntr(iCnttp)
+            Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
                Do iCo=0,nIrrep/nStab(mdc)-1
                   kop=iCoSet(iCo,0,mdc)

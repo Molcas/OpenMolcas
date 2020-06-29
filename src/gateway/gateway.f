@@ -190,7 +190,7 @@ C-SVC: identify runfile with a fingerprint
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc)
@@ -206,7 +206,7 @@ C-SVC: identify runfile with a fingerprint
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
             ixyz = dbsc(iCnttp)%ipCntr
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1,iNuc) = Work(ixyz  )
@@ -218,7 +218,7 @@ C-SVC: identify runfile with a fingerprint
                ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
       Call Put_iScalar('Unique atoms',nNuc)

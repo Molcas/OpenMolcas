@@ -32,7 +32,7 @@
 *                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
-*             October '91                                              *
+*             October 1991                                             *
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Basis_Info
@@ -126,7 +126,7 @@ c     End If
          If (.Not.ECP(kCnttp)) Go To 111
          If (nM1(kCnttp).eq.0) Go To 111
 
-         Do 101 kCnt = 1, nCntr(kCnttp)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
@@ -224,7 +224,7 @@ c           End If
 
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
       Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *

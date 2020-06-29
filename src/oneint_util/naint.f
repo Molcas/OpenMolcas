@@ -127,7 +127,7 @@ C     Call qEnter('NAInt')
          End If
 
          If (Q_Nuc.eq.Zero) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
@@ -284,7 +284,7 @@ C     Call qEnter('NAInt')
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
       If (Nuclear_Model.eq.Gaussian_Type .or.

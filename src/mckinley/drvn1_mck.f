@@ -23,7 +23,7 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             October '91                                              *
+*             October 1991                                             *
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -50,7 +50,7 @@
          ZA = Charge(iCnttp)
          ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
-         Do 110 iCnt = 1, nCntr(iCnttp)
+         Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
             A(1) = Work(ixyz  )
             A(2) = Work(ixyz+1)
             A(3) = Work(ixyz+2)
@@ -60,7 +60,7 @@
                If (Charge(jCnttp).eq.Zero) Go To 201
                ZAZB = ZA * Charge(jCnttp)
                jxyz = dbsc(jCnttp)%ipCntr
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do 210 jCnt = 1, jCntMx
                   B(1) = Work(jxyz  )
@@ -130,12 +130,12 @@
                   jxyz = jxyz + 3
  210           Continue
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
  200        Continue
             ixyz = ixyz + 3
  110     Continue
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
  100  Continue
 *
       Call qExit('DrvN1')

@@ -95,7 +95,7 @@ c      print *,' iAngMx', iAngMx
             If (AuxCnttp(iCnttp)) Go To 101
             If (FragCnttp(iCnttp)) Go To 101
 *           Write (*,*) ' iCnttp=',iCnttp
-            nCnt = nCntr(iCnttp)
+            nCnt = dbsc(iCnttp)%nCntr
             iShll = ipVal(iCnttp) + iAng
             iExp=ipExp(iShll)
             iCff=ipCff(iShll)
@@ -196,8 +196,8 @@ c      print *,' iAngMx', iAngMx
 *
             End Do
  101        Continue
-            mdc = mdc + nCntr(iCnttp)
-            iAOttp = iAOttp + lOffAO(iCnttp)*nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
+            iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
          End Do
          Call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
          Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)

@@ -62,7 +62,7 @@
       ii=0  !ii is number of basis sets.
 10    Continue
         ii=ii+1
-      If(nCntr(ii).ne.0) Go To 10
+      If(dbsc(ii)%nCntr.ne.0) Go To 10
       ii=ii-1
       If(ii.eq.0) then
         Write(6,*)
@@ -75,7 +75,7 @@
       MaxAng=0
       Do 20, i=1,ii
         kauntSav=kaunt
-        Do 25, ioio=1,nCntr(i)
+        Do 25, ioio=1,dbsc(i)%nCntr
           krekna=krekna+1
           krekna2=0
           kaunt=kauntSav
@@ -101,7 +101,7 @@
       kaunter=0
       kaunt=0
       Do 101, i=1,ii
-        Do 111, j=1,nCntr(i)
+        Do 111, j=1,dbsc(i)%nCntr
           kaunt=kaunt+1
           Do 121, kk=1,nBonA(kaunt)
             kaunter=kaunter+1
@@ -153,7 +153,7 @@
         nVarv=nTot_Shells(iCnttp)
         nSh(iCnttp)=nVarv
         M=iCnttp-1
-        Do 212, iCnt=1,nCntr(iCnttp)
+        Do 212, iCnt=1,dbsc(iCnttp)%nCntr
           ndc=ndc+1
           iTemp=iTemp+nStab(ndc)
 212     Continue

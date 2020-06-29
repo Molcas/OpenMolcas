@@ -30,7 +30,7 @@
 ************************************************************************
 *                                                                      *
       iShll = Mx_Shll - 1
-      mdc = mdciCnttp(nCnttp) + nCntr(nCnttp)
+      mdc = mdciCnttp(nCnttp) + dbsc(nCnttp)%nCntr
       nCnttp = nCnttp + 1
       If (nCnttp.gt.Mxdbsc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
@@ -102,7 +102,7 @@
       DInf(iOff  )=Zero
       DInf(iOff+1)=Zero
       DInf(iOff+2)=Zero
-      nCntr(nCnttp) = nCnt
+      dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt
       If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *

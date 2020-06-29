@@ -22,7 +22,7 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             September '06                                            *
+*             September 2006                                           *
 ************************************************************************
       use Basis_Info
       use Period
@@ -86,7 +86,7 @@
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp))Then
             ndc = ndc + mCnt
             Go To 32

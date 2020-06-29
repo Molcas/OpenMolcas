@@ -50,7 +50,7 @@ C
       l_UAR=3
       Call GetMem('LDFUAR','Allo','Real',ip_UAR,l_UAR)
       Do jCnttp=1,nCnttp
-         mCnt=nCntr(jCnttp)
+         mCnt=dbsc(jCnttp)%nCntr
          If (pChrg(jCnttp) .or. AuxCnttp(jCnttp) .or.
      &       FragCnttp(jCnttp)) Then
             ndc=ndc+mCnt

@@ -132,7 +132,7 @@
       kdc=0
       if (kCnttpPAM.gt.1) Then
          do ikdc=1,kCnttpPAM-1
-            kdc = kdc + nCntr(ikdc)
+            kdc = kdc + dbsc(ikdc)%nCntr
          end do
       end if
 
@@ -142,7 +142,7 @@ c      Do 100 kCnttp = 1, nCnttp
          If (.Not.PAM2(kCnttp)) Go To 111
          If (nPAM2(kCnttp).eq.-1) Go To 111
 *
-         Do 101 kCnt = 1, nCntr(kCnttp)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
@@ -273,7 +273,7 @@ c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
 *
 c 100  Continue
 *

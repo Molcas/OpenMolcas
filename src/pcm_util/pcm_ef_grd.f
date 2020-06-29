@@ -56,7 +56,7 @@
       Do jCnttp = 1, nCnttp
          If (AuxCnttp(jCnttp)) Cycle
          Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
          jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1

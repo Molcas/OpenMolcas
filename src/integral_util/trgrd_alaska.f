@@ -47,7 +47,7 @@
 *
       Do iCnttp=1,nCnttp_Valence
          ixyz = dbsc(iCnttp)%ipCntr
-         Do iCnt=1,nCntr(iCnttp)
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             call dcopy_(3,Work(ixyz),1,A,1)
             Do iCo=0,nIrrep/nStab(mdc)-1

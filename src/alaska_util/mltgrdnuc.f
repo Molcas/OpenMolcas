@@ -39,7 +39,7 @@
         kdc = 0
         Do kCnttp = 1, nCnttp
            If (Charge(kCnttp).eq.0.d0) Go To 411
-           Do kCnt = 1, nCntr(kCnttp)
+           Do kCnt = 1, dbsc(kCnttp)%nCntr
               kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
               call dcopy_(3,Work(kxyz),1,C,1)
               ndc=kdc+kCnt
@@ -67,7 +67,7 @@
                 End If
              Enddo
            Enddo
-411     kdc = kdc + nCntr(kCnttp)
+411     kdc = kdc + dbsc(kCnttp)%nCntr
         Enddo
 800   continue
 

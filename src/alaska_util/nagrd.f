@@ -138,7 +138,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
       kdc = 0
       Do kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
-         Do kCnt = 1, nCntr(kCnttp)
+         Do kCnt = 1, dbsc(kCnttp)%nCntr
             kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
 *
@@ -263,7 +263,7 @@ C              Call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
             End Do
  101     Continue
          End Do
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
 *     Call qExit('NAGrd')

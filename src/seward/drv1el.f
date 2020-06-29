@@ -1871,7 +1871,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *
          iEF = 0
          Do  iCnttp = 1, nCnttp
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                iEF=iEF+1
                Write (Label,'(A,I2)') 'dT/dmu',iEF
                Call dcopy_(3,Work(dbsc(iCnttp)%ipCntr+(iCnt-1)*3),1,
