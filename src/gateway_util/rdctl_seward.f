@@ -1481,7 +1481,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (mdc+nCnt.gt.1) then
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
-      iOff=dbsc(nCnttp)%ipCntr
+      iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
       Call Get_F(2,DInf(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2

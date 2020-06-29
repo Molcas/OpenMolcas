@@ -40,8 +40,6 @@
 *     nBasis: number of contracted functions of the i''th shell        *
 *     ipCff : pointer to the contraction coefficients of the ith shell *
 *     ipExp : pointer to the exponents of the i''th shell              *
-*     ipCntr: pointer to the coordinates of the i''th basis set        *
-*     nCntr : number of unique centers of the i''th basis set          *
 *     ipVal: the index of the first valence shell of the ith basis set *
 *     ipPrj: the index of the first projection shell of the ith basis  *
 *            set                                                       *
@@ -267,7 +265,7 @@
      &          Ind_Shell(MxShll)
       Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
      &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
-     &          ipExp(MxShll),   ipCntr(Mxdbsc),  nCntr(Mxdbsc),
+     &          ipExp(MxShll),
      &          ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc), nBasis_Cntrct(MxShll),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
@@ -299,7 +297,7 @@
      &              ipCff_Cntrct, ipCff_Prim, ipExp,
      &              IndS, ip_Occ, ipAkl, ipBk, nOpt, iCoSet,
      &              iAOtSO, iSOInf, IrrCmp, ipFockOp, ixStrt,
-     &              Mx_mdc, Mx_Shll,ipCntr, nCntr, nOrd_XF,iXPolType,
+     &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
      &              iAngMx, nCnttp,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
