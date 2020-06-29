@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
+      use external_centers
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"
@@ -78,11 +79,6 @@ c         Call Seward_Init()
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
 *
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
-*
          ZA = Zero
          DAx= Zero
          DAy= Zero
@@ -95,34 +91,31 @@ c         Call Seward_Init()
          Qzz= Zero
 *
          PNX=Zero
-         ip = ipXF - 1
-         write(6,*) 'Work(ip + ...) = ',(Work(ip+ii),ii=1,4)
-         write(6,*) 'nCnttp = ',nCnttp
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
+               ZA = XF(4,iFd)
                NoLoop = ZA.eq.Zero
             Else If (nOrd_XF.eq.1) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
      &                  DAz.eq.Zero
             Else If (nOrd_XF.eq.2) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
-               Qxx= Work(ip+(iFd-1)*Inc+8)
-               Qxy= Work(ip+(iFd-1)*Inc+9)
-               Qxz= Work(ip+(iFd-1)*Inc+10)
-               Qyy= Work(ip+(iFd-1)*Inc+11)
-               Qyz= Work(ip+(iFd-1)*Inc+12)
-               Qzz= Work(ip+(iFd-1)*Inc+13)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
+               Qxx= XF(8,iFd)
+               Qxy= XF(9,iFd)
+               Qxz= XF(10,iFd)
+               Qyy= XF(11,iFd)
+               Qyz= XF(12,iFd)
+               Qzz= XF(13,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
@@ -138,9 +131,7 @@ c         Call Seward_Init()
                Call Quit_OnUserError()
             End If
             If (NoLoop) Go To 102
-            A(1) = Work(ip+(iFd-1)*Inc+1)
-            A(2) = Work(ip+(iFd-1)*Inc+2)
-            A(3) = Work(ip+(iFd-1)*Inc+3)
+            A(1:3)=XF(1:3,iFd)
             iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *

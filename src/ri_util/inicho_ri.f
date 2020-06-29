@@ -20,8 +20,7 @@
 *> Initialize Cholesky environment for RI calculations.
 *>
 *> @note
-*> Needs a call to ::SetUp_Ints with indexation turned on (or get
-*> the indexation in shinf.fh by some other means).
+*> Needs a call to ::SetUp_Ints with indexation turned on
 *>
 *> @param[in] nSkal    The number of shells (excl. aux. basis)
 *> @param[in] nVec_Aux Number of aux. basis vectors per irrep

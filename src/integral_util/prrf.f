@@ -26,6 +26,7 @@
 *                                                                      *
 *             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 ************************************************************************
+      use External_Centers, only: nXF
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -57,8 +58,8 @@
       End If
       If (iXPolType.gt.0) Then
          Write (6,*)
-         Write (6,'(5X,A)')
-     &       'Explicit polarisabilities activated'
+         Write (6,'(5X,A)') ' Explicit polarisabilities activated'
+         Write (6,'(5X,A)') ' -----------------------------------'
          Write (6,'(5X,A,I2)')     ' Number of points    :',nXF
          If (iXPolType.eq.1) Then
             Write (6,'(5X,A)')

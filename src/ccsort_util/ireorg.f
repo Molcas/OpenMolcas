@@ -183,7 +183,8 @@ c
 c     help variables
 c
        integer ind(1:4)
-       integer nhelp,mhelp,rc,dimpq,dimrs
+       integer rc,dimpq,dimrs
+       integer :: nhelp=-1,mhelp=-1
 c
 c*    define dimensions of V1
 c
@@ -261,7 +262,7 @@ c
 c     help variables
 c
        integer p,q,r,s,pq,rs,pup,qup,rup,sup,rc,pqyes,rsyes
-       integer paddv1,qaddv1,raddv1,saddv1
+       integer :: paddv1=-1,qaddv1=-1,raddv1=-1,saddv1=-1
        integer ind(1:4)
 c
 c*    def additive constants
@@ -415,24 +416,24 @@ c
        rc=0
 c
        if ((typp.eq.1).or.(typp.eq.2)) then
-       if ((typpv1.eq.1).or.(typpv1.eq.2).or.(typpv1.eq.5)) then
-       paddv1=0
-       else
-       rc=1
-c     RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
-       return
-       end if
+          if ((typpv1.eq.1).or.(typpv1.eq.2).or.(typpv1.eq.5)) then
+             paddv1=0
+          else
+             rc=1
+c            RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
+             return
+          end if
        else if (typp.eq.3) then
        if (typpv1.eq.3) then
-       paddv1=0
+          paddv1=0
        else if (typpv1.eq.4) then
-       paddv1=nvb(symp)-nva(symp)
+           paddv1=nvb(symp)-nva(symp)
        else if (typpv1.eq.5) then
-       paddv1=noa(symp)
+           paddv1=noa(symp)
        else
-       rc=2
-c     RC=2 : typp=3, incompatible typpv1 (Stup)
-       return
+           rc=2
+c          RC=2 : typp=3, incompatible typpv1 (Stup)
+           return
        end if
        else if (typp.eq.4) then
        if (typpv1.eq.4) then
