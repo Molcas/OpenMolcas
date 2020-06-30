@@ -36,8 +36,8 @@
 !***********************************************************************
 !
       Subroutine Basis_Info_Dmp()
-      Integer nDmp, i, nCnttp
-      Real*8, Allocatable:: iDmp(:,:)
+      Integer i, nCnttp
+      Integer, Allocatable:: iDmp(:,:)
 !
 !     Temporary code until nCnttp has been move over to the Module
 !
@@ -65,7 +65,7 @@
 !***********************************************************************
 !
       Subroutine Basis_Info_Get()
-      Real*8, Allocatable:: iDmp(:,:)
+      Integer, Allocatable:: iDmp(:,:)
       Logical Found
       Integer Len, i, nCnttp
       Call qpg_iArray('iDmp',Found,Len)

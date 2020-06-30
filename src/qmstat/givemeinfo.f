@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*-----------------------------------------------------------------------*
-      Subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA
-     &,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ
-     &,MxAngqNr,ipAcc,nACCSize)
+*----------------------------------------------------------------------*
+      Subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,
+     &                      nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,
+     &                      MxAtQ,MxPrCon,MxBasQ,MxAngqNr,ipAcc,
+     &                      nACCSize)
       use Basis_Info
       use Her_RW
       use Real_Spherical
@@ -32,6 +33,7 @@
       Dimension nSh(MxAtQ),nFSh(MxAtQ,MxAngqNr),iCon(MxAtQ,MxPrCon)
       Dimension natyp(MxAtQ),nPrim(MxBasQ),nBA(MxAtQ)
       Dimension nCBoA(MxAtQ,MxAngqNr)
+      Real*8, Allocatable:: TEMP1(:), TEMP2(:)
       Logical DoRys
 
       Call QEnter('GiveMeInfo')
@@ -59,15 +61,17 @@
 * Compute what we came here for. iBasAng will contain nBas elements with *
 * integers, such that 1=s-orbitals, 2=p-orbitals, 3=d-orbitals, ...      *
 *------------------------------------------------------------------------*
-      ii=0  !ii is number of basis sets.
-10    Continue
-        ii=ii+1
-      If(dbsc(ii)%nCntr.ne.0) Go To 10
-      ii=ii-1
-      If(ii.eq.0) then
-        Write(6,*)
-        Write(6,*)'ERROR in GiveMeInfo. No atoms?'
-      Endif
+C     ii=0  !ii is number of basis sets.
+C10   Continue
+C       ii=ii+1
+C     If(dbsc(ii)%nCntr.ne.0) Go To 10
+C     ii=ii-1
+C     If(ii.eq.0) then
+C       Write(6,*)
+C       Write(6,*)'ERROR in GiveMeInfo. No atoms?'
+C     Endif
+      ii=nCnttp
+*
       kaunta=0
       kaunt=0
       kaunter=0
@@ -203,7 +207,6 @@
 303       Continue
 302     Continue
 301   Continue
-
 *
 *-- Then since overlap integrations are in cartesian coordinates while
 *   the AO-basis is spherical, we need transformation matrix for this.
@@ -214,35 +217,35 @@
       MaxAng=MaxAng-1
       nSize=(2*MaxAng+1)*(MaxAng+1)*(MaxAng+2)/2
       nACCSize=0
-      Do 980, i=2,MaxAng
+      Do i=2,MaxAng
         nACCSize=nACCSize+(2*i+1)*(i+1)*(i+2)/2
-980   Continue
+      End Do
       nSumma=0
-      Call GetMem('TEMP1','Allo','Real',ipTEMP1,nSize)
-      Call GetMem('TEMP2','Allo','Real',ipTEMP2,nSize)
+      Call mma_allocate(TEMP1,nSize,Label='TEMP1')
+      Call mma_allocate(TEMP2,nSize,Label='TEMP2')
       Call GetMem('AccTransa','Allo','Real',ipAcc,nACCSize)
-      Do 981, i=2,MaxAng
-        ind1=(i+1)*(i+2)/2
-        ind2=2*i+1
-        iHowMuch=ind1*ind2
-        Call DCopy_(iHowMuch,RSph(ipSph(i)),iONE,Work(ipTEMP1),iONE)
-        ind3=0
-        Do 982, jj=1,ind1
-          call dcopy_(ind2,Work(ipTEMP1+jj-1),ind1
-     &                   ,Work(ipTEMP2+ind3),iONE)
-          ind3=ind3+ind2
-982     Continue
-*        Call recprt('FFF',' ',Work(ipTEMP1),(i+1)*(i+2)/2,2*i+1)
-*        Call recprt('GGG',' ',Work(ipTEMP2),ind2,ind1)
-        call dcopy_(iHowMuch,Work(ipTEMP2),iONE,Work(ipAcc+nSumma),iONE)
-        nSumma=nSumma+iHowMuch
-981   Continue
-      Call GetMem('TEMP1','Free','Real',ipTEMP1,nSize)
-      Call GetMem('TEMP2','Free','Real',ipTEMP2,nSize)
-
-*---------------------------------------------------------------------------*
-* Make deallocations. They are necessary because of the getinf.             *
-*---------------------------------------------------------------------------*
+*
+      Do i=2,MaxAng
+         ind1=(i+1)*(i+2)/2
+         ind2=2*i+1
+         iHowMuch=ind1*ind2
+         Call DCopy_(iHowMuch,RSph(ipSph(i)),iONE,TEMP1,iONE)
+         ind3=1
+         Do jj=1,ind1
+            call dcopy_(ind2,TEMP1(jj),ind1,TEMP2(ind3),iONE)
+            ind3=ind3+ind2
+         End Do
+*        Call recprt('FFF',' ',TEMP1,(i+1)*(i+2)/2,2*i+1)
+*        Call recprt('GGG',' ',TEMP2,ind2,ind1)
+         call dcopy_(iHowMuch,TEMP2,iONE,Work(ipAcc+nSumma),iONE)
+         nSumma=nSumma+iHowMuch
+      End Do
+*
+      Call mma_deallocate(TEMP1)
+      Call mma_deallocate(TEMP2)
+*----------------------------------------------------------------------*
+* Make deallocations. They are necessary because of the getinf.        *
+*----------------------------------------------------------------------*
       Call ClsSew()
       Call QEXit('GiveMeInfo')
 
