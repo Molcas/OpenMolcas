@@ -125,7 +125,7 @@
       If (Primitive_Pass) Then
          Call Put_iArray('nBas_Prim',nBas,nIrrep)
          Call Gen_RelPointers(-(Info-1))
-         Call Info2Runfile(DInf,nDInf)
+         Call Info2Runfile()
          Call Gen_RelPointers(Info-1)
       End If
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)

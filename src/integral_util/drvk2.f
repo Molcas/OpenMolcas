@@ -41,6 +41,7 @@
       use k2_setup
       use iSD_data
       use k2_arrays
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
@@ -86,6 +87,7 @@
 *                                                                      *
       iRout = 240
       iPrint = nPrint(iRout)
+*     iPrint = 99
       Call QEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
@@ -164,16 +166,17 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iExp   = iSD( 6,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          If (ReOrder) Call OrdExpD2C(iPrim,Work(iExp),iBas,Work(iCff))
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             If (AuxShell(iShll).and..Not.AuxShell(jShll)) Go To 200
@@ -184,18 +187,18 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jExp   = iSD( 6,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
 *           Fix for the dummy basis set
-            If (AuxShell(iShll))
-     &         call dcopy_(3,Work(jxyz),1,Coor(1,1),1)
+            If (AuxShell(iShll)) Coor(1:3,1)=Coor(1:3,2)
 *
             Call iCopy(2,iAngV(1),1,iAngV(3),1)
             Call ICopy(2,iCmpV(1),1,iCmpV(3),1)

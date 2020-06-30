@@ -24,7 +24,7 @@
 #include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
@@ -89,7 +89,6 @@
 *
 *-----The coordinates
 *
-      dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
       nCnt = 1
       If (mdc+nCnt.gt.Mxdc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
@@ -98,13 +97,11 @@
       mdciCnttp(nCnttp)=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
-      DInf(iOff  )=Zero
-      DInf(iOff+1)=Zero
-      DInf(iOff+2)=Zero
+!     Call allocate(dbsc(nCnttp)%Coor(1:3,1:1))
+      Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+      dbsc(nCnttp)%Coor(1:3,1:1)=Zero
       dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt
-      If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *
 *     Compute the number of elements stored in the dynamic memory so
 *     far.

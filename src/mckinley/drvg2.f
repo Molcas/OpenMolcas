@@ -47,6 +47,7 @@
       use iSD_data
       use k2_arrays
       use pso_stuff
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -434,11 +435,11 @@ C     Do iS = 1, nSkal
          iPrim  = iSD( 5,iS)
          iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
@@ -456,18 +457,17 @@ C        Do jS = 1, iS
             jPrim  = iSD( 5,jS)
             jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
             iShelV(2) = jShell
             iAOV(2) = jAO
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
             ijAng = iAng + jAng
 *
@@ -527,18 +527,17 @@ C           Do kS = 1, nSkal
                kPrim  = iSD( 5,kS)
                kExp   = iSD( 6,kS)
                kAO    = iSD( 7,kS)
-               kxyz   = iSD( 8,kS)
                mdck   = iSD(10,kS)
                kShell = iSD(11,kS)
                kCnttp = iSD(13,kS)
                kCnt   = iSD(14,kS)
+               Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
                iAngV(3) = kAng
                iShllV(3) = kShll
                iCmpV(3) = kCmp
                iShelV(3) = kShell
                iAOV(3) = kAO
-               call dcopy_(3,Work(kxyz),1,Coor(1,3),1)
 *
                Shik = iShell.eq.kShell
 *
@@ -551,11 +550,11 @@ C              Do lS = 1, kS
                   lPrim  = iSD( 5,lS)
                   lExp   = iSD( 6,lS)
                   lAO    = iSD( 7,lS)
-                  lxyz   = iSD( 8,lS)
                   mdcl   = iSD(10,lS)
                   lShell = iSD(11,lS)
                   lCnttp = iSD(13,lS)
                   lCnt   = iSD(14,lS)
+                  Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
 *
                   iAngV(4) = lAng
                   iShllV(4) = lShll
@@ -563,7 +562,6 @@ C              Do lS = 1, kS
                   iShelV(4) = lShell
                   iAOV(4) = lAO
 *
-                  call dcopy_(3,Work(lxyz),1,Coor(1,4),1)
 *
                   klAng = kAng + lAng
                   nHrrcd=0

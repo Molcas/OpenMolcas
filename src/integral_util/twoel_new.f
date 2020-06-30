@@ -88,7 +88,7 @@
      &        Batch_On_Disk, W2Disc,
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
@@ -154,6 +154,7 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
+      Call RecPrt('Coor',' ',Coor,3,4)
 #endif
 *
       la = iAnga(1)

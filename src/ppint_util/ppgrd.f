@@ -179,8 +179,7 @@ C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
 C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
          Do kCnt = 1, dbsc(iCnttp)%nCntr
-            ixyz = dbsc(iCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+            C(1:3) = dbsc(iCnttp)%Coor(1:3,kCnt)
 *
 *-----------Find the DCR for M and S
 *

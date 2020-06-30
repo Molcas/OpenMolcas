@@ -113,11 +113,9 @@ c      print *,' iAngMx', iAngMx
 
             Do iCnt = 1, nCnt
 
-               ixyz = dbsc(iCnttp)%ipCntr + (iCnt-1)*3
                iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(iCnttp,iAng)
                iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
-
-               call dcopy_(3,Work(ixyz),1,A,1)
+               A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 *--------------Allocate memory for SO and AO values
 *

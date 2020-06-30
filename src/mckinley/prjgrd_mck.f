@@ -121,8 +121,7 @@
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
 
-            ixyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)

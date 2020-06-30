@@ -55,9 +55,8 @@ C
      &       FragCnttp(jCnttp)) Then
             ndc=ndc+mCnt
          Else
-            jxyz=dbsc(jCnttp)%ipCntr
             Do i=0,2
-               Work(ip_UAR+i)=Work(jxyz+i)*
+               Work(ip_UAR+i)=dbsc(jCnttp)%Coor(i+1,1)*
      &                               dble(iPhase(i+1,iCoset(0,0,ndc+1)))
             End Do
             ndc=ndc+1

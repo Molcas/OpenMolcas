@@ -27,7 +27,6 @@
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
       Do i = 1, Mxdbsc
-         dbsc(i)%ipCntr= dbsc(i)%ipCntr+ ibase
          ipM1xp(i)     = ipM1xp(i)     + ibase
          ipM2xp(i)     = ipM2xp(i)     + ibase
          ipM1cf(i)     = ipM1cf(i)     + ibase
@@ -44,7 +43,6 @@
          Do iSkal = 1, nSkal
             iSD(4,iSkal)= iSD(4,iSkal) + ibase
             iSD(6,iSkal)= iSD(6,iSkal) + ibase
-            iSD(8,iSkal)= iSD(8,iSkal) + ibase
          End Do
       End If
 *

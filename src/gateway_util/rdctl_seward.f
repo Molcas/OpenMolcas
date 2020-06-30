@@ -74,6 +74,10 @@
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
+!     Temporary buffer
+      Integer, Parameter:: nBuff=10000
+      Real*8, Allocatable:: Buffer(:)
+!
       Character*180 STDINP(mxAtom*2)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
@@ -135,7 +139,10 @@
 #ifdef _DEBUG_
       IfTest=.True.
 #endif
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_allocate(Buffer,nBuff,Label='Buffer')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1275,7 +1282,6 @@ c Simplistic validity check for value
       nSOC_Shells(nCnttp) = nSOC
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-      dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
       nCnt = 0
       lAux = lAux .or. AuxCnttp(nCnttp)
       If (AuxCnttp(nCnttp)) Then
@@ -1448,13 +1454,14 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          End If
          dbsc(nCnttp)%nCntr = nCnt
          mdc = mdc + nCnt
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
+!        Now allocate the array for the coordinates and copy them over.
+!        Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
+         Call mma_Allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
+!
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
          nInfo = ipExp(iShll+1) - 1
-* the next line seems to convince IBM XLF 6.1 to forgo its otherwise
-* crass behaviour. Who can tell why? Peter Knowles, 7/99
-         ninfo_stupid = nInfo
          Call Gen_RelPointers(Info-1) ! Work Mode
          Go To 998
       End If
@@ -1481,11 +1488,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (mdc+nCnt.gt.1) then
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
-      iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
-      Call Get_F(2,DInf(iOff),3)
+      iOff=1+(nCnt-1)*3
+      Call Get_F(2,Buffer(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            DInf(iOff+i) = DInf(iOff+i)/angstr
+            Buffer(iOff+i) = Buffer(iOff+i)/angstr
          End Do
       End If
 *
@@ -1531,13 +1538,13 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 
                   Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
 
-                  iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
+                  iOff=1+(nCnt-1)*3
 
 *                 Copy old coordinate  first
-                  CALL DCOPY_(3,DInf(iOff0),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,DInf(iOff),1)
+                  CALL DCOPY_(3,Buffer(iOff0),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Buffer(iOff),1)
 *
   110          Continue
 *
@@ -2228,15 +2235,11 @@ c     Go To 998
             iOff = 0
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
-               iStrt = dbsc(iCnttp)%ipCntr
                Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
                   If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
                      iFound_Label = 1
-                     Do I = 1,3
-                        EFt(I,iEF) = Work(iStrt+I-1)
-                     End Do
+                     EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
-                  iStrt = iStrt + 3
                End Do
                iOff = iOff + dbsc(iCnttp)%nCntr
             End Do
@@ -4407,8 +4410,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and.
      &             .NOT.FragCnttp(iCnttp)) Then
-                  ixyz = dbsc(iCnttp)%ipCntr
-                  call dcopy_(3*dbsc(iCnttp)%nCntr,DInf(ixyz),1,
+                  call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                        dbsc(iCnttp)%Coor(1,1),1,
      &                                        EF_Centers(1,iEF),1)
                   iEF = iEF + dbsc(iCnttp)%nCntr
                End If
@@ -4435,8 +4438,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
             iDMS = 1
             Do iCnttp = 1, nCnttp
-               ixyz = dbsc(iCnttp)%ipCntr
-               call dcopy_(3*dbsc(iCnttp)%nCntr,DInf(ixyz),1,
+               call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                     dbsc(iCnttp)%Coor(1,1),1,
      &                                     DMS_Centers(1,iDMS),1)
                iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
@@ -4589,7 +4592,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       MaxDCR = nIrrep
       Do iCnttp = 1, nCnttp
          nCnt = dbsc(iCnttp)%nCntr
-         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt = 1, nCnt
             mdc = iCnt + mdciCnttp(iCnttp)
             Mx_mdc = Max(Mx_mdc,mdc)
@@ -4616,7 +4618,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(DInf(ixyz),iOper,nOper,iChCar)
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(1,iCnt),
+     &                       iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
@@ -4632,12 +4635,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                End Do
                Do j=0,2
                   If (iAnd(jTmp,2**j).eq.0) Then
-                     DInf(ixyz+j)=DInf(ixyz+j)+
+                     dbsc(iCnttp)%Coor(j+1,iCnt)=
+     &                 dbsc(iCnttp)%Coor(j+1,iCnt)+
      &                           Shake*(Two*Random_Molcas(iSeed)-One)
                   End If
                End Do
             End If
-            ixyz = ixyz + 3
             If (FragCnttp(iCnttp)) Then
                mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
             Else If (AuxCnttp(iCnttp)) Then
@@ -4669,20 +4672,20 @@ C     Mx_mdc=mdc
 *     method.
 *
       If (Run_Mode.ne.G_Mode) Then
-         Call Saddle(DInf,nDInf)
+         Call Saddle()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Read coordinates from run file (if any), ditto for external
 *     field. Do not do this in the Gateway!
 *
-         Call GeoNew(Show,DInf,nDInf)
+         Call GeoNew(Show)
          If (lXF) Call GeoNew_PC()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_GeoList(DInf,nDInf)
+      Call Gen_GeoList()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4749,6 +4752,10 @@ C     Mx_mdc=mdc
 *                                                                      *
       If (Run_Mode.eq.G_Mode)
      &   Call Put_lScalar('Invert constraints',Invert)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_deallocate(Buffer)
 *                                                                      *
 ************************************************************************
 *                                                                      *

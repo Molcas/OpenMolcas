@@ -126,8 +126,7 @@ c     End If
       Do 100 kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *

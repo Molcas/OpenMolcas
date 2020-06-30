@@ -41,6 +41,7 @@
       use k2_setup
       use k2_arrays
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -116,16 +117,15 @@
          iPrim  = iSD( 5,iS)
          iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = (iAng+1)*(iAng+2)/2
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
@@ -136,16 +136,15 @@
             jPrim  = iSD( 5,jS)
             jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = (jAng+1)*(jAng+2)/2
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
 *-------Compute FLOP's for the transfer equation.
 *

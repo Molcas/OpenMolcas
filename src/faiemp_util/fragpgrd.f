@@ -90,7 +90,7 @@
       Character*80 Label
       Logical  IfGrad(3,2), JfGrad(3,4), ABeq(3), EQ
       Logical  EnergyWeight
-      Integer  i,j,ixyz,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
+      Integer  i,j,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
       Integer  iRout,iPrint,nSkal,iCar
       Integer  iCent,iCff,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc,iExp
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
@@ -98,15 +98,15 @@
       Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShell,iShll
       Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas,jCff
       Integer  jCmp,jCnttp,jExp,jPrim,jS,jSbasis,jShell,jShll,jSize
-      Integer  jSlocal,jxyz,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
+      Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
       Integer  mVecCB,nac,ncb,nDAO,nDCRT,nDisp,nHer,jAO,maxDensSize
-      Integer  nVecAC,nVecCB,iTri
+      Integer  nVecAC,nVecCB,iTri,iCnt, jCnt
       Real*8   Fact,DNrm2_
       External DNrm2_
 *
 *     Statement function for Cartesian index
 *
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+      nElem(i) = (i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
 *     Call qEnter('FragPGrd')
@@ -180,10 +180,12 @@ c      ! Dummy initialize
         iPrim  = iSD( 5,iS)
         iExp   = iSD( 6,iS)
         iAO    = iSD( 7,iS)
-        ixyz   = iSD( 8,iS)
         mdci   = iSD(10,iS)
         iShell = iSD(11,iS)
         iCnttp = iSD(13,iS)
+        iCnt   = iSD(14,iS)
+        C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+
         iSize = nElem(iAng)
         if(Transf(iShll).and.Prjct(iShll)) iSize = 2*iAng+1
         If(nFragCoor(mdci).ne.iCurMdc) Then
@@ -223,7 +225,6 @@ c      ! Dummy initialize
      &        (nFragDens(iCurCnttp)+1)/2) Stop 'maxIJSize'
           End If
         End If
-        call dcopy_(3,Work(ixyz),1,C,1)
 c        write(*,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',
 c     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
 c        write(*,*) '  iPrim,iBas =',iPrim,iBas
@@ -271,13 +272,13 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
           jPrim  = iSD( 5,jS)
           jExp   = iSD( 6,jS)
           jAO    = iSD( 7,iS)
-          jxyz   = iSD( 8,jS)
           mdcj   = iSD(10,jS)
           jShell = iSD(11,jS)
           jCnttp = iSD(13,jS)
+          jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
           if(Transf(jShll).and.Prjct(jShll)) jSize = 2*jAng+1
-          call dcopy_(3,Work(jxyz),1,B,1)
+          B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 c          write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
 c     &                    jShll,jAng,mdcj,jShell,jCnttp
 c          write(*,*) '    jPrim,jBas =',jPrim,jBas

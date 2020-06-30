@@ -121,7 +121,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
       Do i=1, Mxdbsc
-         dbsc(i)%ipCntr=ip_Dummy
          ipM1xp(i)=ip_Dummy
          ipM1cf(i)=ip_Dummy
          ipM2xp(i)=ip_Dummy

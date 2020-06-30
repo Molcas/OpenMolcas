@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Roland Lindh                                     *
 *               2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      SubRoutine Info2Runfile(DInf,nDInf)
+      SubRoutine Info2Runfile()
 ************************************************************************
 *                                                                      *
 *     Object: dump misc. information to the runfile.                   *
@@ -45,7 +45,6 @@
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
       Integer, Dimension(:), Allocatable :: NTC, ICh
-      Real*8 DInf(nDInf)
 ************************************************************************
 *                                                                      *
       iRout=2
@@ -160,17 +159,13 @@
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)= Charge(iCnttp)
                ICh(iNuc)   = iAtmNr(iCnttp)
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -207,17 +202,13 @@
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)= Charge(iCnttp)
                DCh(iNuc)   = DBLE(iAtmNr(iCnttp))
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -283,22 +274,14 @@
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
-      mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
-               ixyz = ixyz + 3
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
-         Else
-            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -318,22 +301,15 @@
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
-      mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (pChrg(iCnttp))Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh(iNuc)   = DBLE(iAtmNr(iCnttp))
-               ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *

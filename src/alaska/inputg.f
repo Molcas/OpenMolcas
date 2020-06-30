@@ -61,7 +61,6 @@
       Character*16  OFE_KSDFT
       COMMON  / OFembed_C / OFE_KSDFT
 *
-*
       iRout = 99
       iPrint = nPrint(iRout)
 *     Call qEnter('Inputg')
@@ -688,15 +687,18 @@ c      nprint(26)=99
          mdc = 0
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp_Valence
-            jxyz = dbsc(iCnttp)%ipCntr
             Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
-*              Call RecPrt(' Coordinates',' ',Work(jxyz),1,3)
+*              Call RecPrt(' Coordinates',' ',
+*    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
                Fact = Zero
                iComp = 0
-               If (Work(jxyz  ).ne.Zero) iComp = iOr(iComp,1)
-               If (Work(jxyz+1).ne.Zero) iComp = iOr(iComp,2)
-               If (Work(jxyz+2).ne.Zero) iComp = iOr(iComp,4)
+               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)
+     &             iComp = iOr(iComp,1)
+               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)
+     &             iComp = iOr(iComp,2)
+               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
+     &             iComp = iOr(iComp,4)
                Do jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                  nIrrep/nStab(mdc),iChTbl,jIrrep,
@@ -713,13 +715,13 @@ c      nprint(26)=99
                      Direct(lDsp)=.True.
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC
-                     call dcopy_(3,Work(jxyz),1,Work(ip),1)
+                     call dcopy_(3,dbsc(iCnttp)%Coor(1,iCnt),1,
+     &                           Work(ip),1)
 *--------------------Transfer the multiplicity factor
                      Work(ip+3) = Fact
                      iWork(ipCar-1+ldsp) = iCar + 1
                   End If
                 End Do
-               jxyz = jxyz + 3
  2200       Continue
  2100    Continue
          If (iPrint.ge.99) Then

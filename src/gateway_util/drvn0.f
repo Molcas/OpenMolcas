@@ -60,11 +60,8 @@ C     nElem(ixyz) = 2*ixyz+1
          ZA = Charge(iCnttp)
          If (FragCnttp(iCnttp)) ZA = FragCharge(iCnttp)
          If (ZA.eq.Zero) Go To 101
-         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt = 1, dbsc(iCnttp)%nCntr
-            A(1) = DInf(ixyz  )
-            A(2) = DInf(ixyz+1)
-            A(3) = DInf(ixyz+2)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do jCnttp = 1, iCnttp
@@ -74,7 +71,6 @@ C     nElem(ixyz) = 2*ixyz+1
                If (FragCnttp(jCnttp)) ZB = FragCharge(jCnttp)
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
@@ -82,9 +78,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *                 A>B are the only to be accumulated.
                   Fact = One
                   If (iCnttp.eq.jCnttp.and.iCnt.eq.jCnt) Fact = Half
-                  B(1) = DInf(jxyz  )
-                  B(2) = DInf(jxyz+1)
-                  B(3) = DInf(jxyz+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
@@ -167,7 +161,6 @@ C     nElem(ixyz) = 2*ixyz+1
  201           Continue
                ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
-            ixyz = ixyz + 3
          End Do
  101     Continue
          mdc = mdc + dbsc(iCnttp)%nCntr
@@ -259,11 +252,8 @@ C     nElem(ixyz) = 2*ixyz+1
                If (ZB.eq.Zero) Go To 202
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnttp)%ipCntr
                Do jCnt = 1, dbsc(jCnttp)%nCntr
-                  B(1) = DInf(jxyz  )
-                  B(2) = DInf(jxyz+1)
-                  B(3) = DInf(jxyz+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
@@ -322,7 +312,6 @@ C     nElem(ixyz) = 2*ixyz+1
                   PNX = PNX + ( ( ZAZB*temp0 + ZB*(temp1+temp2))
      &                * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
-                  jxyz = jxyz + 3
                End Do
  202           Continue
                ndc = ndc + dbsc(jCnttp)%nCntr

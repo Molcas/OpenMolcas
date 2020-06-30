@@ -57,12 +57,11 @@
          If (AuxCnttp(jCnttp)) Cycle
          Z = Charge(jCnttp)
          mCnt = dbsc(jCnttp)%nCntr
-         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Work(jxyz)
-            y1 = Work(jxyz+1)
-            z1 = Work(jxyz+2)
+            x1 = dbsc(jCnttp)%Coor(1,jCnt)
+            y1 = dbsc(jCnttp)%Coor(2,jCnt)
+            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
                iFacx=iPhase(1,iCoset(i,0,ndc))
                iFacy=iPhase(2,iCoset(i,0,ndc))
@@ -73,7 +72,6 @@
                Chrg(nc) = Z
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
       End Do
 *                                                                      *

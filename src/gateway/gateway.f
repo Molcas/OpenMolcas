@@ -140,8 +140,8 @@ C-SVC: identify runfile with a fingerprint
       Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       Call Print_Symmetry()
       Call Flip_Flop(.False.)
-      Call Print_Basis(lOPTO,Work(Info),nDInf)
-      Call Print_Geometry(0,Work(Info),nDInf)
+      Call Print_Basis(lOPTO)
+      Call Print_Geometry(0)
       Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
@@ -205,17 +205,13 @@ C-SVC: identify runfile with a fingerprint
          If (.Not.pChrg(iCnttp).and.
      &       .Not.FragCnttp(iCnttp).and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = Work(ixyz  )
-               DCo(2,iNuc) = Work(ixyz+1)
-               DCo(3,iNuc) = Work(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)=Charge(iCnttp)
                DCh(iNuc)=DBLE(iAtmNr(iCnttp))
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr

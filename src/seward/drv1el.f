@@ -311,8 +311,8 @@
               Call dcopy_(3,[Zero],0,Ccoor,1)
               Call Allocate_Auxiliary()
               Do iComp=0,nComp-1
-                 Call dcopy_(3,Work(dbsc(kCnttpPAM)%ipCntr),
-     &                      1,CoorO(1+3*iComp),1)
+                 Call dcopy_(3,dbsc(kCnttpPAM)%Coor(1,1),1,
+     &                       CoorO(1+3*iComp),1)
               End Do
 *
 *****    Define symmetry properties of the operator:
@@ -1874,8 +1874,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                iEF=iEF+1
                Write (Label,'(A,I2)') 'dT/dmu',iEF
-               Call dcopy_(3,Work(dbsc(iCnttp)%ipCntr+(iCnt-1)*3),1,
-     &                       Ccoor,1)
+               CCoor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
                Call Allocate_Auxiliary()
                iSymC = 1
                If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)

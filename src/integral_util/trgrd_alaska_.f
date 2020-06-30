@@ -27,7 +27,6 @@
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       Dimension GradIn(nGrad)
@@ -51,7 +50,6 @@
       Do iCnttp=1,nCnttp
          If (.Not.(pChrg(iCnttp).or.FragCnttp(iCnttp).or.
      &             AuxCnttp(iCnttp))) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
                Do iCo=0,nIrrep/nStab(mdc)-1
@@ -69,7 +67,6 @@
                   CNames(iCen)=LblCnt(mdc)
                End Do
             End Do
-            ixyz=ixyz+3
          End If
       End Do
 *

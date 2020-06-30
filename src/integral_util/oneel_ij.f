@@ -27,6 +27,7 @@
 *
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -82,9 +83,10 @@
       iPrim  = iSD( 5,iS)
       iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
-      ixyz   = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
+      iCnt   = iSD(14,iS)
+      A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
       Call DCopy_(3,Work(ixyz),1,A,1)
       dbas= LblCnt(mdci)(1:LENIN)
       Call UpCase(dbas)
@@ -94,9 +96,10 @@
       jPrim  = iSD( 5,jS)
       jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
-      jxyz   = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
+      jCnt   = iSD(14,jS)
+      B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
        if (iPrint.ge.19) Then
         write(6,*) "interacted Ato.Fun "
           Write (6,'(A,A,A,A,A)')
@@ -226,10 +229,10 @@
       iPrim  = iSD( 5,iS)
       iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
-      ixyz   = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
-      call dcopy_(3,Work(ixyz),1,A,1)
+      iCnt   = iSD(14,iS)
+      A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
       dbas= LblCnt(mdci)(1:LENIN)
       Call UpCase(dbas)
 
@@ -239,9 +242,10 @@
       jPrim  = iSD( 5,jS)
       jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
-      jxyz   = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
+      jCnt   = iSD(14,jS)
+      B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *---- Identify if shell doublet should be computed with special
 *     R-Matrix code.
@@ -257,7 +261,6 @@
       Else
          RMat_type_integrals=.False.
       End If
-      call dcopy_(3,Work(jxyz),1,B,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -95,13 +95,16 @@
          Do iSkal=1,nSkal
             If (iSD(10,iSkal).eq.iCenter) Then
                iCnttp=iSD(13,iSkal)
-               call dcopy_(3,DInf(iSD(8,iSkal)),1,Coor,1)
+               iCnt  =iSD(14,iSkal)
+               Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             End If
          End Do
          Do iSkal=1,nSkal
             If (iSD(13,iSkal).ne.iCnttp .and.
      &          iSD(10,iSkal).ne.iCenter) Then
-               If (EQ(Coor,DInf( iSD(8,iSkal) ))) Then
+               jCnttp=iSD(13,iSkal)
+               jCnt  =iSD(14,iSkal)
+               If (  EQ(Coor, dbsc(jCnttp)%Coor(1,iCnt)) ) Then
                   Write (6,*) 'Multiple instances of the same center!'
                   Write (6,*) 'This is not allowed with AMFI.'
                   Call Quit_OnUserError()

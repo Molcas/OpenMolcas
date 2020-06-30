@@ -166,8 +166,7 @@
          If (.Not.ECP(kCnttp)) Go To 111
          If (nM1(kCnttp).eq.0) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)

@@ -56,6 +56,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -118,9 +119,11 @@ C     Do iS = 1, nSkal
          iPrim  = iSD( 5,iS)
          iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
@@ -131,9 +134,11 @@ C        Do jS = 1, iS
             jPrim  = iSD( 5,jS)
             jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *       Call kernel routine to get memory requirement.
 *
@@ -163,10 +168,6 @@ C        Do jS = 1, iS
 *
           Call ZXia(Work(iZeta),Work(ipZI),
      &              iPrim,jPrim,Work(iExp),Work(jExp))
-*
-           call dcopy_(3,Work(ixyz),1,A,1)
-*
-            call dcopy_(3,Work(jxyz),1,B,1)
 *
             AeqB = iS.eq.jS
 *

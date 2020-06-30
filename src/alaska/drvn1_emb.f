@@ -93,12 +93,9 @@
             Call Abend()
          EndIf
          If (ZA.eq.Zero) Go To 101
-         ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group (A-subsystem)
          Do iCnt = 1, dbsc(iCnttp)%nCntr
-            A(1) = Work(ixyz+(iCnt-1)*3)
-            A(2) = Work(ixyz+(iCnt-1)*3+1)
-            A(3) = Work(ixyz+(iCnt-1)*3+2)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do jCnttp = iCnttp_B, nCnttp_B  ! (B-subsystem)
@@ -107,12 +104,9 @@
 
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = dbsc(jCnttp)%nCntr
                Do jCnt = 1, jCntMx
-                  B(1) = Work(jxyz+(jCnt-1)*3  )
-                  B(2) = Work(jxyz+(jCnt-1)*3+1)
-                  B(3) = Work(jxyz+(jCnt-1)*3+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
                   Fact = One
 *                 Factor due to resticted summation

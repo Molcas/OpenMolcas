@@ -27,6 +27,7 @@
       use Real_Spherical
       use EFP_module
       use External_Centers
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -45,8 +46,8 @@
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
+      Call Basis_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

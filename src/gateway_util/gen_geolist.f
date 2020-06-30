@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Gen_GeoList(DInf,nDInf)
+      Subroutine Gen_GeoList()
       use GeoList
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -16,7 +16,6 @@
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,12 +42,11 @@
 *
          If (ECP(jCnttp).and.nVal_Shells(jCnttp).eq.0) Go To 1212
 *
-         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = jCnt + mdciCnttp(jCnttp)
-            x1 = DInf(jxyz)
-            y1 = DInf(jxyz+1)
-            z1 = DInf(jxyz+2)
+            x1 = dbsc(jCnttp)%Coor(1,jCnt)
+            y1 = dbsc(jCnttp)%Coor(2,jCnt)
+            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
                iFacx=iPhase(1,iCoset(i,0,ndc))
                iFacy=iPhase(2,iCoset(i,0,ndc))
@@ -75,7 +73,6 @@
                lblxxx(nc)=lblcnt(ndc)(1:LENIN)
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
             kCentr = kCentr + nIrrep/nStab(ndc)
          End Do
  1212    Continue
@@ -99,7 +96,6 @@
          Z = Charge(jCnttp)
          mCnt = dbsc(jCnttp)%nCntr
          If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1213
-         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = jCnt + mdciCnttp(jCnttp)
             Do i = 0, nIrrep/nStab(ndc) - 1
@@ -107,7 +103,6 @@
                Chrg(nc) = Z
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
  1213    Continue
       End Do

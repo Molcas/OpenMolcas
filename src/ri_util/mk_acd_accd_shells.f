@@ -1385,7 +1385,10 @@ C                          Thrs= 1.0D-12
                nCnt = dbsc(iCnttp)%nCntr
                dbsc(nCnttp)%nCntr=nCnt
                mdciCnttp(nCnttp)=mdc
-               dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
+!              Call allocate(dbsc(nCnttp)%Coor(1:3,nCnt))
+               Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,
+     &                           Label='dbsc:C')
+               dbsc(nCnttp)%Coor(:,:) = dbsc(iCnttp)%Coor(:,:)
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.

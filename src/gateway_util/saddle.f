@@ -11,7 +11,7 @@
 * Copyright (C) 2009, Roland Lindh                                     *
 *               2010, Mickael G. Delcey                                *
 ************************************************************************
-      SubRoutine Saddle(DInf,nDinf)
+      SubRoutine Saddle()
 ************************************************************************
 *                                                                      *
 * Object: to set up for a TS optimization with the SADDLE approach.    *
@@ -45,7 +45,6 @@
       Integer ipX2, ipX3
       Integer ipRef,ipOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
-      Real*8 DInf(nDInf)
 #include "periodic_table.fh"
 ************************************************************************
 *                                                                      *
@@ -649,11 +648,9 @@
             Do iCnttp=1,nCnttp
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=dbsc(iCnttp)%ipCntr
                 Do iCnt=1,dbsc(iCnttp)%nCntr
-                  Do i=0,2
-                    DInf(ixyz)=Vec(j,1)
-                    ixyz=ixyz+1
+                  Do i=1,3
+                    dbsc(iCnttp)%Coor(i,iCnt)=Vec(j,1)
                     j=j+1
                   End Do
                 End Do
@@ -694,11 +691,9 @@
             Do iCnttp=1,nCnttp
               If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=dbsc(iCnttp)%ipCntr
                 Do iCnt=1,dbsc(iCnttp)%nCntr
-                  Do i=0,2
-                    DInf(ixyz)=TmpA(j)
-                    ixyz=ixyz+1
+                  Do i=1,3
+                    dbsc(iCnttp)%Coor(i,iCnt)=TmpA(j)
                     j=j+1
                   End Do
                 End Do

@@ -27,6 +27,7 @@
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
       integer     nDInf, nInfo, storageSize, LineWords
@@ -53,8 +54,7 @@
       External    NucExp, rMass, iMostAbundantIsotope, iCLast
       Data DefNm/'basis_library'/
 
-*      Call qEnter('FragExpand')
-
+*     Call qEnter('FragExpand')
       UnNorm = .False.
       mdc = 0
       LenLbl=0
@@ -184,7 +184,6 @@ c           write(*,*) 'Fname = ',Fname
             nSOC_Shells(nCnttp) = nSOC
             nPP_Shells(nCnttp)  = nPP
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-            dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
             CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
             Do iSh = jShll+1,iShll
               FragShell(iSh)=.True.
@@ -210,16 +209,17 @@ c           write(*,*) 'Fname = ',Fname
             y1 = DInf(ipFragCoor(iCnttp)+2+5*(iAtom-1))
             z1 = DInf(ipFragCoor(iCnttp)+3+5*(iAtom-1))
 * make them absolute
-            x1 = x1 + DInf(dbsc(iCnttp)%ipCntr  +3*(iCntr-1))
-            y1 = y1 + DInf(dbsc(iCnttp)%ipCntr+1+3*(iCntr-1))
-            z1 = z1 + DInf(dbsc(iCnttp)%ipCntr+2+3*(iCntr-1))
+            x1 = x1 + dbsc(iCnttp)%Coor(1,iCntr)
+            y1 = y1 + dbsc(iCnttp)%Coor(2,iCntr)
+            z1 = z1 + dbsc(iCnttp)%Coor(3,iCntr)
 c            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
 c     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 * store them
-            DInf(dbsc(nCnttp)%ipCntr)   = x1
-            DInf(dbsc(nCnttp)%ipCntr+1) = y1
-            DInf(dbsc(nCnttp)%ipCntr+2) = z1
-            If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1)+3
+!           Call allocate(dbsc(nCnttp)%Coor(1:3,1:1)
+            Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+            dbsc(nCnttp)%Coor(1,1) = x1
+            dbsc(nCnttp)%Coor(2,1) = y1
+            dbsc(nCnttp)%Coor(3,1) = z1
 * store the Mulliken charge
             FragCharge(nCnttp) = DInf(ipFragCoor(iCnttp)+4+5*(iAtom-1))
 * create custom (hopefully) unique label
@@ -274,6 +274,6 @@ c     &                                    (nFragCoor(i),i=1,nCnttp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call qExit('FragExpand')
+*     Call qExit('FragExpand')
       Return
       End

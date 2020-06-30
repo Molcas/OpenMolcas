@@ -26,7 +26,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 DInf(nDInf)
@@ -228,7 +228,10 @@ C        Fixed(nCnttp)=.False.
          nCnt = dbsc(iCnttp)%nCntr
          dbsc(nCnttp)%nCntr=nCnt
          mdciCnttp(nCnttp)=mdc
-         dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
+!        Call allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt))
+         Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
+
 *
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
@@ -502,7 +505,9 @@ C        Fixed(nCnttp)=.False.
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt
             mdciCnttp(nCnttp)=mdc
-            dbsc(nCnttp)%ipCntr=dbsc(iCnttp)%ipCntr
+!           Call allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt))
+            Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+            dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *
 *           Compute the number of elements stored in the dynamic memory
 *           so far.

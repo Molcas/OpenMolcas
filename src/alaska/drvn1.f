@@ -73,12 +73,9 @@
            ZA = Charge(iCnttp)
          End If
          If (ZA.eq.Zero) Go To 101
-         ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
          Do iCnt = 1, dbsc(iCnttp)%nCntr
-            A(1) = Work(ixyz+(iCnt-1)*3)
-            A(2) = Work(ixyz+(iCnt-1)*3+1)
-            A(3) = Work(ixyz+(iCnt-1)*3+2)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do jCnttp = 1, iCnttp
@@ -91,13 +88,10 @@
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
                If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnttp)%ipCntr
                jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
-                  B(1) = Work(jxyz+(jCnt-1)*3  )
-                  B(2) = Work(jxyz+(jCnt-1)*3+1)
-                  B(3) = Work(jxyz+(jCnt-1)*3+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
                   Fact = One
 *                 Factor due to resticted summation
@@ -285,11 +279,8 @@
             If (pChrg(jCnttp)) Go To 202
             If (FragCnttp(jCnttp)) Go To 202
             ZAZB = ZA * ZB
-            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, dbsc(jCnttp)%nCntr
-               B(1) = Work(jxyz+(jCnt-1)*3  )
-               B(2) = Work(jxyz+(jCnt-1)*3+1)
-               B(3) = Work(jxyz+(jCnt-1)*3+2)
+               B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers
 *
@@ -418,17 +409,15 @@
                   If (Charge(iCnttp).eq.Zero) Go To 103
                   If (FragCnttp(iCnttp)) Go To 103
                   ZA = Charge(iCnttp)
-                  ixyz = dbsc(iCnttp)%ipCntr
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
-                     Call RecPrt(' Centers',' ',Work(ixyz),3,
-     &                            dbsc(iCnttp)%nCntr)
+                     Call RecPrt(' Centers',' ',
+     &                           dbsc(iCnttp)%Coor(1,1),3,
+     &                           dbsc(iCnttp)%nCntr)
                   End If
                   Do iCnt = 1, dbsc(iCnttp)%nCntr
-                     A(1) = Work(ixyz+(iCnt-1)*3)
-                     A(2) = Work(ixyz+(iCnt-1)*3+1)
-                     A(3) = Work(ixyz+(iCnt-1)*3+2)
+                     A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 
                      If (ix.eq.0) Then
                         CCoMx =One
@@ -536,11 +525,8 @@
             If (pChrg(jCnttp)) Go To 212
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
-            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, dbsc(jCnttp)%nCntr
-               B(1) = Work(jxyz+(jCnt-1)*3  )
-               B(2) = Work(jxyz+(jCnt-1)*3+1)
-               B(3) = Work(jxyz+(jCnt-1)*3+2)
+               B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers
 *

@@ -36,6 +36,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,7 +48,7 @@
 #include "setup.fh"
 #include "grid_on_disk.fh"
 #include "print.fh"
-      Real*8 Coor(3)
+      Real*8 Coor(3), C(3)
       Logical EQ, Do_Grad, On_Top, PMode_Old
       Real*8 Alpha(2),rm(2), R_Min(0:nR_Min)
       Integer Maps2p(nShell,0:nSym-1)
@@ -108,8 +109,9 @@ C     Call QEnter('Setup_NQ')
          Call AbEnd()
       End If
       Do iShell = 1, nShell
-         ipxyz=iSD(8,iShell)
-         call dcopy_(3,Work(ipxyz),1,Coor,1)
+         iCnttp=iSD(13,iShell)
+         iCnt  =iSD(14,iShell)
+         Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Call Process_Coor(Coor,Work(ipTempC),nAtoms,nSym,iOper)
       End Do
       Call Allocate_Work(ipCoor,3*nAtoms)
@@ -189,11 +191,13 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          A_low =Work(iSD(6,iShell)       )
          A_high=Work(iSD(6,iShell)+mExp-1)
 *
-         ixyz=iSD(8,iShell)
+         iCnttp=iSD(13,iShell)
+         iCnt  =iSD(14,iShell)
+         C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do iIrrep = 0, nIrrep-1
-            Coor(1) = Work(ixyz  )*DBLE(iPhase(1,iOper(iIrrep)))
-            Coor(2) = Work(ixyz+1)*DBLE(iPhase(2,iOper(iIrrep)))
-            Coor(3) = Work(ixyz+2)*DBLE(iPhase(3,iOper(iIrrep)))
+            Coor(1) = C(1)*DBLE(iPhase(1,iOper(iIrrep)))
+            Coor(2) = C(2)*DBLE(iPhase(2,iOper(iIrrep)))
+            Coor(3) = C(3)*DBLE(iPhase(3,iOper(iIrrep)))
          Do iNQ=1,nNQ
             jNQ=ip_Coor(iNQ)
 *
@@ -257,8 +261,10 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          jNQ=ip_Coor(iNQ)
          If (MBC.ne.' ') Then
             Do iS = 1, nShell
-               ipxyz=iSD(8,iS)
-               If (EQ(Work(jNQ),Work(ipxyz))) Then
+               iCnttp=iSD(13,iS)
+               iCnt  =iSD(14,iS)
+               C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
+               If ( EQ(Work(jNQ),C) ) Then
                   mdci=iSD(10,iS)
                   Write (6,*) 'LblCnt(mdci)=',LblCnt(mdci)
                   If (LblCnt(mdci).eq.MBC) Then

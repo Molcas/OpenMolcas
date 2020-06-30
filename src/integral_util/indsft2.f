@@ -44,7 +44,7 @@
 *     Call qEnter('IndSft2')
       irout = 39
       iprint = nprint(irout)
-C     iPrint=99
+*     iPrint=99
       k12=0
       k34=0
       If (iPrint.ge.49) Then

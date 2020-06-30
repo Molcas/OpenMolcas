@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine GeoNew(Print,DInf,nDInf)
+      SubRoutine GeoNew(Print)
 ************************************************************************
 *                                                                      *
 * Object: to pick up the geometry from a special file. This will only  *
@@ -37,7 +37,6 @@
 #include "SysDef.fh"
       Logical Exist
       Real*8, Dimension (:,:), Allocatable :: CN
-      Real*8 DInf(nDInf)
       Interface
         Subroutine Get_Coord_New(CN,lBuf)
         Real*8, Dimension (:,:), Allocatable :: CN
@@ -100,12 +99,8 @@
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
      &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               DInf(ixyz  ) = CN(1,iDC)
-               DInf(ixyz+1) = CN(2,iDC)
-               DInf(ixyz+2) = CN(3,iDC)
-               ixyz = ixyz + 3
+               dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)
                iDC = iDC + 1
                iNuc = iNuc + 1
                If (iNuc.eq.nNuc) Go To 999

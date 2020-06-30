@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Print_Geometry(iOpt,DInf,nDInf)
+      SubRoutine Print_Geometry(iOpt)
 ************************************************************************
 *                                                                      *
 *     Object: to print the molecular coordinates, bonds, angles and    *
@@ -34,7 +34,6 @@
 #include "print.fh"
       Character help_c*1
       Character FMT*16
-      Real*8 DInf(nDInf)
       Real*8, Dimension (:,:), Allocatable :: Centr
 #include "angstr.fh"
 *                                                                      *
@@ -91,12 +90,11 @@
             ndc = ndc + mCnt
             Go To 32
          End If
-         jxyz = dbsc(jCnttp)%ipCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Dinf(jxyz)
-            y1 = Dinf(jxyz+1)
-            z1 = Dinf(jxyz+2)
+            x1 = dbsc(jCnttp)%Coor(1,jCnt)
+            y1 = dbsc(jCnttp)%Coor(2,jCnt)
+            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
                Facx=DBLE(iPhase(1,iCoset(i,0,ndc)))
                Facy=DBLE(iPhase(2,iCoset(i,0,ndc)))
@@ -137,7 +135,6 @@
                lblxxx(nc)=lblcnt(ndc)(1:LENIN)
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
 32       Continue
       End Do

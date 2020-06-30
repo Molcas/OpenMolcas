@@ -108,8 +108,7 @@
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !
-               iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
-     &                     + (iCnt-1)*3              !
+               iSD(8,nSkal)= -1                      ! Not used
                itemp=0                               !
                If ( Prjct(iShll)) itemp=itemp+1      !
                If (Transf(iShll)) itemp=itemp+2      !
@@ -204,8 +203,7 @@
          iSD(6,nSkal)= ipExp(iShll)            ! pointer to exp.
          iSD(7,nSkal)= iAOttp                  ! ? magic
      &               + kOffAO(iCnttp,iAng)     !
-         iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
-     &               + (iCnt-1)*3              !
+         iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !
          If ( Prjct(iShll)) itemp=itemp+1      !
          If (Transf(iShll)) itemp=itemp+2      !
@@ -301,8 +299,7 @@
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !
-               iSD(8,nSkal)=dbsc(iCnttp)%ipCntr      ! pointer to coor.
-     &                     + (iCnt-1)*3              !
+               iSD(8,nSkal)=-1                       ! Not used
                itemp=0                               !
                If ( Prjct(iShll)) itemp=itemp+1      !
                If (Transf(iShll)) itemp=itemp+2      !

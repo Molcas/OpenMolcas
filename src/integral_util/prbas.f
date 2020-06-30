@@ -120,11 +120,9 @@
 *
 *-----------Print centers
 *
-            iStrt = dbsc(iCnttp)%ipCntr
             Write (6,*)
             Write (6,*) 'Charge:',Charge(iCnttp)
             Do 14 iCnt = 1, dbsc(iCnttp)%nCntr
-               iEnd = iStrt + 2
                mShell = Ind_Shell(IndSOff(iCnttp,iCnt))+iAng+1
                Write (6,*)
                Write (6,*) 'iChCnt:',iChCnt(mdc+iCnt)
@@ -146,9 +144,8 @@
                Write (6,*) ' Label   Cartesian Coordinates / Bohr'
                Write (6,*)
                Write (6,'(1X,A,1X,3F20.10)') LblCnt(mdc+iCnt),
-     &                                  (Work(i),i=iStrt,iEnd)
+     &                              (dbsc(iCnttp)%Coor(i,iCnt),i=1,3)
                Write (6,*)
-               iStrt = iEnd + 1
 *
 *--------------Loop over the angular components of this unique shell
 *

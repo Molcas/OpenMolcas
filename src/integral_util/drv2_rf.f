@@ -58,6 +58,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -120,12 +121,13 @@
          iPrim  = iSD( 5,iS)
          iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         x1 = Work(ixyz)
-         y1 = Work(ixyz+1)
-         z1 = Work(ixyz+2)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         x1 = dbsc(iCnttp)%Coor(1,iCnt)
+         y1 = dbsc(iCnttp)%Coor(2,iCnt)
+         z1 = dbsc(iCnttp)%Coor(3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
@@ -135,12 +137,13 @@
             jPrim  = iSD( 5,jS)
             jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            x2 = Work(jxyz)
-            y2 = Work(jxyz+1)
-            z2 = Work(jxyz+2)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            x2 = dbsc(jCnttp)%Coor(1,jCnt)
+            y2 = dbsc(jCnttp)%Coor(2,jCnt)
+            z2 = dbsc(jCnttp)%Coor(3,jCnt)
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)

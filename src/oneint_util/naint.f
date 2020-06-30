@@ -128,8 +128,7 @@ C     Call qEnter('NAInt')
 
          If (Q_Nuc.eq.Zero) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *-----------Find the DCR for M and S

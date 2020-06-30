@@ -291,16 +291,11 @@ C     Show=Show.and..Not.Primitive_Pass
                   Do iCo = 0, nIrrep/nStab(mdc)-1
                      iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
                      iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
-                     ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
-                     XCoor=Dinf(ipxyz  )
-                     If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
-                     YCoor=Dinf(ipxyz+1)
-                     If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
-                     ZCoor=Dinf(ipxyz+2)
-                     If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
-                     LPC(1,iyy)=XCoor
-                     LPC(2,iyy)=YCoor
-                     LPC(3,iyy)=ZCoor
+
+                     LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                     If (iAnd(iOper(iR),1).ne.0) LPC(1,iyy)=-LPC(1,iyy)
+                     If (iAnd(iOper(iR),2).ne.0) LPC(2,iyy)=-LPC(2,iyy)
+                     If (iAnd(iOper(iR),4).ne.0) LPC(3,iyy)=-LPC(3,iyy)
                      LPQ(iyy)=Charge(iCnttp)
                      LPA(iyy)=iAtmnr(iCnttp)
                      LPMM(iyy)=IsMM(iCnttp)
@@ -493,16 +488,13 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                             iR=NrOpr(iCoSet(iCo,0,mdc),iOper,
      &                               nIrrep)
-                            ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
-                            XCoor=Dinf(ipxyz  )
-                            If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
-                            YCoor=Dinf(ipxyz+1)
-                            If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
-                            ZCoor=Dinf(ipxyz+2)
-                            If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
-                            LPC(1,iyy)=XCoor
-                            LPC(2,iyy)=YCoor
-                            LPC(3,iyy)=ZCoor
+                            LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                            If (iAnd(iOper(iR),1).ne.0)
+     &                          LPC(1,iyy)=-LPC(1,iyy)
+                            If (iAnd(iOper(iR),2).ne.0)
+     &                          LPC(2,iyy)=-LPC(2,iyy)
+                            If (iAnd(iOper(iR),4).ne.0)
+     &                          LPC(3,iyy)=-LPC(3,iyy)
 *
                             LPQ(iyy)=Charge(iCnttp)
                             LPMM(iyy)=IsMM(iCnttp)
@@ -666,13 +658,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                kculf = 0
                iSh = ipVal(iCnttp) - 1
                If (nVal_Shells(iCnttp).lt.1) Then
-                  ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
-                  XCoor=Dinf(ipxyz  )
-                  YCoor=Dinf(ipxyz+1)
-                  ZCoor=Dinf(ipxyz+2)
-                  LPC(1,mdc)=XCoor
-                  LPC(2,mdc)=YCoor
-                  LPC(3,mdc)=ZCoor
+                  LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                   LPQ(mdc)=Charge(iCnttp)
                   LPMM(mdc)=IsMM(iCnttp)
                   LPA(mdc)=iAtmnr(iCnttp)
@@ -822,13 +808,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Else
                            iOT(iSO)=Vir
                         End If
-                        ipxyz=(iCnt-1)*3+dbsc(iCnttp)%ipCntr
-                        XCoor=Dinf(ipxyz  )
-                        YCoor=Dinf(ipxyz+1)
-                        ZCoor=Dinf(ipxyz+2)
-                        LPC(1,mdc)=XCoor
-                        LPC(2,mdc)=YCoor
-                        LPC(3,mdc)=ZCoor
+                        LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                         LPQ(mdc)=Charge(iCnttp)
                         LPMM(mdc)=IsMM(iCnttp)
                         LPA(mdc)=iAtmnr(iCnttp)

@@ -13,7 +13,6 @@
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
       Real*8 A(3),Coor(3,*),ZNUC(*)
       integer Ibas_Lab(*)
       Character*(LENIN) Lbl
@@ -32,11 +31,10 @@
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
          End If
-         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             Lbl=LblCnt(mdc)(1:LENIN)
-            call dcopy_(3,Work(ixyz),1,A,1)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/nStab(mdc)-1
                ndc=ndc+1
                kop=iCoSet(iCo,0,mdc)

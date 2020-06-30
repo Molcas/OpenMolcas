@@ -64,17 +64,15 @@ C The nuclear coordinates: First, the symmetry-unique ones.
       ic=0
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
-          ixyz=dbsc(iCnttp)%ipCntr
           Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             iWork(ipCntId+0+4*(ic-1))=iCnttp
             iWork(ipCntId+1+4*(ic-1))=nUqCnt
             iWork(ipCntId+2+4*(ic-1))=iCnt
             iWork(ipCntId+3+4*(ic-1))=0
-            Work(0+ipCoor+3*(ic-1))=Work(ixyz)
-            Work(1+ipCoor+3*(ic-1))=Work(ixyz+1)
-            Work(2+ipCoor+3*(ic-1))=Work(ixyz+2)
-            ixyz=ixyz+3
+            Work(0+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(1,iCnt)
+            Work(1+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(2,iCnt)
+            Work(2+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(3,iCnt)
           End Do
           nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If

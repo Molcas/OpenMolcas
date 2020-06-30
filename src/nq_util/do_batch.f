@@ -44,6 +44,7 @@
 ************************************************************************
       use iSD_data
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -222,11 +223,12 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             iCff_Eff=iCff+iPrim*(iBas-iBas_Eff)
             iExp  = iSD( 6,iSh)
             iAO   = iSD( 7,iSh)
-            ixyz  = iSD( 8,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
             iShll = iSD(0,iSh)
-            call dcopy_(3,Work(ixyz),1,A,1)
+            iCnttp= iSD(13,iSh)
+            iCnt  = iSD(14,iSh)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             nDrv     = mRad - 1
             nForm    = 0

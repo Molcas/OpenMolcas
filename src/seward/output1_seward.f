@@ -515,16 +515,16 @@
 *     Write out basis set information
 *
       If (Run_Mode.eq.GS_Mode) Then
-         Call Print_Basis(lOPTO,DInf,nDInf)
+         Call Print_Basis(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write out coordinates, bond, angles and torsional angles
 *
          If (lOPTO) then
-            Call Print_Geometry(1,DInf,nDInf)
+            Call Print_Geometry(1)
          else
-            Call Print_Geometry(0,DInf,nDInf)
+            Call Print_Geometry(0)
          EndIf
          Call Print_Isotopes()
 *                                                                      *

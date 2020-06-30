@@ -78,25 +78,19 @@ c     Call qEnter('DrvN2')
       Do iCnttp = 1, nCnttp
        If (Charge(iCnttp).eq.Zero) Go To 101
        ZA = Charge(iCnttp)
-       ixyz = dbsc(iCnttp)%ipCntr
 *--------Loop over all unique centers of this group
        Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
-         A(1) = Work(ixyz  )
-         A(2) = Work(ixyz+1)
-         A(3) = Work(ixyz+2)
+        A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          ndc = 0
          Do jCnttp = 1, iCnttp
            ZB=Charge(jCnttp)
            If (ZB.eq.Zero) Go To 201
            ZAZB = ZA * ZB
-           jxyz = dbsc(jCnttp)%ipCntr
            jCntMx = dbsc(jCnttp)%nCntr
            If (iCnttp.eq.jCnttp) jCntMx = iCnt
            Do jCnt = 1, jCntMx
-             B(1) = Work(jxyz  )
-             B(2) = Work(jxyz+1)
-             B(3) = Work(jxyz+2)
+             B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
              Fact = One
 *                 Factor due to resticted summation
@@ -304,12 +298,10 @@ c     Call qEnter('DrvN2')
  301       Continue
            End Do
 *
-                  jxyz = jxyz + 3
                End Do
  201           Continue
                ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
-            ixyz = ixyz + 3
  110     Continue
  101     Continue
          mdc = mdc + dbsc(iCnttp)%nCntr
@@ -354,11 +346,8 @@ c     Call qEnter('DrvN2')
             If (pChrg(jCnttp)) Go To 212
             If (FragCnttp(jCnttp)) Go To 212
             ZAZB = ZA * ZB
-            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, dbsc(jCnttp)%nCntr
-               B(1) = Work(jxyz+(jCnt-1)*3  )
-               B(2) = Work(jxyz+(jCnt-1)*3+1)
-               B(3) = Work(jxyz+(jCnt-1)*3+2)
+               B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers
 *
@@ -552,11 +541,8 @@ c     Call qEnter('DrvN2')
             If (pChrg(iCnttp)) Go To 222
             If (FragCnttp(iCnttp)) Go To 222
 *
-            ixyz = dbsc(iCnttp)%ipCntr
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               B(1) = Work(ixyz+(iCnt-1)*3  )
-               B(2) = Work(ixyz+(iCnt-1)*3+1)
-               B(3) = Work(ixyz+(iCnt-1)*3+2)
+               B(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 *              Find the DCR for the two centers (
 *
@@ -611,11 +597,8 @@ c     Call qEnter('DrvN2')
             If (pChrg(jCnttp)) Go To 232
             If (FragCnttp(jCnttp)) Go To 232
 *
-            jxyz = dbsc(jCnttp)%ipCntr
             Do jCnt = 1, dbsc(jCnttp)%nCntr
-               D(1) = Work(jxyz+(jCnt-1)*3  )
-               D(2) = Work(jxyz+(jCnt-1)*3+1)
-               D(3) = Work(jxyz+(jCnt-1)*3+2)
+               D(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers (
 *

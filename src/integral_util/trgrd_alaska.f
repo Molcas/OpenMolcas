@@ -25,7 +25,6 @@
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
@@ -46,10 +45,9 @@
  999  Continue
 *
       Do iCnttp=1,nCnttp_Valence
-         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            call dcopy_(3,Work(ixyz),1,A,1)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/nStab(mdc)-1
                kop=iCoSet(iCo,0,mdc)
                nDispS = IndDsp(mdc,iIrrep)
@@ -67,7 +65,6 @@
                End Do
             End Do
          End Do
-         ixyz=ixyz+3
       End Do
 *
 *     Call RecPrt('CGrad',' ',CGrad,3,iCen)

@@ -28,7 +28,7 @@
       Character*(LENIN) Lbl
       Character*(LENIN) Label(*)
       Logical DSCF
-      Integer nDiff,mdc,ndc,iCnttp,ixyz,iCnt,kop,iCo
+      Integer nDiff,mdc,ndc,iCnttp,iCnt,kop,iCo
       Real*8  A1,A2,A3
       Integer NrOpr,iPrmt
       External NrOpr,iPrmt
@@ -46,11 +46,10 @@
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
          End If
-         ixyz = dbsc(iCnttp)%ipCntr
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             Lbl=LblCnt(mdc)(1:LENIN)
-            call dcopy_(3,Work(ixyz),1,A,1)
+            A(1:3)=Dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/nStab(mdc)-1
                ndc=ndc+1
                kop=iCoSet(iCo,0,mdc)
@@ -64,7 +63,6 @@
                Coor(3,ndc)=A3
                ZNUC(ndc)=DBLE(iAtmNr(iCnttp))
             End Do
-            ixyz=ixyz+3
          End Do
  99      Continue
       End Do

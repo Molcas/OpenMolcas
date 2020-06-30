@@ -11,13 +11,26 @@
 *               1990, IBM                                              *
 ************************************************************************
       Module Real_Spherical
+      Private
+#include "stdalloc.fh"
+      Public :: ipSph, RSph, Sphere, Sphere_Free,
+     &          Condon_Shortley_phase_factor
       Integer, Dimension(:), Allocatable :: ipSph
+      Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
       Logical :: Condon_Shortley_phase_factor=.False.
 *
 ***********************************************************************
 *
       Contains
+*
+***********************************************************************
+*
+      SubRoutine Sphere_Free()
+      If (Allocated(RSph)) Call mma_deallocate(RSph)
+      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      lmax_internal=-1
+      End SubRoutine Sphere_Free
 *
 ***********************************************************************
 *
@@ -60,7 +73,16 @@
          Call Abend()
       End If
 *
-      If (Allocated(RSph)) Return
+      If (lmax.lt.0) Then
+         Write (6,*) 'Sphere: lmax<0'
+         Call Abend()
+      End If
+      If (lmax.gt.lmax_internal) Then
+         Call Sphere_Free()
+         lmax_internal=lMax
+      Else
+         Return
+      End If
 *
 *     Make the labels
 *     Gives info on basis function angular momenta

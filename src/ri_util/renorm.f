@@ -83,8 +83,6 @@
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(iAngMx)
 *
       Call Flip_Flop(.False.) ! Contracted mode.
@@ -339,8 +337,6 @@
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(iAngMx)
 *
       Call Flip_Flop(.False.) ! Contracted mode.

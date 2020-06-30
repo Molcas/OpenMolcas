@@ -42,7 +42,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Integer IndGrd(0:nIrrep-1), nOp(2),
@@ -64,9 +63,6 @@ c#include "print.fh"
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-c     Call qEnter('NAGrd')
 *
 c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
@@ -127,8 +123,7 @@ c     End If
          If (nM1(kCnttp).eq.0) Go To 111
 
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
-            kxyz = dbsc(kCnttp)%ipCntr + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
@@ -228,7 +223,6 @@ c           End If
  100  Continue
       Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *
-c     Call qExit('NAGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

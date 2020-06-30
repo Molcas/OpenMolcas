@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Print_Basis(lOPTO,DInf,nDInf)
+      SubRoutine Print_Basis(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to print the basis set                                   *
@@ -34,7 +34,6 @@
       Character DBas*4
       Character ChCo*1, ChCa*1, ChSph*1
       Logical Output, Type(0:7), lOPTO
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -349,15 +348,13 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          End Do
 *
          If (output.and.iPrint.ge.6) Then
-            iStrt = dbsc(iCnttp)%ipCntr
             Write (LuWr,*)
             Write (LuWr,'(6X,A)')
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               iEnd = iStrt + 2
-               Call Write_LblCnt(LuWr,LblCnt(mdc+iCnt),DInf(iStrt))
-               iStrt = iEnd + 1
+               Call Write_LblCnt(LuWr,LblCnt(mdc+iCnt),
+     &                           dbsc(iCnttp)%Coor(1,iCnt))
             End Do
          End If
       End Do

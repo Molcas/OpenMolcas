@@ -110,7 +110,7 @@ C     Endif
           Do 121, kk=1,nBonA(kaunt)
             kaunter=kaunter+1
             Do 131, k=1,3
-              BasCoo(k,kaunter)=Work(dbsc(i)%ipCntr+(j-1)*3+k-1)
+              BasCoo(k,kaunter)=dbsc(i)%Coor(k,j)
 131         Continue
 121       Continue
 111     Continue

@@ -176,9 +176,7 @@ C      iPrint=99
 *     Cleanup the mess!
 *
       Call CloseR()
-*
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

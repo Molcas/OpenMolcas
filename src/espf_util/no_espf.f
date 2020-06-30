@@ -143,11 +143,8 @@ c         Call Seward_Init()
                If (ZB.eq.Zero) Go To 202
                If (FragCnttp(jCnttp)) Go To 202
                ZAZB = ZA * ZB
-               jxyz = dbsc(jCnttp)%ipCntr
                Do jCnt = 1, dbsc(jCnttp)%nCntr
-                  B(1) = Work(jxyz  )
-                  B(2) = Work(jxyz+1)
-                  B(3) = Work(jxyz+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
@@ -206,7 +203,6 @@ c         Call Seward_Init()
                   PNX = PNX + ( ( ZAZB*temp0 + ZB*(temp1+temp2))
      &                * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
-                  jxyz = jxyz + 3
                End Do
  202           Continue
                ndc = ndc + dbsc(jCnttp)%nCntr

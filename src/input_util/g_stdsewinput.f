@@ -25,6 +25,7 @@
 #include "real.fh"
 #include "print.fh"
 #include "gateway.fh"
+#include "stdalloc.fh"
 c
 c     IRELAE = 0  .... DKH
 c            = 1  .... DK1
@@ -43,6 +44,8 @@ c                    called for IRELAE values LARGER than 1000.
 CAWMR
 c
 #include "relae.fh"
+      Integer, Parameter:: nBuff=10000
+      Real*8, Allocatable:: Buffer(:)
       Real*8 DInf(nDInf)
       Common /AMFn/ iAMFn
       Common /delete/ kDel(0:MxAng,MxDc)
@@ -63,6 +66,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_allocate(Buffer,nBuff,Label='Buffer')
       iErr=0
       iRout=3
 *                                                                      *
@@ -220,7 +224,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       nSOC_Shells(nCnttp) = nSOC
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-      dbsc(nCnttp)%ipCntr = ipExp(iShll+1)
       nCnt = 0
       lAux = lAux .or. AuxCnttp(nCnttp)
       If (AuxCnttp(nCnttp)) Then
@@ -274,8 +277,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
             Call Quit_OnUserError()
          End If
          dbsc(nCnttp)%nCntr = nCnt
+!        call allocate(dbsc(nCnttp)%Coor(1:3,nCnt))
+         call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor(1,1),1)
          mdc = mdc + nCnt
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
          nInfo = ipExp(iShll+1) - Info
@@ -307,13 +312,13 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       End If
       If (mdc+nCnt.gt.1)
      &   Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      iOff=dbsc(nCnttp)%ipCntr+(nCnt-1)*3
+      iOff=1+(nCnt-1)*3
 C      print *,line
       Read (Line,'(A5)') Symbol
-      Read (Line(6:),*) (DInf(iOff+i),i=0,2) ! CGGn
+      Read (Line(6:),*) (Buffer(iOff+i),i=0,2) ! CGGn
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            DInf(iOff+i) = DInf(iOff+i)/angstr
+            Buffer(iOff+i) = Buffer(iOff+i)/angstr
          End Do
       End If
 *
@@ -328,6 +333,7 @@ C      print *,line
          iErr=1
          Return
       End If
+      Call mma_deallocate(Buffer)
 *
       Return
       End

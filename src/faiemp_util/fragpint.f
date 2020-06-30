@@ -109,7 +109,7 @@ c      Character*80 Label
      &        iSstart,iStemp,jAng,jAO,jBas,jCff,jCmp,jCnttp,jExp,jPrim,
      &        jS,jShell,jShll,jSize,jSlocal,jxyz,lDCRT,llOper,LmbdT,
      &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nHer,nOp,nSkal,
-     &        jSbasis
+     &        jSbasis,iCnt,jCnt
       Real*8  Fact,Factor,PtChrg,Xg
 * external functions:
       Integer NrOpr
@@ -212,11 +212,12 @@ c     ! The basis function index relative to the start of the fragment
         iPrim  = iSD( 5,iS)
         iExp   = iSD( 6,iS)
         iAO    = iSD( 7,iS)
-        ixyz   = iSD( 8,iS)
         mdci   = iSD(10,iS)
         iShell = iSD(11,iS)
         iCnttp = iSD(13,iS)
+        iCnt   = iSD(14,iS)
         iSize = nElem(iAng)
+        C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 c some printouts:
 c      If (iPrint.ge.49) Then
 c        print *, 'In FragPInt: iS=',iS,' iShll =',iShll
@@ -291,7 +292,6 @@ c             EnergyWeight, Dens)
      &         (nFragDens(iCurCnttp)+1)/2) Call Abend !'maxIJSize'
           End If
         End If
-        call dcopy_(3,Work(ixyz),1,C,1)
 c       write(*,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',
 c    &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
 c       write(*,*) '  iPrim,iBas =',iPrim,iBas
@@ -313,11 +313,12 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
           jPrim  = iSD( 5,jS)
           jExp   = iSD( 6,jS)
           jAO    = iSD( 7,iS)
-          jxyz   = iSD( 8,jS)
           mdcj   = iSD(10,jS)
           jShell = iSD(11,jS)
           jCnttp = iSD(13,jS)
+          jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
+          B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
       If (iPrint.ge.49) Then
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShll =',jShll
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAng  =',jAng
@@ -335,7 +336,6 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
        End If
 
           if(Transf(jShll).and.Prjct(jShll)) jSize = 2*jAng+1
-          call dcopy_(3,Work(jxyz),1,B,1)
 c         write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
 c     &                    jShll,jAng,mdcj,jShell,jCnttp
 c         write(*,*) '    jPrim,jBas =',jPrim,jBas

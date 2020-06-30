@@ -64,7 +64,6 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
             Do iCnttp = 1, nCnttp
                If (Charge(iCnttp).eq.Zero) Go To 101
                ZA = Charge(iCnttp)
-               ixyz = dbsc(iCnttp)%ipCntr
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
                   Write (6,*) ' ixyz=',ixyz
@@ -72,9 +71,7 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
      &                        dbsc(iCnttp)%nCntr)
                End If
                Do iCnt = 1, dbsc(iCnttp)%nCntr
-                  A(1) = Work(ixyz  )
-                  A(2) = Work(ixyz+1)
-                  A(3) = Work(ixyz+2)
+                  A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
                   Do i = 0, nIrrep/nStab(mdc) - 1
                      RA(1)=A(1)*DBLE(iPhase(1,iCoset(i,0,mdc)))
@@ -104,7 +101,6 @@ C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                      temp = temp + ZA * CCoMx * CCoMy * CCoMz
                   End Do
-                  ixyz = ixyz + 3
                End Do
  101           Continue
                ndc = ndc + dbsc(iCnttp)%nCntr
