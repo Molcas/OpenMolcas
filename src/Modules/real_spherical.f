@@ -14,7 +14,7 @@
       Private
 #include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
-     &          Condon_Shortley_phase_factor
+     &          Condon_Shortley_phase_factor, lmax_internal
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
@@ -72,6 +72,7 @@
          Call Abend()
       End If
 *
+!     Write (*,*) lmax, lmax_internal
       If (lmax.lt.0) Then
          Write (6,*) 'Sphere: lmax<0'
          Call Abend()
@@ -82,6 +83,7 @@
       Else
          Return
       End If
+!     Write (*,*) 'C&S',Condon_Shortley_phase_factor
 *
 *     Make the labels
 *     Gives info on basis function angular momenta
@@ -338,6 +340,7 @@
 *
          If (Condon_Shortley_phase_factor .and.
      &       MOD(m+1,2).ne.0) Then
+*           Write (6,*) 'C&S phase factor included.'
             P0(:,m_p)=-P0(:,m_p)
             P0(:,m_m)=-P0(:,m_m)
          End If

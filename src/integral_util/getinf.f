@@ -261,6 +261,7 @@
             ipSph(iAng+1)= ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
  2       Continue
          Call Get_dArray('SewTInfo',RSph(ipSph(0)),Len)
+         lmax_internal=iAngMx
       Else
          Call Sphere(lMax)
       End If

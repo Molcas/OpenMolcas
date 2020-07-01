@@ -55,7 +55,7 @@
       Write (6,*) 'Basis_Info_Dmp'
       Do i = 1, nCnttp
          Do j = 1, dbsc(i)%nCntr
-            Write (6,*) (dbsc(i)%Coor(k,j),k=1,3)
+            Write (6,*) dbsc(i)%Coor(:,j)
          End Do
       End Do
 #endif
@@ -71,7 +71,7 @@
       Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
       nAtoms = 0
       Do i = 1, nCnttp
-         Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
+!        Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
          Do j = 1, dbsc(i)%nCntr
             nAtoms=nAtoms+1
             rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
@@ -124,7 +124,7 @@
       Write (6,*) 'Basis_Info_Get'
       Do i = 1, nCnttp
          Do j = 1, dbsc(i)%nCntr
-            Write (6,*) (dbsc(i)%Coor(k,j),k=1,3)
+            Write (6,*) dbsc(i)%Coor(:,j)
          End Do
       End Do
 #endif
