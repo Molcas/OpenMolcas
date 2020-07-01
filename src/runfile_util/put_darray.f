@@ -343,6 +343,7 @@ c mess started here :)
          RecLab(184)='AMP_Center      '
          RecLab(185)='RP_Centers      '
          RecLab(186)='XF              '
+         RecLab(187)='rdmp            '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

@@ -19,6 +19,7 @@
 #include "Molcas.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
 !     Work in progress
+!
       Type Distinct_Basis_set_centers
           Real*8, Allocatable:: Coor(:,:)
           Integer:: nCntr=0
@@ -36,9 +37,11 @@
 !***********************************************************************
 !
       Subroutine Basis_Info_Dmp()
+!
       Integer i, j, nCnttp, nAtoms
       Integer, Allocatable:: iDmp(:)
       Real*8, Allocatable:: rDmp(:,:)
+!     Write (*,*) 'Basis_Info_Dmp()'
 !
 !     Temporary code until nCnttp has been move over to the Module
 !
@@ -68,6 +71,7 @@
       Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
       nAtoms = 0
       Do i = 1, nCnttp
+         Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
          Do j = 1, dbsc(i)%nCntr
             nAtoms=nAtoms+1
             rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
@@ -81,10 +85,12 @@
 !***********************************************************************
 !
       Subroutine Basis_Info_Get()
+!
       Integer, Allocatable:: iDmp(:)
       Real*8, Allocatable:: rDmp(:,:)
       Logical Found
       Integer Len, i, j, nCnttp, nAtoms
+!     Write (*,*) 'Basis_Info_Get()'
 !
       Call qpg_iArray('iDmp',Found,Len)
       nCnttp=Len
@@ -129,6 +135,7 @@
 !
       Subroutine Basis_Info_Free()
       Integer i
+!     Write (*,*) 'Basis_Info_Free()'
 !
 !     Deallocate all allocatable parts of dbsc.
 !

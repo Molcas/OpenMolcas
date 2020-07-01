@@ -144,6 +144,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          w_mGauss(i)=One
          aCD_Thr(i)=One
          fmass(i)=One
+         Parent_iCnttp(i)=0
       End Do
       inttot=0
       nOrd_XF = 1

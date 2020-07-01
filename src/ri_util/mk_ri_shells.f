@@ -204,6 +204,7 @@
          Prjct(jShll+2)=.False.
          pChrg(nCnttp)=pChrg(iCnttp)
          Fixed(nCnttp)=Fixed(iCnttp)
+         Parent_iCnttp(nCnttp)=iCnttp
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
          nOpt(nCnttp) = iOptn
@@ -231,7 +232,6 @@ C        Fixed(nCnttp)=.False.
 !        Call allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt))
          Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
-
 *
 *        Compute the number of elements stored in the dynamic memory
 *        so far.

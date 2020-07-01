@@ -6,6 +6,8 @@
 * Responsible person: R. Lindh
 * Comments:
 *-------------------------------------------------------------------------------
+>export MOLCAS_REDUCE_PRT=NO
+
 >>> DO WHILE <<<
  &SEWARD &END
 Title

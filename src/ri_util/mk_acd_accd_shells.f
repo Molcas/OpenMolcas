@@ -393,6 +393,7 @@ C      iPrint=99
             Charge(nCnttp)=Zero
             pChrg(nCnttp)=pChrg(iCnttp)
             Fixed(nCnttp)=Fixed(iCnttp)
+            Parent_iCnttp(nCnttp)=iCnttpr
             nOpt(nCnttp) = 0
             ipVal(nCnttp) = iShll+1
             ipPrj(nCnttp) = -1

@@ -51,7 +51,7 @@
 
       iRout = 33
       iPrint = nPrint(iRout)
-      iPrint=15
+*     iPrint=15
 *     Call qEnter('DrvN1')
 *
       iIrrep = 0
