@@ -87,7 +87,6 @@
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
       A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-      Call DCopy_(3,Work(ixyz),1,A,1)
       dbas= LblCnt(mdci)(1:LENIN)
       Call UpCase(dbas)
       jShll  = iSD( 0,jS)

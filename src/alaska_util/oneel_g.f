@@ -152,7 +152,7 @@ C        Do jS = 1, iS
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
-            B(1:3) = dbsc(jCnttp)%Coor(1:3,iCnt)
+            B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
             nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)

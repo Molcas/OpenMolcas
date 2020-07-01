@@ -63,7 +63,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "stdalloc.fh"
 #include "status.fh"
 *     iAngMx is the largest ang mom in the current basis
       iAngMx=Max(iAngMx,lMax)

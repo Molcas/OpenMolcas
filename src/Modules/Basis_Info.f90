@@ -137,7 +137,7 @@
          i=i+1
          If (i.gt.Mxdbsc .or. dbsc(i)%nCntr.eq.0) Exit
 !
-         Call mma_deallocate(dbsc(i)%Coor)
+         If (allocated(dbsc(i)%Coor)) Call mma_deallocate(dbsc(i)%Coor)
          dbsc(i)%nCntr=-1
       End Do
 !

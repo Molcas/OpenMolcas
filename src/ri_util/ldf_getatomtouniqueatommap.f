@@ -81,7 +81,7 @@ C
             A2UA(iAtom)=iAtom_Unique
             Do jCnt=2,mCnt
                Do i=0,2
-                  Work(ip_UAR+i)=Work(jxyz+i)*
+                  Work(ip_UAR+i)=dbsc(jCnttp)%Coor(i+1,jCnt)*
      &                               dble(iPhase(i+1,iCoset(0,0,ndc+1)))
                End Do
                ndc=ndc+1

@@ -104,7 +104,7 @@
      &          iSD(10,iSkal).ne.iCenter) Then
                jCnttp=iSD(13,iSkal)
                jCnt  =iSD(14,iSkal)
-               If (  EQ(Coor, dbsc(jCnttp)%Coor(1,iCnt)) ) Then
+               If (  EQ(Coor, dbsc(jCnttp)%Coor(1,jCnt)) ) Then
                   Write (6,*) 'Multiple instances of the same center!'
                   Write (6,*) 'This is not allowed with AMFI.'
                   Call Quit_OnUserError()

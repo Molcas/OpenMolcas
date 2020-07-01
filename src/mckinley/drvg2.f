@@ -446,7 +446,6 @@ C     Do iS = 1, nSkal
          iCmpV(1) = iCmp
          iShelV(1) = iShell
          iAOV(1) = iAO
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
