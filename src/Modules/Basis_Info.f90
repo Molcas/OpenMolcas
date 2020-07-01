@@ -26,7 +26,41 @@
       End Type Distinct_Basis_set_centers
 !
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
-
+!
+      Interface
+         Subroutine Abend()
+         End Subroutine Abend
+         Subroutine Put_iArray(Label,Data,nData)
+         Character*(*) Label
+         Integer       nData
+         Integer       Data(nData)
+         End Subroutine Put_iArray
+         Subroutine Get_iArray(Label,Data,nData)
+         Character*(*) Label
+         Integer       nData
+         Integer       Data(nData)
+         End Subroutine Get_iArray
+         Subroutine Qpg_iArray(Label,Found,nData)
+         Character*(*) Label
+         Logical       Found
+         Integer       nData
+         End Subroutine Qpg_iArray
+         Subroutine Put_dArray(Label,Data,nData)
+         Character*(*) Label
+         Integer       nData
+         Real*8        Data(nData)
+         End Subroutine Put_dArray
+         Subroutine Get_dArray(Label,Data,nData)
+         Character*(*) Label
+         Integer       nData
+         Real*8        Data(nData)
+         End Subroutine Get_dArray
+         Subroutine Qpg_dArray(Label,Found,nData)
+         Character*(*) Label
+         Logical       Found
+         Integer       nData
+         End Subroutine Qpg_dArray
+      End Interface
 !
 !***********************************************************************
 !***********************************************************************
