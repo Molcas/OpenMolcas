@@ -301,7 +301,7 @@ c      End If
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
         If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
 *
-        Do iCntr=1,dbsc(iCnttp)%nCntr     ! loop over sym. unique centers
+        Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1
           nDeg=nIrrep/nStab(mdc)
           Do iDeg=1,nDeg             ! loop over centers

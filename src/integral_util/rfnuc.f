@@ -66,7 +66,6 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                ZA = Charge(iCnttp)
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
-                  Write (6,*) ' ixyz=',ixyz
                   Call RecPrt(' Centers',' ',Work(ixyz),3,
      &                        dbsc(iCnttp)%nCntr)
                End If

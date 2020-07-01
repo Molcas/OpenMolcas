@@ -24,6 +24,7 @@
 #include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
+#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 DInf(nDInf)
 *                                                                      *

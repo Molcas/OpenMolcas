@@ -154,7 +154,7 @@
 #endif
 *
       Return
-      End
+      End Subroutine Sphere
       Subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
       Implicit Real*8 (a-h,o-z)
       Real*8 RSph(nSphr)
@@ -196,7 +196,7 @@
       End Do
 *
       Return
-      End
+      End Subroutine Real_Sphere
       Subroutine Recurse(P0,P1,P2,n2)
 ***********************************************************************
 *                                                                     *
@@ -254,7 +254,7 @@
       End if
 
       Return
-      End
+      End Subroutine Recurse
       Subroutine Ladder(P0,n)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -345,7 +345,7 @@
       End Do ! m
 *
       Return
-      End
+      End Subroutine Ladder
       Subroutine Contaminant(P0,i,Px,j,l)
 *     This subroutine generates the lower ang mom contaminants for the
 *     given ang mom
@@ -375,7 +375,7 @@
 *
 *     Call QExit('Contaminant')
       Return
-      End
+      End Subroutine Contaminant
       Subroutine NrmSph(P,n)
       Implicit Real*8 (a-h,o-z)
       Real*8 P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
@@ -412,7 +412,7 @@
          Call DScal_((n+1)*(n+2)/2,One/Sqrt(tmp),P(1,m),1)
       End Do
       Return
-      End
+      End Subroutine NrmSph
       Function DblFac(n)
 ************************************************************************
 *                                                                      *
@@ -434,7 +434,7 @@
          DblFac = DblFac * DBLE(i)
  20   Continue
       Return
-      End
+      End Function DblFac
 *
 ***********************************************************************
 *
