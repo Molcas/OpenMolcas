@@ -47,8 +47,13 @@
 
       Integer BasisTypes(4), nDel(MxAng)
       Data DefNm/'basis_library'/
-
-*     Call Gen_RelPointers(-(Info-1))
+*                                                                      *
+************************************************************************
+*                                                                      *
+#include "getbs_interface.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call qEnter('Mk_RI_Shells')
       iRout = 2
       iPrint = nPrint(iRout)
@@ -71,7 +76,6 @@
 *
       If (iRI_Type.eq.5) Go To 1000
 
-*     Call Gen_RelPointers(-(Info-1))
       Do iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
          mdc = mdciCnttp(iCnttp)
@@ -241,7 +245,6 @@ C        Fixed(nCnttp)=.False.
          Mx_mdc=mdc
 *
       End Do
-*     Call Gen_RelPointers(Info-1)
       Go To 1100
 *                                                                      *
 ************************************************************************
@@ -258,7 +261,6 @@ C        Fixed(nCnttp)=.False.
 *
       Do iCnttp = 1, mCnttp
          If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
-*        Call Gen_RelPointers(-(Info-1))
          mdc = mdciCnttp(iCnttp)
 *
          Hit=.True.
@@ -310,9 +312,7 @@ C        Fixed(nCnttp)=.False.
 *
          nSet=-1
 
-*        Call Gen_RelPointers(Info-1)
          Do While (nSet.ne.0)
-*           Call Gen_RelPointers(-(Info-1))
             Line=Get_Ln(Lu_lib)
             If (IfTest) Then
                Write(6,*) 'nSet=',nSet
@@ -346,9 +346,7 @@ C        Fixed(nCnttp)=.False.
 *           Loop over the angular shells
 *
             jShll = iShll
-*           Call Gen_RelPointers(Info-1)
             Do iAng = 0, lAng
-*              Call Gen_RelPointers(-(Info-1))
                iShll=iShll+1
                Line=Get_Ln(Lu_lib)
                Call Get_I1(1,nPrim)
@@ -465,10 +463,8 @@ C        Fixed(nCnttp)=.False.
                ipAkl(iShll)=ip_Dummy
                ipExp(iShll+1)=iEnd+1
 *
-*              Call Gen_RelPointers(Info-1)
             End Do ! iAng
 *
-*           Call Gen_RelPointers(-(Info-1))
             AuxCnttp(nCnttp)=.True.
             Charge(nCnttp)=Zero
             PAM2(nCnttp)=.False.
@@ -517,7 +513,6 @@ C        Fixed(nCnttp)=.False.
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)
-*           Call Gen_RelPointers(Info-1)
          End Do ! Do While (nSet.ne.0)
 *
       End Do ! iCnttp
@@ -529,9 +524,7 @@ C        Fixed(nCnttp)=.False.
 *     Add the final DUMMY SHELL!
 *
  1100 Continue
-*     Call Gen_RelPointers(-(Info-1))
       Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
-*     Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

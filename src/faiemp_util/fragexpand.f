@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Ben Swerts                                             *
+*               2020, Roland Lindh                                    *
 ************************************************************************
       Subroutine FragExpand(nInfo,LuRd,DInf,nDInf)
 ************************************************************************
@@ -53,6 +54,13 @@
       Real*8      NucExp, rMass
       External    NucExp, rMass, iMostAbundantIsotope, iCLast
       Data DefNm/'basis_library'/
+*                                                                      *
+************************************************************************
+*                                                                      *
+#include "getbs_interface.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 *     Call qEnter('FragExpand')
       UnNorm = .False.

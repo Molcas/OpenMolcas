@@ -89,6 +89,34 @@
 *     IRELMP =22 .... ZORA-FP
 *     IRELMP =23 .... IORA
 *
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+         SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
+     &                     BLine,ipM1xp,ipM1cf,nM1,
+     &                           ipM2xp,ipM2cf,nM2,
+     &                     ipBk,CrRep,nProj,ipAkl,ip_Occ,
+     &                     ipPP,nPP,UnNorm,DInf,nDInf)
+         Integer lUnit
+         Integer ipExp(MxShll), ipCff(MxShll),
+     &            nExp(MxShll), nBasis(MxShll)
+         Integer MxShll,iShll
+         Character*(*) BLine
+         Integer ipM1xp,ipM1cf, nM1,
+     &           ipM2xp,ipM2cf, nM2
+         Integer ipBk(MxShll)
+         Real*8  CrRep
+         Integer nProj
+         Integer ipAkl(MxShll), ip_Occ(MxShll)
+         Integer ipPP, nPP
+         Logical UnNorm
+         Real*8 DInf(nDInf)
+         End SubRoutine GetECP
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       iRout=6
       iPrint = nPrint(iRout)
       IfTest=.False.
