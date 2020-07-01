@@ -29,6 +29,7 @@
 ************************************************************************
       use Her_RW
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -464,7 +465,7 @@ C     nPrint(122)=99
      &              idummy,idummy,idummy,idummy,
      &              idummy,idummy,idummy,idummy,idummy,
      &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              DInf,nDInf)
+     &              DInf,nDInf,nCnttp)
 *
          If (.Not.FockOp(nCnttp)) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'

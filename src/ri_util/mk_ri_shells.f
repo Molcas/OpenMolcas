@@ -181,7 +181,7 @@
      &        nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
      &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              DInf,nDInf)
+     &              DInf,nDInf,nCnttp)
          AuxCnttp(nCnttp)=.True.
 *
          Charge(nCnttp)=Zero

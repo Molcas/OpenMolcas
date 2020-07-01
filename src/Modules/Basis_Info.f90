@@ -23,6 +23,10 @@
       Type Distinct_Basis_set_centers
           Real*8, Allocatable:: Coor(:,:)
           Integer:: nCntr=0
+          Integer:: nM1=0
+          Real*8, Allocatable:: M1xp(:), M1cf(:)
+          Integer:: nM2=0
+          Real*8, Allocatable:: M2xp(:), M2cf(:)
       End Type Distinct_Basis_set_centers
 !
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)

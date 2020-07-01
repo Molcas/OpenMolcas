@@ -26,8 +26,10 @@
      &                 nFragType,nFragCoor,nFragEner,nFragDens,
      &                 ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 DInf,nDInf)
+     &                 DInf,nDInf,nCnttp)
 #include "Molcas.fh"
+      Integer, Parameter :: Mxdbsc=MxAtom
+
       Character*(*) DDname
       Character*80  BSLbl
       Integer       iBSLbl, lAng
@@ -56,5 +58,6 @@
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir
       Real*8 DInf(nDInf)
+      Integer nCnttp
       End SubRoutine GetBS
       End Interface

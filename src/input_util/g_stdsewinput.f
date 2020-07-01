@@ -171,7 +171,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
      &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &           STDINP,iSTDINP,.True.,.true.,' ',
-     &           DInf,nDInf)
+     &           DInf,nDInf,nCnttp)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp)
       If (itype.eq.0) Then

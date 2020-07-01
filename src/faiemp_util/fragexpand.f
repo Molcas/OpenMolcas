@@ -171,7 +171,7 @@ c           write(*,*) 'Fname = ',Fname
      &        idummy,idummy,idummy,idummy,idummy,idummy,idummy,
      &        idummy,idummy,
      &        STDINP,lSTDINP,.False.,.true.,' ',
-     &        DInf,nDInf)
+     &        DInf,nDInf,nCnttp)
             iAngMx=Max(iAngMx,lAng)
             Transf(jShll+1)=.False.
             Prjct(jShll+1)=.False.

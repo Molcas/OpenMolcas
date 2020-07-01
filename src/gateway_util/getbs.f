@@ -27,7 +27,7 @@
      &                 nFragType,nFragCoor,nFragEner,nFragDens,
      &                 ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 DInf,nDInf)
+     &                 DInf,nDInf,nCnttp)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -45,6 +45,7 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 ************************************************************************
+      Use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

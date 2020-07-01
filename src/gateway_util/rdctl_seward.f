@@ -1205,7 +1205,7 @@ c Simplistic validity check for value
      &           nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
      &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
-     &           DInf,nDInf)
+     &           DInf,nDInf,nCnttp)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
      &            iAtmNr(nCnttp).le.96
