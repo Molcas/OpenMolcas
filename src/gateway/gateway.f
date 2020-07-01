@@ -40,7 +40,7 @@
       Character xLblCnt(MxAtom)*(LENIN)
       Character KWord*80, Header(2)*72
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
-      Character Mamn(nMamn)*(LENIN8)
+      Character*(LENIN8), Allocatable :: Mamn(:)
       Logical lOPTO, Pseudo, Do_OneEl
       Logical Get_Cho_1Center, Cho_1Center
 CVV      LOGICAL GA_USES_MA,GA_MEMORY_LIMITED
@@ -153,6 +153,7 @@ C-SVC: identify runfile with a fingerprint
 *
       Primitive_Pass=.False.
       Call Flip_Flop(Primitive_Pass)
+      Call mma_allocate(Mamn,nMamn,label='Mamn')
       Call SOCtl_Seward(Mamn,nMamn,Work(Info),nDInf,Info)
 *                                                                      *
 ************************************************************************
@@ -182,6 +183,7 @@ C-SVC: identify runfile with a fingerprint
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run(Work(Info),nInfo)
       Call Gen_RelPointers(Info-1) ! Work Mode
+      Call mma_deallocate(Mamn)
 *
 *     Generate list of unique atoms
 *

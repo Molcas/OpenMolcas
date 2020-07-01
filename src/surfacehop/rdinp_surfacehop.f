@@ -13,11 +13,12 @@
       IMPLICIT none
 #include "Molcas.fh"
 #include "surfacehop.fh"
+#include "stdalloc.fh"
       character*180 Get_Ln, Key, Line
       logical Found
       integer LuSpool, isfreeunit, NSTATE,i,j,ndata,maxHop
-      real*8  temp(mxroot),AmatrixVR(mxroot*mxroot)
-      real*8  AmatrixVI(mxroot*mxroot)
+      real*8  temp(mxroot)
+      real*8, allocatable :: AmatrixVR(:),AmatrixVI(:)
       external Get_Ln, isfreeunit
 
       LuSpool = isfreeunit(21)
@@ -51,6 +52,10 @@
         case('DMTX')
              Line = Get_Ln(LuSpool)
              CALL Get_I1(1,NSTATE)
+             call mma_allocate(AmatrixVR,NSTATE*NSTATE,
+     &                         label='AmatrixVR')
+             call mma_allocate(AmatrixVI,NSTATE*NSTATE,
+     &                         label='AmatrixVI')
              do i=1, NSTATE
                 Line = Get_Ln(LuSpool)
                 CALL Get_F(1,temp,NSTATE)
@@ -74,6 +79,8 @@
      &         'input is different from the one in runfile')
                CALL Abend()
              end if
+             call mma_deallocate(AmatrixVR)
+             call mma_deallocate(AmatrixVI)
         case('FRAN')
              Line = Get_Ln(LuSpool)
              CALL Get_F1(1,FixedRand)

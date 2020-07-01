@@ -29,7 +29,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+      DoExchange=Exfac.ne.Zero
+*
       nV_ls=0
       Do i=0,nIrrep-1
          nV_l(i) = NumCho(i+1) ! local # of vecs in parallel run
@@ -152,8 +153,6 @@
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
 ************************************************************************
-         DoExchange=Exfac.ne.Zero
-*
          If (DoExchange .or. DoCAS) Then
             Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
             Do i=2,nKdens

@@ -383,6 +383,8 @@ c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
          Functional_type=Other_type
          Call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
          Call Abend()
+         nRho=0
+         ndF_dRho=0
       End If
 *                                                                      *
 ************************************************************************

@@ -83,36 +83,68 @@
 
 * type-specific pointer-to-offset routines
       integer function d_cptr2loff(buffer)
+        use, intrinsic :: iso_c_binding
         implicit none
 #include "molcastypes.fh"
-        real*8 :: buffer(*)
-        integer, external :: cptr2woff
+        real*8, target :: buffer(*)
+        interface
+          integer function cptr2woff(string, ptr)
+            use, intrinsic :: iso_c_binding
+            character(kind=c_char) :: string(*)
+            type(c_ptr), value :: ptr
+          end function
+        end interface
         integer, external :: kind2goff
-        d_cptr2loff = cptr2woff('REAL',buffer(1)) + kind2goff('REAL')
+        d_cptr2loff = cptr2woff('REAL',
+     &    c_loc(buffer(1))) + kind2goff('REAL')
       end function
       integer function i_cptr2loff(buffer)
+        use, intrinsic :: iso_c_binding
         implicit none
 #include "molcastypes.fh"
-        integer :: buffer(*)
-        integer, external :: cptr2woff
+        integer, target :: buffer(*)
+        interface
+          integer function cptr2woff(string, ptr)
+            use, intrinsic :: iso_c_binding
+            character(kind=c_char) :: string(*)
+            type(c_ptr), value :: ptr
+          end function
+        end interface
         integer, external :: kind2goff
-        i_cptr2loff = cptr2woff('INTE',buffer(1)) + kind2goff('INTE')
+        i_cptr2loff = cptr2woff('INTE',
+     &    c_loc(buffer(1))) + kind2goff('INTE')
       end function
       integer function c_cptr2loff(buffer)
+        use, intrinsic :: iso_c_binding
         implicit none
 #include "molcastypes.fh"
-        character(*) :: buffer(*)
-        integer, external :: cptr2woff
+        character(*), target :: buffer(*)
+        interface
+          integer function cptr2woff(string, ptr)
+            use, intrinsic :: iso_c_binding
+            character(kind=c_char) :: string(*)
+            type(c_ptr), value :: ptr
+          end function
+        end interface
         integer, external :: kind2goff
-        c_cptr2loff = cptr2woff('CHAR',buffer(1)) + kind2goff('CHAR')
+        c_cptr2loff = cptr2woff('CHAR',
+     &    c_loc(buffer(1))) + kind2goff('CHAR')
       end function
       integer function dc_cptr2loff(buffer)
+        use, intrinsic :: iso_c_binding
         implicit none
 #include "molcastypes.fh"
-        complex*16 :: buffer(*)
-        integer, external :: cptr2woff
+        complex*16, target :: buffer(*)
+        interface
+          integer function cptr2woff(string, ptr)
+            use, intrinsic :: iso_c_binding
+            character(kind=c_char) :: string(*)
+            type(c_ptr), value :: ptr
+          end function
+        end interface
         integer, external :: kind2goff
-        dc_cptr2loff = cptr2woff('REAL',buffer(1)) + kind2goff('REAL')
+        dc_cptr2loff = cptr2woff('REAL',
+     &    c_loc(buffer(1))) + kind2goff('REAL')
       end function
 
 * type-specific allocation subroutines
@@ -1171,6 +1203,49 @@
         end if
       end subroutine
 
+      subroutine dmma_allo_7D_lim(buffer,l1,l2,l3,l4,l5,l6,l7,label)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4, l5, l6, l7
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5, n6, n7, n
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        n5 = l5(2)-l5(1)+1
+        n6 = l6(2)-l6(1)+1
+        n7 = l7(2)-l7(1)+1
+        n = n1 * n2 * n3 * n4 * n5 * n6 * n7
+        bufsize = rtob * n
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2), l5(1):l5(2), l6(1):l6(2),
+     &                     l7(1):l7(2) ))
+          if (n.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),
+     &                                 l6(1),l7(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,n)
+            else
+              call getmem('dmma_7D','RGST','REAL',loffset,n)
+            end if
+          end if
+        end if
+      end subroutine
+
 * type-specific deallocation subroutines
       subroutine dmma_free_1D(buffer)
         implicit none
@@ -1545,4 +1620,35 @@
         end if
       end subroutine
 
-
+      subroutine dmma_free_7D(buffer)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5, n6, n7, n
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        n5 = size(buffer,5)
+        n6 = size(buffer,6)
+        n7 = size(buffer,7)
+        n = n1 * n2 * n3 * n4 * n5 * n6 * n7
+        if (allocated(buffer)) then
+          if (n.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4),
+     &                                 lbound(buffer,5),
+     &                                 lbound(buffer,6),
+     &                                 lbound(buffer,7)))
+            call getmem('dmma_7D','EXCL','REAL',loffset,n)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine

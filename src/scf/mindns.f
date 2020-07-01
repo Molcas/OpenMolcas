@@ -50,7 +50,8 @@
       Real*8 XCff(ltXCff,nD)
 *
 *---- Define local variables
-      Real*8 AMat(MxIter,MxIter,2),BVec(MxIter,2)
+      Real*8 BVec(MxIter,2)
+      Real*8, Dimension(:,:,:), Allocatable :: AMat
       Real*8, Dimension(:,:), Allocatable, Target:: DRow, DCol
       Real*8, Dimension(:,:), Pointer:: pDR, pDC
 *
@@ -66,6 +67,7 @@
 *
       Call mma_allocate(DRow,nBT,nD,Label='DRow')
       Call mma_allocate(DCol,nBT,nD,Label='DCol')
+      Call mma_allocate(AMat,MxIter,MxIter,2,label='AMat')
       Call FZero(XCff,ltXCff*nD)
       Call FZero(AMat,2*MxIter**2)
       Call FZero(BVec,2*MxIter   )
@@ -161,6 +163,7 @@
 *
       End Do ! iMat
 *
+      Call mma_deallocate(AMat)
       Call mma_deallocate(DCol)
       Call mma_deallocate(DRow)
 *

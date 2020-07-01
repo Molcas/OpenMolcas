@@ -65,6 +65,8 @@ c  Solve linear equation in Davidson subspace.
       else
         write(6,*)' Error in IFOLLOW with direct Fletcher!',ifollow
         call abend_cvb()
+        nnegeig=0
+        nposeig=0
       endif
 
       eigmx=-one
