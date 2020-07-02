@@ -389,7 +389,7 @@ c mess started here :)
             Write(6,*) '*** Warning, writing temporary dArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If

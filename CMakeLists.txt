@@ -763,9 +763,14 @@ set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
+#          "externals" means "implicit none (external)", ditto (only 19.1 and later)
 set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
 set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable remark")
+set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations,noexternals -warn errors -diag-disable remark")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "19.1")
+  string (REGEX REPLACE ",noexternals" "" FFLAGS_Intel_BIGOT "${FFLAGS_Intel_BIGOT}")
+endif ()
 set (Intel_TRAP "-fpe0")
 
 #======================================#
