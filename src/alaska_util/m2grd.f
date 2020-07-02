@@ -158,7 +158,7 @@
       kdc=0
       Do 100 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 111
-         If (nM2(kCnttp).eq.0) Go To 111
+         If (dbsc(kCnttp)%nM2.eq.0) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
@@ -177,8 +177,8 @@
                TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102
 *
-               Do 1011 iM2xp = 0, nM2(kCnttp)-1
-                  Gamma = Work(ipM2xp(kCnttp)+ iM2xp)
+               Do 1011 iM2xp = 1, dbsc(kCnttp)%nM2
+                  Gamma = dbsc(kCnttp)%M2xp(iM2xp)
                   If (iPrint.ge.99) Write (6,*) ' Gamma=',Gamma
 *
                   Call ICopy(6,IndGrd,1,JndGrd,1)
@@ -294,7 +294,7 @@
 *-----------------Combine the cartesian components to the full one
 *                 electron integral gradient.
 *
-                  Factor = -Charge(kCnttp)*Work(ipM2cf(kCnttp)+iM2xp)
+                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   Call CmbnM2(Array(ipQxyz),nZeta,la,lb,
      &                        Array(ipZ),Array(ipK),Final,

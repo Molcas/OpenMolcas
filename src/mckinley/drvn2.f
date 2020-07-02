@@ -130,9 +130,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
-                  Do iM1xp = 0, nM1(iCnttp)-1
-                     Gamma =Work(ipM1xp(iCnttp)+iM1xp)
-                     CffM1 =Work(ipM1cf(iCnttp)+iM1xp)
+                  Do iM1xp = 1, dbsc(iCnttp)%nM1
+                     Gamma =dbsc(iCnttp)%M1xp(iM1xp)
+                     CffM1 =dbsc(iCnttp)%M1cf(iM1xp)
                      Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                      Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                      Cnt2M1=Cnt2M1+Gamma**2*(CffM1*Exp(-Gamma*r12**2))
@@ -144,9 +144,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
-                  Do iM2xp = 0, nM2(iCnttp)-1
-                     Gamma =Work(ipM2xp(iCnttp)+iM2xp)
-                     CffM2 =Work(ipM2cf(iCnttp)+iM2xp)
+                  Do iM2xp = 1, dbsc(iCnttp)%nM2
+                     Gamma =dbsc(iCnttp)%M2xp(iM2xp)
+                     CffM2 =dbsc(iCnttp)%M2cf(iM2xp)
                      Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                      Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                      Cnt2M2=Cnt2M2+Gamma**2*(CffM2*Exp(-Gamma*r12**2))
@@ -160,9 +160,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
-                  Do iM1xp = 0, nM1(jCnttp)-1
-                     Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                     CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                  Do iM1xp = 1, dbsc(jCnttp)%nM1
+                     Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                     CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                      Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                      Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                      Cnt2M1=Cnt2M1+Gamma**2*(CffM1*Exp(-Gamma*r12**2))
@@ -174,9 +174,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
-                  Do iM2xp = 0, nM2(jCnttp)-1
-                     Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                     CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                  Do iM2xp = 1, dbsc(jCnttp)%nM2
+                     Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                     CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                      Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                      Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                      Cnt2M2=Cnt2M2+Gamma**2*(CffM2*Exp(-Gamma*r12**2))
@@ -379,9 +379,9 @@ c     Call qEnter('DrvN2')
                      Cnt0M1=Zero
                      Cnt1M1=Zero
                      Cnt2M1=Zero
-                     Do iM1xp = 0, nM1(jCnttp)-1
-                        Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(jCnttp)%nM1
+                        Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                         Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                         Cnt2M1=Cnt2M1
@@ -394,9 +394,9 @@ c     Call qEnter('DrvN2')
                      Cnt0M2=Zero
                      Cnt1M2=Zero
                      Cnt2M2=Zero
-                     Do iM2xp = 0, nM2(jCnttp)-1
-                        Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(jCnttp)%nM2
+                        Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                         Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                         Cnt2M2=Cnt2M2
@@ -566,9 +566,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
-                     Do iM1xp = 0, nM1(iCnttp)-1
-                        Gamma =Work(ipM1xp(iCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(iCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(iCnttp)%nM1
+                        Gamma =dbsc(iCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(iCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12_AB**2))
                         Cnt1M1=Cnt1M1
      &                        +Gamma*(CffM1*Exp(-Gamma*r12_AB**2))
@@ -578,9 +578,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
-                     Do iM2xp = 0, nM2(iCnttp)-1
-                        Gamma =Work(ipM2xp(iCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(iCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(iCnttp)%nM2
+                        Gamma =dbsc(iCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(iCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12_AB**2))
                         Cnt1M2=Cnt1M2
      &                        +Gamma*(CffM2*Exp(-Gamma*r12_AB**2))
@@ -623,9 +623,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
-                     Do iM1xp = 0, nM1(jCnttp)-1
-                        Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(jCnttp)%nM1
+                        Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12_CD**2))
                         Cnt1M1=Cnt1M1
      &                        +Gamma*(CffM1*Exp(-Gamma*r12_CD**2))
@@ -635,9 +635,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
-                     Do iM2xp = 0, nM2(jCnttp)-1
-                        Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(jCnttp)%nM2
+                        Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12_CD**2))
                         Cnt1M2=Cnt1M2
      &                        +Gamma*(CffM2*Exp(-Gamma*r12_CD**2))

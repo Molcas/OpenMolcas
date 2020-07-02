@@ -18,9 +18,20 @@
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
+!
 !     Work in progress
 !
+!     nCntr : number of centers associated with a dbsc
+!     Coor  : the coordinates of a dbsc
+!     nM1   : number of ECP M1 type terms on the i''th unique center
+!     M1xp  : ECP M1-type exponents for i''th unq center
+!     M1cf  : ECP M1 type coefficients for i''th unq cntr
+!     nM2   : number of ECP M2 type terms on the i''th unique center
+!     M2xp  : ECP M2-type exponents for i''th unq center
+!     M2cf  : ECP M2 type coefficients for i''th unq cntr
+
       Type Distinct_Basis_set_centers
+          Sequence
           Real*8, Allocatable:: Coor(:,:)
           Integer:: nCntr=0
           Integer:: nM1=0
@@ -76,8 +87,8 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms
-      Integer, Allocatable:: iDmp(:)
+      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2
+      Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable:: rDmp(:,:)
 !     Write (*,*) 'Basis_Info_Dmp()'
 !
@@ -97,13 +108,17 @@
          End Do
       End Do
 #endif
-      Call mma_Allocate(iDmp,nCnttp,Label='iDmp')
+      Call mma_Allocate(iDmp,3,nCnttp,Label='iDmp')
       nAtoms=0
+      nAux   = 0
       Do i = 1, nCnttp
-         iDmp(i) = dbsc(i)%nCntr
+         iDmp(1,i) = dbsc(i)%nCntr
+         iDmp(2,i) = dbsc(i)%nM1
+         iDmp(3,i) = dbsc(i)%nM2
          nAtoms=nAtoms+dbsc(i)%nCntr
+         nAux = nAux + dbsc(i)%nM1 + dbsc(i)%nM2
       End Do
-      Call Put_iArray('iDmp',iDmp,nCnttp)
+      Call Put_iArray('iDmp',iDmp,3*nCnttp)
       Call mma_deallocate(iDmp)
 !
       Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
@@ -117,6 +132,30 @@
       End Do
       Call Put_dArray('rDmp',rDmp,3*nAtoms)
       Call mma_deallocate(rDmp)
+!
+      If (nAux.ne.0) Then
+      Call mma_allocate(rDmp,nAux,1,Label='rDmp')
+      nAux=1
+      Do i = 1, nCnttp
+         nM1 = dbsc(i)%nM1
+         If (nM1.gt.0) Then
+            rDmp(nAux:nAux+nM1,1) = dbsc(i)%M1xp(:)
+            nAux = nAux + nM1
+            rDmp(nAux:nAux+nM1,1) = dbsc(i)%M1cf(:)
+            nAux = nAux + nM1
+         End If
+         nM2 = dbsc(i)%nM2
+         If (nM2.gt.0) Then
+            rDmp(nAux:nAux+nM2,1) = dbsc(i)%M2xp(:)
+            nAux = nAux + nM2
+            rDmp(nAux:nAux+nM2,1) = dbsc(i)%M2cf(:)
+            nAux = nAux + nM2
+         End If
+      End Do
+      Call Put_dArray('rDmp:A',rDmp,nAux)
+      Call mma_deallocate(rDmp)
+      End If
+!
       Return
       End Subroutine Basis_Info_Dmp
 !
@@ -124,18 +163,22 @@
 !
       Subroutine Basis_Info_Get()
 !
-      Integer, Allocatable:: iDmp(:)
+      Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable:: rDmp(:,:)
       Logical Found
-      Integer Len, i, j, nCnttp, nAtoms
+      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2
 !     Write (*,*) 'Basis_Info_Get()'
 !
       Call qpg_iArray('iDmp',Found,Len)
-      nCnttp=Len
-      Call mma_Allocate(iDmp,nCnttp,Label='iDmp')
-      If (Found) Call Get_iArray('iDmp',iDmp,nCnttp)
+      nCnttp=Len/3
+      Call mma_Allocate(iDmp,3,nCnttp,Label='iDmp')
+      If (Found) Call Get_iArray('iDmp',iDmp,3*nCnttp)
+      nAux = 0
       Do i = 1, nCnttp
-         dbsc(i)%nCntr  = iDmp(i)
+         dbsc(i)%nCntr  = iDmp(1,i)
+         dbsc(i)%nM1    = iDmp(2,i)
+         dbsc(i)%nM2    = iDmp(3,i)
+         nAux = nAux + iDmp(2,i) + iDmp(3,i)
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -158,6 +201,33 @@
          End Do
       End Do
       Call mma_deallocate(rDmp)
+!
+      If (nAux.gt.0) Then
+      Call qpg_dArray('rDmp:A',Found,Len)
+      Call mma_allocate(rDmp,nAux,1,Label='rDmp')
+      nAux=1
+      Do i = 1, nCnttp
+         nM1 = dbsc(i)%nM1
+         If (nM1.gt.0) Then
+            If (.Not.Allocated(dbsc(i)%M1xp)) Call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp')
+            dbsc(i)%M1xp(:)=rDmp(nAux:nAux+nM1,1)
+            nAux=nAux+nM1
+            If (.Not.Allocated(dbsc(i)%M1cf)) Call mma_allocate(dbsc(i)%M1cf,nM1,Label='dbsc:M1cf')
+            dbsc(i)%M1cf(:)=rDmp(nAux:nAux+nM1,1)
+            nAux=nAux+nM1
+         End If
+         nM2 = dbsc(i)%nM2
+         If (nM2.gt.0) Then
+            If (.Not.Allocated(dbsc(i)%M2xp)) Call mma_allocate(dbsc(i)%M2xp,nM2,Label='dbsc:M2xp')
+            dbsc(i)%M2xp(:)=rDmp(nAux:nAux+nM2,1)
+            nAux=nAux+nM2
+            If (.Not.Allocated(dbsc(i)%M2cf)) Call mma_allocate(dbsc(i)%M2cf,nM2,Label='dbsc:M2cf')
+            dbsc(i)%M2cf(:)=rDmp(nAux:nAux+nM2,1)
+            nAux=nAux+nM2
+         End If
+      End Do
+      Call mma_deallocate(rDmp)
+      End If
 #ifdef _DEBUG_
       Write (6,*) 'Basis_Info_Get'
       Do i = 1, nCnttp
@@ -184,6 +254,12 @@
 !
          If (allocated(dbsc(i)%Coor)) Call mma_deallocate(dbsc(i)%Coor)
          dbsc(i)%nCntr=-1
+         If (allocated(dbsc(i)%M1xp)) Call mma_deallocate(dbsc(i)%M1xp)
+         If (allocated(dbsc(i)%M1cf)) Call mma_deallocate(dbsc(i)%M1cf)
+         dbsc(i)%nM1=0
+         If (allocated(dbsc(i)%M2xp)) Call mma_deallocate(dbsc(i)%M2xp)
+         If (allocated(dbsc(i)%M2cf)) Call mma_deallocate(dbsc(i)%M2cf)
+         dbsc(i)%nM2=0
       End Do
 !
       Return

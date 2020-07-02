@@ -165,7 +165,7 @@ C-SVC: identify runfile with a fingerprint
 *     Produce minimal set of entries on the runfile to facilitate
 *     Grid_It's and ExpBas's needs.
 *
-      Call Drvn0(Work(Info),nInfo)
+      Call Drvn0()
 *
       Call Datimx(KWord)
       Header(1)=Title(1)(5:76)

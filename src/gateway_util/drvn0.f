@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1995, Roland Lindh                                *
 ************************************************************************
-      SubRoutine DrvN0(DInf,nDInf)
+      SubRoutine DrvN0()
 ************************************************************************
 *                                                                      *
 * Object: to compute the nuclear contibutions to the nuclear potential *
@@ -32,7 +32,7 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-      Real*8 A(3), B(3), RB(3), DInf(nDInf)
+      Real*8 A(3), B(3), RB(3)
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)
       Logical EQ, NoLoop
 *
@@ -110,29 +110,29 @@ C     nElem(ixyz) = 2*ixyz+1
                         fab = One
                         If (ECP(iCnttp)) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(iCnttp)-1
-                             Gamma = DInf(ipM1xp(iCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(iCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(iCnttp)%nM1
+                             Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(iCnttp)-1
-                             Gamma = DInf(ipM2xp(iCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(iCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(iCnttp)%nM2
+                             Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
                         If (ECP(jCnttp)) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = DInf(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = DInf(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
@@ -279,15 +279,15 @@ C     nElem(ixyz) = 2*ixyz+1
                         fab=One
                         If (ECP(jCnttp)) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = DInf(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = DInf(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If

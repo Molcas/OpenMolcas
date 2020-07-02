@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
       SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,ipM1xp,ipM1cf,nM1,
-     &                  ipM2xp,ipM2cf,nM2,ipBk,CrRep,nProj,ipAkl,ip_Occ,
-     &                  ipPP,nPP,UnNorm,DInf,nDInf)
+     &                  BLine,ipBk,CrRep,nProj,ipAkl,ip_Occ,
+     &                  ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -32,6 +31,7 @@
 *                                                                      *
 *     Modified: Per Boussard -93.                                      *
 ************************************************************************
+      Use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "print.fh"
@@ -41,12 +41,13 @@
       Character*180 Line, Get_Ln
       Character*(*) BLine
 *     External Get_Ln
-      Real*8 DInf(nDInf)
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
       Integer ipExp(MxShll), ipCff(MxShll), ipBk(MxShll),
-     &           nExp(MxShll), nBasis(MxShll),
-     &           ipAkl(MxShll), ip_Occ(MxShll), mPP(2)
+     &        nExp(MxShll), nBasis(MxShll),
+     &        ipAkl(MxShll), ip_Occ(MxShll), mPP(2)
       Logical UnNorm
+      Real*8 DInf(nDInf)
+      Integer nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,21 +169,18 @@ C        Write (6,*) 'Done'
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM1)
 *     Write (*,*) ' nM1=',nM1
-      ipM1xp=iStrt
-      iEnd = iStrt+nM1-1
+      dbsc(nCnttp)%nM1=nM1
+      Call mma_allocate(dbsc(nCttp)%M1xp,nM1,Label='dbsc:M1xp')
+      Call mma_allocate(dbsc(nCttp)%M1cf,nM1,Label='dbsc:M1cf')
 * Note: all broadcasting of DInf will be done at end of getbs!!
-*     If (nM1.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM1.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
-      iPM1cf=iStrt
-      iEnd = iStrt+nM1-1
-*     If (nM1.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM1.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+*     If (nM1.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M1xp(i),i=1,nM1)
+      If (nM1.gt.0) Call Read_v(lUnit,dbsc(nCntp)%M1xp,1,nM1,1,ierr)
+*     If (nM1.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M1cf(i),i=1,nM1)
+      If (nM1.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M1cf,1,nM1,1,ierr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write (*,*) ' Reading M2'
-      iStrt = iEnd + 1
       Line=Get_Ln(lUnit)
       If (Index(Line,'M2').eq.0) Then
          Call WarningMessage(2,
@@ -193,17 +191,14 @@ C        Write (6,*) 'Done'
 *     Read(Line,*)nM2
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM2)
+      dbsc(nCnttp)%nM2=nM2
+      Call mma_allocate(dbsc(nCttp)%M2xp,nM2,Label='dbsc:M2xp')
+      Call mma_allocate(dbsc(nCttp)%M2cf,nM2,Label='dbsc:M2cf')
 *     Write (*,*) ' nM2=',nM2
-      ipM2xp=iStrt
-      iEnd = iStrt+nM2-1
-*     If (nM2.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM2.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
-      iPM2cf=iStrt
-      iEnd = iStrt+nM2-1
-*     If (nM2.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM2.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
+*     If (nM2.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M2xp(i),i=1,nM2)
+      If (nM2.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
+*     If (nM2.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M2cf(i),i=1,nM2)
+      If (nM2.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
       ipExp(iShll+1) = iEnd + 1
 *                                                                      *
 ************************************************************************

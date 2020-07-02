@@ -282,29 +282,27 @@ Cend
                Write (LuWr,*)
                Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
 *
-               If (nM1(iCnttp).ne.0) Then
+               If (dbsc(iCnttp)%nM1.ne.0) Then
                   Write (LuWr,*)
                   Write (LuWr,*) ' M1 operator       Exponent   ',
      &                           ' Contraction Coefficients'
-                  ipe=ipM1xp(iCnttp)
-                  ipc=ipM1cf(iCnttp)
-                  Do irow = 0, nM1(iCnttp)-1
+                  Do irow = 1, dbsc(iCnttp)%nM1
                      Write (LuWr,'(14X,D16.9,1X,D19.9)')
-     &                  DInf(ipe+irow),DInf(ipc+irow)
+     &                  dbsc(iCnttp)%M1xp(irow),
+     &                  dbsc(iCnttp)%M1cf(irow)
                   End Do
-               End If ! If (nM1(iCnttp).ne.0) Then
+               End If ! If (dbsc(iCnttp)%nM1.ne.0) Then
 *
-               If (nM2(iCnttp).ne.0) Then
+               If (dbsc(iCnttp)%nM2.ne.0) Then
                   Write (LuWr,*)
                   Write (LuWr,*) ' M2 operator       Exponent   ',
      &                           ' Contraction Coefficients'
-                  ipe=ipM2xp(iCnttp)
-                  ipc=ipM2cf(iCnttp)
-                  Do irow = 0, nM2(iCnttp)-1
+                  Do irow = 1, dbsc(iCnttp)%nM2
                      Write (LuWr,'(14X,D16.9,1X,D19.9)')
-     &                  DInf(ipe+irow),DInf(ipc+irow)
+     &                  dbsc(iCnttp)%M2xp(irow),
+     &                  dbsc(iCnttp)%M2cf(irow)
                   End Do
-               End If ! If (nM2(iCnttp).ne.0) Then
+               End If ! If (dbsc(iCnttp)%nM2.ne.0) Then
             End If ! If (iPrint.ge.10) Then
 *
 *--------------Projection Basis Set

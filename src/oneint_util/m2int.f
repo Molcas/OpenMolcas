@@ -68,7 +68,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -133,7 +132,7 @@
       kdc=0
       Do 100 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 111
-         If (nM2(kCnttp).eq.0) Go To 111
+         If (dbsc(kCnttp)%nM2.eq.0) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
@@ -147,8 +146,8 @@
                TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
                TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
 *
-               Do 1011 iM2xp = 0, nM2(kCnttp)-1
-                  Gamma = Work(ipM2xp(kCnttp)+ iM2xp)
+               Do 1011 iM2xp = 1, dbsc(kCnttp)%nM2
+                  Gamma = dbsc(kCnttp)%M2xp(iM2xp)
                   If (iPrint.ge.99) Write (6,*) ' Gamma=',Gamma
 *
 *-----------------Modify the original basis.
@@ -236,7 +235,7 @@
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*Work(ipM2cf(kCnttp)+iM2xp)
+                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   If (iPrint.ge.99) Write (6,*) ' Factor=',Factor
                   Call DaXpY_(nZeta*nElem(la)*nElem(lb)*nIC,Factor,

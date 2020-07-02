@@ -228,15 +228,15 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
      &             'Effective Core Potential specification:'
             Write (LuWr,'(6X,A)')
      &             '======================================='
-            If (nM1(iCnttp).gt.0) Then
+            If (dbsc(iCnttp)%nM1.gt.0) Then
                Write (LuWr,*)
                Write (LuWr,'(6X,A,I5)')
-     &               ' Number of M1 terms:',nM1(iCnttp)
+     &               ' Number of M1 terms:',dbsc(iCnttp)%nM1
             End If
-            If (nM2(iCnttp).gt.0) Then
+            If (dbsc(iCnttp)%nM2.gt.0) Then
                Write (LuWr,*)
                Write (LuWr,'(6X,A,I5)')
-     &               ' Number of M2 terms:',nM2(iCnttp)
+     &               ' Number of M2 terms:',dbsc(iCnttp)%nM2
             End If
             Type(0)=.False.
             Do kSh = kShStr, kShEnd

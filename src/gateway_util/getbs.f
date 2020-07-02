@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,
@@ -17,8 +17,7 @@
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,ipPAM2xp,ipPAM2cf,nPAM2,FockOp,
-     &                 ECP,NoPairL,SODK,ipM1xp,ipM1cf,nM1,ipM2xp,
-     &                 ipM2cf,nM2,
+     &                 ECP,NoPairL,SODK,
      &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
@@ -45,7 +44,7 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 ************************************************************************
-      Use Basis_Info, only: dbsc
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"
@@ -95,24 +94,22 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                     BLine,ipM1xp,ipM1cf,nM1,
-     &                           ipM2xp,ipM2cf,nM2,
+     &                     BLine,
      &                     ipBk,CrRep,nProj,ipAkl,ip_Occ,
-     &                     ipPP,nPP,UnNorm,DInf,nDInf)
+     &                     ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
          Integer lUnit
          Integer ipExp(MxShll), ipCff(MxShll),
      &            nExp(MxShll), nBasis(MxShll)
          Integer MxShll,iShll
          Character*(*) BLine
-         Integer ipM1xp,ipM1cf, nM1,
-     &           ipM2xp,ipM2cf, nM2
          Integer ipBk(MxShll)
          Real*8  CrRep
          Integer nProj
          Integer ipAkl(MxShll), ip_Occ(MxShll)
          Integer ipPP, nPP
          Logical UnNorm
-         Real*8 DInf(nDInf)
+         Real*8  DInf(nDInf)
+         Integer nCnttp
          End SubRoutine GetECP
       End Interface
 *                                                                      *
@@ -656,8 +653,8 @@ culf
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
          Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipM1xp,ipM1cf,nM1,ipM2xp,ipM2cf,nM2,ipBk,CrRep,
-     &               nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,DInf,nDinf)
+     &               ipBk,CrRep,nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,
+     &               DInf,nDinf,nCnttp)
          nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then

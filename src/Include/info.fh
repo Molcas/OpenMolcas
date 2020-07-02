@@ -45,12 +45,6 @@
 *            set                                                       *
 *     ipSRO: the index of the first SRO shell of the i''th basis set   *
 *     ipSOC: the index of the first SOC shell of the i''th basis set   *
-*     ipM1xp: pointer to ECP M1-type exponents for i''th unq center.   *
-*     nM1   : number of ECP M1 type terms on the i''th unique center.  *
-*     ipM1cf: pointer to ECP M1 type coefficients for i''th unq cntr.  *
-*     ipM2xp: pointer to ECP M2-type exponents for i''th unq center.   *
-*     nM2   : number of ECP M2 type terms on the i''th unique center.  *
-*     ipM2cf: pointer to ECP M2 type coefficients for i''th unq cntr.  *
 *     ipBk  : pointer to ECP proj shift parameters for i''th shell.    *
 *             the number of parameters is given by nBasis              *
 *     ip_Occ: Occupation numbers for core ECP orbitals                 *
@@ -281,8 +275,8 @@
      &          kOffAO(Mxdbsc,0:iTabMx), Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,   ipAkl(Mxshll),
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
-     &          ipM1xp(Mxdbsc),ipM1cf(Mxdbsc),nM1(Mxdbsc), nTtl,
-     &          ipM2xp(Mxdbsc),ipM2cf(Mxdbsc),nM2(Mxdbsc),ipBk(Mxshll),
+     &          nTtl,
+     &          ipBk(Mxshll),
      &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
      &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
@@ -307,8 +301,8 @@
      &              nMltpl,  IsChi,                   iLbls,
      &              nShlls,          iPack, Parent_iCnttp,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
-     &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,
-     &              ipM1cf,  nM1,   ipM2xp,  ipM2cf,  nM2, jMax,
+     &              lwIntL,  NotZer, LctInf, iRelae_info,
+     &              jMax,
      &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,

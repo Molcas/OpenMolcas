@@ -240,9 +240,7 @@ C-SVC: identify runfile with a fingerprint
 *     Compute the Nuclear potential energy
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1)) ! DInf Mode
-         Call DrvN0(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)    ! Work Mode
+         Call DrvN0()
       End If
 *                                                                      *
 ************************************************************************

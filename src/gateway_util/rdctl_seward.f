@@ -1193,9 +1193,7 @@ c Simplistic validity check for value
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
      &           FockOp(nCnttp),
-     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &           ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &           ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
+     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
      &           CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -1261,7 +1259,8 @@ c Simplistic validity check for value
          Write (LuWr,*)
       End If
       lPAM2 = lPAM2 .or. PAM2(nCnttp)
-      ECP(nCnttp)=(nPP+nPrj+nSRO+nSOC+nM1(nCnttp)+nM2(nCnttp)).ne.0
+      ECP(nCnttp)=(nPP+nPrj+nSRO+nSOC+
+     &             dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
       lPP=lPP .or. nPP.ne.0
       lECP = lECP .or. ECP(nCnttp)
       lNoPair = lNoPair .or. NoPairL(nCnttp)

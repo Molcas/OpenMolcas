@@ -69,7 +69,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -153,7 +152,7 @@
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 111
-         If (nM1(kCnttp).eq.0) Go To 111
+         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)= dbsc(kCnttp)%Coor(1:3,kCnt)
 *
@@ -178,8 +177,8 @@
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
 *
-               Do 1011 iM1xp=0, nM1(kCnttp)-1
-                  Gamma = Work(ipM1xp(kCnttp)+iM1xp)
+               Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+                  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
 *
 *-----------------Modify the original basis. Observe that
 *                 simplification due to A=B are not valid for the
@@ -215,7 +214,7 @@
 *-----------------Accumulate result for all nuclei. Take the charge on
 *                 the center into account.
 *
-                  Factor = -Charge(kCnttp)*Work(ipM1cf(kCnttp)+iM1xp)
+                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M1cf(iM1xp)
      &                   * Fact
                   Call DaXpY_(nZeta*mAInt,Factor,Array(ipTmp),1,
      &                       Array(ipAInt),1)

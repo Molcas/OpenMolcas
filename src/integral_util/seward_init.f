@@ -121,16 +121,11 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
       Do i=1, Mxdbsc
-         ipM1xp(i)=ip_Dummy
-         ipM1cf(i)=ip_Dummy
-         ipM2xp(i)=ip_Dummy
-         ipM2cf(i)=ip_Dummy
          ipPAM2xp(i)=ip_Dummy
          ipPAM2cf(i)=ip_Dummy
          nPAM2(i)=-1
          ECP(i)=.false.
          AuxCnttp(i)=.false.
-         nM1(i)=0
          nFragType(i)=0
          IsMM(i)=0
          ipFragType(i)=ip_Dummy
@@ -139,7 +134,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          ipFragCoef(i)=ip_Dummy
          FragCnttp(i)=.false.
          FockOp(i) = .False.
-         nM2(i)=0
          ExpNuc(i)=-One
          w_mGauss(i)=One
          aCD_Thr(i)=One

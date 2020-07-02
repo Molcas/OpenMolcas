@@ -454,9 +454,7 @@ C     nPrint(122)=99
      &              PAM2(nCnttp),
      &              ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
      &              FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &              ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &              ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
+     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
      &              CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -545,7 +543,7 @@ ccjd
 #endif
                Call OrbType(iAtmNr(nCnttp),List_AE,31)
                Call ECP_Shells(iAtmNr(iCnttp),List)
-               If (lPP.or.nM1(iCnttp).eq.0) Then
+               If (lPP.or.dbsc(iCnttp)%nM1.eq.0) Then
 *
 *                 Pseud potential case
 *

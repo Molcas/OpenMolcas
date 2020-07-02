@@ -164,7 +164,7 @@
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
          If (.Not.ECP(kCnttp)) Go To 111
-         If (nM1(kCnttp).eq.0) Go To 111
+         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
@@ -195,8 +195,8 @@
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
 *
-               Do 1011 iM1xp=0, nM1(kCnttp)-1
-                  Gamma = Work(ipM1xp(kCnttp)+iM1xp)
+               Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+                  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
 *
                   Call ICopy(6,IndGrd,1,JndGrd,1)
                   Do 10 i = 1, 3
@@ -298,7 +298,7 @@
 *
 *-----------------Modify the density matrix with the prefactor
 *
-                  Fact = -Charge(kCnttp)*Work(ipM1cf(kCnttp)+iM1xp)*
+                  Fact = -Charge(kCnttp)*dbsc(kCnttp)%M1cf(iM1xp)*
      &                   (DBLE(nStabM) / DBLE(LmbdT)) * Two * Pi
                   nDAO = nElem(la)*nElem(lb)
                   Do 300 iDAO = 1, nDAO

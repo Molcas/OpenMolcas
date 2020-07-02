@@ -170,15 +170,15 @@ c         Call Seward_Init()
                         fab=One
                         If (ECP(jCnttp)) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = Work(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = Work(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = Work(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = Work(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
