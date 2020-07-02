@@ -31,7 +31,7 @@
 *                                                                      *
 *     Modified: Per Boussard -93.                                      *
 ************************************************************************
-      Use Basis_Info, only: dbsc
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "print.fh"
@@ -158,6 +158,8 @@ C        Write (6,*) 'Done'
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     M1 section                                                       *
+*                                                                      *
 *     Write (6,*) ' Reading M1'
       If (Index(Line,'M1').eq.0) Then
          Call WarningMessage(2,
@@ -165,20 +167,19 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)nM1
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM1)
-*     Write (*,*) ' nM1=',nM1
       dbsc(nCnttp)%nM1=nM1
-      Call mma_allocate(dbsc(nCttp)%M1xp,nM1,Label='dbsc:M1xp')
-      Call mma_allocate(dbsc(nCttp)%M1cf,nM1,Label='dbsc:M1cf')
-* Note: all broadcasting of DInf will be done at end of getbs!!
-*     If (nM1.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M1xp(i),i=1,nM1)
-      If (nM1.gt.0) Call Read_v(lUnit,dbsc(nCntp)%M1xp,1,nM1,1,ierr)
-*     If (nM1.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M1cf(i),i=1,nM1)
-      If (nM1.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M1cf,1,nM1,1,ierr)
+      If (nM1.gt.0) Then
+         Call mma_allocate(dbsc(nCttp)%M1xp,nM1,Label='dbsc:M1xp')
+         Call mma_allocate(dbsc(nCttp)%M1cf,nM1,Label='dbsc:M1cf')
+         Call Read_v(lUnit,dbsc(nCntp)%M1xp,1,nM1,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M1cf,1,nM1,1,ierr)
+       End If
 *                                                                      *
 ************************************************************************
+*                                                                      *
+*     M2 section                                                       *
 *                                                                      *
 *     Write (*,*) ' Reading M2'
       Line=Get_Ln(lUnit)
@@ -188,18 +189,15 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)nM2
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM2)
       dbsc(nCnttp)%nM2=nM2
-      Call mma_allocate(dbsc(nCttp)%M2xp,nM2,Label='dbsc:M2xp')
-      Call mma_allocate(dbsc(nCttp)%M2cf,nM2,Label='dbsc:M2cf')
-*     Write (*,*) ' nM2=',nM2
-*     If (nM2.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M2xp(i),i=1,nM2)
-      If (nM2.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
-*     If (nM2.gt.0) Read(lUnit,*) (dbsc(nCnttp)%M2cf(i),i=1,nM2)
-      If (nM2.gt.0) Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
-      ipExp(iShll+1) = iEnd + 1
+      If (nM2.gt.0) Then
+         Call mma_allocate(dbsc(nCttp)%M2xp,nM2,Label='dbsc:M2xp')
+         Call mma_allocate(dbsc(nCttp)%M2cf,nM2,Label='dbsc:M2cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
