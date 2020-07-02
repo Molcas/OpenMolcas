@@ -52,12 +52,12 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call Real_Spherical_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      Call DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine Real_Spherical_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      SubRoutine DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
       Integer, Target :: cxStrt,ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
@@ -288,6 +288,6 @@
 ************************************************************************
 *                                                                      *
       Return
-      End SubRoutine Real_Spherical_Internal
+      End SubRoutine DmpInf_Internal
 *
-      End
+      End SubRoutine DmpInf

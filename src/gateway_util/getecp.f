@@ -51,6 +51,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
+      Integer lUnit, iStrt, iEnd, Inc, iErr
+      Real*8 Work(iend)
+      End subroutine Read_v
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       iRout=6
       iPrint = nPrint(iRout)
       Call QEnter('GetECP')
@@ -171,10 +180,10 @@ C        Write (6,*) 'Done'
       Call Get_i1(1,nM1)
       dbsc(nCnttp)%nM1=nM1
       If (nM1.gt.0) Then
-         Call mma_allocate(dbsc(nCttp)%M1xp,nM1,Label='dbsc:M1xp')
-         Call mma_allocate(dbsc(nCttp)%M1cf,nM1,Label='dbsc:M1cf')
-         Call Read_v(lUnit,dbsc(nCntp)%M1xp,1,nM1,1,ierr)
-         Call Read_v(lUnit,dbsc(nCnttp)%M1cf,1,nM1,1,ierr)
+         Call mma_allocate(dbsc(nCnttp)%M1xp,nM1,Label='dbsc:M1xp')
+         Call mma_allocate(dbsc(nCnttp)%M1cf,nM1,Label='dbsc:M1cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M1xp(1),1,nM1,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M1cf(1),1,nM1,1,ierr)
        End If
 *                                                                      *
 ************************************************************************
@@ -193,8 +202,8 @@ C        Write (6,*) 'Done'
       Call Get_i1(1,nM2)
       dbsc(nCnttp)%nM2=nM2
       If (nM2.gt.0) Then
-         Call mma_allocate(dbsc(nCttp)%M2xp,nM2,Label='dbsc:M2xp')
-         Call mma_allocate(dbsc(nCttp)%M2cf,nM2,Label='dbsc:M2cf')
+         Call mma_allocate(dbsc(nCnttp)%M2xp,nM2,Label='dbsc:M2xp')
+         Call mma_allocate(dbsc(nCnttp)%M2cf,nM2,Label='dbsc:M2cf')
          Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
          Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
       End If

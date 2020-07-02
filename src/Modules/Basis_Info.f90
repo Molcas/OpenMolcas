@@ -90,7 +90,7 @@
       Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2
       Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable:: rDmp(:,:)
-!     Write (*,*) 'Basis_Info_Dmp()'
+!     Write (6,*) 'Basis_Info_Dmp()'
 !
 !     Temporary code until nCnttp has been move over to the Module
 !
@@ -116,7 +116,7 @@
          iDmp(2,i) = dbsc(i)%nM1
          iDmp(3,i) = dbsc(i)%nM2
          nAtoms=nAtoms+dbsc(i)%nCntr
-         nAux = nAux + dbsc(i)%nM1 + dbsc(i)%nM2
+         nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2
       End Do
       Call Put_iArray('iDmp',iDmp,3*nCnttp)
       Call mma_deallocate(iDmp)
@@ -133,32 +133,38 @@
       Call Put_dArray('rDmp',rDmp,3*nAtoms)
       Call mma_deallocate(rDmp)
 !
-      If (nAux.ne.0) Then
-      Call mma_allocate(rDmp,nAux,1,Label='rDmp')
-      nAux=1
-      Do i = 1, nCnttp
-         nM1 = dbsc(i)%nM1
-         If (nM1.gt.0) Then
-            rDmp(nAux:nAux+nM1,1) = dbsc(i)%M1xp(:)
-            nAux = nAux + nM1
-            rDmp(nAux:nAux+nM1,1) = dbsc(i)%M1cf(:)
-            nAux = nAux + nM1
-         End If
-         nM2 = dbsc(i)%nM2
-         If (nM2.gt.0) Then
-            rDmp(nAux:nAux+nM2,1) = dbsc(i)%M2xp(:)
-            nAux = nAux + nM2
-            rDmp(nAux:nAux+nM2,1) = dbsc(i)%M2cf(:)
-            nAux = nAux + nM2
-         End If
-      End Do
-      Call Put_dArray('rDmp:A',rDmp,nAux)
-      Call mma_deallocate(rDmp)
+      If (nAux.gt.0) Then
+         Call mma_allocate(rDmp,nAux,1,Label='rDmp')
+         nAux=0
+         Do i = 1, nCnttp
+            nM1 = dbsc(i)%nM1
+            If (nM1.gt.0) Then
+!              Call RecPrt('M1xp',' ',dbsc(i)%M1xp,1,nM1)
+!              Call RecPrt('M1cf',' ',dbsc(i)%M1cf,1,nM1)
+               rDmp(nAux+1:nAux+nM1,1) = dbsc(i)%M1xp(:)
+               nAux = nAux + nM1
+               rDmp(nAux+1:nAux+nM1,1) = dbsc(i)%M1cf(:)
+               nAux = nAux + nM1
+            End If
+            nM2 = dbsc(i)%nM2
+            If (nM2.gt.0) Then
+!              Call RecPrt('M2xp',' ',dbsc(i)%M2xp,1,nM2)
+!              Call RecPrt('M2cf',' ',dbsc(i)%M2cf,1,nM2)
+               rDmp(nAux+1:nAux+nM2,1) = dbsc(i)%M2xp(:)
+               nAux = nAux + nM2
+               rDmp(nAux+1:nAux+nM2,1) = dbsc(i)%M2cf(:)
+               nAux = nAux + nM2
+            End If
+         End Do
+!        Call RecPrt('rDmp:A',' ',rDmp,1,nAux)
+         Call Put_dArray('rDmp:A',rDmp,nAux)
+         Call mma_deallocate(rDmp)
       End If
 !
       Return
       End Subroutine Basis_Info_Dmp
 !
+!***********************************************************************
 !***********************************************************************
 !
       Subroutine Basis_Info_Get()
@@ -167,7 +173,7 @@
       Real*8, Allocatable:: rDmp(:,:)
       Logical Found
       Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2
-!     Write (*,*) 'Basis_Info_Get()'
+!     Write (6,*) 'Basis_Info_Get()'
 !
       Call qpg_iArray('iDmp',Found,Len)
       nCnttp=Len/3
@@ -178,7 +184,7 @@
          dbsc(i)%nCntr  = iDmp(1,i)
          dbsc(i)%nM1    = iDmp(2,i)
          dbsc(i)%nM2    = iDmp(3,i)
-         nAux = nAux + iDmp(2,i) + iDmp(3,i)
+         nAux = nAux + 2*iDmp(2,i) + 2*iDmp(3,i)
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -202,31 +208,37 @@
       End Do
       Call mma_deallocate(rDmp)
 !
+!     Write (*,*) 'nAux=',nAux
       If (nAux.gt.0) Then
-      Call qpg_dArray('rDmp:A',Found,Len)
-      Call mma_allocate(rDmp,nAux,1,Label='rDmp')
-      nAux=1
-      Do i = 1, nCnttp
-         nM1 = dbsc(i)%nM1
-         If (nM1.gt.0) Then
-            If (.Not.Allocated(dbsc(i)%M1xp)) Call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp')
-            dbsc(i)%M1xp(:)=rDmp(nAux:nAux+nM1,1)
-            nAux=nAux+nM1
-            If (.Not.Allocated(dbsc(i)%M1cf)) Call mma_allocate(dbsc(i)%M1cf,nM1,Label='dbsc:M1cf')
-            dbsc(i)%M1cf(:)=rDmp(nAux:nAux+nM1,1)
-            nAux=nAux+nM1
-         End If
-         nM2 = dbsc(i)%nM2
-         If (nM2.gt.0) Then
-            If (.Not.Allocated(dbsc(i)%M2xp)) Call mma_allocate(dbsc(i)%M2xp,nM2,Label='dbsc:M2xp')
-            dbsc(i)%M2xp(:)=rDmp(nAux:nAux+nM2,1)
-            nAux=nAux+nM2
-            If (.Not.Allocated(dbsc(i)%M2cf)) Call mma_allocate(dbsc(i)%M2cf,nM2,Label='dbsc:M2cf')
-            dbsc(i)%M2cf(:)=rDmp(nAux:nAux+nM2,1)
-            nAux=nAux+nM2
-         End If
-      End Do
-      Call mma_deallocate(rDmp)
+         Call qpg_dArray('rDmp:A',Found,Len)
+         Call mma_allocate(rDmp,nAux,1,Label='rDmp')
+         Call Get_dArray('rDmp:A',rDmp,Len)
+         nAux=0
+         Do i = 1, nCnttp
+            nM1 = dbsc(i)%nM1
+            If (nM1.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%M1xp)) Call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp')
+               dbsc(i)%M1xp(:)=rDmp(nAux+1:nAux+nM1,1)
+               nAux=nAux+nM1
+               If (.Not.Allocated(dbsc(i)%M1cf)) Call mma_allocate(dbsc(i)%M1cf,nM1,Label='dbsc:M1cf')
+               dbsc(i)%M1cf(:)=rDmp(nAux+1:nAux+nM1,1)
+               nAux=nAux+nM1
+!              Call RecPrt('M1xp',' ',dbsc(i)%M1xp,1,nM1)
+!              Call RecPrt('M1cf',' ',dbsc(i)%M1cf,1,nM1)
+            End If
+            nM2 = dbsc(i)%nM2
+            If (nM2.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%M2xp)) Call mma_allocate(dbsc(i)%M2xp,nM2,Label='dbsc:M2xp')
+               dbsc(i)%M2xp(:)=rDmp(nAux+1:nAux+nM2,1)
+               nAux=nAux+nM2
+               If (.Not.Allocated(dbsc(i)%M2cf)) Call mma_allocate(dbsc(i)%M2cf,nM2,Label='dbsc:M2cf')
+               dbsc(i)%M2cf(:)=rDmp(nAux+1:nAux+nM2,1)
+               nAux=nAux+nM2
+!              Call RecPrt('M2xp',' ',dbsc(i)%M2xp,1,nM2)
+!              Call RecPrt('M2cf',' ',dbsc(i)%M2cf,1,nM2)
+            End If
+         End Do
+         Call mma_deallocate(rDmp)
       End If
 #ifdef _DEBUG_
       Write (6,*) 'Basis_Info_Get'
@@ -240,10 +252,11 @@
       End Subroutine Basis_Info_Get
 !
 !***********************************************************************
+!***********************************************************************
 !
       Subroutine Basis_Info_Free()
       Integer i
-!     Write (*,*) 'Basis_Info_Free()'
+!     Write (6,*) 'Basis_Info_Free()'
 !
 !     Deallocate all allocatable parts of dbsc.
 !
@@ -265,6 +278,7 @@
       Return
       End Subroutine Basis_Info_Free
 !
+!***********************************************************************
 !***********************************************************************
 !
       End Module Basis_Info

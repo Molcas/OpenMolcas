@@ -32,21 +32,21 @@
       Write(LUT,'(A)') '*BEGIN COORDINATES'
       Write(LUT,'(A)') '*LABEL COORDINATES CHARGE '
       Do iCnttp=1,nCnttp
-       Do iCnt=1,dbsc(iCnttp)%nCntr
-        mdc=mdc+1
-        call dcopy_(3,Coor(1,mdc),1,A,1)
-        Do iCo=0,nIrrep/nStab(mdc)-1
-         kop=iCoSet(iCo,0,mdc)
-         A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
-         A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
-         A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
-         ii=nint(Charge(icnttp))
-         Lab=LblCnt(mdc)(1:LENIN)
-         call setLab(Lab,ico)
-         write (LUT,'(1X,A,1X,3F20.10,1X,I3)')
-     &Lab,A1,A2,A3,ii
-        End Do
-       End Do
+         Do iCnt=1,dbsc(iCnttp)%nCntr
+            mdc=mdc+1
+            call dcopy_(3,Coor(1,mdc),1,A,1)
+            Do iCo=0,nIrrep/nStab(mdc)-1
+               kop=iCoSet(iCo,0,mdc)
+               A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
+               A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
+               A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
+               ii=nint(Charge(icnttp))
+               Lab=LblCnt(mdc)(1:LENIN)
+               call setLab(Lab,ico)
+               write (LUT,'(1X,A,1X,3F20.10,1X,I3)')
+     &                  Lab,A1,A2,A3,ii
+             End Do
+         End Do
       End Do
       Write(LUT,'(A)') '*END COORDINATES'
       Return

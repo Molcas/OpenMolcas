@@ -171,7 +171,7 @@
          If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
 *
 *         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
-        Do iCntr=1,dbsc(iCnttp)%nCntr     ! loop over symmetry unique centers
+        Do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers
           mdc=mdc+1
           nDeg=nIrrep/nStab(mdc)
 *            write(6,*)'nDeg', nDeg
