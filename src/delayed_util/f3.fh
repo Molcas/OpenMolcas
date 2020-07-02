@@ -285,6 +285,11 @@
         call c_f_procpointer(funptr, lb_dbdsqr)
       end if
 !
+      funptr=link_func('dcombssq')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dcombssq)
+      end if
+!
       funptr=link_func('dgebak')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgebak)

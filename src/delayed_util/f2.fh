@@ -66,6 +66,7 @@
 ! LAPACK procedures
   procedure(int_dbdsdc), pointer :: lb_dbdsdc
   procedure(int_dbdsqr), pointer :: lb_dbdsqr
+  procedure(int_dcombssq), pointer :: lb_dcombssq
   procedure(int_dgebak), pointer :: lb_dgebak
   procedure(int_dgebal), pointer :: lb_dgebal
   procedure(int_dgebd2), pointer :: lb_dgebd2
