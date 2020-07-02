@@ -31,6 +31,8 @@
 * Liviu Ungur, May 2017 (added support for  COMPLEX*16, 4D)
 * Liviu Ungur, Jan 2018 (added support for 5D arrays)
 
+#include "molcastypes.fh"
+
 * out-of-memory handling
       subroutine mma_oom(bufsize,mma_avail)
         implicit none
@@ -81,14 +83,22 @@
         mma_avail = mma_avmem()
       end subroutine
 
+#ifdef _CAPITALS_
+#define cptr2woff_name 'CPTR2WOFF'
+#else
+#ifndef ADD_
+#define cptr2woff_name 'cptr2woff_'
+#endif
+#endif
+
 * type-specific pointer-to-offset routines
       integer function d_cptr2loff(buffer)
         use, intrinsic :: iso_c_binding
         implicit none
-#include "molcastypes.fh"
         real*8, target :: buffer(*)
         interface
-          integer function cptr2woff(string, ptr)
+          integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
+     &                               bind(C,name=cptr2woff_name)
             use, intrinsic :: iso_c_binding
             character(kind=c_char) :: string(*)
             type(c_ptr), value :: ptr
@@ -101,10 +111,10 @@
       integer function i_cptr2loff(buffer)
         use, intrinsic :: iso_c_binding
         implicit none
-#include "molcastypes.fh"
         integer, target :: buffer(*)
         interface
-          integer function cptr2woff(string, ptr)
+          integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
+     &                               bind(C,name=cptr2woff_name)
             use, intrinsic :: iso_c_binding
             character(kind=c_char) :: string(*)
             type(c_ptr), value :: ptr
@@ -117,10 +127,10 @@
       integer function c_cptr2loff(buffer)
         use, intrinsic :: iso_c_binding
         implicit none
-#include "molcastypes.fh"
         character(*), target :: buffer(*)
         interface
-          integer function cptr2woff(string, ptr)
+          integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
+     &                               bind(C,name=cptr2woff_name)
             use, intrinsic :: iso_c_binding
             character(kind=c_char) :: string(*)
             type(c_ptr), value :: ptr
@@ -133,10 +143,10 @@
       integer function dc_cptr2loff(buffer)
         use, intrinsic :: iso_c_binding
         implicit none
-#include "molcastypes.fh"
         complex*16, target :: buffer(*)
         interface
-          integer function cptr2woff(string, ptr)
+          integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
+     &                               bind(C,name=cptr2woff_name)
             use, intrinsic :: iso_c_binding
             character(kind=c_char) :: string(*)
             type(c_ptr), value :: ptr
@@ -154,7 +164,6 @@
         integer :: n1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -184,7 +193,6 @@
         integer, dimension(2) :: l1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: bufsize
@@ -216,7 +224,6 @@
         integer :: n1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -246,7 +253,6 @@
         integer, dimension(2) :: l1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: bufsize
@@ -278,7 +284,6 @@
         integer :: n1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -308,7 +313,6 @@
         integer, dimension(2) :: l1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: bufsize
@@ -340,7 +344,6 @@
         integer :: n1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -370,7 +373,6 @@
         integer, dimension(2) :: l1
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: bufsize
@@ -402,7 +404,6 @@
         integer :: n1, n2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -432,7 +433,6 @@
         integer, dimension(2) :: l1, l2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: bufsize
@@ -465,7 +465,6 @@
         integer :: n1, n2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -495,7 +494,6 @@
         integer, dimension(2) :: l1, l2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: bufsize
@@ -528,7 +526,6 @@
         integer :: n1, n2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -559,7 +556,6 @@
         integer, dimension(2) :: l1, l2
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: bufsize
@@ -593,7 +589,6 @@
         integer :: n1, n2, n3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -623,7 +618,6 @@
         integer, dimension(2) :: l1, l2, l3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: bufsize
@@ -657,7 +651,6 @@
         integer :: n1, n2, n3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -687,7 +680,6 @@
         integer, dimension(2) :: l1, l2, l3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: bufsize
@@ -721,7 +713,6 @@
         integer :: n1, n2, n3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -753,7 +744,6 @@
         integer, dimension(2) :: l1, l2, l3
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: bufsize
@@ -789,7 +779,6 @@
         integer :: n1, n2, n3, n4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -821,7 +810,6 @@
         integer, dimension(2) :: l1, l2, l3, l4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: bufsize
@@ -861,7 +849,6 @@
         integer :: n1, n2, n3, n4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -892,7 +879,6 @@
         integer, dimension(2) :: l1, l2, l3, l4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: bufsize
@@ -930,7 +916,6 @@
         integer :: n1, n2, n3, n4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -960,7 +945,6 @@
         integer, dimension(2) :: l1, l2, l3, l4
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: bufsize
@@ -999,7 +983,6 @@
         integer :: n1, n2, n3, n4, n5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -1030,7 +1013,6 @@
         integer, dimension(2) :: l1, l2, l3, l4, l5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: bufsize
@@ -1068,7 +1050,6 @@
         integer :: n1, n2, n3, n4, n5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -1099,7 +1080,6 @@
         integer, dimension(2) :: l1, l2, l3, l4, l5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: bufsize
@@ -1137,7 +1117,6 @@
         integer :: n1, n2, n3, n4, n5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: bufsize
         integer :: loffset
@@ -1169,7 +1148,6 @@
         integer, dimension(2) :: l1, l2, l3, l4, l5
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: bufsize
@@ -1209,7 +1187,6 @@
         integer, dimension(2) :: l1, l2, l3, l4, l5, l6, l7
         character (len=*), optional :: label
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5, n6, n7, n
         integer :: bufsize
@@ -1251,7 +1228,6 @@
         implicit none
         real*8, allocatable :: buffer(:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: loffset
@@ -1270,7 +1246,6 @@
         implicit none
         integer, allocatable :: buffer(:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: loffset
@@ -1289,7 +1264,6 @@
         implicit none
         character(*), allocatable :: buffer(:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: bufsize
@@ -1310,7 +1284,6 @@
         implicit none
         complex*16, allocatable :: buffer(:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1
         integer :: loffset
@@ -1329,7 +1302,6 @@
         implicit none
         real*8, allocatable :: buffer(:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: loffset
@@ -1350,7 +1322,6 @@
         implicit none
         integer, allocatable :: buffer(:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: loffset
@@ -1371,7 +1342,6 @@
         implicit none
         complex*16, allocatable :: buffer(:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2
         integer :: loffset
@@ -1393,7 +1363,6 @@
         implicit none
         real*8, allocatable :: buffer(:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: loffset
@@ -1416,7 +1385,6 @@
         implicit none
         integer, allocatable :: buffer(:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: loffset
@@ -1439,7 +1407,6 @@
         implicit none
         complex*16, allocatable :: buffer(:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3
         integer :: loffset
@@ -1465,7 +1432,6 @@
         implicit none
         integer, allocatable :: buffer(:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: loffset
@@ -1490,7 +1456,6 @@
         implicit none
         real*8, allocatable :: buffer(:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: loffset
@@ -1515,7 +1480,6 @@
         implicit none
         complex*16, allocatable :: buffer(:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4
         integer :: loffset
@@ -1541,7 +1505,6 @@
         implicit none
         integer, allocatable :: buffer(:,:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: loffset
@@ -1568,7 +1531,6 @@
         implicit none
         real*8, allocatable :: buffer(:,:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: loffset
@@ -1595,7 +1557,6 @@
         implicit none
         complex*16, allocatable :: buffer(:,:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5
         integer :: loffset
@@ -1624,7 +1585,6 @@
         implicit none
         real*8, allocatable :: buffer(:,:,:,:,:,:,:)
 #include "SysDef.fh"
-#include "molcastypes.fh"
 #include "cptr2loff.fh"
         integer :: n1, n2, n3, n4, n5, n6, n7, n
         integer :: loffset
