@@ -1198,10 +1198,7 @@ c Simplistic validity check for value
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &           nFragType(nCnttp),nFragCoor(nCnttp),nFragEner(nCnttp),
-     &           nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
-     &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
+     &           LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           DInf,nDInf,nCnttp)
 *
@@ -4611,7 +4608,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             If (FragCnttp(iCnttp)) Then
 *              Check the FragExpand routine!
-               iChxyz = iChCnt(nFragCoor(mdc))
+               iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
             Else
 *
 *------------- To assign the character of a center we need to find

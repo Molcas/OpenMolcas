@@ -23,6 +23,7 @@
 *                                                                      *
 *                R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden *
 ************************************************************************
+      Use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -36,21 +37,22 @@
       maxDensSize = 0
 c        largest possible fragment energy weighted density matrix
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDensSize = Max(maxDensSize,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If(dbsc(iCnttp)%nFragType.gt.0) maxDensSize = Max(maxDensSize,
+     &                        dbsc(iCnttp)%nFragDens
+     &                      *(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
 c
       Do iCnttp = 1, nCnttp
-      If (.Not.FragCnttp(iCnttp)) cycle ! Go To 1960
+      If (.Not.FragCnttp(iCnttp)) cycle
 c
          Do iAng = 0, nVal_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) cycle !Go To 1966
+         If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) cycle
 *
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
 * same fragment (keep track of mdc?) ! still to be done !!!
-            If (.Not.FragCnttp(jCnttp)) cycle !Go To 1970
+            If (.Not.FragCnttp(jCnttp)) cycle
 c
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng

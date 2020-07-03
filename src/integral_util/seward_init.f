@@ -126,12 +126,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          nPAM2(i)=-1
          ECP(i)=.false.
          AuxCnttp(i)=.false.
-         nFragType(i)=0
          IsMM(i)=0
-         ipFragType(i)=ip_Dummy
-         ipFragCoor(i)=ip_Dummy
-         ipFragEner(i)=ip_Dummy
-         ipFragCoef(i)=ip_Dummy
          FragCnttp(i)=.false.
          FockOp(i) = .False.
          ExpNuc(i)=-One

@@ -119,13 +119,14 @@ c     W2Disc=.False.
 * Valence part is zero
       Dens(:)=Zero
       Fock(:)=Zero
-* Each fragment needs it's (symmetrized) density matrix added along the diagonal
-* This density matrix first has to be constructed from the MO coefficients
+* Each fragment needs it's (symmetrized) density matrix added along the
+* diagonal.
+* This density matrix first has to be constructed from the MO coeffs
 * so allocate space for the largest possible density matrix
       maxDens = 0
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDens = Max(maxDens,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If(dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,
+     &     dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
       Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
       ipFragDensAO = ipFragDensSO
@@ -136,20 +137,20 @@ c     W2Disc=.False.
         iDpos = iDpos + nBasC*(nBasC+1)/2
         mdc = 0
         Do 1000 iCnttp = 1, nCnttp
-          If(nFragType(iCnttp).le.0) Then
+          If(dbsc(iCnttp)%nFragType.le.0) Then
             mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
 * construct the density matrix
           EnergyWeight = .false.
-          Call MakeDens(nFragDens(iCnttp),nFragEner(iCnttp),
-     &                Work(ipFragCoef(iCnttp)),Work(ipFragEner(iCnttp)),
+          Call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,
+     &                dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,
      &                EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
 #ifdef _DEBUG_
           Call TriPrt('Fragment density',' ',
-     &      Work(ipFragDensSO),nFragDens(iCnttp))
+     &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
 #endif
 
           Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -161,7 +162,7 @@ c     W2Disc=.False.
 * add it at the correct location in the large custom density matrix
               iFpos = 1
 c              ! position in fragment density matrix
-              Do i = 1, nFragDens(iCnttp)
+              Do i = 1, dbsc(iCnttp)%nFragDens
                 iDpos = iDpos + nBasC
                 Do j = 0, i-1
                   Dens(iDpos + j) =
@@ -170,7 +171,7 @@ c              ! position in fragment density matrix
                 iDpos = iDpos + i
                 iFpos = iFpos + i
               End Do
-              nBasC = nBasC + nFragDens(iCnttp)
+              nBasC = nBasC + dbsc(iCnttp)%nFragDens
             End If
           End Do
  1000   Continue

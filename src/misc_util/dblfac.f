@@ -7,6 +7,7 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
 * Copyright (C) 1990,2020, Roland Lindh                                *
 ************************************************************************
       Function DblFac(n)

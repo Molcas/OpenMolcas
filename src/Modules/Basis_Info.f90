@@ -7,6 +7,7 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUG_
@@ -14,7 +15,7 @@
       Implicit None
       Private
       Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, &
-                Distinct_Basis_set_Centers, dbsc
+                Distinct_Basis_set_Centers, dbsc, nFrag_LineWords
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
@@ -23,13 +24,23 @@
 !
 !     nCntr : number of centers associated with a dbsc
 !     Coor  : the coordinates of a dbsc
+!
 !     nM1   : number of ECP M1 type terms on the i''th unique center
 !     M1xp  : ECP M1-type exponents for i''th unq center
 !     M1cf  : ECP M1 type coefficients for i''th unq cntr
 !     nM2   : number of ECP M2 type terms on the i''th unique center
 !     M2xp  : ECP M2-type exponents for i''th unq center
 !     M2cf  : ECP M2 type coefficients for i''th unq cntr
-
+!
+!     nFragType:  number of unique centers in a fragment (0=not a frag)
+!     nFragCoor:  total number of centers in a fragment
+!     nFragEner:  number of orbital energies/occupied orbitals in a given fragment
+!     nFragDens:  size of the fragments density matrix
+!     FragType : the data of the fragment''s unique centers (associated basis set, size nFragType)
+!     FragCoor : the data of all fragment''s centers (atom type / relative coordinates, size nFragCoor)
+!     FragEner : the fragment''s orbital''s energies (size nFragEner)
+!     FragCoef : the fragment''s MO coefficients (size nFragDens*nFragEner)
+!
       Type Distinct_Basis_set_centers
           Sequence
           Real*8, Allocatable:: Coor(:,:)
@@ -38,8 +49,11 @@
           Real*8, Allocatable:: M1xp(:), M1cf(:)
           Integer:: nM2=0
           Real*8, Allocatable:: M2xp(:), M2cf(:)
+          Integer:: nFragType=0, nFragCoor=0, nFragEner=0, nFragDens=0
+          Real*8, Allocatable:: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
       End Type Distinct_Basis_set_centers
 !
+      Integer :: nFrag_LineWords=0, nFields=7
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
 !
       Interface
@@ -87,9 +101,10 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2
+      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor
       Integer, Allocatable:: iDmp(:,:)
-      Real*8, Allocatable:: rDmp(:,:)
+      Real*8, Allocatable, Target:: rDmp(:,:)
+      Real*8, Pointer:: qDmp(:,:)
 !     Write (6,*) 'Basis_Info_Dmp()'
 !
 !     Temporary code until nCnttp has been move over to the Module
@@ -108,17 +123,34 @@
          End Do
       End Do
 #endif
-      Call mma_Allocate(iDmp,3,nCnttp,Label='iDmp')
+      Call mma_Allocate(iDmp,nFields,nCnttp+1,Label='iDmp')
       nAtoms=0
       nAux   = 0
       Do i = 1, nCnttp
          iDmp(1,i) = dbsc(i)%nCntr
          iDmp(2,i) = dbsc(i)%nM1
          iDmp(3,i) = dbsc(i)%nM2
+         iDmp(4,i) = dbsc(i)%nFragType
+         iDmp(5,i) = dbsc(i)%nFragCoor
+         iDmp(6,i) = dbsc(i)%nFragEner
+         iDmp(7,i) = dbsc(i)%nFragDens
          nAtoms=nAtoms+dbsc(i)%nCntr
-         nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2
+         nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
+         nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
+               +nFrag_LineWords*dbsc(i)%nFragType     &
+               +5              *        nFragCoor     &
+                               +dbsc(i)%nFragEner     &
+             +dbsc(i)%nFragDens*dbsc(i)%nFragEner
+#ifdef _DEBUG_
+         Write (6,'(A,7I4)') 'iCnttp=',i,                     &
+                nFrag_LineWords,dbsc(i)%nFragType,    &
+                                dbsc(i)%nFragCoor,    &
+                                dbsc(i)%nFragEner,    &
+                                dbsc(i)%nFragDens, nAux
+#endif
       End Do
-      Call Put_iArray('iDmp',iDmp,3*nCnttp)
+      iDmp(1,nCnttp+1)=nFrag_LineWords
+      Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
       Call mma_deallocate(iDmp)
 !
       Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
@@ -134,6 +166,7 @@
       Call mma_deallocate(rDmp)
 !
       If (nAux.gt.0) Then
+!        Write (*,*) 'nAux=',nAux
          Call mma_allocate(rDmp,nAux,1,Label='rDmp')
          nAux=0
          Do i = 1, nCnttp
@@ -155,6 +188,35 @@
                rDmp(nAux+1:nAux+nM2,1) = dbsc(i)%M2cf(:)
                nAux = nAux + nM2
             End If
+!
+!           Write (*,*) 'iAux=',nAux
+!           Write (*,*) nFrag_LineWords, dbsc(i)%nFragType
+            If (dbsc(i)%nFragType.gt.0) Then
+               qDmp(1:nFrag_LineWords,1:dbsc(i)%nFragType) => rDmp(nAux+1:nAux+nFrag_LineWords*dbsc(i)%nFragType,1)
+               qDmp(:,:)=dbsc(i)%FragType(:,:)
+               nAux = nAux + nFrag_LineWords*dbsc(i)%nFragType
+               Nullify(qDmp)
+            End If
+!           Write (*,*) dbsc(i)%nFragCoor
+            nFragCoor = Max(0,dbsc(i)%nFragCoor)
+            If (        nFragCoor.gt.0) Then
+               qDmp(1:5,1:        nFragCoor) => rDmp(nAux+1:nAux+5*        nFragCoor,1)
+               qDmp(:,:)=dbsc(i)%FragCoor(:,:)
+               nAux = nAux + 5*        nFragCoor
+               Nullify(qDmp)
+            End If
+!           Write (*,*) dbsc(i)%nFragEner
+            If (dbsc(i)%nFragEner.gt.0) Then
+               rDmp(nAux+1:nAux+dbsc(i)%nFragEner,1)=dbsc(i)%FragEner(:)
+               nAux = nAux + dbsc(i)%nFragEner
+            End If
+!           Write (*,*) dbsc(i)%nFragDens
+            If (dbsc(i)%nFragDens*dbsc(i)%nFragEner.gt.0) Then
+               qDmp(1:dbsc(i)%nFragDens,1:dbsc(i)%nFragEner) => rDmp(nAux+1:nAux+dbsc(i)%nFragDens*dbsc(i)%nFragEner,1)
+               qDmp(:,:)=dbsc(i)%FragCoef(:,:)
+               nAux = nAux + dbsc(i)%nFragDens*dbsc(i)%nFragEner
+               Nullify(qDmp)
+            End If
          End Do
 !        Call RecPrt('rDmp:A',' ',rDmp,1,nAux)
          Call Put_dArray('rDmp:A',rDmp,nAux)
@@ -170,21 +232,40 @@
       Subroutine Basis_Info_Get()
 !
       Integer, Allocatable:: iDmp(:,:)
-      Real*8, Allocatable:: rDmp(:,:)
+      Real*8, Allocatable, Target:: rDmp(:,:)
+      Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
       Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2
+      Integer nFragType, nFragCoor, nFragEner, nFragDens
 !     Write (6,*) 'Basis_Info_Get()'
 !
       Call qpg_iArray('iDmp',Found,Len)
-      nCnttp=Len/3
-      Call mma_Allocate(iDmp,3,nCnttp,Label='iDmp')
-      If (Found) Call Get_iArray('iDmp',iDmp,3*nCnttp)
+      nCnttp=Len/nFields-1
+      Call mma_Allocate(iDmp,nFields,nCnttp+1,Label='iDmp')
+      If (Found) Call Get_iArray('iDmp',iDmp,nFields*(nCnttp+1))
       nAux = 0
+      nFrag_LineWords=iDmp(1,nCnttp+1)
       Do i = 1, nCnttp
-         dbsc(i)%nCntr  = iDmp(1,i)
-         dbsc(i)%nM1    = iDmp(2,i)
-         dbsc(i)%nM2    = iDmp(3,i)
-         nAux = nAux + 2*iDmp(2,i) + 2*iDmp(3,i)
+         dbsc(i)%nCntr     = iDmp(1,i)
+         dbsc(i)%nM1       = iDmp(2,i)
+         dbsc(i)%nM2       = iDmp(3,i)
+         dbsc(i)%nFragType = iDmp(4,i)
+         dbsc(i)%nFragCoor = iDmp(5,i)
+         dbsc(i)%nFragEner = iDmp(6,i)
+         dbsc(i)%nFragDens = iDmp(7,i)
+         nFragCoor=Max(0,dbsc(i)%nFragCoor)
+         nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
+               +nFrag_LineWords*dbsc(i)%nFragType     &
+               +5              *        nFragCoor     &
+                               +dbsc(i)%nFragEner     &
+             +dbsc(i)%nFragDens*dbsc(i)%nFragEner
+#ifdef _DEBUG_
+         Write (6,'(A,7I4)') 'iCnttp=',i,                     &
+                nFrag_LineWords,dbsc(i)%nFragType,    &
+                                dbsc(i)%nFragCoor,    &
+                                dbsc(i)%nFragEner,    &
+                                dbsc(i)%nFragDens, nAux
+#endif
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -208,13 +289,19 @@
       End Do
       Call mma_deallocate(rDmp)
 !
-!     Write (*,*) 'nAux=',nAux
       If (nAux.gt.0) Then
          Call qpg_dArray('rDmp:A',Found,Len)
+         nAux=nAux+1
+!        Write (*,*) 'nAux=',nAux
          Call mma_allocate(rDmp,nAux,1,Label='rDmp')
          Call Get_dArray('rDmp:A',rDmp,Len)
          nAux=0
+         nFrag_LineWords=INT(rDmp(nAux+1,1))
+         nAux = nAux + 1
          Do i = 1, nCnttp
+!
+!           ECP stuff
+!
             nM1 = dbsc(i)%nM1
             If (nM1.gt.0) Then
                If (.Not.Allocated(dbsc(i)%M1xp)) Call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp')
@@ -236,6 +323,41 @@
                nAux=nAux+nM2
 !              Call RecPrt('M2xp',' ',dbsc(i)%M2xp,1,nM2)
 !              Call RecPrt('M2cf',' ',dbsc(i)%M2cf,1,nM2)
+            End If
+!
+!           Fragment stuff
+!
+            nFragType  =dbsc(i)%nFragType
+            If (nFragType.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%FragType)) Call mma_allocate(dbsc(i)%FragType,nFrag_LineWords,nFragType,Label='FragType')
+               qDmp(1:nFrag_LineWords,1:nFragType) => rDmp(nAux+1:nAux+nFrag_LineWords*nFragType,1)
+               dbsc(i)%FragType(:,:)=qDmp(:,:)
+               nAux=nAux+nFrag_LineWords*nFragType
+               Nullify(qDmp)
+            End If
+            nFragCoor  =Max(0,dbsc(i)%nFragCoor)
+            If (nFragCoor.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%FragCoor)) Call mma_allocate(dbsc(i)%FragCoor,5,nFragCoor,Label='FragCoor')
+               qDmp(1:5,1:nFragCoor) => rDmp(nAux+1:nAux+5*nFragCoor,1)
+               dbsc(i)%FragCoor(:,:)=qDmp(:,:)
+               nAux=nAux+5*nFragCoor
+               Nullify(qDmp)
+            End If
+            nFragEner  =dbsc(i)%nFragEner
+            If (nFragEner.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%FragEner)) Call mma_allocate(dbsc(i)%FragEner,nFragEner,Label='FragEner')
+               pDmp(1:nFragEner) => rDmp(nAux+1:nAux+nFragEner,1)
+               dbsc(i)%FragEner(:)=pDmp(:)
+               nAux=nAux+nFragEner
+               Nullify(pDmp)
+            End If
+            nFragDens  =dbsc(i)%nFragDens
+            If (nFragDens*nFragEner.gt.0) Then
+               If (.Not.Allocated(dbsc(i)%FragCoef)) Call mma_allocate(dbsc(i)%FragCoef,nFragDens,nFragEner,Label='FragCoef')
+               qDmp(1:nFragDens,1:nFragEner) => rDmp(nAux+1:nAux+nFragDens*nFragEner,1)
+               dbsc(i)%FragCoef(:,:)=qDmp(:,:)
+               nAux=nAux+nFragDens*nFragEner
+               Nullify(qDmp)
             End If
          End Do
          Call mma_deallocate(rDmp)
@@ -265,14 +387,30 @@
          i=i+1
          If (i.gt.Mxdbsc .or. dbsc(i)%nCntr.eq.0) Exit
 !
+!        Molecular Coordinates
+!
          If (allocated(dbsc(i)%Coor)) Call mma_deallocate(dbsc(i)%Coor)
          dbsc(i)%nCntr=-1
+!
+!        ECP stuff
+!
          If (allocated(dbsc(i)%M1xp)) Call mma_deallocate(dbsc(i)%M1xp)
          If (allocated(dbsc(i)%M1cf)) Call mma_deallocate(dbsc(i)%M1cf)
          dbsc(i)%nM1=0
          If (allocated(dbsc(i)%M2xp)) Call mma_deallocate(dbsc(i)%M2xp)
          If (allocated(dbsc(i)%M2cf)) Call mma_deallocate(dbsc(i)%M2cf)
          dbsc(i)%nM2=0
+!
+!        Fragment stuff
+!
+         If (allocated(dbsc(i)%FragType)) Call mma_deallocate(dbsc(i)%FragType)
+         dbsc(i)%nFragType=0
+         If (allocated(dbsc(i)%FragCoor)) Call mma_deallocate(dbsc(i)%FragCoor)
+         dbsc(i)%nFragCoor=0
+         If (allocated(dbsc(i)%FragEner)) Call mma_deallocate(dbsc(i)%FragEner)
+         dbsc(i)%nFragEner=0
+         If (allocated(dbsc(i)%FragCoef)) Call mma_deallocate(dbsc(i)%FragCoef)
+         dbsc(i)%nFragDens=0
       End Do
 !
       Return

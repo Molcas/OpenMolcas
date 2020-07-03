@@ -27,9 +27,6 @@
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
       Do i = 1, Mxdbsc
-         ipFragEner(i) = ipFragEner(i) + ibase
-         ipFragCoef(i) = ipFragCoef(i) + ibase
-         ipFragCoor(i) = ipFragCoor(i) + ibase
          ipPAM2xp(i)   = ipPAM2xp(i)   + ibase
          ipPAM2cf(i)   = ipPAM2cf(i)   + ibase
       End Do

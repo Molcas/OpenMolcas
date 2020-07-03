@@ -364,7 +364,7 @@
 *
 *        Skip gradients for pseudo atoms
 *
-         If (pChrg(iCnttp).or.nFragType(iCnttp).gt.0.or.
+         If (pChrg(iCnttp).or.dbsc(iCnttp)%nFragType.gt.0.or.
      &       FragCnttp(iCnttp)) Then
             mdc=mdc+dbsc(iCnttp)%nCntr
          Else

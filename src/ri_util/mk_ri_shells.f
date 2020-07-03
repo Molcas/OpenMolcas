@@ -175,10 +175,7 @@
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &        nFragType(nCnttp),nFragCoor(nCnttp),nFragEner(nCnttp),
-     &        nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
-     &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
+     &              LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',
      &              DInf,nDInf,nCnttp)
          AuxCnttp(nCnttp)=.True.

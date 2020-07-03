@@ -27,6 +27,7 @@
 *  based on PrjMmG                                                     *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -42,9 +43,10 @@
       maxDensSize = 0
 c  largest possible fragment energy weighted density matrix
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0)
+        If(dbsc(iCnttp)%nFragType.gt.0)
      &  maxDensSize = Max( maxDensSize,
-     &                     nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2 )
+     &                     dbsc(iCnttp)%nFragDens
+     &                   *(dbsc(iCnttp)%nFragDens+1)/2 )
       End Do
 c
       Do iCnttp = 1, nCnttp

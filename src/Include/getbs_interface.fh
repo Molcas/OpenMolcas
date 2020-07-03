@@ -21,9 +21,7 @@
      &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
      &                 UnNorm,nDel, nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,AuxCnttp,
-     &                 nFragType,nFragCoor,nFragEner,nFragDens,
-     &                 ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM,
+     &                 BasisTypes,AuxCnttp, IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
      &                 DInf,nDInf,nCnttp)
 #include "Molcas.fh"
@@ -50,8 +48,7 @@
      &              ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &              BasisTypes(4)
       Logical       AuxCnttp
-      Integer       nFragType,nFragCoor,nFragEner,nFragDens,
-     &              ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM
+      Integer       IsMM
       Character*180 STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir

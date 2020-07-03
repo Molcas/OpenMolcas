@@ -132,13 +132,13 @@ c data for individual fragments:
          Write (6,*) ' In FragPInt:     dbsc(nCnttp)%nCntr  = ',
      &                                        (dbsc(i)%nCntr,i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragType(nCnttp)  = ',
-     &                                    (nFragType(i),i=1,nCnttp)
+     &                                    (dbsc(i)%nFragType,i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragCoor(nCnttp)  = ',
-     &                                    (nFragCoor(i),i=1,nCnttp)
+     &                                    (dbsc(i)%nFragCoor,i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragDens(nCnttp)  = ',
-     &                                    (nFragDens(i),i=1,nCnttp)
+     &                                    (dbsc(i)%nFragDens,i=1,nCnttp)
          Write (6,*) ' In FragPInt: nFragDens(nCnttp)  = ',
-     &                                    (nFragDens(i),i=1,nCnttp)
+     &                                    (dbsc(i)%nFragDens,i=1,nCnttp)
 c
          Write (6,*) ' In FragPInt: nAlpha,nBeta=',' ',nAlpha,nBeta
          Write (6,*) ' In FragPInt: Alpha=',' ',Alpha
@@ -177,11 +177,11 @@ c         Call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 * density matrix and one combination of shells of it.
       maxDensSize = 0
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) then
-        maxDensSize = Max( maxDensSize,
-     &                     nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If(dbsc(iCnttp)%nFragType.gt.0) then
+        maxDensSize = Max( maxDensSize,dbsc(iCnttp)%nFragDens
+     &                               *(dbsc(iCnttp)%nFragDens+1)/2)
 c        write(6,'(A,i2,A,i6)') 'nFragDens(',iCnttp,')=',
-c     &                                              nFragDens(iCnttp)
+c     &                                           dbsc(iCnttp)%nFragDens
         endif
       End Do
 *                                                                      *
@@ -234,17 +234,18 @@ c        print *, 'In FragPInt: iS=',iS,' iShell=',iShell
 c        print *, 'In FragPInt: iS=',iS,' iCnttp=',iCnttp
 c        print *, 'In FragPInt: iS=',iS,' iSize =',iSize
 c        print *, 'In FragPInt: iS=',iS,' iCurMdc =',iCurMdc
-c        print *, 'In FragPInt: nFragCoor(',mdci,') =',nFragCoor(mdci)
+c        print *, 'In FragPInt: nFragCoor(',mdci,') =',
+c    &             dbsc(mdci)%nFragCoor
 c      End If
 
         If(Transf(iShll).and.Prjct(iShll)) iSize = 2*iAng+1
-        If(nFragCoor(mdci).ne.iCurMdc) Then
+        If(Abs(dbsc(mdci)%nFragCoor).ne.iCurMdc) Then
 * update fragment related quantities
-          iCurMdc = nFragCoor(mdci)
+          iCurMdc = Abs(dbsc(mdci)%nFragCoor)
           iSstart = iS
           iSend = nSkal
           Do iStemp = iSstart + 1,nSkal
-            If(nFragCoor(iSD(10,iStemp)).ne.iCurMdc) Then
+            If(Abs(dbsc(iSD(10,iStemp))%nFragCoor).ne.iCurMdc) Then
               iSend = iStemp - 1
               goto 101
             End If
@@ -262,7 +263,7 @@ c      End If
           If(iCurCenter.gt.dbsc(iCurCnttp)%nCntr) Then
             iCurCenter = 1
             Do jCnttp = iCurCnttp+1, nCnttp
-              If(nFragType(jCnttp).gt.0) Then
+              If(dbsc(jCnttp)%nFragType.gt.0) Then
                 iCurCnttp = jCnttp
                 goto 102
               End If
@@ -272,24 +273,30 @@ c      End If
 * update the energy weighted density matrix of the current fragment
             EnergyWeight = .true.
 c            write(6,*) 'Calling MakeDens 1: iCurCnttp=',iCurCnttp
-c            write(6,*) 'nFragDens(iCurCnttp)=',nFragDens(iCurCnttp)
-c            write(6,*) 'nFragEner(iCurCnttp)=',nFragEner(iCurCnttp)
+c            write(6,*) 'nFragDens(iCurCnttp)=',
+c    &                  dbsc(iCurCnttp)%nFragDens
+c            write(6,*) 'nFragEner(iCurCnttp)=',
+c    &                  dbsc(iCurcnttp)%nFragEner
 c           Call MakeDens(                nBas,                nOrb,
 c                                     Cff,                      OrbEn,
 c             EnergyWeight, Dens)
-            Call MakeDens(nFragDens(iCurCnttp),nFragEner(iCurCnttp),
-     &        Work(ipFragCoef(iCurCnttp)),Work(ipFragEner(iCurCnttp)),
+            Call MakeDens(dbsc(iCurCnttp)%nFragDens,
+     &                    dbsc(iCurCnttp)%nFragEner,
+     &                    dbsc(iCurCnttp)%FragCoef,
+     &                    dbsc(iCurCnttp)%FragEner,
      &        EnergyWeight,Array)
-            If(iPrint.ge.49) Call TriPrt('Energy weighted fragment dens'
-     &                                  ,' ',Array,nFragDens(iCurCnttp))
+            If (iPrint.ge.49)
+     &         Call TriPrt('Energy weighted fragment dens',' ',
+     &                      Array,dbsc(iCurCnttp)%nFragDens)
 * include the minus sign of -2eta_i
-            Call DScal_(nFragDens(iCurCnttp)*(nFragDens(iCurCnttp)+1)/2,
-     &                 -One,Array,1)
-            If(iPrint.ge.49)
-     &                    Call TriPrt('-1 Energy weighted fragment dens'
-     &                                  ,' ',Array,nFragDens(iCurCnttp))
-            If(maxDensSize.lt.nFragDens(iCurCnttp)*
-     &         (nFragDens(iCurCnttp)+1)/2) Call Abend !'maxIJSize'
+            Call DScal_(dbsc(iCurCnttp)%nFragDens
+     &                *(dbsc(iCurCnttp)%nFragDens+1)/2,-One,Array,1)
+            If (iPrint.ge.49)
+     &         Call TriPrt('-1 Energy weighted fragment dens',' ',
+     &                     Array,dbsc(iCurCnttp)%nFragDens)
+            If (maxDensSize.lt.dbsc(iCurCnttp)%nFragDens*
+     &                        (dbsc(iCurCnttp)%nFragDens+1)/2)
+     &         Call Abend !'maxIJSize'
           End If
         End If
 c       write(*,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',

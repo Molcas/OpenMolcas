@@ -116,7 +116,7 @@ C     nPrint(122)=99
 *
          If(AuxCnttp(iCnttp) .or.
      &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 .or.
+     &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Then
            Goto 1000
          End If
@@ -459,9 +459,7 @@ C     nPrint(122)=99
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &              idummy,idummy,idummy,idummy,
-     &              idummy,idummy,idummy,idummy,idummy,
+     &              LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
      &              STDINP,lSTDINP,.False.,.true.,' ',
      &              DInf,nDInf,nCnttp)
 *
@@ -895,7 +893,7 @@ c     &               Charge_Actual,Charge_Effective
       Do 2000 iCnttp = 1, nCnttp
          If(AuxCnttp(iCnttp) .or.
      &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 .or.
+     &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Then
            Goto 2000
          End If

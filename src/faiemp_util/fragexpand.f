@@ -35,7 +35,7 @@
       parameter(  storageSize = 200, LineWords=storageSize/8)
       Real*8      DInf(nDInf), eqBasis(LineWords)
       Integer     BasisTypes(4), nDel(MxAng),
-     &            LenLbl, i, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
+     &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            idummy, ii, Indx, iOptn, iSh, iShll, jShll,
      &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, nAIMP, ndc,
      &            ninfo_stupid, nVal, nPrj, nSRO, nSOC, nPP, nProj,
@@ -49,6 +49,10 @@
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
       Character*180  STDINP(mxAtom*2)
+!#define _DEBUG_
+#ifdef _DEBUG_
+      Integer i
+#endif
 * external functions and procedures
       Integer     iMostAbundantIsotope, iCLast
       Real*8      NucExp, rMass
@@ -62,48 +66,48 @@
 ************************************************************************
 *                                                                      *
 
-*     Call qEnter('FragExpand')
       UnNorm = .False.
-      mdc = 0
       LenLbl=0
-      Do i = 1, nCnttp
-        mdc = Max(mdc,mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr)
-      End Do
+      mdc = mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr
       BasisTypes(1)=0
       BasisTypes(2)=0
       BasisTypes(3)=0
       BasisTypes(4)=0
       iShll = Mx_Shll-1
       lSTDINP=0
-c     write(*,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
-c     write(*,*) 'ipExp(iShll+1) = ',ipExp(iShll+1)
+#ifdef _DEBUG_
+      write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
+      write(6,*) 'ipExp(iShll+1) = ',ipExp(iShll+1)
+#endif
 *
       mCnttp = nCnttp
       ndc = 0
 
-c      If (iPrint.gt.49) Then
-c      write(6,'(A,i6)') 'FragExpand: just before the ''Do 1000 iCnttp'''
-c      write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
-c      write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
-c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
-c     &                                    (mdciCnttp(i),i=1,mCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
-c     &                                        (dbsc(i)%nCntr,i=1,mCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-c     &                                    (nFragType(i),i=1,mCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
-c     &                                    (nFragCoor(i),i=1,mCnttp)
-c      End If
+#ifdef _DEBUG_
+       write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
+       write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+       write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
+       write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
+     &                                    (mdciCnttp(i),i=1,mCnttp)
+       write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
+     &                              (dbsc(i)%nCntr,i=1,mCnttp)
+       write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
+     &                              (dbsc(i)%nFragType,i=1,mCnttp)
+       write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
+     &                              (dbsc(i)%nFragCoor,i=1,mCnttp)
+#endif
 
       Do iCnttp = 1, mCnttp
-        If(nFragType(iCnttp).le.0) Then
+        If(dbsc(iCnttp)%nFragType.le.0) Then
           ndc = ndc + dbsc(iCnttp)%nCntr
-          Goto 1000
+          Cycle
         End If
         Do iCntr = 1, dbsc(iCnttp)%nCntr
           ndc = ndc + 1
-          Do iAtom = 1, nFragCoor(iCnttp)
+          Do iAtom = 1, dbsc(iCnttp)%nFragCoor
+*
 * create a new basis set center
+*
             nCnttp = nCnttp + 1
             If (nCnttp.gt.Mxdbsc) Then
               Write (6,*) ' Increase Mxdbsc'
@@ -111,9 +115,9 @@ c      End If
               Call Quit_OnUserError()
             End If
 * read the associated basis set in sBasis
-            iBas = int(DInf(ipFragCoor(iCnttp)+5*(iAtom-1)))
+            iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
             call dcopy_(LineWords,
-     &       DInf(ipFragType(iCnttp)+LineWords*(iBas-1)), 1, eqBasis, 1)
+     &       dbsc(iCnttp)%FragType(1,iBas), 1, eqBasis, 1)
 * get the basis set directory
             LenBSL = Len(sBasis)
             Last = iCLast(sBasis,LenBSL)
@@ -154,22 +158,20 @@ c           write(*,*) 'Fname = ',Fname
             SODK(nCnttp)=.False.
             mdciCnttp(nCnttp)=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,
-     &        ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,nExp,
-     &        nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
-     &        Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
-     &        PAM2(nCnttp),
-     &        ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
-     &        FockOp(nCnttp),
-     &        ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
-     &        CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
-     &        UnNorm,nDel,
-     &        nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &        ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &        LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &        idummy,idummy,idummy,idummy,idummy,idummy,idummy,
-     &        idummy,idummy,
-     &        STDINP,lSTDINP,.False.,.true.,' ',
-     &        DInf,nDInf,nCnttp)
+     &                 ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,nExp,
+     &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
+     &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
+     &                 PAM2(nCnttp),
+     &                 ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
+     &                 FockOp(nCnttp),
+     &                 ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
+     &                 CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
+     &                 UnNorm,nDel,
+     &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
+     &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
+     &                 LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
+     &                 STDINP,lSTDINP,.False.,.true.,' ',
+     &                 DInf,nDInf,nCnttp)
             iAngMx=Max(iAngMx,lAng)
             Transf(jShll+1)=.False.
             Prjct(jShll+1)=.False.
@@ -211,23 +213,24 @@ c           write(*,*) 'Fname = ',Fname
               Call Quit_OnUserError()
             End If
 * get the relative coordinates
-            x1 = DInf(ipFragCoor(iCnttp)+1+5*(iAtom-1))
-            y1 = DInf(ipFragCoor(iCnttp)+2+5*(iAtom-1))
-            z1 = DInf(ipFragCoor(iCnttp)+3+5*(iAtom-1))
+            x1 = dbsc(iCnttp)%FragCoor(2,iAtom)
+            y1 = dbsc(iCnttp)%FragCoor(3,iAtom)
+            z1 = dbsc(iCnttp)%FragCoor(4,iAtom)
 * make them absolute
             x1 = x1 + dbsc(iCnttp)%Coor(1,iCntr)
             y1 = y1 + dbsc(iCnttp)%Coor(2,iCntr)
             z1 = z1 + dbsc(iCnttp)%Coor(3,iCntr)
-c            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
-c     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
+#ifdef _DEBUG_
+            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
+     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
+#endif
 * store them
-!           Call allocate(dbsc(nCnttp)%Coor(1:3,1:1)
             Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
             dbsc(nCnttp)%Coor(1,1) = x1
             dbsc(nCnttp)%Coor(2,1) = y1
             dbsc(nCnttp)%Coor(3,1) = z1
 * store the Mulliken charge
-            FragCharge(nCnttp) = DInf(ipFragCoor(iCnttp)+4+5*(iAtom-1))
+            FragCharge(nCnttp) = dbsc(iCnttp)%FragCoor(5,iAtom)
 * create custom (hopefully) unique label
             LenLbl = Index(sBasis,'.') - 1
             label = sBasis(1:LenLbl)
@@ -251,7 +254,10 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * store a reference to the originating fragment placeholder
 * misuse nFragCoor for this purpose: it will not overwrite anything, but
 * beware of redimensioning this array to anything other than Mxdbsc
-            nFragCoor(mdc) = ndc
+* To signify this we store the negative value such that we can identify
+* the that the actual number of centers is 0 and that the corresponding
+* size of dbsc()%FragCoor is 0 and nothing else.
+            dbsc(mdc)%nFragCoor = -ndc
 *
             nInfo = ipExp(iShll+1) - 1
             ninfo_stupid = nInfo
@@ -259,20 +265,19 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
      &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
           End Do
         End Do
- 1000 Continue
-      End Do
+      End Do ! iCnttp
 *
 c      write(6,'(A,i6)') 'FragExpand: after the main DO loop'
 c      write(6,'(A,i5)') 'FragExpand:  nCnttp = ',nCnttp
 c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
 c     &                                    (mdciCnttp(i),i=1,nCnttp)
 c      write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
-c     &                                        (dbsc(i)%nCntr,i=1,nCnttp)
+c     &                                  (dbsc(i)%nCntr,i=1,nCnttp)
 c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-c     &                                    (nFragType(i),i=1,nCnttp)
+c     &                                  (dbsc(i)%nFragType,i=1,nCnttp)
 c
-c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
-c     &                                    (nFragCoor(i),i=1,nCnttp)
+c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = '
+c     &                                  (dbsc(i)%nFragCoor,i=1,nCnttp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -280,6 +285,5 @@ c     &                                    (nFragCoor(i),i=1,nCnttp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('FragExpand')
       Return
       End

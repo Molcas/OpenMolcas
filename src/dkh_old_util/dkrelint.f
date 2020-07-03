@@ -111,7 +111,7 @@ c
 *
         If(AuxCnttp(iCnttp) .or.
      &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 ) Go To 999
+     &      dbsc(iCnttp)%nFragType.gt.0 ) Go To 999
 
 *
         Do icnt = 1, dbsc(iCnttp)%nCntr

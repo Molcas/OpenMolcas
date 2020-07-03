@@ -22,9 +22,7 @@
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,AuxCnttp,
-     &                 nFragType,nFragCoor,nFragEner,nFragDens,
-     &                 ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM,
+     &                 BasisTypes,AuxCnttp, IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
      &                 DInf,nDInf,nCnttp)
 ************************************************************************
@@ -141,14 +139,6 @@
       ipSRO_=-1
       ipSOC_=-1
       ipPP_=-1
-      nFragType=0
-      nFragCoor=0
-      nFragEner=0
-      nFragDens=0
-      ipFragType=-1
-      ipFragCoor=-1
-      ipFragEner=-1
-      ipFragCoef=-1
       IsMM = 0
       iOpt = 0
 *
@@ -621,9 +611,7 @@ culf
          If (IfTest) Write (6,*) ' Process FRAGMENT'
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading fragment data'
-         Call GetFragment(lUnit,ipExp,MxShll,iShll,nFragType,
-     &                    nFragCoor,nFragEner,nFragDens,ipFragType,
-     &                    ipFragCoor,ipFragEner,ipFragCoef,DInf,nDInf)
+         Call GetFragment(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
