@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2001, 2020, Roland Lindh                               *
+* Copyright (C) 2001,2020,  Roland Lindh                               *
 *               Sergey Gusarov                                         *
 ************************************************************************
       SubRoutine GetPAM(lUnit,nCnttp)
