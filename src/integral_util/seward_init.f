@@ -121,9 +121,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
       Do i=1, Mxdbsc
-         ipPAM2xp(i)=ip_Dummy
-         ipPAM2cf(i)=ip_Dummy
-         nPAM2(i)=-1
          ECP(i)=.false.
          AuxCnttp(i)=.false.
          IsMM(i)=0

@@ -137,10 +137,9 @@
       end if
 
 
-c      Do 100 kCnttp = 1, nCnttp
       kCnttp = kCnttpPAM
          If (.Not.PAM2(kCnttp)) Go To 111
-         If (nPAM2(kCnttp).eq.-1) Go To 111
+         If (dbsc(kCnttp)%nPAM2.eq.-1) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
@@ -158,8 +157,8 @@ c      Do 100 kCnttp = 1, nCnttp
      &                       nZeta*nElem(la)*nElem(lb)*nComp)
                   call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,
      &                       [Zero],0,Work(ipScr),1)
-               Do 1011 iM2xp = 0, iPAMPrim - 1
-                  Gamma = Work(ipPAMexp+ iM2xp)
+               Do 1011 iM2xp = 1, iPAMPrim
+                  Gamma = PAMexp(iM2xp,1)
 
 
                   If (iPrint.ge.99) Write (6,*) ' Gamma=',Gamma
@@ -249,13 +248,13 @@ c      Do 100 kCnttp = 1, nCnttp
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*Work(ipPAM2cf(kCnttp)+iM2xp)
+                  Factor = -Charge(kCnttp)*PAMexp(iM2xp,2)
      &                   * Fact
 *
 *                 FOR DMFT calculation!!!
 *
-c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
-                  Factor = 1.00d0*Fact*Work(ipPAMexp+iPAMPrim+iM2xp)
+c                  write(6,*) ' Cff',PAMexp(iM2xp,2)
+                  Factor = 1.00d0*Fact*PAMexp(iM2xp,2)
                   If (iPrint.ge.99) Write (6,*) ' Factor=',Factor
                   Call DaXpY_(nZeta*nElem(la)*nElem(lb)*nComp,Factor,
      &                       Array(ipRes),1,Work(ipScr),1)
@@ -273,8 +272,6 @@ c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
  102        Continue
  101     Continue
  111     kdc = kdc + dbsc(kCnttp)%nCntr
-*
-c 100  Continue
 *
 c      If (nOrdOp.eq.1) Then
       If (iPrint.ge.99) Then

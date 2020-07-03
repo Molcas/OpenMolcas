@@ -157,7 +157,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
      &           FockOp(nCnttp),
      &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
      &           CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,

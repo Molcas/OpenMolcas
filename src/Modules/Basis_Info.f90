@@ -14,8 +14,9 @@
       Module Basis_Info
       Implicit None
       Private
-      Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, &
-                Distinct_Basis_set_Centers, dbsc, nFrag_LineWords
+      Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
+                Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
+                PAMExp
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
@@ -51,8 +52,11 @@
           Real*8, Allocatable:: M2xp(:), M2cf(:)
           Integer:: nFragType=0, nFragCoor=0, nFragEner=0, nFragDens=0
           Real*8, Allocatable:: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
+          Integer:: nPAM2=-1
+          Real*8, Allocatable:: PAM2(:)
       End Type Distinct_Basis_set_centers
 !
+      Real*8, Allocatable:: PAMexp(:,:)
       Integer :: nFrag_LineWords=0, nFields=7
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
 !
@@ -148,6 +152,11 @@
                                 dbsc(i)%nFragEner,    &
                                 dbsc(i)%nFragDens, nAux
 #endif
+!
+         If (dbsc(i)%nPAM2.ne.-1) Then
+            Write (6,*) 'Not yet implemented for PAM2 integrals.'
+            Call Abend()
+         End If
       End Do
       iDmp(1,nCnttp+1)=nFrag_LineWords
       Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
@@ -411,6 +420,11 @@
          dbsc(i)%nFragEner=0
          If (allocated(dbsc(i)%FragCoef)) Call mma_deallocate(dbsc(i)%FragCoef)
          dbsc(i)%nFragDens=0
+!
+!        PAM2 stuff
+!
+         If (allocated(dbsc(i)%PAM2)) Call mma_deallocate(dbsc(i)%PAM2)
+         dbsc(i)%nPAM2=-1
       End Do
 !
       Return

@@ -49,6 +49,10 @@
      &         KneMem_GIAO,
      &          NAMem_GIAO,
      &          dTdmu_Mem
+      External PAM2Int, FragPint,
+     &         PAM2Mem, FragPMem
+      External P_Int, EPEInt,
+     &         P_Mem, EPEMem
       Real*8 DInf(nDInf)
 #ifdef _FDE_
       ! Embedding
@@ -65,10 +69,6 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc, KnE_Int, NA_Int,
      &                                     FragP, OneHam, PtEl,
      &                                     PtNuc, SumEl, SumNuc
-      Real*8, Dimension(:,:), Allocatable :: PAMexp
-      External PAM2Int, FragPint, PAM2Mem, FragPMem
-      External P_Int, EPEInt,
-     &         P_Mem, EPEMem
       logical lECPnp,lPAM2np
 #include "itmax.fh"
 #include "info.fh"
@@ -297,18 +297,19 @@
          iPAMcount=1
         Do 348 kCnttpPAM = 1, nCnttp
 
-           iAddr=ipPAM2xp(kCnttpPAM)
-           nPAMltpl=nPAM2(kCnttpPAM)
+           nPAMltpl=dbsc(kCnttpPAM)%nPAM2
 
            If(nPAMltpl.lt.0) Go To 348
+*
+           iAddr=1
            Do 347 iPAMltpl=0,nPAMltpl
               nOrdOp= iPAMltpl
               nComp =(iPAMltpl+1)*(iPAMltpl+2)/2
-              iPAMPrim=Int(Work(iAddr))
-              iPAMBas =Int(Work(iAddr+1))
+              iPAMPrim=Int(dbsc(kCnttpPAM)%PAM2(iAddr))
+              iPAMBas =Int(dbsc(kCnttpPAM)%PAM2(iAddr+1))
 
               if(iPAMBas.eq.0.or.iPAMPrim.eq.0) go to 3471
-              Call dcopy_(3,[Zero],0,Ccoor,1)
+              Ccoor(:)=Zero
               Call Allocate_Auxiliary()
               Do iComp=0,nComp-1
                  Call dcopy_(3,dbsc(kCnttpPAM)%Coor(1,1),1,
@@ -356,9 +357,11 @@
 *****    Loop over basis finction
 *
          Call mma_allocate(PAMexp,iPAMPrim,2,label='PAMexp')
-         Call dcopy_(iPAMPrim,Work(iAddr+2),1,PAMexp(1,1),1)
+         Call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2),1,
+     &               PAMexp(1,1),1)
          Do iPAMf=1,iPAMBas
-            Call dcopy_(iPAMPrim,Work(iAddr+2+iPAMPrim*iPAMf),1,
+            Call dcopy_(iPAMPrim,
+     &                  dbsc(kCnttp)%PAM2(iAddr+2+iPAMPrim*iPAMf),1,
      &                  PAMexp(1,2),1)
             Write (Label,'(A,I2.2,I1.1,I2.2)')
      &             'PAM', kCnttpPAM,iPAMltpl,iPAMf
@@ -379,7 +382,7 @@ c           iPAMcount=iPAMcount+1
  3471    iAddr=iAddr+2+iPAMPrim*(iPAMBas+1)
  347     Continue
  348    Continue
-      close(28)
+        close(28)
       End If
 ************************************************************************
 ************************************************************************

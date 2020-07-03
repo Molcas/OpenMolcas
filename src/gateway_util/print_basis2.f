@@ -180,15 +180,15 @@
             Write (LuWr,*)
             Write (LuWr,*)
             Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
-            If (nPAM2(iCnttp).ne.-1) Then
+            If (dbsc(iCnttp)%nPAM2.ne.-1) Then
                Write (LuWr,*)
                Write (LuWr,*) 'Angular momentum of PAM operator: ',
-     &                         AngTp(nPAM2(iCnttp))
-               iAddr=ipPAM2xp(iCnttp)
+     &                         AngTp(dbsc(iCnttp)%nPAM2)
+               iAddr=1
 *
-               Do iAngl=0,nPAM2(iCnttp)
-                  iPrimm = INT(DInf(iAddr))
-                  iBass = INT(DInf(iAddr+1))
+               Do iAngl=0,dbsc(iCnttp)%nPAM2
+                  iPrimm = INT(dbsc(iCnttp)%PAM2(iAddr)  )
+                  iBass =  INT(dbsc(iCnttp)%PAM2(iAddr+1))
                   Write(LuWr,'(14H Ang. moment: ,3x,a1)') AngTp(iAngl)
                   Write(LuWr,'(22H Number of  primitive:,i4,'
      &                      //'22H Number of contracted:,i4)')
@@ -199,8 +199,8 @@
 *
                   Do ir=0,iPrimm - 1
                      Write (LuWr,'(i4,1x,f18.12,1x,12(1x,f12.8))')
-     &               ir+1,DInf(iAddr+2+ir),
-     &               (DInf(iAddr+2+iPrimm+ic),
+     &               ir+1,dbsc(iCnttp)%PAM2(iAddr+2+ir),
+     &                   (dbsc(iCnttp)%PAM2(iAddr+2+iPrimm+ic),
      &               ic=ir,(iPrimm)*iBass-1,iPrimm)
                   End Do
 *

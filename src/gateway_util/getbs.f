@@ -16,8 +16,7 @@
      &                 ipFockOp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,ipPAM2xp,ipPAM2cf,nPAM2,FockOp,
-     &                 ECP,NoPairL,SODK,
+     &                 PAM2,FockOp, ECP,NoPairL,SODK,
      &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
@@ -586,10 +585,8 @@ culf
       If ( Index(BSLBl,'.PAM.').ne.0) then
          If (IfTest) Write (6,*) ' Process PAM'
          PAM2 = .True.
-         If (iPrint.ge.99)
-     &      Write (6,*) ' Start reading PAMs'
-         Call GetPAM(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipPAM2xp,ipPAM2cf,nPAM2,DInf,nDInf)
+         If (iPrint.ge.99) Write (6,*) ' Start reading PAMs'
+         Call GetPAM(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)

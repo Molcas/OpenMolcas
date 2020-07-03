@@ -8,12 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2001, Roland Lindh                                     *
+* Copyright (C) 2001, 2020, Roland Lindh                               *
 *               Sergey Gusarov                                         *
 ************************************************************************
-      SubRoutine GetPAM(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,
-     &                  ipPAM2xp,ipPAM2cf,nPAM2,DInf,nDInf)
+      SubRoutine GetPAM(lUnit,nCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read potential information, for DMFT calculations   *
@@ -28,26 +26,29 @@
 *                                                                      *
 *     Modified: Sergey Gusarov SPb State Ubiv, Russia.                 *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "print.fh"
-      Real*8 DInf(nDInf)
 #include "real.fh"
-      Character*80 BLine
+#include "stdalloc.fh"
+      Real*8, Allocatable:: DInf(:)
       Character*180 Line, Get_Ln
 *     External Get_Ln
-      Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
+      Integer nPAM2
       Logical test
+#ifdef _DEBUG_
+      data test /.True./
+#else
       data test /.False./
-c     data test /.True./
-      iRout=6
-      iPrint = nPrint(iRout)
-      Call QEnter('GetPAM')
+#endif
 *
       if (test) Write (6,*) ' Reading PAM potencials'
-      iStrt = ipExp(iShll+1)
-      ipPAM2xp = iStrt
+      nDInf=10000
+      Call mma_Allocate(DInf,nDInf,Label='DInf')
+*
+      iStrt = 1
 *     Read(Line,*) nPAM2
+      dbsc(nCnttp)%nPAM2=nPAM2
       Line=Get_Ln(lUnit)
       If (Index(Line,'PAM').eq.0) Then
          Call WarningMessage(2,
@@ -61,8 +62,8 @@ c     data test /.True./
          Line=Get_Ln(lUnit)
          Call Get_i1(1,nPAM2Prim)
          Call Get_i1(2,nPAM2Bas)
-         DInf(iStrt)=nPAM2Prim
-         DInf(iStrt+1)=nPAM2Bas
+         DInf(iStrt)=DBLE(nPAM2Prim)
+         DInf(iStrt+1)=DBLE(nPAM2Bas)
          iStrt=iStrt+2
          iEnd = iStrt + nPAM2Prim - 1
 *
@@ -80,7 +81,6 @@ c     data test /.True./
 *   Read coefficents
 *
       iStrt = iEnd + 1
-         if (iPAM_Ang.eq.0) ipPAM2cf = iStrt
          iEnd  = iStrt + nPAM2Prim*nPAM2Bas - 1
          Do 288 iPrim = 0, nPAM2Prim - 1
             Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPAM2Prim,ierr)
@@ -92,16 +92,11 @@ c     data test /.True./
  288     Continue
          iStrt = iEnd + 1
       End Do
-      ipExp(iShll+1) = iEnd + 1
 *
-      Call QExit('GetPAM')
+      Call mma_allocate(dbsc(nCnttp)%PAM2,iEnd,Label='PAM2')
+      dbsc(nCnttp)%PAM2(:)=DInf(:)
+*
+      Call mma_deAllocate(DInf)
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(ipCff)
-         Call Unused_integer_array(nExp)
-         Call Unused_integer_array(nBasis)
-         Call Unused_character(BLine)
-      End If
       End
 *

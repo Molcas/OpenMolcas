@@ -47,7 +47,6 @@
       Integer  iix(2)
       Real*8   rix(2)
       Integer, Dimension(:,:), Allocatable :: jAOtSO
-      Real*8, Dimension(:), Allocatable :: PAMst
       Real*8 DInf(nDInf)
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -147,44 +146,6 @@
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      if(lPAM2) Then
-      lPAM = 0
-      Do iCnttp=1,nCnttp
-         If(PAM2(iCnttp)) Then
-         lPAM = lPAM + 1
-         iAddr=ipPAM2xp(iCnttp)
-         Do i=0,nPAM2(iCnttp)
-            lPAM =lPAM  + 2 + INT(DInf(iAddr))*(INT(DInf(iAddr+1))+1)
-            iAddr=iAddr + 2 + INT(DInf(iAddr))*(INT(DInf(iAddr+1))+1)
-         End Do
-         Else
-         lPAM = lPAM + 1
-         End If
-      End Do
-      Call mma_allocate(PAMst,lPAM)
-      lAddr = 1
-      Do iCnttp=1,nCnttp
-         If (PAM2(iCnttp)) Then
-            PAMst(lAddr) = DBLE(nPAM2(iCnttp))
-            lAddr = lAddr + 1
-            jAddr=ipPAM2xp(iCnttp)
-            Do j=0,nPAM2(iCnttp)
-               ll = 2 + INT(DInf(jAddr))*(INT(DInf(jAddr+1))+1)
-               Call DCopy_(ll,DInf(jAddr),1,PAMst(lAddr),1)
-               lAddr = lAddr + ll
-               jAddr = jAddr + ll
-            End Do
-         Else
-            PAMst(lAddr) = -1.0d0
-         End If
-      End Do
-*
-      Call Put_dArray('PamXInfo',PAMst,lPam)
-      Call mma_deallocate(PAMst)
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

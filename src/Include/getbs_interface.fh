@@ -16,7 +16,7 @@
      &                 ipFockOp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,ipPAM2xp,ipPAM2cf,nPAM2,FockOp,
+     &                 PAM2,FockOp,
      &                 ECP,NoPairL,SODK,
      &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
      &                 UnNorm,nDel, nVal,  nPrj,  nSRO,  nSOC, nPP,
@@ -38,7 +38,6 @@
       Integer       iAtmNr
       Character*80  BLine, Ref(2)
       Logical       PAM2
-      Integer       ipPAM2xp,ipPAM2cf,nPAM2
       Logical       FockOp, ECP, NoPairL, SODK
       Integer       ipBk(MxShll)
       Real*8        CrRep

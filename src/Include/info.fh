@@ -107,19 +107,6 @@
 *     iShll_RF: pointer to RF shells                                   *
 *     Mx_Shll: max number of shells defined.                           *
 *     nOrdEF: order of electric field operator                         *
-*     nFragType:  number of unique centers in a fragment (0=not a frag)*
-*     nFragCoor:  total number of centers in a fragment                *
-*     nFragEner:  number of orbital energies/occupied orbitals in a    *
-*                 given fragment                                       *
-*     nFragDens:  size of the fragments density matrix                 *
-*     ipFragType: pointer to the data of the fragment''s unique centers*
-*                 (associated basis set, size nFragType)               *
-*     ipFragCoor: pointer to the data of all fragment''s centers       *
-*                 (atom type / relative coordinates, size nFragCoor)   *
-*     ipFragEner: pointer to the fragment''s orbital''s energies       *
-*                 (size nFragEner)                                     *
-*     ipFragCoef: pointer to the fragment''s MO coefficients           *
-*                 (size nFragDens*nFragEner)                           *
 *     nBas_Frag:  number of fragment basis functions in each irrep     *
 *     iRI_Type: type of RI auxiliary basis set                         *
 *     nCtrLD: number of centers in the LDKH procedure                  *
@@ -279,10 +266,7 @@
      &          ipBk(Mxshll),
      &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
      &          kCentr, iRelae_Info, Nuclear_Model
-      Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
-     &          nFragDens(Mxdbsc),ipFragType(Mxdbsc),ipFragCoor(Mxdbsc),
-     &          ipFragEner(Mxdbsc),ipFragCoef(Mxdbsc),nBas_Frag(0:7),
-     &          iOrdFm, nOrd_XF,iXPolType,iRI_Type,
+      Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
@@ -308,18 +292,14 @@
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
      &              nSOC_Shells, IsMM,
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
-     &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
-     &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,
-     &              kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
+     &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              iCnttp_Dummy, nPAMFI, iPAMFI, nPSOI,
      &              Ind_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
-      Integer ipPAM2xp(Mxdbsc),ipPAM2cf(Mxdbsc),nPAM2(Mxdbsc),
-     &        ipPAMexp, kCnttpPAM,iPAMPrim,iPAMcount
-      Common /InfoPAM/ ipPAM2xp,ipPAM2cf,nPAM2,ipPAMexp,
-     &          kCnttpPAM,iPAMPrim,iPAMcount
+      Integer          kCnttpPAM, iPAMPrim, iPAMCount
+      Common /InfoPAM/ kCnttpPAM, iPAMPrim, iPAMCount
 *                                                                      *
 ************************************************************************
 *                                                                      *

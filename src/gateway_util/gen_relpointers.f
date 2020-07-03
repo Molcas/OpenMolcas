@@ -26,10 +26,6 @@
          ipAkl(i)        = ipAkl(i)         + ibase
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
-      Do i = 1, Mxdbsc
-         ipPAM2xp(i)   = ipPAM2xp(i)   + ibase
-         ipPAM2cf(i)   = ipPAM2cf(i)   + ibase
-      End Do
 *
       If (Allocated(iSD)) Then
          Call Nr_Shells(nSkal)
