@@ -176,6 +176,7 @@
       Bk_CnstWght=CnstWght
       Bk_dMEPStep=dMEPStep
       Bk_rFuzz=rFuzz
+      Bk_ThrMEP=ThrMEP
       Bk_lTherm=lTherm
       Bk_lDoubleIso=lDoubleIso
       Bk_nUserPT=nUserPT
@@ -535,6 +536,7 @@
       CnstWght=Bk_CnstWght
       dMEPStep=Bk_dMEPStep
       rFuzz=Bk_rFuzz
+      ThrMEP=Bk_ThrMEP
       lTherm=Bk_lTherm
       lDoubleIso=Bk_lDoubleIso
       nUserPT=Bk_nUserPT

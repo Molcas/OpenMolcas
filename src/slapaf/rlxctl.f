@@ -346,7 +346,7 @@
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
      &            Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
-     &            TSReg)
+     &            TSReg,ThrMEP)
       Call Free_Work(ipShf)
 *
 ************************************************************************
