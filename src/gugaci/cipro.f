@@ -12,9 +12,11 @@
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
+#include "stdalloc.fh"
       parameter (maxmolcasorb=5000,maxpro=50)
       dimension idx_idisk0(64),idx_idisk1(max_root+1)
-      dimension cmo(max_orb**2),cno(max_orb**2),occ(max_orb)
+      dimension occ(max_orb)
+      allocatable cmo(:),cno(:)
 !     *          denao(max_orb,max_orb)
       dimension ipcom(maxpro)
       REAL*8, pointer :: omat(:),denao(:),vprop(:,:,:)
@@ -71,6 +73,8 @@
       allocate(denao(nc0))
       allocate(vprop(mroot,mroot,npro))
 !      allocate(denao(nmo,nmo))
+      call mma_allocate(cmo,max_orb**2,label='cmo')
+      call mma_allocate(cno,max_orb**2,label='cno')
       idisk=idx_idisk0(3)
       call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matirx
@@ -103,6 +107,8 @@
      *               denao,nc0,vprop,pgauge,pnuc,icall)
 ! print property
       enddo
+      call mma_deallocate(cmo)
+      call mma_deallocate(cno)
 !      close(100)
 
 

@@ -35,7 +35,7 @@ CutOff=1.0D-9
 
  &Slapaf
 MEP-Search
-nMEP=3
+MEPConvergence=0.05
 MEPStep=0.1
 MEPType=sphere
 >>>>>> ENDDO <<<<<<<<

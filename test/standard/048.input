@@ -7,7 +7,7 @@
 * Comments:
 *-------------------------------------------------------------------------------
 
->> EXPORT MOLCAS_MEM=1420
+>> EXPORT MOLCAS_MEM=1500
 
 * No RICD, we can go up to l=iTabMx=15
 &GATEWAY

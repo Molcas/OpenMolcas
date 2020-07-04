@@ -64,6 +64,7 @@
       jBas   = iSD( 3,jS)
       jShell = iSD(11,jS)
       nSO=0
+      B(:)=Zero
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
          nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)

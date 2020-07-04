@@ -51,6 +51,8 @@ c      Jc=0.0_wp
 c      Call tensor2cart(1,1,Jpar(1,-1:1,1,-1:1),Jc)
 
 
+      maxes(:,:,:)=0.0_wp
+      gtens(:,:)=0.0_wp
 c determine the pseuDospin on each site (Z1 and Z2):
 !     threshold for determination of the local pseuDospin main anisotropy axis
       Ethr=0.2_wp

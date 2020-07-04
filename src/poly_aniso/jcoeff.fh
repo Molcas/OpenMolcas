@@ -31,8 +31,11 @@ c   dE( iLn, iLS, iJ )
 c-----------------------------------------------------------------------
       Integer       :: iLn, iLS, iJ
       Integer       :: iK, ika, iP, iph
-      Real(kind=8) :: Jx(5,4,17, 0:7, -5:5, 0:1, -1:1)
+      Real(kind=8), Allocatable :: Jx(:,:,:,:,:,:,:)
       Real(kind=8) :: dE(5,4,17)
+
+      Call mma_allocate(Jx,[1,5],[1,4],[1,17],[0,7],[-5,5],[0,1],[-1,1],
+     &                  label='Jx')
 
       Do iLn=1,5
         Do iLS=1,4

@@ -727,7 +727,7 @@ Optional optimization procedure keywords
   The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCTYPE">
-              %%Keyword: MEPType <basic>
+              %%Keyword: MEPType <advanced>
               <HELP>
               Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
@@ -737,7 +737,7 @@ Optional optimization procedure keywords
               IRCType is a valid synonym.
               </KEYWORD>
 
-              %%Keyword: IRCType <basic>
+              %%Keyword: IRCType <advanced>
               Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
               or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
@@ -749,7 +749,7 @@ Optional optimization procedure keywords
   The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCALGORITHM">
-              %%Keyword: MEPAlgorithm <basic>
+              %%Keyword: MEPAlgorithm <advanced>
               <HELP>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
@@ -757,10 +757,33 @@ Optional optimization procedure keywords
               IRCAlgorithm is a valid synonym.
               </KEYWORD>
 
-              %%Keyword: IRCAlgorithm <basic>
+              %%Keyword: IRCAlgorithm <advanced>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
               Synonym of MEPAlgorithm.
+
+:kword:`MEPConvergence` or :kword:`IRCConvergence`
+  Sets the gradient convergence for a MEP search or IRC analysis.
+  The path will be terminated when the gradient norm at an optimized point is below this threshold.
+  By default is the same as the gradient threshold for the normal iterations, specified with :kword:`THRShld`,
+  it may be necessary to reduce it to follow a path on a very flat surface.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPCONVERGENCE" APPEAR="MEP gradient convergence" KIND="REAL" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="IRCCONVERGENCE">
+              %%Keyword: MEPConvergence <basic>
+              <HELP>
+              Sets the gradient convergence for a MEP search or IRC analysis.
+              The path will be terminated when the gradient norm at an optimized point is below this threshold.
+              By default is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              it may be necessary to reduce it to follow a path on a very flat surface.
+              </HELP>
+              IRCConvergence is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: IRCConvergence <basic>
+              Sets the gradient convergence for a MEP search or IRC analysis.
+              The path will be terminated when the gradient norm at an optimized point is below this threshold.
+              By default is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              Synonym of MEPConvergence.
 
 :kword:`REFErence`
   The keyword is followed by a list of the symmetry unique coordinates (in au)

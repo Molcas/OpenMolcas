@@ -18,10 +18,12 @@
 #include "WrkSpc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
+#include "stdalloc.fh"
       Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),
      &       Enrg(nIter), Grd(3,nAtm,nIter)
-      Integer iPhase(3,0:7),icoset2(0:7,0:7,Mxdc),nStab2(Mxdc),
+      Integer iPhase(3,0:7),nStab2(Mxdc),
      &        iChCar(3)
+      Integer, Allocatable :: icoset2(:,:,:)
       Character*(*) FileName
 *
       Call QEnter('InterGeo')
@@ -164,6 +166,8 @@
       ixyz   = ipCx
       ixyz_p = ipCx_p
       MaxDCR=0
+      Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
+     &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
             iChxyz=iChAtm(Work(ixyz  ),iOper,nSym,iChCar)
@@ -243,6 +247,7 @@
             End do
          End do
       End Do
+      Call mma_deallocate(icoset2)
 *
       Close(Lu_Molden)
 *                                                                      *

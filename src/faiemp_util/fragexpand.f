@@ -28,6 +28,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       integer     nDInf, nInfo, storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
       Real*8      DInf(nDInf), eqBasis(LineWords)
@@ -45,7 +46,7 @@
       Character*(storageSize) sBasis
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-      Character*180  STDINP(mxAtom*2)
+      Character*180, Allocatable :: STDINP(:)
 * external functions and procedures
       Integer     iMostAbundantIsotope, iCLast
       Real*8      NucExp, rMass
@@ -54,6 +55,7 @@
 
 *      Call qEnter('FragExpand')
 
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       UnNorm = .False.
       mdc = 0
       LenLbl=0
@@ -273,6 +275,7 @@ c     &                                    (nFragCoor(i),i=1,nCnttp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(STDINP)
 *      Call qExit('FragExpand')
       Return
       End
