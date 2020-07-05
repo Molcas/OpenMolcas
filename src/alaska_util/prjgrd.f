@@ -418,10 +418,10 @@
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do 1955 iBk = 0, nBasis(iShll)-1
-                  Call DYaX(nac*nVecAC*nAlpha,Work(ipBk(iShll)+iBk),
-     &                       Array(iBk*nac*nVecAC*nAlpha+ipF1),1,
-     &                       Array(iBk*nac*nVecAC*nAlpha+ipTmp),1)
+               Do 1955 iBk = 1, nBasis(iShll)
+                  Call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),
+     &                       Array((iBk-1)*nac*nVecAC*nAlpha+ipF1),1,
+     &                       Array((iBk-1)*nac*nVecAC*nAlpha+ipTmp),1)
  1955          Continue
 *
 *--------------4) a,ciK -> ciKa

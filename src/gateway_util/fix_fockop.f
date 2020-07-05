@@ -452,7 +452,7 @@ C     nPrint(122)=99
      &              nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
+     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,

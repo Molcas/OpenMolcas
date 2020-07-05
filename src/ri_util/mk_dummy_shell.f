@@ -68,7 +68,6 @@
       nExp(iShll) = nPrim
       nBasis(iShll) = nCntrc
       nBasis_Cntrct(iShll) = nCntrc
-      ipBk(iShll) = ip_Dummy
       ip_Occ(iShll) = ip_Dummy
       ipAkl(iShll) = ip_Dummy
       iEnd = iStrt + nPrim - 1
@@ -113,6 +112,7 @@
 ************************************************************************
 *                                                                      *
       Mx_Shll=iShll+1
+      Max_Shells=Mx_Shll
       Mx_mdc=mdc
 *
       iCnttp_Dummy=nCnttp

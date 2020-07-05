@@ -87,7 +87,6 @@
       Call Put_iArray('IndS',IndS,nShlls)
       Call Put_iArray('ip_Occ',ip_Occ,Mx_Shll)
       Call Put_iArray('ipAkl',ipAkl,Mx_Shll)
-      Call Put_iArray('ipBk',ipBk,Mx_Shll)
       Call Put_iArray('nOpt',nOpt,nCnttp)
       Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Put_iArray('iSOInf',iSOInf,3*4*MxAO)

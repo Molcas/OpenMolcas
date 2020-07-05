@@ -162,7 +162,7 @@ c           write(*,*) 'Fname = ',Fname
      &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
-     &                 ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
+     &                 ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &                 UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -280,6 +280,7 @@ c     &                                  (dbsc(i)%nFragCoor,i=1,nCnttp)
 ************************************************************************
 *                                                                      *
       Mx_Shll=iShll+1
+      Max_Shells=Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *

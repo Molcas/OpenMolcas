@@ -1352,7 +1352,6 @@ C                          Thrs= 1.0D-12
                      Prjct(iShll)=.False.
                   End If
                   AuxShell(iShll)=.True.
-                  ipBk(iShll)=ip_Dummy
                   ip_Occ(iShll)=ip_Dummy
                   ipAkl(iShll)=ip_Dummy
 *
@@ -1395,6 +1394,7 @@ C                          Thrs= 1.0D-12
 *              memory so far.
                nInfo = ipExp(iShll+1) - Info
                Mx_Shll=iShll+1
+               Max_Shells=Mx_Shll
                Mx_mdc=mdc
 *
             Else
@@ -1409,6 +1409,7 @@ C                          Thrs= 1.0D-12
 *        Done for this valence basis set.
 *
          Mx_Shll = iShll + 1
+         Max_Shells=Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *

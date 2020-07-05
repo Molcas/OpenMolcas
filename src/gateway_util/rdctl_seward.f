@@ -1192,7 +1192,7 @@ c Simplistic validity check for value
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           FockOp(nCnttp),
-     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
+     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -4028,6 +4028,7 @@ c      endif
       iPrint = nPrint(iRout)
 *
       Mx_Shll = iShll + 1
+      Max_Shells=Mx_Shll
 *
       If (nCnttp.eq.0) then
          Call WarningMessage(2,'Input does not contain any basis sets')

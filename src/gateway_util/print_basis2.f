@@ -331,7 +331,7 @@ Cend
                      Write (LuWr,
      &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
      &                  '     Bk-values',
-     &                  (DInf(ipBk(iSh)+i),i=0,nBasis(iSh)-1)
+     &                  (Shells(iSh)%Bk(i),i=1,nBasis(iSh))
                      Write (LuWr,
      &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
      &                  '     Frac.Occ.',
@@ -339,7 +339,7 @@ Cend
                   End If
 *
                   Do i=0,nBasis(iSh)-1
-                     DInf(ipBk(iSh)+i)=DInf(ipBk(iSh)+i)
+                     Shells(iSh)%Bk(1+i)=Shells(iSh)%Bk(1+i)
      &                                *DInf(ip_Occ(iSh)+i)
                   End Do
 *

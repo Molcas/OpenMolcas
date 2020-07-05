@@ -16,10 +16,12 @@
       Private
       Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
                 Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
-                PAMExp
+                PAMExp, Shells, Max_Shells
 #include "stdalloc.fh"
 #include "Molcas.fh"
+#include "itmax.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
+      Integer, Parameter :: MxShll=iTabMx*MxAtom
 !
 !     Work in progress
 !
@@ -56,9 +58,20 @@
           Real*8, Allocatable:: PAM2(:)
       End Type Distinct_Basis_set_centers
 !
+!     Bk  : ECP proj shift parameters for i''th shell.
+!           the number of parameters is given by nBasis
+!
+      Type Shell_Info
+           Sequence
+           Integer :: nBk=0
+           Real*8, Allocatable:: Bk(:)
+      End Type Shell_Info
+!
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords=0, nFields=7
+      Integer :: nFrag_LineWords=0, nFields=7, mFields=1
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
+      Integer :: Max_Shells=0
+      Type (Shell_Info) :: Shells(MxShll)
 !
       Interface
          Subroutine Abend()
@@ -105,7 +118,7 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor
+      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk
       Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:)
@@ -127,6 +140,9 @@
          End Do
       End Do
 #endif
+!
+!     Integer dbsc stuff
+!
       Call mma_Allocate(iDmp,nFields,nCnttp+1,Label='iDmp')
       nAtoms=0
       nAux   = 0
@@ -161,6 +177,21 @@
       iDmp(1,nCnttp+1)=nFrag_LineWords
       Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
       Call mma_deallocate(iDmp)
+!
+!     Integer shells stuffs
+!
+      Call mma_Allocate(iDmp,mFields,Max_Shells-1,Label='iDmp')
+      nAux2=0
+      Do i = 1, Max_Shells-1
+         iDmp(1,i) = Shells(i)%nBK
+         nAux2 = nAux2 + Shells(i)%nBK
+      End Do
+      Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
+      Call mma_deallocate(iDmp)
+!
+!**********************************************************************
+!
+!**********************************************************************
 !
       Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
       nAtoms = 0
@@ -232,6 +263,19 @@
          Call mma_deallocate(rDmp)
       End If
 !
+      If (nAux2.gt.0) Then
+         Call mma_allocate(rDmp,nAux2,1,Label='rDmp')
+         nAux2=0
+         Do i = 1, Max_Shells-1
+            nBk=Shells(i)%nBk
+            If (nBk.gt.0) Then
+               rDmp(nAux2+1:nAux2+nBK,1)=Shells(i)%Bk(:)
+               nAux2 = nAux2 + nBK
+            End If
+         End Do
+         Call Put_dArray('rDmp:S',rDmp,nAux2)
+         Call mma_deallocate(rDmp)
+      End If
       Return
       End Subroutine Basis_Info_Dmp
 !
@@ -244,7 +288,7 @@
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
-      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2
+      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2
       Integer nFragType, nFragCoor, nFragEner, nFragDens
 !     Write (6,*) 'Basis_Info_Get()'
 !
@@ -278,6 +322,18 @@
       End Do
       Call mma_deallocate(iDmp)
 !
+!
+      Call qpg_iArray('iDmp:S',Found,Len)
+      Max_Shells = Len/mFields + 1
+      Call mma_Allocate(iDmp,mFields,Max_Shells-1,Label='iDmp')
+      Call get_iArray('iDmp:S',iDmp,Len)
+      nAux2=0
+      Do i = 1, Max_Shells-1
+         Shells(i)%nBK = iDmp(1,i)
+         nAux2 = nAux2 + Shells(i)%nBK
+      End Do
+      Call mma_deallocate(iDmp)
+!
       Call qpg_dArray('rDmp',Found,Len)
       If (.Not.Found) Then
          Write (6,*) 'rDMP not found on the run file.'
@@ -300,13 +356,10 @@
 !
       If (nAux.gt.0) Then
          Call qpg_dArray('rDmp:A',Found,Len)
-         nAux=nAux+1
 !        Write (*,*) 'nAux=',nAux
          Call mma_allocate(rDmp,nAux,1,Label='rDmp')
          Call Get_dArray('rDmp:A',rDmp,Len)
          nAux=0
-         nFrag_LineWords=INT(rDmp(nAux+1,1))
-         nAux = nAux + 1
          Do i = 1, nCnttp
 !
 !           ECP stuff
@@ -371,6 +424,22 @@
          End Do
          Call mma_deallocate(rDmp)
       End If
+!
+      If (nAux2.gt.0) Then
+         Call qpg_dArray('rDmp:S',Found,Len)
+         Call mma_allocate(rDmp,nAux2,1,Label='rDmp')
+         Call Get_dArray('rDmp:S',rDmp,Len)
+         nAux2=0
+         Do i = 1, Max_Shells-1
+            nBk=SHells(i)%nBK
+            If (nBk.gt.0) Then
+               If (.Not.Allocated(Shells(i)%Bk)) Call mma_allocate(Shells(i)%Bk,nBk,Label='Bk')
+               Shells(i)%Bk(:)=rDmp(nAux2+1:nAux2+nBk,1)
+               nAux2=nAux2+nBk
+            End If
+         End Do
+         Call mma_deallocate(rDmp)
+      End If
 #ifdef _DEBUG_
       Write (6,*) 'Basis_Info_Get'
       Do i = 1, nCnttp
@@ -425,6 +494,10 @@
 !
          If (allocated(dbsc(i)%PAM2)) Call mma_deallocate(dbsc(i)%PAM2)
          dbsc(i)%nPAM2=-1
+      End Do
+!
+      Do i = 1, Max_Shells-1
+         If (Allocated(Shells(i)%Bk)) Call mma_deallocate(Shells(i)%Bk)
       End Do
 !
       Return

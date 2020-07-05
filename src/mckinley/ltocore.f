@@ -22,6 +22,7 @@
 *    @parameter Number of derivatives
 *
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -52,10 +53,10 @@
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-      Do iBk = 0, nBasis(iShll)-1
-         Call DYaX(nac*nVecAC*nAlpha,Work(ipBk(iShll)+iBk),
-     &              Work(iBk*nac*nVecAC*nAlpha+ipF),1,
-     &              Work(iBk*nac*nVecAC*nAlpha+ipTmp),1)
+      Do iBk = 1, nBasis(iShll)
+         Call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),
+     &              Work((iBk-1)*nac*nVecAC*nAlpha+ipF),1,
+     &              Work((iBk-1)*nac*nVecAC*nAlpha+ipTmp),1)
       End Do
 *
 *--------------4) a,ciK -> ciKa

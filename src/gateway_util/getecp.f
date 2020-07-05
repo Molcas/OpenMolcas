@@ -13,7 +13,7 @@
 *               1993, Per Boussard                                     *
 ************************************************************************
       SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,ipBk,CrRep,nProj,ipAkl,ip_Occ,
+     &                  BLine,CrRep,nProj,ipAkl,ip_Occ,
      &                  ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
 ************************************************************************
 *                                                                      *
@@ -42,7 +42,7 @@
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer ipExp(MxShll), ipCff(MxShll), ipBk(MxShll),
+      Integer ipExp(MxShll), ipCff(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
      &        ipAkl(MxShll), ip_Occ(MxShll), mPP(2)
       Logical UnNorm
@@ -289,13 +289,12 @@ C        Write (6,*) 'Done'
 *        Read "orbital energies"
 *
 *        Write (6,*) ' Reading Bk'
-         ipBk(iShll) = iStrt
+         Call mma_allocate(Shells(iShll)%Bk,nCntrc,Label='Bk')
+         Shells(iShll)%nBk=nCntrc
          ipAkl(iShll) = ip_Dummy
-         iEnd = iStrt + nCntrc - 1
-*        If (nCntrc.gt.0) Read (lUnit,*,Err=992) (DInf(i),i=iStrt,iEnd)
-         If (nCntrc.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+         If (nCntrc.gt.0) Call Read_v(lUnit,Shells(iShll)%Bk,
+     &                                1,nCntrc,1,ierr)
          If (ierr.ne.0) goto 992
-         iStrt = iEnd + 1
 *
 *        Read gaussian EXPonents
 *

@@ -63,6 +63,7 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+*#define _DEBUG_
       use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -70,31 +71,28 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
       Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
      &          iChO(nComp), iTwoj(0:7)
+#ifdef _DEBUG_
       Character*80 Label
+#endif
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-*     Call qEnter('PrjInt')
-      iRout = 193
-      iPrint = nPrint(iRout)
-*
-      If (iPrint.ge.49) Then
-         Call RecPrt(' In PrjInt: A',' ',A,1,3)
-         Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
-         Call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
-         Call RecPrt(' In PrjInt: P',' ',P,nZeta,3)
-         Write (6,*) ' In PrjInt: la,lb=',' ',la,lb
-      End If
+#ifdef _DEBUG_
+      Call RecPrt(' In PrjInt: A',' ',A,1,3)
+      Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
+      Call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In PrjInt: P',' ',P,nZeta,3)
+      Write (6,*) ' In PrjInt: la,lb=',' ',la,lb
+#endif
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -221,10 +219,10 @@
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do 1955 iBk = 0, nBasis(iShll)-1
-                  Bk = Work(ipBk(iShll)+iBk)
+               Do 1955 iBk = 1, nBasis(iShll)
+                  Bk = Shells(ishll)%Bk(iBk)
                   Call DScal_(nAlpha*nac,Bk,
-     &                       Array(iBk*nAlpha*nac+ipF1),1)
+     &                       Array(ipF1+(iBk-1)*nAlpha*nac),1)
  1955          Continue
 *
 *--------------4) a,ciK -> ciKa
@@ -319,7 +317,7 @@
          mdc = mdc + dbsc(iCnttp)%nCntr
  1960 Continue
 *
-      If (iPrint.ge.99) Then
+#ifdef _DEBUG_
          Write (6,*) ' Result in PrjInt'
          Do 100 ia = 1, (la+1)*(la+2)/2
             Do 200 ib = 1, (lb+1)*(lb+2)/2
@@ -328,13 +326,13 @@
                Call RecPrt(Label,' ',Final(1,ia,ib,1),nAlpha,nBeta)
  200        Continue
  100     Continue
-      End If
+#endif
 *
-*     Call GetMem(' Exit PrjInt','Check','REAL',iDum,iDum)
 *     Call QExit('PrjInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_real_array(P)
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)

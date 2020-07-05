@@ -169,7 +169,7 @@
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),ipBk,
+     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -238,6 +238,7 @@ C        Fixed(nCnttp)=.False.
 *        nInfo = ipExp(iShll+1) - Info
          nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
+         Max_Shells=Mx_Shll
          Mx_mdc=mdc
 *
       End Do
@@ -454,7 +455,6 @@ C        Fixed(nCnttp)=.False.
                nBasis(iShll)=nBasis_Cntrct(iShll)
                ipCff (iShll)=ipCff_Cntrct(iShll)
                AuxShell(iShll)=.True.
-               ipBk(iShll)=ip_Dummy
                ip_Occ(iShll)=ip_Dummy
                ipAkl(iShll)=ip_Dummy
                ipExp(iShll+1)=iEnd+1
@@ -503,6 +503,7 @@ C        Fixed(nCnttp)=.False.
 *           so far.
             nInfo = ipExp(iShll+1) - 1
             Mx_Shll=iShll+1
+            Max_Shells=Mx_Shll
             Mx_mdc=mdc
 *
             nSet=nSet-1

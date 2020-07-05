@@ -17,7 +17,7 @@
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
-     &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
+     &                 CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
@@ -65,7 +65,7 @@
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
       Integer ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &        ipCff_Prim(MxShll), ipBk(MxShll), ipFockOp(MxShll),
+     &        ipCff_Prim(MxShll), ipFockOp(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
      &        nCGTO(0:iTabMx), ipAkl(MxShll),
      &        mCGTO(0:iTabMx), ip_Occ(MxShll), nDel(0:MxAng),
@@ -91,15 +91,13 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                     BLine,
-     &                     ipBk,CrRep,nProj,ipAkl,ip_Occ,
+     &                     BLine,CrRep,nProj,ipAkl,ip_Occ,
      &                     ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
          Integer lUnit
          Integer ipExp(MxShll), ipCff(MxShll),
      &            nExp(MxShll), nBasis(MxShll)
          Integer MxShll,iShll
          Character*(*) BLine
-         Integer ipBk(MxShll)
          Real*8  CrRep
          Integer nProj
          Integer ipAkl(MxShll), ip_Occ(MxShll)
@@ -324,7 +322,6 @@ C              Write(6,*) 'Fock operator is included'
          iStrt=ipExp(iShll)
          nExp(iShll) = nPrim
          nBasis_Cntrct(iShll) = nCntrc
-         ipBk(iShll) = ip_Dummy
          ip_Occ(iShll) = ip_Dummy
          ipAkl(iShll) = ip_Dummy
          iEnd = iStrt + nPrim - 1
@@ -638,7 +635,7 @@ culf
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
          Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipBk,CrRep,nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,
+     &               CrRep,nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,
      &               DInf,nDinf,nCnttp)
          nPrj=nProj+1
 *
@@ -711,7 +708,6 @@ culf
             nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
             iEnd = iStrt + 2*nExp(iShll)**2 -1
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
@@ -745,7 +741,6 @@ culf
             nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
             iEnd = iStrt + 2*nExp(iShll)**2 -1
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
@@ -781,7 +776,6 @@ culf
             nExp(iShll) = nPrim
             nBasis(iShll) = 0
             ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
             iEnd = iStrt + nPrim - 1
 *
             If (nPrim.gt.0) then
@@ -859,7 +853,6 @@ culf
             iEnd = iStrt + nExp(iShll) - 1
             nBasis(iShll) = 0
             ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
 *
             iStrt = iEnd + 1
             iEnd  = iStrt + 2*nExp(iShll)**2

@@ -133,7 +133,7 @@
          RecLab( 28)='IndS            '
          RecLab( 29)='ip_Occ          '
          RecLab( 30)='ipAkl           '
-         RecLab( 31)='ipBk            '
+         RecLab( 31)='                ' ! Not used
          RecLab( 32)='nOpt            '
          RecLab( 33)='Prjct           '
          RecLab( 34)='Transf          '
@@ -196,6 +196,7 @@
          RecLab( 92)='XMolnr          '
          RecLab( 93)='XEle            '
          RecLab( 94)='iDmp            '
+         RecLab( 95)='iDmp:S          '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include
