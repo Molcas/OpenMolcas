@@ -1352,7 +1352,6 @@ C                          Thrs= 1.0D-12
                      Prjct(iShll)=.False.
                   End If
                   AuxShell(iShll)=.True.
-                  ip_Occ(iShll)=ip_Dummy
                   ipAkl(iShll)=ip_Dummy
 *
                   If (Do_acCD_Basis.and.Found) Then

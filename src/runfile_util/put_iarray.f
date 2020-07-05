@@ -131,9 +131,9 @@
          RecLab( 26)='ipCff           '
          RecLab( 27)='ipExp           '
          RecLab( 28)='IndS            '
-         RecLab( 29)='ip_Occ          '
+         RecLab( 29)='                ' !Free slot
          RecLab( 30)='ipAkl           '
-         RecLab( 31)='                ' ! Not used
+         RecLab( 31)='                ' !Free slot
          RecLab( 32)='nOpt            '
          RecLab( 33)='Prjct           '
          RecLab( 34)='Transf          '

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CalcAMt (iOpt,LUQRP,MPLbl,
-     &                    lMax,iSRShll,ipAkl,ip_Occ,
+     &                    lMax,iSRShll,ipAkl,
      &                    nProj,iCoShll,
      &                    ipExp,ipCff,nExp,nBasis,MxShll,
      &                    rcharge,DInf,nDInf)
@@ -28,7 +28,7 @@ C
       Real*8 DInf(nDInf)
       Character*20 MPLbl
       Integer ipExp(MxShll), ipCff(MxShll), ipAkl(MxShll),
-     &           nExp(MxShll), nBasis(MxShll),  ip_Occ(MxShll)
+     &           nExp(MxShll), nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -137,7 +137,7 @@ C...    Overlap and, if neccesary, exchange.
 C...          minus exchange potential
               AuxLs=VExch(ZI,N,ZJ,N,LAM,
      &                    ipExp,ipCff,nExp,nBasis,MxShll,
-     &                    nProj,iCoShll, ip_Occ,DInf,nDInf)
+     &                    nProj,iCoShll, DInf,nDInf)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF
             OVL(I,J)=OVLMP(N,ZI,N,ZJ)

@@ -60,11 +60,13 @@
 !
 !     Bk  : ECP proj shift parameters for i''th shell.
 !           the number of parameters is given by nBasis
+!     Occ : Occupation numbers for core ECP orbitals
 !
       Type Shell_Info
            Sequence
            Integer :: nBk=0
            Real*8, Allocatable:: Bk(:)
+           Real*8, Allocatable:: Occ(:)
       End Type Shell_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
@@ -184,7 +186,7 @@
       nAux2=0
       Do i = 1, Max_Shells-1
          iDmp(1,i) = Shells(i)%nBK
-         nAux2 = nAux2 + Shells(i)%nBK
+         nAux2 = nAux2 + 2*Shells(i)%nBK
       End Do
       Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
       Call mma_deallocate(iDmp)
@@ -271,6 +273,8 @@
             If (nBk.gt.0) Then
                rDmp(nAux2+1:nAux2+nBK,1)=Shells(i)%Bk(:)
                nAux2 = nAux2 + nBK
+               rDmp(nAux2+1:nAux2+nBK,1)=Shells(i)%Occ(:)
+               nAux2 = nAux2 + nBK
             End If
          End Do
          Call Put_dArray('rDmp:S',rDmp,nAux2)
@@ -330,7 +334,7 @@
       nAux2=0
       Do i = 1, Max_Shells-1
          Shells(i)%nBK = iDmp(1,i)
-         nAux2 = nAux2 + Shells(i)%nBK
+         nAux2 = nAux2 + 2*Shells(i)%nBK
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -436,6 +440,9 @@
                If (.Not.Allocated(Shells(i)%Bk)) Call mma_allocate(Shells(i)%Bk,nBk,Label='Bk')
                Shells(i)%Bk(:)=rDmp(nAux2+1:nAux2+nBk,1)
                nAux2=nAux2+nBk
+               If (.Not.Allocated(Shells(i)%Occ)) Call mma_allocate(Shells(i)%Occ,nBk,Label='Occ')
+               Shells(i)%Occ(:)=rDmp(nAux2+1:nAux2+nBk,1)
+               nAux2=nAux2+nBk
             End If
          End Do
          Call mma_deallocate(rDmp)
@@ -498,6 +505,7 @@
 !
       Do i = 1, Max_Shells-1
          If (Allocated(Shells(i)%Bk)) Call mma_deallocate(Shells(i)%Bk)
+         If (Allocated(Shells(i)%Occ)) Call mma_deallocate(Shells(i)%Occ)
       End Do
 !
       Return

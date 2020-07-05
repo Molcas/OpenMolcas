@@ -68,7 +68,6 @@
       nExp(iShll) = nPrim
       nBasis(iShll) = nCntrc
       nBasis_Cntrct(iShll) = nCntrc
-      ip_Occ(iShll) = ip_Dummy
       ipAkl(iShll) = ip_Dummy
       iEnd = iStrt + nPrim - 1
 *     Exponent

@@ -17,7 +17,7 @@
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
-     &                 CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
+     &                 CrRep,nProj,nAIMP,ipAkl,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
@@ -68,7 +68,7 @@
      &        ipCff_Prim(MxShll), ipFockOp(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
      &        nCGTO(0:iTabMx), ipAkl(MxShll),
-     &        mCGTO(0:iTabMx), ip_Occ(MxShll), nDel(0:MxAng),
+     &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll)
       Integer BasisTypes(4)
       Logical Expert, Found
@@ -91,7 +91,7 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                     BLine,CrRep,nProj,ipAkl,ip_Occ,
+     &                     BLine,CrRep,nProj,ipAkl,
      &                     ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
          Integer lUnit
          Integer ipExp(MxShll), ipCff(MxShll),
@@ -100,7 +100,7 @@
          Character*(*) BLine
          Real*8  CrRep
          Integer nProj
-         Integer ipAkl(MxShll), ip_Occ(MxShll)
+         Integer ipAkl(MxShll)
          Integer ipPP, nPP
          Logical UnNorm
          Real*8  DInf(nDInf)
@@ -322,7 +322,6 @@ C              Write(6,*) 'Fock operator is included'
          iStrt=ipExp(iShll)
          nExp(iShll) = nPrim
          nBasis_Cntrct(iShll) = nCntrc
-         ip_Occ(iShll) = ip_Dummy
          ipAkl(iShll) = ip_Dummy
          iEnd = iStrt + nPrim - 1
 *        Read gaussian exponents
@@ -635,7 +634,7 @@ culf
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
          Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               CrRep,nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,
+     &               CrRep,nProj,ipAkl,ipPP_,nPP,UnNorm,
      &               DInf,nDinf,nCnttp)
          nPrj=nProj+1
 *
@@ -1039,10 +1038,9 @@ culf
             LUQRP=33
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
-            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,ipAkl,ip_Occ,
-     &                   nProj,iPrSh+1,
-     &                   ipExp,ipCff,nExp,nBasis,MxShll,DBLE(iAtmNr),
-     &                   DInf,nDInf)
+            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,ipAkl,nProj,
+     &                   iPrSh+1,ipExp,ipCff,nExp,nBasis,MxShll,
+     &                   DBLE(iAtmNr),DInf,nDInf)
             Close (LUQRP)
          End If
       End If

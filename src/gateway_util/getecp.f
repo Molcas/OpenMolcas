@@ -13,7 +13,7 @@
 *               1993, Per Boussard                                     *
 ************************************************************************
       SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,CrRep,nProj,ipAkl,ip_Occ,
+     &                  BLine,CrRep,nProj,ipAkl,
      &                  ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
 ************************************************************************
 *                                                                      *
@@ -44,7 +44,7 @@
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
       Integer ipExp(MxShll), ipCff(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
-     &        ipAkl(MxShll), ip_Occ(MxShll), mPP(2)
+     &        ipAkl(MxShll), mPP(2)
       Logical UnNorm
       Real*8 DInf(nDInf)
       Integer nCnttp
@@ -264,26 +264,21 @@ C        Write (6,*) 'Done'
 *
 *------- Check if occupation number is included on the line
 *
-         ip_Occ(iShll)=iStrt
          iSS=1
          Call NxtWrd(Line,iSS,iEE)
          iSS=iEE+1
          Call NxtWrd(Line,iSS,iEE)
          iSS=iEE+1
          Call NxtWrd(Line,iSS,iEE)
+         Call mma_allocate(Shells(iShll)%Occ,nCntrc,Label='Occ')
          If (iEE.gt.0) Then
             Do i = 1, nCntrc
                Call Get_i1(2+i,n_Occ)
-               DInf(iStrt)=DBLE(n_Occ)/DBLE(n_Elec)
-               iStrt=iStrt+1
+               Shells(iShll)%Occ(i)=DBLE(n_Occ)/DBLE(n_Elec)
 *              Write (*,*) 'n_Occ=',n_Occ
             End Do
          Else
-            Do i = 1, nCntrc
-*              Write (*,*) 'n_Occ=',n_Elec
-               DInf(iStrt)=One
-               iStrt=iStrt+1
-            End Do
+            Shells(iShll)%Occ(:)=One
          End If
 *
 *        Read "orbital energies"

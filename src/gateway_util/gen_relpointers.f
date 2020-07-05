@@ -21,7 +21,6 @@
          ipCff_Cntrct(i) = ipCff_Cntrct(i)  + ibase
          ipCff_Prim(i)   = ipCff_Prim(i)    + ibase
          ipExp(i)        = ipExp(i)         + ibase
-         ip_Occ(i)       = ip_Occ(i)        + ibase
          ipAkl(i)        = ipAkl(i)         + ibase
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do

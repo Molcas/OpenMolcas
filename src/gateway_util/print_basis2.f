@@ -236,6 +236,7 @@ C    &      'To display auxiliary basis information use the key',
 C    &      ' "AUXSHOW" in the input.'
 Cend
       End If
+*
       Do iCnttp = 1, nCnttp
 *
 *------- Pseudo potential type ECP
@@ -320,7 +321,7 @@ Cend
                Write (LuWr,*) ' Proj. Operator'
             End If
             Do iAng = 0, nPrj_Shells(iCnttp)-1
-               If (nBasis(iSh).ne.0) Then
+               If (Shells(iSh)%nBk.ne.0) Then
                   If (iPrint.ge.10) Then
                      Write (LuWr,*)
                      Write (LuWr,'(19X,A,A)')
@@ -331,27 +332,27 @@ Cend
                      Write (LuWr,
      &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
      &                  '     Bk-values',
-     &                  (Shells(iSh)%Bk(i),i=1,nBasis(iSh))
+     &                  (Shells(iSh)%Bk(i),i=1,Shells(iSh)%nBk)
                      Write (LuWr,
      &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
      &                  '     Frac.Occ.',
-     &                  (DInf(ip_Occ(iSh)+i),i=0,nBasis(iSh)-1)
+     &                  (Shells(iSh)%Occ(i),i=1,Shells(iSh)%nBk)
                   End If
 *
-                  Do i=0,nBasis(iSh)-1
-                     Shells(iSh)%Bk(1+i)=Shells(iSh)%Bk(1+i)
-     &                                *DInf(ip_Occ(iSh)+i)
+                  Do i=1,Shells(iSh)%nBk
+                     Shells(iSh)%Bk(i)=Shells(iSh)%Bk(i)
+     &                                *Shells(iSh)%Occ(i)
                   End Do
 *
                   iExp = ipExp(iSh)
-                  iCff = ipCff(iSh) + nExp(iSh)*nBasis(iSh)
+                  iCff = ipCff(iSh) + nExp(iSh)*Shells(iSh)%nBk
                   If (iPrint.ge.10) Then
                      Do kExp = 1, nExp(iSh)
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,8(G12.5),'//
      &                        '3(/,30X,8(G12.5)))')
      &                            DInf(iExp),( DInf(iCff+ib),
-     &                     ib=0,nBasis(iSh)*nExp(iSh)-1,nExp(iSh))
+     &                     ib=0,Shells(iSh)%nBk*nExp(iSh)-1,nExp(iSh))
                         iExp = iExp + 1
                         iCff = iCff + 1
                      End Do

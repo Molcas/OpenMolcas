@@ -73,7 +73,6 @@ c Avoid unused argument warnings
       Call Get_iArray('ipCff_Prim',ipCff_Prim,Mx_Shll)
       Call Get_iArray('ipExp',ipExp,Mx_Shll)
       Call Get_iArray('IndS',IndS,nShlls)
-      Call Get_iArray('ip_Occ',ip_Occ,Mx_Shll)
       Call Get_iArray('ipAkl',ipAkl,Mx_Shll)
       Call Get_iArray('nOpt',nOpt,nCnttp)
       Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
