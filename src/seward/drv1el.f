@@ -361,7 +361,7 @@
      &               PAMexp(1,1),1)
          Do iPAMf=1,iPAMBas
             Call dcopy_(iPAMPrim,
-     &                  dbsc(kCnttp)%PAM2(iAddr+2+iPAMPrim*iPAMf),1,
+     &                  dbsc(kCnttpPAM)%PAM2(iAddr+2+iPAMPrim*iPAMf),1,
      &                  PAMexp(1,2),1)
             Write (Label,'(A,I2.2,I1.1,I2.2)')
      &             'PAM', kCnttpPAM,iPAMltpl,iPAMf
