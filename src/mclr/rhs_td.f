@@ -187,14 +187,13 @@
         Call GetMem('MOOIT2','ALLO','REAL',ipMOT2,nmba)
         call dcopy_(nmba,[0.0d0],0,work(ipMOT),1)
         call dcopy_(nmba,[0.0d0],0,work(ipMOT2),1)
-       End If
 *
-*      kappa rmo Fi Fa
+*       kappa rmo Fi Fa
 *
-       Call r2ElInt(Temp1,Work(ipMOT),  Work(ipMOT2),
-     &             Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
-
-       If (imethod.eq.2) Then
+*       IFG: this was outside "if (imethod.eq.2)",
+*            probably a bug? ipmot & ipmot2 would be uninitialized
+        Call r2ElInt(Temp1,Work(ipMOT),  Work(ipMOT2),
+     &               Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
         Call DaXpY_(nmba,1.0d0,Work(ipmot2),1,Work(ipmot),1 )
         Call GetMem('MOOIT2','FREE','REAL',ipMOT2,nmba)
        End If

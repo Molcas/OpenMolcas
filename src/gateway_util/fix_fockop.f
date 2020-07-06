@@ -44,7 +44,7 @@
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
-      Character*180 STDINP(mxAtom*2) ! CGGn
+      Character*180, Allocatable :: STDINP(:) ! CGGn
       Integer BasisTypes(4), nDel(MxAng)
       Integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
       Logical Try_Again
@@ -81,6 +81,7 @@ C     nPrint(122)=99
 *     1-center overlap integrals here.
 *
       call dcopy_(3,[Zero],0,A,1)
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
 *
       nOrdOp=2
       iComp = 1
@@ -899,6 +900,7 @@ c     &               Charge_Actual,Charge_Effective
          Do_FckInt = Do_FckInt .and. FockOp(iCnttp) ! To be activated!
 *
  2000 Continue
+      Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************
 *                                                                      *

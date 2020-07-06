@@ -78,7 +78,7 @@
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
 !
-      Character*180 STDINP(mxAtom*2)
+      Character*180, Allocatable :: STDINP(:)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
 *
@@ -356,6 +356,8 @@ cperiod
 *                                                                      *
 *
 *     KeyWord directed input
+*
+      Call mma_allocate(STDINP,MxAtom*2,label='STDINP')
 *
       nDone=0
       Call Gen_RelPointers(Info-1) ! Work  Mode
@@ -4760,6 +4762,8 @@ C     Mx_mdc=mdc
 ************************************************************************
 *                                                                      *
       Call qExit('RdCtl')
+*
+      Call mma_deallocate(STDINP)
       Return
 6666  Call WarningMessage(2,'Unable to read data from '//KWord)
       call Quit_OnUserError()

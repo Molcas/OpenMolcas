@@ -48,11 +48,11 @@
       Character*(storageSize) sBasis
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-      Character*180  STDINP(mxAtom*2)
 !#define _DEBUG_
 #ifdef _DEBUG_
       Integer i
 #endif
+      Character*180, Allocatable :: STDINP(:)
 * external functions and procedures
       Integer     iMostAbundantIsotope, iCLast
       Real*8      NucExp, rMass
@@ -65,7 +65,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       UnNorm = .False.
       LenLbl=0
       mdc = mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr
@@ -284,5 +284,6 @@ c     &                                  (dbsc(i)%nFragCoor,i=1,nCnttp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(STDINP)
       Return
       End

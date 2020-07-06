@@ -47,7 +47,7 @@
       Logical :: Cartesian, Numerical, PrQ, Found
       Character(Len=8) :: Lbl(nLbl),Filename
       Character(Len=16) :: StdIn
-      Character(Len=24) :: Label(nLbl)
+      Character(Len=24), Allocatable :: Label(:)
       Character(Len=180), External :: Get_Ln_EOF
       Real*8, External :: DDot_
 *
@@ -176,6 +176,7 @@
       Bk_CnstWght=CnstWght
       Bk_dMEPStep=dMEPStep
       Bk_rFuzz=rFuzz
+      Bk_ThrMEP=ThrMEP
       Bk_lTherm=lTherm
       Bk_lDoubleIso=lDoubleIso
       Bk_nUserPT=nUserPT
@@ -330,6 +331,7 @@
 *
 *---- Print the overlaps
 *
+      Call mma_allocate(Label,nLbl,label='Label')
       Filename='INTCOR'
       LuIC=21
       LuIC=IsFreeUnit(LuIC)
@@ -381,6 +383,7 @@
 *
 *---- Clean up
 *
+      Call mma_deallocate(Label)
       Call mma_deallocate(IntMod)
       Call mma_deallocate(Sort)
       Call GetMem('BM','Free','Real',ip_B,mB_Tot)
@@ -533,6 +536,7 @@
       CnstWght=Bk_CnstWght
       dMEPStep=Bk_dMEPStep
       rFuzz=Bk_rFuzz
+      ThrMEP=Bk_ThrMEP
       lTherm=Bk_lTherm
       lDoubleIso=Bk_lDoubleIso
       nUserPT=Bk_nUserPT

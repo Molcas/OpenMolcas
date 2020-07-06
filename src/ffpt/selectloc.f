@@ -91,6 +91,7 @@
       Label='MltPl  0'
       iRc=-1
       iSymLbl=1
+      nInts=0
       Call iRdOne(iRc,iOpt1,Label,1,idum,iSymLbl)
       If (iRc.eq.0) nInts=idum(1)
       Call GetMem('SMatTr','Allo','Real',ipSTr,nInts+4)

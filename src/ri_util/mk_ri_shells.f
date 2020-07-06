@@ -37,7 +37,7 @@
       Character*80 atom,type,author,basis,CGTO, Aux
       Character*80 atomb
       Character *256 Basis_lib, Fname
-      Character*180 STDINP(mxAtom*2) ! CGGn
+      Character*180, Allocatable :: STDINP(:) !CGGn
       Character*180 Line, Get_Ln
       External Get_Ln
       Integer StrnLn
@@ -59,6 +59,7 @@
       iRout = 2
       iPrint = nPrint(iRout)
 *
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       IfTest=.False.
 *     IfTest=.True.
 *
@@ -518,6 +519,7 @@ C        Fixed(nCnttp)=.False.
 *
  1100 Continue
       Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+      Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************
 *                                                                      *

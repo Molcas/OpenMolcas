@@ -65,6 +65,7 @@
 #include "lucinp.fh"
 #include "distsym.fh"
 #include "loff.fh"
+#include "stdalloc.fh"
 *. Input
       INTEGER IGRP(NIGRP)
 *. Local scratch
@@ -75,7 +76,7 @@
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
       INTEGER KGRP(MXPNGAS)
       INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
-      DIMENSION IOFFI(LOFFI)
+      ALLOCATABLE IOFFI(:)
 *
 *
 * =======
@@ -118,6 +119,7 @@
       NORBTS= NOBPTS(IOBTP,IOBSM)
       NORBT= NOBPT(IOBTP)
       IACGAS = IOBTP
+      CALL mma_allocate(IOFFI,LOFFI,label='IOFFI')
 *. First orbital of given GASpace
        IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
 *. First orbital of given GASpace and Symmetry
@@ -316,6 +318,7 @@ C       DO IGAS =  IOBTP +1, NIGRP
         GOTO 1000
 *
  9999 CONTINUE
+      CALL mma_deallocate(IOFFI)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from ADAST_GAS '

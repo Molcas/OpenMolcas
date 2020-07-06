@@ -32,6 +32,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
 *
 c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
@@ -39,7 +40,7 @@ c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
       Real*8 Coor(3,mxdc),Znuc(mxdc)
       Character shelllabel(7)
       Character*(LENIN) AtomLabel(mxdc)
-      Character*(LENIN8) label(MaxBfn+MaxBfn_Aux)
+      Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
@@ -688,6 +689,7 @@ c      End If
 *                   delocalized
 *      ipPhase  --- phase of the AO in the linear combination
 *
+      Call mma_allocate(label,MaxBfn+MaxBfn_Aux,label='label')
       Call icopy(8*nB,[0],0,iWork(ipPhase),1)
       Call icopy(8*nB,[0],0,iWork(ipCent),1)
       Call SOout(label,iWork(ipCent),iWork(ipPhase))
@@ -747,6 +749,7 @@ c      End If
           End Do ! iGTO=1,nB
         End Do ! iB=1,nBas(iIrrep)
       End Do ! iIrrep=0,nIrrep-1
+      Call mma_deallocate(label)
 
 ************************************************************************
 *                                                                      *
