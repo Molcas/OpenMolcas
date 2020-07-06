@@ -572,9 +572,8 @@ cVV: ifort 11 can't handle the code without this dummy print.
       End If
       If(.not. Do_RI) iOpt=0
 *
-      If (iOpt.eq.0) Then
-         ip_LB=ip_iDummy
-      Else If (iOpt.eq.1) Then
+      ip_LB=ip_iDummy
+      If (iOpt.eq.1) Then
          Call qpg_iArray('LBList',Found,nSkal2_)
          If (Found) Then
             Call Allocate_iWork(ip_LB,nSkal2_)

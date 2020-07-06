@@ -1528,9 +1528,11 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
       subroutine value_sort_ploop(mh,logic_ar,logic_w0,logic_w1)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
+#include "stdalloc.fh"
       real*8 w0,w1,s_w0,s_w1
       logical logic_ar,logic_w0,logic_w1
-      dimension ntype(nvaltype)
+      allocatable ntype(:)
+      call mma_allocate(ntype,nvaltype,label='nvaltype')
       zero=0.d0
       nvalue(1:nvaltype)=0
       ntype(1:mh)=0
@@ -1599,6 +1601,7 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
           endif
         enddo
       enddo
+      call mma_deallocate(ntype)
       return
       end
 

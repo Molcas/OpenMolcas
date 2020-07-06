@@ -56,11 +56,12 @@
 *
       Real*8 Degen(3*mxdc), cMass(3), Trial(3), ThrEne, ThrGrd,
      &       Beta, Beta_Disp, Delta, Rtrnc, rHidden, ThrCons,
-     &       GNrm_Threshold, CnstWght, dMEPStep, rFuzz
+     &       GNrm_Threshold, CnstWght, dMEPStep, rFuzz, ThrMEP
 *
       Common /rInfSla/ Degen, cMass, Trial, ThrEne, ThrGrd, Beta,
      &                 Beta_Disp, Delta, Rtrnc, rHidden, ThrCons,
-     &                 GNrm_Threshold, CnstWght, dMEPStep, rFuzz
+     &                 GNrm_Threshold, CnstWght, dMEPStep, rFuzz,
+     &                 ThrMEP
 *
       Logical   lTherm, lDoubleIso
       Integer   nUserPT, nsRot

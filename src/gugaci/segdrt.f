@@ -12,12 +12,14 @@
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
+#include "stdalloc.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      dimension j(4),jpihy(max_wei)
+      dimension j(4)
+      allocatable jpihy(:)
       jpmax=no(norb_inn+1)
       iy=0
       ihy=0
@@ -135,6 +137,7 @@
         ihypos=ihypos+2
       enddo
 
+      call mma_allocate(jpihy,max_wei,label='jpihy')
       lr=norb_dz+1
       jpsta=no(lr)+1
       jpend=jpae
@@ -151,6 +154,7 @@
       enddo
       nohy=ihypos-1
       !write(6,'(3x,4i10)')jpad,jpae,ndim,nohy
+      call mma_deallocate(jpihy)
       return
       end
 

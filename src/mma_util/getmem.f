@@ -147,7 +147,9 @@
         Else If ( Key.eq.'FREE' ) Then
           Write (6,'(A)')
      &         'MMA failed to release the memory block for further use.'
-         iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+          iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+        Else
+          Write (6,*)
         End If
         Go To 777
       End If

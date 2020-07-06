@@ -68,6 +68,7 @@
       ! LAPACK
       lb_dbdsdc=>int_dbdsdc
       lb_dbdsqr=>int_dbdsqr
+      lb_dcombssq=>int_dcombssq
       lb_dgebak=>int_dgebak
       lb_dgebal=>int_dgebal
       lb_dgebd2=>int_dgebd2

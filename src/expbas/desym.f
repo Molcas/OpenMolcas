@@ -45,11 +45,12 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
+#include "stdalloc.fh"
       Parameter (EorbThr = 50.D0 )
       Real*8 Coor(3,mxdc),Znuc(mxdc)
       Character*(LENIN) AtomLabel(mxdc)
       Character*512 FilesOrb
-      Character*(LENIN8) label(MaxBfn+MaxBfn_Aux)
+      Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
@@ -545,6 +546,7 @@ CC              Do icontr=1,nBasis(ishell)
 *                   delocalized
 *      ipPhase  --- phase of the AO in the linear combination
 *
+      Call mma_allocate(Label,MaxBfn+MaxBfn_Aux,label='Label')
       Call icopy(8*nB,[0],0,iWork(ipPhase),1)
       Call icopy(8*nB,[0],0,iWork(ipCent),1)
       Call SOout(label,iWork(ipCent),iWork(ipPhase))
@@ -629,6 +631,7 @@ CC     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
           End Do
         End Do
       End Do
+      Call mma_deallocate(Label)
 *                                                                      *
 ************************************************************************
 *                                                                      *

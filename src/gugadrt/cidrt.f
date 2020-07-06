@@ -1863,11 +1863,15 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       subroutine gugadrt_rcas(id,indd)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
+#include "stdalloc.fh"
       common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
      :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
      :    ,jv,jd(8),jt(8),js(8)
-      dimension ind(8,max_node),locu(8,max_ref),jc(max_node)
-      dimension noh(max_innorb),itm(0:max_node),iwy(4,0:max_node)
+      dimension locu(8,max_ref),jc(max_node)
+      dimension noh(max_innorb),itm(0:max_node)
+      allocatable :: ind(:,:),iwy(:,:)
+      call mma_allocate(ind,8,max_node,label='ind')
+      call mma_allocate(iwy,[1,4],[0,max_node],label='iwy')
       write(6,*)' '
       write(6,*) 'now generate distinct row tableau'
       noh=0
@@ -2357,6 +2361,8 @@ c      write(21) jv,jd(1:8),jt(1:8),js(1:8)
 c      close(21)
 
       call writedrt(id)
+      call mma_deallocate(ind)
+      call mma_deallocate(iwy)
 507   format(3x,2i5,1x,3i3,1x,4i5,1x,4i10,1x,8i2)
       end
 
