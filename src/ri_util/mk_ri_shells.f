@@ -170,7 +170,7 @@
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              FockOp(nCnttp),
      &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &              CrRep(nCnttp),nProj,nAIMP,ipAkl,iOptn,
+     &              CrRep(nCnttp),nProj,nAIMP,iOptn,
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
@@ -455,7 +455,6 @@ C        Fixed(nCnttp)=.False.
                nBasis(iShll)=nBasis_Cntrct(iShll)
                ipCff (iShll)=ipCff_Cntrct(iShll)
                AuxShell(iShll)=.True.
-               ipAkl(iShll)=ip_Dummy
                ipExp(iShll+1)=iEnd+1
 *
             End Do ! iAng

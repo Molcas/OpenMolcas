@@ -67,10 +67,12 @@
            Integer :: nBk=0
            Real*8, Allocatable:: Bk(:)
            Real*8, Allocatable:: Occ(:)
+           Integer :: nAkl=0
+           Real*8, Allocatable:: Akl(:,:,:)
       End Type Shell_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords=0, nFields=7, mFields=1
+      Integer :: nFrag_LineWords=0, nFields=7, mFields=2
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
       Integer :: Max_Shells=0
       Type (Shell_Info) :: Shells(MxShll)
@@ -120,7 +122,7 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk
+      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl
       Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:)
@@ -186,7 +188,8 @@
       nAux2=0
       Do i = 1, Max_Shells-1
          iDmp(1,i) = Shells(i)%nBK
-         nAux2 = nAux2 + 2*Shells(i)%nBK
+         iDmp(2,i) = Shells(i)%nAkl
+         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2
       End Do
       Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
       Call mma_deallocate(iDmp)
@@ -276,6 +279,11 @@
                rDmp(nAux2+1:nAux2+nBK,1)=Shells(i)%Occ(:)
                nAux2 = nAux2 + nBK
             End If
+            nAkl=Shells(i)%nAkl
+            If (nAkl.gt.0) Then
+               Call DCopy_(2*nAkl**2,Shells(i)%Akl,1,rDmp(nAux2+1,1),1)
+               nAux2 = nAux2 + 2*nAkl**2
+            End If
          End Do
          Call Put_dArray('rDmp:S',rDmp,nAux2)
          Call mma_deallocate(rDmp)
@@ -292,7 +300,7 @@
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
-      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2
+      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl
       Integer nFragType, nFragCoor, nFragEner, nFragDens
 !     Write (6,*) 'Basis_Info_Get()'
 !
@@ -334,7 +342,8 @@
       nAux2=0
       Do i = 1, Max_Shells-1
          Shells(i)%nBK = iDmp(1,i)
-         nAux2 = nAux2 + 2*Shells(i)%nBK
+         Shells(i)%nAkl= iDmp(2,i)
+         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -435,7 +444,8 @@
          Call Get_dArray('rDmp:S',rDmp,Len)
          nAux2=0
          Do i = 1, Max_Shells-1
-            nBk=SHells(i)%nBK
+
+            nBk=Shells(i)%nBK
             If (nBk.gt.0) Then
                If (.Not.Allocated(Shells(i)%Bk)) Call mma_allocate(Shells(i)%Bk,nBk,Label='Bk')
                Shells(i)%Bk(:)=rDmp(nAux2+1:nAux2+nBk,1)
@@ -444,6 +454,14 @@
                Shells(i)%Occ(:)=rDmp(nAux2+1:nAux2+nBk,1)
                nAux2=nAux2+nBk
             End If
+
+            nAkl=Shells(i)%nAkl
+            If (nAkl.gt.0) Then
+               If (.Not.Allocated(Shells(i)%Akl)) Call mma_allocate(Shells(i)%Akl,nAkl,nAkl,2,Label='Akl')
+               Call DCopy_(2*nAkl**2,rDmp(nAux2+1,1),1,Shells(i)%Akl,1)
+               nAux2=nAux2+2*nAkl**2
+            End If
+
          End Do
          Call mma_deallocate(rDmp)
       End If
@@ -506,6 +524,9 @@
       Do i = 1, Max_Shells-1
          If (Allocated(Shells(i)%Bk)) Call mma_deallocate(Shells(i)%Bk)
          If (Allocated(Shells(i)%Occ)) Call mma_deallocate(Shells(i)%Occ)
+         Shells(i)%nBk =0
+         If (Allocated(Shells(i)%Akl)) Call mma_deallocate(Shells(i)%Akl)
+         Shells(i)%nAkl=0
       End Do
 !
       Return

@@ -163,7 +163,7 @@ c           write(*,*) 'Fname = ',Fname
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
      &                 ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &                 CrRep(nCnttp),nProj,nAIMP,ipAkl,iOptn,
+     &                 CrRep(nCnttp),nProj,nAIMP,iOptn,
      &                 UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,

@@ -18,7 +18,7 @@
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp,
      &                 ECP,NoPairL,SODK,
-     &                 CrRep,nProj,nAIMP,ipAkl,iOpt,
+     &                 CrRep,nProj,nAIMP,iOpt,
      &                 UnNorm,nDel, nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,AuxCnttp, IsMM,
@@ -40,7 +40,7 @@
       Logical       PAM2
       Logical       FockOp, ECP, NoPairL, SODK
       Real*8        CrRep
-      Integer       nProj, nAIMP, ipAkl(MxShll), iOpt
+      Integer       nProj, nAIMP, iOpt
       Logical       UnNorm
       Integer       nDel(0:MxAng), nVal,  nPrj,  nSRO,  nSOC, nPP,
      &              ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,

@@ -1352,7 +1352,6 @@ C                          Thrs= 1.0D-12
                      Prjct(iShll)=.False.
                   End If
                   AuxShell(iShll)=.True.
-                  ipAkl(iShll)=ip_Dummy
 *
                   If (Do_acCD_Basis.and.Found) Then
                      Call mma_deallocate(iList2_p)

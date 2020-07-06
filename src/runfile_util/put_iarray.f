@@ -132,7 +132,7 @@
          RecLab( 27)='ipExp           '
          RecLab( 28)='IndS            '
          RecLab( 29)='                ' !Free slot
-         RecLab( 30)='ipAkl           '
+         RecLab( 30)='                ' !Free slot
          RecLab( 31)='                ' !Free slot
          RecLab( 32)='nOpt            '
          RecLab( 33)='Prjct           '

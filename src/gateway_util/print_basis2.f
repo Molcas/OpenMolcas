@@ -424,10 +424,14 @@ Cend
                      iExp = ipExp(iSh)
                      Call RecPrt(' Exponents',' ',
      &                           DInf(iExp),nExp(iSh),1)
-                     iA = ipAkl(iSh)
-                     If (iPrint.ge.11)
-     &               Call RecPrt(' The A matrix','(5D20.13)',
-     &                           DInf(iA),nExp(iSh),nExp(iSh))
+                     If (iPrint.ge.11) Then
+                        Call RecPrt(' The Akl matrix','(5D20.13)',
+     &                              Shells(iSh)%Akl(1,1,1),nExp(iSh),
+     &                                                     nExp(iSh))
+                        Call RecPrt(' The Adl matrix','(5D20.13)',
+     &                              Shells(iSh)%Akl(1,1,2),nExp(iSh),
+     &                                                     nExp(iSh))
+                     End If
                   End If
                   iSh = iSh + 1
                End Do ! iAng

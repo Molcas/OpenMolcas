@@ -125,17 +125,21 @@
                ipC = ip
                ip = ip + nExp(iShll)**2
 *
-               ipCk = ipAkl(iShll)
-               If (iPrint.ge.49) Call RecPrt(' The Akl matrix',
-     &            ' ', Work(ipCk),nExp(iShll),nExp(iShll))
-               call dcopy_(nExp(iShll)**2,Work(ipCk),1,Array(ipC),1)
+               If (iPrint.ge.49)
+     &            Call RecPrt(' The Akl matrix',' ',
+     &                        Shells(iShll)%Akl(1,1,1),
+     &                        nExp(iShll),nExp(iShll))
+               call dcopy_(nExp(iShll)**2,Shells(iShll)%Akl(1,1,1),1,
+     &                                    Array(ipC),1)
                If (EQ(A,RB).and.EQ(A,TC).and.
      &            lNoPair.and.NoPairL(iCnttp)) Then
-                  ipCd = ipCk + nExp(iShll)**2
-                  If (iPrint.ge.49) Call RecPrt(' The Adl matrix',
-     &               ' ', Work(ipCd),nExp(iShll),nExp(iShll))
-                  Call DaXpY_(nExp(iShll)**2,One,Work(ipCd),1,
-     &                       Array(ipC),1)
+                  If (iPrint.ge.49)
+     &               Call RecPrt(' The Adl matrix',' ',
+     &                           Shells(iShll)%Akl(1,1,2),
+     &                           nExp(iShll),nExp(iShll))
+                  Call DaXpY_(nExp(iShll)**2,One,
+     &                                       Shells(iShll)%Akl(1,1,2),1,
+     &                                       Array(ipC),1)
                End If
 *
                ipF1 = ip

@@ -9,26 +9,29 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CalcAMt (iOpt,LUQRP,MPLbl,
-     &                    lMax,iSRShll,ipAkl,
+     &                    lMax,iSRShll,
      &                    nProj,iCoShll,
      &                    ipExp,ipCff,nExp,nBasis,MxShll,
      &                    rcharge,DInf,nDInf)
-C
-C...       calculates the non-diagonal spectral representation
-C          A matrix for an atom. Note that its signs is shuch
-C          that the spectral representation must be ADDED to the
-C          one-electron hamiltonian.
-C
-C     Internal matrices fixed the maximum number of primitives
-C     per symmetry to 'maxprim'
-C
+************************************************************************
+*                                                                      *
+*...       calculates the non-diagonal spectral representation         *
+*          A matrix for an atom. Note that its signs is such           *
+*          that the spectral representation must be ADDED to the       *
+*          one-electron hamiltonian.                                   *
+*                                                                      *
+*     Internal matrices fixed the maximum number of primitives         *
+*     per symmetry to 'maxprim'                                        *
+*                                                                      *
+************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Agin, Ovlmp, Vexch, Vqr
 #include "relmp.fh"
+#include "stdalloc.fh"
       Real*8 DInf(nDInf)
       Character*20 MPLbl
-      Integer ipExp(MxShll), ipCff(MxShll), ipAkl(MxShll),
-     &           nExp(MxShll), nBasis(MxShll)
+      Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -149,36 +152,38 @@ C...          minus exchange potential
 C
         CALL MATINV (OVL,rel,NP,0,maxprim)
 C
-        IJAM0=ipAkl(iSRSh)-1
         PreFac = sqrt((2D0/PI)**3) * 4D0**(lP1-1)
 *
-        Do iq = 1, 2
-        DO 201 I=1,NP
-          ZI=DInf(ipExp(iSRSh)+I-1)
-          DO 204 L=1,NP
-          rel(L)=0.D0
-            DO 203 K=1,NP
-              rel(L)=rel(L)+OVL(I,K)*COREK(K,L,iq)
-203         CONTINUE
-204       CONTINUE
-          DO 202 J=1,I
-            ZJ=DInf(ipExp(iSRSh)+J-1)
-            ADUM=0.D0
-            DO 214 L=1,NP
-              ADUM=ADUM+rel(L)*OVL(L,J)
-214         CONTINUE
-*           in MOLCAS3:X1
-*           multiply by the (radial) normalization constants
-*           of the primitives i and j, so that the spectral
-*           representation coeffients correspond to the
-*           (radially) unnormalized primitives.
-            ADUM=ADUM*PreFac*sqrt(sqrt( (ZI*ZJ)**(3+2*(lP1-1)) ))
-            DInf(IJAM0+(J-1)*NP+I)=ADUM
-            DInf(IJAM0+(I-1)*NP+J)=ADUM
-202       CONTINUE
-201     CONTINUE
-        IJAM0=IJAM0+NP**2
-        End Do
+        Call mma_Allocate(Shells(ISRSh)%Akl,NP,NP,2,Label='Akl')
+        Shells(ISRSh)%nAkl=NP
+        DO iq = 1, 2
+           DO I=1,NP
+              ZI=DInf(ipExp(iSRSh)+I-1)
+              DO L=1,NP
+                 rel(L)=0.D0
+                 DO K=1,NP
+                    rel(L)=rel(L)+OVL(I,K)*COREK(K,L,iq)
+                 END DO
+              END DO
+              DO J=1,I
+                 ZJ=DInf(ipExp(iSRSh)+J-1)
+                 ADUM=0.D0
+                 DO L=1,NP
+                    ADUM=ADUM+rel(L)*OVL(L,J)
+                 END DO
+*                in MOLCAS3:X1
+*                multiply by the (radial) normalization constants
+*                of the primitives i and j, so that the spectral
+*                representation coeffients correspond to the
+*                (radially) unnormalized primitives.
+                 ADUM=ADUM*PreFac*sqrt(sqrt( (ZI*ZJ)**(3+2*(lP1-1)) ))
+                 Shells(iSRSh)%Akl(I,J,iq)=ADUM
+                 Shells(iSRSh)%Akl(J,I,iq)=ADUM
+              END DO
+           END DO
+           IJAM0=IJAM0+NP**2
+        END DO
+*
 1000  CONTINUE
       Call qExit('CalcAMt')
       RETURN

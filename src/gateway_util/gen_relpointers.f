@@ -21,15 +21,14 @@
          ipCff_Cntrct(i) = ipCff_Cntrct(i)  + ibase
          ipCff_Prim(i)   = ipCff_Prim(i)    + ibase
          ipExp(i)        = ipExp(i)         + ibase
-         ipAkl(i)        = ipAkl(i)         + ibase
          ipFockOp(i)     = ipFockOp(i)      + ibase
       End Do
 *
       If (Allocated(iSD)) Then
          Call Nr_Shells(nSkal)
          Do iSkal = 1, nSkal
-            iSD(4,iSkal)= iSD(4,iSkal) + ibase
-            iSD(6,iSkal)= iSD(6,iSkal) + ibase
+            iSD(4,iSkal)= iSD(4,iSkal) + ibase ! ipCff
+            iSD(6,iSkal)= iSD(6,iSkal) + ibase ! ipExp
          End Do
       End If
 *

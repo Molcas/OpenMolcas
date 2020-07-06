@@ -13,7 +13,7 @@
 *               1993, Per Boussard                                     *
 ************************************************************************
       SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,CrRep,nProj,ipAkl,
+     &                  BLine,CrRep,nProj,
      &                  ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
 ************************************************************************
 *                                                                      *
@@ -44,7 +44,7 @@
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
       Integer ipExp(MxShll), ipCff(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
-     &        ipAkl(MxShll), mPP(2)
+     &        mPP(2)
       Logical UnNorm
       Real*8 DInf(nDInf)
       Integer nCnttp
@@ -286,7 +286,6 @@ C        Write (6,*) 'Done'
 *        Write (6,*) ' Reading Bk'
          Call mma_allocate(Shells(iShll)%Bk,nCntrc,Label='Bk')
          Shells(iShll)%nBk=nCntrc
-         ipAkl(iShll) = ip_Dummy
          If (nCntrc.gt.0) Call Read_v(lUnit,Shells(iShll)%Bk,
      &                                1,nCntrc,1,ierr)
          If (ierr.ne.0) goto 992

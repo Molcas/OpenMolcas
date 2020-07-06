@@ -63,7 +63,6 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
-*#define _DEBUG_
       use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -77,6 +76,7 @@
      &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
       Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
      &          iChO(nComp), iTwoj(0:7)
+!#define _DEBUG_
 #ifdef _DEBUG_
       Character*80 Label
 #endif
@@ -87,6 +87,7 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 #ifdef _DEBUG_
+      Call RecPrt(' In PrjInt: Zeta',' ',Zeta,1,nZeta)
       Call RecPrt(' In PrjInt: A',' ',A,1,3)
       Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
       Call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
@@ -94,7 +95,8 @@
       Write (6,*) ' In PrjInt: la,lb=',' ',la,lb
 #endif
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+*     call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+      Final(:,:,:,:)=Zero
 *
       llOper = lOper(1)
       iComp = 1

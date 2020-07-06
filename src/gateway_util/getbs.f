@@ -17,7 +17,7 @@
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
-     &                 CrRep,nProj,nAIMP,ipAkl,iOpt,
+     &                 CrRep,nProj,nAIMP,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
@@ -47,6 +47,7 @@
 #include "itmax.fh"
 #include "print.fh"
 #include "real.fh"
+#include "stdalloc.fh"
       Real*8 DInf(nDInf)
       Character*80 BSLbl, BLine, Ref(2), MPLbl*20,
      &             Filenm, Atom, Type
@@ -66,8 +67,7 @@
      &        isEorb,isFock
       Integer ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
      &        ipCff_Prim(MxShll), ipFockOp(MxShll),
-     &        nExp(MxShll), nBasis(MxShll),
-     &        nCGTO(0:iTabMx), ipAkl(MxShll),
+     &        nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll)
       Integer BasisTypes(4)
@@ -91,7 +91,7 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                     BLine,CrRep,nProj,ipAkl,
+     &                     BLine,CrRep,nProj,
      &                     ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
          Integer lUnit
          Integer ipExp(MxShll), ipCff(MxShll),
@@ -100,7 +100,6 @@
          Character*(*) BLine
          Real*8  CrRep
          Integer nProj
-         Integer ipAkl(MxShll)
          Integer ipPP, nPP
          Logical UnNorm
          Real*8  DInf(nDInf)
@@ -113,10 +112,11 @@
       iRout=6
       iPrint = nPrint(iRout)
       IfTest=.False.
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Call QEnter('GetBS')
       IfTest=.True.
+      iPrint=99
 #endif
       If (IfTest) iPrint=99
       ip_Dummy=-1
@@ -322,7 +322,6 @@ C              Write(6,*) 'Fock operator is included'
          iStrt=ipExp(iShll)
          nExp(iShll) = nPrim
          nBasis_Cntrct(iShll) = nCntrc
-         ipAkl(iShll) = ip_Dummy
          iEnd = iStrt + nPrim - 1
 *        Read gaussian exponents
          If (nPrim.gt.0) then
@@ -470,7 +469,7 @@ culf
             End Do
          End If
 *
-         If (IfTest) Write (6,*) ' Done!'
+         If (IfTest) Write (6,*) ' Done! Now Process.'
 *
 *        Order the exponents
 *
@@ -634,7 +633,7 @@ culf
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
          Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               CrRep,nProj,ipAkl,ipPP_,nPP,UnNorm,
+     &               CrRep,nProj,ipPP_,nPP,UnNorm,
      &               DInf,nDinf,nCnttp)
          nPrj=nProj+1
 *
@@ -707,10 +706,7 @@ culf
             nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
-            iEnd = iStrt + 2*nExp(iShll)**2 -1
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.D+00],0,DInf(iStrt),1)
+            iEnd = iStrt - 1
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -740,10 +736,7 @@ culf
             nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
-            iEnd = iStrt + 2*nExp(iShll)**2 -1
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
+            iEnd = iStrt - 1
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -786,10 +779,8 @@ culf
                End If
             End If
             iStrt = iEnd + 1
-            iEnd = iStrt + 2*nExp(iShll)**2
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
+            iEnd = iStrt
+*
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -854,10 +845,8 @@ culf
             ipCff(iShll)   = ip_Dummy
 *
             iStrt = iEnd + 1
-            iEnd  = iStrt + 2*nExp(iShll)**2
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
+            iEnd = iStrt
+*
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -1038,7 +1027,7 @@ culf
             LUQRP=33
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
-            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,ipAkl,nProj,
+            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
      &                   iPrSh+1,ipExp,ipCff,nExp,nBasis,MxShll,
      &                   DBLE(iAtmNr),DInf,nDInf)
             Close (LUQRP)

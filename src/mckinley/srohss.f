@@ -163,7 +163,7 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Work(ipAkl(iShll)),nexp(ishll),
+     &                        Shells(iShll)%Akl,nexp(ishll),
      &                        la,lb,iang,jfhss,Array(ipTmp),.true.)
 
 
