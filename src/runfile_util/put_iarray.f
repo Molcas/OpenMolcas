@@ -158,7 +158,7 @@
          RecLab( 53)='ipCff_Prim      '
          RecLab( 54)='SCF nOcc        '
          RecLab( 55)='SCF nOcc_ab     '
-         RecLab( 56)='ipFockOp        '
+         RecLab( 56)='                ' !Free slot
          RecLab( 57)='IrrCmp          '
          RecLab( 58)='iAOtSO          '
          RecLab( 59)='iSOInf          '

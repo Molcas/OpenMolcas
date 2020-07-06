@@ -89,7 +89,6 @@
       Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Put_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)
-      Call Put_iArray('ipFockOp',ipFockOp,Mx_Shll)
 *
 *     Finally some on iAOtSO
 *

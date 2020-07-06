@@ -13,7 +13,6 @@
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,
      &                 lAng,ipExp,ipCff,ipCff_Cntrct,ipCff_Prim,
-     &                 ipFockOp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
@@ -66,7 +65,7 @@
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
       Integer ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &        ipCff_Prim(MxShll), ipFockOp(MxShll),
+     &        ipCff_Prim(MxShll),
      &        nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll)
@@ -114,7 +113,6 @@
       IfTest=.False.
 !#define _DEBUG_
 #ifdef _DEBUG_
-      Call QEnter('GetBS')
       IfTest=.True.
       iPrint=99
 #endif
@@ -225,9 +223,6 @@
       If (IsMM .eq. 1) Then
          lAng = 0
          Charge = Zero
-#ifdef _DEBUG_
-         Call QExit('GetBS')
-#endif
          Return
       End If
 *
@@ -520,19 +515,21 @@ culf
 *                                                                      *
 *        Begin read orbital energies
 *
-         iEorb = iEnd + 1
-         ipFockOp(iShll) = iEorb
-         Call FZero(DInf(iEorb),nCntrc**2)
+         Call mma_allocate(Shells(iShll)%FockOp,nCntrc,nCntrc,
+     &                     Label='FockOp')
+         Shells(iShll)%nFockOp=nCntrc
+         Shells(iShll)%FockOp(:,:)=Zero
+
          If (isFock) Then
             FockOp=FockOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
             Do i=1,nEorb
                Line=Get_Ln(lUnit)
-               Call Get_F(1,DInf(iEorb+(i-1)*nCntrc),nEorb)
+               Call Get_F(1,Shells(iShll)%FockOp(1,i),nEOrb)
             End Do
 #ifdef _DEBUG_
-            Call RecPrt('Fock',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else If(isEorb) Then
             FockOp=FockOp .and. .True.
@@ -540,24 +537,21 @@ culf
             Call Get_i1(1,nEorb)
             If(nEorb.gt.0) Then
                Line=Get_Ln(lUnit)
-               Call Get_F(1,DInf(iEorb),nEorb)
+               Call Get_F(1,Shells(iShll)%FockOp,nEorb)
             End If
             Do i=2,nCntrc
-               iFrom=iEorb-1+i
-               iTo=iEorb-1+(nCntrc+1)*i-nCntrc
-               DInf(iTo)=DInf(iFrom)
-               DInf(iFrom)=0.0d0
+               Shells(iShll)%FockOp(i,i)=Shells(iShll)%FockOp(i,1)
+               Shells(iShll)%FockOp(i,1)=Zero
             End Do
 #ifdef _DEBUG_
-            Call RecPrt('Eorb',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else
             FockOp=.False.
 #ifdef _DEBUG_
-            Call RecPrt('Empty',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Empty',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          End If
-         iEnd = iEnd + nCntrc**2
 *
 *        End read orbital energies
 *                                                                      *
@@ -1036,9 +1030,6 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
 *
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
-#ifdef _DEBUG_
-      Call QExit('GetBS')
-#endif
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iBSLbl)

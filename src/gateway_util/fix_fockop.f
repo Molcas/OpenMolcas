@@ -63,7 +63,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
 C     nPrint(113)=99
 C     nPrint(114)=99
@@ -80,7 +80,7 @@ C     nPrint(122)=99
 *     Generate a dummy center. This is fine since we will only do
 *     1-center overlap integrals here.
 *
-      call dcopy_(3,[Zero],0,A,1)
+      A(:)=Zero
       Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
 *
       nOrdOp=2
@@ -89,12 +89,9 @@ C     nPrint(122)=99
       nPrp=Max(4,nMltpl)
       nDiff = 0
 *
-      Call ICopy(1+iTabMx,[0],0,List   ,1)
-      Call ICopy(1+iTabMx,[0],0,List_AE,1)
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      List   (:)=0
+      List_AE(:)=0
+      BasisTypes(:)=0
       lSTDINP=0
 *
 *     Loop over all valence shell with a non-funtional FockOp
@@ -109,9 +106,7 @@ C     nPrint(122)=99
          If (FockOp(iCnttp).and.Charge(iCnttp).eq.0.0D0) Then
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShll_a    = ipVal(iCnttp) + iAng
-               ipFockOp_a = ipFockOp(iShll_a)
-               nCntrc_a = nBasis_Cntrct(iShll_a)
-               Call FZero(Dinf(ipFockOp_a),nCntrc_a**2)
+               Shells(iShll_a)%FockOp(:,:)=Zero
             End Do
          End If
 *
@@ -155,8 +150,6 @@ C     nPrint(122)=99
                naa = nElem(iAng)*nElem(iAng)
                nScr1 = Max(nPrim_a,nPrim_a)*Max(nCntrc_a,nCntrc_a)*naa
                nScr2 = Max(nCntrc_a,nCntrc_a)**2*naa
-*
-               ipFockOp_a = ipFockOp(iShll_a)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -360,20 +353,18 @@ C     nPrint(122)=99
                Do iB = 1, nCntrc_a
                   Do jB = 1, nCntrc_a
                      ijB=(jB-1)*nCntrc_a+iB
-                     iTo   = ipFockOp_a-1 + (jB-1)*nCntrc_a+iB
-                     DInf(iTo) = Zero
                      Tmp = Zero
                      Do iC = 1, iCmp_a
                         ijC=(iC-1)*iCmp_a+iC
                         iFrom = ipNAE-1 + (ijC-1)*nCntrc_a**2+ijB
                         Tmp = Tmp + DInf(iFrom)
                      End Do
-                     DInf(iTo) = DInf(iTo) + Tmp/DBLE(iCmp_a)
+                     Shells(iShll_a)%FockOp(iB,jB) = Tmp/DBLE(iCmp_a)
                   End Do
                End Do
 #ifdef _DEBUG_
-               Call RecPrt('Actual Fock operator',' ',DInf(ipFockOp_a),
-     &                     nCntrc_a,nCntrc_a)
+               Call RecPrt('Actual Fock operator',' ',
+     &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
             End Do
             FockOp(iCnttp)=.TRUE.
@@ -449,7 +440,7 @@ C     nPrint(122)=99
          jShll = iShll
          SODK(nCnttp)=.False.
          Call GetBS(Fname,Bsl_,Indx-1,lAng,ipExp,
-     &              ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,nExp,
+     &              ipCff,ipCff_Cntrct,ipCff_Prim,nExp,
      &              nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
@@ -488,7 +479,6 @@ C     nPrint(122)=99
 *        Start processing shells of iCnttp and mCnttp. Loop only over
 *        the shells of iCnttp (mCnttp might be larger!)
 *
-*
          Try_Again=.True.
          Call ICopy(1+iTabMx,[0],0,List_Add,1)
  777     Continue
@@ -500,7 +490,6 @@ C     nPrint(122)=99
             iShll_a    = ipVal(iCnttp) + iAng
             ipCff_a    = ipCff_Cntrct(iShll_a)
             ipExp_a    = ipExp(iShll_a)
-            ipFockOp_a = ipFockOp(iShll_a)
             nPrim_a  = nExp(iShll_a)
 ccjd
 *           if (nPrim_a==0) cycle
@@ -515,7 +504,6 @@ ccjd
             iShll_r = ipVal(nCnttp) + iAng
             ipCff_r    = ipCff_Cntrct(iShll_r)
             ipExp_r    = ipExp(iShll_r)
-            ipFockOp_r = ipFockOp(iShll_r)
             nPrim_r  = nExp(iShll_r)
             nCntrc_r = nBasis_Cntrct(iShll_r)
             iCmp_r = (iAng+1)*(iAng+2)/2
@@ -536,7 +524,7 @@ ccjd
                Call RecPrt('Reference Coefficients',' ',
      &                     DInf(ipCff_r),nPrim_r,nCntrc_r)
                Call RecPrt('Reference Fock operator',' ',
-     &                     DInf(ipFockOp_r),nCntrc_r,nCntrc_r)
+     &                     Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
 #endif
                Call OrbType(iAtmNr(nCnttp),List_AE,31)
                Call ECP_Shells(iAtmNr(iCnttp),List)
@@ -587,11 +575,10 @@ ccjd
                Call mma_allocate(FockOp_t,nCntrc_t**2)
                ipFockOp_t=1
                iOff_t = ipFockOp_t
-               iOff_r = ipFockOp_r + nRemove*nCntrc_r + nRemove
                Do i = 1, nCntrc_t
-                  call dcopy_(nCntrc_t,DInf(iOff_r),1,
-     &                                FockOp_t(iOff_t),1)
-                  iOff_r = iOff_r + nCntrc_r
+                  call dcopy_(nCntrc_t,
+     &                    Shells(iShll_r)%FockOp(nRemove+1,nRemove+i),1,
+     &                    FockOp_t(iOff_t),1)
                   iOff_t = iOff_t + nCntrc_t
                End Do
                nCntrc_r = nCntrc_t
@@ -614,15 +601,15 @@ ccjd
      &                     FockOp_t,nCntrc_r,nCntrc_r)
             Else
                Call RecPrt('Reference Fock operator',' ',
-     &                     DInf(ipFockOp_r),nCntrc_r,nCntrc_r)
+     &                     Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
           End If
 #endif
             If (Allocated(FockOp_t)) Then
                Check=DDot_(nCntrc_r**2,FockOp_t,1,
      &                                FockOp_t,1)
             Else
-               Check=DDot_(nCntrc_r**2,DInf(ipFockOp_r),1,
-     &                                DInf(ipFockOp_r),1)
+               Check=DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,
+     &                                 Shells(iShll_r)%FockOp,1)
             End If
             If (Check.eq.Zero) Go To 999
             If (Charge(iCnttp).eq.Zero) Go To 999
@@ -718,8 +705,7 @@ ccjd
                Do iB = 1, nCntrc_r
                   Do jB = 1, nCntrc_r
                      ijB=(jB-1)*nCntrc_r+iB
-                     iFrom = ipFockOp_r-1 + (jB-1)*nCntrc_r+iB
-                     Temp = DInf(iFrom)
+                     Temp = Shells(iShll_r)%FockOp(iB,jB)
                      Do iC = 1, iCmp_r
                         ijC=(iC-1)*iCmp_r+iC
                         iTo = ipTmp-1 + (ijC-1)*nCntrc_r**2+ijB
@@ -796,26 +782,37 @@ ccjd
             Do iB = 1, nCntrc_a
                Do jB = 1, nCntrc_a
                   ijB=(jB-1)*nCntrc_a+iB
-                  iTo   = ipFockOp_a-1 + (jB-1)*nCntrc_a+iB
-                  DInf(iTo) = Zero
+                  Tmp=Zero
                   Do iC = 1, iCmp_a
                      ijC=(iC-1)*iCmp_a+iC
                      iFrom = ipTmp3-1 + (ijC-1)*nCntrc_a**2+ijB
-                     DInf(iTo) = DInf(iTo) + DInf(iFrom)
+                     Tmp = Tmp + DInf(iFrom)
                   End Do
-                  DInf(iTo) = DInf(iTo)/DBLE(iCmp_a)
+                  Shells(iShll_a)%FockOp(iB,jB) = Tmp/DBLE(iCmp_a)
                End Do
             End Do
  999        Continue
             If (Allocated(FockOp_t)) Call mma_deallocate(FockOp_t)
 #ifdef _DEBUG_
-            Call RecPrt('Actual Fock operator',' ',DInf(ipFockOp_a),
-     &                  nCntrc_a,nCntrc_a)
+            Call RecPrt('Actual Fock operator',' ',
+     &                  Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
          End Do  ! iAng
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        Deallocate the memory for the reference Fock operator
+*
+         Do iShll_r = jShll+1, iShll
+            If (Allocated(Shells(iShll_r)%FockOp))
+     &          Call mma_deallocate(Shells(iShll_r)%FockOp)
+         End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
          Charge_Actual=DBLE(iAtmNr(iCnttp))
          Charge_Effective=Charge(iCnttp)

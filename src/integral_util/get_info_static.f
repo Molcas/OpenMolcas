@@ -78,7 +78,6 @@ c Avoid unused argument warnings
       Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(MxUnq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
-      Call Get_iArray('ipFockOp',ipFockOp,Mx_Shll)
 *
 *     And some in iAOtSO
 *

@@ -58,9 +58,10 @@
           Real*8, Allocatable:: PAM2(:)
       End Type Distinct_Basis_set_centers
 !
-!     Bk  : ECP proj shift parameters for i''th shell.
-!           the number of parameters is given by nBasis
-!     Occ : Occupation numbers for core ECP orbitals
+!     Bk    : ECP proj shift parameters for i''th shell.
+!             the number of parameters is given by nBasis
+!     Occ   : Occupation numbers for core ECP orbitals
+!     FockOp: the Fock operator matrix
 !
       Type Shell_Info
            Sequence
@@ -69,10 +70,12 @@
            Real*8, Allocatable:: Occ(:)
            Integer :: nAkl=0
            Real*8, Allocatable:: Akl(:,:,:)
+           Integer :: nFockOp=0
+           Real*8, Allocatable:: FockOp(:,:)
       End Type Shell_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords=0, nFields=7, mFields=2
+      Integer :: nFrag_LineWords=0, nFields=7, mFields=3
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
       Integer :: Max_Shells=0
       Type (Shell_Info) :: Shells(MxShll)
@@ -122,7 +125,7 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl
+      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp
       Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:)
@@ -189,7 +192,8 @@
       Do i = 1, Max_Shells-1
          iDmp(1,i) = Shells(i)%nBK
          iDmp(2,i) = Shells(i)%nAkl
-         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2
+         iDmp(3,i) = Shells(i)%nFockOp
+         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2
       End Do
       Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
       Call mma_deallocate(iDmp)
@@ -284,6 +288,11 @@
                Call DCopy_(2*nAkl**2,Shells(i)%Akl,1,rDmp(nAux2+1,1),1)
                nAux2 = nAux2 + 2*nAkl**2
             End If
+            nFockOp=Shells(i)%nFockOp
+            If (nFockOp.gt.0) Then
+               Call DCopy_(nFockOp**2,Shells(i)%FockOp,1,rDmp(nAux2+1,1),1)
+               nAux2 = nAux2 + nFockOp**2
+            End If
          End Do
          Call Put_dArray('rDmp:S',rDmp,nAux2)
          Call mma_deallocate(rDmp)
@@ -300,7 +309,7 @@
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
-      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl
+      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp
       Integer nFragType, nFragCoor, nFragEner, nFragDens
 !     Write (6,*) 'Basis_Info_Get()'
 !
@@ -341,9 +350,10 @@
       Call get_iArray('iDmp:S',iDmp,Len)
       nAux2=0
       Do i = 1, Max_Shells-1
-         Shells(i)%nBK = iDmp(1,i)
-         Shells(i)%nAkl= iDmp(2,i)
-         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2
+         Shells(i)%nBK    = iDmp(1,i)
+         Shells(i)%nAkl   = iDmp(2,i)
+         Shells(i)%nFockOp= iDmp(3,i)
+         nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2
       End Do
       Call mma_deallocate(iDmp)
 !
@@ -462,6 +472,13 @@
                nAux2=nAux2+2*nAkl**2
             End If
 
+            nFockOp=Shells(i)%nFockOp
+            If (nFockOp.gt.0) Then
+               If (.Not.Allocated(Shells(i)%FockOp)) Call mma_allocate(Shells(i)%FockOp,nFockOp,nFockOp,Label='FockOp')
+               Call DCopy_(nFockOp**2,rDmp(nAux2+1,1),1,Shells(i)%FockOp,1)
+               nAux2=nAux2+nFockOp**2
+            End If
+
          End Do
          Call mma_deallocate(rDmp)
       End If
@@ -527,6 +544,8 @@
          Shells(i)%nBk =0
          If (Allocated(Shells(i)%Akl)) Call mma_deallocate(Shells(i)%Akl)
          Shells(i)%nAkl=0
+         If (Allocated(Shells(i)%FockOp)) Call mma_deallocate(Shells(i)%FockOp)
+         Shells(i)%nFockOp=0
       End Do
 !
       Return

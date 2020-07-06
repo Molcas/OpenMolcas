@@ -13,7 +13,6 @@
       Interface
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,
      &                 lAng,ipExp,ipCff,ipCff_Cntrct,ipCff_Prim,
-     &                 ipFockOp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp,
@@ -31,7 +30,7 @@
       Character*80  BSLbl
       Integer       iBSLbl, lAng
       Integer       ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &              ipCff_Prim(MxShll), ipFockOp(MxShll),
+     &              ipCff_Prim(MxShll),
      &              nExp(MxShll), nBasis(MxShll),nBasis_Cntrct(MxShll),
      &              MxShll,iShll,MxAng
       Real*8        Charge

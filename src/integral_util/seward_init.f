@@ -152,7 +152,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          ipCff_Cntrct(i)=ip_Dummy
          ipCff_Prim(i)=ip_Dummy
          FragShell(i)=.False.
-         ipFockOp(i) = ip_Dummy
          mdciCnttp(i)=0
       End Do
 *

@@ -165,7 +165,7 @@
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &              ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
+     &              ipCff,ipCff_Cntrct,ipCff_Prim,
      &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),

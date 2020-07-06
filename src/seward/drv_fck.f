@@ -15,6 +15,7 @@
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot,DInf,nDInf)
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -390,26 +391,24 @@ c        Write(6,*) ' oneel *',Label,'*'
 *            Pick up epsilon from memory
 *
             Call FZero(Fnl,iBas*jBas*iCmp*jCmp*nIC)
-            ip_Eorb=ipFockOp(iShll)
             Do iB = 1, iBas
                Do jB = 1, iBas
                   ijB=(jB-1)*iBas+iB
                   Do iC = 1, iCmp
                      ijC=(iC-1)*iCmp+iC
-                     iFrom=ip_Eorb-1 + (jB-1)*iBas+iB
                      iTo= + (ijC-1)*iBas**2+ijB
 #ifdef _DEBUG_
                      Write (6,*) 'ijB,ijC=',ijB,ijC
                      Write (6,*) 'Fnl(iTo),DInf(iFrom)=',
      &                            Fnl(iTo),DInf(iFrom)
 #endif
-                     Fnl(iTo)=DInf(iFrom)
+                     Fnl(iTo)=Shells(iShll)%FockOp(iB,jB)
                   End Do
                End Do
             End Do
 #ifdef _DEBUG_
-            Call RecPrt('EOrb',' ',DInf(ip_EOrb),iBas,1)
-            Call RecPrt('EOrb',' ',DInf(ip_EOrb),iBas,iBas)
+            Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,1)
+            Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,iBas)
             Call RecPrt('FckInt',' ',Fnl,iBas*jBas,iCmp*jCmp*nIC)
 #endif
 *                                                                      *

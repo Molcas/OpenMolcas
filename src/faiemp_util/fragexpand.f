@@ -158,7 +158,7 @@ c           write(*,*) 'Fname = ',Fname
             SODK(nCnttp)=.False.
             mdciCnttp(nCnttp)=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,
-     &                 ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,nExp,
+     &                 ipCff,ipCff_Cntrct,ipCff_Prim,nExp,
      &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
