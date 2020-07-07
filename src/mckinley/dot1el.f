@@ -264,7 +264,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
            Do 200   iIrrep=0,nnIrrep-1
              nDisp1 = IndDsp(mdci,iIrrep)
              nDisp2 = IndDsp(mdcj,iIrrep)
-             Do 200 iCar = 0,2
+             Do 201 iCar = 0,2
               iComp = 2**iCar
               If ( TF(mdci,iIrrep,iComp)) Then
                  nDisp1 = nDisp1 + 1
@@ -283,6 +283,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
                  IndGrd(iCar,1,iIrrep)=0
                  if (iIrrep.eq.0) IfGrd(iCar,1) = .True.
               End If
+ 201         Continue
  200       Continue
 *
 *          Determine index for each 2'nd derivative
@@ -315,7 +316,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
            If (.not.DiffOp) Then
                iAtom=1
                Do 440 iCar=0,2
-               Do 440 jAtom=0,1
+               Do 441 jAtom=0,1
                    If (iAtom.eq.jAtom) Then
                      iStop=iCar
                    Else
@@ -331,6 +332,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
  445                  Continue
                     End If
  460               Continue
+ 441           Continue
  440           Continue
 *
             End If

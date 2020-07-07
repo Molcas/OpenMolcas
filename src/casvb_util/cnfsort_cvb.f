@@ -26,17 +26,20 @@
       do 100 iconf=1,nconf1
       ion=0
       do 200 iorb=1,norb
-200   if(iconfs(iorb,iconf).eq.2)ion=ion+1
+      if(iconfs(iorb,iconf).eq.2)ion=ion+1
+200   continue
       ioncty(iconf)=ion
       if(ion.lt.mnion1)mnion1=ion
-100   if(ion.gt.mxion1)mxion1=ion
+      if(ion.gt.mxion1)mxion1=ion
+100   continue
       jconf=0
       do 300 ion=mnion1,mxion1
-      do 300 iconf=1,nconf1
+      do 301 iconf=1,nconf1
       if(ioncty(iconf).eq.ion)then
         jconf=jconf+1
         call imove_cvb(iconfs(1,iconf),iconfs2(1,jconf),noe)
       endif
+301   continue
 300   continue
       if(jconf.ne.nconf1)then
         write(6,*)' Error in cnfsort - jconf not same as nconf1 :',

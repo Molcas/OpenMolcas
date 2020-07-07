@@ -27,24 +27,29 @@ CMR
          END DO
       END DO
       DO 3 K=1,N
-        DO 3 J=1,N
+        DO 30 J=1,N
           EIG(K,J)=0.D0
           DO 2 L=1,J
-    2       EIG(K,J)=EIG(K,J)+AUX(K,L)*SINV(L,J)
+            EIG(K,J)=EIG(K,J)+AUX(K,L)*SINV(L,J)
+    2     CONTINUE
+   30   CONTINUE
     3 CONTINUE
       DO 5 I=1,N
-         DO 5 J=1,I
+         DO 50 J=1,I
          AUX(I,J)=0.D0
          DO 4 K=1,I
-    4      AUX(I,J)=AUX(I,J)+SINV(K,I)*EIG(K,J)
+           AUX(I,J)=AUX(I,J)+SINV(K,I)*EIG(K,J)
+    4    CONTINUE
          AUX(J,I)=AUX(I,J)
+   50    CONTINUE
     5 CONTINUE
 *
       TOL=1.D-80
 #ifdef MOLPRO
       DO 6 I=1,N
-         DO 6 J=1,N
+         DO 60 J=1,N
             EIG(J,I)=AUX(J,I)
+   60    CONTINUE
     6 CONTINUE
       CALL diag2(n,n,ew,eig)
 c     call dsyev_('V','L',N,EIG,N,EW,TMP,6*N,INFO)

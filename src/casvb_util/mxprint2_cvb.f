@@ -28,7 +28,8 @@ c Prints matrix A, stored according to ITYPE
       k=0
       do 200 j=jin,jend
       k=k+1
-200   ibuf(k)=j
+      ibuf(k)=j
+200   continue
       write(6,formMXP1)(ibuf(i),i=1,jend-jin+1)
       do 300 i=1,nrow
       k=0
@@ -45,8 +46,10 @@ c Prints matrix A, stored according to ITYPE
       else
         ind=(i-1)*nrow2+j
       endif
-400   buffer(k)=a(ind)
-300   write(6,formMXP3)i,(buffer(ii),ii=1,jend-jin+1)
+      buffer(k)=a(ind)
+400   continue
+      write(6,formMXP3)i,(buffer(ii),ii=1,jend-jin+1)
+300   continue
       jin=jend+1
       if(ncol.gt.nbuf)goto 100
       end

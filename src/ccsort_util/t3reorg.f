@@ -66,10 +66,12 @@ c*    do packing
 c
        bc=0
        do 100 b=nob(symq)+1,nob(symq)+nvb(symq)
-       do 100 c=nob(syms)+1,b
+       do 101 c=nob(syms)+1,b
        bc=bc+1
-       do 100 a=1,nvb(symr)
+       do 102 a=1,nvb(symr)
        r(a,bc)=vint(b,a+adda,c)
+ 102    continue
+ 101    continue
  100    continue
 c
 c*    write section
@@ -135,9 +137,11 @@ c
 c*    do packing
 c
        do 100 c=1,nvb(syms)
-       do 100 b=1,nvb(symq)
-       do 100 a=1,nvb(symr)
+       do 101 b=1,nvb(symq)
+       do 102 a=1,nvb(symr)
        r(a,b,c)=vint(b+addb,a+adda,c+addc)
+ 102    continue
+ 101    continue
  100    continue
 c
 c*    write section
@@ -440,13 +444,13 @@ c
        nsymq=nsym
        end if
 c
-       do 200 sq=1,nsymq
+       do 201 sq=1,nsymq
        spq=mul(sp,sq)
 c
        sr=mul(stot,spq)
        if ((rsk2.eq.1).and.(sq.lt.sr)) then
 c     Meggie out
-       goto 200
+       goto 201
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -501,6 +505,7 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 201    continue
  200    continue
 c
        else if (nind.eq.4) then
@@ -517,7 +522,7 @@ c
        nsymq=nsym
        end if
 c
-       do 300 sq=1,nsymq
+       do 301 sq=1,nsymq
        spq=mul(sp,sq)
        if (typ.eq.2) then
        nsymr=sq
@@ -525,13 +530,13 @@ c
        nsymr=nsym
        end if
 c
-       do 300 sr=1,nsymr
+       do 302 sr=1,nsymr
        spqr=mul(spq,sr)
 c
        ss=mul(stot,spqr)
        if (((typ.eq.3).or.(typ.eq.4)).and.(sr.lt.ss)) then
 c     Meggie out
-       goto 300
+       goto 302
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -575,6 +580,8 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if

@@ -226,7 +226,7 @@
       SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
       Len=0
       Do 510 i=1,nSym
-      Do 510 j=1,i
+      Do 511 j=1,i
          ij=MulTab(i,j)-1
          If(iAnd(2**ij,SymLab).ne.0) Then
             If(i.eq.j) Then
@@ -235,6 +235,7 @@
                Len=Len+nBas(i)*nBas(j)
             End If
          End If
+511   Continue
 510   Continue
       Data(1)=Len
       If ( IAND(option,sOpSiz).eq.0 ) Then

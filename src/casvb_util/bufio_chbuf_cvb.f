@@ -20,7 +20,8 @@ c  neither is JBUF buffer read.
 c  Dumy writes so that we don't exceed end-of-file:
       do 100 kbuf=nbuf+1,jbuf-1
       ibuf=kbuf
-100   call bufio_wrzbuf_cvb()
+      call bufio_wrzbuf_cvb()
+100   continue
       ibuf=jbuf
       return
       end

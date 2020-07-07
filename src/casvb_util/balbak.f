@@ -64,7 +64,8 @@ c     .......... left hand eigenvectors are back transformed
 c                if the foregoing statement is replaced by
 c                s=1.0d0/scale(i). ..........
          do 100 j = 1, m
-  100    z(i,j) = z(i,j) * s
+         z(i,j) = z(i,j) * s
+  100    continue
 c
   110 continue
 c     ......... for i=low-1 step -1 until 1,

@@ -38,8 +38,10 @@
       else
         alfa=-eig_res
       endif
-      do 300 ivb=1,n
-300   res(ivb)=res(ivb)+(axc(ivb,i)-alfa*sxc(ivb,i))*solp_res(i)
+      do 301 ivb=1,n
+      res(ivb)=res(ivb)+(axc(ivb,i)-alfa*sxc(ivb,i))*solp_res(i)
+301   continue
+300   continue
 
       is_converged=.true.
       return

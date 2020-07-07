@@ -38,7 +38,8 @@ c  Treat first field differently
       call rdstring_cvb(string,ierr)
       if(ierr.gt.0)goto 1000
       arr(i)=string
-100   nread=nread+1
+      nread=nread+1
+100   continue
       goto 2000
 1000  call pushfield_cvb()
 2000  continue

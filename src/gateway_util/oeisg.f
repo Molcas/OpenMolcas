@@ -51,7 +51,8 @@ c     coefficients
       FACTO(2)=1.D0
       DO 1301 I=3,16
       IM1=I-1
- 1301 FACTO(I)=IM1*FACTO(I-2)
+      FACTO(I)=IM1*FACTO(I-2)
+ 1301 CONTINUE
       iparm=2
 *     WRITE (6,*) ' MX100=',MX100
 *     write(6,*) ' nsym',nsym
@@ -71,7 +72,7 @@ C
       DO 10 I=1,NBAS1
       ZP=ZETA(I)
       WP=2.D0*(NP-L)/ZP
-      DO 10 J=1,I
+      DO 11 J=1,I
       IJ=IJ+1
       ZQ=ZETA(J)
       ZPQ=0.5D0*(ZP+ZQ)
@@ -126,6 +127,7 @@ C.       TREL(IJ)=SQROPY(ZP,ZQ,I1,I2,I3,J1,J2,J3)
          TREL(IJ)=0.5D0*ZP*ZQ*TERM1*TERM2
 C.       TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
       ENDIF
+   11 CONTINUE
    10 CONTINUE
 C
 C     CONVERT TO RELATIVISTIC INTEGRALS
@@ -172,11 +174,12 @@ C
       endif
       ij=0
       do 26 i=1,nbas1
-      do 26 j=1,i
+      do 27 j=1,i
       ij=ij+1
       hcorr(ij)=(trel(ij)-zn*urel(ij)) - (tnrel(ij) - zn*unrel(ij))
       trel(ij)=trel(ij) - tnrel(ij)
       urel(ij)=-(zn*urel(ij) - zn*unrel(ij))
+ 27   continue
  26   continue
       if(iprint.ge.20) then
           write(6,*) ' full correction metrix'

@@ -658,10 +658,6 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
     set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
   endif ()
-  # Allow obsolete features in Fortran 2018
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -std=legacy")
-  endif ()
 endif ()
 
 # Add runtime checks

@@ -236,15 +236,17 @@ c
        qr=0
        do 100 q=2,qup
        ind(possqv1)=qaddv1+q
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        ind(possrv1)=raddv1+r
        qr=qr+1
 c
-       do 100 p=1,pup
+       do 102 p=1,pup
        ind(posspv1)=paddv1+p
 c
        v2(p,qr)=v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -254,15 +256,17 @@ c
        qr=0
        do 200 r=1,rup
        ind(possrv1)=raddv1+r
-       do 200 q=1,qup
+       do 201 q=1,qup
        ind(possqv1)=qaddv1+q
        qr=qr+1
 c
-       do 200 p=1,pup
+       do 202 p=1,pup
        ind(posspv1)=paddv1+p
 c
        v2(p,qr)=v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 c
+ 202    continue
+ 201    continue
  200    continue
 c
        end if

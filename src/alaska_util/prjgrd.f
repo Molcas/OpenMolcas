@@ -494,7 +494,7 @@
                mVecAC = 1
                mVecCB = 1
                Do 900 iCar = 1, 3
-                  Do 900 iCent = 1, 2
+                  Do 901 iCent = 1, 2
                      If (JfGrad(iCar,iCent)) Then
                         mVec = mVec + 1
                         If (iCent.eq.1) Then
@@ -529,6 +529,7 @@
  1030          Continue
 *
                      End If
+ 901              Continue
  900           Continue
 *
                If (iPrint.ge.49) Then

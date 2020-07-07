@@ -45,7 +45,8 @@ c ----------------------------------
         if(variat.and.(.not.endvar).and.ip(6).lt.2)then
 c  Reduce output level for main variational iterations:
           do 1100 i=1,10
-1100      ip(i)=-1
+          ip(i)=-1
+1100      continue
         endif
 
         if(endvar.and..not.up2date_cvb('PRTSUM'))then

@@ -17,13 +17,15 @@
       index=index+1
 c  Find electron for which orbital number can be increased :
       do 100 iel=1,nel-1
-100   if(iocc(iel+1).gt.iocc(iel)+1)goto 200
+      if(iocc(iel+1).gt.iocc(iel)+1)goto 200
+100   continue
       iel=nel
       if(iocc(iel).lt.norb)goto 200
       call loopstr0_cvb(iocc,index,nel,norb)
       return
 200   iocc(iel)=iocc(iel)+1
       do 300 jel=1,iel-1
-300   iocc(jel)=jel
+      iocc(jel)=jel
+300   continue
       return
       end

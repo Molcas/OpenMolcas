@@ -21,10 +21,11 @@
 * General and inefficient code:
       IND=0
       DO 10 IROW=0,NROW-1
-      DO 10 ICOL=0,IROW
+      DO 11 ICOL=0,IROW
          IND=IND+1
          B(1+IROW*ICB+ICOL*IRB)=A(IND)
          B(1+ICOL*ICB+IROW*IRB)=A(IND)
+11    CONTINUE
 10    CONTINUE
       GOTO 900
 

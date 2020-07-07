@@ -38,12 +38,13 @@ c              +16 = strong-orthogonality constraints
       if(mod(ioptcode(ioptim),32).ge.16)then
         nort=0
         do 100 iorb=1,norb
-        do 100 jorb=iorb+1,norb
+        do 101 jorb=iorb+1,norb
         if(.not.(jorb.eq.iorb+1.and.mod(iorb,2).eq.1))then
           nort=nort+1
           iorts(1,nort)=iorb
           iorts(2,nort)=jorb
         endif
+101     continue
 100     continue
       endif
       return

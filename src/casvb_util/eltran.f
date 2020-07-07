@@ -64,7 +64,8 @@ c     .......... initialize z to identity matrix ..........
       do 80 j = 1, n
 c
          do 60 i = 1, n
-   60    z(i,j) = 0.0d0
+         z(i,j) = 0.0d0
+   60    continue
 c
          z(j,j) = 1.0d0
    80 continue
@@ -77,7 +78,8 @@ c     .......... for mp=igh-1 step -1 until low+1 do -- ..........
          mp1 = mp + 1
 c
          do 100 i = mp1, igh
-  100    z(i,mp) = a(i,mp-1)
+         z(i,mp) = a(i,mp-1)
+  100    continue
 c
          i = int(mp)
          if (i .eq. mp) go to 140

@@ -744,15 +744,16 @@ c
 c2.1  make rdiis2 matrix
 c
        do 10 p=1,ndiis
-       do 10 q=1,ndiis
+       do 11 q=1,ndiis
        rdiis2(p,q)=rdiis1(p,q)
+ 11     continue
  10     continue
 c
-       do 11 p=1,ndiis
+       do 12 p=1,ndiis
        rdiis2(p,ndiis+1)=-1.0d0
        rdiis2(ndiis+1,p)=-1.0d0
        bb(p)=0.0d0
- 11     continue
+ 12     continue
 c
        bb(ndiis+1)=-1.0d0
 c
@@ -760,10 +761,11 @@ c2.2  modify rdiis2 matrix
 c
 c     scale matrix
        scalar=sqrt(rdiis2(1,1)*rdiis2(ndiis,ndiis))
-       do 12 q=1,ndiis
-       do 12 p=1,ndiis
+       do 13 q=1,ndiis
+       do 14 p=1,ndiis
        rdiis2(p,q)=rdiis2(p,q)/scalar
- 12     continue
+ 14     continue
+ 13     continue
 c
 c     add penalty function
        scalar=0.01d0*rdiis2(ndiis,ndiis)

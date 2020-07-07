@@ -107,7 +107,7 @@ C Loop over rotational quantum numbers
       End If
       Do 100 J1=J1A,JEndA
        Jad1=J1-J1A+1
-      Do 100 J2=J1B,JEndB
+      Do 101 J2=J1B,JEndB
        Jad2=J2-J1B+1
        Write(6,*)
        Write(TmpLine,1002) J1,J2
@@ -162,10 +162,11 @@ c check overlap matrix for non-orthogonality
        nv12=(ipot-1)*(ne1**2+ne1)/2
        Smax=0.0D0
        Do 32 nv1=1,ne
-        Do 32 nv2=1,nv1
+        Do 33 nv2=1,nv1
          nv12=nv12+1
-         If(nv1.eq.nv2) go to 32
+         If(nv1.eq.nv2) go to 33
          If(abs(S(nv12)).gt.abs(Smax)) Smax=S(nv12)
+33      Continue
 32     Continue
        If(abs(Smax).gt.1.d-04) Write(6,1200) ipot,Smax
 1200   Format(/1x,'*****Warning: non-orthogonality between vibrational',
@@ -205,7 +206,7 @@ C
        nv11=nv11+nv1
        ist2=ndim1*(ne1-1)
        nv22=(ne1**2+ne1)/2
-       Do 50 nv2=1,ne2
+       Do 51 nv2=1,ne2
         ist2=ist2+ndim1
         nv12=nv12+1
         nv22=nv22+nv2
@@ -217,7 +218,8 @@ C       Set up scalar product and integrate
         Call Simpsn(Work(indexX),del,ndim,S(nv12))
         S(nv12)=S(nv12)/sqrt(S(nv11)*S(nv22))
         ChkSum=ChkSum + S(nv12)
-50     Continue
+51     Continue
+50    Continue
 c
 c      print overlap matrix
 c
@@ -358,6 +360,7 @@ cc        ChkSum=ChkSum + Tau(nv2)
        Call CollapseOutput(0,TmpLine)
 
 C End of loop over rotational quantum number
+101   Continue
 100   Continue
       Call CollapseOutput(0,'Matrix elements of observable: '//Title)
 

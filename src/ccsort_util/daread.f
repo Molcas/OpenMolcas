@@ -200,7 +200,7 @@ c
        nrecc=nrecc+1
        end if
 c
-       do 100 a=1,nvb(syma)
+       do 101 a=1,nvb(syma)
 c
        if (syma.eq.symb) then
        bup=a
@@ -208,11 +208,13 @@ c
        bup=nvb(symb)
        end if
 c
-       do 100 b=1,bup
+       do 102 b=1,bup
 c
        abmap(a,b,symp)=irec
        irec=irec+nrecc
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -253,7 +255,7 @@ c*    loop over all combinations
 c
        do 100 symm=1,nsym
        symam=mul(syma,symm)
-       do 100 symp=1,nsym
+       do 101 symp=1,nsym
        symq=mul(symam,symp)
 c
 c*    define number of records, required to store this block
@@ -266,11 +268,13 @@ c
        nrecc=nrecc+1
        end if
 c
-       do 100 a=1,nvb(syma)
+       do 102 a=1,nvb(syma)
 c
        ammap(a,symm,symp)=irec
        irec=irec+nrecc
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -333,9 +337,10 @@ c*    map _a_b(pq) block into #v3
 c
        pq=poss30-1
        do 100 q=1,norb(symq)
-       do 100 p=1,norb(symp)
+       do 101 p=1,norb(symp)
        pq=pq+1
        wrk(pq)=vint(bvint,p,q)
+ 101    continue
  100    continue
 c
 c*    put this block to iappropriate possition in direct acces file
@@ -395,10 +400,12 @@ c
        pq=poss30-1
 c
        do 100 q=1,norb(symq)
-       do 100 p=1,norb(symp)
-       do 100 m=1,noa(symm)
+       do 101 p=1,norb(symp)
+       do 102 m=1,noa(symm)
        pq=pq+1
        wrk(pq)=vint(m,p,q)
+ 102    continue
+ 101    continue
  100    continue
 c
 c*    put this block to iappropriate possition in direct acces file
@@ -436,9 +443,11 @@ c
 c**   set mapi3=0 (partly)
 c
        do 100 nhelp=1,nsym
-       do 100 symq=1,nsym
-       do 100 symp=1,nsym
+       do 101 symq=1,nsym
+       do 102 symp=1,nsym
        mapi3(symp,symq,nhelp)=0
+ 102    continue
+ 101    continue
  100    continue
 c
 c**   def 0-th row
@@ -489,7 +498,7 @@ c
        bup=nvb(symb)
        end if
 c
-       do 1000 b=1,bup
+       do 1001 b=1,bup
 c
 c**   loop over symp
 c
@@ -515,6 +524,7 @@ c
        call deflenght (mapd3,lenght)
        call dawri (lunab,lenght,wrk(poss30))
 c
+ 1001   continue
  1000   continue
 c
        return
@@ -541,7 +551,7 @@ c
 c*    loops over symmetry combinations
        do 100 symm=1,nsym
        symam=mul(syma,symm)
-       do 100 symp=1,nsym
+       do 101 symp=1,nsym
        symq=mul(symam,symp)
 c
 c*    def initioal record possition in TEMPDA2
@@ -556,6 +566,7 @@ c
        call daread (lunda2,irec0,wrk(poss),lenght,recl)
        end if
 c
+ 101    continue
  100    continue
 c
        return

@@ -153,7 +153,7 @@
         WRITE(6,*) ' =================='
         ISTRIN = 0
         DO 100 ISYM = 1, NSMST
-        DO 100 ITYP = 1,NOCTYP
+        DO 101 ITYP = 1,NOCTYP
           LSTRIN = MIN(LSTASO(ITYP,ISYM),NPR-ISTRIN)
           IF(LSTRIN.GT.0) THEN
             WRITE(6,*) ' Strings of type and symmetry ',ITYP,ISYM
@@ -163,6 +163,7 @@
      &        ISTRIN,(STRING(IEL,ISTRIN),IEL = 1,NEL)
 90          CONTINUE
           END IF
+101     CONTINUE
 100     CONTINUE
 *
         WRITE(6,*) ' Array giving actual place from lexical place'

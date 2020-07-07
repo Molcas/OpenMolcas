@@ -23,7 +23,8 @@ c  Check if allocated using mstack :
         do 200 jfield=ifield,nfield
         ipoint_g=iaddr(jfield)-ioff_r
         if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-200     call getmem('casvb','FREE','REAL',ipoint_g,nword)
+        call getmem('casvb','FREE','REAL',ipoint_g,nword)
+200     continue
         nfield=ifield-1
         return
       endif
@@ -46,7 +47,8 @@ c  Check if allocated using mstack :
         do 200 jfield=ifield,nfield
         ipoint_g=iaddr(jfield)-ioff_r
         if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-200     call getmem('casvb','FREE','REAL',ipoint_g,nword)
+        call getmem('casvb','FREE','REAL',ipoint_g,nword)
+200     continue
         nfield=ifield-1
         return
       endif

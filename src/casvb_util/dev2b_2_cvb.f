@@ -38,7 +38,7 @@ c  Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
       do 9379 ip1=1,norb*norb
       iorb=(ip1-1)/norb+1
       jorb=ip1-(iorb-1)*norb
-      do 9379 ip2=1,ip1
+      do 9380 ip2=1,ip1
       korb=(ip2-1)/norb+1
       lorb=ip2-(korb-1)*norb
       res1=zero
@@ -563,6 +563,7 @@ c  E_ji E_lk = E_lk E_ji - \delta_kj E_li + \delta_il E_jk
         hessorb(ji,lk)=hessorb(ji,lk)+oaa2*t1+aa1*t2
         hessorb(lk,ji)=hessorb(ji,lk)
       endif
+9380  continue
 9379  continue
       return
       end

@@ -21,7 +21,8 @@
       else
         call fzero(a,n12*n2)
         do 100 i=1,n2
-100     call fmove_cvb(ainp(1,i),a(1,i),n1)
+        call fmove_cvb(ainp(1,i),a(1,i),n1)
+100     continue
       endif
       ierr=0
       call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
@@ -40,19 +41,22 @@ c  First recreate a :
       else
         call fzero(a,n12*n2)
         do 200 i=1,n2
-200     call fmove_cvb(ainp(1,i),a(1,i),n1)
+        call fmove_cvb(ainp(1,i),a(1,i),n1)
+200     continue
       endif
 
       do 300 i=1,n2
       call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
-300   call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
+      call dscal_(n12,1d0/dnrm2_(n12,u(1,i),1),u(1,i),1)
+300   continue
 
 c  Sort singular values in ascending order:
       call sortindxr_cvb(n2,w,indx)
       do 400 i=1,n2
       val(i)=w(indx(i))
       call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
-400   call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
+      call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
+400   continue
       return
       end
       function detm_cvb(a,n)

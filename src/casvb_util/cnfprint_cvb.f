@@ -38,9 +38,11 @@
         call rdis_cvb(iw(i1),noe*nconf,recinp,ioffs)
         if(nconf.eq.0)then
           do 225 i=1,min(nel,norb)
-225       iw(i+i1-1)=1
+          iw(i+i1-1)=1
+225       continue
           do 250 i=1,nel-norb
-250       iw(i+i1-1)=2
+          iw(i+i1-1)=2
+250       continue
         endif
         nconf_off=0
         do 300 ifrag=1,nfrag
@@ -57,7 +59,8 @@
      >    nvbr_fr(ifrag)
         write(6,'(a,i6)')  '           VB determinants   :',
      >    ndetvb_fr(ifrag)
-300     nconf_off=nconf_off+nconf_fr(ifrag)
+        nconf_off=nconf_off+nconf_fr(ifrag)
+300     continue
         call mfreei_cvb(i1)
         call make_cvb('CNFPRINT')
       endif
