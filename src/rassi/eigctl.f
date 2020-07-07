@@ -2904,9 +2904,9 @@ C                 Why do it when we don't do the L.S-term!
      &                  '-------------------'
                    End If
                    IF (OSTHR.GT.0.0D0) THEN
-                      WRITE(6,30)
-     &                  'for osc. strength at least ',OSTHR,' and '//
-     &                  'red. rot. strength  at least ',RSTHR
+                      WRITE(6,45)
+     &                  'For osc. strength at least',OSTHR,'and '//
+     &                  'red. rot. strength  at least',RSTHR
                    END IF
                    WRITE(6,*)
                    If (.NOT.Do_SK) Then
@@ -3089,5 +3089,6 @@ C                 Why do it when we don't do the L.S-term!
 42    FORMAT (5X,79('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
+45    FORMAT (4X,2(A,1X,ES12.5,1X))
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
