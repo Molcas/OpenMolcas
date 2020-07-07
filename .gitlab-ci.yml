@@ -307,6 +307,17 @@ test:options:
     - tinker
   parallel: 2
 
+build:linalg:
+  extends: .plain
+  <<: *compile
+test:linalg:
+  extends: .plain
+  <<: *run-tests
+  needs:
+    - build:plain
+    - tinker
+  parallel: 2
+
 build:pgi:
   extends: .pgi
   <<: *compile

@@ -1,6 +1,7 @@
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
 # - options: enable several options
+# - linalg: use a link-time linalg library
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
@@ -45,6 +46,20 @@
     MOLCAS_LINALG_INFO: "YES"
   tags:
     - docker
+
+.linalg:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
+  variables:
+    cache_file: |
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "MKL" CACHE STRING "use MKL library")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
+  tags:
+    -docker
 
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
