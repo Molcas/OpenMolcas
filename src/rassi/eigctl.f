@@ -2929,13 +2929,13 @@ C                 Why do it when we don't do the L.S-term!
 *
                 !Don't print osc. str. if below threshold
                 IF(F_CHECK.LT.OSTHR) THEN
-                  WRITE(6,33) I,J,'-',R,A
+                  WRITE(6,46) I,J,'below threshold',R,A
                 ELSE
                   WRITE(6,33) I,J,F,R,A
                 END IF
                 !Don't print rot. str. if below threshold
                 IF(R_CHECK.LT.RSTHR) THEN
-                  WRITE(6,33) I,J,F,'-',A
+                  WRITE(6,47) I,J,F,'below threshold',A
                 ELSE
                   WRITE(6,33) I,J,F,R,A
                 END IF
@@ -3090,5 +3090,7 @@ C                 Why do it when we don't do the L.S-term!
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
 45    FORMAT (4X,2(A,1X,ES15.8,1X))
+46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
+47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
