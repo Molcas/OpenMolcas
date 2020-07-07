@@ -644,8 +644,8 @@ C                                                                      C
 
 !Rotatory strength threshold
       IF(RSPR) RSTHR = RSTHR !Useless assignment, just to be consistent
-      IF(RSPR) WRITE(6,*) 'Rotatory strength threshold changed to '//
-     &                     ,RSTHR
+      IF(RSPR) WRITE(6,*) 'Rotatory strength threshold changed '//
+     &                     'to ',RSTHR
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
