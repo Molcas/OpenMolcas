@@ -157,6 +157,8 @@ C DEFAULT FLAGS:
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
+      RSTHR = 0.0D0
+      RSPR=.FALSE.
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
 * Exact operator
