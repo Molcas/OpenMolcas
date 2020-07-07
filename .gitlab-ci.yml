@@ -308,10 +308,10 @@ test:options:
   parallel: 2
 
 build:linalg:
-  extends: .plain
+  extends: .linalg
   <<: *compile
 test:linalg:
-  extends: .plain
+  extends: .linalg
   <<: *run-tests
   needs:
     - build:plain
