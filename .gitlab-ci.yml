@@ -314,7 +314,7 @@ test:linalg:
   extends: .linalg
   <<: *run-tests
   needs:
-    - build:plain
+    - build:linalg
     - tinker
   parallel: 2
 

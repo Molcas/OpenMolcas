@@ -59,7 +59,7 @@
     FC: "gfortran"
     tests: ".all"
   tags:
-    -docker
+    - docker
 
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
