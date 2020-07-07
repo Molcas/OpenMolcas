@@ -1945,7 +1945,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
          Call Drv_Fck(Label,ipList,OperI,nComp,
      &                CoorO,nOrdOp,[Zero],rHrmt,OperC,
      &                dum,1,dum,idum,0,0,
-     &                dum,1,0,DInf,nDInf)
+     &                dum,1,0)
 *
          Call Deallocate_Auxiliary()
       End If

@@ -72,6 +72,7 @@
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir
+      Real*8, Allocatable:: ExpMerged(:)
       Data DefNm/'basis_library'/
 *
 #include "relmp.fh"
@@ -317,11 +318,13 @@ C              Write(6,*) 'Fock operator is included'
          iStrt=ipExp(iShll)
          nExp(iShll) = nPrim
          nBasis_Cntrct(iShll) = nCntrc
-         iEnd = iStrt + nPrim - 1
+         iEnd = iStrt - 1
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+         Shells(iShll)%nExp=nPrim
 *        Read gaussian exponents
          If (nPrim.gt.0) then
             If (IfTest) Write(6,*) 'Read gaussian exponents'
-            Call Read_v(lUnit,DInf,iStrt,iEnd,1,Ierr)
+            Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
             If (Ierr.ne.0) Then
                Call WarningMessage(2,
      &                     'GetBS: Error while reading the exponents')
@@ -330,7 +333,7 @@ C              Write(6,*) 'Fock operator is included'
             If (IfTest) Write(6,*) 'Done with exponents'
          End If
          If (iPrint.ge.99)
-     &      Call RecPrt(' Exponents',' ',DInf(iStrt),nPrim,1)
+     &      Call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
          iStrt = iEnd + 1
 *
 *        Storage of coefficients for both contracted and uncontracted case.
@@ -410,7 +413,7 @@ culf
 *
 *           Order the exponents
 *
-            Call OrdExp1(nPrim,DInf(ipExp(iShll)),
+            Call OrdExp1(nPrim,Shells(iShll)%Exp,
      &                   mCGTO(iAng),DInf(ipCff_c))
 *
 *           identify the presence of added polarization and diffusse
@@ -468,7 +471,7 @@ culf
 *
 *        Order the exponents
 *
-         Call OrdExp(nPrim,DInf(ipExp(iShll)),nCntrc,DInf(ipCff_c))
+         Call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,DInf(ipCff_c))
          If (nPrim*nCntrc.ne.0) mVal = mVal + 1
 *
 *        Decontract if integrals required in the primitive basis
@@ -492,9 +495,9 @@ culf
 *        the radial overlap.
 *
          If (.Not.UnNorm) Then
-            Call Nrmlz(DInf(ipExp(iShll)),nPrim,
+            Call Nrmlz(Shells(iShll)%Exp,nPrim,
      &                 DInf(ipCff_c),nCntrc,iAng)
-            Call Nrmlz(DInf(ipExp(iShll)),nPrim,
+            Call Nrmlz(Shells(iShll)%Exp,nPrim,
      &                 DInf(ipCff_p),nPrim,iAng)
          End If
 *
@@ -696,7 +699,10 @@ culf
                Call Abend()
             End If
             jValSh = jValSh + 1
-            ipExp(iShll) = ipExp(jValSh)
+            Call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,
+     &                        Label='Exp')
+            Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
+            Shells(iShll)%nExp = Shells(jValSh)%nExp
             nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
@@ -726,7 +732,10 @@ culf
                Call Abend()
             End If
             jPrSh = jPrSh + 1
-            ipExp(iShll) = ipExp(jPrSh)
+            Call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,
+     &                        Label='Exp')
+            Shells(iShll)%Exp(:)=Shells(jPrSh)%Exp(:)
+            Shells(iShll)%nExp=Shells(jPrSh)%nExp
             nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
             ipCff(iShll)   = ip_Dummy
@@ -759,13 +768,15 @@ culf
             Line = Get_Ln(lUnit)
             Call Get_i1(1,nPrim)
             iStrt = ipExp(iShll)
+            Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+            Shells(iShll)%nExp=nPrim
             nExp(iShll) = nPrim
             nBasis(iShll) = 0
             ipCff(iShll)   = ip_Dummy
-            iEnd = iStrt + nPrim - 1
+            iEnd = iStrt - 1
 *
             If (nPrim.gt.0) then
-               Call read_v(lUnit,DInf,iStrt,iEnd,1,Ierr)
+               Call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                        'GetBS: Error reading SRO exponents')
@@ -821,20 +832,30 @@ culf
                jPrSh = jPrSh + 1
 *
                iDominantSet = 2
-               Call MergeBS (DInf(ipExp(jPrSh)),nExp(jPrSh),
-     &                       DInf(ipExp(jValSh)),nExp(jValSh),
-     &                       DInf(iStrt),nExp(iShll), RatioThres,
+               Call mma_allocate(ExpMerged,nExp(jPrSh)+nExp(jValSh),
+     &                           Label='ExpMerged')
+               Call MergeBS (Shells(jPrSh)%Exp,nExp(jPrSh),
+     &                       Shells(jValSh)%Exp,nExp(jValSh),
+     &                       ExpMerged,nExp(iShll), RatioThres,
      &                       iDominantSet)
+               Call mma_allocate(Shells(iShll)%Exp,nExp(iShll),
+     &                           Label='Exp')
+               Shells(iShll)%Exp(:)=ExpMerged(1:nExp(iShll))
+               Shells(iShll)%nExp=nExp(iShll)
+               Call mma_deallocate(ExpMerged)
+
 *
             Else
 *
                nExp(iShll) = nExp(jValSh)
-               Call DCopy_(nExp(iShll),DInf(ipExp(jValSh)),1,
-     &                                DInf(iStrt),1)
+               Call mma_allocate(Shells(iShll)%Exp,nExp(iShll),
+     &                           Label='Exp')
+               Shells(iShll)%Exp(:)=Shells(jValSh)%Exp(:)
+               Shells(iShll)%nExp=nExp(iShll)
 *
             End If
 *
-            iEnd = iStrt + nExp(iShll) - 1
+            iEnd = iStrt - 1
             nBasis(iShll) = 0
             ipCff(iShll)   = ip_Dummy
 *
@@ -877,13 +898,17 @@ culf
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
          iStrt = ipExp(iShll)
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+         Shells(iShll)%nExp=nPrim
          nExp(iShll) = nPrim
          nBasis(iShll) = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'
          iEnd = iStrt + nPrim - 1
-         If (nPrim.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-         If (IfTest) Call RecPrt('Exponents',' ',DInf(iStrt),1,nPrim)
+         If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
+     &                               ierr)
+         If (IfTest)
+     &      Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
          iStrt = iEnd + 1
          ipCff(iShll) = iStrt
          iEnd = iStrt + nPrim*nCntrc - 1
@@ -1022,7 +1047,7 @@ culf
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
-     &                   iPrSh+1,ipExp,ipCff,nExp,nBasis,MxShll,
+     &                   iPrSh+1,ipCff,nExp,nBasis,MxShll,
      &                   DBLE(iAtmNr),DInf,nDInf)
             Close (LUQRP)
          End If

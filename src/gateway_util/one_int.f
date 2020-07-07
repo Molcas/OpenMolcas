@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
-     &                   iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
+     &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,ipCff_a,
      &                   iCmp_a,
-     &                   iShll_r,nPrim_r,ipExp_r,nCntrc_r,ipCff_r,
+     &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,ipCff_r,
      &                   iCmp_r)
 ************************************************************************
 *                                                                      *
@@ -24,6 +24,7 @@
 #include "itmax.fh"
 #include "info.fh"
       External Kernel
+      Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
       Real*8 DInf(nDInf), A(3)
 *
       ipSAR = ip
@@ -46,14 +47,14 @@
       EndIf
 *
       Call ZXia(DInf(ipZAR),DInf(ipZIAR),nPrim_a,nPrim_r,
-     &          DInf(ipExp_a),DInf(ipExp_r))
-      Call SetUp1(DInf(ipExp_a),nPrim_a,
-     &            DInf(ipExp_r),nPrim_r,
+     &          Exp_a,Exp_r)
+      Call SetUp1(Exp_a,nPrim_a,
+     &            Exp_r,nPrim_r,
      &            A,A,DInf(ipKAR),DInf(ipPAR),DInf(ipZIAR))
 *
       nHer = (2*iAng+2+nOrdOp)/2
-      Call Kernel(DInf(ipExp_a),nPrim_a,
-     &            DInf(ipExp_r),nPrim_r,
+      Call Kernel(Exp_a,nPrim_a,
+     &            Exp_r,nPrim_r,
      &            DInf(ipZAR),DInf(ipZIAR),
      &            DInf(ipKAR),DInf(ipPAR),
      &            DInf(ipSAR),nPrim_a*nPrim_r,iComp,

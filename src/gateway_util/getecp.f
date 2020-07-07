@@ -103,23 +103,27 @@ C           Write (6,*) 'Line=',Line
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
             ipExp(iShll) = iStrt
+            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
+            Shells(iShll)%nExp=3*kcr
 *
+            iStrt=1
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
                Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
-               DInf(iStrt)=DBLE(ncr)
+               Shells(iShll)%Exp(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
                Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
-               DInf(iStrt)=zcr
+               Shells(iShll)%Exp(iStrt)=zcr
                iStrt=iStrt+1
                Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
-               DInf(iStrt)=ccr
+               Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
+            iStrt=ipExp(iShll)
 *
          End Do
          Do iPP = 1, mPP(2)
@@ -138,24 +142,28 @@ C           Write (6,*) 'Line=',Line
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
             ipExp(iShll) = iStrt
+            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
+            Shells(iShll)%nExp=3*kcr
 *
+            iStrt=1
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
                Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
                ncr=ncr+1000
-               DInf(iStrt)=DBLE(ncr)
+               Shells(iShll)%Exp(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
                Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
-               DInf(iStrt)=zcr
+               Shells(iShll)%Exp(iStrt)=zcr
                iStrt=iStrt+1
                Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
-               DInf(iStrt)=ccr
+               Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
+            iStrt=ipExp(iShll)
 *
          End Do
          iEnd = iStrt - 1
@@ -294,13 +302,15 @@ C        Write (6,*) 'Done'
 *
 *        Write (6,*) ' Reading Exponents'
          ipExp(iShll) = iStrt
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+         Shells(iShll)%nExp=nPrim
          nExp(iShll) = nPrim
-         iEnd = iStrt + nPrim - 1
-*        If (nPrim.gt.0) Read (lUnit,*,Err=992) (DInf(i),i=iStrt,iEnd)
-         If (nPrim.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+         iEnd = iStrt - 1
+         If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
+     &                               ierr)
          If (ierr.ne.0) goto 992
+*        Call RecPrt(' Exponents',Shells(iShll)%nExp,nPrim,1)
          iStrt = iEnd + 1
-*        Call RecPrt(' Exponents',DInf(iStrt),nPrim,1)
          ipCff(iShll) = iStrt
          nBasis(iShll) = nCntrc
          iEnd = iStrt + nPrim*nCntrc - 1
@@ -320,9 +330,9 @@ C        Write (6,*) 'Done'
 *
          call mma_allocate(Scrt1,nPrim**2)
          call mma_allocate(Scrt2,nPrim*nCntrc)
-         Call Nrmlx(DInf(ipExp(iShll)),nPrim,DInf(ipCff(iShll)),
-     &                   nCntrc, Scrt1,nPrim**2,
-     &                           Scrt2, nPrim*nCntrc,iAng)
+         Call Nrmlx(Shells(iShll)%Exp,nPrim,DInf(ipCff(iShll)),
+     &              nCntrc, Scrt1,nPrim**2,
+     &                      Scrt2, nPrim*nCntrc,iAng)
          call mma_deallocate(Scrt1)
          call mma_deallocate(Scrt2)
 *
@@ -334,7 +344,7 @@ C        Write (6,*) 'Done'
 *
          If (.Not.UnNorm) Then
             If (nExp(iShll)*nBasis(iShll).ge.1) Then
-               Call Nrmlz(DInf(ipExp(iShll)),nExp(iShll),
+               Call Nrmlz(Shells(iShll)%Exp,nExp(iShll),
      &                    DInf(ipCff(iShll)),nBasis(iShll),iAng)
             End If
          End If

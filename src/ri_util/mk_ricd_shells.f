@@ -134,7 +134,7 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -159,7 +159,7 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
 *
          End If
 *                                                                      *

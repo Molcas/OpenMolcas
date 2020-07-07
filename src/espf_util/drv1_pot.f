@@ -43,7 +43,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
-      use Basis_Info, only: dbsc
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -106,7 +106,6 @@
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -120,7 +119,6 @@
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -169,7 +167,8 @@ c           Call NAMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           At this point we can compute Zeta.
 *
             Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+     &                iPrim,jPrim,Shells(iShll)%Exp,
+     &                            Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -319,12 +318,14 @@ c           Call NAMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *
 *--------------------Compute kappa and P.
 *
-                     Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                           Shells(jShll)%Exp,jPrim,
      &                   TA,TRB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *--------------------Compute primitive potential integrals and trace with density
 *
-                     Call potintd(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call potintd(Shells(iShll)%Exp,iPrim,
+     &                            Shells(jShll)%Exp,jPrim,
      &                   Work(iZeta),Work(ipZI),
      &                   Work(iKappa),Work(iPCoor),
      &                   iPrim*jPrim,iAng,jAng,TA,TRB,nOrder,

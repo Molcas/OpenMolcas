@@ -11,6 +11,7 @@
       Subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,
      &                 Alpha,nalpha,fa1,fa2,jfgrad,jfhess,
      &                 ld,debug)
+      Use Basis_Info
 *
 *
 *  Calculates <A'|core> and <A"|core>
@@ -63,8 +64,8 @@
 C------Calculate Effective center and exponent for <A|core>
 
       Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExp(iShll),
-     &          Alpha,Work(ipExp(iShll)))
-      Call SetUp1(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+     &          Alpha,Shells(iShll)%Exp)
+      Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExp(iShll),
      &            A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 *--------------Calculate Overlap <A|core> and derivative <A'|core>

@@ -82,10 +82,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       itype=0
 *
       ipExp(1) = Info
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      BasisTypes(:)=0
 *                                                                      *
 ****** BASI ************************************************************
 *                                                                      *
@@ -239,8 +236,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Thrshld_R=1.0D-08
       Do iSh = ipVal_, ipVal_+nVal-1
          RMax_R=Zero
-         Do iPrim = 0, nExp(iSh)-1
-            ValExp = DInf(ipExp(iSh)+iPrim)
+         Do iPrim = 1, nExp(iSh)
+            ValExp = Shells(iSh)%Exp(iPrim)
             RMax_R = Max(RMax_R,
      &                   Eval_RMax(ValExp,iAng,Thrshld_R))
          End Do

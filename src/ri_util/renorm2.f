@@ -10,19 +10,19 @@
 *                                                                      *
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
-      Subroutine ReNorm()
+      Subroutine ReNorm2(iCnttp)
       use Wrj12
 *
       Call ICopy(4*8,[0],0,iOffA,1)
       Do ire_do = 1, 2
 *
-         Call ReNorm_Internal()
+         Call ReNorm2_Internal(iCnttp)
 *
       End Do
 *
       Return
       End
-      Subroutine ReNorm_Internal()
+      Subroutine ReNorm2_Internal(iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: Orthonormalize parts of the auxiliary basis set.       *
@@ -37,6 +37,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"
@@ -86,7 +87,7 @@
       Thr_CB=Max(1.0D-14,Thrshld_CD*1.0D-10)
       ThrAO=Zero
 *
-      Do iCnttp = 1, nCnttp
+*     Do iCnttp = 1, nCnttp
 *        Skip the dummy shell
          If (iCnttp.eq.iCnttp_dummy) Go To 2222
 *        skip non-auxiliary basis sets
@@ -253,9 +254,10 @@
          End Do
 *
  2222    Continue
-      End Do
+*     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
       End
+

@@ -165,14 +165,14 @@
 *--------------Calculate Effective center and exponent for <A|alm>
 *
                Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExp(iShll),
-     &                   Alpha,Work(ipExp(iShll)))
-               Call SetUp1(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+     &                   Alpha,Shells(iShll)%Exp)
+               Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExp(iShll),
      &                     A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 *--------------Calculate Overlap <A|alm>
 *
                nHer = (la+iAng+2)/2
-               Call MltPrm(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+               Call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExp(iShll),
      &                   Array(ipZ1),Array(ipZI1),
      &                   Array(ipK1),Array(ipP1),
      &                   Array(ipF1),nAlpha*nExp(iShll),iComp,
@@ -202,14 +202,14 @@
 *--------------Calculate Effective center and exponent for <blm|B>
 *
                Call ZXia(Array(ipZ2),Array(ipZI2),nExp(iShll),nBeta,
-     &                   Work(ipExp(iShll)),Beta)
-               Call SetUp1(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+     &                   Shells(iShll)%Exp,Beta)
+               Call SetUp1(Shells(iShll)%Exp,nExp(iShll),Beta,nBeta,
      &                    TC,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 *--------------Calculate Overlap <blm|B>
 *
                nHer = (iAng+lb+2)/2
-               Call MltPrm(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+               Call MltPrm(Shells(iShll)%Exp,nExp(iShll),Beta,nBeta,
      &                   Array(ipZ2),Array(ipZI2),
      &                   Array(ipK2),Array(ipP2),
      &                   Array(ipF2),nExp(iShll)*nBeta,iComp,

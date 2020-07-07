@@ -165,14 +165,14 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
          Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-         If (ReOrder) Call OrdExpD2C(iPrim,Work(iExp),iBas,Work(iCff))
+         If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+     &                               Work(iCff))
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
@@ -186,7 +186,6 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -205,8 +204,6 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipExpi   = iExp
-            jpExpj   = jExp
             ipCffi   = iCff
             ipCffj   = jCff
             nBasi    = iBas
@@ -303,8 +300,8 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,Data_k2(jpk2),
-     &                  Work(ipExpi),iPrimi,
-     &                  Work(jpExpj),jPrimj,
+     &                  Shells(iShll)%Exp,iPrimi,
+     &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
      &                  Work(ipCffi),nBasi,
      &                  Work(ipCffj),nBasj,

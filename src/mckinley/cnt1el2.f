@@ -157,7 +157,6 @@ c#include "print.fh"
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -172,7 +171,6 @@ c#include "print.fh"
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -220,7 +218,8 @@ c#include "print.fh"
 *         This is now computed in the ij or ji order.
 *
           Call ZXia(Work(iZeta),Work(ipZI),
-     &              iPrim,jPrim,Work(iExp),Work(jExp))
+     &              iPrim,jPrim,Shells(iShll)%Exp,
+     &                          Shells(jShll)%Exp)
 *
             DiffCnt=(mdci.eq.iDCnt).or.(mdcj.eq.iDCnt)
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
@@ -295,13 +294,15 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *            Compute AO integrals.
 *            for easy implementation of NA integrals.
 *
-             Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   Work(iZeta),Work(ipZI),
      &                   Work(iKappa),Work(iPCoor),
      &                   Work(ipFnl),iPrim*jPrim,

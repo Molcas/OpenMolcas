@@ -73,12 +73,11 @@
             jSh = ipVal(iCnttp)
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShell = iShell + 1
-               iExp = ipExp(jSh)
 *              Pointer to the untouched contraction matrix as after input.
                iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
 *
                If (nBasis_Cntrct(jSh).gt.0 )
-     &            Call RdMx(RadMax,DInf(ipExp(jSh)),nExp(jSh),
+     &            Call RdMx(RadMax,Shells(jSh)%Exp,nExp(jSh),
      &                      DInf(ipCff_Cntrct(jSh)),nBasis_Cntrct(jSh),
      &                      cdMax,EtMax)
                If (iShell.gt.MxShll) Then

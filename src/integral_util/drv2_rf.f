@@ -119,7 +119,6 @@
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -135,7 +134,6 @@
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -186,7 +184,8 @@
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Zeta,ZI,iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -271,12 +270,14 @@
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   A,B,Kappa,PCoor,ZI)
 *
 *            Compute primitive integrals. Result is ordered ij,ab.
 *
-             Call RFInt(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call RFInt(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                   Zeta,ZI,
      &                   Kappa,Pcoor,
      &                   Fnl,iPrim*jPrim,nComp,

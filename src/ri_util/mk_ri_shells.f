@@ -236,7 +236,6 @@ C        Fixed(nCnttp)=.False.
 *
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
-*        nInfo = ipExp(iShll+1) - Info
          nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
          Max_Shells=Mx_Shll
@@ -360,12 +359,14 @@ C        Fixed(nCnttp)=.False.
 *              Read Gaussian exponents
 *
                iStrt=ipExp(iShll)
+               Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
+               Shells(iShll)%nExp=nPrim
                nExp(iShll) = nPrim
                nBasis_Cntrct(iShll) = nCntrc
-               iEnd = iStrt + nPrim - 1
+               iEnd = iStrt - 1
                If (nPrim.gt.0) then
                   If (IfTest) Write(6,*) ' Read gaussian exponents'
-                  Call Read_v(Lu_lib,DInf,iStrt,iEnd,1,Ierr)
+                  Call Read_v(Lu_lib,Shells(iShll)%Exp,1,nPrim,1,Ierr)
                   If (Ierr.ne.0) Then
                      Call WarningMessage(2,
      &                     'GetBS: Error while reading the exponents')
@@ -373,7 +374,7 @@ C        Fixed(nCnttp)=.False.
                   End If
                   If (IfTest) Write(6,*) ' Done with exponents'
                If (iPrint.ge.99.or.IfTest)
-     &            Call RecPrt(' Exponents',' ',DInf(iStrt),nPrim,1)
+     &           Call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
                End If
                iStrt = iEnd + 1
 *
@@ -428,7 +429,7 @@ C        Fixed(nCnttp)=.False.
                iOff = nPrim*nPrim
                Call DCopy_(nPrim*nPrim ,DInf(ipCff_p),1,
      &                                  DInf(ipCff_p+iOff),1)
-               Call Nrmlz(DInf(ipExp(iShll)),nPrim,
+               Call Nrmlz(Shells(iShll)%Exp,nPrim,
      &                    DInf(ipCff_p),nPrim ,iAng)
 
                iOff = nPrim*nCntrc

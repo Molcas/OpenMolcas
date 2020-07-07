@@ -193,7 +193,7 @@ c      write(6,*) 'we here 0?'
            End If
            Go To 999
           End If
-          Call Unnrmlz(Work(ipExp(ishell)),nexp(ishell),
+          Call Unnrmlz(Shells(ishell)%Exp,nexp(ishell),
      &                 Work(ipCff(ishell)),nbasis(ishell),l)
          End Do
         End If
@@ -381,7 +381,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
                 Do iprim=1,nExp(ishell)
                   coeff=
      &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
-                  prim=work(ipExp(ishell)+iprim-1)
+                  prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then
                     Write (MF,'(E17.9,E17.9)') prim,coeff
                   End If
@@ -923,7 +923,7 @@ cvv this statement prevents overoptimization
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          Call Unnrmlz2(Work(ipExp(ishell)),  nexp(ishell),
+          Call Unnrmlz2(Shells(ishell)%Exp,  nexp(ishell),
      &                  Work(ipCff(ishell)),nbasis(ishell),l)
          End Do
         End If

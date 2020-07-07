@@ -93,7 +93,6 @@
                   Write (LuWr,*) '          No.      Exponent   ',
      &                        ' Contraction Coefficients'
                End If
-               iExp = ipExp(jSh)
 *              Pointer to the untouched contraction matrix as after input.
                iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
 *
@@ -103,9 +102,8 @@
                      If (iCnt.eq.1)
      &               Write (LuWr,'( 9X,I4,1X,D16.9,10(1X,F10.6),'//
      &                        '1X,3(/,30X,10(1X,F10.6)))')
-     &                     jExp , DInf(iExp),( DInf(iCff+ib),
+     &                     jExp , Shells(jSh)%Exp(kExp),( DInf(iCff+ib),
      &                     ib=0,nBasis(jSh)*nExp(jSh)-1,nExp(jSh))
-                     iExp = iExp + 1
                      iCff = iCff + 1
                   End Do
                End If
@@ -262,11 +260,11 @@ Cend
                End If
                lSh = lSh + 1
                Write (LuWr,'(A)') '  n     Exponent      Coefficient'
-               iOff = ipExp(kSh)
+               iOff = 1
                Do iExp = 1, nExp(kSh)
-                  ncr=Int(DInf(iOff  ))
-                  zcr=    DInf(iOff+1)
-                  ccr=    DInf(iOff+2)
+                  ncr=Int(Shells(kSh)%Exp(iOff  ))
+                  zcr=    Shells(kSh)%Exp(iOff+1)
+                  ccr=    Shells(kSh)%Exp(iOff+2)
                   Write (LuWr,'(2x,I1,3X,2F15.10)') ncr,zcr,ccr
                   iOff = iOff + 3
                End Do
@@ -344,16 +342,14 @@ Cend
      &                                *Shells(iSh)%Occ(i)
                   End Do
 *
-                  iExp = ipExp(iSh)
                   iCff = ipCff(iSh) + nExp(iSh)*Shells(iSh)%nBk
                   If (iPrint.ge.10) Then
                      Do kExp = 1, nExp(iSh)
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,8(G12.5),'//
      &                        '3(/,30X,8(G12.5)))')
-     &                            DInf(iExp),( DInf(iCff+ib),
+     &                          Shells(ish)%Exp(kExp),( DInf(iCff+ib),
      &                     ib=0,Shells(iSh)%nBk*nExp(iSh)-1,nExp(iSh))
-                        iExp = iExp + 1
                         iCff = iCff + 1
                      End Do
                   End If ! If (iPrint.ge.10) Then
@@ -385,15 +381,13 @@ Cend
                      Write (LuWr,*) '                   Exponent   ',
      &                              ' Contraction Coefficients'
                      Write (LuWr,*)
-                     iExp = ipExp(iSh)
                      iCff = ipCff(iSh)
                      Do kExp = 1, nExp(iSh)
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,10(1X,F10.6),'//
      &                           '3(/,30X,10(1X,F10.6)))')
-     &                               DInf(iExp),( DInf(iCff+ib),
+     &                        Shells(iSh)%Exp(kExp),( DInf(iCff+ib),
      &                        ib=0,nBasis(iSh)*nExp(iSh)-1,nExp(iSh))
-                        iExp = iExp + 1
                         iCff = iCff + 1
                      End Do
                   End If
@@ -421,9 +415,8 @@ Cend
                      Write (LuWr,*)
                      Write (LuWr,'(19X,A,A)')
      &                     '        Angular Type: ', AngTp(iAng)
-                     iExp = ipExp(iSh)
                      Call RecPrt(' Exponents',' ',
-     &                           DInf(iExp),nExp(iSh),1)
+     &                           Shells(iSh)%Exp,nExp(iSh),1)
                      If (iPrint.ge.11) Then
                         Call RecPrt(' The Akl matrix','(5D20.13)',
      &                              Shells(iSh)%Akl(1,1,1),nExp(iSh),

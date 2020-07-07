@@ -15,7 +15,7 @@
 #include "info.fh"
 #include "stdalloc.fh"
       integer :: nPrim
-      integer :: iExp, kExp, iCff
+      integer :: kExp, iCff
       integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
       real*8, allocatable :: primitives(:,:)
       integer, allocatable :: primitive_ids(:,:), IndC(:)
@@ -80,15 +80,13 @@
 *     Pointer to the untouched contraction matrix as after input.
               iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
               Do iBasis = 1,nBasis(jSh)
-                iExp = ipExp(jSh)
                 Do kExp = 1, nExp(jSh)
                   iPrim  = iPrim  + 1
                   primitive_ids(1,iPrim) = iyy
                   primitive_ids(2,iPrim) = iAng
                   primitive_ids(3,iPrim) = iBasis
-                  primitives(1,iPrim) = DInf(iExp)
+                  primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
                   primitives(2,iPrim) = DInf(iCff)
-                  iExp = iExp + 1
                   iCff = iCff + 1
                 End Do
               End Do

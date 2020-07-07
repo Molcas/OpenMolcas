@@ -46,8 +46,6 @@
                nPrimr(krBas)=nExp(jSh)
                nBasisr(krBas)=nBasis_Cntrct(jSh)
 *
-               iiExp=ipExp(jSh)
-               ic=0
                If (krExp+nExp(jSh).gt.MxPrim) then
                   Call WarningMessage(2,'Too many primitives')
                   write(6,*) 'MORE THAN ',MxPrim,' PRIMITIVES'
@@ -57,8 +55,7 @@
                End If
                Do  kExp=1,nExp(jSh)
                   krExp=krExp+1
-                  rExp(krExp)=DInf(iiExp+ic)
-                  ic=ic+1
+                  rExp(krExp)=Shells(jSh)%Exp(kExp)
                End Do
 *
 *

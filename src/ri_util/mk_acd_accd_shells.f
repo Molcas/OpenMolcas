@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
+      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -31,7 +31,6 @@
 #include "status.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
       Integer, Allocatable :: iList2_c(:,:), iList2_p(:,:), iD_c(:),
      &                        Con(:), ConR(:,:), Prm(:), Indkl_p(:),
      &                        AL(:), LTP(:,:), iD_p(:), Indkl(:)
@@ -39,13 +38,23 @@
      &                       Q(:), A(:), Z(:), tVp(:), tVtF(:), C(:),
      &                       Temp(:), QTmp(:), Tmp(:)
       Real*8, Allocatable :: TInt_c(:), TInt_p(:), ADiag(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+!#define _DEBUG_
+*                                                                      *
+************************************************************************
+*                                                                      *
 #ifdef _DEBUG_
       Real*8, Allocatable :: H(:), U(:), tVtInv(:)
 #endif
       Logical Hit, Found, Diagonal, Keep_Basis, In_Core, W2L
       Character*80 BSLbl, Label
       Character*80 atom,type,author,basis,CGTO, Aux
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Interface
          Subroutine  Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,
      &                                   iCnttp,jCnttp,
@@ -61,9 +70,6 @@
       End Interface
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*define _DEBUG_
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Statement Function
@@ -73,16 +79,13 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-       iPrint=49
-C      iPrint=99
+       iPrint=99
 #else
        iPrint=5
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Mk_aCD_acCD_Shells')
-*
       Max_Cnt=0
       ThrAO=Zero
       mData=4
@@ -243,7 +246,7 @@ C      iPrint=99
 *                                                                      *
 *     Generate atomic two-electron integrals to decompose.
 *
-      Call Gen_RelPointers(Info-1)
+      Call Gen_RelPointers(Info-1) ! Work Mode
       ijS_req=0
       Call Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,iCnttp,
      &                         TInt_c,nTInt_c,
@@ -763,8 +766,11 @@ C                    iPrint=99
                            Prm(ijSO)=1
                         End Do
                         nPrim=NumCho_p
+                        Call mma_allocate(Shells(iShll)%Exp,nPrim,
+     &                                    Label='ExpacCD')
+                        Shells(iShll)%nExp=nPrim
 *
-                        iEnd = iStrt + nPrim - 1
+                        iEnd = iStrt - 1
 *
 #ifdef _DEBUG_
                         If (iPrint.ge.49) Then
@@ -783,14 +789,14 @@ C                    iPrint=99
                            iTheta = iD_p(iCho_p)
                            ik=LTP(1,iTheta)
                            il=LTP(2,iTheta)
-                           Exp_i=Work(ipExp(kShll)+ik-1)
-                           Exp_j=Work(ipExp(lShll)+il-1)
-                           Work(iStrt-1+iCho_p) = Exp_i+Exp_j
+                           Exp_i=Shells(kShll)%Exp(ik)
+                           Exp_j=Shells(lShll)%Exp(il)
+                           Shells(iShll)%Exp(iCho_p)=Exp_i+Exp_j
                         End Do
 #ifdef _DEBUG_
                         If (iPrint.ge.49)
      &                    Call RecPrt('SLIM Exponents',' ',
-     &                               Work(iStrt),1,nPrim)
+     &                                Shells(iShll)%Exp,1,nPrim)
 #endif
 *                                                                      *
 ************************************************************************
@@ -807,20 +813,24 @@ C                    iPrint=99
                         Else
                            nPrim=nExp(kShll)*nExp(lShll)
                         End If
-                        iEnd = iStrt + nPrim - 1
+                        Call mma_allocate(Shells(iShll)%Exp,nPrim,
+     &                                    Label='ExpaCD')
+                        Shells(iShll)%nExp=nPrim
+                        iEnd = iStrt - 1
 *
-                        iOff = iStrt - 1
-                        Do ip_Exp = 0, nExp(kShll)-1
-                           jp_Exp_Max = nExp(lShll)-1
+                        iOff = 0
+                        Do ip_Exp = 1, nExp(kShll)
+                           jp_Exp_Max = nExp(lShll)
                            If (Diagonal) jp_Exp_Max = ip_Exp
-                           Do jp_Exp = 0, jp_Exp_Max
+                           Do jp_Exp = 1, jp_Exp_Max
                               iOff = iOff + 1
-                              Work(iOff)=Work(ipExp(kShll)+ip_Exp)
-     &                                  +Work(ipExp(lShll)+jp_Exp)
+                              Shells(iShll)%Exp(iOff)=
+     &                                   Shells(kShll)%Exp(ip_Exp)
+     &                                  +Shells(lShll)%Exp(jp_Exp)
                            End Do
                         End Do
 *
-                        If (iOff.ne.iEnd) Then
+                        If (iOff.ne.nPrim) Then
                            Call WarningMessage(2,
      &                           'Error in Mk_RICD_Shells')
                            Write (6,*) 'Mk_aCD_Shell: iOff.ne.iEnd'
@@ -848,7 +858,8 @@ C                    iPrint=99
 *                    An empty shell
 *
                      nPrim=0
-                     iEnd = iStrt + nPrim - 1
+                     Shells(iShll)%nExp=nPrim
+                     iEnd = iStrt - 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1038,7 +1049,6 @@ C                          Thrs= 1.0D-12
      &                  Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
 *
-*
 *                       Pick up the contraction coefficients of the aCD
 *                       basis set. Be careful what this means in the
 *                       case that the shells are identical!
@@ -1187,8 +1197,8 @@ C                          Thrs= 1.0D-12
                         Call mma_deallocate(Scr)
                         Call mma_deallocate(QTmp)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('SLIM coeffcients',' ',Work(iStrt),
+*                       If (iPrint.ge.49)
+                        Call RecPrt('SLIM coeffcients',' ',Work(iStrt),
      &                              nTheta,nPhi)
 #endif
 *                                                                      *
@@ -1271,7 +1281,7 @@ C                          Thrs= 1.0D-12
 *                                                                      *
                      iOff = nPrim*nCntrc
                      call dcopy_(nPrim*nCntrc,Work(ipCff_c),1,
-     &                                       Work(ipCff_c+iOff),1)
+     &                                        Work(ipCff_c+iOff),1)
 *
                      Call mma_deallocate(Con)
                      Call mma_deallocate(ConR)
@@ -1285,7 +1295,7 @@ C                          Thrs= 1.0D-12
                      iOff = nPrim*nPrim
                      call dcopy_(nPrim*nPrim ,Work(ipCff_p),1,
      &                                       Work(ipCff_p+iOff),1)
-                     Call Nrmlz(Work(ipExp(iShll)),nPrim,
+                     Call Nrmlz(Shells(iShll)%Exp,nPrim,
      &                          Work(ipCff_p),nPrim ,lAng)
 #ifdef _DEBUG_
                      If (iPrint.ge.99) Then
@@ -1323,10 +1333,11 @@ C                          Thrs= 1.0D-12
 *                    coefficents!
 *
                      Call Fix_Exponents(nPrim,mPrim,nCntrc,
-     &                                  Work(ipExp(iShll)),
+     &                                  Shells(iShll)%Exp,
      &                                  Work(ipCff_c),
      &                                  Work(ipCff_p))
                      nPrim=mPrim
+                     Shells(iShll)%nExp=nPrim
                      nExp(iShll)=nPrim
 #ifdef _DEBUG_
                      If (iPrint.ge.99) Then
@@ -1474,7 +1485,7 @@ C                          Thrs= 1.0D-12
 *              Write out the exponents
 *
                Write (Lu_lib,'( 5(1X,D20.13))')
-     &               (Work(i+ipExp(iShll_)),i=0,nExp(iShll_)-1)
+     &               (Shells(iShll_)%Exp(i),i=1,nExp(iShll_))
 *
 *              Write out the contraction coefficients
 *
@@ -1494,10 +1505,7 @@ C                          Thrs= 1.0D-12
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_aCD_acCD_Shells')
       Call Gen_RelPointers(-(Info-1))
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(DInf)
 *
       End

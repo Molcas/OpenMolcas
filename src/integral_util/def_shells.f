@@ -104,7 +104,7 @@
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
                iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
                iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
-               iSD(6,nSkal)= ipExp(iShll)            ! pointer to exp.
+               iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !
@@ -200,7 +200,7 @@
          iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
          iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
          iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
-         iSD(6,nSkal)= ipExp(iShll)            ! pointer to exp.
+         iSD(6,nSkal)= -1                      ! Not used
          iSD(7,nSkal)= iAOttp                  ! ? magic
      &               + kOffAO(iCnttp,iAng)     !
          iSD(8,nSkal)= -1                      ! Not used
@@ -295,7 +295,7 @@
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
                iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
                iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
-               iSD(6,nSkal)= ipExp(iShll)            ! pointer to exp.
+               iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(iCnttp,iAng)     !

@@ -14,7 +14,7 @@
       SubRoutine Drv_Fck(Label,ip,lOper,nComp,CCoor,
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
-     &                   PtChrg,nGrid,iAddPot,DInf,nDInf)
+     &                   PtChrg,nGrid,iAddPot)
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -23,7 +23,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "warnings.fh"
-      Real*8 DInf(nDInf)
       Character Label*8
       Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
@@ -102,7 +101,7 @@
      &                      nOrdOp,rHrmt,iChO,
      &                      opmol,opnuc,ipad,iopadr,idirect,isyop,
      &                      iStabO,nStabO,nIC,
-     &                      PtChrg,nGrid,iAddPot,DInf,nDInf)
+     &                      PtChrg,nGrid,iAddPot)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -160,8 +159,7 @@ c        Write(6,*) ' oneel *',Label,'*'
       Subroutine Drv_Fck_Internal(Label,ip,Int1El,LenTot,lOper,nComp,
      &                            CCoor,nOrdOp,rHrmt,iChO,opmol,opnuc,
      &                            ipad,iopadr,idirect,isyop,iStabO,
-     &                            nStabO,nIC,PtChrg,nGrid,iAddPot,
-     &                            DInf,nDInf)
+     &                            nStabO,nIC,PtChrg,nGrid,iAddPot)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -224,7 +222,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 DInf(nDInf)
       Real*8 A(3), B(3), RB(3), CCoor(3,nComp), PtChrg(nGrid)
       Character ChOper(0:7)*3, Label*8
       Integer nOp(2), ip(nComp), lOper(nComp), iChO(nComp),
@@ -264,7 +261,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -278,7 +274,6 @@ c        Write(6,*) ' oneel *',Label,'*'
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -320,7 +315,8 @@ c        Write(6,*) ' oneel *',Label,'*'
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Zeta,ZI,iPrim,jPrim,DInf(iExp),DInf(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -399,8 +395,8 @@ c        Write(6,*) ' oneel *',Label,'*'
                      iTo= + (ijC-1)*iBas**2+ijB
 #ifdef _DEBUG_
                      Write (6,*) 'ijB,ijC=',ijB,ijC
-                     Write (6,*) 'Fnl(iTo),DInf(iFrom)=',
-     &                            Fnl(iTo),DInf(iFrom)
+                     Write (6,*) 'Fnl(iTo),Shell(iShll)%FockOp(iB,jB)=',
+     &                            Fnl(iTo),Shell(iShll)%FockOp(iB,jB)
 #endif
                      Fnl(iTo)=Shells(iShll)%FockOp(iB,jB)
                   End Do

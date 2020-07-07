@@ -92,12 +92,12 @@
       Logical  EnergyWeight
       Integer  i,j,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
       Integer  iRout,iPrint,nSkal,iCar
-      Integer  iCent,iCff,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc,iExp
+      Integer  iCent,iCff,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
       Integer  ipF1a,ipF2a,ipIJ,ipK1,ipK2,ipP1,ipP2,ipQ1,iPrim,ipRxyz
       Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShell,iShll
       Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas,jCff
-      Integer  jCmp,jCnttp,jExp,jPrim,jS,jSbasis,jShell,jShll,jSize
+      Integer  jCmp,jCnttp,jPrim,jS,jSbasis,jShell,jShll,jSize
       Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
       Integer  mVecCB,nac,ncb,nDAO,nDCRT,nDisp,nHer,jAO,maxDensSize
       Integer  nVecAC,nVecCB,iTri,iCnt, jCnt
@@ -178,7 +178,6 @@ c      ! Dummy initialize
         iBas   = iSD( 3,iS)
         iCff   = iSD( 4,iS)
         iPrim  = iSD( 5,iS)
-        iExp   = iSD( 6,iS)
         iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
         iShell = iSD(11,iS)
@@ -273,7 +272,6 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
           jBas   = iSD( 3,jS)
           jCff   = iSD( 4,jS)
           jPrim  = iSD( 5,jS)
-          jExp   = iSD( 6,jS)
           jAO    = iSD( 7,iS)
           mdcj   = iSD(10,jS)
           jShell = iSD(11,jS)
@@ -358,8 +356,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 **** Effective center and exponent
 *
             Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,iPrim,
-     &                Alpha,Work(iExp))
-            Call SetUp1(Alpha,nAlpha,Work(iExp),iPrim,
+     &                Alpha,Shells(iShll)%Exp)
+            Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,
      &                  A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 **** Overlap and derivative
@@ -455,8 +453,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 **** Effective center and exponent
 *
             Call ZXia(Array(ipZ2),Array(ipZI2),jPrim,nBeta,
-     &                Work(jExp),Beta)
-            Call SetUp1(Work(jExp),jPrim,Beta,nBeta,
+     &                Shells(jShll)%Exp,Beta)
+            Call SetUp1(Shells(jShll)%Exp,jPrim,Beta,nBeta,
      &                  TB,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 **** Overlap and derivative

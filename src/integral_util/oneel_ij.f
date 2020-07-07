@@ -82,7 +82,6 @@
       iAng   = iSD( 1,iS)
       iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
-      iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
@@ -94,7 +93,6 @@
       jAng   = iSD( 1,jS)
       jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
-      jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
@@ -161,10 +159,12 @@
         call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
      &                                     iBas,jBas,iAng,jAng,
      &                                     iPrim,jPrim,mdci,mdcj,
-     &                                     Work(iExp),Work(jExp),
+     &                                     Shells(iShll)%Exp,
+     &                                     Shells(jShll)%Exp,
      &                                     Work(iCff+iPrim*iBas),
-     &                         Work(jCff+jPrim*jBas),nAtoms,NATEST,
-     &                         Coord,nPSOI,Final)
+     &                                     Work(jCff+jPrim*jBas),
+     &                                     nAtoms,NATEST,
+     &                                     Coord,nPSOI,Final)
 #else
          Call WarningMessage(2,
      &   'OneEl_IJ: NO Gen1int interface available!')
@@ -227,7 +227,6 @@
       iAng   = iSD( 1,iS)
       iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
-      iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
@@ -240,7 +239,6 @@
       jAng   = iSD( 1,jS)
       jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
-      jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
@@ -346,7 +344,8 @@
 *     At this point we can compute Zeta.
 *     This is now computed in the ij or ji order.
 *
-      Call ZXia(xZeta,xZI,iPrim,jPrim,Work(iExp),Work(jExp))
+      Call ZXia(xZeta,xZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                Shells(jShll)%Exp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -417,12 +416,14 @@
 *
 *           Compute kappa and P.
 *
-            Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+            Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                  A,RB,xKappa,xPCoor,xZI)
 *
 *           Compute primitive integrals. Result is ordered ij,ab.
 *
-            Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+            Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                  xZeta,xZI,
      &                  xKappa,xPCoor,
      &                  Final,iPrim*jPrim,nIC,nComp,

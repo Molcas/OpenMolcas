@@ -171,6 +171,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *------- Get the Atom number
          iANr=iAtmNr(iSD(13,iShell))
 *
+         iShll=iSD(0,iShell)   ! Get the angular momentum of ishell
          iAng=iSD(1,iShell)   ! Get the angular momentum of ishell
          iCmp=iSD(2,iShell)   ! Get the # of angular components
          nCntrc=iSD(3,iShell) !Get the # of contracted functions
@@ -184,12 +185,12 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *     Order the exponents diffuse to compact for the active shell      *
 *                                                                      *
 ************************************************************************
-         Call OrdExpD2C(mExp,Work(iSD(6,iShell)),nCntrc,
+         Call OrdExpD2C(mExp,Shells(iShll)%Exp,nCntrc,
      &                       Work(iSD(4,iShell)))
 *
 *-----Get the extreme exponents for the active shell.
-         A_low =Work(iSD(6,iShell)       )
-         A_high=Work(iSD(6,iShell)+mExp-1)
+         A_low =Shells(iShll)%Exp(1)
+         A_high=Shells(iShll)%Exp(mExp)
 *
          iCnttp=iSD(13,iShell)
          iCnt  =iSD(14,iShell)
@@ -442,16 +443,16 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
                ValExp=-One
                iSet=0
                Do iShell=1,nShell
+                  iShll =iSD(0,iShell)
                   iAng_ =iSD(1,iShell)
                   NrExp =iSD(5,iShell)
-                  ip_Exp=iSD(6,iShell)
 *                 Write (6,*) 'iAng_,iAng=',iAng_,iAng
                   If (iAng_.eq.iAng.and.NrExp.ge.1) Then
                      Do iSym = 0, nSym-1
                         iNQ_=Maps2p(iShell,iSym)
 *                       Write (6,*) 'iNQ_,iNQ=',iNQ_,iNQ
                         If (iNQ_.eq.iNQ) Then
-                           ValExp=Work(ip_Exp+NrExp-1)
+                           ValExp=Shells(iShll)%Exp(NrExp)
                            iSet=1
                         End If
                      End Do

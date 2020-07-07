@@ -123,7 +123,6 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -138,7 +137,6 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -146,10 +144,10 @@ C        Do jS = 1, iS
             jCnt   = iSD(14,jS)
             B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 C        write(6,*)
-C    &  'iShll,iAng,iCmp,iBas,iCff,iPrim,iExp,iAO,ixyz,mdci,iShell'
+C    &  'iShll,iAng,iCmp,iBas,iCff,iPrim,iAO,ixyz,mdci,iShell'
 C        write(6,*) (iSD(i,iS),i=0,11)
 C        write(6,*)
-C    &  'jShll,jAng,jCmp,jBas,jCff,jPrim,jExp,jAO,jxyz,mdcj,jShell'
+C    &  'jShll,jAng,jCmp,jBas,jCff,jPrim,jAO,jxyz,mdcj,jShell'
 C        write(6,*) (iSD(i,jS),i=0,11)
 *
 *       Call kernel routine to get memory requirement.
@@ -183,7 +181,8 @@ C        write(6,*) (iSD(i,jS),i=0,11)
 *         At this point we can compute Zeta.
 *
           Call ZXia(Work(iZeta),Work(ipZI),
-     &              iPrim,jPrim,Work(iExp),Work(jExp))
+     &              iPrim,jPrim,Shells(iShll)%Exp,
+     &                          Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 
@@ -458,8 +457,8 @@ c    &                  ' ',Work(ipDAO),iPrim*jPrim,kk)
 *
 *--------------Compute kappa and P.
 *
-c           Call GetMem('OneEl ','CHEC','REAL',iDum,iDum)
-               Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+               Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                     Shells(jShll)%Exp,jPrim,
      &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *--------------Compute gradients of the primitive integrals and
@@ -468,7 +467,8 @@ c           Call GetMem('OneEl ','CHEC','REAL',iDum,iDum)
 *
 CBS            write(6,*) 'Call the  Kernel'
 *
-               Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+               Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                     Shells(jShll)%Exp,jPrim,
      &                     Work(iZeta),Work(ipZI),
      &                     Work(iKappa),Work(iPcoor),
      &                     Work(ipFnl),iPrim*jPrim,

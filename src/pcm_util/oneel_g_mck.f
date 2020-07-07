@@ -121,7 +121,6 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -136,7 +135,6 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -189,7 +187,8 @@ C        Do jS = 1, iS
 *           At this point we can compute Zeta.
 *
             Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+     &                iPrim,jPrim,Shells(iShll)%Exp,
+     &                            Shells(jShll)%Exp)
 *
             Do iCar = 0, 2
                IndGrd(iCar+1,1) = iSD(iCar+16,iS)
@@ -338,13 +337,15 @@ c VV: gcc bug: one has to use this if!
 *
 *--------------Compute kappa and P.
 *
-               Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+               Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                     Shells(jShll)%Exp,jPrim,
      &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *--------------Compute gradients of the primitive integrals and
 *              trace the result.
 *
-               Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+               Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                     Shells(jShll)%Exp,jPrim,
      &                     Work(iZeta),Work(ipZI),
      &                     Work(iKappa),Work(iPcoor),
      &                     Work(ipFnl),iPrim*jPrim,

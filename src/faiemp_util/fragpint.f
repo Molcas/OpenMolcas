@@ -103,10 +103,10 @@ c      Character*80 Label
 *
       Integer i,j,ixyz,nElem,iTri,nGrid,
      &        iRout,iPrint,ia,iAng,ib,iBas,iAO,iCff,iCmp,iCnttp,iComp,
-     &        iCurCenter,iCurCnttp,iCurMdc,iExp,iIC,iIrrep,iLoc,iPrim,
+     &        iCurCenter,iCurCnttp,iCurMdc,iIC,iIrrep,iLoc,iPrim,
      &        ip,ipF1,ipF2,ipIJ,ipK1,ipK2,ipP1,ipP2,ipTmp,ipZ1,ipZ2,
      &        ipZI1,ipZI2,iS,iSbasis,iSend,iShell,iShll,iSize,iSlocal,
-     &        iSstart,iStemp,jAng,jAO,jBas,jCff,jCmp,jCnttp,jExp,jPrim,
+     &        iSstart,iStemp,jAng,jAO,jBas,jCff,jCmp,jCnttp,jPrim,
      &        jS,jShell,jShll,jSize,jSlocal,jxyz,lDCRT,llOper,LmbdT,
      &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nHer,nOp,nSkal,
      &        jSbasis,iCnt,jCnt
@@ -210,7 +210,6 @@ c     ! The basis function index relative to the start of the fragment
         iBas   = iSD( 3,iS)
         iCff   = iSD( 4,iS)
         iPrim  = iSD( 5,iS)
-        iExp   = iSD( 6,iS)
         iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
         iShell = iSD(11,iS)
@@ -226,7 +225,6 @@ c        print *, 'In FragPInt: iS=',iS,' iCmp  =',iCmp
 c        print *, 'In FragPInt: iS=',iS,' iBas  =',iBas
 c        print *, 'In FragPInt: iS=',iS,' iCff  =',iCff
 c        print *, 'In FragPInt: iS=',iS,' iPrim =',iPrim
-c        print *, 'In FragPInt: iS=',iS,' iExp  =',iExp
 c        print *, 'In FragPInt: iS=',iS,' iAO   =',iAO
 c        print *, 'In FragPInt: iS=',iS,' ixyz  =',ixyz
 c        print *, 'In FragPInt: iS=',iS,' mdci  =',mdci
@@ -318,7 +316,6 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
           jBas   = iSD( 3,jS)
           jCff   = iSD( 4,jS)
           jPrim  = iSD( 5,jS)
-          jExp   = iSD( 6,jS)
           jAO    = iSD( 7,iS)
           mdcj   = iSD(10,jS)
           jShell = iSD(11,jS)
@@ -333,7 +330,6 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCff  =',jCff
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jExp  =',jExp
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAO   =',jAO
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jxyz  =',jxyz
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' mdcj  =',mdcj
@@ -419,12 +415,12 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
             mArr = (nArr*nZeta-(ip-1))/nZeta
 *
             Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,iPrim,
-     &                Alpha,Work(iExp))
-            Call SetUp1(Alpha,nAlpha,Work(iExp),iPrim,
+     &                Alpha,Shells(iShll)%Exp)
+            Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,
      &                  A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
             nHer = (la+iAng+2)/2
-            Call MltPrm(Alpha,nAlpha,Work(iExp),iPrim,
+            Call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,
      &                Array(ipZ1),Array(ipZI1),
      &                Array(ipK1),Array(ipP1),
      &                Array(ipF1),nAlpha*iPrim,iComp,
@@ -456,12 +452,12 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
             mArr = (nArr*nZeta-(ip-1))/nZeta
 *
             Call ZXia(Array(ipZ2),Array(ipZI2),jPrim,nBeta,
-     &                Work(jExp),Beta)
-            Call SetUp1(Work(jExp),jPrim,Beta,nBeta,
+     &                Shells(jShll)%Exp,Beta)
+            Call SetUp1(Shells(jShll)%Exp,jPrim,Beta,nBeta,
      &                 TB,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
             nHer = (jAng+lb+2)/2
-            Call MltPrm(Work(jExp),jPrim,Beta,nBeta,
+            Call MltPrm(Shells(jShll)%Exp,jPrim,Beta,nBeta,
      &                Array(ipZ2),Array(ipZI2),
      &                Array(ipK2),Array(ipP2),
      &                Array(ipF2),jPrim*nBeta,iComp,

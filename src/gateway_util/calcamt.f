@@ -11,7 +11,7 @@
       Subroutine CalcAMt (iOpt,LUQRP,MPLbl,
      &                    lMax,iSRShll,
      &                    nProj,iCoShll,
-     &                    ipExp,ipCff,nExp,nBasis,MxShll,
+     &                    ipCff,nExp,nBasis,MxShll,
      &                    rcharge,DInf,nDInf)
 ************************************************************************
 *                                                                      *
@@ -31,7 +31,7 @@
 #include "stdalloc.fh"
       Real*8 DInf(nDInf)
       Character*20 MPLbl
-      Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
+      Integer ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -70,22 +70,17 @@ c     calculate relativistic integrals if needed
          write(6,*) ' The dimension of rel must somehow be increased.'
          Call Abend
       endif
-         if(iprint.ge.10) then
-            lpq=0
-            write(6,*) ' basis:', (nexp(isrshll+i-1),i=1,lmax+1)
-            nbias=ipExp(isrshll)-1
-            do i=1,lmax+1
-              nnexp=nexp(isrshll+i-1)
-              write(6,*) ' number of exponents', nnexp
-              write(6,*) ' exponents, symmetry', i
-              nbias=ipexp(isrshll+i-1)-1
-              do j=1,nnexp
-                 nbias=nbias+1
-                 write(6,*) DInf(nbias)
-              enddo
-            lpq=lpq+nnexp*(nnexp+1)/2
-            enddo
-      endif
+#ifdef _DEBUG_
+      write(6,*) ' basis:', (nexp(isrshll+i-1),i=1,lmax+1)
+      do i=1,lmax+1
+         nnExp=nExp(isrshll+i-1)
+         write(6,*) ' number of exponents', nnExp
+         write(6,*) ' exponents, symmetry', i
+         do j=1,nnExp
+            write(6,*) Shells(iSRShll+i-1)%Exp(j)
+         enddo
+      enddo
+#endif
       Do 1000 lP1=1,lMax+1
         iSRSh=iSRShll+lP1-1
         nP=nExp(iSRSh)
@@ -102,7 +97,7 @@ C
         If (iAnd(iOpt,iMVPot).ne.0 .and.
      &      iAnd(iOpt,iDWPot).ne.0 ) Then
 C...      Mass-velocity and/or Darwin potentials
-          Call Vqr(LUQRP,MPLbl,lP1,DInf(ipExp(iSRSh)),nP,rel)
+          Call Vqr(LUQRP,MPLbl,lP1,Shells(iSRSh)%Exp,nP,rel)
         Else If ((iAnd(iOpt,iMVPot).ne.0 .and.
      &            iAnd(iOpt,iDWPot).eq.0 ) .or.
      &           (iAnd(iOpt,iMVPot).eq.0 .and.
@@ -113,7 +108,7 @@ C...      Mass-velocity and/or Darwin potentials
         Endif
 C
       If (iAnd(iOpt,iNPPot).ne.0) then   ! Zero
-         call oeisg(rel,srel,trel,urel,DInf(ipExp(iSRSh)),
+         call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,
      &   rCharge,mx100,lp1,nExp(iSRSh),unrel,tnrel,hcorr,iprint,
      &   VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
          nmat=(nExp(iSRSh)*(nExp(iSRSh)+1))/2
@@ -128,10 +123,10 @@ C
 C...    Overlap and, if neccesary, exchange.
         IJ=0
         DO 101 I=1,NP
-          ZI=DInf(ipExp(iSRSh)+I-1)
+          ZI=Shells(iSRSh)%Exp(I)
           DO 102 J=1,I
             IJ=IJ+1
-            ZJ=DInf(ipExp(iSRSh)+J-1)
+            ZJ=Shells(iSRSh)%Exp(J)
             COREK(I,J,1)=rel(ij)
             If (iAnd(iOpt,iNPPot).ne.0) Then
                corek(i,j,2)=hcorr(ij)
@@ -139,7 +134,7 @@ C...    Overlap and, if neccesary, exchange.
             If (iAnd(iOpt,iExch).ne.0) Then
 C...          minus exchange potential
               AuxLs=VExch(ZI,N,ZJ,N,LAM,
-     &                    ipExp,ipCff,nExp,nBasis,MxShll,
+     &                    ipCff,nExp,nBasis,MxShll,
      &                    nProj,iCoShll, DInf,nDInf)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF
@@ -158,7 +153,7 @@ C
         Shells(ISRSh)%nAkl=NP
         DO iq = 1, 2
            DO I=1,NP
-              ZI=DInf(ipExp(iSRSh)+I-1)
+              ZI=Shells(iSRSh)%Exp(I)
               DO L=1,NP
                  rel(L)=0.D0
                  DO K=1,NP
@@ -166,7 +161,7 @@ C
                  END DO
               END DO
               DO J=1,I
-                 ZJ=DInf(ipExp(iSRSh)+J-1)
+                 ZJ=Shells(iSRSh)%Exp(J)
                  ADUM=0.D0
                  DO L=1,NP
                     ADUM=ADUM+rel(L)*OVL(L,J)

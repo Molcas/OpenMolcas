@@ -213,6 +213,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
 
+            iShll = iSD( 0,iSh)
             iAng  = iSD( 1,iSh)
             iCmp  = iSD( 2,iSh)
             iBas  = iSD( 3,iSh)
@@ -221,7 +222,6 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             iPrim_Eff=List_Exp(ilist_s)
             iCff  = iSD( 4,iSh)
             iCff_Eff=iCff+iPrim*(iBas-iBas_Eff)
-            iExp  = iSD( 6,iSh)
             iAO   = iSD( 7,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
@@ -278,7 +278,8 @@ c            write(6,*) 'iOff =', iOff
      &                  Transf(iShll),
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                  iWork(ipAng),nTerm,nForm,T_X,mRad,
-     &                  iPrim,iPrim_Eff,Work(iExp),Work(ipRadial),
+     &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
+     &                  Work(ipRadial),
      &                  iBas_Eff,Work(iCff_Eff),TabAO(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp

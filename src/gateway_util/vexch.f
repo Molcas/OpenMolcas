@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,
-     &                       ipExp,ipCff,nExp,nBasis,MxShll,
+     &                       ipCff,nExp,nBasis,MxShll,
      &                       nProj,iCoShll,DInf,nDInf)
 ************************************************************************
 *                                                                      *
@@ -20,7 +20,7 @@
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 DInf(nDInf)
-      Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
+      Integer ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
       PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
       COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
@@ -79,14 +79,14 @@ C
             SUMA=0.D0
             nExpon=nExp(iCoSh)
             DO K=1,nExpon
-              ZR=DInf(ipExp(iCoSh)+K-1)
+              ZR=Shells(iCoSh)%Exp(K)
               CR=DInf(ipCff(iCoSh)+iOff+(ICORB-1)*nExpon+K-1)
 CLS           coeff of unnormalized non-diagonal cartesian GTF
 * to be used in ecpaimp       CR=CR/(PIPPI*(4.D0*ZR)**EDUM)
               VR=VF(2*NR,ZR)
               RTT1=0.5D0*(ZP+ZR)
               DO L=1,nExpon
-                ZS=DInf(ipExp(iCoSh)+L-1)
+                ZS=Shells(iCoSh)%Exp(L)
                 CS=DInf(ipCff(iCoSh)+iOff+(ICORB-1)*nExpon+L-1)
 * to be used in ecpaimp          CS=CS/(PIPPI*(4.D0*ZS)**EDUM)
                 VS=VF(2*NS,ZS)

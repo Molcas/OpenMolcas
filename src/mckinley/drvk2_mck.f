@@ -115,7 +115,6 @@
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -134,7 +133,6 @@
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -153,8 +151,6 @@
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipExpi   = ipExp(iShllV(1))
-            jpExpj   = ipExp(iShllV(2))
             nBasi    = nBasis(iShllV(1))
             nBasj    = nBasis(iShllV(2))
 *
@@ -164,8 +160,6 @@
             jBasj = jPrimj
             kBask = 1
             lBasl = 1
-            kpExpk = -1
-            lpExpl = -1
 *
             nZeta = iPrimi * jPrimj
 *
@@ -225,8 +219,8 @@
      &                      iAngV,iCmpV,
      &                      iDCRR,nDCRR,Data_k2_local(jpk2),
      &                      ijCmp,
-     &                      Work(ipExpi), iPrimi,
-     &                      Work(jpExpj),jPrimj,
+     &                      Shells(iShllV(1))%Exp, iPrimi,
+     &                      Shells(iShllV(2))%Exp,jPrimj,
      &                      Work(iCff),iBas,
      &                      Work(jCff),jBas,
      &                      nMemab,Work(ipCon),

@@ -66,11 +66,13 @@
       AuxShell(iShll) = .True.
       iStrt = ipExp(iShll)
       nExp(iShll) = nPrim
+      Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='ExpDummy')
+      Shells(iShll)%nExp=nPrim
       nBasis(iShll) = nCntrc
       nBasis_Cntrct(iShll) = nCntrc
-      iEnd = iStrt + nPrim - 1
+      iEnd = iStrt - 1
 *     Exponent
-      DInf(iStrt)=Zero
+      Shells(iShll)%Exp(1)=Zero
 *     Coefficients
       iStrt = iEnd + 1
       ipCff(iShll) = iStrt

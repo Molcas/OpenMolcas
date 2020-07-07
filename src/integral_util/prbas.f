@@ -104,16 +104,14 @@
                Write (6,*) '          No.      Exponent   ',
      &                     ' Contraction Coefficients'
             End If
-            iExp = ipExp(jSh)
             iCff = ipCff(jSh)
             If (nBasis(jSh).gt.0) Then
                Do 13 kExp = 1, nExp(jSh)
                   jExp  = jExp  + 1
                   Write (6,'(10X,I3,1X,D16.9,10(1X,F9.4),'//
      &                     '3(/,30X,10(1X,F9.4)))')
-     &                  jExp , Work(iExp),( Work(iCff+ib),
+     &                  jExp , Shells(jSh)%Exp(kExp),( Work(iCff+ib),
      &                  ib=0,nBasis(jSh)*nExp(jSh)-1,nExp(jSh))
-                  iExp = iExp + 1
                   iCff = iCff + 1
  13            Continue
             End If

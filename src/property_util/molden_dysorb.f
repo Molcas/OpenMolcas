@@ -192,7 +192,7 @@ c      End If
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          Call Unnrmlz(Work(ipExp(ishell)),nexp(ishell),
+          Call Unnrmlz(Shells(ishell)%Exp,nexp(ishell),
      &                 Work(ipCff(ishell)),nbasis(ishell),l)
          End Do
         End If
@@ -339,7 +339,7 @@ c      End If
                 Do iprim=1,nExp(ishell)
                   coeff=
      &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
-                  prim=work(ipExp(ishell)+iprim-1)
+                  prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then
                     Write (MF,'(E17.9,E17.9)') prim,coeff
                   End If

@@ -192,7 +192,6 @@ c----------------------------------------------------------------------
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -206,7 +205,6 @@ c----------------------------------------------------------------------
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -253,7 +251,8 @@ c----------------------------------------------------------------------
 *           At this point we can compute Zeta.
 *
             Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+     &                iPrim,jPrim,Shells(iShll)%Exp,
+     &                            Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -411,7 +410,8 @@ c----------------------------------------------------------------------
 *
 *--------------------Compute kappa and P.
 *
-                     Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                           Shells(jShll)%Exp,jPrim,
      &                   TA,TRB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *
@@ -419,13 +419,14 @@ c----------------------------------------------------------------------
 *
 cpcm_solvent
 c        write(6,*)'Work(iExp),iPrim,Work(jExp),jPrim'
-c        write(6,*)Work(iExp),iPrim,Work(jExp),jPrim
+c        write(6,*)Shells(iShll)%Exp(1),iPrim,Shells(jShll)%Exp(1),jPrim
 c        write(6,*)'Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)'
 c        write(6,*)Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)
 c        write(6,*)'Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder'
 c        write(6,*)Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder
 cpcm_solvent end
-                     Call EFPrm(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call EFPrm(Shells(iShll)%Exp,iPrim,
+     &                          Shells(jShll)%Exp,jPrim,
      &                          Work(iZeta),Work(ipZI),
      &                          Work(iKappa),Work(iPcoor),
      &                          Work(ipFnl),iPrim*jPrim,nComp,

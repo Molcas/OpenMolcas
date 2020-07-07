@@ -253,7 +253,6 @@
                       iShll  = ipVal(iCnttp)+l
                       nBas_x = nBasis(iShll)
                       nExp_x = nExp(iShll)
-                      ipExp_x= ipExp(iShll)
                       ipCff_x= ipCff(iShll)+nExp_x*nBas_x
 *
 *                     Offset to the contraction coefficient for normalized
@@ -269,7 +268,6 @@
                       iShll  = ipSOC(iCnttp)+l
                       nBas_x = nBasis(iShll)
                       nExp_x = nExp(iShll)
-                      ipExp_x= ipExp(iShll)
 *
 *                     Offset to the contraction coefficient for normalized
 *                     Gaussian.
@@ -281,10 +279,10 @@
                    If (IfTest) Write (6,*)  'iShll=',iShll
                    Write (Lu_AMFI,*) nExp_x, nBas_x
                    If (IfTest) Write (6,*) nExp_x, nBas_x
-                   Write (Lu_AMFI,*) (DInf(ipExp_x+iExp_x),
-     &                                  iExp_x=0,nExp_x-1)
-                   If (IfTest) Write (6,*) (DInf(ipExp_x+iExp_x),
-     &                                       iExp_x=0,nExp_x-1)
+                   Write (Lu_AMFI,*) (Shells(iShll)%Exp(iExp_x),
+     &                                  iExp_x=1,nExp_x)
+                   If (IfTest) Write (6,*) (Shells(iShll)%Exp(iExp_x),
+     &                                       iExp_x=1,nExp_x)
                    Do iExp_x = 0, nExp_x-1
                       Write (Lu_AMFI,*) (DInf(ipCff_x+iExp_x+iCff_x),
      &                              iCff_x=0,nBas_x*nExp_x-1,nExp_x)

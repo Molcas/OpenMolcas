@@ -433,7 +433,6 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -454,7 +453,6 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -524,7 +522,6 @@ C           Do kS = 1, nSkal
                kBas   = iSD( 3,kS)
                kCff   = iSD( 4,kS)
                kPrim  = iSD( 5,kS)
-               kExp   = iSD( 6,kS)
                kAO    = iSD( 7,kS)
                mdck   = iSD(10,kS)
                kShell = iSD(11,kS)
@@ -547,7 +544,6 @@ C              Do lS = 1, kS
                   lBas   = iSD( 3,lS)
                   lCff   = iSD( 4,lS)
                   lPrim  = iSD( 5,lS)
-                  lExp   = iSD( 6,lS)
                   lAO    = iSD( 7,lS)
                   mdcl   = iSD(10,lS)
                   lShell = iSD(11,lS)
@@ -610,10 +606,6 @@ C              Do lS = 1, kS
               jBasj    = nBasis(iShllV(2))
               kBask    = nBasis(iShllV(3))
               lBasl    = nBasis(iShllV(4))
-              ipExpi   = ipExp(iShllV(1))
-              jpExpj   = ipExp(iShllV(2))
-              kpExpk   = ipExp(iShllV(3))
-              lpExpl   = ipExp(iShllV(4))
               ipCffi   = ipCff(iShllV(1))
               jpCffj   = ipCff(iShllV(2))
               kpCffk   = ipCff(iShllV(3))
@@ -1014,8 +1006,10 @@ C              Do lS = 1, kS
      &                   iAOst,mdci,mdcj,mdck,mdcl,nRys,
      &                   Data_k2(k2ij),nab,nDCRR,
      &                   Data_k2(k2kl),ncd,nDCRS,Pren,Prem,
-     &            Work(ipExpi),iPrimi,iPrInc,Work(jpExpj),jPrimj,jPrInc,
-     &            Work(kpExpk),kPrimk,kPrInc,Work(lpExpl),lPriml,lPrInc,
+     &            Shells(iShllV(1))%Exp,iPrimi,iPrInc,
+     &            Shells(iShllV(2))%Exp,jPrimj,jPrInc,
+     &            Shells(iShllV(3))%Exp,kPrimk,kPrInc,
+     &            Shells(iShllV(4))%Exp,lPriml,lPrInc,
      &                   Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
      &                   Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
      &                   Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,

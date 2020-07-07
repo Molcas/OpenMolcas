@@ -11,6 +11,7 @@
       Subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,
      &                 Beta,nbeta,fb1,fb2,jfgrad,jfhess,
      &                 ld,debug)
+      Use Basis_Info
 *
 *
 *  Calculates <core|B'> and <core|B">
@@ -69,8 +70,8 @@
 *--------------Calculate Effective center and exponent for <core|B>
 *
       Call ZXia(Array(ipZ2),Array(ipZI2),nExp(iShll),nBeta,
-     &                   Work(ipExp(iShll)),Beta)
-      Call SetUp1(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+     &                   Shells(iShll)%Exp,Beta)
+      Call SetUp1(Shells(iShll)%Exp,nExp(iShll),Beta,nBeta,
      &                    TC,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 *--------------Calculate Overlap <core|B> and <core|B'>

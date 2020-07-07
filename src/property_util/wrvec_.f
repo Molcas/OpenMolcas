@@ -570,15 +570,6 @@ c      enddo
 
 c      Write(LU,'(8i16)') (ipCff_Prim(i),i=1,Mx_Shll)
 
-      Call Get_iArray('ipExp',ipExp,Mx_Shll)
-      call icopy(Mx_Shll,ipExp,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipExp(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipExp(i),i=1,Mx_Shll)
-
       Call Get_iArray('IndS',IndS,nShlls)
       iWork(iivv+Icurr)=nShlls
       Icurr=iCurr+1

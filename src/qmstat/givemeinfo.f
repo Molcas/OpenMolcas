@@ -166,13 +166,12 @@ C     Endif
                           !contraction coefficients and the exponents.
           iCount=iAng+iAngSav
           iCff=ipCff(iCount)
-          iExp=ipExp(iCount)
           iPrim=nExp(iCount)
           iBas=nBasis(iCount)
           nfSh(iCnttp,iAng+1)=iBas
           Do 214, i=1,iBas
-            Call dCopy_(iPrim,Work(iExp),1,Work(ipExpo+jSum*MxAtQ+M)
-     &                ,MxAtQ)
+            Call dCopy_(iPrim,Shells(iCount)%Exp,1,
+     &                        Work(ipExpo+jSum*MxAtQ+M),MxAtQ)
             Call dCopy_(iPrim,Work(iCff),1,Work(ipCont+jSum*MxAtQ+M)
      &                ,MxAtQ)
             jSum=jSum+iPrim

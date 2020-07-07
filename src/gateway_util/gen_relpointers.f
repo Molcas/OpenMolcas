@@ -27,7 +27,6 @@
          Call Nr_Shells(nSkal)
          Do iSkal = 1, nSkal
             iSD(4,iSkal)= iSD(4,iSkal) + ibase ! ipCff
-            iSD(6,iSkal)= iSD(6,iSkal) + ibase ! ipExp
          End Do
       End If
 *

@@ -129,7 +129,7 @@
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
          do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
-           ncrr=Int(Work(ipExp(kSh)))
+           ncrr=Int(Shells(kSh)%Exp(1))
            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
          If (nPP_S.eq.0) Go To 999
@@ -163,12 +163,12 @@ CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
                Call QTrace()
                Call Abend()
             End If
-            iStrt=ipExp(kSh)
+            iStrt=1
             Do iExp = 1, nExp(kSh)
                npot = npot + 1
-               ncr(npot)=Int(Work(iStrt  ))
-               zcr(npot)=    Work(iStrt+1)
-               ccr(npot)=    Work(iStrt+2)
+               ncr(npot)=Int(Shells(kSh)%Exp(iStrt  ))
+               zcr(npot)=    Shells(kSh)%Exp(iStrt+1)
+               ccr(npot)=    Shells(kSh)%Exp(iStrt+2)
                iStrt=iStrt+3
             End Do
          End Do

@@ -63,17 +63,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
-C     nPrint(113)=99
-C     nPrint(114)=99
-C     nPrint(116)=99
-C     nPrint(122)=99
+      nPrint(114)=99
+      nPrint(116)=99
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call qEnter('Fix_FockOp')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,9 +91,15 @@ C     nPrint(122)=99
 *     Loop over all valence shell with a non-funtional FockOp
 *
       mCnttp = nCnttp   ! to be restored at the end
-*
-      Do 1000 iCnttp = 1, mCnttp
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      Do iCnttp = 1, mCnttp
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
          iFerm=1
          If (fMass(iCnttp).ne.1.0D0) iFerm=2
 *
@@ -114,7 +114,7 @@ C     nPrint(122)=99
      &      FragCnttp(iCnttp) .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Then
-           Goto 1000
+           Cycle
          End If
 *
 *        Special treatment for muonic basis sets
@@ -141,7 +141,6 @@ C     nPrint(122)=99
 *
                iShll_a    = ipVal(iCnttp) + iAng
                ipCff_a    = ipCff_Cntrct(iShll_a)
-               ipExp_a    = ipExp(iShll_a)
                nPrim_a  = nExp(iShll_a)
                If (nPrim_a.eq.0) Cycle
                nCntrc_a = nBasis_Cntrct(iShll_a)
@@ -160,10 +159,10 @@ C     nPrint(122)=99
                Call One_Int(KnEPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipKnE,
      &                      nSAA,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a)
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a)
 *define _DEBUG_
 #ifdef _DEBUG_
                Call DScal_(nCntrc_a**2*iCmp_a**2,
@@ -183,10 +182,10 @@ C     nPrint(122)=99
                Call One_Int(NAPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipNAE,
      &                      nSBB,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a)
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Nuclear-attraction Integrals',' ',
      &                     DInf(ipNAE),nCntrc_a**2,iCmp_a**2)
@@ -216,10 +215,10 @@ C     nPrint(122)=99
                Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipOvr,
      &                      nSCC,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a,
-     &                      iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                      iCmp_a)
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                      nCntrc_a,ipCff_a,iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Overlap Integrals',' ',
      &                     DInf(ipOvr),nCntrc_a**2,iCmp_a**2)
@@ -368,7 +367,7 @@ C     nPrint(122)=99
 #endif
             End Do
             FockOp(iCnttp)=.TRUE.
-            Go To 1000
+            Cycle
          End If
 *
 *
@@ -456,7 +455,7 @@ C     nPrint(122)=99
          If (.Not.FockOp(nCnttp)) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'
      &                //' proper Fock operator'
-            Go To 1000
+            Cycle
          End If
          Transf(jShll+1)=.False.
          Prjct(jShll+1)=.False.
@@ -482,6 +481,7 @@ C     nPrint(122)=99
          Try_Again=.True.
          Call ICopy(1+iTabMx,[0],0,List_Add,1)
  777     Continue
+*
          Test_Charge=Zero
          Do iAng = 0, nVal_Shells(iCnttp)-1
 *
@@ -489,12 +489,8 @@ C     nPrint(122)=99
 *
             iShll_a    = ipVal(iCnttp) + iAng
             ipCff_a    = ipCff_Cntrct(iShll_a)
-            ipExp_a    = ipExp(iShll_a)
             nPrim_a  = nExp(iShll_a)
-ccjd
-*           if (nPrim_a==0) cycle
-            If (nPrim_a.eq.0) Go To 999
-ccjd
+            If (nPrim_a.eq.0) Cycle
             nCntrc_a = nBasis_Cntrct(iShll_a)
             iCmp_a = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll_a)) iCmp_a = 2*iAng+1
@@ -503,8 +499,13 @@ ccjd
 *
             iShll_r = ipVal(nCnttp) + iAng
             ipCff_r    = ipCff_Cntrct(iShll_r)
-            ipExp_r    = ipExp(iShll_r)
             nPrim_r  = nExp(iShll_r)
+            nPrim_r  = nExp(iShll_r)
+            If (nPrim_r.eq.0) Then
+               Write (6,*) 'GuessOrb option turned off!'
+               FockOp(iCnttp)=.FALSE.
+               Exit
+            End If
             nCntrc_r = nBasis_Cntrct(iShll_r)
             iCmp_r = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll_r)) iCmp_r = 2*iAng+1
@@ -520,7 +521,7 @@ ccjd
                   Write (6,*) 'Reference is ECP (Huzinaga type)'
                End If
                Call RecPrt('Reference Exponents',' ',
-     &                     DInf(ipExp_r),1,nPrim_r)
+     &                     Shells(iShll_r)%Exp,1,nPrim_r)
                Call RecPrt('Reference Coefficients',' ',
      &                     DInf(ipCff_r),nPrim_r,nCntrc_r)
                Call RecPrt('Reference Fock operator',' ',
@@ -589,11 +590,11 @@ ccjd
 *
 #ifdef _DEBUG_
             Call RecPrt('Actual Exponents',' ',
-     &                  DInf(ipExp_a),1,nPrim_a)
+     &                  Shells(iShll_a)%Exp,1,nPrim_a)
             Call RecPrt('Actual Coefficients',' ',
      &                  DInf(ipCff_a),nPrim_a,nCntrc_a)
             Call RecPrt('Reference Exponents',' ',
-     &                  DInf(ipExp_r),1,nPrim_r)
+     &                  Shells(iShll_r)%Exp,1,nPrim_r)
             Call RecPrt('Reference Coefficients',' ',
      &                  DInf(ipCff_r),nPrim_r,nCntrc_r)
             If (Allocated(FockOp_t)) Then
@@ -602,7 +603,7 @@ ccjd
             Else
                Call RecPrt('Reference Fock operator',' ',
      &                     Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
-          End If
+            End If
 #endif
             If (Allocated(FockOp_t)) Then
                Check=DDot_(nCntrc_r**2,FockOp_t,1,
@@ -611,8 +612,10 @@ ccjd
                Check=DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,
      &                                 Shells(iShll_r)%FockOp,1)
             End If
-            If (Check.eq.Zero) Go To 999
-            If (Charge(iCnttp).eq.Zero) Go To 999
+            If (Check.eq.Zero .or.  Charge(iCnttp).eq.Zero) Then
+               If (Allocated(FockOp_t)) Call mma_deallocate(FockOp_t)
+               Cycle
+            End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -631,10 +634,10 @@ ccjd
             nOrdOp=0
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAA,nSAA,
-     &                   iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                   iCmp_a,
-     &                   iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                   iCmp_a)
+     &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                   nCntrc_a,ipCff_a,iCmp_a,
+     &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                   nCntrc_a,ipCff_a,iCmp_a)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -643,10 +646,10 @@ ccjd
             nOrdOp=0
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
-     &                   iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
-     &                   iCmp_a,
-     &                   iShll_r,nPrim_r,ipExp_r,nCntrc_r,ipCff_r,
-     &                   iCmp_r)
+     &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
+     &                   nCntrc_a,ipCff_a,iCmp_a,
+     &                   iShll_r,nPrim_r,Shells(iShll_r)%Exp,
+     &                   nCntrc_r,ipCff_r,iCmp_r)
 *
             nSRR = nCntrc_r**2 * naa
 *                                                                      *
@@ -791,7 +794,6 @@ ccjd
                   Shells(iShll_a)%FockOp(iB,jB) = Tmp/DBLE(iCmp_a)
                End Do
             End Do
- 999        Continue
             If (Allocated(FockOp_t)) Call mma_deallocate(FockOp_t)
 #ifdef _DEBUG_
             Call RecPrt('Actual Fock operator',' ',
@@ -807,8 +809,13 @@ ccjd
 *        Deallocate the memory for the reference Fock operator
 *
          Do iShll_r = jShll+1, iShll
+            If (Allocated(Shells(iShll_r)%Exp))
+     &          Call mma_deallocate(Shells(iShll_r)%Exp)
+            Shells(iShll_r)%nExp=0
+            nExp(iShll_r)=0
             If (Allocated(Shells(iShll_r)%FockOp))
      &          Call mma_deallocate(Shells(iShll_r)%FockOp)
+            Shells(iShll_r)%nFockOp=0
          End Do
 *                                                                      *
 ************************************************************************
@@ -864,10 +871,11 @@ c     &               Charge_Actual,Charge_Effective
          End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
- 1000 Continue
-*
+      End Do ! iCnttp
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *     Restore the correct nCnttp value
@@ -886,21 +894,18 @@ c     &               Charge_Actual,Charge_Effective
 *     Check if we can activate the computation of FckInt!
 *
       Do_FckInt=.True.
-      Do 2000 iCnttp = 1, nCnttp
+      Do iCnttp = 1, nCnttp
          If(AuxCnttp(iCnttp) .or.
      &      FragCnttp(iCnttp) .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
-     &      FockOp(iCnttp)) Then
-           Goto 2000
-         End If
+     &      FockOp(iCnttp)) Cycle
 *
          Do_FckInt = Do_FckInt .and. FockOp(iCnttp) ! To be activated!
 *
- 2000 Continue
+      End Do
       Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Fix_FockOp')
       Return
       End
