@@ -643,6 +643,7 @@ C                                                                      C
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 
 !Rotatory strength threshold
+      RSTHR=1.0D-05
       IF(RSPR) RSTHR = RSTHR !Useless assignment, just to be consistent
       IF(RSPR) WRITE(6,*) 'Rotatory strength threshold changed '//
      &                     'to ',RSTHR
@@ -2926,12 +2927,14 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Regular print
 *
-                IF(F_CHECK.LT.OSTHR) !Don't print osc. str. if below threshold
+                !Don't print osc. str. if below threshold
+                IF(F_CHECK.LT.OSTHR) THEN
                   WRITE(6,33) I,J,'-',R,A
                 ELSE
                   WRITE(6,33) I,J,F,R,A
                 END IF
-                IF(R_CHECK.LT.RSTHR) !Don't print rot. str. if below threshold
+                !Don't print rot. str. if below threshold
+                IF(R_CHECK.LT.RSTHR) THEN
                   WRITE(6,33) I,J,F,'-',A
                 ELSE
                   WRITE(6,33) I,J,F,R,A
