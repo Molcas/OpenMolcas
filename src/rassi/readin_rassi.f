@@ -654,6 +654,20 @@ C ------------------------------------------
         GOTO 100
       END IF
 C--------------------------------------------
+      IF(LINE(1:4).EQ.'RSPR') THEN
+! Printing threshold for rotatory strength. Current default 1.0D-5
+        IF(LINE(1:4).EQ.'CD' .OR. LINE(1:4).EQ.'TINT') THEN
+          RSPR=.TRUE.
+          Read(LuIn,*,ERR=997) RSTHR
+          LINENR=LINENR+1
+          GOTO 100
+        ELSE
+          WRITE(6,*)
+     &      'Warning: Rotatory strength threshold specified without '//
+     &      'calculating rotatory strength'
+        END IF
+      END IF
+C ------------------------------------------
       IF(LINE(1:4).EQ.'CD  ') THEN
 ! Perform regular circular dichroism - velocity and mixed gauge
         DOCD = .TRUE.
