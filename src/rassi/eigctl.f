@@ -630,8 +630,6 @@ C                                                                      C
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
-!     All rotatory and oscillator strengths  will be greater than this
-!     value (Imaad Ansari)
 
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
@@ -643,6 +641,11 @@ C                                                                      C
       IF(QIPR) OSTHR2 = OSTHR_QIPR
       IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+
+!Rotatory strength threshold
+      IF(RSPR) RSTHR = RSTHR !Useless assignment, just to be consistent
+      IF(RSPR) WRITE(6,*) 'Rotatory strength threshold changed to '//
+     &                     ,RSTHR
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -2865,7 +2868,7 @@ C                 Why do it when we don't do the L.S-term!
                    F_CHECK=ABS(F)
                    R_CHECK=ABS(R)
                 END IF
-                IF ( (F_CHECK.LT.OSTHR).AND.(R_CHECK.LT.OSTHR) ) CYCLE
+                IF ( (F_CHECK.LT.OSTHR).AND.(R_CHECK.LT.RSTHR) ) CYCLE
                 A =(AFACTOR*EDIFF**2)*F
 *
                 If (iPrint.eq.0) Then
@@ -2901,8 +2904,8 @@ C                 Why do it when we don't do the L.S-term!
                    End If
                    IF (OSTHR.GT.0.0D0) THEN
                       WRITE(6,30)
-     &                  'for osc. strength and red. rot. strength '//
-     &                  'at least',OSTHR
+     &                  'for osc. strength at least ',OSTHR,' and '//
+     &                  'red. rot. strength  at least ',RSTHR
                    END IF
                    WRITE(6,*)
                    If (.NOT.Do_SK) Then
@@ -2923,7 +2926,18 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Regular print
 *
-                WRITE(6,33) I,J,F,R,A
+                IF(F.LT.OSTHR) !Don't print osc. str. if below threshold
+                  WRITE(6,33) I,J,'-',R,A
+                ELSE
+                  WRITE(6,33) I,J,F,R,A
+                END IF
+                IF(R.LT.RSTHR) !Don't print rot. str. if below threshold
+                  WRITE(6,33) I,J,F,'-',A
+                ELSE
+                  WRITE(6,33) I,J,F,R,A
+                END IF
+
+
 *
                 IF (Do_SK) THEN
                    WRITE(6,50) 'maximum',WORK(LMAX_+0),
