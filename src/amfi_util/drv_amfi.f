@@ -20,7 +20,6 @@
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "print.fh"
 #include "para.fh"
       Real*8 DInf(nDInf)
       Integer, Allocatable :: iDel(:)
@@ -34,25 +33,20 @@
       Common /delete/ kDel(0:MxAng,MxDc)
       Data IfTest/.False./
 *
-      iRout=112
-      iPrint=nPrint(iRout)
-      Call QEnter('Drv_AMFI')
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       IfTest=.True.
+      Write (6,*) ' In OneEl: Label', Label
+      Write (6,*) ' In OneEl: nComp'
+      Write (6,'(1X,8I5)') nComp
+      Write (6,*) ' In OneEl: lOper'
+      Write (6,'(1X,8I5)') lOper
+      Write (6,*) ' In OneEl: n2Tri'
+      Do iComp = 1, nComp
+         ip(iComp) = n2Tri(lOper(iComp))
+      End Do
+      Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
 #endif
-      If (iPrint.ge.19) Then
-         Write (6,*) ' In OneEl: Label', Label
-         Write (6,*) ' In OneEl: nComp'
-         Write (6,'(1X,8I5)') nComp
-         Write (6,*) ' In OneEl: lOper'
-         Write (6,'(1X,8I5)') lOper
-         Write (6,*) ' In OneEl: n2Tri'
-         Do iComp = 1, nComp
-            ip(iComp) = n2Tri(lOper(iComp))
-         End Do
-         Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-      End If
 *
       Eta_Nuc=Zero
 *
@@ -60,7 +54,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,[-1],0,ip,1)
+      ip(:)=-1
       LenTot=0
       Do iComp = 1, nComp
          ip(iComp)=1+LenTot
@@ -68,7 +62,7 @@
          LenTot=LenTot+LenInt+4
       End Do
       Call mma_allocate(SOInt,LenTot,label='SOInt')
-      Call DCopy_(LenTot,[Zero],0,SOInt,1)
+      SOInt(:)=Zero
 *
 *---- Generate list of shell information
 *
@@ -90,8 +84,12 @@
             Call Quit_OnUserError()
          End If
       End Do
-      iCnttp=0
+      Coor(:)=Zero
       Do iCenter=1,nCenter
+*
+*        Identify which dbsc this center belongs.
+*
+         iCnttp=0
          Do iSkal=1,nSkal
             If (iSD(10,iSkal).eq.iCenter) Then
                iCnttp=iSD(13,iSkal)
@@ -99,6 +97,12 @@
                Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             End If
          End Do
+*
+*        If iCenter is not a center in the current list of shells that
+*        is to be processed then test the next iCenter.
+*
+         If (iCnttp.eq.0) Cycle
+*
          Do iSkal=1,nSkal
             If (iSD(13,iSkal).ne.iCnttp .and.
      &          iSD(10,iSkal).ne.iCenter) Then
@@ -320,7 +324,6 @@
       Close(LUPROP)
 *
       Call mma_deallocate(SOInt)
-      Call QExit('Drv_AMFI')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
