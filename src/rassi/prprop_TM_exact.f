@@ -858,7 +858,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &              '----------------------------------------'
                   If (Do_Pol) Then
                       iVec_=(iVec-1)*nQuad+1
-                      WRITE(6,'(4x,a,3F8.4)')
+                      WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the polarization: ',
      &                  (pol_vector(k,iVec),k=1,3)
                   Else
@@ -867,7 +867,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                 'over all directions of the polarization '//
      &                 'vector'
                   End If
-                  WRITE(6,'(4x,a,3F8.4)')
+                  WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the k-vector: ',
      &                   (Work(ipR+k),k=0,2)
                Else
@@ -1055,4 +1055,3 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
       RETURN
       END Subroutine PRPROP_TM_Exact
-
