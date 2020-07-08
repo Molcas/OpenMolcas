@@ -60,7 +60,7 @@
 cpcm_solvent
 #include "rctfld.fh"
 cpcm_solvent end
-c      Parameter (nLines=17)
+c      Parameter (nLines=12)
       Character*120 Lines
       Logical DoRys, Run_MCLR
 #include "warnings.fh"
@@ -95,12 +95,7 @@ c      Lines(9)='Dept. of Theoretical Chemistry, '//
 c     &          'Chemical Centre, Lund (Sweden)'
 c      Lines(10)=' '
 c      Lines(11)=' '
-c      Lines(12)='(C) Copyright, all rights reseved.'
-c      Lines(13)='Permission is hereby granted to use but not to '
-c      Lines(14)='reproduce or distribute any part of this program.'
-c      Lines(15)='The use is restricted to research purposes only.'
-c      Lines(16)=' '
-c      Lines(17)='Compiled at '//
+c      Lines(12)='Compiled at '//
 c     &           _BUILD_DATE_
 c      lLine=Len(Lines(1))
 C     Call Banner(Lines,nLines,lLine)

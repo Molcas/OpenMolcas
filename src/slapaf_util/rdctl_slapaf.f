@@ -141,6 +141,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'MAXD') Go To 916
       If (Char(1:4).eq.'MEP-'.or. Char(1:4).eq.'MEP ') Go To 964
       If (Char(1:4).eq.'MEPA'.or. Char(1:4).eq.'IRCA') Go To 322
+      If (Char(1:4).eq.'MEPC'.or. Char(1:4).eq.'IRCC') Go To 323
       If (Char(1:4).eq.'MEPS'.or. Char(1:4).eq.'IRCS') Go To 9971
       If (Char(1:4).eq.'MEPT'.or. Char(1:4).eq.'IRCT') Go To 321
       If (Char(1:4).eq.'MODE') Go To 942
@@ -862,6 +863,13 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Write (Lu,*) '********************************'
          Call Quit_OnUserError()
       End If
+      Go To 999
+*                                                                      *
+****** MEPC/IRCC *******************************************************
+*                                                                      *
+ 323  Char=Get_Ln(LuRd)
+      Call Get_F1(1,ThrMEP)
+      ThrMEP=Max(Zero,ThrMEP)
       Go To 999
 *                                                                      *
 ****** REFE ************************************************************

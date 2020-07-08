@@ -31,10 +31,11 @@
 *> @param[in]     iOff_iter     Iteration of the previous MEP point
 *> @param[in]     iPrint        Print level
 *> @param[in]     IRCRestart    Flag to mark the start of a backward IRC search
+*> @param[out]    ResGrad       Residual gradient
 *> @param[out]    BadConstraint Flag to signal constraint problems
 ************************************************************************
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
-     &                   BadConstraint)
+     &                   ResGrad,BadConstraint)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -186,13 +187,14 @@
           Else
             PathAngle=aCos(-dPrevDirDisp)*RadToDeg
           End If
+          ResGrad=dGrad
           Write(6,*)
           Write(6,'(a)')
      &      ' Last IRC/MEP step'//
      &      ' (in weighted coordinates / sqrt(total weight))'
           Write(6,'(a)')
      &      ' --------------------------------------------------------'
-          Write(6,100) 'Residual gradient size:',dGrad,'hartree/bohr'
+          Write(6,100) 'Residual gradient size:',ResGrad,'hartree/bohr'
           Write(6,100) 'Angle with constraint surface:',
      &                 ConstraintAngle,'degrees'
           Write(6,100) 'Path angle:',PathAngle,'degrees'

@@ -22,6 +22,7 @@ c local variables
       Real(kind=8) :: Jfinal(0:7, -5:5, 0:1, -1:1)
       Real(kind=8) :: WCG ! Clebsh_Gordan Coefficeints
       External      :: WCG
+#include "stdalloc.fh"
 #include "jcoeff.fh"
 
       HEXC1=0.0_wp
@@ -142,6 +143,7 @@ c local variables
       End Do !j1
       End Do !i1
 
+      Call mma_deallocate(Jx)
       Return
       End
 

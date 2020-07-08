@@ -83,12 +83,17 @@ for filename in sorted(files):
     with open(filename, 'r', encoding='utf-8') as f:
       header = False
       copy = False
+      blank = False
+      blank_error = False
       try:
         for l in f:
+          prev_blank = blank
+          blank = (l.find(70*' ') >= 0)
           if (l.find('This file is part of OpenMolcas') > 0):
             header = True
           elif (header and re.search(r'copyright', l, re.IGNORECASE)):
             copy = True
+            blank_error = not prev_blank
           elif (header and (l.find(70*'*') >= 0)):
             break
           if (copy):
@@ -104,7 +109,7 @@ for filename in sorted(files):
                 authors[aname].append(relfile)
               else:
                 authors[aname] = [relfile]
-            elif (args['report']):
+            if (((not match) or blank_error) and args['report']):
               print('{0}*** {1}: Format error ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
               print(l)
               rc = 1

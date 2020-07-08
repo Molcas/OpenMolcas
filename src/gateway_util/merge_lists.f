@@ -41,27 +41,22 @@
 *
       Call mma_allocate(iList,n1,2,label='iList')
       Call mma_allocate(rList,n2,2,label='rList')
-      Do i=1,2
-         If (i.eq.1) Then
-            Call NameRun('RUNREAC')
-            Call Get_iArray('Slapaf Info 1',iList(1,i),n1)
-            Call Get_dArray('Slapaf Info 2',rList(1,i),n2)
-            i_R=i
-            iter_R  =     iList(2,i)
-            ipEner_R= 1 + iList(5,i)
-            ipCx_R  = 1 + iList(6,i)
-            ipGx_R  = 1 + iList(7,i)
-         Else
-            Call NameRun('RUNPROD')
-            Call Get_iArray('Slapaf Info 1',iList(1,i),n1)
-            Call Get_dArray('Slapaf Info 2',rList(1,i),n2)
-            i_P=i
-            iter_P  =     iList(2,i)
-            ipEner_P= 1 + iList(5,i)
-            ipCx_P  = 1 + iList(6,i)
-            ipGx_P  = 1 + iList(7,i)
-         End If
-      End Do
+      Call NameRun('RUNREAC')
+      Call Get_iArray('Slapaf Info 1',iList(1,1),n1)
+      Call Get_dArray('Slapaf Info 2',rList(1,1),n2)
+      i_R=1
+      iter_R  =     iList(2,1)
+      ipEner_R= 1 + iList(5,1)
+      ipCx_R  = 1 + iList(6,1)
+      ipGx_R  = 1 + iList(7,1)
+      Call NameRun('RUNPROD')
+      Call Get_iArray('Slapaf Info 1',iList(1,2),n1)
+      Call Get_dArray('Slapaf Info 2',rList(1,2),n2)
+      i_P=2
+      iter_P  =     iList(2,2)
+      ipEner_P= 1 + iList(5,2)
+      ipCx_P  = 1 + iList(6,2)
+      ipGx_P  = 1 + iList(7,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -16,7 +16,6 @@
   variables:
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -32,7 +31,6 @@
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
@@ -79,7 +77,6 @@
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
@@ -102,7 +99,6 @@
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
     pre_compile_script: |
@@ -150,7 +146,6 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -181,7 +176,6 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

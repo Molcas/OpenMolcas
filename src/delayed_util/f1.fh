@@ -66,6 +66,7 @@
   use lapack_mod, &
       int_dbdsdc=>dbdsdc, &
       int_dbdsqr=>dbdsqr, &
+      int_dcombssq=>dcombssq, &
       int_dgebak=>dgebak, &
       int_dgebal=>dgebal, &
       int_dgebd2=>dgebd2, &

@@ -28,6 +28,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       Real*8 DInf(nDInf)
       Logical Hit, IfTest
       Character*13 DefNm
@@ -35,7 +36,7 @@
       Character*80 atom,type,author,basis,CGTO, Aux
       Character*80 atomb
       Character *256 Basis_lib, Fname
-      Character*180 STDINP(mxAtom*2) ! CGGn
+      Character*180, Allocatable :: STDINP(:) !CGGn
       Character*180 Line, Get_Ln
       External Get_Ln
       Integer StrnLn
@@ -52,6 +53,7 @@
       iRout = 2
       iPrint = nPrint(iRout)
 *
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       IfTest=.False.
 *     IfTest=.True.
 *
@@ -528,6 +530,7 @@ C        Fixed(nCnttp)=.False.
 *     Call Gen_RelPointers(-(Info-1))
       Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
 *     Call Gen_RelPointers(Info-1)
+      Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************
 *                                                                      *

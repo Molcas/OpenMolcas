@@ -233,6 +233,9 @@
         real(wp), intent(out) ::
      &      DMAT(nAcpar), D1S_MO(nAcPar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+#ifdef _MOLCAS_MPP_
+        integer(MPIInt) :: error
+#endif
 
 
         if (myrank == 0) then
