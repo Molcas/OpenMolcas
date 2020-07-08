@@ -629,24 +629,31 @@ C                                                                      C
 
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
-
+      IF(DIPR) THEN
+        WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR
+      END IF
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
-     &                       ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+      WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR,
+     &           ' since quadrupole printing threshold is given '
+      END IF
       OSTHR2=1.0D-5
       IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
+      IF(QIPR) THEN
+       WRITE(6,*) ' Quadrupole printing threshold changed to ',OSTHR2
+      END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 
 !Rotatory strength threshold
-      RSTHR=1.0D-05
-      IF(RSPR) RSTHR = RSTHR !Useless assignment, just to be consistent
-      IF(RSPR) WRITE(6,*) 'Rotatory strength threshold changed '//
-     &                     'to ',RSTHR
+      IF(RSPR) THEN
+        WRITE(6,*) 'Rotatory strength printing threshold changed'//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-05 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced

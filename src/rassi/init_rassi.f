@@ -157,8 +157,6 @@ C DEFAULT FLAGS:
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
-      RSTHR = 0.0D0
-      RSPR=.FALSE.
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
 * Exact operator
@@ -174,6 +172,8 @@ C DEFAULT FLAGS:
       L_Eff=5
 C CD - velocity and mixed gauge
       DOCD = .FALSE.
+      RSTHR = 0.0D0
+      RSPR=.FALSE.
 C Force that TDMs are not stored in the AO basis.
       Force_NON_AO_TDM=.False.
       CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
