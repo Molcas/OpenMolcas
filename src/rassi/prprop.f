@@ -471,15 +471,26 @@ C printing threshold
       OSTHR=1.0D-5
       OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
-     &                    ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+        WRITE(6,*)  ' Dipole printing threshold changed to ',OSTHR,
+     &              ' since quadrupole threshold is given '
+      END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-
+      IF(QIPR) THEN
+      WRITE(6,*) ' Quadrupole printing threshold changed to ',OSTHR2
+      END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+
+! Rotatory strength threshold
+      IF(RSPR) THEN
+        WRITE(6,*) 'Rotatory strength printing threshold changed'//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-05 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -2343,6 +2354,7 @@ C printing threshold
              END IF
             END IF
 *
+            !IF (ABS(R).LT.RSTHR) CYCLE
             WRITE(6,33) ISS,JSS,R
 !
             Call Add_Info('CD_V(SO)',[R],1,6)
@@ -2714,6 +2726,7 @@ C printing threshold
              END IF
             END IF
 *
+            IF (ABS(R).LT.RSTHR) CYCLE
             WRITE(6,33) ISS,JSS,R
 !
             Call Add_Info('CD_M(SO)',[R],1,6)
