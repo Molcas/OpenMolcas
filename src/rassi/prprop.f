@@ -614,7 +614,7 @@ C printing threshold
      & 'Complex transition dipole vectors (SO states):')
           WRITE(6,'(3X,A)') '----------------------------------------'
           IF(OSTHR.GT.0.0D0) THEN
-           WRITE(6,*)'   for osc. strength at least ',OSTHR
+           WRITE(6,30)'   for osc. strength at least ',OSTHR
            WRITE(6,*)
           END IF
           WRITE(6,*) '     From   To',
@@ -630,7 +630,7 @@ C printing threshold
      &                     'Dipole transition strengths (SO states):')
          WRITE(6,'(3X,A)') '----------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
@@ -784,7 +784,7 @@ C printing threshold
      &                     'Velocity transition strengths (SO states):')
          WRITE(6,'(3X,A)') '------------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
@@ -988,7 +988,7 @@ C printing threshold
      &                  '---------------------------------'
          END IF
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1143,7 +1143,7 @@ C printing threshold
          WRITE(6,'(3X,A)')
      &                 '--------------------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1365,7 +1365,7 @@ C printing threshold
          WRITE(6,'(3X,A)') '------------------------------------'//
      &                     '---------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1703,7 +1703,7 @@ C printing threshold
          END IF
 
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -2009,7 +2009,7 @@ C printing threshold
      &                  '-------------------'
 !
               IF(OSTHR2.GT.0.0D0) THEN
-               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,30)'   for osc. strength at least ',OSTHR2
                WRITE(6,*)
               END IF
               WRITE(6,31) 'From','To','Osc. strength'
@@ -7107,6 +7107,7 @@ C backtransformation in two steps, -phi and -theta
 
  900  CONTINUE
 
+30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
