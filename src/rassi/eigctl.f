@@ -1878,7 +1878,7 @@ C                                                                      C
      &                 '------------------------------------'//
      &                 '----------------------------------'//
      &                 '--------------------------------------'
-         WRITE(6,30) 'for red. rot. strength at least',OSTHR
+         WRITE(6,30) 'For red. rot. strength at least',RSTHR
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2038,7 +2038,7 @@ C                                                                      C
              END IF
             END IF
 *
-            IF(ABS(R).LT.OSTHR) CYCLE
+            IF(ABS(R).LT.RSTHR) CYCLE
             WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_V(SF)',[R],1,6)
@@ -2114,7 +2114,7 @@ C                                                                      C
          WRITE(6,*)
          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
          WRITE(6,*) ' is NOT origin independent - check your results '
-         WRITE(6,30) 'for red. rot. strength at least',OSTHR
+         WRITE(6,30) 'For red. rot. strength at least',RSTHR
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2274,7 +2274,7 @@ C                                                                      C
              END IF
             END IF
 *
-            IF(ABS(R).LT.OSTHR) CYCLE
+            IF(ABS(R).LT.RSTHR) CYCLE
             WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_M(SF)',[R],1,6)
