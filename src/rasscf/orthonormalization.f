@@ -96,6 +96,8 @@
 
         integer :: n_to_ON(nSym), n_new(nSym)
 
+! gfortran -O0 warning bug
+        allocate(S(0))
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
 
@@ -127,6 +129,8 @@
 
         type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
+! gfortran -O0 warning bug
+        allocate(basis(0))
         call new(basis, blocksizes=nBAS(:nSym))
         call new(ONB, blocksizes=nBAS(:nSym))
 

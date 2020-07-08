@@ -563,6 +563,8 @@ CGG03 Aug 03
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
          Call FZero(Work(LPUVX),NFINT)
+      Else
+         LPUVX=ip_Dummy
       EndIf
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
 

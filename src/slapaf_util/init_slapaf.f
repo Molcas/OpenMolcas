@@ -181,6 +181,7 @@
          ThrEne = 1.0D-6
          Line_Search=.True.
       End If
+      ThrMEP = ThrGrd
       ThrCons = 1.0D10
       Delta  = 1.0D-2
       nWndw = 5

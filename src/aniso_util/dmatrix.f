@@ -59,6 +59,7 @@ c  calculate the rotation matrix:
 
 C Set the dtens and daxes with respect to the gtens and maxes.
 cccccccccccccccccccccccccccccccc
+      dtens(:)=0.0_wp
       If ( (abs(SMAT(1,1)).gt.abs(SMAT(1,2))) .AND.
      &     (abs(SMAT(1,1)).gt.abs(SMAT(1,3))) ) Then
 c  the WD(1) and ZD(i,1) correspond to gtens(1) and maxes(i,1)
