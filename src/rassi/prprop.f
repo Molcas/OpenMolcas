@@ -2236,6 +2236,7 @@ C printing threshold
      &                 '------------------------------------'//
      &                 '----------------------------------'//
      &                 '-------------------------------'
+         WRITE(6,30) 'For red. rot. strength at least',RSTHR
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2354,7 +2355,7 @@ C printing threshold
              END IF
             END IF
 *
-            !IF (ABS(R).LT.RSTHR) CYCLE
+            IF (ABS(R).LT.RSTHR) CYCLE
             WRITE(6,33) ISS,JSS,R
 !
             Call Add_Info('CD_V(SO)',[R],1,6)
@@ -2609,6 +2610,7 @@ C printing threshold
          WRITE(6,*)
          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
          WRITE(6,*) ' is NOT origin independent - check your results '
+         WRITE(6,30) 'For red. rot. strength at least',RSTHR
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
