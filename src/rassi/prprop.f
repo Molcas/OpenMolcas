@@ -624,7 +624,7 @@ C printing threshold
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -778,7 +778,7 @@ C printing threshold
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -2237,7 +2237,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2609,7 +2609,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
