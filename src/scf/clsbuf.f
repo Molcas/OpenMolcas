@@ -22,12 +22,12 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, Sweden. October '98                  *
 ************************************************************************
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-#include "IOBuf.fh"
+#include "stdalloc.fh"
 *
       If (OnDisk) Call EAFClose(LuTmp)
-      If (nCore.ne.0) Call GetMem('IOBuf','Free','Real',ipBuf,lBuf*nBuf)
+      If (nCore.ne.0) Call mma_deallocate(Buffer)
 *
       Return
 c Avoid unused argument warnings

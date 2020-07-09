@@ -183,6 +183,13 @@
            character (len=*), optional :: label
          end subroutine
 
+! 7D allocate
+         subroutine dmma_allo_7D_lim(buffer,l1,l2,l3,l4,l5,l6,l7,label)
+           real*8, allocatable :: buffer(:,:,:,:,:,:,:)
+           integer, dimension(2) :: l1, l2, l3, l4, l5, l6, l7
+           character (len=*), optional :: label
+         end subroutine
+
        end interface
 
 
@@ -246,6 +253,11 @@
          end subroutine
          subroutine DCmma_free_5D(buffer)
            complex*16, allocatable :: buffer(:,:,:,:,:)
+         end subroutine
+
+! 7D deallocate
+         subroutine dmma_free_7D(buffer)
+           real*8, allocatable :: buffer(:,:,:,:,:,:,:)
          end subroutine
 
        end interface

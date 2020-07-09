@@ -39,17 +39,18 @@
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Wrj12
+      use Index_arrays, only: iSO2Sh, nShBF
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
 #include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
 #define _no_nShs_
 #include "iTOffs.fh"
@@ -91,15 +92,15 @@
       Indexation = .True.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *
-      Call GetMem('SO2Ind','Allo','Inte',ipSO2Ind,nSOs)
-      Call Mk_iSO2Ind(iWork(ipSOSh),iWork(ipSO2Ind),nSOs,nSkal)
+      Call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
+      Call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
 *
        nSO_Aux=nSOs-1
       If (LDF) Then
          Call GetMem('SO2C','Allo','Inte',ipSO2C,nSO_Aux)
          MaxCntr=0
          Do i = 1, nSO_Aux
-            iSh = iWork(ipSOSh+i-1)
+            iSh = iSO2Sh(i)
             iCenter=iSD(10,iSh)
             MaxCntr=Max(MaxCntr,iCenter)
             iWork(ipSO2C+i-1)=iCenter
@@ -156,7 +157,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
       nTInt=0
       Do jS = 1, nSkal-1
          nTInt = Max( nTInt,
-     &                  nMemAm(iWork(ipShBF),nIrrep,nSkal-1,jS,iOffA,
+     &                  nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,
      &                         .True.) )
       End Do
       Call GetMem('Am','Allo','Real',ipTInt,nTInt)
@@ -194,7 +195,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *                                                                      *
 *        Initialize the buffer
 *
-         nTInt_=nMemAm(iWork(ipShBF),nIrrep,nSkal-1,jS,iOffA,.True.)
+         nTInt_=nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.True.)
          Call FZero(Work(ipTInt),nTInt_)
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -265,7 +266,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
       Call xRlsMem_Ints
       Call GetMem('Am', 'Free','Real',ipTInt,nTInt)
       Call GetMem('TMax','Free','Real',ipTMax,nSkal)
-      Call GetMem('SO2Ind','Free','Inte',ipSO2Ind,nSOs)
+      Call mma_deallocate(SO2Ind)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -143,6 +143,7 @@
          RecLab( 34)='Total Charge    ' ! total number of electrons
          RecLab( 35)='DFT exch coeff  '
          RecLab( 36)='DFT corr coeff  '
+         RecLab( 37)='Value_l         '
 *                     1234567890123456
 *
 *        If u go beyond 64: update pg_ds_info.fh and this line!
@@ -188,7 +189,7 @@
             Write(6,*) '*** Warning, writing temporary dScalar field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If

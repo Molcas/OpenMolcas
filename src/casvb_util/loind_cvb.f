@@ -31,7 +31,8 @@ c SITUATION IS :  IEL       \     <= NOT MINIMAL
 c                 IEL+1     |
 1200  nk(iel)=ik-1
       do 1300 jel=1,iel-1
-1300  nk(jel)=min(nkmax(jel),ik-1)
+      nk(jel)=min(nkmax(jel),ik-1)
+1300  continue
       call occupy_cvb(nk,nel,locc,lunocc)
       index=minind_cvb(locc,n,nel,ix)
       return 1

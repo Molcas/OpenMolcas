@@ -30,6 +30,7 @@
 *          University of Lund, Sweden                                  *
 *          august '95                                                  *
 ************************************************************************
+      use index_arrays, only: iShOff, nShBF
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -37,7 +38,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
-#include "shinf.fh"
 *
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iadSO
@@ -61,8 +61,8 @@ c    &            +indSOo(k))*nSOiSh(l)
 *     compute 1st index of components and # functions of
 *     the shells ...unscrambled...
       Do i = 1, 4
-        nSOiSh(i) = iWork(ipShBF+iShell(i)-1)
-        indSOb(i) = iWork(ipShLC+iShell(i)-1)
+        nSOiSh(i) = nShBF(0,iShell(i))
+        indSOb(i) = iShOff(0,iShell(i))
       End Do
 *
       If (usShij) Then

@@ -11,13 +11,14 @@
       Subroutine GS(drdq,nLambda,T,nInter,Swap,RD)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 drdq(nInter,nLambda),T(nInter,nInter)
       Logical Swap,RD
+      Real*8, Allocatable:: Temp(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 *
 *     Be careful here so that noise is not converted to a basis!
 *
@@ -30,8 +31,8 @@
 *                                                                      *
 *     Initial check to see if the dRdQ vectors are independent.
 *
-      Call Allocate_Work(ipTemp,nInter*nLambda)
-      call dcopy_(nInter*nLambda,drdq,1,Work(ipTemp),1)
+      Call mma_Allocate(Temp,nInter,nLambda,Label='Temp')
+      Temp(:,:)=drdq(:,:)
       Call GS_(drdq,nInter,nLambda,Thr)
       jLambda=0
       Do i = 1, nLambda
@@ -102,9 +103,9 @@ C        Write (6,*) 'i,XX=',i,XX
 *     Restore dRdQ
 *
       If (.not.RD) Then
-         call dcopy_(nInter*nLambda,Work(ipTemp),1,drdq,1)
+         call dcopy_(nInter*nLambda,Temp,1,drdq,1)
       End If
-      Call Free_Work(ipTemp)
+      Call mma_deallocate(Temp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -180,7 +181,9 @@ C        Write (6,*) 'GS_: i,XX=',i,XX
             Call FZero(T(1,i),nInter)
          End If
  100     Continue
-C        Call RecPrt('GS: T',' ',T,nInter,nInter)
+#ifdef _DEBUG_
+         Call RecPrt('GS_: T',' ',T,nInter,nInter)
+#endif
       End Do
 *
       Return

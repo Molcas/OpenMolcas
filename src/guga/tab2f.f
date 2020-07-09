@@ -21,6 +21,7 @@
       IEL=2
       IF(IFIRST.NE.0)IEL=1
       IEL=IEL+1
+      IUT=0
       IBF(1)=INT(2*S)
       IAF(1)=INT(N-2*S)/2
       IJF(LN+1)=0

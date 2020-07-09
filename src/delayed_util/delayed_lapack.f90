@@ -28,6 +28,12 @@ subroutine dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work
   call lb_dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work, info )
 end subroutine dbdsqr
 
+subroutine dcombssq( v1, v2 )
+  use link_blas
+  real*8 :: v1( 2 ), v2( 2 )
+  call lb_dcombssq( v1, v2 )
+end subroutine dcombssq
+
 subroutine dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
   use link_blas
   implicit none

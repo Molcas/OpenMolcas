@@ -24,7 +24,7 @@
       use qcmaquis_info
 #endif
       use mspt2_eigenvectors
-      use rassi_aux, only : jDisk_TDM, iDisk_TDM, AO_Mode
+      use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE

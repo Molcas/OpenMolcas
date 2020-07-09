@@ -51,7 +51,6 @@
       iPrint = nPrint(iRout)
       iQ = 1
 *     Call qEnter('CmbnW1')
-*     Call GetMem(' Enter CmbnW1','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)
@@ -74,12 +73,12 @@
       nDAO = nZeta * (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(ixa,iya,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(ixb,iyb,izb)
 *
@@ -188,7 +187,9 @@
                End If
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Trace the gradient integrals
@@ -226,7 +227,6 @@
  110     Continue
  100  Continue
 *
-*     Call GetMem(' Exit CmbnW1','LIST','REAL',iDum,iDum)
 *     Call qExit('CmbnW1')
       Return
       End

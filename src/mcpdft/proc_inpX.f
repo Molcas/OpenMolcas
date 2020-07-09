@@ -843,6 +843,10 @@ C   No changing about read in orbital information from INPORB yet.
      &     write(6,*) ' FTBLYP functional aka BLYP for MCPDFT'
          If(KSDFT(1:6).eq.'FTLSDA')
      &     write(6,*) ' FTLSDA functional aka LSDA for MCPDFT'
+         If(KSDFT(1:6).eq.'FTOPBE')
+     &     write(6,*) ' FTOPBE functional aka OPBE for MCPDFT'
+         If(KSDFT(1:5).eq.'TOPBE')
+     &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
        End if
 CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        If ( KSDFT(1:4).eq.'NEWF') Then
@@ -2609,7 +2613,7 @@ c       write(6,*)          '  --------------------------------------'
         IGSOCCX(3,2) = NACTEL
       END IF
 *
-!Consideraations for gradients/geometry optimizations
+!Considerations for gradients/geometry optimizations
 
 *     Numerical gradients requested in GATEWAY
       Call Qpg_iScalar('DNG',DNG)
@@ -2624,19 +2628,21 @@ c       write(6,*)          '  --------------------------------------'
       If (ProgName(1:11).eq.'last_energy') DNG=.true.
 *
 *     Inside NUMERICAL_GRADIENT override input!
-      If (ProgName(1:18).eq.'numerical_gradient') Then
-         DNG=.true.
+      If (ProgName(1:18).eq.'numerical_gradient') DNG=.true.
+*
+*
+      If (DNG) Then
          DoGradPDFT=.false.
       End If
 *
 *     Check to see if we are in a Do While loop
-         Call GetEnvF('EMIL_InLoop',emiloop)
-         If (emiloop.eq.' ') emiloop='0'
-         Call GetEnvF('MOLCAS_IN_GEO',inGeo)
-         If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
-     &       .and. .not.DNG) Then
-            DoGradPDFT=.true.
-         End If
+      Call GetEnvF('EMIL_InLoop',emiloop)
+      If (emiloop.eq.' ') emiloop='0'
+      Call GetEnvF('MOLCAS_IN_GEO',inGeo)
+      If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
+     &    .and. .not.DNG) Then
+         DoGradPDFT=.true.
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2644,7 +2650,7 @@ c       write(6,*)          '  --------------------------------------'
 *TRS - Not overwriting rlxroot from sacasscf
 *      write(*,*)'irlxroot', irlxroot
 *      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
-*          
+*
 *
 *        Check if multi state SA-CASSCF
 *

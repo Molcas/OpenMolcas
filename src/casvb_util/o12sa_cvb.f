@@ -27,7 +27,8 @@
 c  Find CIVBS :
       ivuse=0
       do 10 iv=1,nv
-10    if(tstcnt_cvb(w(lc(iv)),4))ivuse=iv
+      if(tstcnt_cvb(w(lc(iv)),4))ivuse=iv
+10    continue
       ivuse2=3
       if(ivuse.eq.3)ivuse2=2
       if(ivuse2.gt.nv)ivuse2=1

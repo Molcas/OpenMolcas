@@ -57,7 +57,8 @@ c  Now try to retain normalization ...
       do 200 ivec=1,nvec
       cnrmfrom=dnrm2_(ndetfrom,bikfrom(1+(ivec-1)*ndetfrom),1)
       cnrmto=dnrm2_(ndetto,bikto(1+(ivec-1)*ndetto),1)
-200   if(cnrmto.gt.1d-10)
+      if(cnrmto.gt.1d-10)
      >  call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
+200   continue
       return
       end

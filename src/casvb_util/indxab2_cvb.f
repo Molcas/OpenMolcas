@@ -33,7 +33,8 @@
 400   continue
       irp=1
       do 500 ia=1,nalf
-500   irp=md2h(irp,ityp(iocc(ia)))
+      irp=md2h(irp,ityp(iocc(ia)))
+500   continue
       if(irp.ne.iisym)goto 600
       inda=inda+1
       nstra(iisym)=nstra(iisym)+1
@@ -45,7 +46,8 @@
 700   continue
       irp=1
       do 800 ib=1,nbet
-800   irp=md2h(irp,ityp(iocc(ib)))
+      irp=md2h(irp,ityp(iocc(ib)))
+800   continue
       if(irp.ne.iisym)goto 900
       indb=indb+1
       nstrb(iisym)=nstrb(iisym)+1

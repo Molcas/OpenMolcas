@@ -12,7 +12,6 @@
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       Dimension preXZ(-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax)
       roottwo=sqrt(2d0)
 cbs #####################################################################

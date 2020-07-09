@@ -20,8 +20,9 @@ C
         DFAC(I)=DFAC(I-2)*DBLE(I-1)
 10    CONTINUE
       DO 20 J=1,lp13
-      DO 20 I=1,lp1
+      DO 21 I=1,lp1
       RCA(I,J)=0.D0
+   21 CONTINUE
    20 CONTINUE
 C
 C...  RCA(i,j) = c(k) (la,0;lb,0) * sqrt((2*la+1)(2*lb+1))
@@ -67,19 +68,22 @@ C
 C
       IJ=0
       DO 30 I=1,lp1
-        DO 30 J=1,I
+        DO 31 J=1,I
           IJ=IJ+1
           KOSUU(IJ)=J
+31      CONTINUE
 30    CONTINUE
 C
       ICOL=0
       DO 40 L=1,lp1
-        DO 40 I=1,L
+        DO 41 I=1,L
           ICOL=ICOL+1
           IVAL=L-I-2
-          DO 40 IROW=1,I
+          DO 42 IROW=1,I
             IVAL=IVAL+2
             NYU(IROW,ICOL)=IVAL
+42        CONTINUE
+41      CONTINUE
 40    CONTINUE
 C
       RETURN

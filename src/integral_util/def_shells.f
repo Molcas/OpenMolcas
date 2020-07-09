@@ -15,7 +15,6 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "disp.fh"
-#include "WrkSpc.fh"
 *
       Integer iSD(0:nSD,mSkal)
       Logical  TF, TstFnc
@@ -263,7 +262,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 *
       Parameter(nSD=14)
       Integer iSD(0:nSD,1024)

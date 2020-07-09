@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2007,2008, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_RICD_Shells(Info,nInfo)
+      Subroutine Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -38,6 +38,7 @@
 #include "print.fh"
 #include "status.fh"
 #include "stdalloc.fh"
+      Real*8 DInf(nDInf)
       Logical DoRys, Save_Logical, W2L
 *                                                                      *
 ************************************************************************
@@ -86,7 +87,7 @@ C      iPrint=99
 *                                                                      *
 *     Add the DUMMY SHELL!
 *
-      Call Mk_Dummy_Shell(Info,nInfo)
+      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -133,7 +134,7 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -158,20 +159,13 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L,DInf,nDInf)
 *
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
  1100 Continue ! iCnttp
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Let us now Gram-Schmidt orthonormalize the auxiliary basis for
-*     better numerics and balance.
-*
-*     Call ReNorm()
 *                                                                      *
 ************************************************************************
 *                                                                      *

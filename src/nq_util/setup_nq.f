@@ -580,25 +580,6 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate memory for handling densities
-*
-      MxDij = 0
-      Do iS = 1, nShell
-         iCmp =iSD(2,iS)
-         iBas =iSD(3,iS)
-         iPrim=iSD(5,iS)
-         If (nIrrep.eq.1) Then
-            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
-         Else
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-         End If
-      End Do
-*
-      MxDij = 6 * nIrrep * MxDij
-      Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     nFOrd: the order of the functional. nFOrd-1 is the number of times
 *            the basis functions has to be differentiated to compute the
 *            energy contribution.

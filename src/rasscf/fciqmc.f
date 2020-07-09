@@ -15,9 +15,7 @@
 #ifdef _MOLCAS_MPP_
       use mpi
 #endif
-#ifdef NAGFOR
-      use f90_unix_proc, only: sleep
-#endif
+      use definitions, only: wp, MPIInt, int64, real64
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
       use fortran_strings, only: str
@@ -48,9 +46,10 @@
           end function
 
           subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
-              character(*), intent(in) :: fcidmp, input_name
-              integer*8, intent(in) :: MemSize
-              real*8, intent (out) :: NECIen
+            import :: int64, real64
+            character(*), intent(in) :: fcidmp, input_name
+            integer(int64), intent(in) :: MemSize
+            real(real64), intent (out) :: NECIen
           end subroutine
       end interface
 
@@ -100,18 +99,18 @@
 #include "rctfld.fh"
 #include "timers.fh"
       integer, intent(in) :: actual_iter
-      real*8, intent(in) ::
+      real(wp), intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
      &    D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
-      real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
-      real*8, intent(out) :: DMAT(nAcpar),
+      real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+      real(wp), intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real*8 :: NECIen
+      real(wp) :: NECIen
       integer :: jRoot
       integer, allocatable :: permutation(:)
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+      real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
-      integer*4 :: error
+      integer(MPIInt) :: error
 #endif
 
       parameter(ROUTINE = 'FCIQMC_clt')
@@ -121,7 +120,7 @@
       call qEnter(routine)
 
 ! SOME DIRTY SETUPS
-      S = 0.5d0 * dble(iSpin - 1)
+      S = 0.5_wp * dble(iSpin - 1)
 
       call check_options(lRoots, lRf, KSDFT, iDoGAS, iGSOCCX, nGAS)
 
@@ -179,11 +178,11 @@
         use fciqmc_make_inp, only: make_inp
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
         character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
-        real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
+        real(wp), intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         logical, intent(in), optional :: doGAS
         logical :: doGAS_
-        real*8, save :: previous_NECIen = 0.0d0
+        real(wp), save :: previous_NECIen = 0.0_wp
 
         character(*), parameter :: input_name = 'FCINP',
      &    energy_file = 'NEWCYCLE'

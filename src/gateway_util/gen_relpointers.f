@@ -37,16 +37,6 @@
          ipPAM2xp(i)   = ipPAM2xp(i)   + ibase
          ipPAM2cf(i)   = ipPAM2cf(i)   + ibase
       End Do
-      ipEF = ipEF + ibase
-      ipOAM= ipOAM+ ibase
-      ipOMQ= ipOMQ+ ibase
-      ipDMS= ipDMS+ ibase
-      ipWel= ipWel+ ibase
-      ipXF = ipXF + ibase
-      ipAMP= ipAMP+ ibase
-      ipRP1=ipRP1 + ibase
-      ipXMolnr=ipXMolnr + RtoI*ibase
-      ipXEle=ipXEle + RtoI*ibase
 *
       If (Allocated(iSD)) Then
          Call Nr_Shells(nSkal)

@@ -643,6 +643,7 @@ list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
 set (FFLAGS_GNU_BASIC "")
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
+set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -651,13 +652,12 @@ set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
 
-# Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
-# version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-    (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
-  set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
-  set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  # Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8")
+    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
+    set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+  endif ()
 endif ()
 
 # Add runtime checks
@@ -763,9 +763,19 @@ set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
+#          "externals" means "implicit none (external)", ditto (only 19.1 and later)
+#v.13 puts the full path of included files as a comment and then complains about truncated source lines
 set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
 set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable remark")
+set (warnings "all,nodeclarations")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")
+    set (warnings "${warnings},notruncated_source")
+  elseif (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "19.1")
+    set (warnings "${warnings},noexternals")
+  endif ()
+endif ()
+set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -1056,6 +1066,10 @@ if (OPENMP)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_OPENMP}")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_OPENMP}")
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_OPENMP}")
+else ()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_NO_OPENMP}")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_NO_OPENMP}")
+  set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_NO_OPENMP}")
 endif ()
 
 if (BOUNDS)
@@ -2758,11 +2772,6 @@ endforeach ()
 # set file-specific flags
 if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
   set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
-endif ()
-
-# compiler wrong warning
-if (BIGOT AND (${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU"))
-  set_property(SOURCE ${rasscf_src}/orthonormalization.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error=maybe-uninitialized")
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux

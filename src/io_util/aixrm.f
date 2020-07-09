@@ -47,7 +47,7 @@
       Character*256 tmp, out
       Character*80 ErrTxt
 *----------------------------------------------------------------------*
-* Entry to AixWt                                                       *
+* Entry to AixRm                                                       *
 *----------------------------------------------------------------------*
       AixRm=0
 *----------------------------------------------------------------------*
@@ -78,7 +78,7 @@
       out(ltmp+1:ltmp+1)=Char(0)
       rc=c_remove(out)
       If(rc.ne.0) Then
-         AixWt=AixErr(ErrTxt)
+         AixRm=AixErr(ErrTxt)
       Call SysAbendMsg('AixRm','MSG: delete', ErrTxt)
          Return
       End If

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PCM_EF_grd(Grad,nGrad)
+      use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
 #include "itmax.fh"
@@ -83,9 +84,8 @@
 *
       ip_EF_n=ip_EF_nuclear
       ip_EF_e=ip_EF_electronic
-      ip_Ts  =ip_Tess
       Do iTile = 1, nTs
-         Call EFNuc(Work(ip_Ts),Chrg,Cord,MaxAto,EF_temp,nOrdOp)
+         Call EFNuc(PCMTess(1,iTile),Chrg,Cord,MaxAto,EF_temp,nOrdOp)
          Work(ip_EF_n  )=EF_Temp(1)
          Work(ip_EF_n+1)=EF_Temp(2)
          Work(ip_EF_n+2)=EF_Temp(3)
@@ -94,7 +94,6 @@
          Work(ip_EF_e+2)=Zero
          ip_EF_n = ip_EF_n + 2*nComp
          ip_EF_e = ip_EF_e + 2*nComp
-         ip_Ts   = ip_Ts   + 4
       End Do
 *
       Call mma_deallocate(Cord)
@@ -113,8 +112,7 @@
       Call ICopy(nTs,[255],0,lOper,1)
 *
       Call Drv1_PCM(FactOp,nTs,Work(ipD1ao),nDens,
-     &              Work(ip_Tess),lOper,
-     &              Work(ip_EF),nOrdOp)
+     &              PCMTess,lOper,Work(ip_EF),nOrdOp)
 *
       Call mma_deallocate(lOper)
       Call mma_deallocate(FactOp)
@@ -124,9 +122,8 @@
 *                                                                      *
 *     Now form the correct combinations
 *
-      Call Cmbn_EF_DPnt(Work(ip_EF),nTs,Work(ip_DPnt),MaxAto,
-     &                  Work(ip_DCntr),nS,iWork(ip_iSph),Work(ip_Q),
-     &                  Grad,nGrad)
+      Call Cmbn_EF_DPnt(Work(ip_EF),nTs,dPnt,MaxAto,
+     &                  dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
 *
 *                                                                      *
 ************************************************************************

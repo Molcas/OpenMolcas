@@ -23,6 +23,7 @@
 *            nBas_aux : number of aux bsfs in each irrep.
 *            nIrrep : number of irreps.
 **************************************************************************
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
       Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
       Character  Fname*6, Fname2*6, Name_Q*6
@@ -34,7 +35,6 @@
 #include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-#include "pso.fh"
 *#define _DEBUG_
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_

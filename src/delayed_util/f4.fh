@@ -1,3 +1,13 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 ! File generated with delayed.py
 
       !
@@ -58,6 +68,7 @@
       ! LAPACK
       lb_dbdsdc=>int_dbdsdc
       lb_dbdsqr=>int_dbdsqr
+      lb_dcombssq=>int_dcombssq
       lb_dgebak=>int_dgebak
       lb_dgebal=>int_dgebal
       lb_dgebd2=>int_dgebd2

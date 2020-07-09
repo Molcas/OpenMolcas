@@ -242,10 +242,7 @@
 *---------------------------------------------------------------------------*
 * Make deallocations. They are necessary because of the getinf.             *
 *---------------------------------------------------------------------------*
-      Call GetMem('Info  ','free','real',info,ninfo)
-      Call Free_HerRW()
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call ClsSew()
       Call QEXit('GiveMeInfo')
 
       Return

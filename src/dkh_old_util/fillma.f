@@ -16,7 +16,8 @@
       DO 2 J=1,I
       IJ=IJ+1
       OVE(I,J)=S(IJ)
-2     OVE(J,I)=S(IJ)
+      OVE(J,I)=S(IJ)
+2     CONTINUE
 1     CONTINUE
       RETURN
       END

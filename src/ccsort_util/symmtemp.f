@@ -270,13 +270,13 @@ c
        nsymq=nsym
        end if
 c
-       do 200 sq=1,nsymq
+       do 201 sq=1,nsymq
        spq=mul(sp,sq)
 c
        sr=mul(stot,spq)
        if ((typ.eq.2).and.(sq.lt.sr)) then
 c     Meggie out
-       goto 200
+       goto 201
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -307,6 +307,7 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 201    continue
  200    continue
 c
        else if (nind.eq.4) then
@@ -323,7 +324,7 @@ c
        nsymq=nsym
        end if
 c
-       do 300 sq=1,nsymq
+       do 301 sq=1,nsymq
        spq=mul(sp,sq)
        if (typ.eq.2) then
        nsymr=sq
@@ -331,13 +332,13 @@ c
        nsymr=nsym
        end if
 c
-       do 300 sr=1,nsymr
+       do 302 sr=1,nsymr
        spqr=mul(spq,sr)
 c
        ss=mul(stot,spqr)
        if (((typ.eq.3).or.(typ.eq.4)).and.(sr.lt.ss)) then
 c     Meggie out
-       goto 300
+       goto 302
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -381,6 +382,8 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if

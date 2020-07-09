@@ -11,13 +11,15 @@
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+      Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
       nCavSph=(lMax+1)**2
-      Call GetMem('CavSph','Allo','Real',ipCavSph,nCavSph)
-      Call AppFld_(Cavxyz,Work(ipCavSph),radius,Eps,lmax,EpsInf,NonEq)
-      Call GetMem('CavSph','Free','Real',ipCavSph,nCavSph)
+      Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
+      Call AppFld_(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
+      Call mma_deallocate(CavSph)
 *
       Return
       End
@@ -81,14 +83,15 @@
       End
       Subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+      Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
       nCavSph=(lMax+1)**2
-      Call GetMem('CavSph','Allo','Real',ipCavSph,nCavSph)
-      Call AppFld_1(Cavxyz,Work(ipCavSph),radius,Eps,lmax,EpsInf,NonEq)
-      Call GetMem('CavSph','Free','Real',ipCavSph,nCavSph)
+      Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
+      Call AppFld_1(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
+      Call mma_deallocate(CavSph)
 *
       Return
       End
@@ -144,14 +147,15 @@ c Avoid unused argument warnings
       End
       Subroutine AppFld_NonEq_2(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+      Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
       nCavSph=(lMax+1)**2
-      Call GetMem('CavSph','Allo','Real',ipCavSph,nCavSph)
-      Call AppFld_2(Cavxyz,Work(ipCavSph),radius,Eps,lmax,EpsInf,NonEq)
-      Call GetMem('CavSph','Free','Real',ipCavSph,nCavSph)
+      Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
+      Call AppFld_2(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
+      Call mma_deallocate(CavSph)
 *
       Return
       End

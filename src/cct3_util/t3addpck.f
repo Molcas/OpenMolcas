@@ -375,42 +375,54 @@ c
 c     phase +1
 c
        do 102 r=1,dimr
-       do 102 q=1,dimq
-       do 102 p=1,dimp
+       do 1020 q=1,dimq
+       do 1021 p=1,dimp
        b(p,q,r)=b(p,q,r)+a3(p,q,r)
+ 1021   continue
+ 1020   continue
  102    continue
 c
        do 104 r=1,dimr
-       do 104 q=1,dimq
-       do 104 p=1,dimp
+       do 1040 q=1,dimq
+       do 1041 p=1,dimp
        b(p,q,r)=b(p,q,r)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        do 106 r=1,dimr
-       do 106 q=1,dimq
-       do 106 p=1,dimp
+       do 1060 q=1,dimq
+       do 1061 p=1,dimp
        b(p,q,r)=b(p,q,r)+a1(q,r,p)
+ 1061   continue
+ 1060   continue
  106    continue
 c
        else
 c     phase -1
 c
        do 202 r=1,dimr
-       do 202 q=1,dimq
-       do 202 p=1,dimp
+       do 2020 q=1,dimq
+       do 2021 p=1,dimp
        b(p,q,r)=b(p,q,r)-a3(p,q,r)
+ 2021   continue
+ 2020   continue
  202    continue
 c
        do 204 r=1,dimr
-       do 204 q=1,dimq
-       do 204 p=1,dimp
+       do 2040 q=1,dimq
+       do 2041 p=1,dimp
        b(p,q,r)=b(p,q,r)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        do 206 r=1,dimr
-       do 206 q=1,dimq
-       do 206 p=1,dimp
+       do 2060 q=1,dimq
+       do 2061 p=1,dimp
        b(p,q,r)=b(p,q,r)-a1(q,r,p)
+ 2061   continue
+ 2060   continue
  206    continue
 c
        end if
@@ -462,44 +474,54 @@ c
 c     phase +1
 c
        do 102 r=1,dimr
-       do 102 pq=1,dimpq
+       do 1020 pq=1,dimpq
        b(pq,r)=b(pq,r)+a3(pq,r)
+ 1020   continue
  102    continue
 c
        do 104 r=1,dimr
-       do 104 p=2,dimp
+       do 1040 p=2,dimp
        pq0=nshf(p)
-       do 104 q=1,p-1
+       do 1041 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        do 106 r=1,dimr
-       do 106 p=2,dimp
+       do 1060 p=2,dimp
        pq0=nshf(p)
-       do 106 q=1,p-1
+       do 1061 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)+a1(q,r,p)
+ 1061   continue
+ 1060   continue
  106    continue
 c
        else
 c     phase -1
 c
        do 202 r=1,dimr
-       do 202 pq=1,dimpq
+       do 2020 pq=1,dimpq
        b(pq,r)=b(pq,r)-a3(pq,r)
+ 2020   continue
  202    continue
 c
        do 204 r=1,dimr
-       do 204 p=2,dimp
+       do 2040 p=2,dimp
        pq0=nshf(p)
-       do 204 q=1,p-1
+       do 2041 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        do 206 r=1,dimr
-       do 206 p=2,dimp
+       do 2060 p=2,dimp
        pq0=nshf(p)
-       do 206 q=1,p-1
+       do 2061 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)-a1(q,r,p)
+ 2061   continue
+ 2060   continue
  206    continue
 c
        end if
@@ -552,23 +574,28 @@ c     phase +1
 c
        do 102 q=2,dimq
        qr0=nshf(q)
-       do 102 r=1,q-1
+       do 1020 r=1,q-1
        qr=qr0+r
-       do 102 p=1,dimp
+       do 1021 p=1,dimp
        b(p,qr)=b(p,qr)+a3(p,q,r)
+ 1021   continue
+ 1020   continue
  102    continue
 c
        do 104 q=2,dimq
        qr0=nshf(q)
-       do 104 r=1,q-1
+       do 1040 r=1,q-1
        qr=qr0+r
-       do 104 p=1,dimp
+       do 1041 p=1,dimp
        b(p,qr)=b(p,qr)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        do 106 qr=1,dimqr
-       do 106 p=1,dimp
+       do 1060 p=1,dimp
        b(p,qr)=b(p,qr)+a1(qr,p)
+ 1060   continue
  106    continue
 c
        else
@@ -576,23 +603,28 @@ c     phase -1
 c
        do 202 q=2,dimq
        qr0=nshf(q)
-       do 202 r=1,q-1
+       do 2020 r=1,q-1
        qr=qr0+r
-       do 202 p=1,dimp
+       do 2021 p=1,dimp
        b(p,qr)=b(p,qr)-a3(p,q,r)
+ 2021   continue
+ 2020   continue
  202    continue
 c
        do 204 q=2,dimq
        qr0=nshf(q)
-       do 204 r=1,q-1
+       do 2040 r=1,q-1
        qr=qr0+r
-       do 204 p=1,dimp
+       do 2041 p=1,dimp
        b(p,qr)=b(p,qr)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        do 206 qr=1,dimqr
-       do 206 p=1,dimp
+       do 2060 p=1,dimp
        b(p,qr)=b(p,qr)-a1(qr,p)
+ 2060   continue
  206    continue
 c
        end if
@@ -642,14 +674,16 @@ c
        do 100 p=3,dimp
        pq0=(p-1)*(p-2)/2
        qr=0
-       do 100 q=2,p-1
+       do 101 q=2,p-1
        pq=pq0+q
        pr=(p-1)*(p-2)/2
-       do 100 r=1,q-1
+       do 102 r=1,q-1
        pr=pr+1
        qr=qr+1
        pqr=pqr+1
        b(pqr)=b(pqr)+a(qr,p)-a(pr,q)+a(pq,r)
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -660,14 +694,16 @@ c
        do 200 p=3,dimp
        pq0=(p-1)*(p-2)/2
        qr=0
-       do 200 q=2,p-1
+       do 201 q=2,p-1
        pq=pq0+q
        pr=(p-1)*(p-2)/2
-       do 200 r=1,q-1
+       do 202 r=1,q-1
        pr=pr+1
        qr=qr+1
        pqr=pqr+1
        b(pqr)=b(pqr)-a(qr,p)+a(pr,q)-a(pq,r)
+ 202    continue
+ 201    continue
  200    continue
 c
 c
@@ -716,30 +752,38 @@ c
 c     phase +1
 c
        do 104 r=1,dimr
-       do 104 q=1,dimq
-       do 104 p=1,dimp
+       do 1040 q=1,dimq
+       do 1041 p=1,dimp
        b(p,q,r)=b(p,q,r)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        do 106 r=1,dimr
-       do 106 q=1,dimq
-       do 106 p=1,dimp
+       do 1060 q=1,dimq
+       do 1061 p=1,dimp
        b(p,q,r)=b(p,q,r)+a1(q,r,p)
+ 1061   continue
+ 1060   continue
  106    continue
 c
        else
 c     phase -1
 c
        do 204 r=1,dimr
-       do 204 q=1,dimq
-       do 204 p=1,dimp
+       do 2040 q=1,dimq
+       do 2041 p=1,dimp
        b(p,q,r)=b(p,q,r)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        do 206 r=1,dimr
-       do 206 q=1,dimq
-       do 206 p=1,dimp
+       do 2060 q=1,dimq
+       do 2061 p=1,dimp
        b(p,q,r)=b(p,q,r)-a1(q,r,p)
+ 2061   continue
+ 2060   continue
  206    continue
 c
        end if
@@ -789,34 +833,42 @@ c
 c     phase +1
 c
        do 104 r=1,dimr
-       do 104 p=2,dimp
+       do 1040 p=2,dimp
        pq0=nshf(p)
-       do 104 q=1,p-1
+       do 1041 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        do 106 r=1,dimr
-       do 106 p=2,dimp
+       do 1060 p=2,dimp
        pq0=nshf(p)
-       do 106 q=1,p-1
+       do 1061 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)+a1(q,r,p)
+ 1061   continue
+ 1060   continue
  106    continue
 c
        else
 c     phase -1
 c
        do 204 r=1,dimr
-       do 204 p=2,dimp
+       do 2040 p=2,dimp
        pq0=nshf(p)
-       do 204 q=1,p-1
+       do 2041 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        do 206 r=1,dimr
-       do 206 p=2,dimp
+       do 2060 p=2,dimp
        pq0=nshf(p)
-       do 206 q=1,p-1
+       do 2061 q=1,p-1
        b(pq0+q,r)=b(pq0+q,r)-a1(q,r,p)
+ 2061   continue
+ 2060   continue
  206    continue
 c
        end if
@@ -864,30 +916,38 @@ c
 c     phase +1
 c
        do 102 r=1,dimr
-       do 102 q=1,dimq
-       do 102 p=1,dimp
+       do 1020 q=1,dimq
+       do 1021 p=1,dimp
        b(p,q,r)=b(p,q,r)+a3(p,q,r)
+ 1021   continue
+ 1020   continue
  102    continue
 c
        do 104 r=1,dimr
-       do 104 q=1,dimq
-       do 104 p=1,dimp
+       do 1040 q=1,dimq
+       do 1041 p=1,dimp
        b(p,q,r)=b(p,q,r)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        else
 c     phase -1
 c
        do 202 r=1,dimr
-       do 202 q=1,dimq
-       do 202 p=1,dimp
+       do 2020 q=1,dimq
+       do 2021 p=1,dimp
        b(p,q,r)=b(p,q,r)-a3(p,q,r)
+ 2021   continue
+ 2020   continue
  202    continue
 c
        do 204 r=1,dimr
-       do 204 q=1,dimq
-       do 204 p=1,dimp
+       do 2040 q=1,dimq
+       do 2041 p=1,dimp
        b(p,q,r)=b(p,q,r)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        end if
@@ -937,18 +997,22 @@ c     phase +1
 c
        do 102 q=2,dimq
        qr0=nshf(q)
-       do 102 r=1,q-1
+       do 1020 r=1,q-1
        qr=qr0+r
-       do 102 p=1,dimp
+       do 1021 p=1,dimp
        b(p,qr)=b(p,qr)+a2(p,q,r)
+ 1021   continue
+ 1020   continue
  102    continue
 c
        do 104 q=2,dimq
        qr0=nshf(q)
-       do 104 r=1,q-1
+       do 1040 r=1,q-1
        qr=qr0+r
-       do 104 p=1,dimp
+       do 1041 p=1,dimp
        b(p,qr)=b(p,qr)-a2(p,r,q)
+ 1041   continue
+ 1040   continue
  104    continue
 c
        else
@@ -956,18 +1020,22 @@ c     phase -1
 c
        do 202 q=2,dimq
        qr0=nshf(q)
-       do 202 r=1,q-1
+       do 2020 r=1,q-1
        qr=qr0+r
-       do 202 p=1,dimp
+       do 2021 p=1,dimp
        b(p,qr)=b(p,qr)-a2(p,q,r)
+ 2021   continue
+ 2020   continue
  202    continue
 c
        do 204 q=2,dimq
        qr0=nshf(q)
-       do 204 r=1,q-1
+       do 2040 r=1,q-1
        qr=qr0+r
-       do 204 p=1,dimp
+       do 2041 p=1,dimp
        b(p,qr)=b(p,qr)+a2(p,r,q)
+ 2041   continue
+ 2040   continue
  204    continue
 c
        end if

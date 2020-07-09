@@ -39,7 +39,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              Change                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
@@ -49,16 +48,15 @@
 *             of Lund, SWEDEN.                                         *
 *             Modified to first order derivatives. January '92         *
 ************************************************************************
+      use aces_stuff, only: nGamma, Gamma_On
+      use PSO_Stuff
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
-#include "pso.fh"
-#include "aces_gamma.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
      &          iShela(4), iFnc(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
@@ -105,7 +103,6 @@
       iPrInc = iPrim
       kPrInc = kPrim
 *
-*     Call GetMem(' ','MAX ','REAL',iDum,MemMax)
  999  Continue
       QjPrim = .False.
       QlPrim = .True.
@@ -350,7 +347,6 @@
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call GetMem('PSOAO1','CHECK','REAL',iDum,iDum)
 *     Call qExit('PSOAO1')
       Return
       End

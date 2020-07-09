@@ -44,6 +44,7 @@
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Wrj12
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"
@@ -52,7 +53,7 @@
 #include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
-#include "wrj12.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 *
 #include "lRI.fh"

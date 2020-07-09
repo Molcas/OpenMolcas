@@ -18,20 +18,20 @@
       Logical Silent
 
       LOGICAL FOUND
-      INTEGER LUXMS,IsFreeUnit
-      CHARACTER(len=128) filename,swapname
+      INTEGER LUXMS,IsFreeUnit,AixMv,rc
+      CHARACTER(len=8) filename,swapname
       CHARACTER(len=11)xmsfmt1
       CHARACTER(len=12)xmsfmt2
-      External IsFreeUnit
+      External IsFreeUnit,AixMv
 
       if(.not.silent) Then
       write(6,*) 'Writing Hamiltonian matrix for rotated states ',
      &'and the rotation matrix'
       End if
-      write(FileName,'(a)') 'ROT_VEC'
-      write(SwapName,'(a)') 'ROT_VEC0'
+      FileName='ROT_VEC'
+      SwapName='ROT_VEC0'
       Call F_Inquire(FileName,Found)
-      If(Found)  Call RENAME(FileName,SwapName)
+      If(Found) rc=AixMv(FileName,SwapName)
       LUXMS=233
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
@@ -47,10 +47,10 @@
        END DO
       end if
       close (LUXMS)
-      write(FileName,'(a)') 'ROT_HAM'
-      write(SwapName,'(a)') 'ROT_HAM0'
+      FileName='ROT_HAM'
+      SwapName='ROT_HAM0'
       Call F_Inquire(FileName,Found)
-      If(Found)  Call RENAME(FileName,SwapName)
+      If(Found) rc=AixMv(FileName,SwapName)
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
       if(NGrp.lt.10)then

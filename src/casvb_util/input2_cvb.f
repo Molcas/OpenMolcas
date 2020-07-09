@@ -72,8 +72,9 @@ c  ... Work out NORB, NEL, S ...
         call casinfoset_cvb()
 c  ... Do ICONFS before others to get NVB and related info ...
         do 100 iconf=1,nconf
-100     call imove_cvb(iw((iconf-1)*noe1+ip_iconfs),
+        call imove_cvb(iw((iconf-1)*noe1+ip_iconfs),
      >    iw((iconf-1)*noe+ip_iconfs),noe)
+100     continue
         call mrealloci_cvb(ip_iconfs,noe*nconf)
 
         if(nfrag.le.1)then
@@ -121,9 +122,11 @@ c  ... Do ICONFS before others to get NVB and related info ...
           enddo
           call izero(iw(iconf_add*noe+ip_iconfs),noe)
           do 1201 i=1,min(nel_fr(ifrag),norb)
-1201      iw(i+iconf_add*noe+ip_iconfs-1)=1
+          iw(i+iconf_add*noe+ip_iconfs-1)=1
+1201      continue
           do 1301 i=1,nel_fr(ifrag)-norb
-1301      iw(i+iconf_add*noe+ip_iconfs-1)=2
+          iw(i+iconf_add*noe+ip_iconfs-1)=2
+1301      continue
         endif
         call cnfcheck_cvb(iw(iconf_add*noe+ip_iconfs),nconf_fr(ifrag),
      >    nel_fr(ifrag))
@@ -133,7 +136,8 @@ c  ... Do ICONFS before others to get NVB and related info ...
      >    nMs_fr(ifrag),nalf_fr(1,ifrag),nbet_fr(1,ifrag),
      >    nvbr_fr(ifrag),ndetvb_fr(ifrag),ndetvb2_fr(ifrag),
      >    mnion_fr(ifrag),mxion_fr(ifrag),nconfion_fr(0,ifrag),ifsc)
-1001    iconf_add=iconf_add+nconf_fr(ifrag)
+        iconf_add=iconf_add+nconf_fr(ifrag)
+1001    continue
         ndetvb=0
         ndetvb2=0
         nvbr=0
@@ -182,8 +186,10 @@ c  SYMELM
         do 500 iorb=1,norb
         if(ip_from.ne.ip_to)call fmove_cvb(w(ip_from),w(ip_to),norb)
         ip_from=ip_from+mxorb
-500     ip_to=ip_to+norb
-400     ip_from=ip_from+(mxorb-norb)*mxorb
+        ip_to=ip_to+norb
+500     continue
+        ip_from=ip_from+(mxorb-norb)*mxorb
+400     continue
 c  IORBREL
         ifrom=1
         ito=1

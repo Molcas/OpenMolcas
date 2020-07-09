@@ -41,7 +41,8 @@ c  VEC1 dimension is MAX(NPRORB,NDETVB)
 
 c  Use VEC1 as work:
       do 100 i=1,npr
-100   vec1(i)=f1*grad2(i)+f2*grad1(i)
+      vec1(i)=f1*grad2(i)+f2*grad1(i)
+100   continue
       call prgrad_cvb(vec1,npr)
 
       call make_cvb('ORBFREE')

@@ -21,6 +21,7 @@ c local variables
       Real(kind=8) ::  HCOV1(N,N)
       Real(kind=8) ::  test1
       external WCG
+#include "stdalloc.fh"
 #include "jcoeff.fh"
 
       HCOV1=0.0_wp
@@ -76,5 +77,6 @@ c local variables
       End Do !j
       End Do !i
 
+      Call mma_deallocate(Jx)
       Return
       End

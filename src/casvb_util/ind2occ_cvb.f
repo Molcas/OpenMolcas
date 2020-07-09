@@ -26,6 +26,7 @@
       dimension ixmin(0:nel,0:idim),iminor(idim)
       minind_cvb=1
       do 1100 i=1,idim
-1100  minind_cvb=minind_cvb+ixmin(iminor(i)-1,i)
+      minind_cvb=minind_cvb+ixmin(iminor(i)-1,i)
+1100  continue
       return
       end

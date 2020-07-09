@@ -55,8 +55,9 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
 105      Continue
 *--- Generate complimentary space ---*
          Do 110 iB=1,nB
-         Do 110 iO=nO+1,nB
+         Do 111 iO=nO+1,nB
             pOrb(iB,iO)=Cos(3.14d0*iO*iB/nB)
+111      Continue
 110      Continue
 *         Write(*,'(a,i5)') ' Projection orbitals',iLqn
 *         Do 120 iB=1,nB
@@ -71,18 +72,20 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
 *           Call Triprt(' ','(6F12.6)',Ssym(iSymbk(iBlk)),nPrim(iLqn))
 *--- Copy and square D and S ---*
             Do 210 i=1,nB
-            Do 210 j=1,nB
+            Do 211 j=1,nB
                indT=min(i,j)+max(i,j)*(max(i,j)-1)/2
                indS=i+nB*(j-1)
                DAO(i,j)=tDsym(iSymbk(iBlk)-1+indT)
                Ovlp(i,j)=Ssym(iSymbk(iBlk)-1+indT)
+211         Continue
 210         Continue
 *--- Orthonormalize orbitals ---*
             Do 220 iO=1,nB
                s=0.0d0
                Do 221 iB=1,nB
-               Do 221 jB=1,nB
+               Do 2210 jB=1,nB
                   s=s+pOrb(iB,iO)*ovlp(iB,jB)*pOrb(jB,iO)
+2210           Continue
 221            Continue
                s=1.0d0/sqrt(s)
                Do 222 iB=1,nB
@@ -91,8 +94,9 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
                Do 223 jO=iO+1,nB
                   s=0.0d0
                   Do 224 iB=1,nB
-                  Do 224 jB=1,nB
+                  Do 2240 jB=1,nB
                      s=s+pOrb(iB,iO)*ovlp(iB,jB)*pOrb(jB,jO)
+2240              Continue
 224               Continue
                   Do 225 iB=1,nB
                      pOrb(iB,jO)=pOrb(iB,jO)-s*pOrb(iB,iO)
@@ -101,39 +105,45 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
 220         Continue
 *--- Transform to MO basis ---*
             Do 230 iB=1,nB
-            Do 230 iO=1,nB
+            Do 231 iO=1,nB
                s=0.0d0
-               Do 231 jB=1,nB
+               Do 232 jB=1,nB
                   s=s+ovlp(iB,jB)*pOrb(jB,iO)
-231            Continue
+232            Continue
                Sc(iB,iO)=s
+231         Continue
 230         Continue
             Do 240 iO=1,nB
-            Do 240 jO=1,nB
+            Do 241 jO=1,nB
                s=0.0d0
-               Do 241 iB=1,nB
-               Do 241 jB=1,nB
+               Do 242 iB=1,nB
+               Do 243 jB=1,nB
                   s=s+Sc(iB,iO)*DAO(iB,jB)*Sc(jB,jO)
-241            Continue
+243            Continue
+242            Continue
                DMO(iO,jO)=s
+241         Continue
 240         Continue
 *--- Project ---*
             Do 250 iO=1,nO
-            Do 250 jO=1,nB
+            Do 251 jO=1,nB
                DMO(iO,jO)=0.0d0
                DMO(jO,iO)=0.0d0
+251         Continue
 250         Continue
 *--- Transform back to AO ---*
             ind=0
             Do 260 iB=1,nB
-            Do 260 jB=1,iB
+            Do 261 jB=1,iB
                ind=ind+1
                s=0.0d0
-               Do 261 iO=1,nB
-               Do 261 jO=1,nB
+               Do 262 iO=1,nB
+               Do 263 jO=1,nB
                   s=s+pOrb(iB,iO)*DMO(iO,jO)*pOrb(jB,jO)
-261            Continue
+263            Continue
+262            Continue
                tDsym(iSymbk(iBlk)-1+ind)=s
+261         Continue
 260         Continue
 *--- ---*
 *           Write(*,'(a,2i5)') ' Density matrix block',iLqn,iShell

@@ -8,15 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer
-     &        ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
-     &        mSkal, ipiSOSym,nSOs, ipPD, ipFT, nFT, ipDijs,
-     &        MxDij, ipmem_int, MemMax_int
-      Common /iSetup/
-     &                ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
-     &                mSkal, ipiSOSym,nSOs, ipPD, ipFT, nFT, ipDijs,
-     &                MxDij, ipmem_int, MemMax_int
-      Logical Swapping
-      Common /lSetup/ Swapping
-      Real*8 TCP3, rnint
-      Common /rSetUp/ TCP3, rnint
+      Integer         ipMem_Int, MemMax_Int, mSkal, MxPrm, nAux, nSOs
+      Common /iSetup/ ipMem_Int, MemMax_Int, mSkal, MxPrm, nAux, nSOs

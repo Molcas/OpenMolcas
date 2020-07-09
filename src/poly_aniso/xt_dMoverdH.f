@@ -676,32 +676,32 @@ c only local "exchange states":
        Call Add_Info('dM/dH    ML0',[dnrm2_(  ibuf3,ML0,1)],1,8)
        Call Add_Info('dM/dH    SL0',[dnrm2_(  ibuf3,SL0,1)],1,8)
        Call Add_Info('dM/dH    ZL0',[dnrm2_(  ibuf1,ZL0,1)],1,8)
-       Call Add_Info('dM/dH    WL0',[dnrm2_(nM*nneq,WL0,1)],1,8)
+       Call Add_Info('dM/dH    WL0',[dnrm2_(nLoc*nneq,WL0,1)],1,8)
 
        Call Add_Info('dM/dH    MR0',[dnrm2_(  ibuf3,MR0,1)],1,8)
        Call Add_Info('dM/dH    SR0',[dnrm2_(  ibuf3,SR0,1)],1,8)
        Call Add_Info('dM/dH    ZR0',[dnrm2_(  ibuf1,ZR0,1)],1,8)
-       Call Add_Info('dM/dH    WR0',[dnrm2_(nM*nneq,WR0,1)],1,8)
+       Call Add_Info('dM/dH    WR0',[dnrm2_(nLoc*nneq,WR0,1)],1,8)
 
        Call Add_Info('dM/dH    ML1',[dnrm2_(  ibuf3,ML1,1)],1,8)
        Call Add_Info('dM/dH    SL1',[dnrm2_(  ibuf3,SL1,1)],1,8)
        Call Add_Info('dM/dH    ZL1',[dnrm2_(  ibuf1,ZL1,1)],1,8)
-       Call Add_Info('dM/dH    WL1',[dnrm2_(nM*nneq,WL1,1)],1,8)
+       Call Add_Info('dM/dH    WL1',[dnrm2_(nLoc*nneq,WL1,1)],1,8)
 
        Call Add_Info('dM/dH    MR1',[dnrm2_(  ibuf3,MR1,1)],1,8)
        Call Add_Info('dM/dH    SR1',[dnrm2_(  ibuf3,SR1,1)],1,8)
        Call Add_Info('dM/dH    ZR1',[dnrm2_(  ibuf1,ZR1,1)],1,8)
-       Call Add_Info('dM/dH    WR1',[dnrm2_(nM*nneq,WR1,1)],1,8)
+       Call Add_Info('dM/dH    WR1',[dnrm2_(nLoc*nneq,WR1,1)],1,8)
 
        Call Add_Info('dM/dH    ML2',[dnrm2_(  ibuf3,ML2,1)],1,8)
        Call Add_Info('dM/dH    SL2',[dnrm2_(  ibuf3,SL2,1)],1,8)
        Call Add_Info('dM/dH    ZL2',[dnrm2_(  ibuf1,ZL2,1)],1,8)
-       Call Add_Info('dM/dH    WL2',[dnrm2_(nM*nneq,WL2,1)],1,8)
+       Call Add_Info('dM/dH    WL2',[dnrm2_(nLoc*nneq,WL2,1)],1,8)
 
        Call Add_Info('dM/dH    MR2',[dnrm2_(  ibuf3,MR2,1)],1,8)
        Call Add_Info('dM/dH    SR2',[dnrm2_(  ibuf3,SR2,1)],1,8)
        Call Add_Info('dM/dH    ZR2',[dnrm2_(  ibuf1,ZR2,1)],1,8)
-       Call Add_Info('dM/dH    WR2',[dnrm2_(nM*nneq,WR2,1)],1,8)
+       Call Add_Info('dM/dH    WR2',[dnrm2_(nLoc*nneq,WR2,1)],1,8)
 
 c expand the basis and rotate local vectors to the general
 c coordinate system:

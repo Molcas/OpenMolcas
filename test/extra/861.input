@@ -86,7 +86,7 @@ nactel = 2 0 0
 
 >>FILE create_test_numpy
 head -n 1 $1 > test_numpy.py
-echo "import numpyb" >> test_numpy.py
+echo "import numpy" >> test_numpy.py
 chmod +x test_numpy.py
 >>EOF
 

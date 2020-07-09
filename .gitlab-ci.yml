@@ -111,16 +111,19 @@ include:
       cp /license.dat . || true
     # save the CMake configuration from a variable and add extra path
     - |
+      if [ -z "${cmake}" ] ; then export cmake="cmake" ; fi
+      if [ -z "${make}" ] ; then export make="make"; fi
+    - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
-    - cmake -C flags.cmake ..
+    - ${cmake} -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - make #VERBOSE=1
+    - ${make}
     - pymolcas verify 000 -k
     # some clean up to reduce artifact size
     - >
@@ -195,6 +198,44 @@ include:
     when: always
   <<: *test-jobs
 
+# A special job for running checks on the code
+
+checks:
+  stage: build
+  interruptible: true
+  script:
+    - |
+      if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
+        git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
+        git fetch upstream
+        TARGET_BRANCH="upstream/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
+      else
+        TARGET_BRANCH="origin/master"
+      fi
+      TARGET_SHA=$(git show-ref -s ${TARGET_BRANCH})
+      TMPDIR=$(mktemp -d)
+      for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
+      do
+        git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
+      done
+      echo "diff between ${CI_COMMIT_SHA} and ${TARGET_SHA}"
+    - |
+      echo
+      echo "POSSIBLE HEADER ISSUES"
+      echo "----------------------"
+      sbin/copyright -r ${TMPDIR} || FAILED=1
+    - |
+      echo
+      echo "POSSIBLE STYLE ISSUES"
+      echo "---------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_style || FAILED=1
+    - |
+      if [ "$FAILED" == "1" ] ; then
+        false
+      fi
+  <<: *compile-jobs
+
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
@@ -224,6 +265,9 @@ tinker:
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+    - >
+      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
     # Apply the low-memory patch
     - |
       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
@@ -240,8 +284,6 @@ tinker:
       - build/
     expire_in: 1 day
   <<: *compile-jobs
-  # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
-  retry: 2
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
@@ -265,6 +307,17 @@ test:options:
   <<: *run-tests
   needs:
     - build:options
+    - tinker
+  parallel: 2
+
+build:linalg:
+  extends: .linalg
+  <<: *compile
+test:linalg:
+  extends: .linalg
+  <<: *run-tests
+  needs:
+    - build:linalg
     - tinker
   parallel: 2
 

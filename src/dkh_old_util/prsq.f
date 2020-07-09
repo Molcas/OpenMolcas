@@ -15,7 +15,8 @@
       write(idbg,1001) label
       write(idbg,1002) (j,j=1,n)
       do 10 i=1,n
- 10      write(idbg,1003) i,(a(i,j),j=1,n)
+         write(idbg,1003) i,(a(i,j),j=1,n)
+ 10   continue
  1001 FORMAT(' MATRIX PRINTED:',2X,A8)
  1002 FORMAT(' ',4X,4(6X,I4,6X),/)
  1003 FORMAT(' ',I4,4D16.8)

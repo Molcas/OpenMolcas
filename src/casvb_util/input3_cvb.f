@@ -280,7 +280,8 @@ c 'FIXORB'
         call intchk_cvb(iw(itmp),mxorb,nfxorb,0,'FIXORB',-1)
         call izero(ifxorb,mxorb)
         do 15340 i=1,nfxorb
-15340   ifxorb(iw(i+itmp-1))=1
+        ifxorb(iw(i+itmp-1))=1
+15340   continue
         call mfreei_cvb(itmp)
       elseif(istr.eq.21)then
 c 'FIXSTRUC'

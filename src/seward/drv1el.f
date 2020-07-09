@@ -30,6 +30,7 @@
       Use GeoList
       Use MpmC
       Use PrpPnt
+      Use External_Centers
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -649,7 +650,7 @@ c           iPAMcount=iPAMcount+1
 *        Note that this parsing is a bit different here!
 *
          Write (Label,'(A,I1,I5)') 'EF',nOrdOp,iEF
-         Call dcopy_(3,Work(ipEF+(iEF-1)*3),1,Ccoor,1)
+         Ccoor(:)=EF_Centers(:,iEF)
 *
          iSymR(0) = 1
          If (Ccoor(1).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymX)
@@ -780,10 +781,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 3
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1  ),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+3),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+6),1)
-         Call dcopy_(3,Work(ipOAM),1,Ccoor,1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1  ),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+3),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+6),1)
+         Call dcopy_(3,OAM_Center,1,Ccoor,1)
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
          ixyz=2
@@ -902,10 +903,10 @@ c           iPAMcount=iPAMcount+1
          nOrdOp = 3
          Call Allocate_Auxiliary()
 *
-         Call dcopy_(nComp,[Work(ipOMQ  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipOMQ+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipOMQ+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipOMQ),1,Ccoor,1)
+         Call dcopy_(nComp,[OMQ_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[OMQ_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[OMQ_Center(3)],0,CoorO(1+2),3)
+         Ccoor(:)=OMQ_Center(:)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
@@ -1066,7 +1067,7 @@ c           iPAMcount=iPAMcount+1
          Write (Label,'(A,I2,I2)') 'DMS ',1,iDMS
          nComp = 9
          nOrdOp=2
-         Call dcopy_(3,Work(ipDMS+(iDMS-1)*3),1,Ccoor,1)
+         CCoor(:)=DMS_Centers(:,iDMS)
          Call Allocate_Auxiliary()
          iSymC = 1
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
@@ -1084,7 +1085,7 @@ c           iPAMcount=iPAMcount+1
          iComp = 0
          iC = 0
          Do 1510 ix = 1, 0, -1
-         Do 1510 iy = 1-ix, 0, -1
+         Do 1511 iy = 1-ix, 0, -1
             iz=1-ix-iy
             iC = iC + 1
             iChO1 = iChBas(iC+1)
@@ -1095,8 +1096,8 @@ c           iPAMcount=iPAMcount+1
             iSym = 2**IrrFnc(ixyz)
             If (Ccoor(iC).ne.Zero) iSym = iOr(iSym,1)
             iD = 0
-            Do 1511 jx = 1, 0, -1
-            Do 1511 jy = 1-jx, 0, -1
+            Do 1512 jx = 1, 0, -1
+            Do 1513 jy = 1-jx, 0, -1
                jz=1-jx-jy
                iD = iD + 1
                iChO2 = iChBas(iD+1)
@@ -1120,7 +1121,9 @@ c           iPAMcount=iPAMcount+1
                OperC(1+iComp) = iChO
                Call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
                iComp = iComp + 1
- 1511       Continue
+ 1513       Continue
+ 1512       Continue
+ 1511    Continue
  1510    Continue
          Call dcopy_(3,Dxyz,1,CoorO(1+3),1)
 *
@@ -1161,8 +1164,8 @@ c           iPAMcount=iPAMcount+1
          OperI(1) = 1
          OperC(1) = iChBas(1)
          Do 1600 iWel = 1, nWel
-            r0   = Work(ipWel+(iWel-1)*3  )
-            ExpB = Work(ipWel+(iWel-1)*3+1)
+            r0   = Wel_Info(1,iWel)
+            ExpB = Wel_Info(2,iWel)
             Write (Label,'(A,I4)') 'Well',iWel
             Call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,
      &                 CoorO,iWel,[Zero],rHrmt,OperC,
@@ -1316,7 +1319,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (nWel.ne.0) Then
             Do iWel = 1, nWel
-               Fact=Work(ipWel-1+(iWel-1)*3+3)
+               Fact=Wel_Info(3,iWel)
                Write (Label,'(A,I4)') 'Well',iWel
                iRC = -1
                Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
@@ -1392,10 +1395,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 6
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(nComp,[Work(ipAMP  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipAMP+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipAMP+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipAMP),1,Ccoor,1)
+         Call dcopy_(nComp,[AMP_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[AMP_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[AMP_Center(3)],0,CoorO(1+2),3)
+         CCoor(:)=AMP_Center(:)
 C Symmetry labels iSymX  for operator d/dx, etc.
 C Symmetry labels iSymLx for operator Lx, etc.
 C Characters iChOx for operator Lx, etc.
@@ -1481,7 +1484,7 @@ C decomposition of the totally symmetric irrep of Gsub.
       nOrdOp = 1
       Do iCnt = 1, mCnt
          Write (Label,'(A,I5)') 'Cnt',iCnt
-         Call dcopy_(3,Work(ipEF+(iCnt-1)*3),1,Ccoor,1)
+         CCoor(:)=EF_Centers(:,iCnt)
          Call Allocate_Auxiliary()
 *
          iSymR(0) = 1

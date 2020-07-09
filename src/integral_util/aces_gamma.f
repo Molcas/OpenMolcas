@@ -9,17 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Aces_Gamma()
+      use Aces_Stuff
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
-#include "aces_gamma.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iTable(i,j)=iWork(ipiTab-1+(j-1)*6+i)
+       Integer, Allocatable:: iTable(:,:)
+       Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -31,11 +30,11 @@
 *                                                                      *
 *---- Allocate Table Of Content for half sorted gammas.
 *
-      Call GetMem('G_Toc','Allo','Real',ipG_Toc,nQuad)
+      Call mma_allocate(G_Toc,nQuad,Label='G_Toc')
 *
 *---- Tabel SO to contigeous index
 *
-      Call GetMem('SO2cI','Allo','Inte',ipSO2cI,2*nSOs)
+      Call mma_allocate(SO2cI,2,nSOs,Label='SO2cI')
 *
 *     Both should be deallocated in CloseP!
 *                                                                      *
@@ -48,8 +47,8 @@
       If (nIrrep.eq.4) nBlocks= 19
       If (nIrrep.eq.2) nBlocks=  4
       If (nIrrep.eq.1) nBlocks=  1
-      Call GetMem('iTable','Allo','Inte',ipiTab,6*nBlocks)
-      Call Gamma_Blocks(iWork(ipiTab),nBlocks,nIrrep)
+      Call mma_Allocate(iTable,6,nBlocks,Label='iTable')
+      Call Gamma_Blocks(iTable,nBlocks,nIrrep)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -79,7 +78,7 @@
          nReq=Max(nReq,nAB*nCD)
       End Do
       nReq=Min(MaxMem/4,nReq)
-      Call GetMem('Buff','Allo','Real',ipBuf,nReq)
+      Call mma_allocate(Buf,nReq,Label='Buf')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -87,8 +86,7 @@
 *
       Call GetMem('Buff','Max','Real',iDummy,MaxMem)
       lBin=Min(MaxMem/(2*nQuad),1024)
-*     Write (*,*) 'lBin=',lBin
-      Call GetMem('Bin','Allo','Real',ipBin,2*lBin*nQuad)
+      Call mma_allocate(Bin3,2,lBin,nQuad,Label='Bin3')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -103,24 +101,22 @@
 *---- Read the blocks off the Aces 2 file and put into half sorted bin
 *     file. The second half sort is done on the fly as needed.
 *
-      Call Read_Blocks(iWork(ipiTab),nBlocks,nBas,nIrrep,
-     &                 iOffSO,Work(ipBuf),nReq,
-     &                 iWork(ipSOSh),nSOs,Work(ipBin),lBin,nQuad,
-     &                 Work(ipG_Toc),iWork(ipSO2cI),CutInt)
+      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,iOffSO,Buf,nReq,
+     &                 iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Deallocate memory
 *
-      Call GetMem('Bin','Free','Real',ipBin,2*lBin*nQuad)
-      Call GetMem('Buff','Free','Real',ipBuf,nReq)
-      Call GetMem('iTable','Free','Inte',ipiTab,6*nBlocks)
+      Call mma_deallocate(Bin3)
+      Call mma_deallocate(Buf)
+      Call mma_deallocate(iTable)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Allocate buffer for reading the bins
 *
-      Call GetMem('Bin','Allo','Real',ipBin,2*lBin)
+      Call mma_allocate(Bin,2,lBin,Label='Bin')
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GVWrite(Index,NTs,NEsfP,NAt,
-     +           AtmC,IAt,Coor_Sph,Tessera,NVert,Vert,ISphe,Q,ivts,
-     &           MxVert)
+      Subroutine GVWrite(Index,NTs,NEsfP,NAt,AtmC,IAt,Coor_Sph,Tessera,
+     &                   NVert,Vert,ISphe,Q,ivts,MxVert)
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Dimension NVert(*),Vert(3,MxVert,*),IVTS(MxVert,*),
@@ -25,7 +24,8 @@ C
       If(Index.eq.2) call molcas_open(Lu,'GV1.off')
       NumV = 0
       Do 10 i = 1, NTs
-  10    NumV = NumV + NVert(i)
+        NumV = NumV + NVert(i)
+  10  Continue
       Write(Lu,500)'COFF'
       Write(Lu,1000)NumV, NTs, NumV
       K = 0
@@ -35,8 +35,8 @@ C
         qmin=0.0d0
         Do 2000 i = 1, NTs
           qt = q(i) / Tessera(4,i)
-          if(qt.ge.qmax)qmax = qt
-          if(qt.le.qmin)qmin = qt
+          if(qt.ge.qmax) qmax = qt
+          if(qt.le.qmin) qmin = qt
  2000   continue
         Write(Lu,1100)QMin, QMax
       EndIf
@@ -55,7 +55,8 @@ C
  2020 continue
  2010 continue
       Do 20 i = 1, NTs
-  20    write(Lu,3000)NVert(i),(IVTS(j,i),j=1,nvert(i))
+        write(Lu,3000)NVert(i),(IVTS(j,i),j=1,nvert(i))
+  20  Continue
       Close(Lu)
  500  Format(1x,a)
 1000  Format(3i10)
@@ -176,7 +177,7 @@ C
       End
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      Subroutine ColChg(i,q,qmax,qmin,C1,C2,C3)
+      Subroutine ColChg(i,q,QMAX,QMIN,C1,C2,C3)
       Implicit Real*8(A-H,O-Z)
 C
 C     Assign tesserae colours for GeomView:

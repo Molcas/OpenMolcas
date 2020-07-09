@@ -44,7 +44,6 @@
 *              Tcrtnc                                                  *
 *              Screen                                                  *
 *              Rysg1                                                   *
-*              GetMem                                                  *
 *              RecPrt                                                  *
 *              DaXpY  (ESSL)                                           *
 *              DScal  (ESSL)                                           *

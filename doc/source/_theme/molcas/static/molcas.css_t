@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2015,2017,2019 Ignacio Fdez. Galván                    *
+* Copyright (C) 2015,2017,2019,2020, Ignacio Fdez. Galván              *
 ***********************************************************************/
 
 /*
@@ -338,11 +338,11 @@ div.sidebar {
   border-width: 0 2px 2px 0;
 }
 
-div.sidebar a, div.header a {
+div.sidebar a, div.header a, div.footer .left a {
   text-decoration: none;
 }
 
-div.sidebar a:hover, div.header a:hover {
+div.sidebar a:hover, div.header a:hover, div.footer .left a:hover {
   text-decoration: underline;
 }
 
@@ -738,12 +738,13 @@ dl.footnote {
 }
 
 dl.footnote dt {
-  height: 0;
   margin-left: 2em;
+  margin-right: 0.5em;
+  float: left;
 }
 
 dl.footnote dd {
-  margin-left: 4em;
+  margin-left: 3em;
 }
 
 dl.footnote dd p {

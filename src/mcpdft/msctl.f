@@ -76,6 +76,7 @@
       integer LUGS
       LOGICAL Do_Rotate
       COMMON /MSPDFT/ Do_Rotate
+      External IsFreeUnit
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
@@ -92,7 +93,7 @@ C Local print level (if any)
 ***********************************************************
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-*      write(*,*) 'rlxroot ', irlxroot
+*      write(6,*) 'rlxroot ', irlxroot
 *TRS
 *
       Call Get_dScalar('PotNuc',potNuc)
@@ -125,7 +126,7 @@ C Local print level (if any)
       Tot_El_Charge=Tot_El_Charge-DBLE(nActEl)
       Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
 
-      
+
 ***********************************************************
 * Load bare nuclei Hamiltonian
 ***********************************************************
@@ -283,25 +284,28 @@ c      end if
 !the MO to the AO basis.
 
          Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
-*        write(*,*) "D1"
+*        write(6,*) "D1"
 *        do i=1,nacpar
-*          write(*,*) Work(id1act-1+i)
+*          write(6,*) Work(id1act-1+i)
 *        end do
 
       if(.false.) then
-         open(unit=90,File='DMs.out',action='read')
+         LUDM=90
+         LUDM=IsFreeUnit(LUDM)
+         Call Molcas_Open(LUDM,'DMs.out')
          do i=1,NACPAR
-           read(90,*) Work(id1Act-1+i)
+           read(LUDM,*) Work(id1Act-1+i)
          end do
+         Close(LUDM)
       end if
 
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
         Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
         Call FZero(Work(ip2dt1),Nacpr2)
         Call P2_contraction(Work(iD1Act),Work(iP2dt1))
-*        write(*,*) "P2_t"
+*        write(6,*) "P2_t"
 *        do i=1,nacpr2
-*          write(*,*) i,Work(ip2dt1-1+i)
+*          write(6,*) i,Work(ip2dt1-1+i)
 *        end do
         Call Put_P2MOt(Work(iP2dt1),NACPR2)
         Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
@@ -318,9 +322,9 @@ c      end if
          Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
          Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
          Call Put_P2MO(Work(iP2d),NACPR2)
-*        write(*,*) "P2"
+*        write(6,*) "P2"
 *        do i=1,nacpr2
-*          write(*,*) Work(ip2d-1+i)
+*          write(6,*) Work(ip2d-1+i)
 *        end do
          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -346,7 +350,7 @@ c      end if
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
 *         write(6,*) "is this it?",ntot2
 *         do i=1,ntot2
-*           write(*,*) Work(iD1ActAO-1+i)
+*           write(6,*) Work(iD1ActAO-1+i)
 *         end do
 
 !ANDREW _ RIGHT HERE
@@ -392,7 +396,6 @@ cPS         call xflush(6)
          do i=1,ntot1
            write(6,*) work(itmp7-1+i)
          end do
-         call xflush(6)
       end if
          Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
 
@@ -417,8 +420,6 @@ cPS         call xflush(6)
         Call Put_iArray('nFro',nFro,nSym)
         Call Put_iArray('nAsh',nAsh,nSym)
         Call Put_iArray('nIsh',nIsh,nSym)
-
-         call xflush(6)
 
         iCharge=Int(Tot_Charge)
 
@@ -596,7 +597,7 @@ c         call xflush(6)
       if (iprlev.ge.debug) then
             write(6,*) 'id1act before reading in'
             do i=1,nacpar
-              write(*,*) work(id1act-1+i)
+              write(6,*) work(id1act-1+i)
             end do
       end if
 *
@@ -616,38 +617,38 @@ c         call xflush(6)
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
-        if(iprlev.ge.debug) then 
+        if(iprlev.ge.debug) then
             write(6,*) 'cmo before tractl'
             do i=1,ntot2
-              write(*,*) work(lcmo-1+i)
+              write(6,*) work(lcmo-1+i)
             end do
             write(6,*) 'lpuvx before tractl'
             do i=1,nfint
-              write(*,*) work(lpuvx-1+i)
+              write(6,*) work(lpuvx-1+i)
             end do
             write(6,*) 'ltuvx after tractl'
             do i=1,nacpr2
-              write(*,*) work(ltuvx-1+i)
+              write(6,*) work(ltuvx-1+i)
             end do
             write(6,*) 'id1act_fa before tractl'
             do i=1,nacpar
-              write(*,*) work(id1act_FA-1+i)
+              write(6,*) work(id1act_FA-1+i)
             end do
             write(6,*) 'id1actao_fa before tractl'
             do i=1,ntot2
-              write(*,*) work(id1actao_FA-1+i)
+              write(6,*) work(id1actao_FA-1+i)
             end do
             write(6,*) 'id1act before tractl'
             do i=1,nacpar
-              write(*,*) work(id1act-1+i)
+              write(6,*) work(id1act-1+i)
             end do
             write(6,*) 'id1actao before tractl'
             do i=1,ntot2
-              write(*,*) work(id1actao-1+i)
+              write(6,*) work(id1actao-1+i)
             end do
             write(6,*) 'id1i before tractl'
             do i=1,ntot2
-              write(*,*) work(id1i-1+i)
+              write(6,*) work(id1i-1+i)
             end do
         end if
 *
@@ -655,21 +656,21 @@ c         call xflush(6)
         if(iprlev.ge.debug) then
             write(6,*) 'ifocki before tractl'
             do i=1,ntot1
-              write(*,*) work(ifocki-1+i)
+              write(6,*) work(ifocki-1+i)
             end do
         end if
 *
-        call  dcopy_(ntot1,work(ifocki),1,work(ifocki_save),1) 
+        call  dcopy_(ntot1,work(ifocki),1,work(ifocki_save),1)
 *
         if (iprlev.ge.debug) then
              write(6,*) 'ifocki_save before tractl'
              do i=1,ntot1
-               write(*,*) work(ifocki_save-1+i)
+               write(6,*) work(ifocki_save-1+i)
              end do
 
              write(6,*) 'ifocka before tractl'
              do i=1,ntot1
-               write(*,*) work(ifocka-1+i)
+               write(6,*) work(ifocka-1+i)
              end do
          end if
 *
@@ -680,15 +681,15 @@ c         call xflush(6)
       if (iprlev.ge.debug) then
             write(6,*) 'ltuvx before !!! tractl'
             do i=1, nacpr2
-              write(*,*) work(ltuvx_tmp-1+i)
+              write(6,*) work(ltuvx_tmp-1+i)
             end do
-      end if 
+      end if
 *
       CALL DCOPY_(nfint,[Zero],0,WORK(lpuvx_tmp),1)
       if (iprlev.ge.debug) then
             write(6,*) 'lpuvx before tractl'
             do i=1,nfint
-              write(*,*) work(lpuvx_tmp-1+i)
+              write(6,*) work(lpuvx_tmp-1+i)
             end do
       end if
 *
@@ -710,61 +711,61 @@ c         call xflush(6)
         if(iprlev.ge.debug) then
             write(6,*) 'cmo after tractl'
             do i=1,ntot2
-              write(*,*) work(lcmo-1+i)
+              write(6,*) work(lcmo-1+i)
             end do
             write(6,*) 'lpuvx after tractl'
             do i=1,nfint
-              write(*,*) work(lpuvx-1+i)
+              write(6,*) work(lpuvx-1+i)
             end do
             write(6,*) 'ltuvx after tractl'
             do i=1,nacpr2
-              write(*,*) work(ltuvx-1+i)
+              write(6,*) work(ltuvx-1+i)
             end do
            write(6,*) 'id1act_FA after tractl'
             do i=1,nacpar
-              write(*,*) work(id1act_FA-1+i)
+              write(6,*) work(id1act_FA-1+i)
             end do
             write(6,*) 'id1actao_FA after tractl'
             do i=1,ntot2
-              write(*,*) work(id1actao_FA-1+i)
+              write(6,*) work(id1actao_FA-1+i)
             end do
             write(6,*) 'id1act after tractl'
             do i=1,nacpar
-              write(*,*) work(id1act-1+i)
+              write(6,*) work(id1act-1+i)
             end do
             write(6,*) 'id1actao after tractl'
             do i=1,ntot2
-              write(*,*) work(id1actao-1+i)
+              write(6,*) work(id1actao-1+i)
             end do
             write(6,*) 'id1i before tractl'
             do i=1,ntot2
-              write(*,*) work(id1i-1+i)
+              write(6,*) work(id1i-1+i)
             end do
         end if
-        
+
         if(iprlev.ge.debug) then
             write(6,*) 'ifocki after tractl'
             do i=1,ntot1
-              write(*,*) work(ifocki-1+i)
+              write(6,*) work(ifocki-1+i)
             end do
         end if
 
         if (iprlev.ge.debug) then
              write(6,*) 'ifocki_save after tractl'
              do i=1,ntot1
-               write(*,*) work(ifocki_save-1+i)
+               write(6,*) work(ifocki_save-1+i)
              end do
 *
              write(6,*) 'ifocka after tractl'
              do i=1,ntot1
-               write(*,*) work(ifocka-1+i)
+               write(6,*) work(ifocka-1+i)
              end do
          end  if
 *
-*        if (jroot.ne.irlxroot) then 
+*        if (jroot.ne.irlxroot) then
 *        Call dcopy_(ntot1,FI,1,Work(ifocki),1)
 *        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
-*        end if 
+*        end if
 *
          Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
      &             Work(iFockI_save),Work(iFockA))
@@ -796,7 +797,7 @@ c         call xflush(6)
       if (iprlev.ge.debug) then
            write(6,*) 'id1act after copy in tractl'
             do i=1,nacpar
-              write(*,*) work(id1act-1+i)
+              write(6,*) work(id1act-1+i)
             end do
       end if
 *
@@ -837,13 +838,13 @@ c         call xflush(6)
          CASDFT_Funct = 0
          Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-         CASDFT_E = ECAS-EVAC+CASDFT_Funct
+         CASDFT_E = ECAS+CASDFT_Funct
 
-!         Write(*,*)
+!         Write(6,*)
 !         '**************************************************'
-!         write(*,*) 'ENERGY REPORT FOR STATE',jroot
+!         write(6,*) 'ENERGY REPORT FOR STATE',jroot
 *TRS
-*          write(*,*) 'ECAS', ECAS
+*          write(6,*) 'ECAS', ECAS
 
 *TRS
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
@@ -934,31 +935,31 @@ cPS         call xflush(6)
 *
 *         write(6,*) 'cmo after before fmat 2'
 *         do i=1,ntot2
-*           write(*,*) work(lcmo-1+i)
+*           write(6,*) work(lcmo-1+i)
 *         end do
 *        write(6,*) 'lpuvx after before fmat 2'
 *         do i=1,nfint
-*           write(*,*) work(lpuvx-1+i)
+*           write(6,*) work(lpuvx-1+i)
 *         end do
 *        write(6,*) 'id1act after before fmat 2'
 *         do i=1,nacpar
-*           write(*,*) work(id1act-1+i)
+*           write(6,*) work(id1act-1+i)
 *         end do
 *        write(6,*) 'id1actao after before fmat 2'
 *         do i=1,ntot2
-*           write(*,*) work(id1actao-1+i)
+*           write(6,*) work(id1actao-1+i)
 *         end do
-*        
+*
 *         write(6,*) 'ifocki_save after before fmat 2'
 *         do i=1,ntot1
-*           write(*,*) work(ifocki_save-1+i)
+*           write(6,*) work(ifocki_save-1+i)
 *         end do
 *        write(6,*) 'ifocka after before fmat 2'
 *         do i=1,ntot1
-*           write(*,*) work(ifocka-1+i)
+*           write(6,*) work(ifocka-1+i)
 *         end do
 *
-         
+
 *        Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
 *     &             Work(iFockI_save),Work(iFockA))
 *       call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
@@ -997,7 +998,7 @@ cPS         call xflush(6)
 !         Call Dscal_(nTOT1,4.0d0,Work(ifiv),1)
 *         write(6,*) 'fiv after tractl'
 *         do i=1,ntot1
-*           write(*,*) work(ifiv-1+i)
+*           write(6,*) work(ifiv-1+i)
 *         end do
 
       !Call daxpy_(ntot1,0.5d0,Work(ifiv),1,Work(iFocka),1)
@@ -1043,12 +1044,11 @@ cPS         call xflush(6)
 !This should be addressed in the upd_FI routine.
 
       !Write to file.
-      Open(unit=87,file='TmpFock', action='write',iostat=ios)
-      if (ios.ne.0) then
-        write(6,*) "error opening file!"
-      end if
+      LUTMP=87
+      LUTMP=IsFreeUnit(LUTMP)
+      Call Molcas_Open(LUTMP,'TmpFock')
       do i=1,ntot1
-        write(87,*) Work(iFone+i-1)
+        write(LUTMP,*) Work(iFone+i-1)
       end do
 
 !Write the TUVX teotp to file.q
@@ -1069,9 +1069,9 @@ cPS         call xflush(6)
 
       !Unpack TUVX to size
       do i=1,nacpr2
-        write(87,*) Work(ittTUVX+i-1)
+        write(LUTMP,*) Work(ittTUVX+i-1)
       end do
-      Close(87)
+      Close(LUTMP)
       Call GetMem('F_ONE','Free','Real',iFone,NTOT1)
       Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
 
@@ -1200,9 +1200,9 @@ cPS         call xflush(6)
 !      Call FZero(Work(ip2dt1),Nacpr2)
 !      !I need the non-symmetry blocked d1act, hence the read.
 !      Call Get_D1MO(iD1Act1,NACPAR)
-!        write(*,*) 'd1act'
+!        write(6,*) 'd1act'
 !        do i=1,NACPAR
-!          write(*,*) work(iD1Act1-1+i)
+!          write(6,*) work(iD1Act1-1+i)
 !        end do
 !      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
 !      Call Put_P2MOt(Work(iP2dt1),NACPR2)
@@ -1354,8 +1354,8 @@ c      call xflush(6)
       real*8 :: fact
 
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*      write(*,*) 'inside p2_contraction'
-      
+*      write(6,*) 'inside p2_contraction'
+
 
 
       Call GetMem('D1copy','Allo','Real',iD1c,NACPAR)
