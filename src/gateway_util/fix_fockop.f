@@ -140,7 +140,6 @@
             Do iAng = 0, nVal_Shells(iCnttp)-1
 *
                iShll_a    = ipVal(iCnttp) + iAng
-               ipCff_a    = ipCff_Cntrct(iShll_a)
                nPrim_a  = nExp(iShll_a)
                If (nPrim_a.eq.0) Cycle
                nCntrc_a = nBasis_Cntrct(iShll_a)
@@ -160,9 +159,9 @@
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipKnE,
      &                      nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a)
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 *define _DEBUG_
 #ifdef _DEBUG_
                Call DScal_(nCntrc_a**2*iCmp_a**2,
@@ -183,9 +182,9 @@
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipNAE,
      &                      nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a)
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Nuclear-attraction Integrals',' ',
      &                     DInf(ipNAE),nCntrc_a**2,iCmp_a**2)
@@ -216,9 +215,9 @@
      &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipOvr,
      &                      nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a,
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                      nCntrc_a,ipCff_a,iCmp_a)
+     &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Overlap Integrals',' ',
      &                     DInf(ipOvr),nCntrc_a**2,iCmp_a**2)
@@ -438,8 +437,7 @@
          iShll = Mx_Shll-1
          jShll = iShll
          SODK(nCnttp)=.False.
-         Call GetBS(Fname,Bsl_,Indx-1,lAng,ipExp,
-     &              ipCff,ipCff_Cntrct,ipCff_Prim,nExp,
+         Call GetBS(Fname,Bsl_,Indx-1,lAng,ipExp,nExp,
      &              nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
@@ -449,8 +447,7 @@
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &              LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
-     &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              DInf,nDInf,nCnttp)
+     &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
 *
          If (.Not.FockOp(nCnttp)) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'
@@ -488,7 +485,6 @@
 *           Pointers to the actuall shell
 *
             iShll_a    = ipVal(iCnttp) + iAng
-            ipCff_a    = ipCff_Cntrct(iShll_a)
             nPrim_a  = nExp(iShll_a)
             If (nPrim_a.eq.0) Cycle
             nCntrc_a = nBasis_Cntrct(iShll_a)
@@ -498,7 +494,6 @@
 *           Pointers to the reference shell
 *
             iShll_r = ipVal(nCnttp) + iAng
-            ipCff_r    = ipCff_Cntrct(iShll_r)
             nPrim_r  = nExp(iShll_r)
             nPrim_r  = nExp(iShll_r)
             If (nPrim_r.eq.0) Then
@@ -521,11 +516,11 @@
                   Write (6,*) 'Reference is ECP (Huzinaga type)'
                End If
                Call RecPrt('Reference Exponents',' ',
-     &                     Shells(iShll_r)%Exp,1,nPrim_r)
+     &                    Shells(iShll_r)%Exp,1,nPrim_r)
                Call RecPrt('Reference Coefficients',' ',
-     &                     DInf(ipCff_r),nPrim_r,nCntrc_r)
+     &                    Shells(iShll_r)%Cff_c(1,1,1),nPrim_r,nCntrc_r)
                Call RecPrt('Reference Fock operator',' ',
-     &                     Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
+     &                    Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
 #endif
                Call OrbType(iAtmNr(nCnttp),List_AE,31)
                Call ECP_Shells(iAtmNr(iCnttp),List)
@@ -570,8 +565,6 @@
 *
 *              Update the number of contracted functions of ref.
                nCntrc_t = nCntrc_r - nRemove
-*              Update pointer to contraction coeffs of ref
-               ipCff_r = ipCff_r + nRemove*nPrim_r
 *              Pick up relevant parts of the FockOp matrix of ref.
                Call mma_allocate(FockOp_t,nCntrc_t**2)
                ipFockOp_t=1
@@ -583,6 +576,8 @@
                   iOff_t = iOff_t + nCntrc_t
                End Do
                nCntrc_r = nCntrc_t
+            Else
+               nRemove = 0
             End If
 *                                                                      *
 ************************************************************************
@@ -590,13 +585,14 @@
 *
 #ifdef _DEBUG_
             Call RecPrt('Actual Exponents',' ',
-     &                  Shells(iShll_a)%Exp,1,nPrim_a)
+     &                 Shells(iShll_a)%Exp,1,nPrim_a)
             Call RecPrt('Actual Coefficients',' ',
-     &                  DInf(ipCff_a),nPrim_a,nCntrc_a)
+     &                 Shells(iShll_a)%Cff_c(1,1,1),nPrim_a,nCntrc_a)
             Call RecPrt('Reference Exponents',' ',
-     &                  Shells(iShll_r)%Exp,1,nPrim_r)
+     &                 Shells(iShll_r)%Exp,1,nPrim_r)
             Call RecPrt('Reference Coefficients',' ',
-     &                  DInf(ipCff_r),nPrim_r,nCntrc_r)
+     &                 Shells(iShll_r)%Cff_c(1,Remove+1,1),
+     &                                              nPrim_r,nCntrc_r)
             If (Allocated(FockOp_t)) Then
                Call RecPrt('Reference Fock operator',' ',
      &                     FockOp_t,nCntrc_r,nCntrc_r)
@@ -635,9 +631,9 @@
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                   nCntrc_a,ipCff_a,iCmp_a,
+     &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                   nCntrc_a,ipCff_a,iCmp_a)
+     &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -647,9 +643,10 @@
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
-     &                   nCntrc_a,ipCff_a,iCmp_a,
+     &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_r,nPrim_r,Shells(iShll_r)%Exp,
-     &                   nCntrc_r,ipCff_r,iCmp_r)
+     &                   nCntrc_r,Shells(iShll_r)%Cff_c(1,1+nRemove,1),
+     &                                                         iCmp_a)
 *
             nSRR = nCntrc_r**2 * naa
 *                                                                      *
@@ -816,6 +813,14 @@
             If (Allocated(Shells(iShll_r)%FockOp))
      &          Call mma_deallocate(Shells(iShll_r)%FockOp)
             Shells(iShll_r)%nFockOp=0
+            If (Allocated(Shells(iShll_r)%pCff))
+     &          Call mma_deallocate(Shells(iShll_r)%pCff)
+            If (Allocated(Shells(iShll_r)%Cff_c))
+     &          Call mma_deallocate(Shells(iShll_r)%Cff_c)
+            If (Allocated(Shells(iShll_r)%Cff_p))
+     &          Call mma_deallocate(Shells(iShll_r)%Cff_p)
+            Shells(iShll_r)%nExp=0
+            Shells(iShll_r)%nBasis=0
          End Do
 *                                                                      *
 ************************************************************************

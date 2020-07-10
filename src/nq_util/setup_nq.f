@@ -186,7 +186,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
 ************************************************************************
          Call OrdExpD2C(mExp,Shells(iShll)%Exp,nCntrc,
-     &                       Work(iSD(4,iShell)))
+     &                       Shells(iShll)%pCff)
 *
 *-----Get the extreme exponents for the active shell.
          A_low =Shells(iShll)%Exp(1)

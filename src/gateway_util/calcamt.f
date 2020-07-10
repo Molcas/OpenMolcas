@@ -8,11 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CalcAMt (iOpt,LUQRP,MPLbl,
-     &                    lMax,iSRShll,
-     &                    nProj,iCoShll,
-     &                    ipCff,nExp,nBasis,MxShll,
-     &                    rcharge,DInf,nDInf)
+      Subroutine CalcAMt (iOpt,LUQRP,MPLbl,lMax,iSRShll,
+     &                    nProj,iCoShll,nExp,nBasis,MxShll,rcharge)
 ************************************************************************
 *                                                                      *
 *...       calculates the non-diagonal spectral representation         *
@@ -29,9 +26,8 @@
       External Agin, Ovlmp, Vexch, Vqr
 #include "relmp.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
       Character*20 MPLbl
-      Integer ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
+      Integer nExp(MxShll), nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -133,9 +129,8 @@ C...    Overlap and, if neccesary, exchange.
             End If
             If (iAnd(iOpt,iExch).ne.0) Then
 C...          minus exchange potential
-              AuxLs=VExch(ZI,N,ZJ,N,LAM,
-     &                    ipCff,nExp,nBasis,MxShll,
-     &                    nProj,iCoShll, DInf,nDInf)
+              AuxLs=VExch(ZI,N,ZJ,N,LAM,nExp,nBasis,MxShll,
+     &                    nProj,iCoShll)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF
             OVL(I,J)=OVLMP(N,ZI,N,ZJ)

@@ -11,8 +11,7 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,
-     &                 lAng,ipExp,ipCff,ipCff_Cntrct,ipCff_Prim,
+      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,ipExp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
@@ -22,7 +21,7 @@
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,AuxCnttp, IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 DInf,nDInf,nCnttp)
+     &                 nCnttp)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -44,10 +43,8 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"
-#include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
       Character*80 BSLbl, BLine, Ref(2), MPLbl*20,
      &             Filenm, Atom, Type
       Character*256 DirName
@@ -64,15 +61,14 @@
       Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
-      Integer ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &        ipCff_Prim(MxShll),
+      Integer ipExp(MxShll),
      &        nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll)
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir
-      Real*8, Allocatable:: ExpMerged(:)
+      Real*8, Allocatable:: ExpMerged(:),Temp(:,:)
       Data DefNm/'basis_library'/
 *
 #include "relmp.fh"
@@ -85,37 +81,33 @@
 *     IRELMP =21 .... ZORA
 *     IRELMP =22 .... ZORA-FP
 *     IRELMP =23 .... IORA
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                     BLine,CrRep,nProj,
-     &                     ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
+         SubRoutine GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,
+     &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,nCnttp)
          Integer lUnit
-         Integer ipExp(MxShll), ipCff(MxShll),
-     &            nExp(MxShll), nBasis(MxShll)
+         Integer ipExp(MxShll), nExp(MxShll), nBasis(MxShll)
          Integer MxShll,iShll
          Character*(*) BLine
          Real*8  CrRep
          Integer nProj
          Integer ipPP, nPP
          Logical UnNorm
-         Real*8  DInf(nDInf)
          Integer nCnttp
          End SubRoutine GetECP
       End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=6
-      iPrint = nPrint(iRout)
-      IfTest=.False.
 !#define _DEBUG_
 #ifdef _DEBUG_
       IfTest=.True.
       iPrint=99
+#else
+      IfTest=.False.
+      iPrint=5
 #endif
       If (IfTest) iPrint=99
       ip_Dummy=-1
@@ -312,7 +304,6 @@ C              Write(6,*) 'Fock operator is included'
               nCntrc=nCGTO(iAng)
            Endif
          EndIf                                          ! CGGn
-         nDntrc=nCntrc
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
          iStrt=ipExp(iShll)
@@ -338,15 +329,17 @@ C              Write(6,*) 'Fock operator is included'
 *
 *        Storage of coefficients for both contracted and uncontracted case.
 *
-         ipCff_c = iStrt
-         ipCff_Cntrct(iShll)=iStrt
-         iEnds= iEnd + 2*nPrim*nCntrc
-         ipCff_Prim(iShll)= iEnds + 1
-         ipCff_p = ipCff_Prim(iShll)
-         iEnds= iEnds+ 2*nPrim**2
-culf
-         iEndc = iStrt + nPrim*nDntrc - 1
-         iEnd  = iStrt + nPrim*nCntrc - 1
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Shells(iShll)%Cff_c(:,:,1)=Zero
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Shells(iShll)%nBasis=nCntrc
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
+         iEnds= iEnd
+         iEndc = iStrt - 1
+         iEnd  = iStrt - 1
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and
 *        nCntrc columns
@@ -358,16 +351,16 @@ culf
          End If
          If (IfTest) Write (6,*) ' Read/Process coefficients'
 *
-         If ((inLn1 .or. mCGTO(iAng).eq.nCntrc).or.
-     &       nCntrc.eq.0) Then
+         If ((inLn1 .or. mCGTO(iAng).eq.nCntrc).or. nCntrc.eq.0) Then
 *           Read in coeffs. in GC format, as the standard case
             If (IfTest) Write (6,*) ' Standard case'
-            Call FZero(DInf(iStrt),nPrim*nDntrc)
+            Shells(iShll)%Cff_c(:,:,:)=Zero
             If (UnContracted) Then
-               Call DCopy_(nPrim,[One],0,DInf(iStrt),nPrim+1)
+               ForAll (i=1:nPrim) Shells(iShll)%Cff_c(i,i,1)=One
             Else
-               Do iPrim = 0, nPrim-1
-                  Call Read_v(lUnit,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
+               Do iPrim = 1, nPrim
+                  Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                        iPrim,nCntrc*nPrim,nPrim,Ierr)
                   If (Ierr.ne.0) Then
                      Call WarningMessage(2,
      &                      'GetBS: Error reading coeffs in GC format')
@@ -400,10 +393,13 @@ culf
      &             //' of primitive: correct the basis set label!')
                Call Quit_OnUserError()
             End If
+            Call mma_allocate(Temp,nPrim,Max(nCntrc,mCGTO(iAng)),
+     &                        Label='Temp')
+            Temp(:,:)=Zero
 *           read the block in the library as it is
-            iEndNow = iStrt + nPrim*mCGTO(iAng) - 1
-            Do iPrim = 0, nPrim-1
-               Call Read_v(lUnit,DInf,iStrt+iPrim,iEndNow,nPrim,Ierr)
+            Do iPrim = 1, nPrim
+               Call Read_v(lUnit,Temp,
+     &                     iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                        'GetBS: Error reading the block')
@@ -413,27 +409,30 @@ culf
 *
 *           Order the exponents
 *
-            Call OrdExp1(nPrim,Shells(iShll)%Exp,
-     &                   mCGTO(iAng),DInf(ipCff_c))
+            Call OrdExp1(nPrim,Shells(iShll)%Exp,mCGTO(iAng),Temp)
 *
 *           identify the presence of added polarization and diffusse
 *           functions;
             iAdded = 0
-            Do 212 jNow = mCGTO(iAng), 1, -1
+*           Examine all the contracted functions starting with the last
+      Outer:Do jNow = mCGTO(iAng), 1, -1
                iFlgOne = 0
+               ! Examine the primitives
                Do iNow = 1, nPrim
-                  i = iStrt - 1 + nPrim*(jNow-1)+iNow
-                  If (DInf(i).ne.Zero.and.DInf(i).ne.One) go to 2129
-                  If (DInf(i).eq.One) Then
-                     If (iFlgOne.eq.1)  go to 212
+                  Coeff=Temp(iNow,jNow)
+                  ! Stop if it is obvious that this is not a diffuse
+                  ! or polarization function.
+                  If (Coeff.ne.Zero.and.Coeff.ne.One) Exit Outer
+                  If (Coeff.eq.One) Then
+                     If (iFlgOne.eq.1)  Cycle Outer
                      iFlgOne = 1
                   End If
                End Do
                iAdded = iAdded + 1
                If (IfTest) Write (6,*)
      &                          'function',jNow,' is an added one'
-212         Continue
-2129        Continue
+            End Do Outer
+*
             nAdded = iAdded
             If (nAdded.eq.mCGTO(iAng)) nAdded=0
             If (IfTest) Write (6,*) ' nAdded=',nAdded
@@ -441,52 +440,46 @@ culf
 *              shift the added polarization and diffuse functions to
 *              the right
                Do jNow = 1, nAdded
+                  j1= nCntrc     -jNow+1
+                  j2= mCGTO(iAng)-jNow+1
                   Do iNow = 1, nPrim
-                     j = nCntrc     -jNow+1
-                     iNew = iStrt - 1 + nPrim*(j-1)+iNow
-                     j = mCGTO(iAng)-jNow+1
-                     iOld = iStrt - 1 + nPrim*(j-1)+iNow
-                     DInf(iNew) = DInf(iOld)
+                     Temp(iNow,j1)=Temp(iNow,j2)
                   End Do
                End Do
             End If
 *           insert/append the outermost primitives (in GC format)
             Do jNow = mCGTO(iAng) + 1 - nAdded, nCntrc - nAdded
                If (IfTest) write (6,*) 'jNow=',jNow
-               iPrevNow = iStrt - 1 + nPrim*(jNow-1)
-*              write (*,*) '0:',nPrim*(jNow-1)+1,nPrim*(jNow-1)+nPrim
-               Do i = iPrevNow + 1, iPrevNow + nPrim
-                  DInf(i) = Zero
-               End Do
+               Temp(:,jNow)=Zero
                j = jNow - (mCGTO(iAng)-nAdded)
                iPrevNow = nPrim - nAdded - (nCntrc - mCGTO(iAng))
                iNow = iPrevNow + j
-               i = iStrt - 1 + nPrim*(jNow-1)+iNow
-*              write (*,*) 'j=',j,'i=',nPrim*(jNow-1)+iNow
-               DInf(i) = One
+               Temp(iNow,jNow) = One
             End Do
+            Shells(iShll)%Cff_c(:,:,1)=Temp(:,1:nCntrc)
+            Call mma_deallocate(Temp)
          End If
 *
          If (IfTest) Write (6,*) ' Done! Now Process.'
 *
 *        Order the exponents
 *
-         Call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,DInf(ipCff_c))
+         Call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,
+     &                     Shells(iShll)%Cff_c(1,1,1))
          If (nPrim*nCntrc.ne.0) mVal = mVal + 1
 *
 *        Decontract if integrals required in the primitive basis
 *
          If (nPrim.eq.0) Go To 777
-         Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
-         Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
+         Shells(iShll)%Cff_p(:,:,1)=Zero
+         ForAll (i=1:nPrim) Shells(iShll)%Cff_p(i,i,1)=One
 *
 *------- Save the contraction coefficients once more after the coefficients.
 *        The second set will not be normalized!
 *
-         iOff = nPrim*nCntrc
-         Call DCopy_(nPrim*nCntrc,DInf(ipCff_c),1,DInf(ipCff_c+iOff),1)
-         iOff = nPrim*nPrim
-         Call DCopy_(nPrim*nPrim, DInf(ipCff_p),1,DInf(ipCff_p+iOff),1)
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
 *
 *        The normalization coefficients are assumed to be for
 *        normalized Gaussians. In Nrmlz the contraction coefficients are
@@ -496,19 +489,18 @@ culf
 *
          If (.Not.UnNorm) Then
             Call Nrmlz(Shells(iShll)%Exp,nPrim,
-     &                 DInf(ipCff_c),nCntrc,iAng)
+     &                 Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
             Call Nrmlz(Shells(iShll)%Exp,nPrim,
-     &                 DInf(ipCff_p),nPrim,iAng)
+     &                 Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
          End If
 *
          If (iPrint.ge.99) Then
-            ipCff_x = ipCff_Cntrct(iShll)
             nPrim = nExp(iShll)
             nCntrc= nBasis_Cntrct(iShll)
             Call RecPrt(' Coefficients (normalized)',' ',
-     &                  DInf(ipCff_x),nPrim,nCntrc)
+     &                  Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
             Call RecPrt(' Coefficients (unnormalized)',' ',
-     &                  DInf(ipCff_x+nPrim*nCntrc),nPrim,nCntrc)
+     &                  Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
          End If
  777     Continue
          iEnd = iEnds
@@ -629,9 +621,8 @@ culf
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
-         Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               CrRep,nProj,ipPP_,nPP,UnNorm,
-     &               DInf,nDinf,nCnttp)
+         Call GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,Bline,
+     &               CrRep,nProj,ipPP_,nPP,UnNorm,nCnttp)
          nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then
@@ -705,7 +696,6 @@ culf
             Shells(iShll)%nExp = Shells(jValSh)%nExp
             nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
-            ipCff(iShll)   = ip_Dummy
             iEnd = iStrt - 1
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
@@ -738,7 +728,6 @@ culf
             Shells(iShll)%nExp=Shells(jPrSh)%nExp
             nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
-            ipCff(iShll)   = ip_Dummy
             iEnd = iStrt - 1
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
@@ -772,7 +761,6 @@ culf
             Shells(iShll)%nExp=nPrim
             nExp(iShll) = nPrim
             nBasis(iShll) = 0
-            ipCff(iShll)   = ip_Dummy
             iEnd = iStrt - 1
 *
             If (nPrim.gt.0) then
@@ -857,7 +845,6 @@ culf
 *
             iEnd = iStrt - 1
             nBasis(iShll) = 0
-            ipCff(iShll)   = ip_Dummy
 *
             iStrt = iEnd + 1
             iEnd = iStrt
@@ -910,16 +897,30 @@ culf
          If (IfTest)
      &      Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
          iStrt = iEnd + 1
-         ipCff(iShll) = iStrt
-         iEnd = iStrt + nPrim*nCntrc - 1
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Shells(iShell)%nBasis=nCntrc
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
+         Shells(iShll)%Cff_p(:,:,:)=Zero
+         iEnd = iStrt - 1
          If (IfTest) Write (6,'(A)') ' Reading coefficients'
-         Do 20 iPrim = 0, nPrim-1
-            Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPrim,ierr)
+         Do 20 iPrim = 1, nPrim
+            Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                  iPrim,nPrim*nCntrc,nPrim,ierr)
  20      Continue
-         If (IfTest) Call RecPrt('Exponents',' ',DInf(ipCff(iShll)),
-     &                           nPrim,nCntrc)
+*
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
+*
+         If (IfTest)
+     &      Call RecPrt('Coefficients',Shells(iShll)%Cff_c(1,1,1),
+     &                  nPrim,nCntrc)
          iStrt = iEnd + 1
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
  12   Continue
  990     Continue
@@ -1047,8 +1048,7 @@ culf
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
-     &                   iPrSh+1,ipCff,nExp,nBasis,MxShll,
-     &                   DBLE(iAtmNr),DInf,nDInf)
+     &                   iPrSh+1,nExp,nBasis,MxShll,DBLE(iAtmNr))
             Close (LUQRP)
          End If
       End If

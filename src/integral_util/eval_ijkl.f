@@ -89,6 +89,7 @@
       use k2_setup
       use k2_arrays
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -129,7 +130,6 @@
 *     other local variables
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
-     &  ipCffi,jpCffj,kpCffk,lpCffl,
      &  iBasn,jBasn,kBasn,lBasn,
      &  k2ij,nDCRR,k2kl,nDCRS, ipTmp,
      &  mDij,mDik,mDjk,mDkl,mDil,mDjl,
@@ -236,10 +236,6 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       jBasj    = nBasis(iShllV(2))
       kBask    = nBasis(iShllV(3))
       lBasl    = nBasis(iShllV(4))
-      ipCffi   = ipCff(iShllV(1))
-      jpCffj   = ipCff(iShllV(2))
-      kpCffk   = ipCff(iShllV(3))
-      lpCffl   = ipCff(iShllV(4))
       nZeta = iPrimi * jPrimj
       nEta = kPrimk * lPriml
       mDij=nZeta+1 ! Dummy initialize
@@ -481,10 +477,12 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     &           Fock,Dens,lDens,
+     &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &                  Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &                  FT,nFT,
      & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),
@@ -512,10 +510,12 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     &           Fock,Dens,lDens,
+     &                  Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &                  Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &                  Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &                  Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &                            FT,nFT,
      & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_INT(ipiZet),Mem_DBLE(ipKab),
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_INT(ipiEta),Mem_DBLE(ipKcd),

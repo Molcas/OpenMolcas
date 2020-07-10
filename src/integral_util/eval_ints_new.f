@@ -133,7 +133,8 @@
 *                                                                      *
 *     Call to subroutine with extended parameter list.
 *
-      Call Eval_Ints_New_(iiS,jjS,kkS,llS,TInt,nTInt,
+      Call Eval_Ints_New_Internal
+     &               (iiS,jjS,kkS,llS,TInt,nTInt,
      &                iTOffs,nShi,nShj,nShk,nShl,
      &                nShOffi,nShOffj,nShOffk,nShOffl,
      &                Integ_Proc,

@@ -12,7 +12,7 @@
 ************************************************************************
       Interface
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,
-     &                 lAng,ipExp,ipCff,ipCff_Cntrct,ipCff_Prim,
+     &                 lAng,ipExp,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp,
@@ -22,15 +22,14 @@
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,AuxCnttp, IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 DInf,nDInf,nCnttp)
+     &                 nCnttp)
 #include "Molcas.fh"
       Integer, Parameter :: Mxdbsc=MxAtom
 
       Character*(*) DDname
       Character*80  BSLbl
       Integer       iBSLbl, lAng
-      Integer       ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &              ipCff_Prim(MxShll),
+      Integer       ipExp(MxShll),
      &              nExp(MxShll), nBasis(MxShll),nBasis_Cntrct(MxShll),
      &              MxShll,iShll,MxAng
       Real*8        Charge
@@ -49,7 +48,6 @@
       Character*180 STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir
-      Real*8 DInf(nDInf)
       Integer nCnttp
       End SubRoutine GetBS
       End Interface

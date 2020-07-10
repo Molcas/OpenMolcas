@@ -69,6 +69,8 @@
         Integer iatom,icen,j
 *                                                                      *
 ************************************************************************
+*                                                                      *
+      Call Alaska_banner()
       npelem=3
 *                                                                      *
       Call CWTime(TCpu1,TWall1)

@@ -48,7 +48,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
@@ -163,7 +162,6 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
@@ -172,7 +170,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
-     &                               Work(iCff))
+     &                                     Shells(iShll)%pCff)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
@@ -184,7 +182,6 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -204,8 +201,6 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipCffi   = iCff
-            ipCffj   = jCff
             nBasi    = iBas
             nBasj    = jBas
 *
@@ -219,7 +214,8 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             nZeta = iPrimi * jPrimj
 *
             Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
-     &                  Work(ipCffi),nBasi,Work(ipCffj),nBasj)
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj)
 *
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
             If (iPrint.ge.99) Call RecPrt(' Sym. Dist. Centers',' ',
@@ -303,8 +299,8 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
-     &                  Work(ipCffi),nBasi,
-     &                  Work(ipCffj),nBasj,
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj,
      &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
      &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
      &                  nZeta,ijInc,Mem_DBLE(ipCon),

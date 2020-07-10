@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine StdSewInput(Info,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                       STDINP,lSTDINP,iErr,DInf,nDInf)
+     &                       STDINP,lSTDINP,iErr)
 ************************************************************************
 * This is a simplified copy of the BASI section of RdCtl_Seward that   *
 * reads the string vector STDINP with the standard seward input        *
@@ -46,7 +46,6 @@ c
 #include "relae.fh"
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
-      Real*8 DInf(nDInf)
       Common /AMFn/ iAMFn
       Common /delete/ kDel(0:MxAng,MxDc)
 *
@@ -150,7 +149,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &           ipCff,ipCff_Cntrct,ipCff_Prim,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
@@ -161,8 +159,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
-     &           STDINP,iSTDINP,.True.,.true.,' ',
-     &           DInf,nDInf,nCnttp)
+     &           STDINP,iSTDINP,.True.,.true.,' ',nCnttp)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp)
       If (itype.eq.0) Then

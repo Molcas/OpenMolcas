@@ -194,7 +194,7 @@ c      write(6,*) 'we here 0?'
            Go To 999
           End If
           Call Unnrmlz(Shells(ishell)%Exp,nexp(ishell),
-     &                 Work(ipCff(ishell)),nbasis(ishell),l)
+     &                 Shells(ishell)%pCff,nbasis(ishell),l)
          End Do
         End If
       End Do
@@ -367,8 +367,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *
                 isegm=0
                 Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
                   If (coeff.ne.Zero) Then
                     isegm=isegm+1
                   End If
@@ -379,8 +378,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *               Write exponents and contraction coefficients.
 *
                 Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
                   prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then
                     Write (MF,'(E17.9,E17.9)') prim,coeff
@@ -924,7 +922,7 @@ cvv this statement prevents overoptimization
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
           Call Unnrmlz2(Shells(ishell)%Exp,  nexp(ishell),
-     &                  Work(ipCff(ishell)),nbasis(ishell),l)
+     &                  Shells(ishell)%pCff,nbasis(ishell),l)
          End Do
         End If
       End Do

@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag,DInf,nDInf)
+      Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -73,12 +72,11 @@
             jSh = ipVal(iCnttp)
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShell = iShell + 1
-*              Pointer to the untouched contraction matrix as after input.
-               iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
 *
                If (nBasis_Cntrct(jSh).gt.0 )
      &            Call RdMx(RadMax,Shells(jSh)%Exp,nExp(jSh),
-     &                      DInf(ipCff_Cntrct(jSh)),nBasis_Cntrct(jSh),
+     &                      Shells(jSh)%Cff_c(1,1,1),
+     &                      nBasis_Cntrct(jSh),
      &                      cdMax,EtMax)
                If (iShell.gt.MxShll) Then
                   Call WarningMessage(2,'iShell.gt.MxShll;'

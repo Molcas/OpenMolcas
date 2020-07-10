@@ -268,7 +268,7 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Eval_Ints_New_
+         Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,nShi,nShj,nShk,nShl,
      &                   nShOffi,nShOffj,nShOffk,nShOffl,

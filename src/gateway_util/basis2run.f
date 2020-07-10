@@ -8,19 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine basis2run(DInf,nDInf)
+      Subroutine basis2run()
       use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"
       integer :: nPrim
-      integer :: kExp, iCff
+      integer :: kExp
       integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
       real*8, allocatable :: primitives(:,:)
       integer, allocatable :: primitive_ids(:,:), IndC(:)
-      integer :: iyy, iCo, iAtoms, index_center, nDInf
-      Real*8 DInf(nDInf)
+      integer :: iyy, iCo, iAtoms, index_center
 *
 ************************************************************************
 *
@@ -78,7 +77,6 @@
             iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
             Do iAng = 0, nVal_Shells(iCnttp)-1
 *     Pointer to the untouched contraction matrix as after input.
-              iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
               Do iBasis = 1,nBasis(jSh)
                 Do kExp = 1, nExp(jSh)
                   iPrim  = iPrim  + 1
@@ -86,8 +84,7 @@
                   primitive_ids(2,iPrim) = iAng
                   primitive_ids(3,iPrim) = iBasis
                   primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
-                  primitives(2,iPrim) = DInf(iCff)
-                  iCff = iCff + 1
+                  primitives(2,iPrim) = Shells(jSh)%pCff(kExp,iBasis)
                 End Do
               End Do
               jSh = jSh + 1

@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
-     &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,ipCff_a,
+     &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
      &                   iCmp_a,
-     &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,ipCff_r,
+     &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,
      &                   iCmp_r)
 ************************************************************************
 *                                                                      *
@@ -25,6 +25,8 @@
 #include "info.fh"
       External Kernel
       Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
+      Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
+      Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
       Real*8 DInf(nDInf), A(3)
 *
       ipSAR = ip
@@ -68,12 +70,12 @@
       Call DGEMM_('T','N',
      &            nPrim_r*naa,nCntrc_a,nPrim_a,
      &            1.0d0,DInf(ipSAR),nPrim_a,
-     &            DInf(ipCff_a),nPrim_a,
+     &                  Cff_a,nPrim_a,
      &            0.0d0,DInf(ipScrt1),nPrim_r*naa)
       Call DGEMM_('T','N',
      &            naa*nCntrc_a,nCntrc_r,nPrim_r,
      &            1.0d0,DInf(ipScrt1),nPrim_r,
-     &            DInf(ipCff_r),nPrim_r,
+     &                  Cff_r,nPrim_r,
      &            0.0d0,DInf(ipScrt2),naa*nCntrc_a)
 #ifdef _DEBUG_
       Call RecPrt('S_AR in Cartesian',' ',DInf(ipScrt2),

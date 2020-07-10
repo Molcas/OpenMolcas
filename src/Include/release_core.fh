@@ -13,8 +13,10 @@
 *     Release unused core. This section should be the last section in
 *     this routine. DON'T MOVE IT!
 *
+      LuWr=6
       If (Run_Mode.ne.S_Mode) Then
 *
+         nInfo=Max(nInfo,1) ! Temporary fix.
          Call Allocate_Work(Info_tmp,nInfo)
          Call dCopy_(nInfo,Work(Info),1,Work(Info_tmp),1)
          Call Free_Work(Info)
@@ -25,10 +27,8 @@
          Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
          Call Free_Work(Info_tmp)
 *
+#define _DEBUG_
 #ifdef _DEBUG_
-         Write (LuWr,*) ' ****            nPrint           ****'
-         Write (LuWr,'(26(1X,10I4,/))') nPrint
-         Write (LuWr,*) ' *************************************'
          Write (LuWr,*) ' nInfo=',nInfo
 C        Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
 #endif

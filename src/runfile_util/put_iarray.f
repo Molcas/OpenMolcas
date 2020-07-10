@@ -128,7 +128,7 @@
          RecLab( 23)='SCFInfoI_ab     '
          RecLab( 24)='nExp            '
          RecLab( 25)='nBasis          '
-         RecLab( 26)='ipCff           '
+         RecLab( 26)='                ' !Free slot
          RecLab( 27)='ipExp           '
          RecLab( 28)='IndS            '
          RecLab( 29)='                ' !Free slot
@@ -154,8 +154,8 @@
          RecLab( 49)='IsMM            '
          RecLab( 50)='Atom -> Basis   '
          RecLab( 51)='nBasis_Cntrct   '
-         RecLab( 52)='ipCff_Cntrct    '
-         RecLab( 53)='ipCff_Prim      '
+         RecLab( 52)='                ' !Free slot
+         RecLab( 53)='                ' !Free slot
          RecLab( 54)='SCF nOcc        '
          RecLab( 55)='SCF nOcc_ab     '
          RecLab( 56)='                ' !Free slot

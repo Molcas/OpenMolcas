@@ -11,7 +11,8 @@
 * Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 *               1990, IBM                                              *
 ************************************************************************
-      Subroutine OneEl_(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+      Subroutine OneEl_Internal
+     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &                  nOrdOp,rHrmt,iChO,
      &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
      &                  iStabO,nStabO,nIC,

@@ -871,7 +871,7 @@ c     Call Quit_OnUserError()
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       Call Gen_RelPointers(Info-1)   ! Work Mode
       Go To 998
@@ -897,7 +897,7 @@ c     Call Quit_OnUserError()
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       XYZdirect=.true.
 *      If (SymmSet) Then
@@ -1189,7 +1189,6 @@ c Simplistic validity check for value
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &           ipCff,ipCff_Cntrct,ipCff_Prim,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
@@ -1201,7 +1200,7 @@ c Simplistic validity check for value
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
-     &           DInf,nDInf,nCnttp)
+     &           nCnttp)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
      &            iAtmNr(nCnttp).le.96
@@ -4332,8 +4331,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      If (lFAIEMP.and.Run_Mode.ne.S_Mode)
-     &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
+      If (lFAIEMP.and.Run_Mode.ne.S_Mode) Call FragExpand(nInfo,LuRd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4344,13 +4342,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
+            Call Mk_RICD_Shells(Info,nInfo)
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
+            Call Mk_RI_Shells(Info,nInfo,LuRd)
 *
          End If
       End If
@@ -4498,7 +4496,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
-      If (DKroll.or.NEMO) Call Fill_rInfo1(DInf,nDInf)
+      If (DKroll.or.NEMO) Call Fill_rInfo1()
 *                                                                      *
 ************************************************************************
 *                                                                      *

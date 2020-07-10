@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Input_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Input_Seward(lOPTO,Info)
 ************************************************************************
 *                                                                      *
 *     Object: to read the input to the integral package.               *
@@ -56,7 +56,6 @@
       Logical Reduce_Prt
       External Reduce_Prt
       Save Show_Save
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -103,14 +102,14 @@
 *     Start of output, collect all output to this routine!
 *
       Call Gen_RelPointers(-(Info-1))
-      If (Show) Call Output1_Seward(lOPTO,Info,DInf,nDInf)
+      If (Show) Call Output1_Seward(lOPTO,Info)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Generate the SO or AO basis set
 *
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
+      Call SOCtl_Seward(Mamn,nMamn,Info)
       Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************

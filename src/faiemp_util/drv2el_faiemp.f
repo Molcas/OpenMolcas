@@ -300,7 +300,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
 
          If (lNoSkip) Then
-           Call Eval_Ints_New_
+           Call Eval_Ints_New_Internal
      &                    (iS,jS,kS,lS,TInt,nTInt,
      &                     iTOffs,nShi,nShj,nShk,nShl,
      &                     nShOffi,nShOffj,nShOffk,nShOffl,

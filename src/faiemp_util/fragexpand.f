@@ -11,7 +11,7 @@
 * Copyright (C) Ben Swerts                                             *
 *               2020, Roland Lindh                                    *
 ************************************************************************
-      Subroutine FragExpand(nInfo,LuRd,DInf,nDInf)
+      Subroutine FragExpand(nInfo,LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the fragments and append them   *
@@ -31,9 +31,9 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-      integer     nDInf, nInfo, storageSize, LineWords
+      integer     nInfo, storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
-      Real*8      DInf(nDInf), eqBasis(LineWords)
+      Real*8      eqBasis(LineWords)
       Integer     BasisTypes(4), nDel(MxAng),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            idummy, ii, Indx, iOptn, iSh, iShll, jShll,
@@ -157,8 +157,7 @@ c           write(*,*) 'Fname = ',Fname
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
             mdciCnttp(nCnttp)=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,
-     &                 ipCff,ipCff_Cntrct,ipCff_Prim,nExp,
+            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,nExp,
      &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
@@ -168,8 +167,7 @@ c           write(*,*) 'Fname = ',Fname
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &                 LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
-     &                 STDINP,lSTDINP,.False.,.true.,' ',
-     &                 DInf,nDInf,nCnttp)
+     &                 STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
             iAngMx=Max(iAngMx,lAng)
             Transf(jShll+1)=.False.
             Prjct(jShll+1)=.False.

@@ -189,7 +189,7 @@
 *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
-         Call Eval_Ints_New_
+         Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,nShi,nShj,nShk,nShl,
      &                   nShOffi,nShOffj,nShOffk,nShOffl,

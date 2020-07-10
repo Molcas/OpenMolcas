@@ -68,6 +68,7 @@ c      Parameter (nLines=12)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call McKinley_banner()
       Call CWTime(TCpu1,TWall1)
       Call qEnter('McKinley')
       iRout=1

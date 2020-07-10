@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
       Real*8 TInt(nTheta_All,nTheta_All)
       Integer List2(mData,nTheta_All)
 *
@@ -24,16 +24,16 @@
          iShll=List2(7,iTheta_All)
          nConti=nBasis_Cntrct(iShll)
          nPrimi=nExp(iShll)
-         iOff = ipCff_Cntrct(iShll) + iPrim -1
-         Coeff_i = DDot_(nConti,Work(iOff),nPrimi,Work(iOff),nPrimi)
+         Coeff_i = DDot_(nConti,Shells(iShll)%Cff_c(1,1,1),nPrimi,
+     &                          Shells(iShll)%Cff_c(1,1,1),nPrimi)
          Coeff_i = Sqrt(Coeff_i)
 *
          jPrim=List2(6,iTheta_All)
          jShll=List2(8,iTheta_All)
          nContj=nBasis_Cntrct(jShll)
          nPrimj=nExp(jShll)
-         jOff = ipCff_Cntrct(jShll) + jPrim -1
-         Coeff_j = DDot_(nContj,Work(jOff),nPrimj,Work(jOff),nPrimj)
+         Coeff_j = DDot_(nContj,Shells(jShll)%Cff_c(1,1,1),nPrimj,
+     &                          Shells(jShll)%Cff_c(1,1,1),nPrimj)
          Coeff_j = Sqrt(Coeff_j)
 *
          Do jTheta_All = 1, nTheta_All
@@ -41,16 +41,16 @@
             kShll=List2(7,jTheta_All)
             nContk=nBasis_Cntrct(kShll)
             nPrimk=nExp(kShll)
-            kOff = ipCff_Cntrct(kShll) + kPrim -1
-            Coeff_k = DDot_(nContk,Work(kOff),nPrimk,Work(kOff),nPrimk)
+            Coeff_k = DDot_(nContk,Shells(kShll)%Cff_c(1,1,1),nPrimk,
+     &                             Shells(kShll)%Cff_c(1,1,1),nPrimk)
             Coeff_k = Sqrt(Coeff_k)
 *
             lPrim=List2(6,jTheta_All)
             lShll=List2(8,jTheta_All)
             nContl=nBasis_Cntrct(lShll)
             nPriml=nExp(lShll)
-            lOff = ipCff_Cntrct(lShll) + lPrim -1
-            Coeff_l = DDot_(nContl,Work(lOff),nPriml,Work(lOff),nPriml)
+            Coeff_l = DDot_(nContl,Shells(lShll)%Cff_c(1,1,1),nPriml,
+     &                             Shells(lShll)%Cff_c(1,1,1),nPriml)
             Coeff_l = Sqrt(Coeff_l)
 *
             TInt(iTheta_All,jTheta_All) = TInt(iTheta_All,jTheta_All)

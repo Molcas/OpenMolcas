@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
-      Subroutine Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
+      Subroutine Mk_RI_Shells(Info,nInfo,LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the auxiliary functions         *
@@ -30,7 +30,6 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
-      Real*8 DInf(nDInf)
       Logical Hit, IfTest
       Character*13 DefNm
       Character*80 Ref(2), BSLbl, BSLB*180
@@ -165,7 +164,6 @@
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &              ipCff,ipCff_Cntrct,ipCff_Prim,
      &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
@@ -176,8 +174,7 @@
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &              LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
-     &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              DInf,nDInf,nCnttp)
+     &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
          AuxCnttp(nCnttp)=.True.
 *
          Charge(nCnttp)=Zero
@@ -223,14 +220,16 @@ C        Fixed(nCnttp)=.False.
          lAux = lAux .or. AuxCnttp(nCnttp)
          Do iSh = jShll+1, iShll
             nBasis(iSh)=nBasis_Cntrct(iSh)
-            ipCff (iSh)=ipCff_Cntrct(iSh)
+            Call mma_deallocate(Shells(iShll)%pCff)
+            Call mma_allocate(Shells(iShll)%pCff,nExp(iSh),nBasis(iSh),
+     &                        Label='pCff')
+            Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
             AuxShell(iSh)=.True.
          End Do
 *
          nCnt = dbsc(iCnttp)%nCntr
          dbsc(nCnttp)%nCntr=nCnt
          mdciCnttp(nCnttp)=mdc
-!        Call allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt))
          Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *
@@ -381,14 +380,17 @@ C        Fixed(nCnttp)=.False.
 *              Read contraction coefficients. Storage of coefficients
 *              for both contracted and uncontracted case.
 *
-               ipCff_c = iStrt
-               ipCff_Cntrct(iShll)=iStrt
-               iEnds= iEnd + 2*nPrim*nCntrc
-               ipCff_Prim(iShll)= iEnds + 1
-               ipCff_p = ipCff_Prim(iShll)
-               iEnds= iEnds+ 2*nPrim**2
-               iEndc = iStrt + nPrim*nCntrc - 1
-               iEnd  = iStrt + nPrim*nCntrc - 1
+               Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                           Label='Cff_c')
+               Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                           Label='pCff')
+               Shells(iShll)%nBasis=nCntrc
+               Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                           Label='Cff_p')
+               iEnds= iEnd
+               iEnds= iEnds
+               iEndc = iStrt - 1
+               iEnd  = iStrt - 1
 *              Read contraction coefficients
 *              Observe that the matrix will have nPrim rows and
 *              nCntrc columns
@@ -398,45 +400,38 @@ C        Fixed(nCnttp)=.False.
 *
                If (IfTest) Write (6,*) ' Standard case'
                If (nPrim*nCntrc.gt.0) Then
-                  Call FZero(DInf(iStrt),2*nPrim*nCntrc)
+                  Shells(iShll)%Cff_c(:,:,:)=Zero
 *
-*              Do iPrim = 0, nPrim-1
-*                 Call Read_v(Lu_lib,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
-*                 If (Ierr.ne.0) Then
-*                    Call WarningMessage(2,
-*    &                      'GetBS: Error reading coeffs in GC format')
-*                    Call Quit_OnUserError()
-*                 End If
-*              End Do
-*              Call Read_v(Lu_lib,DInf(iEnd+1),1,nPrim*nCntrc,1,Ierr)
-               Read (Lu_lib,*) (DInf(iEnd+i),i=1,nPrim*nCntrc)
+*              Note that we now change the order!!!
+               Read (Lu_lib,*) ((Shells(iShll)%Cff_c(i,j,2),
+     &                           j=1,nCntrc),i=1,nPrim)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                   'GetBS: Error reading coeffs in GC format')
                   Call Quit_OnUserError()
                End If
-               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iEnd+1),
-     &                                 nCntrc*nPrim,1)
-               Call Trnsps(nCntrc,nPrim,DInf(iEnd+1),DInf(iStrt))
-               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iStrt),nPrim,
-     &                                 nCntrc)
+               If (IfTest)
+     &            Call RecPrt(' Coeffs',' ',Shells(iShll)%Cff_c(1,1,2),
+     &                        nPrim,nCntrc)
+               Shells(iShll)%Cff_c(:,:,1) = Shells(iShll)%Cff_c(:,:,2)
+               If (IfTest)
+     &            Call RecPrt(' Coeffs',' ',Shells(iShll)%Cff_c(1,1,1),
+     &                        nPrim,nCntrc)
 *
 *              Put in unit matrix of uncontracted set
 *
-               Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
-               Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
+               Shells(iShll)%Cff_p(:,:,1)=Zero
+               ForAll (i=1:nPrim) Shells(iShll)%Cff_p(i,i,1)=One
 *
-               iOff = nPrim*nPrim
-               Call DCopy_(nPrim*nPrim ,DInf(ipCff_p),1,
-     &                                  DInf(ipCff_p+iOff),1)
+               Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
                Call Nrmlz(Shells(iShll)%Exp,nPrim,
-     &                    DInf(ipCff_p),nPrim ,iAng)
+     &                    Shells(iShll)%Cff_p(1,1,1),nPrim ,iAng)
 
-               iOff = nPrim*nCntrc
-               Call DCopy_(nPrim*nCntrc,DInf(ipCff_c),1,
-     &                                  DInf(ipCff_c+iOff),1)
-               Call Fix_Coeff(nPrim,nCntrc,DInf(ipCff_c+iOff),
-     &                        DInf(ipCff_p),'F')
+               Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+               Call Fix_Coeff(nPrim,nCntrc,Shells(iShll)%Cff_c(1,1,2),
+     &                                     Shells(iShll)%Cff_p(1,1,1),
+     &                                     'F')
+               Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
                End If
 *
                iEnd =iEnds
@@ -455,7 +450,6 @@ C        Fixed(nCnttp)=.False.
                End If
 
                nBasis(iShll)=nBasis_Cntrct(iShll)
-               ipCff (iShll)=ipCff_Cntrct(iShll)
                AuxShell(iShll)=.True.
                ipExp(iShll+1)=iEnd+1
 *
@@ -519,7 +513,7 @@ C        Fixed(nCnttp)=.False.
 *     Add the final DUMMY SHELL!
 *
  1100 Continue
-      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+      Call Mk_Dummy_Shell(Info,nInfo)
       Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************

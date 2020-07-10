@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Output1_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Output1_Seward(lOPTO,Info)
 ************************************************************************
 *                                                                      *
 *     Object: to write the output of seward            .               *
@@ -42,7 +42,6 @@
 #include "gateway.fh"
 #include "localdf.fh"
       Logical l_aCD_Thr, lOPTO
-      Real*8 DInf(nDInf)
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -536,7 +535,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_Basis2(DInf,nDInf)
+         Call Print_Basis2()
 *                                                                      *
 ************************************************************************
 *                                                                      *

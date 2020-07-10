@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El(DInf,nDInf,Info)
+      SubRoutine Drv1El(Info)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -53,7 +53,6 @@
      &         PAM2Mem, FragPMem
       External P_Int, EPEInt,
      &         P_Mem, EPEMem
-      Real*8 DInf(nDInf)
 #ifdef _FDE_
       ! Embedding
       External embPotMem, embPotKernel
@@ -1193,6 +1192,7 @@ c           iPAMcount=iPAMcount+1
      &                                 label='Emb_Int')
 #endif
          iOpt = 0
+         lOper = 0
          iRC = -1
          Label='Kinetic '
          Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
@@ -1203,6 +1203,7 @@ c           iPAMcount=iPAMcount+1
             Call Quit(_RC_IO_ERROR_READ_)
          End If
          Label='Attract '
+         lOper = 0
          iRC = -1
          Call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
          If (iRC.ne.0) then
@@ -1229,6 +1230,7 @@ c           iPAMcount=iPAMcount+1
            close(iunit)
           else
            Label='embpot  '
+           lOper = 0
            iRC=-1
            Call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
            If (iRC.ne.0) then
@@ -1246,6 +1248,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lECPnp) Then
             Label='PrjInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1256,6 +1259,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='M1Int   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1266,6 +1270,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='M2Int   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1276,6 +1281,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='SROInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1291,6 +1297,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lPP) Then
             Label='PPInt   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1306,6 +1313,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lXF) Then
             Label='XFdInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1323,6 +1331,7 @@ c           iPAMcount=iPAMcount+1
             Do iWel = 1, nWel
                Fact=Wel_Info(3,iWel)
                Write (Label,'(A,I4)') 'Well',iWel
+               lOper = 0
                iRC = -1
                Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
                If (iRC.ne.0) then
@@ -1727,7 +1736,7 @@ c           write(6,*) "Charge(iAtm)", iAtm, Charge(iAtm)
 
          Call Gen_RelPointers(-(Info-1))
          Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,
-     &                 OperC, iAtmNr2, Charge2,DInf,nDInf)
+     &                 OperC, iAtmNr2, Charge2)
          Call Gen_RelPointers(Info-1)
 
          Call Deallocate_Auxiliary()
@@ -2042,6 +2051,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
         Call Deallocate_Auxiliary()
 * add the results to the one-electron hamiltonian
         iOpt = 0
+        lOper = 0
         iRC = -1
         Call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
         Call RdOne(iRC,iOpt,Label,1,FragP,lOper)
@@ -2052,6 +2062,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
            Call Quit(_RC_IO_ERROR_READ_)
         End If
         Label = 'OneHam  '
+        lOper = 0
         iRC = -1
         Call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
         Call RdOne(iRC,iOpt,Label,1,OneHam,lOper)

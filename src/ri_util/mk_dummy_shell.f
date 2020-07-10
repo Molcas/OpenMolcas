@@ -1,4 +1,4 @@
-************************************************************************
+
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+      Subroutine Mk_Dummy_Shell(Info,nInfo)
 ************************************************************************
 *                                                                      *
 *     Add the final DUMMY SHELL!                                       *
@@ -24,9 +24,7 @@
 #include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,26 +62,25 @@
 *
       iShll = iShll + 1
       AuxShell(iShll) = .True.
-      iStrt = ipExp(iShll)
       nExp(iShll) = nPrim
       Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='ExpDummy')
       Shells(iShll)%nExp=nPrim
+      Shells(iShll)%nBasis=nCntrc
       nBasis(iShll) = nCntrc
       nBasis_Cntrct(iShll) = nCntrc
-      iEnd = iStrt - 1
 *     Exponent
       Shells(iShll)%Exp(1)=Zero
 *     Coefficients
-      iStrt = iEnd + 1
-      ipCff(iShll) = iStrt
-      ipCff_Cntrct(iShll) = iStrt
-      ipCff_Prim(iShll) = iStrt
-      iEnd = iStrt + nPrim*nCntrc -1
-      DInf(iStrt) =One
-      DInf(iEnd+1)=999999.0D0
-      call dcopy_(nPrim*nCntrc,DInf(iStrt),1,DInf(iEnd+1),1)
-      iEnd = iEnd + nPrim*nCntrc
-      If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+      Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                  Label='Cff_c')
+      Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                  Label='pCff')
+      Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim ,2,
+     &                  Label='Cff_p')
+      Shells(iShll)%Cff_c(1,1,1)=One
+      Shells(iShll)%Cff_c(1,1,2)=One
+      Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+      If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
       Transf(iShll)=.False.
       Prjct(iShll)=.False.
@@ -98,7 +95,6 @@
       mdciCnttp(nCnttp)=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-!     Call allocate(dbsc(nCnttp)%Coor(1:3,1:1))
       Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
       dbsc(nCnttp)%Coor(1:3,1:1)=Zero
       dbsc(nCnttp)%nCntr = nCnt

@@ -41,7 +41,7 @@
 *------------------------------------------------------------------------*
 * Initialize in order to read properly from the info file.               *
 *------------------------------------------------------------------------*
-      Call Seward_Init
+      Call Seward_Init()
 
 *------------------------------------------------------------------------*
 * GetInf reads everything in the info file and put it in variables       *
@@ -150,6 +150,8 @@ C     Endif
 2101  Continue
       Call GetMem('Exponents','Allo','Real',ipExpo,nSize*MxAtQ)
       Call GetMem('ContrCoef','Allo','Real',ipCont,nSize*MxAtQ)
+      Call FZero(Work(ipExpo),nSize*MxAtQ)
+      Call FZero(Work(ipCont),nSize*MxAtQ)
 
       Do 211, iCnttp=1,nCnttp  !Here we set NaTyp.
         jSum=0
@@ -165,26 +167,26 @@ C     Endif
         Do 213, iAng=0,nVarv-1  !And in this loop we get hold of the
                           !contraction coefficients and the exponents.
           iCount=iAng+iAngSav
-          iCff=ipCff(iCount)
           iPrim=nExp(iCount)
           iBas=nBasis(iCount)
+c         Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
+          Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)
           nfSh(iCnttp,iAng+1)=iBas
           Do 214, i=1,iBas
             Call dCopy_(iPrim,Shells(iCount)%Exp,1,
      &                        Work(ipExpo+jSum*MxAtQ+M),MxAtQ)
-            Call dCopy_(iPrim,Work(iCff),1,Work(ipCont+jSum*MxAtQ+M)
-     &                ,MxAtQ)
+            Call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,
+     &                        Work(ipCont+jSum*MxAtQ+M),MxAtQ)
             jSum=jSum+iPrim
-            iCff=iCff+iPrim
 214       Continue
 213     Continue
         iAngSav=iAngSav+iAng
 211   Continue
       If(iPrint.ge.30) then
         Write(6,*)'Exp.'
-        Write(6,'(10F13.4)')(Work(ipExpo+k),k=0,nSize*MxAtQ-1)
+        Write(6,'(10G13.4)')(Work(ipExpo+k),k=0,nSize*MxAtQ-1)
         Write(6,*)'Contr.'
-        Write(6,'(10F13.4)')(Work(ipCont+k),k=0,nSize*MxAtQ-1)
+        Write(6,'(10G13.4)')(Work(ipCont+k),k=0,nSize*MxAtQ-1)
       Endif
 
 *---------------------------------------------------------------------------*

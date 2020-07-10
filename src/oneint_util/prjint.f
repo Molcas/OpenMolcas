@@ -118,6 +118,10 @@
                iShll = ipPrj(iCnttp) + iAng
                If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
 *
+#ifdef _DEBUG_
+               Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExp(iShll),
+     &                     nBasis(iShll))
+#endif
                ip = 1
                ipF1 = ip
                nac = nElem(la)*nElem(iAng)
@@ -216,7 +220,7 @@
                Call DGEMM_('T','N',
      &                     nAlpha*nac,nBasis(iShll),nExp(iShll),
      &                     1.0d0,Array(ipTmp),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     Shells(iShll)%pCff,nExp(iShll),
      &                     0.0d0,Array(ipF1),nAlpha*nac)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
@@ -251,7 +255,7 @@
                Call DGEMM_('T','N',
      &                     nBeta*ncb,nBasis(iShll),nExp(iShll),
      &                     1.0d0,Array(ipF2),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     Shells(iShll)%pCff,nExp(iShll),
      &                     0.0d0,Array(ipTmp),nBeta*ncb)
 *
 *--------------2)  j,cbK -> cbK,j

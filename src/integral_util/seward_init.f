@@ -147,9 +147,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          nExp(i)=0
          nBasis(i)=0
          nBasis_Cntrct(i)=0
-         ipCff(i)=ip_Dummy
-         ipCff_Cntrct(i)=ip_Dummy
-         ipCff_Prim(i)=ip_Dummy
          FragShell(i)=.False.
          mdciCnttp(i)=0
       End Do

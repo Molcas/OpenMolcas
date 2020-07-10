@@ -155,7 +155,6 @@ c#include "print.fh"
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -169,7 +168,6 @@ c#include "print.fh"
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -324,7 +322,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
      &                   1.0d0,Work(ipFnl),iPrim,
-     &                   Work(iCff),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
      &                   0.0d0,Work(iKern),jPrim*kk)
 *
 *            Transform j,abxI to abxI,J
@@ -332,7 +330,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
      &                   1.0d0,Work(iKern),jPrim,
-     &                   Work(jCff),jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Work(ipFnl),kk*iBas)
 *
 *            Transform to spherical gaussians if needed.

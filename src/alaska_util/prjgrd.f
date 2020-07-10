@@ -413,7 +413,7 @@
                Call DGEMM_('T','N',
      &                     nac*nVecAC*nAlpha,nBasis(iShll),nExp(iShll),
      &                     1.0d0,Array(ipTmp),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     Shells(iShll)%pCff,nExp(iShll),
      &                     0.0d0,Array(ipF1),nac*nVecAC*nAlpha)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
@@ -453,7 +453,7 @@
                Call DGEMM_('T','N',
      &                     nBeta*ncb*nVecCB,nBasis(iShll),nExp(iShll),
      &                     1.0d0,Array(ipF2),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     Shells(iShll)%pCff,nExp(iShll),
      &                     0.0d0,Array(ipTmp),nBeta*ncb*nVecCB)
 *
 *--------------2)  j,cbK -> cbK,j

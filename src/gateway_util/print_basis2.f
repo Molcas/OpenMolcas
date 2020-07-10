@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Print_Basis2(DInf,nDInf)
+      Subroutine Print_Basis2()
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
 #include "print.fh"
       Logical output
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,8 +92,6 @@
                   Write (LuWr,*) '          No.      Exponent   ',
      &                        ' Contraction Coefficients'
                End If
-*              Pointer to the untouched contraction matrix as after input.
-               iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
 *
                If (nBasis(jSh).gt.0 .and. output) Then
                   Do kExp = 1, nExp(jSh)
@@ -102,9 +99,9 @@
                      If (iCnt.eq.1)
      &               Write (LuWr,'( 9X,I4,1X,D16.9,10(1X,F10.6),'//
      &                        '1X,3(/,30X,10(1X,F10.6)))')
-     &                     jExp , Shells(jSh)%Exp(kExp),( DInf(iCff+ib),
-     &                     ib=0,nBasis(jSh)*nExp(jSh)-1,nExp(jSh))
-                     iCff = iCff + 1
+     &                     jExp , Shells(jSh)%Exp(kExp),
+     &                     ( Shells(jSh)%Cff_c(kExp,ib,2),
+     &                     ib=1,nBasis(jSh))
                   End Do
                End If
                If (iShell.gt.MxShll) Then
@@ -342,15 +339,14 @@ Cend
      &                                *Shells(iSh)%Occ(i)
                   End Do
 *
-                  iCff = ipCff(iSh) + nExp(iSh)*Shells(iSh)%nBk
                   If (iPrint.ge.10) Then
                      Do kExp = 1, nExp(iSh)
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,8(G12.5),'//
      &                        '3(/,30X,8(G12.5)))')
-     &                          Shells(ish)%Exp(kExp),( DInf(iCff+ib),
-     &                     ib=0,Shells(iSh)%nBk*nExp(iSh)-1,nExp(iSh))
-                        iCff = iCff + 1
+     &                          Shells(ish)%Exp(kExp),
+     &                        ( Shells(ish)%Cff_c(kExp,ib,2),
+     &                     ib=1,Shells(iSh)%nBk)
                      End Do
                   End If ! If (iPrint.ge.10) Then
                End If ! If (nBasis(iSh).ne.0) Then
@@ -381,14 +377,13 @@ Cend
                      Write (LuWr,*) '                   Exponent   ',
      &                              ' Contraction Coefficients'
                      Write (LuWr,*)
-                     iCff = ipCff(iSh)
                      Do kExp = 1, nExp(iSh)
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,10(1X,F10.6),'//
      &                           '3(/,30X,10(1X,F10.6)))')
-     &                        Shells(iSh)%Exp(kExp),( DInf(iCff+ib),
-     &                        ib=0,nBasis(iSh)*nExp(iSh)-1,nExp(iSh))
-                        iCff = iCff + 1
+     &                        Shells(iSh)%Exp(kExp),
+     &                      ( Shells(iSh)%Cff_c(kExp,ib,1),
+     &                        ib=1,nBasis(iSh))
                      End Do
                   End If
                   iSh = iSh + 1

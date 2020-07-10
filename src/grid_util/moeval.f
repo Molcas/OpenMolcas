@@ -53,9 +53,6 @@
 *
       iRout = 112
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
-      Call qEnter('MOEval ')
-#endif
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' In MOEval'
@@ -97,14 +94,14 @@ c      print *,' iAngMx', iAngMx
 *           Write (*,*) ' iCnttp=',iCnttp
             nCnt = dbsc(iCnttp)%nCntr
             iShll = ipVal(iCnttp) + iAng
-            iCff=ipCff(iShll)
             iPrim = nExp(iShll)
             If (iPrim.eq.0) Go To 101
             iBas  = nBasis(iShll)
             If (iBas.eq.0) Go To 101
             iCmp  = nElem(iAng)
             If (Prjct(iShll)) iCmp = 2*iAng+1
-            Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Work(iCff))
+            Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+     &                           Shells(iShll)%pCff)
 *
 *           Loop over unique centers of basis set "iCnttp"
 *
@@ -169,7 +166,8 @@ c      print *,' iAngMx', iAngMx
      &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                        iWork(ipAng),nTerm,nForm,Thr,mRad,
      &                        iPrim,iPrim,Shells(iShll)%Exp,
-     &                        Work(ipRadial),iBas,Work(iCff),
+     &                        Work(ipRadial),iBas,
+     &                        Shells(iShll)%pCff,
      &                        Work(ipAOs),mAO,px,py,pz,ipx,ipy,ipz)
 *
 *---------------- Distribute contributions to the SOs
@@ -201,10 +199,6 @@ c      print *,' iAngMx', iAngMx
  100     continue
       End Do
 *
-*     Call GetMem('MOEval_E ','CHEC','REAL',iDum,iDum)
-#ifdef _DEBUG_
-      Call qExit('MOEval ')
-#endif
       Return
 c Avoid unused argument warnings
       If (.False.) Then

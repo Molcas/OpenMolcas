@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2007,2008, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
+      Subroutine Mk_RICD_Shells(Info,nInfo)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -38,7 +38,6 @@
 #include "print.fh"
 #include "status.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
       Logical DoRys, Save_Logical, W2L
 *                                                                      *
 ************************************************************************
@@ -87,7 +86,7 @@ C      iPrint=99
 *                                                                      *
 *     Add the DUMMY SHELL!
 *
-      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
+      Call Mk_Dummy_Shell(Info,nInfo)
 *                                                                      *
 ************************************************************************
 ************************************************************************

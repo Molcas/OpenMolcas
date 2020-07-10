@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Fill_rInfo1(DInf,nDInf)
+      Subroutine Fill_rInfo1()
       use Basis_Info
 #include "itmax.fh"
 #include "info.fh"
 #include "rinfo.fh"
-      REal*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,8 +61,6 @@
 *              Pointer to the untouched contraction matrix as after
 *              input.
 *
-               iiCff=ipCff_Cntrct(jSh)+nExp(jSh)*nBasis_Cntrct(jSh)
-               ic=0
                If (krCof+nExp(jSh)*nBasis(jSh).gt.MxrCof) Then
                   Call WarningMessage(2,
      &                     'Too many contraction coefficients')
@@ -76,8 +73,7 @@
                Do kCof=1,nBasis_Cntrct(jSh)
                   Do  kExp=1,nExp(jSh)
                         krCof=krCof+1
-                        rCof(krCof)=DInf(iiCff+ic)
-                        ic=ic+1
+                        rCof(krCof)=Shells(jSh)%Cff_c(kExp,kCof,2)
                   End Do
                End Do
 *

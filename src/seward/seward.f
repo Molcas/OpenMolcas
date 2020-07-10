@@ -79,6 +79,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Seward_Banner()
       lOPTO = .False.
       nByte = iiLoc(iix(2)) - iiLoc(iix(1))
       Call CWTime(TCpu1,TWall1)
@@ -225,7 +226,7 @@ C-SVC: identify runfile with a fingerprint
 *
 *     Process the input.
 *
-      Call Input_Seward(lOPTO,Info,Work(Info),nDInf)
+      Call Input_Seward(lOPTO,Info)
 *
       If (Primitive_Pass) Then
          PrPrt_Save = PrPrt
@@ -273,7 +274,7 @@ C-SVC: identify runfile with a fingerprint
       If (.Not.Primitive_Pass) Then
          Call Gen_RelPointers(-(Info-1))  ! DInf Mode
          Call DmpInf(Work(Info),nInfo)
-         Call basis2run(Work(Info),nInfo)
+         Call basis2run()
          Call Gen_RelPointers(Info-1)     ! Work Mode
       End If
 *                                                                      *
@@ -314,7 +315,7 @@ C-SVC: identify runfile with a fingerprint
       If (Do_OneEl.and.
      &    (.Not.Primitive_Pass .or.
      &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )
-     &   Call Drv1El(Work(Info),nInfo,Info)
+     &   Call Drv1El(Info)
 *
       iOpt = 0
       iRC = -1

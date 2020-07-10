@@ -102,7 +102,7 @@
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
-      debug=.false.
+      debug=.False.
       If(iAnd(option,1024).ne.0) debug=.true.
       If(debug) Then
          Call DmpOne

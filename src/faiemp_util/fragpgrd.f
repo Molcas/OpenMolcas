@@ -92,11 +92,11 @@
       Logical  EnergyWeight
       Integer  i,j,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
       Integer  iRout,iPrint,nSkal,iCar
-      Integer  iCent,iCff,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc
+      Integer  iCent,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
       Integer  ipF1a,ipF2a,ipIJ,ipK1,ipK2,ipP1,ipP2,ipQ1,iPrim,ipRxyz
       Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShell,iShll
-      Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas,jCff
+      Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas
       Integer  jCmp,jCnttp,jPrim,jS,jSbasis,jShell,jShll,jSize
       Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
       Integer  mVecCB,nac,ncb,nDAO,nDCRT,nDisp,nHer,jAO,maxDensSize
@@ -176,7 +176,6 @@ c      ! Dummy initialize
         iAng   = iSD( 1,iS)
         iCmp   = iSD( 2,iS)
         iBas   = iSD( 3,iS)
-        iCff   = iSD( 4,iS)
         iPrim  = iSD( 5,iS)
         iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
@@ -270,7 +269,6 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
           jAng   = iSD( 1,jS)
           jCmp   = iSD( 2,jS)
           jBas   = iSD( 3,jS)
-          jCff   = iSD( 4,jS)
           jPrim  = iSD( 5,jS)
           jAO    = iSD( 7,iS)
           mdcj   = iSD(10,jS)
@@ -564,7 +562,7 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
             Call DGEMM_('T','N',
      &                  nac*nVecAC*nAlpha,iBas,iPrim,
      &                  1.0d0,Array(ipTmp),iPrim,
-     &                  Work(iCff),iPrim,
+     &                  Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Array(ipF1),nac*nVecAC*nAlpha)
 *
 *-----------3) a,ciK -> ciKa
@@ -605,7 +603,7 @@ C what does this do and is it needed? (from PrjGrd)
             Call DGEMM_('T','N',
      &                  nBeta*ncb*nVecCB,jBas,jPrim,
      &                  1.0d0,Array(ipF2),jPrim,
-     &                  Work(jCff),jPrim,
+     &                  Shells(jShll)%pCff,jPrim,
      &                  0.0d0,Array(ipTmp),nBeta*ncb*nVecCB)
 *
 *-----------2)  j,dbL -> dbL,j

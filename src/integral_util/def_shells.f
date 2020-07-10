@@ -102,7 +102,7 @@
                iSD(1,nSkal)=iAng                     ! l value
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
-               iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
+               iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
@@ -198,7 +198,7 @@
          iSD(1,nSkal)=iAng                     ! l value
          iSD(2,nSkal)=iCmp                     ! # of ang. comp.
          iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
-         iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
+         iSD(4,nSkal)= -1                      ! Not used
          iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
          iSD(7,nSkal)= iAOttp                  ! ? magic
@@ -293,7 +293,7 @@
                iSD(1,nSkal)=iAng                     ! l value
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
-               iSD(4,nSkal)= ipCff(iShll)            ! pointer to coeff.
+               iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic

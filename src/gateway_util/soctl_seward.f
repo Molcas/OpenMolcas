@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
+      Subroutine SOCtl_Seward(Mamn,nMamn,Info)
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
@@ -35,7 +35,6 @@
      &                                      jCI, iOT, LPA, LPMM
       Real*8, Dimension(:), Allocatable :: LPQ
       Real*8, Dimension(:,:), Allocatable :: SM, LPC
-      Real*8 DInf(nDInf)
       Character*(LENIN8) Clean_BName,ChTmp
       External Clean_BName
 
@@ -81,7 +80,7 @@ cvv LP_NAMES was used later without initialization.
 *     Compute cdMax, EtMax, IndS(iShell), nShlls, and
 *     Ind_Shell(IndSOff(iCnttp,iCnt)).
 *
-      Call Misc_Seward(iBas,iBas_Aux,iBas_Frag,DInf,nDInf)
+      Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 *                                                                      *
 ************************************************************************
 *                                                                      *

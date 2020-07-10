@@ -431,7 +431,6 @@ C     Do iS = 1, nSkal
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -451,7 +450,6 @@ C        Do jS = 1, iS
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -520,7 +518,6 @@ C           Do kS = 1, nSkal
                kAng   = iSD( 1,kS)
                kCmp   = iSD( 2,kS)
                kBas   = iSD( 3,kS)
-               kCff   = iSD( 4,kS)
                kPrim  = iSD( 5,kS)
                kAO    = iSD( 7,kS)
                mdck   = iSD(10,kS)
@@ -542,7 +539,6 @@ C              Do lS = 1, kS
                   lAng   = iSD( 1,lS)
                   lCmp   = iSD( 2,lS)
                   lBas   = iSD( 3,lS)
-                  lCff   = iSD( 4,lS)
                   lPrim  = iSD( 5,lS)
                   lAO    = iSD( 7,lS)
                   mdcl   = iSD(10,lS)
@@ -606,10 +602,6 @@ C              Do lS = 1, kS
               jBasj    = nBasis(iShllV(2))
               kBask    = nBasis(iShllV(3))
               lBasl    = nBasis(iShllV(4))
-              ipCffi   = ipCff(iShllV(1))
-              jpCffj   = ipCff(iShllV(2))
-              kpCffk   = ipCff(iShllV(3))
-              lpCffl   = ipCff(iShllV(4))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1010,10 +1002,10 @@ C              Do lS = 1, kS
      &            Shells(iShllV(2))%Exp,jPrimj,jPrInc,
      &            Shells(iShllV(3))%Exp,kPrimk,kPrInc,
      &            Shells(iShllV(4))%Exp,lPriml,lPrInc,
-     &                   Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                   Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                   Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &                   Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &            Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &            Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
      &           Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
      &           Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,
      &           Mem_DBLE(ipEta), Mem_DBLE(ipEI),

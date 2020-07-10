@@ -121,7 +121,6 @@ C     Do iS = 1, nSkal
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -135,7 +134,6 @@ C        Do jS = 1, iS
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -144,10 +142,10 @@ C        Do jS = 1, iS
             jCnt   = iSD(14,jS)
             B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 C        write(6,*)
-C    &  'iShll,iAng,iCmp,iBas,iCff,iPrim,iAO,ixyz,mdci,iShell'
+C    &  'iShll,iAng,iCmp,iBas,iPrim,iAO,ixyz,mdci,iShell'
 C        write(6,*) (iSD(i,iS),i=0,11)
 C        write(6,*)
-C    &  'jShll,jAng,jCmp,jBas,jCff,jPrim,jAO,jxyz,mdcj,jShell'
+C    &  'jShll,jAng,jCmp,jBas,jPrim,jAO,jxyz,mdcj,jShell'
 C        write(6,*) (iSD(i,jS),i=0,11)
 *
 *       Call kernel routine to get memory requirement.
@@ -357,22 +355,22 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 *
 c           If (iPrint.ge.99) Then
 c              Call RecPrt(' Left side contraction',' ',
-c    &                     Work(iCff),iPrim,iBas)
+c    &                     Shells(iShll)%pCff,iPrim,iBas)
 c              Call RecPrt(' Right side contraction',' ',
-c    &                     Work(jCff),jPrim,jBas)
+c    &                     Shells(jShll)%pCff,jPrim,jBas)
 c           End If
 *
 *           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBas*nSO,iPrim,iBas,
      &                  1.0d0,Work(ipDSO),iBas,
-     &                  Work(iCff),iPrim,
+     &                        Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Work(ipDSOp),jBas*nSO)
 *           Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrim,jPrim,jBas,
      &                  1.0d0,Work(ipDSOp),jBas,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,Work(ipDSO),nSO*iPrim)
 *           Transpose to ij,AB
             Call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),

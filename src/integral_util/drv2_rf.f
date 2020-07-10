@@ -117,7 +117,6 @@
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -132,7 +131,6 @@
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -308,9 +306,9 @@
 *
              If (iPrint.ge.99) Then
                 Call RecPrt(' Left side contraction',' ',
-     &                      Work(iCff),iPrim,iBas)
+     &                      Shells(iShll)%pCff,iPrim,iBas)
                 Call RecPrt(' Right side contraction',' ',
-     &                      Work(jCff),jPrim,jBas)
+     &                      Shells(jShll)%pCff,jPrim,jBas)
              End If
 *
 *            Transform ij,x,ab to j,xabI
@@ -318,13 +316,13 @@
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
      &                   1.0d0,Fnl(1,nComp+1),iPrim,
-     &                   Work(iCff),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
      &                   0.0d0,Scr1,jPrim*kk)
 *            Transform j,xabI to xab,IJ
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
      &                   1.0d0,Scr1,jPrim,
-     &                   Work(jCff),jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Fnl(1,nComp+1),kk*iBas)
 *
              If (iPrint.ge.99) Call

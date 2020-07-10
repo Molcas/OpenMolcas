@@ -12,9 +12,9 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
+      SubRoutine GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,
      &                  BLine,CrRep,nProj,
-     &                  ipPP,nPP,UnNorm,DInf,nDInf,nCnttp)
+     &                  ipPP,nPP,UnNorm,nCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -34,38 +34,26 @@
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-*for ip_Dummy:
       Character*180 Line, Get_Ln
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer ipExp(MxShll), ipCff(MxShll),
+      Integer ipExp(MxShll),
      &        nExp(MxShll), nBasis(MxShll),
      &        mPP(2)
       Logical UnNorm
-      Real*8 DInf(nDInf)
       Integer nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
-      subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
-      Integer lUnit, iStrt, iEnd, Inc, iErr
-      Real*8 Work(iend)
-      End subroutine Read_v
+         Subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
+         Integer lUnit, iStrt, Inc, iErr
+         Real*8 Work(iend)
+         End Subroutine Read_v
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout=6
-      iPrint = nPrint(iRout)
-      Call QEnter('GetECP')
-*
-      ip_Dummy=-1
-      iStrt = ipExp(iShll+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,7 +90,6 @@ C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
-            ipExp(iShll) = iStrt
             Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
             Shells(iShll)%nExp=3*kcr
 *
@@ -123,7 +110,6 @@ C              Write (6,*) 'ccr=',ccr
                Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
-            iStrt=ipExp(iShll)
 *
          End Do
          Do iPP = 1, mPP(2)
@@ -141,7 +127,6 @@ C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
-            ipExp(iShll) = iStrt
             Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
             Shells(iShll)%nExp=3*kcr
 *
@@ -163,11 +148,8 @@ C              Write (6,*) 'ccr=',ccr
                Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
-            iStrt=ipExp(iShll)
 *
          End Do
-         iEnd = iStrt - 1
-         ipExp(iShll+1) = iEnd + 1
 C        Write (6,*) 'Done'
 *
          Go To 999
@@ -301,61 +283,62 @@ C        Write (6,*) 'Done'
 *        Read gaussian EXPonents
 *
 *        Write (6,*) ' Reading Exponents'
-         ipExp(iShll) = iStrt
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
          nExp(iShll) = nPrim
-         iEnd = iStrt - 1
          If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
      &                               ierr)
          If (ierr.ne.0) goto 992
 *        Call RecPrt(' Exponents',Shells(iShll)%nExp,nPrim,1)
-         iStrt = iEnd + 1
-         ipCff(iShll) = iStrt
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
+         Shells(iShll)%Cff_p(:,:,:)=Zero  ! dummy assign
+         Shells(iShll)%nBasis=nCntrc
          nBasis(iShll) = nCntrc
-         iEnd = iStrt + nPrim*nCntrc - 1
 *
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and
 *        nCntrc columns
 *
 *        Write (6,*) ' Reading coefficients'
-         Do 20 iPrim = 0, nPrim-1
-*           Read (lUnit,*,Err=991) (DInf(i),i=iStrt+iPrim,iEnd,nPrim)
-            Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPrim,ierr)
+         Do iPrim = 1, nPrim
+            Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                  iPrim,nPrim*nCntrc,nPrim,ierr)
             If(ierr.ne.0) goto 991
- 20      Continue
+         End Do
 *
 *--------Renormalize
 *
          call mma_allocate(Scrt1,nPrim**2)
          call mma_allocate(Scrt2,nPrim*nCntrc)
-         Call Nrmlx(Shells(iShll)%Exp,nPrim,DInf(ipCff(iShll)),
-     &              nCntrc, Scrt1,nPrim**2,
+         Call Nrmlx(Shells(iShll)%Exp,nPrim,
+     &              Shells(iShll)%Cff_c(1,1,1),nCntrc,
+     &                      Scrt1,nPrim**2,
      &                      Scrt2, nPrim*nCntrc,iAng)
          call mma_deallocate(Scrt1)
          call mma_deallocate(Scrt2)
 *
 *        Duplicate!
 *
-         iStrt = iEnd + 1
-         iEnd = iStrt + nPrim*nCntrc - 1
-         Call DCopy_(nPrim*nCntrc,DInf(ipCff(iShll)),1,DInf(iStrt),1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
 *
          If (.Not.UnNorm) Then
             If (nExp(iShll)*nBasis(iShll).ge.1) Then
                Call Nrmlz(Shells(iShll)%Exp,nExp(iShll),
-     &                    DInf(ipCff(iShll)),nBasis(iShll),iAng)
+     &                    Shells(iShll)%Cff_c(1,1,1),nBasis(iShll),iAng)
             End If
          End If
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
-         iStrt = iEnd + 1
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
  10   Continue
  999  Continue
 *
-      Call QExit('GetECP')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_character(BLine)

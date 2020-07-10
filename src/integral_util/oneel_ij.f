@@ -80,7 +80,6 @@
       Call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
-      iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
       iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
@@ -91,7 +90,6 @@
       Call UpCase(dbas)
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
-      jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
       jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
@@ -161,8 +159,8 @@
      &                                     iPrim,jPrim,mdci,mdcj,
      &                                     Shells(iShll)%Exp,
      &                                     Shells(jShll)%Exp,
-     &                                     Work(iCff+iPrim*iBas),
-     &                                     Work(jCff+jPrim*jBas),
+     &                                     Shells(iShll)%Cff_c(1,1,2),
+     &                                     Shells(jShll)%Cff_c(1,1,2),
      &                                     nAtoms,NATEST,
      &                                     Coord,nPSOI,Final)
 #else
@@ -225,7 +223,6 @@
 *
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
-      iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
       iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
@@ -237,7 +234,6 @@
 
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
-      jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
       jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
@@ -441,9 +437,9 @@
 *
            If (iPrint.ge.99) Then
                 Call RecPrt(' Left side contraction',' ',
-     &                        Work(iCff+iPrim*iBas),iPrim,iBas)
+     &                        Shells(iShll)%pCff,iPrim,iBas)
                 Call RecPrt(' Right side contraction',' ',
-     &                        Work(jCff+jPrim*jBas),jPrim,jBas)
+     &                        Shells(jShll)%pCff,jPrim,jBas)
 *
             End If
 *
@@ -452,13 +448,13 @@
             Call DGEMM_('T','N',
      &                  jPrim*kk*nIC,iBas,iPrim,
      &                  1.0d0,Final,iPrim,
-     &                  Work(iCff),iPrim,
+     &                        Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Scrtch,jPrim*kk*nIC)
 *           Transform j,abxI to abxI,J
             Call DGEMM_('T','N',
      &                  kk*nIC*iBas,jBas,jPrim,
      &                  1.0d0,Scrtch,jPrim,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,ScrSph,kk*nIC*iBas)
 *
             If (iPrint.ge.99) Then

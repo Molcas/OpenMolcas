@@ -113,7 +113,6 @@
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -131,7 +130,6 @@
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -164,7 +162,8 @@
             nZeta = iPrimi * jPrimj
 *
             Call ConMax(Work(ipCon),iPrimi,jPrimj,
-     &                  Work(iCff),nBasi,Work(jCff),nBasj)
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj)
 *
             Call ICopy(2,iAngV,1,iAngV(3),1)
             Call ICopy(2,iCmpV,1,iCmpV(3),1)
@@ -219,10 +218,10 @@
      &                      iAngV,iCmpV,
      &                      iDCRR,nDCRR,Data_k2_local(jpk2),
      &                      ijCmp,
-     &                      Shells(iShllV(1))%Exp, iPrimi,
+     &                      Shells(iShllV(1))%Exp,iPrimi,
      &                      Shells(iShllV(2))%Exp,jPrimj,
-     &                      Work(iCff),iBas,
-     &                      Work(jCff),jBas,
+     &                      Shells(iShllV(1))%pCff,iBas,
+     &                      Shells(iShllV(2))%pCff,jBas,
      &                      nMemab,Work(ipCon),
      &                      Work(ipM002),M002,Work(ipM003),M003,
      &                      Work(ipM004),M004,

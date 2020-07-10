@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Drv_AMFI(Label,ip,lOper,nComp,rHrmt,iChO, iAtmNr2,
-     &                    Charge2,DInf,nDInf)
+     &                    Charge2)
       use iSD_data
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
@@ -21,7 +21,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "para.fh"
-      Real*8 DInf(nDInf)
       Integer, Allocatable :: iDel(:)
       Real*8, Allocatable :: SOInt(:)
       Real*8 Coor(3)
@@ -33,7 +32,7 @@
       Common /delete/ kDel(0:MxAng,MxDc)
       Data IfTest/.False./
 *
-*#define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       IfTest=.True.
       Write (6,*) ' In OneEl: Label', Label
@@ -257,12 +256,7 @@
                       iShll  = ipVal(iCnttp)+l
                       nBas_x = nBasis(iShll)
                       nExp_x = nExp(iShll)
-                      ipCff_x= ipCff(iShll)+nExp_x*nBas_x
-*
-*                     Offset to the contraction coefficient for normalized
-*                     Gaussian.
-*
-                      ipCff_x= iSD(4,iSkal)+nExp_x*nBas_x
+                      iCase  = 2
 *
                    Else
 *
@@ -272,12 +266,9 @@
                       iShll  = ipSOC(iCnttp)+l
                       nBas_x = nBasis(iShll)
                       nExp_x = nExp(iShll)
-*
-*                     Offset to the contraction coefficient for normalized
-*                     Gaussian.
-*
-                      ipCff_x= ipCff(iShll)
                       nBas_y = iSD( 3,iSkal)
+                      iCase = 1
+*
                    End If
 *
                    If (IfTest) Write (6,*)  'iShll=',iShll
@@ -287,12 +278,13 @@
      &                                  iExp_x=1,nExp_x)
                    If (IfTest) Write (6,*) (Shells(iShll)%Exp(iExp_x),
      &                                       iExp_x=1,nExp_x)
-                   Do iExp_x = 0, nExp_x-1
-                      Write (Lu_AMFI,*) (DInf(ipCff_x+iExp_x+iCff_x),
-     &                              iCff_x=0,nBas_x*nExp_x-1,nExp_x)
+                   Do iExp_x = 1, nExp_x
+                      Write (Lu_AMFI,*)
+     &                     (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),
+     &                              iCff_x=1,nBas_x)
                       If (IfTest) Write (6,*)
-     &                                  (DInf(ipCff_x+iExp_x+iCff_x),
-     &                              iCff_x=0,nBas_x*nExp_x-1,nExp_x)
+     &                     (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),
+     &                              iCff_x=1,nBas_x)
                    End Do
 *
                End If

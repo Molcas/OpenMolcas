@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Gen_RelPointers(ibase)
-      use iSD_data
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -17,18 +16,8 @@
 #include "SysDef.fh"
 *
       Do i = 1, MxShll
-         ipCff(i)        = ipCff(i)         + ibase
-         ipCff_Cntrct(i) = ipCff_Cntrct(i)  + ibase
-         ipCff_Prim(i)   = ipCff_Prim(i)    + ibase
          ipExp(i)        = ipExp(i)         + ibase
       End Do
-*
-      If (Allocated(iSD)) Then
-         Call Nr_Shells(nSkal)
-         Do iSkal = 1, nSkal
-            iSD(4,iSkal)= iSD(4,iSkal) + ibase ! ipCff
-         End Do
-      End If
 *
       Return
       End

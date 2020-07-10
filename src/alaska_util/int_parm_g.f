@@ -11,8 +11,7 @@
       Subroutine Int_Parm_g(iSD4,nSD,iAnga,
      &                    iCmpa,iShlla,iShela,
      &                    iPrimi,jPrimj,kPrimk,lPriml,
-     &                    ipCffi,jpCffj,kpCffk,lpCffl,
-     &                    nExp,ipExp,ipCff,MxShll,
+     &                    nExp,ipExp,MxShll,
      &                    indij,k2ij,nDCRR,k2kl,nDCRS,
      &                    mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                    nZeta,nEta,ipZeta,ipZI,ipP,
@@ -22,7 +21,7 @@
       use k2_setup
       Implicit Real*8 (a-h,o-z)
       Integer iAnga(4), iCmpa(4), iShlla(4), iShela(4),
-     &        iSD4(0:nSD,4), nExp(MxShll), ipExp(MxShll), ipCff(MxShll)
+     &        iSD4(0:nSD,4), nExp(MxShll), ipExp(MxShll)
       Logical AeqB, CeqD, l2DI
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -36,10 +35,6 @@
       jPrimj   =   nExp(iSD4( 0,2))
       kPrimk   =   nExp(iSD4( 0,3))
       lPriml   =   nExp(iSD4( 0,4))
-      ipCffi   =  ipCff(iSD4( 0,1))
-      jpCffj   =  ipCff(iSD4( 0,2))
-      kpCffk   =  ipCff(iSD4( 0,3))
-      lpCffl   =  ipCff(iSD4( 0,4))
       iShell=iSD4(11,1)
       jShell=iSD4(11,2)
       kShell=iSD4(11,3)

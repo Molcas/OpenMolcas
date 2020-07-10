@@ -229,22 +229,24 @@
             iOff=0
             Do iCase = 1, 2
                call dcopy_(nExp(iShll)*nBasis(iShll),
-     &                    Work(ipCff(iShll)+iOff),1,
-     &                    Work(ipTmp),1)
+     &                     Shells(iShll)%Cff_c(1,1,iCase),1,
+     &                     Work(ipTmp),1)
 #ifdef _DEBUG_
-               Call RecPrt('Coeff(old)',' ',Work(ipCff(iShll)+ioff),
+               Call RecPrt('Coeff(old)',' ',
+     &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExp(iShll),nBasis(iShll))
 #endif
                Call DGEMM_('N','N',
      &                    nExp(iShll),nBasis(iShll),nBasis(iShll),
      &                    1.0D0,Work(ipTmp),nExp(iShll),
      &                          Work(ipQVec),nBasis(iShll),
-     &                    0.0D0,Work(ipCff(iShll)+iOff),nExp(iShll))
+     &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
+     &                          nExp(iShll))
 #ifdef _DEBUG_
-               Call RecPrt('Coeff(new)',' ',Work(ipCff(iShll)+iOff),
+               Call RecPrt('Coeff(new)',' ',
+     &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExp(iShll),nBasis(iShll))
 #endif
-               iOff = iOff + nBasis(iShll)*nExp(iShll)
             End Do
 *
             Call Free_Work(ipQVec)

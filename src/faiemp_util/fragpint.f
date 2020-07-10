@@ -102,11 +102,11 @@ c      Character*80 Label
       Data    iTwoj/1,2,4,8,16,32,64,128/
 *
       Integer i,j,ixyz,nElem,iTri,nGrid,
-     &        iRout,iPrint,ia,iAng,ib,iBas,iAO,iCff,iCmp,iCnttp,iComp,
+     &        iRout,iPrint,ia,iAng,ib,iBas,iAO,iCmp,iCnttp,iComp,
      &        iCurCenter,iCurCnttp,iCurMdc,iIC,iIrrep,iLoc,iPrim,
      &        ip,ipF1,ipF2,ipIJ,ipK1,ipK2,ipP1,ipP2,ipTmp,ipZ1,ipZ2,
      &        ipZI1,ipZI2,iS,iSbasis,iSend,iShell,iShll,iSize,iSlocal,
-     &        iSstart,iStemp,jAng,jAO,jBas,jCff,jCmp,jCnttp,jPrim,
+     &        iSstart,iStemp,jAng,jAO,jBas,jCmp,jCnttp,jPrim,
      &        jS,jShell,jShll,jSize,jSlocal,jxyz,lDCRT,llOper,LmbdT,
      &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nHer,nOp,nSkal,
      &        jSbasis,iCnt,jCnt
@@ -208,7 +208,6 @@ c     ! The basis function index relative to the start of the fragment
         iAng   = iSD( 1,iS)
         iCmp   = iSD( 2,iS)
         iBas   = iSD( 3,iS)
-        iCff   = iSD( 4,iS)
         iPrim  = iSD( 5,iS)
         iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
@@ -223,7 +222,6 @@ c        print *, 'In FragPInt: iS=',iS,' iShll =',iShll
 c        print *, 'In FragPInt: iS=',iS,' iAng  =',iAng
 c        print *, 'In FragPInt: iS=',iS,' iCmp  =',iCmp
 c        print *, 'In FragPInt: iS=',iS,' iBas  =',iBas
-c        print *, 'In FragPInt: iS=',iS,' iCff  =',iCff
 c        print *, 'In FragPInt: iS=',iS,' iPrim =',iPrim
 c        print *, 'In FragPInt: iS=',iS,' iAO   =',iAO
 c        print *, 'In FragPInt: iS=',iS,' ixyz  =',ixyz
@@ -270,19 +268,11 @@ c      End If
  102        Continue
 * update the energy weighted density matrix of the current fragment
             EnergyWeight = .true.
-c            write(6,*) 'Calling MakeDens 1: iCurCnttp=',iCurCnttp
-c            write(6,*) 'nFragDens(iCurCnttp)=',
-c    &                  dbsc(iCurCnttp)%nFragDens
-c            write(6,*) 'nFragEner(iCurCnttp)=',
-c    &                  dbsc(iCurcnttp)%nFragEner
-c           Call MakeDens(                nBas,                nOrb,
-c                                     Cff,                      OrbEn,
-c             EnergyWeight, Dens)
             Call MakeDens(dbsc(iCurCnttp)%nFragDens,
      &                    dbsc(iCurCnttp)%nFragEner,
      &                    dbsc(iCurCnttp)%FragCoef,
      &                    dbsc(iCurCnttp)%FragEner,
-     &        EnergyWeight,Array)
+     &                    EnergyWeight,Array)
             If (iPrint.ge.49)
      &         Call TriPrt('Energy weighted fragment dens',' ',
      &                      Array,dbsc(iCurCnttp)%nFragDens)
@@ -314,7 +304,6 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
           jAng   = iSD( 1,jS)
           jCmp   = iSD( 2,jS)
           jBas   = iSD( 3,jS)
-          jCff   = iSD( 4,jS)
           jPrim  = iSD( 5,jS)
           jAO    = iSD( 7,iS)
           mdcj   = iSD(10,jS)
@@ -328,7 +317,6 @@ c       write(*,*) '  iPrim,iBas =',iPrim,iBas
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAng  =',jAng
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCmp  =',jCmp
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCff  =',jCff
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAO   =',jAO
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jxyz  =',jxyz
@@ -506,13 +494,13 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 *
             Call DGEMM_('T','N', nac*nAlpha, iBas, iPrim,
      &                  1.0d0, Array(ipTmp),       iPrim,
-     &                          Work(iCff ),       iPrim,
+     &                         Shells(iShll)%pCff, iPrim,
      &                  0.0d0, Array(ipF1 ),  nAlpha*nac  )
             If(iPrint.ge.99) Then
               Call RecPrt('<alpha|iS>(regrouped, X x iPrim)',' ',
      &                    Array(ipTmp),nAlpha*nac,iPrim)
-              Call RecPrt('Coeffs of iS (iPrim x iBas)',' ',Work(iCff),
-     &                    iPrim,iBas)
+              Call RecPrt('Coeffs of iS (iPrim x iBas)',' ',
+     &                    Shells(iShll)%pCff,iPrim,iBas)
              Call RecPrt('<alpha|iS>(re) * Coeffs of iS (X x iBas)',' ',
      &                   Array(ipF1),nAlpha*nac,iBas)
             End If
@@ -565,13 +553,13 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
             Call DGEMM_('T','N',
      &                  nBeta*ncb,jBas,jPrim,
      &                  1.0d0,Array(ipF2),jPrim,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,Array(ipTmp),nBeta*ncb)
             If(iPrint.ge.99) Then
               Call RecPrt('<jS|beta>(regrouped, X x jPrim)',' ',
      &                    Array(ipF2),nBeta*ncb,jPrim)
-              Call RecPrt('Coeffs of jS (jPrim x jBas)',' ',Work(jCff),
-     &                    jPrim,jBas)
+              Call RecPrt('Coeffs of jS (jPrim x jBas)',' ',
+     &                     Shells(jShll)%pCff,jPrim,jBas)
               Call RecPrt('<jS|beta>(re) * Coeffs of jS (Y x jBas)',' ',
      &                   Array(ipTmp),nBeta*ncb,jBas)
 

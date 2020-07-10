@@ -23,6 +23,7 @@
 *******************************************************************************
 *
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 
 #include "itmax.fh"
@@ -46,7 +47,7 @@
       Call DGEMM_('T','N',
      &            nBeta*ncb*nVecCB,nBasis(iShll),nExp(iShll),
      &            1.0d0,F,nExp(iShll),
-     &            Work(ipCff(iShll)),nExp(iShll),
+     &            Shells(iShll)%pCff,nExp(iShll),
      &            0.0d0,Work(ipTmp),nBeta*ncb*nVecCB)
 *
 *--------------2)  j,cbK -> cbK,j

@@ -196,7 +196,6 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          iAng  =iSD( 1,iShell)
          iShll =iSD( 0,iShell)
          NrBas =iSD( 3,iShell)
-         ip_Cff=iSD( 4,iShell)
          mdci  =iSD(10,iShell)
          nDegi=nSym/nStab(mdci)
 *
@@ -274,13 +273,13 @@ c              write (6,*) 'ilist_s,NrBas=',ilist_s,NrBas
 c              crite (*,*) 'ilist_s,NrBas=',ilist_s,NrBas
                list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,
      &                                      Shells(iShll)%Exp,
-     &                                      Work(ip_Cff),
+     &                                      Shells(iShll)%pCff,
      &                                      list_exp(ilist_s))
 C              If (list_bas(1,ilist_s).ne.NrBas) Then
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas,'*'
 C                 Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,
 C    &                        list_exp(1,ilist_s))
-C                 Call RecPrt('Cff',' ',Work(ip_Cff),NrExp,NrBas)
+C                 Call RecPrt('Cff',' ',Shells(iShll)%pCff,NrExp,NrBas)
 C              Else
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas
 C              End If

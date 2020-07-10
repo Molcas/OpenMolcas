@@ -544,32 +544,6 @@ c      Write(LU,'(12i6)') (nExp(i),i=1,Mx_Shll),
 c     & (nBasis(i),i=1,Mx_Shll),
 c     & (nBasis_Cntrct(i),i=1,Mx_Shll)
 
-      Call Get_iArray('ipCff',ipCff,Mx_Shll)
-      call icopy(Mx_Shll,ipCff,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipCff(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipCff_Cntrct',ipCff_Cntrct,Mx_Shll)
-      call icopy(Mx_Shll,ipCff_Cntrct,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff_Cntrct(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-c      Write(LU,'(8i16)') (ipCff_Cntrct(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipCff_Prim',ipCff_Prim,Mx_Shll)
-      call icopy(Mx_Shll,ipCff_Prim,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff_Prim(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipCff_Prim(i),i=1,Mx_Shll)
-
       Call Get_iArray('IndS',IndS,nShlls)
       iWork(iivv+Icurr)=nShlls
       Icurr=iCurr+1

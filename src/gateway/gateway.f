@@ -53,6 +53,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Gateway_banner()
       iReturn = 0
 *
 *     If Gateway is running the Run_Mode on the runfile should always
@@ -145,7 +146,7 @@ C-SVC: identify runfile with a fingerprint
       Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
-      Call Print_Basis2(Work(Info),nDInf)
+      Call Print_Basis2()
       Call Print_OpInfo()
 *                                                                      *
 ************************************************************************
@@ -155,7 +156,7 @@ C-SVC: identify runfile with a fingerprint
       Primitive_Pass=.False.
       Call Flip_Flop(Primitive_Pass)
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,Work(Info),nDInf,Info)
+      Call SOCtl_Seward(Mamn,nMamn,Info)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -182,7 +183,7 @@ C-SVC: identify runfile with a fingerprint
       Call Put_cArray('Irreps',lIrrep(0),24)
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
-      call basis2run(Work(Info),nInfo)
+      call basis2run()
       Call Gen_RelPointers(Info-1) ! Work Mode
       Call mma_deallocate(Mamn)
 *
