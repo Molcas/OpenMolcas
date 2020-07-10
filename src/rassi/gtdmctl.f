@@ -1008,27 +1008,26 @@ C             Write density 1-matrices in AO basis to disk.
           IF (IFEJOB.and.(ISTATE.ne.JSTATE)) THEN
             HAM(ISTATE,JSTATE) = SIJ
             HAM(JSTATE,ISTATE) = SIJ
-          EndIf
+          END IF
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
             HIJ                = HZERO+HONE+HTWO
             HAM(ISTATE,JSTATE) = HIJ
             HAM(JSTATE,ISTATE) = HIJ
 
-         !SI-PDFT related code for "second_time" case
-          if(second_time) then
-            Energies(:) =0.0d0
-            CALL DANAME(LUIPH,'JOBGS')
-            IAD = 0
-            Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
-            IAD=ITOC15(6)
-            Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
-            do i=1,NSTAT(JOB1)
-              HAM(i,i) = Energies(i)
-            end do
-            Call DACLOS(LUIPH)
-          end if
-
+            !SI-PDFT related code for "second_time" case
+            if(second_time) then
+              Energies(:) =0.0d0
+              CALL DANAME(LUIPH,'JOBGS')
+              IAD = 0
+              Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+              IAD=ITOC15(6)
+              Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
+              do i=1,NSTAT(JOB1)
+                HAM(i,i) = Energies(i)
+              end do
+              Call DACLOS(LUIPH)
+            end if
 
             IF(IPGLOB.GE.DEBUG) THEN
               WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
@@ -1050,15 +1049,15 @@ C             Write density 1-matrices in AO basis to disk.
           JSTATE=ISTAT(JOB2)-1+JST
           DO IST=1,NSTAT(JOB1)
             ISTATE=ISTAT(JOB1)-1+IST
-            IF(ISTATE.LE.JSTATE) cycle
+            IF(ISTATE.LE.JSTATE) CYCLE
             SIJ=HAM(ISTATE,JSTATE)
             HII=HAM(ISTATE,ISTATE)
             HJJ=HAM(JSTATE,JSTATE)
-           HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*0.5D0
-           HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*0.5D0
-          End Do
-        End Do
-      EndIf
+            HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*0.5D0
+            HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*0.5D0
+          END DO
+        END DO
+      END IF
 
       IF(DoGSOR) then
         if(job1.ne.job2) then
