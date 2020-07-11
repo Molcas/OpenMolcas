@@ -227,7 +227,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
                nDCR  =ipOffD(2,ijS)
                nDij  =ipOffD(3,ijS)
             Else
-               ipDij=ip_Dummy
+               ipDij= -1
                nDCR  =1
                nDij=1
             End If

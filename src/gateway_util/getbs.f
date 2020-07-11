@@ -97,6 +97,12 @@
          Logical UnNorm
          Integer nCnttp
          End SubRoutine GetECP
+         Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
+         Character*(*) Title
+         Character*(*) FmtIn
+         Integer A(nRow,nCol)
+         Real*8 A(nRow,nCol)
+         End Subroutine RecPrt
       End Interface
 *                                                                      *
 ************************************************************************
