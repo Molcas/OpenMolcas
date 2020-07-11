@@ -923,7 +923,7 @@ C              Write(6,*) 'Fock operator is included'
          Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
 *
          If (IfTest)
-     &      Call RecPrt('Coefficients',Shells(iShll)%Cff_c(1,1,1),
+     &      Call RecPrt('Coefficients',' ',Shells(iShll)%Cff_c(1,1,1),
      &                  nPrim,nCntrc)
          iStrt = iEnd + 1
          If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
