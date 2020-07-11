@@ -45,7 +45,8 @@ c  Prepare iw(i1) for print
         ioffs=ioffs+1
       endif
 300   continue
-100   write(6,'(i8,a,20i3)')iconf,'   =>  ',(iw(ii+i1-1),ii=1,nel1)
+      write(6,'(i8,a,20i3)')iconf,'   =>  ',(iw(ii+i1-1),ii=1,nel1)
+100   continue
       call mfreei_cvb(i1)
       return
       end
@@ -75,7 +76,8 @@ c  Prepare iw(i1) for print
       endif
       ndetvb=ndetvb+ndetvb_fr(ifrag)
       ndetvb2=ndetvb2+ndetvb2_fr(ifrag)
-100   nvbr=nvbr+nvbr_fr(ifrag)
+      nvbr=nvbr+nvbr_fr(ifrag)
+100   continue
 
       if(kbasis_loc.ne.6)then
         nvb_loc=nvbr

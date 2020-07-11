@@ -32,7 +32,8 @@
 c  Check solution
       call mxatb_cvb(a,w(i1),n,n,n,w(i2))
       do 100 i=1,n
-100   w(i+(i-1)*n+i2-1)=w(i+(i-1)*n+i2-1)-one
+      w(i+(i-1)*n+i2-1)=w(i+(i-1)*n+i2-1)-one
+100   continue
       rms=sqrt(ddot_(n*n,w(i2),1,w(i2),1)/DBLE(n*n))
       if(rms.gt.thresh)then
         write(6,*)' Fatal error in matrix inversion - error:',rms

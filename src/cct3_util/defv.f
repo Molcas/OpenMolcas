@@ -458,7 +458,7 @@ c100    continue
 c
        do 101 c=1,dimvc
        cr1=c+add
-       do 101 a=2,dimvc
+       do 102 a=2,dimvc
        ar1=a+add
        ab0=nshf(a)
        if (c.le.(a-2)) then
@@ -483,11 +483,12 @@ c       bcr1=cr1*(cr1-1)/2+add+b
         v(ab0+b,c)=r1(ar1,bk+b)
         end do
        end if
+ 102   continue
  101   continue
 c
        do 200 c=1,dimvc
        cr1=c+add
-       do 200 a=2,dimvc
+       do 201 a=2,dimvc
        ab0=nshf(a)
 c      acr1=indab(a+add,cr1)
          if ((a+add).gt.cr1) then
@@ -495,9 +496,11 @@ c      acr1=indab(a+add,cr1)
          else
            acr1=cr1*(cr1-1)/2+a+add
          end if
-       do 200 b=1,a-1
+       do 202 b=1,a-1
        ab=ab0+b
        v(ab,c)=v(ab,c)-r1(b+add,acr1)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -534,21 +537,25 @@ c
 c
        do 100 c=1,dimvc
        cr1=c+addc
-       do 100 a=2,dimva
+       do 101 a=2,dimva
        ar1=a+adda
        ab0=nshf(a)
-       do 100 b=1,a-1
+       do 102 b=1,a-1
        v(ab0+b,c)=r1(ar1,b+adda,cr1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr1=c+addc
-       do 200 a=2,dimva
+       do 201 a=2,dimva
        ar1=a+adda
        ab0=nshf(a)
-       do 200 b=1,a-1
+       do 202 b=1,a-1
        ab=ab0+b
        v(ab,c)=v(ab,c)-r1(b+adda,ar1,cr1)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -585,21 +592,25 @@ c
 c
        do 100 c=1,dimvc
        cr1=c+addc
-       do 100 a=2,dimva
+       do 101 a=2,dimva
        ar1=a+adda
        ab0=nshf(a)
-       do 100 b=1,a-1
+       do 102 b=1,a-1
        v(ab0+b,c)=r1(ar1,cr1,b+adda)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 a=2,dimva
        ar1=a+adda
        ab0=nshf(a)
-       do 200 c=1,dimvc
+       do 201 c=1,dimvc
        cr1=c+addc
-       do 200 b=1,a-1
+       do 202 b=1,a-1
        ab=ab0+b
        v(ab,c)=v(ab,c)-r1(b+adda,cr1,ar1)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -642,23 +653,27 @@ c
 c
        do 100 b=1,dimvb
        br1=b+addb
-       do 100 c=1,dimvc
+       do 101 c=1,dimvc
        cr1=c+addc
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,cr1,br1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 a=1,dimvc
+       do 201 a=1,dimvc
 c      acr2=indab(a+adda,cr2)
          if ((a+adda).ge.cr2) then
            acr2=(a+adda)*(a+adda-1)/2+cr2
          else
            acr2=cr2*(cr2-1)/2+a+adda
          end if
-       do 200 b=1,dimvb
+       do 202 b=1,dimvb
        v(a,b,c)=v(a,b,c)-r2(b+addb,acr2)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -701,23 +716,27 @@ c
 c
        do 100 c=1,dimvc
        cr1=c+addc
-       do 100 b=1,dimvb
+       do 101 b=1,dimvb
 c      bcr1=indab(b+addb,cr1)
          if ((b+addb).gt.cr1) then
            bcr1=(b+addb)*(b+addb-1)/2+cr1
          else
            bcr1=cr1*(cr1-1)/2+b+addb
          end if
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,bcr1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 b=1,dimvb
+       do 201 b=1,dimvb
        br2=b+addb
-       do 200 a=1,dimva
+       do 202 a=1,dimva
        v(a,b,c)=v(a,b,c)-r2(br2,a+adda,cr2)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -759,18 +778,22 @@ c
 c
        do 100 c=1,dimvc
        cr1=c+addc
-       do 100 b=1,dimvb
+       do 101 b=1,dimvb
        br1=b+addb
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,br1,cr1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 b=1,dimvb
+       do 201 b=1,dimvb
        br2=b+addb
-       do 200 a=1,dimva
+       do 202 a=1,dimva
        v(a,b,c)=v(a,b,c)-r2(br2,a+adda,cr2)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -812,18 +835,22 @@ c
 c
        do 100 b=1,dimvb
        br1=b+addb
-       do 100 c=1,dimvc
+       do 101 c=1,dimvc
        cr1=c+addc
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,cr1,br1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 b=1,dimvb
+       do 201 b=1,dimvb
        br2=b+addb
-       do 200 a=1,dimva
+       do 202 a=1,dimva
        v(a,b,c)=v(a,b,c)-r2(br2,a+adda,cr2)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -865,18 +892,22 @@ c
 c
        do 100 c=1,dimvc
        cr1=c+addc
-       do 100 b=1,dimvb
+       do 101 b=1,dimvb
        br1=b+addb
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,br1,cr1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 b=1,dimvb
+       do 201 b=1,dimvb
        br2=b+addb
-       do 200 a=1,dimva
+       do 202 a=1,dimva
        v(a,b,c)=v(a,b,c)-r2(br2,cr2,a+adda)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -918,18 +949,22 @@ c
 c
        do 100 b=1,dimvb
        br1=b+addb
-       do 100 c=1,dimvc
+       do 101 c=1,dimvc
        cr1=c+addc
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,cr1,br1)
+ 102    continue
+ 101    continue
  100    continue
 c
        do 200 c=1,dimvc
        cr2=c+addc
-       do 200 b=1,dimvb
+       do 201 b=1,dimvb
        br2=b+addb
-       do 200 a=1,dimva
+       do 202 a=1,dimva
        v(a,b,c)=v(a,b,c)-r2(br2,cr2,a+adda)
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -965,9 +1000,11 @@ c
 c
 c
        do 100 c=1,dimvc
-       do 100 b=1,dimvb
-       do 100 a=1,dimva
+       do 101 b=1,dimvb
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,b,c)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -1003,9 +1040,11 @@ c
 c
 c
        do 100 b=1,dimvb
-       do 100 c=1,dimvc
-       do 100 a=1,dimva
+       do 101 c=1,dimvc
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,c,b)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -1042,15 +1081,17 @@ c
 c
 c
        do 100 c=1,dimvc
-       do 100 b=1,dimvb
+       do 101 b=1,dimvb
 c      bcr1=indab(b,c)
          if (b.ge.c) then
            bcr1=b*(b-1)/2+c
          else
            bcr1=c*(c-1)/2+b
          end if
-       do 100 a=1,dimva
+       do 102 a=1,dimva
        v(a,b,c)=r1(a+adda,bcr1)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -1090,10 +1131,12 @@ c
 c
        do 100 c=1,dimvc
        cr2=c+addc
-       do 100 a=1,dimva
+       do 101 a=1,dimva
        ar2=a+adda
-       do 100 b=1,dimvb
+       do 102 b=1,dimvb
        v(a,b,c)=-r2(b,ar2,cr2)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -1131,10 +1174,12 @@ c
 c
        do 100 a=1,dimva
        ar2=a+adda
-       do 100 c=1,dimvc
+       do 101 c=1,dimvc
        cr2=c+addc
-       do 100 b=1,dimvb
+       do 102 b=1,dimvb
        v(a,b,c)=-r2(b,cr2,ar2)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -1173,15 +1218,17 @@ c
 c
        do 100 c=1,dimvc
        cr2=c+addc
-       do 100 a=1,dimva
+       do 101 a=1,dimva
 c      acr2=indab(a+adda,cr2)
          if ((a+adda).ge.cr2) then
            acr2=(a+adda)*(a+adda-1)/2+cr2
          else
            acr2=cr2*(cr2-1)/2+a+adda
          end if
-       do 100 b=1,dimvb
+       do 102 b=1,dimvb
        v(a,b,c)=-r2(b,acr2)
+ 102    continue
+ 101    continue
  100    continue
 c
        return

@@ -31,11 +31,11 @@
 *
       iIrrep=0
       do 800 ixop=0,nOrdOp
-      do 800 iyop=0,nOrdOp-ixop
+      do 801 iyop=0,nOrdOp-ixop
       izop=nOrdOp-ixop-iyop
       icomp=Ind(nOrdOp,ixop,izop)
       ff=Force(icomp)
-      if(ff.eq.0.d0) goto 800
+      if(ff.eq.0.d0) goto 801
         kdc = 0
         Do kCnttp = 1, nCnttp
            If (Charge(kCnttp).eq.0.d0) Go To 411
@@ -68,6 +68,7 @@
            Enddo
 411     kdc = kdc + dbsc(kCnttp)%nCntr
         Enddo
+801   continue
 800   continue
 
       Return

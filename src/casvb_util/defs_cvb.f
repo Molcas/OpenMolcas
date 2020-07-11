@@ -49,7 +49,8 @@ c  +1=CHIRGWIN +2=LOWDIN +4=INVERSE
       anyslater=.false.
       service=.false.
       do 50 i=1,10
-50    ip(i)=1
+      ip(i)=1
+50    continue
 
       call tunedefs_cvb()
       if(variat)then

@@ -272,7 +272,8 @@ c    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
           mief=ifrno(mjnj)
         endif
         do 60 l=1,ndim
-60      vb1(ij+l)=dzero
+        vb1(ij+l)=dzero
+60      continue
         vb1(ij+mief)=1.0d0
       enddo
 

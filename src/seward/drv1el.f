@@ -1088,7 +1088,7 @@ c           iPAMcount=iPAMcount+1
          iComp = 0
          iC = 0
          Do 1510 ix = 1, 0, -1
-         Do 1510 iy = 1-ix, 0, -1
+         Do 1511 iy = 1-ix, 0, -1
             iz=1-ix-iy
             iC = iC + 1
             iChO1 = iChBas(iC+1)
@@ -1099,8 +1099,8 @@ c           iPAMcount=iPAMcount+1
             iSym = 2**IrrFnc(ixyz)
             If (Ccoor(iC).ne.Zero) iSym = iOr(iSym,1)
             iD = 0
-            Do 1511 jx = 1, 0, -1
-            Do 1511 jy = 1-jx, 0, -1
+            Do 1512 jx = 1, 0, -1
+            Do 1513 jy = 1-jx, 0, -1
                jz=1-jx-jy
                iD = iD + 1
                iChO2 = iChBas(iD+1)
@@ -1124,7 +1124,9 @@ c           iPAMcount=iPAMcount+1
                OperC(1+iComp) = iChO
                Call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
                iComp = iComp + 1
- 1511       Continue
+ 1513       Continue
+ 1512       Continue
+ 1511    Continue
  1510    Continue
          Call dcopy_(3,Dxyz,1,CoorO(1+3),1)
 *

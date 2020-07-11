@@ -31,7 +31,8 @@
       endif
 
       do 100 i=1,lenc
-100   c2(i:i)=c(i:i)
+      c2(i:i)=c(i:i)
+100   continue
       call systemc(c2,lenc,rc)
       Return
       End
@@ -48,7 +49,8 @@
       endif
 
       do 100 i=1,lenc
-100   c2(i:i)=c(i:i)
+      c2(i:i)=c(i:i)
+100   continue
       call systemc2(c2,lenc,rc)
       Return
       End

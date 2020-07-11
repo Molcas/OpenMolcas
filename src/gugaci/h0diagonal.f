@@ -252,13 +252,16 @@ c
       do 200 i=k1,k2
       iijj=i*(i-1)/2
       ij=indx(i)
-      do 200 j=1,i
+      do 201 j=1,i
       ji=indx(j)
       p(iijj+j)=0.0d0
 c--------------------------------------------------------------
-      do 200 l=1,n
+      do 202 l=1,n
 c-----------------------------------------------------------------
-200   p(iijj+j)=p(iijj+j)+vb1(ij+l)*vb2(ji+l)
+      p(iijj+j)=p(iijj+j)+vb1(ij+l)*vb2(ji+l)
+202   continue
+201   continue
+200   continue
       return
       end
 
@@ -277,11 +280,13 @@ c-----------------------------------------------------------------
 c-------------------------------------------------------------------
       do 200 i=2,n
       mn=i*(i-1)/2
-      do 200 j=k1,k2
+      do 201 j=k1,k2
       ij=indx(j)
-      do 200 l=1,i-1
+      do 202 l=1,i-1
       vb2(ij+i)=vb2(ij+i)+th(mn+l)*vb1(ij+l)
       vb2(ij+l)=vb2(ij+l)+th(mn+l)*vb1(ij+i)
+202   continue
+201   continue
 200   continue
 c-------------------------------------------------------------------
       return
@@ -302,8 +307,9 @@ c
       s=s+vb1(ij+i)*vb1(ji+i)
 130   continue
       smax1=max(smax1,abs(s))
-      do 140 i=1,n
+      do 141 i=1,n
         vb1(ji+i)=vb1(ji+i)-s*vb1(ij+i)
+141   continue
 140   continue
 
       if(smax1.lt.dcrita) goto 150
@@ -325,10 +331,12 @@ c
 c     normalization of j-th eigenvector.
 150   s=0.0d0
       do 160 i=1,n
-160   s=s+vb1(ji+i)*vb1(ji+i)
+      s=s+vb1(ji+i)*vb1(ji+i)
+160   continue
       s=sqrt(s)
       do 170 i=1,n
-170   vb1(ji+i)=vb1(ji+i)/s
+      vb1(ji+i)=vb1(ji+i)/s
+170   continue
       return
       end
 c

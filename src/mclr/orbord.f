@@ -169,7 +169,7 @@ C?    write(6,*) ' IR0 ',IR0
         END IF
         NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NACOBS(ISM)
         DO 29 ITP = 1, NR4TP
-        DO 29 IIR4 = 1, NR4OBS(ISM,ITP)
+        DO 28 IIR4 = 1, NR4OBS(ISM,ITP)
 *. Type ordered index
           IR4 = IR4 + 1
 *. Symmetry ordered index
@@ -178,6 +178,7 @@ C?    write(6,*) ' IR0 ',IR0
 *         ITFSO(IR4S) = 5
           IREOST(IR4S) = IR4
           IREOTS(IR4) = IR4S
+   28   CONTINUE
    29   CONTINUE
    30 CONTINUE
       NR4OB = IR4 - NACOB - NR0OB

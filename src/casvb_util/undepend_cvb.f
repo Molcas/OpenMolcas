@@ -22,7 +22,8 @@
       jobj=0
       do 100 i=1,nobj
       if(charobj(i).eq.chr1)iobj=i
-100   if(charobj(i).eq.chr2)jobj=i
+      if(charobj(i).eq.chr2)jobj=i
+100   continue
       if(iobj.eq.0)then
         if(mustdeclare)then
           write(6,*)' Make object not found :',chr1
@@ -47,9 +48,11 @@
         do 200 i=ioffs(iobj)+1,ioffs(iobj+1)
         if(i_dep_on_j(i).eq.jobj)then
           do 300 j=i,ioffs(nobj+1)-1
-300       i_dep_on_j(j)=i_dep_on_j(j+1)
+          i_dep_on_j(j)=i_dep_on_j(j+1)
+300       continue
           do 400 ii=iobj+1,nobj+1
-400       ioffs(ii)=ioffs(ii)-1
+          ioffs(ii)=ioffs(ii)-1
+400       continue
           n_cancelled=n_cancelled+1
           goto 190
         endif
@@ -62,9 +65,11 @@
         do 500 i=joffs(jobj)+1,joffs(jobj+1)
         if(j_dep_on_i(i).eq.iobj)then
           do 600 j=i,joffs(nobj+1)-1
-600       j_dep_on_i(j)=j_dep_on_i(j+1)
+          j_dep_on_i(j)=j_dep_on_i(j+1)
+600       continue
           do 700 ii=jobj+1,nobj+1
-700       joffs(ii)=joffs(ii)-1
+          joffs(ii)=joffs(ii)-1
+700       continue
           m_cancelled=m_cancelled+1
           goto 490
         endif
@@ -87,7 +92,8 @@
       jobj=0
       do 100 i=1,nobj
       if(charobj(i).eq.chr1)iobj=i
-100   if(charobj(i).eq.chr2)jobj=i
+      if(charobj(i).eq.chr2)jobj=i
+100   continue
       if(iobj.eq.0)then
         if(mustdeclare)then
           write(6,*)' Make object not found :',chr1
@@ -112,9 +118,11 @@
         do 200 i=ioffs(iobj)+1,ioffs(iobj+1)
         if(i_dep_on_j(i).eq.jobj)then
           do 300 j=i,ioffs(nobj+1)-1
-300       i_dep_on_j(j)=i_dep_on_j(j+1)
+          i_dep_on_j(j)=i_dep_on_j(j+1)
+300       continue
           do 400 ii=iobj+1,nobj+1
-400       ioffs(ii)=ioffs(ii)-1
+          ioffs(ii)=ioffs(ii)-1
+400       continue
           n_cancelled=n_cancelled+1
           goto 190
         endif
@@ -127,9 +135,11 @@
         do 500 i=joffs(jobj)+1,joffs(jobj+1)
         if(j_dep_on_i(i).eq.iobj)then
           do 600 j=i,joffs(nobj+1)-1
-600       j_dep_on_i(j)=j_dep_on_i(j+1)
+          j_dep_on_i(j)=j_dep_on_i(j+1)
+600       continue
           do 700 ii=jobj+1,nobj+1
-700       joffs(ii)=joffs(ii)-1
+          joffs(ii)=joffs(ii)-1
+700       continue
           m_cancelled=m_cancelled+1
           goto 490
         endif

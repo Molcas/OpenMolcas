@@ -44,16 +44,19 @@ c
 c  Consistency with occ no definition ?
       locc=.true.
       do 200 i=norb+1,noe
-200   if(iconfs(i,iconf).ne.0)locc=.false.
+      if(iconfs(i,iconf).ne.0)locc=.false.
+200   continue
       nsum=0
       do 300 i=1,norb
       if(iconfs(i,iconf).lt.0.or.iconfs(i,iconf).gt.2)locc=.false.
-300   nsum=nsum+iconfs(i,iconf)
+      nsum=nsum+iconfs(i,iconf)
+300   continue
       if(nsum.ne.nel1)locc=.false.
 c  Consistency with orb list definition ?
       lorbs=.true.
       do 400 i=nel1+1,noe
-400   if(iconfs(i,iconf).ne.0)lorbs=.false.
+      if(iconfs(i,iconf).ne.0)lorbs=.false.
+400   continue
       call izero(iocc,norb)
       do 500 i=1,nel1
       if(iconfs(i,iconf).ge.1.and.
@@ -64,7 +67,8 @@ c  Consistency with orb list definition ?
       endif
 500   continue
       do 600 i=1,norb
-600   if(iocc(i).gt.2)lorbs=.false.
+      if(iocc(i).gt.2)lorbs=.false.
+600   continue
 c
       if(locc.and..not.lorbs)then
         locc_only=.true.
@@ -85,16 +89,19 @@ c  Check again ...
 c  Consistency with occ no definition ?
         locc=.true.
         do 1200 i=norb+1,noe
-1200    if(iconfs(i,iconf).ne.0)locc=.false.
+        if(iconfs(i,iconf).ne.0)locc=.false.
+1200    continue
         nsum=0
         do 1300 i=1,norb
         if(iconfs(i,iconf).lt.0.or.iconfs(i,iconf).gt.2)locc=.false.
-1300    nsum=nsum+iconfs(i,iconf)
+        nsum=nsum+iconfs(i,iconf)
+1300    continue
         if(nsum.ne.nel1)locc=.false.
 c  Consistency with orb list definition ?
         lorbs=.true.
         do 1400 i=nel1+1,noe
-1400    if(iconfs(i,iconf).ne.0)lorbs=.false.
+        if(iconfs(i,iconf).ne.0)lorbs=.false.
+1400    continue
         call izero(iocc,norb)
         do 1500 i=1,nel1
         if(iconfs(i,iconf).ge.1.and.
@@ -105,19 +112,22 @@ c  Consistency with orb list definition ?
         endif
 1500    continue
         do 1600 i=1,norb
-1600    if(iocc(i).gt.2)lorbs=.false.
+        if(iocc(i).gt.2)lorbs=.false.
+1600    continue
       endif
       if(locc.and.lorbs)then
 c  Comment out following 5 lines if default should be occ no definition:
         call izero(iocc,norb)
         do 1700 i=1,nel1
-1700    iocc(iconfs(i,iconf))=iocc(iconfs(i,iconf))+1
+        iocc(iconfs(i,iconf))=iocc(iconfs(i,iconf))+1
+1700    continue
         call imove_cvb(iocc,iconfs(1,iconf),norb)
         if(noe-norb.gt.0) call izero(iconfs(norb+1,iconf),noe-norb)
       elseif(lorbs)then
         call izero(iocc,norb)
         do 1800 i=1,nel1
-1800    iocc(iconfs(i,iconf))=iocc(iconfs(i,iconf))+1
+        iocc(iconfs(i,iconf))=iocc(iconfs(i,iconf))+1
+1800    continue
         call imove_cvb(iocc,iconfs(1,iconf),norb)
         if(noe-norb.gt.0) call izero(iconfs(norb+1,iconf),noe-norb)
       endif
@@ -125,7 +135,8 @@ c  Comment out following 5 lines if default should be occ no definition:
 c Test for repeated configurations :
         do 1900 jconf=1,iconf-1
         do 2000 iorb=1,norb
-2000    if(iconfs(iorb,iconf).ne.iconfs(iorb,jconf))goto 1900
+        if(iconfs(iorb,iconf).ne.iconfs(iorb,jconf))goto 1900
+2000    continue
         write(6,'(/,a,2i4)')
      >    ' Fatal error - spatial VB configuration repeated :',
      >    jconf,iconf

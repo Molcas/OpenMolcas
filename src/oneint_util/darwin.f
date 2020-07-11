@@ -137,11 +137,11 @@
 *              components.
 *
                Do 100 ixa = la, 0, -1
-               Do 100 ixb = lb, 0, -1
+               Do 101 ixb = lb, 0, -1
                   Do 110 iya = la-ixa, 0, -1
                      iza = la-ixa-iya
                      ipa = Ind(la,ixa,iza)
-                  Do 110 iyb = lb-ixb, 0, -1
+                  Do 111 iyb = lb-ixb, 0, -1
                      izb = lb-ixb-iyb
                      ipb = Ind(lb,ixb,izb)
                      Do 130 iZeta = 1, nZeta
@@ -154,7 +154,9 @@
      &                                Bxyz(iZeta,2,iyb) *
      &                                Bxyz(iZeta,3,izb)
  130                 Continue
+ 111              Continue
  110              Continue
+ 101           Continue
  100           Continue
 
  502        Continue

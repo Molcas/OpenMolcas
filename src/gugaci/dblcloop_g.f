@@ -67,9 +67,9 @@ c          write(nf2,*) 'wl=',wl
       do 200 lri=norb_frz+1,norb_dz-1           !frz
         imi=lsm_inn(lri)
 c       n2=ngw2(lri-2)
-        do 200 lrj=lri+1,norb_dz
+        do 201 lrj=lri+1,norb_dz
           mij=mul_tab(imi,lsm_inn(lrj))
-          if(mij.ne.1) goto 200
+          if(mij.ne.1) goto 201
           ni=mod(lrj-lri,2)
 c=============== down comm for 2 4 =====================================
           vl_0=sqrt((db+2)/(db+1))
@@ -1275,7 +1275,8 @@ c               wls=-vls10_2b*vint_ci(list)
 
            enddo
 c======= end g5,40 =================================
-200      continue
+201      continue
+200    continue
       continue
       return
       end

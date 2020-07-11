@@ -23,7 +23,8 @@ c  stripped.
       do 100 iblank=1,nblank
       if(blanks(iblank).ne.' ')then
         do 200 ich=1,lenline
-200     if(line(ich:ich).eq.blanks(iblank))line(ich:ich)=' '
+        if(line(ich:ich).eq.blanks(iblank))line(ich:ich)=' '
+200     continue
       endif
 100   continue
       ilv=mstacki_cvb(lenline)
@@ -40,7 +41,8 @@ c  (Final condition eliminates leading blanks :)
       endif
 300   continue
       do 400 ich=1,ich2
-400   line(ich:ich)=line(iw(ich+ilv-1):iw(ich+ilv-1))
+      line(ich:ich)=line(iw(ich+ilv-1):iw(ich+ilv-1))
+400   continue
       lenline=ich2
       call mfreei_cvb(ilv)
       return

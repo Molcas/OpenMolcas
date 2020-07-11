@@ -97,28 +97,34 @@ c Alpha singly occupied
         if(absym(2))then
           do 5100 ia=1,n1a
           iak=iato(iorb,i1alf(ia,iorb))
-5100      call dscal_(ndb-iak+1,scale,vec(iak,iak),nda)
+          call dscal_(ndb-iak+1,scale,vec(iak,iak),nda)
+5100      continue
         else
           do 5200 ia=1,n1a
           iak=iato(iorb,i1alf(ia,iorb))
-5200      call dscal_(ndb,scale,vec(iak,1),nda)
+          call dscal_(ndb,scale,vec(iak,1),nda)
+5200      continue
         endif
 c Beta singly occupied
         if(absym(2))then
           do 5300 ib=1,n1b
           ibk=ibto(iorb,i1bet(ib,iorb))
-5300      call dscal_(ibk,scale,vec(1,ibk),1)
+          call dscal_(ibk,scale,vec(1,ibk),1)
+5300      continue
         else
           do 5400 ib=1,n1b
           ibk=ibto(iorb,i1bet(ib,iorb))
-5400      call dscal_(nda,scale,vec(1,ibk),1)
+          call dscal_(nda,scale,vec(1,ibk),1)
+5400      continue
         endif
       endif
 1000  continue
       if(absym(2))then
         do 6000 ia=1,nda
-        do 6000 ib=ia+1,ndb
-6000    vec(ib,ia)=vec(ia,ib)
+        do 6001 ib=ia+1,ndb
+        vec(ib,ia)=vec(ia,ib)
+6001    continue
+6000    continue
       endif
       return
       end

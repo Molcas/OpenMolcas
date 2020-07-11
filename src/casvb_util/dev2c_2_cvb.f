@@ -31,7 +31,7 @@ c  Calculates V1 EijEkl CFROM
       i1=(iprm1-1)/(norb-1)+1
       i2=iprm1-(i1-1)*(norb-1)
       if(i2.ge.i1) i2=i2+1
-      do 9379 iprm2=1,iprm1
+      do 9380 iprm2=1,iprm1
       i3=(iprm2-1)/(norb-1)+1
       i4=iprm2-(i3-1)*(norb-1)
       if(i4.ge.i3) i4=i4+1
@@ -502,6 +502,7 @@ c 2. alpha k -> l
       endif
       hessorb(iprm1,iprm2)=hessorb(iprm1,iprm2)+oaa2*res1
       hessorb(iprm2,iprm1)=hessorb(iprm1,iprm2)
+9380  continue
 9379  continue
       return
       end

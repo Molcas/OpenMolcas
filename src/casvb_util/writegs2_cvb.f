@@ -31,10 +31,11 @@
       call wrrs_cvb(orbs,norb*norb,recn_tmp04,ioffs)
       idetvb=0
       do 100 ia=1,nda
-      do 100 ixa=ixapr(ia),ixapr(ia+1)-1
+      do 101 ixa=ixapr(ia),ixapr(ia+1)-1
       idetvb=idetvb+1
       ib=iapr(ixa)
       iabind(idetvb)=ia+(ib-1)*nda
+101   continue
 100   continue
       call wris_cvb(iabind,ndetvb,recn_tmp04,ioffs)
       call wrrs_cvb(cvbdet,ndetvb,recn_tmp04,ioffs)

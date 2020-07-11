@@ -102,23 +102,26 @@
       llOper = lOper(1)
       iComp = 1
       mdc = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1961
-         If (nSRO_Shells(iCnttp).le.0) Go To 1961
-         Do 1965 iCnt = 1,dbsc(iCnttp)%nCntr
+      Do iCnttp = 1, nCnttp
+         If (.Not.ECP(iCnttp) .or.
+    &        nSRO_Shells(iCnttp).le.0) Then
+            mdc = mdc + dbsc(iCnttp)%nCntr
+            Cycle
+         End If
+         Do iCnt = 1,dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-         Do 1965 lDCRT = 0, nDCRT-1
+         Do lDCRT = 0, nDCRT-1
             TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
             TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-            Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
+            Do iAng = 0, nSRO_Shells(iCnttp)-1
                iShll = ipSRO(iCnttp) + iAng
-               If (nExp(iShll).eq.0) Go To 1966
+               If (nExp(iShll).eq.0) Cycle
 *
 *
                ip = 1
@@ -294,11 +297,11 @@
 *                End loop C
 *              End Loop b and a
 *
-               Do 1030 ib = 1, nElem(lb)
-                  Do 1031 ia = 1, nElem(la)
+               Do ib = 1, nElem(lb)
+                  Do ia = 1, nElem(la)
                   If (iPrint.ge.99) Write (6,*) ' ia,ib=',ia,ib
 *
-                     Do 1032 iC = 1, (2*iAng+1)
+                     Do iC = 1, (2*iAng+1)
                         If (iPrint.ge.99) Write (6,*) ' iC,=',iC
                         iaC = (iC-1)*nElem(la) + ia
                         ipaC = (iaC-1)*nAlpha*nExp(iShll) + ipF1
@@ -312,9 +315,8 @@
                            Call RecPrt('<iC|ib>',' ',Array(ipCb),
      &                                  nExp(iShll),nBeta)
                         End If
-                        Do 1400 iIrrep = 0, nIrrep-1
-                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0)
-     &                        Go To  1400
+                        Do iIrrep = 0, nIrrep-1
+                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            If (iPrint.ge.99) Write (6,*) ' iIC=',iIC
                            iIC = iIC + 1
                            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
@@ -330,27 +332,27 @@
      &                                Factor,Array(ipTmp),nAlpha,
      &                                    Array(ipCb),nExp(iShll),
      &                                One,Final(1,ia,ib,iIC),nAlpha)
- 1400                   Continue
+                        End Do
 *
- 1032                Continue
- 1031             Continue
- 1030          Continue
+                     End Do
+                  End Do
+               End Do
 *
- 1966       Continue
- 1965    Continue
- 1961    Continue
+            End Do
+         End Do
+         End Do
          mdc = mdc + dbsc(iCnttp)%nCntr
- 1960 Continue
+      End Do
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' Result in SROInt'
-         Do 100 ia = 1, (la+1)*(la+2)/2
-            Do 200 ib = 1, (lb+1)*(lb+2)/2
+         Do ia = 1, (la+1)*(la+2)/2
+            Do ib = 1, (lb+1)*(lb+2)/2
                Write (Label,'(A,I2,A,I2,A)')
      &               ' Final(',ia,',',ib,')'
                Call RecPrt(Label,' ',Final(1,ia,ib,1),nAlpha,nBeta)
- 200        Continue
- 100     Continue
+            End Do
+         End Do
       End If
 *
 *     Call GetMem(' Exit SROInt','LIST','REAL',iDum,iDum)

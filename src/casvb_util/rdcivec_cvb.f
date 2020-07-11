@@ -53,9 +53,11 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         j=iroot_j(i)
         iDisk=iadr15_j(4)
         Do 300 k=1,j-1
-300     Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-200     Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
+        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+300     continue
+        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
      >    nConf_j,iDisk)
+200     continue
 
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
@@ -79,15 +81,18 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         j=iroot_j(i)
         iDisk=iadr15_j(4)
         Do 500 k=1,j-1
-500     Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-400     Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
+        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+500     continue
+        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
      >    nConf_j,iDisk)
+400     continue
       endif
       if (debug) then
         do 600 i=0,nroots_j-1
         write(6,'(a,i3,a)')' (CSF) CI vector ',i+1,' :'
         write(6,'(a)')' ---------------------'
-600     call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+        call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+600     continue
       endif
       Call GetMem('OCIvec','Free','Real',ipCI,idum)
       call daclos_cvb(lujob)
@@ -123,9 +128,11 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         j=iroot_j(i)
         iDisk=iadr15_j(4)
         Do 300 k=1,j-1
-300     Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-200     Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
+        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+300     continue
+        Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),
      >    nConf_j,iDisk)
+200     continue
 
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
@@ -149,15 +156,18 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         j=iroot_j(i)
         iDisk=iadr15_j(4)
         Do 500 k=1,j-1
-500     Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
-400     Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
+        Call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
+500     continue
+        Call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),
      >    nConf_j,iDisk)
+400     continue
       endif
       if (debug) then
         do 600 i=0,nroots_j-1
         write(6,'(a,i3,a)')' (CSF) CI vector ',i+1,' :'
         write(6,'(a)')' ---------------------'
-600     call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+        call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+600     continue
       endif
       Call GetMem('OCIvec','Free','Real',ipCI,idum)
       call daclos_cvb(lujob)

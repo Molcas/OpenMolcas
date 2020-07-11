@@ -38,9 +38,11 @@
       If(iPrint.ge.99) Then
          write(6,'(''PCM parameters'')')
          Do 10 I = 1, 100
-   10      write(6,'(''ISlpar('',i3,'') ='',i6)')I, ISlPar(I)
+           write(6,'(''ISlpar('',i3,'') ='',i6)')I, ISlPar(I)
+   10    Continue
          Do 20 I = 1, 100
-   20      write(6,'(''RSlpar('',i3,'') ='',F8.3)')I, RSlPar(I)
+           write(6,'(''RSlpar('',i3,'') ='',F8.3)')I, RSlPar(I)
+   20    Continue
       EndIf
 *
 *---- Recover solvent data

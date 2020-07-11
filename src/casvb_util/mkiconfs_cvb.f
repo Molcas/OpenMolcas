@@ -36,7 +36,8 @@ c  ICONFS
         write(6,'(/,a,i4,3x,a)')' Symmetry element no.',
      >    isyme,tags(isyme)
         ishft=norb*norb*(isyme-1)
-300     call mxprint_cvb(w(ishft+ls(1)),norb,norb,0)
+        call mxprint_cvb(w(ishft+ls(1)),norb,norb,0)
+300     continue
         if(nsyme.gt.0)write(6,*)' '
         call untouch_cvb('PRSYMELM')
       endif

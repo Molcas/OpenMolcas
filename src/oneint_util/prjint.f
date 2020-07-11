@@ -101,22 +101,25 @@
       llOper = lOper(1)
       iComp = 1
       mdc = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1961
-         Do 1965 iCnt = 1,dbsc(iCnttp)%nCntr
+      Do iCnttp = 1, nCnttp
+         If (.Not.ECP(iCnttp)) Then
+            mdc = mdc + dbsc(iCnttp)%nCntr
+            Cycle
+         End If
+         Do Cnt = 1,dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-         Do 1965 lDCRT = 0, nDCRT-1
+         Do lDCRT = 0, nDCRT-1
             TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
             TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-            Do 1966 iAng = 0, nPrj_Shells(iCnttp)-1
+            Do iAng = 0, nPrj_Shells(iCnttp)-1
                iShll = ipPrj(iCnttp) + iAng
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Cycle
 *
 #ifdef _DEBUG_
                Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExp(iShll),
@@ -225,11 +228,11 @@
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do 1955 iBk = 1, nBasis(iShll)
+               Do iBk = 1, nBasis(iShll)
                   Bk = Shells(ishll)%Bk(iBk)
                   Call DScal_(nAlpha*nac,Bk,
      &                       Array(ipF1+(iBk-1)*nAlpha*nac),1)
- 1955          Continue
+               End Do
 *
 *--------------4) a,ciK -> ciKa
 *
@@ -292,16 +295,15 @@
                Do 1030 ib = 1, nElem(lb)
                   Do 1031 ia = 1, nElem(la)
 *
-                     Do 1032 iC = 1, (2*iAng+1)
+                     Do iC = 1, (2*iAng+1)
                         iaC = (iC-1)*nElem(la) + ia
                         ipaC = (iaC-1)*nAlpha*nBasis(iShll) + ipF1
                         iCb = (ib-1)*(2*iAng+1) + iC
                         ipCb = (iCb-1)*nBasis(iShll)*nBeta  + ipF2
 *
                         iIC = 0
-                        Do 1400 iIrrep = 0, nIrrep-1
-                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0)
-     &                        Go To  1400
+                        Do iIrrep = 0, nIrrep-1
+                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            iIC = iIC + 1
                            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                            Xg=rChTbl(iIrrep,nOp         )
@@ -311,17 +313,17 @@
      &                                Factor,Array(ipaC),nAlpha,
      &                                    Array(ipCb),nBasis(iShll),
      &                                One,Final(1,ia,ib,iIC),nAlpha)
- 1400                   Continue
+                        End Do
 *
- 1032                Continue
- 1031             Continue
- 1030          Continue
+                     End Do
+                  End Do
+               End Do
 *
- 1966       Continue
- 1965    Continue
- 1961    Continue
+            End Do
+         End Do ! lDCRT
+         End Do ! iCnt
          mdc = mdc + dbsc(iCnttp)%nCntr
- 1960 Continue
+      End Do ! iCnttp
 *
 #ifdef _DEBUG_
          Write (6,*) ' Result in PrjInt'

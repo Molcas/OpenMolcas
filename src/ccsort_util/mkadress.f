@@ -80,9 +80,11 @@ CFUE   idistemp=1
 CFUE   idisadd=150
 C
        do 100 NSI=1,NSYM
-       do 100 NSJ=1,NSYM
-       do 100 NSK=1,NSYM
+       do 101 NSJ=1,NSYM
+       do 102 NSK=1,NSYM
        typ(NSI,NSJ,NSK)=0
+ 102    continue
+ 101    continue
  100    continue
 c
 

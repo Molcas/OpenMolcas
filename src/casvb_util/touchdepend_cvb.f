@@ -21,7 +21,8 @@
       jobj=0
       do 100 i=1,nobj
       if(charobj(i).eq.chr1)iobj=i
-100   if(charobj(i).eq.chr2)jobj=i
+      if(charobj(i).eq.chr2)jobj=i
+100   continue
       if(iobj.eq.0)then
         write(6,*)' Make object not found :',chr1
         call abend_cvb()
@@ -36,10 +37,12 @@
         call abend_cvb()
       endif
       do 200 i=joffs(nobj+1),joffs(jobj+1)+1,-1
-200   j_dep_on_i(i+1)=j_dep_on_i(i)
+      j_dep_on_i(i+1)=j_dep_on_i(i)
+200   continue
       j_dep_on_i(joffs(jobj+1)+1)=iobj
       do 300 i=jobj+1,nobj+1
-300   joffs(i)=joffs(i)+1
+      joffs(i)=joffs(i)+1
+300   continue
 
       if(.not.up2date(jobj))up2date(iobj)=.false.
       return

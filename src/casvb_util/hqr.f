@@ -85,7 +85,8 @@ c                and compute matrix norm ..........
       do 50 i = 1, n
 c
          do 40 j = k, n
-   40    norm = norm + abs(h(i,j))
+         norm = norm + abs(h(i,j))
+   40    continue
 c
          k = i
          if (i .ge. low .and. i .le. igh) go to 50
@@ -124,7 +125,8 @@ c     .......... form exceptional shift ..........
       t = t + x
 c
       do 120 i = low, en
-  120 h(i,i) = h(i,i) - x
+      h(i,i) = h(i,i) - x
+  120 continue
 c
       s = abs(h(en,na)) + abs(h(na,enm2))
       x = 0.75d0 * s

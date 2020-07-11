@@ -61,7 +61,8 @@
       endif
       call dscal_(nparm,fac1,dx(1),1)
       do 200 i=1,nparm
-200   dx(i)=dx(i+1)
+      dx(i)=dx(i+1)
+200   continue
 100   dxnrm=dnrm2_(nparm,dx,1)
       if(.not.close2conv)then
         ipu=1

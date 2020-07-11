@@ -14,8 +14,10 @@
 #include "welcom.fh"
 *
       Do 2 i=0,10
-         Do 2 j=-1,10
-   2        binom(i,j)=Zero
+         Do 3 j=-1,10
+            binom(i,j)=Zero
+   3     Continue
+   2  Continue
       binom(0,0)=One
       if(lmax.eq.0) go to 100
       Do 10 i=1,lmax

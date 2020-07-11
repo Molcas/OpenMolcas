@@ -33,9 +33,10 @@
 
       nact_mo=0
       do 200 i=1,8
-      do 200 j=1,nash_j(i)
+      do 201 j=1,nash_j(i)
       nact_mo=nact_mo+1
       iact_mo(nact_mo)=nbasf_mo(i)+nfro_j(i)+nish_j(i)+j
+201   continue
 200   continue
 
       if(debug)then
