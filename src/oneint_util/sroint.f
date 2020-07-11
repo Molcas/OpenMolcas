@@ -103,8 +103,7 @@
       iComp = 1
       mdc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp) .or.
-    &        nSRO_Shells(iCnttp).le.0) Then
+         If (.Not.ECP(iCnttp) .or. nSRO_Shells(iCnttp).le.0) Then
             mdc = mdc + dbsc(iCnttp)%nCntr
             Cycle
          End If

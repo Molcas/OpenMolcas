@@ -106,7 +106,7 @@
             mdc = mdc + dbsc(iCnttp)%nCntr
             Cycle
          End If
-         Do Cnt = 1,dbsc(iCnttp)%nCntr
+         Do iCnt = 1,dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
@@ -232,7 +232,7 @@
                   Bk = Shells(ishll)%Bk(iBk)
                   Call DScal_(nAlpha*nac,Bk,
      &                       Array(ipF1+(iBk-1)*nAlpha*nac),1)
-               End Do
+               End Do ! iBk
 *
 *--------------4) a,ciK -> ciKa
 *
@@ -292,8 +292,8 @@
 *                End loop C
 *              End Loop b and a
 *
-               Do 1030 ib = 1, nElem(lb)
-                  Do 1031 ia = 1, nElem(la)
+               Do ib = 1, nElem(lb)
+                  Do ia = 1, nElem(la)
 *
                      Do iC = 1, (2*iAng+1)
                         iaC = (iC-1)*nElem(la) + ia
@@ -313,13 +313,13 @@
      &                                Factor,Array(ipaC),nAlpha,
      &                                    Array(ipCb),nBasis(iShll),
      &                                One,Final(1,ia,ib,iIC),nAlpha)
-                        End Do
+                        End Do ! iIrrep
 *
-                     End Do
-                  End Do
-               End Do
+                     End Do ! iC
+                  End Do    ! ia
+               End Do       ! ib
+            End Do ! iAng
 *
-            End Do
          End Do ! lDCRT
          End Do ! iCnt
          mdc = mdc + dbsc(iCnttp)%nCntr
