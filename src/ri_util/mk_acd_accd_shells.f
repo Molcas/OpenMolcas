@@ -1363,7 +1363,6 @@ C                          Thrs= 1.0D-12
 #endif
                   End If
 *
-                  iEnd = iEnds
                   If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
                   nBasis(iShll)=nBasis_Cntrct(iShll)
