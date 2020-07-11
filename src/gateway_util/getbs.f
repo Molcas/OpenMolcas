@@ -907,7 +907,7 @@ C              Write(6,*) 'Fock operator is included'
      &                     Label='Cff_c')
          Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
      &                     Label='pCff')
-         Shells(iShell)%nBasis=nCntrc
+         Shells(iShll)%nBasis=nCntrc
          Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                     Label='Cff_p')
          Shells(iShll)%Cff_p(:,:,:)=Zero
