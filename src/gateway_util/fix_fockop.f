@@ -46,7 +46,7 @@
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
       Real*8, Allocatable :: Hm1(:,:)
       Real*8, Allocatable :: S_AA(:), S_AR(:), E_R(:)
-      Real*8, Allocatable :: Tmp1(:), Tmp2(:)
+      Real*8, Allocatable :: Tmp1(:), Tmp2(:), Tmp3(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -787,23 +787,22 @@
 *                                                                      *
 *           Now we just need to reorder and put it into place!
 *
-            ipTmp3 = ip
-            ip = ip + nSRR
-            Call Reorder_GW(DInf(ipSAA),DInf(ipTmp3),
+            Call mma_allocate(Tmp3,nSRR,Label='Tmp3')
+            Call Reorder_GW(DInf(ipSAA),Tmp3,
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 #ifdef _DEBUG_
-            Call RecPrt('Reordered EA',' ',DInf(ipTmp3),
+            Call RecPrt('Reordered EA',' ',Tmp3,
      &                  nCntrc_a*nCntrc_a,iCmp_a*iCmp_a)
 #endif
 *
             Do iB = 1, nCntrc_a
                Do jB = 1, nCntrc_a
-                  ijB=(jB-1)*nCntrc_a+iB
+                  ijB = iB + (jB-1)*nCntrc_a
                   Tmp=Zero
                   Do iC = 1, iCmp_a
-                     ijC=(iC-1)*iCmp_a+iC
-                     iFrom = ipTmp3-1 + (ijC-1)*nCntrc_a**2+ijB
-                     Tmp = Tmp + DInf(iFrom)
+                     ijC = iC + (iC-1)*iCmp_a
+                     iFrom = ijB + (ijC-1)*nCntrc_a**2
+                     Tmp = Tmp + Tmp3(iFrom)
                   End Do
                   Shells(iShll_a)%FockOp(iB,jB) = Tmp/DBLE(iCmp_a)
                End Do
@@ -813,6 +812,7 @@
             Call RecPrt('Actual Fock operator',' ',
      &                  Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
+            Call mma_deallocate(Tmp3)
             Call mma_deallocate(Scr1)
             Call mma_deallocate(Scr2)
 *                                                                      *
