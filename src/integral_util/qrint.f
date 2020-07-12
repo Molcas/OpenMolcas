@@ -45,7 +45,8 @@
             HINT=Zero
             Do 101 K=I-1,0,-2
                HINT=HINT+Half/A*BP**K*EXP(-ARG)*GAL
-101            GAL=Half*DBLE(K)/A*GAL
+               GAL=Half*DBLE(K)/A*GAL
+101         Continue
             GINT=GINT+TAL*HINT
          EndIF
 *

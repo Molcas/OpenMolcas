@@ -116,8 +116,9 @@ c  Non-linear correction for orthogonality constraints :
         if(korb.gt.jorb)kj=kj-1
         if(korb.ne.iorb)corr1=corr1+owrk(jorb,korb)*
      >    (f1*grad2(ki)+f2*grad1(ki))
-200     if(korb.ne.jorb)corr1=corr1+owrk(iorb,korb)*
+        if(korb.ne.jorb)corr1=corr1+owrk(iorb,korb)*
      >    (f1*grad2(kj)+f2*grad1(kj))
+200     continue
         corr1=-.5d0*corr1
         do 300 korb=1,norb
         if(korb.eq.iorb)goto 300

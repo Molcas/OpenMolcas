@@ -12,7 +12,8 @@
       implicit real*8 (a-h,o-z)
       dimension b(1)
       do 10 i=1,n
-10    b(i)=0
+      b(i)=0
+10    continue
       return
 c Avoid unused argument warnings
       if (.false.) call Unused_integer(idum)

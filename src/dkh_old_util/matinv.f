@@ -52,7 +52,8 @@ C      IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
       DO 7 K=1,N
       AMAX=A(IR,K)
       A(IR,K)=A(IC,K)
-    7 A(IC,K)=AMAX
+      A(IC,K)=AMAX
+    7 CONTINUE
       IF(L.EQ.0) GO TO 8
       AMAX=B(IR)
       B(IR)=B(IC)
@@ -63,17 +64,20 @@ C      IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
       D=D*AMAX
       A(IC,IC)=1.D0
       DO 9 K=1,N
-    9 A(IC,K)=A(IC,K)/AMAX
+      A(IC,K)=A(IC,K)/AMAX
+    9 CONTINUE
       IF(L.EQ.0) GO TO 10
       B(IC)=B(IC)/AMAX
-   10 DO 12 J=1,N
-      IF(J.EQ.IC) GO TO 12
+   10 DO 120 J=1,N
+      IF(J.EQ.IC) GO TO 120
       AMAX=A(J,IC)
       A(J,IC)=0.D0
       DO 11 K=1,N
-   11 A(J,K)=A(J,K)-A(IC,K)*AMAX
-      IF(L.EQ.0) GO TO 12
+      A(J,K)=A(J,K)-A(IC,K)*AMAX
+   11 CONTINUE
+      IF(L.EQ.0) GO TO 120
       B(J)=B(J)-B(IC)*AMAX
+  120 CONTINUE
    12 CONTINUE
       IF(L.EQ.1) GO TO 15
       DO 14 I=1,N
@@ -84,7 +88,8 @@ C      IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
       DO 13 K=1,N
       AMAX=A(K,IR)
       A(K,IR)=A(K,IC)
-   13 A(K,IC)=AMAX
+      A(K,IC)=AMAX
+   13 CONTINUE
    14 CONTINUE
    15 CONTINUE
       RETURN

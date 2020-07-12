@@ -17,8 +17,10 @@
       call seth_cvb([n],1)
       lenarr=len(arr(1))
       do 100 i=1,n
-      do 100 j=1,lenarr
-100   call seth_cvb([ichar(arr(i)(j:j))],1)
+      do 101 j=1,lenarr
+      call seth_cvb([ichar(arr(i)(j:j))],1)
+101   continue
+100   continue
       return
       end
 
@@ -30,9 +32,11 @@
       n=iaux(1)
       lenarr=len(arr(1))
       do 200 i=1,n
-      do 200 j=1,lenarr
+      do 201 j=1,lenarr
       call geth_cvb(iaux,1)
       iret=iaux(1)
-200   arr(i)(j:j)=char(iret)
+      arr(i)(j:j)=char(iret)
+201   continue
+200   continue
       return
       end

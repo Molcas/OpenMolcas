@@ -49,18 +49,21 @@ c Prepare NKs for a<->b interchanges in (ab-ba) terms :
       nbet2=nbet+nbet
       do 1000 iorb=0,nbet2
       minswp(iorb)=iorb/2
-1000  maxswp(iorb)=(iorb+1)/2
+      maxswp(iorb)=(iorb+1)/2
+1000  continue
       call imove_cvb(maxswp,nkswp,nbet2+1)
       iswp=0
 1100  iswp=iswp+1
       do 1200 ia=1,nbet
-1200  ioccswp(ia,iswp)=nkswp(2*ia)-nkswp(2*ia-1)
+      ioccswp(ia,iswp)=nkswp(2*ia)-nkswp(2*ia-1)
+1200  continue
       call loop_cvb(nbet2,nkswp,minswp,maxswp,*1100)
 
 c Spin function weight arrays:
       do 2000 iorb=0,nel
       minspn(iorb)=max(iorb-nalf,0)
-2000  maxspn(iorb)=min(iorb/2,nbet)
+      maxspn(iorb)=min(iorb/2,nbet)
+2000  continue
       call weight_cvb(xspin,minspn,maxspn,nbet,nel)
       if(ifns.ne.xspin((nel+1)*(nbet+1)).and.kbasis.ne.6)then
         write(6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
@@ -80,7 +83,8 @@ c Determine pairings
       ialfs(ib)=lnocca(ia)
       if(ialfs(ib).lt.ibets(ib))then
         do 2400 iachek=1,ib-1
-2400    if(ialfs(iachek).eq.ialfs(ib))goto 2300
+        if(ialfs(iachek).eq.ialfs(ib))goto 2300
+2400    continue
         goto 2500
       endif
 2300  continue
@@ -90,7 +94,8 @@ c Determine pairings
       do 2700 ia=1,nalf
       ialfs(ib)=lnocca(ia)
       do 2800 iachek=1,ib-1
-2800  if(ialfs(iachek).eq.ialfs(ib))goto 2700
+      if(ialfs(iachek).eq.ialfs(ib))goto 2700
+2800  continue
       goto 2600
 2700  continue
 2600  continue
@@ -107,7 +112,8 @@ c Determine pairings
       do 3000 iswp=1,nswpdim
       call izero(iwork,nel)
       do 3100 ia=1,nalf
-3100  iwork(ialfs(ia))=1
+      iwork(ialfs(ia))=1
+3100  continue
       do 3200 ia=1,nbet
       if(ioccswp(ia,iswp).ne.0)then
 c  IA => alpha electron in position number 2 (= swap).

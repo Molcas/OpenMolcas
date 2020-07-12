@@ -60,10 +60,11 @@ C
       IF (COLHI.LT.COLLOW) GO TO 3
 C
       AMAX = ZERO
-      DO 10 J = COLLOW,COLHI
-         DO 10 I = ROWLOW,ROWHI
+      DO J = COLLOW,COLHI
+         DO I = ROWLOW,ROWHI
             AMAX = MAX( AMAX, ABS(AMATRX(I,J)) )
-   10 CONTINUE
+         END DO
+      END DO
       IF (AMAX .EQ. ZERO) THEN
          WRITE (LUPRI,'(/T6,A)') 'Zero matrix.'
          GO TO 3
@@ -98,7 +99,8 @@ C
          GO TO 1
     5       WRITE (LUPRI,PFMT) CTL,K,(AMATRX(K,I), I = BEGIN,LAST)
     1    CONTINUE
-    2 LAST = MIN(LAST+KCOL,COLHI)
+         LAST = MIN(LAST+KCOL,COLHI)
+    2 CONTINUE
     3 RETURN
  1000 FORMAT (/12X,6(3X,A6,I4,2X),(3X,A6,I4))
 C2000 FORMAT (A1,'Row',I4,2X,1P,8D15.6)

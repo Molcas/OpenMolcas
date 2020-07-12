@@ -530,9 +530,11 @@ c
 c*    set mapi1 to zero
 c
        do 1 symq=1,nsym
-       do 1 symp=1,nsym
-       do 1 symm=1,nsym
+       do 2 symp=1,nsym
+       do 3 symm=1,nsym
        mapi2(symm,symp,symq)=0
+ 3      continue
+ 2      continue
  1      continue
 c
 c     def zero-th row
@@ -546,7 +548,7 @@ c
        nhelp=0
        possition=poss20
        do 100 symm=1,nsym
-       do 100 symp=1,nsym
+       do 101 symp=1,nsym
        symmp=mul(symm,symp)
        symq=mul(syma,symmp)
        nhelp=nhelp+1
@@ -564,6 +566,7 @@ c
 c
        mapi2(symm,symp,1)=nhelp
 c
+ 101    continue
  100    continue
 c
        mapd2(0,5)=nhelp
@@ -589,9 +592,11 @@ c
 c*    set mapi1 to zero
 c
        do 1 symi=1,nsym
-       do 1 symq=1,nsym
-       do 1 symp=1,nsym
+       do 2 symq=1,nsym
+       do 3 symp=1,nsym
        mapi1(symp,symq,symi)=0
+ 3      continue
+ 2      continue
  1      continue
 c
 c     def zero-th row
@@ -605,12 +610,12 @@ c
        nhelp=0
        possition=poss10
        do 100 symp=1,nsym
-       do 100 symq=1,nsym
+       do 101 symq=1,nsym
        sympq=mul(symp,symq)
-       do 100 symi=1,nsym
+       do 102 symi=1,nsym
        sympqi=mul(sympq,symi)
        symj=sympqi
-       if (symj.gt.symi) goto 100
+       if (symj.gt.symi) goto 102
        nhelp=nhelp+1
 c
 c     calc. lenght
@@ -626,6 +631,8 @@ c
 c
        mapi1(symp,symq,symi)=nhelp
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        mapd1(0,5)=nhelp
@@ -669,7 +676,7 @@ cT1   return, if lenght is 0
        end if
 c
        do 1000 j=1,noa(symj)
-       do 1000 i=1,noa(symi)
+       do 1001 i=1,noa(symi)
 c
 c*    def ij index and initial possition for <p,q,i,j> integral
 c
@@ -681,6 +688,7 @@ c
        wrk(pqij)=vint(q,i,j)
  200    continue
 c
+ 1001   continue
  1000   continue
 c
        return
@@ -837,9 +845,11 @@ c
 c*    set mapi zero
 c
        do 1 symr=1,nsym
-       do 1 symq=1,nsym
-       do 1 symp=1,nsym
+       do 2 symq=1,nsym
+       do 3 symp=1,nsym
        mapi2(symp,symq,symr)=0
+ 3      continue
+ 2      continue
  1      continue
 
 c
@@ -869,7 +879,7 @@ c
 c*    expand
 c
        do 100 p=1,norb(symp)
-       do 100 q=1,p
+       do 101 q=1,p
 c
 c*    calc pq and qp possition in work and fok
 c     and write integrals to this possitions
@@ -880,6 +890,7 @@ c
        wrk(pqwrk)=fok(pqfok)
        wrk(qpwrk)=fok(pqfok)
 c
+ 101    continue
  100    continue
 c
        posstemp=posstemp+mapd2(symp,2)
@@ -1112,10 +1123,11 @@ c*    add integral
 c
        pq=nhelp1
        do 200 p=1,norb(symp)
-       do 200 q=1,p
+       do 201 q=1,p
        pq=pq+1
        foka(pq)=foka(pq)+vint(p,i,q)
        fokb(pq)=fokb(pq)+vint(p,i,q)
+ 201    continue
  200    continue
 c
        return
@@ -1160,9 +1172,10 @@ c*    add integral
 c
        pq=nhelp1
        do 200 p=1,norb(symp)
-       do 200 q=1,p
+       do 201 q=1,p
        pq=pq+1
        foka(pq)=foka(pq)-vint(p,q,i)
+ 201    continue
  200    continue
 c
        return
@@ -1596,9 +1609,11 @@ c
 c**   set mapi3=0 (partly)
 c
        do 100 nhelp=1,nsym
-       do 100 symq=1,nsym
-       do 100 symp=1,nsym
+       do 101 symq=1,nsym
+       do 102 symp=1,nsym
        mapi3(symp,symq,nhelp)=0
+ 102    continue
+ 101    continue
  100    continue
 c
 c**   def 0-th row
@@ -1671,9 +1686,10 @@ c
 c     map <_a,b|p,q> to wrk in #3
        poss=poss30
        do 1010 q=1,norb(1)
-       do 1010 p=1,norb(1)
+       do 1011 p=1,norb(1)
        wrk(poss)=vint(bvint,p,q)
        poss=poss+1
+ 1011   continue
  1010   continue
 c
 c
@@ -1719,9 +1735,9 @@ c
        sizev1=0
        sizev2=0
        do 20 symp=1,nsym
-       do 20 symq=1,nsym
+       do 21 symq=1,nsym
        sympq=mul(symp,symq)
-       do 20 symi=1,nsym
+       do 22 symi=1,nsym
        sympqi=mul(sympq,symi)
        symj=sympqi
 c      calc. lenght
@@ -1731,6 +1747,8 @@ c      calc. lenght
          sizev1=sizev1+noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
          sizev2=sizev2+noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
        end if
+22     continue
+21     continue
 20     continue
 c
 c3*   def maxsize of <_am|pq>
@@ -1741,11 +1759,12 @@ c
 c
        lenght=0
        do 30 symm=1,nsym
-       do 30 symp=1,nsym
+       do 31 symp=1,nsym
        symmp=mul(symm,symp)
        symq=mul(syma,symmp)
 c     calc. lenght
        lenght=lenght+noa(symm)*NORB(symp)*NORB(symq)
+ 31     continue
  30     continue
 c
        if (sizempq.lt.lenght) then

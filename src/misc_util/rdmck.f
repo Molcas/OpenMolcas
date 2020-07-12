@@ -458,7 +458,7 @@
 *
             Len=0
             Do 510 i=1,TocOne(pSym)
-            Do 510 j=1,i
+            Do 511 j=1,i
               ij=MulTab(i,j)-1
               If(iAnd(2**ij,SymLab).ne.0) Then
                  If(i.eq.j) Then
@@ -467,6 +467,7 @@
                     Len=Len+TocOne(pBas-1+i)*TocOne(pBas-1+j)
                  End If
               End If
+511         Continue
 510         Continue
             If (iAnd(Option,slength).ne.0) Len=Length
          End If

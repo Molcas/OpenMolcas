@@ -195,7 +195,7 @@ C           WRITE(6,*)
           DO 10 NI=1,nOccI
            NUM=nOccJ
            IF(iSymI.EQ.iSymJ) NUM=NI
-            DO 10 NJ=1,NUM
+            DO 11 NJ=1,NUM
 
 C     THE LOOP ABOVE OVER T AND U RECOVERS ONE BLOCK OF INTEGRALS <AB|TU>
 C     FOR EACH PAIR T,U. TO PROCESS ONE BLOCK FOR ALL A AND B THE
@@ -242,6 +242,7 @@ C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
      &      '  DiskAdd=',I8  /(8F10.6))
              EndIf
             ENDIF
+11          CONTINUE
 10        CONTINUE
 
           Write(6,*)

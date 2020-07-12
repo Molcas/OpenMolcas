@@ -133,7 +133,8 @@ c
   170 continue
 c     .......... now balance the submatrix in rows k to l ..........
       do 180 i = k, l
-  180 scale(i) = 1.0d0
+      scale(i) = 1.0d0
+  180 continue
 c     .......... iterative loop for norm reduction ..........
   190 noconv = .false.
 c
@@ -167,10 +168,12 @@ c     .......... now balance ..........
          noconv = .true.
 c
          do 250 j = k, n
-  250    a(i,j) = a(i,j) * g
+         a(i,j) = a(i,j) * g
+  250    continue
 c
          do 260 j = 1, l
-  260    a(j,i) = a(j,i) * f
+         a(j,i) = a(j,i) * f
+  260    continue
 c
   270 continue
 c

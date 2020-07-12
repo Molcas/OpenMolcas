@@ -73,27 +73,28 @@
       do 20 lr=norb_inn-1,norb_dz+1,-1
         jps=no(lr)+1
         jpe=no(lr+1)
-        do 20 jde=jps,jpe
+        do 21 jde=jps,jpe
           j1=jj_sub(1,jde)
           j2=jj_sub(2,jde)
           j3=jj_sub(3,jde)
           j4=jj_sub(4,jde)
           iy(1,jde)=iy(1,j1)+iy(1,j2)+iy(1,j3)+iy(1,j4)
           if(iy(1,jde).ne.0) goto 304
-            do jp0=no(lr-1)+1,no(lr)
-              if(jj_sub(1,jp0).eq.jde) jj_sub(1,jp0)=0
-              if(jj_sub(2,jp0).eq.jde) jj_sub(2,jp0)=0
-              if(jj_sub(3,jp0).eq.jde) jj_sub(3,jp0)=0
-              if(jj_sub(4,jp0).eq.jde) jj_sub(4,jp0)=0
-            enddo
-         goto 20
-304      if(j2.eq.0.or.iy(1,j2).eq.0) goto 31
-         iy(2,jde)=iy(1,j1)
-31       if(j3.eq.0.or.iy(1,j3).eq.0) goto 32
-         iy(3,jde)=iy(1,j1)+iy(1,j2)
-32       if(j4.eq.0.or.iy(1,j4).eq.0) goto 303
-         iy(4,jde)=iy(1,jde)-iy(1,j4)
-303      if(jde.eq.1) goto 20
+          do jp0=no(lr-1)+1,no(lr)
+            if(jj_sub(1,jp0).eq.jde) jj_sub(1,jp0)=0
+            if(jj_sub(2,jp0).eq.jde) jj_sub(2,jp0)=0
+            if(jj_sub(3,jp0).eq.jde) jj_sub(3,jp0)=0
+            if(jj_sub(4,jp0).eq.jde) jj_sub(4,jp0)=0
+          enddo
+          goto 21
+304       if(j2.eq.0.or.iy(1,j2).eq.0) goto 31
+          iy(2,jde)=iy(1,j1)
+31        if(j3.eq.0.or.iy(1,j3).eq.0) goto 32
+          iy(3,jde)=iy(1,j1)+iy(1,j2)
+32        if(j4.eq.0.or.iy(1,j4).eq.0) goto 303
+          iy(4,jde)=iy(1,jde)-iy(1,j4)
+303       if(jde.eq.1) goto 21
+21      continue
 20    continue
       lr=norb_dz+1
       jde=jpad
@@ -208,8 +209,9 @@ c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
       iin(jpad:jpe)=0
       iin(jp)=1
       do 10 jpn=no(lr-1),jpad,-1
-10    iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
+      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
      :        +iin(jj_sub(4,jpn))
+10    continue
       in=iin(jpad)
       idr=0
       do 30 l=1,in

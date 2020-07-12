@@ -658,10 +658,6 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
     set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
   endif ()
-  # Allow obsolete features in Fortran 2018
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -std=legacy")
-  endif ()
 endif ()
 
 # Add runtime checks
@@ -768,13 +764,18 @@ endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
 #          "externals" means "implicit none (external)", ditto (only 19.1 and later)
+#v.13 puts the full path of included files as a comment and then complains about truncated source lines
 set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
 set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations,noexternals -warn errors -diag-disable remark")
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "19.1")
-  string (REGEX REPLACE ",noexternals" "" FFLAGS_Intel_BIGOT "${FFLAGS_Intel_BIGOT}")
+set (warnings "all,nodeclarations")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")
+    set (warnings "${warnings},notruncated_source")
+  elseif (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "19.1")
+    set (warnings "${warnings},noexternals")
+  endif ()
 endif ()
+set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#

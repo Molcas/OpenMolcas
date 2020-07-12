@@ -48,9 +48,10 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
          Write(6,*)
          nTri=n*(n+1)/2
          Do 100 i=1,n
-         Do 100 j=1,n
+         Do 101 j=1,n
            ind=j+(i-1)*n
            u(ind)=0.0d0
+101      Continue
 100      Continue
          Do 200 i=1,n
            ind=i+(i-1)*n
@@ -71,7 +72,7 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
             s(i)=sqrt(s(i*(i+1)/2))
 400      Continue
          Do 500 i=1,n
-         Do 500 j=1,n
+         Do 501 j=1,n
             t=0.0d0
             p=0.0d0
             Do 510 k=1,n
@@ -80,18 +81,21 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
 510         Continue
             c(j+(i-1)*n)=t
             q(j+(i-1)*n)=p
+501      Continue
 500      Continue
          Do 600 i=1,n
-         Do 600 j=1,i
+         Do 601 j=1,i
             t=0.0d0
             Do 610 k=1,n
-            Do 610 l=1,n
+            Do 611 l=1,n
                ind=Min(k,l)+Max(k,l)*(Max(k,l)-1)/2
                p=q(i+(k-1)*n)*tDsym(ind+iPtr-1)*q(j+(l-1)*n)
 *              Write(*,'(a,f12.6)') '   p:',p
                t=t+p
+611         Continue
 610         Continue
             d(j+i*(i-1)/2)=t
+601      Continue
 600      Continue
 *        Call TriPrt('d matrix','(6F12.6)',d,n)
 *        Write(*,*) 'c matrix'

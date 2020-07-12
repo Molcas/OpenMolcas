@@ -24,7 +24,8 @@ C
       If(Index.eq.2) call molcas_open(Lu,'GV1.off')
       NumV = 0
       Do 10 i = 1, NTs
-  10    NumV = NumV + NVert(i)
+        NumV = NumV + NVert(i)
+  10  Continue
       Write(Lu,500)'COFF'
       Write(Lu,1000)NumV, NTs, NumV
       K = 0
@@ -54,7 +55,8 @@ C
  2020 continue
  2010 continue
       Do 20 i = 1, NTs
-  20    write(Lu,3000)NVert(i),(IVTS(j,i),j=1,nvert(i))
+        write(Lu,3000)NVert(i),(IVTS(j,i),j=1,nvert(i))
+  20  Continue
       Close(Lu)
  500  Format(1x,a)
 1000  Format(3i10)

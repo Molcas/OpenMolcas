@@ -121,7 +121,7 @@ C
 C NP loops over active and secondary indices.
        DO 15 NP=NIO+1,NO
 C NR loops over inactive and active indices.
-       DO 15 NR=1,NIA
+       DO 16 NR=1,NIA
         NPR=NPR+1
         SXN(NPR)=1.0D0
         IF(NR.GE.NP) GO TO 95
@@ -161,6 +161,7 @@ C
           SXN(NPR)=1.0D0/sqrt(SXNRM2)
         END IF
 95      CONTINUE
+16     CONTINUE
 15     CONTINUE
 C
 C Form the occupied (F1) and active-external (F2) part of FP
@@ -169,7 +170,7 @@ C
        IPQ=ISTFP
        CALL FZERO(DIA(ISTIA+1),NIA**2)
        DO 20 NP=1,NO
-       DO 20 NQ=1,NP
+       DO 21 NQ=1,NP
         IPQ=IPQ+1
         IF(NP.LE.NIA.AND.NQ.LE.NIA) THEN
          F1(ISTIA+NIA*(NP-1)+NQ)=FP(IPQ)
@@ -187,6 +188,7 @@ C
          DIA(ISTIA+NIA*(NP-1)+NQ)=D(NTU)
          DIA(ISTIA+NIA*(NQ-1)+NP)=D(NTU)
         ENDIF
+21     CONTINUE
 20     CONTINUE
        IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'DIA in SXHAM:'
@@ -221,7 +223,7 @@ C
           Call Get_Temp('P2_RAW  ',P,nP2Act)
        End If
        DO 30 NP=1,NIA
-       DO 30 NQ=1,NP
+       DO 31 NQ=1,NP
         IPQ=ISTIA+NIA*(NP-1)+NQ
         IQP=ISTIA+NIA*(NQ-1)+NP
         IF(NP.LE.NIO) THEN
@@ -246,7 +248,7 @@ C
           IF(NAOJ.EQ.0) GO TO 23
           DO 22 NV=1,NAOJ
            NVT=NV+IASHJ
-          DO 22 NX=1,NV
+          DO 25 NX=1,NV
            NXT=NX+IASHJ
            NVX=NVX+1
            NVXT=ITRI(NVT)+NXT
@@ -260,6 +262,7 @@ C
            ENDIF
            NVXF=ISTFPJ+ITRI(NV+NIOJ)+NX+NIOJ
            GTU=GTU+FP(NVXF)*(FAC*P(NTUVX)-FACD*DTU*D(NVX))
+25        CONTINUE
 22        CONTINUE
           IASHJ=IASHJ+NAOJ
 23        ISTFPJ=ISTFPJ+ITRI(NORB(JSYM)+1)
@@ -267,6 +270,7 @@ C
          G(IPQ)=GTU
          G(IQP)=GTU
         ENDIF
+31     CONTINUE
 30     CONTINUE
        If (ExFac.ne.1.0D0) Call Get_Temp('P2_KS   ',P,nP2Act)
 C
@@ -278,7 +282,7 @@ C
        IF(NAO.NE.0) THEN
         IPQ=ISTH
         DO 40 NP=1,NAO
-        DO 40 NQ=1,NAE
+        DO 41 NQ=1,NAE
          IPQ=IPQ+1
          IF(NQ.LE.NAO) THEN
           H(IPQ)=G(ISTIA+NIA*(NP+NIO-1)+NQ+NIO)
@@ -286,6 +290,7 @@ C
          ELSE
           H(IPQ)=DF(NAO*(NQ+NIO-1)+NP)
          ENDIF
+41      CONTINUE
 40      CONTINUE
        ENDIF
 C

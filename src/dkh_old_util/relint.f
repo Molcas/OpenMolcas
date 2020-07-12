@@ -181,12 +181,13 @@ Culf      real*8   TEMP
       GO TO 9000
     5 IER = 0
       DO 15 I=1,L
-         DO 15 J=1,N
+         DO 16 J=1,N
             TEMP=0.0D0
             DO 10 K=1,M
                TEMP=A(I,K)*B(K,J)+TEMP
    10       CONTINUE
             C(I,J)=C(I,J)+TEMP
+   16    CONTINUE
    15 CONTINUE
       GO TO 9005
  9000 CONTINUE
@@ -248,7 +249,8 @@ C
       D=1.D0
       IF (IX.EQ.0) GOTO 2
       DO 3 K=1,IX
-3     D=-D*E
+      D=-D*E
+3     CONTINUE
 2     CONTINUE
       D=D*FAK(LX+1)/(FAK(I+1)*FAK(IX+1))
       DCOF=D
@@ -419,7 +421,8 @@ C
       DO 70 I=3,JMAX,2
       BET=0.5D0*DBLE(I)
       CALL KBR(BET,ARG,R)
-70    U=U*R*BET/DELTA
+      U=U*R*BET/DELTA
+70    CONTINUE
 60    CONTINUE
       U=0.25D0*VELIT*U/DELTA
       S=S+U*ANG

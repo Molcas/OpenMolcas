@@ -113,10 +113,12 @@ C     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
           IF(IPLACE.NE.0) THEN
 *. Generate next string
             DO 30 I = 1, IPLACE-1
-   30       STRIN2(I) = STRING(I,ISTRIN)
+            STRIN2(I) = STRING(I,ISTRIN)
+   30       CONTINUE
             STRIN2(IPLACE) = IORB
             DO 40 I = IPLACE,NEL
-   40       STRIN2(I+1) = STRING(I,ISTRIN)
+            STRIN2(I+1) = STRING(I,ISTRIN)
+   40       CONTINUE
 *. Is new string allowed ?
             ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
             IF(ITYPE.NE.0) THEN

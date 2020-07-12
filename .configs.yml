@@ -1,6 +1,7 @@
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
 # - options: enable several options
+# - linalg: use a link-time linalg library and ninja
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
@@ -46,6 +47,22 @@
   tags:
     - docker
 
+.linalg:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
+  variables:
+    cmake: "cmake -G Ninja"
+    make: "ninja"
+    cache_file: |
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "MKL" CACHE STRING "use MKL library")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
+  tags:
+    - docker
+
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
   variables:
@@ -82,8 +99,8 @@
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     pre_make_script: |
-      make only_objs
-      cmake -D EXTRA_FFLAGS="" .
+      $${make} only_objs
+      $${cmake} -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     CC: "icc"
@@ -100,15 +117,14 @@
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
     pre_make_script: |
-      make only_objs
-      # notruncated_source to work around intel13 bug, which includes full path of #include'd files and then reports truncated lines
-      cmake -D EXTRA_FFLAGS="-warn notruncated_source" .
+      $${make} only_objs
+      $${cmake} -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
