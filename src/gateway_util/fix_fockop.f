@@ -42,6 +42,7 @@
       Real*8 DInf(nDInf)
       Real*8, Allocatable :: FockOp_t(:)
       Real*8, Allocatable :: Scr1(:), Scr2(:)
+      Real*8, Allocatable :: S12i(:,:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -249,10 +250,8 @@
 *              Solve F' C' = e C' , generate C = S^-(1/2) C'
 *
                nBF = nCntrc_a*iCmp_a
-               ipS = ip
-               ip = ip + nBF**2
-               ipS12i= ip
-               ip = ip + nBF**2
+               Call mma_Allocate(S12i,nBF,nBF,Label='S')
+               S12i(:,:)=Zero
 *
 *              1) Compute the eigenvectors and eigenvalues of the
 *                 overlap matrix
@@ -274,7 +273,6 @@
 *
 *              2) Construct S^(1/2) and S^(-1/2)
 *
-               Call FZero(DInf(ipS12i),nBF**2)
                Do kEval = 1, nBF
                   e   = DInf(ipEVal-1 + kEval*(kEval+1)/2)
                   e12i= 1.0D0/Sqrt(e)
@@ -283,7 +281,7 @@
                      Do jBF = 1, nBF
                         C_jk = DInf(ipEVec-1 + (kEVal-1)*nBF + jBF)
                         ij = (jBF-1)*nBF + iBF
-                        DInf(ipS12i-1 + ij) = DInf(ipS12i -1 + ij)
+                        S12i(iBF,jBF)= S12i(iBF,jBF)
      &                                      + C_ik * e12i * C_jk
                      End Do
                   End Do
@@ -298,13 +296,13 @@
                Call FZero(Dinf(ipFPrim),nBF**2)
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
-     &                     1.0d0,DInf(ipS12i),nBF,
+     &                     1.0d0,S12i,nBF,
      &                     DInf(jp1Hm),nBF,
      &                     0.0d0,DInf(ipTemp),nBF)
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,DInf(ipTemp),nBF,
-     &                     DInf(ipS12i),nBF,
+     &                     S12i,nBF,
      &                     0.0d0,DInf(ipFPrim),nBF)
 *
 *              4) Compute C' and the eigenvalues
@@ -326,7 +324,7 @@
                ip = ip + nBF**2
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
-     &                     1.0d0,DInf(ipS12i),nBF,
+     &                     1.0d0,S12i,nBF,
      &                     DInf(ipEVec),nBF,
      &                     0.0d0,DInf(ipC),nBF)
 #ifdef _DEBUG_
@@ -370,6 +368,7 @@
                Call RecPrt('Actual Fock operator',' ',
      &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
+               Call mma_deallocate(S12i)
                Call mma_deallocate(Scr1)
                Call mma_deallocate(Scr2)
             End Do

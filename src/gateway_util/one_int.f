@@ -26,10 +26,11 @@
 #include "info.fh"
 #include "stdalloc.fh"
       External Kernel
+      Real*8 DInf(nDInf)
+      Real*8, Intent(In):: A(3)
       Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
       Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
       Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
-      Real*8 DInf(nDInf), A(3)
       Real*8 Scr1(nScr1), Scr2(nScr2)
       Real*8, Allocatable:: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
 *
