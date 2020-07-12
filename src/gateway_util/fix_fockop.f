@@ -43,6 +43,7 @@
       Real*8, Allocatable :: FockOp_t(:)
       Real*8, Allocatable :: Scr1(:), Scr2(:)
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
+      Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -286,21 +287,19 @@
 *
 *              3) Form F' =  S^(-1/2) F S^(-1/2)
 *
-               ipFPrim = ip
-               ip = ip + nBF**2
-               ipTemp = ip
-               ip = ip + nBF**2
-               Call FZero(Dinf(ipFPrim),nBF**2)
+               Call mma_allocate(FPrim,nBF,nBF,Label='FPrim')
+               FPrim(:,:)=Zero
+               Call mma_allocate(Temp,nBF,nBF,Label='Temp')
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,S12i,nBF,
      &                           DInf(jp1Hm),nBF,
-     &                     0.0d0,DInf(ipTemp),nBF)
+     &                     0.0d0,Temp,nBF)
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
-     &                     1.0d0,DInf(ipTemp),nBF,
+     &                     1.0d0,Temp,nBF,
      &                           S12i,nBF,
-     &                     0.0d0,DInf(ipFPrim),nBF)
+     &                     0.0d0,FPrim,nBF)
 *
 *              4) Compute C' and the eigenvalues
 *
@@ -310,22 +309,24 @@
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
-                     EVal(ijTri) = DInf(ipFPrim-1 + ij)
+                     EVal(ijTri) = FPrim(iBF,jBF)
                   End Do
                End Do
+               Call mma_deallocate(Temp)
+               Call mma_deallocate(FPrim)
                Call NIDiag_new(EVal,EVec,nBF,nBF,0)
 *
 *              5) Form C = S^(-1/2) C'
 *
-               ipC = ip
-               ip = ip + nBF**2
+               Call mma_allocate(C,nBF,nBF,Label='C')
+               C(:,:)=Zero
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,S12i,nBF,
      &                           EVec,nBF,
-     &                     0.0d0,DInf(ipC),nBF)
+     &                     0.0d0,C,nBF)
 #ifdef _DEBUG_
-      Call RecPrt('Cs for F',' ',DInf(ipC),nBF,nBF)
+      Call RecPrt('Cs for F',' ',C,nBF,nBF)
 #endif
 *
 *              6) Form the matrix representation of the Fock operator
@@ -334,15 +335,16 @@
                Do kEval = 1, nBF
                   e   = EVal(kEval*(kEval+1)/2)
                   Do iBF = 1, nBF
-                     C_ik = DInf(ipC-1 + (kEVal-1)*nBF + iBF)
+                     C_ik = C(iBF,kEVal)
                      Do jBF = 1, nBF
-                        C_jk = DInf(ipC-1 + (kEVal-1)*nBF + jBF)
+                        C_jk = C(jBF,kEVal)
                         ij = (jBF-1)*nBF + iBF
                         DInf(jp1Hm-1 + ij) = DInf(jp1Hm-1 + ij)
      &                                      + C_ik * e * C_jk
                      End Do
                   End Do
                End Do
+               Call mma_deallocate(C)
 *
                Call Reorder_GW(DInf(jp1Hm),DInf(ipNAE),
      &                      nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
@@ -704,11 +706,11 @@
                   Do jB = 1, nCntrc_r
                      ijB=(jB-1)*nCntrc_r+iB
                      iFrom = ipFockOp_t-1 + (jB-1)*nCntrc_r+iB
-                     Temp = FockOp_t(iFrom)
+                     Tmp = FockOp_t(iFrom)
                      Do iC = 1, iCmp_r
                         ijC=(iC-1)*iCmp_r+iC
                         iTo = ipTmp-1 + (ijC-1)*nCntrc_r**2+ijB
-                        DInf(iTo) = Temp
+                        DInf(iTo) = Tmp
                      End Do
                   End Do
                End Do
@@ -716,11 +718,11 @@
                Do iB = 1, nCntrc_r
                   Do jB = 1, nCntrc_r
                      ijB=(jB-1)*nCntrc_r+iB
-                     Temp = Shells(iShll_r)%FockOp(iB,jB)
+                     Tmp = Shells(iShll_r)%FockOp(iB,jB)
                      Do iC = 1, iCmp_r
                         ijC=(iC-1)*iCmp_r+iC
                         iTo = ipTmp-1 + (ijC-1)*nCntrc_r**2+ijB
-                        DInf(iTo) = Temp
+                        DInf(iTo) = Tmp
                      End Do
                   End Do
                End Do
