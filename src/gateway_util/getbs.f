@@ -235,21 +235,26 @@
         Line = Get_Ln(lUnit)
       EndIf                        ! CGGn
       If(Line.eq.'Options') Then
-107      Continue
+         Do
          Line=Get_Ln(lUnit)
          If(Line.ne.'EndOptions') Then
             If(Line.eq.'OrbitalEnergies') Then
-C              Write(6,*) 'Orbital energies are included'
+               If (IfTest)
+     &         Write(6,*) 'Orbital energies are included'
                isEorb=.true.
             Else If(Line.eq.'FockOperator') Then
-C              Write(6,*) 'Fock operator is included'
+               If (IfTest)
+     &         Write(6,*) 'Fock operator is included'
                isEorb=.true.
                isFock=.true.
             Else
                Write(6,*) 'Illegal option: ',Line
+               Call Abend()
             End If
-            Go To 107
+         Else
+            Exit
          End If
+         End Do
          Line=Get_Ln(lUnit)
       End If
 *--- end parsing options
@@ -288,6 +293,10 @@ C              Write(6,*) 'Fock operator is included'
             Write (6,*) 'iShll,MxShll=',iShll,MxShll
             Call Abend()
          End If
+         If (IfTest) Then
+            Write (6,'(A,A)') 'Line=',Line
+            Write (6,*) L_STDINP,inLn1
+         End If
          If (L_STDINP.AND.inLn1) then                   ! CGGn
            iSTDINP = iSTDINP + 1                        ! CGGn
            Line = STDINP(iSTDINP)                       ! CGGn
@@ -301,6 +310,7 @@ C              Write(6,*) 'Fock operator is included'
            mCGTO(iAng)=0                                ! CGGn
          else                                           ! CGGn
            Line = Get_Ln(lUnit)
+           If (IfTest) Write (6,'(A,A)') 'Line=',Line
            Call Get_i1(1,nPrim)
            If (inLn1) then
               Call Get_i1(2,nCntrc)
@@ -525,10 +535,16 @@ C              Write(6,*) 'Fock operator is included'
             FockOp=FockOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
+            Call mma_allocate(Temp,nEorb,nEorb,Label='Temp')
             Do i=1,nEorb
                Line=Get_Ln(lUnit)
-               Call Get_F(1,Shells(iShll)%FockOp(1,i),nEOrb)
+               Call Get_F(1,Temp(1,i),nEOrb)
             End Do
+            Shells(iShll)%FockOp(1:Min(nEorb,nCntrc),
+     &                           1:Min(nEorb,nCntrc))
+     &                = Temp(1:Min(nEorb,nCntrc),
+     &                       1:Min(nEorb,nCntrc))
+            Call mma_deallocate(Temp)
 #ifdef _DEBUG_
             Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
@@ -536,14 +552,15 @@ C              Write(6,*) 'Fock operator is included'
             FockOp=FockOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
+            Call mma_allocate(Temp,nEorb,1,Label='Temp')
             If(nEorb.gt.0) Then
                Line=Get_Ln(lUnit)
-               Call Get_F(1,Shells(iShll)%FockOp,nEorb)
+               Call Get_F(1,Temp(1,1),nEorb)
             End If
-            Do i=2,nCntrc
-               Shells(iShll)%FockOp(i,i)=Shells(iShll)%FockOp(i,1)
-               Shells(iShll)%FockOp(i,1)=Zero
+            Do i=1,Min(nEOrb,nCntrc)
+               Shells(iShll)%FockOp(i,i)=Temp(i,1)
             End Do
+            Call mma_deallocate(Temp)
 #ifdef _DEBUG_
             Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
@@ -1065,3 +1082,9 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iBSLbl)
       End
+      Subroutine Check_Info()
+#include "itmax.fh"
+#include "info.fh"
+      Call Free_Work(LctInf)
+      Call Abend()
+      End Subroutine Check_Info

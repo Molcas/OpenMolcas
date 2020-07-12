@@ -9,13 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Integer mxroot
-#ifdef MOLPRO
-      include "common/maxbfn"
-      include "common/mxatom"
-      Integer MaxBfn_Aux
-      Parameter (mxroot = 100)
-      Parameter (MaxBfn_Aux=7*MaxBfn)
-#else
 #include "maxbfn.fh"
 #ifndef _DEMO_
        Integer mxAtom
@@ -33,7 +26,6 @@
        Integer mxact,mxina
        Parameter (mxact  =  100)
        Parameter (mxina  = maxbfn)
-#endif
        Integer mxbas,mxOrb,mxSym,mxGAS
        Parameter (mxbas = maxbfn)
        Parameter (mxOrb = maxbfn)
