@@ -44,6 +44,7 @@
       Real*8, Allocatable :: Scr1(:), Scr2(:)
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
+      Real*8, Allocatable :: Hm1(:,:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -208,9 +209,8 @@
 *
 *              Change to proper order (nCntrc_a * iCmp_a)
 *
-               jp1Hm = ip
-               ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder_GW(DInf(ipNAE),DInf(jp1Hm),
+               Call mma_allocate(Hm1,nCntrc_a**2,iCmp_a**2,Label='Hm1')
+               Call Reorder_GW(DInf(ipNAE),Hm1,
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -293,7 +293,7 @@
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,S12i,nBF,
-     &                           DInf(jp1Hm),nBF,
+     &                           Hm1,nBF,
      &                     0.0d0,Temp,nBF)
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
@@ -331,7 +331,9 @@
 *
 *              6) Form the matrix representation of the Fock operator
 *
-               Call FZero(DInf(jp1Hm),nBF**2)
+               Call mma_deallocate(Hm1)
+               Call mma_allocate(Hm1,nBF,nBF,Label='Hm1')
+               Hm1(:,:)=Zero
                Do kEval = 1, nBF
                   e   = EVal(kEval*(kEval+1)/2)
                   Do iBF = 1, nBF
@@ -339,15 +341,16 @@
                      Do jBF = 1, nBF
                         C_jk = C(jBF,kEVal)
                         ij = (jBF-1)*nBF + iBF
-                        DInf(jp1Hm-1 + ij) = DInf(jp1Hm-1 + ij)
+                        Hm1(iBF,jBF) = Hm1(iBF,jBF)
      &                                      + C_ik * e * C_jk
                      End Do
                   End Do
                End Do
                Call mma_deallocate(C)
 *
-               Call Reorder_GW(DInf(jp1Hm),DInf(ipNAE),
+               Call Reorder_GW(Hm1,DInf(ipNAE),
      &                      nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
+               Call mma_deallocate(Hm1)
 *
 *              Make result isotropic and distribute
 *
