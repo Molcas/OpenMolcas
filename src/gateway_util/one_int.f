@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
+     &                   iComp,nOrdOp,
+     &                   Scr1,nScr1,Scr2,nScr2,naa,ipSAR,nSAR,
      &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
      &                   iCmp_a,
      &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,
@@ -28,6 +29,7 @@
       Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
       Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
       Real*8 DInf(nDInf), A(3)
+      Real*8 Scr1(nScr1), Scr2(nScr2)
 *
       ipSAR = ip
       nSAR = nPrim_a*nPrim_r * naa
@@ -63,22 +65,18 @@
      &            iAng,iAng,A,A,nHer,DInf(ip),mArr,A,nOrdOp)
       ip = ip - 6 * nPrim_a * nPrim_r
 *
-      ipScrt1 = ip
-      ip = ip + nScr1
-      ipScrt2 = ip
-      ip = ip + nScr2
       Call DGEMM_('T','N',
      &            nPrim_r*naa,nCntrc_a,nPrim_a,
      &            1.0d0,DInf(ipSAR),nPrim_a,
      &                  Cff_a,nPrim_a,
-     &            0.0d0,DInf(ipScrt1),nPrim_r*naa)
+     &            0.0d0,Scr1,nPrim_r*naa)
       Call DGEMM_('T','N',
      &            naa*nCntrc_a,nCntrc_r,nPrim_r,
-     &            1.0d0,DInf(ipScrt1),nPrim_r,
+     &            1.0d0,Scr1,nPrim_r,
      &                  Cff_r,nPrim_r,
-     &            0.0d0,DInf(ipScrt2),naa*nCntrc_a)
+     &            0.0d0,Scr2,naa*nCntrc_a)
 #ifdef _DEBUG_
-      Call RecPrt('S_AR in Cartesian',' ',DInf(ipScrt2),
+      Call RecPrt('S_AR in Cartesian',' ',Scr2,
      &            naa,nCntrc_a*nCntrc_r)
 #endif
 *
@@ -86,17 +84,17 @@
 *
       If (Transf(iShll_a).or.Transf(iShll_r)) Then
 *
-         Call CarSph(DInf(ipScrt2),naa,nCntrc_a*nCntrc_r,
+         Call CarSph(Scr2,naa,nCntrc_a*nCntrc_r,
      &               DInf(ipSAR),nScr2,
      &               RSph(ipSph(iAng)),iAng,
      &               Transf(iShll_a),Prjct(iShll_a),
      &               RSph(ipSph(iAng)),iAng,
      &               Transf(iShll_r),Prjct(iShll_r),
-     &               DInf(ipScrt1),iCmp_a*iCmp_r)
+     &               Scr1,iCmp_a*iCmp_r)
          Call DCopy_(nCntrc_a*nCntrc_r*iCmp_a*iCmp_r,
-     &               DInf(ipScrt1),1,DInf(ipSAR),1)
+     &               Scr1,1,DInf(ipSAR),1)
       Else
-         Call DGeTmO(DInf(ipScrt2),naa,naa,nCntrc_a*nCntrc_r,
+         Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,
      &               DInf(ipSAR),nCntrc_a*nCntrc_r)
       End If
 *define _DEBUG_
@@ -104,7 +102,6 @@
       Call RecPrt('S_AR in Sphericals',' ',DInf(ipSAR),
      &                  iCmp_a*iCmp_r,nCntrc_a*nCntrc_r)
 #endif
-      ip = ip - nScr2 - nScr1
       nSAR = nCntrc_a*nCntrc_r * naa
 *
       Return

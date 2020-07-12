@@ -40,7 +40,8 @@
 #include "periodic_table.fh"
       External MltPrm, KnEPrm, NAPrm
       Real*8 DInf(nDInf)
-      Real*8, Dimension(:), Allocatable :: FockOp_t
+      Real*8, Allocatable :: FockOp_t(:)
+      Real*8, Allocatable :: Scr1(:), Scr2(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -148,6 +149,8 @@
                naa = nElem(iAng)*nElem(iAng)
                nScr1 = Max(nPrim_a,nPrim_a)*Max(nCntrc_a,nCntrc_a)*naa
                nScr2 = Max(nCntrc_a,nCntrc_a)**2*naa
+               Call mma_allocate(Scr1,nScr1,Label='Scr1')
+               Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -156,7 +159,8 @@
                nOrdOp=2
                ip = ipExp(iShll+1)
                Call One_Int(KnEPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipKnE,
+     &                      iAng,iComp,nOrdOp,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipKnE,
      &                      nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -179,7 +183,8 @@
                nOrdOp=0
                A(4) = DBLE(iCnttp) ! Dirty tweak
                Call One_Int(NAPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipNAE,
+     &                      iAng,iComp,nOrdOp,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipNAE,
      &                      nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -212,7 +217,8 @@
 *
                nOrdOp=0
                Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,nScr1,nScr2,naa,ipOvr,
+     &                      iAng,iComp,nOrdOp,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipOvr,
      &                      nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -364,7 +370,10 @@
                Call RecPrt('Actual Fock operator',' ',
      &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
+               Call mma_deallocate(Scr1)
+               Call mma_deallocate(Scr2)
             End Do
+*
             FockOp(iCnttp)=.TRUE.
             Cycle
          End If
@@ -618,6 +627,8 @@
             naa = nElem(iAng)*nElem(iAng)
             nScr1 = Max(nPrim_a,nPrim_r)*Max(nCntrc_a,nCntrc_r)*naa
             nScr2 = Max(nCntrc_a,nCntrc_r)**2*naa
+            Call mma_allocate(Scr1,nScr1,Label='Scr1')
+            Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -629,7 +640,8 @@
 *
             nOrdOp=0
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAA,nSAA,
+     &                   iComp,nOrdOp,
+     &                   Scr1,nScr1,Scr2,nScr2,naa,ipSAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -641,7 +653,8 @@
 *
             nOrdOp=0
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
+     &                   iComp,nOrdOp,
+     &                   Scr1,nScr1,SCr2,nScr2,naa,ipSAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_r,nPrim_r,Shells(iShll_r)%Exp,
@@ -796,6 +809,8 @@
             Call RecPrt('Actual Fock operator',' ',
      &                  Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
+            Call mma_deallocate(Scr1)
+            Call mma_deallocate(Scr2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
