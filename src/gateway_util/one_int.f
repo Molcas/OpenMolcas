@@ -24,24 +24,23 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
+#include "stdalloc.fh"
       External Kernel
       Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
       Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
       Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
       Real*8 DInf(nDInf), A(3)
       Real*8 Scr1(nScr1), Scr2(nScr2)
+      Real*8, Allocatable:: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
+*
+      Call mma_allocate(ZAR,nPrim_a*nPrim_r,Label='ZAR')
+      Call mma_allocate(ZIAR,nPrim_a*nPrim_r,Label='ZIAR')
+      Call mma_allocate(KAR,nPrim_a*nPrim_r,Label='KAR')
+      Call mma_allocate(PAR,nPrim_a*nPrim_r,3,Label='PAR')
 *
       ipSAR = ip
       nSAR = nPrim_a*nPrim_r * naa
       ip = ip + nSAR
-      ipPAR = ip
-      ip = ip + 3 * nPrim_a*nPrim_r
-      ipZAR = ip
-      ip = ip + nPrim_a*nPrim_r
-      ipKAR = ip
-      ip = ip + nPrim_a*nPrim_r
-      ipZIAR = ip
-      ip = ip + nPrim_a*nPrim_r
       nInfo = ipExp(jShll+1) - Info
       mArr = nDInf/(nPrim_a*nPrim_r) - nInfo
       If (mArr.lt.1) Then
@@ -50,20 +49,24 @@
          Call Abend()
       EndIf
 *
-      Call ZXia(DInf(ipZAR),DInf(ipZIAR),nPrim_a,nPrim_r,
+      Call ZXia(ZAR,ZIAR,nPrim_a,nPrim_r,
      &          Exp_a,Exp_r)
       Call SetUp1(Exp_a,nPrim_a,
      &            Exp_r,nPrim_r,
-     &            A,A,DInf(ipKAR),DInf(ipPAR),DInf(ipZIAR))
+     &            A,A,KAR,PAR,ZIAR)
 *
       nHer = (2*iAng+2+nOrdOp)/2
       Call Kernel(Exp_a,nPrim_a,
      &            Exp_r,nPrim_r,
-     &            DInf(ipZAR),DInf(ipZIAR),
-     &            DInf(ipKAR),DInf(ipPAR),
+     &            ZAR,ZIAR,
+     &            KAR,PAR,
      &            DInf(ipSAR),nPrim_a*nPrim_r,iComp,
      &            iAng,iAng,A,A,nHer,DInf(ip),mArr,A,nOrdOp)
-      ip = ip - 6 * nPrim_a * nPrim_r
+*
+      Call mma_deallocate(ZAR)
+      Call mma_deallocate(ZIAR)
+      Call mma_deallocate(KAR)
+      Call mma_deallocate(PAR)
 *
       Call DGEMM_('T','N',
      &            nPrim_r*naa,nCntrc_a,nPrim_a,
