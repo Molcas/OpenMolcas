@@ -46,6 +46,7 @@
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
       Real*8, Allocatable :: Hm1(:,:)
       Real*8, Allocatable :: S_AA(:), S_AR(:), E_R(:)
+      Real*8, Allocatable :: Tmp1(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -742,15 +743,14 @@
 *
 *           Form (SAA)-1 SAR
 *
-            ipTmp1 = ip
-            ip = ip + nSAR
+            Call mma_allocate(Tmp1,nSAR,Label='Tmp1')
             Call DGEMM_('N','N',
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_a*iCmp_a,
      &                  1.0d0,DInf(ipSAA),nCntrc_a*iCmp_a,
      &                        S_AR,nCntrc_a*iCmp_a,
-     &                  0.0d0,DInf(ipTmp1),nCntrc_a*iCmp_a)
+     &                  0.0d0,Tmp1,nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
-            Call RecPrt('(SAA)^-1 SAR',' ',DInf(ipTmp1),
+            Call RecPrt('(SAA)^-1 SAR',' ',Tmp1,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
             Call mma_deallocate(S_AR)
@@ -761,7 +761,7 @@
             ip = ip + nSAR
             Call DGEMM_('N','N',
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_r*iCmp_r,
-     &                  1.0d0,DInf(ipTmp1),nCntrc_a*iCmp_a,
+     &                  1.0d0,Tmp1,nCntrc_a*iCmp_a,
      &                        E_R,nCntrc_r*iCmp_r,
      &                  0.0d0,DInf(ipTmp2),nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
@@ -775,12 +775,13 @@
             Call DGEMM_('N','T',
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,
      &                  1.0d0,DInf(ipTmp2),nCntrc_a*iCmp_a,
-     &                        DInf(ipTmp1),nCntrc_a*iCmp_a,
+     &                        Tmp1,nCntrc_a*iCmp_a,
      &                  0.0d0,DInf(ipSAA),nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('EA',' ',DInf(ipSAA),
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
+            Call mma_deallocate(Tmp1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
