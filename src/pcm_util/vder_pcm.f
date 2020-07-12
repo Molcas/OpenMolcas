@@ -19,8 +19,8 @@
       Integer Lu
 cpcm_solvent very temporary! read the potential derivatives from file
       Lu=1
-      Call MolcasOpen(Lu,'DerPot.dat')
-      Call MolcasOpen(Lu,'DerPot.dat')
+      Lu=IsFreeUnit(Lu)
+      Call Molcas_Open(Lu,'DerPot.dat')
 *     open(1,file='DerPot.dat',status='old',form='formatted')
       do 1134 iAt = 1, nAt
         do 1135 iCoord = 1, 3
