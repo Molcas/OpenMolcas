@@ -45,6 +45,7 @@
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
       Real*8, Allocatable :: Hm1(:,:)
+      Real*8, Allocatable :: S_AA(:), S_AR(:), E_R(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -670,16 +671,15 @@
 *                                                                      *
 *           Reorder and compute the inverse of SAA
 *
-            ipS_AA = ip
-            ip = ip + nSAA
-            Call Reorder_GW(DInf(ipSAA),DInf(ipS_AA),
+            Call mma_allocate(S_AA,nSAA,Label='S_AA')
+            Call Reorder_GW(DInf(ipSAA),S_AA,
      &                   nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 #ifdef _DEBUG_
-            Call RecPrt('Reordered SAA',' ',DInf(ipS_AA),
+            Call RecPrt('Reordered SAA',' ',S_AA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
-            Call MInv(DInf(ipS_AA),DInf(ipSAA),iSing,D,nCntrc_a*iCmp_a)
-            ip = ip -nSAA
+            Call MInv(S_AA,DInf(ipSAA),iSing,D,nCntrc_a*iCmp_a)
+            Call mma_deallocate(S_AA)
 #ifdef _DEBUG_
             Write (6,*) 'iSing=',iSing
             Write (6,*) 'Det=',D
@@ -688,19 +688,17 @@
 #endif
 *
 *           Reorder SAR
-            ipS_AR = ip
-            ip = ip + nSAR
-            Call Reorder_GW(DInf(ipSAR),DInf(ipS_AR),
+            Call mma_allocate(S_AR,nSAR,Label='S_AR')
+            Call Reorder_GW(DInf(ipSAR),S_AR,
      &                   nCntrc_a,nCntrc_r,iCmp_a,iCmp_r)
 #ifdef _DEBUG_
-            Call RecPrt('Reordered SAR',' ',DInf(ipS_AR),
+            Call RecPrt('Reordered SAR',' ',S_AR,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
 *
 *           Expand and reorder the reference fock operator
 *
-            ipE_R=ip
-            ip = ip + nSRR
+            Call mma_allocate(E_R,nSRR,Label='E_R')
             ipTmp = ip
             ip = ip + nSRR
             Call FZero(DInf(ipTmp),nSRR)
@@ -734,11 +732,11 @@
             Call RecPrt('Expanded ER',' ',DInf(ipTmp),
      &                  nCntrc_r*nCntrc_r,iCmp_r*iCmp_r)
 #endif
-            Call Reorder_GW(DInf(ipTmp),DInf(ipE_R),
+            Call Reorder_GW(DInf(ipTmp),E_R,
      &                   nCntrc_r,nCntrc_r,iCmp_r,iCmp_r)
             ip = ip - nSRR ! Release ipTmp
 #ifdef _DEBUG_
-            Call RecPrt('Reordered ER',' ',DInf(ipE_R),
+            Call RecPrt('Reordered ER',' ',E_R,
      &                  nCntrc_r*iCmp_r,nCntrc_r*iCmp_r)
 #endif
 *
@@ -749,12 +747,13 @@
             Call DGEMM_('N','N',
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_a*iCmp_a,
      &                  1.0d0,DInf(ipSAA),nCntrc_a*iCmp_a,
-     &                  DInf(ipS_AR),nCntrc_a*iCmp_a,
+     &                        S_AR,nCntrc_a*iCmp_a,
      &                  0.0d0,DInf(ipTmp1),nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('(SAA)^-1 SAR',' ',DInf(ipTmp1),
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
+            Call mma_deallocate(S_AR)
 *
 *           Form (SAA)-1 SAR ER
 *
@@ -763,19 +762,20 @@
             Call DGEMM_('N','N',
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_r*iCmp_r,
      &                  1.0d0,DInf(ipTmp1),nCntrc_a*iCmp_a,
-     &                  DInf(ipE_R),nCntrc_r*iCmp_r,
+     &                        E_R,nCntrc_r*iCmp_r,
      &                  0.0d0,DInf(ipTmp2),nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('(SAA)^-1 SAR ER',' ',DInf(ipTmp2),
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
+            Call mma_deallocate(E_R)
 *
 *           Form (SAA)-1 SAR ER (SAR)^T (SAA)-1
 *
             Call DGEMM_('N','T',
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,
      &                  1.0d0,DInf(ipTmp2),nCntrc_a*iCmp_a,
-     &                  DInf(ipTmp1),nCntrc_a*iCmp_a,
+     &                        DInf(ipTmp1),nCntrc_a*iCmp_a,
      &                  0.0d0,DInf(ipSAA),nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('EA',' ',DInf(ipSAA),
