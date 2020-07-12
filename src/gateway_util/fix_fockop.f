@@ -42,7 +42,7 @@
       Real*8 DInf(nDInf)
       Real*8, Allocatable :: FockOp_t(:)
       Real*8, Allocatable :: Scr1(:), Scr2(:)
-      Real*8, Allocatable :: S12i(:,:)
+      Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -256,33 +256,30 @@
 *              1) Compute the eigenvectors and eigenvalues of the
 *                 overlap matrix
 *
-               ipEVal = ip
-               ip = ip + nBF*(nBF+1)/2
-               ipEVec = ip
-               ip = ip + nBF**2
-               Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
+               Call mma_allocate(EVal,nBF*(nBF+1)/2,Label='EVal')
+               Call mma_allocate(EVec,nBF,nBF,Label='EVec')
+               EVec(:,:)=Zero
+               ForAll (i=1:nBF) EVec(i,i)=One
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
-                     DInf(ipEVal-1 + ijTri) = DInf(jpOvr-1 + ij)
+                     EVal(ijTri) = DInf(jpOvr-1 + ij)
                   End Do
                End Do
-               Call NIDiag_new(DInf(ipEVal),DInf(ipEVec),nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
 *
 *              2) Construct S^(1/2) and S^(-1/2)
 *
                Do kEval = 1, nBF
-                  e   = DInf(ipEVal-1 + kEval*(kEval+1)/2)
+                  e   = EVal(kEval*(kEval+1)/2)
                   e12i= 1.0D0/Sqrt(e)
                   Do iBF = 1, nBF
-                     C_ik = DInf(ipEVec-1 + (kEVal-1)*nBF + iBF)
+                     C_ik = EVec(iBF,kEVal)
                      Do jBF = 1, nBF
-                        C_jk = DInf(ipEVec-1 + (kEVal-1)*nBF + jBF)
-                        ij = (jBF-1)*nBF + iBF
-                        S12i(iBF,jBF)= S12i(iBF,jBF)
-     &                                      + C_ik * e12i * C_jk
+                        C_jk = EVec(jBF,kEVal)
+                        S12i(iBF,jBF) = S12i(iBF,jBF)
+     &                                + C_ik * e12i * C_jk
                      End Do
                   End Do
                End Do
@@ -297,26 +294,26 @@
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,S12i,nBF,
-     &                     DInf(jp1Hm),nBF,
+     &                           DInf(jp1Hm),nBF,
      &                     0.0d0,DInf(ipTemp),nBF)
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,DInf(ipTemp),nBF,
-     &                     S12i,nBF,
+     &                           S12i,nBF,
      &                     0.0d0,DInf(ipFPrim),nBF)
 *
 *              4) Compute C' and the eigenvalues
 *
-               Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
+               EVec(:,:)=Zero
+               ForAll (i=1:nBF) EVec(i,i)=One
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
-                     DInf(ipEVal-1 + ijTri) = DInf(ipFPrim-1 + ij)
+                     EVal(ijTri) = DInf(ipFPrim-1 + ij)
                   End Do
                End Do
-               Call NIDiag_new(DInf(ipEVal),DInf(ipEVec),nBF,nBF,0)
+               Call NIDiag_new(EVal,EVec,nBF,nBF,0)
 *
 *              5) Form C = S^(-1/2) C'
 *
@@ -325,7 +322,7 @@
                Call DGEMM_('N','N',
      &                     nBF,nBF,nBF,
      &                     1.0d0,S12i,nBF,
-     &                     DInf(ipEVec),nBF,
+     &                           EVec,nBF,
      &                     0.0d0,DInf(ipC),nBF)
 #ifdef _DEBUG_
       Call RecPrt('Cs for F',' ',DInf(ipC),nBF,nBF)
@@ -335,7 +332,7 @@
 *
                Call FZero(DInf(jp1Hm),nBF**2)
                Do kEval = 1, nBF
-                  e   = DInf(ipEVal-1 + kEval*(kEval+1)/2)
+                  e   = EVal(kEval*(kEval+1)/2)
                   Do iBF = 1, nBF
                      C_ik = DInf(ipC-1 + (kEVal-1)*nBF + iBF)
                      Do jBF = 1, nBF
@@ -368,6 +365,8 @@
                Call RecPrt('Actual Fock operator',' ',
      &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
+               Call mma_deallocate(EVal)
+               Call mma_deallocate(EVec)
                Call mma_deallocate(S12i)
                Call mma_deallocate(Scr1)
                Call mma_deallocate(Scr2)
