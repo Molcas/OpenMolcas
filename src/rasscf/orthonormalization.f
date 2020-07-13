@@ -19,7 +19,8 @@
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
         use sorting_funcs, only : ge_r
-        use linalg_mod, only: mult
+        use linalg_mod, only: mult, diagonalize, norm, dot_product_,
+     &      assert_, canonicalize
 
         implicit none
         save
@@ -178,6 +179,7 @@
         call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
+        call canonicalize(U, s_diag)
 
         call assert_(all(s_diag > 1.0d-10),
      &      "Linear dependency detected. "//
@@ -246,6 +248,7 @@
         call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
+        call canonicalize(U, s_diag)
 
         idx(:) = argsort(s_diag, ge_r)
         U(:, :) = U(:, idx)
@@ -458,89 +461,5 @@
 
         call qExit(ROUTINE)
       end subroutine
-
-      subroutine diagonalize(A, V, lambda)
-        real(wp), intent(in) :: A(:, :)
-        real(wp), intent(out) :: V(:, :), lambda(:)
-
-        integer, parameter :: do_worksize_query = -1
-        integer :: info
-        real(wp), allocatable :: work(:)
-        real(wp) :: dummy(2), query_result(2)
-
-        V(:, :) = A(:, :)
-        call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
-     &              query_result, do_worksize_query, info)
-
-        call assert_(info == 0, 'Error in diagonalize')
-
-        call mma_allocate(work, int(query_result(1)))
-        call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda,
-     &              work, size(work), info)
-        call mma_deallocate(work)
-
-        call assert_(info == 0, 'Error in diagonalize')
-      end subroutine diagonalize
-
-
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
-
-      subroutine assert_(test_expression, message)
-        logical, intent(in) :: test_expression
-        character(*), intent(in) :: message
-        if (.not. test_expression) then
-          call abort_(message)
-        end if
-      end subroutine
-
-!>
-!>  @brief
-!>    Calculates v1^T S v2.
-!>
-!>  @author
-!>    Oskar Weser
-!>
-!>  @details
-!>  Calculates \f[ v1^T S v2 \f]
-!>  S has to be a symmetric positive definite matrix, which is not
-!>  tested.
-!>  If S is ommited, it defaults to the unit matrix,
-!>  i.e. the Euclidean dot-product.
-      function dot_product_(v1, v2, S) result(dot)
-! One cannot use matmul + customly allocated arrays.
-! .and. One cannot overload dot_product with a non pure function
-! => call it dot_product_
-        real(wp), intent(in) :: v1(:), v2(:)
-        real(wp), intent(in), optional :: S(:, :)
-        real(wp) :: dot
-
-        real(wp), allocatable :: tmp(:)
-
-        if (present(S)) then
-          call mma_allocate(tmp, size(v1))
-          call mult(S, v1, tmp)
-          dot = dot_product(tmp, v2)
-          call mma_deallocate(tmp)
-        else
-          dot = dot_product(v1, v2)
-        end if
-      end function
-
-      function norm(v, S) result(L)
-        real(wp), intent(in) :: v(:)
-        real(wp), intent(in), optional :: S(:, :)
-        real(wp) :: L
-        if (present(S)) then
-          L = sqrt(dot_product_(v, v, S))
-        else
-! One could use norm2 here, but Sun and PGI compilers don't know this.
-          L = sqrt(sum(v**2))
-        end if
-      end function
 
       end module orthonormalization
