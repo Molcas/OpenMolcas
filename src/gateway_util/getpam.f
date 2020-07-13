@@ -31,7 +31,7 @@
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: DInf(:)
+      Real*8, Allocatable:: Array(:)
       Character*180 Line, Get_Ln
 *     External Get_Ln
       Integer nPAM2
@@ -43,12 +43,10 @@
 #endif
 *
       if (test) Write (6,*) ' Reading PAM potencials'
-      nDInf=10000
-      Call mma_Allocate(DInf,nDInf,Label='DInf')
+      nArray=10000
+      Call mma_Allocate(Array,nArray,Label='Array')
 *
       iStrt = 1
-*     Read(Line,*) nPAM2
-      dbsc(nCnttp)%nPAM2=nPAM2
       Line=Get_Ln(lUnit)
       If (Index(Line,'PAM').eq.0) Then
          Call WarningMessage(2,
@@ -58,19 +56,20 @@
       Endif
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nPAM2)
+      dbsc(nCnttp)%nPAM2=nPAM2
       Do iPAM_Ang=0, nPAM2
          Line=Get_Ln(lUnit)
          Call Get_i1(1,nPAM2Prim)
          Call Get_i1(2,nPAM2Bas)
-         DInf(iStrt)=DBLE(nPAM2Prim)
-         DInf(iStrt+1)=DBLE(nPAM2Bas)
+         Array(iStrt)=DBLE(nPAM2Prim)
+         Array(iStrt+1)=DBLE(nPAM2Bas)
          iStrt=iStrt+2
          iEnd = iStrt + nPAM2Prim - 1
 *
 *   Read exponents
 *
          If (nPAM2Prim.gt.0) then
-            Call read_v(lUnit,DInf,iStrt,iEnd,1,Ierr)
+            Call read_v(lUnit,Array,iStrt,iEnd,1,Ierr)
             If (Ierr.ne.0) Then
                Call WarningMessage(2,
      &                     'GetBS: Error reading GPA exponents')
@@ -83,7 +82,7 @@
       iStrt = iEnd + 1
          iEnd  = iStrt + nPAM2Prim*nPAM2Bas - 1
          Do 288 iPrim = 0, nPAM2Prim - 1
-            Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPAM2Prim,ierr)
+            Call Read_v(lUnit,Array,iStrt+iPrim,iEnd,nPAM2Prim,ierr)
             If(ierr.ne.0) Then
                Call WarningMessage(2,
      &                         'GetBS: Error in reading GPA!!!')
@@ -94,9 +93,9 @@
       End Do
 *
       Call mma_allocate(dbsc(nCnttp)%PAM2,iEnd,Label='PAM2')
-      dbsc(nCnttp)%PAM2(:)=DInf(:)
+      dbsc(nCnttp)%PAM2(:)=Array(:)
 *
-      Call mma_deAllocate(DInf)
+      Call mma_deAllocate(Array)
       Return
       End
 *
