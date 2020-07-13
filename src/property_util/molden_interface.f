@@ -145,14 +145,13 @@ c      End If
 *     a link between an atom and its basis set ---
 *
 *     NOTICE!!!
-*     This call will also fill info.fh and the dynamic storage in
-*     Work(ipInf)
+*     This call will also fill info.fh and the Basis_Info.
 *
       If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Else
 c      write(6,*) 'we here 0?'
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       End If
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then

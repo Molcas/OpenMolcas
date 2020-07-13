@@ -26,7 +26,7 @@
       LuWr=6
       DoRys = .True.
       nDiff = 3
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 *
 *     Copy the grid coordinates and weights in ONE array
 *     This is the only solution I found to pass info trough oneel_g !

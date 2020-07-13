@@ -104,9 +104,9 @@
       AddFragments=.true.
 
       If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Else
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       End If
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then

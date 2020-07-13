@@ -95,7 +95,7 @@
 *
       nDiff=1
       DoRys=.True.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
       If (RF_On()) Then
          If (NonEq_Ref) Then
             Call WarningMessage(2,'Error in Alaska')

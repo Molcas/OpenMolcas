@@ -60,10 +60,9 @@
       If (lXF.and.(nOrd_XF.ge.0)) Then
          write(6,*) 'Here we are!!'
 *
-c         Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *
          If (nIrrep.eq.8) Then

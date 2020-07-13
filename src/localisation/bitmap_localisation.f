@@ -35,10 +35,9 @@ C     ------------
 C     Allocate and define some index arrays from Seward.
 C     --------------------------------------------------
 
-      Info = -1
       DoF  = .false.
       nDiff = 0
-      Call IniSew(Info,DoF,nDiff)
+      Call IniSew(DoF,nDiff)
       nShell = -1
       Indexation = .true.
       ThrAO = 0.0d0

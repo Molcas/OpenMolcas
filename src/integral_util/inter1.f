@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent,ipInf)
+      Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
       Use Basis_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
@@ -21,7 +21,7 @@
 *
       DSCF=.False.
       nDiff=0
-      Call IniSew(ipInf,DSCF,nDiff)
+      Call IniSew(DSCF,nDiff)
 *
       mdc=0
       ndc=0

@@ -124,7 +124,7 @@ C     Call Banner(Lines,nLines,lLine)
 *
       nDiff=2
       DoRys=.True.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 cpcm_solvent
 c check if there is a reaction field
 c     write(6,*)'In mckinley PCM',pcm

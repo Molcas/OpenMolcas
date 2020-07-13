@@ -496,20 +496,8 @@ c---------------------------------------------------
 *
 *     Prologue
 *
-        write(Lu,'(A)') '#BASIS'
+      write(Lu,'(A)') '#BASIS'
 *
-*     Load the common INFO
-*
-      Len = iiLoc(ixEnd)-iiLoc(ixStrt)
-      Len = (Len+nbyte_i)/nbyte_i
-
-      Write(LU,'(i8)') Len
-      Call GETMEM(' SewXInfo ','ALLO','INTE',ixStrt,Len)
-      Call Get_iArray('SewIInfo',iWork(ixStrt),Len)
-      call pack_me(LU,iWork(ixStrt),Len)
-
-      Call GETMEM(' SewXInfo ','FREE','INTE',ixStrt,Len)
-
       Itemp=1+Mx_Shll*7+1+nShlls+1+nCnttp+1+64*Mx_mdc+
      +  1+ Mx_Unq +1 +8*Mx_AO+1+ Mx_Shll*3
 
@@ -697,22 +685,6 @@ c      Len = (Len+nByte_i)/nByte_i
 c      Call Get_iArray('SewCInfo',cxStrt,Len)
 c VVV */
 *
-*     Load the dynamic input area.
-*
-c      Call Get_Info_Dynamic_G(Info,nInfo)
-      Call qpg_dArray('SewXInfo',Found,Len)
-      If (.not.Found .or. Len.eq.0) Then
-         Write(6,*) 'Get_info_dynamic: Did not find SewXInfo'
-      End If
-
-      nInfo=Len
-      Write(LU,'(i8)') Len
-
-      Call GETMEM(' SewXInfo ','ALLO','REAL',Info,nInfo)
-      Call Get_dArray('SewXInfo',WORK(Info),Len)
-      Call pack_meR(LU,WORK(Info),Len)
-
-c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
        Call qpg_dArray('SewTInfo',Found,Len2)
       Write(LU,'(i8)') Len2
 
@@ -725,10 +697,6 @@ c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
       call pack_meR(LU,Work(ipSph(0)),Len2)
 
        Call GETMEM(' Sphere','FREE','REAL',ipSph(0),Len2)
-
-      Call GETMEM(' SewXInfo ','FREE','REAL',Info,nInfo)
-*
-
 
       Return
       End

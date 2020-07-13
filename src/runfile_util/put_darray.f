@@ -211,7 +211,7 @@ c mess started here :)
          RecLab( 52)='RFrInfo         '
          RecLab( 53)='SewRInfo        '
          RecLab( 54)='SewTInfo        '
-         RecLab( 55)='SewXInfo        '
+         RecLab( 55)='                ' ! unused
          RecLab( 56)='Last orbitals_ab'
          RecLab( 57)='SCFInfoI_ab     '
          RecLab( 58)='SCFInfoR_ab     '

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine inter1_faiemp(Label,iBas_Lab,Coor,ZNUC,N_Cent,ipInf)
+      Subroutine inter1_faiemp(Label,iBas_Lab,Coor,ZNUC,N_Cent)
 ************************************************************************
 *                                                                      *
 * Object: A routine similar to Inter1 but the list of atoms it builds  *
@@ -24,7 +24,7 @@
 #include "info.fh"
 #include "WrkSpc.fh"
       Real*8 A(3),Coor(3,*),ZNUC(*)
-      integer Ibas_Lab(*),N_Cent,ipInf
+      integer Ibas_Lab(*),N_Cent
       Character*(LENIN) Lbl
       Character*(LENIN) Label(*)
       Logical DSCF
@@ -36,7 +36,7 @@
 *
       DSCF=.False.
       nDiff=0
-      Call IniSew(ipInf,DSCF,nDiff)
+      Call IniSew(DSCF,nDiff)
 *
       mdc=0
       ndc=0

@@ -156,7 +156,7 @@ C-SVC: identify runfile with a fingerprint
          Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *                                                                      *
 ************************************************************************
@@ -270,7 +270,7 @@ C-SVC: identify runfile with a fingerprint
 *     Write/update information on the run file.
 *
       If (.Not.Primitive_Pass) Then
-         Call DmpInf(Work(Info),nInfo)
+         Call DmpInf()
          Call basis2run()
       End If
 *                                                                      *

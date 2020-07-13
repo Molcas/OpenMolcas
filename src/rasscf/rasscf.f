@@ -237,7 +237,7 @@
 
 * Process the input:
       Call StatusLine('RASSCF:',' Processing input')
-      Call Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Call Proc_Inp(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then

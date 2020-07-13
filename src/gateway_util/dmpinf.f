@@ -11,7 +11,7 @@
 * Copyright (C) 1992, Roland Lindh                                     *
 *               Markus P. Fuelscher                                    *
 ************************************************************************
-      SubRoutine DmpInf(DInf,nDInf)
+      SubRoutine DmpInf()
 ************************************************************************
 *                                                                      *
 * Object: to dump all input information on the file INFO.              *
@@ -47,7 +47,6 @@
       Integer  iix(2)
       Real*8   rix(2)
       Integer, Dimension(:,:), Allocatable :: jAOtSO
-      Real*8 DInf(nDInf)
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
@@ -127,11 +126,6 @@
       Len = (Len+nByte_i)/nByte_i
       Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
       Call Put_iArray('SewCInfo',p_cx,Len)
-*
-*     Dump the dynamic input area.
-*
-      Len=nDInf
-      Call Put_dArray('SewXInfo',DInf,Len)
 *
       Nullify(p_ix,p_lx,p_rx,p_cx)
 *                                                                      *
