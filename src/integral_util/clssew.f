@@ -45,20 +45,9 @@
       Call Term_Ints(.False.,.True.)
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
-*
       Call Sphere_Free()
       Call Basis_Info_Free()
       Call External_Centers_Free()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Info_Status.eq.Active) Then
-         Call GetMem('Info','Free','Real',LctInf,nInfo)
-         Info_Status=InActive
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call Free_iSD()
       Call Freek2()
       Call CloseR()

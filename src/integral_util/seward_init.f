@@ -326,7 +326,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       PP_Status=InActive
       k2_Status=InActive
       RctFld_Status=InActive
-      Info_Status=InActive
       ERI_Status=InActive
       Indexation_Status=Inactive
       XMem_Status=Inactive

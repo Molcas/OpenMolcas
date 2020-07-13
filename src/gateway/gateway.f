@@ -49,7 +49,6 @@ C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Found
       Real*8, Allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
-      Integer GB
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,21 +95,6 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem to get pointer to first available core allocation.
-*
-      kB=2**10
-      MB=kb*kB
-      GB=kb*MB/8 ! divide with 8 to get the number of real
-      Call GetMem('Info','Max','Real',iDum,MaxM)
-      nDInf=Max(MaxM/4,Min((9*MaxM)/10,GB))
-      Call GetMem('Info','ALLO','REAL',Info,nDInf)
-      Call FZero(Work(Info),nDInf)
-      Info_Status=Active
-      LctInf = Info
-      nInfo = 0
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Remove possible leftover files
 *
       Call f_Inquire('UDC.Gateway',Found)
@@ -124,7 +108,6 @@ C-SVC: identify runfile with a fingerprint
 *
       lOPTO = .False.
       Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
-#include "release_core.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -19,9 +19,6 @@
                 PAMExp, Shells, Max_Shells
 #include "stdalloc.fh"
 #include "Molcas.fh"
-#include "itmax.fh"
-      Integer, Parameter :: Mxdbsc=MxAtom
-      Integer, Parameter :: MxShll=iTabMx*MxAtom
 !
 !     Work in progress
 !

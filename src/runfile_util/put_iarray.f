@@ -129,7 +129,7 @@
          RecLab( 24)='nExp            '
          RecLab( 25)='nBasis          '
          RecLab( 26)='                ' !Free slot
-         RecLab( 27)='ipExp           '
+         RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
          RecLab( 29)='                ' !Free slot
          RecLab( 30)='                ' !Free slot

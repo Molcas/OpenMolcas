@@ -8,36 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer mxroot
 #include "maxbfn.fh"
 #ifndef _DEMO_
-       Integer mxAtom
-       Integer mxNemoAtom
-       Parameter (mxAtom = 5000)
-       Parameter (mxroot = 600)
-       Parameter (mxNemoAtom = 200)
+      Integer, Parameter :: mxAtom = 5000
+      Integer, Parameter :: mxroot = 600
+      Integer, Parameter :: mxNemoAtom = 200
+      Integer, Parameter :: Mxdbsc=1400
+      Integer, Parameter :: MxShll=1500
 #else
-       Integer mxAtom
-       Integer mxNemoAtom
-       Parameter (mxAtom = 6)
-       Parameter (mxroot = 2)
-       Parameter (mxNemoAtom = 6)
+      Integer, Parameter :: mxAtom = 6
+      Integer, Parameter :: mxroot = 2
+      Integer, Parameter :: mxNemoAtom = 6
+      Integer, Parameter :: Mxdbsc=10
+      Integer, Parameter :: MxShll=20
 #endif
-       Integer mxact,mxina
-       Parameter (mxact  =  100)
-       Parameter (mxina  = maxbfn)
-       Integer mxbas,mxOrb,mxSym,mxGAS
-       Parameter (mxbas = maxbfn)
-       Parameter (mxOrb = maxbfn)
-       Parameter (mxSym = 8)
-       Parameter (mxGAS = 16)
+       Integer, Parameter :: mxact  =  100
+       Integer, Parameter :: mxina  = maxbfn
+       Integer, Parameter :: mxbas = maxbfn
+       Integer, Parameter :: mxOrb = maxbfn
+       Integer, Parameter :: mxSym = 8
+       Integer, Parameter :: mxGAS = 16
 #include "LenIn.fh"
-       Integer LENIN1,LENIN2,LENIN3
-       Integer LENIN4,LENIN5,LENIN6,LENIN8
-       Parameter (LENIN1=LENIN+1)
-       Parameter (LENIN2=LENIN+2)
-       Parameter (LENIN3=LENIN+3)
-       Parameter (LENIN4=LENIN+4)
-       Parameter (LENIN5=LENIN+5)
-       Parameter (LENIN6=LENIN+6)
-       Parameter (LENIN8=LENIN+8)
+       Integer, Parameter :: LENIN1=LENIN+1
+       Integer, Parameter :: LENIN2=LENIN+2
+       Integer, Parameter :: LENIN3=LENIN+3
+       Integer, Parameter :: LENIN4=LENIN+4
+       Integer, Parameter :: LENIN5=LENIN+5
+       Integer, Parameter :: LENIN6=LENIN+6
+       Integer, Parameter :: LENIN8=LENIN+8

@@ -79,7 +79,6 @@
       Call Put_iArray('nExp',nExp,Mx_Shll)
       Call Put_iArray('nBasis',nBasis,Mx_Shll)
       Call Put_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
-      Call Put_iArray('ipExp',ipExp,Mx_Shll)
       Call Put_iArray('IndS',IndS,nShlls)
       Call Put_iArray('nOpt',nOpt,nCnttp)
       Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)

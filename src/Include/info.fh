@@ -38,8 +38,6 @@
 * -> Integer   <-                                                      *
 *     nExp  : number of exponents of the i''th shell                   *
 *     nBasis: number of contracted functions of the i''th shell        *
-*     ipCff : pointer to the contraction coefficients of the ith shell *
-*     ipExp : pointer to the exponents of the i''th shell              *
 *     ipVal: the index of the first valence shell of the ith basis set *
 *     ipPrj: the index of the first projection shell of the ith basis  *
 *            set                                                       *
@@ -220,16 +218,18 @@
 *     SW_FileOrb: orbital file for Seward to read                      *
 *                                                                      *
 ************************************************************************
-**
-*
+*                                                                      *
 #include "Molcas.fh"
-      Integer Mxdbsc,MxShll,Mxdc,MxAng,MxUnq,MxAO,MxFnc
-      Parameter ( Mxdbsc=MxAtom, MxShll=iTabMx*MxAtom, Mxdc=MxAtom,
-     &            MxAng=iTabMx,  MxUnq=MaxBfn+MaxBfn_Aux,
-     &            MxAO=MaxBfn+MaxBfn_Aux,
-     &            MxFnc=(MxAng+1)*(MxAng+2)*(MxAng+3)/6)
-      Integer Point_Charge, Gaussian_type, mGaussian_Type
-      Parameter (Point_Charge=0, Gaussian_Type=1, mGaussian_Type=2)
+*
+      Integer, Parameter :: Mxdc=MxAtom
+      Integer, Parameter :: MxAng=iTabMx
+      Integer, Parameter :: MxUnq=MaxBfn+MaxBfn_Aux
+      Integer, Parameter :: MxAO=MaxBfn+MaxBfn_Aux
+      Integer, Parameter :: MxFnc=(MxAng+1)*(MxAng+2)*(MxAng+3)/6
+*
+      Integer, Parameter :: Point_Charge  = 0
+      Integer, Parameter :: Gaussian_type = 1
+      Integer, Parameter :: mGaussian_Type= 2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -238,14 +238,12 @@
 ************************************************************************
 *                                                                      *
       Integer          iCnttp_Dummy,iLbls,      IntTot,
-     &          iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
+     &          iShll_RF,iSigma,ixStrt,ixEnd,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
      &          Ind_Shell(MxShll), Parent_iCnttp(Mxdbsc)
-      Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
-     &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
-     &          ipExp(MxShll),
+      Integer   nExp(MxShll),    nBasis(MxShll),
      &          ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc), nBasis_Cntrct(MxShll),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
@@ -270,8 +268,7 @@
      &          nPAMFI, nPSOI, IsChi
 *
       Common /Info/
-     &              nExp,    nBasis, nBasis_Cntrct, ipCff,
-     &              ipCff_Cntrct, ipCff_Prim, ipExp,
+     &              nExp,    nBasis, nBasis_Cntrct,
      &              IndS, ipAkl, ipBk, nOpt, iCoSet,
      &              iAOtSO, iSOInf, IrrCmp, ipFockOp, ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
@@ -284,7 +281,7 @@
      &              nMltpl,  IsChi,                   iLbls,
      &              nShlls,          iPack, Parent_iCnttp,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
-     &              lwIntL,  NotZer, LctInf, iRelae_info,
+     &              lwIntL,  NotZer, iRelae_info,
      &              jMax,
      &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,

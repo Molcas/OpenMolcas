@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,
-     &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
+     &                 nExp,nBasis,nBasis_Cntrct,MxShll_,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
      &                 CrRep,nProj,nAIMP,iOpt,
@@ -61,9 +61,9 @@
       Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
-      Integer nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
+      Integer nExp(MxShll_), nBasis(MxShll_), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
-     &        nBasis_Cntrct(MxShll)
+     &        nBasis_Cntrct(MxShll_)
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir

@@ -69,7 +69,7 @@
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      Integer iix(2), nChoV(8), GB
+      Integer iix(2), nChoV(8)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
 C-SVC: identify runfile with a fingerprint
@@ -162,7 +162,9 @@ C-SVC: identify runfile with a fingerprint
 ************************************************************************
 *                                                                      *
       Else
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        GS_Mode
 *                                                                      *
 ************************************************************************
@@ -171,21 +173,6 @@ C-SVC: identify runfile with a fingerprint
 *
          Call Seward_Init()
          Call Funi_Init()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Call GetMem to get pointer to first available core allocation.
-*
-         kB=2**10
-         MB=kb*kB
-         GB=kb*MB/8 ! adjust to real*8
-         Call GetMem('Info','Max','Real',iDum,MaxM)
-         nDInf=Max(MaxM/4,Min((9*MaxM)/10,GB))
-         Call GetMem('Info','ALLO','REAL',Info,nDInf)
-         Call FZero(Work(Info),nDInf)
-         Info_Status=Active
-         LctInf = Info
-         nInfo = 0
 *
       End If ! Run_Mode.eq.S_Mode
 
@@ -210,7 +197,6 @@ C-SVC: identify runfile with a fingerprint
 *     Read the input from input file
 *
       Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
-#include "release_core.fh"
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
 *
