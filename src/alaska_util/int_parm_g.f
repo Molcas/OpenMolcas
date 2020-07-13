@@ -11,7 +11,7 @@
       Subroutine Int_Parm_g(iSD4,nSD,iAnga,
      &                    iCmpa,iShlla,iShela,
      &                    iPrimi,jPrimj,kPrimk,lPriml,
-     &                    nExp,ipExp,MxShll,
+     &                    nExp,MxShll,
      &                    indij,k2ij,nDCRR,k2kl,nDCRS,
      &                    mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                    nZeta,nEta,ipZeta,ipZI,ipP,
@@ -21,7 +21,7 @@
       use k2_setup
       Implicit Real*8 (a-h,o-z)
       Integer iAnga(4), iCmpa(4), iShlla(4), iShela(4),
-     &        iSD4(0:nSD,4), nExp(MxShll), ipExp(MxShll)
+     &        iSD4(0:nSD,4), nExp(MxShll)
       Logical AeqB, CeqD, l2DI
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -95,7 +95,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(ipExp)
          Call Unused_integer(indij)
       End If
       End

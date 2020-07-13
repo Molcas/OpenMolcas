@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Output1_Seward(lOPTO,Info)
+      SubRoutine Output1_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to write the output of seward            .               *
@@ -546,5 +546,4 @@
 *                                                                      *
       Call QExit('Output1_Seward')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

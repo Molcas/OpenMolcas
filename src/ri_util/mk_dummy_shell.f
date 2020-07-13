@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_Dummy_Shell(Info,nInfo)
+      Subroutine Mk_Dummy_Shell()
 ************************************************************************
 *                                                                      *
 *     Add the final DUMMY SHELL!                                       *
@@ -80,7 +80,6 @@
       Shells(iShll)%Cff_c(1,1,1)=One
       Shells(iShll)%Cff_c(1,1,2)=One
       Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-      If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
       Transf(iShll)=.False.
       Prjct(iShll)=.False.
@@ -99,11 +98,6 @@
       dbsc(nCnttp)%Coor(1:3,1:1)=Zero
       dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt
-*
-*     Compute the number of elements stored in the dynamic memory so
-*     far.
-*
-      nInfo = ipExp(iShll+1) - 1
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine StdSewInput(Info,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
+      Subroutine StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
      &                       STDINP,lSTDINP,iErr)
 ************************************************************************
 * This is a simplified copy of the BASI section of RdCtl_Seward that   *
@@ -80,7 +80,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       imix=0
       itype=0
 *
-      ipExp(1) = Info
       BasisTypes(:)=0
 *                                                                      *
 ****** BASI ************************************************************
@@ -148,7 +147,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
+      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
@@ -274,12 +273,6 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor(1,1),1)
          mdc = mdc + nCnt
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-         nInfo = ipExp(iShll+1) - Info
-* the next line seems to convince IBM XLF 6.1 to forgo its otherwise
-* crass behaviour. Who can tell why? Peter Knowles, 7/99
-         ninfo_stupid = nInfo
          Go To 900
       End If
 *

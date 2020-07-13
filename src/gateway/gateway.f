@@ -123,7 +123,7 @@ C-SVC: identify runfile with a fingerprint
 *     Read the input.
 *
       lOPTO = .False.
-      Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl)
+      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
 #include "release_core.fh"
 *                                                                      *
 ************************************************************************
@@ -153,7 +153,7 @@ C-SVC: identify runfile with a fingerprint
       Primitive_Pass=.False.
       Call Flip_Flop(Primitive_Pass)
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,Info)
+      Call SOCtl_Seward(Mamn,nMamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *

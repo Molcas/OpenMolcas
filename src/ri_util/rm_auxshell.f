@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine rm_AuxShell(Info,nInfo,iCnttp)
+      Subroutine rm_AuxShell(iCnttp)
 ************************************************************************
 *                                                                      *
 *     Remove an auxiliary basis set by making it empty.                *
@@ -35,9 +35,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(Info)
-         Call Unused_integer(nInfo)
-      End If
       End

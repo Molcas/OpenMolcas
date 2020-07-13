@@ -11,7 +11,7 @@
 * Copyright (C) Ben Swerts                                             *
 *               2020, Roland Lindh                                    *
 ************************************************************************
-      Subroutine FragExpand(nInfo,LuRd)
+      Subroutine FragExpand(LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the fragments and append them   *
@@ -31,14 +31,14 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-      integer     nInfo, storageSize, LineWords
+      integer     storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
       Real*8      eqBasis(LineWords)
       Integer     BasisTypes(4), nDel(MxAng),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            idummy, ii, Indx, iOptn, iSh, iShll, jShll,
      &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, nAIMP, ndc,
-     &            ninfo_stupid, nVal, nPrj, nSRO, nSOC, nPP, nProj,
+     &            nVal, nPrj, nSRO, nSOC, nPP, nProj,
      &            StayAlone,
      &            ipVal_, ipPrj_, ipSRO_, ipSOC_, ipPP_
       Real*8      x1, y1, z1
@@ -77,7 +77,6 @@
       lSTDINP=0
 #ifdef _DEBUG_
       write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
-      write(6,*) 'ipExp(iShll+1) = ',ipExp(iShll+1)
 #endif
 *
       mCnttp = nCnttp
@@ -157,7 +156,7 @@ c           write(*,*) 'Fname = ',Fname
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
             mdciCnttp(nCnttp)=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,nExp,
+            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,nExp,
      &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
@@ -255,8 +254,6 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * size of dbsc()%FragCoor is 0 and nothing else.
             dbsc(mdc)%nFragCoor = -ndc
 *
-            nInfo = ipExp(iShll+1) - 1
-            ninfo_stupid = nInfo
             If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
      &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
           End Do

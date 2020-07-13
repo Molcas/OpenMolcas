@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Input_Seward(lOPTO,Info)
+      SubRoutine Input_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to read the input to the integral package.               *
@@ -101,14 +101,14 @@
 *                                                                      *
 *     Start of output, collect all output to this routine!
 *
-      If (Show) Call Output1_Seward(lOPTO,Info)
+      If (Show) Call Output1_Seward(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Generate the SO or AO basis set
 *
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,Info)
+      Call SOCtl_Seward(Mamn,nMamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *

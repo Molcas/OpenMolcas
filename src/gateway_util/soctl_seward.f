@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SOCtl_Seward(Mamn,nMamn,Info)
+      Subroutine SOCtl_Seward(Mamn,nMamn)
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
@@ -990,5 +990,4 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
       Call qExit ('SOCtl')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

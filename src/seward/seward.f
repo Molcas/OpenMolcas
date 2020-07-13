@@ -209,7 +209,7 @@ C-SVC: identify runfile with a fingerprint
       Call SpoolInp(LuSpool)
 *     Read the input from input file
 *
-      Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl)
+      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
 #include "release_core.fh"
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
@@ -224,7 +224,7 @@ C-SVC: identify runfile with a fingerprint
 *
 *     Process the input.
 *
-      Call Input_Seward(lOPTO,Info)
+      Call Input_Seward(lOPTO)
 *
       If (Primitive_Pass) Then
          PrPrt_Save = PrPrt

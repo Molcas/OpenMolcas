@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
-      Subroutine Mk_RI_Shells(Info,nInfo,LuRd)
+      Subroutine Mk_RI_Shells(LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the auxiliary functions         *
@@ -163,7 +163,7 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
+         Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,
      &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
@@ -233,9 +233,6 @@ C        Fixed(nCnttp)=.False.
          Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-         nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
          Max_Shells=Mx_Shll
          Mx_mdc=mdc
@@ -357,7 +354,6 @@ C        Fixed(nCnttp)=.False.
 *
 *              Read Gaussian exponents
 *
-               iStrt=ipExp(iShll)
                Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
                Shells(iShll)%nExp=nPrim
                nExp(iShll) = nPrim
@@ -451,7 +447,6 @@ C        Fixed(nCnttp)=.False.
 
                nBasis(iShll)=nBasis_Cntrct(iShll)
                AuxShell(iShll)=.True.
-               ipExp(iShll+1)=iEnd+1
 *
             End Do ! iAng
 *
@@ -493,9 +488,6 @@ C        Fixed(nCnttp)=.False.
             Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
             dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *
-*           Compute the number of elements stored in the dynamic memory
-*           so far.
-            nInfo = ipExp(iShll+1) - 1
             Mx_Shll=iShll+1
             Max_Shells=Mx_Shll
             Mx_mdc=mdc
@@ -513,7 +505,7 @@ C        Fixed(nCnttp)=.False.
 *     Add the final DUMMY SHELL!
 *
  1100 Continue
-      Call Mk_Dummy_Shell(Info,nInfo)
+      Call Mk_Dummy_Shell()
       Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************

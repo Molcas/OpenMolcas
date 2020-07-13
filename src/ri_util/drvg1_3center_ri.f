@@ -761,7 +761,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 nExp,ipExp,MxShll,
+     &                 nExp,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,

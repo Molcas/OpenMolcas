@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl)
+      Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
       use Basis_Info
       use Her_RW
       use Period
@@ -284,7 +284,6 @@
             Oper(i)=' '
          End Do
          nOper=0
-         ipExp(1) = 1
          CLightAU = CONST_C_IN_AU_
       End If
 *
@@ -867,7 +866,7 @@ c     Call Quit_OnUserError()
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       Go To 998
@@ -889,7 +888,7 @@ c     Call Quit_OnUserError()
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       XYZdirect=.true.
@@ -1175,7 +1174,7 @@ c Simplistic validity check for value
       AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
+      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,
      &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
@@ -1446,9 +1445,6 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          Call mma_Allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
 !
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-         nInfo = ipExp(iShll+1) - 1
          Go To 998
       End If
 *
@@ -4313,7 +4309,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      If (lFAIEMP.and.Run_Mode.ne.S_Mode) Call FragExpand(nInfo,LuRd)
+      If (lFAIEMP.and.Run_Mode.ne.S_Mode) Call FragExpand(LuRd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4324,13 +4320,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo)
+            Call Mk_RICD_Shells()
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd)
+            Call Mk_RI_Shells(LuRd)
 *
          End If
       End If

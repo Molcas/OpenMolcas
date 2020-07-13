@@ -11,7 +11,7 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,ipExp,
+      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,
      &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
@@ -61,8 +61,7 @@
       Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
-      Integer ipExp(MxShll),
-     &        nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
+      Integer nExp(MxShll), nBasis(MxShll), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll)
       Integer BasisTypes(4)
@@ -85,10 +84,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,
+         SubRoutine GetECP(lUnit,nExp,nBasis,MxShll,iShll,
      &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,nCnttp)
          Integer lUnit
-         Integer ipExp(MxShll), nExp(MxShll), nBasis(MxShll)
+         Integer nExp(MxShll), nBasis(MxShll)
          Integer MxShll,iShll
          Character*(*) BLine
          Real*8  CrRep
@@ -281,7 +280,6 @@
       End If
 *     Loop over each shell type (s,p,d,etc....)
       iValSh=iShll
-      iStrt1=ipExp(iShll+1)
       nVal=lAng+1
       mVal=0
       ipVal_=iShll+1
@@ -322,10 +320,8 @@
          EndIf                                          ! CGGn
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
-         iStrt=ipExp(iShll)
          nExp(iShll) = nPrim
          nBasis_Cntrct(iShll) = nCntrc
-         iEnd = iStrt - 1
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
 *        Read gaussian exponents
@@ -341,7 +337,6 @@
          End If
          If (iPrint.ge.99)
      &      Call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
-         iStrt = iEnd + 1
 *
 *        Storage of coefficients for both contracted and uncontracted case.
 *
@@ -353,9 +348,6 @@
          Shells(iShll)%nBasis=nCntrc
          Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                     Label='Cff_p')
-         iEnds= iEnd
-         iEndc = iStrt - 1
-         iEnd  = iStrt - 1
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and
 *        nCntrc columns
@@ -577,7 +569,6 @@
 *                                                                      *
 *
  778     Continue
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
  10   Continue
       If (mVal.eq.0) nVal=0
 ***************************************************************************
@@ -644,7 +635,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
-         Call GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,Bline,
+         Call GetECP(lUnit,nExp,nBasis,MxShll,iShll,Bline,
      &               CrRep,nProj,ipPP_,nPP,UnNorm,nCnttp)
          nPrj=nProj+1
 *
@@ -706,7 +697,6 @@
          jValSh=iValSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
@@ -719,8 +709,6 @@
             Shells(iShll)%nExp = Shells(jValSh)%nExp
             nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
-            iEnd = iStrt - 1
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
 *
@@ -738,7 +726,6 @@
          jPrSh = iPrSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
@@ -751,8 +738,6 @@
             Shells(iShll)%nExp=Shells(jPrSh)%nExp
             nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
-            iEnd = iStrt - 1
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
 *
@@ -771,7 +756,6 @@
          ipSRO_=iShll+1
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
@@ -779,12 +763,10 @@
             End If
             Line = Get_Ln(lUnit)
             Call Get_i1(1,nPrim)
-            iStrt = ipExp(iShll)
             Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
             Shells(iShll)%nExp=nPrim
             nExp(iShll) = nPrim
             nBasis(iShll) = 0
-            iEnd = iStrt - 1
 *
             If (nPrim.gt.0) then
                Call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
@@ -794,10 +776,7 @@
                   Call Quit_OnUserError()
                End If
             End If
-            iStrt = iEnd + 1
-            iEnd = iStrt
 *
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
 *---------- Mixed basis set (valence + core), with dominance of the
@@ -837,7 +816,6 @@
             jValSh = jValSh + 1
             nCntrc   = nBasis(jValSh)
 *
-            iStrt = ipExp(iShll)
 *
             If (iAIMP.le.nProj) Then
                jPrSh = jPrSh + 1
@@ -866,13 +844,8 @@
 *
             End If
 *
-            iEnd = iStrt - 1
             nBasis(iShll) = 0
 *
-            iStrt = iEnd + 1
-            iEnd = iStrt
-*
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
 *
@@ -907,19 +880,16 @@
          nDel(iAng)=mDel
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
-         iStrt = ipExp(iShll)
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
          nExp(iShll) = nPrim
          nBasis(iShll) = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'
-         iEnd = iStrt + nPrim - 1
          If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
      &                               ierr)
          If (IfTest)
      &      Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
-         iStrt = iEnd + 1
          Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
      &                     Label='Cff_c')
          Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
@@ -928,7 +898,6 @@
          Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                     Label='Cff_p')
          Shells(iShll)%Cff_p(:,:,:)=Zero
-         iEnd = iStrt - 1
          If (IfTest) Write (6,'(A)') ' Reading coefficients'
          Do 20 iPrim = 1, nPrim
             Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
@@ -942,8 +911,6 @@
          If (IfTest)
      &      Call RecPrt('Coefficients',' ',Shells(iShll)%Cff_c(1,1,1),
      &                  nPrim,nCntrc)
-         iStrt = iEnd + 1
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
  12   Continue
  990     Continue

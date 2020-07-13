@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2007,2008, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_RICD_Shells(Info,nInfo)
+      Subroutine Mk_RICD_Shells()
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -79,14 +79,13 @@ C      iPrint=99
       Call SetUp_RW(DoRys,nDiff)
 *
       iShll=Mx_Shll - 1
-      iStrt=ipExp(iShll)
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Add the DUMMY SHELL!
 *
-      Call Mk_Dummy_Shell(Info,nInfo)
+      Call Mk_Dummy_Shell()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -133,7 +132,7 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -141,12 +140,12 @@ C      iPrint=99
 *
             Thrshld_CD = Thrshld_CD_Save
             Skip_High_AC = Save_Logical
-            Call Mk_nacCD_Shells(Info,nInfo,kCnttp,lCnttp)
+            Call Mk_nacCD_Shells(kCnttp,lCnttp)
 *
 *           Remove the temporary aCD auxiliary basis set
 *
             Do jCnttp = kCnttp+1, lCnttp
-               Call rm_AuxShell(Info,nInfo,jCnttp)
+               Call rm_AuxShell(jCnttp)
             End Do
 *                                                                      *
 ************************************************************************
@@ -158,7 +157,7 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
 *
          End If
 *                                                                      *

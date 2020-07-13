@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+      Subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -541,10 +541,7 @@ C                    iPrint=99
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*
 *                 Now mimic the procedure of GetBS!
-*
-                  iStrt=ipExp(iShll)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1362,7 +1359,6 @@ C                          Thrs= 1.0D-12
 #endif
                   End If
 *
-                  If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
                   nBasis(iShll)=nBasis_Cntrct(iShll)
                   If (jAng.eq.0) Then
@@ -1412,7 +1408,6 @@ C                          Thrs= 1.0D-12
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.
-               nInfo = ipExp(iShll+1) - Info
                Mx_Shll=iShll+1
                Max_Shells=Mx_Shll
                Mx_mdc=mdc

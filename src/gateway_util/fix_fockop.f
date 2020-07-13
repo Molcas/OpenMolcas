@@ -163,7 +163,6 @@
 *              Compute the kinetic integrals
 *
                nOrdOp=2
-               ip = ipExp(iShll+1)
                nSAA=nCntrc_a**2 * naa
 *
                Call KnEMmP(nHer,MmKnEP,iAng,iAng,nOrdOp)
@@ -474,7 +473,7 @@
          iShll = Mx_Shll-1
          jShll = iShll
          SODK(nCnttp)=.False.
-         Call GetBS(Fname,Bsl_,Indx-1,lAng,ipExp,nExp,
+         Call GetBS(Fname,Bsl_,Indx-1,lAng,nExp,
      &              nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
@@ -657,10 +656,6 @@
             nScr2 = Max(nCntrc_a,nCntrc_r)**2*naa
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ip = ipExp(iShll+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

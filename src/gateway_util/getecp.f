@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,ipExp,nExp,nBasis,MxShll,iShll,
+      SubRoutine GetECP(lUnit,nExp,nBasis,MxShll,iShll,
      &                  BLine,CrRep,nProj,
      &                  ipPP,nPP,UnNorm,nCnttp)
 ************************************************************************
@@ -40,8 +40,7 @@
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer ipExp(MxShll),
-     &        nExp(MxShll), nBasis(MxShll),
+      Integer nExp(MxShll), nBasis(MxShll),
      &        mPP(2)
       Logical UnNorm
       Integer nCnttp
@@ -333,8 +332,6 @@ C        Write (6,*) 'Done'
             End If
          End If
          Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-*
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll)
 *
  10   Continue
  999  Continue
