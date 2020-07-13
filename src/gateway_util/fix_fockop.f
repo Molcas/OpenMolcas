@@ -47,6 +47,8 @@
       Real*8, Allocatable :: Hm1(:,:), Ovr(:,:)
       Real*8, Allocatable :: S_AA(:), S_AR(:), E_R(:)
       Real*8, Allocatable :: Tmp1(:), Tmp2(:), Tmp3(:)
+      Real*8, Allocatable :: KnE(:), NAE(:), Ovrlp(:)
+      Real*8, Allocatable :: SAA(:), SAR(:)
       Character*13 DefNm
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
@@ -163,9 +165,11 @@
 *
                nOrdOp=2
                ip = ipExp(iShll+1)
+               nSAA=nCntrc_a**2 * naa
+               Call mma_Allocate(KnE,NSAA,Label='KnE')
                Call One_Int(KnEPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipKnE,nSAA,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -173,11 +177,11 @@
 *define _DEBUG_
 #ifdef _DEBUG_
                Call DScal_(nCntrc_a**2*iCmp_a**2,
-     &                     xFactor,DInf(ipKnE),1)
+     &                     xFactor,KnE,1)
                Call RecPrt('Kinetric Energy Integrals',' ',
-     &                     DInf(ipKnE),nCntrc_a**2,iCmp_a**2)
+     &                     KnE,nCntrc_a**2,iCmp_a**2)
                Call DScal_(nCntrc_a**2*iCmp_a**2,
-     &                     1.0D0/xFactor,DInf(ipKnE),1)
+     &                     1.0D0/xFactor,KnE,1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -186,16 +190,18 @@
 *
                nOrdOp=0
                A(4) = DBLE(iCnttp) ! Dirty tweak
+               nSBB=nCntrc_a**2 * naa
+               Call mma_Allocate(NAE,nSBB,Label='NAE')
                Call One_Int(NAPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipNAE,nSBB,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Nuclear-attraction Integrals',' ',
-     &                     DInf(ipNAE),nCntrc_a**2,iCmp_a**2)
+     &                     NAE,nCntrc_a**2,iCmp_a**2)
 #endif
 *                                                                      *
 ************************************************************************
@@ -204,13 +210,14 @@
 *
                Call DaXpY_(nCntrc_a**2*iCmp_a**2,
      &                     xFactor,
-     &                     DInf(ipKnE),1,
-     &                     DInf(ipNAE),1)
+     &                     KnE,1,
+     &                     NAE,1)
+               Call mma_deallocate(KnE)
 *
 *              Change to proper order (nCntrc_a * iCmp_a)
 *
                Call mma_allocate(Hm1,nCntrc_a**2,iCmp_a**2,Label='Hm1')
-               Call Reorder_GW(DInf(ipNAE),Hm1,
+               Call Reorder_GW(NAE,Hm1,
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -218,24 +225,27 @@
 *              Compute the overlap integrals
 *
                nOrdOp=0
+               nSCC=nCntrc_a**2 * naa
+               Call mma_allocate(Ovrlp,nSCC,Label='Ovrlp')
                Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipOvr,nSCC,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,Ovrlp,nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
 #ifdef _DEBUG_
                Call RecPrt('Overlap Integrals',' ',
-     &                     DInf(ipOvr),nCntrc_a**2,iCmp_a**2)
+     &                     Ovrlp,nCntrc_a**2,iCmp_a**2)
 #endif
 *
 *              Change to proper order (nCntrc_a * iCmp_a)
 *
                nBF = nCntrc_a*iCmp_a
                Call mma_allocate(Ovr,nBF,nBF,Label='Ovr')
-               Call Reorder_GW(DInf(ipOvr),Ovr,
+               Call Reorder_GW(Ovrlp,Ovr,
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
+               Call mma_deallocate(Ovrlp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -346,7 +356,7 @@
                End Do
                Call mma_deallocate(C)
 *
-               Call Reorder_GW(Hm1,DInf(ipNAE),
+               Call Reorder_GW(Hm1,NAE,
      &                      nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
                Call mma_deallocate(Hm1)
 *
@@ -358,12 +368,13 @@
                      Tmp = Zero
                      Do iC = 1, iCmp_a
                         ijC=(iC-1)*iCmp_a+iC
-                        iFrom = ipNAE-1 + (ijC-1)*nCntrc_a**2+ijB
-                        Tmp = Tmp + DInf(iFrom)
+                        iFrom = (ijC-1)*nCntrc_a**2+ijB
+                        Tmp = Tmp + NAE(iFrom)
                      End Do
                      Shells(iShll_a)%FockOp(iB,jB) = Tmp/DBLE(iCmp_a)
                   End Do
                End Do
+               Call mma_deallocate(NAE)
 #ifdef _DEBUG_
                Call RecPrt('Actual Fock operator',' ',
      &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
@@ -640,9 +651,11 @@
 *           Compute S_AA
 *
             nOrdOp=0
+            nSAA= nCntrc_a**2 * naa
+            Call mma_allocate(SAA,nSAA,Label='SAA')
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,
-     &                   Scr1,nScr1,Scr2,nScr2,naa,ipSAA,nSAA,
+     &                   Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -653,9 +666,11 @@
 *           Compute S_AR
 *
             nOrdOp=0
+            nSAR=nCntrc_a*nCntrc_r * naa
+            Call mma_allocate(SAR,nSAR,Label='SAR')
             Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,
-     &                   Scr1,nScr1,SCr2,nScr2,naa,ipSAR,nSAR,
+     &                   Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_r,nPrim_r,Shells(iShll_r)%Exp,
@@ -669,25 +684,26 @@
 *           Reorder and compute the inverse of SAA
 *
             Call mma_allocate(S_AA,nSAA,Label='S_AA')
-            Call Reorder_GW(DInf(ipSAA),S_AA,
+            Call Reorder_GW(SAA,S_AA,
      &                   nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAA',' ',S_AA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
-            Call MInv(S_AA,DInf(ipSAA),iSing,D,nCntrc_a*iCmp_a)
+            Call MInv(S_AA,SAA,iSing,D,nCntrc_a*iCmp_a)
             Call mma_deallocate(S_AA)
 #ifdef _DEBUG_
             Write (6,*) 'iSing=',iSing
             Write (6,*) 'Det=',D
-            Call RecPrt('Inverse of SAA',' ',DInf(ipSAA),
+            Call RecPrt('Inverse of SAA',' ',SAA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
 *
 *           Reorder SAR
             Call mma_allocate(S_AR,nSAR,Label='S_AR')
-            Call Reorder_GW(DInf(ipSAR),S_AR,
+            Call Reorder_GW(SAR,S_AR,
      &                   nCntrc_a,nCntrc_r,iCmp_a,iCmp_r)
+            Call mma_deallocate(SAR)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAR',' ',S_AR,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
@@ -741,7 +757,7 @@
             Call mma_allocate(Tmp1,nSAR,Label='Tmp1')
             Call DGEMM_('N','N',
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_a*iCmp_a,
-     &                  1.0d0,DInf(ipSAA),nCntrc_a*iCmp_a,
+     &                  1.0d0,SAA,nCntrc_a*iCmp_a,
      &                        S_AR,nCntrc_a*iCmp_a,
      &                  0.0d0,Tmp1,nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
@@ -770,9 +786,9 @@
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,
      &                  1.0d0,Tmp2,nCntrc_a*iCmp_a,
      &                        Tmp1,nCntrc_a*iCmp_a,
-     &                  0.0d0,DInf(ipSAA),nCntrc_a*iCmp_a)
+     &                  0.0d0,SAA,nCntrc_a*iCmp_a)
 #ifdef _DEBUG_
-            Call RecPrt('EA',' ',DInf(ipSAA),
+            Call RecPrt('EA',' ',SAA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
             Call mma_deallocate(Tmp2)
@@ -783,8 +799,9 @@
 *           Now we just need to reorder and put it into place!
 *
             Call mma_allocate(Tmp3,nSAA,Label='Tmp3')
-            Call Reorder_GW(DInf(ipSAA),Tmp3,
+            Call Reorder_GW(SAA,Tmp3,
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
+            Call mma_deallocate(SAA)
 #ifdef _DEBUG_
             Call RecPrt('Reordered EA',' ',Tmp3,
      &                  nCntrc_a*nCntrc_a,iCmp_a*iCmp_a)

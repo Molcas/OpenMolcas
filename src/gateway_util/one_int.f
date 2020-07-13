@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
      &                   iComp,nOrdOp,
-     &                   Scr1,nScr1,Scr2,nScr2,naa,ipSAR,nSAR,
+     &                   Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
      &                   iCmp_a,
      &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,
@@ -27,6 +27,7 @@
 #include "stdalloc.fh"
       External Kernel
       Real*8 DInf(nDInf)
+      Real*8, Intent(Out):: SAR(nSAR)
       Real*8, Intent(In):: A(3)
       Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
       Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
@@ -40,8 +41,8 @@
       Call mma_allocate(PAR,nPrim_a*nPrim_r,3,Label='PAR')
 *
       ipSAR = ip
-      nSAR = nPrim_a*nPrim_r * naa
-      ip = ip + nSAR
+      mSAR = nPrim_a*nPrim_r * naa
+      ip = ip + mSAR
       nInfo = ipExp(jShll+1) - Info
       mArr = nDInf/(nPrim_a*nPrim_r) - nInfo
       If (mArr.lt.1) Then
@@ -94,19 +95,16 @@
      &               Transf(iShll_a),Prjct(iShll_a),
      &               RSph(ipSph(iAng)),iAng,
      &               Transf(iShll_r),Prjct(iShll_r),
-     &               Scr1,iCmp_a*iCmp_r)
-         Call DCopy_(nCntrc_a*nCntrc_r*iCmp_a*iCmp_r,
-     &               Scr1,1,DInf(ipSAR),1)
+     &               SAR,iCmp_a*iCmp_r)
       Else
          Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,
-     &               DInf(ipSAR),nCntrc_a*nCntrc_r)
+     &               SAR,nCntrc_a*nCntrc_r)
       End If
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call RecPrt('S_AR in Sphericals',' ',DInf(ipSAR),
+      Call RecPrt('S_AR in Sphericals',' ',SAR,
      &                  iCmp_a*iCmp_r,nCntrc_a*nCntrc_r)
 #endif
-      nSAR = nCntrc_a*nCntrc_r * naa
 *
       Return
       End
