@@ -41,7 +41,7 @@
       External MltPrm, KnEPrm, NAPrm
       Real*8 DInf(nDInf)
       Real*8, Allocatable :: FockOp_t(:)
-      Real*8, Allocatable :: Scr1(:), Scr2(:)
+      Real*8, Allocatable :: Scr1(:), Scr2(:), Scr3(:)
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
       Real*8, Allocatable :: Hm1(:,:), Ovr(:,:)
@@ -215,8 +215,7 @@
 *              Change to proper order (nCntrc_a * iCmp_a)
 *
                Call mma_allocate(Hm1,nCntrc_a**2,iCmp_a**2,Label='Hm1')
-               Call Reorder_GW(NAE,Hm1,
-     &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
+               Call Reorder_GW(NAE,Hm1,nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -657,12 +656,19 @@
             nOrdOp=0
             nSAA= nCntrc_a**2 * naa
             Call mma_allocate(SAA,nSAA,Label='SAA')
-            Call One_Int(MltPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
+*
+            Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
+            nScr3=nPrim_a**2 * MmMltp
+            Call mma_allocate(Scr3,nScr3,Label='Scr3')
+            jp=1
+*
+            Call One_Int(MltPrm,Scr3,nScr3,A,jp,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+            Call mma_deallocate(Scr3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -671,13 +677,20 @@
             nOrdOp=0
             nSAR=nCntrc_a*nCntrc_r * naa
             Call mma_allocate(SAR,nSAR,Label='SAR')
-            Call One_Int(MltPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
+*
+            Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
+            nScr3=nPrim_a*nPrim_r * MmMltp
+            Call mma_allocate(Scr3,nScr3,Label='Scr3')
+            jp=1
+*
+            Call One_Int(MltPrm,Scr3,nScr3,A,jp,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                   iShll_r,nPrim_r,Shells(iShll_r)%Exp,
      &                   nCntrc_r,Shells(iShll_r)%Cff_c(1,1+nRemove,1),
      &                                                         iCmp_a)
+            Call mma_deallocate(Scr3)
 *
             nSRR = nCntrc_r**2 * naa
 *                                                                      *
