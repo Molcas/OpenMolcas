@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl,DInf,nDInf)
+      Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl)
       use Basis_Info
       use Her_RW
       use Period
@@ -48,7 +48,7 @@
       Common /AMFn/ iAMFn
       Common /delete/ kDel(0:MxAng,MxDc)
 *
-      Real*8 DInf(nDInf), Lambda
+      Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:MxAng)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
@@ -4489,7 +4489,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     been fixed in size.
 *
       If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(LuRd,DInf,nDInf)
+         Call Fix_FockOp(LuRd)
       End If
 *                                                                      *
 ************************************************************************

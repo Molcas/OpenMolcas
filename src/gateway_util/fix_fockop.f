@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2017, Roland Lindh                                     *
+* Copyright (C) 2017,2020, Roland Lindh                                *
 ************************************************************************
-      Subroutine Fix_FockOp(LuRd,DInf,nDInf)
+      Subroutine Fix_FockOp(LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To compute the fock operator for basis sets which do   *
@@ -39,7 +39,6 @@
 #include "status.fh"
 #include "periodic_table.fh"
       External MltPrm, KnEPrm, NAPrm
-      Real*8 DInf(nDInf)
       Real*8, Allocatable :: FockOp_t(:)
       Real*8, Allocatable :: Scr1(:), Scr2(:), Scr3(:)
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
@@ -198,12 +197,19 @@
                A(4) = DBLE(iCnttp) ! Dirty tweak
                nSBB=nCntrc_a**2 * naa
                Call mma_Allocate(NAE,nSBB,Label='NAE')
-               Call One_Int(NAPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
+*
+               Call NAMem(nHer,MemNA ,iAng,iAng,nOrdOp)
+               nScr1=nPrim_a**2 * MemNA
+               Call mma_allocate(Scr1,nScr1,Label='Scr1')
+               jp=1
+*
+               Call One_Int(NAPrm,Scrt1,nScrt1,A,jp,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+               Call mma_deallocate(Scr1)
 #ifdef _DEBUG_
                Call RecPrt('Nuclear-attraction Integrals',' ',
      &                     NAE,nCntrc_a**2,iCmp_a**2)
