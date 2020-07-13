@@ -4489,7 +4489,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     been fixed in size.
 *
       If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(1,nInfo,LuRd,DInf,nDInf)
+         Call Fix_FockOp(LuRd,DInf,nDInf)
       End If
 *                                                                      *
 ************************************************************************

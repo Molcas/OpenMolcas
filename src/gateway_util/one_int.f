@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
+      Subroutine One_Int(Kernel,DInf,nDInf,A,ip,iAng,
      &                   iComp,nOrdOp,
      &                   Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
@@ -34,35 +34,24 @@
       Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
       Real*8 Scr1(nScr1), Scr2(nScr2)
       Real*8, Allocatable:: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
+      Real*8, Allocatable:: pSAR(:)
 *
+      mArr = nDInf/(nPrim_a*nPrim_r)
       Call mma_allocate(ZAR,nPrim_a*nPrim_r,Label='ZAR')
       Call mma_allocate(ZIAR,nPrim_a*nPrim_r,Label='ZIAR')
       Call mma_allocate(KAR,nPrim_a*nPrim_r,Label='KAR')
       Call mma_allocate(PAR,nPrim_a*nPrim_r,3,Label='PAR')
 *
-      ipSAR = ip
       mSAR = nPrim_a*nPrim_r * naa
-      ip = ip + mSAR
-      nInfo = ipExp(jShll+1) - Info
-      mArr = nDInf/(nPrim_a*nPrim_r) - nInfo
-      If (mArr.lt.1) Then
-         Call WarningMessage(2,'One_Int:  mArr < 1 .'
-     &            //'Please, increase MOLCAS_MEM.')
-         Call Abend()
-      EndIf
+      Call mma_allocate(pSAR,mSAR,Label='pSAR')
 *
-      Call ZXia(ZAR,ZIAR,nPrim_a,nPrim_r,
-     &          Exp_a,Exp_r)
-      Call SetUp1(Exp_a,nPrim_a,
-     &            Exp_r,nPrim_r,
-     &            A,A,KAR,PAR,ZIAR)
+      Call ZXia(ZAR,ZIAR,nPrim_a,nPrim_r,Exp_a,Exp_r)
+      Call SetUp1(Exp_a,nPrim_a,Exp_r,nPrim_r,A,A,KAR,PAR,ZIAR)
 *
       nHer = (2*iAng+2+nOrdOp)/2
-      Call Kernel(Exp_a,nPrim_a,
-     &            Exp_r,nPrim_r,
-     &            ZAR,ZIAR,
-     &            KAR,PAR,
-     &            DInf(ipSAR),nPrim_a*nPrim_r,iComp,
+      Call Kernel(Exp_a,nPrim_a,Exp_r,nPrim_r,
+     &            ZAR,ZIAR,KAR,PAR,
+     &            pSAR,nPrim_a*nPrim_r,iComp,
      &            iAng,iAng,A,A,nHer,DInf(ip),mArr,A,nOrdOp)
 *
       Call mma_deallocate(ZAR)
@@ -72,7 +61,7 @@
 *
       Call DGEMM_('T','N',
      &            nPrim_r*naa,nCntrc_a,nPrim_a,
-     &            1.0d0,DInf(ipSAR),nPrim_a,
+     &            1.0d0,pSAR,nPrim_a,
      &                  Cff_a,nPrim_a,
      &            0.0d0,Scr1,nPrim_r*naa)
       Call DGEMM_('T','N',
@@ -90,7 +79,7 @@
       If (Transf(iShll_a).or.Transf(iShll_r)) Then
 *
          Call CarSph(Scr2,naa,nCntrc_a*nCntrc_r,
-     &               DInf(ipSAR),nScr2,
+     &               pSAR,nScr2,
      &               RSph(ipSph(iAng)),iAng,
      &               Transf(iShll_a),Prjct(iShll_a),
      &               RSph(ipSph(iAng)),iAng,
@@ -100,6 +89,7 @@
          Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,
      &               SAR,nCntrc_a*nCntrc_r)
       End If
+      Call mma_deallocate(pSAR)
 *define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('S_AR in Sphericals',' ',SAR,

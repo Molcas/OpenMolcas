@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2017, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Fix_FockOp(Info,nInfo,LuRd,DInf,nDInf)
+      Subroutine Fix_FockOp(LuRd,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To compute the fock operator for basis sets which do   *
@@ -167,8 +167,7 @@
                ip = ipExp(iShll+1)
                nSAA=nCntrc_a**2 * naa
                Call mma_Allocate(KnE,NSAA,Label='KnE')
-               Call One_Int(KnEPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,
+               Call One_Int(KnEPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -192,8 +191,7 @@
                A(4) = DBLE(iCnttp) ! Dirty tweak
                nSBB=nCntrc_a**2 * naa
                Call mma_Allocate(NAE,nSBB,Label='NAE')
-               Call One_Int(NAPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,
+               Call One_Int(NAPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -227,13 +225,19 @@
                nOrdOp=0
                nSCC=nCntrc_a**2 * naa
                Call mma_allocate(Ovrlp,nSCC,Label='Ovrlp')
-               Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
-     &                      iAng,iComp,nOrdOp,
+*
+               Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
+               nScr1=nPrim_a**2 * MmMltp
+               Call mma_allocate(Scr1,nScr1,Label='Scr1')
+               jp=1
+*
+               Call One_Int(MltPrm,Scr1,nScr1,A,jp,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,Ovrlp,nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+               Call mma_deallocate(Scr1)
 #ifdef _DEBUG_
                Call RecPrt('Overlap Integrals',' ',
      &                     Ovrlp,nCntrc_a**2,iCmp_a**2)
@@ -653,8 +657,7 @@
             nOrdOp=0
             nSAA= nCntrc_a**2 * naa
             Call mma_allocate(SAA,nSAA,Label='SAA')
-            Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,
+            Call One_Int(MltPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -668,8 +671,7 @@
             nOrdOp=0
             nSAR=nCntrc_a*nCntrc_r * naa
             Call mma_allocate(SAR,nSAR,Label='SAR')
-            Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,
+            Call One_Int(MltPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
