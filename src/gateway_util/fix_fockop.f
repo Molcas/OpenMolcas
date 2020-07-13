@@ -166,13 +166,20 @@
                nOrdOp=2
                ip = ipExp(iShll+1)
                nSAA=nCntrc_a**2 * naa
+*
+               Call KnEMmP(nHer,MmKnEP,iAng,iAng,nOrdOp)
+               nScr1=nPrim_a**2 * MmKnEP
+               Call mma_allocate(Scr1,nScr1,Label='Scr1')
+               jp=1
+*
                Call mma_Allocate(KnE,NSAA,Label='KnE')
-               Call One_Int(KnEPrm,DInf,nDInf,A,ip,iAng,iComp,nOrdOp,
+               Call One_Int(KnEPrm,Scr1,nScr1,A,jp,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+               Call mma_deallocate(Scr1)
 *define _DEBUG_
 #ifdef _DEBUG_
                Call DScal_(nCntrc_a**2*iCmp_a**2,
