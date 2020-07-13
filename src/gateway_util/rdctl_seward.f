@@ -136,7 +136,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iRout=3
       iPrint = nPrint(iRout)
       Call qEnter('RdCtl')
@@ -360,7 +359,6 @@ cperiod
       Call mma_allocate(STDINP,MxAtom*2,label='STDINP')
 *
       nDone=0
-      Call Gen_RelPointers(Info-1) ! Work  Mode
  998  lTtl = .False.
       If (Basis_Test.and.nDone.eq.1) Then
          nDone=0
@@ -864,7 +862,6 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in Z-Matrix format
 *
 1920  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
@@ -873,24 +870,20 @@ c     Call Quit_OnUserError()
       Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
-      Call Gen_RelPointers(Info-1)   ! Work Mode
       Go To 998
 *                                                                      *
 ****** XBAS ************************************************************
 *                                                                      *
 1924  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
       GWInput=.True.
       isxbas=1
       if(ierr.eq.1) Call Quit_OnUserError()
-      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** XYZ  ************************************************************
 *                                                                      *
 1917  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
@@ -910,7 +903,6 @@ c     Call Quit_OnUserError()
      &                 'GROUP keyword is not compatible with XYZ')
          Call Quit_OnUserError()
       End If
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 
 *                                                                      *
@@ -919,7 +911,6 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in xyz format
 *
 6000  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with COORD')
@@ -946,7 +937,6 @@ c      End If
 #else
       Call Read_XYZ(LuRd,OrigRot,OrigTrans)
 #endif
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** GROUP ***********************************************************
@@ -954,7 +944,6 @@ c      End If
 *     Read information for a group
 *
 6010  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with GROUP')
@@ -986,7 +975,6 @@ c Simplistic validity check for value
       GroupSet=.true.
       GWInput=.True.
       DoneCoord=.True.
-      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** BSSE ************************************************************
@@ -1105,7 +1093,6 @@ c Simplistic validity check for value
       Goto 998
 *
  9201 Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
@@ -1462,7 +1449,6 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *        Compute the number of elements stored in the dynamic memory
 *        so far.
          nInfo = ipExp(iShll+1) - 1
-         Call Gen_RelPointers(Info-1) ! Work Mode
          Go To 998
       End If
 *
@@ -1761,7 +1747,6 @@ c     Go To 998
 *     User specified external field
 *
  975  lXF=.True.
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
@@ -1902,7 +1887,6 @@ c     Go To 998
       If (isXfield.eq.1) Then
          goto 9755
       End If
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -3884,7 +3868,6 @@ c
 *                                                                      *
 *
  997  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
 c     Postprocessing for COORD
 c      ik=index(KeepBasis,'....')
 c      if(ik.ne.0) then
@@ -3938,7 +3921,6 @@ c      endif
 #endif
          LuRd=LuFS
          GWInput=.True.
-         Call Gen_RelPointers(Info-1) !Work Mode
          Go To 998
       Else
          If (DoneCoord) Then

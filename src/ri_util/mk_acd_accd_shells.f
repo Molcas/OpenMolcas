@@ -246,7 +246,6 @@
 *                                                                      *
 *     Generate atomic two-electron integrals to decompose.
 *
-      Call Gen_RelPointers(Info-1) ! Work Mode
       ijS_req=0
       Call Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,iCnttp,iCnttp,
      &                         TInt_c,nTInt_c,
@@ -1514,7 +1513,6 @@ C                          Thrs= 1.0D-12
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_RelPointers(-(Info-1))
       Return
 *
       End

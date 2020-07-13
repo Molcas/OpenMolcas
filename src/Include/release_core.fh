@@ -20,10 +20,8 @@
          Call Allocate_Work(Info_tmp,nInfo)
          Call dCopy_(nInfo,Work(Info),1,Work(Info_tmp),1)
          Call Free_Work(Info)
-         Call Gen_RelPointers(-(LctInf-1))
          Call Allocate_Work(Info,nInfo)
          LctInf=Info
-         Call Gen_RelPointers(LctInf-1)
          Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
          Call Free_Work(Info_tmp)
 *

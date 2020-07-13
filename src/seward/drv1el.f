@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El(Info)
+      SubRoutine Drv1El()
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -1736,10 +1736,8 @@ c           write(6,*) "Charge(iAtm)", iAtm, Charge(iAtm)
            end do
          End do
 
-         Call Gen_RelPointers(-(Info-1))
          Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,
      &                 OperC, iAtmNr2, Charge2)
-         Call Gen_RelPointers(Info-1)
 
          Call Deallocate_Auxiliary()
       End If
@@ -1941,7 +1939,6 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      Call Gen_RelPointers(-(Info-1))
       PLabel=' '
       rHrmt=One
       nComp=1
@@ -1960,7 +1957,6 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *
          Call Deallocate_Auxiliary()
       End If
-      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

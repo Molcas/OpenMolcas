@@ -124,7 +124,6 @@ C-SVC: identify runfile with a fingerprint
 *
       lOPTO = .False.
       Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl)
-      Call Gen_RelPointers(Info-1) ! Work Mode
 #include "release_core.fh"
 *                                                                      *
 ************************************************************************
@@ -137,7 +136,6 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 *     Print out section
 *
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       Call Print_Symmetry()
       Call Flip_Flop(.False.)
       Call Print_Basis(lOPTO)
@@ -183,7 +181,6 @@ C-SVC: identify runfile with a fingerprint
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run()
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Call mma_deallocate(Mamn)
 *
 *     Generate list of unique atoms

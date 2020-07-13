@@ -82,8 +82,6 @@
 *                                                                     *
 ***********************************************************************
 *                                                                     *
-      Call Gen_RelPointers(LctInf-1)
-*
 *     Epilogue, end
 *
 *     Call qExit('GetInf')
