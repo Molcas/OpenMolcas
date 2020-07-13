@@ -2359,7 +2359,7 @@ C printing threshold
              END IF
             END IF
 *
-            IF (ABS(R).LT.RSTHR) THEN
+            IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
 !
@@ -2737,7 +2737,7 @@ C printing threshold
              END IF
             END IF
 *
-            IF (ABS(R).LT.RSTHR) THEN
+            IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
 !
