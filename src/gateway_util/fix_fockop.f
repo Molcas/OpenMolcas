@@ -44,7 +44,7 @@
       Real*8, Allocatable :: Scr1(:), Scr2(:)
       Real*8, Allocatable :: S12i(:,:), EVec(:,:), EVal(:)
       Real*8, Allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
-      Real*8, Allocatable :: Hm1(:,:)
+      Real*8, Allocatable :: Hm1(:,:), Ovr(:,:)
       Real*8, Allocatable :: S_AA(:), S_AR(:), E_R(:)
       Real*8, Allocatable :: Tmp1(:), Tmp2(:), Tmp3(:)
       Character*13 DefNm
@@ -165,8 +165,7 @@
                ip = ipExp(iShll+1)
                Call One_Int(KnEPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipKnE,
-     &                      nSAA,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipKnE,nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -189,8 +188,7 @@
                A(4) = DBLE(iCnttp) ! Dirty tweak
                Call One_Int(NAPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipNAE,
-     &                      nSBB,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipNAE,nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -222,8 +220,7 @@
                nOrdOp=0
                Call One_Int(MltPrm,DInf,nDInf,A,ip,Info,nInfo,jShll,
      &                      iAng,iComp,nOrdOp,
-     &                      Scr1,nScr1,Scr2,nScr2,naa,ipOvr,
-     &                      nSCC,
+     &                      Scr1,nScr1,Scr2,nScr2,naa,ipOvr,nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
@@ -235,9 +232,9 @@
 *
 *              Change to proper order (nCntrc_a * iCmp_a)
 *
-               jpOvr = ip
-               ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder_GW(DInf(ipOvr),DInf(jpOvr),
+               nBF = nCntrc_a*iCmp_a
+               Call mma_allocate(Ovr,nBF,nBF,Label='Ovr')
+               Call Reorder_GW(DInf(ipOvr),Ovr,
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -252,7 +249,6 @@
 *
 *              Solve F' C' = e C' , generate C = S^-(1/2) C'
 *
-               nBF = nCntrc_a*iCmp_a
                Call mma_Allocate(S12i,nBF,nBF,Label='S')
                S12i(:,:)=Zero
 *
@@ -265,11 +261,11 @@
                ForAll (i=1:nBF) EVec(i,i)=One
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
-                     ij    =  (jBF-1)*nBF + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
-                     EVal(ijTri) = DInf(jpOvr-1 + ij)
+                     EVal(ijTri) = Ovr(iBF,jBF)
                   End Do
                End Do
+               Call mma_deallocate(Ovr)
                Call NIDiag_new(EVal,EVec,nBF,nBF,0)
 *
 *              2) Construct S^(1/2) and S^(-1/2)
