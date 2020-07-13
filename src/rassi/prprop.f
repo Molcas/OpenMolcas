@@ -475,7 +475,7 @@ C printing threshold
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,*)  ' Dipole printing threshold changed to ',OSTHR,
+        WRITE(6,*)  ' Printing threshold changed to ',OSTHR,
      &              ' since quadrupole threshold is given '
       END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR

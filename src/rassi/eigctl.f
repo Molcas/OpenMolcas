@@ -637,7 +637,7 @@ C                                                                      C
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-      WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR,
+      WRITE(6,*) ' Printing threshold changed to ',OSTHR,
      &           ' since quadrupole printing threshold is given '
       END IF
       OSTHR2=1.0D-5
