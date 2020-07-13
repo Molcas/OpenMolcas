@@ -102,16 +102,16 @@ C Compute transition strengths for spin-orbit states:
 C printing threshold
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,*)  ' Printing threshold changed to ',OSTHR,
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
      &              ' since quadrupole threshold is given '
       END IF
 ! Rotatory strength threshold
       IF(RSPR) THEN
-        WRITE(6,*) 'Rotatory strength printing threshold changed'//
+        WRITE(6,30) 'Rotatory strength printing threshold changed'//
      &             'to ',RSTHR
       ELSE
         RSTHR = 1.0D-05 !Default
@@ -1065,6 +1065,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 45    FORMAT (4X,2(A,1X,ES15.8,1X))
 46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
 47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
 *
 ************************************************************************
