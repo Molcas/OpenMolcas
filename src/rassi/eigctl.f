@@ -2945,14 +2945,10 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Regular print
 *
-                !Don't print osc. str. if below threshold
                 IF(F_CHECK.LT.OSTHR) THEN
                   WRITE(6,46) I,J,'below threshold',R,A
-                ELSE
-                  WRITE(6,33) I,J,F,R,A
-                END IF
                 !Don't print rot. str. if below threshold
-                IF(R_CHECK.LT.RSTHR) THEN
+                ELSE IF(R_CHECK.LT.RSTHR) THEN
                   WRITE(6,47) I,J,F,'below threshold',A
                 ELSE
                   WRITE(6,33) I,J,F,R,A
