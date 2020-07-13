@@ -66,7 +66,8 @@ c  We are doing "Augmented" calc:
         fac=one/dx(1)
 c  Scale variables according to overlap with CVB :
         do 50 i=1,nparm1-1
-50      dx(i)=fac*dx(i+1)
+        dx(i)=fac*dx(i+1)
+50      continue
       endif
 
 100   dxnrm=dnrm2_(nparm1,dx,1)

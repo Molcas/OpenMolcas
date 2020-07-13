@@ -22,7 +22,8 @@
       endif
       itchord=iorder(itouch)
       do 100 i=1,n
-100   if(iorder(i).lt.itchord.and.iorder(i).ne.0)iorder(i)=iorder(i)+1
+      if(iorder(i).lt.itchord.and.iorder(i).ne.0)iorder(i)=iorder(i)+1
+100   continue
       iorder(itouch)=1
       if(debug)write(6,*)' iorder on exit  :',iorder
       return

@@ -25,40 +25,50 @@
       if(mult.eq.-1)then
         idetvb=0
         do 50 ia=1,nda
-        do 50 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 51 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-50      csk(idetvb)=cfrom(ia,ib)
+        csk(idetvb)=cfrom(ia,ib)
+51      continue
+50      continue
       elseif(mult.eq.0)then
         call fzero(cto,nda*ndb)
         idetvb=0
         do 100 ia=1,nda
-        do 100 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 101 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
         cto(ia,ib)=cfrom(ia,ib)
-100     csk(idetvb)=cfrom(ia,ib)
+        csk(idetvb)=cfrom(ia,ib)
+101     continue
+100     continue
       elseif(mult.eq.1)then
         csk(1)=zero
         do 200 ia=1,nda
-        do 200 ixa=ixapr(ia),ixapr(ia+1)-1
-200     csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
+        do 201 ixa=ixapr(ia),ixapr(ia+1)-1
+        csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
+201     continue
+200     continue
       elseif(mult.eq.2)then
         call fzero(cto,nda*ndb)
         idetvb=0
         do 300 ia=1,nda
-        do 300 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 301 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-300     cto(ia,ib)=csk(idetvb)
+        cto(ia,ib)=csk(idetvb)
+301     continue
+300     continue
       elseif(mult.eq.3)then
         csk(1)=zero
         idetvb=0
         do 400 ia=1,nda
-        do 400 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 401 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
 c CFROM is really CDETVB
-400     csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(idetvb,1)
+        csk(1)=csk(1)+cto(ia,iapr(ixa))*cfrom(idetvb,1)
+401     continue
+400     continue
       endif
       return
       end

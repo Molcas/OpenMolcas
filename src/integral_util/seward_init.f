@@ -64,16 +64,20 @@ c     data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
 c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Seward_Status=InActive
       do 10 j=0,4
-      do 10 i=1,3
-10    iPhase(i,j)=1
+      do 11 i=1,3
+      iPhase(i,j)=1
+11    continue
+10    continue
       iPhase(1,1)=-1
       iPhase(2,2)=-1
       iPhase(1,3)=-1
       iPhase(2,3)=-1
       iPhase(3,4)=-1
       do 20 j=5,7
-      do 20 i=1,3
-20    iPhase(i,j)=-1
+      do 21 i=1,3
+      iPhase(i,j)=-1
+21    continue
+20    continue
       iPhase(2,5)=1
       iPhase(1,6)=1
 *
@@ -95,20 +99,28 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       KVector(2)=Zero
       KVector(3)=Zero
       do 30 i=1,Mxdbsc
-30    lOffAO(i)=0
+      lOffAO(i)=0
+30    continue
       do 40 i=1,Mxdbsc
-      do 40 j=0,MxAng
-40    kOffAO(i,j)=0
+      do 41 j=0,MxAng
+      kOffAO(i,j)=0
+41    continue
+40    continue
       do 50 i=1,MxAO
-      do 50 j=0,7
-50    iAOtSO(i,j)=-999999999
+      do 51 j=0,7
+      iAOtSO(i,j)=-999999999
+51    continue
+50    continue
       do 60 i=0,MxAng
       MaxBas(i)=0
-60    MaxPrm(i)=0
+      MaxPrm(i)=0
+60    continue
       do 70 i=1,MxUnq
-70    IrrCmp(i)=0
+      IrrCmp(i)=0
+70    continue
       do 80 i=-20,9
-80    NrInt(i)=0
+      NrInt(i)=0
+80    continue
       nOrdEF=-1
       nDMS=0
       nRP=0

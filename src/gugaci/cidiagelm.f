@@ -1292,7 +1292,7 @@ c       jps=js(1)
                                              ! 520
       do 400 lr0=norb_frz+1,norb_dz-1
         mr0=mul_tab(lsm_inn(lr0),ns_sm)
-        do 400 lr=lr0+1,norb_dz
+        do 401 lr=lr0+1,norb_dz
          mr=mul_tab(mr0,lsm_inn(lr))
          jpat=9+mr
          jpas=17+mr
@@ -1385,7 +1385,8 @@ c       jps=js(1)
                enddo
            endif
             enddo
-400     continue
+401     continue
+400   continue
 c ------------- end of delm --------------
       return
       end

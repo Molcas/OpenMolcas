@@ -47,20 +47,22 @@ c  Evaluate "cheap" orbital <-> orbital part of hessian :
         call mxinv_cvb(orbinv,norb)
 
         do 100 jorb=1,norb
-        do 100 iorb=1,norb
+        do 101 iorb=1,norb
         iprm=iorb+(jorb-1)*norb
         call mxatb_cvb(orbinv,hesst(1,iprm),norb,norb,norb,owrk)
-100     call mxatb_cvb(owrk,sorbs,norb,norb,norb,hesst(1,iprm))
+        call mxatb_cvb(owrk,sorbs,norb,norb,norb,hesst(1,iprm))
+101     continue
+100     continue
         iprm1=0
         do 200 iorb=1,norb
-        do 200 jorb=1,norb
-        if(jorb.eq.iorb)goto 200
+        do 201 jorb=1,norb
+        if(jorb.eq.iorb)goto 201
         iprm1=iprm1+1
         ifr1=jorb+(iorb-1)*norb
         iprm2=0
         do 300 korb=1,norb
-        do 300 lorb=1,norb
-        if(lorb.eq.korb)goto 300
+        do 301 lorb=1,norb
+        if(lorb.eq.korb)goto 301
         iprm2=iprm2+1
         ifr2=korb+(lorb-1)*norb
         if(iprm2.le.iprm1)then
@@ -68,7 +70,9 @@ c  Evaluate "cheap" orbital <-> orbital part of hessian :
      >      oaa2_use*hesst(ifr2,ifr1)
           hessorb(iprm1,iprm2)=hessorb(iprm2,iprm1)
         endif
+301     continue
 300     continue
+201     continue
 200     continue
       elseif(icrit.eq.1)then
         call dev2a_cvb(civbs,civecp,civb,hessorb,oaa2_use,aa1_use)

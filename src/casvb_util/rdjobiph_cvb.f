@@ -82,12 +82,14 @@ c Read the the system description :
         write(6,*)' nbas   :',nbas_j
         write(6,*)' name   :'
         do 100 ii=1,mxorb
-100     if(name_j(ii)(4:4).eq.' ')write(6,*)name_j(ii)
+        if(name_j(ii)(4:4).eq.' ')write(6,*)name_j(ii)
+100     continue
         write(6,*)' nconf  :',nconf_j
         write(6,*)' header :',header_j
         write(6,*)' title  :'
         do 200 ii=1,mxtit
-200     if(len_trim_cvb(title_j(ii)).gt.0)write(6,*)title_j(ii)
+        if(len_trim_cvb(title_j(ii)).gt.0)write(6,*)title_j(ii)
+200     continue
         write(6,*)' potnuc :',potnuc_j
         write(6,*)' lroots :',lroots_j
         write(6,*)' nroots :',nroots_j

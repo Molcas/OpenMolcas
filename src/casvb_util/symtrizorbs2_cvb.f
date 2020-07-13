@@ -36,16 +36,20 @@
       do 100 iorb=1,norb
       if(north(iorb).ne.0) call schmidtd_cvb(corth(1,ioffs),
      >  north(iorb),orbs(1,iorb),1,dum,norb,0)
-100   ioffs=ioffs+north(iorb)
+      ioffs=ioffs+north(iorb)
+100   continue
 
 c  Now enforce orthogonality between specified orbitals:
 c  -----------------------------------------------------
       do 290 i=1,norb
-290   ihlp(i)=-1
+      ihlp(i)=-1
+290   continue
       do 300 iort=1,nort
-      do 300 j=1,2
+      do 301 j=1,2
       iorb=iorts(j,iort)
-300   ihlp(iorb)=min(north(iorb),norb)
+      ihlp(iorb)=min(north(iorb),norb)
+301   continue
+300   continue
 c  Check feasibility
       do 350 irel=1,nijrel
       if(ihlp(irels(1,irel)).ne.-1)then
@@ -62,12 +66,13 @@ c  Set up order of orthogonalization - first help arrays :
       call izero(ihlp3,norb)
       nortorb=0
       do 400 icon=norb,0,-1
-      do 400 iorb=1,norb
+      do 401 iorb=1,norb
       if(ihlp(iorb).eq.icon)then
         nortorb=nortorb+1
         ihlp2(nortorb)=iorb
         ihlp3(iorb)=nortorb
       endif
+401   continue
 400   continue
 
 c  Loop all pairs that may be orthogonalized
@@ -88,7 +93,7 @@ c  Create list of previous orthonormalisations involving IORB
         endif
       endif
 465   continue
-      do 450 jortorb=iortorb+1,nortorb
+      do 451 jortorb=iortorb+1,nortorb
       jorb=ihlp2(jortorb)
 c  Create list of previous orthonormalisations involving JORB
       iok=0
@@ -110,7 +115,7 @@ c  Create list of previous orthonormalisations involving JORB
         endif
       endif
 475   continue
-      if(iok.eq.0)goto 450
+      if(iok.eq.0)goto 451
       sovr=ddot_(norb,orbs(1,iorb),1,orbs(1,jorb),1)
       if(abs(sovr).lt.thresh)goto 490
 c  Now ready to orthogonalise
@@ -206,6 +211,7 @@ c  Same magnitudes of updates, either ++ or +- :
       endif
 490   niprev=niprev+1
       iprev(niprev)=jorb
+451   continue
 450   continue
 
       call nize_cvb(orbs,norb,dum,norb,0,0)
@@ -231,8 +237,9 @@ c  Same magnitudes of updates, either ++ or +- :
       do 500 irel=1,nijrel
       iorb=irels(1,irel)
       jorb=irels(2,irel)
-500   call mxatb_cvb(relorb(1,1,irel),orbs(1,jorb),
+      call mxatb_cvb(relorb(1,1,irel),orbs(1,jorb),
      >  norb,norb,1,orbs(1,iorb))
+500   continue
 
       return
       end

@@ -25,7 +25,8 @@ c  initialize imx & jmx to suppress compiler warnings ...
       nij=n*n
       do 100 i=1,n
       irows(i)=i
-100   ibook(i)=0
+      ibook(i)=0
+100   continue
       do 1000 imain=1,n
       amx=zero
       do 1100 i=1,n
@@ -49,7 +50,8 @@ c  initialize imx & jmx to suppress compiler warnings ...
         do 1300 ii=1,n
         dum=a(imx,ii)
         a(imx,ii)=a(jmx,ii)
-1300    a(jmx,ii)=dum
+        a(jmx,ii)=dum
+1300    continue
         idum=irows(imx)
         irows(imx)=irows(jmx)
         irows(jmx)=idum
@@ -67,13 +69,15 @@ c  initialize imx & jmx to suppress compiler warnings ...
       oneovamx=one/a(jmx,jmx)
       a(jmx,jmx)=one
       do 1500 ii=1,n
-1500  a(jmx,ii)=oneovamx*a(jmx,ii)
+      a(jmx,ii)=oneovamx*a(jmx,ii)
+1500  continue
       do 1700 ii2=1,n
       if(ii2.ne.jmx)then
         dum=a(ii2,jmx)
         a(ii2,jmx)=zero
         do 1800 ii=1,n
-1800    a(ii2,ii)=a(ii2,ii)-dum*a(jmx,ii)
+        a(ii2,ii)=a(ii2,ii)-dum*a(jmx,ii)
+1800    continue
         ijs(1,nij)=irows(ii2)
         ijs(2,nij)=irows(jmx)
         oijs(nij)=dum
@@ -86,14 +90,16 @@ c  initialize imx & jmx to suppress compiler warnings ...
         do 2100 ii2=1,n
         dum=a(ii2,lrow(ii))
         a(ii2,lrow(ii))=a(ii2,lcol(ii))
-2100    a(ii2,lcol(ii))=dum
+        a(ii2,lcol(ii))=dum
+2100    continue
       endif
 2000  continue
       return
 3000  continue
       do 3100 i=1,n
       do 3200 j=1,ihad
-3200  if(lcol(j).eq.i)goto 3100
+      if(lcol(j).eq.i)goto 3100
+3200  continue
       ijs(1,nij)=irows(i)
       ijs(2,nij)=irows(i)
       oijs(nij)=zero

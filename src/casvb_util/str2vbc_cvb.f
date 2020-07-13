@@ -79,7 +79,8 @@ c **********************************************************************
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end
@@ -123,7 +124,8 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-400   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+400   continue
       return
       end
 
@@ -169,7 +171,8 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-400   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+400   continue
       return
       end
 
@@ -214,7 +217,8 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end
@@ -260,7 +264,8 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end

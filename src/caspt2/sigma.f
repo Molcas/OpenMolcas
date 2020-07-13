@@ -148,12 +148,12 @@ C SVC: add transposed fock matrix blocks
 C Loop over types and symmetry block of sigma vector:
       DO 300 ICASE1=1,11
 *     DO 300 ICASE1=1,NCASES
-        DO 300 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 300
+        DO 301 ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 301
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NSGM2=NIS1*NAS1
-          IF(NSGM2.EQ.0) GOTO 300
+          IF(NSGM2.EQ.0) GOTO 301
 
           CALL GETMEM('SGM2','ALLO','REAL',LSGM2,NSGM2)
           CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
@@ -318,18 +318,19 @@ C Add to sigma array. Multiply by S to  lower index.
 C Write SGMX to disk.
           CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
           CALL RHS_FREE (NAS1,NIS1,lg_SGMX)
+ 301    CONTINUE
  300  CONTINUE
 
       IMLTOP=1
 C Loop over types and symmetry block of CX vector:
       DO 600 ICASE1=1,11
 *     DO 600 ICASE1=1,NCASES
-        DO 600 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 600
+        DO 601 ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 601
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           ND2=NIS1*NAS1
-          IF(ND2.EQ.0) GOTO 600
+          IF(ND2.EQ.0) GOTO 601
 
           CALL RHS_ALLO (NAS1,NIS1,lg_D2)
           CALL RHS_SCAL (NAS1,NIS1,lg_D2,0.0D0)
@@ -474,6 +475,7 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
  500      CONTINUE
           CALL GETMEM('D2','FREE','REAL',LD2,ND2)
           IF(ND1.GT.0) CALL GETMEM('D1','FREE','REAL',LD1,ND1)
+ 601    CONTINUE
  600  CONTINUE
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)

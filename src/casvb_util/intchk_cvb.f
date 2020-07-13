@@ -32,7 +32,8 @@ c 'ALL'
         if(lflag.eq.-1)then
           nread=nmax
           do 100 i=1,nmax
-100       iarr(i)=i
+          iarr(i)=i
+100       continue
         else
           nread=0
           lf=1-lflag
@@ -63,7 +64,8 @@ c 'TO'
         endif
         do 150 i=ifrom+1,ito(1)
         nread=nread+1
-150     iarr(nread)=i
+        iarr(nread)=i
+150     continue
       else
         call int_cvb(iarr(1+nread),nmax-nread,nr,ifc)
         if(nread.gt.0)lf=lflag

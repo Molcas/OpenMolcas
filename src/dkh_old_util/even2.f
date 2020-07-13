@@ -45,7 +45,8 @@ C
       AUXF(I,J)=A(I)*R(I)*G(IJ)*A(J)*A(J)
       AUXF(J,I)=A(J)*R(J)*G(IJ)*A(I)*A(I)
       AUXG(I,J)=R(I)*V(IJ)*A(J)
-601   AUXG(J,I)=R(J)*V(IJ)*A(I)
+      AUXG(J,I)=R(J)*V(IJ)*A(I)
+601   CONTINUE
 600   CONTINUE
 C
 C     ARQA ARQA
@@ -58,7 +59,8 @@ CCC   CALL PRSQ('AUXH   1',AUXH,N)
       DO 603 J=1,I
       IJ=IJ+1
       AUXG(I,J)=-0.5D0/TT(I)*G(IJ)*A(J)*R(J)
-603   AUXG(J,I)=-0.5D0/TT(J)*G(IJ)*A(I)*R(I)
+      AUXG(J,I)=-0.5D0/TT(J)*G(IJ)*A(I)*R(I)
+603   CONTINUE
 602   CONTINUE
 C
 C     ARQA AQRA
@@ -72,7 +74,8 @@ CCC   CALL PRSQ('AUXH   2',AUXH,N)
       AUXF(I,J)=A(I)*V(IJ)*A(J)*A(J)*R(J)
       AUXF(J,I)=A(J)*V(IJ)*A(I)*A(I)*R(I)
       AUXG(I,J)=-2.D0*TT(I)*R(I)*V(IJ)*A(J)
-605   AUXG(J,I)=-2.D0*TT(J)*R(J)*V(IJ)*A(I)
+      AUXG(J,I)=-2.D0*TT(J)*R(J)*V(IJ)*A(I)
+605   CONTINUE
 604   CONTINUE
 C
 C     AQRA ARQA
@@ -84,7 +87,8 @@ CCC   CALL PRSQ('AUXH   3',AUXH,N)
       DO 607 J=1,I
       IJ=IJ+1
       AUXG(I,J)=G(IJ)*A(J)*R(J)
-607   AUXG(J,I)=G(IJ)*A(I)*R(I)
+      AUXG(J,I)=G(IJ)*A(I)*R(I)
+607   CONTINUE
 606   CONTINUE
 C
 C     AQRA AQRA
@@ -103,7 +107,8 @@ C     1/2 EW*W + 1/2 W*WE
 C
       DO 610 I=1,N
       DO 611 J=1,N
-611   AUXH(I,J)=0.5D0*( AUXH(I,J)*E(I) + AUXH(I,J)*E(J) )
+      AUXH(I,J)=0.5D0*( AUXH(I,J)*E(I) + AUXH(I,J)*E(J) )
+611   CONTINUE
 610   CONTINUE
 C
       IJ=0
@@ -113,7 +118,8 @@ C
       AUXF(I,J)=A(I)*R(I)*G(IJ)*A(J)*E(J)*A(J)
       AUXF(J,I)=A(J)*R(J)*G(IJ)*A(I)*E(I)*A(I)
       AUXG(I,J)=R(I)*V(IJ)*A(J)
-401   AUXG(J,I)=R(J)*V(IJ)*A(I)
+      AUXG(J,I)=R(J)*V(IJ)*A(I)
+401   CONTINUE
 400   CONTINUE
       CALL CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
       IJ=0
@@ -121,7 +127,8 @@ C
       DO 403 J=1,I
       IJ=IJ+1
       AUXG(I,J)=-0.5D0/TT(I)*G(IJ)*A(J)*R(J)
-403   AUXG(J,I)=-0.5D0/TT(J)*G(IJ)*A(I)*R(I)
+      AUXG(J,I)=-0.5D0/TT(J)*G(IJ)*A(I)*R(I)
+403   CONTINUE
 402   CONTINUE
       CALL CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 CCC   CALL PRSQ('AUXH   6',AUXH,N)
@@ -132,7 +139,8 @@ CCC   CALL PRSQ('AUXH   6',AUXH,N)
       AUXF(I,J)=A(I)*V(IJ)*R(J)*A(J)*E(J)*A(J)
       AUXF(J,I)=A(J)*V(IJ)*R(I)*A(I)*E(I)*A(I)
       AUXG(I,J)=-2.D0*TT(I)*R(I)*V(IJ)*A(J)
-405   AUXG(J,I)=-2.D0*TT(J)*R(J)*V(IJ)*A(I)
+      AUXG(J,I)=-2.D0*TT(J)*R(J)*V(IJ)*A(I)
+405   CONTINUE
 404   CONTINUE
       CALL CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
       IJ=0
@@ -140,7 +148,8 @@ CCC   CALL PRSQ('AUXH   6',AUXH,N)
       DO 407 J=1,I
       IJ=IJ+1
       AUXG(I,J)=G(IJ)*A(J)*R(J)
-407   AUXG(J,I)=G(IJ)*A(I)*R(I)
+      AUXG(J,I)=G(IJ)*A(I)*R(I)
+407   CONTINUE
 406   CONTINUE
       CALL CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 CCC   CALL PRSQ('AUXH   8',AUXH,N)
@@ -151,7 +160,8 @@ C
       DO 430 I=1,N
       DO 431 J=1,I
       IJ=IJ+1
- 431  G(IJ)=-0.5D0*(AUXH(I,J)+AUXH(J,I))
+      G(IJ)=-0.5D0*(AUXH(I,J)+AUXH(J,I))
+ 431  CONTINUE
  430  CONTINUE
 CCC   CALL PRM('OUTPUT  ',G,N)
       RETURN

@@ -138,16 +138,20 @@
 *     Set up the desymmetrization of the coordinates
 *
       Do 10 j=0,4
-         Do 10 i=1,3
-10          iPhase(i,j)=1
+         Do 11 i=1,3
+            iPhase(i,j)=1
+11       Continue
+10    Continue
       iPhase(1,1)=-1
       iPhase(2,2)=-1
       iPhase(1,3)=-1
       iPhase(2,3)=-1
       iPhase(3,4)=-1
       Do 20 j=5,7
-         Do 20 i=1,3
-20          iPhase(i,j)=-1
+         Do 21 i=1,3
+            iPhase(i,j)=-1
+21       Continue
+20    Continue
       iPhase(2,5)=1
       iPhase(1,6)=1
 *

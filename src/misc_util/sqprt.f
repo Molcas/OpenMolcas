@@ -14,8 +14,9 @@
       CHARACTER*60 FMT
       BIG=0.0D0
       DO 10 I=1,N
-      DO 10 J=1,N
+      DO 11 J=1,N
          BIG=MAX(BIG,ABS(A(I,J)))
+11    CONTINUE
 10    CONTINUE
       IF(0.1D0.LT.BIG .AND. BIG.LT.10000.0D0) THEN
          FMT='(8(1X,F12.6))'

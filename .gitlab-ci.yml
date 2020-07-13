@@ -111,16 +111,19 @@ include:
       cp /license.dat . || true
     # save the CMake configuration from a variable and add extra path
     - |
+      if [ -z "${cmake}" ] ; then export cmake="cmake" ; fi
+      if [ -z "${make}" ] ; then export make="make"; fi
+    - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
-    - cmake -C flags.cmake ..
+    - ${cmake} -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - make #VERBOSE=1
+    - ${make}
     - pymolcas verify 000 -k
     # some clean up to reduce artifact size
     - >
@@ -304,6 +307,17 @@ test:options:
   <<: *run-tests
   needs:
     - build:options
+    - tinker
+  parallel: 2
+
+build:linalg:
+  extends: .linalg
+  <<: *compile
+test:linalg:
+  extends: .linalg
+  <<: *run-tests
+  needs:
+    - build:linalg
     - tinker
   parallel: 2
 

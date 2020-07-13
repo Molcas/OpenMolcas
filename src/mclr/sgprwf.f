@@ -48,9 +48,9 @@ C     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 C
 
       DO 40 MV=1,NMIDV
-        DO 40 ISYUP=1,NSYM
+        DO 41 ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,LSYM)
-          IF(NCI.EQ.0) GOTO 40
+          IF(NCI.EQ.0) GOTO 41
           NUP=NOW(1,ISYUP,MV)
           ISYDWN=1+IEOR(ISYUP-1,LSYM-1)
           NDWN=NOW(2,ISYDWN,MV)
@@ -59,11 +59,11 @@ C
           IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
           DO 30 IDWN=1,NDWN
-            DO 30 IUP=1,NUP
+            DO 31 IUP=1,NUP
               ICONF=ICONF+1
               COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.PRWTHR) GOTO  30
+              IF(ABS(COEF).LT.PRWTHR) GOTO  31
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=ICASE(ICDPOS)
@@ -118,7 +118,9 @@ C -- PRINT IT!
               Write (Line(iOff:),'(2F8.5)') COEF,COEF**2
               Write (6,'(6X,A)') Line(1:iOff+15)
               Line=' '
+31          CONTINUE
 30        CONTINUE
+41      CONTINUE
 40    CONTINUE
 C
 C

@@ -27,7 +27,8 @@
         call mfreei_cvb(i1)
       elseif(ic.eq.2)then
         do 100 i=0,(nel+1)*(nel+1)*(nel+1)-1
-100     iw(i+lb(3))=-1
+        iw(i+lb(3))=-1
+100     continue
         call bspset2_cvb(iw(lb(3)),nel,kbasis1,need)
         call setifnss_cvb(iw(lb(4)),iw(lb(5)),iw(lb(6)))
       endif

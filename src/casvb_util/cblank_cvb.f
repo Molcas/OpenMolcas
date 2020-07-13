@@ -16,6 +16,7 @@
       save blank
       data blank/' '/
       do 100 i=1,ndim
-100   a(i:i)=blank
+      a(i:i)=blank
+100   continue
       return
       end

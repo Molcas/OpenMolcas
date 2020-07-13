@@ -33,7 +33,8 @@
      >    -ddot_(nvb_fr(ifrag),w(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
      >    /cvbnrm_fr(ifrag),
      >   w(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)
-100     ifr_off=ifr_off+nvb_fr(ifrag)
+        ifr_off=ifr_off+nvb_fr(ifrag)
+100     continue
       endif
       return
       entry orthcvb_init_cvb()
@@ -44,7 +45,8 @@
         do 200 ifrag=1,nfrag
         cvbnrm_fr(ifrag)=ddot_(nvb_fr(ifrag),w(ifr_off+lv(2)),1,
      >    w(ifr_off+lv(2)),1)
-200     ifr_off=ifr_off+nvb_fr(ifrag)
+        ifr_off=ifr_off+nvb_fr(ifrag)
+200     continue
       endif
       return
       end

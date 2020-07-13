@@ -66,11 +66,12 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
          DO 100 I=1,NA1
             IA=IOFFA(ISY1)+I
             II=NI1+I
-            DO 100 J=1,NA2
+            DO 101 J=1,NA2
                JA=IOFFA(ISY2)+J
                JJ=NI2+J
                IPOS=IOFFTD+II+(JJ-1)*NO1
                TDMAB(IPOS)=GAMMA1(IA,JA)
+101         CONTINUE
 100      CONTINUE
 110      IOFFTD=IOFFTD+NO1*NO2
 120   CONTINUE

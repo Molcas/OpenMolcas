@@ -101,10 +101,12 @@ c
             a(i,mm1) = y
 c
             do 140 j = m, n
-  140       a(i,j) = a(i,j) - y * a(m,j)
+            a(i,j) = a(i,j) - y * a(m,j)
+  140       continue
 c
             do 150 j = 1, igh
-  150       a(j,m) = a(j,m) + y * a(j,i)
+            a(j,m) = a(j,m) + y * a(j,i)
+  150       continue
 c
   160    continue
 c

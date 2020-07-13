@@ -17,11 +17,12 @@
       call fzero(a,n*n)
       iprm=0
       do 100 i=1,n
-      do 100 j=1,n
+      do 101 j=1,n
       if(j.ne.i)then
         iprm=iprm+1
         a(j,i)=avec(iprm)
       endif
+101   continue
 100   continue
       return
       end

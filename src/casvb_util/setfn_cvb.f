@@ -28,7 +28,8 @@
 200   itry=itry+1
       fileid_try=DBLE(itry)
       do 300 i=1,nrec
-300   if(fileid_try.eq.fileids(i))goto 200
+      if(fileid_try.eq.fileids(i))goto 200
+300   continue
       nrec=nrec+1
       if(nrec.gt.max_rec)then
         write(6,*)' nrec > max_rec in setfn :',nrec,max_rec

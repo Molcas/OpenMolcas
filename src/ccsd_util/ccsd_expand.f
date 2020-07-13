@@ -911,11 +911,12 @@ c
 c
        pq=0
        do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 101 q=1,p-1
        pq=pq+1
        scalar=a(pq)
        b(p,q)=scalar
        b(q,p)=-scalar
+ 101    continue
  100    continue
 c
        end if
@@ -949,11 +950,12 @@ c
        do r=1,dimr
        pq=0
        do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 101 q=1,p-1
        pq=pq+1
        scalar=a(pq,r)
        b(p,q,r)=scalar
        b(q,p,r)=-scalar
+ 101    continue
  100    continue
        end do
 c
@@ -991,13 +993,14 @@ c
        do s=1,dims
        qr=0
        do 100 q=2,dimq
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        qr=qr+1
        do p=1,dimp
        scalar=a(p,qr,s)
        b(p,q,r,s)=scalar
        b(p,r,q,s)=-scalar
        end do
+ 101    continue
  100    continue
        end do
 c
@@ -1036,7 +1039,7 @@ c
 c
        qr=0
        do 100 q=2,dimq
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        qr=qr+1
 c
        do p=1,dimp
@@ -1044,6 +1047,7 @@ c
        b(p,q,r)=scalar
        b(p,r,q)=-scalar
        end do
+ 101    continue
  100    continue
 c
        end if
@@ -1080,12 +1084,12 @@ c
 c
        rs=0
        do 100 r=2,dimr
-       do 100 s=1,r-1
+       do 101 s=1,r-1
        rs=rs+1
 c
        pq=0
-       do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 102 p=2,dimp
+       do 103 q=1,p-1
        pq=pq+1
 c
        scalar=a(pq,rs)
@@ -1094,6 +1098,9 @@ c
        b(q,p,r,s)=-scalar
        b(q,p,s,r)=scalar
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        end if
@@ -1137,17 +1144,20 @@ c
        if (dimp.gt.1) then
 c
        do 100 s=1,dims
-       do 100 r=1,dimr
+       do 101 r=1,dimr
 c
        pq=0
-       do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 102 p=2,dimp
+       do 103 q=1,p-1
        pq=pq+1
 c
        scalar=a(pq,r,s)
        b(p,q,s,r)=-scalar
        b(q,p,s,r)=scalar
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        end if
@@ -1185,15 +1195,18 @@ c
 c
        rs=0
        do 100 r=2,dimr
-       do 100 s=1,r-1
+       do 101 s=1,r-1
 c
-       do 100 q=1,dimq
-       do 100 p=1,dimp
+       do 102 q=1,dimq
+       do 103 p=1,dimp
 c
        scalar=a(p,q,rs)
        b(q,p,r,s)=-scalar
        b(q,p,s,r)=scalar
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        end if

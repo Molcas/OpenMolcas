@@ -32,7 +32,8 @@
       w(ivb+irepm-1)=-1d0
       call symtrizcvb_cvb(w(irepm))
       w(ivb+irepm-1)=w(ivb+irepm-1)+1d0
-100   call span1_cvb(w(irepm),1,dum,nvb,0)
+      call span1_cvb(w(irepm),1,dum,nvb,0)
+100   continue
       call span2_cvb(tconstr,nconstr,dum,nvb,0)
 
       call mfreer_cvb(irepm)

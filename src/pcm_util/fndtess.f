@@ -460,16 +460,19 @@ C***********************************************************
 C     Stampa la geometria della cavita'
       Scav=ZERO
       DO 500 I=1,NESF
- 500  SSFE(I)=ZERO
+      SSFE(I)=ZERO
+ 500  CONTINUE
       DO 510 I=1,NTS
       K=ISPHE(I)
- 510  SSFE(K)=SSFE(K)+AS(I)
+      SSFE(K)=SSFE(K)+AS(I)
+ 510  CONTINUE
       OMEGA=OMEGA/FIRST
       IF(IPRINT.EQ.2) WRITE(6,1100)OMEGA,RSOLV,RET,FRO,NESF
-           DO 520 I=1,NESF
+      DO 520 I=1,NESF
       IF(IPRINT.EQ.2)WRITE(6,1200)I,XE(I),YE(I),ZE(I),
      * RE(I),SSFE(I)
- 520  Scav=Scav+SSFE(I)
+      Scav=Scav+SSFE(I)
+ 520  CONTINUE
       IF(IPRINT.EQ.2)WRITE(6,1300)NTS,Scav,VCav
 C
 C     Trasforma i risultati in bohr

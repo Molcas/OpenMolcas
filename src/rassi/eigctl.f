@@ -180,6 +180,10 @@ C    and Hamiltonian into square storage:
         DO JJ=1,II
           J=IWORK(LSTK-1+JJ)
           IJ=IJ+1
+          If (I.NE.J .AND.
+     &    (ABS(ovlp(i,j)).gt.1.0D-9.or.ABS(ham(i,j)).gt.1.0D-9)) Then
+            DIAGONAL=.FALSE.
+          EndIf
           if(debug_dmrg_rassi_code)then
             write(6,*) 'overlap     for i,j',i,j,ovlp(i,j)
             write(6,*) 'Hamiltonian for i,j',i,j,HAM(i,j)
@@ -201,18 +205,6 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
         END DO
       END DO
 
-      IJ=0
-      DO I=1,MSTATE
-        DO J=1,I
-          IJ=IJ+1
-          If (I.NE.J .AND.
-     &    ABS(WORK(LHSQ-1+I+MSTATE*(J-1))).gt.1.0D-9) Then
-            DIAGONAL=.FALSE.
-            go to 11
-          EndIf
-        End Do
-      End Do
- 11   Continue
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
 *        CALL MXMA(WORK(LHSQ),1,MSTATE,

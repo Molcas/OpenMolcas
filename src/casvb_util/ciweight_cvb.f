@@ -42,7 +42,8 @@ c  Work out number of configurations in CASSCF vector :
       do 100 ion=ionmin,ionmax
       call icomb_cvb(norb,ion,iretval1)
       call icomb_cvb(norb-ion,nel-2*ion,iretval2)
-100   ncnfcas=ncnfcas+iretval1*iretval2
+      ncnfcas=ncnfcas+iretval1*iretval2
+100   continue
 
       k1 = mstackr_cvb(ionmax-ionmin+1)
       k2 = mstackr_cvb(ionmax-ionmin+1)

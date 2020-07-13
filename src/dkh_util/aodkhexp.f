@@ -34,19 +34,23 @@ C
 C     Copy 1st order DKH effective potential
 C     E2(upper-left) O2(upper-right) F2(lower-right)
 C
-      Do 20 J = 1, NBasis
-        Do 20 I = 1, NBasis
+      Do J = 1, NBasis
+        Do I = 1, NBasis
           E2(I,J,1) = EL(I,J)
           F2(I,J,1) = ES(I,J)
-   20     O2(I,J,1) = OL(I,J)
+          O2(I,J,1) = OL(I,J)
+        End Do
+      End Do
 C
 C     Apply [M/2] times Douglas-Kroll-Hess Unitary transformations
 C
-      Do 30 Iut = 1, M/2
-        Do 35 I = 1, NBasis
-          Do 35 J = 1, NBasis
+      Do Iut = 1, M/2
+        Do I = 1, NBasis
+          Do J = 1, NBasis
             W(J,I) = O2(J,I,Iut)/(Ep(I) + Ep(J))
-   35       If(Iut.le.MX) WS(J,I,Iut*2-1) = W(J,I)
+            If(Iut.le.MX) WS(J,I,Iut*2-1) = W(J,I)
+          End Do
+        End Do
 C      ! Apply W_{Iut} to O/E_{Ks}
         Do 40 Ks = M-Iut, 1, -1
 C         ! W_{1} only apply to O/E_{1}
@@ -55,8 +59,8 @@ C         ! W_{1} only apply to O/E_{1}
 C           ! O_{k,k<Iut} was eliminated
             If(Ioe.eq.1.and.Ks.lt.Iut) Goto 50
             Ifodd = Ioe.eq.1
-            Do 55 I = 1, NBasis
-              Do 55 J = 1, NBasis
+            Do I = 1, NBasis
+              Do J = 1, NBasis
 C               ! Copy O/E_{Ks} terms to temp arrays
                 If(Ifodd)then
                   TA(J,I) = O2(J,I,Ks)
@@ -64,7 +68,8 @@ C               ! Copy O/E_{Ks} terms to temp arrays
                   TA(J,I) = E2(J,I,Ks)
                   TB(J,I) = F2(J,I,Ks)
                 Endif
-   55           Continue
+              End Do
+            End Do
             Do 60 K = Ks, M, Iut
 C             ! skip terms do not contribute to final DKH Hamiltonian (even,upper-left)
               If(K+Iut+Iut.gt.M.and.(K+Iut.gt.M.or..not.Ifodd)) Goto 60
@@ -91,14 +96,16 @@ C               ! skip terms do not contribute to final DKH Hamiltonian (even,up
 C               ! ( 0  W)(0  O)   (0  O)( 0  W)   ( WO'+(WO')'     0       )
 C               ! (-W' 0)(O' 0) - (O' 0)(-W' 0) = (    0       -W'O-(W'O)' )
 C               !  where W'=W^{\dag} O'=O^{\dag}
-                Do 62 I = 1, NBasis
-                  Do 62 J = 1, NBasis
+                Do I = 1, NBasis
+                  Do J = 1, NBasis
                     If(K+Iut+Iut+Iut.le.M)then
                       TB(J,I) =-A2(J,I) - A2(I,J)
                       F2(J,I,K+Iut) = F2(J,I,K+Iut) + TB(J,I)
                     Endif
                     TA(J,I) = A1(J,I) + A1(I,J)
-   62               E2(J,I,K+Iut) = E2(J,I,K+Iut) + TA(J,I)
+                    E2(J,I,K+Iut) = E2(J,I,K+Iut) + TA(J,I)
+                  End Do
+                End Do
               Else
                 Call DGEMM_('N','N',NBasis,NBasis,NBasis,Cof,
      $                     W,NBasis,TB,NBasis,Zero,A1,NBasis)
@@ -107,25 +114,31 @@ C               !  where W'=W^{\dag} O'=O^{\dag}
 C               ! ( 0  W)(E 0)   (E 0)( 0  W)   (    0     WF-EW )
 C               ! (-W' 0)(0 F) - (0 F)(-W' 0) = ( (WF-EW)'   0   )
 C               !  where W'=W^{\dag}
-                Do 64 I = 1, NBasis
-                  Do 64 J = 1, NBasis
+                Do I = 1, NBasis
+                  Do J = 1, NBasis
                     TA(J,I) = A1(J,I) - A2(J,I)
-   64               O2(J,I,K+Iut) = O2(J,I,K+Iut) + TA(J,I)
+                    O2(J,I,K+Iut) = O2(J,I,K+Iut) + TA(J,I)
+                  End Do
+                End Do
               Endif
               Ifodd = .not.Ifodd
    60       Continue
    50     Continue
    40   Continue
-   30 Continue
+      End Do
 C
 C     Sum all even terms to Douglas-Kroll-Hess Hamiltonian
 C
-      Do 69 I = 1, NBasis
-   69   EL(I,I) = EL(I,I) + E0(I)
-      Do 70 I = 2, M0
-        Do 70 J = 1, NBasis
-          Do 70 K = 1, Nbasis
-   70       EL(K,J) = EL(K,J) + E2(K,J,I)
+      Do I = 1, NBasis
+        EL(I,I) = EL(I,I) + E0(I)
+      End Do
+      Do I = 2, M0
+        Do J = 1, NBasis
+          Do K = 1, Nbasis
+            EL(K,J) = EL(K,J) + E2(K,J,I)
+          End Do
+        End Do
+      End Do
 C
       Return
       End
