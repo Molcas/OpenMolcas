@@ -511,7 +511,6 @@
      &                  Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
          End If
  777     Continue
-         iEnd = iEnds
          If (nPrim.eq.0) Go To 778
 *                                                                      *
 ************************************************************************
