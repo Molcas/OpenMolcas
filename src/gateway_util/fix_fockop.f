@@ -605,7 +605,7 @@
             Call RecPrt('Reference Exponents',' ',
      &                 Shells(iShll_r)%Exp,1,nPrim_r)
             Call RecPrt('Reference Coefficients',' ',
-     &                 Shells(iShll_r)%Cff_c(1,Remove+1,1),
+     &                 Shells(iShll_r)%Cff_c(1,nRemove+1,1),
      &                                              nPrim_r,nCntrc_r)
             If (Allocated(FockOp_t)) Then
                Call RecPrt('Reference Fock operator',' ',
@@ -700,9 +700,8 @@
 *           Expand and reorder the reference fock operator
 *
             Call mma_allocate(E_R,nSRR,Label='E_R')
-            ipTmp = ip
-            ip = ip + nSRR
-            Call FZero(DInf(ipTmp),nSRR)
+            Call mma_allocate(Tmp1,nSRR,Label='Tmp1')
+            Tmp1(:)=Zero
             If (Allocated(FockOp_t)) Then
                Do iB = 1, nCntrc_r
                   Do jB = 1, nCntrc_r
@@ -711,8 +710,8 @@
                      Tmp = FockOp_t(iFrom)
                      Do iC = 1, iCmp_r
                         ijC=(iC-1)*iCmp_r+iC
-                        iTo = ipTmp-1 + (ijC-1)*nCntrc_r**2+ijB
-                        DInf(iTo) = Tmp
+                        iTo = (ijC-1)*nCntrc_r**2+ijB
+                        Tmp1(iTo) = Tmp
                      End Do
                   End Do
                End Do
@@ -723,23 +722,23 @@
                      Tmp = Shells(iShll_r)%FockOp(iB,jB)
                      Do iC = 1, iCmp_r
                         ijC=(iC-1)*iCmp_r+iC
-                        iTo = ipTmp-1 + (ijC-1)*nCntrc_r**2+ijB
-                        DInf(iTo) = Tmp
+                        iTo = (ijC-1)*nCntrc_r**2+ijB
+                        Tmp1(iTo) = Tmp
                      End Do
                   End Do
                End Do
             End If
 #ifdef _DEBUG_
-            Call RecPrt('Expanded ER',' ',DInf(ipTmp),
+            Call RecPrt('Expanded ER',' ',Tmp1,
      &                  nCntrc_r*nCntrc_r,iCmp_r*iCmp_r)
 #endif
-            Call Reorder_GW(DInf(ipTmp),E_R,
+            Call Reorder_GW(Tmp1,E_R,
      &                   nCntrc_r,nCntrc_r,iCmp_r,iCmp_r)
-            ip = ip - nSRR ! Release ipTmp
 #ifdef _DEBUG_
             Call RecPrt('Reordered ER',' ',E_R,
      &                  nCntrc_r*iCmp_r,nCntrc_r*iCmp_r)
 #endif
+            Call mma_deallocate(Tmp1)
 *
 *           Form (SAA)-1 SAR
 *
@@ -787,7 +786,7 @@
 *                                                                      *
 *           Now we just need to reorder and put it into place!
 *
-            Call mma_allocate(Tmp3,nSRR,Label='Tmp3')
+            Call mma_allocate(Tmp3,nSAA,Label='Tmp3')
             Call Reorder_GW(DInf(ipSAA),Tmp3,
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 #ifdef _DEBUG_
