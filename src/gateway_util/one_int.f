@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine One_Int(Kernel,DInf,nDInf,A,ip,iAng,
+      Subroutine One_Int(Kernel,Array,nArray,A,iAng,
      &                   iComp,nOrdOp,
      &                   Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
@@ -26,7 +26,7 @@
 #include "info.fh"
 #include "stdalloc.fh"
       External Kernel
-      Real*8 DInf(nDInf)
+      Real*8 Array(nArray)
       Real*8, Intent(Out):: SAR(nSAR)
       Real*8, Intent(In):: A(3)
       Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
@@ -36,7 +36,7 @@
       Real*8, Allocatable:: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
       Real*8, Allocatable:: pSAR(:)
 *
-      mArr = nDInf/(nPrim_a*nPrim_r)
+      mArr = nArray/(nPrim_a*nPrim_r)
       Call mma_allocate(ZAR,nPrim_a*nPrim_r,Label='ZAR')
       Call mma_allocate(ZIAR,nPrim_a*nPrim_r,Label='ZIAR')
       Call mma_allocate(KAR,nPrim_a*nPrim_r,Label='KAR')
@@ -52,7 +52,7 @@
       Call Kernel(Exp_a,nPrim_a,Exp_r,nPrim_r,
      &            ZAR,ZIAR,KAR,PAR,
      &            pSAR,nPrim_a*nPrim_r,iComp,
-     &            iAng,iAng,A,A,nHer,DInf(ip),mArr,A,nOrdOp)
+     &            iAng,iAng,A,A,nHer,Array,mArr,A,nOrdOp)
 *
       Call mma_deallocate(ZAR)
       Call mma_deallocate(ZIAR)

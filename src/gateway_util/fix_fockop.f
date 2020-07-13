@@ -168,10 +168,9 @@
                Call KnEMmP(nHer,MmKnEP,iAng,iAng,nOrdOp)
                nScr1=nPrim_a**2 * MmKnEP
                Call mma_allocate(Scr1,nScr1,Label='Scr1')
-               jp=1
 *
                Call mma_Allocate(KnE,NSAA,Label='KnE')
-               Call One_Int(KnEPrm,Scr1,nScr1,A,jp,iAng,iComp,nOrdOp,
+               Call One_Int(KnEPrm,Scr1,nScr1,A,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -200,9 +199,8 @@
                Call NAMem(nHer,MemNA ,iAng,iAng,nOrdOp)
                nScr1=nPrim_a**2 * MemNA
                Call mma_allocate(Scr1,nScr1,Label='Scr1')
-               jp=1
 *
-               Call One_Int(NAPrm,Scrt1,nScrt1,A,jp,iAng,iComp,nOrdOp,
+               Call One_Int(NAPrm,Scr1,nScr1,A,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -240,9 +238,8 @@
                Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
                nScr1=nPrim_a**2 * MmMltp
                Call mma_allocate(Scr1,nScr1,Label='Scr1')
-               jp=1
 *
-               Call One_Int(MltPrm,Scr1,nScr1,A,jp,iAng,iComp,nOrdOp,
+               Call One_Int(MltPrm,Scr1,nScr1,A,iAng,iComp,nOrdOp,
      &                      Scr1,nScr1,Scr2,nScr2,naa,Ovrlp,nSCC,
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -668,9 +665,8 @@
             Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
             nScr3=nPrim_a**2 * MmMltp
             Call mma_allocate(Scr3,nScr3,Label='Scr3')
-            jp=1
 *
-            Call One_Int(MltPrm,Scr3,nScr3,A,jp,iAng,iComp,nOrdOp,
+            Call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
@@ -689,9 +685,8 @@
             Call MltMmP(nHer,MmMltp,iAng,iAng,nOrdOp)
             nScr3=nPrim_a*nPrim_r * MmMltp
             Call mma_allocate(Scr3,nScr3,Label='Scr3')
-            jp=1
 *
-            Call One_Int(MltPrm,Scr3,nScr3,A,jp,iAng,iComp,nOrdOp,
+            Call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,
      &                   Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,
      &                   iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,
