@@ -386,7 +386,7 @@ contains
             end do
             call sort(idx, leq)
 
-            ! Get the first dimensions(i) projections with the largest overlap.
+            ! Get the first d projections with the largest overlap.
             V(:, low : low + d - 1) = projections(:, idx( : d))
         end do
 
