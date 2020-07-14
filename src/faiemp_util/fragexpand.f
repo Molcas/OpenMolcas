@@ -75,37 +75,50 @@
       BasisTypes(4)=0
       iShll = Mx_Shll-1
       lSTDINP=0
+      mCnttp = nCnttp
 #ifdef _DEBUG_
       write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
 #endif
 *
-      mCnttp = nCnttp
-      ndc = 0
-
 #ifdef _DEBUG_
        write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
-       write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
-     &                                    (mdciCnttp(i),i=1,mCnttp)
-       write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
-     &                              (dbsc(i)%nCntr,i=1,mCnttp)
-       write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-     &                              (dbsc(i)%nFragType,i=1,mCnttp)
-       write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
-     &                              (dbsc(i)%nFragCoor,i=1,mCnttp)
+       write(6,'(A)') ' mdciCnttp(nCnttp)  '//
+     &                ' dbsc(nCnttp)%nCntr '//
+     &                ' nFragType(nCnttp)  '//
+     &                ' nFragCoor(nCnttp)  '
+       Do i = 1, mCnttp
+       write(6,'(4(3X,I6,11X))')
+     &                              mdciCnttp(i),
+     &                              dbsc(i)%nCntr,
+     &                              dbsc(i)%nFragType,
+     &                              dbsc(i)%nFragCoor
+       End Do
 #endif
-
+!
+!     Loop over distrinct basis set centers (dbsc)
+!
+      ndc = 0 ! destinct center index
       Do iCnttp = 1, mCnttp
+!
+!       Skip if this is not a fragment dbsc to expand.
+!
         If(dbsc(iCnttp)%nFragType.le.0) Then
           ndc = ndc + dbsc(iCnttp)%nCntr
           Cycle
         End If
+!
+!       Loop over the centers associated with this dbsc.
+!
         Do iCntr = 1, dbsc(iCnttp)%nCntr
           ndc = ndc + 1
+!
+!         Loop over the fragments associated with this dbsc.
+!
           Do iAtom = 1, dbsc(iCnttp)%nFragCoor
 *
-* create a new basis set center
+*           Create a new basis set center
 *
             nCnttp = nCnttp + 1
             If (nCnttp.gt.Mxdbsc) Then
@@ -113,11 +126,15 @@
               Call ErrTra
               Call Quit_OnUserError()
             End If
-* read the associated basis set in sBasis
+*
+*           Read the associated basis set in sBasis
+*
             iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
-            call dcopy_(LineWords,
-     &       dbsc(iCnttp)%FragType(1,iBas), 1, eqBasis, 1)
-* get the basis set directory
+            call dcopy_(LineWords,dbsc(iCnttp)%FragType(1,iBas),1,
+     &                            eqBasis, 1)
+*
+*           Get the basis set directory
+*
             LenBSL = Len(sBasis)
             Last = iCLast(sBasis,LenBSL)
             Indx = Index(sBasis,'/')
@@ -148,10 +165,13 @@
               End If
               Bsl(nCnttp)=sBasis(1:Indx-1)
             Endif
-c           write(*,*) 'Setting Bsl(',nCnttp,') to ',Bsl(nCnttp)
-c           write(*,*) 'Fname = ',Fname
-* now Fname contains the basis set directory and Bsl(nCnttp) contains
-* the basis set label
+#ifdef _DEBUG_
+            write(6,*) 'Setting Bsl(',nCnttp,') to ',Bsl(nCnttp)
+            write(6,*) 'Fname = ',Fname
+#endif
+*           Now Fname contains the basis set directory and Bsl(nCnttp)
+*           contains the basis set label
+*
             jShll = iShll
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
@@ -198,8 +218,10 @@ c           write(*,*) 'Fname = ',Fname
               End Do
             End If
             FragCnttp(nCnttp)=.True.
+*
 * add the coordinates (1 atom / basis set center)
             dbsc(nCnttp)%nCntr = 1
+*
             mdc = mdc + 1
             If (mdc.gt.Mxdc) Then
               Write (6,*) ' FragExpand: Increase Mxdc'
@@ -232,6 +254,9 @@ c           write(*,*) 'Fname = ',Fname
             Do ii = LenLbl+1,4
               label(ii:ii) = '_'
             End Do
+#ifdef _DEBUG_
+            Write (6,'(2A)') 'Label=',label
+#endif
 c LENIN possible BUG
             LblCnt(mdc) = label
             If(mdc.lt.10) then
@@ -245,6 +270,10 @@ c LENIN possible BUG
             End If
 c            LblCnt(mdc)(LENIN1:LENIN4) = label
             LblCnt(mdc)(5:LENIN2) = label
+#ifdef _DEBUG_
+            Write (6,'(2A)') 'Label=',label
+            Write (6,'(2A)') 'LblCnt(mdc)=',LblCnt(mdc)
+#endif
             Call ChkLbl(LblCnt(mdc),LblCnt,mdc-1)
 * store a reference to the originating fragment placeholder
 * misuse nFragCoor for this purpose: it will not overwrite anything, but
@@ -252,25 +281,32 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * To signify this we store the negative value such that we can identify
 * the that the actual number of centers is 0 and that the corresponding
 * size of dbsc()%FragCoor is 0 and nothing else.
-            dbsc(mdc)%nFragCoor = -ndc
+            dbsc(mdc)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
             If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
      &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
-          End Do
-        End Do
-      End Do ! iCnttp
-*
-c      write(6,'(A,i6)') 'FragExpand: after the main DO loop'
-c      write(6,'(A,i5)') 'FragExpand:  nCnttp = ',nCnttp
-c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
-c     &                                    (mdciCnttp(i),i=1,nCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     dbsc(nCnttp)%nCntr  = ',
-c     &                                  (dbsc(i)%nCntr,i=1,nCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-c     &                                  (dbsc(i)%nFragType,i=1,nCnttp)
-c
-c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = '
-c     &                                  (dbsc(i)%nFragCoor,i=1,nCnttp)
+          End Do  ! iAtom
+        End Do    ! iCntr
+      End Do      ! iCnttp
+*                                                                      *
+************************************************************************
+*                                                                      *
+#ifdef _DEBUG_
+       write(6,'(A,i6)')'FragExpand: After the ''Do 1000 iCnttp'''
+       write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+       write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
+       write(6,'(A)') ' mdciCnttp(nCnttp)  '//
+     &                ' dbsc(nCnttp)%nCntr '//
+     &                ' nFragType(nCnttp)  '//
+     &                ' nFragCoor(nCnttp)  '
+       Do i = 1, nCnttp
+       write(6,'(4(3X,I6,11X))')
+     &                              mdciCnttp(i),
+     &                              dbsc(i)%nCntr,
+     &                              dbsc(i)%nFragType,
+     &                              dbsc(i)%nFragCoor
+       End Do
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -13,8 +13,8 @@
       Integer, Parameter :: mxAtom = 5000
       Integer, Parameter :: mxroot = 600
       Integer, Parameter :: mxNemoAtom = 200
-      Integer, Parameter :: Mxdbsc=100
-      Integer, Parameter :: MxShll=500
+      Integer, Parameter :: Mxdbsc=1400
+      Integer, Parameter :: MxShll=1500
 #else
       Integer, Parameter :: mxAtom = 6
       Integer, Parameter :: mxroot = 2

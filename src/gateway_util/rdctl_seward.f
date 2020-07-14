@@ -4426,12 +4426,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate memory for iSOff. This is the last thing to be done
-*     before unused core is release!!!!!
 *
       If (Run_Mode.ne.S_Mode) Then
          Max_Cnt=0
          Do iCnttp = 1, nCnttp
+*           Skip dbsc if it is a cardholder for fragment information.
+            If (dbsc(iCnttp)%nFragType.gt.0) Cycle
             Max_Cnt=Max(Max_Cnt,dbsc(iCnttp)%nCntr)
          End Do
       End If

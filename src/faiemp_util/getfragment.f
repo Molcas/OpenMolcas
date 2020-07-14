@@ -64,7 +64,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-* Local basis sets for unique centers
+*     Keyword: LBASIS
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Local basis sets for unique centers
 *
       if(iPrint.ge.99) write(6,*) 'Reading LBASIS'
       Line = Get_Ln(lUnit)
@@ -73,15 +77,18 @@
         write (6,*) Line
         Call Quit_OnUserError()
       Endif
-
+*
+*     Fragment types
+*
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragType)
       dbsc(nCnttp)%nFragType=nFragType
       Call mma_allocate(dbsc(nCnttp)%FragType,LineWords,nFragType,
      &                  Label='FragType')
       if(iPrint.ge.99) write(6,*) 'number of LBASIS = ',nFragType
-
-* read the basis sets
+*
+*     read the basis sets labels
+*
       do i = 1,nFragType
           sBasis=Get_Ln(lUnit)
           do j = 1,LineWords
@@ -89,10 +96,16 @@
           enddo
           if(iPrint.ge.49) write(6,*) 'GetFragment: basis set ', sBasis
       enddo
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Keyword: RELCOORDS
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     All atoms: index of the associated basis set and coordinates
 *
-* All atoms: index of the associated basis set and coordinates
-*
-      if(iPrint.ge.99) write(6,*) 'Reading RELCOORDS'
+      If(iPrint.ge.99) write(6,*) 'Reading RELCOORDS'
 
       Line = Get_Ln(lUnit)
       If (Index(Line,'RELCOORDS').eq.0) Then
@@ -106,7 +119,13 @@
       dbsc(nCnttp)%nFragCoor=nFragCoor
       if(iPrint.ge.99) write(6,*) 'number of RELCOORDS = ',nFragCoor
 *
-* read all centers, but reserve space for the Mulliken charges
+*     read all centers, but reserve space for the Mulliken charges
+*
+*     FragCoor(1,i): Index of the FragType
+*     FragCoor(2,i): x coordinate
+*     FragCoor(3,i): y coordinate
+*     FragCoor(4,i): z coordinate
+*     FragCoor(5,i): Mulliken charge
 *
       Call mma_allocate(dbsc(nCnttp)%FragCoor,5,nFragCoor,
      &                  Label='FragCoor')
@@ -122,8 +141,14 @@
      &            dbsc(nCnttp)%FragCoor(2:4,i)/Angstr
         End If
       enddo
-*
-* Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: ENERGIES
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
 *
       if(iPrint.ge.99) write(6,*) 'Reading ENERGIES'
       Line = Get_Ln(lUnit)
@@ -147,8 +172,14 @@
         write(6,*) ierr
         Call Quit_OnUserError()
       Endif
-*
-* MO coefficients (taken from the ORBITALs in ScfOrb)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: MOCOEFF
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     MO coefficients (taken from the ORBITALs in ScfOrb)
 *
       if(iPrint.ge.99) write(6,*) 'Reading MOCOEFF'
       Line = Get_Ln(lUnit)
@@ -172,8 +203,14 @@
         write(6,*) 'ERROR: number of coefficients is not correct'
         Call Quit_OnUserError()
       Endif
-*
-* Mulliken charges
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: MULLIKEN
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Mulliken charges
 *
       if(iPrint.ge.99) write(6,*) 'Reading MULLIKEN'
       Line = Get_Ln(lUnit)
@@ -189,6 +226,8 @@
         write(6,*) 'ERROR: number of Mulliken charges is not correct'
         Call Quit_OnUserError()
       Endif
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

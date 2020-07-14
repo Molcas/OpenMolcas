@@ -51,19 +51,22 @@
 *
 *        Loop over distinct centers
 *
-         Do icnt = 1, dbsc(iCnttp)%nCntr
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
             If (IndSOff(iCnttp,iCnt).gt.MxShll) Then
                Call WarningMessage(2,'MxShll too small:')
+               Write(LuWr,*) 'IndSOff(iCnttp,iCnt)=',
+     &                        IndSOff(iCnttp,iCnt)
                write(LuWr,*) 'MxShll=',MxShll
-               write(LuWr,*) 'Increase MxShll in info.fh and',
+               write(LuWr,*) 'Increase MxShll in Molcas.fh and',
      &                       ' recompile the code!'
+               Call Abend()
             End If
             Ind_Shell(IndSOff(iCnttp,iCnt)) = iShell
             mdc = iCnt + mdciCnttp(iCnttp)
             if(mdc.gt.mxdc) then
                Call WarningMessage(2,'mxdc too small:')
                write(LuWr,*) 'mxdc=',mxdc
-               write(LuWr,*) 'Increase mxdc in info.fh and',
+               write(LuWr,*) 'Increase mxAtom in Molcas.fh and',
      &                       ' recompile the code!'
                Call Abend()
             end if
