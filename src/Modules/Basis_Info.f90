@@ -16,7 +16,8 @@
       Private
       Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
                 Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
-                PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy
+                PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, &
+                Basis_Info_Init
 #include "stdalloc.fh"
 #include "Molcas.fh"
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -86,6 +87,7 @@
            Integer :: nFockOp=0
            Real*8, Allocatable:: FockOp(:,:)
       End Type Shell_Info
+!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !     E N D   D E C L A R E   D E R I V E D   T Y P E S
@@ -95,12 +97,13 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords=0, nFields=7, mFields=5
-      Integer :: nCnttp=0, iCnttp_Dummy=0
-      Integer :: Max_Shells=0
+      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 5
+      Integer :: nCnttp = 0, iCnttp_Dummy = 0
+      Integer :: Max_Shells = 0
+      Logical :: Initiated = .FALSE.
 !
-      Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
-      Type (Shell_Info) :: Shells(MxShll)
+      Type (Distinct_Basis_set_centers) , Allocatable:: dbsc(:)
+      Type (Shell_Info), Allocatable :: Shells(:)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -373,6 +376,11 @@
       iCnttp_Dummy   =iDmp(3,Len2)
       Max_Shells     =iDmp(4,Len2)
       nAux = 0
+!
+!     Initiate the memory allocation of dsbc and Shells
+!
+      If (.Not.Initiated) Call Basis_Info_Init()
+!
       Do i = 1, nCnttp
          dbsc(i)%nCntr     = iDmp(1,i)
          dbsc(i)%nM1       = iDmp(2,i)
@@ -645,8 +653,35 @@
       End Do
       Max_Shells=0
 !
+      If (Allocated(dbsc))   Deallocate(dbsc)
+      If (Allocated(Shells)) Deallocate(Shells)
+      Initiated=.False.
+!
       Return
       End Subroutine Basis_Info_Free
+!
+!***********************************************************************
+!***********************************************************************
+!
+!     This to make either the initial allocation of dbsc and Shells according to the default sizes
+!     as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
+!     run file.
+!
+      Subroutine Basis_Info_Init()
+      If (Initiated) Return
+      If (nCnttp.eq.0) Then
+         Allocate(dbsc(1:Mxdbsc))
+      Else
+         Allocate(dbsc(1:nCnttp))
+      End If
+      If (Max_Shells.eq.0) Then
+         Allocate(Shells(1:MxShll))
+      Else
+         Allocate(Shells(1:Max_Shells))
+      End If
+      Initiated=.True.
+      Return
+      End Subroutine Basis_Info_Init
 !
 !***********************************************************************
 !***********************************************************************

@@ -80,11 +80,12 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Initialize common blocks
+*     Initialize common blocks and start from scratch
 *
       Call Seward_Init()
       Call Funi_Init()
       Call NQGrid_Init()
+      Call Basis_Info_Init()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -108,6 +109,14 @@ C-SVC: identify runfile with a fingerprint
 *
       lOPTO = .False.
       Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+*
+*     Write the Basis_Info data to file. Release the arrays and read
+*     them back from the runfile now allocating them to the proper
+*     size.
+*
+      Call Basis_Info_Dmp()
+      Call Basis_Info_Free()
+      Call Basis_Info_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *

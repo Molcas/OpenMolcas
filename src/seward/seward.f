@@ -51,6 +51,7 @@
       use Period
       use GeoList
       use MpmC
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
@@ -149,11 +150,11 @@ C-SVC: identify runfile with a fingerprint
 *     runfile. If Seward is run in GS_Mode it will handle the input and
 *     runfile in the conventional way.
 *
+      Call Seward_Init()
       If (Run_Mode.eq.S_Mode) Then
 *
 *        S_Mode
 *
-         Call Seward_Init()
          DoRys=.True.
          nDiff=0
          Call GetInf(DoRys,nDiff)
@@ -169,10 +170,8 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Initialize common blocks
-*
-         Call Seward_Init()
          Call Funi_Init()
+         Call Basis_Info_Init()
 *
       End If ! Run_Mode.eq.S_Mode
 
@@ -197,6 +196,11 @@ C-SVC: identify runfile with a fingerprint
 *     Read the input from input file
 *
       Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+      If (Run_Mode.ne.S_Mode) Then
+         Call Basis_Info_Dmp()
+         Call Basis_Info_Free()
+         Call Basis_Info_Get()
+      End If
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
 *
