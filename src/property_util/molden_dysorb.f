@@ -158,7 +158,7 @@ c      End If
 *     This call will also fill info.fh and the dynamic storage in
 *     Work(ipInf)
 *
-      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)
