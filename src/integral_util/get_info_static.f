@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Get_Info_Static(ioffr)
+      SubRoutine Get_Info_Static()
 ************************************************************************
 *                                                                      *
 * Object: to read all input information stored in common blocks        *
@@ -28,6 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      use Basis_Info, only: nCnttp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -43,8 +44,6 @@
 *
       Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ioffr)
 *
 *     This is to allow type punning without an explicit interface
       Contains

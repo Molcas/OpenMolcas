@@ -66,15 +66,13 @@
 *
 *     Call qEnter('GetInf')
 *
-      ioffr=0
-*
-*     Load the static input area.
-*
-      Call Get_Info_Static(ioffr)
-*
 *     Load the dynamic input area.
 *
       Call Get_Info_Dynamic()
+*
+*     Load the static input area.
+*
+      Call Get_Info_Static()
 *                                                                      *
       Call External_Centers_Get()
 *                                                                      *

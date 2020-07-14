@@ -23,6 +23,7 @@
 *                                                                      *
 ************************************************************************
 *
+      use Basis_Info, only: nCnttp
 #include "itmax.fh"
 #include "info.fh"
 *

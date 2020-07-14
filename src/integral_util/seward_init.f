@@ -86,8 +86,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       MemHid=1
       nMltpl=2
-      nCnttp=0
-      iCnttp_Dymmy=0
       m2Max=0
       iAngMx=-1
       nWel=0

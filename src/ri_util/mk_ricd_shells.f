@@ -30,6 +30,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info, only: nCnttp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

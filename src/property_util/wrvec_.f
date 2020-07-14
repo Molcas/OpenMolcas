@@ -480,6 +480,7 @@ c        nCenter=nCenter+newAt
       end
 c---------------------------------------------------
       subroutine Basi2file(Lu)
+      use Basis_Info, only: nCnttp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

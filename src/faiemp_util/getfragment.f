@@ -11,7 +11,7 @@
 * Copyright (C) Ben Swerts                                             *
 *               2016, Liviu Ungur                                      *
 ************************************************************************
-      SubRoutine GetFragment(lUnit,nCnttp)
+      SubRoutine GetFragment(lUnit,iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read frozen fragment information.                   *
@@ -29,7 +29,7 @@
       Implicit None
 #include "stdalloc.fh"
 #include "angstr.fh"
-      Integer lUnit,nCnttp
+      Integer lUnit,iCnttp
       Character*180 Line, Get_Ln
       integer storageSize,LineWords
       parameter(storageSize = 200, LineWords=storageSize/8)
@@ -82,8 +82,8 @@
 *
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragType)
-      dbsc(nCnttp)%nFragType=nFragType
-      Call mma_allocate(dbsc(nCnttp)%FragType,LineWords,nFragType,
+      dbsc(iCnttp)%nFragType=nFragType
+      Call mma_allocate(dbsc(iCnttp)%FragType,LineWords,nFragType,
      &                  Label='FragType')
       if(iPrint.ge.99) write(6,*) 'number of LBASIS = ',nFragType
 *
@@ -92,7 +92,7 @@
       do i = 1,nFragType
           sBasis=Get_Ln(lUnit)
           do j = 1,LineWords
-             dbsc(nCnttp)%FragType(j,i) = eqBasis(j)
+             dbsc(iCnttp)%FragType(j,i) = eqBasis(j)
           enddo
           if(iPrint.ge.49) write(6,*) 'GetFragment: basis set ', sBasis
       enddo
@@ -116,7 +116,7 @@
 
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragCoor)
-      dbsc(nCnttp)%nFragCoor=nFragCoor
+      dbsc(iCnttp)%nFragCoor=nFragCoor
       if(iPrint.ge.99) write(6,*) 'number of RELCOORDS = ',nFragCoor
 *
 *     read all centers, but reserve space for the Mulliken charges
@@ -127,18 +127,18 @@
 *     FragCoor(4,i): z coordinate
 *     FragCoor(5,i): Mulliken charge
 *
-      Call mma_allocate(dbsc(nCnttp)%FragCoor,5,nFragCoor,
+      Call mma_allocate(dbsc(iCnttp)%FragCoor,5,nFragCoor,
      &                  Label='FragCoor')
       do i = 1,nFragCoor
         Line = Get_Ln(lUnit)
         Call Get_i1(1,iBasis)
-        dbsc(nCnttp)%FragCoor(1,i) = dble(iBasis)
-        Call Get_f(2,dbsc(nCnttp)%FragCoor(2,i),3)
+        dbsc(iCnttp)%FragCoor(1,i) = dble(iBasis)
+        Call Get_f(2,dbsc(iCnttp)%FragCoor(2,i),3)
         If (Index(Line,'ANGSTROM').ne.0) Then
            If (iPrint.ge.49)
      &        write(6,*) 'Reading the relcoords in Angstrom'
-              dbsc(nCnttp)%FragCoor(2:4,i)=
-     &            dbsc(nCnttp)%FragCoor(2:4,i)/Angstr
+              dbsc(iCnttp)%FragCoor(2:4,i)=
+     &            dbsc(iCnttp)%FragCoor(2:4,i)/Angstr
         End If
       enddo
 *                                                                      *
@@ -160,13 +160,13 @@
 
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragEner)
-      dbsc(nCnttp)%nFragEner=nFragEner
-      Call mma_Allocate(dbsc(nCnttp)%FragEner,nFragEner,
+      dbsc(iCnttp)%nFragEner=nFragEner
+      Call mma_Allocate(dbsc(iCnttp)%FragEner,nFragEner,
      &                   Label='FragEner')
 *
-      Call Read_v(lUnit,dbsc(nCnttp)%FragEner,1,nFragEner,1,ierr)
+      Call Read_v(lUnit,dbsc(iCnttp)%FragEner,1,nFragEner,1,ierr)
       if(iPrint.ge.99) Call RecPrt('Fragment MO energies',' ',
-     &                              dbsc(nCnttp)%FragEner,1,nFragEner)
+     &                              dbsc(iCnttp)%FragEner,1,nFragEner)
       If (ierr.ne.0) Then
         write(6,*) 'ERROR: number of energy values is not correct'
         write(6,*) ierr
@@ -191,14 +191,14 @@
 
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nFragDens)
-      dbsc(nCnttp)%nFragDens=nFragDens
-      Call mma_allocate(dbsc(nCnttp)%FragCoef,nFragDens,nFragEner,
+      dbsc(iCnttp)%nFragDens=nFragDens
+      Call mma_allocate(dbsc(iCnttp)%FragCoef,nFragDens,nFragEner,
      &                  Label='FragCoef')
 *
-      Call Read_v(lUnit,dbsc(nCnttp)%FragCoef,1,nFragDens*nFragEner,1,
+      Call Read_v(lUnit,dbsc(iCnttp)%FragCoef,1,nFragDens*nFragEner,1,
      &                       iErr)
       If(iPrint.ge.99) Call RecPrt('Fragment MO coefficients',' ',
-     &                      dbsc(nCnttp)%FragCoef,nFragDens,nFragEner)
+     &                      dbsc(iCnttp)%FragCoef,nFragDens,nFragEner)
       If(ierr.ne.0) Then
         write(6,*) 'ERROR: number of coefficients is not correct'
         Call Quit_OnUserError()
@@ -219,9 +219,9 @@
         write(6,*) Line
         Call Quit_OnUserError()
       Endif
-      Call Read_v(lUnit,dbsc(nCnttp)%FragCoor,5,5*nFragCoor,5,ierr)
+      Call Read_v(lUnit,dbsc(iCnttp)%FragCoor,5,5*nFragCoor,5,ierr)
       If(iPrint.ge.99) Call RecPrt('Fragment Mulliken charges',' ',
-     &                      dbsc(nCnttp)%FragCoor,5,nFragCoor)
+     &                      dbsc(iCnttp)%FragCoor,5,nFragCoor)
       If(ierr.ne.0) Then
         write(6,*) 'ERROR: number of Mulliken charges is not correct'
         Call Quit_OnUserError()

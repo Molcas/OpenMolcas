@@ -37,19 +37,23 @@
 *
          Do i = 1, 2
             Write (Lu,*)
-            Write (Lu,'(19X,A)')
-     &         ' *************************************** '
             If (i.eq.1) Then
                Fact = One
                Write (Lu,'(19X,A)')
+     &            ' *************************************** '
+               Write (Lu,'(19X,A)')
      &            ' *    InterNuclear Distances / Bohr    * '
+               Write (Lu,'(19X,A)')
+     &            ' *************************************** '
             Else
                Fact = Angstr
                Write (Lu,'(19X,A)')
+     &            ' ******************************************* '
+               Write (Lu,'(19X,A)')
      &            ' *    InterNuclear Distances / Angstrom    * '
+               Write (Lu,'(19X,A)')
+     &            ' ******************************************* '
             End If
-            Write (Lu,'(19X,A)')
-     &         ' ******************************************* '
             Do icc = 1, mCentr, iCols
                Write (Lu,*)
                If (iCols.EQ.6) Write (Lu,'( 9X,6(5X,I2,1X,A,2X))')

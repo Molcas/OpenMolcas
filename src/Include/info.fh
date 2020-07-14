@@ -237,10 +237,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Integer          iCnttp_Dummy,iLbls,      IntTot,
+      Integer   iLbls,      IntTot,
      &          iShll_RF,iSigma,ixStrt,ixEnd,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
-     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,
+     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
      &          Ind_Shell(MxShll), Parent_iCnttp(Mxdbsc)
       Integer   nExp(MxShll),    nBasis(MxShll),
@@ -273,7 +273,7 @@
      &              iAOtSO, iSOInf, IrrCmp, ipFockOp, ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
-     &              iAngMx, nCnttp,  nIrrep, iOper,   nBas,   n2Tot,
+     &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
      &              iChBas, iSphCr,  nOrdEF,                  kOffAO,
      &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
@@ -290,7 +290,7 @@
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
-     &              iCnttp_Dummy, nPAMFI, iPAMFI, nPSOI,
+     &              nPAMFI, iPAMFI, nPSOI,
      &              Ind_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

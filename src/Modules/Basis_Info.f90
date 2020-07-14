@@ -16,9 +16,14 @@
       Private
       Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
                 Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
-                PAMExp, Shells, Max_Shells
+                PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy
 #include "stdalloc.fh"
 #include "Molcas.fh"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!    D E C L A R E   D E R I V E D   T Y P E S
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !     Work in progress
 !
@@ -81,12 +86,23 @@
            Integer :: nFockOp=0
            Real*8, Allocatable:: FockOp(:,:)
       End Type Shell_Info
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!     E N D   D E C L A R E   D E R I V E D   T Y P E S
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
       Integer :: nFrag_LineWords=0, nFields=7, mFields=5
+      Integer :: nCnttp=0, iCnttp_Dummy=0
       Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
       Integer :: Max_Shells=0
       Type (Shell_Info) :: Shells(MxShll)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
 !
       Interface
          Subroutine Abend()
@@ -133,20 +149,10 @@
 !
       Subroutine Basis_Info_Dmp()
 !
-      Integer i, j, nCnttp, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis
+      Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis
       Integer, Allocatable:: iDmp(:,:)
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:)
-!     Write (6,*) 'Basis_Info_Dmp()'
-!
-!     Temporary code until nCnttp has been move over to the Module
-!
-      i = 0
-      Do
-          i=i+1
-          If (i.gt.Mxdbsc .or. dbsc(i)%nCntr.eq.0) Exit
-      End Do
-      nCnttp=i-1
 #ifdef _DEBUG_
       Write (6,*) 'Basis_Info_Dmp'
       Do i = 1, nCnttp
@@ -344,7 +350,7 @@
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
-      Integer Len, i, j, nCnttp, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis
+      Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis
       Integer nFragType, nFragCoor, nFragEner, nFragDens
 !     Write (6,*) 'Basis_Info_Get()'
 !
@@ -566,10 +572,7 @@
 !
 !     Deallocate all allocatable parts of dbsc.
 !
-      i = 0
-      Do
-         i=i+1
-         If (i.gt.Mxdbsc .or. dbsc(i)%nCntr.eq.0) Exit
+      Do i = 1, nCnttp
 !
 !        Molecular Coordinates
 !
@@ -601,6 +604,9 @@
          If (allocated(dbsc(i)%PAM2)) Call mma_deallocate(dbsc(i)%PAM2)
          dbsc(i)%nPAM2=-1
       End Do
+      nCnttp=0
+!
+!     Stuff on unqiue basis set shells
 !
       Do i = 1, Max_Shells-1
          If (Allocated(Shells(i)%Bk)) Call mma_deallocate(Shells(i)%Bk)
@@ -617,6 +623,7 @@
          If (Allocated(Shells(i)%Cff_p)) Call mma_deallocate(Shells(i)%Cff_p)
          Shells(i)%nBasis=0
       End Do
+      Max_Shells=0
 !
       Return
       End Subroutine Basis_Info_Free

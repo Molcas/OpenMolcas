@@ -33,7 +33,7 @@
 ************************************************************************
       use Real_Spherical
       use External_Centers
-      use Basis_Info, only: Basis_Info_Dmp
+      use Basis_Info, only: Basis_Info_Dmp, nCnttp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

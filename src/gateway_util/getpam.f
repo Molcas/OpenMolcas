@@ -11,7 +11,7 @@
 * Copyright (C) 2001,2020,  Roland Lindh                               *
 *               Sergey Gusarov                                         *
 ************************************************************************
-      SubRoutine GetPAM(lUnit,nCnttp)
+      SubRoutine GetPAM(lUnit,iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read potential information, for DMFT calculations   *
@@ -56,7 +56,7 @@
       Endif
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nPAM2)
-      dbsc(nCnttp)%nPAM2=nPAM2
+      dbsc(iCnttp)%nPAM2=nPAM2
       Do iPAM_Ang=0, nPAM2
          Line=Get_Ln(lUnit)
          Call Get_i1(1,nPAM2Prim)
@@ -92,8 +92,8 @@
          iStrt = iEnd + 1
       End Do
 *
-      Call mma_allocate(dbsc(nCnttp)%PAM2,iEnd,Label='PAM2')
-      dbsc(nCnttp)%PAM2(:)=Array(:)
+      Call mma_allocate(dbsc(iCnttp)%PAM2,iEnd,Label='PAM2')
+      dbsc(iCnttp)%PAM2(:)=Array(:)
 *
       Call mma_deAllocate(Array)
       Return
