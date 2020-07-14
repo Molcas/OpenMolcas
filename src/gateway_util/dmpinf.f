@@ -131,17 +131,7 @@
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Dump the transformation matrices
-*
-      nSphr = 0
-      Do 1 iAng = 0, iAngMx
-         nSphr = nSphr + (iAng*(iAng+1)/2 + iAng + 1)**2
- 1    Continue
-      Len = nSphr
-      Call Put_dArray('SewTInfo',RSph(ipSph(0)),Len)
+      Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -44,7 +44,6 @@
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
      &            'THER','NEWC','TWOS'/
-      Dimension idum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -54,7 +53,7 @@
 *----------------------------------------------------------------------*
       debug=.False.
       Epsilon_Undef=.True.
-      Call Get_info_Static(iDum(1))
+      Call Get_info_Static()
       Call Basis_Info_Get()
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.

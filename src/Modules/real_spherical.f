@@ -15,7 +15,8 @@
       Private
 #include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
-     &          Condon_Shortley_phase_factor, lmax_internal
+     &          Condon_Shortley_phase_factor, lmax_internal,
+     &          Sphere_Dmp
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
@@ -439,6 +440,18 @@
  20   Continue
       Return
       End Function DblFac
+      Subroutine Sphere_Dmp()
+      Implicit None
+*
+***********************************************************************
+*
+*     Dump the transformation matrices
+*
+      Call Put_dArray('SewTInfo',RSph,SIZE(RSph))
+*
+***********************************************************************
+*
+      End Subroutine Sphere_Dmp
 *
 ***********************************************************************
 *
