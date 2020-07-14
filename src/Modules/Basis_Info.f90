@@ -97,8 +97,9 @@
       Real*8, Allocatable:: PAMexp(:,:)
       Integer :: nFrag_LineWords=0, nFields=7, mFields=5
       Integer :: nCnttp=0, iCnttp_Dummy=0
-      Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
       Integer :: Max_Shells=0
+!
+      Type (Distinct_Basis_set_centers) :: dbsc(Mxdbsc)
       Type (Shell_Info) :: Shells(MxShll)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -196,6 +197,9 @@
          End If
       End Do
       iDmp(1,nCnttp+1)=nFrag_LineWords
+      iDmp(2,nCnttp+1)=nCnttp
+      iDmp(3,nCnttp+1)=iCnttp_Dummy
+      iDmp(4,nCnttp+1)=Max_Shells
       Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
       Call mma_deallocate(iDmp)
 !
@@ -350,16 +354,25 @@
       Real*8, Allocatable, Target:: rDmp(:,:)
       Real*8, Pointer:: qDmp(:,:), pDmp(:)
       Logical Found
-      Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis
+      Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2
       Integer nFragType, nFragCoor, nFragEner, nFragDens
-!     Write (6,*) 'Basis_Info_Get()'
-!
+#ifdef _DEBUG_
+      Write (6,*) 'Basis_Info_Get()'
+#endif
       Call qpg_iArray('iDmp',Found,Len)
-      nCnttp=Len/nFields-1
-      Call mma_Allocate(iDmp,nFields,nCnttp+1,Label='iDmp')
-      If (Found) Call Get_iArray('iDmp',iDmp,nFields*(nCnttp+1))
+      Len2=Len/nFields
+      Call mma_Allocate(iDmp,nFields,Len2,Label='iDmp')
+      If (Found) Then
+         Call Get_iArray('iDmp',iDmp,Len)
+      Else
+         Write (6,*) 'Basis_Info_Get: iDmp not found!'
+         Call Abend()
+      End If
+      nFrag_LineWords=iDmp(1,Len2)
+      nCnttp         =iDmp(2,Len2)
+      iCnttp_Dummy   =iDmp(3,Len2)
+      Max_Shells     =iDmp(4,Len2)
       nAux = 0
-      nFrag_LineWords=iDmp(1,nCnttp+1)
       Do i = 1, nCnttp
          dbsc(i)%nCntr     = iDmp(1,i)
          dbsc(i)%nM1       = iDmp(2,i)
@@ -386,9 +399,13 @@
 !
 !
       Call qpg_iArray('iDmp:S',Found,Len)
-      Max_Shells = Len/mFields + 1
-      Call mma_Allocate(iDmp,mFields,Max_Shells-1,Label='iDmp')
-      Call get_iArray('iDmp:S',iDmp,Len)
+      Call mma_Allocate(iDmp,mFields,Len/mFields,Label='iDmp')
+      If (Found) Then
+         Call get_iArray('iDmp:S',iDmp,Len)
+      Else
+         Write (6,*) 'Basis_Info_Get: iDmp:S not found!'
+         Call Abend()
+      End If
       nAux2=0
       Do i = 1, Max_Shells-1
          Shells(i)%nBK    = iDmp(1,i)
@@ -568,7 +585,9 @@
 !
       Subroutine Basis_Info_Free()
       Integer i
-!     Write (6,*) 'Basis_Info_Free()'
+#ifdef _DEBUG_
+      Write (6,*) 'Basis_Info_Free()'
+#endif
 !
 !     Deallocate all allocatable parts of dbsc.
 !
@@ -605,6 +624,7 @@
          dbsc(i)%nPAM2=-1
       End Do
       nCnttp=0
+      iCnttp_Dummy=0
 !
 !     Stuff on unqiue basis set shells
 !
