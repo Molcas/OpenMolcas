@@ -97,7 +97,11 @@
       Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),iTwoj(0:7),
      &        iChO(nComp),iAddPot
       Logical EnergyWeight
+!#define _DEBUG_
+#ifdef _DEBUG_
       Character*24 Label
+      Integer ia, ib
+#endif
       Data    iTwoj/1,2,4,8,16,32,64,128/
 *
       Integer i,j,ixyz,nElem,iTri,nGrid,
@@ -106,7 +110,7 @@
      &        ip,ipF1,ipF2,ipIJ,ipK1,ipK2,ipP1,ipP2,ipTmp,ipZ1,ipZ2,
      &        ipZI1,ipZI2,iS,iSbasis,iSend,iShell,iShll,iSize,iSlocal,
      &        iSstart,iStemp,jAng,jAO,jBas,jCmp,jCnttp,jPrim,
-     &        jS,jShell,jShll,jSize,jSlocal,jxyz,lDCRT,llOper,LmbdT,
+     &        jS,jShell,jShll,jSize,jSlocal,lDCRT,llOper,LmbdT,
      &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nHer,nOp,nSkal,
      &        jSbasis,iCnt,jCnt
       Real*8  Fact,Factor,PtChrg,Xg
@@ -120,7 +124,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-!#define _DEBUG_
 #ifdef _DEBUG_
 c     data for individual fragments:
       Write (6,*) ' In FragPInt:    nCnttp          = ',nCnttp
@@ -323,7 +326,6 @@ c some printouts:
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAO   =',jAO
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jxyz  =',jxyz
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' mdcj  =',mdcj
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShell=',jShell
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCnttp=',jCnttp
