@@ -655,7 +655,7 @@ C ------------------------------------------
       END IF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'RSPR') THEN
-! Printing threshold for rotatory strength. Current default 1.0D-5
+! Printing threshold for rotatory strength. Current default 1.0D-7
         RSPR=.TRUE.
         Read(LuIn,*,ERR=997) RSTHR
         LINENR=LINENR+1

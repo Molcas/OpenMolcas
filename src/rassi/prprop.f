@@ -471,25 +471,25 @@ C printing threshold
       OSTHR=1.0D-5
       OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,*)  ' Printing threshold changed to ',OSTHR,
-     &              ' since quadrupole threshold is given '
+        WRITE(6,48)  'Printing threshold changed to ',OSTHR,
+     &              'since quadrupole threshold is given '
       END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
       IF(QIPR) THEN
-      WRITE(6,*) ' Quadrupole printing threshold changed to ',OSTHR2
+      WRITE(6,30) 'Quadrupole printing threshold changed to ',OSTHR2
       END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 
 ! Rotatory strength threshold
       IF(RSPR) THEN
-        WRITE(6,*) 'Rotatory strength printing threshold changed'//
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
      &             'to ',RSTHR
       ELSE
-        RSTHR = 1.0D-05 !Default
+        RSTHR = 1.0D-07 !Default
       END IF
 !
 !     Reducing the loop over states - good for X-rays
@@ -845,7 +845,7 @@ C printing threshold
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,*) "All dipole oscillator differences above the "//
+         WRITE(6,48) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -2359,7 +2359,7 @@ C printing threshold
              END IF
             END IF
 *
-            IF (ABS(R).LT.RSTHR) THEN
+            IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
 !
@@ -2737,7 +2737,7 @@ C printing threshold
              END IF
             END IF
 *
-            IF (ABS(R).LT.RSTHR) THEN
+            IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
 !
@@ -7129,6 +7129,7 @@ C backtransformation in two steps, -phi and -theta
 40    FORMAT (5X,63('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
+48    FORMAT (5X,A,1X,ES15.8,1X,A,ES15.8)
 
       RETURN
       END

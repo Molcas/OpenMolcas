@@ -622,29 +622,29 @@ C                                                                      C
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
       IF(DIPR) THEN
-        WRITE(6,*) ' Dipole printing threshold changed to ',OSTHR
+        WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
       END IF
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-      WRITE(6,*) ' Printing threshold changed to ',OSTHR,
-     &           ' since quadrupole printing threshold is given '
+      WRITE(6,48) 'Printing threshold changed to ',OSTHR,
+     &           'since quadrupole printing threshold is given '
       END IF
       OSTHR2=1.0D-5
       IF(QIPR) OSTHR2 = OSTHR_QIPR
       IF(QIPR) THEN
-       WRITE(6,*) ' Quadrupole printing threshold changed to ',OSTHR2
+       WRITE(6,30) 'Quadrupole printing threshold changed to ',OSTHR2
       END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 
 !Rotatory strength threshold
       IF(RSPR) THEN
-        WRITE(6,*) 'Rotatory strength printing threshold changed'//
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
      &             'to ',RSTHR
       ELSE
-        RSTHR = 1.0D-05 !Default
+        RSTHR = 1.0D-07 !Default
       END IF
 !
 !     Reducing the loop over states - good for X-rays
@@ -1018,7 +1018,7 @@ C                                                                      C
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,*) "All dipole oscillator differences above the "//
+         WRITE(6,48) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -3098,5 +3098,6 @@ C                 Why do it when we don't do the L.S-term!
 45    FORMAT (4X,2(A,1X,ES15.8,1X))
 46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
 47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
+48    FORMAT (5X,A,1X,ES15.8,1X,A,ES15.8)
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
