@@ -306,7 +306,8 @@ C     Show=Show.and..Not.Primitive_Pass
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 2033
+                  nExpi=Shells(iSh)%nExp
+                  If (nExpi.eq.0) Go To 2033
                   If (nBasis(iSh).eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1
@@ -356,8 +357,8 @@ C     Show=Show.and..Not.Primitive_Pass
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExp(iSh)
-                     m2Max = Max(m2Max,nExp(iSh)**2)
+                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
+                     m2Max = Max(m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasis(iSh)
                         iSO_Tot = iSO_Tot + 1
                         If (AuxShell(iSh)) Then
@@ -392,7 +393,7 @@ C     Show=Show.and..Not.Primitive_Pass
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExp(iSh).eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -406,7 +407,7 @@ C     Show=Show.and..Not.Primitive_Pass
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExp(iSh).eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -667,7 +668,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 3033
+                  nExpi=Shells(iSh)%nExp
+                  If (nExpi.eq.0) Go To 3033
                   If (nBasis(iSh).eq.0) Go To 3033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1
@@ -707,8 +709,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExp(iSh)
-                     m2Max = Max(m2Max,nExp(iSh)**2)
+                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
+                     m2Max = Max(m2Max,nExpi**2)
                      If(.not.FragShell(iSh) .and.
      &                  .not.AuxCnttp(iCnttp))
      &                 nFCore(0)=nFCore(0)+nCore
@@ -749,7 +751,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExp(iSh).eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -763,7 +765,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExp(iSh).eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -882,7 +884,8 @@ CSVC: basis IDs of non-symmetric case
             Do 403 iAng = 0, nVal_Shells(iCnttp)-1
                iSh = iSh + 1
                iShell = iShell + 1
-               If (nExp(iSh).eq.0) Go To 4033
+               nExpi=Shells(iSh)%nExp
+               If (nExpi.eq.0) Go To 4033
                If (nBasis(iSh).eq.0) Go To 4033
                jComp = (iAng+1)*(iAng+2)/2
                If(Prjct(iSh)) jComp = 2*iAng + 1

@@ -154,13 +154,15 @@
          kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
          Type(0) = .False.
          Do kSh = kShStr, kShEnd
-            Type(0) = Type(0) .or. nExp(kSh)*nBasis(kSh).ne.0
+            nExpk=Shells(kSh)%nExp
+            Type(0) = Type(0) .or. nExpk*nBasis(kSh).ne.0
          End Do
          If (output.and.Type(0) .AND..NOT.lOPTO) Then
             Write (LuWr,'(6X,A)')
      &          'Shell  nPrim  nBasis  Cartesian Spherical Contaminant'
          End If
          Do kSh = kShStr, kShEnd
+            nExpk=Shells(kSh)%nExp
             ChCa=' '
             ChSph='X'
             ChCo=' '
@@ -169,9 +171,9 @@
                ChSph=' '
             End if
             If (Transf(kSh).and.(.not.Prjct(kSh))) ChCo='X'
-            If (output.and.nExp(kSh)*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
+            If (output.and.nExpk*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
-     &            AngTp(lSh),nExp(kSh),nBasis(kSh),ChCa,ChSph,ChCo
+     &            AngTp(lSh),nExpk,nBasis(kSh),ChCa,ChSph,ChCo
             If (Prjct(kSh)) Then
                kComp = 2*lSh + 1
             Else
@@ -194,7 +196,8 @@
      &             '======================================='
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
-               Type(0)=Type(0).or.nExp(kSh).ne.0
+               nExpk=Shells(kSh)%nExp/3
+               Type(0)=Type(0).or.nExpk.ne.0
             End Do
             If (Type(0)) Then
                Write (LuWr,*)
@@ -203,14 +206,15 @@
          End If
          lSh= 0
          Do kSh = kShStr, kShEnd
+            nExpk=Shells(kSh)%nExp/3
 C           Write (*,*) 'kSh,lSh=',kSh,lSh
-            If (output.and.nExp(kSh).ne.0 .AND..NOT.lOPTO) Then
+            If (output.and.nExpk.ne.0 .AND..NOT.lOPTO) Then
                If (lSh.eq.0) Then
                   Write (LuWr,'(9X,A,6X,I2)')
-     &               '  H',nExp(kSh)
+     &               '  H',nExpk
                Else
                   Write (LuWr,'(9X,A,6X,I2)')
-     &               AngTp(lSh-1)//'-H',nExp(kSh)
+     &               AngTp(lSh-1)//'-H',nExpk
                End If
             End If
             lSh = lSh + 1
@@ -240,7 +244,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             End If
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
-               Type(0)=Type(0).or.nExp(kSh)*nBasis(kSh).ne.0
+               nExpk=Shells(kSh)%nExp
+               Type(0)=Type(0).or.nExpk*nBasis(kSh).ne.0
             End Do
             If (Type(0)) Then
                Write (LuWr,*)
@@ -250,9 +255,10 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          End If
          lSh= 0
          Do kSh = kShStr, kShEnd
-            If (output.and.nExp(kSh)*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
+            nExpk=Shells(kSh)%nExp
+            If (output.and.nExpk*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,6X,I2,6X,I2)')
-     &            AngTp(lSh),nExp(kSh),nBasis(kSh)
+     &            AngTp(lSh),nExpk,nBasis(kSh)
             kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
@@ -262,7 +268,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          If (output.and.ECP(iCnttp) .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
-               Type(0)=Type(0).or.nExp(kSh).ne.0
+               nExpk=Shells(kSh)%nExp
+               Type(0)=Type(0).or.nExpk.ne.0
             End Do
             If (Type(0)) Then
                If (nOpt(iCnttp).ne.0) Then
@@ -312,9 +319,10 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          End If
          lSh= 0
          Do kSh = kShStr, kShEnd
-            If (output.and.nExp(kSh).ne.0 .AND..NOT.lOPTO)
+            nExpk=Shells(kSh)%nExp
+            If (output.and.nExpk.ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,6X,I2)')
-     &            AngTp(lSh),nExp(kSh)
+     &            AngTp(lSh),nExpk
             kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
@@ -326,7 +334,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          If (output.and.ECP(iCnttp) .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
-               Type(0)=Type(0).or.nExp(kSh).ne.0
+               nExpk=Shells(kSh)%nExp
+               Type(0)=Type(0).or.nExpk.ne.0
             End Do
             If (Type(0)) Then
                If (nOpt(iCnttp).ne.0) Then
@@ -340,7 +349,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          End If
          lSh= 0
          Do kSh = kShStr, kShEnd
-            If (output.and.nExp(kSh).ne.0)
+            nExpk=Shells(kSh)%nExp
+            If (output.and.nExpk.ne.0)
      &         Write (LuWr,'(9X,A,6X,I2)')
      &            AngTp(lSh),nExp(kSh)
             kComp = 2*lSh + 1

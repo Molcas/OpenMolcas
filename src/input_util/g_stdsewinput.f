@@ -232,7 +232,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Thrshld_R=1.0D-08
       Do iSh = ipVal_, ipVal_+nVal-1
          RMax_R=Zero
-         Do iPrim = 1, nExp(iSh)
+         Do iPrim = 1, Shells(iSh)%nExp
             ValExp = Shells(iSh)%Exp(iPrim)
             RMax_R = Max(RMax_R,
      &                   Eval_RMax(ValExp,iAng,Thrshld_R))

@@ -79,7 +79,8 @@
 *
             Do 200 iAng=0, nTest
                iShll = ipVal(iCnttp) + iAng
-               If (nExp(iShll).eq.0)   Go To 200
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0)   Cycle
                If (nBasis(iShll).eq.0) Go To 200
                If (Basis_Mode.eq.Valence_Mode .and.
      &             (AuxShell(iShll).or.FragShell(iShll))) Go To 200
@@ -103,7 +104,7 @@
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
                iSD(4,nSkal)= -1                      ! Not used
-               iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
+               iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
@@ -142,7 +143,7 @@
                End Do
                iSD(15,nSkal) = iTmp
 *
-               m2Max=Max(m2Max,nExp(iShll)**2)
+               m2Max=Max(m2Max,nExpi**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -184,7 +185,8 @@
 *
       Do 400 iAng=0, nTest
          iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0)   Go To 400
+         nExpi=Shells(iShll)%nExp
+         If (nExpi.eq.0)   Cycle
          If (nBasis(iShll).eq.0) Go To 400
          If (FragShell(iShll)) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
@@ -199,7 +201,7 @@
          iSD(2,nSkal)=iCmp                     ! # of ang. comp.
          iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
          iSD(4,nSkal)= -1                      ! Not used
-         iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
+         iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
          iSD(7,nSkal)= iAOttp                  ! ? magic
      &               + kOffAO(iCnttp,iAng)     !
@@ -223,7 +225,7 @@
          iSD(17,nSkal) = 0
          iSD(18,nSkal) = 0
 *
-         m2Max=Max(m2Max,nExp(iShll)**2)
+         m2Max=Max(m2Max,nExpi**2)
 *
          If (Prjct(iShll)) Then
             nFunctions = nFunctions + nBasis(iShll)*(2*iAng+1)
@@ -280,7 +282,8 @@
             nTest = nVal_Shells(iCnttp)-1
             If (iAng.gt.nTest) Go To 201
             iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 201
+            nExpi=Shells(iShll)%nExp
+            If (nExpi.eq.0) Go To 201
             If (nBasis(iShll).eq.0) Go To 201
             iCmp  = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll)) iCmp = 2*iAng+1
@@ -294,7 +297,7 @@
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
                iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
                iSD(4,nSkal)= -1                      ! Not used
-               iSD(5,nSkal)=  nExp(iShll)            ! # of prim.
+               iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !

@@ -228,10 +228,10 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iPrimi   = nExp(iShllV(1))
-      jPrimj   = nExp(iShllV(2))
-      kPrimk   = nExp(iShllV(3))
-      lPriml   = nExp(iShllV(4))
+      iPrimi   = Shells(iShllV(1))%nExp
+      jPrimj   = Shells(iShllV(2))%nExp
+      kPrimk   = Shells(iShllV(3))%nExp
+      lPriml   = Shells(iShllV(4))%nExp
       iBasi    = nBasis(iShllV(1))
       jBasj    = nBasis(iShllV(2))
       kBask    = nBasis(iShllV(3))

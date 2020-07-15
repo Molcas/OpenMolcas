@@ -94,7 +94,7 @@ c      print *,' iAngMx', iAngMx
 *           Write (*,*) ' iCnttp=',iCnttp
             nCnt = dbsc(iCnttp)%nCntr
             iShll = ipVal(iCnttp) + iAng
-            iPrim = nExp(iShll)
+            iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 101
             iBas  = nBasis(iShll)
             If (iBas.eq.0) Go To 101
