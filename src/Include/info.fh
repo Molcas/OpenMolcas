@@ -43,11 +43,6 @@
 *            set                                                       *
 *     ipSRO: the index of the first SRO shell of the i''th basis set   *
 *     ipSOC: the index of the first SOC shell of the i''th basis set   *
-*     ipBk  : pointer to ECP proj shift parameters for i''th shell.    *
-*             the number of parameters is given by nBasis              *
-*     ipAkl : pointer to the A matrix used for Ab Initio model poten-  *
-*             tial, size nExp**2                                       *
-*     ipFockOp: pointer to the Fock operator matrix                    *
 *     nTot_Shells: total number of shells of the i''th basis set       *
 *     nVal_Shells: number of valence shells of the i''th basis set     *
 *     nPrj_Shells: number of projection shells associated with the     *
@@ -257,11 +252,10 @@
      &          IndS(MxShll), nBas_Aux(0:7),
      &          iAOtSO(MxAO,0:7),lOffAO(Mxdbsc), NrInt(-20:9),
      &          kOffAO(Mxdbsc,0:iTabMx), Max_Center,  nPrm(0:7),
-     &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,   ipAkl(Mxshll),
+     &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl,
-     &          ipBk(Mxshll),
-     &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
+     &          nOpt(MxShll), iAtmNr(mxdbsc),
      &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
@@ -269,8 +263,8 @@
 *
       Common /Info/
      &              nExp,    nBasis, nBasis_Cntrct,
-     &              IndS, ipAkl, ipBk, nOpt, iCoSet,
-     &              iAOtSO, iSOInf, IrrCmp, ipFockOp, ixStrt,
+     &              IndS, nOpt, iCoSet,
+     &              iAOtSO, iSOInf, IrrCmp, ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,

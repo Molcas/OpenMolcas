@@ -40,10 +40,9 @@
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer nExp(MxShll), nBasis(MxShll),
-     &        mPP(2)
+      Integer nExp(MxShll), nBasis(MxShll), mPP(2)
       Logical UnNorm
-      Integer, Intent(In):: iCnttp
+      Integer iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
