@@ -128,11 +128,11 @@
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
          do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
-           If (Shells(kSh)nExp.le.0) Cycle
+           If (Shells(kSh)%nExp.le.0) Cycle
            ncrr=Int(Shells(kSh)%Exp(1))
            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
-         If (nPP_S.eq.0) Cyle
+         If (nPP_S.eq.0) Cycle
 cAOM>
 *
          npot = 0
