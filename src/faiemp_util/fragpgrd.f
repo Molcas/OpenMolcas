@@ -186,13 +186,13 @@ c      ! Dummy initialize
 
         iSize = nElem(iAng)
         if(Transf(iShll).and.Prjct(iShll)) iSize = 2*iAng+1
-        If(Abs(dbsc(mdci)%nFragCoor).ne.iCurMdc) Then
+        If(Abs(dbsc(iCnttp)%nFragCoor).ne.iCurMdc) Then
 * update fragment related quantities
-          iCurMdc = Abs(dbsc(mdci)%nFragCoor)
+          iCurMdc = Abs(dbsc(iCnttp)%nFragCoor)
           iSstart = iS
           iSend = nSkal
           Do iStemp = iSstart + 1,nSkal
-            If(Abs(dbsc(iSD(10,iStemp))%nFragCoor).ne.iCurMdc) Then
+            If(Abs(dbsc(iSD(13,iStemp))%nFragCoor).ne.iCurMdc) Then
               iSend = iStemp - 1
               goto 101
             End If

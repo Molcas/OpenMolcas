@@ -281,7 +281,7 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * To signify this we store the negative value such that we can identify
 * the that the actual number of centers is 0 and that the corresponding
 * size of dbsc()%FragCoor is 0 and nothing else.
-            dbsc(mdc)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
+            dbsc(nCnttp)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
             If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
      &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
