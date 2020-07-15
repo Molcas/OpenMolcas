@@ -34,7 +34,7 @@
       Integer nHer,MemFrag,la,lb,lr
       Integer i,nElem,nOrder,maxDensSize
       Integer iCnttp,jCnttp,iAng,jAng,iShll,jShll
-      Integer ip,nac,ncb
+      Integer ip,nac,ncb, nExpi, nExpj
 *
       nElem(i) = (i+1)*(i+2)/2
 *
@@ -54,7 +54,8 @@ c
 *
          Do iAng = 0, nVal_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) cycle !Go To 1966
+         nExpi=Shells(iShll)%nExp
+         If (nExpi.eq.0 .or. nBasis(iShll).eq.0) cycle !Go To 1966
 *
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
@@ -63,49 +64,50 @@ c
 *
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng
-               If (nExp(jShll).eq.0 .or. nBasis(jShll).eq.0) cycle
+               nExpj=Shells(jShll)%nExp
+               If (nExpj.eq.0 .or. nBasis(jShll).eq.0) cycle
 !              Go To 1976
 *
                ip =  2 * maxDensSize
               nac =  4 * nElem(la) * nElem(iAng)
-               ip = ip + nExp(iShll) * nac
-               ip = ip + 3 * nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
+               ip = ip + nExpi * nac
+               ip = ip + 3 * nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
              nHer = ((la+1)+iAng+2)/2
            nOrder = Max(nHer,nOrder)
-               ip = ip + nExp(iShll) * 3 * nHer * (la+2)
-               ip = ip + nExp(iShll) * 3 * nHer * (iAng+1)
-               ip = ip + nExp(iShll) * 3 * nHer * (lr+1)
-               ip = ip + nExp(iShll) * 3 * nHer * (la+2)*(iAng+1)*(lr+1)
-               ip = ip + nExp(iShll)
+               ip = ip + nExpi * 3 * nHer * (la+2)
+               ip = ip + nExpi * 3 * nHer * (iAng+1)
+               ip = ip + nExpi * 3 * nHer * (lr+1)
+               ip = ip + nExpi * 3 * nHer * (la+2)*(iAng+1)*(lr+1)
+               ip = ip + nExpi
 *
           MemFrag = Max(MemFrag,ip)
-               ip = ip - nExp(iShll)
+               ip = ip - nExpi
      &            * (6 + 3*nHer*((la+2) + (iAng+1) + (lr+1)
      &            + (la+2)*(iAng+1)*(lr+1)) + 1)
 *
               ncb = 4*nElem(jAng)*nElem(lb)
-               ip = ip + nExp(jShll)*ncb
-               ip = ip + 3 * nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
+               ip = ip + nExpj*ncb
+               ip = ip + 3 * nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
              nHer = ((lb+1)+jAng+2)/2
            nOrder = Max(nHer,nOrder)
-               ip = ip + nExp(jShll)*3*nHer*(lb+2)
-               ip = ip + nExp(jShll)*3*nHer*(jAng+1)
-               ip = ip + nExp(jShll)*3*nHer*(lr+1)
-               ip = ip + nExp(jShll)*3*nHer*(lb+2)*(jAng+1)*(lr+1)
-               ip = ip + nExp(jShll)
+               ip = ip + nExpj*3*nHer*(lb+2)
+               ip = ip + nExpj*3*nHer*(jAng+1)
+               ip = ip + nExpj*3*nHer*(lr+1)
+               ip = ip + nExpj*3*nHer*(lb+2)*(jAng+1)*(lr+1)
+               ip = ip + nExpj
 *
           MemFrag = Max(MemFrag,ip)
-               ip = ip - nExp(jShll)
+               ip = ip - nExpj
      &            * (6 + 3*nHer*((lb+2) + (jAng+1) + (lr+1)
      &            +  (lb+2)*(jAng+1)*(lr+1)) + 1)
 *
-               ip = ip + Max(Max(nExp(iShll),nBasis(jShll))*nac,
+               ip = ip + Max(Max(nExpi,nBasis(jShll))*nac,
      &                      ncb*nBasis(jShll))
           MemFrag = Max(MemFrag,ip)
 *

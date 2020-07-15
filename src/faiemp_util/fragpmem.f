@@ -27,7 +27,7 @@
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
-      Integer nHer, MemFrag, la, lb, lr,
+      Integer nHer, MemFrag, la, lb, lr, nExpi, nExpj,
      &        i, nElem, maxDensSize, iCnttp, jCnttp, iAng, jAng,
      &        iShll, jShll, ip, nac, ncb, MemMlt, nH
 * statement function
@@ -47,7 +47,8 @@ c
 c
          Do iAng = 0, nVal_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) cycle
+         nExpi=Shells(iShll)%nExp
+         If (nExpi.eq.0 .or. nBasis(iShll).eq.0) cycle
 *
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
@@ -56,35 +57,36 @@ c
 c
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng
-               If (nExp(jShll).eq.0 .or. nBasis(jShll).eq.0) cycle
+               nExpj=Shells(jShll)%nExp
+               If (nExpj.eq.0 .or. nBasis(jShll).eq.0) cycle
 !              Go To 1976
 *
                ip = 2 * maxDensSize
               nac = nElem(la)*nElem(iAng)
-               ip = ip + nExp(iShll)*nac
-               ip = ip + 3 * nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
+               ip = ip + nExpi*nac
+               ip = ip + 3 * nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
 *
               Call MltMmP(nH,MemMlt,la,iAng,lr)
              nHer = Max(nH,nHer)
-          MemFrag = Max(MemFrag,ip+nExp(iShll)*MemMlt)
-               ip = ip - 6 * nExp(iShll)
+          MemFrag = Max(MemFrag,ip+nExpi*MemMlt)
+               ip = ip - 6 * nExpi
 *
               ncb = nElem(jAng)*nElem(lb)
-               ip = ip + nExp(jShll)*ncb
-               ip = ip + 3 * nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
+               ip = ip + nExpj*ncb
+               ip = ip + 3 * nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
 *
               Call MltMmP(nH,MemMlt,jAng,lb,lr)
              nHer = Max(nH,nHer)
-          MemFrag = Max(MemFrag,ip+nExp(jShll)*MemMlt)
-               ip = ip - 6 * nExp(jShll)
+          MemFrag = Max(MemFrag,ip+nExpj*MemMlt)
+               ip = ip - 6 * nExpj
 *
-               ip = ip + Max( nac * Max(nExp(iShll),nBasis(jShll)),
+               ip = ip + Max( nac * Max(nExpi,nBasis(jShll)),
      &                        ncb * nBasis(jShll) )
           MemFrag = Max(MemFrag,ip)
 *

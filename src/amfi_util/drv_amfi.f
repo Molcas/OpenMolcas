@@ -254,8 +254,6 @@
 *                     Use valence basis
 *
                       iShll  = ipVal(iCnttp)+l
-                      nBas_x = nBasis(iShll)
-                      nExp_x = nExp(iShll)
                       iCase  = 2
 *
                    Else
@@ -264,12 +262,12 @@
 *                     normal valence might not be adequate.
 *
                       iShll  = ipSOC(iCnttp)+l
-                      nBas_x = nBasis(iShll)
-                      nExp_x = nExp(iShll)
                       nBas_y = iSD( 3,iSkal)
                       iCase = 1
 *
                    End If
+                   nBas_x = nBasis(iShll)
+                   nExp_x = nExp(iShll)
 *
                    If (IfTest) Write (6,*)  'iShll=',iShll
                    Write (Lu_AMFI,*) nExp_x, nBas_x

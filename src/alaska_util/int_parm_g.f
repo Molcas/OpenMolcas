@@ -11,7 +11,7 @@
       Subroutine Int_Parm_g(iSD4,nSD,iAnga,
      &                    iCmpa,iShlla,iShela,
      &                    iPrimi,jPrimj,kPrimk,lPriml,
-     &                    nExp,MxShll,
+     &                    MxShll,
      &                    indij,k2ij,nDCRR,k2kl,nDCRS,
      &                    mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                    nZeta,nEta,ipZeta,ipZI,ipP,
@@ -19,9 +19,9 @@
      &                    ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd,
      &                    nIrrep)
       use k2_setup
+      use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
-      Integer iAnga(4), iCmpa(4), iShlla(4), iShela(4),
-     &        iSD4(0:nSD,4), nExp(MxShll)
+      Integer iAnga(4), iCmpa(4), iShlla(4), iShela(4), iSD4(0:nSD,4)
       Logical AeqB, CeqD, l2DI
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -31,10 +31,10 @@
       Call ICopy(4,iSD4( 2,1),nSD+1,iCmpa,1)
       Call ICopy(4,iSD4( 0,1),nSD+1,iShlla,1)
       Call ICopy(4,iSD4(11,1),nSD+1,iShela,1)
-      iPrimi   =   nExp(iSD4( 0,1))
-      jPrimj   =   nExp(iSD4( 0,2))
-      kPrimk   =   nExp(iSD4( 0,3))
-      lPriml   =   nExp(iSD4( 0,4))
+      iPrimi   =Shells(iSD4( 0,1))%nExp
+      jPrimj   =Shells(iSD4( 0,2))%nExp
+      kPrimk   =Shells(iSD4( 0,3))%nExp
+      lPriml   =Shells(iSD4( 0,4))%nExp
       iShell=iSD4(11,1)
       jShell=iSD4(11,2)
       kShell=iSD4(11,3)

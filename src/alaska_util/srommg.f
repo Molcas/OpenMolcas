@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
 *
-      use Basis_Info, only: nCnttp
+      use Basis_Info, only: nCnttp, Shells
 #include "itmax.fh"
 #include "info.fh"
 *
@@ -36,49 +36,50 @@
          If (.Not.ECP(iCnttp)) Go To 1960
          Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
             iShll = ipSRO(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 1966
+            nExpi=Shells(iShll)%nExp
+            If (nExpi.eq.0) Go To 1966
 *
             ip = 0
-            ip = ip + nExp(iShll)**2
+            ip = ip + nExpi**2
             nac = 4*nElem(la)*nElem(iAng)
-            ip = ip + nExp(iShll)*nac
-            ip = ip + 3 * nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*nac
+            ip = ip + 3 * nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
             nHer = ((la+1)+iAng+2)/2
             nOrder = Max(nHer,nOrder)
-            ip = ip + nExp(iShll)*3*nHer*(la+2)
-            ip = ip + nExp(iShll)*3*nHer*(iAng+1)
-            ip = ip + nExp(iShll)*3*nHer*(lr+1)
-            ip = ip + nExp(iShll)*3*nHer*(la+2)*(iAng+1)*(lr+1)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*3*nHer*(la+2)
+            ip = ip + nExpi*3*nHer*(iAng+1)
+            ip = ip + nExpi*3*nHer*(lr+1)
+            ip = ip + nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
+            ip = ip + nExpi
 *
             MmSROG = Max(MmSROG,ip)
-            ip = ip - nExp(iShll)
+            ip = ip - nExpi
      &         * (6 + 3*nHer*((la+2) + (iAng+1) + (lr+1)
      &         +  (la+2)*(iAng+1)*(lr+1)) + 1)
 *
             ncb = 4*nElem(iAng)*nElem(lb)
-            ip = ip + nExp(iShll)*ncb
-            ip = ip + 3 * nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*ncb
+            ip = ip + 3 * nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
             nHer = ((lb+1)+iAng+2)/2
             nOrder = Max(nHer,nOrder)
-            ip = ip + nExp(iShll)*3*nHer*(lb+2)
-            ip = ip + nExp(iShll)*3*nHer*(iAng+1)
-            ip = ip + nExp(iShll)*3*nHer*(lr+1)
-            ip = ip + nExp(iShll)*3*nHer*(lb+2)*(iAng+1)*(lr+1)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*3*nHer*(lb+2)
+            ip = ip + nExpi*3*nHer*(iAng+1)
+            ip = ip + nExpi*3*nHer*(lr+1)
+            ip = ip + nExpi*3*nHer*(lb+2)*(iAng+1)*(lr+1)
+            ip = ip + nExpi
 *
             MmSROG = Max(MmSROG,ip)
-            ip = ip - nExp(iShll)
+            ip = ip - nExpi
      &         * (6 + 3*nHer*((lb+2) + (iAng+1) + (lr+1)
      &         +  (lb+2)*(iAng+1)*(lr+1)) + 1)
 *
-            ip = ip + Max(nExp(iShll)*nac,ncb*nExp(iShll))
+            ip = ip + Max(nExpi*nac,ncb*nExpi)
             MmSROG = Max(MmSROG,ip)
 *
  1966    Continue
