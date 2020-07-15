@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,nExp,nBasis,MxShll,
-     &                       nProj,iCoShll)
+      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,nBasis,MxShll,nProj,iCoShll)
 ************************************************************************
 *                                                                      *
 *     VExch calculates the atomic integral                             *
@@ -18,7 +17,7 @@
 ************************************************************************
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
-      Integer nExp(MxShll), nBasis(MxShll)
+      Integer nBasis(MxShll)
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
       PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
       COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
@@ -59,7 +58,7 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         IF(L1.LT.L2) LMT=((L2-1)*L2)/2+L1
         KOMAX=KOSUU(LMT)
 *       loop over core orbitals of a given angular momentum
-        iOff = nBasis(iCoSh)*nExp(iCoSh)
+        iOff = nBasis(iCoSh)*Shells(iCoSh)%nExp
         DO 54 ICORB=1,nBasis(iCoSh)
           OrbPS=0d0
           DO 50 INU=1,KOMAX
@@ -75,7 +74,7 @@ C
             IT3=NQ+NS-NU-1
             IT4=NP+NR+NU
             SUMA=0.D0
-            nExpon=nExp(iCoSh)
+            nExpon=Shells(iCoSh)%nExp
             DO K=1,nExpon
               ZR=Shells(iCoSh)%Exp(K)
               CR=Shells(iCoSh)%Cff_c(K,ICORB,2)

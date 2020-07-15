@@ -82,7 +82,8 @@
             jSh = iShSrt
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShell = iShell + 1
-               If (MaxPrm(iAng).gt.0 .and. nExp(jSh).gt.0 .and.
+               nExpj=Shells(jSh)%nExp
+               If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasis(jSh).gt.0 .and. output .and.
      &             iCnt.eq.1) Then
                   Write (LuWr,*)
@@ -94,7 +95,7 @@
                End If
 *
                If (nBasis(jSh).gt.0 .and. output) Then
-                  Do kExp = 1, nExp(jSh)
+                  Do kExp = 1, nExpj
                      jExp  = jExp  + 1
                      If (iCnt.eq.1)
      &               Write (LuWr,'( 9X,I4,1X,D16.9,10(1X,F10.6),'//
@@ -114,17 +115,17 @@
                If (Prjct(jSh)) kCmp=2*iAng+1
                If (nBasis(jSh).ne.0 ) Then
                   If (AuxShell(jSh)) Then
-                     iPrim_Aux = iPrim_Aux + nExp(jSh)   * kCmp
+                     iPrim_Aux = iPrim_Aux + nExpj   * kCmp
      &                         * nIrrep/nStab(mdc)
                      iBas_Aux  = iBas_Aux  + nBasis(jSh) * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else If (FragShell(jSh)) Then
-                     iPrim_Frag = iPrim_Frag + nExp(jSh)   * kCmp
+                     iPrim_Frag = iPrim_Frag + nExpj   * kCmp
      &                          * nIrrep/nStab(mdc)
                      iBas_Frag = iBas_Frag  + nBasis(jSh) * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else
-                     iPrim = iPrim + nExp(jSh)   * kCmp
+                     iPrim = iPrim + nExpj   * kCmp
      &                      * nIrrep/nStab(mdc)
                      iBas  = iBas  + nBasis(jSh) * kCmp
      &                     * nIrrep/nStab(mdc)
@@ -247,7 +248,8 @@ Cend
             kShEnd = kShStr + nPP_Shells(iCnttp)-1
             lSh= 0
             Do kSh = kShStr, kShEnd
-               If (nExp(kSh).ne.0.and.iCnttp.le.21) Then
+               nExpk=Shells(kSh)%nExp
+               If (nExpk.ne.0.and.iCnttp.le.21) Then
                   If (lSh.eq.0) Then
                      Write (LuWr,'(4X,A)') '  H Potential'
                   Else
@@ -258,7 +260,7 @@ Cend
                lSh = lSh + 1
                Write (LuWr,'(A)') '  n     Exponent      Coefficient'
                iOff = 1
-               Do iExp = 1, nExp(kSh)
+               Do iExp = 1, nExpk
                   ncr=Int(Shells(kSh)%Exp(iOff  ))
                   zcr=    Shells(kSh)%Exp(iOff+1)
                   ccr=    Shells(kSh)%Exp(iOff+2)
@@ -340,7 +342,7 @@ Cend
                   End Do
 *
                   If (iPrint.ge.10) Then
-                     Do kExp = 1, nExp(iSh)
+                     Do kExp = 1, Shells(iSh)%nExp
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,8(G12.5),'//
      &                        '3(/,30X,8(G12.5)))')
@@ -377,7 +379,7 @@ Cend
                      Write (LuWr,*) '                   Exponent   ',
      &                              ' Contraction Coefficients'
                      Write (LuWr,*)
-                     Do kExp = 1, nExp(iSh)
+                     Do kExp = 1, Shells(iSh)%nExp
                         jExp  = jExp  + 1
                         Write (LuWr,'(14X,D16.9,10(1X,F10.6),'//
      &                           '3(/,30X,10(1X,F10.6)))')
@@ -397,7 +399,7 @@ Cend
                nSumA = 0
                jSh = iSh
                Do iAng = 0, nSRO_Shells(iCnttp)-1
-                  nSumA = nSumA + nExp(jSh)
+                  nSumA = nSumA + Shells(jSh)%nExp
                   jSh = jSh + 1
                End Do
                If (nSumA.ne.0) Then
@@ -406,19 +408,20 @@ Cend
                   Write (LuWr,*) ' Spectral Resolution Basis Set'
                End If
                Do iAng = 0, nSRO_Shells(iCnttp)-1
-                  If (nExp(iSh).ne.0) Then
+                  nExpi=Shells(iSh)%nExp
+                  If (nExpi.ne.0) Then
                      Write (LuWr,*)
                      Write (LuWr,'(19X,A,A)')
      &                     '        Angular Type: ', AngTp(iAng)
                      Call RecPrt(' Exponents',' ',
-     &                           Shells(iSh)%Exp,nExp(iSh),1)
+     &                           Shells(iSh)%Exp,nExpi,1)
                      If (iPrint.ge.11) Then
                         Call RecPrt(' The Akl matrix','(5D20.13)',
-     &                              Shells(iSh)%Akl(1,1,1),nExp(iSh),
-     &                                                     nExp(iSh))
+     &                              Shells(iSh)%Akl(1,1,1),nExpi,
+     &                                                     nExpi)
                         Call RecPrt(' The Adl matrix','(5D20.13)',
-     &                              Shells(iSh)%Akl(1,1,2),nExp(iSh),
-     &                                                     nExp(iSh))
+     &                              Shells(iSh)%Akl(1,1,2),nExpi,
+     &                                                     nExpi)
                      End If
                   End If
                   iSh = iSh + 1

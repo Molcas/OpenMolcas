@@ -87,9 +87,9 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = kcr
+            nExp(iShll) = 3*kcr
+            Shells(iShll)%nExp = 3*kcr
             Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
-            Shells(iShll)%nExp=3*kcr
 *
             iStrt=1
             Do jcr = 1, kcr
@@ -124,9 +124,9 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = kcr
-            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
+            nExp(iShll) = 3*kcr
             Shells(iShll)%nExp=3*kcr
+            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 *
             iStrt=1
             Do jcr = 1, kcr
@@ -248,6 +248,7 @@ C        Write (6,*) 'Done'
          Call Get_i1(2,nCntrc)
 *
          nExp(iShll) = nPrim
+         Shells(iShll)%nExp=nPrim
          nBasis(iShll) = nCntrc
 *
 *------- Check if occupation number is included on the line
@@ -325,8 +326,9 @@ C        Write (6,*) 'Done'
          Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
 *
          If (.Not.UnNorm) Then
-            If (nExp(iShll)*nBasis(iShll).ge.1) Then
-               Call Nrmlz(Shells(iShll)%Exp,nExp(iShll),
+            nExpi=Shells(iShll)%nExp
+            If (nExpi*nBasis(iShll).ge.1) Then
+               Call Nrmlz(Shells(iShll)%Exp,nExpi,
      &                    Shells(iShll)%Cff_c(1,1,1),nBasis(iShll),iAng)
             End If
          End If

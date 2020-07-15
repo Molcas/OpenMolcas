@@ -202,7 +202,7 @@
 *
                    iCnttp = iSD(13,iSkal)
                    If (nSOC_Shells(iCnttp).ne.0) Then
-                      iShll  = ipSOC(iCnttp)+l
+                      iShl  = ipSOC(iCnttp)+l
                       jShll  = ipPrj(iCnttp)+l
 *                     nCore=nCore+nBasis(jShll)
                       nCore=nCore+kDel(l+1,iCnttp)
@@ -267,7 +267,7 @@
 *
                    End If
                    nBas_x = nBasis(iShll)
-                   nExp_x = nExp(iShll)
+                   nExp_x = Shells(iShll)%nExp
 *
                    If (IfTest) Write (6,*)  'iShll=',iShll
                    Write (Lu_AMFI,*) nExp_x, nBas_x

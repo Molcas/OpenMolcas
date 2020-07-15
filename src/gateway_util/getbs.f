@@ -321,9 +321,9 @@
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
          nExp(iShll) = nPrim
+         Shells(iShll)%nExp=nPrim
          nBasis_Cntrct(iShll) = nCntrc
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
-         Shells(iShll)%nExp=nPrim
 *        Read gaussian exponents
          If (nPrim.gt.0) then
             If (IfTest) Write(6,*) 'Read gaussian exponents'
@@ -503,7 +503,7 @@
          End If
 *
          If (iPrint.ge.99) Then
-            nPrim = nExp(iShll)
+            nPrim = Shells(iShll)%nExp
             nCntrc= nBasis_Cntrct(iShll)
             Call RecPrt(' Coefficients (normalized)',' ',
      &                  Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
@@ -1037,7 +1037,7 @@
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
-     &                   iPrSh+1,nExp,nBasis,MxShll,DBLE(iAtmNr))
+     &                   iPrSh+1,nBasis,MxShll,DBLE(iAtmNr))
             Close (LUQRP)
          End If
       End If

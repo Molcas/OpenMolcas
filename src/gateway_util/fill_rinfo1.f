@@ -42,17 +42,18 @@
      &                      ' recompile the code!'
                   Call Abend()
                End If
-               nPrimr(krBas)=nExp(jSh)
+               nExpj=Shells(jSh)%nExp
+               nPrimr(krBas)=nExpj
                nBasisr(krBas)=nBasis_Cntrct(jSh)
 *
-               If (krExp+nExp(jSh).gt.MxPrim) then
+               If (krExp+nExpj.gt.MxPrim) then
                   Call WarningMessage(2,'Too many primitives')
                   write(6,*) 'MORE THAN ',MxPrim,' PRIMITIVES'
                   write(6,*) 'Increase MxPrim in rinfo.fh and',
      &                       'recompile the code!'
                   Call Abend()
                End If
-               Do  kExp=1,nExp(jSh)
+               Do  kExp=1,nExpj
                   krExp=krExp+1
                   rExp(krExp)=Shells(jSh)%Exp(kExp)
                End Do
@@ -61,7 +62,7 @@
 *              Pointer to the untouched contraction matrix as after
 *              input.
 *
-               If (krCof+nExp(jSh)*nBasis(jSh).gt.MxrCof) Then
+               If (krCof+nExpj*nBasis(jSh).gt.MxrCof) Then
                   Call WarningMessage(2,
      &                     'Too many contraction coefficients')
                   Write(6,*) 'MORE THAN ',MxrCof,
@@ -71,7 +72,7 @@
                   Call Abend()
                End If
                Do kCof=1,nBasis_Cntrct(jSh)
-                  Do  kExp=1,nExp(jSh)
+                  Do  kExp=1,nExpj
                         krCof=krCof+1
                         rCof(krCof)=Shells(jSh)%Cff_c(kExp,kCof,2)
                   End Do

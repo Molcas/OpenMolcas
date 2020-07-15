@@ -110,8 +110,9 @@
             nCmp = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll_)) nCmp = 2*iAng+1
             iSO = 0
+            nExpi=Shells(iShll_)%nExp
             If (nBasis_Cntrct(iShll_).ne.0 .and.
-     &          nExp(iShll_).ne.0) Then
+     &          nExpi.ne.0) Then
                Do iCmp = 1, nCmp
                   iAO = iAO + 1
                   iAOtSO(iAO,0) = iSO + 1
@@ -127,7 +128,8 @@
          Keep_Shell=iTabMx
          Do iAng = 0, nTest
             iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll)*nBasis(iShll).eq.0) Go To 2221
+            nExpi = Shells(iShll)%nExp
+            If (nExpi*nBasis(iShll).eq.0) Go To 2221
 *
             nCmp = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll)) nCmp = 2*iAng+1
@@ -215,7 +217,7 @@
 *           Transform the contraction coefficients according to the
 *           Cholesky vectors.
 *
-            Call Allocate_Work(ipTmp,nBasis(iShll)*nExp(iShll))
+            Call Allocate_Work(ipTmp,nBasis(iShll)*nExpi)
             Call Allocate_Work(ipQVec,nBasis(iShll)**2)
             Call FZero(Work(ipQVec),nBasis(iShll)**2)
 *
@@ -228,24 +230,24 @@
 *
             iOff=0
             Do iCase = 1, 2
-               call dcopy_(nExp(iShll)*nBasis(iShll),
+               call dcopy_(nExpi*nBasis(iShll),
      &                     Shells(iShll)%Cff_c(1,1,iCase),1,
      &                     Work(ipTmp),1)
 #ifdef _DEBUG_
                Call RecPrt('Coeff(old)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
-     &                     nExp(iShll),nBasis(iShll))
+     &                     nExpi,nBasis(iShll))
 #endif
                Call DGEMM_('N','N',
-     &                    nExp(iShll),nBasis(iShll),nBasis(iShll),
-     &                    1.0D0,Work(ipTmp),nExp(iShll),
+     &                    nExpi,nBasis(iShll),nBasis(iShll),
+     &                    1.0D0,Work(ipTmp),nExpi,
      &                          Work(ipQVec),nBasis(iShll),
      &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
-     &                          nExp(iShll))
+     &                          nExpi)
 #ifdef _DEBUG_
                Call RecPrt('Coeff(new)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
-     &                     nExp(iShll),nBasis(iShll))
+     &                     nExpi,nBasis(iShll))
 #endif
             End Do
 *

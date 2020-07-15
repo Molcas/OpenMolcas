@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CalcAMt (iOpt,LUQRP,MPLbl,lMax,iSRShll,
-     &                    nProj,iCoShll,nExp,nBasis,MxShll,rcharge)
+     &                    nProj,iCoShll,nBasis,MxShll,rcharge)
 ************************************************************************
 *                                                                      *
 *...       calculates the non-diagonal spectral representation         *
@@ -27,7 +27,7 @@
 #include "relmp.fh"
 #include "stdalloc.fh"
       Character*20 MPLbl
-      Integer nExp(MxShll), nBasis(MxShll)
+      Integer nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -58,7 +58,7 @@ c
 c     calculate relativistic integrals if needed
       lpq=0
       do i=1,lmax+1
-         nnexp=nexp(isrshll+i-1)
+         nnexp=Shells(isrshll+i-1)%nExp
          lpq=lpq+nnexp*(nnexp+1)/2
       enddo
       if(4*lpq.gt.Nrel) then
@@ -67,9 +67,9 @@ c     calculate relativistic integrals if needed
          Call Abend
       endif
 #ifdef _DEBUG_
-      write(6,*) ' basis:', (nexp(isrshll+i-1),i=1,lmax+1)
+      write(6,*) ' basis:', (Shells(isrshll+i-1)%nExp,i=1,lmax+1)
       do i=1,lmax+1
-         nnExp=nExp(isrshll+i-1)
+         nnExp=Shells(isrshll+i-1)%nExp
          write(6,*) ' number of exponents', nnExp
          write(6,*) ' exponents, symmetry', i
          do j=1,nnExp
@@ -79,7 +79,7 @@ c     calculate relativistic integrals if needed
 #endif
       Do 1000 lP1=1,lMax+1
         iSRSh=iSRShll+lP1-1
-        nP=nExp(iSRSh)
+        nP=Shells(iSRSh)%nExp
         If (np.gt.maxprim) Then
           Write (6,*) 'CalcAMt: np.gt.maxprim',np,maxprim
           Write (6,*) 'Abend: Increase MaxPrim !'
@@ -105,9 +105,9 @@ C...      Mass-velocity and/or Darwin potentials
 C
       If (iAnd(iOpt,iNPPot).ne.0) then   ! Zero
          call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,
-     &   rCharge,mx100,lp1,nExp(iSRSh),unrel,tnrel,hcorr,iprint,
+     &   rCharge,mx100,lp1,Shells(iSRSh)%nExp,unrel,tnrel,hcorr,iprint,
      &   VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
-         nmat=(nExp(iSRSh)*(nExp(iSRSh)+1))/2
+         nmat=(Shells(iSRSh)%nExp*(Shells(iSRSh)%nExp+1))/2
          if(iprint.ge.10) then
             write(6,*) ' relativistic integrals'
             write(6,12) (hcorr(i),i=1,nmat)
@@ -129,7 +129,7 @@ C...    Overlap and, if neccesary, exchange.
             End If
             If (iAnd(iOpt,iExch).ne.0) Then
 C...          minus exchange potential
-              AuxLs=VExch(ZI,N,ZJ,N,LAM,nExp,nBasis,MxShll,
+              AuxLs=VExch(ZI,N,ZJ,N,LAM,nBasis,MxShll,
      &                    nProj,iCoShll)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF

@@ -147,7 +147,7 @@
             Do iAng = 0, nVal_Shells(iCnttp)-1
 *
                iShll_a    = ipVal(iCnttp) + iAng
-               nPrim_a  = nExp(iShll_a)
+               nPrim_a  = Shells(iShll_a)%nExp
                If (nPrim_a.eq.0) Cycle
                nCntrc_a = nBasis_Cntrct(iShll_a)
                iCmp_a = (iAng+1)*(iAng+2)/2
@@ -518,7 +518,7 @@
 *           Pointers to the actuall shell
 *
             iShll_a    = ipVal(iCnttp) + iAng
-            nPrim_a  = nExp(iShll_a)
+            nPrim_a  = Shells(iShll_a)%nExp
             If (nPrim_a.eq.0) Cycle
             nCntrc_a = nBasis_Cntrct(iShll_a)
             iCmp_a = (iAng+1)*(iAng+2)/2
@@ -527,8 +527,7 @@
 *           Pointers to the reference shell
 *
             iShll_r = ipVal(nCnttp) + iAng
-            nPrim_r  = nExp(iShll_r)
-            nPrim_r  = nExp(iShll_r)
+            nPrim_r  = Shells(iShll_r)%nExp
             If (nPrim_r.eq.0) Then
                Write (6,*) 'GuessOrb option turned off!'
                FockOp(iCnttp)=.FALSE.

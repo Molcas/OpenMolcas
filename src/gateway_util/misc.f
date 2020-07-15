@@ -77,7 +77,8 @@
                iShell = iShell + 1
 *
                If (nBasis_Cntrct(jSh).gt.0 )
-     &            Call RdMx(RadMax,Shells(jSh)%Exp,nExp(jSh),
+     &            Call RdMx(RadMax,Shells(jSh)%Exp,
+     &                             Shells(jSh)%nExp,
      &                      Shells(jSh)%Cff_c(1,1,1),
      &                      nBasis_Cntrct(jSh),
      &                      cdMax,EtMax)

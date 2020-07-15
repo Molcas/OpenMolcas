@@ -154,8 +154,8 @@ CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
          Do kSh = kShStr, kShEnd
             iSh = iSh + 1
             nkcrl(iSh,kcrs)=iOff
-            nkcru(iSh,kcrs)=iOff+nExp(ksh)-1
-            iOff = iOff + nExp(kSh)
+            nkcru(iSh,kcrs)=iOff+nExp(ksh)/3-1
+            iOff = iOff + nExp(kSh)/3
             If (nPot.gt.imax) Then
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
@@ -164,7 +164,7 @@ CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
                Call Abend()
             End If
             iStrt=1
-            Do iExp = 1, nExp(kSh)
+            Do iExp = 1, nExp(kSh)/3
                npot = npot + 1
                ncr(npot)=Int(Shells(kSh)%Exp(iStrt  ))
                zcr(npot)=    Shells(kSh)%Exp(iStrt+1)
