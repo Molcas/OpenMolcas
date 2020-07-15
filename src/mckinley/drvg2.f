@@ -194,9 +194,9 @@
          MxPrm = Max(MxPrm,MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
             iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 2900
+            iPrim = Shells(iShll)%nExp
+            If (iPrim.eq.0) Go To 2900
             If (nBasis(iShll).eq.0) Go To 2900
-            iPrim = nExp(iShll)
             iBas  = nBasis(iShll)
             iCmp  = (iAng+1)*(iAng+2)/2
             MxBsC=Max(MxBsC,iBas*iCmp)

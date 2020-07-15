@@ -66,7 +66,7 @@
 !     nBasis: number of contracted radial functions of the i''th shell
 !     Cff_c : Contraction coefficients in processed and raw input form
 !     Cff_p : Contraction coefficient in the case of no contraction, processed and raw
-!     pCff  : pointer to Cff_c of Cff_p
+!     Cff   : copy of Cff_c or Cff_p
 !     Bk    : ECP proj shift parameters for i''th shell.
 !             the number of parameters is given by nBasis
 !     Occ   : Occupation numbers for core ECP orbitals

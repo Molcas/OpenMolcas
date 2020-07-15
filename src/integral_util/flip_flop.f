@@ -30,7 +30,8 @@
             Do iAng=0, iAngMx
                If (iAng.gt.nTest)  Cycle
                iShll = ipVal(iCnttp) + iAng
-               If (nExp(iShll).eq.0)   Cycle
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0)   Cycle
                If (nBasis_Cntrct(iShll).eq.0) Cycle
 *
 *              Decontract only the ordinary basis sets!
@@ -38,17 +39,17 @@
                Call mma_deallocate(Shells(iShll)%pCff)
                If (Primitive.and..Not.AuxShell(iShll)
      &                      .and..Not.FragShell(iShll)) Then
-                  nBasis(iShll)=nExp(iShll)
-                  Call mma_allocate(Shells(iShll)%pCff,nExp(iShll),
+                  nBasis(iShll)=nExpi
+                  Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              nBasis(iShll),Label='pCff')
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
                Else
                   nBasis(iShll)=nBasis_Cntrct(iShll)
-                  Call mma_allocate(Shells(iShll)%pCff,nExp(iShll),
+                  Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              nBasis(iShll),Label='pCff')
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
                End If
-               MaxPrm(iAng) = Max(MaxPrm(iAng),nExp(iShll))
+               MaxPrm(iAng) = Max(MaxPrm(iAng),nExpi)
                MaxBas(iAng) = Max(MaxBas(iAng),nBasis(iShll))
 *
             End Do ! iAng

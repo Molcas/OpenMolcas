@@ -31,14 +31,15 @@
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nac=nelem(la)*nelem(iang)
+      nExpi=Shells(iShll)%nExp
       Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
       Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
 *--------------From the lefthandside overlap, form iKaC from ikac by
 *              1) i,kac -> k,aci
 *
-      n = nExp(iShll)*nac*nVecAC
+      n = nExpi*nac*nVecAC
       Call DgeTMo(F,nAlpha,
      &            nAlpha, n,
      &            Work(ipTmp),n)
@@ -46,9 +47,9 @@
 *--------------2) aciK =  k,aci * k,K (Contract over core orbital)
 *
       Call DGEMM_('T','N',
-     &            nac*nVecAC*nAlpha,nBasis(iShll),nExp(iShll),
-     &            1.0d0,Work(ipTmp),nExp(ishll),
-     &            Shells(iShll)%pCff,nExp(iShll),
+     &            nac*nVecAC*nAlpha,nBasis(iShll),nExpi,
+     &            1.0d0,Work(ipTmp),nExpi,
+     &            Shells(iShll)%pCff,nExpi,
      &            0.0d0,Work(ipF),nac*nVecAC*nAlpha)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
@@ -82,9 +83,9 @@
      &            nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1))
 
       Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExp(iShll)*nac*nVecAC*nalpha)
+     &            nExpi*nac*nVecAC*nalpha)
 
       Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExp(iShll)*nac*nVecAC*nalpha)
+     &            nExpi*nac*nVecAC*nalpha)
       Return
       End

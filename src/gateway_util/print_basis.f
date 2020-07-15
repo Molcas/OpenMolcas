@@ -352,7 +352,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             nExpk=Shells(kSh)%nExp
             If (output.and.nExpk.ne.0)
      &         Write (LuWr,'(9X,A,6X,I2)')
-     &            AngTp(lSh),nExp(kSh)
+     &            AngTp(lSh),nExpk
             kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do

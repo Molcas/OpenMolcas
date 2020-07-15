@@ -72,7 +72,8 @@
                Do 203 iAng = 0, nVal_Shells(iCnttp)-1
                   iSh = iSh + 1
                   iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 2033
+                  nExpi=Shells(iSh)%nExp
+                  If (nExpi.eq.0) Go To 2033
                   If (nBasis(iSh).eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1

@@ -56,7 +56,8 @@
 *
             Do 200 iAng=0, nTest
                iShll = ipVal(iCnttp) + iAng
-               If (nExp(iShll).eq.0) Go To 200
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0) Cycle
                If (nBasis(iShll).eq.0) Go To 200
 *
                If (Basis_Mode.eq.Valence_Mode .and.
@@ -91,7 +92,8 @@
       nTest = nVal_Shells(iCnttp)-1
       Do 400 iAng=0, nTest
          iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0) Go To 400
+         nExpi=Shells(iShll)%nExp
+         If (nExpi.eq.0) Cycle
          If (nBasis(iShll).eq.0) Go To 400
 *
          If (FragShell(iShll)) Go To 400

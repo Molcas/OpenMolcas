@@ -28,7 +28,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -65,7 +64,6 @@
 *                                                                      *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('PPGrd')
 *
       nDAO=nElem(la)*nElem(lb)
       iIrrep = 0
@@ -122,17 +120,19 @@
 ************************************************************************
 *                                                                      *
       iComp = 1
-      kdc=0
+      kdc =-dbsc(1)%nCntr
       Do iCnttp = 1, nCnttp
-         If (Charge(iCnttp).eq.0d0) Go To 999
-         If (nPP_Shells(iCnttp).eq.0) Go To 999
+         kdc = kdc + dbsc(iCnttp)%nCntr
+         If (Charge(iCnttp).eq.0d0) Cycle
+         If (nPP_Shells(iCnttp).eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
          do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
+           If (Shells(kSh)nExp.le.0) Cycle
            ncrr=Int(Shells(kSh)%Exp(1))
            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
-         If (nPP_S.eq.0) Go To 999
+         If (nPP_S.eq.0) Cyle
 cAOM>
 *
          npot = 0
@@ -226,7 +226,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                   If (JfGrad(iCar,i)) mGrad = mGrad + 1
                End Do
             End Do
-            If (mGrad.eq.0) Go To 2000
+            If (mGrad.eq.0) Cycle
 *
             Do lDCRT = 0, nDCRT-1
                lOp(3) = iDCRT(lDCRT)
@@ -234,7 +234,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
                TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
                TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-               If (EQ(A,RB).and.EQ(A,TC)) Go To 3000
+               If (EQ(A,RB).and.EQ(A,TC)) Cycle
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -323,21 +323,15 @@ CAOM>
                Call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,
      &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
 *
- 3000          Continue
             End Do        ! lDCRT
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 2000       Continue
          End Do           ! kCnt
- 999     Continue
-         kdc = kdc + dbsc(iCnttp)%nCntr
       End Do              ! iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem(' Exit PPGrd','LIST','REAL',iDum,iDum)
-*     Call qExit('PPGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

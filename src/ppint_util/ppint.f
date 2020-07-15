@@ -27,10 +27,8 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-*
 #include "WrkSpc.fh"
 #include "oneswi.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
@@ -52,10 +50,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 122
-      iPrint = nPrint(iRout)
-*     Call qEnter('PPInt')
-*
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *                                                                      *
 ************************************************************************
@@ -75,37 +69,32 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kdc=0
+      kdc=-dbsc(1)%nCntr
       Do iCnttp = 1, nCnttp
-c...  Don't Skip DUMMY ( cf. YC )
+         kdc = kdc + dbsc(iCnttp)%nCntr
 
-ccjd
-cc       If (Charge(iCnttp).eq.0d0) Go To 999
-ccjd
-         If (nPP_Shells(iCnttp).eq.0) Go To 999
+         If (nPP_Shells(iCnttp).eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
          do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
-           ncrr=Int(Shells(kSh)%Exp(1))
-           if(ncrr.le.500) nPP_S=nPP_S+1
+*           Skip if a cardholder shell
+            If (Shells(kSh)%nExp.le.0) Cycle
+            ncrr=Int(Shells(kSh)%Exp(1))
+            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
-         If (nPP_S.eq.0) Go To 999
+         If (nPP_S.eq.0) Cycle
 cAOM>
 *
          npot = 0
          kShStr=ipPP(iCnttp)
-CAOM         kShEnd = kShStr + nPP_Shells(iCnttp)-1
          kShEnd = kShStr + nPP_S-1
-CAOM         If (nPP_Shells(iCnttp)-1.gt.lproju) Then
          If (nPP_S-1.gt.lproju) Then
             Write (6,*) 'nPP_Shells(iCnttp)-1.gt.lproju'
-CAOM            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_Shells(iCnttp)
             Write (6,*) 'nPP_Shells(iCnttp)=',nPP_S
             Write (6,*) 'lproju            =',lproju
             Call QTrace()
             Call Abend()
          End If
-CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
          lcr(kcrs)=nPP_S-1
          iSh=0
          iOff = 1
@@ -188,14 +177,10 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 ************************************************************************
 *                                                                      *
          End Do           ! iCntr
- 999     Continue
-         kdc = kdc + dbsc(iCnttp)%nCntr
       End Do              ! iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem(' Exit PPInt','LIST','REAL',iDum,iDum)
-*     Call qExit('PPInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

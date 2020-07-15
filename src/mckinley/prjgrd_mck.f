@@ -170,15 +170,15 @@
 
             Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
                iShll = ipPrj(kCnttp) + iAng
-
+               nExpi=Shells(iShll)%nExp
                If (iPrint.ge.49) Then
-                  Write (6,*) 'nExp(iShll)=',nExp(iShll)
+                  Write (6,*) 'nExp(iShll)=',nExpi
                   Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
 *
                ip=1
 
@@ -186,10 +186,10 @@
                ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
                ipFB2 = ip
                ipFA2 = ip

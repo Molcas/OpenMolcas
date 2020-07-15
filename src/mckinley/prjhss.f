@@ -127,7 +127,8 @@
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
             Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
                iShll = ipPrj(kCnttp) + iAng
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
 *
                ip = 1
 
@@ -135,16 +136,16 @@
                ip = ip + nZeta*nElem(la)*nElem(lb)*21
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
                ipFA2 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*6
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*6
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
                ipFB2 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
                call dcopy_(nArr,[0.0d0],0,Array,1)
 *              <a|c>,<a'|c>,<a"|c>

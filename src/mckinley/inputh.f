@@ -817,13 +817,6 @@ c      EndIf
 *
  9876 Continue
       Call Datimx(KWord)
-      goto 888
-        Call qTrace
-        Write(6,*) ' *** Error in subroutine INPUTG ***'
-        Write(6,*) '     Abend in subroutine WrOne'
-        Call Abend
-
- 888  Continue
       Call ICopy(nIrrep,[0],0,nFck,1)
       Do iIrrep=0,nIrrep-1
         If (iIrrep.ne.0) Then

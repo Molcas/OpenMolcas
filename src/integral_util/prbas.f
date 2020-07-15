@@ -75,6 +75,7 @@
 *
          Do 11 iAng = 0, nTest-1
             jSh = ipVal(iCnttp)+iAng
+            nExpj=Shells(jSh)%nExp
             If (nBasis(jSh).eq.0) Go To 11
             Write (Lines(1),'(A,I3)') ' Shell of angular type ',iAng
             Write (Lines(2),*)
@@ -87,7 +88,7 @@
 *
 *-----------Print exponents and contraction coefficients
 *
-            If (MaxPrm(iAng).gt.0 .and. nExp(jSh).gt.0 .and.
+            If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasis(jSh).gt.0) Then
                Write (6,*)
                If (Prjct(jSh).and.Transf(jSh)) Then
@@ -105,7 +106,7 @@
      &                     ' Contraction Coefficients'
             End If
             If (nBasis(jSh).gt.0) Then
-               Do 13 kExp = 1, nExp(jSh)
+               Do 13 kExp = 1, nExpj
                   jExp  = jExp  + 1
                   Write (6,'(10X,I3,1X,D16.9,10(1X,F9.4),'//
      &                     '3(/,30X,10(1X,F9.4)))')
