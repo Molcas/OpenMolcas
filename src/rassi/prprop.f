@@ -475,7 +475,7 @@ C printing threshold
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,48)  'Printing threshold changed to ',OSTHR,
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
      &              'since quadrupole threshold is given '
       END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
@@ -845,7 +845,7 @@ C printing threshold
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,48) "All dipole oscillator differences above the "//
+         WRITE(6,49) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -7129,7 +7129,7 @@ C backtransformation in two steps, -phi and -theta
 40    FORMAT (5X,63('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
-48    FORMAT (5X,A,1X,ES15.8,1X,A,ES15.8)
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
       RETURN
       END

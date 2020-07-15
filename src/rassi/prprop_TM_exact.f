@@ -106,8 +106,8 @@ C printing threshold
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,48)  'Printing threshold changed to ',OSTHR,
-     &              'since quadrupole threshold is given '
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
+     &              ' since quadrupole threshold is given '
       END IF
 ! Rotatory strength threshold
       IF(RSPR) THEN
@@ -1065,7 +1065,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 45    FORMAT (4X,2(A,1X,ES15.8,1X))
 46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
 47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
-48    FORMAT (5X,A,1X,ES15.8,1X,A,ES15.8)
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
 *
 ************************************************************************
