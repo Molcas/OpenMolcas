@@ -149,7 +149,7 @@
                iShll_a    = ipVal(iCnttp) + iAng
                nPrim_a  = Shells(iShll_a)%nExp
                If (nPrim_a.eq.0) Cycle
-               nCntrc_a = nBasis_Cntrct(iShll_a)
+               nCntrc_a = Shells(iShll_a)%nBasis_C
                iCmp_a = (iAng+1)*(iAng+2)/2
                If (Prjct(iShll_a)) iCmp_a = 2*iAng+1
                naa = nElem(iAng)*nElem(iAng)
@@ -520,7 +520,7 @@
             iShll_a    = ipVal(iCnttp) + iAng
             nPrim_a  = Shells(iShll_a)%nExp
             If (nPrim_a.eq.0) Cycle
-            nCntrc_a = nBasis_Cntrct(iShll_a)
+            nCntrc_a = Shells(iShll_a)%nBasis_C
             iCmp_a = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll_a)) iCmp_a = 2*iAng+1
 *
@@ -533,7 +533,7 @@
                FockOp(iCnttp)=.FALSE.
                Exit
             End If
-            nCntrc_r = nBasis_Cntrct(iShll_r)
+            nCntrc_r = Shells(iShll_r)%nBasis_C
             iCmp_r = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll_r)) iCmp_r = 2*iAng+1
 *

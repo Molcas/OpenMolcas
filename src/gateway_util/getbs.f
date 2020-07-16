@@ -504,7 +504,7 @@
 *
          If (iPrint.ge.99) Then
             nPrim = Shells(iShll)%nExp
-            nCntrc= nBasis_Cntrct(iShll)
+            nCntrc= Shells(iShll)%nBasis_C
             Call RecPrt(' Coefficients (normalized)',' ',
      &                  Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
             Call RecPrt(' Coefficients (unnormalized)',' ',

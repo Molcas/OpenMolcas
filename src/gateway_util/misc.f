@@ -76,11 +76,11 @@
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShell = iShell + 1
 *
-               If (nBasis_Cntrct(jSh).gt.0 )
+               If (Shells(jSh)%nBasis_C.gt.0 )
      &            Call RdMx(RadMax,Shells(jSh)%Exp,
      &                             Shells(jSh)%nExp,
      &                      Shells(jSh)%Cff_c(1,1,1),
-     &                      nBasis_Cntrct(jSh),
+     &                      Shells(jSh)%nBasis_C,
      &                      cdMax,EtMax)
                If (iShell.gt.MxShll) Then
                   Call WarningMessage(2,'iShell.gt.MxShll;'

@@ -44,7 +44,7 @@
                End If
                nExpj=Shells(jSh)%nExp
                nPrimr(krBas)=nExpj
-               nBasisr(krBas)=nBasis_Cntrct(jSh)
+               nBasisr(krBas)=Shells(jSh)%nBasis_C
 *
                If (krExp+nExpj.gt.MxPrim) then
                   Call WarningMessage(2,'Too many primitives')
@@ -71,7 +71,7 @@
      &                       'recompile the code!'
                   Call Abend()
                End If
-               Do kCof=1,nBasis_Cntrct(jSh)
+               Do kCof=1,Shells(jSh)%nBasis_C
                   Do  kExp=1,nExpj
                         krCof=krCof+1
                         rCof(krCof)=Shells(jSh)%Cff_c(kExp,kCof,2)

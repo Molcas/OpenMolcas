@@ -32,7 +32,7 @@
                iShll = ipVal(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0)   Cycle
-               If (nBasis_Cntrct(iShll).eq.0) Cycle
+               If (Shells(iShll)%nBasis_C.eq.0) Cycle
 *
 *              Decontract only the ordinary basis sets!
 *
@@ -46,7 +46,7 @@
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
                Else
                   nBasis(iShll)=nBasis_Cntrct(iShll)
-                  Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
+                  Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
                   Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              Shells(iShll)%nBasis,Label='pCff')
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)

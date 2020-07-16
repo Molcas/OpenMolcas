@@ -207,7 +207,7 @@
          nCmp = (iAng+1)*(iAng+2)/2
          If (Prjct(iShll_)) nCmp = 2*iAng+1
          iSO = 0
-         If (nBasis_Cntrct(iShll_).ne.0 .and.
+         If (Shells(iShll_)%nBasis_C.ne.0 .and.
      &       Shells(iShll_)%nExp.ne.0) Then
             Do iCmp = 1, nCmp
                iAO = iAO + 1
@@ -558,8 +558,8 @@ C                    iPrint=99
 *
 *                    Now figure out how many and which!
 *
-                     nk=nBasis_Cntrct(kShll)
-                     nl=nBasis_Cntrct(lShll)
+                     nk=Shells(kShll)%nBasis_C
+                     nl=Shells(lShll)%nBasis_C
                      If (Diagonal) Then
                         nCntrc_Max=nk*(nk+1)/2
                      Else
@@ -1050,16 +1050,16 @@ C                          Thrs= 1.0D-12
                         Call Mk_Indkl(Con,Indkl,nCntrc_Max)
                         Call mma_allocate(C,nTheta_Full*nPhi,label='C')
                         Call Mk_Coeffs(Shells(kShll)%Cff_c(1,1,1),
-     &                                 nExpk,nBasis_Cntrct(kShll),
+     &                                 nExpk,Shells(kShll)%nBasis_C,
      &                                 Shells(lShll)%Cff_c(1,1,1),
-     &                                 nExpl,nBasis_Cntrct(lShll),
+     &                                 nExpl,Shells(lShll)%nBasis_C,
      &                                 C,nTheta_Full,nPhi,
      &                                 iD_c,NumCho_c,
      &                                 iList2_c,2*mData,
      &                                 nPhi_All,
      &                                 Indkl,nCntrc_Max,
-     &                                 nBasis_Cntrct(kShll),
-     &                                 nBasis_Cntrct(lShll),
+     &                                 Shells(kShll)%nBasis_C,
+     &                                 Shells(lShll)%nBasis_C,
      &                                 iAng,jAng,
      &                                 Shells(kShll)%Cff_p(1,1,1),
      &                                 Shells(lShll)%Cff_p(1,1,1))

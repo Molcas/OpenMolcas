@@ -111,7 +111,7 @@
             If (Prjct(iShll_)) nCmp = 2*iAng+1
             iSO = 0
             nExpi=Shells(iShll_)%nExp
-            If (nBasis_Cntrct(iShll_).ne.0 .and.
+            If (Shells(iShll_)%nBasis_C.ne.0 .and.
      &          nExpi.ne.0) Then
                Do iCmp = 1, nCmp
                   iAO = iAO + 1

@@ -359,7 +359,7 @@ C        Fixed(nCnttp)=.False.
                Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
                Shells(iShll)%nExp=nPrim
                nBasis_Cntrct(iShll) = nCntrc
-               Shells(iShll)%nBasis_c = nCntrc
+               Shells(iShll)%nBasis_C = nCntrc
                iEnd = iStrt - 1
                If (nPrim.gt.0) then
                   If (IfTest) Write(6,*) ' Read gaussian exponents'
@@ -447,7 +447,7 @@ C        Fixed(nCnttp)=.False.
                   Transf(iShll)=.True.
                End If
 
-               Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
+               Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
                nBasis(iShll)=nBasis_Cntrct(iShll)
                AuxShell(iShll)=.True.
 *

@@ -27,7 +27,7 @@
                kComp = (lSh+1)*(lSh+2)/2
             End If
             kOffAO(iCnttp,lSh) = lComp
-            If (nBasis_Cntrct(kSh).ne.0.and.nExpk.ne.0)
+            If (Shells(kSh)%nBasis_C.ne.0.and.nExpk.ne.0)
      &         lComp = lComp + kComp
             lSh = lSh + 1
          End Do
