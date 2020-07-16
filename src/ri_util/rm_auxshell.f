@@ -14,6 +14,7 @@
 *     Remove an auxiliary basis set by making it empty.                *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Shells
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -26,6 +27,8 @@
       Do k = 0, nTot_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + k
 *
+         Shells(iShll)%nExp=0
+         Shells(iShll)%nBasis=0
          nExp(iShll) = 0
          nBasis(iShll) = 0
          nBasis_Cntrct(iShll) = 0

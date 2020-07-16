@@ -48,8 +48,8 @@
 
             ip = ip + nExpi*nExpi ! tmp
 
-            ip=ip+10*nac*nexp(ishll) ! FA1 & FA2
-            ip=ip+10*ncb*nexp(ishll) ! FB1 & FB2
+            ip=ip+10*nac*nExpi ! FA1 & FA2
+            ip=ip+10*ncb*nExpi ! FB1 & FB2
 
             nHer = (la+1+iAng+1+ld)/2
             nOrder = Max(nHer,nOrder)

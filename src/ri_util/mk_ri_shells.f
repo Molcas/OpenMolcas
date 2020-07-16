@@ -221,7 +221,8 @@ C        Fixed(nCnttp)=.False.
          Do iSh = jShll+1, iShll
             nBasis(iSh)=nBasis_Cntrct(iSh)
             Call mma_deallocate(Shells(iShll)%pCff)
-            Call mma_allocate(Shells(iShll)%pCff,nExp(iSh),nBasis(iSh),
+            Call mma_allocate(Shells(iShll)%pCff,
+     &                        Shells(iSh)%nExp,nBasis(iSh),
      &                        Label='pCff')
             Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
             AuxShell(iSh)=.True.

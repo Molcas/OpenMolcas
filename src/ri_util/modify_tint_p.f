@@ -23,7 +23,7 @@
          iPrim=List2(5,iTheta_All)
          iShll=List2(7,iTheta_All)
          nConti=nBasis_Cntrct(iShll)
-         nPrimi=nExp(iShll)
+         nPrimi=Shells(iShll)%nExp
          Coeff_i = DDot_(nConti,Shells(iShll)%Cff_c(1,1,1),nPrimi,
      &                          Shells(iShll)%Cff_c(1,1,1),nPrimi)
          Coeff_i = Sqrt(Coeff_i)
@@ -31,7 +31,7 @@
          jPrim=List2(6,iTheta_All)
          jShll=List2(8,iTheta_All)
          nContj=nBasis_Cntrct(jShll)
-         nPrimj=nExp(jShll)
+         nPrimj=Shells(jShll)%nExp
          Coeff_j = DDot_(nContj,Shells(jShll)%Cff_c(1,1,1),nPrimj,
      &                          Shells(jShll)%Cff_c(1,1,1),nPrimj)
          Coeff_j = Sqrt(Coeff_j)
@@ -40,7 +40,7 @@
             kPrim=List2(5,jTheta_All)
             kShll=List2(7,jTheta_All)
             nContk=nBasis_Cntrct(kShll)
-            nPrimk=nExp(kShll)
+            nPrimk=Shells(kShll)%nExp
             Coeff_k = DDot_(nContk,Shells(kShll)%Cff_c(1,1,1),nPrimk,
      &                             Shells(kShll)%Cff_c(1,1,1),nPrimk)
             Coeff_k = Sqrt(Coeff_k)
@@ -48,7 +48,7 @@
             lPrim=List2(6,jTheta_All)
             lShll=List2(8,jTheta_All)
             nContl=nBasis_Cntrct(lShll)
-            nPriml=nExp(lShll)
+            nPriml=Shells(lShll)%nExp
             Coeff_l = DDot_(nContl,Shells(lShll)%Cff_c(1,1,1),nPriml,
      &                             Shells(lShll)%Cff_c(1,1,1),nPriml)
             Coeff_l = Sqrt(Coeff_l)

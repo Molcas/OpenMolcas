@@ -208,7 +208,7 @@
          If (Prjct(iShll_)) nCmp = 2*iAng+1
          iSO = 0
          If (nBasis_Cntrct(iShll_).ne.0 .and.
-     &       nExp(iShll_).ne.0) Then
+     &       Shells(iShll_)%nExp.ne.0) Then
             Do iCmp = 1, nCmp
                iAO = iAO + 1
                iAOtSO(iAO,0) = iSO + 1
@@ -344,7 +344,7 @@
             Do iCmp = 1, nCmp
                iAO = iAO + 1
                iAOtSO(iAO,0) = iSO + 1
-               nCont = nExp(iShll_)
+               nCont = Shells(iShll_)%nExp
                Do iCont = 1, nCont
                    iSO = iSO + 1
                End Do
@@ -493,10 +493,10 @@ C                    iPrint=99
 *
 *                    Generate list
 *
-                     npi=nExp(iShll_)
+                     npi=Shells(iShll_)%nExp
                      nCmpi=(iAng+1)*(iAng+2)/2
                      If (Prjct(iShll_)) nCmpi=2*iAng+1
-                     npj=nExp(jShll_)
+                     npj=Shells(jShll_)%nExp
                      nCmpj=(jAng+1)*(jAng+2)/2
                      If (Prjct(jShll_)) nCmpj=2*jAng+1
                      If (iAng.eq.jAng) Then
@@ -652,8 +652,8 @@ C                    iPrint=99
 *
 *                       Now figure out how many and which!
 *
-                        npk=nExp(kShll)
-                        npl=nExp(lShll)
+                        npk=Shells(kShll)%nExp
+                        npl=Shells(lShll)%nExp
                         If (Diagonal) Then
                            nPrim_Max=npk*(npk+1)/2
                         Else
@@ -804,10 +804,12 @@ C                    iPrint=99
 *                       Put in the aCD set of exponents, i.e. all unique
 *                       sums.
 *
+                        nExpk=Shells(kShll)%nExp
+                        nExpl=Shells(lShll)%nExp
                         If (Diagonal) Then
-                           nPrim=nExp(kShll)*(nExp(kShll)+1)/2
+                           nPrim=nExpk*(nExpk+1)/2
                         Else
-                           nPrim=nExp(kShll)*nExp(lShll)
+                           nPrim=nExpk*nExpl
                         End If
                         Call mma_allocate(Shells(iShll)%Exp,nPrim,
      &                                    Label='ExpaCD')
@@ -815,8 +817,8 @@ C                    iPrint=99
                         iEnd = iStrt - 1
 *
                         iOff = 0
-                        Do ip_Exp = 1, nExp(kShll)
-                           jp_Exp_Max = nExp(lShll)
+                        Do ip_Exp = 1, nExpk
+                           jp_Exp_Max = nExpl
                            If (Diagonal) jp_Exp_Max = ip_Exp
                            Do jp_Exp = 1, jp_Exp_Max
                               iOff = iOff + 1
@@ -837,13 +839,10 @@ C                    iPrint=99
                         If (iPrint.ge.49) Then
                         If (Diagonal) Then
                            Call TriPrt('aCD Exponents',' ',
-     &                                 Shells(iShll)%Exp,
-     &                                 nExp(kShll))
+     &                                 Shells(iShll)%Exp,nExpk)
                         Else
                            Call RecPrt('aCD Exponents',' ',
-     &                                 Shells(iShll)%Exp,
-     &                                             nExp(kShll),
-     &                                             nExp(lShll))
+     &                                 Shells(iShll)%Exp,nExpk,nExpl)
                         End If
                         End If
 #endif
@@ -921,10 +920,12 @@ C                    iPrint=99
 *                       such terms in the fitting procedure!
 *
                         nTheta=nPrim
+                        nExpk=Shells(kShll)%nExp
+                        nExpl=Shells(lShll)%nExp
                         If (iAng.eq.jAng) Then
-                           nTheta_Full=nExp(kShll)*(nExp(kShll)+1)/2
+                           nTheta_Full=nExpk*(nExpk+1)/2
                         Else
-                           nTheta_Full=nExp(kShll)*nExp(lShll)
+                           nTheta_Full=nExpk*nExpl
                         End If
                         nPhi=nCntrc
 *
@@ -935,7 +936,7 @@ C                    iPrint=99
                         Call Mk_tVt(TInt_p,nTInt_p,
      &                              tVt,nTheta,iList2_p,2*mData,
      &                              Prm,nPrim_Max,
-     &                              iAng,jAng,nExp(kShll),nExp(lShll),
+     &                              iAng,jAng,nExpk,nExpl,
      &                              Indkl_p,nPrim_Max,
      &                              AL,nCompA,nCompB)
 *
@@ -1038,7 +1039,7 @@ C                          Thrs= 1.0D-12
      &                               tVtF,nTheta,
      &                               iList2_p,2*mData,
      &                               Prm,nPrim_Max,
-     &                               iAng,jAng,nExp(kShll),nExp(lShll),
+     &                               iAng,jAng,nExpk,nExpl,
      &                               Indkl_p,nPrim_Max,
      &                               nTheta_Full,
      &                               AL,nCompA,nCompB)
@@ -1057,9 +1058,9 @@ C                          Thrs= 1.0D-12
                         Call Mk_Indkl(Con,Indkl,nCntrc_Max)
                         Call mma_allocate(C,nTheta_Full*nPhi,label='C')
                         Call Mk_Coeffs(Shells(kShll)%Cff_c(1,1,1),
-     &                                 nExp(kShll),nBasis_Cntrct(kShll),
+     &                                 nExpk,nBasis_Cntrct(kShll),
      &                                 Shells(lShll)%Cff_c(1,1,1),
-     &                                 nExp(lShll),nBasis_Cntrct(lShll),
+     &                                 nExpl,nBasis_Cntrct(lShll),
      &                                 C,nTheta_Full,nPhi,
      &                                 iD_c,NumCho_c,
      &                                 iList2_c,2*mData,
@@ -1228,7 +1229,7 @@ C                          Thrs= 1.0D-12
 *
                            jkl = 0
                            If (Diagonal) Then
-                              Do iExp_k = 1, nExp(kShll)
+                              Do iExp_k = 1, Shells(kShll)%nExp
 *
                                Coeff_kk=Shells(kShll)%Cff_c(iExp_k,kC,1)
                                Coeff_lk=Shells(lShll)%Cff_c(iExp_k,lC,1)
@@ -1249,11 +1250,11 @@ C                          Thrs= 1.0D-12
                                  End Do
                               End Do
                            Else
-                              Do iExp_k = 1, nExp(kShll)
+                              Do iExp_k = 1, Shells(kShll)%nExp
 
                                Coeff_k =Shells(kShll)%Cff_c(iExp_k,kC,1)
 
-                                 Do iExp_l = 1 , nExp(lShll)
+                                 Do iExp_l = 1 , Shells(lShll)%nExp
 
                                Coeff_l =Shells(lShll)%Cff_c(iExp_l,lC,1)
 
@@ -1478,24 +1479,24 @@ C                          Thrs= 1.0D-12
             Write (Lu_lib,*) ' Dummy reference line.'
             Do iAng = 0, nVal_Shells(jCnttp)-1
                iShll_ = ipVal(jCnttp) + iAng
+               nExpi=Shells(iShll_)%nExp
                iSph=0
                If (Prjct(iShll_))  iSph=1
                If (Transf(iShll_)) iSph=iSph+2
-               Write (Lu_lib,'(3I10)') nExp(iShll_), nBasis(iShll_),
-     &                                 iSph
+               Write (Lu_lib,'(3I10)') nExpi, nBasis(iShll_),iSph
 *
 *              Skip if the shell is empty.
 *
-               If (nExp(iShll_).eq.0) Cycle
+               If (nExpi.eq.0) Cycle
 *
 *              Write out the exponents
 *
                Write (Lu_lib,'( 5(1X,D20.13))')
-     &               (Shells(iShll_)%Exp(i),i=1,nExp(iShll_))
+     &               (Shells(iShll_)%Exp(i),i=1,nExpi)
 *
 *              Write out the contraction coefficients
 *
-               Do i = 1, nExp(iShll_)
+               Do i = 1, nExpi
                   Write (Lu_lib,'( 5(1X,D20.13))')
      &                  (Shells(iShll_)%Cff_c(i,j,1),
      &                        j=1,nBasis(iShll_))

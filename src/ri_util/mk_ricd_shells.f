@@ -183,6 +183,7 @@ C      iPrint=99
       Return
       End
       Subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
+      Use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -208,9 +209,9 @@ C      iPrint=99
          lShll = List2(8,iTheta_All)
          If (kAng.eq.lAng) Then
             l     = List2(6,iTheta_All)
-            Skip = (k.eq.1.and.l.eq.1).and.nExp(kShll).ne.1
+            Skip = (k.eq.1.and.l.eq.1).and.Shells(kShll)%nExp.ne.1
          Else
-            Skip=l.eq.1.and.nExp(lShll).ne.1
+            Skip=l.eq.1.and.Shells(lShll)%nExp.ne.1
          End If
          If (Skip) Then
             If (mD.eq.i) Then
