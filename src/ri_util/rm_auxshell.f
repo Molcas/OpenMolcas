@@ -29,7 +29,6 @@
 *
          Shells(iShll)%nExp=0
          Shells(iShll)%nBasis=0
-         nExp(iShll) = 0
          nBasis(iShll) = 0
          nBasis_Cntrct(iShll) = 0
 *

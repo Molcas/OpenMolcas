@@ -766,8 +766,6 @@ C                    iPrint=99
      &                                    Label='ExpacCD')
                         Shells(iShll)%nExp=nPrim
 *
-                        iEnd = iStrt - 1
-*
 #ifdef _DEBUG_
                         If (iPrint.ge.49) Then
                         Write (6,*) 'nPrim=',nPrim
@@ -814,7 +812,6 @@ C                    iPrint=99
                         Call mma_allocate(Shells(iShll)%Exp,nPrim,
      &                                    Label='ExpaCD')
                         Shells(iShll)%nExp=nPrim
-                        iEnd = iStrt - 1
 *
                         iOff = 0
                         Do ip_Exp = 1, nExpk
@@ -856,7 +853,6 @@ C                    iPrint=99
 *
                      nPrim=0
                      Shells(iShll)%nExp=nPrim
-                     iEnd = iStrt - 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -878,9 +874,7 @@ C                    iPrint=99
                   End If
 #endif
 *
-                  nExp(iShll)=nPrim
                   nBasis_Cntrct(iShll)=nCntrc
-                  iStrt = iEnd + 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -891,9 +885,6 @@ C                    iPrint=99
                   Shells(iShll)%nBasis = nCntrc
                   Call mma_allocate(Shells(iShll)%Cff_p,
      &                              nPrim,nPrim ,2,Label='Cff_p')
-*
-                  iEnd  = iStrt -1
-                  iEndc = iEnd
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1170,7 +1161,6 @@ C                          Thrs= 1.0D-12
                         Do iCho_p = 1, NumCho_p
                            iTheta_full = iD_p(iCho_p)
                            iTheta      = Indkl_p(iTheta_full)
-                           iTo   =  iStrt-1 + iCho_p
                            call dcopy_(nPhi,
      &                                 Tmp(iTheta),nTheta,
      &                                 Shells(iShll)%Cff_c(iCho_p,1,1),
@@ -1346,7 +1336,6 @@ C                          Thrs= 1.0D-12
      &                                  Shells(iShll)%Cff_p(:,:,1))
                      nPrim=mPrim
                      Shells(iShll)%nExp=nPrim
-                     nExp(iShll)=nPrim
 #ifdef _DEBUG_
                      If (iPrint.ge.99) Then
                      Call RecPrt('Coefficients 1',' ',

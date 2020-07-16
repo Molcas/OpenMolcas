@@ -164,7 +164,7 @@
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,
-     &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
+     &              nBasis,nBasis_Cntrct,MxShll,iShll,
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              FockOp(nCnttp),
@@ -357,7 +357,6 @@ C        Fixed(nCnttp)=.False.
 *
                Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
                Shells(iShll)%nExp=nPrim
-               nExp(iShll) = nPrim
                nBasis_Cntrct(iShll) = nCntrc
                iEnd = iStrt - 1
                If (nPrim.gt.0) then

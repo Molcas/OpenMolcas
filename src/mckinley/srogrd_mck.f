@@ -224,7 +224,7 @@
 *
                call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
      &                  Fact,nAlpha,nBeta,Shells(iShll)%Akl,
-     &                  nexp(ishll),la,lb,iang,jfgrad,Array(ipTmp),
+     &                  nExpi,la,lb,iang,jfgrad,Array(ipTmp),
      &                  .true.,index,mvec,idcar)
 
 *

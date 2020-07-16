@@ -192,7 +192,7 @@ c      write(6,*) 'we here 0?'
            End If
            Go To 999
           End If
-          Call Unnrmlz(Shells(ishell)%Exp,nexp(ishell),
+          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
      &                 Shells(ishell)%pCff,nbasis(ishell),l)
          End Do
         End If
@@ -920,7 +920,7 @@ cvv this statement prevents overoptimization
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          Call Unnrmlz2(Shells(ishell)%Exp,  nexp(ishell),
+          Call Unnrmlz2(Shells(ishell)%Exp, Shells(ishell)%nExp,
      &                  Shells(ishell)%pCff,nbasis(ishell),l)
          End Do
         End If

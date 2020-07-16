@@ -46,10 +46,10 @@
             ncb = nElem(iAng)*nElem(lb)
 
             ip=ip+6*nelem(la)*nelem(lb) ! final
-            ip=ip+4*nac*nExpi ! FA1
-            ip=ip+4*ncb*nExpi !FB1
-            ip=ip+nexp(ishll)* nExpi !Tmp core
-            ip=ip+nexp(ishll) !Tmp in sro
+            ip=ip+4*nac*nExpi  ! FA1
+            ip=ip+4*ncb*nExpi  !FB1
+            ip=ip+nExpi* nExpi !Tmp core
+            ip=ip+nExpi        !Tmp in sro
 
             nHer = (la+1+iAng+1+ld)/2
             nOrder = Max(nHer,nOrder)

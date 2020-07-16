@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,
-     &                 nExp,nBasis,nBasis_Cntrct,MxShll_,iShll,
+     &                 nBasis,nBasis_Cntrct,MxShll_,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
      &                 CrRep,nProj,nAIMP,iOpt,
@@ -61,7 +61,7 @@
       Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
-      Integer nExp(MxShll_), nBasis(MxShll_), nCGTO(0:iTabMx),
+      Integer nBasis(MxShll_), nCGTO(0:iTabMx),
      &        mCGTO(0:iTabMx), nDel(0:MxAng),
      &        nBasis_Cntrct(MxShll_)
       Integer BasisTypes(4)
@@ -84,10 +84,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,nExp,nBasis,MxShll,iShll,
+         SubRoutine GetECP(lUnit,nBasis,MxShll,iShll,
      &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,iCnttp)
          Integer lUnit
-         Integer nExp(MxShll), nBasis(MxShll)
+         Integer nBasis(MxShll)
          Integer MxShll,iShll
          Character*(*) BLine
          Real*8  CrRep
@@ -320,7 +320,6 @@
          EndIf                                          ! CGGn
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
-         nExp(iShll) = nPrim
          Shells(iShll)%nExp=nPrim
          nBasis_Cntrct(iShll) = nCntrc
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
@@ -634,7 +633,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
-         Call GetECP(lUnit,nExp,nBasis,MxShll,iShll,Bline,
+         Call GetECP(lUnit,nBasis,MxShll,iShll,Bline,
      &               CrRep,nProj,ipPP_,nPP,UnNorm,iCnttp)
          nPrj=nProj+1
 *
@@ -706,7 +705,6 @@
      &                        Label='Exp')
             Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
             Shells(iShll)%nExp = Shells(jValSh)%nExp
-            nExp(iShll)  = nExp(jValSh)
             nBasis(iShll)  = 0
          End Do
          Go To 9988
@@ -735,7 +733,6 @@
      &                        Label='Exp')
             Shells(iShll)%Exp(:)=Shells(jPrSh)%Exp(:)
             Shells(iShll)%nExp=Shells(jPrSh)%nExp
-            nExp(iShll)  = nExp(jPrSh)
             nBasis(iShll)  = 0
          End Do
          Go To 9988
@@ -764,7 +761,6 @@
             Call Get_i1(1,nPrim)
             Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
             Shells(iShll)%nExp=nPrim
-            nExp(iShll) = nPrim
             nBasis(iShll) = 0
 *
             If (nPrim.gt.0) then
@@ -820,26 +816,26 @@
                jPrSh = jPrSh + 1
 *
                iDominantSet = 2
-               Call mma_allocate(ExpMerged,nExp(jPrSh)+nExp(jValSh),
+               Call mma_allocate(ExpMerged,
+     &                           Shells(jPrSh)%nExp
+     &                          +Shells(jValSh)%nExp,
      &                           Label='ExpMerged')
-               Call MergeBS (Shells(jPrSh)%Exp,nExp(jPrSh),
-     &                       Shells(jValSh)%Exp,nExp(jValSh),
-     &                       ExpMerged,nExp(iShll), RatioThres,
+               Call MergeBS (Shells(jPrSh)%Exp,Shells(jPrSh)%nExp,
+     &                       Shells(jValSh)%Exp,Shells(jValSh)%nExp,
+     &                       ExpMerged,Shells(iShll)%nExp, RatioThres,
      &                       iDominantSet)
-               Call mma_allocate(Shells(iShll)%Exp,nExp(iShll),
+               Call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,
      &                           Label='Exp')
-               Shells(iShll)%Exp(:)=ExpMerged(1:nExp(iShll))
-               Shells(iShll)%nExp=nExp(iShll)
+               Shells(iShll)%Exp(:)=ExpMerged(1:Shells(iShll)%nExp)
                Call mma_deallocate(ExpMerged)
 
 *
             Else
 *
-               nExp(iShll) = nExp(jValSh)
-               Call mma_allocate(Shells(iShll)%Exp,nExp(iShll),
+               Shells(iShll)%nExp=Shells(jValSh)%nExp
+               Call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,
      &                           Label='Exp')
                Shells(iShll)%Exp(:)=Shells(jValSh)%Exp(:)
-               Shells(iShll)%nExp=nExp(iShll)
 *
             End If
 *
@@ -881,7 +877,6 @@
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
-         nExp(iShll) = nPrim
          nBasis(iShll) = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'

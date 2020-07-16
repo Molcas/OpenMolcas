@@ -176,7 +176,7 @@
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
             mdciCnttp(nCnttp)=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,nExp,
+            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,
      &                 nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),

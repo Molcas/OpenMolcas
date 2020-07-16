@@ -192,7 +192,7 @@ c      End If
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          Call Unnrmlz(Shells(ishell)%Exp,nexp(ishell),
+          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
      &                 Shells(ishell)%pCff,nbasis(ishell),l)
          End Do
         End If

@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,nExp,nBasis,MxShll,iShll,
+      SubRoutine GetECP(lUnit,nBasis,MxShll,iShll,
      &                  BLine,CrRep,nProj,
      &                  ipPP,nPP,UnNorm,iCnttp)
 ************************************************************************
@@ -40,7 +40,7 @@
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer nExp(MxShll), nBasis(MxShll), mPP(2)
+      Integer nBasis(MxShll), mPP(2)
       Logical UnNorm
       Integer iCnttp
 *                                                                      *
@@ -87,7 +87,6 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = 3*kcr
             Shells(iShll)%nExp = 3*kcr
             Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 *
@@ -124,7 +123,6 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = 3*kcr
             Shells(iShll)%nExp=3*kcr
             Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 *
@@ -247,7 +245,6 @@ C        Write (6,*) 'Done'
          Call Get_I1(1,nPrim)
          Call Get_i1(2,nCntrc)
 *
-         nExp(iShll) = nPrim
          Shells(iShll)%nExp=nPrim
          nBasis(iShll) = nCntrc
 *
@@ -284,7 +281,6 @@ C        Write (6,*) 'Done'
 *        Write (6,*) ' Reading Exponents'
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
-         nExp(iShll) = nPrim
          If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
      &                               ierr)
          If (ierr.ne.0) goto 992

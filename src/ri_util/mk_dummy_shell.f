@@ -62,7 +62,6 @@
 *
       iShll = iShll + 1
       AuxShell(iShll) = .True.
-      nExp(iShll) = nPrim
       Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='ExpDummy')
       Shells(iShll)%nExp=nPrim
       Shells(iShll)%nBasis=nCntrc

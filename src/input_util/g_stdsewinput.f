@@ -148,7 +148,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,
-     &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
+     &           nBasis,nBasis_Cntrct,MxShll,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           FockOp(nCnttp),
