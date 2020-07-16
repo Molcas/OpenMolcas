@@ -46,12 +46,12 @@
       Real*8 TC(3),RB(3),Array(*),fb1(*),fb2(*),beta(*)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+      nExpi=Shells(iShll)%nExp
       if (debug) then
-        Write(6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExp(ishll),
+        Write(6,*) 'Shell: ',ishll,' nBeta:',nbeta,' nExp:',nExpi,
      &             'Angular',lb,iang
       Endif
 *
-      nExpi=Shells(iShll)%nExp
 *
       ip=1
       ipP2 = ip

@@ -119,24 +119,25 @@
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
             Do iAng = 0, nPrj_Shells(iCnttp)-1
                iShll = ipPrj(iCnttp) + iAng
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Cycle
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Cycle
 *
 #ifdef _DEBUG_
-               Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExp(iShll),
+               Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExpi,
      &                     nBasis(iShll))
 #endif
                ip = 1
                ipF1 = ip
                nac = nElem(la)*nElem(iAng)
-               ip = ip + nAlpha*nExp(iShll)*nac
+               ip = ip + nAlpha*nExpi*nac
                ipP1 = ip
-               ip = ip + 3 * nAlpha*nExp(iShll)
+               ip = ip + 3 * nAlpha*nExpi
                ipZ1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipK1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipZI1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(1)')
                   Call Abend()
@@ -145,33 +146,33 @@
 *
 *--------------Calculate Effective center and exponent for <A|core>
 *
-               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExp(iShll),
+               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExpi,
      &                   Alpha,Shells(iShll)%Exp)
-               Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExp(iShll),
+               Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,
      &                     A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 *--------------Calculate Overlap <A|core>
 *
                nHer = (la+iAng+2)/2
-               Call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExp(iShll),
+               Call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,
      &                   Array(ipZ1),Array(ipZI1),
      &                   Array(ipK1),Array(ipP1),
-     &                   Array(ipF1),nAlpha*nExp(iShll),iComp,
+     &                   Array(ipF1),nAlpha*nExpi,iComp,
      &                   la,iAng,A,TC,nHer,Array(ip),
      &                   mArr,CCoor,nOrdOp)
-               ip = ip - 6 * nAlpha*nExp(iShll)
+               ip = ip - 6 * nAlpha*nExpi
 *
                ipF2 = ip
                ncb = nElem(iAng)*nElem(lb)
-               ip = ip + nExp(iShll)*nBeta*ncb
+               ip = ip + nExpi*nBeta*ncb
                ipP2 = ip
-               ip = ip + 3 * nExp(iShll)*nBeta
+               ip = ip + 3 * nExpi*nBeta
                ipZ2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipK2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipZI2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(2)')
                   Call Abend()
@@ -180,23 +181,23 @@
 *
 *--------------Calculate Effective center and exponent for <core|B>
 *
-               Call ZXia(Array(ipZ2),Array(ipZI2),nExp(iShll),nBeta,
+               Call ZXia(Array(ipZ2),Array(ipZI2),nExpi,nBeta,
      &                   Shells(iShll)%Exp,Beta)
-               Call SetUp1(Shells(iShll)%Exp,nExp(iShll),Beta,nBeta,
+               Call SetUp1(Shells(iShll)%Exp,nExpi,Beta,nBeta,
      &                    TC,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 *--------------Calculate Overlap <core|B>
 *
                nHer = (iAng+lb+2)/2
-               Call MltPrm(Shells(iShll)%Exp,nExp(iShll),Beta,nBeta,
+               Call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,
      &                   Array(ipZ2),Array(ipZI2),
      &                   Array(ipK2),Array(ipP2),
-     &                   Array(ipF2),nExp(iShll)*nBeta,iComp,
+     &                   Array(ipF2),nExpi*nBeta,iComp,
      &                   iAng,lb,TC,RB,nHer,Array(ip),
      &                   mArr,CCoor,nOrdOp)
-               ip = ip - 6 * nExp(iShll)*nBeta
+               ip = ip - 6 * nExpi*nBeta
                ipTmp = ip
-               ip = ip + Max(nAlpha*nExp(iShll)*nac,
+               ip = ip + Max(nAlpha*nExpi*nac,
      &                       nBeta*ncb*nBasis(iShll))
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(3)')
@@ -216,14 +217,14 @@
 *              1) i,kac -> k,aci
 *
                Call DgeTMo(Array(ipF1),nAlpha,nAlpha,
-     &                     nExp(iShll)*nac,Array(ipTmp),nExp(iShll)*nac)
+     &                     nExpi*nac,Array(ipTmp),nExpi*nac)
 *
 *--------------2) aciK =  k,aci * k,K
 *
                Call DGEMM_('T','N',
-     &                     nAlpha*nac,nBasis(iShll),nExp(iShll),
-     &                     1.0d0,Array(ipTmp),nExp(iShll),
-     &                     Shells(iShll)%pCff,nExp(iShll),
+     &                     nAlpha*nac,nBasis(iShll),nExpi,
+     &                     1.0d0,Array(ipTmp),nExpi,
+     &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipF1),nAlpha*nac)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
@@ -256,9 +257,9 @@
 *              1) jcb,K = k,jcb * k,K
 *
                Call DGEMM_('T','N',
-     &                     nBeta*ncb,nBasis(iShll),nExp(iShll),
-     &                     1.0d0,Array(ipF2),nExp(iShll),
-     &                     Shells(iShll)%pCff,nExp(iShll),
+     &                     nBeta*ncb,nBasis(iShll),nExpi,
+     &                     1.0d0,Array(ipF2),nExpi,
+     &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipTmp),nBeta*ncb)
 *
 *--------------2)  j,cbK -> cbK,j

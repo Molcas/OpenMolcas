@@ -46,7 +46,7 @@
             ncb = nElem(iAng)*nElem(lb)
             ip = ip + nElem(la)*nElem(lb)*21 ! Final
 
-            ip = ip + nExpi*nExp(ishll) ! tmp
+            ip = ip + nExpi*nExpi ! tmp
 
             ip=ip+10*nac*nexp(ishll) ! FA1 & FA2
             ip=ip+10*ncb*nexp(ishll) ! FB1 & FB2

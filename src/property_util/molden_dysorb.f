@@ -324,7 +324,7 @@ c      End If
 *               Find the number of exponents with non-zero exponents
 *
                 isegm=0
-                Do iprim=1,nExp(ishell)
+                Do iprim=1,Shells(ishell)%nExp
                   coeff=Shells(ishell)%pCff(iprim,icontr)
                   If (coeff.ne.Zero) Then
                     isegm=isegm+1
@@ -335,7 +335,7 @@ c      End If
 *
 *               Write exponents and contraction coefficients.
 *
-                Do iprim=1,nExp(ishell)
+                Do iprim=1,Shells(ishell)%nExp
                   coeff=Shells(ishell)%pCff(iprim,icontr)
                   prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then

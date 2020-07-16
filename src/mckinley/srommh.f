@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
 *
-      use Basis_Info, only: nCnttp
+      use Basis_Info, only: nCnttp, Shells
 #include "itmax.fh"
 #include "info.fh"
 *
@@ -38,17 +38,18 @@
          If (.Not.ECP(iCnttp)) Go To 1960
          Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
             iShll = ipSRO(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 1966
+            nExpi=Shells(iShll)%nExp
+            If (nExpi.eq.0) Go To 1966
 *
             ip = 0
             nac = nElem(la)*nElem(iAng)
             ncb = nElem(iAng)*nElem(lb)
             ip = ip + nElem(la)*nElem(lb)*21 ! Final
 
-            ip = ip + nExp(ishll)*nExp(ishll) ! tmp
+            ip = ip + nExpi*nExpi ! tmp
 
-            ip=ip+10*nac*nexp(ishll) ! FA1 & FA2
-            ip=ip+10*ncb*nexp(ishll) ! FB1 & FB2
+            ip=ip+10*nac*nExpi ! FA1 & FA2
+            ip=ip+10*ncb*nExpi ! FB1 & FB2
 
             nHer = (la+1+iAng+1+ld)/2
             nOrder = Max(nHer,nOrder)
@@ -60,7 +61,7 @@
             icoreb=6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+
      &           3*nHer*(nOrdOp+1)+3*(lb+1+ld)*(iAng+1)*(nOrdOp+1)+1
 
-            icores = MAX(icoreb,iacore)*nExp(ishll)
+            icores = MAX(icoreb,iacore)*nExpi
             MmSROH = Max(MmSROH,ip+icores)
 *
  1966    Continue

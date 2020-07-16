@@ -174,15 +174,16 @@
 
             Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
                iShll = ipSRO(kCnttp) + iAng
+               nExpi=Shells(iShll)%nExp
 
                If (iPrint.ge.49) Then
-                  Write (6,*) 'nExp(iShll)=',nExp(iShll)
+                  Write (6,*) 'nExpi=',nExpi
                   Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExp(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0) Go To 1966
 *
                ip = 1
 
@@ -190,14 +191,14 @@
                ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
                ipTmp = ip
-               ip = ip + MAX(nBeta,nAlpha)*nExp(iShll)
+               ip = ip + MAX(nBeta,nAlpha)*nExpi
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*2
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*2
                ipFA2 = ip ! Not in use for 1st derivative
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*2
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*2
 
                ipFB2 = ip ! Not in use for 1st derivatives
 
@@ -211,7 +212,7 @@
 
 
 
-               call dcopy_(nBeta*nExp(iShll)*nElem(lb)*nElem(iAng)*2,
+               call dcopy_(nBeta*nExpi*nElem(lb)*nElem(iAng)*2,
      &                    [Zero],0,Array(ipFB1),1)
                Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
      &                    narr-ip+1,Beta,nbeta,Array(ipFB1),

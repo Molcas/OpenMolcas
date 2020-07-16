@@ -133,7 +133,7 @@ C     Endif
           kaunt=kaunt+1
           Do 205, ll=1,nBasis(kaunt)
             kaunter=kaunter+1
-            Icon(i,kaunter)=nExp(kaunt)
+            Icon(i,kaunter)=Shells(kaunt)%nExp
 205       Continue
 203     Continue
 201   Continue
@@ -145,7 +145,7 @@ C     Endif
       Do 2101, kk=1,ii   !Just to get size of vector
         Do 2102, kkk=1,nTot_Shells(kk)
           kaunt=kaunt+1
-          nSize=nSize+nBasis(kaunt)*nExp(kaunt)
+          nSize=nSize+nBasis(kaunt)*Shells(kaunt)%nExp
 2102    Continue
 2101  Continue
       Call GetMem('Exponents','Allo','Real',ipExpo,nSize*MxAtQ)
@@ -167,7 +167,7 @@ C     Endif
         Do 213, iAng=0,nVarv-1  !And in this loop we get hold of the
                           !contraction coefficients and the exponents.
           iCount=iAng+iAngSav
-          iPrim=nExp(iCount)
+          iPrim=Shells(iCount)%nExp
           iBas=nBasis(iCount)
 c         Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
           Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)

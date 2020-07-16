@@ -124,21 +124,22 @@
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
             do 1966 iang = 0, nSRO_Shells(kCnttp)-1
                ishll = ipsro(kcnttp) + iAng
-               if (nexp(ishll).eq.0) Go To 1966
+               nExpi=Shells(iShll)%nExp
+               if (nExpi.eq.0) Go To 1966
 *
                ip = 1
                ipfin = ip
                ip = ip + nzeta*nElem(la)*nElem(lb)*21
                ipfa1 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*4
                iptmp = ip
-               ip = ip + nalpha*nExp(iShll)
+               ip = ip + nalpha*nExpi
                ipfa2 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*6
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*6
                ipfb1 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
                ipfb2 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
                call dcopy_(narr,[Zero],0,Array,1)
 *              <a|c>, <a'|c>, <a",c>
@@ -163,7 +164,7 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Shells(iShll)%Akl,nexp(ishll),
+     &                        Shells(iShll)%Akl,nExpi,
      &                        la,lb,iang,jfhss,Array(ipTmp),.true.)
 
 
