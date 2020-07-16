@@ -875,6 +875,7 @@ C                    iPrint=99
 #endif
 *
                   nBasis_Cntrct(iShll)=nCntrc
+                  Shells(iShll)%nBasis_c=nCntrc
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1351,6 +1352,7 @@ C                          Thrs= 1.0D-12
 *
 *
                   nBasis(iShll)=nBasis_Cntrct(iShll)
+                  Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
                   If (jAng.eq.0) Then
                      Transf(iShll)=Transf(kShll)
                      Prjct(iShll)=Prjct(kShll)

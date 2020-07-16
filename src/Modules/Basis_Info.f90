@@ -77,6 +77,7 @@
            Integer :: nExp=0
            Real*8, Allocatable:: Exp(:)
            Integer :: nBasis=0
+           Integer :: nBasis_c=0
            Real*8, Allocatable:: pCff(:,:)
            Real*8, Allocatable:: Cff_c(:,:,:), Cff_p(:,:,:)
            Integer :: nBk=0
@@ -97,7 +98,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 5
+      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 6
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -216,6 +217,7 @@
          iDmp(3,i) = Shells(i)%nFockOp
          iDmp(4,i) = Shells(i)%nExp
          iDmp(5,i) = Shells(i)%nBasis
+         iDmp(6,i) = Shells(i)%nBasis_c
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
 #ifdef _DEBUG_
@@ -416,11 +418,12 @@
       End If
       nAux2=0
       Do i = 1, Max_Shells-1
-         Shells(i)%nBK    = iDmp(1,i)
-         Shells(i)%nAkl   = iDmp(2,i)
-         Shells(i)%nFockOp= iDmp(3,i)
-         Shells(i)%nExp   = iDmp(4,i)
-         Shells(i)%nBasis = iDmp(5,i)
+         Shells(i)%nBK      = iDmp(1,i)
+         Shells(i)%nAkl     = iDmp(2,i)
+         Shells(i)%nFockOp  = iDmp(3,i)
+         Shells(i)%nExp     = iDmp(4,i)
+         Shells(i)%nBasis   = iDmp(5,i)
+         Shells(i)%nBasis_c = iDmp(6,i)
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp
 !        Coefficients only there is nBasis =/=0

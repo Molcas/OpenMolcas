@@ -220,6 +220,7 @@ C        Fixed(nCnttp)=.False.
          lAux = lAux .or. AuxCnttp(nCnttp)
          Do iSh = jShll+1, iShll
             nBasis(iSh)=nBasis_Cntrct(iSh)
+            Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
             Call mma_deallocate(Shells(iShll)%pCff)
             Call mma_allocate(Shells(iShll)%pCff,
      &                        Shells(iSh)%nExp,nBasis(iSh),
@@ -358,6 +359,7 @@ C        Fixed(nCnttp)=.False.
                Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
                Shells(iShll)%nExp=nPrim
                nBasis_Cntrct(iShll) = nCntrc
+               Shells(iShll)%nBasis_c = nCntrc
                iEnd = iStrt - 1
                If (nPrim.gt.0) then
                   If (IfTest) Write(6,*) ' Read gaussian exponents'
@@ -445,6 +447,7 @@ C        Fixed(nCnttp)=.False.
                   Transf(iShll)=.True.
                End If
 
+               Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
                nBasis(iShll)=nBasis_Cntrct(iShll)
                AuxShell(iShll)=.True.
 *

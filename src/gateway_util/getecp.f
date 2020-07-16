@@ -246,6 +246,7 @@ C        Write (6,*) 'Done'
          Call Get_i1(2,nCntrc)
 *
          Shells(iShll)%nExp=nPrim
+         Shells(iShll)%nBasis = nCntrc
          nBasis(iShll) = nCntrc
 *
 *------- Check if occupation number is included on the line

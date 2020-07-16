@@ -322,6 +322,7 @@
 *
          Shells(iShll)%nExp=nPrim
          nBasis_Cntrct(iShll) = nCntrc
+         Shells(iShll)%nBasis_c = nCntrc
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
 *        Read gaussian exponents
          If (nPrim.gt.0) then
@@ -705,6 +706,7 @@
      &                        Label='Exp')
             Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
             Shells(iShll)%nExp = Shells(jValSh)%nExp
+            Shells(iShll)%nBasis  = 0
             nBasis(iShll)  = 0
          End Do
          Go To 9988
@@ -733,6 +735,7 @@
      &                        Label='Exp')
             Shells(iShll)%Exp(:)=Shells(jPrSh)%Exp(:)
             Shells(iShll)%nExp=Shells(jPrSh)%nExp
+            Shells(iShll)%nBasis  = 0
             nBasis(iShll)  = 0
          End Do
          Go To 9988
@@ -761,6 +764,7 @@
             Call Get_i1(1,nPrim)
             Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
             Shells(iShll)%nExp=nPrim
+            Shells(iShll)%nBasis=0
             nBasis(iShll) = 0
 *
             If (nPrim.gt.0) then
@@ -839,6 +843,7 @@
 *
             End If
 *
+            Shells(iShll)%nBasis=0
             nBasis(iShll) = 0
 *
          End Do
@@ -877,6 +882,7 @@
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
+         Shells(iShll)%nBasis = nCntrc
          nBasis(iShll) = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'
