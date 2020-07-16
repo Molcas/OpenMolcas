@@ -857,7 +857,6 @@
             If (Allocated(Shells(iShll_r)%Exp))
      &          Call mma_deallocate(Shells(iShll_r)%Exp)
             Shells(iShll_r)%nExp=0
-            nExp(iShll_r)=0
             If (Allocated(Shells(iShll_r)%FockOp))
      &          Call mma_deallocate(Shells(iShll_r)%FockOp)
             Shells(iShll_r)%nFockOp=0

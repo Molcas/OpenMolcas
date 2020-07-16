@@ -131,16 +131,16 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
       Do i=1, Mxdbsc
-         ECP(i)=.false.
-         AuxCnttp(i)=.false.
-         IsMM(i)=0
+         ECP(i)      =.false.
+         AuxCnttp(i) =.false.
          FragCnttp(i)=.false.
-         FockOp(i) = .False.
-         ExpNuc(i)=-One
-         w_mGauss(i)=One
-         aCD_Thr(i)=One
-         fmass(i)=One
+         FockOp(i)   = .False.
+         IsMM(i)         =0
          Parent_iCnttp(i)=0
+         ExpNuc(i)       =-One
+         w_mGauss(i)     = One
+         aCD_Thr(i)      = One
+         fmass(i)        = One
       End Do
       inttot=0
       nOrd_XF = 1
@@ -151,14 +151,13 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *-----LInfo
 *
       Do i=1,MxShll
-         Prjct(i)=.True.
-         Transf(i)=.True.
-         AuxShell(i)=.False.
-         nExp(i)=0
-         nBasis(i)=0
-         nBasis_Cntrct(i)=0
+         Prjct(i)    =.True.
+         Transf(i)   =.True.
+         AuxShell(i) =.False.
          FragShell(i)=.False.
-         mdciCnttp(i)=0
+         nBasis(i)       =0
+         nBasis_Cntrct(i)=0
+         mdciCnttp(i)    =0
       End Do
 *
       MolWgh=2

@@ -126,7 +126,7 @@
          RecLab( 21)='SewIInfo        '
          RecLab( 22)='SewLInfo        '
          RecLab( 23)='SCFInfoI_ab     '
-         RecLab( 24)='nExp            '
+         RecLab( 24)='                ' !Free slot
          RecLab( 25)='nBasis          '
          RecLab( 26)='                ' !Free slot
          RecLab( 27)='                ' !Free slot

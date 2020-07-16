@@ -85,7 +85,7 @@ C------Calculate Effective center and exponent for <A|core>
       ip = ip + nAlpha*nExpi
       If (ip-1.gt.nArr) Then
          Write (6,*) '  ip-1.gt.nArr (1b) in acore (',
-     &    ip,',',narr,')','Order',ld,nexp(ishll),nalpha
+     &    ip,',',narr,')','Order',ld,Shells(ishll)%nExp,nalpha
          Call Abend
       End If
       ABeq(1) = A(1).eq.TC(1)
