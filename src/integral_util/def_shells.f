@@ -81,7 +81,8 @@
                iShll = ipVal(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0)   Cycle
-               If (nBasis(iShll).eq.0) Go To 200
+               nBasisi=Shells(iShll)%nBasis
+               If (nBasisi.eq.0) Go To 200
                If (Basis_Mode.eq.Valence_Mode .and.
      &             (AuxShell(iShll).or.FragShell(iShll))) Go To 200
                If (Basis_Mode.eq.Auxiliary_Mode .and.
@@ -102,7 +103,7 @@
                iSD(0,nSkal)=iShll                    ! Unique shell ind.
                iSD(1,nSkal)=iAng                     ! l value
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-               iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
+               iSD(3,nSkal)=nBasisi                  ! # of cont. func.
                iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
@@ -187,7 +188,8 @@
          iShll = ipVal(iCnttp) + iAng
          nExpi=Shells(iShll)%nExp
          If (nExpi.eq.0)   Cycle
-         If (nBasis(iShll).eq.0) Go To 400
+         nBasisi=Shells(iShll)%nBasis
+         If (nBasisi.eq.0) Go To 400
          If (FragShell(iShll)) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
          If (Prjct(iShll)) iCmp = 2*iAng+1
@@ -199,7 +201,7 @@
          iSD(0,nSkal)=iShll                    ! Unique shell ind.
          iSD(1,nSkal)=iAng                     ! l value
          iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-         iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
+         iSD(3,nSkal)=nBasisi                  ! # of cont. func.
          iSD(4,nSkal)= -1                      ! Not used
          iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
@@ -228,9 +230,9 @@
          m2Max=Max(m2Max,nExpi**2)
 *
          If (Prjct(iShll)) Then
-            nFunctions = nFunctions + nBasis(iShll)*(2*iAng+1)
+            nFunctions = nFunctions + nBasisi*(2*iAng+1)
          Else
-            nFunctions = nFunctions + nBasis(iShll)*(iAng+1)*(iAng+2)/2
+            nFunctions = nFunctions + nBasisi*(iAng+1)*(iAng+2)/2
          End If
 *                                                                      *
 ************************************************************************
@@ -284,7 +286,8 @@
             iShll = ipVal(iCnttp) + iAng
             nExpi=Shells(iShll)%nExp
             If (nExpi.eq.0) Go To 201
-            If (nBasis(iShll).eq.0) Go To 201
+            nBasisi=Shells(iShll)%nBasis
+            If (nBasisi.eq.0) Go To 201
             iCmp  = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll)) iCmp = 2*iAng+1
             Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -295,7 +298,7 @@
                iSD(0,nSkal)=iShll                    ! Unique shell ind.
                iSD(1,nSkal)=iAng                     ! l value
                iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-               iSD(3,nSkal)=nBasis(iShll)            ! # of cont. func.
+               iSD(3,nSkal)=nBasisi                  ! # of cont. func.
                iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used

@@ -204,7 +204,7 @@
                    If (nSOC_Shells(iCnttp).ne.0) Then
                       iShl  = ipSOC(iCnttp)+l
                       jShll  = ipPrj(iCnttp)+l
-*                     nCore=nCore+nBasis(jShll)
+*                     nCore=nCore+Shells(jShll)%nBasis
                       nCore=nCore+kDel(l+1,iCnttp)
                    End If
                End If
@@ -226,7 +226,7 @@
                       If (nSOC_Shells(iCnttp).ne.0) Then
                          iShll  = ipSOC(iCnttp)+l
                          jShll  = ipPrj(iCnttp)+l
-*                        iDel(ip_iDel+l)=nBasis(jShll)
+*                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
                          iDel(1+l)=kDel(l+1,iCnttp)
                       End If
                   End If

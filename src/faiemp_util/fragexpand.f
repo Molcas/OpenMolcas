@@ -69,10 +69,7 @@
       UnNorm = .False.
       LenLbl=0
       mdc = mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      BasisTypes(:)=0
       iShll = Mx_Shll-1
       lSTDINP=0
       mCnttp = nCnttp

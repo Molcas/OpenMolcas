@@ -96,7 +96,7 @@ c      print *,' iAngMx', iAngMx
             iShll = ipVal(iCnttp) + iAng
             iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 101
-            iBas  = nBasis(iShll)
+            iBas  = Shells(iShll)%nBasis
             If (iBas.eq.0) Go To 101
             iCmp  = nElem(iAng)
             If (Prjct(iShll)) iCmp = 2*iAng+1

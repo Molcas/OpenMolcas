@@ -40,7 +40,6 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_Basis')
       LuWr = 6
 *                                                                      *
 ************************************************************************
@@ -155,7 +154,7 @@
          Type(0) = .False.
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
-            Type(0) = Type(0) .or. nExpk*nBasis(kSh).ne.0
+            Type(0) = Type(0) .or. nExpk*Shells(kSh)%nBasis.ne.0
          End Do
          If (output.and.Type(0) .AND..NOT.lOPTO) Then
             Write (LuWr,'(6X,A)')
@@ -171,9 +170,9 @@
                ChSph=' '
             End if
             If (Transf(kSh).and.(.not.Prjct(kSh))) ChCo='X'
-            If (output.and.nExpk*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
+            If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
-     &            AngTp(lSh),nExpk,nBasis(kSh),ChCa,ChSph,ChCo
+     &            AngTp(lSh),nExpk,Shells(kSh)%nBasis,ChCa,ChSph,ChCo
             If (Prjct(kSh)) Then
                kComp = 2*lSh + 1
             Else
@@ -245,7 +244,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
                nExpk=Shells(kSh)%nExp
-               Type(0)=Type(0).or.nExpk*nBasis(kSh).ne.0
+               nBasisk=Shells(kSh)%nBasis
+               Type(0)=Type(0).or.nExpk*nBasisk.ne.0
             End Do
             If (Type(0)) Then
                Write (LuWr,*)
@@ -256,9 +256,10 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          lSh= 0
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
-            If (output.and.nExpk*nBasis(kSh).ne.0 .AND..NOT.lOPTO)
+            nBasisk=Shells(kSh)%nBasis
+            If (output.and.nExpk*nBasisk.ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,6X,I2,6X,I2)')
-     &            AngTp(lSh),nExpk,nBasis(kSh)
+     &            AngTp(lSh),nExpk,nBasisk
             kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
@@ -376,6 +377,5 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          Write (LuWr,*)
       End If
 *
-      Call qExit('Print_Basis')
       Return
       End

@@ -570,7 +570,7 @@
                   iAngMax_Proj=nPrj_Shells(iCnttp)
                   If (iAng.le.iAngMax_Proj) Then
                      iShll_Proj_r = ipPrj(iCnttp) + iAng
-                     nCntrc_Proj = nBasis(iShll_Proj_r)
+                     nCntrc_Proj = Shells(iShll_Proj_r)%nBasis
                      nRemove = nCntrc_Proj
                   Else
                      nRemove=0

@@ -189,10 +189,10 @@
             Do l=0,nVal_Shells(iCnttp)-1
               ishell=ipVal(iCnttp)+l
               nBasisi=Shells(iShell)%nBasis
-*              write(6,*) 'nBasisi', nBasis(iShell)
+*              write(6,*) 'nBasisi', Shells(iShell)%nBasis
               If (nBasisi.gt.nNumber) Then
                  Write (6,*) 'Desym: too many contracted functions!'
-                 Write (6,*) 'nBasisi=',nBasis(iShell)
+                 Write (6,*) 'nBasisi=',Shells(iShell)%nBasis
                  Call Abend()
               End If
 *

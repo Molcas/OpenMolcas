@@ -83,8 +83,9 @@
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShell = iShell + 1
                nExpj=Shells(jSh)%nExp
+               nBasisj=Shells(jSh)%nBasis
                If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
-     &             nBasis(jSh).gt.0 .and. output .and.
+     &             nBasisj.gt.0 .and. output .and.
      &             iCnt.eq.1) Then
                   Write (LuWr,*)
                   Write (LuWr,*) '                 Type         '
@@ -94,7 +95,7 @@
      &                        ' Contraction Coefficients'
                End If
 *
-               If (nBasis(jSh).gt.0 .and. output) Then
+               If (nBasisj.gt.0 .and. output) Then
                   Do kExp = 1, nExpj
                      jExp  = jExp  + 1
                      If (iCnt.eq.1)
@@ -102,7 +103,7 @@
      &                        '1X,3(/,30X,10(1X,F10.6)))')
      &                     jExp , Shells(jSh)%Exp(kExp),
      &                     ( Shells(jSh)%Cff_c(kExp,ib,2),
-     &                     ib=1,nBasis(jSh))
+     &                     ib=1,nBasisj)
                   End Do
                End If
                If (iShell.gt.MxShll) Then
@@ -113,21 +114,21 @@
                End If
                kCmp=(iAng+1)*(iAng+2)/2
                If (Prjct(jSh)) kCmp=2*iAng+1
-               If (nBasis(jSh).ne.0 ) Then
+               If (nBasisj.ne.0 ) Then
                   If (AuxShell(jSh)) Then
                      iPrim_Aux = iPrim_Aux + nExpj   * kCmp
      &                         * nIrrep/nStab(mdc)
-                     iBas_Aux  = iBas_Aux  + nBasis(jSh) * kCmp
+                     iBas_Aux  = iBas_Aux  + nBasisj * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else If (FragShell(jSh)) Then
                      iPrim_Frag = iPrim_Frag + nExpj   * kCmp
      &                          * nIrrep/nStab(mdc)
-                     iBas_Frag = iBas_Frag  + nBasis(jSh) * kCmp
+                     iBas_Frag = iBas_Frag  + nBasisj * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else
                      iPrim = iPrim + nExpj   * kCmp
      &                      * nIrrep/nStab(mdc)
-                     iBas  = iBas  + nBasis(jSh) * kCmp
+                     iBas  = iBas  + nBasisj * kCmp
      &                     * nIrrep/nStab(mdc)
                   End If
                End If
@@ -309,7 +310,7 @@ Cend
             nSumB = 0
             jSh = iSh
             Do iAng = 0, nPrj_Shells(iCnttp)-1
-               nSumB = nSumB + nBasis(jSh)
+               nSumB = nSumB + Shells(jSh)%nBasis
                jSh = jSh + 1
             End Do
             If (nSumB.ne.0.and.iPrint.ge.10) Then
@@ -351,7 +352,7 @@ Cend
      &                     ib=1,Shells(iSh)%nBk)
                      End Do
                   End If ! If (iPrint.ge.10) Then
-               End If ! If (nBasis(iSh).ne.0) Then
+               End If ! If (Shells(iSh)%nBk.ne.0) Then
                iSh = iSh + 1
             End Do    ! iAng
 
@@ -363,7 +364,7 @@ Cend
                nSumB = 0
                jSh = iSh
                Do iAng = 0, nSOC_Shells(iCnttp)-1
-                  nSumB = nSumB + nBasis(jSh)
+                  nSumB = nSumB + Shells(jSh)%nBasis
                   jSh = jSh + 1
                End Do
                If (nSumB.ne.0.and.iPrint.ge.10) Then
@@ -372,7 +373,7 @@ Cend
                   Write (LuWr,*) ' SOC Basis'
                End If
                Do iAng = 0, nSOC_Shells(iCnttp)-1
-                  If (nBasis(iSh).ne.0) Then
+                  If (Shells(iSh)%nBasis.ne.0) Then
                      Write (LuWr,*)
                      Write (LuWr,'(19X,A,A)')
      &                     '        Angular Type: ', AngTp(iAng)
@@ -385,7 +386,7 @@ Cend
      &                           '3(/,30X,10(1X,F10.6)))')
      &                        Shells(iSh)%Exp(kExp),
      &                      ( Shells(iSh)%Cff_c(kExp,ib,1),
-     &                        ib=1,nBasis(iSh))
+     &                        ib=1,Shells(iSh)%nBasis)
                      End Do
                   End If
                   iSh = iSh + 1

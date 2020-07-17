@@ -58,8 +58,8 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         IF(L1.LT.L2) LMT=((L2-1)*L2)/2+L1
         KOMAX=KOSUU(LMT)
 *       loop over core orbitals of a given angular momentum
-        iOff = nBasis(iCoSh)*Shells(iCoSh)%nExp
-        DO 54 ICORB=1,nBasis(iCoSh)
+        iOff = Shells(iCoSh)%nBasis*Shells(iCoSh)%nExp
+        DO 54 ICORB=1,Shells(iCoSh)%nBasis
           OrbPS=0d0
           DO 50 INU=1,KOMAX
             NUT=NYU(INU,LMT)

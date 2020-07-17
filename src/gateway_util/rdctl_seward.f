@@ -289,10 +289,7 @@
 *
       nDKfull = 0
       iAMFn = 0   ! usual AMFI
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      BasisTypes(:)=0
       KeepBasis=' '
 cperiod
       lthCell = 0

@@ -58,7 +58,8 @@
                iShll = ipVal(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0) Cycle
-               If (nBasis(iShll).eq.0) Go To 200
+               nBasisi=Shells(iShll)%nBasis
+               If (nBasisi.eq.0) Cycle
 *
                If (Basis_Mode.eq.Valence_Mode .and.
      &             (AuxShell(iShll).or.FragShell(iShll))) Go To 200
@@ -94,7 +95,8 @@
          iShll = ipVal(iCnttp) + iAng
          nExpi=Shells(iShll)%nExp
          If (nExpi.eq.0) Cycle
-         If (nBasis(iShll).eq.0) Go To 400
+         nBasisi=Shells(iShll)%nBasis
+         If (nBasisi.eq.0) Cycle
 *
          If (FragShell(iShll)) Go To 400
          nSkal = nSkal + 1

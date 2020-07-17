@@ -307,8 +307,9 @@ C     Show=Show.and..Not.Primitive_Pass
                   iSh = iSh + 1
                   iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
+                  nBasisi=Shells(iSh)%nBasis
                   If (nExpi.eq.0) Go To 2033
-                  If (nBasis(iSh).eq.0) Go To 2033
+                  If (nBasisi.eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1
                   Do 204 iComp = 1, jComp
@@ -359,7 +360,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
                      nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
-                     Do 205 iCntrc = 1, nBasis(iSh)
+                     Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
                         If (AuxShell(iSh)) Then
                            iSO_Aux = iSO_Aux + 1
@@ -393,7 +394,7 @@ C     Show=Show.and..Not.Primitive_Pass
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExpi.eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasisi) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -407,7 +408,7 @@ C     Show=Show.and..Not.Primitive_Pass
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExpi.eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasisi) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -669,8 +670,9 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   iSh = iSh + 1
                   iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
+                  nBasisi=Shells(iSh)%nBasis
                   If (nExpi.eq.0) Go To 3033
-                  If (nBasis(iSh).eq.0) Go To 3033
+                  If (nBasisi.eq.0) Go To 3033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1
                   Do 304 iComp = 1, jComp
@@ -717,7 +719,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *
 *                    Loop over contracted basis functions
 *
-                     Do 305 iCntrc = 1, nBasis(iSh)
+                     Do 305 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
                         If (AuxShell(iSh)) Then
                            iSO_Aux = iSO_Aux + 1
@@ -751,7 +753,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExpi.eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasisi) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -765,7 +767,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExpi.eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasisi) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -885,8 +887,9 @@ CSVC: basis IDs of non-symmetric case
                iSh = iSh + 1
                iShell = iShell + 1
                nExpi=Shells(iSh)%nExp
+               nBasisi=Shells(iSh)%nBasis
                If (nExpi.eq.0) Go To 4033
-               If (nBasis(iSh).eq.0) Go To 4033
+               If (nBasisi.eq.0) Go To 4033
                jComp = (iAng+1)*(iAng+2)/2
                If(Prjct(iSh)) jComp = 2*iAng + 1
                Do 404 iComp = 1, jComp
