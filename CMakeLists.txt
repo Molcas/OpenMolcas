@@ -2117,16 +2117,26 @@ endif ()
 
 message ("Configuring runtime environment settings:")
 
+cmake_host_system_information(RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information(RESULT host_name QUERY HOSTNAME)
+cmake_host_system_information(RESULT host_system QUERY OS_NAME)
+
 # memory/disk default sizes
 #==========================
 
 if (ADDRMODE EQUAL 64)
-  set (DEFMOLCASMEM "2048" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "20000" CACHE STRING "Set default max file size (MB).")
+  set (mem "2048")
+  set (disk "20000")
 else ()
-  set (DEFMOLCASMEM "1024" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "2047"  CACHE STRING "Set default max file size (MB).")
+  set (mem "1024")
+  set (disk "2047")
 endif ()
+math (EXPR max_mem "${host_mem}*3/4")
+if (${max_mem} LESS ${mem})
+  set (mem ${max_mem})
+endif ()
+set (DEFMOLCASMEM ${mem} CACHE STRING "Set default max memory (MiB).")
+set (DEFMOLCASDISK ${disk} CACHE STRING "Set default max file size (MiB).")
 
 message ("-- DEFMOLCASMEM:  ${DEFMOLCASMEM}")
 message ("-- DEFMOLCASDISK: ${DEFMOLCASDISK}")
@@ -3009,6 +3019,7 @@ if (NOT BUILD_TARGET STREQUAL "NONE")
   file (WRITE "${PROJECT_BINARY_DIR}/data/info.txt"
     "\nconfiguration info\n"
     "------------------\n"
+    "Host name: ${host_name} (${host_system})\n"
     "C Compiler ID: ${CMAKE_C_COMPILER_ID}\n"
     "C flags: ${CMAKE_C_FLAGS}\n"
     "Fortran Compiler ID: ${CMAKE_Fortran_COMPILER_ID}\n"
