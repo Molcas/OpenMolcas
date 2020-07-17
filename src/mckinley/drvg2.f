@@ -196,8 +196,8 @@
             iShll = ipVal(iCnttp) + iAng
             iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 2900
-            If (nBasis(iShll).eq.0) Go To 2900
-            iBas  = nBasis(iShll)
+            If (Shells(iShll)%nBasis.eq.0) Go To 2900
+            iBas  = Shells(iShll)%nBasis
             iCmp  = (iAng+1)*(iAng+2)/2
             MxBsC=Max(MxBsC,iBas*iCmp)
             MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
@@ -598,10 +598,10 @@ C              Do lS = 1, kS
               jPrimj   = Shells(iShllV(2))%nExp
               kPrimk   = Shells(iShllV(3))%nExp
               lPriml   = Shells(iShllV(4))%nExp
-              iBasi    = nBasis(iShllV(1))
-              jBasj    = nBasis(iShllV(2))
-              kBask    = nBasis(iShllV(3))
-              lBasl    = nBasis(iShllV(4))
+              iBasi    = Shells(iShllV(1))%nBasis
+              jBasj    = Shells(iShllV(2))%nBasis
+              kBask    = Shells(iShllV(3))%nBasis
+              lBasl    = Shells(iShllV(4))%nBasis
 *                                                                      *
 ************************************************************************
 *                                                                      *

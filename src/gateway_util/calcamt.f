@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CalcAMt (iOpt,LUQRP,MPLbl,lMax,iSRShll,
-     &                    nProj,iCoShll,nBasis,MxShll,rcharge)
+     &                    nProj,iCoShll,rcharge)
 ************************************************************************
 *                                                                      *
 *...       calculates the non-diagonal spectral representation         *
@@ -27,7 +27,6 @@
 #include "relmp.fh"
 #include "stdalloc.fh"
       Character*20 MPLbl
-      Integer nBasis(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -129,8 +128,7 @@ C...    Overlap and, if neccesary, exchange.
             End If
             If (iAnd(iOpt,iExch).ne.0) Then
 C...          minus exchange potential
-              AuxLs=VExch(ZI,N,ZJ,N,LAM,nBasis,MxShll,
-     &                    nProj,iCoShll)
+              AuxLs=VExch(ZI,N,ZJ,N,LAM,nProj,iCoShll)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF
             OVL(I,J)=OVLMP(N,ZI,N,ZJ)

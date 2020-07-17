@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAO_g(iSD4,nSD,nSO, MemPrm, MemMax,
-     &                  nBasis,MxShll,
      &                  iBsInc,jBsInc,kBsInc,lBsInc,
      &                  iPrInc,jPrInc,kPrInc,lPrInc,
      &                  ipMem1,ipMem2, Mem1,  Mem2,
@@ -18,7 +17,7 @@
       Implicit Real*8 (a-h,o-z)
 *
       Integer iSD4(0:nSD,4), iAnga(4), iCmpa(4),
-     &        nBasis(MxShll), iFnc(4), iShela(4)
+     &        iFnc(4), iShela(4)
 *
       iAnga(1)=iSD4(1,1)
       iAnga(2)=iSD4(1,2)

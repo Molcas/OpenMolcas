@@ -212,7 +212,7 @@
             Do iCmp = 1, nCmp
                iAO = iAO + 1
                iAOtSO(iAO,0) = iSO + 1
-               nCont = nBasis(iShll_)
+               nCont = Shells(iShll_)%nBasis
                Do iCont = 1, nCont
                    iSO = iSO + 1
                End Do
@@ -226,7 +226,7 @@
       nPhi_All=nSO*(nSO+1)/2
       Call mma_allocate(iList2_c,mData*2,nPhi_All,label='iList2_c')
       Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,
-     &              nTest,ipVal,Mxdbsc,Prjct,MxShll,nBasis,0)
+     &              nTest,ipVal,Mxdbsc,Prjct,MxShll,0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -512,7 +512,7 @@ C                    iPrint=99
 *
                      Call Mk_List2(iList2_p,nTheta_All,mData,
      &                             nSO_p,iCnttp, nTest,ipVal,Mxdbsc,
-     &                             Prjct,MxShll,nBasis,ijS_Req)
+     &                             Prjct,MxShll,ijS_Req)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1474,7 +1474,7 @@ C                          Thrs= 1.0D-12
                iSph=0
                If (Prjct(iShll_))  iSph=1
                If (Transf(iShll_)) iSph=iSph+2
-               Write (Lu_lib,'(3I10)') nExpi, nBasis(iShll_),iSph
+               Write (Lu_lib,'(3I10)') nExpi, Shells(iShll_)%nBasis,iSph
 *
 *              Skip if the shell is empty.
 *
@@ -1490,7 +1490,7 @@ C                          Thrs= 1.0D-12
                Do i = 1, nExpi
                   Write (Lu_lib,'( 5(1X,D20.13))')
      &                  (Shells(iShll_)%Cff_c(i,j,1),
-     &                        j=1,nBasis(iShll_))
+     &                        j=1,Shells(iShll_)%nBasis)
                End Do
 *
             End Do

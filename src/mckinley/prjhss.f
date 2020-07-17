@@ -128,7 +128,8 @@
             Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
                iShll = ipPrj(kCnttp) + iAng
                nExpi=Shells(iShll)%nExp
-               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               nBasisi=Shells(iShll)%nBasis
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip = 1
 
@@ -168,7 +169,7 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Dum,nBasis(ishll),
+     &                        Dum,nBasisi,
      &                        la,lb,iang,jfhss,dum,.false.)
 
 *              contract density

@@ -149,8 +149,8 @@
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            nBasi    = nBasis(iShllV(1))
-            nBasj    = nBasis(iShllV(2))
+            nBasi    = Shells(iShllV(1))%nBasis
+            nBasj    = Shells(iShllV(2))%nBasis
 *
             kPrimk = 1
             lPriml = 1
@@ -198,7 +198,6 @@
      &             'Drvk2: iBasi.ne.iBsInc .or.jBasj.ne.jBsInc'
                 Write (6,*) 'iBasi,iBsInc=',iBasi,iBsInc
                 Write (6,*) 'jBasj,jBsInc=',jBasj,jBsInc
-                Call QTrace
                 Call Abend()
             End If
 *

@@ -311,15 +311,15 @@ c      End If
 *
             Do l=0,nVal_Shells(iCnttp)-1
               ishell=ipVal(iCnttp)+l
-              If (nBasis(iShell).gt.nNumber) Then
+              If (Shells(iShell)%nBasis.gt.nNumber) Then
                  Write (6,*) 'Interf: too many contracted functions!'
-                 Write (6,*) 'nBasis(iShell)=',nBasis(iShell)
+                 Write (6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
                  Call Abend()
               End If
 *
 *             Iterate over each contracted GTO
 *
-              Do icontr=1,nBasis(ishell)
+              Do icontr=1,Shells(ishell)%nBasis
 *
 *               Find the number of exponents with non-zero exponents
 *

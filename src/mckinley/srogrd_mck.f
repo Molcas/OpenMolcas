@@ -175,10 +175,10 @@
             Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
                iShll = ipSRO(kCnttp) + iAng
                nExpi=Shells(iShll)%nExp
-
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
                   Write (6,*) 'nExpi=',nExpi
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nBasis(iShll)=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If

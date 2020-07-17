@@ -1038,7 +1038,7 @@
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
-     &                   iPrSh+1,nBasis,MxShll,DBLE(iAtmNr))
+     &                   iPrSh+1,DBLE(iAtmNr))
             Close (LUQRP)
          End If
       End If

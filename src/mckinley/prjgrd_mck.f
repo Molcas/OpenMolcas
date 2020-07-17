@@ -171,14 +171,15 @@
             Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
                iShll = ipPrj(kCnttp) + iAng
                nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
                   Write (6,*) 'nExp(iShll)=',nExpi
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nBasisi=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip=1
 
@@ -218,7 +219,7 @@
 
 
                call  CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
-     &                        Fact,nAlpha,nBeta,Dum,nBasis(ishll),
+     &                        Fact,nAlpha,nBeta,Dum,nBasisi,
      &                        la,lb,iang,jfgrad,Dum,.false.,
      &                        index,mvec,idcar)
 

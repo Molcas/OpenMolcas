@@ -120,11 +120,12 @@
             Do iAng = 0, nPrj_Shells(iCnttp)-1
                iShll = ipPrj(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
-               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Cycle
+               nBasisi=Shells(iShll)%nBasis
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle
 *
 #ifdef _DEBUG_
                Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExpi,
-     &                     nBasis(iShll))
+     &                     nBasisi)
 #endif
                ip = 1
                ipF1 = ip
@@ -198,7 +199,7 @@
                ip = ip - 6 * nExpi*nBeta
                ipTmp = ip
                ip = ip + Max(nAlpha*nExpi*nac,
-     &                       nBeta*ncb*nBasis(iShll))
+     &                       nBeta*ncb*nBasisi)
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(3)')
                   Call Abend()
@@ -222,14 +223,14 @@
 *--------------2) aciK =  k,aci * k,K
 *
                Call DGEMM_('T','N',
-     &                     nAlpha*nac,nBasis(iShll),nExpi,
+     &                     nAlpha*nac,nBasisi,nExpi,
      &                     1.0d0,Array(ipTmp),nExpi,
      &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipF1),nAlpha*nac)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do iBk = 1, nBasis(iShll)
+               Do iBk = 1, nBasisi
                   Bk = Shells(ishll)%Bk(iBk)
                   Call DScal_(nAlpha*nac,Bk,
      &                       Array(ipF1+(iBk-1)*nAlpha*nac),1)
@@ -238,26 +239,26 @@
 *--------------4) a,ciK -> ciKa
 *
                Call DgeTMo(Array(ipF1),nElem(la),nElem(la),
-     &                     nElem(iAng)*nAlpha*nBasis(iShll),
+     &                     nElem(iAng)*nAlpha*nBasisi,
      &                     Array(ipTmp),
-     &                     nElem(iAng)*nAlpha*nBasis(iShll))
+     &                     nElem(iAng)*nAlpha*nBasisi)
 *
 *--------------5) iKa,C = c,iKa * c,C
 *
                Call DGEMM_('T','N',
-     &                     nAlpha*nBasis(iShll)*nElem(la),
+     &                     nAlpha*nBasisi*nElem(la),
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipTmp),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipF1),
-     &                     nAlpha*nBasis(iShll)*nElem(la))
+     &                     nAlpha*nBasisi*nElem(la))
 *
 *--------------And (almost) the same thing for the righthand side, form
 *              KjCb from kjcb
 *              1) jcb,K = k,jcb * k,K
 *
                Call DGEMM_('T','N',
-     &                     nBeta*ncb,nBasis(iShll),nExpi,
+     &                     nBeta*ncb,nBasisi,nExpi,
      &                     1.0d0,Array(ipF2),nExpi,
      &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipTmp),nBeta*ncb)
@@ -265,24 +266,24 @@
 *--------------2)  j,cbK -> cbK,j
 *
                Call DgeTMo(Array(ipTmp),nBeta,nBeta,
-     &                     nBasis(iShll)*ncb,Array(ipF2),
-     &                     nBasis(iShll)*ncb)
+     &                     nBasisi*ncb,Array(ipF2),
+     &                     nBasisi*ncb)
 *
 *--------------3) bKj,C = c,bKj * c,C
 *
                Call DGEMM_('T','N',
-     &                     nElem(lb)*nBasis(iShll)*nBeta,
+     &                     nElem(lb)*nBasisi*nBeta,
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipF2),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipTmp),
-     &                     nElem(lb)*nBasis(iShll)*nBeta)
+     &                     nElem(lb)*nBasisi*nBeta)
 *
 *--------------4) b,KjC -> KjC,b
 *
                Call DgeTMo(Array(ipTmp),nElem(lb),nElem(lb),
-     &                     nBasis(iShll)*nBeta*(2*iAng+1),Array(ipF2),
-     &                     nBasis(iShll)*nBeta*(2*iAng+1))
+     &                     nBasisi*nBeta*(2*iAng+1),Array(ipF2),
+     &                     nBasisi*nBeta*(2*iAng+1))
 *
 *--------------Next Contract (iKaC)*(KjCb) over K and C, producing ijab,
 *              by the following procedure:
@@ -298,9 +299,9 @@
 *
                      Do iC = 1, (2*iAng+1)
                         iaC = (iC-1)*nElem(la) + ia
-                        ipaC = (iaC-1)*nAlpha*nBasis(iShll) + ipF1
+                        ipaC = (iaC-1)*nAlpha*nBasisi + ipF1
                         iCb = (ib-1)*(2*iAng+1) + iC
-                        ipCb = (iCb-1)*nBasis(iShll)*nBeta  + ipF2
+                        ipCb = (iCb-1)*nBasisi*nBeta  + ipF2
 *
                         iIC = 0
                         Do iIrrep = 0, nIrrep-1
@@ -310,9 +311,9 @@
                            Xg=rChTbl(iIrrep,nOp         )
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',
-     &                                nAlpha,nBeta,nBasis(iShll),
+     &                                nAlpha,nBeta,nBasisi,
      &                                Factor,Array(ipaC),nAlpha,
-     &                                    Array(ipCb),nBasis(iShll),
+     &                                    Array(ipCb),nBasisi,
      &                                One,Final(1,ia,ib,iIC),nAlpha)
                         End Do ! iIrrep
 *

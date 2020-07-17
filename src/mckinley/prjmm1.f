@@ -38,7 +38,8 @@
          Do 1966 iAng = 0, nPrj_Shells(iCnttp)-1
             iShll = ipPrj(iCnttp) + iAng
             nExpi=Shells(iShll)%nExp
-            If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+            nBasisi=Shells(iShll)%nBasis
+            If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
             ip = 0
 

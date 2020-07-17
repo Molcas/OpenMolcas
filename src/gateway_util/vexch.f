@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,nBasis,MxShll,nProj,iCoShll)
+      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,nProj,iCoShll)
 ************************************************************************
 *                                                                      *
 *     VExch calculates the atomic integral                             *
@@ -17,7 +17,6 @@
 ************************************************************************
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
-      Integer nBasis(MxShll)
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
       PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
       COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)

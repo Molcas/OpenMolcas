@@ -116,7 +116,7 @@
                Do iCmp = 1, nCmp
                   iAO = iAO + 1
                   iAOtSO(iAO,0) = iSO + 1
-                  Do iCont = 1, nBasis(iShll_)
+                  Do iCont = 1, Shells(iShll_)%nBasis
                      iSO = iSO + 1
                   End Do
                End Do
@@ -129,7 +129,8 @@
          Do iAng = 0, nTest
             iShll = ipVal(iCnttp) + iAng
             nExpi = Shells(iShll)%nExp
-            If (nExpi*nBasis(iShll).eq.0) Go To 2221
+            nBasisi=Shells(iShll)%nBasis
+            If (nExpi*nBasisi.eq.0) Go To 2221
 *
             nCmp = (iAng+1)*(iAng+2)/2
             If (Prjct(iShll)) nCmp = 2*iAng+1
@@ -173,11 +174,11 @@
             ij=0
             iCmp=1
             jCmp=1
-            Do jBas = 1, nBasis(iShll)
-               j=(jCmp-1)*nBasis(iShll)+jBas
-               Do iBas = 1, nBasis(iShll)
-                  i=(iCmp-1)*nBasis(iShll)+iBas
-                  ijF=(j-1)*nBasis(iShll)*nCmp+i
+            Do jBas = 1, nBasisi
+               j=(jCmp-1)*nBasisi+jBas
+               Do iBas = 1, nBasisi
+                  i=(iCmp-1)*nBasisi+iBas
+                  ijF=(j-1)*nBasisi*nCmp+i
                   ij=ij+1
 *
                   Work(ij+ip_TInt_c-1)=Work(ijF+ip_TInt_c-1)
@@ -186,28 +187,27 @@
             End Do
 #ifdef _DEBUG_
             Call RecPrt('TInt_c(r)','(5G20.10)',
-     &                  Work(ip_TInt_c),nBasis(iShll),
-     &                  nBasis(iShll))
+     &                  Work(ip_TInt_c),nBasisi,nBasisi)
 #endif
 *
-            Call GetMem('ADiag','Allo','Real',ipADiag,nBasis(iShll))
-            Call GetMem('iADiag','Allo','Inte',ipiADiag,nBasis(iShll))
+            Call GetMem('ADiag','Allo','Real',ipADiag,nBasisi)
+            Call GetMem('iADiag','Allo','Inte',ipiADiag,nBasisi)
 *
             iSeed=77
             Lu_A=IsFreeUnit(iSeed)
             Call DaName_MF_WA(Lu_A,'AMat09')
 *
             iDisk=0
-            Call dDaFile(Lu_A,1,Work(ip_TInt_c),nBasis(iShll)**2,iDisk)
+            Call dDaFile(Lu_A,1,Work(ip_TInt_c),nBasisi**2,iDisk)
 *
             iSeed=iSeed+1
             Lu_Q=IsFreeUnit(iSeed)
             Call DaName_MF_WA(Lu_Q,'QMat09')
 *
-            call dcopy_(nBasis(iShll),Work(ip_TInt_c),nBasis(iShll)+1,
+            call dcopy_(nBasisi,Work(ip_TInt_c),nBasisi+1,
      &                 Work(ipADiag),1)
 *
-            Call CD_AInv_(nBasis(iShll),m,Work(ipADiag),iWork(ipiADiag),
+            Call CD_AInv_(nBasisi,m,Work(ipADiag),iWork(ipiADiag),
      &                    Lu_A,Lu_Q,Thr_CB)
 *
             Call GetMem('iADiag','Free','Inte',ipiADiag,n)
@@ -217,37 +217,37 @@
 *           Transform the contraction coefficients according to the
 *           Cholesky vectors.
 *
-            Call Allocate_Work(ipTmp,nBasis(iShll)*nExpi)
-            Call Allocate_Work(ipQVec,nBasis(iShll)**2)
-            Call FZero(Work(ipQVec),nBasis(iShll)**2)
+            Call Allocate_Work(ipTmp,nBasisi*nExpi)
+            Call Allocate_Work(ipQVec,nBasisi**2)
+            Call FZero(Work(ipQVec),nBasisi**2)
 *
             iDisk=0
-            Call dDaFile(Lu_Q,2,Work(ipQVec),nBasis(iShll)*m,iDisk)
+            Call dDaFile(Lu_Q,2,Work(ipQVec),nBasisi*m,iDisk)
             Call DaEras(Lu_Q)
 #ifdef _DEBUG_
-            Call RecPrt('QVec',' ',Work(ipQVec),nBasis(iShll),m)
+            Call RecPrt('QVec',' ',Work(ipQVec),nBasisi,m)
 #endif
 *
             iOff=0
             Do iCase = 1, 2
-               call dcopy_(nExpi*nBasis(iShll),
+               call dcopy_(nExpi*nBasisi,
      &                     Shells(iShll)%Cff_c(1,1,iCase),1,
      &                     Work(ipTmp),1)
 #ifdef _DEBUG_
                Call RecPrt('Coeff(old)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
-     &                     nExpi,nBasis(iShll))
+     &                     nExpi,nBasisi)
 #endif
                Call DGEMM_('N','N',
-     &                    nExpi,nBasis(iShll),nBasis(iShll),
+     &                    nExpi,nBasisi,nBasisi,
      &                    1.0D0,Work(ipTmp),nExpi,
-     &                          Work(ipQVec),nBasis(iShll),
+     &                          Work(ipQVec),nBasisi,
      &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
      &                          nExpi)
 #ifdef _DEBUG_
                Call RecPrt('Coeff(new)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
-     &                     nExpi,nBasis(iShll))
+     &                     nExpi,nBasisi)
 #endif
             End Do
 *

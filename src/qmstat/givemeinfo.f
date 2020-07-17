@@ -89,8 +89,8 @@ C     Endif
           Do 30, j=1,nTot_Shells(i)
             kaunt=kaunt+1
             krekna2=krekna2+1
-            nCBoA(krekna,krekna2)=nBasis(kaunt)
-            Do 40, jj=1,nBasis(kaunt)
+            nCBoA(krekna,krekna2)=Shells(kaunt)%nBasis
+            Do 40, jj=1,Shells(kaunt)%nBasis
               kaunter=kaunter+1
 40          Continue
 30        Continue
@@ -131,7 +131,7 @@ C     Endif
         kaunter=0
         Do 203, k=1,nTot_Shells(i)
           kaunt=kaunt+1
-          Do 205, ll=1,nBasis(kaunt)
+          Do 205, ll=1,Shells(kaunt)%nBasis
             kaunter=kaunter+1
             Icon(i,kaunter)=Shells(kaunt)%nExp
 205       Continue
@@ -145,7 +145,7 @@ C     Endif
       Do 2101, kk=1,ii   !Just to get size of vector
         Do 2102, kkk=1,nTot_Shells(kk)
           kaunt=kaunt+1
-          nSize=nSize+nBasis(kaunt)*Shells(kaunt)%nExp
+          nSize=nSize+Shells(kaunt)%nBasis*Shells(kaunt)%nExp
 2102    Continue
 2101  Continue
       Call GetMem('Exponents','Allo','Real',ipExpo,nSize*MxAtQ)
@@ -168,7 +168,7 @@ C     Endif
                           !contraction coefficients and the exponents.
           iCount=iAng+iAngSav
           iPrim=Shells(iCount)%nExp
-          iBas=nBasis(iCount)
+          iBas=Shells(iCount)%nBasis
 c         Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
           Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)
           nfSh(iCnttp,iAng+1)=iBas
