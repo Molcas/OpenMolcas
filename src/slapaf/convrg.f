@@ -772,6 +772,7 @@ C              Write (6,*) 'SubProject=.Prod'
          BadConstraint=.False.
          Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                ResGrad,BadConstraint)
+         Call dCopy_(3*nAtom,Cx(1,iter+1),1,Work(ipCoor),1)
          Call Put_iScalar('iOff_Iter',iter)
 *
          If (MEP) Then

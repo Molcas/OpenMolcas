@@ -214,13 +214,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-CAOM -Call HSR (HSR is a function caused hanging with pgf90/mpp)
-*
-      If (.NOT.do_fullprintcoords) nPrint(54) = nPrint(54)-1
-      HSRad=HSR(Work(ipCoor),nsAtom)
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call GetMem('Carcor','Free','Real',ipCC,3*nSym*nsAtom)
 *                                                                      *
 ************************************************************************
@@ -229,6 +222,8 @@ CAOM -Call HSR (HSR is a function caused hanging with pgf90/mpp)
 *
       jpCoor = ipCx + iter*3*nsAtom
       Call Put_Coord_New(Work(jpCoor),nsAtom)
+      call recprt('CoordNew','',Work(jpCoor),nsAtom,3)
+      call recprt('ipCoor','',Work(ipCoor),nsAtom,3)
 *                                                                      *
 ************************************************************************
 *                                                                      *

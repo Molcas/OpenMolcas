@@ -50,7 +50,7 @@
 
 *       Align and measure distance
         PrevR=R
-        If (Invar) Call Align(Point,Ref,nAtom)
+        Call Align(Point,Ref,nAtom)
         If (MEP_Type.eq.'SPHERE') Then
           Call SphInt(Point,nAtom,R,Dummy,
      &                .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)

@@ -24,7 +24,6 @@
 ************************************************************************
       Subroutine Put_Coord_New(Coord,nAtoms)
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 
       Real*8       Coord(3,nAtoms)
       Character*24 Label
