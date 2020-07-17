@@ -813,7 +813,7 @@
             End If
 *
             jValSh = jValSh + 1
-            nCntrc   = nBasis(jValSh)
+            nCntrc   = Shells(jValSh)%nBasis
 *
 *
             If (iAIMP.le.nProj) Then

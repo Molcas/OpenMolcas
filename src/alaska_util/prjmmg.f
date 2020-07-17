@@ -37,7 +37,8 @@
          Do 1966 iAng = 0, nPrj_Shells(iCnttp)-1
             iShll = ipPrj(iCnttp) + iAng
             nExpi=Shells(iShll)%nExp
-            If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+            nBasisi=Shells(iShll)%nBasis
+            If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
             ip = 0
             nac = 4*nElem(la)*nElem(iAng)
@@ -78,7 +79,7 @@
      &         * (6 + 3*nHer*((lb+2) + (iAng+1) + (lr+1)
      &         +  (lb+2)*(iAng+1)*(lr+1)) + 1)
 *
-            ip = ip + Max(nExpi*nac,ncb*nBasis(iShll))
+            ip = ip + Max(nExpi*nac,ncb*nBasisi)
             MmPrjG = Max(MmPrjG,ip)
 *
  1966    Continue

@@ -32,10 +32,10 @@
       jPrimj   = Shells(iSD4( 0,2))%nExp
       kPrimk   = Shells(iSD4( 0,3))%nExp
       lPriml   = Shells(iSD4( 0,4))%nExp
-      iBasi    = nBasis(iSD4( 0,1))
-      jBasj    = nBasis(iSD4( 0,2))
-      kBask    = nBasis(iSD4( 0,3))
-      lBasl    = nBasis(iSD4( 0,4))
+      iBasi    = Shells(iSD4( 0,1))%nBasis
+      jBasj    = Shells(iSD4( 0,2))%nBasis
+      kBask    = Shells(iSD4( 0,3))%nBasis
+      lBasl    = Shells(iSD4( 0,4))%nBasis
       iShela(1) = iSD4(11,1)
       iShela(2) = iSD4(11,2)
       iShela(3) = iSD4(11,3)

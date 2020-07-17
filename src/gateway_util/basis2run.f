@@ -44,7 +44,7 @@
             jSh = iShSrt
             if (AuxShell(jSh).or.FragShell(jSh)) cycle
             Do iAng = 0, nVal_Shells(iCnttp)-1
-              nPrim = nPrim + Shells(jSh)%nExp * nBasis(jSh)
+              nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
               jSh = jSh + 1
             End Do
           End Do
@@ -77,7 +77,7 @@
             iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
             Do iAng = 0, nVal_Shells(iCnttp)-1
 *     Pointer to the untouched contraction matrix as after input.
-              Do iBasis = 1,nBasis(jSh)
+              Do iBasis = 1, Shells(jSh)%nBasis
                 Do kExp = 1, Shells(jSh)%nExp
                   iPrim  = iPrim  + 1
                   primitive_ids(1,iPrim) = iyy

@@ -266,7 +266,7 @@
                       iCase = 1
 *
                    End If
-                   nBas_x = nBasis(iShll)
+                   nBas_x = Shells(iShll)%nBasis
                    nExp_x = Shells(iShll)%nExp
 *
                    If (IfTest) Write (6,*)  'iShll=',iShll

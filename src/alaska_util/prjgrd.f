@@ -177,13 +177,14 @@
             Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
                iShll = ipPrj(kCnttp) + iAng
                nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
                   Write (6,*) 'nExpi=',nExpi
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nBasisi=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
-               If (nExpi.eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip = 1
                ipF1 = ip
@@ -385,7 +386,7 @@
                ncb = nElem(iAng)*nElem(lb)*nVecCB
                ipTmp = ip
                ip = ip +
-     &              Max(nAlpha*nExpi*nac,nBeta*ncb*nBasis(iShll))
+     &              Max(nAlpha*nExpi*nac,nBeta*ncb*nBasisi)
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(3) in PrjGrd'
                   Call Abend()
@@ -412,14 +413,14 @@
 *--------------2) aciK =  k,aci * k,K (Contract over core orbital)
 *
                Call DGEMM_('T','N',
-     &                     nac*nVecAC*nAlpha,nBasis(iShll),nExpi,
+     &                     nac*nVecAC*nAlpha,nBasisi,nExpi,
      &                     1.0d0,Array(ipTmp),nExpi,
      &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipF1),nac*nVecAC*nAlpha)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do 1955 iBk = 1, nBasis(iShll)
+               Do 1955 iBk = 1, nBasisi
                   Call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),
      &                       Array((iBk-1)*nac*nVecAC*nAlpha+ipF1),1,
      &                       Array((iBk-1)*nac*nVecAC*nAlpha+ipTmp),1)
@@ -428,31 +429,31 @@
 *--------------4) a,ciK -> ciKa
 *
                Call DgeTMo(Array(ipTmp),nElem(la),nElem(la),
-     &                     nElem(iAng)*nVecAC*nAlpha*nBasis(iShll),
+     &                     nElem(iAng)*nVecAC*nAlpha*nBasisi,
      &                     Array(ipF1),
-     &                     nElem(iAng)*nVecAC*nAlpha*nBasis(iShll))
+     &                     nElem(iAng)*nVecAC*nAlpha*nBasisi)
 *
 *--------------5) iKa,C = c,iKa * c,C
 *
                Call DGEMM_('T','N',
-     &              nVecAC*nAlpha*nBasis(iShll)*nElem(la),
+     &              nVecAC*nAlpha*nBasisi*nElem(la),
      &              (2*iAng+1),nElem(iAng),
      &              1.0d0,Array(ipF1),nElem(iAng),
      &              RSph(ipSph(iAng)),nElem(iAng),
      &              0.0d0,Array(ipTmp),
-     &              nVecAC*nAlpha*nBasis(iShll)*nElem(la))
+     &              nVecAC*nAlpha*nBasisi*nElem(la))
 *
                Call DgeTMo(Array(ipTmp),nVecAC,nVecAC,
-     &                     nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1),
+     &                     nAlpha*nBasisi*nElem(la)*(2*iAng+1),
      &                     Array(ipF1),
-     &                     nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1))
+     &                     nAlpha*nBasisi*nElem(la)*(2*iAng+1))
 *
 *--------------And (almost) the same thing for the righthand side, form
 *              KjCb from kjcb
 *              1) jcb,K = k,jcb * k,K
 *
                Call DGEMM_('T','N',
-     &                     nBeta*ncb*nVecCB,nBasis(iShll),nExpi,
+     &                     nBeta*ncb*nVecCB,nBasisi,nExpi,
      &                     1.0d0,Array(ipF2),nExpi,
      &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipTmp),nBeta*ncb*nVecCB)
@@ -460,25 +461,25 @@
 *--------------2)  j,cbK -> cbK,j
 *
                Call DgeTMo(Array(ipTmp),nBeta,nBeta,
-     &                     ncb*nVecCB*nBasis(iShll),Array(ipF2),
-     &                     ncb*nVecCB*nBasis(iShll))
+     &                     ncb*nVecCB*nBasisi,Array(ipF2),
+     &                     ncb*nVecCB*nBasisi)
 *
 *--------------3) bKj,C = c,bKj * c,C
 *
                Call DGEMM_('T','N',
-     &                     nElem(lb)*nVecCB*nBasis(iShll)*nBeta,
+     &                     nElem(lb)*nVecCB*nBasisi*nBeta,
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipF2),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipTmp),
-     &                     nElem(lb)*nVecCB*nBasis(iShll)*nBeta)
+     &                     nElem(lb)*nVecCB*nBasisi*nBeta)
 *
 *--------------4) b,KjC -> KjC,b
 *
                Call DgeTMo(Array(ipTmp),nElem(lb)*nVecCB,
      &                     nElem(lb)*nVecCB,
-     &                     nBasis(iShll)*nBeta*(2*iAng+1),Array(ipF2),
-     &                     nBasis(iShll)*nBeta*(2*iAng+1))
+     &                     nBasisi*nBeta*(2*iAng+1),Array(ipF2),
+     &                     nBasisi*nBeta*(2*iAng+1))
 *
 *--------------Next Contract (iKaC)*(KjCb) over K and C, producing ijab,
 *              by the following procedure:
@@ -501,13 +502,13 @@
                         If (iCent.eq.1) Then
                            mVecAC = mVecAC+1
                            ipF1a = ipF1 + (mVecAC-1) *
-     &                        nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1)
+     &                        nAlpha*nBasisi*nElem(la)*(2*iAng+1)
                            ipF2a = ipF2
                         Else
                            ipF1a = ipF1
                            mVecCB = mVecCB+1
                            ipF2a = ipF2 + (mVecCB-1) *
-     &                       nBasis(iShll)*nBeta*(2*iAng+1)*nElem(lb)
+     &                       nBasisi*nBeta*(2*iAng+1)*nElem(lb)
                         End If
 *
                Do 1030 ib = 1, nElem(lb)
@@ -515,14 +516,14 @@
 *
                      Do 1032 iC = 1, (2*iAng+1)
                         iaC = (iC-1)*nElem(la) + ia
-                        ipaC = (iaC-1)*nAlpha*nBasis(iShll) + ipF1a
+                        ipaC = (iaC-1)*nAlpha*nBasisi + ipF1a
                         iCb = (ib-1)*(2*iAng+1) + iC
-                        ipCb = (iCb-1)*nBasis(iShll)*nBeta  + ipF2a
+                        ipCb = (iCb-1)*nBasisi*nBeta  + ipF2a
 *
                         Call DGEMM_('N','N',
-     &                             nAlpha,nBeta,nBasis(iShll),
+     &                             nAlpha,nBeta,nBasisi,
      &                             Fact,Array(ipaC),nAlpha,
-     &                                 Array(ipCb),nBasis(iShll),
+     &                                 Array(ipCb),nBasisi,
      &                             One,Final(1,ia,ib,mVec),nAlpha)
 *
  1032                Continue

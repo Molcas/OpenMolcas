@@ -62,7 +62,7 @@
 *              Pointer to the untouched contraction matrix as after
 *              input.
 *
-               If (krCof+nExpj*nBasis(jSh).gt.MxrCof) Then
+               If (krCof+nExpj*Shells(jSh)%nBasis.gt.MxrCof) Then
                   Call WarningMessage(2,
      &                     'Too many contraction coefficients')
                   Write(6,*) 'MORE THAN ',MxrCof,

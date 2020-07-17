@@ -188,21 +188,22 @@
 *
             Do l=0,nVal_Shells(iCnttp)-1
               ishell=ipVal(iCnttp)+l
-*              write(6,*) 'nBasis(iShell)', nBasis(iShell)
-              If (nBasis(iShell).gt.nNumber) Then
+              nBasisi=Shells(iShell)%nBasis
+*              write(6,*) 'nBasisi', nBasis(iShell)
+              If (nBasisi.gt.nNumber) Then
                  Write (6,*) 'Desym: too many contracted functions!'
-                 Write (6,*) 'nBasis(iShell)=',nBasis(iShell)
+                 Write (6,*) 'nBasisi=',nBasis(iShell)
                  Call Abend()
               End If
 *
 *             Iterate over each contracted GTO
 *
-CC              Do icontr=1,nBasis(ishell)
+CC              Do icontr=1,nBasisi
 *
 *
 *
                 If (l.eq.0) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
      &                          number(icontr)
@@ -212,7 +213,7 @@ CC              Do icontr=1,nBasis(ishell)
                   End do
                 End If
                 If (l.eq.1) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
      &                          number(icontr)
@@ -220,7 +221,7 @@ CC              Do icontr=1,nBasis(ishell)
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02py    '//
      &                          number(icontr)
@@ -228,7 +229,7 @@ CC              Do icontr=1,nBasis(ishell)
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//
      &                          number(icontr)
@@ -238,31 +239,31 @@ CC              Do icontr=1,nBasis(ishell)
                   End do
                 End If
                 If ((l.eq.2).and.(.not.y_cart)) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d01-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d00   '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d01+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d02+  '//
      &                          number(icontr)
@@ -270,43 +271,43 @@ CC              Do icontr=1,nBasis(ishell)
                   End do
                 End If
                 If ((l.eq.3).and.(.not.y_cart)) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f02-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f01-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f00   '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f01+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f02+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f03+  '//
      &                          number(icontr)
@@ -314,55 +315,55 @@ CC              Do icontr=1,nBasis(ishell)
                   End do
                 End If
                 If ((l.eq.4).and.(.not.y_cart)) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g03-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g02-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g01-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g00   '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g01+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g02+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g03+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g04+  '//
      &                          number(icontr)
@@ -370,67 +371,67 @@ CC              Do icontr=1,nBasis(ishell)
                   End do
                 EndIf
                 If ((l.eq.5).and.(.not.y_cart)) Then
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h05+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h04-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h03-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h02-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h01-  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h00   '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h01+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h02+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h03+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h04+  '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
-                  Do icontr=1,nBasis(ishell)
+                  Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h05+  '//
      &                          number(icontr)

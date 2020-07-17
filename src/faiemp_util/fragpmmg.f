@@ -35,6 +35,7 @@
       Integer i,nElem,nOrder,maxDensSize
       Integer iCnttp,jCnttp,iAng,jAng,iShll,jShll
       Integer ip,nac,ncb, nExpi, nExpj
+      Integer nBasisi, nBasisj
 *
       nElem(i) = (i+1)*(i+2)/2
 *
@@ -55,7 +56,8 @@ c
          Do iAng = 0, nVal_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + iAng
          nExpi=Shells(iShll)%nExp
-         If (nExpi.eq.0 .or. nBasis(iShll).eq.0) cycle !Go To 1966
+         nBasisi=Shells(iShll)%nBasis
+         If (nExpi.eq.0 .or. nBasisi.eq.0) cycle !Go To 1966
 *
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
@@ -65,7 +67,8 @@ c
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng
                nExpj=Shells(jShll)%nExp
-               If (nExpj.eq.0 .or. nBasis(jShll).eq.0) cycle
+               nBasisj=Shells(jShll)%nBasis
+               If (nExpj.eq.0 .or. nBasisj.eq.0) cycle
 !              Go To 1976
 *
                ip =  2 * maxDensSize
@@ -107,8 +110,8 @@ c
      &            * (6 + 3*nHer*((lb+2) + (jAng+1) + (lr+1)
      &            +  (lb+2)*(jAng+1)*(lr+1)) + 1)
 *
-               ip = ip + Max(Max(nExpi,nBasis(jShll))*nac,
-     &                      ncb*nBasis(jShll))
+               ip = ip + Max(Max(nExpi,nBasisj)*nac,
+     &                      ncb*nBasisj)
           MemFrag = Max(MemFrag,ip)
 *
 c 1976          Continue

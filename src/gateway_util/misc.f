@@ -93,15 +93,15 @@
                If (Prjct(jSh)) kCmp=2*iAng+1
                IndShl = IndShl + kCmp
 *
-               If (nBasis(jSh).ne.0 ) Then
+               If (Shells(jSh)%nBasis.ne.0 ) Then
                   If (AuxShell(jSh)) Then
-                     iBas_Aux  = iBas_Aux  + nBasis(jSh) * kCmp
+                     iBas_Aux  = iBas_Aux  + Shells(jSh)%nBasis * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else If (FragShell(jSh)) Then
-                     iBas_Frag = iBas_Frag  + nBasis(jSh) * kCmp
+                     iBas_Frag = iBas_Frag  + Shells(jSh)%nBasis * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else
-                     iBas  = iBas  + nBasis(jSh) * kCmp
+                     iBas  = iBas  + Shells(jSh)%nBasis * kCmp
      &                     * nIrrep/nStab(mdc)
                   End If
                End If

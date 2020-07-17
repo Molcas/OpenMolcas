@@ -324,9 +324,10 @@ C        Write (6,*) 'Done'
 *
          If (.Not.UnNorm) Then
             nExpi=Shells(iShll)%nExp
-            If (nExpi*nBasis(iShll).ge.1) Then
+            If (nExpi*Shells(iShll)%nBasis.ge.1) Then
                Call Nrmlz(Shells(iShll)%Exp,nExpi,
-     &                    Shells(iShll)%Cff_c(1,1,1),nBasis(iShll),iAng)
+     &                    Shells(iShll)%Cff_c(1,1,1),
+     &                    Shells(iShll)%nBasis,iAng)
             End If
          End If
          Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)

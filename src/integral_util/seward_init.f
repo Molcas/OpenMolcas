@@ -137,6 +137,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          FockOp(i)   = .False.
          IsMM(i)         =0
          Parent_iCnttp(i)=0
+         mdciCnttp(i)    =0
          ExpNuc(i)       =-One
          w_mGauss(i)     = One
          aCD_Thr(i)      = One
@@ -157,7 +158,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          FragShell(i)=.False.
          nBasis(i)       =0
          nBasis_Cntrct(i)=0
-         mdciCnttp(i)    =0
       End Do
 *
       MolWgh=2
