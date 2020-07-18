@@ -39,13 +39,11 @@
                Call mma_deallocate(Shells(iShll)%pCff)
                If (Primitive.and..Not.AuxShell(iShll)
      &                      .and..Not.FragShell(iShll)) Then
-                  nBasis(iShll)=nExpi
                   Shells(iShll)%nBasis=nExpi
                   Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              Shells(iShll)%nBasis,Label='pCff')
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
                Else
-                  nBasis(iShll)=nBasis_Cntrct(iShll)
                   Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
                   Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              Shells(iShll)%nBasis,Label='pCff')

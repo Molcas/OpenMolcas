@@ -511,14 +511,6 @@ c      Write(LU,'(i8)') Mx_Shll
       Call Get_iArray('nBasis',nBasis,Mx_Shll)
       Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
 
-      call icopy(Mx_Shll,nBasis,1,iWork(iivv+Icurr),1)
-      Icurr=iCurr+Mx_Shll
-      call icopy(Mx_Shll,nBasis_Cntrct,1,iWork(iivv+Icurr),1)
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(12i6)') (nBasis(i),i=1,Mx_Shll),
-c     & (nBasis_Cntrct(i),i=1,Mx_Shll)
-
       Call Get_iArray('IndS',IndS,nShlls)
       iWork(iivv+Icurr)=nShlls
       Icurr=iCurr+1

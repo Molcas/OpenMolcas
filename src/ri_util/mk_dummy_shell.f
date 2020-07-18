@@ -65,8 +65,6 @@
       Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='ExpDummy')
       Shells(iShll)%nExp=nPrim
       Shells(iShll)%nBasis=nCntrc
-      nBasis(iShll) = nCntrc
-      nBasis_Cntrct(iShll) = nCntrc
       Shells(iShll)%nBasis_c = nCntrc
 *     Exponent
       Shells(iShll)%Exp(1)=Zero
