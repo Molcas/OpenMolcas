@@ -11,8 +11,7 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,
-     &                 nBasis,nBasis_Cntrct,MxShll_,iShll,
+      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2,FockOp, ECP,NoPairL,SODK,
      &                 CrRep,nProj,nAIMP,iOpt,
@@ -61,9 +60,7 @@
       Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
-      Integer nBasis(MxShll_), nCGTO(0:iTabMx),
-     &        mCGTO(0:iTabMx), nDel(0:MxAng),
-     &        nBasis_Cntrct(MxShll_)
+      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir
@@ -320,7 +317,6 @@
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
          Shells(iShll)%nExp=nPrim
-         nBasis_Cntrct(iShll) = nCntrc
          Shells(iShll)%nBasis_c = nCntrc
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
 *        Read gaussian exponents
@@ -706,7 +702,6 @@
             Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
             Shells(iShll)%nExp = Shells(jValSh)%nExp
             Shells(iShll)%nBasis  = 0
-            nBasis(iShll)  = 0
          End Do
          Go To 9988
 *
@@ -735,7 +730,6 @@
             Shells(iShll)%Exp(:)=Shells(jPrSh)%Exp(:)
             Shells(iShll)%nExp=Shells(jPrSh)%nExp
             Shells(iShll)%nBasis  = 0
-            nBasis(iShll)  = 0
          End Do
          Go To 9988
 *
@@ -764,7 +758,6 @@
             Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
             Shells(iShll)%nExp=nPrim
             Shells(iShll)%nBasis=0
-            nBasis(iShll) = 0
 *
             If (nPrim.gt.0) then
                Call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
@@ -843,7 +836,6 @@
             End If
 *
             Shells(iShll)%nBasis=0
-            nBasis(iShll) = 0
 *
          End Do
          Go To 9988
@@ -882,7 +874,6 @@
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
          Shells(iShll)%nExp=nPrim
          Shells(iShll)%nBasis = nCntrc
-         nBasis(iShll) = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'
          If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,

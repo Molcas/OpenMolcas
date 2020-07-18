@@ -470,8 +470,7 @@
          iShll = Mx_Shll-1
          jShll = iShll
          SODK(nCnttp)=.False.
-         Call GetBS(Fname,Bsl_,Indx-1,lAng,
-     &              nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
+         Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
      &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
