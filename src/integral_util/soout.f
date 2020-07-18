@@ -74,7 +74,8 @@
                   iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
                   If (nExpi.eq.0) Go To 2033
-                  If (nBasis(iSh).eq.0) Go To 2033
+                  nBasisi=Shells(iSh)%nBasis
+                  If (nBasisi.eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
                   If(Prjct(iSh)) jComp = 2*iAng + 1
                   Do 204 iComp = 1, jComp
@@ -91,7 +92,7 @@
                      IrrCmp(IndS(iShell)+iComp) =
      &                    iOr(IrrCmp(IndS(iShell)+iComp),2**iIrrep)
 *
-                     Do 205 iCntrc = 1, nBasis(iSh)
+                     Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
                         If (iSO.gt.nMamn) Then
                            Call WarningMessage(2,'SOout: iSO.gt.nMamn')

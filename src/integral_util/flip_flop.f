@@ -52,7 +52,7 @@
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
                End If
                MaxPrm(iAng) = Max(MaxPrm(iAng),nExpi)
-               MaxBas(iAng) = Max(MaxBas(iAng),nBasis(iShll))
+               MaxBas(iAng) = Max(MaxBas(iAng),Shells(iShll)%nBasis)
 *
             End Do ! iAng
 *        End Do    ! iCnt

@@ -193,7 +193,7 @@ c      End If
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
           Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
-     &                 Shells(ishell)%pCff,nbasis(ishell),l)
+     &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do

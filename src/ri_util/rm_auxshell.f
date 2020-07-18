@@ -30,8 +30,6 @@
          Shells(iShll)%nExp=0
          Shells(iShll)%nBasis  =0
          Shells(iShll)%nBasis_c=0
-         nBasis(iShll)        = 0
-         nBasis_Cntrct(iShll) = 0
 *
       End Do
 *                                                                      *

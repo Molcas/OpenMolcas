@@ -156,8 +156,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          Transf(i)   =.True.
          AuxShell(i) =.False.
          FragShell(i)=.False.
-         nBasis(i)       =0
-         nBasis_Cntrct(i)=0
       End Do
 *
       MolWgh=2

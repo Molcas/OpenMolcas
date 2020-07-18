@@ -193,7 +193,7 @@ c      write(6,*) 'we here 0?'
            Go To 999
           End If
           Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
-     &                 Shells(ishell)%pCff,nbasis(ishell),l)
+     &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do
@@ -921,7 +921,7 @@ cvv this statement prevents overoptimization
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
           Call Unnrmlz2(Shells(ishell)%Exp, Shells(ishell)%nExp,
-     &                  Shells(ishell)%pCff,nbasis(ishell),l)
+     &                  Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do
