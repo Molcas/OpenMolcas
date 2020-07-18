@@ -64,8 +64,6 @@
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
-      Call Get_iArray('nBasis',nBasis,Mx_Shll)
-      Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
       Call Get_iArray('IndS',IndS,nShlls)
       Call Get_iArray('nOpt',nOpt,nCnttp)
       Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)

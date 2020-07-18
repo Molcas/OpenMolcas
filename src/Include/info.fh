@@ -36,7 +36,6 @@
 * Variables:                                                           *
 *                                                                      *
 * -> Integer   <-                                                      *
-*     nBasis: number of contracted functions of the i''th shell        *
 *     ipVal: the index of the first valence shell of the ith basis set *
 *     ipPrj: the index of the first projection shell of the ith basis  *
 *            set                                                       *
@@ -237,9 +236,8 @@
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
      &          Ind_Shell(MxShll), Parent_iCnttp(Mxdbsc)
-      Integer   nBasis(MxShll),
-     &          ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
-     &          ipSOC(Mxdbsc),ipPP(Mxdbsc), nBasis_Cntrct(MxShll),
+      Integer   ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
+     &          ipSOC(Mxdbsc),ipPP(Mxdbsc),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
      &          nPrj_Shells(Mxdbsc), nSRO_Shells(mxdbsc),
      &          nSOC_Shells(Mxdbsc), nPP_Shells(Mxdbsc),iChCnt(Mxdc),
@@ -260,9 +258,7 @@
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
-      Common /Info/
-     &              nBasis, nBasis_Cntrct,
-     &              IndS, nOpt, iCoSet,
+      Common /Info/ IndS, nOpt, iCoSet,
      &              iAOtSO, iSOInf, IrrCmp, ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,

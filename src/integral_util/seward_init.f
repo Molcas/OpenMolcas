@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine Seward_Init
@@ -23,6 +23,8 @@
       use k2_arrays
       use Basis_Info
       implicit real*8 (a-h,o-z)
+      External Reduce_Prt
+      Logical Reduce_Prt
 #include "itmax.fh"
 #include "info.fh"
 #include "pstat.fh"
@@ -38,10 +40,8 @@
 #include "FMM.fh"
 #include "nac.fh"
 #include "srint.fh"
-      Logical lGENINT,Reduce_Prt
+      Logical lGENINT
       Character*180 Env
-      External Reduce_Prt
-      Parameter(MxAO8=MxAO*8, MxAng1=MxAng+1, MxMx=Mxdbsc*MxAng1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,39 +93,21 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       jMax = 5
       nTtl=0
       Max_Center=15
-      Call IZero(iChCar,3)
-      KVector(1)=Zero
-      KVector(2)=Zero
-      KVector(3)=Zero
-      do 30 i=1,Mxdbsc
-      lOffAO(i)=0
-30    continue
-      do 40 i=1,Mxdbsc
-      do 41 j=0,MxAng
-      kOffAO(i,j)=0
-41    continue
-40    continue
-      do 50 i=1,MxAO
-      do 51 j=0,7
-      iAOtSO(i,j)=-999999999
-51    continue
-50    continue
-      do 60 i=0,MxAng
-      MaxBas(i)=0
-      MaxPrm(i)=0
-60    continue
-      do 70 i=1,MxUnq
-      IrrCmp(i)=0
-70    continue
-      do 80 i=-20,9
-      NrInt(i)=0
-80    continue
+
+      iChCar(:)=0
+      KVector(:)=Zero
+      lOffAO(1:Mxdbsc)=0
+      kOffAO(1:Mxdbsc,0:MxAng)=0
+      iAOtSO(1:MxAO,0:7)=-999999999
+      MaxBas(0:MxAng)=0
+      MaxPrm(0:MxAng)=0
+      IrrCmp(1:MxUnq)=0
+      NrInt(-20:9)=0
+      iSkip(0:7)=0
+
       nOrdEF=-1
       nDMS=0
       nRP=0
-      Do i=0,7
-         iSkip(i)=0
-      End Do
       iPack=0
       iSquar=0
       iWRopt=0
@@ -148,8 +130,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iOrdFm=0
       iXPolType=0
       IsChi=0
-*
-*-----LInfo
+      MolWgh=2
 *
       Do i=1,MxShll
          Prjct(i)    =.True.
@@ -158,7 +139,8 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
          FragShell(i)=.False.
       End Do
 *
-      MolWgh=2
+*-----LInfo
+*
       NEMO=.False.
       Do_RI=.False.
       Primitive_Pass=.True.

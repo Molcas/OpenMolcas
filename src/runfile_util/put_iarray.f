@@ -127,7 +127,7 @@
          RecLab( 22)='SewLInfo        '
          RecLab( 23)='SCFInfoI_ab     '
          RecLab( 24)='                ' !Free slot
-         RecLab( 25)='nBasis          '
+         RecLab( 25)='                ' !Free Slot
          RecLab( 26)='                ' !Free slot
          RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
@@ -153,7 +153,7 @@
          RecLab( 48)='nBas_Prim       '
          RecLab( 49)='IsMM            '
          RecLab( 50)='Atom -> Basis   '
-         RecLab( 51)='nBasis_Cntrct   '
+         RecLab( 51)='                ' !Free slot
          RecLab( 52)='                ' !Free slot
          RecLab( 53)='                ' !Free slot
          RecLab( 54)='SCF nOcc        '
