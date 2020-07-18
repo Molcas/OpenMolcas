@@ -12,8 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,nBasis,MxShll,iShll,
-     &                  BLine,CrRep,nProj,
+      SubRoutine GetECP(lUnit,iShll,BLine,CrRep,nProj,
      &                  ipPP,nPP,UnNorm,iCnttp)
 ************************************************************************
 *                                                                      *
@@ -34,13 +33,14 @@
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Character*180 Line, Get_Ln
       Character*(*) BLine
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer nBasis(MxShll), mPP(2)
+      Integer mPP(2)
       Logical UnNorm
       Integer iCnttp
 *                                                                      *
@@ -247,7 +247,6 @@ C        Write (6,*) 'Done'
 *
          Shells(iShll)%nExp=nPrim
          Shells(iShll)%nBasis = nCntrc
-         nBasis(iShll) = nCntrc
 *
 *------- Check if occupation number is included on the line
 *
@@ -294,7 +293,6 @@ C        Write (6,*) 'Done'
      &                     Label='Cff_p')
          Shells(iShll)%Cff_p(:,:,:)=Zero  ! dummy assign
          Shells(iShll)%nBasis=nCntrc
-         nBasis(iShll) = nCntrc
 *
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and

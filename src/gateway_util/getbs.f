@@ -84,11 +84,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,nBasis,MxShll,iShll,
+         SubRoutine GetECP(lUnit,iShll,
      &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,iCnttp)
          Integer lUnit
-         Integer nBasis(MxShll)
-         Integer MxShll,iShll
+         Integer iShll
          Character*(*) BLine
          Real*8  CrRep
          Integer nProj
@@ -634,7 +633,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
-         Call GetECP(lUnit,nBasis,MxShll,iShll,Bline,
+         Call GetECP(lUnit,iShll,Bline,
      &               CrRep,nProj,ipPP_,nPP,UnNorm,iCnttp)
          nPrj=nProj+1
 *
