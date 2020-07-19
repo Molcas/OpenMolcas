@@ -769,6 +769,19 @@ div.document div.highlight {
   overflow: auto;
 }
 
+div.highlight-none:before {
+  content: attr(click-label);
+  display: block;
+  height: 0;
+  position: relative;
+  bottom: 0.5ex;
+  text-align: right;
+  padding-right: 3em;
+  opacity: 0.5;
+  font-size: 75%;
+  font-weight: bold;
+}
+
 /* Tables */
 div.document table.docutils {
   border-collapse: separate;

@@ -302,14 +302,14 @@ Keywords
 
   It can be used for an XMS-PDFT calculation (which needs :program:`RASSCF`,
   :program:`CASPT2` and :program:`MCPDFT` modules).
-  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF 
-  or SA-RASSCF states to intermediate states (using the same rotation as in 
-  XMS-CASPT2), and the rotation matrix can be obtained in the :program:`CASPT2` module 
+  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF
+  or SA-RASSCF states to intermediate states (using the same rotation as in
+  XMS-CASPT2), and the rotation matrix can be obtained in the :program:`CASPT2` module
   with this keyword.
   With this, two files are generated in the scratch directory, :file:`Do_Rotate.txt`,
-  which stores the XMS rotation vector, and :file:`H0_Rotate.txt`, which stores the 
-  Hamiltonian for the XMS rotated states. If the user wants to skip the 
-  expensive perturbation-theory calculation, this keyword can be combined 
+  which stores the XMS rotation vector, and :file:`H0_Rotate.txt`, which stores the
+  Hamiltonian for the XMS rotated states. If the user wants to skip the
+  expensive perturbation-theory calculation, this keyword can be combined
   with :kword:`XROH` to skip the perturbation part.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
@@ -324,14 +324,14 @@ Keywords
               </KEYWORD>
 
 :kword:`XROH`
-  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules), together with :kword:`XMUL`. 
+  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules), together with :kword:`XMUL`.
   When this keyword is used, the :program:`CASPT2` module will not perform perturbation theory calculations; instead, it will only print the rotation matrix and the Hamiltonian matrix of the intermediate states.
   More information can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: XROH <basic> 
+              %%Keyword: XROH <basic>
               <HELP>
               Skips PT2 calculation. Only effective when XMUL is used.
               </HELP>

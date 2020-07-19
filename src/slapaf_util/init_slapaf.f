@@ -117,7 +117,7 @@
 *   9  iOptC           (512) set: RS-I-RFO, unset: RS-P-RFO
 *  10  iOptC          (1024) HMF augmented with weak interactions
 *  11  iOptC          (2048) augmented HMF used for selection of
-*                           internal coordinates
+*                            internal coordinates
 *  12  iOptC          (4096) set if FindTS
 *  13  iOptC          (8192) set if FindTS and in TS regime
 *
