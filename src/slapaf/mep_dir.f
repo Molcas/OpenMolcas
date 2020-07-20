@@ -50,6 +50,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      ResGrad=Huge(ResGrad)
       nCoor=3*nAtom
       iPrev_iter=Max(iOff_iter,1)
       Call Allocate_Work(ipPrevDir,nCoor)
@@ -316,8 +317,16 @@
           Call Find_Distance(Cx(1,iter),Cx(1,iter+1),Work(ipDir),
      &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
+*
+*       Randomly displace the new geometry 1/20th of the MEP distance
+*       to try to break symmetry
+*
+        If (nSym.eq.1) Then
+          Call Random_Vector(nCoor,Work(ipDisp))
+          Call DaXpY_(nCoor,0.05D0*Fact,Work(ipDisp),1,Cx(1,iter+1),1)
+        End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
-        if (iter.eq.1) BadConstraint=.False.
+        If (iter.eq.1) BadConstraint=.False.
       End If
 *                                                                      *
 ************************************************************************
