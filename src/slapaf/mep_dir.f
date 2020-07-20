@@ -50,7 +50,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ResGrad=Huge(ResGrad)
       nCoor=3*nAtom
       iPrev_iter=Max(iOff_iter,1)
       Call Allocate_Work(ipPrevDir,nCoor)

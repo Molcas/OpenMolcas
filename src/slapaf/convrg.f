@@ -766,13 +766,15 @@ C              Write (6,*) 'SubProject=.Prod'
             If (prevDist.lt.Half*refDist) Then
                TurnBack=.True.
                Conv1=.True.
+               Stop=.True.
+               iStop=0
                Terminate=.True.
             End If
             Call Free_Work(ipC)
             Call Free_Work(ipTmp)
          End If
 *
-       EndIf
+       End If
       End If
 *                                                                      *
 ************************************************************************
@@ -798,6 +800,7 @@ C              Write (6,*) 'SubProject=.Prod'
             Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
          End If
 *
+         ResGrad=Huge(ResGrad)
          If (.Not.Terminate) Then
             BadConstraint=.False.
             Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
@@ -826,7 +829,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *           Test for energy increase (optionally disabled).
             eTest=eMEPTest.and.(eDiffMEP.gt.Zero)
-            If ((MEP .and. eTest).and.(.not.Terminate)) Then
+            If ((MEP.and.eTest).and.(.not.Terminate)) Then
                Terminate=.True.
                If (iPrint.ge.5) Then
                   Write (6,*)
@@ -838,7 +841,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *           Test for energy decrease (optionally disabled).
             eTest=eMEPTest.and.(eDiffMEP.lt.Zero)
-            If ((rMEP .and. eTest).and.(.not.Terminate)) Then
+            If ((rMEP.and.eTest).and.(.not.Terminate)) Then
                Terminate=.True.
                If (iPrint.ge.5) Then
                   Write (6,*)
