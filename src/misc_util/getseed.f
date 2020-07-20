@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine getSeed(iseed)
       Implicit None
-      Integer   iseed,i
+      Integer,Intent(Out) :: iseed
+      Integer   i
       External  datimx
       Character Line*72
       Integer*8 hours,minutes,seconds,days

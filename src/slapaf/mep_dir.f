@@ -322,6 +322,16 @@
 *
         If (nSym.eq.1) Then
           Call Random_Vector(nCoor,Work(ipDisp))
+          dDir=Zero
+          iOff=0
+          Do iAtom=1,nAtom
+            xWeight=Work(ipWeights+iAtom-1)
+            Do ixyz=1,3
+              dDir=dDir+xWeight*Work(ipDisp+iOff)**2
+              iOff=iOff+1
+            End Do
+          End Do
+          Fact=dMEPStep*Sqrt(TWeight/dDir)
           Call DaXpY_(nCoor,0.05D0*Fact,Work(ipDisp),1,Cx(1,iter+1),1)
         End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
