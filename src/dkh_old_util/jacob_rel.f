@@ -18,11 +18,12 @@ C       =0 LEFT AS THEY ARE
       DO 5 I=1,N
       B(I,I)=1.D0
       EIG(I)=A(I,I)
-      DO 5 J=1,I
-      IF(I.EQ.J)GO TO 5
+      DO 6 J=1,I
+      IF(I.EQ.J)GO TO 6
       B(I,J)=0.D0
       B(J,I)=0.D0
       ENUI=ENUI+A(I,J)*A(I,J)
+    6 CONTINUE
     5 CONTINUE
       IF (ENUI.LE.0) THEN
         GO TO 200
@@ -124,9 +125,9 @@ C       =0 LEFT AS THEY ARE
       END IF
   200 IF(IC.EQ.0)GO TO 230
       DO 225 I=1,N
-      DO 225 J=I,N
+      DO 226 J=I,N
       IF (EIG(I)-EIG(J).LE.0) THEN
-        GO TO 225
+        GO TO 226
       ELSE
         GO TO 210
       END IF
@@ -138,6 +139,7 @@ C       =0 LEFT AS THEY ARE
       B(K,I)=B(K,J)
       B(K,J)=Y
   220 CONTINUE
+  226 CONTINUE
   225 CONTINUE
   230 CONTINUE
       RETURN

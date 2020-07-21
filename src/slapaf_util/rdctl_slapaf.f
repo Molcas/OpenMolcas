@@ -1101,7 +1101,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Write(Lu_UDCTMP,*) 'END'
          Close (Lu_UDCTMP)
          Call Merge_Constraints('UDC','UDCTMP','UDC',nLambda,iRow_c)
-         Beta=Abs(dMEPStep)
+         Beta=Min(Beta,Abs(Valu))
          MEPnum=nLambda
       End If
 *

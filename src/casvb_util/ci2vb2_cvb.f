@@ -30,33 +30,41 @@ c  *********************************************************************
       if(ic.eq.0)then
         idetvb=0
         do 100 ia=1,nda
-        do 100 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 101 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-100     cvbdet(idetvb)=civec(ia,ib)
+        cvbdet(idetvb)=civec(ia,ib)
+101     continue
+100     continue
       elseif(ic.eq.1)then
         call fzero(civec,nda*ndb)
         idetvb=0
         do 200 ia=1,nda
-        do 200 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 201 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-200     civec(ia,ib)=cvbdet(idetvb)
+        civec(ia,ib)=cvbdet(idetvb)
+201     continue
+200     continue
       elseif(ic.eq.2)then
         idetvb=0
         do 300 ia=1,nda
-        do 300 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 301 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-300     civec(ia,ib)=civec(ia,ib)+cvbdet(idetvb)
+        civec(ia,ib)=civec(ia,ib)+cvbdet(idetvb)
+301     continue
+300     continue
       elseif(ic.eq.3)then
         ret=zero
         idetvb=0
         do 400 ia=1,nda
-        do 400 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 401 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-400     ret=ret+civec(ia,ib)*cvbdet(idetvb)
+        ret=ret+civec(ia,ib)*cvbdet(idetvb)
+401     continue
+400     continue
       endif
       return
       end

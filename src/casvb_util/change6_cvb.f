@@ -85,7 +85,8 @@ c  Overlap-based Davidson optimization :
         do 1 idav=maxdav,1,-1
 c  NEED is approx req. memory :
         need=2*nvb*idav+2*nvb+idav+1000+memwrk
-1       if(need.lt.iremain)goto 2
+        if(need.lt.iremain)goto 2
+1       continue
         idav=0
         if(nvb.eq.0)then
           need=1000+memwrk
@@ -111,7 +112,8 @@ c  Energy-based Davidson optimization :
         do 11 idav=maxdav,1,-1
 c  NEED is approx req. memory :
         need=3*nvb*idav+nvb+idav*(2*idav+3)+1000+mem_applyh+memwrk
-11      if(need.lt.iremain)goto 12
+        if(need.lt.iremain)goto 12
+11      continue
         idav=0
         if(nvb.eq.0)then
           need=1000+memwrk

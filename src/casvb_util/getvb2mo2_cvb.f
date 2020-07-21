@@ -32,7 +32,8 @@
         write(6,*)' Error in VB orbital read :',ierr
         call abend()
       endif
-100   ioff=ioff+norb1
+      ioff=ioff+norb1
+100   continue
       return
 c Avoid unused argument warnings
       if (.false.) call Unused_integer(nelcheck)

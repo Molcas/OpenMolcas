@@ -16,7 +16,7 @@
 *     Print the current date and time.                                 *
 *                                                                      *
 *     Note:                                                            *
-*     The VS-FORTRAN subrotuines, Datim and Datimx, are replaced       *
+*     The VS-FORTRAN subroutines, Datim and Datimx, are replaced       *
 *     by a similar procedure written in C.                             *
 *                                                                      *
 *----------------------------------------------------------------------*

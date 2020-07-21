@@ -30,14 +30,14 @@
          ijBas=0
          iBasX=0
          Do 110 iSym=1,nSym
-         Do 110 iBas=1,nBas(iSym)
+         Do 111 iBas=1,nBas(iSym)
          iBasX=iBasX+1
          oki=Name(iBasX)(1:LENIN).eq.Center
          oki=oki .and. Name(iBasX)(LENIN1:LENIN8).eq.type(iBlk)
          If(oki) indx=indx+1
          jndx=0
          jBasX=iBasX-iBas
-         Do 110 jBas=1,iBas
+         Do 112 jBas=1,iBas
             jBasX=jBasX+1
             ijBas=ijBas+1
             okj=Name(jBasX)(1:LENIN).eq.Center
@@ -47,6 +47,8 @@
                ind=jndx+indx*(indx-1)/2+iSymBk(iBlk)-1
                to(ind)=from(ijBas)
             End If
+112      Continue
+111      Continue
 110      Continue
 100   Continue
 *     Write(*,*) '*** Overlap matrix in CpOvlp ***'

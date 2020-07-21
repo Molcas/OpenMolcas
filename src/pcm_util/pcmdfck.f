@@ -127,7 +127,7 @@ C
 C
 C     Loop over the degrees of freedom
       Do 100 iAt = 1, nAt
-        Do 100 iC = 1, 3
+        Do 101 iC = 1, 3
           Index = 3 * (iAt-1) + iC
 C
 C         Derivative of the PCM matrix for the conductor-like case
@@ -179,6 +179,7 @@ C           Sum_ij q_i [S^x S^-1]_ij V_mn^j
             EndDo
             PCMFck(iFck,Index) = PCMFck(iFck,Index) + Sum
   200     Continue
+  101   Continue
   100 Continue
 C
       Return

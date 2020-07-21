@@ -1250,8 +1250,9 @@ c
        integer p,r
 c
        do 100 r=1,dimr
-       do 100 p=1,dimp
+       do 101 p=1,dimp
        b(p,q,r)=b(p,q,r)+fact*a(p,r)
+ 101    continue
  100    continue
 c
        return

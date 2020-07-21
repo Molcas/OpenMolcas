@@ -39,7 +39,8 @@ c  Simulates internal write :    write(a,'(i<iform>)')int
       ia=0
       do 100 i=1,iform-iamax
       ia=ia+1
-100   a(ia:ia)=blank
+      a(ia:ia)=blank
+100   continue
       if(int.lt.0)then
         ia=ia+1
         a(ia:ia)=minus
@@ -50,7 +51,8 @@ c  Simulates internal write :    write(a,'(i<iform>)')int
       ia=ia+1
       numb=int2/(10**i)
       a(ia:ia)=cnumb(numb)
-200   int2=int2-numb*(10**i)
+      int2=int2-numb*(10**i)
+200   continue
       if(int.eq.0)a(iform:iform)=cnumb(0)
       return
       end

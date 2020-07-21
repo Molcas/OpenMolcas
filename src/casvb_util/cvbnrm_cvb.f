@@ -29,7 +29,8 @@
         do 100 ifrag=1,nfrag
         call dscal_(nvb_fr(ifrag),
      >    one/dnrm2_(nvb_fr(ifrag),cvb(nvbadd),1),cvb(nvbadd),1)
-100     nvbadd=nvbadd+nvb_fr(ifrag)
+        nvbadd=nvbadd+nvb_fr(ifrag)
+100     continue
       endif
       return
       end

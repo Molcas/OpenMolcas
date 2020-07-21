@@ -86,15 +86,15 @@ c
 cII   T2 adaptation
 c
        do 200 symi=1,nsym
-       do 200 symj=1,symi
+       do 201 symj=1,symi
        symij=mmul(symi,symj)
 c
-       do 200 syma=1,nsym
+       do 202 syma=1,nsym
        symb=mmul(symij,syma)
 c
        if (symb.gt.syma) then
 c     Meggie out
-       goto 200
+       goto 202
        end if
 c
        if (symi.eq.symj) then
@@ -133,6 +133,8 @@ c
 c
        end if
 c
+ 202    continue
+ 201    continue
  200    continue
 c
        return
@@ -206,11 +208,11 @@ c     baab = t2-t1
 c     baba = t2+t1
 c
        do 100 a=2,nv
-       do 100 b=1,a-1
+       do 1000 b=1,a-1
        ab=(a-1)*(a-2)/2+b
        ab1=(a+nsa-1)*(a+nsa-2)/2+b+nsa
-       do 100 i=2,nd
-       do 100 j=1,i-1
+       do 1001 i=2,nd
+       do 1002 j=1,i-1
        ij=(i-1)*(i-2)/2+j
 c
        taaaa=t24a(ab,ij)
@@ -230,13 +232,16 @@ c
        t22b(a,b+nsa,j,i)=t1-t2
        t22b(b,a+nsa,j,i)=t2+t1
 c
+ 1002   continue
+ 1001   continue
+ 1000   continue
  100    continue
 c
        do 101 a=2,nv
-       do 101 b=1,a-1
+       do 1010 b=1,a-1
        ab=(a-1)*(a-2)/2+b
        ab1=(a+nsa-1)*(a+nsa-2)/2+b+nsa
-       do 101 i=1,nd
+       do 1011 i=1,nd
        j=i
        ij=(i-1)*(i-2)/2+j
 c
@@ -258,14 +263,16 @@ c     t24b(ab1,ij)=2.0d0*t2
        t22b(a,b+nsa,j,i)=t1-t2
        t22b(b,a+nsa,j,i)=t2+t1
 c
+ 1011   continue
+ 1010   continue
  101    continue
 c
        do 102 a=1,nv
        b=a
        ab=(a-1)*(a-2)/2+b
        ab1=(a+nsa-1)*(a+nsa-2)/2+b+nsa
-       do 102 i=2,nd
-       do 102 j=1,i-1
+       do 1020 i=2,nd
+       do 1021 j=1,i-1
        ij=(i-1)*(i-2)/2+j
 c
 c     taaaa=t24a(ab,ij)
@@ -286,13 +293,15 @@ c     t24b(ab1,ij)=2.0d0*t2
        t22b(a,b+nsa,j,i)=t1-t2
        t22b(b,a+nsa,j,i)=t2+t1
 c
+ 1021   continue
+ 1020   continue
  102    continue
 c
        do 103 a=1,nv
        b=a
        ab=(a-1)*(a-2)/2+b
        ab1=(a+nsa-1)*(a+nsa-2)/2+b+nsa
-       do 103 i=1,nd
+       do 1030 i=1,nd
        j=i
        ij=(i-1)*(i-2)/2+j
 c
@@ -314,6 +323,7 @@ c     t24b(ab1,ij)=2.0d0*t2
        t22b(a,b+nsa,j,i)=t1-t2
        t22b(b,a+nsa,j,i)=t2+t1
 c
+ 1030   continue
  103    continue
 c
 c
@@ -339,8 +349,8 @@ c
        b=nsa
        do 200 a=1,nv
        ab=a*(a-1)/2+b
-       do 200 i=2,nd
-       do 200 j=1,i-1
+       do 201 i=2,nd
+       do 202 j=1,i-1
        ij=(i-1)*(i-2)/2+j
 c
        tbbbb=t24b(ab,ij)
@@ -354,12 +364,14 @@ c
        t22b(a,b,i,j)=t2+t1
        t22b(a,b,j,i)=t1-t2
 c
+ 202    continue
+ 201    continue
  200    continue
 c
        b=nsa
-       do 201 a=1,nv
+       do 203 a=1,nv
        ab=a*(a-1)/2+b
-       do 201 i=1,nd
+       do 204 i=1,nd
        j=i
        ij=(i-1)*(i-2)/2+j
 c
@@ -375,7 +387,8 @@ c     t24b(ab,ij)=2.0d0*t2
        t22b(a,b,i,j)=t2+t1
        t22b(a,b,j,i)=t1-t2
 c
- 201    continue
+ 204    continue
+ 203    continue
 c
        end if
 c
@@ -401,9 +414,9 @@ c     abba=t2-t1
 c
        i=nd+nsi
        do 300 a=2,nv
-       do 300 b=1,a-1
+       do 301 b=1,a-1
        ab=(a-1)*(a-2)/2+b
-       do 300 j=1,nd
+       do 302 j=1,nd
        ij=(i-1)*(i-2)/2+j
 c
        taaaa=t24a(ab,ij)
@@ -417,13 +430,15 @@ c
        t22b(a,b+nsa,i,j)=t2+t1
        t22b(b,a+nsa,i,j)=t1-t2
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        i=nd+nsi
-       do 301 a=1,nv
+       do 303 a=1,nv
        b=a
        ab=(a-1)*(a-2)/2+b
-       do 301 j=1,nd
+       do 304 j=1,nd
        ij=(i-1)*(i-2)/2+j
 c
 c     taaaa=t24a(ab,ij)
@@ -438,7 +453,8 @@ c     t24a(ab,ij)=2.0d0*t2
        t22b(a,b+nsa,i,j)=t2+t1
        t22b(b,a+nsa,i,j)=t1-t2
 c
- 301    continue
+ 304    continue
+ 303    continue
 c
        end if
 c
@@ -530,9 +546,9 @@ c     baab = t2-t1
 c     baba = t2+t1
 c
        do 100 j=1,ndj
-       do 100 i=1,ndi
-       do 100 b=1,nvb
-       do 100 a=1,nva
+       do 101 i=1,ndi
+       do 102 b=1,nvb
+       do 103 a=1,nva
 c
        taaaa=t2aaaa(a,b,i,j)
        tbbbb=t2bbbb(a+nsa,b+nsb,i,j)
@@ -558,6 +574,9 @@ c
        t2abba(b,a+nsa,i,j)=-tabba
        t2baab(a,b+nsb,j,i)=-tbaab
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
 c
@@ -582,8 +601,8 @@ c     baab = t2-t1
 c
        b=nsb
        do 200 j=1,ndj
-       do 200 i=1,ndi
-       do 200 a=1,nva
+       do 201 i=1,ndi
+       do 202 a=1,nva
 c
        tbbbb=t2bbbb(a+nsa,b,i,j)
        tabab=t2abab(a,b,i,j)
@@ -600,6 +619,8 @@ c
        t2abab(a,b,i,j)=tabab
        t2baab(a,b,j,i)=-tbaab
 c
+ 202    continue
+ 201    continue
  200    continue
 c
        end if
@@ -626,8 +647,8 @@ c     baab = t2-t1
 c
        a=nsa
        do 300 j=1,ndj
-       do 300 i=1,ndi
-       do 300 b=1,nvb
+       do 301 i=1,ndi
+       do 302 b=1,nvb
 c
        tbbbb=-t2bbbb(a,b+nsb,i,j)
        tabab=t2abba(b,a,i,j)
@@ -644,6 +665,8 @@ c
        t2abba(b,a,i,j)=tabab
        t2baba(b,a,j,i)=-tbaab
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if
@@ -670,8 +693,8 @@ c     abba=t2-t1
 c
        i=ndi+nsi
        do 400 j=1,ndj
-       do 400 b=1,nvb
-       do 400 a=1,nva
+       do 401 b=1,nvb
+       do 402 a=1,nva
 c
        taaaa=t2aaaa(a,b,i,j)
        tabab=t2abab(a,b+nsb,i,j)
@@ -688,6 +711,8 @@ c
        t2abab(a,b+nsb,i,j)=tabab
        t2abba(b,a+nsa,i,j)=-tabba
 c
+ 402    continue
+ 401    continue
  400    continue
 c
        end if
@@ -714,8 +739,8 @@ c     abba=t2-t1
 c
        j=ndj+nsj
        do 500 i=1,ndi
-       do 500 b=1,nvb
-       do 500 a=1,nva
+       do 501 b=1,nvb
+       do 502 a=1,nva
 c
        taaaa=-t2aaaa(a,b,i,j)
        tabab=t2baab(a,b+nsb,j,i)
@@ -732,6 +757,8 @@ c
        t2baab(a,b+nsb,j,i)=tabab
        t2baba(b,a+nsa,j,i)=-tabba
 c
+ 502    continue
+ 501    continue
  500    continue
 c
        end if
@@ -801,7 +828,7 @@ c
        if (key.eq.3) then
 c
        do 10 i=1,nd
-       do 10 a=1,nv
+       do 11 a=1,nv
 c
        t1=(t1aa(a,i)+t1bb(a+ns,i))/2.0d0
        t2=(t1bb(a+ns,i)-t1aa(a,i)+2.0d0*t2abab(a,1,noas,i))/6.0d0
@@ -810,18 +837,20 @@ c
        t1bb(a+ns,i)=t1+t2
        t2abab(a,1,noas,i)=2.0d0*t2
 c
+ 11     continue
  10     continue
 c
        else if (key.eq.2) then
 c
        do 40 i=1,nd
-       do 40 a=1,nv
+       do 41 a=1,nv
 c
        t1=(t1aa(a,i)+t1bb(a+ns,i))/2.0d0
 c
        t1aa(a,i)=t1
        t1bb(a+ns,i)=t1
 c
+ 41     continue
  40     continue
 c
 c     else if (key.eq.1) then

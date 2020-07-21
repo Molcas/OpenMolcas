@@ -164,8 +164,9 @@ C
       Endif
       Do 115 i=1,3
        g(i)=0.D0
-      Do 115 k=1,3
+      Do 116 k=1,3
        a(i,k)=0.D0
+116   Continue
 115   Continue
       a(1,1)=ne
       Do 120 nv=1,ne
@@ -221,8 +222,9 @@ c
       Endif
       Do 132 i=1,3
        g(i)=0.D0
-      Do 132 k=1,3
+      Do 133 k=1,3
        a(i,k)=0.D0
+133   Continue
 132   Continue
       Do 135 nv=1,ne
        xnv=nv-0.5d0
@@ -332,7 +334,8 @@ c
       if(jend.gt.j2A) jend=j2A
       jrng=jend-jst+1
       Do 320 i=1,jrng
-320   jind(i)=jst+i-1
+      jind(i)=jst+i-1
+320   Continue
       write(6,1500) (jind(i),i=1,jrng)
 1500  format(/1x,'J-value',7x,i3,19x,i3,19x,i3,19x,i3,19x,i3)
       write(6,1510)
@@ -358,7 +361,8 @@ c      compute delta g(v+1/2) values
 c
       ne1=ne-1
       Do 420 i=1,ne1
-420   Gv2(i)=Gv(i+1)-Gv(i)
+      Gv2(i)=Gv(i+1)-Gv(i)
+420   Continue
 c
 c     print Gv and Gv2
 c

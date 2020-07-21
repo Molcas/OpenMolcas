@@ -14,7 +14,8 @@ c  Length of string excluding trailing blanks
       character*(*) a
 
       do 100 i=len(a),1,-1
-100   if(a(i:i).ne.' ')goto 200
+      if(a(i:i).ne.' ')goto 200
+100   continue
       i=0
 200   len_trim_cvb=i
       return

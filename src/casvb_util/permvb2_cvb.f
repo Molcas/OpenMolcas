@@ -42,7 +42,8 @@ c  Valid ?
         write(6,*)' Illegal orbital permutation!'
         call abend_cvb()
       endif
-10    negs(iprm)=negs(iprm)+1
+      negs(iprm)=negs(iprm)+1
+10    continue
       do 20 iorb=1,norb
       if(negs(iorb).ne.1)then
         write(6,*)' Illegal orbital permutation!'
@@ -51,22 +52,26 @@ c  Valid ?
 20    continue
 c  Return if identity
       do 30 iorb=1,norb
-30    if(iperm(iorb).ne.iorb)goto 35
+      if(iperm(iorb).ne.iorb)goto 35
+30    continue
       return
 35    continue
 c  Use IALG=2 if only phase changes
       do 40 iorb=1,norb
-40    if(abs(iperm(iorb)).ne.iorb)goto 45
+      if(abs(iperm(iorb)).ne.iorb)goto 45
+40    continue
       ialg=2
 45    continue
       call izero(negs,norb)
       do 50 i=1,norb
-50    if(iperm(i).lt.0)negs(abs(iperm(i)))=1
+      if(iperm(i).lt.0)negs(abs(iperm(i)))=1
+50    continue
 c Alpha loop:
       call izero(inocc2,norb)
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
-100   maxgrph(iorb)=min(iorb,nalf)
+      maxgrph(iorb)=min(iorb,nalf)
+100   continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -74,7 +79,8 @@ c Alpha loop:
 200   continue
       call izero(inewocc,norb)
       do 225 ialf=1,nalf
-225   inewocc(abs(iperm(locc(ialf))))=ialf
+      inewocc(abs(iperm(locc(ialf))))=ialf
+225   continue
       ineg=0
       ia=0
       do 250 iorb=1,norb
@@ -98,7 +104,8 @@ c Beta loop:
       call izero(inocc2,norb)
       do 400 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
-400   maxgrph(iorb)=min(iorb,nbet)
+      maxgrph(iorb)=min(iorb,nbet)
+400   continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -106,7 +113,8 @@ c Beta loop:
 500   continue
       call izero(inewocc,norb)
       do 525 ibet=1,nbet
-525   inewocc(abs(iperm(locc(ibet))))=ibet
+      inewocc(abs(iperm(locc(ibet))))=ibet
+525   continue
       ineg=0
       ib=0
       do 550 iorb=1,norb
@@ -131,7 +139,7 @@ c Beta loop:
         call fzero(v2,ndetvb)
         do 1000 ia=1,nda
         iato=inda(ia)
-        do 1000 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 1001 ixa=ixapr(ia),ixapr(ia+1)-1
         ib=iapr(ixa)
         ibto=indb(ib)
         do 1100 ixato=ixapr(iato),ixapr(iato+1)-1
@@ -142,15 +150,19 @@ c  Shouldn't get here ...
      >    ' Error, VB determinants not closed under permutation :',iperm
         call abend_cvb()
 1200    continue
-1000    v2(ixa)=phsa(ia)*phsb(ib)*v1(ixato)
+        v2(ixa)=phsa(ia)*phsb(ib)*v1(ixato)
+1001    continue
+1000    continue
         call fmove_cvb(v2,v1,ndetvb)
       elseif(ialg.eq.1)then
 c  Brute force strategy if enough memory (x1.5 faster) :
         do 2000 ib=1,ndb
         iboff=(ib-1)*nda
         inboff=(indb(ib)-1)*nda
-        do 2000 ia=1,nda
-2000    v2(ia+iboff)=phsa(ia)*phsb(ib)*v1(inda(ia)+inboff)
+        do 2001 ia=1,nda
+        v2(ia+iboff)=phsa(ia)*phsb(ib)*v1(inda(ia)+inboff)
+2001    continue
+2000    continue
         call fmove_cvb(v2,v1,ndet)
       elseif(ialg.eq.2)then
 c  More-or-less in-place update of V1 :
@@ -159,25 +171,29 @@ c  More-or-less in-place update of V1 :
           if(phsa(ia).eq.-one)then
             ioffs=ia-nda
             do 3100 ib=1,ndb
-3100        v1(ib*nda+ioffs)=-v1(ib*nda+ioffs)
+            v1(ib*nda+ioffs)=-v1(ib*nda+ioffs)
+3100        continue
           endif
         elseif(inda(ia).ne.0)then
 c  Cyclic permutation involving IA :
           ioffs=ia-nda
           do 3300 ib=1,ndb
-3300      v2(ib)=v1(ib*nda+ioffs)
+          v2(ib)=v1(ib*nda+ioffs)
+3300      continue
           iat=ia
 3400      continue
           if(phsa(iat).eq.one)then
             ioffs1=iat-nda
             ioffs2=inda(iat)-nda
             do 3500 ib=1,ndb
-3500        v1(ib*nda+ioffs1)=v1(ib*nda+ioffs2)
+            v1(ib*nda+ioffs1)=v1(ib*nda+ioffs2)
+3500        continue
           else
             ioffs1=iat-nda
             ioffs2=inda(iat)-nda
             do 3600 ib=1,ndb
-3600        v1(ib*nda+ioffs1)=-v1(ib*nda+ioffs2)
+            v1(ib*nda+ioffs1)=-v1(ib*nda+ioffs2)
+3600        continue
           endif
           iatold=iat
           iat=inda(iat)
@@ -186,11 +202,13 @@ c  Cyclic permutation involving IA :
           if(phsa(iat).eq.one)then
             ioffs=iat-nda
             do 3700 ib=1,ndb
-3700        v1(ib*nda+ioffs)=v2(ib)
+            v1(ib*nda+ioffs)=v2(ib)
+3700        continue
           else
             ioffs=iat-nda
             do 3800 ib=1,ndb
-3800        v1(ib*nda+ioffs)=-v2(ib)
+            v1(ib*nda+ioffs)=-v2(ib)
+3800        continue
           endif
           inda(iat)=0
         endif
@@ -200,25 +218,29 @@ c  Cyclic permutation involving IA :
           if(phsb(ib).eq.-one)then
             ioffs=(ib-1)*nda
             do 4100 ia=1,nda
-4100        v1(ia+ioffs)=-v1(ia+ioffs)
+            v1(ia+ioffs)=-v1(ia+ioffs)
+4100        continue
           endif
         elseif(indb(ib).ne.0)then
 c  Cyclic permutation involving IB :
           ioffs=(ib-1)*nda
           do 4300 ia=1,nda
-4300      v2(ia)=v1(ia+ioffs)
+          v2(ia)=v1(ia+ioffs)
+4300        continue
           ibt=ib
 4400      continue
           if(phsb(ibt).eq.one)then
             ioffs1=(ibt-1)*nda
             ioffs2=(indb(ibt)-1)*nda
             do 4500 ia=1,nda
-4500        v1(ia+ioffs1)=v1(ia+ioffs2)
+            v1(ia+ioffs1)=v1(ia+ioffs2)
+4500        continue
           else
             ioffs1=(ibt-1)*nda
             ioffs2=(indb(ibt)-1)*nda
             do 4600 ia=1,nda
-4600        v1(ia+ioffs1)=-v1(ia+ioffs2)
+            v1(ia+ioffs1)=-v1(ia+ioffs2)
+4600        continue
           endif
           ibtold=ibt
           ibt=indb(ibt)
@@ -227,11 +249,13 @@ c  Cyclic permutation involving IB :
           if(phsb(ibt).eq.one)then
             ioffs=(ibt-1)*nda
             do 4700 ia=1,nda
-4700        v1(ia+ioffs)=v2(ia)
+            v1(ia+ioffs)=v2(ia)
+4700        continue
           else
             ioffs=(ibt-1)*nda
             do 4800 ia=1,nda
-4800        v1(ia+ioffs)=-v2(ia)
+            v1(ia+ioffs)=-v2(ia)
+4800        continue
           endif
           indb(ibt)=0
         endif

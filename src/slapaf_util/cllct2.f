@@ -219,7 +219,8 @@
      &               lIter)
          Deg=One
       Else If (Type(1:6).eq.'SPHERE')Then
-         Call SphInt(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+         Call SphInt(xyz,nCntr,ip_Dummy,Value,Grad,lWrite,lWarn,Lbl,
+     &               Hess,ldB)
          Deg=One
       Else If (Type(1:6).eq.'TRANSV')Then
          Call Transverse(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)

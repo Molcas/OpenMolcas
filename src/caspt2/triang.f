@@ -29,12 +29,13 @@
 c Convert a square matrix to triangular in-place.
 
       do 10 i=2,nrow
-        do 10 j=1,i-1
+        do 11 j=1,i-1
           ij=i+(j-1)*nrow
           ji=j+(i-1)*nrow
           symm=0.5D0*(a(ij)+a(ji))
           a(ji)=symm
           a(ij)=symm
+  11    continue
   10  continue
       ij=0
       do i=1,nrow

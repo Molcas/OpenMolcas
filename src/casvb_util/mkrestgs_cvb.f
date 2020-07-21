@@ -44,7 +44,8 @@
       endif
       do 100 iorb=1,norb
       irdorbs(iorb)=1
-100   call rdrs_cvb(orbsao(1,iorb),norb,recn_tmp04,ioffs)
+      call rdrs_cvb(orbsao(1,iorb),norb,recn_tmp04,ioffs)
+100   continue
       call rdis_cvb(iabind,ndetvb1,recn_tmp04,ioffs)
       call rdrs_cvb(cvbdet1,ndetvb1,recn_tmp04,ioffs)
 
@@ -54,7 +55,8 @@ c  NDA & string definitions assumed the same :
       ib=(iabind(idetvb1)-1)/nda+1
       ia=iabind(idetvb1)-(ib-1)*nda
       do 300 ixa=ixapr(ia),ixapr(ia+1)-1
-300   if(ib.eq.iapr(ixa))cvbdet(ixa)=cvbdet1(idetvb1)
+      if(ib.eq.iapr(ixa))cvbdet(ixa)=cvbdet1(idetvb1)
+300   continue
 200   continue
       kbasiscvb=kbasis
       call vb2strc_cvb(cvbdet,cvb)

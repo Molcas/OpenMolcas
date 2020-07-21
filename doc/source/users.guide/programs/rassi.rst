@@ -962,18 +962,21 @@ Keywords
               </KEYWORD>
 
 :kword:`EJOB`
-  The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-  being read from a :file:`JOBIPH` or :file:`JOBMIX` file.
-  If this keyword is used together with :kword:`HEFF`, or if the input file is
-  an HDF5 file for which the effective Hamiltonian is automatically read, only
-  the diagonal elements will be read and off-diagonal elements will be set to zero.
-  This can be useful to use the SS-CASPT2 energies from a MS-CASTP2 calculation.
+  The spin-free effective Hamiltonian's diagonal is filled with energies
+  read from a :file:`JOBIPH` or :file:`JOBMIX` file. If an effective Hamiltonian
+  is read (using :kword:`HEFF` or reading from an HDF5 file), the diagonal
+  elements are taken from the stored Hamiltonian;
+  this can be useful for using the SS-CASPT2 energies from a MS-CASTP2 calculation.
+  The off-diagonal elements are approximated as :math:`H_{ij} \approx \frac{1}{2} S_{ij}(H_{ii}+H_{ij})`,
+  where :math:`S_{ij}` is the overlap between two states; so if the input states
+  are orthogonal, the effective Hamiltonian will be diagonal.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
               <HELP>
-              The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-              being read from a JOBIPH or JOBMIX file from e.g. a multi-state CASPT2 calculation.
+              The spin-free effective Hamiltonian's diagonal is filled with energies
+              read from a JOBIPH or JOBMIX file. Off-diagonal elements are approximated
+              from overlaps and diagonal.
               </HELP>
               </KEYWORD>
 

@@ -281,15 +281,17 @@ c
 c     symq is not known for N file
 c     instead of norb(symr) maxnorb will be used so that reallenght<=lenght
        lenghtn=lenghtn+norb(symp)*maxnorb
-       do 200 symq=1,nsym
+       do 201 symq=1,nsym
        sympq=mmul(symp,symq)
 c     symr is not known for M and H files
 c     instead of noa(symr) maxnoa will be used so that reallenght<=lenght
        lenghtm=lenghtm+maxov(symp)*maxov(symq)*maxnoa
        lenghth=lenghth+maxov(symp)*noa(symq)*maxnoa
-       do 200 symr=1,nsym
+       do 202 symr=1,nsym
        syms=mmul(sympq,symr)
        lenghtv=lenghtv+maxov(symp)*maxov(symq)*noa(symr)*noa(syms)
+ 202    continue
+ 201    continue
  200    continue
 c
 c2.1  V - files
@@ -1081,8 +1083,9 @@ c
 c
 c1    distribute Fok to Faa
        do 200 b=1,dimfa
-       do 200 a=1,dimfa
+       do 201 a=1,dimfa
        faa(a,b)=fok(shift+a,shift+b)
+ 201    continue
  200    continue
 c
        return
@@ -1110,8 +1113,9 @@ c
 c
 c1    distribute Fok to Fai
        do 300 i=1,dimfi
-       do 300 a=1,dimfa
+       do 301 a=1,dimfa
        fai(a,i)=fok(dimfi+a,i)
+ 301    continue
  300    continue
 c
        return
@@ -1138,8 +1142,9 @@ c
 c
 c1    distribute Fok to Fii
        do 400 j=1,dimfi
-       do 400 i=1,dimfi
+       do 401 i=1,dimfi
        fii(i,j)=fok(i,j)
+ 401    continue
  400    continue
 c
        return

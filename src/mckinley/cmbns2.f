@@ -70,14 +70,14 @@ c     End If
       Do 10 iax = 0, la
          ia(1)=iax
          iyaMax=la-ia(1)
-      Do 10 ibx = 0, lb
+      Do 11 ibx = 0, lb
          ib(1)=ibx
          iybMax=lb-ib(1)
          Do 20 iay = 0, iyaMax
             ia(2)=iay
             ia(3) = la-ia(2)-ia(1)
             ipa= Ind(la,ia(1),ia(3))
-         Do 20 iby = 0, iybMax
+         Do 21 iby = 0, iybMax
             ib(2)=iby
           ib(3) = lb-ib(2)-ib(1)
           ipb= Ind(lb,ib(1),ib(3))
@@ -162,7 +162,9 @@ c     End If
                 End If
  52         Continue
  56         Continue
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 
 *

@@ -30,7 +30,7 @@ c     Double loop on atoms and coordinates
       Do 100 Index1 = 1, nAt3
         iAt1 = Int( (Index1-1)/3 ) + 1
         iCoord1 = Index1 - 3 * (iAt1-1)
-        Do 100 Index2 = 1, nAt3
+        Do 101 Index2 = 1, nAt3
           iAt2 = Int( (Index2-1)/3 ) + 1
           iCoord2 = Index2 - 3 * (iAt2-1)
 c         Derivative of the normal factor n_x
@@ -44,7 +44,7 @@ c         Find out if atom iAt2 has a sphere around
           Sum1 = Zero
           Sum2 = Zero
 c         Loop on tesserae
-          DO 200 iTs = 1, nTs
+          Do 200 iTs = 1, nTs
             L = iSphe(iTs)
             XN = - (Sphere(1,L) - Tessera(1,iTs)) / Sphere(4,L)
             YN = - (Sphere(2,L) - Tessera(2,iTs)) / Sphere(4,L)
@@ -58,12 +58,13 @@ c         Loop on tesserae
      &              + YN * DerCentr(L,iAt2,iCoord2,2)
      &              + ZN * DerCentr(L,iAt2,iCoord2,3)
               dN = DerRad(L,iAt2,iCoord2) + dCent
-            EndIF
+            EndIf
             DerQ = QDer(iCoord1,iAt1,iTs)
             Sum1 = Sum1 + Two * Qtot(iTs) * DerQ * dN / Tessera(4,iTs)
             Sum2 = Sum2 + Qtot(iTs) * Qtot(iTs) * Der1(iTs)
   200     Continue
           UDer = Fact * (Sum1 + Sum2)
+  101   Continue
   100 Continue
 cpcm_solvent
 c      write(6,

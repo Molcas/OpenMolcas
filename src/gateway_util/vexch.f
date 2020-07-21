@@ -84,7 +84,7 @@ CLS           coeff of unnormalized non-diagonal cartesian GTF
 * to be used in ecpaimp       CR=CR/(PIPPI*(4.D0*ZR)**EDUM)
               VR=VF(2*NR,ZR)
               RTT1=0.5D0*(ZP+ZR)
-              DO 10 L=1,nExpon
+              DO 11 L=1,nExpon
                 ZS=DInf(ipExp(iCoSh)+L-1)
                 CS=DInf(ipCff(iCoSh)+iOff+(ICORB-1)*nExpon+L-1)
 * to be used in ecpaimp          CS=CS/(PIPPI*(4.D0*ZS)**EDUM)
@@ -97,6 +97,7 @@ CLS           coeff of unnormalized non-diagonal cartesian GTF
                 RTT7=VF(IT1,RTT1)*VF(IT2,RTT2)*RTT5
      .              +VF(IT3,RTT2)*VF(IT4,RTT1)*RTT6
                 SUMA=SUMA+RTT7*CR*CS/sqrt(VPQ*VR*VS)
+   11         CONTINUE
    10       CONTINUE
 C                END KSM.
 *ls c       PSMT=PSMT+RCAT*0.797884561D0*SUMA

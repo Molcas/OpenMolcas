@@ -246,14 +246,14 @@ C     FIRST SAVE THE START ADDRESS ON LUINTM FOR THIS BLOCK OF INTEGRALS
 C     NOTE THAT THE SYMMETRY LABEL ISPQRS ASSUMES THAT SYMMETRY LOOPS
 C     IN THE ORDER T,U,A,B FOR ALL INTEGRAL TYPES.
 C
-      IF(NOCR*NOCS.EQ.0) GO TO 21
+      IF(NOCR*NOCS.EQ.0) GO TO 22
       ISPQRS=((ISR**2-ISR)/2+ISS-1)*NSYMP+(ISP**2-ISP)/2+ISQ
       IAD2M(1,ISPQRS)=IAD13
       ITU=0
       DO 20 NT=1,NOCR
        NUM=NT
        IF(ISS.NE.ISR) NUM=NOCS
-      DO 20 NU=1,NUM
+      DO 21 NU=1,NUM
        IPQST=1+NBPQ*ITU
        ITU=ITU+1
 C
@@ -305,8 +305,9 @@ C
 C      IF(ISP.GE.ISR.AND.NASH(ISP)*NASH(ISQ).NE.0)
 C    & CALL GTUVX(X2,TUVX,NT,NU,ITP,ITQ,ITR,ITS,ISP,ISQ)
 
-   20 CONTINUE
    21 CONTINUE
+   20 CONTINUE
+   22 CONTINUE
 C
 C     SECOND PARTIAL TRANSFORMATION FOR INTEGRALS (PQ/RU)-> (AT/BU)
 C     IF ISP.EQ.ISR THEN T.GE.U BUT ALWAYS ALL A AND B
@@ -324,7 +325,7 @@ C
        IR=0
        DO 30 NR=1,NBR
         IR=IR+1
-       DO 30 NU=1,NOCS
+       DO 31 NU=1,NOCS
         IRU=NBR*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
 C
@@ -382,21 +383,23 @@ cvv   24    CONTINUE
         DO 26 NA=1,NOP
          NTM=1
          IF(ISQ.EQ.ISS) NTM=NU
-        DO 26 NT=NTM,NOCQ
+        DO 27 NT=NTM,NOCQ
          ITU=NOCS*(NT-1)+NU-1
          IF(ISQ.LT.ISS) ITU=NOCQ*(NU-1)+NT-1
          IF(ISQ.EQ.ISS) ITU=(NT**2-NT)/2+NU-1
          NAT=NAT+1
          TUPQ(LAR*ITU+NOP*(IR-1)+NA)=X2(NAT)
+   27   CONTINUE
    26   CONTINUE
+   31  CONTINUE
    30  CONTINUE
 C
 C      EMPTY LAST BUFFER IF LR.LT.NBR
 C
        IF(LR.LT.NBR) THEN
-cvv        DO 31 I=1,NOTU
+cvv        DO 32 I=1,NOTU
 cvv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   31   CONTINUE
+cvv   32   CONTINUE
        CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
        ENDIF
 C
@@ -420,7 +423,7 @@ C
        DO 40 NT=1,NTMAX
         NUM=NUMAX
         IF(ISQ.EQ.ISS) NUM=NT
-       DO 40 NU=1,NUM
+       DO 41 NU=1,NUM
         KKTU=KKTU+1
         IST=IST+NOP*NBR
         IF(LR.LT.NBR)THEN
@@ -438,6 +441,7 @@ C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 C
         Call GADSum(X2,NOP*NOR)
         CALL dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
+   41  CONTINUE
    40  CONTINUE
       ENDIF
 C
@@ -456,7 +460,7 @@ C
        IR=0
        DO 50 NR=1,NBR
         IR=IR+1
-       DO 50 NU=1,NOCS
+       DO 51 NU=1,NOCS
         IRU=NBR*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
 C
@@ -496,19 +500,21 @@ cvv   44    CONTINUE
         ENDIF
         NAT=0
         DO 46 NA=1,NOQ
-        DO 46 NT=1,NOCP
+        DO 47 NT=1,NOCP
          ITU=NOCS*(NT-1)+NU-1
          NAT=NAT+1
          TUPQ(LAR*ITU+NOQ*(IR-1)+NA)=X2(NAT)
+   47   CONTINUE
    46   CONTINUE
+   51  CONTINUE
    50  CONTINUE
 C
 C      EMPTY LAST BUFFER IF LR.LT.NBR
 C
        IF(LR.LT.NBR) THEN
-cvv        DO 51 I=1,NOTU
+cvv        DO 52 I=1,NOTU
 cvv         CALL dDAFILE(LUHLF3,1,TUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   51   CONTINUE
+cvv   52   CONTINUE
        CALL dDAFILE(LUHLF3,1,TUPQ,LAR*NOTU,IAD3)
        ENDIF
 C
@@ -521,7 +527,7 @@ C
        KKTU=0
        IST=1-NOQ*NBR
        DO 60 NT=1,NOCP
-       DO 60 NU=1,NOCS
+       DO 61 NU=1,NOCS
         KKTU=KKTU+1
         IST=IST+NOQ*NBR
         IF(LR.LT.NBR)THEN
@@ -539,6 +545,7 @@ C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 C
         Call GADSum(X2,NOR*NOQ)
         CALL dDAFILE(LUINTM,1,X2,NOR*NOQ,IAD13)
+   61  CONTINUE
    60  CONTINUE
       ENDIF
 C
@@ -557,7 +564,7 @@ C
        IR=0
        DO 70 NR=1,NBS
         IR=IR+1
-       DO 70 NU=1,NOCR
+       DO 71 NU=1,NOCR
         IRU=NBS*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
 C
@@ -595,20 +602,22 @@ cvv   64    CONTINUE
         ENDIF
         NAT=0
         DO 66 NA=1,NOP
-        DO 66 NT=1,NOCQ
+        DO 67 NT=1,NOCQ
          ITU=NOCR*(NT-1)+NU-1
          IF(ISQ.LT.ISR) ITU=NOCQ*(NU-1)+NT-1
          NAT=NAT+1
          RUPQ(LAR*ITU+NOP*(IR-1)+NA)=X2(NAT)
+   67   CONTINUE
    66   CONTINUE
+   71  CONTINUE
    70  CONTINUE
 C
 C      EMPTY LAST BUFFER IF LR.LT.NBS
 C
        IF(LR.LT.NBS) THEN
-cvv        DO 71 I=1,NOTU
+cvv        DO 72 I=1,NOTU
 cvv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   71   CONTINUE
+cvv   72   CONTINUE
        CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
        ENDIF
 C
@@ -630,7 +639,7 @@ C
        KKTU=0
        IST=1-NBS*NOP
        DO 80 NT=1,NTMAX
-       DO 80 NU=1,NUMAX
+       DO 81 NU=1,NUMAX
         KKTU=KKTU+1
         IST=IST+NBS*NOP
         IF(LR.LT.NBS)THEN
@@ -648,6 +657,7 @@ C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 C
         CAll GADSum(X2,NOS*NOP)
         CALL dDAFILE(LUINTM,1,X2,NOS*NOP,IAD13)
+   81  CONTINUE
    80  CONTINUE
       ENDIF
 C
@@ -667,7 +677,7 @@ C
        IR=0
        DO 90 NR=1,NBS
         IR=IR+1
-       DO 90 NU=1,NOCR
+       DO 91 NU=1,NOCR
         IRU=NBS*(NU-1)+NR
         IPQST=1+NBPQ*(IRU-1)
 C
@@ -720,21 +730,23 @@ cvv   84    CONTINUE
         DO 86 NA=1,NOQ
          NTM=1
          IF(ISP.EQ.ISR) NTM=NU
-        DO 86 NT=NTM,NOCP
+        DO 87 NT=NTM,NOCP
          ITU=NOCR*(NT-1)+NU-1
          IF(ISP.LT.ISR) ITU=NOCP*(NU-1)+NT-1
          IF(ISP.EQ.ISR) ITU=(NT**2-NT)/2+NU-1
          NAT=NAT+1
          RUPQ(LAR*ITU+NOQ*(IR-1)+NA)=X2(NAT)
+   87   CONTINUE
    86   CONTINUE
+   91  CONTINUE
    90  CONTINUE
 C
 C      EMPTY LAST BUFFER IF LR.LT.NBS
 C
        IF(LR.LT.NBS) THEN
-cvv        DO 91 I=1,NOTU
+cvv        DO 92 I=1,NOTU
 cvv         CALL dDAFILE(LUHLF3,1,RUPQ(1+LAR*(I-1)),LAR,IAD3)
-cvv   91   CONTINUE
+cvv   92   CONTINUE
        CALL dDAFILE(LUHLF3,1,RUPQ,LAR*NOTU,IAD3)
        ENDIF
 C
@@ -758,7 +770,7 @@ C
        DO 100 NT=1,NTMAX
         NUM=NUMAX
         IF(ISP.EQ.ISR) NUM=NT
-       DO 100 NU=1,NUM
+       DO 101 NU=1,NUM
         KKTU=KKTU+1
         IST=IST+NOQ*NBS
         IF(LR.LT.NBS)THEN
@@ -776,6 +788,7 @@ C       WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 C
         Call GADSum(X2,NOS*NOQ)
         CALL dDAFILE(LUINTM,1,X2,NOS*NOQ,IAD13)
+  101  CONTINUE
   100  CONTINUE
       ENDIF
 C

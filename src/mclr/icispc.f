@@ -75,14 +75,16 @@
 * EAW
 *. Number and distribution of electrons in each space
       DO 100 IEX = 1, 3
-      DO 100 IDA = -4,2
-      DO 100 IDB = -4,2
+      DO 101 IDA = -4,2
+      DO 102 IDB = -4,2
         IF(IRCI(IEX,IDA+5,IDB+5).NE.0) THEN
            ICI = IRCI(IEX,IDA+5,IDB+5)
            NAELCI(ICI) = NELEC(IASTFI(ICI))
            NBELCI(ICI) = NELEC(IBSTFI(ICI))
            NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
         END IF
+102   CONTINUE
+101   CONTINUE
 100   CONTINUE
 *
 *. Default max in RAS1 and min in RAS3

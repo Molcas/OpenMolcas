@@ -18,7 +18,7 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
@@ -658,10 +658,6 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
     set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
   endif ()
-  # Allow obsolete features in Fortran 2018
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -std=legacy")
-  endif ()
 endif ()
 
 # Add runtime checks
@@ -768,13 +764,18 @@ endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
 #          "externals" means "implicit none (external)", ditto (only 19.1 and later)
+#v.13 puts the full path of included files as a comment and then complains about truncated source lines
 set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
 set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations,noexternals -warn errors -diag-disable remark")
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "19.1")
-  string (REGEX REPLACE ",noexternals" "" FFLAGS_Intel_BIGOT "${FFLAGS_Intel_BIGOT}")
+set (warnings "all,nodeclarations")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")
+    set (warnings "${warnings},notruncated_source")
+  elseif (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "19.1")
+    set (warnings "${warnings},noexternals")
+  endif ()
 endif ()
+set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -2116,16 +2117,30 @@ endif ()
 
 message ("Configuring runtime environment settings:")
 
+cmake_host_system_information (RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information (RESULT host_name QUERY HOSTNAME)
+if (${CMAKE_VERSION} VERSION_LESS "3.10.0")
+  set (host_system "unknown")
+else ()
+  cmake_host_system_information (RESULT host_system QUERY OS_NAME)
+endif ()
+
 # memory/disk default sizes
 #==========================
 
 if (ADDRMODE EQUAL 64)
-  set (DEFMOLCASMEM "2048" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "20000" CACHE STRING "Set default max file size (MB).")
+  set (mem "2048")
+  set (disk "20000")
 else ()
-  set (DEFMOLCASMEM "1024" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "2047"  CACHE STRING "Set default max file size (MB).")
+  set (mem "1024")
+  set (disk "2047")
 endif ()
+math (EXPR max_mem "${host_mem}*3/4")
+if (${max_mem} LESS ${mem})
+  set (mem ${max_mem})
+endif ()
+set (DEFMOLCASMEM ${mem} CACHE STRING "Set default max memory (MiB).")
+set (DEFMOLCASDISK ${disk} CACHE STRING "Set default max file size (MiB).")
 
 message ("-- DEFMOLCASMEM:  ${DEFMOLCASMEM}")
 message ("-- DEFMOLCASDISK: ${DEFMOLCASDISK}")
@@ -3008,6 +3023,7 @@ if (NOT BUILD_TARGET STREQUAL "NONE")
   file (WRITE "${PROJECT_BINARY_DIR}/data/info.txt"
     "\nconfiguration info\n"
     "------------------\n"
+    "Host name: ${host_name} (${host_system})\n"
     "C Compiler ID: ${CMAKE_C_COMPILER_ID}\n"
     "C flags: ${CMAKE_C_FLAGS}\n"
     "Fortran Compiler ID: ${CMAKE_Fortran_COMPILER_ID}\n"

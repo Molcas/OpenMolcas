@@ -15,7 +15,8 @@
 #include "lstprm_cvb.fh"
 
       do 100 i=1,mxprm
-100   lstprm(i)=iunset
+      lstprm(i)=iunset
+100   continue
       iprm=0
       return
       entry chpcmp0_cvb()
