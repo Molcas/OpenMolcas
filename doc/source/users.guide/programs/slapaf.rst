@@ -759,7 +759,7 @@ Optional optimization procedure keywords
 :kword:`MEPConvergence` or :kword:`IRCConvergence`
   Sets the gradient convergence for a MEP search or IRC analysis.
   The path will be terminated when the gradient norm at an optimized point is below this threshold.
-  By default is the same as the gradient threshold for the normal iterations, specified with :kword:`THRShld`,
+  By default it is the same as the gradient threshold for the normal iterations, specified with :kword:`THRShld`,
   it may be necessary to reduce it to follow a path on a very flat surface.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPCONVERGENCE" APPEAR="MEP gradient convergence" KIND="REAL" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="IRCCONVERGENCE">
@@ -767,7 +767,7 @@ Optional optimization procedure keywords
               <HELP>
               Sets the gradient convergence for a MEP search or IRC analysis.
               The path will be terminated when the gradient norm at an optimized point is below this threshold.
-              By default is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              By default it is the same as the gradient threshold for the normal iterations, specified with THRShld,
               it may be necessary to reduce it to follow a path on a very flat surface.
               </HELP>
               IRCConvergence is a valid synonym.
@@ -776,7 +776,7 @@ Optional optimization procedure keywords
               %%Keyword: IRCConvergence <basic>
               Sets the gradient convergence for a MEP search or IRC analysis.
               The path will be terminated when the gradient norm at an optimized point is below this threshold.
-              By default is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              By default it is the same as the gradient threshold for the normal iterations, specified with THRShld,
               Synonym of MEPConvergence.
 
 :kword:`REFErence`

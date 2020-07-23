@@ -316,8 +316,26 @@
           Call Find_Distance(Cx(1,iter),Cx(1,iter+1),Work(ipDir),
      &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
+*
+*       Randomly displace the new geometry 1/20th of the MEP distance
+*       to try to break symmetry
+*
+        If (nSym.eq.1) Then
+          Call Random_Vector(nCoor,Work(ipDisp))
+          dDir=Zero
+          iOff=0
+          Do iAtom=1,nAtom
+            xWeight=Work(ipWeights+iAtom-1)
+            Do ixyz=1,3
+              dDir=dDir+xWeight*Work(ipDisp+iOff)**2
+              iOff=iOff+1
+            End Do
+          End Do
+          Fact=dMEPStep*Sqrt(TWeight/dDir)
+          Call DaXpY_(nCoor,0.05D0*Fact,Work(ipDisp),1,Cx(1,iter+1),1)
+        End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
-        if (iter.eq.1) BadConstraint=.False.
+        If (iter.eq.1) BadConstraint=.False.
       End If
 *                                                                      *
 ************************************************************************

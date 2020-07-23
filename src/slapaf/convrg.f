@@ -37,7 +37,8 @@
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
-     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint
+     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
+     &        TurnBack
       Character*8 Temp
 *
       Lu=6
@@ -688,7 +689,9 @@ C              Write (6,*) 'SubProject=.Prod'
          IRC=0
       End If
 *
-      If (Conv1.and.(MEP.or.rMEP)) Then
+      TurnBack=.False.
+      If (MEP.or.rMEP) Then
+       If (Conv1) Then
 *
 *        Is this the first iteration or not?
 *
@@ -744,6 +747,34 @@ C              Write (6,*) 'SubProject=.Prod'
          Call Free_Work(ipG)
          Call Free_Work(ipC)
 *
+       Else
+*
+*        Test for "turn back", i.e. when the trial structure
+*        is getting too close to the previous converged structure,
+*        this may be an indication of an ill-behaved constraint
+         If (iMEP.ge.1) Then
+            Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
+            Call Allocate_Work(ipTmp,3*nAtom)
+            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
+            ipPrev=ipC+iMEP*3*nAtom
+*           Using hypersphere measure, even with "transverse" MEPs,
+*           this should not be a problem
+            Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Work(ipTmp),
+     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+            Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Work(ipTmp),
+     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+            If (prevDist.lt.Half*refDist) Then
+               TurnBack=.True.
+               Conv1=.True.
+               Stop=.True.
+               iStop=0
+               Terminate=.True.
+            End If
+            Call Free_Work(ipC)
+            Call Free_Work(ipTmp)
+         End If
+*
+       End If
       End If
 *                                                                      *
 ************************************************************************
@@ -769,11 +800,14 @@ C              Write (6,*) 'SubProject=.Prod'
             Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
          End If
 *
-         BadConstraint=.False.
-         Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
-     &                ResGrad,BadConstraint)
-         Call dCopy_(3*nAtom,Cx(1,iter+1),1,Work(ipCoor),1)
-         Call Put_iScalar('iOff_Iter',iter)
+         ResGrad=Huge(ResGrad)
+         If (.Not.Terminate) Then
+            BadConstraint=.False.
+            Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
+     &                   ResGrad,BadConstraint)
+            Call dCopy_(3*nAtom,Cx(1,iter+1),1,Work(ipCoor),1)
+            Call Put_iScalar('iOff_Iter',iter)
+         End If
 *
          If (MEP) Then
             If (IRC.eq.0) Then
@@ -795,7 +829,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *           Test for energy increase (optionally disabled).
             eTest=eMEPTest.and.(eDiffMEP.gt.Zero)
-            If ((MEP .and. eTest).and.(.not.Terminate)) Then
+            If ((MEP.and.eTest).and.(.not.Terminate)) Then
                Terminate=.True.
                If (iPrint.ge.5) Then
                   Write (6,*)
@@ -807,7 +841,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *           Test for energy decrease (optionally disabled).
             eTest=eMEPTest.and.(eDiffMEP.lt.Zero)
-            If ((rMEP .and. eTest).and.(.not.Terminate)) Then
+            If ((rMEP.and.eTest).and.(.not.Terminate)) Then
                Terminate=.True.
                If (iPrint.ge.5) Then
                   Write (6,*)
@@ -853,7 +887,7 @@ C              Write (6,*) 'SubProject=.Prod'
             End If
 *
 *           Test for constraint misbehavior.
-            If (BadConstraint.and.(.not.Terminate)) Then
+            If ((BadConstraint.and.(.not.Terminate)).or.TurnBack) Then
                Terminate=.True.
                If (iPrint.ge.5) Then
                   Write (6,*)

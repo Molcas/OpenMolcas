@@ -18,7 +18,7 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
@@ -2117,9 +2117,13 @@ endif ()
 
 message ("Configuring runtime environment settings:")
 
-cmake_host_system_information(RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
-cmake_host_system_information(RESULT host_name QUERY HOSTNAME)
-cmake_host_system_information(RESULT host_system QUERY OS_NAME)
+cmake_host_system_information (RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information (RESULT host_name QUERY HOSTNAME)
+if (${CMAKE_VERSION} VERSION_LESS "3.10.0")
+  set (host_system "unknown")
+else ()
+  cmake_host_system_information (RESULT host_system QUERY OS_NAME)
+endif ()
 
 # memory/disk default sizes
 #==========================

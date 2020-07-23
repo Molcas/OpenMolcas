@@ -222,8 +222,6 @@
 *
       jpCoor = ipCx + iter*3*nsAtom
       Call Put_Coord_New(Work(jpCoor),nsAtom)
-      call recprt('CoordNew','',Work(jpCoor),nsAtom,3)
-      call recprt('ipCoor','',Work(ipCoor),nsAtom,3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
