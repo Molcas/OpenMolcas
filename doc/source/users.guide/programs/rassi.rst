@@ -965,7 +965,7 @@ Keywords
   The spin-free effective Hamiltonian's diagonal is filled with energies
   read from a :file:`JOBIPH` or :file:`JOBMIX` file. If an effective Hamiltonian
   is read (using :kword:`HEFF` or reading from an HDF5 file), the diagonal
-  elements are taken from the stored Hamiltonian; 
+  elements are taken from the stored Hamiltonian;
   this can be useful for using the SS-CASPT2 energies from a MS-CASTP2 calculation.
   The off-diagonal elements are approximated as :math:`H_{ij} \approx \frac{1}{2} S_{ij}(H_{ii}+H_{ij})`,
   where :math:`S_{ij}` is the overlap between two states; so if the input states
