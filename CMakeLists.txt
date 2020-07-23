@@ -2864,6 +2864,8 @@ if (DEBUG_DEFS)
   endforeach ()
 endif ()
 
+add_subdirectory(unit_tests)
+
 ################################################################################
 #                                                                              #
 # Tools, i.e. builds are dependent on Molcas library                           #

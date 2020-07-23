@@ -20,8 +20,8 @@ module linalg_mod
     public :: mult, diagonalize, isclose, operator(.isclose.), &
         dot_product_, norm, canonicalize
 
-    ! TODO: Move to other module
-    public :: assert_, abort_
+    ! TODO Move to different module
+    public :: assert_, abort_, assume_
 
 
 !>  @brief
@@ -466,6 +466,9 @@ contains
 !>  @brief
 !>    The induced norm from the dot product given by S.
 !>
+!>  @details
+!>    It is assumed, that S is symmetric and positive definite.
+!>
 !>  @author
 !>    Oskar Weser
     pure function norm(v, S) result(L)
@@ -503,7 +506,21 @@ contains
         call Abend()
     end subroutine
 
+    !> @brief
+    !>    Runtime check, that is switched off in Debug mode
     subroutine assert_(test_expression, message)
+        logical, intent(in) :: test_expression
+        character(*), intent(in) :: message
+#ifdef _DEBUG_
+        if (.not. test_expression) then
+            call abort_(message)
+        end if
+#endif
+    end subroutine
+
+    !> @brief
+    !>    Runtime check, that is not switched off in Debug mode
+    subroutine assume_(test_expression, message)
         logical, intent(in) :: test_expression
         character(*), intent(in) :: message
         if (.not. test_expression) then
