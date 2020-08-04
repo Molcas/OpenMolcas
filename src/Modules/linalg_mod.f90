@@ -195,17 +195,19 @@ contains
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
     subroutine mult_2D_raw(A, rows_A, B, rows_B, C, transpA, transpB)
-        real(wp), intent(in) :: A(:)
+        real(wp), intent(in), target :: A(:)
         integer, intent(in) :: rows_A
-        real(wp), intent(in) :: B(:)
+        real(wp), intent(in), target :: B(:)
         integer, intent(in) :: rows_B
-        real(wp), intent(out) :: C(:)
+        real(wp), intent(out), target :: C(:)
         logical, intent(in), optional :: transpA, transpB
         logical :: transpA_, transpB_
 
         integer :: shapeA(2), shapeB(2), shapeC(2)
         integer :: M, N, K
         integer :: K_1, K_2
+
+        real(wp), pointer :: ptr_A(:, :), ptr_B(:, :), ptr_C(:, :)
 
         if (present(transpA)) then
             transpA_ = transpA
@@ -227,15 +229,11 @@ contains
         N = merge(shapeB(2), shapeB(1), .not. transpB_)
         shapeC = [M, N]
 
-        K_1 = merge(shapeA(2), shapeA(1), .not. transpA_)
-        K_2 = merge(shapeB(1), shapeB(2), .not. transpB_)
-        call assert_(K_1 == K_2, 'Shape mismatch.')
-        K = K_1
+        ptr_A(1 : shapeA(1), 1 : shapeA(2)) => A(:)
+        ptr_B(1 : shapeB(1), 1 : shapeB(2)) => B(:)
+        ptr_C(1 : shapeC(1), 1 : shapeC(2)) => C(:)
 
-        call assert_(wp == r8, 'Precision mismatch for DGEMM')
-        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
-                    M, N, K, 1._wp, A, shapeA(1), B, shapeB(1), &
-                    0._wp, C, shapeC(1))
+        call mult(ptr_A, ptr_B, ptr_C, transpA_, transpB_)
     end subroutine
 
 !>  @brief

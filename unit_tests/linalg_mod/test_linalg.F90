@@ -5,18 +5,94 @@ module test_linalg_mod
     implicit none
     private
     public :: test_mult
+    real(wp), parameter :: tolerance = 10._wp**2 * epsilon(1._wp)
 
 contains
 
     subroutine test_mult()
-        real(wp) :: A(2, 2), B(2, 2), C(2, 2)
+        block
+            real(wp), target :: A(20, 10), B(10, 20), C(size(A, 1), size(B, 2))
+            real(wp) :: expected(size(C, 1), size(C, 2))
+            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
 
-        call random_number(A)
-        call random_number(B)
+            call random_number(A)
+            call random_number(B)
 
-        call mult(A, B, C)
-        call assert_equals(C, matmul(A, B), 2, 2)
+            expected = matmul(A, B)
 
+            call mult(A, B, C)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+
+            raw_A(1 : size(A)) => A(:, :)
+            raw_B(1 : size(B)) => B(:, :)
+            raw_C(1 : size(C)) => C(:, :)
+
+            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+        end block
+
+        block
+            real(wp), target :: A(20, 10), B(20, 10), C(size(A, 2), size(B, 2))
+            real(wp) :: expected(size(C, 1), size(C, 2))
+            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+
+            call random_number(A)
+            call random_number(B)
+
+            expected = matmul(transpose(A), B)
+
+            call mult(A, B, C, transpA=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+
+            raw_A(1 : size(A)) => A(:, :)
+            raw_B(1 : size(B)) => B(:, :)
+            raw_C(1 : size(C)) => C(:, :)
+
+            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+        end block
+
+        block
+            real(wp), target :: A(20, 10), B(20, 10), C(size(A, 1), size(B, 1))
+            real(wp) :: expected(size(C, 1), size(C, 2))
+            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+
+            call random_number(A)
+            call random_number(B)
+
+            expected = matmul(A, transpose(B))
+
+            call mult(A, B, C, transpB=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+
+            raw_A(1 : size(A)) => A(:, :)
+            raw_B(1 : size(B)) => B(:, :)
+            raw_C(1 : size(C)) => C(:, :)
+
+            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpB=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+        end block
+
+        block
+            real(wp), target :: A(20, 10), B(10, 20), C(size(A, 2), size(B, 1))
+            real(wp) :: expected(size(C, 1), size(C, 2))
+            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+
+            call random_number(A)
+            call random_number(B)
+
+            expected = matmul(transpose(A), transpose(B))
+
+            call mult(A, B, C, transpA=.true., transpB=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+
+            raw_A(1 : size(A)) => A(:, :)
+            raw_B(1 : size(B)) => B(:, :)
+            raw_C(1 : size(C)) => C(:, :)
+
+            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true., transpB=.true.)
+            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+        end block
     end subroutine
 
 end module test_linalg_mod
