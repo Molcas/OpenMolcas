@@ -1,15 +1,14 @@
-foreach( _config neci dneci mneci)
+include(${PROJECT_SOURCE_DIR}/cmake_helpers.cmake)
 
-    neci_add_test(
-        TARGET test_${_config}_loop
-        SOURCES test_loop.F90 test_loop_testcases.F90 test_loop_helpers.F90
-        LIBS lib${_config} fruit
-        LINKER_LANGUAGE Fortran
-        META_TARGET test_${_config}
-        DEFINITIONS
-            "${${PROJECT_NAME}_${_config}_DEFINITIONS}"
-    )
+add_subdirectory(${PROJECT_SOURCE_DIR}/unit_tests/fruit fruit)
 
-endforeach()
+add_executable(test_linalg test_linalg.F90)
 
+target_link_libraries(test_linalg fruit mods_obj molcas ${EXTERNAL_LIBRARIES})
 
+message(WARNING "${UNIT_TEST_BUILD_DIR}/bin")
+
+set_target_properties(test_linalg
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${UNIT_TEST_BUILD_DIR}/bin"
+)
