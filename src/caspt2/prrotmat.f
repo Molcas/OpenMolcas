@@ -37,13 +37,13 @@
       Call Molcas_Open(LUXMS,FileName)
       if(NGRP.LT.10) then
        write(xmsfmt1,'(a4,I1,a6)') "(1x,",NGRP,"F16.8)"
-       DO J=1,NGRP
-        WRITE(LUXMS,xmsfmt1)(U0(I,J),I=1,NGRP)
+       DO I=1,NGRP
+        WRITE(LUXMS,xmsfmt1)(U0(I,J),J=1,NGRP)
        END DO
       else if(NGRP.LT.100) then
        write(xmsfmt2,'(a4,I2,a6)') "(1x,",NGRP,"F16.8)"
-       DO J=1,NGRP
-        WRITE(LUXMS,xmsfmt2)(U0(I,J),I=1,NGRP)
+       DO I=1,NGRP
+        WRITE(LUXMS,xmsfmt2)(U0(I,J),J=1,NGRP)
        END DO
       end if
       close (LUXMS)
@@ -54,12 +54,12 @@
       LUXMS=IsFreeUnit(LUXMS)
       Call Molcas_Open(LUXMS,FileName)
       if(NGrp.lt.10)then
-       DO J1=1,NSTATE
-        WRITE(LUXMS,xmsfmt1)(HEFF(J1,J2),J2=1,NSTATE)
+       DO J2=1,NSTATE
+        WRITE(LUXMS,xmsfmt1)(HEFF(J1,J2),J1=1,NSTATE)
        END DO
       else
-       DO J1=1,NSTATE
-        WRITE(LUXMS,xmsfmt2)(HEFF(J1,J2),J2=1,NSTATE)
+       DO J2=1,NSTATE
+        WRITE(LUXMS,xmsfmt2)(HEFF(J1,J2),J1=1,NSTATE)
        END DO
       endif
       Close(LUXMS)

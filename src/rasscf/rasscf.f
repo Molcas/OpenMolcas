@@ -858,7 +858,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
 
           if(dofcidump)then
@@ -1121,7 +1121,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
         end if
 
@@ -1743,7 +1743,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
       end if
 
