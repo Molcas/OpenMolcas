@@ -44,7 +44,6 @@
       Integer rcidisk
       INTEGER LURot,IsFreeUnit
       EXTERNAL IsFreeUnit
-      Logical ReadHAM
       INTEGER JRoot,Kroot,IPRLEV
       CHARACTER(Len=18)::MatInfo
       INTEGER ReadStat
