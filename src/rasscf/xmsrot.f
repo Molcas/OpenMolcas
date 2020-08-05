@@ -23,7 +23,6 @@
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
-#include "output_ras.fh"
 
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
@@ -285,9 +284,9 @@ C       CALL TriPrt(' ',' ',WORK(LMat),NDIM)
        CALL JACOB(WORK(LMat),WORK(LVal),NDim,NDim)
 C       write(6,*)'eigenvector matrix'
 C       CALL RECPRT(' ',' ',WORK(LVal),NDIM,NDIM)
-       DO IRow=1,NDIM
-         write(6,*) (EigVec(IRow,ICol), ICol=1,NCol)
-       END DO
+C       DO IRow=1,NDIM
+C         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
+C       END DO
        DO ICol=1,NDIM
         Do IRow=1,NDIM
          EigVec(IRow,ICol)=WORK(LVal+(ICol-1)*NDIM+IRow-1)
