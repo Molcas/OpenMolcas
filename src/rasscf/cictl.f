@@ -519,16 +519,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
        do_rotate=.False.
        If (ifinal.eq.2) Then
         IF(IXMSP.eq.1) THEN
-         if(IIXMS.eq.1) then
-          write(6,*) 'Improved XMS rotation is not compatable with XMS'
-          write(6,*) 'Improved XMS rotation is disabled'
-         end if
          CALL XMSRot(CMO,FI,FA)
-         IIXMS=0
-        End If
-        If(IIXMS.eq.1) Then
-C         CALL XMSRot(CMO,FI,FA)
-         CALL IXMSRot(CMO,FI,FA)
         End If
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)

@@ -46,13 +46,21 @@
       EXTERNAL IsFreeUnit
       Logical ReadHAM
       INTEGER JRoot,Kroot,IPRLEV
-
+      CHARACTER(Len=18)::MatInfo
+      INTEGER ReadStat
       write(LF,*)
       write(LF,*) ('=',i=1,61)
       write(LF,*)
       write(LF,'(6X,A)')'Do_Rotate.txt is found in scratch directory.'
-      write(LF,'(6X,A)')'Following properties are for rotated states.'
-      write(LF,*)
+      IF(IXMSP.eq.1) THEN
+       write(LF,'(6X,A)')
+     & 'Following properties are for XMS intermediate states.'
+      ELSE
+       write(LF,'(6X,A)')
+     & 'Following properties are for intermediate states'
+       write(LF,'(6X,A)')
+     & ' obtained from the user-supplied rotation matrix'
+      ENDIF
 
       NRState=lRoots**2
       NHRot=NRState
@@ -76,15 +84,17 @@
        read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
        LRSttmp=LRSttmp+lRoots
       End Do
+      Read(LURot,*,iostat=ReadStat) MatInfo
+      IF(ReadStat.eq.-1) MatInfo='an unknown method'
       close(LURot)
-C      iF(IPRLEV.GE.DEBUG) Then
+      iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
         LRSttmp=LRState
         Do jRoot = 1,lRoots
          write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
          LRSttmp=LRSttmp+lRoots
         End Do
-C      eND iF
+      eND iF
       NHRot=lRoots**2
       CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
       Do I=1,lRoots
@@ -100,6 +110,7 @@ C      eND iF
         write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &               ,kroot=1,lroots)
       End Do
+      write(LURot,*) MatInfo
       Close(LUROT)
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamialtonian matrix '

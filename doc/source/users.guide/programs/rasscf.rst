@@ -2342,7 +2342,7 @@ A list of these keywords is given below:
   This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF` and :program:`MCPDFT` modules). This keyword stands for XMS Intermediate states. It rotates the CASSCF, CASCI, RASSCF or RASCI states into the XMS intermediate states.
   This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix for the XMS intermediate states.
   This keyword currently does not work for wave functions optimized with the DMRG algorithm.
-  This keyword performs the functions called by :kword:`ROSTate`, therefore one does not need to use :kword:`ROSTate` when this keyword is used.
+  This keyword performs the functions called by :kword:`ROSTate`; therefore one does not need to use :kword:`ROSTate` when this keyword is used.
   More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/

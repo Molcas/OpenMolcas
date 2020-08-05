@@ -45,7 +45,7 @@ C
 C
       CALL CalcEigVec(FckS,lRoots,EigVec)
 C
-      call printmat('ROT_VEC',eigvec,lroots,lroots,7,'T')
+      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'T')
 
       RETURN
       End Subroutine
@@ -173,13 +173,13 @@ C        write(6,*)(WORK(iVecL+I),I=0,NConf-1)
 C        write(6,*)(WORK(iVecR+I),I=0,NConf-1)
         Call Lucia_Util('Densi',iVecR,iDummy,rdum)
 C        Call Lucia_Util('Densi',0,iDummy,rdum)
-        write(6,*)'GDMat for states',jRoot,kRoot
+C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
           NIJ2=jRoot*(jRoot-1)/2+kRoot
           GDMat(NIJ2,IOrb,JOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
           end do
-          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
+C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
          eND dO
        End Do
       End DO
@@ -230,7 +230,7 @@ C        Call Lucia_Util('Densi',0,iDummy,rdum)
         End Do
       END DO
 
-      CALL PrintMat('XMS_Mat',FckS,LRoots,LRoots,7,'N')
+C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
 
 
       RETURN
@@ -282,7 +282,7 @@ C       write(6,*)'eigenvector matrix before diag'
 C       CALL RECPRT(' ',' ',WORK(LVal),NDIM,NDIM)
 C       write(6,*)'matrix to be diagonalized'
 C       CALL TriPrt(' ',' ',WORK(LMat),NDIM)
-C       CALL JACOB(WORK(LMat),WORK(LVal),NDim,NDim)
+       CALL JACOB(WORK(LMat),WORK(LVal),NDim,NDim)
 C       write(6,*)'eigenvector matrix'
 C       CALL RECPRT(' ',' ',WORK(LVal),NDIM,NDIM)
        DO IRow=1,NDIM
@@ -327,10 +327,12 @@ C       CALL RECPRT(' ',' ',WORK(LVal),NDIM,NDIM)
 ******************************************************
 
 ******************************************************
-      Subroutine PrintMat(FileName,Matrix,NRow,NCol,LenName,Trans)
+      Subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,
+     &LenName,LenInfo,Trans)
 
       INTEGER NRow,NCol,LenName
       CHARACTER(Len=LenName)::FileName
+      CHARACTER(Len=LenInfo)::MatInfo
       CHARACTER(Len=1)::Trans
       Real*8,DIMENSION(NRow,NCol)::Matrix
 
@@ -353,6 +355,7 @@ C       CALL RECPRT(' ',' ',WORK(LVal),NDIM,NDIM)
         write(LU,*) (Matrix(IRow,ICol),IRow=1,NRow)
        END DO
       END IF
+      WRITE(LU,*)MatInfo
       IF(LenName.gt.0) THEN
        Close(LU)
       END IF
