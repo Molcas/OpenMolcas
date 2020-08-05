@@ -61,7 +61,6 @@ C
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
-#include "output_ras.fh"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
       Real*8,Dimension(NTOT2)::CMO
@@ -146,7 +145,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
-#include "output_ras.fh"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxillary qunatities
@@ -201,7 +199,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
-#include "output_ras.fh"
 
 ******Input
       Real*8,DIMENSION(NAC,NAC)::FckO
