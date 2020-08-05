@@ -14,11 +14,13 @@
 module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
     use definitions, only: wp, r8
-    use sorting, only: sort
+    use sorting, only: sort, argsort
+    use sorting_funcs, only : integer_leq => le_i, ge_r
     implicit none
     private
     public :: mult, diagonalize, isclose, operator(.isclose.), &
-        dot_product_, norm, canonicalize
+        dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
+        symmetric
 
     ! TODO Move to different module
     public :: assert_, abort_, assume_
@@ -360,6 +362,7 @@ contains
 
         integer :: info_
         integer :: low, i, j, d
+        logical :: converged
         integer, allocatable :: idx(:), dimensions(:)
         real(wp), allocatable :: projections(:, :)
 
@@ -376,16 +379,29 @@ contains
 
         low = 1
         do j = 1, size(dimensions)
-            d = dimensions(j)
-            call get_projections(V(:, low : low + d - 1), projections)
+            converged = .false.
+            do while (.not. converged)
+                d = dimensions(j)
+                call get_projections(V(:, low : low + d - 1), projections)
 
-            do i = 1, size(idx)
-                idx(i) = i
+                do i = 1, size(idx)
+                    idx(i) = i
+                end do
+                call sort(idx, geq)
+                call sort(idx( : d), integer_leq)
+
+                ! Get the first d projections with the largest overlap.
+                block
+                    real(wp) :: p(size(projections, 1))
+                    converged = .true.
+                    do i = 1, d
+                        p = projections(:, idx(i)) / norm(projections(:, idx(i)))
+                        converged = converged .and. all(V(:, low + i - 1) .isclose. p)
+                        V(:, low + i - 1) = p
+                    end do
+                end block
             end do
-            call sort(idx, leq)
-
-            ! Get the first d projections with the largest overlap.
-            V(:, low : low + d - 1) = projections(:, idx( : d))
+            low = low + d
         end do
 
         call mma_deallocate(idx)
@@ -393,31 +409,30 @@ contains
         call mma_deallocate(dimensions)
     contains
 
-        logical pure function leq(i, j)
+        logical pure function geq(i, j)
             integer, intent(in) :: i, j
-            leq = norm(projections(:, i)) <= norm(projections(:, j))
+            geq = norm(projections(:, i)) >= norm(projections(:, j))
         end function
+    end subroutine
 
-        subroutine get_projections(M, P)
-            real(wp), intent(in) :: M(:, :)
-            real(wp), intent(out) :: P(:, :)
-            integer :: i, j
 
-            call assert_(size(V, 1) <= size(V, 2), 'Shapes wrong')
-            call assert_(size(V, 1) == size(V, 2), 'Projections non square matrix')
+    ! Calculate the projections p_j of the e_j canonical unit vectors
+    ! into the subspace spanned by M.
+    subroutine get_projections(M, P)
+        real(wp), intent(in) :: M(:, :)
+        real(wp), intent(out) :: P(:, :)
+        integer :: i, j
 
-            P(:, :) = 0._wp
-            ! calculate projections of basis b_j into eigenvectors v_i:
-            ! p_j = sum_i < b_j | v_i > v_i
-            ! if b_j are canonical unit vectors, the dot product is the j-th
-            ! component of v_i
-            do j = 1, size(P, 2)
-                do i = 1, size(M, 2)
-                    P(:, j) = P(:, j) + M(j, i) * M(:, i)
-                    ! P(:, j) = P(:, j) + dot_product(M(:, i), B(:, j)) * M(:, i)
-                end do
+        P(:, :) = 0._wp
+        ! calculate projections of basis b_j into eigenvectors v_i:
+        ! p_j = sum_i < b_j | v_i > v_i
+        ! if b_j are canonical unit vectors, the dot product is the j-th
+        ! component of v_i
+        do j = 1, size(P, 2)
+            do i = 1, size(M, 2)
+                P(:, j) = P(:, j) + M(j, i) * M(:, i)
             end do
-        end subroutine
+        end do
     end subroutine
 
     elemental function isclose(a, b, atol, rtol) result(res)
@@ -495,6 +510,181 @@ contains
             end do
         end do
     end function
+
+    subroutine Lowdin(basis, ONB, S)
+        real(wp), intent(in) :: basis(:, :)
+        real(wp), intent(out) :: ONB(:, :)
+        real(wp), intent(in), optional :: S(:, :)
+
+        integer :: i
+        real(wp), allocatable :: U(:, :), s_diag(:), X(:, :), &
+              S_transf(:, :), tmp(:, :)
+
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
+        call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(X, size(S, 1), size(S, 2))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
+        call mma_allocate(s_diag, size(S, 2))
+
+! Transform AO-overlap matrix S to the overlap matrix of basis.
+! S_transf = basis^T S basis
+! We search X that diagonalizes S_transf
+        if (present(S)) then
+            call mult(S, basis, tmp)
+            call mult(basis, tmp, S_transf, transpA=.true.)
+        else
+            call mult(basis, basis, S_transf, transpA=.true.)
+        end if
+
+        call diagonalize(S_transf, U, s_diag)
+        call canonicalize(U, s_diag)
+
+        call assert_(all(s_diag > 1.0d-10), &
+           "Linear dependency detected. "// &
+           "Lowdin can't cure it. Please use other ORTH keyword "// &
+           "from {Gram_Schmidt, Canonical}.")
+
+! X = U s_diag^{-1/2} U^T
+        do i = 1, size(tmp, 2)
+          tmp(:, i) = U(:, i) / sqrt(s_diag(i))
+        end do
+        call mult(tmp, U, X, transpB=.true.)
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        call mult(basis, X, ONB)
+
+        call mma_deallocate(tmp)
+        call mma_deallocate(s_diag)
+        call mma_deallocate(X)
+        call mma_deallocate(U)
+        call mma_deallocate(S_transf)
+    end subroutine Lowdin
+
+    subroutine Canonical(basis, n_to_ON, ONB, n_new, S)
+        real(wp), intent(in) :: basis(:, :)
+        integer, intent(in) :: n_to_ON
+        real(wp), intent(out) :: ONB(:, :)
+        integer, intent(out) :: n_new
+        real(wp), intent(in), optional :: S(:, :)
+
+        logical :: lin_dep_detected
+        integer :: i
+        integer, allocatable :: idx(:)
+        real(wp), allocatable :: &
+            U(:, :), s_diag(:), S_transf(:, :), X(:, :), tmp(:, :)
+
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
+        call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(s_diag, size(S, 2))
+        call mma_allocate(X, size(S, 1), size(S, 2))
+        call mma_allocate(idx, size(S, 1))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
+
+! Transform AO-overlap matrix S to the overlap matrix of basis.
+! We search X that diagonalizes basis^T S basis
+        if (present(S)) then
+            call mult(S, basis, tmp)
+            call mult(basis, tmp, S_transf, transpA=.true.)
+        else
+            call mult(basis, basis, S_transf, transpA=.true.)
+        end if
+
+        call diagonalize(S_transf, U, s_diag)
+        call canonicalize(U, s_diag)
+
+        idx(:) = argsort(s_diag, ge_r)
+        U(:, :) = U(:, idx)
+        s_diag(:) = s_diag(idx)
+
+        i = 0
+        lin_dep_detected = .false.
+        do while(.not. lin_dep_detected .and. i < n_to_ON)
+          if (s_diag(i + 1) < 1.0d-10) then
+            n_new = i
+            lin_dep_detected = .true.
+          end if
+          i = i + 1
+        end do
+        if (.not. lin_dep_detected) n_new = n_to_ON
+
+! X = U s_diag^{-1/2}
+        do i = 1, n_new
+          X(:, i) = U(:, i) / sqrt(s_diag(i))
+        end do
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        ONB(:, n_new + 1:) = basis(:, n_new + 1 :)
+        call mult(basis, X(:, :n_new), ONB(:, :n_new))
+
+        call mma_deallocate(tmp)
+        call mma_deallocate(X)
+        call mma_deallocate(idx)
+        call mma_deallocate(s_diag)
+        call mma_deallocate(U)
+        call mma_deallocate(S_transf)
+    end subroutine Canonical
+
+    subroutine Gram_Schmidt(basis, n_to_ON, ONB, n_new, S)
+        real(wp), intent(in) :: basis(:, :)
+        integer, intent(in) :: n_to_ON
+        real(wp), target, intent(out) :: ONB(:, :)
+        integer, intent(out) :: n_new
+        real(wp), intent(in), optional :: S(:, :)
+
+        real(wp) :: L
+        integer :: i, j
+        logical :: lin_dep_detected, improve_solution
+
+        real(wp), allocatable :: previous(:), correction(:), v(:)
+        real(wp), pointer :: curr(:)
+
+        call mma_allocate(previous, size(basis, 1))
+        call mma_allocate(correction, size(basis, 1))
+        call mma_allocate(v, size(basis, 1))
+
+        n_new = 0
+        ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
+        do i = 1, n_to_ON
+          curr => ONB(:, n_new + 1)
+          curr = basis(:, i)
+
+          improve_solution = .true.
+          lin_dep_detected = .false.
+          do while (improve_solution .and. .not. lin_dep_detected)
+            correction = 0._wp
+            if (present(S)) then
+                call mult(S, curr, v)
+            else
+                v(:) = curr(:)
+            end if
+
+            do j = 1, n_new
+              correction(:) = &
+                    correction(:) + ONB(:, j) * dot_product(ONB(:, j), v)
+            end do
+            curr = curr - correction
+            improve_solution = norm(correction, S=S) > 0.1_wp
+            L = norm(curr, S=S)
+            lin_dep_detected = L < 1.0e-10_wp
+            if (.not. lin_dep_detected) then
+              curr = curr / L
+            end if
+            if (.not. (improve_solution .or. lin_dep_detected)) then
+              n_new = n_new + 1
+            end if
+          end do
+        end do
+        ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
+
+        call mma_deallocate(v)
+        call mma_deallocate(correction)
+        call mma_deallocate(previous)
+    end subroutine Gram_Schmidt
+
 
 
     subroutine abort_(message)

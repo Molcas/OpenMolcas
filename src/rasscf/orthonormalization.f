@@ -20,7 +20,7 @@
         use sorting, only : argsort
         use sorting_funcs, only : ge_r
         use linalg_mod, only: mult, diagonalize, norm, dot_product_,
-     &      assert_, canonicalize
+     &      assert_, canonicalize, Gram_Schmidt, Lowdin, Canonical
 
         implicit none
         save
@@ -72,18 +72,6 @@
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-        interface Gram_Schmidt
-          module procedure Gram_Schmidt_Array, Gram_Schmidt_Blocks
-        end interface
-
-        interface Lowdin
-          module procedure Lowdin_Array, Lowdin_Blocks
-        end interface
-
-        interface Canonical
-          module procedure Canonical_Array, Canonical_Blocks
-        end interface
-
       contains
 
       subroutine orthonormalize_blocks(basis, scheme, ONB)
@@ -106,15 +94,15 @@
           case(ON_scheme_values%no_ON)
             continue
           case(ON_scheme_values%Lowdin)
-            call Lowdin(basis, S, ONB)
+            call Lowdin_Blocks(basis, S, ONB)
           case(ON_scheme_values%Canonical)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
-            call Canonical(basis, S, n_to_ON, ONB, n_new)
+            call Canonical_Blocks(basis, S, n_to_ON, ONB, n_new)
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
           case(ON_scheme_values%Gram_Schmidt)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
-            call Gram_Schmidt(basis, S, n_to_ON, ONB, n_new)
+            call Gram_Schmidt_Blocks(basis, S, n_to_ON, ONB, n_new)
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
@@ -153,56 +141,11 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Lowdin(basis(i)%block, S(i)%block, ONB(i)%block)
+          call Lowdin(basis(i)%block, ONB(i)%block, S(i)%block)
         end do
       end subroutine Lowdin_Blocks
 
 
-      subroutine Lowdin_Array(basis, S, ONB)
-        real(wp), intent(in) :: basis(:, :), S(:, :)
-        real(wp), intent(out) :: ONB(:, :)
-
-        integer :: i
-        real(wp), allocatable :: U(:, :), s_diag(:), X(:, :),
-     &        S_transf(:, :), tmp(:, :)
-
-        call mma_allocate(S_transf, size(S, 1), size(S, 2))
-        call mma_allocate(U, size(S, 1), size(S, 2))
-        call mma_allocate(X, size(S, 1), size(S, 2))
-        call mma_allocate(tmp, size(S, 1), size(S, 2))
-        call mma_allocate(s_diag, size(S, 2))
-
-! Transform AO-overlap matrix S to the overlap matrix of basis.
-! S_transf = basis^T S basis
-! We search X that diagonalizes S_transf
-        call mult(S, basis, tmp)
-        call mult(basis, tmp, S_transf, transpA=.true.)
-
-        call diagonalize(S_transf, U, s_diag)
-        call canonicalize(U, s_diag)
-
-        call assert_(all(s_diag > 1.0d-10),
-     &      "Linear dependency detected. "//
-     &      "Lowdin can't cure it. Please use other ORTH keyword "//
-     &      "from {Gram_Schmidt, Canonical}.")
-
-! X = U s_diag^{-1/2} U^T
-        do i = 1, size(tmp, 2)
-          tmp(:, i) = U(:, i) / sqrt(s_diag(i))
-        end do
-        call mult(tmp, U, X, transpB=.true.)
-! With this X the overlap matrix S_transf has diagonal form.
-! X^T basis^T S basis X = 1
-! We finally have to convert to get the form:
-! ONB^T S ONB = 1
-        call mult(basis, X, ONB)
-
-        call mma_deallocate(tmp)
-        call mma_deallocate(s_diag)
-        call mma_deallocate(X)
-        call mma_deallocate(U)
-        call mma_deallocate(S_transf)
-      end subroutine Lowdin_Array
 
 
 ! TODO: It would be nice, to use `impure elemental`
@@ -217,72 +160,12 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Canonical(basis(i)%block, S(i)%block, n_to_ON(i),
-     &                   ONB(i)%block, n_new(i))
+          call Canonical(basis(i)%block, n_to_ON(i),
+     &                   ONB(i)%block, n_new(i), S(i)%block)
         end do
       end subroutine Canonical_Blocks
 
 
-      subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
-        real(wp), intent(in) :: basis(:, :), S(:, :)
-        integer, intent(in) :: n_to_ON
-        real(wp), intent(out) :: ONB(:, :)
-        integer, intent(out) :: n_new
-
-        logical :: lin_dep_detected
-        integer :: i
-        integer, allocatable :: idx(:)
-        real(wp), allocatable :: U(:, :), s_diag(:), S_transf(:, :),
-     &      X(:, :), tmp(:, :)
-
-        call mma_allocate(S_transf, size(S, 1), size(S, 2))
-        call mma_allocate(U, size(S, 1), size(S, 2))
-        call mma_allocate(s_diag, size(S, 2))
-        call mma_allocate(X, size(S, 1), size(S, 2))
-        call mma_allocate(idx, size(S, 1))
-        call mma_allocate(tmp, size(S, 1), size(S, 2))
-
-! Transform AO-overlap matrix S to the overlap matrix of basis.
-! We search X that diagonalizes basis^T S basis
-        call mult(S, basis, tmp)
-        call mult(basis, tmp, S_transf, transpA=.true.)
-
-        call diagonalize(S_transf, U, s_diag)
-        call canonicalize(U, s_diag)
-
-        idx(:) = argsort(s_diag, ge_r)
-        U(:, :) = U(:, idx)
-        s_diag(:) = s_diag(idx)
-
-        i = 0
-        lin_dep_detected = .false.
-        do while(.not. lin_dep_detected .and. i < n_to_ON)
-          if (s_diag(i + 1) < 1.0d-10) then
-            n_new = i
-            lin_dep_detected = .true.
-          end if
-          i = i + 1
-        end do
-        if (.not. lin_dep_detected) n_new = n_to_ON
-
-! X = U s_diag^{-1/2}
-        do i = 1, n_new
-          X(:, i) = U(:, i) / sqrt(s_diag(i))
-        end do
-! With this X the overlap matrix S_transf has diagonal form.
-! X^T basis^T S basis X = 1
-! We finally have to convert to get the form:
-! ONB^T S ONB = 1
-        ONB(:, n_new + 1:) = basis(:, n_new + 1 :)
-        call mult(basis, X(:, :n_new), ONB(:, :n_new))
-
-        call mma_deallocate(tmp)
-        call mma_deallocate(X)
-        call mma_deallocate(idx)
-        call mma_deallocate(s_diag)
-        call mma_deallocate(U)
-        call mma_deallocate(S_transf)
-      end subroutine Canonical_Array
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
@@ -296,64 +179,12 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Gram_Schmidt(basis(i)%block, S(i)%block,
-     &                      n_to_ON(i), ONB(i)%block, n_new(i))
+          call Gram_Schmidt(basis(i)%block, n_to_ON(i), ONB(i)%block,
+     &                      n_new(i), S(i)%block)
         end do
       end subroutine Gram_Schmidt_Blocks
 
 
-
-      subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
-        real(wp), intent(in) :: basis(:, :), S(:, :)
-        integer, intent(in) :: n_to_ON
-        real(wp), target, intent(out) :: ONB(:, :)
-        integer, intent(out) :: n_new
-
-        real(wp) :: L
-        integer :: i, j
-        logical :: lin_dep_detected, improve_solution
-
-        real(wp), allocatable :: previous(:), correction(:), v(:)
-        real(wp), pointer :: curr(:)
-
-        call mma_allocate(previous, size(S, 1))
-        call mma_allocate(correction, size(S, 1))
-        call mma_allocate(v, size(S, 1))
-
-        n_new = 0
-        ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
-        do i = 1, n_to_ON
-          curr => ONB(:, n_new + 1)
-          curr = basis(:, i)
-
-          improve_solution = .true.
-          lin_dep_detected = .false.
-          do while (improve_solution .and. .not. lin_dep_detected)
-            correction = 0._wp
-            call mult(S, curr, v)
-
-            do j = 1, n_new
-              correction(:) = correction(:)
-     &                     + ONB(:, j) * dot_product(ONB(:, j), v)
-            end do
-            curr = curr - correction
-            improve_solution = norm(correction, S=S) > 0.1_wp
-            L = norm(curr, S=S)
-            lin_dep_detected = L < 1.0e-10_wp
-            if (.not. lin_dep_detected) then
-              curr = curr / L
-            end if
-            if (.not. (improve_solution .or. lin_dep_detected)) then
-              n_new = n_new + 1
-            end if
-          end do
-        end do
-        ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-
-        call mma_deallocate(v)
-        call mma_deallocate(correction)
-        call mma_deallocate(previous)
-      end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
      &    n_to_ON, nNew,

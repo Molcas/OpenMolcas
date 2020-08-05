@@ -1,10 +1,11 @@
 module test_linalg_mod
     use fruit
     use definitions, only: wp
-    use linalg_mod, only: mult
+    use linalg_mod, only: mult, operator(.isclose.), Gram_Schmidt, symmetric, &
+        diagonalize, canonicalize, norm
     implicit none
     private
-    public :: test_mult
+    public :: test_mult, test_diagonalization
     real(wp), parameter :: tolerance = 10._wp**2 * epsilon(1._wp)
 
 contains
@@ -21,14 +22,14 @@ contains
             expected = matmul(A, B)
 
             call mult(A, B, C)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
 
             raw_A(1 : size(A)) => A(:, :)
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
             call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
         end block
 
         block
@@ -42,14 +43,14 @@ contains
             expected = matmul(transpose(A), B)
 
             call mult(A, B, C, transpA=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
 
             raw_A(1 : size(A)) => A(:, :)
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
             call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
         end block
 
         block
@@ -63,14 +64,14 @@ contains
             expected = matmul(A, transpose(B))
 
             call mult(A, B, C, transpB=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
 
             raw_A(1 : size(A)) => A(:, :)
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
             call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpB=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
         end block
 
         block
@@ -84,15 +85,87 @@ contains
             expected = matmul(transpose(A), transpose(B))
 
             call mult(A, B, C, transpA=.true., transpB=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
 
             raw_A(1 : size(A)) => A(:, :)
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
             call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true., transpB=.true.)
-            call assert_equals(C, expected, size(expected, 1), size(expected, 2), delta=tolerance)
+            call assert_true(all(C .isclose. expected))
         end block
+    end subroutine
+
+    subroutine test_diagonalization()
+        integer, parameter :: test_size = 10
+        integer, parameter :: dimension_E(3) = [5, 5, 5]
+        real(wp) :: lambdas(sum(dimension_E))
+        real(wp) :: M(size(lambdas), size(lambdas))
+        real(wp) :: V(size(M, 1), size(M, 2))
+        real(wp) :: U(size(M, 1), size(M, 2))
+        real(wp) :: test_M(size(M, 1), size(M, 2))
+        real(wp) :: test_V(size(M, 1), size(M, 2))
+
+        integer :: i, j, i_test
+        integer :: offset
+
+        ! Create test matrix M with degenerate Eigenspaces
+        block
+            offset = 1
+            do i = 1, size(dimension_E)
+                lambdas(offset : offset + dimension_E(i) - 1) = real(i, kind=wp)
+                offset = offset + dimension_E(i)
+            end do
+
+            M = 0._wp
+            do i = 1, size(M, 1)
+                M(i, i) = lambdas(i)
+            end do
+
+            call get_rand_orthogonal(U)
+            M = matmul(matmul(transpose(U), M), U)
+            call assert_true(symmetric(M))
+        end block
+
+        call diagonalize(M, V, lambdas)
+        call canonicalize(V, lambdas)
+
+        do i_test = 1, test_size
+            offset = 1
+            test_V = 0._wp
+            do i = 1, size(dimension_E)
+            block
+                real(wp) :: U(dimension_E(i), dimension_E(i))
+                integer :: j, k
+                call get_rand_orthogonal(U)
+
+                do j = 1, dimension_E(i)
+                    do k = 1, dimension_E(i)
+                        test_V(:, offset + j - 1) = test_V(:, offset + j - 1) + U(k, j) * V(:, offset + k - 1)
+                    end do
+                end do
+                offset = offset + dimension_E(i)
+            end block
+            end do
+
+            call canonicalize(test_V, lambdas)
+
+            call assert_true(all(test_V .isclose. V))
+        end do
+    end subroutine
+
+    subroutine get_rand_orthogonal(U)
+        real(wp), intent(out) :: U(:, :)
+        integer :: n_new
+        real(wp) :: basis(size(U, 1), size(U, 2))
+        logical :: linear_independent
+
+        linear_independent = .false.
+        do while (.not. linear_independent)
+            call random_number(basis)
+            call Gram_Schmidt(basis, size(basis, 2), U, n_new)
+            linear_independent = n_new == size(basis, 2)
+        end do
     end subroutine
 
 end module test_linalg_mod
@@ -100,15 +173,18 @@ end module test_linalg_mod
 program test_linalg
 
     use fruit
-    use test_linalg_mod, only: test_mult
+    use test_linalg_mod, only: test_mult, test_diagonalization
 
     implicit none
     integer :: failed_count, err
+    integer, parameter :: seed(1) = [10]
 
     integer :: n
     block
 
         call init_fruit()
+        call random_seed(put=seed)
+        call inimem()
 
         call test_linalg_driver()
 
@@ -123,5 +199,6 @@ contains
 
     subroutine test_linalg_driver()
         call run_test_case(test_mult, "test_mult")
+        call run_test_case(test_diagonalization, "test_diagonalization")
     end subroutine
 end program test_linalg
