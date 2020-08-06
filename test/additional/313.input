@@ -27,23 +27,6 @@ Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
 
->>COPY $Project.RasOrb UseOrb
-
-&RASSCF
-CIOnly
-Spin=1
-Symmetry=1
-CIRoot= 2 2 1
-Inactive=2 0 0 0
-Ras2=4 1 0 1
-Nactel=8 0 0
-
-&CASPT2
-XMUL=2 1 2
-XROH
-
->>COPY UseOrb INPORB
-
 &RASSCF
 CIONLY
 Spin=1
@@ -52,7 +35,7 @@ CIRoot= 2 2 1
 Inactive=2 0 0 0
 Ras2=4 1 0 1
 Nactel=8 0 0
-RoST
+XMSI
 
 &MCPDFT
 KSDFT=TPBE
