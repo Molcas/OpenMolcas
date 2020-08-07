@@ -169,7 +169,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
 C        write(6,*)(WORK(iVecL+I),I=0,NConf-1)
 C        write(6,*)(WORK(iVecR+I),I=0,NConf-1)
-        Call Lucia_Util('Densi',iVecR,iDummy,rdum)
+        Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
 C        Call Lucia_Util('Densi',0,iDummy,rdum)
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
