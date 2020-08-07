@@ -148,8 +148,9 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxillary qunatities
-      INTEGER CIDisk1,CIDisk2,iVecL,iVecR
+      INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
+      Dimension Dummy(1)
       tlw6=lw6
       tlw7=lw7
       Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
