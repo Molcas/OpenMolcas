@@ -28,7 +28,7 @@
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
-      Logical Numerical, PrQ, Cartesian, Found, TSC
+      Logical Numerical, PrQ, Cartesian, Found, TSC, Error
       Character*8 Lbl(nLbl)
 *
       Lu=6
@@ -227,6 +227,7 @@
 *
          PrQ=.False.
          BSet=.False.
+         Error=.False.
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
@@ -239,7 +240,7 @@
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr,iRef)
+     &               Redundant,nqInt,MaxItr,iRef,Error)
 *
          ip_To   = ipCList + (iDisp-1)*3*nsAtom
 *

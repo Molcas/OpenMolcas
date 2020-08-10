@@ -43,10 +43,9 @@
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
-     &        HWRS, Analytic_Hessian, PrQ, lOld, Invar
+     &        HWRS, Analytic_Hessian, PrQ, lOld, Invar, Error
       Save        BSet, HSet, lOld
 *
-C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
       Data                 BSet/.False./, HSet/.False./,
      &     lOld/.False./
 *                                                                      *
@@ -202,20 +201,29 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call WarningMessage(2,'Error in Int2Car')
-      Write (Lu,*)
-      Write (Lu,*) '***********************************************'
-      Write (Lu,*) ' ERROR: No convergence in Int2Car !            '
-      Write (Lu,*) ' Strong linear dependency among Coordinates.   '
-      Write (Lu,*) ' Hint: Try to change the Internal Coordinates. '
-      Write (Lu,*) '***********************************************'
-      If (.NOT.User_Def) Call RecPrt('Int2Car: rInt  ','(10F15.10)',
-     &                               rInt,nInter,1)
-      ip = ip_qInt + Iter*nInter
-      If (.NOT.User_Def) Call RecPrt('Int2Car: qInt','(10F15.10)',
-     &                               Work(ip),nInter,1)
-      Write (Lu,*)
-      Call Quit(_RC_NOT_CONVERGED_)
+*     On input, Error specifies whether an error should be signalled
+*     (.True.) or the calculation aborted (.False.)
+*     In the former case, the output value indicates if an error has
+*     occurred
+*
+      If (Error) Then
+         Return
+      Else
+         Call WarningMessage(2,'Error in Int2Car')
+         Write (Lu,*)
+         Write (Lu,*) '***********************************************'
+         Write (Lu,*) ' ERROR: No convergence in Int2Car !            '
+         Write (Lu,*) ' Strong linear dependency among Coordinates.   '
+         Write (Lu,*) ' Hint: Try to change the Internal Coordinates. '
+         Write (Lu,*) '***********************************************'
+         If (.NOT.User_Def) Call RecPrt('Int2Car: rInt  ','(10F15.10)',
+     &                                  rInt,nInter,1)
+         ip = ip_qInt + Iter*nInter
+         If (.NOT.User_Def) Call RecPrt('Int2Car: qInt','(10F15.10)',
+     &                                  Work(ip),nInter,1)
+         Write (Lu,*)
+         Call Quit(_RC_NOT_CONVERGED_)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -249,8 +257,7 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Error=.False.
       Call QExit('Int2Car')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real(Error)
       End

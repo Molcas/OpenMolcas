@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
      &                          dMass,Lbl,kShift,qInt,dqInt,Name,Cx,
-     &                          SaveBMx,RefIter)
+     &                          SaveBMx,RefIter,Error)
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
@@ -26,7 +26,7 @@
 
       Real*8, Allocatable :: DFC(:),dss(:),qTemp(:)
       Integer :: ipBMx,ip_qInt,ip_dqInt,ipShift
-      Logical :: Numerical,PrQ,SaveBMx
+      Logical :: Numerical,PrQ,Error,SaveBMx
       Integer, External :: ip_of_Work
 *
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
@@ -51,7 +51,7 @@
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,
-     &            RefIter)
+     &            RefIter,Error)
 *
       Force_dB=.False.
       Call mma_deallocate(DFC)

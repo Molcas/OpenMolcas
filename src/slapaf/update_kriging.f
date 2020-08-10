@@ -45,7 +45,7 @@
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
-     &        First_MicroIteration
+     &        First_MicroIteration, Error
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
@@ -131,7 +131,7 @@
 *                                                                      *
 *     Save initial gradient
 *     This is for the case the gradient is already converged, we want
-*     the microiterations to still reduce the gradient
+*     the micro iterations to still reduce the gradient
 *
       FAbs_ini=Sqrt(DDot_(nInter,Grad(1,iter),1,
      &                           Grad(1,iter),1)/DBLE(nInter))
@@ -184,7 +184,7 @@
 *
       Not_Converged = .True.
       Step_Trunc='N'  ! not defined
-      do while (Not_Converged)
+      Do While (Not_Converged)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -266,9 +266,14 @@
 *                                                                      *
 *        Transform the new internal coordinates to Cartesians
 *
+         Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
      &                       Lbl,Shift,qInt,Grad,AtomLbl,
-     &                       Cx,.True.,iter)
+     &                       Cx,.True.,iter,Error)
+         If (Error) Then
+            Step_Trunc='@'
+            Exit
+         End If
 *
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
@@ -289,13 +294,7 @@
          Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
          Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
-         Write (6,*) 'UpMeth=',UpMeth
 #endif
-*
-*        Change label of updating method
-*
-         UpMeth='RVO   '
-         Write (UpMeth(4:6),'(I3)') iterK
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -319,9 +318,8 @@
             Write (6,*)
             Write (6,*) 'iter=',iterAI-1
             Write (6,*) 'FAbs=',FAbs
-            Write (6,*) 'GrdMax=',GrdMax
-            Write (6,*) 'RMS=',RMS
             Write (6,*) 'GrdMx=',GrdMx
+            Write (6,*) 'RMS=',RMS
             Write (6,*) 'RMSMx=',RMSMx
             Write (6,*) FAbs.gt.Min(ThrGrd,FAbs_ini)
             Write (6,*) GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
@@ -335,6 +333,8 @@
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
      &                      RMSMx.gt.ThrGrd*Six
+            Not_Converged = Not_Converged .or.
+     &                      Step_Trunc.ne.' '
          End If
 *        Check total displacement from initial structure
          If (Force_RS) Then
@@ -351,8 +351,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        If the step restriction is invoked or Hessian has been
-*        corrected for wrong curvature, terminate anyhow.
+*        If the step restriction is invoked or there is some other
+*        reason signaled by Step_Trunc, terminate anyhow.
 *
          If (Step_trunc.ne.' ') Not_Converged=.False.
 *
@@ -369,6 +369,12 @@
 *     End of the micro iteration loop
 *
       End Do  ! Do While (Not_Converged)
+*
+*     Change label of updating method
+*
+      UpMeth='RVO   '
+      Write(UpMeth(4:6),'(I3)') iterK
+*
 #ifdef _OVERSHOOT_
 *                                                                      *
 ************************************************************************
@@ -447,6 +453,7 @@
 #ifdef _DEBUG_
       Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
       Call RecPrt('Shift:',' ',Shift,nInter,iter)
+      Write(6,*) 'UpMeth=',UpMeth
 #endif
 *                                                                      *
 ************************************************************************

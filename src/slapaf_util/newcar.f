@@ -14,7 +14,7 @@
      &                  Degen,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
-     &                  ipRef,Redundant,nqInt,MaxItr,iRef)
+     &                  ipRef,Redundant,nqInt,MaxItr,iRef,Error)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -28,7 +28,7 @@
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Logical Smmtrc(3,nAtom), User_Def, Redundant,
      &        Curvilinear, Numerical, DDV_Schlegel, HWRS,
-     &        Analytic_Hessian, PrQ
+     &        Analytic_Hessian, PrQ, Error
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -54,7 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Error = 1.0D-12
       call dcopy_(nInter,Shift(1,kIter),1,dss,1)
       Call DaXpY_(nInter,One,dss,1,Tmp,1)
 *

@@ -24,7 +24,7 @@
 #include "db.fh"
 #include "print.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
-     &        Do_ESPF, Just_Frequencies, Found
+     &        Do_ESPF, Just_Frequencies, Found, Error
       Character*8 GrdLbl, StpLbl, Labels(nLabels), Lbl(nLbl)
       Character*1 Step_trunc
       Integer AixRm, iNeg(2)
@@ -279,6 +279,7 @@
          Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
          Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
          PrQ=.False.
+         Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
@@ -287,7 +288,8 @@
      &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef)
+     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
+     &               Error)
          Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
          Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
          Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
