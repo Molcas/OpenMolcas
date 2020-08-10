@@ -28,7 +28,9 @@
       Call mma_allocate(U,nInter,nInter,Label='U')
 *
       U(:,:)=Zero
-      Forall (i=1:nInter) U(i,i)=One
+      Do i=1,nInter
+         U(i,i)=One
+      End Do
 *
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
       Call mma_allocate(HTri,nInter*(nInter+1)/2,Label='HTri')
@@ -42,10 +44,14 @@
 *     Call TriPrt('HTri(raw)',' ',HTri,nInter)
       Call NIDiag_new(HTri,U,nInter,nInter,0)
 *     U(:,:)=Zero
-*     Forall (i=1:nInter) U(i,i)=One
+*     Do i=1,nInter
+*        U(i,i)=One
+*     End Do
 *     Call TriPrt('HTri',' ',HTri,nInter)
       Hessian(:,:) = Zero
-      Forall (i=1:nInter) Hessian(i,i)=HTri(i*(i+1)/2)
+      Do i=1,nInter
+         Hessian(i,i)=HTri(i*(i+1)/2)
+      End Do
 *
       Call mma_deallocate(HTri)
 *                                                                      *
