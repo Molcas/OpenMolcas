@@ -167,7 +167,7 @@
          Val2= RMSMax
          Thr2= ThrGrd
          If (Val2.lt.Thr2) Then
-            If (Step_Trunc.eq.'*') Then
+            If (Step_Trunc.ne.' ') Then
                ConLbl(2)=' No *'
             Else
                ConLbl(2)=' Yes '
@@ -183,7 +183,7 @@
             ConLbl(3)=' No  '
          End If
          Conv1= Val1.lt.Thr1.and.kIter.gt.1
-         Conv1= Conv1.or. (Val2.lt.Thr2 .and. Step_Trunc.ne.'*')
+         Conv1= Conv1.or. (Val2.lt.Thr2 .and. Step_Trunc.eq.' ')
          Conv1= Conv1.and. Val3.lt.Thr3
       Else
          Val2=Abs(Fabs/Sqrt(DBLE(mIntEff)))
@@ -204,13 +204,13 @@
          Else
             ConLbl(4)=' No  '
          End If
-         Conv2= RMS.lt.ThrGrd*4.D0 .and. Step_Trunc.ne.'*'
+         Conv2= RMS.lt.ThrGrd*4.D0 .and. Step_Trunc.eq.' '
          Val1=RMS
          Thr1=ThrGrd*4.0D0
          ConvTmp=Val1.lt.Thr1
-         Conv2=ConvTmp .and. Step_Trunc.ne.'*'
+         Conv2=ConvTmp .and. Step_Trunc.eq.' '
          If (ConvTmp) Then
-            If (Step_Trunc.eq.'*') Then
+            If (Step_Trunc.ne.' ') Then
                ConLbl(1)=' No *'
             Else
                ConLbl(1)=' Yes '
@@ -223,7 +223,7 @@
          ConvTmp=Val3.lt.Thr3
          Conv2=Conv2.and.ConvTmp
          If (ConvTmp) Then
-            If (Step_Trunc.eq.'*') Then
+            If (Step_Trunc.ne.' ') Then
                ConLbl(3)=' No *'
             Else
                ConLbl(3)=' Yes '
@@ -907,7 +907,9 @@ C              Write (6,*) 'SubProject=.Prod'
 *
          End If
 *
-         If (Conv1) Call Chkpnt_update_MEP(IRCRestart)
+         If (Conv1) Then
+            Call Chkpnt_update_MEP(.Not.TurnBack,IRCRestart)
+         End If
 *
          If (Conv1.and.Terminate) Then
             If (IRC.ne.0) Then

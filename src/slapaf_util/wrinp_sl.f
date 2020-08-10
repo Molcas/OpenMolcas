@@ -42,7 +42,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Write (Lu,'(A,I5)')  ' Max iterations:                           '
+      Write (Lu,'(A,I5)')  ' Maximum number of iterations:             '
      &      ,MxItr
       If (Baker) Then
          Write (Lu,'(A)')  ' Convergence test a la Baker.'
@@ -59,10 +59,10 @@
      &    ' Parameters for step-restricted optimization'
       If (.NOT.Kriging) Then
       Write (Lu,'(A,ES9.2)')
-     &    ' Max step length (initial seed):          ',Beta
+     &    ' Maximum step length (initial seed):      ',Beta
       Else
       Write (Lu,'(A,ES9.2)')
-     &    ' Max step length (micro iterations):      ',Beta
+     &    ' Maximum step length (micro iterations):  ',Beta
       End If
       Write (Lu,*)
 *                                                                      *
@@ -127,14 +127,12 @@
          If (MEP) Then
             If (IRC.eq.0) Then
                Write (Lu,'(1X,A)') ' Minimum Energy Path (MEP) search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             Else If (IRC.eq.1) Then
                Write (Lu,'(1X,A)') ' IRC forward search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             Else
                Write (Lu,'(1X,A)') ' IRC backward search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             End If
+            Write (Lu,'(1X,A,I5)') ' Maximum number of points:',nMEP
             If (eMEPtest)
      &         Write (Lu,'(1X,A)') ' Stop when energy increases'
             If (MEP_Algo.eq.'GS') Then
@@ -154,7 +152,7 @@
          If (rMEP) Then
             Write (Lu,'(1X,A)') ' Reverse Minimum Energy Path '
      &                        //'(rMEP) search'
-            Write (Lu,'(1X,A,I3)') ' Max number of points:',nMEP
+            Write (Lu,'(1X,A,I3)') ' Maximum number of points:',nMEP
             If (eMEPtest)
      &         Write (Lu,'(1X,A)') ' Stop when energy decreases'
             If (MEP_Type.eq.'SPHERE    ') Then
@@ -330,7 +328,7 @@
       End If
       If (.Not.(iAnd(iOptH,8).eq.8)) Then
          Write (Lu,'(A,I3)')
-     &         '  Max number of points in Hessian update:',
+     &         '  Maximum number of points in Hessian update:',
      &                        nWndw
       End If
       If (iAnd(iOptH,32).eq.32) Then

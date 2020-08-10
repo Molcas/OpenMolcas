@@ -293,7 +293,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine Chkpnt_update_MEP(IRCRestart)
+      Subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
+      Logical, Intent(In) :: SaveMEP
       Logical, Intent(In) :: IRCRestart
 #ifdef _HDF5_
 #  include "info_slapaf.fh"
@@ -302,19 +303,24 @@
       If (IRCRestart) Then
         Call mh5_init_attr(chkpnt_id, 'IRC_RESTART', Iter_all+1)
       End If
-      attrid = mh5_open_attr(chkpnt_id, 'MEP_ITERATIONS')
-      Call mh5_get_attr(attrid, iMEP)
-      iMEP = iMEP+1
-      Call mh5_put_attr(attrid, iMEP)
-      Call mh5_close_attr(attrid)
-      dsetid = mh5_open_dset(chkpnt_id, 'MEP_INDICES')
-      Call mh5_resize_dset(dsetid, [iMEP])
-      Call mh5_put_dset_array_int(dsetid, [Iter_all], [1], [iMEP-1])
-      Call mh5_close_dset(dsetid)
+      If (SaveMEP) Then
+        attrid = mh5_open_attr(chkpnt_id, 'MEP_ITERATIONS')
+        Call mh5_get_attr(attrid, iMEP)
+        iMEP = iMEP+1
+        Call mh5_put_attr(attrid, iMEP)
+        Call mh5_close_attr(attrid)
+        dsetid = mh5_open_dset(chkpnt_id, 'MEP_INDICES')
+        Call mh5_resize_dset(dsetid, [iMEP])
+        Call mh5_put_dset_array_int(dsetid, [Iter_all], [1], [iMEP-1])
+        Call mh5_close_dset(dsetid)
+      End If
 #else
       Return
 * Avoid unused argument warnings
-      If (.False.) Call Unused_logical(IRCRestart)
+      If (.False.) Then
+        Call Unused_logical(SaveMEP)
+        Call Unused_logical(IRCRestart)
+      End If
 #endif
       End Subroutine Chkpnt_update_MEP
 *                                                                      *
