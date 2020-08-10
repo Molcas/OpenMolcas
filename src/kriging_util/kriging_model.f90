@@ -31,8 +31,8 @@ SUBROUTINE kriging_model(nPoints)
   Call mma_Allocate(IPIV,m_t,Label="IPIV")
 !
 ! Initiate B according to Eq. (6) of ref.
-  B=0.0D0
   B(1:nPoints)=1.0D0
+  B(nPoints+1:)=0.0D0
 !
 ! Initiate A according to Eq. (2) of ref.
 !
@@ -43,8 +43,10 @@ SUBROUTINE kriging_model(nPoints)
 !
 #ifdef _PREDIAG_
   Call mma_allocate(U,nPoints,nPoints,Label='U')
-  U = 0.0D0
-  forall (i=1:nPoints) U(i,i)=1.0D0
+  U(:,:) = 0.0D0
+  do i=1,nPoints
+    U(i,i)=1.0D0
+  end do
   Call mma_allocate(HTri,nPoints*(nPoints+2)/2,Label='HTri')
   Do i = 1, nPoints
     Do j = 1, i
@@ -67,9 +69,11 @@ SUBROUTINE kriging_model(nPoints)
 #endif
 !
   Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
-  UBIG=0.0D0
-  forall (i=1:m_t) UBIG(i,i)=1.0D0
-  UBIG(1:nPoints,1:nPoints)=U
+  UBIG(:,:)=0.0D0
+  UBIG(1:nPoints,1:nPoints)=U(:,:)
+  do i=nPoints+1,m_t
+    UBIG(i,i)=1.0D0
+  end do
 !           Call RecPrt('UBIG',' ',UBig,m_t,m_t)
 !
   Call mma_Allocate(C,m_t,m_t,Label='C')
@@ -83,14 +87,16 @@ SUBROUTINE kriging_model(nPoints)
                     C,m_t,            &
               0.0D0,A,m_t)
   A(1:nPoints,1:nPoints)=0.0D0
-  forall (i=1:nPoints) A(i,i)=HTri(i*(i+1)/2)
+  do i=1,nPoints
+    A(i,i)=HTri(i*(i+1)/2)
+  end do
 #ifdef _DEBUG_
   Call RecPrt('U^TAU',' ',A,m_t,m_t)
 #endif
   Call mma_allocate(D,m_t,Label='D')
-  D=0.0D0
   D(1:nPoints)=1.0D0
-  B=0.0D0
+  D(nPoints+1:)=0.0D0
+  B(:)=0.0D0
   Call dgemm_('T','N',m_t,1,m_t,      &
               1.0D0,UBIG,m_t,         &
                     D,m_t,            &
@@ -103,8 +109,8 @@ SUBROUTINE kriging_model(nPoints)
   Call mma_deAllocate(C)
   Call mma_deallocate(U)
 #else
-  B=0.0D0
   B(1:nPoints)=1.0D0
+  B(nPoints+1:)=0.0D0
   A(:,:) = full_r(:,:)
 #endif
 !
@@ -117,8 +123,8 @@ SUBROUTINE kriging_model(nPoints)
 !
 #ifdef _PREDIAG_
 ! Call RecPrt('(U^TAU)^{-1}U^TB',' ',B,1,m_t)
-  D(:)=B
-  B=0.0D0
+  D(:)=B(:)
+  B(:)=0.0D0
   Call DGEMM_('N','N',m_t,1,m_t,      &
               1.0D0,UBIG,m_t,         &
                     D,m_t,            &
@@ -173,7 +179,7 @@ SUBROUTINE kriging_model(nPoints)
   else
     ordinary = .True.
     sbO = dot_product(y,B(1:nPoints))/sum(B(1:nPoints))
-    B(:) = [y,dy]
+    B(:) = [y(:),dy(:)]
 #ifdef _DEBUG_
     Write (6,*) DDot_(m_t,rones,1,B,1) , DDot_(nPoints,rones,1,[1.0D0],0)
 #endif
@@ -183,7 +189,7 @@ SUBROUTINE kriging_model(nPoints)
 !
 !**********************************************************************
 !
-  B(:) = [y-sb,dy]
+  B(:) = [y(:)-sb,dy(:)]
 #ifdef _DEBUG_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR
   Call RecPrt('[y-sb,dy]',' ',B,1,m_t)
@@ -194,8 +200,10 @@ SUBROUTINE kriging_model(nPoints)
 ! Diagonalize the energy block of Psi
 !
   Call mma_allocate(U,nPoints,nPoints,Label='U')
-  U = 0.0D0
-  forall (i=1:nPoints) U(i,i)=1.0D0
+  U(:,:) = 0.0D0
+  do i=1,nPoints
+    U(i,i)=1.0D0
+  end do
   Call mma_allocate(HTri,nPoints*(nPoints+2)/2,Label='HTri')
   Do i = 1, nPoints
     Do j = 1, i
@@ -218,15 +226,17 @@ SUBROUTINE kriging_model(nPoints)
 ! correlation matrix to this new basis.
 !
   Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
-  UBIG=0.0D0
-  forall (i=1:m_t) UBIG(i,i)=1.0D0
-  UBIG(1:nPoints,1:nPoints)=U
+  UBIG(:,:)=0.0D0
+  UBIG(1:nPoints,1:nPoints)=U(:,:)
+  do i=nPoints+1,m_t
+    UBIG(i,i)=1.0D0
+  end do
 ! Call RecPrt('UBIG',' ',UBig,m_t,m_t)
 !
 ! Transform the correlation matrix to the new basis.
 !
   Call mma_Allocate(C,m_t,m_t,Label='C')
-  C=0.0D0
+  C(:,:)=0.0D0
   Call dgemm_('N','N',m_t,m_t,m_t,    &
               1.0D0,Full_R,m_t,       &
                     UBIG,m_t,         &
@@ -239,7 +249,9 @@ SUBROUTINE kriging_model(nPoints)
 ! Cleanup the first block - should be prefectly diagonal.
 !
   A(1:nPoints,1:nPoints)=0.0D0
-  forall (i=1:nPoints) A(i,i)=HTri(i*(i+1)/2)
+  do i=1,nPoints
+    A(i,i)=HTri(i*(i+1)/2)
+  end do
 #ifdef _DEBUG_
   Call RecPrt('U^TAU',' ',A,m_t,m_t)
 #endif
@@ -247,7 +259,7 @@ SUBROUTINE kriging_model(nPoints)
 ! transform Kv to the new basis
 !
   Call mma_allocate(D,m_t,Label='D')
-  D(:)=B
+  D(:)=B(:)
   Kv=0.0D0
   Call dgemm_('T','N',m_t,1,m_t,      &
               1.0D0,UBIG,m_t,         &
@@ -261,8 +273,8 @@ SUBROUTINE kriging_model(nPoints)
   Call mma_deAllocate(C)
   Call mma_deallocate(U)
 #else
-  Kv(:)=B
-  A(:,:)=full_r
+  Kv(:)=B(:)
+  A(:,:)=full_r(:,:)
 #endif
 !
 #ifdef _DEBUG_
@@ -278,8 +290,8 @@ SUBROUTINE kriging_model(nPoints)
 #ifdef _DEBUG_
   Call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
 #endif
-  D(:)=Kv
-  Kv=0.0D0
+  D(:)=Kv(:)
+  Kv(:)=0.0D0
   Call DGEMM_('N','N',m_t,1,m_t,      &
               1.0D0,UBIG,m_t,         &
                     D,m_t,            &

@@ -119,7 +119,7 @@
       iComp=1
       Call RdOne(iRc,iOpt0,Label,iComp,Int_I_O,iSyLbl_TMOM)
       Len=0
-      forall (i=1:8,j=1:8) IOFF(i,j)=-1
+      IOFF(:,:)=-1
       Do i=1,nIrrep
          Do j=1,i
             ij=MulTab(i,j)-1
