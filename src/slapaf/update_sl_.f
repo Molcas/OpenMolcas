@@ -90,8 +90,7 @@
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
-     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration,
-     &        Corrected
+     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -157,8 +156,8 @@
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
      &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
-     &              GNrm_Threshold,nsAtom,IRC,.True.,Corrected)
-      If (Corrected) Step_Trunc='#'
+     &              GNrm_Threshold,nsAtom,IRC,.True.,
+     &              First_MicroIteration)
 *
 *     Call RecPrt('Update_sl_: Hessian',' ',Hessian,nInter,nInter)
 *     Write (6,*) 'After corrections'
@@ -194,7 +193,7 @@
          File1='UDC'
          File2='TSC'
          If (.not.TSC) File2=''
-         If (iNeg(1).ge.1 ) Then
+         If (iNeg(1).ge.1) Then
             If ((GNrm(kIter).le.GNrm_Threshold).or.Found) Then
 *              Change to MFRF optimization.
                Mask=1+2+4+8+16+32+64+256+512+1024+2048+8192
@@ -312,7 +311,7 @@ C           Write (6,*) 'tBeta=',tBeta
 #endif
                fact=Half*fact
                qBeta=Half*qBeta
-               If ((One-disp/Beta_Disp.gt.1.0D-3)) Exit
+               If (One-disp/Beta_Disp.gt.1.0D-3) Exit
                If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do

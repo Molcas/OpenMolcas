@@ -8,17 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FixHess(H,nH,iOptC,Mode,Iter,MF,GNrm,
-     &                   GNrm_Threshold, iNeg,nAtoms,AnalHess,
-     &                   Corrected)
+      Subroutine FixHess(H,nH,iOptC,Mode,MF,GNrm,GNrm_Threshold,
+     &                   iNeg,nAtoms,AnalHess,AllowFindTS)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
-*#define _DEBUG_
       Real*8 H(nH,nH), MF(3*nAtoms)
       Integer iNeg(2)
-      Logical AnalHess, Corrected, Too_Small, Found
+      Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
 *
       iRout=211
       iPrint=nPrint(iRout)
@@ -144,7 +142,7 @@
          If (temp.lt.Zero) Then
             iNeg(1)=iNeg(1)+1
             jNeg=i
-            If (.Not.AnalHess .and.
+            If ((.Not.AnalHess.or.iAnd(iOptC,256).eq.256) .and.
      &          iAnd(iOptC,128).eq.128 .and.
      &          iAnd(iOptC,4096).ne.4096) Then
 *
@@ -162,20 +160,22 @@
 *     If FindTS and we have got a negative eigenvalue signal that
 *     we are in the TS regime.
 *
-      Call qpg_darray('TanVec',Found,nRP)
-      If (iAnd(iOptC,4096).eq.4096 .and.
-     &    (iNeg(1).ge.1.or.Mode.ge.0) .and.
-     &    ((GNrm.le.GNrm_Threshold).or.Found)) Then
-         If (iAnd(iOptC,8192).ne.8192) Then
-            Write (6,*) '**************************'
-            Write (6,*) '* Enable TS optimization *'
-            Write (6,*) '**************************'
+      If (AllowFindTS) Then
+         Call qpg_darray('TanVec',Found,nRP)
+         If (iAnd(iOptC,4096).eq.4096 .and.
+     &       (iNeg(1).ge.1.or.Mode.ge.0) .and.
+     &       ((GNrm.le.GNrm_Threshold).or.Found)) Then
+            If (iAnd(iOptC,8192).ne.8192) Then
+               Write (6,*) '**************************'
+               Write (6,*) '* Enable TS optimization *'
+               Write (6,*) '**************************'
+            End If
+            iOptC=iOr(iOptC,8192)
          End If
-         iOptC=iOr(iOptC,8192)
-      End If
-      If (iAnd(iOptC,8192).eq.8192) Then
-         Mask=2**30-1  - 2**7
-         iOptC=iAnd(Mask,iOptC)
+         If (iAnd(iOptC,8192).eq.8192) Then
+            Mask=2**30-1  - 2**7
+            iOptC=iAnd(Mask,iOptC)
+         End If
       End If
 *                                                                      *
 ************************************************************************
@@ -539,6 +539,4 @@
 *                                                                      *
       Call QExit('FixHess')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Iter)
       End

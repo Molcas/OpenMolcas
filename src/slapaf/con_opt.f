@@ -64,8 +64,7 @@
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup, Corrected,
-     &        First_MicroIteration
+      Logical Line_Search, Found, IRC_setup, First_MicroIteration
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
@@ -497,7 +496,7 @@ C              Write (6,*) 'xBeta=',xBeta
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
 *
 #ifdef _DEBUG_
-            Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
+            Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),nInter,1)
             Call RecPrt('Con_Opt: W',' ',Hessian,nInter,nInter)
             Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
             Write (6,*) 'ipTb,ipTti=',ipTb,ipTti
@@ -887,8 +886,7 @@ C           Write (6,*) 'gBeta=',gBeta
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
-     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,Corrected)
-      If (Corrected) Step_Trunc='#'
+     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,.False.)
 
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
@@ -967,7 +965,7 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
          tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
          Thr_RS=1.0D-7
 #ifdef _DEBUG_
-            Write (6,*) 'Step_Trunc(0)=',Step_Trunc
+         Write (6,*) 'Step_Trunc(0)=',Step_Trunc
 #endif
          Do
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
@@ -994,7 +992,7 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
             Step_Trunc='*'
          End Do
 #ifdef _DEBUG_
-            Write (6,*) 'Step_Trunc(n)=',Step_Trunc
+         Write (6,*) 'Step_Trunc(n)=',Step_Trunc
 #endif
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
