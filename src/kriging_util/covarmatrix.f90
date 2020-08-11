@@ -100,8 +100,13 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !           Add constants to reflect the error in the energy and the
 !           gradient, respectively.
 !
-  forall (j=1:nPoints) Full_R(j,j) = Full_R(j,j) + eps
-  forall (j=nPoints+1:m_t) Full_R(j,j) = Full_R(j,j) + eps2
+  do j=1,m_t
+    if (j.le.nPoints) then
+      Full_R(j,j) = Full_R(j,j) + eps
+    else
+      Full_R(j,j) = Full_R(j,j) + eps2
+    end if
+  end do
 !
 !           defining full_r has strictly positive define sec. 3 of
 !           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
