@@ -66,7 +66,7 @@
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
       Logical Line_Search, Found, IRC_setup, First_MicroIteration
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
-     &          GrdLbl*8, StpLbl*8, StpLbl_Save*8
+     &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
@@ -968,12 +968,18 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
          Write (6,*) 'Step_Trunc(0)=',Step_Trunc
 #endif
          Do
+            Step_Trunc_=Step_Trunc
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
-            If (iOpt_RS.eq.0) Exit
+            If (iOpt_RS.eq.0) Then
+               If (Step_Trunc_.eq.'N') Step_Trunc_=' '
+               Step_Trunc=Step_Trunc_
+               Exit
+            End If
+            If (Step_Trunc//Step_Trunc_.eq.' *') Step_Trunc='.'
 *
             du(1:nLambda)=dy(:)
             du(1+nLambda:nInter)=dx(:,nIter)

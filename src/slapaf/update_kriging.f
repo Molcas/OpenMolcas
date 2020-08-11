@@ -326,9 +326,17 @@
             Write (6,*) RMS.gt.ThrGrd*Four
             Write (6,*) RMSMx.gt.ThrGrd*Six
 #endif
-            Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
-            Not_Converged = Not_Converged .or.
-     &                      GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
+*           Ensure that the initial gradient is reduced,
+*           except in the last micro iteration
+            If (iterK.lt.miAI) Then
+               Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
+               Not_Converged = Not_Converged .or.
+     &                         GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
+            Else
+               Not_Converged = FAbs.gt.ThrGrd
+               Not_Converged = Not_Converged .or.
+     &                         GrdMx.gt.ThrGrd*OneHalf
+            End If
             Not_Converged = Not_Converged .or.
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
@@ -336,6 +344,7 @@
             Not_Converged = Not_Converged .or.
      &                      Step_Trunc.ne.' '
          End If
+         If (Step_Trunc.eq.'.') Step_Trunc=' '
 *        Check total displacement from initial structure
          If (Force_RS) Then
             Call mma_allocate(Temp,3*nsAtom,1)
@@ -344,7 +353,8 @@
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
          End If
-         Not_Converged = Not_Converged .and. iterK.lt.miAI
+         If (Not_Converged.and.(Step_trunc.eq.' ').and.(iterK.ge.miAI))
+     &      Step_trunc='#'
 #ifdef _DEBUG_
          Write (6,*) 'Not_Converged=',Not_Converged
 #endif

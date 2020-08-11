@@ -93,7 +93,7 @@
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
-     &          HUpMet*6, File1*8, File2*8
+     &          HUpMet*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Pvt(:), Index(:)
@@ -295,13 +295,19 @@ C           Write (6,*) 'tBeta=',tBeta
             qBeta=fCart*tBeta
             Thr_RS=1.0D-7
             Do
+               Step_Trunc_=Step_Trunc
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                   ErrVec,EMtrx,RHS,
      &                   Pvt,dg,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
-     &                   Energy,Line_Search,Step_Trunc,Thr_RS)
+     &                   Energy,Line_Search,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
-               If (iOpt_RS.eq.0) Exit
+               If (iOpt_RS.eq.0) Then
+                  If (Step_Trunc_.eq.'N') Step_Trunc_=' '
+                  Step_Trunc=Step_Trunc_
+                  Exit
+               End If
+               If (Step_Trunc//Step_Trunc_.eq.' *') Step_Trunc='.'
 *
                qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
