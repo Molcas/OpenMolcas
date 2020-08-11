@@ -16,9 +16,6 @@
       integer :: nspAI, npxAI, miAI
       real*8 :: pAI, lb(3), dAIy, meAI, blvAI, blavAI
       logical :: Kriging, ordinary, anMd, blAI, mblAI, blaAI, set_l
-*
-*     use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI,
-*    &              blavAI
 
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
       integer, protected :: nInter_save = 0, nPoints_save = 0

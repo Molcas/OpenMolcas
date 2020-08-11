@@ -36,7 +36,7 @@
       Integer StrnLn
       External Get_Ln, StrnLn
       Logical External_UDC, External_Case,
-     &        Explicit_IRC, Expert, ThrInp, FirstNum
+     &        Explicit_IRC, Expert, ThrInp, FirstNum, Manual_Beta
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -70,6 +70,7 @@
          iOff_Iter=0
          Call Put_iScalar('iOff_Iter',iOff_Iter)
       End If
+      Manual_Beta=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -455,6 +456,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       If (Char.eq.BLine) Go To 916
       If (Char(1:1).eq.'*') Go To 916
       Call Get_F1(1,Beta_Disp)
+      Manual_Beta=.True.
       Go To 999
 *                                                                      *
 ****** PRIN ************************************************************
@@ -1335,7 +1337,30 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *     However, the default window for kriging is twice as large as
 *     for conventional calculations.
 *
-      If (Kriging) nWndw=4*nWndw  ! 2*2=4
+      If (Kriging) Then
+         nWndw=4*nWndw  ! 2*2=4
+*
+*        No micro iterations the first MEP iteration
+*
+         If ((MEP.or.rMEP).and.(iter.eq.1)) miAI=0
+*
+*        The maximum step size for micro iterations may be reduced
+*
+         StepFactor=One
+         Call Qpg_dScalar('StepFactor',Found)
+         If (Found) Call Get_dScalar('StepFactor',StepFactor)
+         Beta=StepFactor*Beta
+*
+*        Reduce default maximum dispersion during the initial
+*        stage of a FindTS calculation: we don't want to fulfil the
+*        constraints too early
+*
+         Call Qpg_iScalar('TS Search',Found)
+         If (Found) Call Get_lScalar('TS Search',Found)
+         If (FindTS.and.(.not.(Found.or.Manual_Beta))) Then
+            Beta_Disp=0.1D0
+         End If
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2003,2020, Roland Lindh                                *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
@@ -71,7 +72,7 @@
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
      &                      Hessian(:,:)
-      Real*8, Save:: Beta_Disp_Save
+      Real*8, Save:: Beta_Disp_Save=Zero,disp_save=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -310,7 +311,6 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        NOTE: for historical reasons the code stores the force rather *
 *              than the gradient. Hence, be careful of the sign when   *
 *              ever the term dEdq, dEdq_h show up.                     *
-*                                                                      *
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -714,13 +714,11 @@ C           Write (6,*) 'gBeta=',gBeta
             End Do
             tmp=Min(tmp,0.30D0) ! Some constraints can have huge
                                 ! gradients. So be a bit careful.
+*           Allowed dispersion in the y subspace
             Beta_Disp_=Max(Beta_Disp_Min,
      &                     tmp*CnstWght/(CnstWght+One)*Beta_Disp)
-            If (First_MicroIteration) Then
-               Beta_Disp_Save=Beta_Disp_
-            Else
-               Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Save)
-               Beta_Disp_Save=Beta_Disp_
+            If (.Not.First_MicroIteration) Then
+               Beta_Disp_=Min(disp_save+Beta_Disp_,Beta_Disp_Save)
             End If
 *
 #ifdef _DEBUG_
@@ -729,7 +727,11 @@ C           Write (6,*) 'gBeta=',gBeta
             Write (6,*) 'Start: dy(:)=',dy(:)
 #endif
 *
-            If (DDot_(nLambda,dy,1,dy,1).lt.1.0D-12) Go To 667
+            If (disp_save/Beta_Disp_.gt.0.99D0) Go To 667
+            dydy=DDot_(nLambda,dy,1,dy,1)
+            If (dydy.lt.1.0D-12) Go To 667
+*           Restrict dy step during micro iterations
+            Fact=Max(Sqrt(dydy)/(CnstWght/(CnstWght+One)*Beta),One)
 *
             iCount=1
             iCount_Max=100
@@ -940,15 +942,12 @@ C           Write (6,*) 'gBeta=',gBeta
             Do i = 1, nInter-nLambda
                tmp = Max(tmp,Abs(dEdx(i,iter_)))
             End Do
-*           Add the allowed dispersion in the y subspace.
-            Beta_Disp_=Max(Beta_Disp_+tmp*Beta_Disp,
-     &                     Beta_Disp_Min)
+*           Add the allowed dispersion in the x subspace.
             If (First_MicroIteration) Then
-               Beta_Disp_Save=Max(Beta_Disp_,Beta_Disp_Save)
-            Else
-               Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Save)
-               Beta_Disp_Save=Beta_Disp_
+               Beta_Disp_Save=Max(Beta_Disp_+tmp*Beta_Disp,
+     &                            Beta_Disp_Min)
             End If
+            Beta_Disp_=Beta_Disp_Save
 #ifdef _DEBUG_
             Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
 #endif
@@ -987,13 +986,13 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
             q(:,nIter+1)=q(:,nIter)+dq_xy(:)
 *
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
-
+            disp_save=disp
 #ifdef _DEBUG_
             Write (6,*) 'disp=',disp
 #endif
             fact=Half*fact
             tBeta=Half*tBeta
-            If ((One-disp/Beta_Disp_.gt.1.0D-3)) Exit
+            If (One-disp/Beta_Disp_.gt.1.0D-3) Exit
             If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
             Step_Trunc='*'
          End Do
@@ -1035,10 +1034,10 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
       Write (6,*) '<R(q_0)|dy>=',DDot_(nInter,
      &              dRdq(1,1,nIter),1,dq(1,nIter),1)
 *
-*     dx only, constraint minimization
+*     dx only, constrained minimization
 *
       du(:)=Zero
-      du(1+nLambda:nInter)=dx(:,nIter)
+      du(nLambda+1:nInter)=dx(:,nIter)
       Call DGEMM_('N','N',
      &            nInter,1,nInter,
      &            One,T,nInter,

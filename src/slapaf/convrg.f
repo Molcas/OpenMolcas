@@ -909,6 +909,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
          If (Conv1) Then
             Call Chkpnt_update_MEP(.Not.TurnBack,IRCRestart)
+            Call Put_dScalar('StepFactor',One)
          End If
 *
          If (Conv1.and.Terminate) Then
