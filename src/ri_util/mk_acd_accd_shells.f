@@ -1280,7 +1280,9 @@ C                          Thrs= 1.0D-12
 *                    Put in unit matrix of uncontracted set
 *
                      Shells(iShll)%Cff_p(:,:,1)=Zero
-                     ForAll (i=1:nPrim) Shells(iShll)%Cff_p(i,i,1)=One
+                     Do i=1,nPrim
+                        Shells(iShll)%Cff_p(i,i,1)=One
+                     End Do
 *
                      Shells(iShll)%Cff_p(:,:,2)=
      &                       Shells(iShll)%Cff_p(:,:,1)

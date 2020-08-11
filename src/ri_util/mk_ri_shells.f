@@ -416,7 +416,9 @@ C        Fixed(nCnttp)=.False.
 *              Put in unit matrix of uncontracted set
 *
                Shells(iShll)%Cff_p(:,:,1)=Zero
-               ForAll (i=1:nPrim) Shells(iShll)%Cff_p(i,i,1)=One
+               Do i=1,nPrim
+                  Shells(iShll)%Cff_p(i,i,1)=One
+               End Do
 *
                Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
                Call Nrmlz(Shells(iShll)%Exp,nPrim,

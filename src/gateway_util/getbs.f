@@ -359,7 +359,9 @@
             If (IfTest) Write (6,*) ' Standard case'
             Shells(iShll)%Cff_c(:,:,:)=Zero
             If (UnContracted) Then
-               ForAll (i=1:nPrim) Shells(iShll)%Cff_c(i,i,1)=One
+               Do i=1,nPrim
+                  Shells(iShll)%Cff_c(i,i,1)=One
+               End Do
             Else
                Do iPrim = 1, nPrim
                   Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
@@ -475,7 +477,9 @@
 *
          If (nPrim.eq.0) Go To 777
          Shells(iShll)%Cff_p(:,:,1)=Zero
-         ForAll (i=1:nPrim) Shells(iShll)%Cff_p(i,i,1)=One
+         Do i=1,nPrim
+            Shells(iShll)%Cff_p(i,i,1)=One
+         End Do
 *
 *------- Save the contraction coefficients once more after the coefficients.
 *        The second set will not be normalized!
