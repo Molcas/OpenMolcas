@@ -6,7 +6,7 @@
 * Responsible person: Roland Lindh 161218
 * Comments:
 *-------------------------------------------------------------------------------
- &SEWARD 
+ &SEWARD
 Title=CH3 radical
 Symmetry=y
 Basis set
@@ -21,7 +21,7 @@ End of Basis
 Direct
 End of input
 *-------------------------------------------------------------------------------
- &SCF 
+ &SCF
 UHF
 >>COPY $Project.UhfOrb UHF.ScfOrb
 *-------------------------------------------------------------------------------

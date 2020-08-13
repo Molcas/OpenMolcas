@@ -9,7 +9,7 @@
 *>> export MOLCAS_REDUCE_PRT=NO
  &GATEWAY
 SYMMETRY
-Y  
+Y
 expert
 Basis Set
 C  .MOLPRO. / INLINE
@@ -112,9 +112,9 @@ CHARGE
           8.00000000
 End of Basis
 Constraints
-   Bo0001 = Bond       C1    C2    
+   Bo0001 = Bond       C1    C2
 Values
-    Bo0001 =      1.20000000 ANGSTROM 
+    Bo0001 =      1.20000000 ANGSTROM
 End of Constraints
 NoCD
 End of Input
@@ -128,7 +128,7 @@ CUTOFF
  &SCF
 THRE
  1.0D-10 1.0D-5 1.5D-5 0.2D-5
- 
+
  &Alaska
  &Slapaf
 CART

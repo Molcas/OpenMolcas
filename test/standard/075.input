@@ -41,7 +41,7 @@
 
 >>> COPY $Project.RunFile RUNFILE2
 
-&RASSCF 
+&RASSCF
   Spin = 1
   Charge = 0
   Ras2 = 2

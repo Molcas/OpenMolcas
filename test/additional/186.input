@@ -101,7 +101,7 @@ Spin
 Levsh
 0.5
 Iterations
-50 50 
+50 50
 End of input
 >>> COPY $Project.JobIph JOB001
 

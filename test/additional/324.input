@@ -541,11 +541,11 @@ End of Input
 * 1234567890
 0 iiiiiiiiii
 1 iiiiiiiiii
-2 ssssss    
+2 ssssss
 * 1234567890
 0 iiiiiiiiii
 1 iiiiiii222
-2 2222sss   
+2 2222sss
 >> EOF
 
 >>FILE checkfile

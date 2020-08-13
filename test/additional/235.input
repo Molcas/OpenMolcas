@@ -27,8 +27,9 @@ H2             1.9008486612        0.0000000000        0.4478448770
 End of basis
 
 >>>>> do while <<<<<
- &Seward; &SCF
- &Slapaf 
+ &Seward
+ &SCF
+ &Slapaf
    Kriging
    FindTS
    RS-P-RFO

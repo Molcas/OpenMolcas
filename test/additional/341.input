@@ -197,9 +197,9 @@ End of Input
 ****
 
 >> FILE StartOrb.Sol
-#INPORB 1.0         
+#INPORB 1.0
 #INFO
-* SCF orbitals                                                                  
+* SCF orbitals
        0       1
       45
       45
@@ -822,9 +822,9 @@ End of Input
 
 
 >> FILE StartOrb.1
-#INPORB 1.0         
+#INPORB 1.0
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       48
       48
@@ -1499,9 +1499,9 @@ SSSS
 
 
 >> FILE StartOrb.2
-#INPORB 1.0         
+#INPORB 1.0
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       48
       48
