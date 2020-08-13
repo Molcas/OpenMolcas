@@ -63,7 +63,7 @@ Iterations
 20
 End of input
 *&Last_Energy
->>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+>>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
  &CASPT2 &END
 Title

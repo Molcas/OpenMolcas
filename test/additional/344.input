@@ -21,9 +21,9 @@ NoCD
 END OF INPUT
 
 >> FILE SOLORB
-#INPORB 1.1         
+#INPORB 1.1
 #INFO
-* SCF orbitals                                                                  
+* SCF orbitals
        0       1
       36
       36
@@ -415,7 +415,7 @@ END OF INPUT
 0 IIIIISSSSS
 1 SSSSSSSSSS
 2 SSSSSSSSSS
-3 SSSSSS    
+3 SSSSSS
 >> EOF
 
 >>COPY $Project.RunFile $Molcas_Solvent.RunFile
@@ -448,9 +448,9 @@ CHARGE
 END OF INPUT
 
 >> FILE AVEORB
-#INPORB 1.1         
+#INPORB 1.1
 #INFO
-*Average Orbitals                                                       
+*Average Orbitals
        0       1
       14
       14
@@ -560,7 +560,7 @@ End of Input
 
  &Qmstat &End
 Title
-Point calculation with isolated FH. 
+Point calculation with isolated FH.
 Simulation Parameters
 Radie
 80.0
@@ -584,14 +584,14 @@ Seed
 88787
 End Simulation Parameters
 Print
-10 
+10
 Step
 1 1
 Run
 QmEq
 Configuration
 Input
-1 
+1
 End Configuration
 Solvent
  Coordinates

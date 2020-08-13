@@ -30,7 +30,7 @@ H  0.43021747 -1.46459595 -0.13342413
   Group=NoSym
   Constraints
     a = EDiff
-  Value 
+  Value
     a = 0.0
   End of constraints
 NoCD
@@ -43,16 +43,22 @@ NoCD
   >>> EXPORT SubProject=.Triplet
   &SEWARD
   >>> COPY $Project$SubProject.GssOrb $Project.GssOrb
-  &SCF; UHF; OCCU=16;14
+  &SCF
+    UHF
+    OCCU=16;14
     Thresholds=1.0d-10, 1.0d-5, 1.5d-5, 0.2d-4
-  &ALASKA; Cutoff=1.0D-11
+  &ALASKA
+    Cutoff=1.0D-11
 
   >>> EXPORT SubProject=.Singlet
   &SEWARD
   >>> COPY $Project$SubProject.GssOrb $Project.GssOrb
-  &SCF; UHF; OCCU=15;15
+  &SCF
+    UHF
+    OCCU=15;15
     Thresholds=1.0d-10, 1.0d-5, 1.5d-5, 0.2d-4
-  &ALASKA; Cutoff=1.0D-11
+  &ALASKA
+    Cutoff=1.0D-11
 
   >>> COPY $Project.Singlet.RunFile $Project.RunFile
   >>> COPY $Project.Triplet.RunFile $Project.RunFile2

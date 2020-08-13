@@ -32,8 +32,8 @@ End Of Input
  &SCF &END
 Title
  Furan (blyp)
-Charge   
- 0 
+Charge
+ 0
 KSDFT
 blyp
 End of Input
@@ -43,7 +43,7 @@ End of Input
  &SCF &END
 Title
  Furan (HF)
-Charge 
+Charge
  0
 LumOrb
 End of Input
