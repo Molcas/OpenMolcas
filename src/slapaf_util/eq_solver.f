@@ -13,6 +13,7 @@
 ************************************************************************
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "warnings.fh"
       Real*8 B(M,*),Degen(M),dSS(*),DFC(*)
       Logical Curvilinear
       Character*1 Mode
@@ -89,6 +90,15 @@
       Call Allocate_Work(ipWork,LWork)
       call dgels_(Mode,M,N,NRHS,Work(ipA),LDA,Work(ipB),LDB,
      &           Work(ipWork),LWork,INFO)
+      If (INFO.gt.0) Then
+         Call WarningMessage(2,'Error in Eq_Solver')
+         Write (6,*)
+         Write (6,*) '***********************************************'
+         Write (6,*) ' ERROR: Eq_Solver could not find a solution.   '
+         Write (6,*) ' The matrix is rank deficient.                 '
+         Write (6,*) '***********************************************'
+         Call Quit(_RC_INTERNAL_ERROR_)
+      End If
 *
 #ifdef _DEBUG_
       Call RecPrt('B(out)',' ',Work(ipB),LDB,NRHS)

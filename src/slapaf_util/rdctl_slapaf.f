@@ -1344,13 +1344,6 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *
          If ((MEP.or.rMEP).and.(iter.eq.1)) miAI=0
 *
-*        The maximum step size for micro iterations may be reduced
-*
-         StepFactor=One
-         Call Qpg_dScalar('StepFactor',Found)
-         If (Found) Call Get_dScalar('StepFactor',StepFactor)
-         Beta=StepFactor*Beta
-*
 *        Reduce default maximum dispersion during the initial
 *        stage of a FindTS calculation: we don't want to fulfil the
 *        constraints too early

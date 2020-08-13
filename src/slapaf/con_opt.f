@@ -48,6 +48,7 @@
 *             University of Lund, SWEDEN                               *
 *             July '03                                                 *
 ************************************************************************
+      Use kriging_mod, only: miAI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -129,7 +130,6 @@
 *                                                                      *
       iSt=Max(iOff_Iter+1,nIter-nWndw+1)
       Do iIter = iSt, nIter
-*     Do iIter = iOff_Iter+1, nIter
 #ifdef _DEBUG_
          Write (6,*)
          Write (6,*) '>>>>>> iIter=',iIter
@@ -212,7 +212,7 @@
             RR_=Sqrt(DDot_(nInter,drdq(1,iLambda,iIter),1,
      &                          drdq(1,iLambda,iIter),1))
 *
-*           Make sure that we dont mess up gradients which are zero vectors.
+*           Make sure that we don't mess up gradients which are zero vectors.
 *
             If ( RR_.lt.1.0D-12 ) Then
 *           If ( RR_.lt.1.0D-12 .and.
@@ -392,7 +392,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        Add contributions from constraints according to the last
 *        iterations. See Eqn. 7,
 *
-*        The Hessian of the Lagranian expressed in the full space.
+*        The Hessian of the Lagrangian expressed in the full space.
 *
 *        W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)
          If (iOpt_RS.eq.0) Then
@@ -566,7 +566,7 @@ C           Write (6,*) 'gBeta=',gBeta
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*------- Add contributions to the Lagranian energy change
+*------- Add contributions to the Lagrangian energy change
 *
          If (iIter.eq.nIter) Then
 *
@@ -804,8 +804,8 @@ C           Write (6,*) 'gBeta=',gBeta
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      End Do ! Do iIter = iOff_Iter+1, nIter
-*                                                                      *
+      End Do ! Do iIter = iSt, nIter
+*
 ************************************************************************
 ************************************************************************
 *                                                                      *
@@ -1055,7 +1055,14 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
 *
       du(:)=Zero
       du(1:nLambda)=dy(1:nLambda)
-      du(nLambda+1:nInter)=dx(:,nIter)
+      du(1+nLambda:nInter)=dx(:,nIter)
+*     For kriging, in the last 10 micro iterations, give up trying to
+*     optimize and just focus on fulfilling the constraints.
+      If ((miAI.ge.50).and.(niter-iter_+1.gt.miAI-10)) Then
+         du(1+nLambda:nInter)=Zero
+         dydy=Sqrt(DDot_(nLambda,dy,1,dy,1))
+         If (dydy.lt.1.0D-12) Step_Trunc='#'
+      End If
       Call DGEMM_('N','N',nInter,1,nInter,
      &            One,T,nInter,
      &                du,nInter,

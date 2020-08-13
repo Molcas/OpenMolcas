@@ -29,7 +29,7 @@
      &        cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
-! eps avoid to become singular in 1st der & eps2 in 2nd der
+! eps avoid to become singular in 0th der & eps2 in 1st der
       integer :: prev_ns, m_t, npx, counttimes
 
       contains

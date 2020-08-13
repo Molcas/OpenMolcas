@@ -103,6 +103,7 @@
       Lu=6
 *#define _DEBUG_
 #ifdef _DEBUG_
+      iPrint=99
       Write (Lu,*)'Update_sl_:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_sl_: qInt',' ',qInt,nInter,kIter)
@@ -441,13 +442,15 @@ C           Write (6,*) 'tBeta=',tBeta
                   End Do
                End Do
             End If
-            LudRdX=30
-            Call DaName(LudRdX,'dRdX')
-            iAd=0
-            Call iDaFile(LudRdX,1,[nLambda],1,iAd)
-            Call iDaFile(LudRdX,1,[n1],1,iAd)
-            Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*n1,iAd)
-            Call DaClos(LudRdX)
+            If (lIter.eq.kIter) Then
+               LudRdX=30
+               Call DaName(LudRdX,'dRdX')
+               iAd=0
+               Call iDaFile(LudRdX,1,[nLambda],1,iAd)
+               Call iDaFile(LudRdX,1,[n1],1,iAd)
+               Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*n1,iAd)
+               Call DaClos(LudRdX)
+            End If
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,
      &                     Work(ipBMx),dRdq(1,1,lIter))
 *           Call RecPrt('drdq(1,1,lIter)',' ',
