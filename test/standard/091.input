@@ -20,11 +20,15 @@
   End of basis
   NoCD
 >>> Do While
-  &SEWARD 
-  &RASSCF ; Title=water
-     NACTEL=8 0 0; Inactive=1 0 0 0
-     Ras2=3 2 1 0; Symmetry=1; Spin=1
-  &Alaska 
+  &SEWARD
+  &RASSCF
+     Title=water
+     NACTEL=8 0 0
+     Inactive=1 0 0 0
+     Ras2=3 2 1 0
+     Symmetry=1
+     Spin=1
+  &Alaska
   &SLAPAF
 >>>End Do
   &Mckinley
@@ -49,13 +53,17 @@
  &EXPBAS
    FileOrb = $Project.RasOrb
 >>> Do While
-  &SEWARD 
-  &RASSCF ; Title=water
+  &SEWARD
+  &RASSCF
+     Title=water
      FileOrb = $Project.ExpOrb
-     NACTEL=8 0 0; Inactive=1 0 0 0
-     Ras2=3 2 1 0; Symmetry=1; Spin=1
+     NACTEL=8 0 0
+     Inactive=1 0 0 0
+     Ras2=3 2 1 0
+     Symmetry=1
+     Spin=1
      LumOrb
-  &Alaska 
+  &Alaska
   &SLAPAF
 >>>End Do
 

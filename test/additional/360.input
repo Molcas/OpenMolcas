@@ -254,7 +254,7 @@ NoCD
 * 1234567890
 0 iiiiiiiiii
 1 ii2222ssss
-2 ssss      
+2 ssss
 >>> EOF
 
 >>FILE checkfile

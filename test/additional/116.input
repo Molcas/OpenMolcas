@@ -25,7 +25,7 @@ Basis=ANO-RCC-VDZP
 LumOrb
 rasscf=1 0
 supsym=1 ; 1 1 ; 0 ; 0 ; 0
-hexs= 1 ;1
+hexs= 1 ; 1
 charge=1
 
 >>>copy $Project.JobIph JOB001

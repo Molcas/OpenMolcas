@@ -13,8 +13,8 @@
  &Gateway
 Basis Set
 H.cc-pVDZ.....
-H1        0.0  0.0  0.0 
-H2        0.0  0.0  1.7007535196 
+H1        0.0  0.0  0.0
+H2        0.0  0.0  1.7007535196
 End of Basis Set
 RICD
 acCD

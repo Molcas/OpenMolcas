@@ -3,7 +3,7 @@
 * The list of ECP functions is generated with the following script:
 ************************************************************************
 * #!/bin/sh
-* 
+*
 * for basis in $MOLCAS/basis_library/ECP* ; do
 *   # skip directories
 *   test -d $basis && continue

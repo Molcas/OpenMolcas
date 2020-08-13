@@ -21,7 +21,7 @@ H       -0.6485856097        1.6668156152        2.3021358629
 >> COPY C2H6.xyz .
 
  &GATEWAY
-coord 
+coord
 C2H6.xyz
 basis
 ANO-S-VDZ
@@ -34,9 +34,9 @@ Title
 Ethane DFT test job
 *-------------------------------------------------------------------------------
 >>foreach DFT in (BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA5, SVWN, SVWN5, TLYP, M06, M06HF, M062X, M06L, B2PLYP, B86LYP, B86PBE, BPBE, PBESOL, GLYP, GPBE, KT2, KT3, OLYP, OPBE, O2PLYP, O3LYP, PTCA, RGE2, SSBSW)
- &SCF ; 
+ &SCF
   KSDFT = $DFT
->>enddo 
+>>enddo
 *-------------------------------------------------------------------------------
 
 >>FILE checkfile
