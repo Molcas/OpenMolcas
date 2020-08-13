@@ -181,11 +181,11 @@ C
        END IF
 
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
+*        If(.not.IFNOPT2) Then
          WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
          CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
-        End If
+*        End If
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -194,9 +194,9 @@ C
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
 CProducing XMS Rotated States
-       If(IFNOPT2) then
-        GOTO 9999
-       END IF
+*       If(IFNOPT2) then
+*        GOTO 9999
+*       END IF
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -370,10 +370,10 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
+*        If(.not.IFNOPT2) Then
          CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
-        End If
+*        End If
        END IF
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
@@ -383,12 +383,12 @@ C End of long loop over groups
 1000  CONTINUE
 
       IF (IRETURN.NE.0) GOTO 9000
-       If(IFNOPT2) then  !XMS Skip multistate calculation.
-        write(6,*)'PT2 calculation skipped with XROH keyword'
-        write(6,*)
-        CALL MMA_DEALLOCATE(UEFF)
-        CALL MMA_DEALLOCATE(U0)
-       Else
+*       If(IFNOPT2) then  !XMS Skip multistate calculation.
+*        write(6,*)'PT2 calculation skipped with XROH keyword'
+*        write(6,*)
+*        CALL MMA_DEALLOCATE(UEFF)
+*        CALL MMA_DEALLOCATE(U0)
+*       Else
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -464,7 +464,7 @@ C End of long loop over groups
 
       CALL MMA_DEALLOCATE(UEFF)
       CALL MMA_DEALLOCATE(U0)
-      End If  !Skipping MultiState calculation when IFNOPT2=true
+*      End If  !Skipping MultiState calculation when IFNOPT2=true
 9000  CONTINUE
 
 C Free resources, close files

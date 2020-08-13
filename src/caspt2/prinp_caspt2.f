@@ -257,10 +257,10 @@
      &     'diagonalize the Fock operator'
         end if
 
-        if (IFNOPT2) then
-          write(6,Fmt1)'The second-order perturbation calculation '//
-     &     'will not be performed'
-        end if
+*        if (IFNOPT2) then
+*          write(6,Fmt1)'The second-order perturbation calculation '//
+*     &     'will not be performed'
+*        end if
 
         call CollapseOutput(0,'CASPT2 specifications:')
         write(6,*)
