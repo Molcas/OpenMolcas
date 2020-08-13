@@ -377,7 +377,7 @@ C End of long loop over states in the group
        END IF
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
-9999    write (6,*)
+*9999    write (6,*)
       END DO STATELOOP
 
 1000  CONTINUE
