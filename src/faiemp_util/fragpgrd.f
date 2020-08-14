@@ -185,7 +185,7 @@ c      ! Dummy initialize
         C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
         iSize = nElem(iAng)
-        if(Transf(iShll).and.Prjct(iShll)) iSize = 2*iAng+1
+        if(Shells(iShll)%Transf.and.Prjct(iShll)) iSize = 2*iAng+1
         If(Abs(dbsc(iCnttp)%nFragCoor).ne.iCurMdc) Then
 * update fragment related quantities
           iCurMdc = Abs(dbsc(iCnttp)%nFragCoor)
@@ -276,7 +276,7 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
           jCnttp = iSD(13,jS)
           jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
-          if(Transf(jShll).and.Prjct(jShll)) jSize = 2*jAng+1
+          If(Shells(jShll)%Transf.and.Prjct(jShll)) jSize = 2*jAng+1
           B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 c          write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
 c     &                    jShll,jAng,mdcj,jShell,jCnttp
@@ -574,7 +574,7 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 *
 *-----------4) iKa,C = c,iKa * c,C
 *
-            If(Transf(iShll).and.Prjct(iShll)) Then
+            If(Shells(iShll)%Transf.and.Prjct(iShll)) Then
               Call DGEMM_('T','N',
      &                    nVecAC*nAlpha*iBas*nElem(la),iSize,
      &                    nElem(iAng),
@@ -614,7 +614,7 @@ C what does this do and is it needed? (from PrjGrd)
 *
 *-----------3) bLj,D = d,bLj * d,D
 *
-            If(Transf(jShll).and.Prjct(jShll)) Then
+            If(Shells(jShll)%Transf.and.Prjct(jShll)) Then
               Call DGEMM_('T','N',
      &                    nElem(lb)*nVecCB*jBas*nBeta,jSize,nElem(jAng),
      &                    1.0d0,Array(ipF2),nElem(jAng),

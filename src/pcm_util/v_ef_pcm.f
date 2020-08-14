@@ -388,7 +388,8 @@ c----------------------------------------------------------------------
 *                    cartesian space.
 *
                      kk = nElem(iAng)*nElem(jAng)
-                     If (Transf(iShll).or.Transf(jShll)) Then
+                     If (Shells(iShll)%Transf.or.
+     &                   Shells(jShll)%Transf) Then
 *
 *-----------------------ij,AB --> AB,ij
                         Call DGeTmO(Work(ipDAO),iPrim*jPrim,iPrim*jPrim,
@@ -397,9 +398,11 @@ c----------------------------------------------------------------------
                         Call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,
      &                              Work(iScrt2),nScr2,
      &                              RSph(ipSph(iAng)),
-     &                              iAng,Transf(iShll),Prjct(iShll),
+     &                              iAng,Shells(iShll)%Transf,
+     &                                   Prjct(iShll),
      &                              RSph(ipSph(jAng)),
-     &                              jAng,Transf(jShll),Prjct(jShll),
+     &                              jAng,Shells(jShll)%Transf,
+     &                                   Prjct(jShll),
      &                              Work(ipDAO),kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(

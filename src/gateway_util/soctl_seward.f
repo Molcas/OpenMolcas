@@ -323,7 +323,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      lculf = kculf + icomp
 *                    Get character of basis function
                      iChBs = iChBas(lComp)
-                     If (Transf(iSh)) iChBs=iChBas(iSphCr(lComp))
+                     If (Shells(iSh)%Transf) iChBs=iChBas(iSphCr(lComp))
 *
 *                    Skip if function not a basis of irreps.
 *
@@ -384,7 +384,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         jSO = jSO + 1
 *
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
 *
                         Call Name_to_lm(ChTemp,llab,mlab)
 *
@@ -743,7 +743,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         jSO = jSO + 1
 *
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
 *
                         Call Name_to_lm(ChTemp,llab,mlab)
 *

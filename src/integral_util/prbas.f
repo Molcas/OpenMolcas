@@ -92,9 +92,9 @@
             If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasisj.gt.0) Then
                Write (6,*)
-               If (Prjct(jSh).and.Transf(jSh)) Then
+               If (Prjct(jSh).and.Shells(jSh)%Transf) Then
                   Write (6,*) ' Gaussian type: Spherical Harmonics'
-               Else If (Transf(jSh)) Then
+               Else If (Shells(jSh)%Transf) Then
                   Write (6,*)
      &            ' Gaussian type: Spherical Harmonics and Contaminants'
                Else

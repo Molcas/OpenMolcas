@@ -134,7 +134,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       Do i=1,MxShll
          Prjct(i)    =.True.
-         Transf(i)   =.True.
          AuxShell(i) =.False.
          FragShell(i)=.False.
       End Do

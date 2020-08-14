@@ -337,16 +337,16 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
                  kk=nElem(iAng)*nElem(jAng)
 *
-                 If (Transf(iShll).or.Transf(jShll)) Then
+                 If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJAB or IJAb
 *
                    Call CarSph(Work(ipFnl),kk,iBas*jBas*nIC,
      &                    Work(iKern),nScr1,
      &                    RSph(ipSph(iAng)),iAng,
-     &                    Transf(iShll),Prjct(iShll),
+     &                    Shells(iShll)%Transf,Prjct(iShll),
      &                    RSph(ipSph(jAng)),
-     &                    jAng,Transf(jShll),
+     &                    jAng,Shells(jShll)%Transf,
      &                    Prjct(jShll),Work(iScrt1),iCmp*jCmp)
 *
                   Call DGeTmO(Work(iScrt1),nIC,nIC,

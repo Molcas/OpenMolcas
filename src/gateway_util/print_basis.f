@@ -165,11 +165,11 @@
             ChCa=' '
             ChSph='X'
             ChCo=' '
-            If (.not.Transf(kSh)) Then
+            If (.not.Shells(kSh)%Transf) Then
                ChCa='X'
                ChSph=' '
             End if
-            If (Transf(kSh).and.(.not.Prjct(kSh))) ChCo='X'
+            If (Shells(kSh)%Transf.and.(.not.Prjct(kSh))) ChCo='X'
             If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
      &            AngTp(lSh),nExpk,Shells(kSh)%nBasis,ChCa,ChSph,ChCo

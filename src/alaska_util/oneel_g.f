@@ -334,7 +334,7 @@ c VV: gcc bug: one has to use this if!
 *              cartesian space.
 *
                kk = nElem(iAng)*nElem(jAng)
-               If (Transf(iShll).or.Transf(jShll)) Then
+               If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *-----------------ij,AB --> AB,ij
                   Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,
@@ -343,9 +343,9 @@ c VV: gcc bug: one has to use this if!
                   Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
      &                        Scr2,nScr2,
      &                        RSph(ipSph(iAng)),
-     &                        iAng,Transf(iShll),Prjct(iShll),
+     &                        iAng,Shells(iShll)%Transf,Prjct(iShll),
      &                        RSph(ipSph(jAng)),
-     &                        jAng,Transf(jShll),Prjct(jShll),
+     &                        jAng,Shells(jShll)%Transf,Prjct(jShll),
      &                        DAO,kk)
                End If
                If (iPrint.ge.99) Call RecPrt(

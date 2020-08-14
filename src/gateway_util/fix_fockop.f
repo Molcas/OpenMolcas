@@ -486,9 +486,9 @@
      &                //' proper Fock operator'
             Cycle
          End If
-         Transf(jShll+1)=.False.
+         Shells(jShll+1)%Transf=.False.
          Prjct(jShll+1)=.False.
-         Transf(jShll+2)=.False.
+         Shells(jShll+2)%Transf=.False.
          Prjct(jShll+2)=.False.
          ipVal(nCnttp) = ipVal_
          ipPrj(nCnttp) = ipPrj_

@@ -82,7 +82,7 @@
                      lComp = kComp + iComp
 *                    Get character of basis function
                      iChBs = iChBas(lComp)
-                     If (Transf(iSh)) iChBs=iChBas(iSphCr(lComp))
+                     If (Shells(iSh)%Transf) iChBs=iChBas(iSphCr(lComp))
 *
 *                    Skip if function not a basis of irreps.
 *
@@ -99,7 +99,7 @@
                            Call Abend()
                         End If
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
                         Do ico=0,nIrrep/nStab(mdc)-1
                         Cnt_ico(ico,iso)=mc+ico
                         Phase_ico(ico,iso)=

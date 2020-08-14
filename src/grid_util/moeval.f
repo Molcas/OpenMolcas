@@ -162,7 +162,7 @@ c      print *,' iAngMx', iAngMx
                   call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
                   mTmp=1
                   Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,
-     &                        Transf(iShll),
+     &                        Shells(iShll)%Transf,
      &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                        iWork(ipAng),nTerm,nForm,Thr,mRad,
      &                        iPrim,iPrim,Shells(iShll)%Exp,

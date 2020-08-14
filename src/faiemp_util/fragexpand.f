@@ -184,9 +184,9 @@
      &                 LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
      &                 STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
             iAngMx=Max(iAngMx,lAng)
-            Transf(jShll+1)=.False.
+            Shells(jShll+1)%Transf=.False.
             Prjct(jShll+1)=.False.
-            Transf(jShll+2)=.False.
+            Shells(jShll+2)%Transf=.False.
             Prjct(jShll+2)=.False.
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
@@ -210,7 +210,7 @@
             If (INDEX(sBasis(1:Indx-1),'6-31G').ne.0) Then
               Do iSh = jShll+3, iShll
                 Prjct(iSh)=.False.
-                Transf(iSh)=.False.
+                Shells(iSh)%Transf=.False.
               End Do
             End If
             FragCnttp(nCnttp)=.True.

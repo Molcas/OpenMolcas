@@ -186,7 +186,7 @@ c      write(6,*) 'we here 0?'
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          If (Transf(ishell).and..not.Prjct(ishell)) Then
+          If (Shells(ishell)%Transf.and..not.Prjct(ishell)) Then
            If (jPL.ge.2) Then
             Write(6,*) 'Sorry, Molden does not support contaminants'
            End If
@@ -243,10 +243,10 @@ c      write(6,*) 'we here 0?'
 *           Test for the appearance of cartesian functions with l=2,3,4
             ishell=ipVal(iCnttp)+l
             if ((l.ge.2).and.(.not.y_cart)) Then
-              if (.not.transf(ishell)) y_cart=.true.
+              if (.not.Shells(ishell)%Transf) y_cart=.true.
             End If
             if ((l.ge.2).and.(.not.y_sphere)) Then
-              if (transf(ishell)) y_sphere=.true.
+              if (Shells(ishell)%Transf) y_sphere=.true.
             end if
             if (y_sphere.and.y_cart) Then
               If (jPL.ge.2) Then

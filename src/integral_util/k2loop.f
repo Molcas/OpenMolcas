@@ -52,6 +52,7 @@
 *             Modified for direct SCF, January '93                     *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
@@ -189,8 +190,8 @@
             TB(3) = DBLE(iPhase(3,iOper(iIrrep)))*CoorM(3,2)
             Call HrrMtrx(Data(i13_,lDCRR+1),
      &                   ne,la,lb,TA,TB,
-     &                   Transf(iShlla),RSph(ipSph(la)),iCmpa_,
-     &                   Transf(jShllb),RSph(ipSph(lb)),jCmpb_)
+     &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
+     &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
          End Do
 *                                                                      *
 ************************************************************************

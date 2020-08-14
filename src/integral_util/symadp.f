@@ -42,6 +42,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -64,7 +65,6 @@
 *
       iRout = 38
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAdp')
       Done=.False.
       k12=0
       k34=0
@@ -92,14 +92,14 @@
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
                jSym(j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
 201         Continue
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs) * pEa
             Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
@@ -114,7 +114,8 @@
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs) * pRb
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
@@ -122,7 +123,8 @@
 401               Continue
                   Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= xPrmt(iOper(kOp(4)),lChBs) * pTc
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
@@ -200,7 +202,5 @@
  100  Continue
 *
 *     Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
-*     Call GetMem('Exit SymAdp','CHECK','REAL',iDum,iDum)
-*     Call qExit('SymAdp')
       Return
       End

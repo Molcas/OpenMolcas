@@ -79,7 +79,7 @@
       Shells(iShll)%Cff_c(1,1,2)=One
       Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
-      Transf(iShll)=.False.
+      Shells(iShll)%Transf=.False.
       Prjct(iShll)=.False.
 *
 *-----The coordinates

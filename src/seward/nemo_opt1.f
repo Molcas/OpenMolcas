@@ -53,7 +53,7 @@
         kShStr = ipVal(iCnttp)
         kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
         Do kSh = kShStr, kShEnd
-          If(.not.Transf(kSh).and.lSh.ge.2) then
+          If(.not.Shells(kSh)%Transf.and.lSh.ge.2) then
             Call WarningMessage(2,'   NEMO Error')
             Write(6,*)
             Write(6,*)

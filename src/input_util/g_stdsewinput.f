@@ -197,9 +197,9 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
-      Transf(jShll+1)=.False.
+      Shells(jShll+1)%Transf=.False.
       Prjct(jShll+1)=.False.
-      Transf(jShll+2)=.False.
+      Shells(jShll+2)%Transf=.False.
       Prjct(jShll+2)=.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
@@ -251,7 +251,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (INDEX(KWord,'6-31G').ne.0) Then
          Do iSh = jShll+3, iShll
             Prjct(iSh)=.False.
-            Transf(iSh)=.False.
+            Shells(iSh)%Transf=.False.
          End Do
       End If
 *                                                                      *

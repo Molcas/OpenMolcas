@@ -273,7 +273,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
 *                                                                      *
 c            write(6,*) 'iOff =', iOff
             Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
-     &                  Transf(iShll),
+     &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                  iWork(ipAng),nTerm,nForm,T_X,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,

@@ -80,6 +80,7 @@
            Integer :: nBasis_c=0
            Real*8, Allocatable:: pCff(:,:)
            Real*8, Allocatable:: Cff_c(:,:,:), Cff_p(:,:,:)
+           Logical :: Transf=.True.
            Integer :: nBk=0
            Real*8, Allocatable:: Bk(:)
            Real*8, Allocatable:: Occ(:)
@@ -98,7 +99,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 6
+      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 7
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -218,6 +219,8 @@
          iDmp(4,i) = Shells(i)%nExp
          iDmp(5,i) = Shells(i)%nBasis
          iDmp(6,i) = Shells(i)%nBasis_c
+         iDmp(7,i) = 0
+         If (Shells(i)%Transf) iDmp(7,i)=1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
 #ifdef _DEBUG_
@@ -424,6 +427,7 @@
          Shells(i)%nExp     = iDmp(4,i)
          Shells(i)%nBasis   = iDmp(5,i)
          Shells(i)%nBasis_c = iDmp(6,i)
+         Shells(i)%Transf   = iDmp(7,i).eq.1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp
 !        Coefficients only there is nBasis =/=0
@@ -653,6 +657,7 @@
          If (Allocated(Shells(i)%Cff_c)) Call mma_deallocate(Shells(i)%Cff_c)
          If (Allocated(Shells(i)%Cff_p)) Call mma_deallocate(Shells(i)%Cff_p)
          Shells(i)%nBasis=0
+         Shells(i)%Transf=.True.
       End Do
       Max_Shells=0
 !

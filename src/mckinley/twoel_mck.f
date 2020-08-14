@@ -117,6 +117,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
 #include "ndarray.fh"
@@ -602,7 +603,7 @@
                niag=nijkl*nElem(lb)*mcd*nGr
                Call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,
      &              RSph(ipSph(la)),la,
-     &              Transf(iShlla),Prjct(iShlla),
+     &              Shells(iShlla)%Transf,Prjct(iShlla),
      &              Work3,iCmpa)
                nw3=niag*iCmpa
                ip2=1+nw3
@@ -619,7 +620,7 @@
                End If
                Call CrSph_mck(Work3,niag,(lb+1)*(lb+2)/2,
      &              RSph(ipSph(lb)),lb,
-     &              Transf(jShllb),Prjct(jShllb),
+     &              Shells(jShllb)%Transf,Prjct(jShllb),
      &              Work3(ip2),jCmpb)
 *-----------------------------------------------------------------*
 *
@@ -630,7 +631,7 @@
                niag=nijkl*nGr*nElem(ld)*iCmpa*jCmpb
                Call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,
      &              RSph(ipSph(lc)),lc,
-     &              Transf(kShllc),Prjct(kShllc),
+     &              Shells(kShllc)%Transf,Prjct(kShllc),
      &              Work3,kCmpc)
                If (niag*kCmpc.gt.nw3) Then
                   Write (6,*) 'niag*kCmpc.gt.nw3'
@@ -651,7 +652,7 @@
                End If
                Call CrSph_mck(Work3,niag,(ld+1)*(ld+2)/2,
      &              RSph(ipSph(ld)),ld,
-     &              Transf(lShlld),Prjct(lShlld),
+     &              Shells(lShlld)%Transf,Prjct(lShlld),
      &              Work3(ip2),lCmpd)
 *-----------------------------------------------------------------*
 *

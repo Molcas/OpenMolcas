@@ -19,6 +19,7 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -76,14 +77,14 @@
 *
 *     Transform to spherical Gaussian if needed!
 *
-      If (Transf(iShll_a).or.Transf(iShll_r)) Then
+      If (Shells(iShll_a)%Transf.or.Shells(iShll_r)%Transf) Then
 *
          Call CarSph(Scr2,naa,nCntrc_a*nCntrc_r,
      &               pSAR,nScr2,
      &               RSph(ipSph(iAng)),iAng,
-     &               Transf(iShll_a),Prjct(iShll_a),
+     &               Shells(iShll_a)%Transf,Prjct(iShll_a),
      &               RSph(ipSph(iAng)),iAng,
-     &               Transf(iShll_r),Prjct(iShll_r),
+     &               Shells(iShll_r)%Transf,Prjct(iShll_r),
      &               SAR,iCmp_a*iCmp_r)
       Else
          Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,

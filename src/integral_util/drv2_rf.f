@@ -331,15 +331,17 @@
 *
 *            Transform to spherical gaussians if needed.
 *
-             If (Transf(iShll).or.Transf(jShll)) Then
+             If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJxAB or IJxAb
               call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,
      &                                Scr2,1)
               Call CarSph(Scr2,kk,iBas*jBas,
-     &                    Fnl(1,nComp+1),nScr2,RSph(ipSph(iAng)),
-     &                    iAng,Transf(iShll),Prjct(iShll),
-     &                    RSph(ipSph(jAng)),jAng,Transf(jShll),
+     &                    Fnl(1,nComp+1),nScr2,
+     &                    RSph(ipSph(iAng)),
+     &                    iAng,Shells(iShll)%Transf,Prjct(iShll),
+     &                    RSph(ipSph(jAng)),
+     &                    jAng,Shells(jShll)%Transf,
      &                    Prjct(jShll),Scr1,iCmp*jCmp)
              Else
 *             Transpose back to IJ,x,ab

@@ -1354,10 +1354,10 @@ C                          Thrs= 1.0D-12
 *
                   Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
                   If (jAng.eq.0) Then
-                     Transf(iShll)=Transf(kShll)
+                     Shells(iShll)%Transf=Shells(kShll)%Transf
                      Prjct(iShll)=Prjct(kShll)
                   Else
-                     Transf(iShll)=.True.
+                     Shells(iShll)%Transf=.True.
                      Prjct(iShll)=.False.
                   End If
                   AuxShell(iShll)=.True.
@@ -1473,7 +1473,7 @@ C                          Thrs= 1.0D-12
                nExpi=Shells(iShll_)%nExp
                iSph=0
                If (Prjct(iShll_))  iSph=1
-               If (Transf(iShll_)) iSph=iSph+2
+               If (Shells(iShll_)%Transf) iSph=iSph+2
                Write (Lu_lib,'(3I10)') nExpi, Shells(iShll_)%nBasis,iSph
 *
 *              Skip if the shell is empty.

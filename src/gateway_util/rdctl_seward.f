@@ -1246,9 +1246,9 @@ c Simplistic validity check for value
 *
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
-      Transf(jShll+1)=.False.
+      Shells(jShll+1)%Transf=.False.
       Prjct(jShll+1)=.False.
-      Transf(jShll+2)=.False.
+      Shells(jShll+2)%Transf=.False.
       Prjct(jShll+2)=.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
@@ -1298,7 +1298,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
             Prjct(iSh)=.False.
-            Transf(iSh)=.False.
+            Shells(iSh)%Transf=.False.
          End Do
       End If
 *                                                                      *
@@ -1360,7 +1360,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'SPHE') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+3, iShll
-               Transf(iSh)=.True.
+               Shells(iSh)%Transf=.True.
                Prjct(iSh)=.True.
             End Do
             Go To 777
@@ -1369,7 +1369,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 2
          Do iSh = jShll+3, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .True.
+               Shells(iSh)%Transf = .True.
                Prjct(iSh) = .True.
             End If
             iAng = iAng + 1
@@ -1379,7 +1379,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CART') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Transf(iSh)=.False.
+               Shells(iSh)%Transf=.False.
                Prjct(iSh)=.False.
             End Do
             Go To 777
@@ -1388,7 +1388,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .False.
+               Shells(iSh)%Transf = .False.
                Prjct(iSh) = .False.
             End If
             iAng = iAng + 1

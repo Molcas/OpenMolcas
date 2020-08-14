@@ -465,12 +465,14 @@
 *           Transform to spherical gaussians if needed.
 *
 
-            If (Transf(iShll).or.Transf(jShll)) Then
+            If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *              Result comes back as xIJAB or xIJAb
                Call CarSph(ScrSph,kk,iBas*jBas*nIC,
-     &                     Final,lScrSph,RSph(ipSph(iAng)),
-     &                     iAng,Transf(iShll),Prjct(iShll),
-     &                     RSph(ipSph(jAng)),jAng,Transf(jShll),
+     &                     Final,lScrSph,
+     &                     RSph(ipSph(iAng)),
+     &                     iAng,Shells(iShll)%Transf,Prjct(iShll),
+     &                     RSph(ipSph(jAng)),
+     &                     jAng,Shells(jShll)%Transf,
      &                     Prjct(jShll),Scrtch,iCmp*jCmp)
                Call DGeTmO(Scrtch,nIC,nIC,iBas*jBas*iCmp*jCmp,
      &                     Final,iBas*jBas*iCmp*jCmp)

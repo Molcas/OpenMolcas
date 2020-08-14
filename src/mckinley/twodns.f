@@ -15,6 +15,7 @@
      &           Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
      &           nWork4,PSO,nPSO,Fact)
 *
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -80,17 +81,17 @@ c     Call qEnter('TwoDens')
                Call SphCr1(Work2,ijklab,
      &                     Work3,nWork3,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Transf(kShllc),Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,Prjct(kShllc),
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Transf(lShlld),Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,Prjct(lShlld),
      &                     Work2,mcd)
 *  Work2->Work4  (Work3:Scratch)
                Call SphCr2(Work2,nijkl,mcd,
      &                     Work3,nWork3,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Transf(iShlla),Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,Prjct(iShlla),
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Transf(jShllb),Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,Prjct(jShllb),
      &                     Work4,mab)
 *
 *----------------------------------------------------------------*

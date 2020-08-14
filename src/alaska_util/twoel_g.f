@@ -56,6 +56,7 @@
 *          Lund, SWEDEN. Modified to gradients, January '92.           *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
 #include "ndarray.fh"
@@ -450,9 +451,9 @@
                Call SphCr1(Wrk2(iW2),ijklab,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Transf(kShllc),Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,Prjct(kShllc),
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Transf(lShlld),Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,Prjct(lShlld),
      &                     Wrk2(iW2),mcd)
                If (iW2.eq.iW4) Then
                   nW2 = nijkl*mcd*Max(iCmpa*jCmpb,mab)
@@ -466,9 +467,9 @@
                Call SphCr2(Wrk2(iW2),nijkl,mcd,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Transf(iShlla),Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,Prjct(iShlla),
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Transf(jShllb),Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,Prjct(jShllb),
      &                     Wrk2(iW4),mab)
 *
 *--------------Transpose the 2nd order density matrix
