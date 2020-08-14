@@ -1110,6 +1110,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
   A real value is read from the input, the maximum dispersion is this value times the maximum Cartesian gradient.
   The default value is 0.3 au.
+  During the constrained phase of an optimization with :kword:`FindTS`, the default is 0.1 au.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" LEVEL="ADVANCED">
               %%Keyword: MAXDISP <advanced>
