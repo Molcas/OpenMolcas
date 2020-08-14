@@ -57,13 +57,11 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-*       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
-*       End If
       END IF
 * ---------------------------------------------------------------------
 

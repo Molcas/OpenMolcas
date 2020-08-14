@@ -308,9 +308,6 @@ C end of input
       End Do
       dealloc_dline
 
-*      Case('XROH')
-*      Input % SilentPrRot = .false.
-*      Input % IFNOPT2 = .true.
 
       Case('DWMS')
       Input % DWMS = .True.
