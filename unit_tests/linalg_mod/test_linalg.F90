@@ -28,7 +28,7 @@ contains
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C)
+            call mult(raw_A, shape(A), raw_B, shape(B), raw_C)
             call assert_true(all(C .isclose. expected))
         end block
 
@@ -49,7 +49,7 @@ contains
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true.)
+            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true.)
             call assert_true(all(C .isclose. expected))
         end block
 
@@ -70,7 +70,7 @@ contains
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpB=.true.)
+            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpB=.true.)
             call assert_true(all(C .isclose. expected))
         end block
 
@@ -91,7 +91,7 @@ contains
             raw_B(1 : size(B)) => B(:, :)
             raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, size(A, 1), raw_B, size(B, 1), raw_C, transpA=.true., transpB=.true.)
+            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true., transpB=.true.)
             call assert_true(all(C .isclose. expected))
         end block
     end subroutine

@@ -196,18 +196,16 @@ contains
 !>      should be transposed.
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
-    subroutine mult_2D_raw(A, rows_A, B, rows_B, C, transpA, transpB)
-        real(wp), intent(in), target :: A(:)
-        integer, intent(in) :: rows_A
-        real(wp), intent(in), target :: B(:)
-        integer, intent(in) :: rows_B
-        real(wp), intent(out), target :: C(:)
+    subroutine mult_2D_raw(A, shapeA, B, shapeB, C, transpA, transpB)
+        real(wp), intent(in), target :: A(*)
+        integer, intent(in) :: shapeA(2)
+        real(wp), intent(in), target :: B(*)
+        integer, intent(in) :: shapeB(2)
+        real(wp), intent(out), target :: C(*)
         logical, intent(in), optional :: transpA, transpB
         logical :: transpA_, transpB_
 
-        integer :: shapeA(2), shapeB(2), shapeC(2)
-        integer :: M, N, K
-        integer :: K_1, K_2
+        integer :: shapeC(2)
 
         real(wp), pointer :: ptr_A(:, :), ptr_B(:, :), ptr_C(:, :)
 
@@ -222,18 +220,11 @@ contains
             transpB_ = .false.
         end if
 
-        call assert_(modulo(size(A), rows_A) == 0, 'the number of rows has to be a divisor of size')
-        shapeA = [rows_A, size(A) / rows_A]
-        call assert_(modulo(size(B), rows_B) == 0, 'the number of rows has to be a divisor of size')
-        shapeB = [rows_B, size(B) / rows_B]
+        shapeC = [merge(shapeA(1), shapeA(2), .not. transpA_), merge(shapeB(2), shapeB(1), .not. transpB_)]
 
-        M = merge(shapeA(1), shapeA(2), .not. transpA_)
-        N = merge(shapeB(2), shapeB(1), .not. transpB_)
-        shapeC = [M, N]
-
-        ptr_A(1 : shapeA(1), 1 : shapeA(2)) => A(:)
-        ptr_B(1 : shapeB(1), 1 : shapeB(2)) => B(:)
-        ptr_C(1 : shapeC(1), 1 : shapeC(2)) => C(:)
+        ptr_A(1 : shapeA(1), 1 : shapeA(2)) => A(1 : product(shapeA))
+        ptr_B(1 : shapeB(1), 1 : shapeB(2)) => B(1 : product(shapeB))
+        ptr_C(1 : shapeC(1), 1 : shapeC(2)) => C(1 : product(shapeC))
 
         call mult(ptr_A, ptr_B, ptr_C, transpA_, transpB_)
     end subroutine
