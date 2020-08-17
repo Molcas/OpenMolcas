@@ -25,6 +25,14 @@ module linalg_mod
     ! TODO Move to different module
     public :: assert_, abort_, assume_
 
+    abstract interface
+        subroutine get_projections_t(M, P)
+            import :: wp
+            real(wp), intent(in) :: M(:, :)
+            real(wp), intent(out) :: P(:, :)
+        end subroutine
+    end interface
+
 
 !>  @brief
 !>    Wrapper around dgemm.
@@ -72,7 +80,7 @@ module linalg_mod
 !>  @param[in] info Error code. If calling code does not check the error
 !>      code, then this routine crashes upon errors.
     interface canonicalize
-        module procedure canonicalize_default
+        module procedure canonicalize_canonical_basis, canonicalize_general
     end interface
 
     interface operator(.isclose.)
@@ -179,18 +187,15 @@ contains
 !>  It is important to note, that it is expected to pass in the
 !>  actual vectors and not just the first element.
 !>  So if `A_ptr` is the pointer to A in the work array
-!>  and `A_L` is the length of A it is not possible to call
-!>  this procedure just with `Work(A_ptr)`. It is necessary to call it
-!>  with `Work(A_ptr : A_ptr + A_L - 1)`.
-!>  (Which implies that the size of the arrays is automatically passed in.)
+!>  it is necessary to call it with `Work(A_ptr : )`.
 !>
 !>  @paramin[in] A
-!>  @paramin[in] rows_A Number of rows of A. The column number is deduced.
+!>  @paramin[in] shapeA The shape of A.
 !>  @paramin[in] B
-!>  @paramin[in] rows_B Number of rows of B. The column number is deduced.
+!>  @paramin[in] shapeB The shape of B.
 !>  @paramin[in] C
 !>  @paramin[out] C The shape of the output array is usually
-!>      (rows_A * (size(B) / rows_B)) which changes of course, if
+!>      (shapeA(1) * shapeB(2)) which changes of course, if
 !>      A or B are transposed.
 !>  @paramin[in] transpA, Optional argument to specify that A
 !>      should be transposed.
@@ -346,16 +351,16 @@ contains
     end subroutine
 
 
-    subroutine canonicalize_default(V, lambda)
+    subroutine canonicalize_factory(V, lambda, get_projections)
         real(wp), intent(inout) :: V(:, :), lambda(:)
-        character(*), parameter :: this_routine = 'canonicalize_default'
+        procedure(get_projections_t) :: get_projections
+        character(*), parameter :: this_routine = 'canonicalize_factory'
 
 
         integer :: info_
         integer :: low, i, j, d
-        logical :: converged
         integer, allocatable :: idx(:), dimensions(:)
-        real(wp), allocatable :: projections(:, :)
+        real(wp), allocatable :: projections(:, :), ONB(:, :)
 
         call assert_(size(V, 1) == size(V, 2), 'non square matrix')
         call mma_allocate(projections, size(V, 1), size(V, 2))
@@ -368,34 +373,37 @@ contains
 
         call determine_eigenspaces(lambda, dimensions)
 
+        call mma_allocate(ONB, size(lambda), maxval(dimensions))
+
         low = 1
         do j = 1, size(dimensions)
-            converged = .false.
-            do while (.not. converged)
-                d = dimensions(j)
-                call get_projections(V(:, low : low + d - 1), projections)
+            d = dimensions(j)
+            call get_projections(V(:, low : low + d - 1), projections)
 
-                do i = 1, size(idx)
-                    idx(i) = i
-                end do
-                call sort(idx, geq)
-                call sort(idx( : d), integer_leq)
-
-                ! Get the first d projections with the largest overlap.
-                block
-                    real(wp) :: p(size(projections, 1))
-                    converged = .true.
-                    do i = 1, d
-                        p = projections(:, idx(i)) / norm(projections(:, idx(i)))
-                        converged = converged .and. all(V(:, low + i - 1) .isclose. p)
-                        V(:, low + i - 1) = p
-                    end do
-                end block
+            do i = 1, size(idx)
+                idx(i) = i
             end do
+            call sort(idx, geq)
+            call sort(idx( : d), integer_leq)
+
+            ! Get the first d projections with the largest overlap.
+            do i = 1, d
+                V(:, low + i - 1) = projections(:, idx(i)) / norm(projections(:, idx(i)))
+            end do
+
+            ! reorthogonalize
+            block
+                integer :: n_new
+                call Gram_Schmidt(V(:, low : low + d - 1), d, ONB(:, : d), n_new)
+                call assert_(d == n_new, 'Unexpected linear dependency')
+                V(:, low : low + d - 1) = ONB(:, : d)
+            end block
+
             low = low + d
         end do
 
         call mma_deallocate(idx)
+        call mma_deallocate(ONB)
         call mma_deallocate(projections)
         call mma_deallocate(dimensions)
     contains
@@ -406,25 +414,59 @@ contains
         end function
     end subroutine
 
+    subroutine canonicalize_canonical_basis(V, lambda)
+        real(wp), intent(inout) :: V(:, :), lambda(:)
 
-    ! Calculate the projections p_j of the e_j canonical unit vectors
-    ! into the subspace spanned by M.
-    subroutine get_projections(M, P)
-        real(wp), intent(in) :: M(:, :)
-        real(wp), intent(out) :: P(:, :)
-        integer :: i, j
+        call canonicalize_factory(V, lambda, get_projections)
 
-        P(:, :) = 0._wp
-        ! calculate projections of basis b_j into eigenvectors v_i:
-        ! p_j = sum_i < b_j | v_i > v_i
-        ! if b_j are canonical unit vectors, the dot product is the j-th
-        ! component of v_i
-        do j = 1, size(P, 2)
-            do i = 1, size(M, 2)
-                P(:, j) = P(:, j) + M(j, i) * M(:, i)
+        contains
+
+        ! Calculate the projections p_j of the e_j canonical unit vectors
+        ! into the subspace spanned by M.
+        subroutine get_projections(M, P)
+            real(wp), intent(in) :: M(:, :)
+            real(wp), intent(out) :: P(:, :)
+            integer :: i, j
+
+            P(:, :) = 0._wp
+            ! calculate projections of basis b_j into eigenvectors v_i:
+            ! p_j = sum_i < b_j | v_i > v_i
+            ! if b_j are canonical unit vectors, the dot product is the j-th
+            ! component of v_i
+            do j = 1, size(P, 2)
+                do i = 1, size(M, 2)
+                    P(:, j) = P(:, j) + M(j, i) * M(:, i)
+                end do
             end do
-        end do
+        end subroutine
     end subroutine
+
+    subroutine canonicalize_general(V, lambda, ref)
+        real(wp), intent(inout) :: V(:, :), lambda(:)
+        real(wp), intent(in) :: ref(:, :)
+
+        call canonicalize_factory(V, lambda, get_projections)
+
+        contains
+
+        ! Calculate the projections P(:, j) of the ref(:, j) reference vectors
+        ! into the subspace spanned by M.
+        subroutine get_projections(M, P)
+            real(wp), intent(in) :: M(:, :)
+            real(wp), intent(out) :: P(:, :)
+            integer :: i, j
+
+            P(:, :) = 0._wp
+            ! calculate projections of basis b_j into eigenvectors v_i:
+            ! p_j = sum_i < b_j | M_i > M_i
+            do j = 1, size(P, 2)
+                do i = 1, size(M, 2)
+                    P(:, j) = P(:, j) + dot_product_(ref(:, j), M(:, i)) * M(:, i)
+                end do
+            end do
+        end subroutine
+    end subroutine
+
 
     elemental function isclose(a, b, atol, rtol) result(res)
         real(wp), intent(in) :: a, b

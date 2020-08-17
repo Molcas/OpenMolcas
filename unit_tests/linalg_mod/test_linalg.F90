@@ -98,7 +98,7 @@ contains
 
     subroutine test_diagonalization()
         integer, parameter :: test_size = 10
-        integer, parameter :: dimension_E(3) = [5, 5, 5]
+        integer, parameter :: dimension_E(2) = [2, 1]
         real(wp) :: lambdas(sum(dimension_E))
         real(wp) :: M(size(lambdas), size(lambdas))
         real(wp) :: V(size(M, 1), size(M, 2))
@@ -109,8 +109,7 @@ contains
         integer :: i, j, i_test
         integer :: offset
 
-        ! Create test matrix M with degenerate Eigenspaces
-        block
+        create_test_matrix : block
             offset = 1
             do i = 1, size(dimension_E)
                 lambdas(offset : offset + dimension_E(i) - 1) = real(i, kind=wp)
@@ -125,32 +124,83 @@ contains
             call get_rand_orthogonal(U)
             M = matmul(matmul(transpose(U), M), U)
             call assert_true(symmetric(M))
-        end block
+        end block create_test_matrix
 
         call diagonalize(M, V, lambdas)
-        call canonicalize(V, lambdas)
 
-        do i_test = 1, test_size
-            offset = 1
-            test_V = 0._wp
-            do i = 1, size(dimension_E)
-            block
-                real(wp) :: U(dimension_E(i), dimension_E(i))
-                integer :: j, k
-                call get_rand_orthogonal(U)
+        test_canonical_basis : block
 
-                do j = 1, dimension_E(i)
-                    do k = 1, dimension_E(i)
-                        test_V(:, offset + j - 1) = test_V(:, offset + j - 1) + U(k, j) * V(:, offset + k - 1)
-                    end do
-                end do
-                offset = offset + dimension_E(i)
-            end block
+            call canonicalize(V, lambdas)
+
+            do i_test = 1, test_size
+
+                call create_test_V(V, dimension_E, test_V)
+
+                call canonicalize(test_V, lambdas)
+
+                call assert_true(all(test_V .isclose. V))
+            end do
+        end block test_canonical_basis
+
+        ! Use Roland's contraints
+        test_general_basis : block
+            real(wp) :: ref(size(V, 1), size(V, 2))
+
+            call assert_true(size(V, 1) == size(V, 2))
+
+            ref(:, :) = 0._wp
+
+            do i = 1, size(V, 2)
+                ref(i, i) = 1._wp
+                ref(mod(i + 1, size(V, 1)), i) = -1._wp
             end do
 
-            call canonicalize(test_V, lambdas)
+            call canonicalize(V, lambdas, ref)
 
-            call assert_true(all(test_V .isclose. V))
+            do i_test = 1, test_size
+
+                call create_test_V(V, dimension_E, test_V)
+
+                call canonicalize(test_V, lambdas, ref)
+
+                call assert_true(all(test_V .isclose. V))
+            end do
+        end block test_general_basis
+
+    end subroutine
+
+!>  @brief
+!>    Create random rotations inside degenerate Eigenspaces
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @param[in] V The eigenvectors. It is assumed, that Eigenvectors from the same Eigenspace
+!>          are neighbouring.
+!>  @param[in] dimension_E The dimension for each Eigenspace.
+!>  @param[out] test_V The eigenvectors where degenerate Eigenspaces are randomly changed.
+    subroutine create_test_V(V, dimension_E, test_V)
+        real(wp), intent(in) :: V(:, :)
+        integer, intent(in) :: dimension_E(:)
+        real(wp), intent(out) :: test_V(:, :)
+
+        integer :: offset, i
+
+        offset = 1
+        test_V = 0._wp
+        do i = 1, size(dimension_E)
+        block
+            real(wp) :: U(dimension_E(i), dimension_E(i))
+            integer :: j, k
+            call get_rand_orthogonal(U)
+
+            do j = 1, dimension_E(i)
+                do k = 1, dimension_E(i)
+                    test_V(:, offset + j - 1) = test_V(:, offset + j - 1) + U(k, j) * V(:, offset + k - 1)
+                end do
+            end do
+            offset = offset + dimension_E(i)
+        end block
         end do
     end subroutine
 
