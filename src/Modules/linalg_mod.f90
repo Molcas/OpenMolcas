@@ -357,7 +357,6 @@ contains
         character(*), parameter :: this_routine = 'canonicalize_factory'
 
 
-        integer :: info_
         integer :: low, i, j, d
         integer, allocatable :: idx(:), dimensions(:)
         real(wp), allocatable :: projections(:, :), ONB(:, :)
@@ -732,11 +731,12 @@ contains
     subroutine assert_(test_expression, message)
         logical, intent(in) :: test_expression
         character(*), intent(in) :: message
-#ifdef _DEBUG_
+! TODO(Oskar): uncomment
+! #ifdef _DEBUG_
         if (.not. test_expression) then
             call abort_(message)
         end if
-#endif
+! #endif
     end subroutine
 
     !> @brief

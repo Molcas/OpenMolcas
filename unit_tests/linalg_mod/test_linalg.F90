@@ -103,10 +103,9 @@ contains
         real(wp) :: M(size(lambdas), size(lambdas))
         real(wp) :: V(size(M, 1), size(M, 2))
         real(wp) :: U(size(M, 1), size(M, 2))
-        real(wp) :: test_M(size(M, 1), size(M, 2))
         real(wp) :: test_V(size(M, 1), size(M, 2))
 
-        integer :: i, j, i_test
+        integer :: i, i_test
         integer :: offset
 
         create_test_matrix : block
@@ -226,10 +225,10 @@ program test_linalg
     use test_linalg_mod, only: test_mult, test_diagonalization
 
     implicit none
-    integer :: failed_count, err
-    integer, parameter :: seed(1) = [10]
+    integer :: failed_count
+    integer, parameter :: seed(20) = &
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-    integer :: n
     block
 
         call init_fruit()
