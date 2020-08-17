@@ -137,9 +137,9 @@ End of Input
 ****
 
 >> FILE StartOrb.Sol
-#INPORB 1.0         
+#INPORB 1.0
 #INFO
-* SCF orbitals                                                                  
+* SCF orbitals
        0       1
       45
       45
@@ -761,9 +761,9 @@ End of Input
 
 
 >> FILE StartOrb.Ave
-#INPORB 1.0         
+#INPORB 1.0
 #INFO
-*Average Orbitals                                                       
+*Average Orbitals
        0       1
       23
       23

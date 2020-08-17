@@ -38,7 +38,8 @@ NoCD
  &SEWARD
 
  &RASSCF
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 Nactel = 6  0  0
 Inac =   6    4    5    3    0    0    0    0
 Ras2 =   0    0    0    0    2    1    2    1
@@ -50,7 +51,8 @@ Iter = 20 100
 
  &RASSCF
 FILE = start.h5
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 Nactel = 10  2  2
 Inac =   5    4    5    2    0    0    0    0
 Ras1 =   1    0    0    1    0    0    0    0
@@ -66,7 +68,8 @@ Iter = 20 100
 FILE = start.h5
 H5CI
 *CIRE
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 Nactel = 10  2  2
 Inac =   5    4    5    2    0    0    0    0
 Ras1 =   1    0    0    1    0    0    0    0

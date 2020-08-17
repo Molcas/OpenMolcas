@@ -2637,7 +2637,9 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                         END DO ! IPRP
                      Else
 
-                        Forall (iprp=1:12) Prop(:,:,IPRTMOM(IPRP))=0.0D0
+                        Do IPRP=1,12
+                           Prop(:,:,IPRTMOM(IPRP))=0.0D0
+                        End Do
                         Do k_ = 1, nState
                            k=IndexE(k_)
                            JOB3=JBNUM(k)

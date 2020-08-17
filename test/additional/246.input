@@ -19,7 +19,7 @@ Basis set
 O.ANO-S...3s2P1d.
 O4 0.000000    0.677499    0.000000 /Angstrom
 End of basis
- 
+
 End of input
 
 >> COPY StartOrb INPORB
@@ -59,7 +59,7 @@ End of Input
 >> FILE StartOrb
 #INPORB 1.1
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       38
       38

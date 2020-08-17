@@ -1,6 +1,6 @@
 ***********************************************************
 *  This test checks the ability of RASSCF code to compute *
-*  588 roots. In the Molcas.fh the parameter MaxRoot=600; *
+*  588 roots. In the Molcas.fh the parameter MaxRoot=600  *
 *  The computation of the multipole moments is disabled,  *
 *  since the test is on a simple ion, and levels are      *
 *  degenerate. Computation of multipole moments becomes   *
@@ -345,11 +345,11 @@ End of Input
 * 1234567890
 0 iiiiiiiiii
 1 iiiiisssss
-2 s         
+2 s
 * 1234567890
 0 iiiiiiiiii
 1 ii2222222s
-2 ss        
+2 ss
 >>EOF
 
 
