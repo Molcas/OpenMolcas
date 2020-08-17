@@ -155,6 +155,10 @@ option (TOOLS "Compile supported tools." OFF)
 
 option (CTEST "Enable CTest." OFF)
 mark_as_advanced (CTEST)
+# Refactored according to: https://cliutils.gitlab.io/modern-cmake/chapters/testing.html
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
@@ -2864,8 +2868,6 @@ if (DEBUG_DEFS)
   endforeach ()
 endif ()
 
-add_subdirectory(unit_tests)
-
 ################################################################################
 #                                                                              #
 # Tools, i.e. builds are dependent on Molcas library                           #
@@ -3135,44 +3137,50 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if (CTEST)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   enable_testing()
 
-  set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
-  file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
-  set (known_groups "")
-  foreach (dir ${testdirs})
-    file (GLOB groups RELATIVE ${dir} ${dir}/*)
-    foreach (group ${groups})
-      list (FIND known_groups ${group} _index)
-      if (_index GREATER -1)
-        break ()
-      else ()
-        list (APPEND known_groups ${group})
-      endif ()
-      file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
-      list (SORT inputs)
-      foreach (input ${inputs})
-        string (REGEX MATCH "^([^.]+).input$" match ${input})
-        if (NOT ${match} STREQUAL "")
-          set (number ${CMAKE_MATCH_1})
-          execute_process (
-            COMMAND ${MODULENAMES} ${dir}/${group}/${input}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            OUTPUT_VARIABLE module_names
-          )
-          add_test (
-            NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
-            COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
-          )
-          set_property (
-            TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
-            PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
-          )
+# unit tests
+  add_subdirectory(unit_tests)
+
+  if (CTEST)
+# old style molcas tests
+    set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
+    file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
+    set (known_groups "")
+    foreach (dir ${testdirs})
+      file (GLOB groups RELATIVE ${dir} ${dir}/*)
+      foreach (group ${groups})
+        list (FIND known_groups ${group} _index)
+        if (_index GREATER -1)
+          break ()
+        else ()
+          list (APPEND known_groups ${group})
         endif ()
+        file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
+        list (SORT inputs)
+        foreach (input ${inputs})
+          string (REGEX MATCH "^([^.]+).input$" match ${input})
+          if (NOT ${match} STREQUAL "")
+            set (number ${CMAKE_MATCH_1})
+            execute_process (
+              COMMAND ${MODULENAMES} ${dir}/${group}/${input}
+              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+              OUTPUT_VARIABLE module_names
+            )
+            add_test (
+              NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
+              COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
+            )
+            set_property (
+              TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
+              PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
+            )
+          endif ()
+        endforeach ()
       endforeach ()
     endforeach ()
-  endforeach ()
+  endif()
 endif ()
 
 ################################################################################

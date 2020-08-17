@@ -10,6 +10,18 @@ function(add_unit_test Target Source)
     set_target_properties(${Target}
       PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${UNIT_TEST_BUILD_DIR}/bin")
+
+    add_test(
+      NAME
+        ${Target}
+      COMMAND
+        $<TARGET_FILE:${Target}>)
+
+    set_tests_properties(
+        ${Target}
+    PROPERTIES
+        # Make sure DLL is found by adding its directory to PATH
+        ENVIRONMENT "MOLCAS_MEM=1000")
 endfunction()
 
 
