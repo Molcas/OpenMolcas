@@ -99,7 +99,7 @@ c      print *,' iAngMx', iAngMx
             iBas  = Shells(iShll)%nBasis
             If (iBas.eq.0) Go To 101
             iCmp  = nElem(iAng)
-            If (Prjct(iShll)) iCmp = 2*iAng+1
+            If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
             Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
      &                           Shells(iShll)%pCff)
 *

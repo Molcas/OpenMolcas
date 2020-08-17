@@ -1247,9 +1247,9 @@ c Simplistic validity check for value
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
-      Prjct(jShll+1)=.False.
+      Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
-      Prjct(jShll+2)=.False.
+      Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
       nOpt(nCnttp) = iOptn
@@ -1297,8 +1297,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
       If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
-            Prjct(iSh)=.False.
             Shells(iSh)%Transf=.False.
+            Shells(iSh)%Prjct =.False.
          End Do
       End If
 *                                                                      *
@@ -1361,7 +1361,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+3, iShll
                Shells(iSh)%Transf=.True.
-               Prjct(iSh)=.True.
+               Shells(iSh)%Prjct =.True.
             End Do
             Go To 777
          End If
@@ -1370,7 +1370,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          Do iSh = jShll+3, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
                Shells(iSh)%Transf = .True.
-               Prjct(iSh) = .True.
+               Shells(iSh)%Prjct  = .True.
             End If
             iAng = iAng + 1
          End Do
@@ -1380,7 +1380,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
                Shells(iSh)%Transf=.False.
-               Prjct(iSh)=.False.
+               Shells(iSh)%Prjct =.False.
             End Do
             Go To 777
          End If
@@ -1389,7 +1389,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
                Shells(iSh)%Transf = .False.
-               Prjct(iSh) = .False.
+               Shells(iSh)%Prjct  = .False.
             End If
             iAng = iAng + 1
          End Do
@@ -1398,7 +1398,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CONT') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Prjct(iSh)=.False.
+               Shells(iSh)%Prjct  = .False.
             End Do
             Go To 777
          End If
@@ -1406,7 +1406,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0)
-     &          Prjct(iSh) = .False.
+     &          Shells(iSh)%Prjct  = .False.
             iAng = iAng + 1
          End Do
          Go To 777

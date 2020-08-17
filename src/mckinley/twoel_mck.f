@@ -603,7 +603,8 @@
                niag=nijkl*nElem(lb)*mcd*nGr
                Call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,
      &              RSph(ipSph(la)),la,
-     &              Shells(iShlla)%Transf,Prjct(iShlla),
+     &              Shells(iShlla)%Transf,
+     &              Shells(iShlla)%Prjct,
      &              Work3,iCmpa)
                nw3=niag*iCmpa
                ip2=1+nw3
@@ -620,7 +621,8 @@
                End If
                Call CrSph_mck(Work3,niag,(lb+1)*(lb+2)/2,
      &              RSph(ipSph(lb)),lb,
-     &              Shells(jShllb)%Transf,Prjct(jShllb),
+     &              Shells(jShllb)%Transf,
+     &              Shells(jShllb)%Prjct,
      &              Work3(ip2),jCmpb)
 *-----------------------------------------------------------------*
 *
@@ -631,7 +633,8 @@
                niag=nijkl*nGr*nElem(ld)*iCmpa*jCmpb
                Call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,
      &              RSph(ipSph(lc)),lc,
-     &              Shells(kShllc)%Transf,Prjct(kShllc),
+     &              Shells(kShllc)%Transf,
+     &              Shells(kShllc)%Prjct,
      &              Work3,kCmpc)
                If (niag*kCmpc.gt.nw3) Then
                   Write (6,*) 'niag*kCmpc.gt.nw3'
@@ -652,7 +655,8 @@
                End If
                Call CrSph_mck(Work3,niag,(ld+1)*(ld+2)/2,
      &              RSph(ipSph(ld)),ld,
-     &              Shells(lShlld)%Transf,Prjct(lShlld),
+     &              Shells(lShlld)%Transf,
+     &              Shells(lShlld)%Prjct,
      &              Work3(ip2),lCmpd)
 *-----------------------------------------------------------------*
 *

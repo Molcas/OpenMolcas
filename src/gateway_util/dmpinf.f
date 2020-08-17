@@ -98,9 +98,8 @@
       Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
       Call Put_iArray('SewLInfo',p_lx,Len)
 *
-      Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
+      Len = ilLoc(AuxShell(Mx_Shll))-ilLoc(AuxShell(1))
       Len = (Len+nByte_i)/nByte_i
-      Call Put_lArray('Prjct',Prjct,Len)
       Call Put_lArray('AuxShell',AuxShell,Len)
       Call Put_lArray('FragShell',FragShell,Len)
 *

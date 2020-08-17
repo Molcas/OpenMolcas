@@ -237,7 +237,8 @@ c some printouts:
      &            dbsc(iCnttp)%nFragCoor
 #endif
 
-        If(Shells(iShll)%Transf.and.Prjct(iShll)) iSize = 2*iAng+1
+        If(Shells(iShll)%Transf.and.
+     &     Shells(iShll)%Prjct ) iSize = 2*iAng+1
         If(Abs(dbsc(iCnttp)%nFragCoor).ne.iCurMdc) Then
 * update fragment related quantities
           iCurMdc = Abs(dbsc(iCnttp)%nFragCoor)
@@ -332,7 +333,8 @@ c some printouts:
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jSize =',jSize
 #endif
 
-          if(Shells(jShll)%Transf.and.Prjct(jShll)) jSize = 2*jAng+1
+          if(Shells(jShll)%Transf.and.
+     &       Shells(jShll)%Prjct ) jSize = 2*jAng+1
 #ifdef _DEBUG_
          write(6,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
      &                    jShll,jAng,mdcj,jShell,jCnttp
@@ -543,7 +545,8 @@ c some printouts:
 *
 *-----------5) iKa,C = c,iKa * c,C
 *
-            If(Shells(iShll)%Transf.and.Prjct(iShll)) Then
+            If(Shells(iShll)%Transf.and.
+     &         Shells(iShll)%Prjct ) Then
               Call DGEMM_('T','N',
      &                    iBas*nElem(la)*nAlpha,iSize,nElem(iAng),
      &                    1.0d0,Array(ipTmp),nElem(iAng),
@@ -598,7 +601,8 @@ c some printouts:
 *
 *-----------3) bLj,D = d,bLj * d,D
 *
-            If(Shells(jShll)%Transf.and.Prjct(jShll)) Then
+            If(Shells(jShll)%Transf.and.
+     &         Shells(jShll)%Prjct ) Then
               Call DGEMM_('T','N',
      &                    nElem(lb)*jBas*nBeta,jSize,nElem(jAng),
      &                    1.0d0,Array(ipF2),nElem(jAng),

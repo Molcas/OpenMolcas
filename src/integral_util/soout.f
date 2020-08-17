@@ -77,7 +77,7 @@
                   nBasisi=Shells(iSh)%nBasis
                   If (nBasisi.eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                   Do 204 iComp = 1, jComp
                      lComp = kComp + iComp
 *                    Get character of basis function

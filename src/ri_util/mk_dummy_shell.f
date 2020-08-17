@@ -80,7 +80,7 @@
       Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
       Shells(iShll)%Transf=.False.
-      Prjct(iShll)=.False.
+      Shells(iShll)%Prjct =.False.
 *
 *-----The coordinates
 *

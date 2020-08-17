@@ -339,10 +339,12 @@
               Call CarSph(Scr2,kk,iBas*jBas,
      &                    Fnl(1,nComp+1),nScr2,
      &                    RSph(ipSph(iAng)),
-     &                    iAng,Shells(iShll)%Transf,Prjct(iShll),
+     &                    iAng,Shells(iShll)%Transf,
+     &                         Shells(iShll)%Prjct,
      &                    RSph(ipSph(jAng)),
      &                    jAng,Shells(jShll)%Transf,
-     &                    Prjct(jShll),Scr1,iCmp*jCmp)
+     &                         Shells(jShll)%Prjct,
+     &                    Scr1,iCmp*jCmp)
              Else
 *             Transpose back to IJ,x,ab
               Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,

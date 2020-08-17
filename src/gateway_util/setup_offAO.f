@@ -21,7 +21,7 @@
          kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
-            If (Prjct(kSh)) Then
+            If (Shells(kSh)%Prjct ) Then
                kComp = 2*lSh + 1
             Else
                kComp = (lSh+1)*(lSh+2)/2

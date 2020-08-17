@@ -135,8 +135,8 @@
          RecLab( 30)='                ' !Free slot
          RecLab( 31)='                ' !Free slot
          RecLab( 32)='nOpt            '
-         RecLab( 33)='Prjct           '
-         RecLab( 34)='Transf          '
+         RecLab( 33)='                ' !Free slot
+         RecLab( 34)='                ' !Free slot
          RecLab( 35)='iCoSet          '
          RecLab( 36)='LP_A            '
          RecLab( 37)='NumCho          ' ! Number of Cholesky vectors.

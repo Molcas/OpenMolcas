@@ -169,11 +169,12 @@
                ChCa='X'
                ChSph=' '
             End if
-            If (Shells(kSh)%Transf.and.(.not.Prjct(kSh))) ChCo='X'
+            If (Shells(kSh)%Transf .and.
+     &    .not. Shells(kSh)%Prjct ) ChCo='X'
             If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
      &            AngTp(lSh),nExpk,Shells(kSh)%nBasis,ChCa,ChSph,ChCo
-            If (Prjct(kSh)) Then
+            If (Shells(kSh)%Prjct) Then
                kComp = 2*lSh + 1
             Else
                kComp = (lSh+1)*(lSh+2)/2

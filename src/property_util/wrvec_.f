@@ -587,9 +587,9 @@ c      Call Get_iArray('SewLInfo',lxStrt,Len)
       iWork(iivv+Icurr)=Mx_Shll
       Icurr=iCurr+1
 
-      do i=1,Mx_Shll
+      do i=1,Size(Shells)
         ii=0
-        if(Prjct(i)) ii=1
+        if(Shells(i)%Prjct) ii=1
         iWork(iivv+Icurr+i-1)=ii
       enddo
       Icurr=iCurr+Mx_Shll
@@ -617,11 +617,9 @@ c      enddo
 c      Icurr=iCurr+Mx_Shll
 
 c      Write(LU,'(i8)') LenL
-c      Call Get_lArray('Prjct',Prjct,LenL)
 c      Call Get_lArray('AuxShell',AuxShell,LenL)
 c      Call Get_lArray('FragShell',FragShell,LenL)
-c      Write(LU,'(40L2)') (Prjct(i),i=1,LenL),
-c     & (AuxShell(i),i=1,LenL),
+c      Write(LU,'(40L2)') (AuxShell(i),i=1,LenL),
 c     & (FragShell(i),i=1,LenL)
        write(Lu,'(i8)') iTemp
 

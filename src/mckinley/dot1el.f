@@ -445,10 +445,12 @@ c              End If
 *-----------------AB,ij --> ij,ab
                   Call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,
      &                        Work(iScrt2),nScr2,
-     &                        RSph(ipSph(iAng)),
-     &                        iAng,Shells(iShll)%Transf,Prjct(iShll),
-     &                        RSph(ipSph(jAng)),
-     &                        jAng,Shells(jShll)%Transf,Prjct(jShll),
+     &                        RSph(ipSph(iAng)),iAng,
+     &                        Shells(iShll)%Transf,
+     &                        Shells(iShll)%Prjct,
+     &                        RSph(ipSph(jAng)),jAng,
+     &                        Shells(jShll)%Transf,
+     &                        Shells(jShll)%Prjct,
      &                        Work(ipDAO),kk)
                End If
 c              If (iPrint.ge.99) Call RecPrt(

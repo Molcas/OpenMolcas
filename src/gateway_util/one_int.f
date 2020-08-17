@@ -82,9 +82,11 @@
          Call CarSph(Scr2,naa,nCntrc_a*nCntrc_r,
      &               pSAR,nScr2,
      &               RSph(ipSph(iAng)),iAng,
-     &               Shells(iShll_a)%Transf,Prjct(iShll_a),
+     &               Shells(iShll_a)%Transf,
+     &               Shells(iShll_a)%Prjct,
      &               RSph(ipSph(iAng)),iAng,
-     &               Shells(iShll_r)%Transf,Prjct(iShll_r),
+     &               Shells(iShll_r)%Transf,
+     &               Shells(iShll_r)%Prjct,
      &               SAR,iCmp_a*iCmp_r)
       Else
          Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,

@@ -151,7 +151,7 @@
                If (nPrim_a.eq.0) Cycle
                nCntrc_a = Shells(iShll_a)%nBasis_C
                iCmp_a = (iAng+1)*(iAng+2)/2
-               If (Prjct(iShll_a)) iCmp_a = 2*iAng+1
+               If (Shells(iShll_a)%Prjct) iCmp_a = 2*iAng+1
                naa = nElem(iAng)*nElem(iAng)
                nScr1 = Max(nPrim_a,nPrim_a)*Max(nCntrc_a,nCntrc_a)*naa
                nScr2 = Max(nCntrc_a,nCntrc_a)**2*naa
@@ -487,9 +487,9 @@
             Cycle
          End If
          Shells(jShll+1)%Transf=.False.
-         Prjct(jShll+1)=.False.
+         Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
-         Prjct(jShll+2)=.False.
+         Shells(jShll+2)%Prjct =.False.
          ipVal(nCnttp) = ipVal_
          ipPrj(nCnttp) = ipPrj_
          ipSRO(nCnttp) = ipSRO_
@@ -521,7 +521,7 @@
             If (nPrim_a.eq.0) Cycle
             nCntrc_a = Shells(iShll_a)%nBasis_C
             iCmp_a = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll_a)) iCmp_a = 2*iAng+1
+            If (Shells(iShll_a)%Prjct) iCmp_a = 2*iAng+1
 *
 *           Pointers to the reference shell
 *
@@ -534,7 +534,7 @@
             End If
             nCntrc_r = Shells(iShll_r)%nBasis_C
             iCmp_r = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll_r)) iCmp_r = 2*iAng+1
+            If (Shells(iShll_r)%Prjct) iCmp_r = 2*iAng+1
 *
 *                                                                      *
 ************************************************************************

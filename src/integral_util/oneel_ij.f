@@ -470,10 +470,12 @@
                Call CarSph(ScrSph,kk,iBas*jBas*nIC,
      &                     Final,lScrSph,
      &                     RSph(ipSph(iAng)),
-     &                     iAng,Shells(iShll)%Transf,Prjct(iShll),
+     &                     iAng,Shells(iShll)%Transf,
+     &                          Shells(iShll)%Prjct,
      &                     RSph(ipSph(jAng)),
      &                     jAng,Shells(jShll)%Transf,
-     &                     Prjct(jShll),Scrtch,iCmp*jCmp)
+     &                          Shells(jShll)%Prjct,
+     &                     Scrtch,iCmp*jCmp)
                Call DGeTmO(Scrtch,nIC,nIC,iBas*jBas*iCmp*jCmp,
      &                     Final,iBas*jBas*iCmp*jCmp)
             Else

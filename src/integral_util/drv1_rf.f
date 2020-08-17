@@ -314,10 +314,10 @@
      &                              Scr2,nScr2,
      &                              RSph(ipSph(iAng)),
      &                              iAng,Shells(iShll)%Transf,
-     &                                   Prjct(iShll),
+     &                                   Shells(iShll)%Prjct,
      &                              RSph(ipSph(jAng)),
      &                              jAng,Shells(jShll)%Transf,
-     &                                   Prjct(jShll),
+     &                                   Shells(jShll)%Prjct,
      &                              DAO,kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(

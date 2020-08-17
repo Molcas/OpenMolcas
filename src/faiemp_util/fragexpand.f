@@ -185,9 +185,9 @@
      &                 STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
-            Prjct(jShll+1)=.False.
+            Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.
-            Prjct(jShll+2)=.False.
+            Shells(jShll+2)%Prjct =.False.
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
             FockOp(nCnttp)=.False.
@@ -209,7 +209,7 @@
             End Do
             If (INDEX(sBasis(1:Indx-1),'6-31G').ne.0) Then
               Do iSh = jShll+3, iShll
-                Prjct(iSh)=.False.
+                Shells(iSh)%Prjct =.False.
                 Shells(iSh)%Transf=.False.
               End Do
             End If

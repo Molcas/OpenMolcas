@@ -186,7 +186,8 @@ c      write(6,*) 'we here 0?'
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
-          If (Shells(ishell)%Transf.and..not.Prjct(ishell)) Then
+          If (Shells(ishell)%Transf.and.
+     &  .not. Shells(iShell)%Prjct) Then
            If (jPL.ge.2) Then
             Write(6,*) 'Sorry, Molden does not support contaminants'
            End If

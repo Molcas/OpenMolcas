@@ -58,6 +58,7 @@
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -130,8 +131,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
 *
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
       iPrint = nPrint(iRout)
       QInd(1)=Quad_ijkl
       RST_triplet=One
@@ -841,6 +844,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -917,8 +921,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
       iPrint = nPrint(iRout)
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
 *
 #ifdef _DEBUG_
       Call RecPrt('Twoel: Data1',' ',

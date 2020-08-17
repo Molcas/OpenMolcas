@@ -113,7 +113,7 @@
                   Call Abend()
                End If
                kCmp=(iAng+1)*(iAng+2)/2
-               If (Prjct(jSh)) kCmp=2*iAng+1
+               If (Shells(jSh)%Prjct) kCmp=2*iAng+1
                If (nBasisj.ne.0 ) Then
                   If (AuxShell(jSh)) Then
                      iPrim_Aux = iPrim_Aux + nExpj   * kCmp

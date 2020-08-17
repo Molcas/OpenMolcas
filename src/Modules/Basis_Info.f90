@@ -102,7 +102,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 7
+      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 8
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -224,6 +224,8 @@
          iDmp(6,i) = Shells(i)%nBasis_c
          iDmp(7,i) = 0
          If (Shells(i)%Transf) iDmp(7,i)=1
+         iDmp(8,i) = 0
+         If (Shells(i)%Prjct ) iDmp(8,i)=1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
 #ifdef _DEBUG_
@@ -431,6 +433,7 @@
          Shells(i)%nBasis   = iDmp(5,i)
          Shells(i)%nBasis_c = iDmp(6,i)
          Shells(i)%Transf   = iDmp(7,i).eq.1
+         Shells(i)%Prjct    = iDmp(8,i).eq.1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp
 !        Coefficients only there is nBasis =/=0

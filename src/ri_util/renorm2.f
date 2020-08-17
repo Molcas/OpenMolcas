@@ -108,7 +108,7 @@
          Do iAng = 0, nTest
             iShll_ = ipVal(iCnttp) + iAng
             nCmp = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll_)) nCmp = 2*iAng+1
+            If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
             nExpi=Shells(iShll_)%nExp
             If (Shells(iShll_)%nBasis_C.ne.0 .and.
@@ -133,7 +133,7 @@
             If (nExpi*nBasisi.eq.0) Go To 2221
 *
             nCmp = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll)) nCmp = 2*iAng+1
+            If (Shells(iShll)%Prjct) nCmp = 2*iAng+1
 *
             ijS_req=ijS_req+1
 *

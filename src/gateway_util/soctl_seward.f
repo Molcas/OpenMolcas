@@ -311,7 +311,7 @@ C     Show=Show.and..Not.Primitive_Pass
                   If (nExpi.eq.0) Go To 2033
                   If (nBasisi.eq.0) Go To 2033
                   jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                   Do 204 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -674,7 +674,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   If (nExpi.eq.0) Go To 3033
                   If (nBasisi.eq.0) Go To 3033
                   jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                   Do 304 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -891,7 +891,7 @@ CSVC: basis IDs of non-symmetric case
                If (nExpi.eq.0) Go To 4033
                If (nBasisi.eq.0) Go To 4033
                jComp = (iAng+1)*(iAng+2)/2
-               If(Prjct(iSh)) jComp = 2*iAng + 1
+               If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                Do 404 iComp = 1, jComp
                   iAO = iAO + 1
                   If (iAO.gt.MxAO) Then

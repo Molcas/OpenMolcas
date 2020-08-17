@@ -196,9 +196,9 @@
          iAngMx=Max(iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
-         Prjct(jShll+1)=.False.
+         Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
-         Prjct(jShll+2)=.False.
+         Shells(jShll+2)%Prjct =.False.
          pChrg(nCnttp)=pChrg(iCnttp)
          Fixed(nCnttp)=Fixed(iCnttp)
          Parent_iCnttp(nCnttp)=iCnttp
@@ -433,17 +433,17 @@ C        Fixed(nCnttp)=.False.
 *
                iEnd =iEnds
                If (iSph.eq.0) Then
-                  Prjct(iShll)=.False.
                   Shells(iShll)%Transf=.False.
+                  Shells(iShll)%Prjct =.False.
                Else If (iSph.eq.1) Then
-                  Prjct(iShll)=.True.
                   Shells(iShll)%Transf=.False.
+                  Shells(iShll)%Prjct =.True.
                Else If (iSph.eq.2) Then
-                  Prjct(iShll)=.False.
                   Shells(iShll)%Transf=.True.
+                  Shells(iShll)%Prjct =.False.
                Else
-                  Prjct(iShll)=.True.
                   Shells(iShll)%Transf=.True.
+                  Shells(iShll)%Prjct =.True.
                End If
 
                Shells(iShll)%nBasis=Shells(iShll)%nBasis_C

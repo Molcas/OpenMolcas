@@ -90,7 +90,7 @@
                End If
                IndS(iShell) = IndShl
                kCmp=(iAng+1)*(iAng+2)/2
-               If (Prjct(jSh)) kCmp=2*iAng+1
+               If (Shells(jSh)%Prjct) kCmp=2*iAng+1
                IndShl = IndShl + kCmp
 *
                If (Shells(jSh)%nBasis.ne.0 ) Then

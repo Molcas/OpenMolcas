@@ -81,17 +81,21 @@ c     Call qEnter('TwoDens')
                Call SphCr1(Work2,ijklab,
      &                     Work3,nWork3,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Shells(kShllc)%Transf,Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,
+     &                     Shells(kShllc)%Prjct,
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Shells(lShlld)%Transf,Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,
+     &                     Shells(lShlld)%Prjct,
      &                     Work2,mcd)
 *  Work2->Work4  (Work3:Scratch)
                Call SphCr2(Work2,nijkl,mcd,
      &                     Work3,nWork3,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Shells(iShlla)%Transf,Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,
+     &                     Shells(iShlla)%Prjct,
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Shells(jShllb)%Transf,Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,
+     &                     Shells(jShllb)%Prjct,
      &                     Work4,mab)
 *
 *----------------------------------------------------------------*

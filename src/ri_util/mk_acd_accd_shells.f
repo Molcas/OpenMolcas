@@ -205,7 +205,7 @@
       Do iAng = 0, nTest
          iShll_ = ipVal(iCnttp) + iAng
          nCmp = (iAng+1)*(iAng+2)/2
-         If (Prjct(iShll_)) nCmp = 2*iAng+1
+         If (Shells(iShll_)%Prjct ) nCmp = 2*iAng+1
          iSO = 0
          If (Shells(iShll_)%nBasis_C.ne.0 .and.
      &       Shells(iShll_)%nExp.ne.0) Then
@@ -226,7 +226,7 @@
       nPhi_All=nSO*(nSO+1)/2
       Call mma_allocate(iList2_c,mData*2,nPhi_All,label='iList2_c')
       Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,
-     &              nTest,ipVal,Mxdbsc,Prjct,MxShll,0)
+     &              nTest,ipVal,Mxdbsc,0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -339,7 +339,7 @@
          Do iAng = 0, nTest
             iShll_ = ipVal(iCnttp) + iAng
             nCmp = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll_)) nCmp = 2*iAng+1
+            If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
             Do iCmp = 1, nCmp
                iAO = iAO + 1
@@ -495,10 +495,10 @@ C                    iPrint=99
 *
                      npi=Shells(iShll_)%nExp
                      nCmpi=(iAng+1)*(iAng+2)/2
-                     If (Prjct(iShll_)) nCmpi=2*iAng+1
+                     If (Shells(iShll_)%Prjct ) nCmpi=2*iAng+1
                      npj=Shells(jShll_)%nExp
                      nCmpj=(jAng+1)*(jAng+2)/2
-                     If (Prjct(jShll_)) nCmpj=2*jAng+1
+                     If (Shells(jShll_)%Prjct ) nCmpj=2*jAng+1
                      If (iAng.eq.jAng) Then
                         nTheta_All=npi*nCmpi*(npi*nCmpi+1)/2
                      Else
@@ -510,9 +510,8 @@ C                    iPrint=99
 *
                      ijS_Req=(iAng+1)*iAng/2 + jAng + 1
 *
-                     Call Mk_List2(iList2_p,nTheta_All,mData,
-     &                             nSO_p,iCnttp, nTest,ipVal,Mxdbsc,
-     &                             Prjct,MxShll,ijS_Req)
+                     Call Mk_List2(iList2_p,nTheta_All,mData,nSO_p,
+     &                             iCnttp, nTest,ipVal,Mxdbsc,ijS_Req)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1355,10 +1354,10 @@ C                          Thrs= 1.0D-12
                   Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
                   If (jAng.eq.0) Then
                      Shells(iShll)%Transf=Shells(kShll)%Transf
-                     Prjct(iShll)=Prjct(kShll)
+                     Shells(iShll)%Prjct =Shells(kShll)%Prjct
                   Else
                      Shells(iShll)%Transf=.True.
-                     Prjct(iShll)=.False.
+                     Shells(iShll)%Prjct =.False.
                   End If
                   AuxShell(iShll)=.True.
 *
@@ -1472,7 +1471,7 @@ C                          Thrs= 1.0D-12
                iShll_ = ipVal(jCnttp) + iAng
                nExpi=Shells(iShll_)%nExp
                iSph=0
-               If (Prjct(iShll_))  iSph=1
+               If (Shells(iShll_)%Prjct )  iSph=1
                If (Shells(iShll_)%Transf) iSph=iSph+2
                Write (Lu_lib,'(3I10)') nExpi, Shells(iShll_)%nBasis,iSph
 *

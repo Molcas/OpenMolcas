@@ -94,7 +94,7 @@
                If (Basis_Mode.eq.With_Fragment_Mode .and.
      &             AuxShell(iShll)) Go To 200
                iCmp  = (iAng+1)*(iAng+2)/2
-               If (Prjct(iShll)) iCmp = 2*iAng+1
+               If (Shells(iShll)%Prjct) iCmp = 2*iAng+1
 *
                nSkal = nSkal + 1
 *
@@ -112,7 +112,7 @@
      &                     + kOffAO(iCnttp,iAng)     !
                iSD(8,nSkal)= -1                      ! Not used
                itemp=0                               !
-               If ( Prjct(iShll)) itemp=itemp+1      !
+               If (Shells(iShll)%Prjct ) itemp=itemp+1      !
                If (Shells(iShll)%Transf) itemp=itemp+2      !
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci                    ! Center index
@@ -192,7 +192,7 @@
          If (nBasisi.eq.0) Go To 400
          If (FragShell(iShll)) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
-         If (Prjct(iShll)) iCmp = 2*iAng+1
+         If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
 *
          nSkal = nSkal + 1
 *
@@ -209,7 +209,7 @@
      &               + kOffAO(iCnttp,iAng)     !
          iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !
-         If ( Prjct(iShll)) itemp=itemp+1      !
+         If (Shells(iShll)%Prjct ) itemp=itemp+1      !
          If (Shells(iShll)%Transf) itemp=itemp+2      !
          iSD(9,nSkal)=itemp                    ! sph., car., cont.
          iSD(10,nSkal)=mdci                    ! Center index
@@ -229,7 +229,7 @@
 *
          m2Max=Max(m2Max,nExpi**2)
 *
-         If (Prjct(iShll)) Then
+         If (Shells(iShll)%Prjct ) Then
             nFunctions = nFunctions + nBasisi*(2*iAng+1)
          Else
             nFunctions = nFunctions + nBasisi*(iAng+1)*(iAng+2)/2
@@ -289,7 +289,7 @@
             nBasisi=Shells(iShll)%nBasis
             If (nBasisi.eq.0) Go To 201
             iCmp  = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll)) iCmp = 2*iAng+1
+            If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                nSkal = nSkal + 1
 *                                                                      *
@@ -307,7 +307,7 @@
      &                     + kOffAO(iCnttp,iAng)     !
                iSD(8,nSkal)=-1                       ! Not used
                itemp=0                               !
-               If ( Prjct(iShll)) itemp=itemp+1      !
+               If (Shells(iSHll)%Prjct ) itemp=itemp+1      !
                If (Shells(iShll)%Transf) itemp=itemp+2      !
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci+iCnt               ! Center index

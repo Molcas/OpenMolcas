@@ -307,10 +307,10 @@ c           Call NAMem(nOrder,MemKer,iAng,jAng,nOrdOp)
      &                              Work(iScrt2),nScr2,
      &                              RSph(ipSph(iAng)),
      &                              iAng,Shells(iShll)%Transf,
-     &                                   Prjct(iShll),
+     &                                   Shells(iShll)%Prjct,
      &                              RSph(ipSph(jAng)),
      &                              jAng,Shells(jShll)%Transf,
-     &                                   Prjct(jShll),
+     &                                   Shells(jShll)%Prjct,
      &                              Work(ipDAO),kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(

@@ -451,9 +451,11 @@
                Call SphCr1(Wrk2(iW2),ijklab,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Shells(kShllc)%Transf,Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,
+     &                     Shells(kShllc)%Prjct,
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Shells(lShlld)%Transf,Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,
+     &                     Shells(lShlld)%Prjct,
      &                     Wrk2(iW2),mcd)
                If (iW2.eq.iW4) Then
                   nW2 = nijkl*mcd*Max(iCmpa*jCmpb,mab)
@@ -467,9 +469,11 @@
                Call SphCr2(Wrk2(iW2),nijkl,mcd,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Shells(iShlla)%Transf,Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,
+     &                     Shells(iShlla)%Prjct,
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Shells(jShllb)%Transf,Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,
+     &                     Shells(jShllb)%Prjct,
      &                     Wrk2(iW4),mab)
 *
 *--------------Transpose the 2nd order density matrix

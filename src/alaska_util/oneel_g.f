@@ -343,9 +343,11 @@ c VV: gcc bug: one has to use this if!
                   Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
      &                        Scr2,nScr2,
      &                        RSph(ipSph(iAng)),
-     &                        iAng,Shells(iShll)%Transf,Prjct(iShll),
+     &                        iAng,Shells(iShll)%Transf,
+     &                             Shells(iShll)%Prjct,
      &                        RSph(ipSph(jAng)),
-     &                        jAng,Shells(jShll)%Transf,Prjct(jShll),
+     &                        jAng,Shells(jShll)%Transf,
+     &                             Shells(jShll)%Prjct,
      &                        DAO,kk)
                End If
                If (iPrint.ge.99) Call RecPrt(

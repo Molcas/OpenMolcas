@@ -85,14 +85,15 @@
      &         'preceding this shell',kOffAO(iCnttp,lSh)
             Call Banner(Lines,3,30)
             kCmp = (iAng+1)*(iAng+2)/2
-            If (Prjct(jSh)) kCmp=2*iAng+1
+            If (Shells(jSh)%Prjct ) kCmp=2*iAng+1
 *
 *-----------Print exponents and contraction coefficients
 *
             If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasisj.gt.0) Then
                Write (6,*)
-               If (Prjct(jSh).and.Shells(jSh)%Transf) Then
+               If (Shells(jSh)%Prjct .and.
+     &             Shells(jSh)%Transf) Then
                   Write (6,*) ' Gaussian type: Spherical Harmonics'
                Else If (Shells(jSh)%Transf) Then
                   Write (6,*)

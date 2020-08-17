@@ -133,7 +133,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       MolWgh=2
 *
       Do i=1,MxShll
-         Prjct(i)    =.True.
          AuxShell(i) =.False.
          FragShell(i)=.False.
       End Do
