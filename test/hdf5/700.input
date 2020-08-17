@@ -13,8 +13,8 @@
     H  0.35  0.00  0.00
     H -0.35  0.00  0.00
   Basis = DZ
-  NoCD 
- 
+  NoCD
+
 &SEWARD
 
 &SCF

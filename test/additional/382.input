@@ -24,7 +24,8 @@ Medium Cholesky
 
  &RASSCF
 LUMOrb
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 nActEl = 6 0 0
 Inactive = 3
 Ras2 = 6

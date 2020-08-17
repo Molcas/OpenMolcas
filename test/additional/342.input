@@ -1,8 +1,8 @@
 *-------------------------------------------------------------------------------
-* Molecule: H2 
+* Molecule: H2
 * Basis: ANO-S
 * Features tested: The SELEctive keyword in FFPT. Modifications in LoProp_Util
-*                  can have effect on this keyword. Also add test of the quad 
+*                  can have effect on this keyword. Also add test of the quad
 *                  and octu keyword in ffpt.
 * Responsible person: A.Ohrn 051013
 *-------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ End of Input
 Quadrupole
 xz 0.0005
 End of Inut
- 
+
  &Scf &End
 LumOrb
 Occupied

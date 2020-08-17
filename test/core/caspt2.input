@@ -40,7 +40,9 @@ NoCD
 
 >> COPY startorb-d2h INPORB
  &RASSCF
-Symmetry = 1; Spin = 1; nActEl = 10 3 0;
+Symmetry = 1
+Spin = 1
+nActEl = 10 3 0
 InAc =  6    0    4    0    5    0    4    0
 RAS1 =  0    1    0    1    0    1    0    1
 Ras2 =  0    1    0    0    0    1    0    0
@@ -54,7 +56,8 @@ RFRoot
 LumOrb
 Iter = 20 100
 THRS = 1.0d-9 1.0d-5 1.0d-5
-OrbListing = All; OrbAppear = Full
+OrbListing = All
+OrbAppear = Full
 CIONly
 
 >> CLONE $Project.JobIph refwfn.jobiph
@@ -125,7 +128,9 @@ High Cholesky
 
 >> COPY startorb-d2h INPORB
  &RASSCF
-Symmetry = 1; Spin = 1; nActEl = 2 0 0;
+Symmetry = 1
+Spin = 1
+nActEl = 2 0 0
 InAc =  6    1    4    1    5    1    4    1
 Ras2 =  0    1    0    0    0    1    0    0
 CiRoot
@@ -134,7 +139,8 @@ CiRoot
 LumOrb
 Iter = 20 100
 THRS = 1.0d-9 1.0d-5 1.0d-5
-OrbListing = All; OrbAppear = Full
+OrbListing = All
+OrbAppear = Full
 OUTOrbitals = CANO
 
 >> CLONE $Project.JobIph refwfn.jobiph
@@ -198,7 +204,9 @@ Group = NoSym
 
 >> COPY startorb-c1 INPORB
  &RASSCF
-Symmetry = 1; Spin = 4; nActEl = 3 0 0;
+Symmetry = 1
+Spin = 4
+nActEl = 3 0 0
 InAc =  22
 Ras2 =   3
 CiRoot
@@ -207,7 +215,8 @@ CiRoot
 LumOrb
 Iter = 40 100
 THRS = 1.0d-9 1.0d-5 1.0d-5
-OrbListing = All; OrbAppear = Full
+OrbListing = All
+OrbAppear = Full
 CIONly
 
 >> CLONE $Project.JobIph refwfn.jobiph
@@ -224,7 +233,9 @@ CIONly
 
 >> COPY startorb-c1 INPORB
  &RASSCF
-Symmetry = 1; Spin = 1; nActEl = 6 3 3;
+Symmetry = 1
+Spin = 1
+nActEl = 6 3 3
 InAc =  21
 RAS1 =   2
 Ras2 =   2
@@ -238,7 +249,8 @@ RFRoot
 LumOrb
 Iter = 40 100
 THRS = 1.0d-9 1.0d-5 1.0d-5
-OrbListing = All; OrbAppear = Full
+OrbListing = All
+OrbAppear = Full
 CIONly
 
 >> CLONE $Project.JobIph refwfn.jobiph
@@ -515,22 +527,22 @@ F 0.  1.0978 -1.3785
 #INDEX
 * 1234567890
 0 iiiiiissss
-1 ss        
+1 ss
 * 1234567890
-0 iiss      
+0 iiss
 * 1234567890
-0 iiiisssss 
+0 iiiisssss
 * 1234567890
-0 is        
+0 is
 * 1234567890
 0 iiiiisssss
-1 ss        
+1 ss
 * 1234567890
-0 isss      
+0 isss
 * 1234567890
-0 iiiisssss 
+0 iiiisssss
 * 1234567890
-0 is        
+0 is
 >> EOF
 
 >>FILE startorb-c1

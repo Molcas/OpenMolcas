@@ -34,8 +34,11 @@ NoCD
 &SEWARD
 &SCF
 &ALASKA
-&MBPT2 ; NoGrdt
-&ALASKA ; Numerical ; KeepOld
+&MBPT2
+  NoGrdt
+&ALASKA
+  Numerical
+  KeepOld
 &SLAPAF
   FindTS
   TSConstraints
