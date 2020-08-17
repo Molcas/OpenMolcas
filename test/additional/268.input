@@ -3,7 +3,7 @@
 * Basis: ANO-S...O(3s2p1d),H(2s)
 * Symmetry: None
 * Features tested: MBPT2 variational density and its LoProp analysis
-* Responsible person: P. Soderhjelm 061102 
+* Responsible person: P. Soderhjelm 061102
 *-------------------------------------------------------------------------------
  &Seward &End
 Basis Set

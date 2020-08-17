@@ -31,15 +31,15 @@ End of input
 
 &RASSCF &END
 Spin
- 2    
+ 2
 Symmetry
- 1    
+ 1
 nActEl
  1 0 0
 Inactive
 53
 Ras2
-4               
+4
 CIRoots
 4 4 1
 Iter
@@ -55,7 +55,7 @@ canonical
 End of input
 
 
-&RASSI &END  
+&RASSI &END
 MEES
 PROP
 3
@@ -64,9 +64,9 @@ PROP
 'ANGMOM' 3
 NrofJobIphs
 1 4
- 1 2 3 4 
+ 1 2 3 4
 SpinOrbit
-EPRG  
+EPRG
 1.0
 end of input
 

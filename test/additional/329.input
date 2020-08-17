@@ -12,25 +12,33 @@ NoCD
 >export MOLCAS_MAXITER=5
 > DOWHILE
 
-&SEWARD; Title= Test of Trajectory Surface Hopping Algorithm
+&SEWARD
+Title= Test of Trajectory Surface Hopping Algorithm
 
 > IF ( ITER = 1 )
 >> COPY StartOrb INPORB
 &RASSCF
 LUMORB
-Symmetry= 1; Spin= 1; nActEl= 4 0 0
+Symmetry= 1
+Spin= 1
+nActEl= 4 0 0
 CIroot= 2 2; 1 2; 1 1
-Inactive= 13; RAS2= 4
+Inactive= 13
+RAS2= 4
 MDRLXR= 2
 >COPY $Project.JobIph $Project.JobOld
 >END IF
 
 >> COPY $Project.RasOrb INPORB
 &RASSCF
-JOBIPH; CIRESTART
-Symmetry= 1; Spin= 1; nActEl= 4 0 0
+JOBIPH
+CIRESTART
+Symmetry= 1
+Spin= 1
+nActEl= 4 0 0
 CIroot= 2 2; 1 2; 1 1
-Inactive= 13; RAS2= 4
+Inactive= 13
+RAS2= 4
 MDRLXR= 2
 >COPY $Project.JobIph $Project.JobOld
 
@@ -39,8 +47,12 @@ Show
 CutOff= 1.0D-8
 Verbose
 
-&DYNAMIX ; VelVer
-DT= 10.0; VELO= 1; THERMO= 0; HOP=3
+&DYNAMIX
+VelVer
+DT= 10.0
+VELO= 1
+THERMO= 0
+HOP=3
 > END DO
 
 ****
@@ -711,7 +723,7 @@ DT= 10.0; VELO= 1; THERMO= 0; HOP=3
 1 iii2222sss
 2 ssssssssss
 3 ssssssssss
-4 ssssssss  
+4 ssssssss
 #EXTRAS
 * ACTIVE TWO-EL ENERGY
 0.172347168176E+01

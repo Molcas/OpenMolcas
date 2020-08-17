@@ -11,14 +11,14 @@ Basis set
 H.6-31G**....
 H             0.0000000000        1.6113850362        0.0000000000
 End of basis
- 
+
 Basis set
 F.6-31G**....
 F             0.0000000000       -0.0854805598        0.0000000000
 End of basis
 
 End of input
-             
+
 &SCF &END
 Occupied
 5
@@ -26,13 +26,13 @@ End of Input
 
  &RASSCF &End
 Symmetry
-1 
-Spin 
+1
+Spin
 1
 Inactive
 4
 Nactel
-2 0 0 
+2 0 0
 RAS2
 2
 CIROOT
@@ -59,7 +59,7 @@ Basis set
 H.6-31G**....
 H             0.0000000000        1.6113850362        0.0000000000
 End of basis
- 
+
 Basis set
 F.6-31G**....
 F             0.0000000000       -0.0854805598        0.0000000000
@@ -67,16 +67,16 @@ End of basis
 
  NoCD
 End of input
-             
+
  &RASSCF &End
 Symmetry
-1 
-Spin 
+1
+Spin
 1
 Inactive
 4
 Nactel
-2 0 0 
+2 0 0
 RAS2
 2
 CIROOT

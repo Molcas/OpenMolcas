@@ -5,7 +5,7 @@
 * Responsible person: V.Veryazov
 *-------------------------------------------------------------------------------
  &SEWARD  &END
-Title 
+Title
  H2O minimum optimization
 Basis set
 O.STO-3G...2s1p.
@@ -19,15 +19,15 @@ End of basis
 NoCD
 End of input
 
- &SCF &END             
+ &SCF &END
 Title
  H2O minimum optimization
-Charge 
+Charge
  0
-End of input 
+End of input
 
  &SEWARD  &END
-Title 
+Title
  H2O minimum optimization
 Symmetry
  Y Z
@@ -42,12 +42,12 @@ End of basis
 NoCD
 End of input
 
- &SCF &END             
+ &SCF &END
 Title
  H2O minimum optimization
-Charge 
+Charge
  0
-End of input 
+End of input
 
 
 >>FILE checkfile

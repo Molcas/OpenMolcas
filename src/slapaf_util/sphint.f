@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SphInt(xyz,nCent,RR0,Bf,l_Write,lWarn,Label,dBf,ldB)
+      Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,lWarn,Label,
+     &                  dBf,ldB)
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -18,7 +19,7 @@
       Logical l_Write, ldB, lWarn
       Character*8 Label
 *
-      xyz0(i,j)=Work(ipRef+(j-1)*3+i-1)
+      xyz0(i,j)=Work(ipRef_+(j-1)*3+i-1)
 *
 *     Call QEnter('SphInt')
 *
@@ -27,8 +28,13 @@
 *                                                                      *
 *     Compute the radius of the hypersphere
 *
+      If (iOfRef.eq.ip_Dummy) Then
+         ipRef_=ipRef
+      Else
+         ipRef_=iOfRef
+      End If
 C     Call RecPrt('SphInt: xyz',' ',xyz,3,nCent)
-C     Call RecPrt('Ref: xyz0',' ',Work(ipRef),3,nCent)
+C     Call RecPrt('Ref: xyz0',' ',Work(ipRef_),3,nCent)
       RR0=Zero
       TWeight=Zero
       Do iCent = 1, nCent

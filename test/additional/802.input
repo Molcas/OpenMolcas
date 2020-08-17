@@ -2,13 +2,13 @@
 * Molecule: lithium hydride (LiH)
 * Basis: cc-pVDZ
 * Symmetry: c2v
-* Features tested: DQV diabatization 
+* Features tested: DQV diabatization
 * Responsible person: C. E. Hoyer 05-16-2015
 *-------------------------------------------------------------------------------
 
 
 &SEWARD
-Coord 
+Coord
  2
 angstrom
 H       0.000000        0.000000        2.5000000        /Angstrom
@@ -20,7 +20,7 @@ EPOT
 basis
  cc-pvdz
 END of basis
-CENTER= 1; 2 0.0 0.0 0.0 
+CENTER= 1; 2 0.0 0.0 0.0
 NoCD
 
 &SCF
@@ -34,16 +34,16 @@ Symmetry
 Spin
 1
 Nact
-2 0 0 
+2 0 0
 Inac
-1 0 0 0 
+1 0 0 0
 RAS2
-3 1 0 1  
+3 1 0 1
 CIROot= 3 3 1
 
  &RASSI &END
 NrofJobIph
-1 3   
+1 3
 1 2 3
 MEIN
 MEES
