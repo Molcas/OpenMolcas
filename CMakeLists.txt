@@ -18,6 +18,8 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
+project (Molcas Fortran C)
+
 cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
@@ -245,12 +247,8 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 #=====================================
 message ("Configuring compilers:")
 
-if (EFPLIB)
-  cmake_minimum_required (VERSION 3.0.2)
-endif ()
 if (DMRG)
-  project (Molcas Fortran C CXX)
-  cmake_minimum_required (VERSION 3.2.0)
+  enable_language(CXX)
   if (NOT DEFINED QCMaquis_ROOT)
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
@@ -259,11 +257,11 @@ if (DMRG)
     endif ()
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
   endif ()
-elseif (WFA)
-  project (Molcas Fortran C CXX)
-else ()
-  project (Molcas Fortran C)
-endif ()
+endif()
+
+if (WFA)
+  enable_language(CXX)
+endif()
 
 #avoid using CXX compiler for linking
 set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
