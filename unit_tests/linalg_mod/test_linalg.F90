@@ -132,30 +132,8 @@ contains
             call canonicalize(V, lambdas)
 
             do i_test = 1, test_size
-
-! TODO(@Oskar): Delete the following
-!                 write(*, *) '===== V'
-!                 do i = 1, size(V, 1)
-!                     write(*, *) V(i, :)
-!                 end do
-!                 write(*, *) '====='
-!
                 call create_test_V(V, dimension_E, test_V)
-!
-!                 write(*, *) '===== test_V'
-!                 do i = 1, size(test_V, 1)
-!                     write(*, *) test_V(i, :)
-!                 end do
-!                 write(*, *) '====='
-!
                 call canonicalize(test_V, lambdas)
-!
-!                 write(*, *) '===== transformed test_V'
-!                 do i = 1, size(test_V, 1)
-!                     write(*, *) test_V(i, :)
-!                 end do
-!                 write(*, *) '====='
-
                 call assert_true(all(test_V .isclose. V))
             end do
         end block test_canonical_basis
@@ -176,30 +154,8 @@ contains
             call canonicalize(V, lambdas, ref)
 
             do i_test = 1, test_size
-
-! TODO(@Oskar): Delete the following
-!                 write(*, *) '====='
-!                 do i = 1, size(V, 1)
-!                     write(*, *) V(i, :)
-!                 end do
-!                 write(*, *) '====='
-!
                 call create_test_V(V, dimension_E, test_V)
-!
-!                 write(*, *) '===== test_V'
-!                 do i = 1, size(test_V, 1)
-!                     write(*, *) test_V(i, :)
-!                 end do
-!                 write(*, *) '====='
-!
                 call canonicalize(test_V, lambdas, ref)
-!
-!                 write(*, *) '===== transformed test_V'
-!                 do i = 1, size(test_V, 1)
-!                     write(*, *) test_V(i, :)
-!                 end do
-!                 write(*, *) '====='
-
                 call assert_true(all(test_V .isclose. V))
             end do
         end block test_general_basis
