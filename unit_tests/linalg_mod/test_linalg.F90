@@ -98,7 +98,8 @@ contains
 
     subroutine test_diagonalization()
         integer, parameter :: test_size = 10
-        integer, parameter :: dimension_E(2) = [2, 1]
+        ! dimension of the Eigenspaces
+        integer, parameter :: dimension_E(4) = [5, 5, 1, 5]
         real(wp) :: lambdas(sum(dimension_E))
         real(wp) :: M(size(lambdas), size(lambdas))
         real(wp) :: V(size(M, 1), size(M, 2))
