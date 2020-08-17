@@ -67,6 +67,8 @@
 !     Cff_c : Contraction coefficients in processed and raw input form
 !     Cff_p : Contraction coefficient in the case of no contraction, processed and raw
 !     Cff   : copy of Cff_c or Cff_p
+!     Transf: Cartesian transformed to real sphericals.
+!     Projct: real sphericals without contaminations (3s, 4d, etc.)
 !     Bk    : ECP proj shift parameters for i''th shell.
 !             the number of parameters is given by nBasis
 !     Occ   : Occupation numbers for core ECP orbitals
@@ -81,6 +83,7 @@
            Real*8, Allocatable:: pCff(:,:)
            Real*8, Allocatable:: Cff_c(:,:,:), Cff_p(:,:,:)
            Logical :: Transf=.True.
+           Logical :: Prjct =.True.
            Integer :: nBk=0
            Real*8, Allocatable:: Bk(:)
            Real*8, Allocatable:: Occ(:)

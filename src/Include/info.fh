@@ -109,8 +109,6 @@
 *     Prjct : logical flag to indicate if the angular functions of the *
 *             i''th shell are projected on to the spherical harmonics  *
 *             excluding the contaminant.                               *
-*     Transf: logical flag to indicate if the angular functions of the *
-*             i''th shell are transformed on to the spherical harmonics*
 *     Onenly: logical flag to indicate that only the 1-electron        *
 *             integrals are computed                                   *
 *     Petite: logical flag to indicate that petite list integrals are  *
@@ -292,7 +290,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical   Prjct(MxShll),Transf(MxShll),DirInt, Onenly, Petite,
+      Logical   Prjct(MxShll),DirInt, Onenly, Petite,
      &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
@@ -308,7 +306,7 @@
      &          Do_Numerical_Gradients, VarT, VarR, EMFR,
      &          lUPONLY, lDOWNONLY, FNMC
       Integer lxStrt, lxEnd
-      Common /LInfo/ Prjct, Transf, FragShell, AuxShell,
+      Common /LInfo/ Prjct, FragShell, AuxShell,
      &               lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,
      &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,

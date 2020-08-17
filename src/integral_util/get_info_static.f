@@ -91,7 +91,6 @@
       Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
       Len = (Len+nByte_i)/nByte_i
       Call Get_lArray('Prjct',Prjct,Len)
-      Call Get_lArray('Transf',Transf,Len)
       Call Get_lArray('AuxShell',AuxShell,Len)
       Call Get_lArray('FragShell',FragShell,Len)
 *
