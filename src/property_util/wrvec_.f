@@ -611,16 +611,14 @@ c        print *,'VV',icurr+i
 cvv
 c      do i=1,Mx_Shll
 c        ii=0
-c        if(FragShell(i)) ii=1
+c        if(Shells(i)%Frag) ii=1
 c        iWork(iivv+Icurr+i)=ii
 c      enddo
 c      Icurr=iCurr+Mx_Shll
 
 c      Write(LU,'(i8)') LenL
 c      Call Get_lArray('AuxShell',AuxShell,LenL)
-c      Call Get_lArray('FragShell',FragShell,LenL)
-c      Write(LU,'(40L2)') (AuxShell(i),i=1,LenL),
-c     & (FragShell(i),i=1,LenL)
+c      Write(LU,'(40L2)') (AuxShell(i),i=1,LenL)
        write(Lu,'(i8)') iTemp
 
        call pack_me(Lu, iWork(iivv),iTemp)

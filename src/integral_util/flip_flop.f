@@ -38,7 +38,7 @@
 *
                Call mma_deallocate(Shells(iShll)%pCff)
                If (Primitive.and..Not.AuxShell(iShll)
-     &                      .and..Not.FragShell(iShll)) Then
+     &                      .and..Not.Shells(iShll)%Frag) Then
                   Shells(iShll)%nBasis=nExpi
                   Call mma_allocate(Shells(iShll)%pCff,nExpi,
      &                              Shells(iShll)%nBasis,Label='pCff')

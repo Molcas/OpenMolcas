@@ -42,7 +42,8 @@
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt
-            if (AuxShell(jSh).or.FragShell(jSh)) cycle
+            if (AuxShell(jSh).or.
+     &          Shells(jSh)%Frag) cycle
             Do iAng = 0, nVal_Shells(iCnttp)-1
               nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
               jSh = jSh + 1
@@ -72,7 +73,8 @@
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt
-            if (AuxShell(jSh).or.FragShell(jSh)) cycle
+            if (AuxShell(jSh).or.
+     &          ShellS(jSh)%Frag) cycle
 *     Get the flat, desymmetrized id of the center
             iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
             Do iAng = 0, nVal_Shells(iCnttp)-1

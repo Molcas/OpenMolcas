@@ -97,7 +97,7 @@
                   If (AuxShell(jSh)) Then
                      iBas_Aux  = iBas_Aux  + Shells(jSh)%nBasis * kCmp
      &                         * nIrrep/nStab(mdc)
-                  Else If (FragShell(jSh)) Then
+                  Else If (Shells(jSh)%Frag) Then
                      iBas_Frag = iBas_Frag  + Shells(jSh)%nBasis * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else

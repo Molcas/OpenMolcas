@@ -120,7 +120,7 @@
      &                         * nIrrep/nStab(mdc)
                      iBas_Aux  = iBas_Aux  + nBasisj * kCmp
      &                         * nIrrep/nStab(mdc)
-                  Else If (FragShell(jSh)) Then
+                  Else If (Shells(jSh)%Frag) Then
                      iPrim_Frag = iPrim_Frag + nExpj   * kCmp
      &                          * nIrrep/nStab(mdc)
                      iBas_Frag = iBas_Frag  + nBasisj * kCmp

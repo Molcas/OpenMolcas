@@ -101,7 +101,6 @@
       Len = ilLoc(AuxShell(Mx_Shll))-ilLoc(AuxShell(1))
       Len = (Len+nByte_i)/nByte_i
       Call Put_lArray('AuxShell',AuxShell,Len)
-      Call Put_lArray('FragShell',FragShell,Len)
 *
 *     Save the common RINFO
 *

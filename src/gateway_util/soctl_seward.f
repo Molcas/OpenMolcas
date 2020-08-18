@@ -330,7 +330,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
      &                   nStab(mdc))) Go To 204
-                     If(.not.FragShell(iSh) .and.
+                     If(.not.Shells(iSh)%Frag .and.
      &                  .not.AuxCnttp(iCnttp))
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore
                      iEMax = Max(iEMax,IndS(iShell)+iComp)
@@ -366,7 +366,7 @@ C     Show=Show.and..Not.Primitive_Pass
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
-                        Else If (FragShell(iSh)) Then
+                        Else If (Shells(iSh)%Frag) Then
                            iSO_Frag = iSO_Frag + 1
                            iSO_=iSO_Frag
                            nBas_Frag(iIrrep) = nBas_Frag(iIrrep) + 1
@@ -442,7 +442,8 @@ C     Show=Show.and..Not.Primitive_Pass
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.FragShell(iSh)) Go To 205
+                        If (AuxShell(iSh).or.
+     &                      Shells(iSh)%Frag) Go To 205
 *
                         If (.Not.Primitive_Pass) Then
                            Write (isymunit,'(13(I4,4X))')
@@ -713,7 +714,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
                      nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
-                     If(.not.FragShell(iSh) .and.
+                     If(.not.Shells(iSh)%Frag .and.
      &                  .not.AuxCnttp(iCnttp))
      &                 nFCore(0)=nFCore(0)+nCore
 *
@@ -725,7 +726,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
-                        Else If (FragShell(iSh)) Then
+                        Else If (Shells(iSh)%Frag) Then
                            iSO_Frag = iSO_Frag + 1
                            iSO_=iSO_Frag
                            nBas_Frag(iIrrep) = nBas_Frag(iIrrep) + 1
@@ -790,7 +791,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.FragShell(iSh)) Go To 305
+                        If (AuxShell(iSh).or.
+     &                      Shells(iSh)%Frag) Go To 305
                         Write (isymunit,'(13(I4,4X))')
      &                     iSO,mdc,LVAL(lculf),MVAL(lculf),
      &                     nIrrep/nStab(mdc),

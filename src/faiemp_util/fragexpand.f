@@ -205,7 +205,7 @@
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
             CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
             Do iSh = jShll+1,iShll
-              FragShell(iSh)=.True.
+               Shells(iSh)%Frag=.True.
             End Do
             If (INDEX(sBasis(1:Indx-1),'6-31G').ne.0) Then
               Do iSh = jShll+3, iShll

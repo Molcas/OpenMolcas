@@ -1,4 +1,4 @@
-************************************************************************
+
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -84,13 +84,14 @@
                nBasisi=Shells(iShll)%nBasis
                If (nBasisi.eq.0) Go To 200
                If (Basis_Mode.eq.Valence_Mode .and.
-     &             (AuxShell(iShll).or.FragShell(iShll))) Go To 200
+     &             (AuxShell(iShll).or.
+     &              Shells(iShll)%Frag)) Go To 200
                If (Basis_Mode.eq.Auxiliary_Mode .and.
      &             .Not.AuxShell(iShll)) Go To 200
                If (Basis_Mode.eq.Fragment_Mode .and.
-     &             .Not.FragShell(iShll)) Go To 200
+     &             .Not.Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Auxiliary_Mode .and.
-     &             FragShell(iShll)) Go To 200
+     &             Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Fragment_Mode .and.
      &             AuxShell(iShll)) Go To 200
                iCmp  = (iAng+1)*(iAng+2)/2
@@ -190,7 +191,7 @@
          If (nExpi.eq.0)   Cycle
          nBasisi=Shells(iShll)%nBasis
          If (nBasisi.eq.0) Go To 400
-         If (FragShell(iShll)) Go To 400
+         If (Shells(iShll)%Frag) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
          If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
 *

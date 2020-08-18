@@ -162,7 +162,7 @@
          RecLab( 57)='IrrCmp          '
          RecLab( 58)='iAOtSO          '
          RecLab( 59)='iSOInf          '
-         RecLab( 60)='FragShell       '
+         RecLab( 60)='                ' !Free Slot
          RecLab( 61)='AuxShell        '
          RecLab( 62)='nVec_RI         '
          RecLab( 63)='MkNemo.hDisp    '

@@ -133,7 +133,7 @@
       Call Nr_Shells(nSkal)
       If(iPrint.ge.99) Then
         write(6,*) 'looping over ',nSkal,' shells'
-        write(6,*) 'FragShell() = ',(FragShell(i),i=1,10)
+        write(6,*) 'Shells()%Frag = ',(Shells(i)%Frag,i=1,10)
       End If
 
 *                                                                      *
