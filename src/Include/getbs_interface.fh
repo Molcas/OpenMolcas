@@ -17,7 +17,7 @@
      &                 CrRep,nProj,nAIMP,iOpt,
      &                 UnNorm,nDel, nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,AuxCnttp, IsMM,
+     &                 BasisTypes,IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
      &                 nCnttp)
 #include "Molcas.fh"
@@ -36,7 +36,6 @@
       Integer       nDel(0:MxAng), nVal,  nPrj,  nSRO,  nSOC, nPP,
      &              ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &              BasisTypes(4)
-      Logical       AuxCnttp
       Integer       IsMM
       Character*180 STDINP(MxAtom*2)
       Logical L_STDINP, Expert

@@ -62,7 +62,7 @@
          mdc = mdciCnttp(iCnttp)
          lSh= 0
          output=Show
-         If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
      &     output = output .and. iPrint.ge.10
      &                     .and. iCnttp.ne.iCnttp_Dummy
          If (output) Then
@@ -83,7 +83,7 @@
                   Call Quit_OnUserError()
                End If
             Else
-               If (AuxCnttp(iCnttp)) Then
+               If (dbsc(iCnttp)%Aux) Then
                   Write (LuWr,'(6X,A)') 'Auxiliary basis set:'
                   Write (LuWr,'(6X,A)') '=================='
                   If (aCD_Thr(iCnttp).ne.One) Then

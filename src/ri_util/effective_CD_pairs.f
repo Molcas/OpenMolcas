@@ -24,7 +24,7 @@
 *
       nSkal_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.AuxCnttp(iCnttp)) Then
+         If (.Not.dbsc(iCnttp)%Aux) Then
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShll = ipVal(iCnttp) + iAng
                If (.Not.Shells(iShll)%Aux) Then

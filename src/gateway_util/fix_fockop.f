@@ -117,7 +117,7 @@
             End Do
          End If
 *
-         If(AuxCnttp(iCnttp) .or.
+         If(dbsc(iCnttp)%Aux .or.
      &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Then
@@ -478,7 +478,7 @@
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
+     &              LuRd,BasisTypes,idummy,
      &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
 *
          If (.Not.FockOp(nCnttp)) Then
@@ -946,7 +946,7 @@ c     &               Charge_Actual,Charge_Effective
 *
       Do_FckInt=.True.
       Do iCnttp = 1, nCnttp
-         If(AuxCnttp(iCnttp) .or.
+         If(dbsc(iCnttp)%Aux .or.
      &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Cycle

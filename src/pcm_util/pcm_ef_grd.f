@@ -54,7 +54,7 @@
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         If (AuxCnttp(jCnttp)) Cycle
+         If (dbsc(jCnttp)%Aux) Cycle
          Z = Charge(jCnttp)
          mCnt = dbsc(jCnttp)%nCntr
          Do jCnt = 1, mCnt

@@ -39,7 +39,7 @@
       iCen=0
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Go To 999
          nCnttp_Valence = nCnttp_Valence+1
       End Do
  999  Continue

@@ -58,7 +58,7 @@
       Do iCnttp = 1, nCnttp
          mdc = mdciCnttp(iCnttp)
          output=iPrint.ge.6
-         If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
      &     output = output .and. iPrint.ge.10
      &                     .and. iCnttp.ne.iCnttp_Dummy
          If(output) then

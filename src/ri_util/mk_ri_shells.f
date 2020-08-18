@@ -172,9 +172,9 @@
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
+     &              LuRd,BasisTypes,IsMM(nCnttp),
      &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
-         AuxCnttp(nCnttp)=.True.
+         dbsc(nCnttp)%Aux=.True.
 *
          Charge(nCnttp)=Zero
 *
@@ -216,7 +216,7 @@ C        Fixed(nCnttp)=.False.
          nSOC_Shells(nCnttp) = nSOC
          nPP_Shells(nCnttp)  = nPP
          nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-         lAux = lAux .or. AuxCnttp(nCnttp)
+         lAux = lAux .or. dbsc(nCnttp)%Aux
          Do iSh = jShll+1, iShll
             Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
             Call mma_deallocate(Shells(iShll)%pCff)
@@ -451,7 +451,7 @@ C        Fixed(nCnttp)=.False.
 *
             End Do ! iAng
 *
-            AuxCnttp(nCnttp)=.True.
+            dbsc(nCnttp)%Aux=.True.
             Charge(nCnttp)=Zero
             PAM2(nCnttp)=.False.
             lPAM2 = lPAM2 .or. PAM2(nCnttp)
@@ -480,7 +480,7 @@ C        Fixed(nCnttp)=.False.
             nSOC_Shells(nCnttp) = nSOC
             nPP_Shells(nCnttp)  = nPP
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-            lAux = lAux .or. AuxCnttp(nCnttp)
+            lAux = lAux .or. dbsc(nCnttp)%Aux
 *
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt

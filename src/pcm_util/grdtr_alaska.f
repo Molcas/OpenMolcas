@@ -42,7 +42,7 @@
       mdc=0
       iCen=1
       Do iCnttp=1,nCnttp
-         If (AuxCnttp(iCnttp)) Return
+         If (dbsc(iCnttp)%Aux) Return
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             nDispS = IndDsp(mdc,iIrrep)

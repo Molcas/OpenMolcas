@@ -26,7 +26,7 @@
       mdc=0
       ndc=0
       Do iCnttp=1,nCnttp
-         If(AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag.or.
+         If(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag.or.
      &      pChrg(iCnttp)) Then
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99

@@ -103,7 +103,7 @@
 *
  400  Continue                     ! iAng
       End Do
-      If (AuxCnttp(kCnttp)) nSkal=nSkal+1 ! Add dummy shell
+      If (dbsc(kCnttp)%Aux) nSkal=nSkal+1 ! Add dummy shell
 *                                                                      *
 ************************************************************************
 *                                                                      *

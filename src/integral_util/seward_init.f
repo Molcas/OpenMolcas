@@ -114,7 +114,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 
       lOffAO(1:Mxdbsc)=0
       Do i=1, Mxdbsc
-         AuxCnttp(i) =.false.
          FockOp(i)   = .False.
          IsMM(i)         =0
          Parent_iCnttp(i)=0

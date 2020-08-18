@@ -1168,7 +1168,6 @@ c Simplistic validity check for value
 *
       jShll = iShll
       SODK(nCnttp)=.False.
-      AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
@@ -1180,7 +1179,7 @@ c Simplistic validity check for value
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
+     &           LuRd,BasisTypes,IsMM(nCnttp),
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           nCnttp)
 *
@@ -1265,8 +1264,8 @@ c Simplistic validity check for value
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
       nCnt = 0
-      lAux = lAux .or. AuxCnttp(nCnttp)
-      If (AuxCnttp(nCnttp)) Then
+      lAux = lAux .or. dbsc(nCnttp)%Aux
+      If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.
          End Do
@@ -4375,14 +4374,14 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Else
             nEF = 0
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and. .NOT.dbsc(iCnttp)%Frag)
+               If (.NOT.dbsc(iCnttp)%Aux .and. .NOT.dbsc(iCnttp)%Frag)
      &         nEF = nEF + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
 *
             iEF = 1
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and.
+               If (.NOT.dbsc(iCnttp)%Aux .and.
      &             .NOT.dbsc(iCnttp)%Frag) Then
                   call dcopy_(3*dbsc(iCnttp)%nCntr,
      &                                        dbsc(iCnttp)%Coor(1,1),1,
@@ -4617,7 +4616,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End If
             If (dbsc(iCnttp)%Frag) Then
                mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
-            Else If (AuxCnttp(iCnttp)) Then
+            Else If (dbsc(iCnttp)%Aux) Then
                mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)
             Else
                mCentr = mCentr + nIrrep/nStab(mdc)

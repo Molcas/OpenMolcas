@@ -89,7 +89,7 @@ c      print *,' iAngMx', iAngMx
 
             nTest = nVal_Shells(iCnttp)
             If (iAng+1.gt.nTest)  Go To 101
-            If (AuxCnttp(iCnttp)) Go To 101
+            If (dbsc(iCnttp)%Aux) Go To 101
             If (dbsc(iCnttp)%Frag) Go To 101
 *           Write (*,*) ' iCnttp=',iCnttp
             nCnt = dbsc(iCnttp)%nCntr

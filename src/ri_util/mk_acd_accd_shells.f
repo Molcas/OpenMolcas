@@ -391,7 +391,6 @@
             SODK(nCnttp)=.False.
             Bsl(nCnttp)=Label
             Bsl_Old(nCnttp)=Bsl(nCnttp)
-            AuxCnttp(nCnttp)=.True.
             Charge(nCnttp)=Zero
             pChrg(nCnttp)=pChrg(iCnttp)
             Fixed(nCnttp)=Fixed(iCnttp)
@@ -406,7 +405,7 @@
             nSRO_Shells(nCnttp) = 0
             nSOC_Shells(nCnttp) = 0
             nPP_Shells(nCnttp)  = 0
-            AuxCnttp(nCnttp) =.True.
+            dbsc(nCnttp)%Aux =.True.
             lAux =.True.
             dbsc(nCnttp)%ECP=.False.
             aCD_Thr(nCnttp)=aCD_Thr(iCnttp)

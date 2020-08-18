@@ -30,14 +30,14 @@
       lCnttp=iSD4(13,4)
       lCnt  =iSD4(14,4)
 *
-      If (AuxCnttp(iCnttp)) Then
+      If (dbsc(iCnttp)%Aux) Then
          Coor(1:3,1)=dbsc(jCnttp)%Coor(1:3,jCnt)
       Else
          Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
       End If
       Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
-      If (AuxCnttp(kCnttp)) Then
+      If (dbsc(kCnttp)%Aux) Then
          Coor(1:3,3)=dbsc(lCnttp)%Coor(1:3,lCnt)
       Else
          Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)

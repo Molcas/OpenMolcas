@@ -99,7 +99,7 @@
       Call RecPrt('CN',' ',CN,3,nNuc)
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
-     &       .Not.AuxCnttp(iCnttp)) Then
+     &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)
                iDC = iDC + 1
@@ -114,7 +114,7 @@
 *     they are pick up from the parent valence basis set.
 *
       Do kCnttp = 1, nCnttp
-         If (AuxCnttp(kCnttp)) Then
+         If (dbsc(kCnttp)%Aux) Then
             iCnttp=Parent_iCnttp(kCnttp)
             If (iCnttp.ne.0)
      &         dbsc(kCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)

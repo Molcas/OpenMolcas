@@ -47,6 +47,8 @@
 !     FragEner : the fragment''s orbital''s energies (size nFragEner)
 !     FragCoef : the fragment''s MO coefficients (size nFragDens*nFragEner)
 !     ECP      : Flag if dbsc is a ECP basis set
+!     Frag     : Flag if dbsc is a Fragment basis set
+!     Aux      : Flag if dbsc is an auxiliary basis set
 !
       Type Distinct_Basis_set_centers
           Sequence
@@ -61,6 +63,7 @@
           Integer:: nPAM2=-1
           Real*8, Allocatable:: PAM2(:)
           Logical:: ECP=.False.
+          Logical:: Aux =.False.
           Logical:: Frag=.False.
       End Type Distinct_Basis_set_centers
 !
@@ -76,6 +79,7 @@
 !             the number of parameters is given by nBasis
 !     Occ   : Occupation numbers for core ECP orbitals
 !     FockOp: the Fock operator matrix
+!     Aux   : Logical flag for auxiliary basis set shells
 !     Frag  : Logical flag for fragment shells
 !
       Type Shell_Info
@@ -108,7 +112,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields = 9, mFields = 10
+      Integer :: nFrag_LineWords = 0, nFields =10, mFields = 10
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -194,6 +198,8 @@
          If (dbsc(i)%ECP) iDmp(8,i)=1
          iDmp(9,i) = 0
          If (dbsc(i)%Frag)iDmp(9,i)=1
+         iDmp(10,i) = 0
+         If (dbsc(i)%Aux )iDmp(10,i)=1
          nAtoms=nAtoms+dbsc(i)%nCntr
          nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -406,15 +412,16 @@
       If (.Not.Initiated) Call Basis_Info_Init()
 !
       Do i = 1, nCnttp
-         dbsc(i)%nCntr     = iDmp(1,i)
-         dbsc(i)%nM1       = iDmp(2,i)
-         dbsc(i)%nM2       = iDmp(3,i)
-         dbsc(i)%nFragType = iDmp(4,i)
-         dbsc(i)%nFragCoor = iDmp(5,i)
-         dbsc(i)%nFragEner = iDmp(6,i)
-         dbsc(i)%nFragDens = iDmp(7,i)
-         dbsc(i)%ECP       = iDmp(8,i).eq.1
-         dbsc(i)%Frag      = iDmp(9,i).eq.1
+         dbsc(i)%nCntr     = iDmp( 1,i)
+         dbsc(i)%nM1       = iDmp( 2,i)
+         dbsc(i)%nM2       = iDmp( 3,i)
+         dbsc(i)%nFragType = iDmp( 4,i)
+         dbsc(i)%nFragCoor = iDmp( 5,i)
+         dbsc(i)%nFragEner = iDmp( 6,i)
+         dbsc(i)%nFragDens = iDmp( 7,i)
+         dbsc(i)%ECP       = iDmp( 8,i).eq.1
+         dbsc(i)%Frag      = iDmp( 9,i).eq.1
+         dbsc(i)%Aux       = iDmp(10,i).eq.1
          nFragCoor=Max(0,dbsc(i)%nFragCoor)
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
                +nFrag_LineWords*dbsc(i)%nFragType     &

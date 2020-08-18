@@ -237,7 +237,7 @@ C     Show=Show.and..Not.Primitive_Pass
             End If
 *
             output = show .and. iPrint.ge.6
-            If (AuxCnttp(iCnttp)) output=output .and. iPrint.ge.10
+            If (dbsc(iCnttp)%Aux) output=output .and. iPrint.ge.10
      &                            .and. iCnttp.ne.iCnttp_Dummy
             If (dbsc(iCnttp)%Frag) output=output .and. iPrint.ge.10
             kECP = dbsc(iCnttp)%ECP
@@ -331,7 +331,7 @@ C     Show=Show.and..Not.Primitive_Pass
      &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
      &                   nStab(mdc))) Go To 204
                      If(.not.Shells(iSh)%Frag .and.
-     &                  .not.AuxCnttp(iCnttp))
+     &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore
                      iEMax = Max(iEMax,IndS(iShell)+iComp)
                      If (IndS(iShell)+iComp.gt.MxUnq) Then
@@ -630,7 +630,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             End If
 *
             output = show .and. iPrint.ge.6
-            If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)
+            If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
      &        output = output.and.iPrint.ge.10
      &                       .and.iCnttp.ne.iCnttp_Dummy
             kECP = dbsc(iCnttp)%ECP
@@ -715,7 +715,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
                      If(.not.Shells(iSh)%Frag .and.
-     &                  .not.AuxCnttp(iCnttp))
+     &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(0)=nFCore(0)+nCore
 *
 *                    Loop over contracted basis functions

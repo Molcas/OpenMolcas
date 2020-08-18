@@ -289,10 +289,9 @@
 *                                                                      *
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 1999
+         If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
- 1999 Continue
 *
 *     f^AB is the "total derivative coupling"
 *     h^AB is the "CI derivative coupling"

@@ -18,7 +18,7 @@
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,AuxCnttp, IsMM,
+     &                 BasisTypes, IsMM,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
      &                 iCnttp)
 ************************************************************************
@@ -58,7 +58,7 @@
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
-     &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
+     &        UnNorm, PAM2, SODK, FockOp,
      &        isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
@@ -208,7 +208,7 @@
       End If
       Line(1:3)=Type(1:3)
       Call UpCase(Line(1:3))
-      If (Line(1:3).eq.'AUX') AuxCnttp=.True.
+      If (Line(1:3).eq.'AUX') dbsc(nCnttp)%Aux=.True.
       If (IfTest) Then
          Write (6,'(A,A)') 'Ref(1):',Ref(1)
          Write (6,'(A,A)') 'Ref(2):',Ref(2)

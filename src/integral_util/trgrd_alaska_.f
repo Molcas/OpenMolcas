@@ -42,14 +42,14 @@
       iCen=0
 *     nCnttp_Valence=0
 *     Do iCnttp = 1, nCnttp
-*        If (AuxCnttp(iCnttp)) Go To 999
+*        If (dbsc(iCnttp)%Aux) Go To 999
 *        nCnttp_Valence = nCnttp_Valence+1
 *     End Do
 *999  Continue
 *
       Do iCnttp=1,nCnttp
          If (.Not.(pChrg(iCnttp).or.dbsc(iCnttp)%Frag.or.
-     &             AuxCnttp(iCnttp))) Then
+     &             dbsc(iCnttp)%Aux)) Then
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
                Do iCo=0,nIrrep/nStab(mdc)-1

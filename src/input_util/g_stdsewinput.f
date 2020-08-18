@@ -144,7 +144,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *
       jShll = iShll
       SODK(nCnttp)=.False.
-      AuxCnttp(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       mdciCnttp(nCnttp)=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
@@ -156,7 +155,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,AuxCnttp(nCnttp),IsMM(nCnttp),
+     &           LuRd,BasisTypes,IsMM(nCnttp),
      &           STDINP,iSTDINP,.True.,.true.,' ',nCnttp)
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp)
@@ -216,8 +215,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
       nCnt = 0
-      lAux = lAux .or. AuxCnttp(nCnttp)
-      If (AuxCnttp(nCnttp)) Then
+      lAux = lAux .or. dbsc(nCnttp)%Aux
+      If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.
          End Do

@@ -241,9 +241,9 @@
  400  Continue                     ! iAng
 *
       iCase=iCase+1
-      If (iCase.le.2.and.AuxCnttp(iCnttp)) Go To 301
+      If (iCase.le.2.and.dbsc(iCnttp)%Aux) Go To 301
 *
-      If (AuxCnttp(iCnttp)) Then
+      If (dbsc(iCnttp)%Aux) Then
          nBas(0)=0
       Else
          nBas(0)=nFunctions

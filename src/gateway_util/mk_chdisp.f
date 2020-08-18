@@ -39,10 +39,9 @@
 *
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
- 999  Continue
 *
       mDisp = 0
       mdc = 0

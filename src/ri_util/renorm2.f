@@ -91,7 +91,7 @@
 *        Skip the dummy shell
          If (iCnttp.eq.iCnttp_dummy) Go To 2222
 *        skip non-auxiliary basis sets
-         If (.Not.AuxCnttp(iCnttp)) Go To 2222
+         If (.Not.dbsc(iCnttp)%Aux) Go To 2222
 *                                                                      *
 ************************************************************************
 *                                                                      *

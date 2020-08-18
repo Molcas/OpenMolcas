@@ -119,7 +119,7 @@
 *                                                                      *
       iAngMx_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.AuxCnttp(iCnttp) .and.
+         If (.Not.dbsc(iCnttp)%Aux .and.
      &       .Not.dbsc(iCnttp)%Frag ) Then
             nTest=nVal_Shells(iCnttp)-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
@@ -169,7 +169,7 @@
 *
 *            write(6,*)'nCnttp', nCnttp
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
-         If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag) Go To 996
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 996
 *
 *         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
         Do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers

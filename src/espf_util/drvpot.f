@@ -60,7 +60,7 @@ c
       nc = 1
       Do jCnttp = 1, nCnttp
          mCnt = dbsc(jCnttp)%nCntr
-         If (AuxCnttp(jCnttp)) mCnt = 0
+         If (dbsc(jCnttp)%Aux) mCnt = 0
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             x1 = dbsc(jCnttp)%Coor(1,jCnt)

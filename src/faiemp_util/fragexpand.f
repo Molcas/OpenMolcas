@@ -181,7 +181,7 @@
      &                 UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &                 LuRd,BasisTypes,AuxCnttp(nCnttp),idummy,
+     &                 LuRd,BasisTypes,idummy,
      &                 STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
