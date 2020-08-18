@@ -12,7 +12,7 @@ FLDG
 
 Basis set
 H.6-31G....
-                                            
+
 H1  0.000000    0.748792   -0.462883  Angstrom
 H2  0.000000   -0.748792   -0.462883  Angstrom
 End of Basis
@@ -39,7 +39,7 @@ Symmetry
 x y
 Basis set
 H.6-31G....
-                                            
+
 H1  0.000000    0.748792   -0.462883  Angstrom
 End of Basis
 

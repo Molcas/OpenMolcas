@@ -1,6 +1,6 @@
 >> export MOLCAS_NOCHECK=MLTPL
 
- &Gateway 
+ &Gateway
 XBAS
 C.6-31G....
 O.6-31G....
@@ -20,7 +20,7 @@ H7     0.41413369    -0.80097712     1.88810301
  NoCD
 
  &Seward
- &SCF 
+ &SCF
 Threshold=1.0D-10 1.0D-5 1.0D-5 1.0D-4
 
 >>FILE checkfile

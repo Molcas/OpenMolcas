@@ -1,7 +1,7 @@
 *-------------------------------------------------------------------------------
-* Molecule: NaCl                 
-* Basis: ECP       
-* Symmetry: C1  
+* Molecule: NaCl
+* Basis: ECP
+* Symmetry: C1
 * Features tested: MCLR (keyword sala) with Cholesky undifferentiated ERIs
 *     also tested: seward, scf, rasscf all with Cholesky
 * Responsible person: F. Aquilante 081023
@@ -13,7 +13,7 @@
 ChoInput
 Parallel
 ThrC
- 1.0d-7  
+ 1.0d-7
 EndChoInp
 
 Basis set
@@ -36,16 +36,16 @@ End Of input
 
 &SCF &END
 Occupations
- 7      
+ 7
 End of Input
 
 &RASSCF &END
 nactel
- 8 0 0 
+ 8 0 0
 Inactive
- 3        
+ 3
 Ras2
- 7           
+ 7
 Ciroot
  2 2
  1 2

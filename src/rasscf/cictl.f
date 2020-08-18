@@ -40,7 +40,7 @@
 *> @param[in]     TUVX   Active 2-el integrals
 *> @param[in]     IFINAL Calculation status switch
 ************************************************************************
-      Subroutine CICtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)
+      Subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 * ****************************************************************
 * history:                                                       *
 * updated to use determinant based CI-procedures                 *
@@ -59,7 +59,7 @@
 
       Implicit Real* 8 (A-H,O-Z)
 
-      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
+      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF,l_casdft
 *JB   variables for state rotation on final states
@@ -518,6 +518,9 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 *JB   states
        do_rotate=.False.
        If (ifinal.eq.2) Then
+        IF(IXMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+        End If
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)
         End If
