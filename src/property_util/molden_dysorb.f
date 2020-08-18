@@ -171,7 +171,7 @@ c      End If
       iAngMx_Valence=0
       Do iCnttp = 1, nCnttp
          If (.Not.AuxCnttp(iCnttp) .and.
-     &       .Not.FragCnttp(iCnttp) ) Then
+     &       .Not.dbsc(iCnttp)%Frag ) Then
             nTest=nVal_Shells(iCnttp)-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
          End If
@@ -189,7 +189,7 @@ c      End If
 *     Unnormalize contraction coefficients for the valence shells
 *
       Do iCnttp=1,nCnttp
-        If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
+        If (.Not.(AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
           Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
@@ -237,7 +237,7 @@ c      End If
       y_cart=.false.
       y_sphere=.false.
       Do iCnttp=1,nCnttp
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 995
+        If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag) Go To 995
         Do iCntr=1,dbsc(iCnttp)%nCntr
           Do l=0,nVal_Shells(iCnttp)-1
 *           Test for the appearance of cartesian functions with l=2,3,4
@@ -300,7 +300,7 @@ c      End If
       kk=0
 *
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
+        If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag) Go To 996
 *
         Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1

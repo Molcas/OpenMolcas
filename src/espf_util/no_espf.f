@@ -140,7 +140,7 @@
                ZB = Charge(jCnttp)
                If (pChrg(jCnttp)) Go To 202
                If (ZB.eq.Zero) Go To 202
-               If (FragCnttp(jCnttp)) Go To 202
+               If (dbsc(jCnttp)%Frag) Go To 202
                ZAZB = ZA * ZB
                Do jCnt = 1, dbsc(jCnttp)%nCntr
                   B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)

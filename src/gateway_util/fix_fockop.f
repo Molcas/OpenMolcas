@@ -118,7 +118,7 @@
          End If
 *
          If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
+     &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Then
            Cycle
@@ -947,7 +947,7 @@ c     &               Charge_Actual,Charge_Effective
       Do_FckInt=.True.
       Do iCnttp = 1, nCnttp
          If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
+     &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
      &      FockOp(iCnttp)) Cycle
 *

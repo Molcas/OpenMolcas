@@ -42,7 +42,7 @@
       ndc=0
       Do iCnttp=1,nCnttp
          If (pChrg(iCnttp).or.AuxCnttp(iCnttp).or.
-     &       FragCnttp(iCnttp)) Then
+     &       dbsc(iCnttp)%Frag) Then
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
          End If

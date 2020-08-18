@@ -30,7 +30,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
-      use Basis_Info, only: nCnttp
+      use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -96,7 +96,7 @@ C      iPrint=99
 *     different types of aCD auxiliary basis sets, aCD and acCD.
 *
       Do 1100 iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) goto 1100
+         If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) goto 1100
 #ifdef _DEBUG_
          If (iPrint.ge.99)
      &   Write (6,*) 'Generating auxiliary basis set for valence basis'

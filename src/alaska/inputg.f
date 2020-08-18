@@ -520,7 +520,7 @@ c      nprint(26)=99
              TRSymm=.False.
              mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
-         Else If(dbsc(iCnttp)%nFragType.gt.0.or.FragCnttp(iCnttp)) Then
+         Else If(dbsc(iCnttp)%nFragType.gt.0.or.dbsc(iCnttp)%Frag) Then
            TRSymm = .false.
          End If
          Do 20 iCnt = 1, dbsc(iCnttp)%nCntr

@@ -48,7 +48,7 @@
 *999  Continue
 *
       Do iCnttp=1,nCnttp
-         If (.Not.(pChrg(iCnttp).or.FragCnttp(iCnttp).or.
+         If (.Not.(pChrg(iCnttp).or.dbsc(iCnttp)%Frag.or.
      &             AuxCnttp(iCnttp))) Then
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1

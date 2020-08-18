@@ -52,7 +52,7 @@ C
       Do jCnttp=1,nCnttp
          mCnt=dbsc(jCnttp)%nCntr
          If (pChrg(jCnttp) .or. AuxCnttp(jCnttp) .or.
-     &       FragCnttp(jCnttp)) Then
+     &       dbsc(jCnttp)%Frag) Then
             ndc=ndc+mCnt
          Else
             Do i=0,2

@@ -4375,7 +4375,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Else
             nEF = 0
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
+               If (.NOT.AuxCnttp(iCnttp) .and. .NOT.dbsc(iCnttp)%Frag)
      &         nEF = nEF + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
@@ -4383,7 +4383,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iEF = 1
             Do iCnttp = 1, nCnttp
                If (.NOT.AuxCnttp(iCnttp) .and.
-     &             .NOT.FragCnttp(iCnttp)) Then
+     &             .NOT.dbsc(iCnttp)%Frag) Then
                   call dcopy_(3*dbsc(iCnttp)%nCntr,
      &                                        dbsc(iCnttp)%Coor(1,1),1,
      &                                        EF_Centers(1,iEF),1)
@@ -4580,7 +4580,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           always be identical to that of the fragment's
 *           pseudocenter/placeholder
 *
-            If (FragCnttp(iCnttp)) Then
+            If (dbsc(iCnttp)%Frag) Then
 *              Check the FragExpand routine!
                iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
             Else
@@ -4615,7 +4615,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   End If
                End Do
             End If
-            If (FragCnttp(iCnttp)) Then
+            If (dbsc(iCnttp)%Frag) Then
                mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
             Else If (AuxCnttp(iCnttp)) Then
                mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)

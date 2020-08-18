@@ -180,7 +180,7 @@ C-SVC: identify runfile with a fingerprint
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
@@ -194,7 +194,7 @@ C-SVC: identify runfile with a fingerprint
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1

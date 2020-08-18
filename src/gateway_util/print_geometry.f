@@ -86,7 +86,7 @@
       nc = 1
       Do jCnttp = 1, nCnttp
          mCnt = dbsc(jCnttp)%nCntr
-         If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp))Then
+         If (AuxCnttp(jCnttp).or.dbsc(jCnttp)%Frag)Then
             ndc = ndc + mCnt
             Go To 32
          End If

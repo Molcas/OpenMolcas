@@ -143,7 +143,7 @@
             Do i=1,nCnttp
                Do iCnt=1,dbsc(i)%nCntr
                   nsc=nsc+1
-                  If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
+                  If (.Not.(pChrg(i).Or.dbsc(i)%Frag.Or.AuxCnttp(i)))
      &                Then
                      iStab(iAt)=jStab(1,nsc)
                      iAt=iAt+1
@@ -176,7 +176,7 @@
                     Do iCnt=1,dbsc(iCnttp)%nCntr
                       ndc=ndc+1
                       If (.Not.(pChrg(iCnttp).Or.
-     &                          FragCnttp(iCnttp).Or.
+     &                          dbsc(iCnttp)%Frag.Or.
      &                          AuxCnttp(iCnttp))) Then
                         iAt=iAt+1
                         Elm(iAt)=PTab(iAtmNr(iCnttp))
@@ -238,7 +238,7 @@
          Do i=1,nCnttp
             Do iCnt=1,dbsc(i)%nCntr
                nsc=nsc+1
-               If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
+               If (.Not.(pChrg(i).Or.dbsc(i)%Frag.Or.AuxCnttp(i))) Then
                   iStab(iAt)=jStab(1,nsc)
                   iAt=iAt+1
                End If
@@ -646,7 +646,7 @@
             Call mma_deallocate(XYZ)
             j=1
             Do iCnttp=1,nCnttp
-              If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
+              If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
      &            .Not.AuxCnttp(iCnttp)) Then
                 Do iCnt=1,dbsc(iCnttp)%nCntr
                   Do i=1,3
@@ -689,7 +689,7 @@
             Call mma_deallocate(XYZ)
             j=1
             Do iCnttp=1,nCnttp
-              If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
+              If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
      &            .Not.AuxCnttp(iCnttp)) Then
                 Do iCnt=1,dbsc(iCnttp)%nCntr
                   Do i=1,3
@@ -756,7 +756,7 @@
       End If
       iAt=0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
+         If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
      &       .Not.AuxCnttp(iCnttp)) Then
              Do iCnt = 1, dbsc(iCnttp)%nCntr
                 iAt = iAt + 1
@@ -807,7 +807,7 @@
       Do i=1,nCnttp
          Do iCnt=1,dbsc(i)%nCntr
             nsc=nsc+1
-            If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
+            If (.Not.(pChrg(i).Or.dbsc(i)%Frag.Or.AuxCnttp(i))) Then
                iStab(iAt)=jStab(1,nsc)
                iAt=iAt+1
             End If

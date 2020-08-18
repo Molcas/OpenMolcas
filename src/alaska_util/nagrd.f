@@ -185,7 +185,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
             Do iCar = 0, 2
                iComp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iComp) .and.
-     &              .Not.FragCnttp(kCnttp) .and.
+     &              .Not.dbsc(kCnttp)%Frag .and.
      &              .Not.pChrg(kCnttp) ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then

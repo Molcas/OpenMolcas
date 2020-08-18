@@ -62,7 +62,7 @@
          mdc = mdciCnttp(iCnttp)
          lSh= 0
          output=Show
-         If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp))
+         If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)
      &     output = output .and. iPrint.ge.10
      &                     .and. iCnttp.ne.iCnttp_Dummy
          If (output) Then
@@ -92,7 +92,7 @@
      &                    //'modified to ',
      &                    aCD_Thr(iCnttp)*Thrshld_CD
                   End If
-               Else If (FragCnttp(iCnttp)) Then
+               Else If (dbsc(iCnttp)%Frag) Then
                   Write (LuWr,'(6X,A)') 'Fragment basis set:'
                   Write (LuWr,'(6X,A)') '=================='
                Else

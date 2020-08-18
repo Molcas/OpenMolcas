@@ -35,7 +35,7 @@
 *
 *        Do not include Auxiliary basis sets, or fragment basis sets
 *
-         If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1212
+         If (AuxCnttp(jCnttp).or.dbsc(jCnttp)%Frag) Go To 1212
 *
 *        Do not include ECP basis sets which does not have any valence
 *        basis set.
@@ -95,7 +95,7 @@
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
          mCnt = dbsc(jCnttp)%nCntr
-         If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1213
+         If (AuxCnttp(jCnttp).or.dbsc(jCnttp)%Frag) Go To 1213
          Do jCnt = 1, mCnt
             ndc = jCnt + mdciCnttp(jCnttp)
             Do i = 0, nIrrep/nStab(ndc) - 1

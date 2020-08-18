@@ -147,7 +147,7 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
@@ -157,7 +157,7 @@
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
@@ -189,7 +189,7 @@
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
@@ -200,7 +200,7 @@
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
@@ -250,7 +250,7 @@
       iNTC = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) Then
             Do iNuc = 1, dbsc(iCnttp)%nCntr
                NTC(iNTC+iNuc) = iCnttp
@@ -269,14 +269,14 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%Frag.and.
      &       .Not.AuxCnttp(iCnttp)) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                iNuc = iNuc+ 1

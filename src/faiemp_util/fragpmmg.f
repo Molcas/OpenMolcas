@@ -51,7 +51,7 @@ c  largest possible fragment energy weighted density matrix
       End Do
 c
       Do iCnttp = 1, nCnttp
-      If (.Not.FragCnttp(iCnttp)) cycle  ! Go To 1960
+      If (.Not.dbsc(iCnttp)%Frag) cycle  ! Go To 1960
 *
          Do iAng = 0, nVal_Shells(iCnttp)-1
          iShll = ipVal(iCnttp) + iAng
@@ -62,7 +62,7 @@ c
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
 * same fragment (keep track of mdc?) ! still to be done !!!
-            If (.Not.FragCnttp(jCnttp)) cycle !Go To 1970
+            If (.Not.dbsc(jCnttp)%Frag) cycle !Go To 1970
 *
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng

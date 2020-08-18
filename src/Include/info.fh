@@ -150,7 +150,6 @@
 *     lAux: logical flag that there is an auxiliary basis              *
 *     Do_RI: logical flag for RI apporach                              *
 *     lFAIEMP: logical flag for Fragment AIEMP                         *
-*     FragCnttp: logical flag for fragment basis set                   *
 *     Do_FckInt: logical flag for FckInt                               *
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
@@ -292,8 +291,7 @@
      &          pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
      &          SODK(Mxdbsc), AuxCnttp(Mxdbsc), Do_GuessOrb,
-     &          lFAIEMP,FragCnttp(Mxdbsc),
-     &          Cholesky, Do_FckInt, Align_Only,
+     &          lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
@@ -309,7 +307,7 @@
      &               lSchw, Dist, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,
      &               GIAO, SODK,         Do_FckInt, Cholesky,
-     &               lFAIEMP,          FragCnttp,Force_Out_of_Core,
+     &               lFAIEMP, Force_Out_of_Core,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
      &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,

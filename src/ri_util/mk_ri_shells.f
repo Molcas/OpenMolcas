@@ -78,7 +78,7 @@
       If (iRI_Type.eq.5) Go To 1000
 
       Do iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
+         If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
          mdc = mdciCnttp(iCnttp)
          nCnttp=nCnttp+1
 *
@@ -253,7 +253,7 @@ C        Fixed(nCnttp)=.False.
       call molcas_open(Lu_lib,'RICDLIB')
 *
       Do iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
+         If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
          mdc = mdciCnttp(iCnttp)
 *
          Hit=.True.

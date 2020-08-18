@@ -213,7 +213,7 @@
                 Shells(iSh)%Transf=.False.
               End Do
             End If
-            FragCnttp(nCnttp)=.True.
+            dbsc(nCnttp)%Frag=.True.
 *
 * add the coordinates (1 atom / basis set center)
             dbsc(nCnttp)%nCntr = 1

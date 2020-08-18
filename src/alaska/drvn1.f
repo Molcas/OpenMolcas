@@ -67,7 +67,7 @@
       mdc = 0
 *-----Loop over centers with the same charge
       Do iCnttp = 1, nCnttp
-         If (FragCnttp(iCnttp)) Then
+         If (dbsc(iCnttp)%Frag) Then
            ZA = FragCharge(iCnttp)
          Else
            ZA = Charge(iCnttp)
@@ -79,14 +79,14 @@
 *
             ndc = 0
             Do jCnttp = 1, iCnttp
-               If (FragCnttp(jCnttp)) Then
+               If (dbsc(jCnttp)%Frag) Then
                  ZB = FragCharge(jCnttp)
                Else
                  ZB = Charge(jCnttp)
                End If
                If (ZB.eq.Zero) Go To 201
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
-               If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
+               If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
                ZAZB = ZA * ZB
                jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
@@ -277,7 +277,7 @@
             ZB = Charge(jCnttp)
             If (ZB.eq.Zero) Go To 202
             If (pChrg(jCnttp)) Go To 202
-            If (FragCnttp(jCnttp)) Go To 202
+            If (dbsc(jCnttp)%Frag) Go To 202
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr
                B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -407,7 +407,7 @@
                mdc = 0
                Do iCnttp = 1, nCnttp
                   If (Charge(iCnttp).eq.Zero) Go To 103
-                  If (FragCnttp(iCnttp)) Go To 103
+                  If (dbsc(iCnttp)%Frag) Go To 103
                   ZA = Charge(iCnttp)
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
@@ -523,7 +523,7 @@
             ZB = Charge(jCnttp)
             If (ZB.eq.Zero) Go To 212
             If (pChrg(jCnttp)) Go To 212
-            If (FragCnttp(jCnttp)) Go To 212
+            If (dbsc(jCnttp)%Frag) Go To 212
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr
                B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)

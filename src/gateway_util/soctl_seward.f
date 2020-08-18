@@ -239,7 +239,7 @@ C     Show=Show.and..Not.Primitive_Pass
             output = show .and. iPrint.ge.6
             If (AuxCnttp(iCnttp)) output=output .and. iPrint.ge.10
      &                            .and. iCnttp.ne.iCnttp_Dummy
-            If (FragCnttp(iCnttp)) output=output .and. iPrint.ge.10
+            If (dbsc(iCnttp)%Frag) output=output .and. iPrint.ge.10
             kECP = dbsc(iCnttp)%ECP
             lMax=nVal_Shells(iCnttp)-1
 *
@@ -630,7 +630,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             End If
 *
             output = show .and. iPrint.ge.6
-            If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp))
+            If (AuxCnttp(iCnttp).or.dbsc(iCnttp)%Frag)
      &        output = output.and.iPrint.ge.10
      &                       .and.iCnttp.ne.iCnttp_Dummy
             kECP = dbsc(iCnttp)%ECP

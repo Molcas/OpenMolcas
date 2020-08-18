@@ -80,7 +80,7 @@
 *       is encountered stop the procedure.
 *
         If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
+     &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 ) Go To 999
 
 *
