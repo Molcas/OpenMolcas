@@ -3045,7 +3045,7 @@ endif ()
 
 # fetch the prebuilt executable (if using molcas-extra)
 if (DEFINED EXTRA_DIR)
-  message (FATAL_ERROR "Feature is depricated")
+  message ("Feature is depricated. ")
   file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
 
   execute_process (
