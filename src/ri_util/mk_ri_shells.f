@@ -224,7 +224,7 @@ C        Fixed(nCnttp)=.False.
      &                        Shells(iSh)%nExp,Shells(iSh)%nBasis,
      &                        Label='pCff')
             Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-            AuxShell(iSh)=.True.
+            Shells(iSh)%Aux=.True.
          End Do
 *
          nCnt = dbsc(iCnttp)%nCntr
@@ -447,7 +447,7 @@ C        Fixed(nCnttp)=.False.
                End If
 
                Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
-               AuxShell(iShll)=.True.
+               Shells(iShll)%Aux=.True.
 *
             End Do ! iAng
 *

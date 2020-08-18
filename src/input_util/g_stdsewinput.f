@@ -219,7 +219,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       lAux = lAux .or. AuxCnttp(nCnttp)
       If (AuxCnttp(nCnttp)) Then
          Do iSh = jShll+1, iShll
-            AuxShell(iSh)=.True.
+            Shells(iSh)%Aux=.True.
          End Do
       End If
 *                                                                      *

@@ -147,7 +147,6 @@
 *     force_part_p: logical flag to force partitioning on primitive    *
 *     GIAO: integrals for first derivative with respect to B           *
 *     Cholesky: logical flag for Cholesky decomposition.               *
-*     AuxShell: logical flag for auxiliary basis set                   *
 *     AuxCnttp: logical flag for auxiliary basis set                   *
 *     lAux: logical flag that there is an auxiliary basis              *
 *     Do_RI: logical flag for RI apporach                              *
@@ -295,15 +294,14 @@
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
      &          SODK(Mxdbsc), AuxCnttp(Mxdbsc), Do_GuessOrb,
      &          lFAIEMP,FragCnttp(Mxdbsc),
-     &          Cholesky, AuxShell(MxShll), Do_FckInt, Align_Only,
+     &          Cholesky, Do_FckInt, Align_Only,
      &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
      &          Do_Numerical_Gradients, VarT, VarR, EMFR,
      &          lUPONLY, lDOWNONLY, FNMC
       Integer lxStrt, lxEnd
-      Common /LInfo/ AuxShell,
-     &               lxStrt,  ! Put never ever anything before lxStrt!!!
+      Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,
      &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,

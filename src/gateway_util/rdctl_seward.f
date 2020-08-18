@@ -1268,7 +1268,7 @@ c Simplistic validity check for value
       lAux = lAux .or. AuxCnttp(nCnttp)
       If (AuxCnttp(nCnttp)) Then
          Do iSh = jShll+1, iShll
-            AuxShell(iSh)=.True.
+            Shells(iSh)%Aux=.True.
          End Do
       End If
 *                                                                      *

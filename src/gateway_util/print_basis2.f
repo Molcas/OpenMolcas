@@ -115,7 +115,7 @@
                kCmp=(iAng+1)*(iAng+2)/2
                If (Shells(jSh)%Prjct) kCmp=2*iAng+1
                If (nBasisj.ne.0 ) Then
-                  If (AuxShell(jSh)) Then
+                  If (Shells(jSh)%Aux) Then
                      iPrim_Aux = iPrim_Aux + nExpj   * kCmp
      &                         * nIrrep/nStab(mdc)
                      iBas_Aux  = iBas_Aux  + nBasisj * kCmp

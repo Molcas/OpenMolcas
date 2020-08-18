@@ -27,7 +27,7 @@
          If (.Not.AuxCnttp(iCnttp)) Then
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShll = ipVal(iCnttp) + iAng
-               If (.Not.AuxShell(iShll)) Then
+               If (.Not.Shells(iShll)%Aux) Then
                   nSkal_Valence = nSkal_Valence + dbsc(iCnttp)%nCntr
                End If
             End Do

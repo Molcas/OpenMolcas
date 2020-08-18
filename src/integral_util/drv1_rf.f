@@ -101,7 +101,7 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll)) Go To 100
+         If (Shells(iShll)%Aux) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)

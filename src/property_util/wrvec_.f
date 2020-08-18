@@ -601,10 +601,9 @@ c      Call Get_iArray('SewLInfo',lxStrt,Len)
       enddo
       Icurr=iCurr+Mx_Shll
 
-      do i=1,Mx_Shll
+      do i=1,Size(Shells)
         ii=0
-        if(AuxShell(i)) ii=1
-c        print *,'VV',icurr+i
+        if(Shells(i)%Aux) ii=1
         iWork(iivv+Icurr+i-1)=ii
       enddo
       Icurr=iCurr+Mx_Shll
@@ -616,9 +615,6 @@ c        iWork(iivv+Icurr+i)=ii
 c      enddo
 c      Icurr=iCurr+Mx_Shll
 
-c      Write(LU,'(i8)') LenL
-c      Call Get_lArray('AuxShell',AuxShell,LenL)
-c      Write(LU,'(40L2)') (AuxShell(i),i=1,LenL)
        write(Lu,'(i8)') iTemp
 
        call pack_me(Lu, iWork(iivv),iTemp)

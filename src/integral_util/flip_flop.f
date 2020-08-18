@@ -23,7 +23,7 @@
 *
       Do iCnttp = 1, nCnttp
          nTest = nVal_Shells(iCnttp)-1
-         If (AuxShell(iCnttp) .and.
+         If (Shells(iCnttp)%Aux .and.
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
 *        Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
@@ -37,7 +37,7 @@
 *              Decontract only the ordinary basis sets!
 *
                Call mma_deallocate(Shells(iShll)%pCff)
-               If (Primitive.and..Not.AuxShell(iShll)
+               If (Primitive.and..Not.Shells(iShll)%Aux
      &                      .and..Not.Shells(iShll)%Frag) Then
                   Shells(iShll)%nBasis=nExpi
                   Call mma_allocate(Shells(iShll)%pCff,nExpi,

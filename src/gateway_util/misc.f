@@ -94,7 +94,7 @@
                IndShl = IndShl + kCmp
 *
                If (Shells(jSh)%nBasis.ne.0 ) Then
-                  If (AuxShell(jSh)) Then
+                  If (Shells(jSh)%Aux) Then
                      iBas_Aux  = iBas_Aux  + Shells(jSh)%nBasis * kCmp
      &                         * nIrrep/nStab(mdc)
                   Else If (Shells(jSh)%Frag) Then

@@ -362,7 +362,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      m2Max = Max(m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
-                        If (AuxShell(iSh)) Then
+                        If (Shells(iSh)%Aux) Then
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
@@ -442,7 +442,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.
+                        If (Shells(iSh)%Aux.or.
      &                      Shells(iSh)%Frag) Go To 205
 *
                         If (.Not.Primitive_Pass) Then
@@ -722,7 +722,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *
                      Do 305 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
-                        If (AuxShell(iSh)) Then
+                        If (Shells(iSh)%Aux) Then
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
@@ -791,7 +791,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.
+                        If (Shells(iSh)%Aux.or.
      &                      Shells(iSh)%Frag) Go To 305
                         Write (isymunit,'(13(I4,4X))')
      &                     iSO,mdc,LVAL(lculf),MVAL(lculf),

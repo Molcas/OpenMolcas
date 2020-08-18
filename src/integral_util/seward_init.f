@@ -132,10 +132,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       IsChi=0
       MolWgh=2
 *
-      Do i=1,MxShll
-         AuxShell(i) =.False.
-      End Do
-*
 *-----LInfo
 *
       NEMO=.False.

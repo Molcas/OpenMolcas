@@ -98,10 +98,6 @@
       Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
       Call Put_iArray('SewLInfo',p_lx,Len)
 *
-      Len = ilLoc(AuxShell(Mx_Shll))-ilLoc(AuxShell(1))
-      Len = (Len+nByte_i)/nByte_i
-      Call Put_lArray('AuxShell',AuxShell,Len)
-*
 *     Save the common RINFO
 *
       Len = idLoc(rxEnd)-idLoc(rxStrt)

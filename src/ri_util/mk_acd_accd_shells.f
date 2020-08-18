@@ -1359,7 +1359,7 @@ C                          Thrs= 1.0D-12
                      Shells(iShll)%Transf=.True.
                      Shells(iShll)%Prjct =.False.
                   End If
-                  AuxShell(iShll)=.True.
+                  Shells(iShll)%Aux=.True.
 *
                   If (Do_acCD_Basis.and.Found) Then
                      Call mma_deallocate(iList2_p)

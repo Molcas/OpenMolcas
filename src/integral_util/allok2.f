@@ -32,6 +32,7 @@
       use k2_arrays
       use iSD_data
       use IOBUF
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -79,7 +80,7 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll) .and. iS.ne.nSkal) Go To 100
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
@@ -89,7 +90,7 @@
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(jShll) .and. jS.eq.nSkal) Go To 200
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)

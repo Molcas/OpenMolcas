@@ -158,7 +158,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
 *
       Do iS = 1, mSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll).and.iS.ne.mSkal) Go To 100
+         If (Shells(iShll)%Aux.and.iS.ne.mSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
@@ -177,8 +177,8 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
          iCmpV(1) = iCmp
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(iShll).and..Not.AuxShell(jShll)) Go To 200
-            If (AuxShell(jShll).and.jS.eq.mSkal) Go To 200
+            If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Go To 200
+            If (Shells(jShll)%Aux.and.jS.eq.mSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
@@ -194,7 +194,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             iCmpV(2) = jCmp
 *
 *           Fix for the dummy basis set
-            If (AuxShell(iShll)) Coor(1:3,1)=Coor(1:3,2)
+            If (Shells(iShll)%Aux) Coor(1:3,1)=Coor(1:3,2)
 *
             Call iCopy(2,iAngV(1),1,iAngV(3),1)
             Call ICopy(2,iCmpV(1),1,iCmpV(3),1)

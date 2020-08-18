@@ -93,6 +93,7 @@
            Integer :: nFockOp=0
            Real*8, Allocatable:: FockOp(:,:)
            Logical :: Frag=.False.
+           Logical :: Aux =.False.
       End Type Shell_Info
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -104,7 +105,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 9
+      Integer :: nFrag_LineWords = 0, nFields = 7, mFields = 10
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -230,6 +231,8 @@
          If (Shells(i)%Prjct ) iDmp(8,i)=1
          iDmp(9,i) = 0
          If (Shells(i)%Frag  ) iDmp(9,i)=1
+         iDmp(10,i) = 0
+         If (Shells(i)%Aux   ) iDmp(10,i)=1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
 #ifdef _DEBUG_
@@ -430,15 +433,16 @@
       End If
       nAux2=0
       Do i = 1, Max_Shells-1
-         Shells(i)%nBK      = iDmp(1,i)
-         Shells(i)%nAkl     = iDmp(2,i)
-         Shells(i)%nFockOp  = iDmp(3,i)
-         Shells(i)%nExp     = iDmp(4,i)
-         Shells(i)%nBasis   = iDmp(5,i)
-         Shells(i)%nBasis_c = iDmp(6,i)
-         Shells(i)%Transf   = iDmp(7,i).eq.1
-         Shells(i)%Prjct    = iDmp(8,i).eq.1
-         Shells(i)%Frag     = iDmp(9,i).eq.1
+         Shells(i)%nBK      = iDmp( 1,i)
+         Shells(i)%nAkl     = iDmp( 2,i)
+         Shells(i)%nFockOp  = iDmp( 3,i)
+         Shells(i)%nExp     = iDmp( 4,i)
+         Shells(i)%nBasis   = iDmp( 5,i)
+         Shells(i)%nBasis_c = iDmp( 6,i)
+         Shells(i)%Transf   = iDmp( 7,i).eq.1
+         Shells(i)%Prjct    = iDmp( 8,i).eq.1
+         Shells(i)%Frag     = iDmp( 9,i).eq.1
+         Shells(i)%Aux      = iDmp(10,i).eq.1
          nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
                + Shells(i)%nExp
 !        Coefficients only there is nBasis =/=0

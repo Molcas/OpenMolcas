@@ -84,16 +84,16 @@
                nBasisi=Shells(iShll)%nBasis
                If (nBasisi.eq.0) Go To 200
                If (Basis_Mode.eq.Valence_Mode .and.
-     &             (AuxShell(iShll).or.
+     &             (Shells(iShll)%Aux.or.
      &              Shells(iShll)%Frag)) Go To 200
                If (Basis_Mode.eq.Auxiliary_Mode .and.
-     &             .Not.AuxShell(iShll)) Go To 200
+     &             .Not.Shells(iShll)%Aux) Go To 200
                If (Basis_Mode.eq.Fragment_Mode .and.
      &             .Not.Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Auxiliary_Mode .and.
      &             Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Fragment_Mode .and.
-     &             AuxShell(iShll)) Go To 200
+     &             Shells(iShll)%Aux) Go To 200
                iCmp  = (iAng+1)*(iAng+2)/2
                If (Shells(iShll)%Prjct) iCmp = 2*iAng+1
 *
