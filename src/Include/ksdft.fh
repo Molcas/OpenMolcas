@@ -14,5 +14,8 @@
      &                        ip_F_xca,ip_F_xcb,ip_tmpB,LuMC,LuMT,
      &                        CoefR,CoefX
       Logical           do_pdftpot
-      Integer ifiv,ifav
-      Common/KSDFT_AMS/ do_pdftpot,ifiv,ifav
+      Integer ifiv,ifav,ifiv_n,ifav_n
+      Common/KSDFT_AMS/ do_pdftpot,ifiv,ifav,ifiv_n,ifav_n
+      Real*8 PUVX_time, FA_time, FI_time,sp_time
+*
+      Common /PD_TIME /PUVX_time, FA_time, FI_time,sp_time

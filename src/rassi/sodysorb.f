@@ -12,8 +12,10 @@
 *               2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
 ************************************************************************
-      SUBROUTINE SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
-     &                 SODYSAMPS,SODYSAMPSR,SODYSAMPSI,SOENE)
+      SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+      use rassi_global_arrays, only: SFDYS, SODYSAMPS,
+     &                               SODYSAMPSR, SODYSAMPSI, JBNUM
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -23,18 +25,17 @@
 #include "symmul.fh"
 #include "Files.fh"
 
+      REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
       ! Arrays, bounds, and indices
+      INTEGER   MSPROJS
+      REAL*8    MSPROJI,MSPROJJ
       INTEGER   SOTOT,SFTOT,SO2SFNUM
       INTEGER   NZ,LSZZ,ORBNUM
       INTEGER   SODYSCIND
-      INTEGER   INDJ,INDI,SFI,SFJ,ZI,ZJ,NSZZ,NDUM
+      INTEGER   SFI,SFJ,ZI,ZJ,NSZZ,NDUM
 
       ! Arrays for calculation of amplitudes
       DIMENSION DYSAMPS(NSTATE,NSTATE)
-      DIMENSION SFDYS(NZ,NSTATE,NSTATE)
-      DIMENSION SODYSAMPS(NSS,NSS)
-      DIMENSION SODYSAMPSR(NSS,NSS)
-      DIMENSION SODYSAMPSI(NSS,NSS)
       DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
       DIMENSION SZZFULL(NZ,NZ)
 
@@ -63,20 +64,24 @@ C    are correctly calculated for these states.
 
 C Setup SO2SFNUM list which contains the original SF state numbers
 C as a function of the SO state number
+C And MSPROJS which saves their ms projections for later use
 
       SO2SFNUM=0
       CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
+      MSPROJS=0
+      CALL GETMEM('MSPROJS','ALLO','REAL',MSPROJS,NSS)
       ISS=0
       SOTOT=0
       SFTOT=0
       DO ISTATE=1,NSTATE
-       JOB1=iWork(lJBNUM+ISTATE-1)
+       JOB1=JBNUM(ISTATE)
        MPLET1=MLTPLT(JOB1)
        SFTOT=SFTOT+1
 
-       DO MSPROJ1=-MPLET1+1,MPLET1-1,2
+       DO MSPROJ=-MPLET1+1,MPLET1-1,2
         SOTOT=SOTOT+1
         IWORK(SO2SFNUM+SOTOT-1)=SFTOT
+        WORK(MSPROJS+SOTOT-1)=MSPROJ
 
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
@@ -85,8 +90,8 @@ C as a function of the SO state number
 
 C Now construct the SF dysamps in the multiplicity expanded basis
 C (initially all real, therefore put into SODYSAMPSR)
-      SODYSAMPSR=0.0D0
-      SODYSAMPSI=0.0D0
+      SODYSAMPSR(:,:)=0.0D0
+      SODYSAMPSI(:,:)=0.0D0
       DO JSTATE=1,NSS
          DO ISTATE=JSTATE+1,NSS
           SFJ=IWORK(SO2SFNUM+JSTATE-1)
@@ -99,12 +104,12 @@ C (initially all real, therefore put into SODYSAMPSR)
 C Now perform the transformation from SF dysamps to SO dysamps
 C by combining the multiplicity expanded SF dysamps with the
 C SO eigenvector in the ZTRNSF routine.
-      CALL ZTRNSF(NSS,WORK(LUTOTR),WORK(LUTOTI),SODYSAMPSR,SODYSAMPSI)
+      CALL ZTRNSF(NSS,USOR,USOI,SODYSAMPSR,SODYSAMPSI)
 
 C Compute the magnitude of the complex amplitudes as an approximation
-      SODYSAMPSR=SODYSAMPSR*SODYSAMPSR
-      SODYSAMPSI=SODYSAMPSI*SODYSAMPSI
-      SODYSAMPS=SQRT(SODYSAMPSR+SODYSAMPSI)
+      SODYSAMPSR(:,:)=SODYSAMPSR*SODYSAMPSR
+      SODYSAMPSI(:,:)=SODYSAMPSI*SODYSAMPSI
+      SODYSAMPS(:,:)=SQRT(SODYSAMPSR+SODYSAMPSI)
 
       END IF ! Approximative amplitude calculation
 
@@ -171,12 +176,13 @@ C Multiply together with the SO eigenvector coefficients with the SF
 C Dyson orbital coefficients in the atomic basis to obtain
 C SO Dyson orbitals
 
-      SODYSAMPS=0.0D0
+      SODYSAMPS(:,:)=0.0D0
       ! For all requested initial states J and all final states I
       DO JSTATE=1,DYSEXPSO
 
-!     For each initial state JSTATE up to DYSEXPSFSO we will gather all the obtained Dysorbs
-!     and export to a shared .molden file
+         ! For each initial state JSTATE up to DYSEXPSFSO we will
+         ! gather all the obtained Dysorbs
+         ! and export to a shared .molden file
          IFILE=1
          SODYSCIND=0 ! Orbital coeff. index
          ORBNUM=0 ! Dysorb index for given JSTATE
@@ -187,40 +193,46 @@ C SO Dyson orbitals
 
          DO ISTATE=JSTATE+1,NSS
 
-        ! Reset values for next state combination
-        SODYSCOFSR=0.0D0
-        SODYSCOFSI=0.0D0
+          ! Reset values for next state combination
+          SODYSCOFSR=0.0D0
+          SODYSCOFSI=0.0D0
 
-        ! Iterate over the eigenvector components of both states
-        DO JEIG=1,NSS
+          ! Iterate over the eigenvector components of both states
+          DO JEIG=1,NSS
 
-         ! Coefficient of first state
-         INDJ=NSS*(JSTATE-1)+JEIG-1
-         CJR=WORK(LUTOTR+INDJ)
-         CJI=WORK(LUTOTI+INDJ)
-         ! Find the corresponding SF states
-         SFJ=IWORK(SO2SFNUM+JEIG-1)
+           ! Coefficient of first state
+           CJR=USOR(JEIG,JSTATE)
+           CJI=USOI(JEIG,JSTATE)
+           ! Find the corresponding SF states
+           SFJ=IWORK(SO2SFNUM+JEIG-1)
 
-         DO IEIG=1,NSS
+           DO IEIG=1,NSS
 
-          ! Coefficient of second state
-          INDI=NSS*(ISTATE-1)+IEIG-1
-          CIR=WORK(LUTOTR+INDI)
-          CII=WORK(LUTOTI+INDI)
-          ! Find the corresponding SF states
-          SFI=IWORK(SO2SFNUM+IEIG-1)
+            ! Coefficient of second state
+            CIR=USOR(IEIG,ISTATE)
+            CII=USOI(IEIG,ISTATE)
+            ! Find the corresponding SF states
+            SFI=IWORK(SO2SFNUM+IEIG-1)
 
-          IF (DYSAMPS(SFJ,SFI).GT.1.0D-5) THEN
-           ! Multiply together coefficients
-           CREAL=CJR*CIR+CJI*CII
-           CIMAG=CJR*CII-CJI*CIR
-           ! Multiply with the corresponding SF Dyson orbital
-           SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
-           SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
-          END IF
+            ! Check change in ms projection
+            MSPROJJ=WORK(MSPROJS+JEIG-1)
+            MSPROJI=WORK(MSPROJS+IEIG-1)
+            ! Check |delta ms|=0.5 selection rule
+            IF(ABS(MSPROJJ-MSPROJI).NE.1) THEN
+             CYCLE
+            END IF
 
-         END DO ! IEIG
-        END DO ! JEIG
+            IF (DYSAMPS(SFJ,SFI).GT.1.0D-5) THEN
+             ! Multiply together coefficients
+             CREAL=CJR*CIR+CJI*CII
+             CIMAG=CJR*CII-CJI*CIR
+             ! Multiply with the corresponding SF Dyson orbital
+             SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
+             SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
+            END IF
+
+           END DO ! IEIG
+          END DO ! JEIG
 
 ! Normalize the overlap of SODYSCOFS expanded orbitals with the
 ! atomic overlap matrix SZZ to obtain correct amplitudes
@@ -272,9 +284,7 @@ C SO Dyson orbitals
 C Free all the allocated memory
 
       CALL GETMEM('SO2SF','FREE','INTE',SO2SFNUM,NSS)
+      CALL GETMEM('MSPROJS','FREE','REAL',MSPROJS,NSS)
 
       RETURN
       END
-
-
-

@@ -17,7 +17,8 @@
 
       iobj=0
       do 100 i=1,nobj
-100   if(charobj(i).eq.chr)iobj=i
+      if(charobj(i).eq.chr)iobj=i
+100   continue
       if(iobj.gt.0)then
         if(iprint.gt.1)write(6,*)' Make object exists already :',chr
         return

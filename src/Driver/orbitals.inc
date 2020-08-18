@@ -36,6 +36,7 @@
  (file)  SONATSDENS "$WorkDir/$Project$SubProject."SOSOrb     rw*st
  (file)  SODISDENS  "$WorkDir/$Project$SubProject."SODSOrb    rw*st
  (file)  SODILDENS  "$WorkDir/$Project$SubProject."SODLOrb    rw*st
+ (file)  NTORB  "$WorkDir/$Project$SubProject."NTOrb          rw*st
 
 #define _ORBITALS_
 #endif

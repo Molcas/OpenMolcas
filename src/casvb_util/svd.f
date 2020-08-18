@@ -100,8 +100,9 @@ c The next two initializations are to appease a compiler
 c
       do 100 i = 1, m
 c
-         do 100 j = 1, n
+         do 101 j = 1, n
             u(i,j) = a(i,j)
+  101    continue
   100 continue
 c     .......... householder reduction to bidiagonal form ..........
       g = 0.0d0
@@ -117,7 +118,8 @@ c
          if (i .gt. m) go to 210
 c
          do 120 k = i, m
-  120    scale = scale + abs(u(k,i))
+         scale = scale + abs(u(k,i))
+  120    continue
 c
          if (abs(scale) .lt. thresh) go to 210
 c
@@ -136,16 +138,19 @@ c
             s = 0.0d0
 c
             do 140 k = i, m
-  140       s = s + u(k,i) * u(k,j)
+            s = s + u(k,i) * u(k,j)
+  140       continue
 c
             f = s / h
 c
-            do 150 k = i, m
+            do 160 k = i, m
                u(k,j) = u(k,j) + f * u(k,i)
+  160       continue
   150    continue
 c
   190    do 200 k = i, m
-  200    u(k,i) = scale * u(k,i)
+         u(k,i) = scale * u(k,i)
+  200    continue
 c
   210    w(i) = scale * g
          g = 0.0d0
@@ -154,7 +159,8 @@ c
          if (i .gt. m .or. i .eq. n) go to 290
 c
          do 220 k = l, n
-  220    scale = scale + abs(u(i,k))
+         scale = scale + abs(u(i,k))
+  220    continue
 c
          if (abs(scale) .lt. thresh) go to 290
 c
@@ -169,7 +175,8 @@ c
          u(i,l) = f - g
 c
          do 240 k = l, n
-  240    rv1(k) = u(i,k) / h
+         rv1(k) = u(i,k) / h
+  240    continue
 c
          if (i .eq. m) go to 270
 c
@@ -177,14 +184,17 @@ c
             s = 0.0d0
 c
             do 250 k = l, n
-  250       s = s + u(j,k) * u(i,k)
+            s = s + u(j,k) * u(i,k)
+  250       continue
 c
-            do 260 k = l, n
+            do 255 k = l, n
                u(j,k) = u(j,k) + s * rv1(k)
+  255       continue
   260    continue
 c
   270    do 280 k = l, n
-  280    u(i,k) = scale * u(i,k)
+         u(i,k) = scale * u(i,k)
+  280    continue
 c
   290    x = max(x,abs(w(i))+abs(rv1(i)))
   300 continue
@@ -198,16 +208,19 @@ c     .......... for i=n step -1 until 1 do -- ..........
 c
          do 320 j = l, n
 c     .......... double division avoids possible underflow ..........
-  320    v(j,i) = (u(i,j) / u(i,l)) / g
+         v(j,i) = (u(i,j) / u(i,l)) / g
+  320    continue
 c
          do 350 j = l, n
             s = 0.0d0
 c
             do 340 k = l, n
-  340       s = s + u(i,k) * v(k,j)
+            s = s + u(i,k) * v(k,j)
+  340       continue
 c
-            do 350 k = l, n
+            do 355 k = l, n
                v(k,j) = v(k,j) + s * v(k,i)
+  355       continue
   350    continue
 c
   360    do 380 j = l, n
@@ -232,7 +245,8 @@ c
          if (i .eq. n) go to 430
 c
          do 420 j = l, n
-  420    u(i,j) = 0.0d0
+         u(i,j) = 0.0d0
+  420    continue
 c
   430    if (abs(g) .lt. thresh) go to 475
          if (i .eq. mn) go to 460
@@ -241,21 +255,25 @@ c
             s = 0.0d0
 c
             do 440 k = l, m
-  440       s = s + u(k,i) * u(k,j)
+            s = s + u(k,i) * u(k,j)
+  440       continue
 c     .......... double division avoids possible underflow ..........
             f = (s / u(i,i)) / g
 c
-            do 450 k = i, m
+            do 455 k = i, m
                u(k,j) = u(k,j) + f * u(k,i)
+  455       continue
   450    continue
 c
   460    do 470 j = i, m
-  470    u(j,i) = u(j,i) / g
+         u(j,i) = u(j,i) / g
+  470    continue
 c
          go to 490
 c
   475    do 480 j = i, m
-  480    u(j,i) = 0.0d0
+         u(j,i) = 0.0d0
+  480    continue
 c
   490    u(i,i) = u(i,i) + 1.0d0
   500 continue
@@ -372,7 +390,8 @@ c     .......... w(k) is made non-negative ..........
          if (.not. matv) go to 700
 c
          do 690 j = 1, n
-  690    v(j,k) = -v(j,k)
+         v(j,k) = -v(j,k)
+  690    continue
 c
   700 continue
 c

@@ -22,16 +22,16 @@ C
 #include "stdalloc.fh"
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)           :: dim
-      Complex(kind=wp), intent(in)  :: mm(3,dim,dim)
-      Complex(kind=wp), intent(in)  :: Zinp(dim,dim)
-      Complex(kind=wp), intent(out) :: Zout(dim,dim)
+      Complex(kind=8), intent(in)  :: mm(3,dim,dim)
+      Complex(kind=8), intent(in)  :: Zinp(dim,dim)
+      Complex(kind=8), intent(out) :: Zout(dim,dim)
 ! ------------------------------------------------------------
       Integer                       :: i, j, i1, i2, l
-      Real(kind=wp), allocatable    :: rxr(:) !dim)
-      Real(kind=wp), allocatable    :: rxi(:) !dim)
-      Complex(kind=wp), allocatable :: r(:) !(dim)
-      Complex(kind=wp), allocatable :: phs(:,:,:)  !3,dim,dim)
-      Complex(kind=wp), allocatable :: tmp(:,:) !dim,dim
+      Real(kind=8), allocatable    :: rxr(:) !dim)
+      Real(kind=8), allocatable    :: rxi(:) !dim)
+      Complex(kind=8), allocatable :: r(:) !(dim)
+      Complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
+      Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
       Logical :: dbg
 
       Call qEnter('s_phase')
@@ -76,7 +76,7 @@ C
         r(1)=(1.0_wp,0.0_wp)
 
         ! kind=8, complex double precision
-        r(j)=CMPLX( rxr(j), rxi(j), kind=wp )
+        r(j)=DCMPLX( rxr(j), rxi(j))
 
         Do i1=1,dim
           Zout(i1,j)=CONJG(r(j))*Zinp(i1,j)
@@ -179,21 +179,21 @@ C
 #include "stdalloc.fh"
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)           :: dim
-      Complex(kind=wp), intent(in)  :: mm(3,dim,dim)
-      Complex(kind=wp), intent(in)  :: Zinp(dim,dim)
-      Complex(kind=wp), intent(out) :: Zout(dim,dim)
+      Complex(kind=8), intent(in)  :: mm(3,dim,dim)
+      Complex(kind=8), intent(in)  :: Zinp(dim,dim)
+      Complex(kind=8), intent(out) :: Zout(dim,dim)
 ! ------------------------------------------------------------
       Integer                       :: i, j, i1, l
-      Complex(kind=wp)              :: t
-      Real(kind=wp), allocatable    :: rxr(:) !dim)
-      Real(kind=wp), allocatable    :: rxi(:) !dim)
-      Complex(kind=wp), allocatable :: r(:) !(dim)
-      Complex(kind=wp), allocatable :: phs(:,:,:)  !3,dim,dim)
-      Complex(kind=wp), allocatable :: tmp(:,:) !dim,dim
+      Complex(kind=8)              :: t
+      Real(kind=8), allocatable    :: rxr(:) !dim)
+      Real(kind=8), allocatable    :: rxi(:) !dim)
+      Complex(kind=8), allocatable :: r(:) !(dim)
+      Complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
+      Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
       Logical :: dbg
 
       Call qEnter('s_phase')
-      dbg=.true.
+      dbg=.false.
 
       Call mma_allocate(rxr,dim,'rxr')
       Call mma_allocate(rxi,dim,'rxi')
@@ -234,7 +234,7 @@ C
         End If
 
         ! kind=8, complex double precision
-        r(j)=CMPLX( rxr(j),-rxi(j), kind=wp )
+        r(j)=DCMPLX( rxr(j),-rxi(j))
 
         If(dbg) Then
           Write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE:'//

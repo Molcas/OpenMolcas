@@ -20,14 +20,14 @@ C
       Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)       :: N
       Integer, intent(out)      :: INFO
-      Real(kind=wp), intent(in) :: MATRIX(N,N)
-      Real(kind=wp), intent(out):: W(N), Z(N,N)
+      Real(kind=8), intent(in) :: MATRIX(N,N)
+      Real(kind=8), intent(out):: W(N), Z(N,N)
       ! local variables:
       Integer       :: I,J
-      Real(kind=wp), allocatable :: AP(:)   !(N*(N+1)/2)
-      Real(kind=wp), allocatable :: WORK(:) !(3*N)
-      Real(kind=wp), allocatable :: W1(:)   !(N)
-      Real(kind=wp), allocatable :: Z1(:,:) !(N,N)
+      Real(kind=8), allocatable :: AP(:)   !(N*(N+1)/2)
+      Real(kind=8), allocatable :: WORK(:) !(3*N)
+      Real(kind=8), allocatable :: W1(:)   !(N)
+      Real(kind=8), allocatable :: Z1(:,:) !(N,N)
 
       Call qEnter('diag_r2')
 C initializations

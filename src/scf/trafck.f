@@ -244,26 +244,25 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
                     iOff = (iOcc-1)*nBas(iSym) + iCMO
                     kOcc=0
                     Tmp0=0.0D0
-                    Do jOcc = 1, nOccmF !  Loop over the new Mos
+                    Do jOcc = 1, nOccmF !  Loop over the new MOs
                        Tmp1=Abs(DDot_(nBas(iSym),COvrlp(jOcc),nOccmF,
      &                                           CMO(iOff,iD),1))
                        If (Tmp1.gt.Tmp0) Then
                           Tmp0=Tmp1
                           kOcc=jOcc
                        End If
-*
-                       If (iOcc.ne.kOcc) Then
-                          ii = iOcc + jEOr - 1
-                          kk = kOcc + jEOr - 1
-                          tmp = EOrb(ii,iD)
-                          EOrb(ii,iD) = EOrb(kk,iD)
-                          EOrb(kk,iD) = tmp
-                          kOff = (kOcc-1)*nBas(iSym) + iCMO
-                          Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
-     &                                           CMO(kOff,iD),1)
-                       End If
                     End Do
 *
+                    If (iOcc.ne.kOcc) Then
+                       ii = iOcc + jEOr - 1
+                       kk = kOcc + jEOr - 1
+                       tmp = EOrb(ii,iD)
+                       EOrb(ii,iD) = EOrb(kk,iD)
+                       EOrb(kk,iD) = tmp
+                       kOff = (kOcc-1)*nBas(iSym) + iCMO
+                       Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
+     &                                        CMO(kOff,iD),1)
+                    End If
                  End Do
 *
                  iDiag = 0

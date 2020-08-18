@@ -525,9 +525,9 @@ c         Write(6,*)
      &            ip_nBas_Start,l_nBas_Start)
       Return
       End
-***********************************************************************
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+************************************************************************
       Subroutine get_Saa(nSym,nBas,nOrb,Smn,Xmo,Saa)
       Implicit Real*8 (a-h,o-z)
       Integer nSym, nBas(nSym), nOrb(nSym)
@@ -565,9 +565,9 @@ c         Write(6,*)
 *
       Return
       End
-***********************************************************************
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+************************************************************************
       SubRoutine LovCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            ip_X,ip_Y,isFNO)
 C
@@ -672,6 +672,8 @@ C
          koff=koff+nSsh(iSym)
       End Do
 *
+      iDummy=0
+      jDummy=0
       Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,iDummy,
      &                           jDummy,.false.)
       Call GetMem('CMON','Allo','Real',iCMO,nBB)

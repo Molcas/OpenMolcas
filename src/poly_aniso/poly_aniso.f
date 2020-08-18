@@ -32,19 +32,19 @@ c  definition of the local metal sites
       Integer                       :: nLoc
       Integer, allocatable          :: nss(:), nsfs(:)
 c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
-      Real(kind=wp), allocatable    :: gtens_input(:,:)
+      Real(kind=8), allocatable    :: gtens_input(:,:)
 !                                      gtens_input(3,nneq)
-      Real(kind=wp), allocatable    :: D_fact(:), EoverD_fact(:)
+      Real(kind=8), allocatable    :: D_fact(:), EoverD_fact(:)
 !     definition of the main local axes in general coord system
-      Real(kind=wp), allocatable    :: riso(:,:,:)
-      Real(kind=wp), allocatable    :: R_LG( :,:,:,:)
+      Real(kind=8), allocatable    :: riso(:,:,:)
+      Real(kind=8), allocatable    :: R_LG( :,:,:,:)
 !                                      R_LG( nneq,neqv,3,3)
-      Real(kind=wp), allocatable    :: R_ROT(:,:,:,:)
+      Real(kind=8), allocatable    :: R_ROT(:,:,:,:)
 !                                      R_ROT(nneq,neqv,3,3)
 !     spin orbit energies on individual metal sites
-      Real(kind=wp), allocatable    :: eso(:,:)
-      Complex(kind=wp), allocatable :: dipso(:,:,:,:)
-      Complex(kind=wp), allocatable ::  s_so(:,:,:,:)
+      Real(kind=8), allocatable    :: eso(:,:)
+      Complex(kind=8), allocatable :: dipso(:,:,:,:)
+      Complex(kind=8), allocatable ::  s_so(:,:,:,:)
       Character(1)                  :: itype(nneq)
       Character(180)                :: namefile_aniso(nneq)
       Logical                       :: ifHDF
@@ -70,29 +70,29 @@ c  definition of the exchange:
       Logical                       :: decompose_exchange
       Logical                       :: JITO_exchange
 !     Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: Jex(:)
+      Real(kind=8), allocatable    :: Jex(:)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JAex(:,:)
+      Real(kind=8), allocatable    :: JAex(:,:)
 !     Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp), allocatable    :: JAex9(:,:,:)
+      Real(kind=8), allocatable    :: JAex9(:,:,:)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JDMex(:,:)
-      Real(kind=wp), allocatable    :: JITOexR(:,:,:,:,:)
-      Real(kind=wp), allocatable    :: JITOexI(:,:,:,:,:)
+      Real(kind=8), allocatable    :: JDMex(:,:)
+      Real(kind=8), allocatable    :: JITOexR(:,:,:,:,:)
+      Real(kind=8), allocatable    :: JITOexI(:,:,:,:,:)
 !     exchange spectrum
-      Real(kind=wp), allocatable    :: W(:)
+      Real(kind=8), allocatable    :: W(:)
 !     exchange eigenstates
-      Complex(kind=wp), allocatable :: Z(:,:)
-      Complex(kind=wp), allocatable :: dipexch(:,:,:)
+      Complex(kind=8), allocatable :: Z(:,:)
+      Complex(kind=8), allocatable :: dipexch(:,:,:)
 ! exchange magnetic moment
-      Complex(kind=wp), allocatable ::  s_exch(:,:,:)
+      Complex(kind=8), allocatable ::  s_exch(:,:,:)
 ! exchange spin moment
       ! options used in connection with KE
       Integer                       :: lant, multLn, KEOPT
       Logical                       :: KE
-      Real(kind=wp)                 :: tpar, upar
+      Real(kind=8)                 :: tpar, upar
       ! options used in connection with Dipol-Dipol interaction
-      Real(kind=wp), allocatable    :: MagnCoords(:,:)
+      Real(kind=8), allocatable    :: MagnCoords(:,:)
 !                                      MagnCoords(nneq,3)
 
       Integer                       :: nTempMagn
@@ -102,35 +102,35 @@ c  definition of g and D tensors
 !     multiplicity of each multiplet
       Integer, allocatable          :: nDim(:)
 !     gtensor of each multiplet
-      Real(kind=wp), allocatable    :: gtens(:,:)
+      Real(kind=8), allocatable    :: gtens(:,:)
 !     main axes of each multiplet
-      Real(kind=wp), allocatable    :: maxes(:,:,:)
+      Real(kind=8), allocatable    :: maxes(:,:,:)
 c  definition of data for susceptibility
       Integer                       :: nT
       Logical                       :: compute_susceptibility
       Logical                       :: tinput
-      Real(kind=wp)                 :: tmin, tmax, dltT0
+      Real(kind=8)                 :: tmin, tmax, dltT0
 
-      Real(kind=wp), allocatable    ::     T(:)
-      Real(kind=wp), allocatable    :: XTexp(:)
-      Real(kind=wp), allocatable    :: XT_no_field(:)
-      Real(kind=wp), allocatable    :: chit_exp(:)
-      Real(kind=wp), allocatable    :: Texp(:)
+      Real(kind=8), allocatable    ::     T(:)
+      Real(kind=8), allocatable    :: XTexp(:)
+      Real(kind=8), allocatable    :: XT_no_field(:)
+      Real(kind=8), allocatable    :: chit_exp(:)
+      Real(kind=8), allocatable    :: Texp(:)
 
-      Real(kind=wp), allocatable    :: XLM(:,:,:,:)
-      Real(kind=wp), allocatable    :: ZLM(:,:)
-      Real(kind=wp), allocatable    :: XRM(:,:,:,:)
-      Real(kind=wp), allocatable    :: ZRM(:,:)
+      Real(kind=8), allocatable    :: XLM(:,:,:,:)
+      Real(kind=8), allocatable    :: ZLM(:,:)
+      Real(kind=8), allocatable    :: XRM(:,:,:,:)
+      Real(kind=8), allocatable    :: ZRM(:,:)
       ! options related to XT_MoverH
-      Real(kind=wp)                 :: Xfield
+      Real(kind=8)                 :: Xfield
 
 c  definition of data for magnetization:
       Integer                       :: nH, nM
       Integer                       :: iopt
-      Real(kind=wp), allocatable    :: TempMagn(:)
-      Real(kind=wp), allocatable    :: Hexp(:), Mexp(:,:)
-      Real(kind=wp)                 :: thrs, em
-      Real(kind=wp)                 :: hmin, hmax, dltH0
+      Real(kind=8), allocatable    :: TempMagn(:)
+      Real(kind=8), allocatable    :: Hexp(:), Mexp(:,:)
+      Real(kind=8)                 :: thrs, em
+      Real(kind=8)                 :: hmin, hmax, dltH0
       Logical                       :: hinput
       Logical                       :: compute_magnetization
       Logical                       :: compute_Mdir_vector
@@ -142,7 +142,7 @@ c  definition of data for magnetization:
       Integer                       :: encut_definition
       Integer                       :: nK, mG ! encut_definition=1;
       Integer                       :: ncut   ! encut_definition=2;
-      Real(kind=wp)                 :: encut_rate ! encut_definition=3;
+      Real(kind=8)                 :: encut_rate ! encut_definition=3;
 
 c  magnetization torque
       Logical                       :: compute_torque
@@ -150,15 +150,15 @@ c  magnetization torque
 c  Zeeman energy and M vector
       Integer                       :: nDir, nDirZee, nDirTot
       Integer, allocatable          :: LuZee(:)
-      Real(kind=wp), allocatable    :: dirX(:), dirY(:), dirZ(:)
-      Real(kind=wp), allocatable    :: dir_weight(:,:)
+      Real(kind=8), allocatable    :: dirX(:), dirY(:), dirZ(:)
+      Real(kind=8), allocatable    :: dir_weight(:,:)
 c  definition of mean field parameter
-      Real(kind=wp)                 :: zJ
+      Real(kind=8)                 :: zJ
 c  definintion of the crystal axes:
       Logical                       :: Do_structure_abc
-      Real(kind=wp)                 :: cryst(6)
+      Real(kind=8)                 :: cryst(6)
 ! a, b, c, alpha, beta, gamma
-      Real(kind=wp)                 :: coord(3)
+      Real(kind=8)                 :: coord(3)
 ! Cartesian coordinates of the main metal site, or center
 c  definitions for blocking barrier
       Integer                       :: nBlock
@@ -167,8 +167,8 @@ c  options for automatic fitting of parameters:
       Logical                       :: fitCHI !-- not used so far
       Logical                       :: fitM !-- not used so far
 c  fundamental constants:
-      Real(kind=wp)                 :: boltz_k
-      Real(kind=wp)                 :: mu_bohr
+      Real(kind=8)                 :: boltz_k
+      Real(kind=8)                 :: mu_bohr
 
       Integer                       :: iPrint
       Integer                       :: idim
@@ -215,7 +215,7 @@ c---------------------------------------------------------------------
       CtoB=16
       ItoB=8
 
-      If(exch>0) Then
+      If(exch>=0) Then
         ! exchange energy spectrum
         Call mma_allocate(W,exch,'W')
         Call dcopy_(exch,[0.0_wp],0,W,1)
@@ -236,7 +236,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
       End If
 
-      If(nPair>0) Then
+      If(nPair>=0) Then
         ! index of metal site for each interacting pair:
         Call mma_allocate(i_pair,nPair,2,'i_pair')
         Call icopy(nPair*2,[0],0,i_pair,1)
@@ -262,7 +262,7 @@ c---------------------------------------------------------------------
         Call icopy(nPair*2,[0],0,imaxrank,1)
         mem=mem+nPair*2*ItoB
         ! exchange JITO
-        If((MxRank1>0).AND.(MxRank2>0)) Then
+        If((MxRank1>=0).AND.(MxRank2>=0)) Then
            l1(1)=1;         l1(2)=nPair
            l2(1)=1;         l2(2)=MxRank1
            l3(1)=-MxRank1;  l3(2)=MxRank1
@@ -284,7 +284,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
         ! index of metal site for each interacting pair:
         Call mma_allocate(nDim,nMult,'nDim')
         Call icopy(nMult,[0],0,nDim,1)
@@ -301,7 +301,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
       End If
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         ! number of equivalent centers, per type
         Call mma_allocate(neq,nneq,'neq')
         Call icopy(nneq,[0],0,neq,1)
@@ -340,7 +340,7 @@ c---------------------------------------------------------------------
         mem=mem+9*nneq*RtoB
 
 
-        If(neqv>0) Then
+        If(neqv>=0) Then
           ! R_LG
           Call mma_allocate(r_lg,nneq,neqv,3,3,'r_lg')
           Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_lg,1)
@@ -351,7 +351,7 @@ c---------------------------------------------------------------------
           mem=mem+nneq*neqv*3*3*RtoB
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           ! local spin orbit states
           Call mma_allocate(eso,nneq,nLoc,'eso')
           Call dcopy_( nneq*nLoc,[0.0_wp],0,eso,1)
@@ -370,7 +370,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 4 =',mem
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
         ! unit numbers of the files containing Zeeman states
         Call mma_allocate(LuZee,nDirZee,'LuZee')
         Call icopy(nDirZee,[0],0,LuZee,1)
@@ -383,7 +383,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
         ! magnetization vectors
         Call mma_allocate(dirX,nDir,'dirX')
         Call mma_allocate(dirY,nDir,'dirY')
@@ -396,7 +396,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
         ! experimental field points:
         Call mma_allocate(Hexp,nH,'Hexp')
         Call dcopy_(nH,[0.0_wp],0,Hexp,1)
@@ -413,7 +413,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
       End If
 
-      If((nCenter>0).and.(nTempMagn>0)) Then
+      If((nCenter>=0).and.(nTempMagn>=0)) Then
         ! XT for local centers, all states
         Call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
         Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XLM,1)
@@ -434,7 +434,7 @@ c---------------------------------------------------------------------
         If(dbg) Write(6,'(A,I16)') 'mem 8 =',mem
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         ! T expeirimental given by user in the input
         Call mma_allocate(Texp,nT,'Texp')
         Call dcopy_(nT,[0.0_wp],0,Texp,1)
@@ -445,7 +445,7 @@ c---------------------------------------------------------------------
         mem=mem+nT*RtoB
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
 !       -- add nTempMagn points, so that all measurables are computed at once...
 !       temperature points for which XT will be computed
         Call mma_allocate(T,(nTempMagn+nT),'Temperature')
@@ -529,7 +529,25 @@ c---------------------------------------------------------------------
 c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
       Do i=1,nneq
          If(dbg) Write(6,'(A,A)') 'itype(i)=',itype(i)
-         If( (itype(i).eq.'B').OR.(itype(i).eq.'C') ) Then
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '   nss(i)=', nss(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '  nsfs(i)=', nsfs(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) ' nexch(i)=', nexch(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) '     nLoc=', nLoc
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) ' gtens_input(1:3,i)=',
+     &                       (gtens_input(j,i),j=1,3)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) 'D_fact(i)=',D_fact(i)
+         If(dbg) Call xFlush(6)
+         If(dbg) Write(6,*) 'eso(i,1:nexch(i))=',
+     &                       (eso(i,j),j=1,nexch(i))
+         If(dbg) Call xFlush(6)
+
+         If ((itype(i).eq.'B').OR.(itype(i).eq.'C')) Then
 
             If(dbg) Write(6,*) 'Enter generate_isotrop_site'
             Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),
@@ -807,8 +825,9 @@ c---------------------------------------------------------------------
           If(dbg) Write(6,*) 'm_acc =',m_accurate
           If(dbg) Write(6,*) 'tinpu =',tinput
 
+          ! nm = exch
            Call XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,
-     &                       nss, nexch, nTempMagn, nT, NM, iopt, mem,
+     &                       nss, nexch, nTempMagn, nT, exch, iopt, mem,
      &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,
      &                       zJ, Xfield, EM, THRS, XT_no_field,
      &                       dipso, s_so, dipexch, s_exch,
@@ -828,8 +847,9 @@ c---------------------------------------------------------------------
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
 
+         ! nm = exch
          Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
-     &                nTempMagn, nH, nM, AngPoints, nexch,
+     &                nTempMagn, nH, exch, AngPoints, nexch,
      &                iopt, nss, mem,
      &                smagn, m_paranoid, m_accurate,
      &                TempMagn, w, hmin, hmax, dltH0, EM, zJ, THRS,
@@ -858,7 +878,8 @@ c---------------------------------------------------------------------
      &                       w, dipexch, s_exch, dipso, s_so, eso,
      &                       hinput, r_rot, XLM, ZLM, XRM, ZRM,
      &                       zeeman_energy, compute_Mdir_vector,
-     &                       m_paranoid, m_accurate, smagn, mem )
+     &                       m_paranoid, m_accurate, smagn, mem,
+     &                       doplot )
       Else
          Write(6,'(A)') 'Computation of the molar magnetization ... '//
      &                  'skipped by the user'
@@ -867,33 +888,33 @@ c---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! Deallocate memory for big arrays:
 !---------------------------------------------------------------------
-      If(exch>0) Then
+      If(exch>=0) Then
         Call mma_deallocate(W)
         Call mma_deallocate(Z)
         Call mma_deallocate(dipexch)
         Call mma_deallocate(s_exch)
       End If
 
-      If(nPair>0) Then
+      If(nPair>=0) Then
         Call mma_deallocate(i_pair)
         Call mma_deallocate(Jex)
         Call mma_deallocate(JAex)
         Call mma_deallocate(JAex9)
         Call mma_deallocate(JDMex)
         Call mma_deallocate(imaxrank)
-        If((MxRank1>0).AND.(MxRank2>0)) Then
+        If((MxRank1>=0).AND.(MxRank2>=0)) Then
           Call mma_deallocate(JITOexR)
           Call mma_deallocate(JITOexI)
         End If
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
         Call mma_deallocate(nDim)
         Call mma_deallocate(gtens)
         Call mma_deallocate(maxes)
       End If
 
-      If(nneq>0) Then
+      If(nneq>=0) Then
         Call mma_deallocate(neq)
         Call mma_deallocate(nss)
         Call mma_deallocate(nsfs)
@@ -903,48 +924,48 @@ c---------------------------------------------------------------------
         Call mma_deallocate(EoverD_fact)
         Call mma_deallocate(MagnCoords)
         Call mma_deallocate(riso)
-        If(neqv>0) Then
+        If(neqv>=0) Then
           Call mma_deallocate(r_lg)
           Call mma_deallocate(r_rot)
         End If
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           Call mma_deallocate(eso)
           Call mma_deallocate(dipso)
           Call mma_deallocate(s_so)
         End If
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
         Call mma_deallocate(LuZee)
         Call mma_deallocate(dir_weight)
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
         Call mma_deallocate(dirX)
         Call mma_deallocate(dirY)
         Call mma_deallocate(dirZ)
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
         ! experimental field points:
         Call mma_deallocate(Hexp)
         Call mma_deallocate(Mexp)
         Call mma_deallocate(TempMagn)
       End If
 
-      If((nCenter>0).and.(nTempMagn>0)) Then
+      If((nCenter>=0).and.(nTempMagn>=0)) Then
         Call mma_deallocate(XLM)
         Call mma_deallocate(ZLM)
         Call mma_deallocate(XRM)
         Call mma_deallocate(ZRM)
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         Call mma_deallocate(Texp)
         Call mma_deallocate(chit_exp)
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
         Call mma_deallocate(T)
         Call mma_deallocate(XTexp)
         Call mma_deallocate(XT_no_field)

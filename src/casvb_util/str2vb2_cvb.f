@@ -36,7 +36,8 @@ c  Determinant to structure transformation
       if(iway.eq.1)then
         call fzero(cvb,nvb)
         do 100 idet=1,ndetvb
-100     work(idet)=cvbdet(idetvb(idet))
+        work(idet)=cvbdet(idetvb(idet))
+100     continue
       elseif(iway.eq.2)then
         call fzero(work,ndetvb)
       endif
@@ -44,7 +45,7 @@ c  Determinant to structure transformation
       isadd=0
       iconfadd=0
       do 200 ion=0,nel/2
-      if(nconfion(ion).eq.0)goto 200
+      if(nconfion(ion).eq.0)goto 201
       nelsing=nel-2*ion
 c  Investigate different S and Ms possibilities and
 c  prepare to collect different BIKCOF matrices if
@@ -132,7 +133,8 @@ c  Skip collection if not necessary ...
               call fmove_cvb(bikcof(ioff_bikcof),w(ioff_i1),
      >          ndetvbs(nelsing,nalfsing))
               ioff_bikcof=ioff_bikcof+ndetvbs(nelsing,nalfsing)
-1100          ioff_i1=ioff_i1+n_det
+              ioff_i1=ioff_i1+n_det
+1100          continue
             endif
             i_det=i_det+ndetvbs(nelsing,nalfsing)
           endif
@@ -152,10 +154,12 @@ c  Skip collection if not necessary ...
       endif
       isadd=isadd+nconfion(ion)*n_spin
       idadd=idadd+nconfion(ion)*n_det
-200   iconfadd=iconfadd+nconfion(ion)
+201   iconfadd=iconfadd+nconfion(ion)
+200   continue
       if(iway.eq.2)then
         do 1200 idet=1,ndetvb
-1200    cvbdet(idetvb(idet))=work(idet)
+        cvbdet(idetvb(idet))=work(idet)
+1200    continue
       endif
       return
 c Avoid unused argument warnings

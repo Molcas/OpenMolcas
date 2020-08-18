@@ -9,4 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER MUL,NSYM
-      COMMON /SYMMUL/ MUL(80,80),NSYM
+      COMMON /SYMMUL/ MUL(8,8),NSYM

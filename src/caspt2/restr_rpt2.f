@@ -45,10 +45,11 @@
 *
       DO 20 IV=1,NVERT0-1
         IVV=IVER(IV)
-        DO 20 IC=0,3
+        DO 21 IC=0,3
           ID=IDOWN0(IV,IC)
-          IF(ID.EQ.0) GOTO 20
+          IF(ID.EQ.0) GOTO 21
           IVER(ID)=IOR(IVER(ID),IVV)
+21      CONTINUE
 20    CONTINUE
 *
 * THEN LOOP BACKWARDS. SAME RULES, EXCEPT THAT CONNECTIVITY

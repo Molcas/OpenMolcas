@@ -69,10 +69,11 @@
 *       update the other end point
         ELSE
 *
-*         If y2 is very close to y1, or actually lower, just double the step
+*         If y2 is very close to y1, or actually lower, just double the step.
+*         However, don't get too ambitious -- thus the min function.
 *
           IF (y1-y2 .GT. Thr) THEN
-            delta=(Val-y2)*(x1-x2)/(y1-y2)
+            delta=Min(x2,(Val-y2)*(x1-x2)/(y1-y2))
             new=x2+1.5D0*delta
           ELSE
             new=x2+Two*(x2-x1)

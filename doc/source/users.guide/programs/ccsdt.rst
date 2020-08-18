@@ -25,9 +25,9 @@
 :program:`CCSDT` performs the iterative single determinant CCSD procedure for
 open shell systems and the noniterative triple contribution calculation to
 the CCSD energy.
-For further details the reader is referred to the
-sections :ref:`TUT:sec:ccsdt` and
-:ref:`TUT:sec:rp_wf` of the tutorials and examples manual.
+For further details the reader is referred to
+:numref:`Sections %s <TUT:sec:ccsdt>` and
+:numref:`%s <TUT:sec:rp_wf>` of the tutorials and examples manual.
 
 .. index::
    pair: Dependencies; CCSDT
@@ -74,7 +74,7 @@ adaptation of CCSD amplitudes (the recommended citations are Refs.
 
 Besides these two possibilities there are also available some
 additional partial ones (see keyword
-:kword:`ADAPTATION` in Section :ref:`sec:ccsdt_input`). These adaptations are
+:kword:`ADAPTATION` in :numref:`sec:ccsdt_input`). These adaptations are
 suitable only for some specific purposes. More details on spin adaptation in
 the CCSD step can be found in Refs. :cite:`ccsd_neo1,ccsd_neo2,ccsd_kno`.
 The current implementation of the spin adaptation saves no computer time. A more
@@ -134,7 +134,7 @@ Input files
 
 :program:`CCSDT` will use the following input
 files: :file:`TRAONE`, :file:`TRAINT`, :file:`RUNFILE`, :file:`JOBIPH`,
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -304,7 +304,7 @@ The input for each module is preceded by its name like: ::
   The parameter on the following line specifies the
   type of noniterative triples
   procedure. There are three different types of perturbative triples available
-  (see Section :ref:`sec:ccsdt`).
+  (see :numref:`sec:ccsdt`).
 
   .. container:: list
 
@@ -465,7 +465,7 @@ The input for each module is preceded by its name like: ::
               </HELP>
               </KEYWORD>
               %%Keyword: PRINtlevel <advanced>
-              Sets the amount of the program verbosity as 0..2. Default:0.
+              Sets the amount of the program verbosity as 0..2. Default: 0.
 
 :kword:`LOAD`
   This keyword is followed by the line which specifies the

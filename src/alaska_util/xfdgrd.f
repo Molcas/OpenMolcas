@@ -27,12 +27,12 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              XRysg1                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, May '95                                 *
 ************************************************************************
+      use external_centers
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -87,13 +87,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
          Write(6,*)'higher XF than dipoles or for polarisabilities'
          Call Quit_OnUserError()
       EndIf
-      Inc = 3
-      Do iOrdOp = 0, nOrd_XF
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      If (iXPolType.gt.0) Inc = Inc + 6
-
-
+*
       Do iOrdOp = 0, nOrd_XF
 *
       nip = 1
@@ -145,24 +139,19 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
 *     Loop over centers of the external field.
 *
-      ip=ipXF-1
       iDum=0
       Do iFd = 1, nXF
          If (iOrdOp.eq.0) Then
-            ZFd(1)=Work(ip+(iFd-1)*Inc+4)
+            ZFd(1)=XF(4,iFd)
             NoLoop = ZFd(1).eq.Zero
          Else
-            ZFd(1)=Work(ip+(iFd-1)*Inc+5)
-            ZFd(2)=Work(ip+(iFd-1)*Inc+6)
-            ZFd(3)=Work(ip+(iFd-1)*Inc+7)
+            ZFd(1:3)=XF(5:7,iFd)
             NoLoop = ZFd(1).eq.Zero .and. ZFd(2).eq.Zero .and.
      &               ZFd(3).eq.Zero
          End If
          If (NoLoop) Go To 111
 *------- Pick up the center coordinates
-         C(1)=Work(ip+(iFd-1)*Inc+1)
-         C(2)=Work(ip+(iFd-1)*Inc+2)
-         C(3)=Work(ip+(iFd-1)*Inc+3)
+         C(1:3)=XF(1:3,iFd)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
@@ -278,7 +267,6 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
       End Do     ! End loop over charges and dipole moments
 *
-*     Call GetMem(' Exit XFdGrd','LIST','REAL',iDum,iDum)
       Call qExit('XFdGrd')
       Return
 c Avoid unused argument warnings

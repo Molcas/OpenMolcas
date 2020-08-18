@@ -13,15 +13,16 @@ c this function computes the exchange+covalent contributions to Hamiltonian of a
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)           :: N1, N2, OPT, lant
-      Real(kind=wp), intent(in)     :: t, u
-      Complex(kind=wp), intent(out) :: HEXC(N1,N1,N2,N2)
+      Real(kind=8), intent(in)     :: t, u
+      Complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
 c local variables
       Integer       :: i1,j1,i2,j2,JLn,SR,ms1,ns1,ms2,ns2
-      Real(kind=wp) :: HEXC1(N1,N1,N2,N2)
-      Real(kind=wp) :: test1, test2
-      Real(kind=wp) :: Jfinal(0:7, -5:5, 0:1, -1:1)
-      Real(kind=wp) :: WCG ! Clebsh_Gordan Coefficeints
+      Real(kind=8) :: HEXC1(N1,N1,N2,N2)
+      Real(kind=8) :: test1, test2
+      Real(kind=8) :: Jfinal(0:7, -5:5, 0:1, -1:1)
+      Real(kind=8) :: WCG ! Clebsh_Gordan Coefficeints
       External      :: WCG
+#include "stdalloc.fh"
 #include "jcoeff.fh"
 
       HEXC1=0.0_wp
@@ -142,6 +143,7 @@ c local variables
       End Do !j1
       End Do !i1
 
+      Call mma_deallocate(Jx)
       Return
       End
 

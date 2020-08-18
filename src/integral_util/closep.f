@@ -23,13 +23,13 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use aces_stuff
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
-#include "pso.fh"
 #include "setup.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky
 *
@@ -45,26 +45,21 @@
       End If
       If (Gamma_On) Then
 ************ columbus interface ****************************************
-*  using Close instead of DaClos for the half-sorted effective
-*  two-particle density matrix produces internal errors
-c        Close(LuGamma)
          Call DaClos(LuGamma)
-         Call GetMem('Bin','Free','Real',ipBin,2*lBin)
-         Call GetMem('G_Toc','Free','Real',ipG_Toc,iDummy)
-         Call GetMem('SO2cI','Free','Inte',ipSO2cI,iDummy)
+         Call mma_deallocate(Bin)
+         Call mma_deallocate(G_Toc)
+         Call mma_deallocate(SO2cI)
       End If
 *
       If (lPSO) Then
-         Call GetMem(' G2 ','Free','Real',ipG2,nG2)
-         Call GetMem(' G1 ','Free','Real',ipG1,nG1)
+         Call mma_deallocate(G2)
+         Call mma_deallocate(G1)
       End If
-      Call GetMem('CMO  ','Free','Real',ipCMO  ,mCMO)
-      Call GetMem('DSVar','Free','Real',ipDSVar,nDens)
-      Call GetMem('DS   ','Free','Real',ipDS   ,nDens)
-      Call GetMem('DVar ','Free','Real',ipDVar ,nDens)
-      Call GetMem('D0   ','Free','Real',ipD0   ,nDens)
-*
-*      If (ip_Z_p_k.ne.ip_Dummy) Call Free_Work(ip_Z_p_k)
+      call mma_deallocate(CMO)
+      call mma_deallocate(DSVar)
+      call mma_deallocate(DS)
+      call mma_deallocate(DVar)
+      call mma_deallocate(D0)
 *
 *     Call qExit('CloseP')
       Return

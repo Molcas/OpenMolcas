@@ -21,11 +21,11 @@ c1        Basic parameters for CCSD procedure
 c
 c        no - # of occupied orbitals
 c        nv - # of virtual orbitals
-c        nc - # of Choleski vectors
+c        nc - # of Cholesky vectors
 c        nfr- # if frozen orbitals
 c
 c        mhkey - FTN/BLAS switch
-c        maxiter - Maximal nuber of iterations
+c        maxiter - Maximal number of iterations
 c        restkey - key for restart [1/0]
 c        generkey - key for generation of integrals from L vectors [1/0]
 c

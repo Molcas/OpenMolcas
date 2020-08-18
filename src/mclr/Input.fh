@@ -128,6 +128,9 @@ c                               !      time-dependent perturbation
 c
       Integer iEndofinput(8), imass, nfiles, nUserPT, nsRot
 c
+      Logical TwoStep
+      Character(len=4) StepType
+
       Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,
      &               epsilon,omega,epsorb, rin_ene, umass
       Common/iInput/ nAtoms,nSym,
@@ -146,9 +149,10 @@ c
      &               page,lcalc,TimeDep,iMCPD,PT2,
      &               SpinPol,elechess,save,
      &               TwoPert,BasCon, double, multi, mout,
-     &               lmass, newCho
+     &               lmass, newCho, TwoStep
       Common/cInput/ perturbation, AtLbl, HeaderJP,Header1I,
-     &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass
+     &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass,
+     &               StepType
 *
 *     User-defined Temperatures and Pressure
 *
@@ -179,3 +183,6 @@ c
 
        Logical RASSI
        Common /InputDev/ RASSI
+
+       Integer iaddressQDAT
+       Common / common_LuQDAT / iaddressQDAT

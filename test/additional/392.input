@@ -2,7 +2,7 @@
 * Molecule: Atom P
 * Basis: ANO-RCC
 * Symmetry: None
-* Features tested: SEWARD,SCF,RASSCF,RASSI 
+* Features tested: SEWARD,SCF,RASSCF,RASSI
 * Responsible person: P-Å Malmqvist 150113
 * Comments: Check that SO-RASSI gives equivalent doublet components
 *-------------------------------------------------------------------------------
@@ -17,8 +17,6 @@ GROUP
 NoMove
 BASIS
 P.ANO-RCC-MB
-ANGM
- 0.00 0.00 0.00
 Douglas-Kroll
 AMFI
 SDIP
@@ -37,8 +35,8 @@ End of input
 *OCCU
 *9
 *OCCNUM
-*2.0 2.0 2.0 2.0 2.0  2.0 
-*1.0 1.0 1.0 
+*2.0 2.0 2.0 2.0 2.0  2.0
+*1.0 1.0 1.0
 *End of input
 **------------------------------------------------------------------------------
 >> COPY StartOrb INPORB
@@ -47,7 +45,7 @@ LUMORB
 ATOM
 Symmetry
  1
-Spin 
+Spin
  4
 nActEl
 3 0 0
@@ -73,7 +71,7 @@ LUMORB
 ATOM
 Symmetry
  1
-Spin 
+Spin
  2
 nActEl
 3 0 0
@@ -100,7 +98,7 @@ End of input
 Nr of JobIph files:
 2 1 8
 1
-1 2 3 4 5 6 7 8 
+1 2 3 4 5 6 7 8
 SpinOrbit
 J-Value
 End of input
@@ -165,7 +163,7 @@ End of input
 0.000000000000E+00
 #INDEX
 * 1234567890
-0 iiiiii222 
+0 iiiiii222
 >> EOF
 
 >>FILE checkfile

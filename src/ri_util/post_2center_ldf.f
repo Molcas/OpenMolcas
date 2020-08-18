@@ -38,16 +38,15 @@
 *             Modified to 2-center ERIs for RI June 2005               *
 *                                                                      *
 ************************************************************************
+      use Wrj12
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)

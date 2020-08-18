@@ -187,6 +187,14 @@
          RecLab( 83)='Root Mapping    '
          RecLab( 84)='Fermion IDs     '
          RecLab( 85)='IsMM Atoms      '
+         RecLab( 86)='Un_cen Charge   '
+         RecLab( 87)='PCM_N           '
+         RecLab( 88)='PCMiSph         '
+         RecLab( 89)='NVert           '
+         RecLab( 90)='IntSph          '
+         RecLab( 91)='NewSph          '
+         RecLab( 92)='XMolnr          '
+         RecLab( 93)='XEle            '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include
@@ -233,7 +241,7 @@
             Write(6,*) '*** Warning, writing temporary iArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If

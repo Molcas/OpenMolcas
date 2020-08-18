@@ -46,7 +46,7 @@ Iterations
 End of Input
 >>> ENDDO <<<<
 *-------------------------------------------------------------------------------
->> RM $Project.RunFile 
+>> RM $Project.RunFile
 *>>> exit
 *-------------------------------------------------------------------------------
 >>> DO WHILE <<<
@@ -71,18 +71,18 @@ End of basis
 RIJ
 End of input
 
- &SCF &End 
+ &SCF &End
 Occupation
- 3 1 1 0 
+ 3 1 1 0
 KSDFT
-BLYP 
+BLYP
 ChoInput
 Algo
  3
 EndChoInput
 End Of Input
 
- &Slapaf 
+ &Slapaf
 
 >>> ENDDO <<<
 

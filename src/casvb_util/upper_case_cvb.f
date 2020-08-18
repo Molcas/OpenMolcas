@@ -16,7 +16,8 @@
 
       ichar_Aa=ichar('A')-ichar('a')
       do 100 ich=1,lenline
-100   if(line(ich:ich).ge.'a'.and.line(ich:ich).le.'z')
+      if(line(ich:ich).ge.'a'.and.line(ich:ich).le.'z')
      >  line(ich:ich)=char(ichar(line(ich:ich))+ichar_Aa)
+100   continue
       return
       end

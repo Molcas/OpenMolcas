@@ -57,21 +57,3 @@ c      write (6,*) 'VAL into RANDOM:', val
       RETURN
 
       END
-
-      Subroutine getSeed(iseed)
-
-      External  datimx
-      character Line*72,l*1
-      integer*8 ihours,minutes,seconds,day
-
-      call datimx(Line)
-      read (Line,'(a8,i2,a1,i2,a1,i2,a1,i2)') l,day,l,ihours, l,minutes,
-     & l, seconds
-
-      iseed = int((ihours*3600)+(minutes*60)+seconds+(day*86400),
-     &            kind(iseed))
-
-
-      Return
-
-      End

@@ -3056,8 +3056,7 @@ if (DEFINED EXTRA_DIR)
   if (GETEMIL_DESCRIBE_RC)
     message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
   endif ()
-   list (APPEND progs_exe "molcas.exe")
-   message (FATAL_ERROR "Unsupported feature")
+  list (APPEND progs_exe "molcas.exe")
 endif ()
 
 # remove executables that should not be there

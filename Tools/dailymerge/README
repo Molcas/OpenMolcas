@@ -1,8 +1,0 @@
-The dailymerge.plx script can be used to update the Molcas
-master and daily-snapshot branches. The system is based on
-the existence of so-called 'nickname' branches which are
-merged into a daily snapshot. When the snapshot has passed
-verification, the master branch is fast-forwarded to that
-daily snapshot. When both master and daily-snapshot branch
-are the same, all valid nickname branches are merged into
-a new snapshot.

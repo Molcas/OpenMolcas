@@ -4,7 +4,8 @@
 * Symmetry: D2h
 * Features tested: GASSCF
 * Responsible person: Sam Stoneburner
-* Comments: GASSCF input test*-------------------------------------------------------------------------------
+* Comments: GASSCF input test
+*-------------------------------------------------------------------------------
 >export MOLCAS_PRINT=VERBOSE
 &GATEWAY
 coord

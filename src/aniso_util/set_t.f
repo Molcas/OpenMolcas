@@ -17,12 +17,12 @@
 c input:
       Integer, intent(in)       :: nT, nTempMagn
       Logical, intent(in)       :: TINPUT
-      Real(kind=wp), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn),
+      Real(kind=8), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn),
      &                             Texp(nT), chit_exp(nT)
-      Real(kind=wp), intent(out):: T(nT+nTempMagn), XTexp(nT+nTempMagn)
+      Real(kind=8), intent(out):: T(nT+nTempMagn), XTexp(nT+nTempMagn)
 c local variables:
       Integer :: i
-      Real(kind=wp) :: dltt
+      Real(kind=8) :: dltt
 
       Call qEnter('set_T')
 
@@ -76,7 +76,7 @@ c local variables:
       ! check for T=0 values and replace them
       ! with a definite nonzero value:
       Do i=1,nT+nTempMagn
-        If( T(i) == 0.0_wp ) Then
+        If( abs(T(i)) .le. tiny(0.0_wp) ) Then
             T(i) = 0.0001_wp
         End If
       End Do

@@ -13,7 +13,7 @@
       DIMENSION A(*),B(*),C(*)
       IND=0
       DO 100 IROW=0,NROW-1
-      DO 100 ICOL=0,IROW
+      DO 101 ICOL=0,IROW
          SUM=0.0D0
          DO 110 ISUM=0,NSUM-1
             AB=A(1+IROW*ICA+ISUM*IRA) *
@@ -22,6 +22,7 @@
 110      CONTINUE
          IND=IND+1
          C(IND)=SUM
+101   CONTINUE
 100   CONTINUE
       RETURN
       END

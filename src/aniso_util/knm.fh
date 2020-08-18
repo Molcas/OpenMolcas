@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer       :: i, j
-      Real(kind=wp) :: knm(12,0:12)
+      Real(kind=8) :: knm(12,0:12)
 
       ! constants
       Do i=1,12

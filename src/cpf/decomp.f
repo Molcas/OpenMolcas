@@ -69,8 +69,9 @@ c14    CONTINUE
       IP=IPS(I)
       EM=-UL(IP,K)/PIVOT
       UL(IP,K)=-EM
-      DO 16 J=KP1,N
+      DO 160 J=KP1,N
       UL(IP,J)=UL(IP,J)+EM*UL(KP,J)
+160   CONTINUE
 16    CONTINUE
 17    CONTINUE
       KP=IPS(N)

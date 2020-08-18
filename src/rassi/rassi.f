@@ -11,7 +11,14 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
+      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC,
+     &                               SODYSAMPSR, SODYSAMPSI,
+     &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
+      use rassi_aux
       use kVectors
+#ifdef _HDF5_
+      use Dens2HDF5
+#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: finalize_dmrg
@@ -28,7 +35,6 @@ C RAS state interaction.
 #include "Morsel.fh"
 #include "Struct.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "prgm.fh"
 #include "rasdef.fh"
@@ -38,9 +44,20 @@ C RAS state interaction.
 #include "stdalloc.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
-      Logical Fake_CMO2
+      Logical Fake_CMO2,CLOSEONE
       COMMON / CHO_JOBS / Fake_CMO2
-
+      INTEGER IRC,ISFREEUNIT
+      EXTERNAL ISFREEUNIT
+      Real*8, Allocatable:: USOR(:,:),
+     &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
+     &                      ENERGY(:), DMAT(:), TDMZZ(:),
+     &                      VNAT(:),OCC(:), SOENE(:)
+      Integer, Allocatable:: IDDET1(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Prolouge
+*
       IRETURN=20
 
       Call StatusLine('RASSI:','Starting calculation')
@@ -51,6 +68,15 @@ C RAS state interaction.
 
 C Greetings. Default settings. Initialize data sets.
       CALL INIT_RASSI()
+
+      CLOSEONE=.FALSE.
+      IRC=-1
+      CALL OPNONE(IRC,0,'ONEINT',LUONE)
+      IF (IRC.NE.0) Then
+         WRITE (6,*) 'RASSI: Error opening file'
+         CALL ABEND()
+      END IF
+      CLOSEONE=.TRUE.
 
 C Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
@@ -65,47 +91,47 @@ C Needed generalized transition density matrices are computed by
 C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
       NSTATE2=NSTATE*NSTATE
-      Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
-      Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
-      Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
-      Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
-      Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
-      Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
+      Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
+      Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
+      Call mma_allocate(EigVec,nState,nState,Label='EigVec')
+      Call mma_allocate(ENERGY,nState,Label='Energy')
+      Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
 
       NPROPSZ=NSTATE*NSTATE*NPROP
-      CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
-
+      Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
+      Prop(:,:,:)=0.0D0
+*                                                                      *
+************************************************************************
+*                                                                      *
 C Number of basis functions
       NZ=0                      ! (NBAS is already used...)
       DO ISY=1,NSYM
          NZ=NZ+NBASF(ISY)
       END DO
-      LSFDYS=ip_Dummy
-      IF (DYSO) THEN
-       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      END IF
-      CALL DCOPY_(NPROPSZ,[0.0D0],0,WORK(LPROP),1)
+      IF (DYSO) Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
+
+*
 C Loop over jobiphs JOB1:
+      Call mma_allocate(IDDET1,nState,Label='IDDET1')
+      IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
 
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
-     &          WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1))
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,IDISK)
         END DO
       END DO
-      Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
+      Call mma_deallocate(IDDET1)
 
 #ifdef _HDF5_
       CALL mh5_put_dset_array_real(wfn_overlap,
-     &     WORK(LOVLP),[NSTATE,NSTATE],[0,0])
+     &     OVLP,[NSTATE,NSTATE],[0,0])
 #endif
-      Call Put_dArray('State Overlaps',Work(LOVLP),
-     &                NSTATE*NSTATE)
+      Call Put_dArray('State Overlaps',OVLP,NSTATE*NSTATE)
 
-      IF(TRACK) CALL TRACK_STATE(Work(LOVLP))
+      IF(TRACK) CALL TRACK_STATE(OVLP)
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
 C       Print the overlap matrix here, since MECTL is skipped
@@ -113,9 +139,8 @@ C       Print the overlap matrix here, since MECTL is skipped
           WRITE(6,*)
           WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
           WRITE(6,*)
-          DO ISTATE=0,NSTATE-1
-            iadr=LOVLP+istate*nstate
-            WRITE(6,'(5(1X,F15.8))')(Work(iadr+j),j=0,istate)
+          DO ISTATE=1,NSTATE
+            WRITE(6,'(5(1X,F15.8))')(Ovlp(j,iState),j=1,istate)
           END DO
         END IF
         GOTO 100
@@ -123,8 +148,12 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(WORK(LPROP),WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
-
+      CALL MECTL(PROP,OVLP,HAM,ESHFT)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Spin-free section
+*
 C--------  SI wave function section --------------------------
 C In a second section, if Hamiltonian elements were requested,
 C then also a set of secular equations are solved. This gives
@@ -132,13 +161,12 @@ C a set of non-interacting, orthonormal wave functions expressed
 C as linear combinations of the input wave functions. These
 C results are written out, as well as the matrix elements  of
 C the eigenstates, and if requested, their density matrices
-C and perhaps GTDM's.
+C and perhaps GTDMs.
 
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
-     &              Work(LEIGVEC),WORK(LENERGY))
+        CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       END IF
 
 
@@ -149,8 +177,7 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
-       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,
-     &        WORK(LENERGY))
+       CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
 
       END IF
 ! +++
@@ -160,25 +187,29 @@ C Hamiltonian matrix elements, eigenvectors:
 C Natural orbitals, if requested:
       IF(NATO) THEN
 C CALCULATE AND WRITE OUT NATURAL ORBITALS.
-        CALL GETMEM('DMAT  ','ALLO','REAL',LDMAT,NBSQ)
-        CALL GETMEM('TDMZZ ','ALLO','REAL',LTDMZZ,NTDMZZ)
-        CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-        CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-        CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),WORK(LEIGVEC))
-        CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC),WORK(LEIGVEC))
-        CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
-        CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
-        CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-        CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+        Call mma_allocate(DMAT,nBSQ,Label='DMAT')
+        Call mma_allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+        Call mma_allocate(VNAT,nBSQ,Label='VNAT')
+        Call mma_allocate(OCC,nBST,Label='OCC')
+*
+        CALL NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+        CALL NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+*
+        Call mma_deallocate(DMAT)
+        Call mma_deallocate(TDMZZ)
+        Call mma_deallocate(VNAT)
+        Call mma_deallocate(OCC)
       END IF
 C Bi-natural orbitals, if requested:
-      IF(BINA) THEN
-        CALL BINAT()
-      END IF
+      IF (BINA) CALL BINAT()
+*
       IF(.NOT.IFHAM) GOTO 100
 
+*                                                                      *
+************************************************************************
+*                                                                      *
+*      Spin_Orbit section
+*
 C-------- Spin-Orbit calculations   --------------------------
 C In this third section, if spin-orbit coupling parameters were
 C computed by the previous sections, then additionally the
@@ -186,85 +217,75 @@ C spin-orbit eigenfunctions and levels are computed.
 
 C Nr of spin states and division of loops:
       NSS=0
-      LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
-         JOB=iWork(lJBNUM+ISTATE-1)
+         JOB=JBNUM(ISTATE)
          MPLET=MLTPLT(JOB)
          NSS=NSS+MPLET
-         IF(ISTATE.GT.LOOPDIVIDE) CYCLE
-         LOOPDIVIDE_TEMP = LOOPDIVIDE_TEMP + MPLET
       END DO
-*     LOOPDIVIDE = LOOPDIVIDE_TEMP
 
-      CALL GETMEM('UTOTR','ALLO','REAL',LUTOTR,NSS**2)
-      CALL GETMEM('UTOTI','ALLO','REAL',LUTOTI,NSS**2)
-      CALL GETMEM('SOENE','ALLO','REAL',LSOENE,NSS)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTR),1)
-      CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUTOTR),NSS+1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTI),1)
-      CALL DCOPY_(NSS   ,[0.0D0],0,WORK(LSOENE),1)
+      Call mma_allocate(USOR,NSS,NSS,Label='USOR')
+      USOR(:,:)=0.0D0
+      For All (i=1:NSS) USOR(i,i)=1.0D0
+      Call mma_allocate(USOI,NSS,NSS,Label='USOI')
+      USOI(:,:)=0.0D0
+      Call mma_allocate(SOENE,nSS,Label='SOENE')
+      SOENE(:)=0.0D0
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
-        CALL SOEIG(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &             WORK(LSOENE),NSS,WORK(LENERGY))
+        CALL SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
       END IF
+
+C Store TDMs in HDF5
+#ifdef _HDF5_
+      Call StoreDens(EigVec)
+#endif
 
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
-      LSODYSAMPS=ip_Dummy
       IF (DYSO.AND.IFSO) THEN
-       CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
-       LSODYSAMPSR=ip_Dummy
-       CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
-       LSODYSAMPSI=ip_Dummy
-       CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
+         Call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
+         Call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
+         Call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
 
-       CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
-     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
-     &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
+         CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       END IF
 
-      IF (DYSO) THEN
-       CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      END IF
+      IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
 ! +++
 
-      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
-     &            WORK(LENERGY),iWork(lJBNUM))
+      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
+     &            ENERGY,JBNUM,EigVec)
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) THEN
-        CALL DO_SONATORB(NSS, LUTOTR, LUTOTI)
+        CALL DO_SONATORB(NSS,USOR,USOI)
       END IF
 
-
-      CALL GETMEM('UTOTR','FREE','REAL',LUTOTR,NSS**2)
-      CALL GETMEM('UTOTI','FREE','REAL',LUTOTI,NSS**2)
-      CALL GETMEM('SOENE','FREE','REAL',LSOENE,NSS)
+      Call mma_deallocate(USOR)
+      Call mma_deallocate(USOI)
+      Call mma_deallocate(SOENE)
       IF (DYSO.AND.IFSO) THEN
-       CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
-       CALL GETMEM('SODYSAMPSR','FREE','REAL',LSODYSAMPSR,NSS*NSS)
-       CALL GETMEM('SODYSAMPSI','FREE','REAL',LSODYSAMPSI,NSS*NSS)
+         Call mma_deallocate(SODYSAMPS)
+         Call mma_deallocate(SODYSAMPSR)
+         Call mma_deallocate(SODYSAMPSI)
       END IF
-
-CIgorS 02/10-2007  Begin----------------------------------------------C
-C   Trajectory Surface Hopping                                        C
-C                                                                     C
-C   Turns on the procedure if the Keyword HOP was specified.          C
-C                                                                     C
-      IF (HOP) then
-        Call StatusLine('RASSI:','Trajectory Surface Hopping')
-        CALL TSHinit(WORK(LENERGY))
-      END IF
-C                                                                     C
-CIgorS End------------------------------------------------------------C
 *                                                                      *
 ************************************************************************
-*
+*                                                                      *
+*   Trajectory Surface Hopping                                         *
+*                                                                      *
+*   Turns on the procedure if the Keyword HOP was specified.           *
+*                                                                      *
+      IF (HOP) then
+        Call StatusLine('RASSI:','Trajectory Surface Hopping')
+        CALL TSHinit(ENERGY)
+      END IF
+*                                                                      *
+************************************************************************
+*                                                                      *
 * CEH April 2015 DQV diabatization scheme
 * This passes the PROP matrix into the DQV diabatization subroutine
 * The subroutine will compute a transformation matrix, which is used
@@ -274,29 +295,39 @@ CIgorS End------------------------------------------------------------C
 
       IF (DQVD) then
         Call StatusLine('RASSI:', 'DQV Diabatization')
-        CALL DQVDiabat(WORK(LPROP),WORK(LHAM))
+        CALL DQVDiabat(PROP,HAM)
       END IF
 *                                                                      *
 ************************************************************************
-*
-
+*                                                                      *
+*     EPILOUGE                                                         *
+*                                                                      *
+************************************************************************
+*                                                                      *
  100  CONTINUE
-      Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
-      Call GetMem('DYSAMPS','Free','Real',LDYSAMPS,NSTATE2)
-      Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
-      Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
-      Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
-      Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
-      Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
-      Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
-      Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
-      Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
-      Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
-      CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
-      CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
-      CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
+      Call mma_deallocate(Ovlp)
+      Call mma_deallocate(DYSAMPS)
+      Call mma_deallocate(HAM)
+      Call mma_deallocate(EigVec)
+      Call mma_deallocate(Energy)
+      Call mma_deallocate(ESHFT)
+      Call mma_deallocate(HDIAG)
+      Call mma_deallocate(jDisk_TDM)
+      Call mma_deallocate(JBNUM)
+      Call mma_deallocate(LROOT)
+      Call mma_deallocate(TocM)
+      Call mma_deallocate(Prop)
 
       If (Do_SK) Call mma_deallocate(k_Vector)
+
+      IF (CLOSEONE) THEN
+         IRC=-1
+         CALL CLSONE(IRC,0)
+         IF (IRC.NE.0) Then
+            WRITE (6,*) 'RASSI: Error opening file'
+            CALL ABEND()
+         END IF
+      END IF
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
@@ -313,18 +344,20 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-c jochen 02/15: sonatorb needs LUTDM
-c     we'll make it conditional upon the keyword
-      IF((SONATNSTATE.GT.0).OR.NATO) THEN
-        Call DaClos(LuTDM)
-      end if
-c ... jochen end
+      IF (SaveDens) Then
+         Call DaClos(LuTDM)
+         If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
+         If (Allocated(CMO1)) Call mma_deallocate(CMO1)
+         If (Allocated(CMO2)) Call mma_deallocate(CMO2)
+         If (Allocated(DMAB)) Call mma_deallocate(DMAB)
+      End If
       Call DaClos(LuExc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     PRINT I/O STATISTICS:
-      IF ( IPGLOB.GE.USUAL ) CALL FASTIO('STATUS')
+      i=iPrintLevel(3)
+      CALL FASTIO('STATUS')
 
       Call StatusLine('RASSI:','Finished.')
       IRETURN=0

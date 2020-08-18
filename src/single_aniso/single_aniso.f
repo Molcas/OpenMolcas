@@ -105,48 +105,48 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Integer                   :: i1,i2,ldim2,lDIM
       Integer                   :: AngPoints
       Integer                   :: nlanth
-      Real(kind=wp)             :: zmagn(3,3)
-      Real(kind=wp)             :: rdiff(nstate)
-      Real(kind=wp)             :: a(6),HMIN,HMAX
-      Real(kind=wp)             :: cryst(6),coord(3)
-      Real(kind=wp)             :: encut_rate,em,Boltz_k,mu_Bohr
-      Real(kind=wp)             :: zJ, thrs
+      Real(kind=8)             :: zmagn(3,3)
+      Real(kind=8)             :: rdiff(nstate)
+      Real(kind=8)             :: a(6),HMIN,HMAX
+      Real(kind=8)             :: cryst(6),coord(3)
+      Real(kind=8)             :: encut_rate,em,Boltz_k,mu_Bohr
+      Real(kind=8)             :: zJ, thrs
       Integer, allocatable      :: multiplicity(:)
       !---g-tens-------------------
       Integer, intent(in)        :: nMult
       Integer, allocatable       :: ndim(:)
-      Real(kind=wp), allocatable :: gtens(:,:), maxes(:,:,:)
+      Real(kind=8), allocatable :: gtens(:,:), maxes(:,:,:)
       !---M-------------------
       Integer       :: nH, nTempMagn
       !---MVEC and ZEEM-------------------
       Integer       :: nDir, nDirZee
       Integer, allocatable :: LuZee(:)
-      Real(kind=wp), allocatable :: dir_weight(:,:)
-      Real(kind=wp), allocatable :: dirX(:), dirY(:), dirZ(:)
+      Real(kind=8), allocatable :: dir_weight(:,:)
+      Real(kind=8), allocatable :: dirX(:), dirY(:), dirZ(:)
       !---XT-------------------
       Integer       :: nT
-      Real(kind=wp), allocatable :: Texp(:)
-      Real(kind=wp), allocatable :: chit_exp(:)
-      Real(kind=wp) :: xfield
-      Real(kind=wp) :: tmin, tmax
+      Real(kind=8), allocatable :: Texp(:)
+      Real(kind=8), allocatable :: chit_exp(:)
+      Real(kind=8) :: xfield
+      Real(kind=8) :: tmin, tmax
       !---Oscillator strength----------
-c      Real(kind=wp) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
-      Real(kind=wp) :: DZNRM2
+c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
+      Real(kind=8) :: DZNRM2
       External      :: DZNRM2
-      Real(kind=wp) :: H_torq, T_torq
+      Real(kind=8) :: H_torq, T_torq
       !----BIG ARRAYS------------------
-      Real(kind=wp), allocatable :: eso(:)
-      Real(kind=wp), allocatable :: esfs(:)
-      Real(kind=wp), allocatable :: t(:)
-      Real(kind=wp), allocatable :: XTexp(:)
-      Real(kind=wp), allocatable :: XT_no_field(:)
-      Real(kind=wp), allocatable :: hexp(:)
-      Real(kind=wp), allocatable :: magn_exp(:,:)
-      Real(kind=wp), allocatable :: angmom(:,:,:)
-      Real(kind=wp), allocatable ::  eDmom(:,:,:)
-      Real(kind=wp), allocatable ::   amfi(:,:,:)
-      Real(kind=wp), allocatable :: TempMagn(:)
-      Complex(kind=wp), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
+      Real(kind=8), allocatable :: eso(:)
+      Real(kind=8), allocatable :: esfs(:)
+      Real(kind=8), allocatable :: t(:)
+      Real(kind=8), allocatable :: XTexp(:)
+      Real(kind=8), allocatable :: XT_no_field(:)
+      Real(kind=8), allocatable :: hexp(:)
+      Real(kind=8), allocatable :: magn_exp(:,:)
+      Real(kind=8), allocatable :: angmom(:,:,:)
+      Real(kind=8), allocatable ::  eDmom(:,:,:)
+      Real(kind=8), allocatable ::   amfi(:,:,:)
+      Real(kind=8), allocatable :: TempMagn(:)
+      Complex(kind=8), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
      &                                 ML(:,:,:), DM(:,:,:), U(:,:)
       Character(180), intent(in) :: input_file_name
 
@@ -195,7 +195,7 @@ c---------------------------------------------------------------------
       CtoB=16
       ItoB=8
 
-      If(nstate>0) Then
+      If(nstate>=0) Then
          ! spin free energies
          Call mma_allocate(esfs,nstate,'esfs')
          Call dcopy_(nstate,[0.0_wp],0,ESFS,1)
@@ -220,7 +220,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
       End If
 
-      If(nss>0) Then
+      If(nss>=0) Then
          ! spin orbit energies
          Call mma_allocate(eso,nss,'eso')
          Call dcopy_(nss,[0.0_wp],0,eso,1)
@@ -253,7 +253,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
       End If
 
-      If( (nH>0).and.(nTempMagn>0) ) Then
+      If( (nH>=0).and.(nTempMagn>=0) ) Then
          ! experimental magnetic field points
          Call mma_allocate(Hexp,nH,'Hexp')
          Call dcopy_(nH,[0.0_wp],0,Hexp,1)
@@ -290,7 +290,7 @@ c---------------------------------------------------------------------
          Call mma_allocate(TempMagn,0,'TempMagn')
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
          ! dimensions of pseudospins
          Call mma_allocate(ndim,nMult,'ndim')
          Call icopy(nMult,[0],0,ndim,1)
@@ -321,7 +321,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
          ! unit numbers for the files with Zeeman energies
          Call mma_allocate(LuZee,nDirZee,'LUZee')
          Call icopy(nDirZee,[0],0,LuZee,1)
@@ -337,7 +337,7 @@ c---------------------------------------------------------------------
          Call mma_allocate(dir_weight,0,3,'dir_weight')
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
          ! magnetization vectors
          Call mma_allocate(dirX,nDir,'dirX')
          Call mma_allocate(dirY,nDir,'dirY')
@@ -354,7 +354,7 @@ c---------------------------------------------------------------------
          Call mma_allocate(dirZ,0,'dirZ')
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         ! T expeirimental given by user in the input
         Call mma_allocate(Texp,nT,'Texp')
         Call dcopy_(nT,[0.0_wp],0,Texp,1)
@@ -405,7 +405,7 @@ C  read the input
          If ( input_to_read .eq. 1 ) Then
             Call read_binary_aniso( nss, nstate, multiplicity, eso,
      &                              esfs, U, MM, MS, ML, DM, ANGMOM,
-     &                              EDMOM )
+     &                              EDMOM, AMFI, HSO )
 
          Else If ( input_to_read .eq. 2 ) Then
             ! get the information from formatted aniso.input file:
@@ -416,7 +416,8 @@ C  read the input
             nstate2=nstate
             Call read_formatted_aniso( input_file_name, nss2, nstate2,
      &                                 multiplicity, eso, esfs, U, MM,
-     &                                 MS, ML, DM, ANGMOM, EDMOM )
+     &                                 MS, ML, DM, ANGMOM, EDMOM,
+     &                                 AMFI, HSO )
             IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit  '//
      &                         'read_formatted_aniso'
 
@@ -514,10 +515,13 @@ C  read the input
 ! save some important data, regardless of the following execution
       ! -- binary $Project.aniso
       Call write_binary_aniso( nss, nstate, multiplicity, eso,
-     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM )
+     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM, AMFI,
+     &                         HSO )
       ! ASCII -- anisoinput:
-      Call write_formatted_aniso( nss, nstate, multiplicity, eso,
-     &                            esfs, U, MM, MS, DM, ANGMOM, EDMOM )
+      Call write_formatted_aniso(
+     &                         nss, nstate, multiplicity, eso,
+     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM, AMFI,
+     &                         HSO )
 !
 !----- compute various properties ----------|
 ! calculation of magnetic Hamiltonians:
@@ -550,6 +554,7 @@ C  read the input
      &                     gtens(imltpl,1:3), maxes(imltpl,1:3,1:3),
      &                     iprint )
               IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
+              Call Add_Info('GTENS_MAIN', gtens(imltpl,1:3), 3, 4)
            End If
 10         Continue
 
@@ -620,18 +625,17 @@ C  read the input
           IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
           Call  BARRIER( nBlock, MM(1:3,1:nBlock,1:nBlock),
      &                   eso(1:nBlock), imanIfold, nMult, nDim,
-     &                   iPrint )
+     &                   doplot, iPrint )
           IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
 
         Else
            Write(6,'(A)') 'nBlock parameter is not defined. '
            Write(6,'(A)') 'Did you specify the MLTP keyword in the '//
      &                    'input?'
-           Write(6,'(A)') 'If the problem persists,please, '//
+           Write(6,'(A)') 'If the problem persists, please, '//
      &                    'submit a bug report.'
         End If
       End If
-
 
 !----------------------------------------------------------------------|
 
@@ -662,7 +666,8 @@ C  read the input
 
       If (Xfield .ne. 0.0_wp ) Then
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter XT_dMoverdH_single'
-         Call XT_dMoverdH_single( nss, nTempMagn, nT, nM, Tmin, Tmax,
+         ! nM = nss
+         Call XT_dMoverdH_single( nss, nTempMagn, nT, nss, Tmin, Tmax,
      &                            XTexp, ESO, T, zJ, Xfield, EM, MM, MS,
      &                            XT_no_field, tinput, smagn, mem )
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
@@ -672,8 +677,9 @@ C  read the input
       If( compute_torque ) Then
 
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter TORQUE'
-        Call torque( Nss, NM, AngPoints, EM, eso, mm, ms, zJ, thrs, mem,
-     &                  m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
+         ! nM = nss
+        Call torque( Nss, Nss, AngPoints, EM, eso, mm, ms, zJ, thrs,
+     &               mem, m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit TORQUE'
 
       End If
@@ -702,7 +708,7 @@ C  read the input
 c---------------------------------------------------------------------
       ! Deallocate memory for all arrays:
 c---------------------------------------------------------------------
-      If(nstate>0) Then
+      If(nstate>=0) Then
          Call mma_deallocate(esfs)
          Call mma_deallocate(ANGMOM)
          Call mma_deallocate( EDMOM)
@@ -710,7 +716,7 @@ c---------------------------------------------------------------------
          Call mma_deallocate(multiplicity)
       End If
 
-      If(nss>0) Then
+      If(nss>=0) Then
          Call mma_deallocate(eso)
          Call mma_deallocate(U)
          Call mma_deallocate(HSO)
@@ -724,13 +730,13 @@ c---------------------------------------------------------------------
       Call mma_deallocate(magn_exp)
       Call mma_deallocate(TempMagn)
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
          Call mma_deallocate(ndim)
          Call mma_deallocate(gtens)
          Call mma_deallocate(maxes)
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
          Call mma_deallocate(T)
          Call mma_deallocate(XTexp)
          Call mma_deallocate(XT_no_field)
@@ -743,7 +749,7 @@ c---------------------------------------------------------------------
       Call mma_deallocate(dirY)
       Call mma_deallocate(dirZ)
 
-      If(nT>0) Then
+      If(nT>=0) Then
          Call mma_deallocate(Texp)
          Call mma_deallocate(chit_exp)
       End If

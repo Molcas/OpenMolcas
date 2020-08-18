@@ -36,7 +36,8 @@ c  (Put lower-lying solutions in AxC :)
         else
           ir_use=ir
         endif
-200     call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
+        call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
+200     continue
         call fmove_cvb(axc(1,2),c(1,2),n*(nroot-1))
       endif
       call fmove_cvb(vec,c(1,1),n)

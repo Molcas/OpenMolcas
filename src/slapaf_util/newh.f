@@ -10,14 +10,6 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      Module NewH_mod
-      Implicit None
-#include "stdalloc.fh"
-      Integer, Dimension(:), Allocatable, Save :: UpdMask
-      Real*8, Save :: DiagMM=1.0d0
-
-      Contains
-
       SubRoutine NewH(nInter,nIter,dq_orig,g,H,iOptH,HUpMet,mIter)
 ************************************************************************
 *                                                                      *
@@ -36,9 +28,11 @@
 *             University of Lund, SWEDEN                               *
 *             January '95                                              *
 ************************************************************************
+      Use NewH_Mod
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing
       Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
       Character*6 HUpMet
@@ -206,5 +200,3 @@
       Call QExit('NewH')
       Return
       End Subroutine NewH
-
-      End Module NewH_mod

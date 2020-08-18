@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program is not available in OpenMolcas
+   This program is not available in |openmolcas|
 
 .. only:: html
 
@@ -66,7 +66,7 @@ automatically.
 Output files
 ............
 
-In all output files coordinates are given in Ångströms and the values of charges --- in atomic units.
+In all output files coordinates are given in ångströms and the values of charges --- in atomic units.
 
 .. class:: filelist
 
@@ -323,7 +323,7 @@ Optional keywords
   This keyword can be used instead of keywords :kword:`NCCube`, :kword:`NCBLock`, and :kword:`NCSPhere`. Note that only one nano-cluster will be generated.
   Default: the nano-cluster is not generated.
 
-  .. xmldoc:: <GROUP MODULE="EMBQ" NAME="CLUSTER" APPEAR="Nane-cluster specification" KIND="BOX" LEVEL="BASIC" WINDOW="INPLACE">
+  .. xmldoc:: <GROUP MODULE="EMBQ" NAME="CLUSTER" APPEAR="Nano-cluster specification" KIND="BOX" LEVEL="BASIC" WINDOW="INPLACE">
 
   .. xmldoc:: <KEYWORD MODULE="EMBQ" NAME="NANO" APPEAR="Nano-cluster" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" EXCLUSIVE="NCCU,NCBL,NCSP">
               %%Keyword: NANO <advanced>

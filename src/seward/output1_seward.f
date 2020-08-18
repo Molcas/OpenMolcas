@@ -26,7 +26,9 @@
 ************************************************************************
       use Period
       use GeoList
+      use MpmC
       use EFP_Module
+      use External_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -268,13 +270,16 @@
      &                           nDMS, ' points'
       If (lOAM) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital angular momentum around (',
-     &   (DInf(ipOAM+i),i=0,2),')'
+     &   (OAM_Center(i),i=1,3),')'
       If (lOMQ) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital magnetic quadrupole around (',
-     &   (DInf(ipOMQ+i),i=0,2),')'
+     &   (OMQ_Center(i),i=1,3),')'
+      If (Vlct.and.(nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+     &                       '   Velocity quadrupole around (',
+     &   (Coor_MPM(i,3),i=1,3),')'
       If (lAMP) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      & '   Products of Orbital angular momentum operators around (',
-     &   (DInf(ipAMP+i),i=0,2),')'
+     &   (AMP_Center(i),i=1,3),')'
       If (nWel.ne.0) Write (LuWr,'(15X,A,I4,A)')
      &             '   Spherical well for', nWel,
      &             ' exponent(s) added to the'
@@ -535,7 +540,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_OpInfo(DInf,nDInf)
+         Call Print_OpInfo()
       End If
 *                                                                      *
 ************************************************************************

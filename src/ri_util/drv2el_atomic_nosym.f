@@ -40,6 +40,8 @@
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Wrj12
+      use k2_arrays, only: Sew_Scr
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -49,13 +51,12 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "shinf.fh"
-#include "wrj12.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #define _no_nShs_
 #include "iTOffs.fh"
       Real*8, Allocatable :: TInt(:), ADiag(:)
+      Integer, Allocatable :: IJInd(:,:)
       Logical Verbose, Indexation, FreeK2, DoGrad, DoFock,
      &        In_Core, Out_of_Core, Only_DB, Do_RI_Basis, Do_ERIs
 *                                                                      *
@@ -96,29 +97,28 @@ C     Write (6,*) 'Do_RI_Basis=',Do_RI_Basis
       DoFock=.False.
       Indexation = .False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-C     Write (6,*) 'nSkal=',nSkal
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Create list of pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(IJInd,2,nSkal*(nSkal+1)/2,Label='IJInd')
       nij=0
       nBfn=0
       If (Do_RI_Basis) Then
          iS=nSkal   ! Dummy shell
          Do jS = 1, nSkal-1
             nij = nij +1
-            iWork((nij-1)*2+ip_ij  )=iS
-            iWork((nij-1)*2+ip_ij+1)=jS
+            IJInd(1,nij)=iS
+            IJInd(2,nij)=jS
             nBfn=nBfn+iSD(2,jS)*iSD(3,jS)
          End Do
       Else
          Do iS = 1, nSkal
             Do jS = 1, iS
                nij = nij +1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               IJInd(1,nij)=iS
+               IJInd(2,nij)=jS
             End Do
          End Do
       End If
@@ -128,11 +128,10 @@ C     Write (6,*) 'nij=',nij
 *                                                                      *
 *     Preallocate some core for Seward!
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemSew)
-*
+      Call mma_MaxDBLE(MemSew)
       MemLow=Min(MemSew/2,1024*128)
       MemSew=Max(MemSew/10,MemLow)
-      Call xSetMem_Ints(MemSew)
+      Call mma_allocate(Sew_Scr,MemSew,Label='Sew_Scr')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -146,7 +145,7 @@ C     Write (6,*) 'nij=',nij
 *                                                                      *
 *     Choose between in-core and out-of-core options
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemT)
+      Call mma_MaxDBLE(MemT)
       MemT=MemT/2
 *
       If (Only_DB) Then
@@ -165,9 +164,9 @@ C     Write (6,*) 'nij=',nij
                Call Abend()
             End If
 *
-            Call GetMem('SO2Ind','Allo','Inte',ipSO2Ind,nBfn)
+            Call mma_Allocate(SO2Ind,nBfn,Label='SO2Ind')
             Do iBfn = 1, nBfn
-               iWork(ipSO2Ind+iBfn-1)=iBfn
+               SO2Ind(iBfn)=iBfn
             End Do
             nSOs=nBfn
          Else
@@ -257,8 +256,8 @@ C     Write (6,*) 'nij=',nij
       iTOff=0
       iTOffs(4)=0    ! Offset to the ij set
       Do ijS = 1, nij
-         iS = iWork((ijS-1)*2+ip_ij)
-         jS = iWork((ijS-1)*2+ip_ij+1)
+         iS = IJInd(1,ijS)
+         jS = IJInd(2,ijS)
 *
          nBfn_i=iSD(2,iS)*iSD(3,iS)
          nBfn_j=iSD(2,jS)*iSD(3,jS)
@@ -278,8 +277,8 @@ C     Write (6,*) 'nij=',nij
 *
          iTOffs(5)=0    ! Offset to the kl set
          Do klS = 1, ijS
-            kS = iWork((klS-1)*2+ip_ij)
-            lS = iWork((klS-1)*2+ip_ij+1)
+            kS = IJInd(1,klS)
+            lS = IJInd(2,klS)
 *
             nBfn_k=iSD(2,kS)*iSD(3,kS)
             nBfn_l=iSD(2,lS)*iSD(3,lS)
@@ -331,7 +330,7 @@ C     Write (6,*) 'nij=',nij
 *
       End Do      !    ijS
 *
-      If (Do_RI_Basis) Call Free_iWork(ipSO2Ind)
+      If (Do_RI_Basis) Call mma_deallocate(SO2Ind)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -340,8 +339,7 @@ C     Write (6,*) 'nij=',nij
 ************************************************************************
 *
       If (Out_of_Core) Call mma_deallocate(TInt)
-      Call xRlsMem_Ints
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_deallocate(IJInd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -370,7 +368,7 @@ C    &               TInt,nTInt,nTInt)
       Else If (.Not.Do_RI_Basis) Then
 *
          nij=nBas(0)*(nBas(0)+1)/2
-         Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+         Call mma_MaxDBLE(MaxMem)
          Call Square_A(LuA,nij,MaxMem,Force_Out_of_Core)
 *
       End If

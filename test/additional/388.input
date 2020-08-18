@@ -3,7 +3,7 @@
 * Basis: ANO-RCC-MB
 * Symmetry: Nosymm
 * Features tested: RASSI Cholesky LK
-* Responsible person: M. Vacher 161118 
+* Responsible person: M. Vacher 161118
 * Comments:
 *-------------------------------------------------------------------------------
 
@@ -39,8 +39,8 @@
 
 &RASSI
   Nrof JobIphs
-  1 1 
-  1 
+  1 1
+  1
   Spin Orbit
 
 >>> FILE start_orbitals.RasOrb
@@ -213,7 +213,7 @@
 * 1234567890
 0 iiiiiiiiii
 1 2222222222
-2 ssss      
+2 ssss
 >>> EOF
 
 

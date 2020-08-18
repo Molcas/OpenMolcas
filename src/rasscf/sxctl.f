@@ -226,6 +226,8 @@ C --------------------------------------
      &           KSDFT(1:5).eq.'TS12G'   .or.
      &           KSDFT(1:4).eq.'TPBE'    .or.
      &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:5).eq.'TOPBE'   .or.
+     &           KSDFT(1:6).eq.'FTOPBE'  .or.
      &           KSDFT(1:7).eq.'TREVPBE' .or.
      &           KSDFT(1:8).eq.'FTREVPBE'.or.
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
@@ -274,9 +276,9 @@ c         CALL TRIPRT('Averaged 1-body Dmat D in MO in SXCTL',' ',D,NAC)
 C         If(ipDMAT.ne.ip_Dummy) Call Free_Work(ipDMAT)
        END IF
       end if
-***********************************************************************
+************************************************************************
 * Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
-***********************************************************************
+************************************************************************
       WORD='FOCK'
       CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
       CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)

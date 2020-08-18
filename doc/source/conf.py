@@ -47,7 +47,6 @@ extensions = [
     'sphinxcontrib.bibtex',
     #'rst2pdf.pdfbuilder',
     'transforms',
-    'numsec',
     'xmldoc',
     'extractfile',
     'float',
@@ -68,7 +67,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Molcas'
-copyright = u'2017–2019, MOLCAS Team'
+copyright = u'2017–2020, MOLCAS Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -223,7 +222,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'Manual.tex', u'Molcas Manual\\\\(version {})'.format(release), u'MOLCAS Team', 'memoir'),
+  (master_doc, 'Manual.tex', r'Molcas Manual\\(version {})'.format(release), u'MOLCAS Team', 'memoir'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -392,7 +391,8 @@ html_compact_lists = True
 
 numfig = True
 numfig_secnum_depth = 3
-numfig_format = {'figure': 'Figure %s',
+numfig_format = {'section': 'Section %s',
+                 'figure': 'Figure %s',
                  'table': 'Table %s',
                  'code-block': 'Block %s'}
 
@@ -404,6 +404,7 @@ latex_elements['utf8extra'] = r'\DeclareUnicodeCharacter{00A0}{\nobreakspace}'\
                               r'\DeclareUnicodeCharacter{2212}{\textminus}'\
                               r'\DeclareUnicodeCharacter{200B}{\relax}'
 latex_elements['fontpkg'] = r'\usepackage[notextcomp]{kpfonts}'
+latex_elements['fontenc'] = r'\usepackage[LGR,T1]{fontenc}'
 latex_elements['preamble'] = r'''\usepackage{molcas}
 \pagestyle{plain}
 \setsecnumdepth{subparagraph}
@@ -415,6 +416,29 @@ latex_elements['preamble'] = r'''\usepackage{molcas}
 \nobibintoc
 \renewcommand{\bibsection}{\relax}
 \frenchspacing'''
+
+# Fix issues with sphinx.sty
+latex_elements['preamble'] += r'''
+% These should be done after loading hyperref
+\makeatletter%
+\@addtoreset{figure}{subsection}%
+\@addtoreset{table}{subsection}%
+\@addtoreset{literalblock}{subsection}%
+\ifspx@opt@mathnumfig%
+  \@addtoreset{equation}{subsection}%
+\fi%
+\makeatother%
+% Add part to numbers
+\let\oldthefigure\thefigure%
+\renewcommand{\thefigure}{\thepart.\oldthefigure}%
+\let\oldthetable\thetable%
+\renewcommand{\thetable}{\thepart.\oldthetable}%
+\let\oldtheliteralblock\theliteralblock%
+\renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
+\let\oldtheequation\theequation%
+\renewcommand{\theequation}{\thepart.\oldtheequation}%
+'''
+
 latex_additional_files = [ '_latex/molcas.sty' ]
 
 pngmath_dvipng_args = ['-Q', '10']

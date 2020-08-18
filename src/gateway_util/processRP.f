@@ -11,36 +11,38 @@
 * Copyright (C) 2010, Mickael G. Delcey                                *
 *               2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      subroutine processRP(KeepGroup,SymThr,DInf,nDInf)
+      subroutine processRP(KeepGroup,SymThr)
+      use External_Centers
+      Use Iso_C_Binding
 #ifndef _HAVE_EXTRA_
       Use XYZ
 #endif
       Implicit Real*8 (a-h,o-z)
       Character KeepGroup*180,KWord*180,KG*180
-      Real*8 DInf(nDInf)
 #ifdef _HAVE_EXTRA_
       Character*180 minGroup,Key
       Character*180, External :: Get_Ln
 #else
       Real*8, Dimension(:,:,:), Allocatable :: DumRot
       Real*8, Dimension(:,:), Allocatable :: DumTrans
+      Real*8, pointer:: p1Dim(:)
 #endif
 #include "itmax.fh"
 #include "info.fh"
-***********************************************************************
-*                                                                     *
-*    A silly routine to try to handle symmetry in RP-Coord section    *
-*    verify that R, P and the standard structures have one common     *
-*    symmetry. The user should preferably use a defined symmetry if   *
-*    the TS symmetry is lower than R and P                            *
-*                                                                     *
-*    M.G. Delcey     June 2010                                        *
-*    Lund University                                                  *
-*                                                                     *
-*    Adaptation to OpenMolcas                                         *
-*    I. Fdez. Galvan   July 2017                                      *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*    A silly routine to try to handle symmetry in RP-Coord section     *
+*    verify that R, P and the standard structures have one common      *
+*    symmetry. The user should preferably use a defined symmetry if    *
+*    the TS symmetry is lower than R and P                             *
+*                                                                      *
+*    M.G. Delcey     June 2010                                         *
+*    Lund University                                                   *
+*                                                                      *
+*    Adaptation to OpenMolcas                                          *
+*    I. Fdez. Galvan   July 2017                                       *
+*                                                                      *
+************************************************************************
 *
 **   If C1, all is already done
 *
@@ -77,7 +79,7 @@
         Read(LuRP,*)
       End Do
       Do i=1,nRP
-         Read(LuRP,*) KWord,j,(DInf(ipRP1+3*(i-1)+j),j=0,2)
+         Read(LuRP,*) KWord,j,(RP_Centers(j,i,2),j=1,3)
       EndDo
       nRP=nRP*3
       close(LuRP)
@@ -112,7 +114,7 @@
         Read(LuRP,*)
       End Do
       Do i=1,nRP/3
-         Read(LuRP,*) KWord,j,(DInf(ipRP1+nRP+3*(i-1)+j),j=0,2)
+         Read(LuRP,*) KWord,j,(RP_Centers(j,i,2),j=1,3)
       EndDo
 #else
       ! If manual symmetry, trust it
@@ -125,7 +127,9 @@
       Call Read_XYZ(LuRP,DumRot,DumTrans)
       Close(LuRP)
       Call Parse_Group(KeepGroup,SymThr)
-      nRP = Out_Raw(DInf(ipRP1))
+      Call C_F_Pointer(C_Loc(RP_Centers(1,1,1)),p1Dim,[nRP])
+      nRP = Out_Raw(p1Dim)
+      Nullify(p1Dim)
       Call Clear_XYZ()
       !
       KG = Trim(Symmetry)
@@ -134,14 +138,16 @@
       Call Read_XYZ(LuRP,DumRot,DumTrans)
       Close(LuRP)
       Call Parse_Group(KeepGroup,SymThr)
-      i = Out_Raw(DInf(ipRP1+nRP))
+      Call C_F_Pointer(C_Loc(RP_Centers(1,1,2)),p1Dim,[nRP])
+      i   = Out_Raw(p1Dim)
+      Nullify(p1Dim)
       If (i .ne. nRP) Go To 20
       Call Clear_XYZ()
       If (Symmetry .ne. KG) Go To 21
 #endif
  30   Continue
       return
-***********************************************************************
+************************************************************************
  20   Continue
       Call WarningMessage(2,
      &       'Error in RP-Coord section, check symmetry')

@@ -69,9 +69,9 @@ contains
     call mma_deallocate(orbital_table)
   end subroutine make_fcidumps
 
-  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
+  subroutine transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
                        F_IN, orbital_E, folded_Fock)
-    integer, intent(in) :: iter
+    integer, intent(in) :: actual_iter
     real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
       D1I_AO(nTot2),&
@@ -80,7 +80,7 @@ contains
     real*8, intent(inout) :: F_IN(nTot1)
     real*8, intent(out) :: orbital_E(nTot), folded_Fock(nAcPar)
 
-    call get_orbital_E(iter, DIAF, orbital_E)
+    call get_orbital_E(actual_iter, DIAF, orbital_E)
     call fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
   end subroutine transform
 

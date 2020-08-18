@@ -19,7 +19,8 @@ C     DATA I1,I2,I3 /48,32,16/
 C      NBV=4*NBI
 CR8   2
       DO 2 I=1,NINT
- 2    IND(I)=IN(I)
+      IND(I)=IN(I)
+ 2    CONTINUE
 CREA  4
 C     IF(NINT.NE.NBV)THEN
 C     DO 1 I=NINT+1,NBV

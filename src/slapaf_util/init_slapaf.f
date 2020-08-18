@@ -97,6 +97,8 @@
       Track=.False.
       Request_Alaska=.False.
       Request_RASSI=.False.
+*
+      Call Init_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,7 +117,7 @@
 *   9  iOptC           (512) set: RS-I-RFO, unset: RS-P-RFO
 *  10  iOptC          (1024) HMF augmented with weak interactions
 *  11  iOptC          (2048) augmented HMF used for selection of
-*                           internal coordinates
+*                            internal coordinates
 *  12  iOptC          (4096) set if FindTS
 *  13  iOptC          (8192) set if FindTS and in TS regime
 *
@@ -163,7 +165,10 @@
 *
       Cubic  = .False.
       PDH    = .True.
+*     The threshold for restricted step optimization.
       Beta = 0.30D0
+*     The threshold for restricted variance optimization.
+      Beta_Disp=0.30D0
       GNrm_Threshold=0.2D0
       CnstWght=1.0D0
       Call DecideOnESPF(Do_ESPF)
@@ -176,6 +181,7 @@
          ThrEne = 1.0D-6
          Line_Search=.True.
       End If
+      ThrMEP = ThrGrd
       ThrCons = 1.0D10
       Delta  = 1.0D-2
       nWndw = 5
@@ -496,6 +502,7 @@ C           NADC= .False. ! for debugging
       mB_Tot=0
       mdB_Tot=0
       mq=0
+      Force_dB=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

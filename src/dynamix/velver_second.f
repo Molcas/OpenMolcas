@@ -31,7 +31,6 @@ C SWOPE ET AL., J. CHEM. PHYS. 76, 637, 1982.
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE VelVer_Second(irc)
-      USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
@@ -52,7 +51,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       CHARACTER  caption*15, lastline*80
       CHARACTER, ALLOCATABLE ::    atom(:)*2
       REAL*8, ALLOCATABLE ::       Mass(:),vel(:),force(:),xyz(:)
-      INTEGER Iso
 C
 C     The parameter conv converts the gradients (Hartree/Bohr) to
 C     (i)  forces (Hartree/Bohr)    => -1.0d0
@@ -92,7 +90,14 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
       END IF
 
       CALL Get_Velocity(vel,3*natom)
+      CALL GetMassDx(Mass,natom)
 
+C Check if reduced dimensionality
+      IF (POUT .NE. 0) THEN
+        CALL project_out_for(force,natom)
+      ELSEIF (PIN .NE. natom*3) THEN
+        CALL project_in_for(force,natom)
+      ENDIF
 C
 C     Definition of the time step
 C
@@ -101,27 +106,21 @@ C
 
       CALL Get_dScalar('MD_Time',time)
 
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
       DO i=1, natom
-C     Determines the mass of an atom from its name
-         IF (i.GT.matom) THEN
-            CALL LeftAd(atom(i))
-            Iso=0
-            CALL Isotope(Iso,atom(i),Mass(i))
-         END IF
-C-------------------------------------------
          DO j=1, 3
             vel(3*(i-1)+j) = vel(3*(i-1)+j) + DT2 * force(3*(i-1)+j) /
      &      Mass(i)
          END DO
       END DO
-
 C  Calling the thermostats for canonical ensemble
       IF (THERMO.eq.2) THEN
          CALL NhcThermo(vel)
       END IF
 C
+C Check if reduced dimensionality (should not be needed)
+      IF (POUT .NE. 0) THEN
+        CALL project_out_vel(vel,natom)
+      ENDIF
 
 C Final kinetic energy
       DO i=1, natom

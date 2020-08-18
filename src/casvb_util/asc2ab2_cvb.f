@@ -21,7 +21,8 @@
 
       do 100 iorb=0,nel
       mindet(iorb)=max(iorb-nbet,0)
-100   maxdet(iorb)=min(iorb,nalf)
+      maxdet(iorb)=min(iorb,nalf)
+100   continue
       call weight_cvb(xdet,mindet,maxdet,nalf,nel)
       call imove_cvb(maxdet,nkdet,nel+1)
       call occupy_cvb(nkdet,nel,locc,locc(nalf+1))

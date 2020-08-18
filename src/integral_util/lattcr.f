@@ -128,7 +128,7 @@
                   ya=XF((iXF-1)*Inc+2)
                   za=XF((iXF-1)*Inc+3)
                   If(XEle(iXF).le.0) Then
-                     atrad=DBLE(-XEle(iXF))/1000.0D0
+                     atrad=-DBLE(XEle(iXF))/1000.0D0
                   Else
                      atrad=CovRadT(XEle(iXF))
                   EndIf
@@ -219,7 +219,7 @@ c     &           write(*,*)'DIST0',iGrid,sqrt(rpa2),atorad(m)
                         ya=XF((iXF-1)*Inc+2)
                         za=XF((iXF-1)*Inc+3)
                         If(XEle(iXF).le.0) Then
-                           atrad=DBLE(-XEle(iXF))/1000.0D0
+                           atrad=-DBLE(XEle(iXF))/1000.0D0
                         Else
                            atrad=CovRadT(XEle(iXF))
                         EndIf

@@ -30,13 +30,13 @@ c SF(3,dim,dim) -- spin moment in the pseuDospin basis
       Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer            :: dim,info,i,j,k,l,i1,i2,iopt
       Integer            :: iprint
-      Real (kind=wp) :: gtens(3),w(dim),maxes(3,3),det,FindDetR
-      Real (kind=wp) :: coord(3,3),coord2(3,3)
-      Complex (kind=wp) :: M( 3,dim,dim),S( 3,dim,dim),z(dim,dim)
-      Complex (kind=wp) :: MF(3,dim,dim),SF(3,dim,dim),zfin(dim,dim)
-      Complex (kind=wp) :: dipso2(3,dim,dim)
-      Complex (kind=wp) :: s_so2(3,dim,dim)
-      Complex (kind=wp) :: hzee(dim,dim)
+      Real (kind=8) :: gtens(3),w(dim),maxes(3,3),det,FindDetR
+      Real (kind=8) :: coord(3,3),coord2(3,3)
+      Complex (kind=8) :: M( 3,dim,dim),S( 3,dim,dim),z(dim,dim)
+      Complex (kind=8) :: MF(3,dim,dim),SF(3,dim,dim),zfin(dim,dim)
+      Complex (kind=8) :: dipso2(3,dim,dim)
+      Complex (kind=8) :: s_so2(3,dim,dim)
+      Complex (kind=8) :: hzee(dim,dim)
       external FindDetR
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c set to zero important variables:

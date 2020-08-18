@@ -31,12 +31,12 @@ C Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
 C If SHIFT.ne.0.0d0 or SHIFTI.ne.0.0d0, use a modified H0
 
       DO 100 ICASE=1,13
-        DO 100 ISYM=1,NSYM
+        DO 101 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) GOTO 100
+          IF(NIN.EQ.0) GOTO 101
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF(NIS.EQ.0) GOTO 100
+          IF(NIS.EQ.0) GOTO 101
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
           CALL GETMEM('BD','ALLO','REAL',LBD,NAS)
@@ -47,7 +47,7 @@ C positioning.
 
           CALL RHS_ALLO (NIN,NIS,lg_V2)
 
-          IF(BETA.NE.0.0D00) THEN
+          IF(BETA.NE.0.0D0) THEN
             CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
             IF(BETA.NE.1.0D00) THEN
               CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
@@ -56,13 +56,13 @@ C positioning.
 *           CALL RHS_SCAL (NIN,NIS,lg_V2,0.0D0)
           END IF
 
-          IF(ALPHA.NE.0.0D00) THEN
-            IF(BETA.NE.0.0D00) THEN
+          IF(ALPHA.NE.0.0D0) THEN
+            IF(BETA.NE.0.0D0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V1,WORK(LBD),WORK(LID))
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NAS,NIS,lg_V1)
+              CALL RHS_FREE (NIN,NIS,lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V2,WORK(LBD),WORK(LID))
@@ -71,9 +71,10 @@ C positioning.
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (NIN,NIS,lg_V2)
           CALL GETMEM('BD','FREE','REAL',LBD,NAS)
           CALL GETMEM('ID','FREE','REAL',LID,NIS)
+ 101    CONTINUE
  100  CONTINUE
       RETURN
       END

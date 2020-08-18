@@ -148,7 +148,8 @@ C     Show=Show.and..Not.Primitive_Pass
       Call mma_Allocate(LPQ,mCentr,label='LPQ')
 !     Stuff (not just) for LoProp
       Call mma_Allocate(LPMM,mCentr,label='LPMM')
-      Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
+!     Stuff (not just) for LoProp
+      Call mma_Allocate(LPA,mCentr,label='LPA')
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(fermion_type,maxbfn+maxbfn_aux)
@@ -300,6 +301,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      LPC(2,iyy)=YCoor
                      LPC(3,iyy)=ZCoor
                      LPQ(iyy)=Charge(iCnttp)
+                     LPA(iyy)=iAtmnr(iCnttp)
                      LPMM(iyy)=IsMM(iCnttp)
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                       //ChOper(iOper(iR))

@@ -27,7 +27,8 @@ c        1,3 => transform also T matrix
       if(mode.lt.2)then
 c  Determine NEXTRACT :
         do 100 i=nvec,1,-1
-100     if(w(i+i1-1).le.thr)goto 200
+        if(w(i+i1-1).le.thr)goto 200
+100     continue
 200     nextract=nvec-i
       endif
       call fmove_cvb(w(1+(nvec-nextract)*nbf+i2-1),c,nbf*nextract)
@@ -35,7 +36,8 @@ c  Determine NEXTRACT :
 c  Apply same transformation to T :
         call mxatb_cvb(t,w(i3),nbf,nvec,nvec,w(i4))
         do 300 i=1,nvec
-300     call dscal_(nbf,1.d0/w(i+i1-1),w((i-1)*nbf+i4),1)
+        call dscal_(nbf,1.d0/w(i+i1-1),w((i-1)*nbf+i4),1)
+300     continue
         call fmove_cvb(w(1+(nvec-nextract)*nbf+i4-1),t,nbf*nextract)
         call schmidtt_cvb(c,nextract,t,nbf,s,nbf,metr)
       endif

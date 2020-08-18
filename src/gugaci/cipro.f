@@ -12,9 +12,11 @@
 #include "drt_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
-      parameter (maxmolcasorb=5000,maxpro=30)
+#include "stdalloc.fh"
+      parameter (maxmolcasorb=5000,maxpro=50)
       dimension idx_idisk0(64),idx_idisk1(max_root+1)
-      dimension cmo(max_orb**2),cno(max_orb**2),occ(max_orb)
+      dimension occ(max_orb)
+      allocatable cmo(:),cno(:)
 !     *          denao(max_orb,max_orb)
       dimension ipcom(maxpro)
       REAL*8, pointer :: omat(:),denao(:),vprop(:,:,:)
@@ -59,6 +61,8 @@
         ptyp(npro)="HERM"
         if(label.eq."VELOCITY") ptyp(npro)="ANTI"
         if(label.eq."ANGMOM  ") ptyp(npro)="ANTI"
+        if(label(1:5).eq."MLTPV") ptyp(npro)="ANTI"
+        if(npro.ge.maxpro) exit
       enddo
 
 !      print"(10(1X,a8))", pname(1:npro)
@@ -69,6 +73,8 @@
       allocate(denao(nc0))
       allocate(vprop(mroot,mroot,npro))
 !      allocate(denao(nmo,nmo))
+      call mma_allocate(cmo,max_orb**2,label='cmo')
+      call mma_allocate(cno,max_orb**2,label='cno')
       idisk=idx_idisk0(3)
       call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matirx
@@ -101,6 +107,8 @@
      *               denao,nc0,vprop,pgauge,pnuc,icall)
 ! print property
       enddo
+      call mma_deallocate(cmo)
+      call mma_deallocate(cno)
 !      close(100)
 
 
@@ -117,7 +125,7 @@ c write expectation values:
             iend=min(ista+3,mroot)
             write(6,*)
             write(6,'(1x,a,a8,a,i4)')
-     *    '   property :',pname(iprop),
+     *    '   property: ',pname(iprop),
      *    '   component:',ipcom(iprop)
             write(6,'(1x,a,3f16.8)')
      *    '    gauge origin:',(pgauge(i,iprop),i=1,3)
@@ -149,6 +157,8 @@ c write expectation values:
         ptyp(npro)="HERM"
         if(label.eq."VELOCITY") ptyp(npro)="ANTI"
         if(label.eq."ANGMOM  ") ptyp(npro)="ANTI"
+        if(label(1:5).eq."MLTPV") ptyp(npro)="ANTI"
+        if(npro.ge.maxpro) exit
       enddo
 
 !      print"(10(1x,a8))", pname(1:npro)

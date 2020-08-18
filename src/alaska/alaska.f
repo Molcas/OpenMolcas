@@ -431,9 +431,9 @@
       Call qpg_iScalar('Relax CASSCF root',Found)
       If (Found) Then
          Call Get_iScalar('Relax CASSCF root',irlxroot1)
-         Call qpg_iScalar('Relax Original ro',Found)
+         Call qpg_iScalar('Relax Original root',Found)
          If (Found) Then
-            Call Get_iScalar('Relax Original ro',irlxroot2)
+            Call Get_iScalar('Relax Original root',irlxroot2)
             If (iRlxRoot1.ne.iRlxRoot2) Then
                Call Put_iScalar('Relax CASSCF root',irlxroot2)
                Call Put_iScalar('NumGradRoot',irlxroot2)

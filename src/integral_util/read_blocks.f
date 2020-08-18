@@ -11,12 +11,12 @@
       Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,iOff,Buf,nBuf,
      &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,
      &                       iSO2cI,CutInt)
+      use aces_stuff, only: LuGamma
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
 #include "real.fh"
-#include "aces_gamma.fh"
 #include "mp2alaska.fh"
-#include "pso.fh"
       Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
      &        iOff(0:nIrrep-1), iSO2Shell(nSOs), iSO2cI(2,nSOs)
       Real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
@@ -33,7 +33,7 @@
 *---- Generate table SO to contigous index
 *
 *     Write (*,*) 'nQuad=',nQuad
-      Call SO2cI(iSO2cI,iSO2Shell,nSOs)
+      Call Mk_SO2cI(iSO2cI,iSO2Shell,nSOs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,7 +89,7 @@
 * This call is to an ACES2 routine. This has to be replaced once this
 * code is used by MOLCAS. RL 2007-10-18.
 C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
-***********************************************************************
+************************************************************************
 * Jonas B 2010. This code is used for reading nonseparable two-electron
 *               density matrices when doing conventional mp2-gradients.
             If(Case_mp2) Then
@@ -98,7 +98,7 @@ C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
                Call dDaFile(LuGam,2,Buf,iSize,iAdr)
             End If
 *
-***********************************************************************
+************************************************************************
 *           Call RecPrt('Aces_Gamma: from GetLst',' ',
 *    &                  Buf,iAB_e-iAB_s+1,nCD)
 *

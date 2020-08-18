@@ -49,8 +49,9 @@
 #include "SysDef.fh"
 #include "lundio.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
-      Character Mamn(nMamn)*(LENIN8)
+      Character*(LENIN8), Allocatable :: Mamn(:)
       Logical Show_Save, lOPTO
       Logical Reduce_Prt
       External Reduce_Prt
@@ -108,6 +109,7 @@
 *                                                                      *
 *-----Generate the SO or AO basis set
 *
+      Call mma_allocate(Mamn,nMamn,label='Mamn')
       Call SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
       Call Gen_RelPointers(Info-1)
 *                                                                      *
@@ -130,6 +132,7 @@
       End If
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('nBas',nBas,nIrrep)
+      Call mma_deallocate(Mamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *

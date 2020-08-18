@@ -19,13 +19,16 @@
 *
       Call Get_cArray('Relax Method',Method,8)
 *
-      Numerical = Method .eq. 'RASSCFSA'    .or.
+      Numerical = Method(1:6) .eq. 'RASSCF' .or.
+     &            Method(1:6) .eq. 'GASSCF' .or.
+     &            Method .eq. 'CASSCFSA'    .or.
+     &            Method .eq. 'DMRGSCFS'    .or.
      &            Method .eq. 'CASPT2'      .or.
      &            Method .eq. 'UHF-SCF'     .or.
      &            Method .eq. 'MBPT2'       .or.
      &            Method .eq. 'CCSDT'       .or.
-     &            Method .eq. 'CASSCFSA'    .or.
-     &            Method .eq. 'KS-DFT'
+     &            Method .eq. 'KS-DFT'      .or.
+     &            Method .eq. 'UKS-DFT'
 *
       If (Method.eq.'CASSCF') Then
          Call Get_iScalar('NumGradRoot',irlxroot)
@@ -35,8 +38,11 @@
       Call DecideOnCholesky(Do_Cholesky)
       If (Do_Cholesky) Numerical=.true.
 *
-      Call Qpg_dArray('GeoPC',Found,nData)
-      Numerical = Numerical .or. (Found.and.nData.gt.0)
+      Call Qpg_iScalar('nXF',Found)
+      If (Found) Then
+         Call Get_iScalar('nXF',nXF)
+         Numerical = Numerical .or. (nXF.gt.0)
+      End If
       Call DecideOnESPF(Do_ESPF)
       Numerical = Numerical .or. Do_ESPF
 *
@@ -94,6 +100,10 @@
       Call Lu2Lu('SEWARINP',LuInput)
       Write (LuInput,*)
 *
+      If (Do_ESPF) THen
+         Call Lu2Lu('ESPFINP',LuInput)
+      End If
+*
       If (Method .eq. 'RASSCFSA'.or.Method .eq. 'CASSCFSA' .or.
      &    Method .eq. 'CASSCF') Then
          Call Lu2Lu('RASSCINP',LuInput)
@@ -107,7 +117,8 @@
          Call Lu2Lu('SCFINP',LuInput)
          Write (LuInput,'(A)')
          Call Lu2Lu('CCSDTINP',LuInput)
-      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF') Then
+      Else If (Method .eq. 'KS-DFT' .or. Method.eq.'RHF-SCF' .or.
+     &         Method .eq. 'UKS-DFT'.or. Method.eq.'UHF-SCF') Then
          Call Lu2Lu('SCFINP',LuInput)
       End If
 *

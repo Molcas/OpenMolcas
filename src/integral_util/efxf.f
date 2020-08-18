@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Par Soderhjelm                                   *
 ************************************************************************
       SubRoutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,
-     &     XMolnr,nXMolnr,iGrid,scal14)
+     &                XMolnr,nXMolnr,iGrid,scal14)
 
 ************************************************************************
 *                                                                      *
@@ -54,8 +54,10 @@
             LExcl=.False.
             If(iFd.eq.iGrid) LExcl=.True.
             Do i=1,nXMolnr
-               If(XMolnr(1,iGrid).eq.XMolnr(i,iFd)) LExcl=.True.
-               If(XMolnr(1,iGrid).eq.-XMolnr(i,iFd)) scal=scal14
+               If (XMolnr(1,iGrid).eq.XMolnr(i,iFd))
+     &            LExcl=.True.
+               If (XMolnr(1,iGrid).eq.-XMolnr(i,iFd))
+     &            scal=scal14
             EndDo
             If(LExcl) Then
 c               Write(6,*)'EXCLUDE ',iFd,' from field at ',iGrid

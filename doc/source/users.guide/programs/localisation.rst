@@ -103,7 +103,7 @@ Input files
 files: :file:`ONEINT`, :file:`RUNFILE`, :file:`INPORB`.
 For Edmiston--Ruedenberg localisation,
 it also needs :file:`CHVEC`, :file:`CHRED` and :file:`CHORST` files
-(for more information see :ref:`UG:sec:files_list`).
+(for more information see :numref:`UG:sec:files_list`).
 
 Output files
 ............
@@ -347,12 +347,12 @@ Optional general keywords
 
 :kword:`ITERations`
   The following line specifies the maximum number of iterations to be
-  used by the iterative localisation procedures. The default is 100.
+  used by the iterative localisation procedures. The default is 300.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="ITER" APPEAR="Iterations" LEVEL="ADVANCED" KIND="INT">
               <HELP>
               Please, specify the maximum number of iterations to be
-              used by the iterative localisation procedures. The default is 100.
+              used by the iterative localisation procedures. The default is 300.
               </HELP>
               %%Keyword: ITER <advanced>
               The following line specifies the maximum number of iterations to be
@@ -445,8 +445,8 @@ Optional general keywords
               <HELP>
               Requests orbital domains and pair domains are set up and analyzed.
               </HELP>
-              </KEYWORD>
               The default is not to set up domains.
+              </KEYWORD>
 
 :kword:`THRDomain`
   The following line specifies two thresholds to be used in defining
@@ -464,7 +464,6 @@ Optional general keywords
               The second threshold is used for the Pulay completeness check of
               the domain (default: 2.0d-2).
               </HELP>
-              </KEYWORD>
               %%Keyword: THRD <advanced>
               The following line specifies two thresholds to be used in defining
               orbital domains. The first is the Mulliken population threshold
@@ -472,6 +471,7 @@ Optional general keywords
               (divided by 2) is larger than this number (default: 9.0d-1).
               The second threshold is used for the Pulay completeness check of
               the domain (default: 2.0d-2).
+              </KEYWORD>
 
 :kword:`THRPairdomain`
   The following line specifies three thresholds to be used for
@@ -491,11 +491,11 @@ Optional general keywords
               classifying pair domains: R1, R2, and R3. (Defaults: 1.0d-10,
               1.0d1, and 1.5d1.)
               </HELP>
-              </KEYWORD>
               %%Keyword: THRP <advanced>
               The following line specifies three thresholds to be used for
               classifying pair domains: R1, R2, and R3. (Defaults: 1.0d-10,
               1.0d1, and 1.5d1.)
+              </KEYWORD>
 
 :kword:`LOCNatural orbitals`
   This keyword is used to select atoms for defining the localised natural
@@ -526,7 +526,6 @@ Optional general keywords
               Specify the number of atoms in the region and the threshold.
               Then the names of the symmetry unique atoms.
               </HELP>
-              </KEYWORD>
               %%Keyword: LOCN <basic>
               This keyword is used to select atoms for defining the localised natural
               orbitals (LNOs), thus a set of localised orbitals with well-defined occupation numbers.
@@ -537,6 +536,7 @@ Optional general keywords
               An additional line gives the names of the atoms as defined in the SEWARD input.
               This keyword is used to define occupation numbers when localising active orbitals
               from RASSCF calculations. Particularly useful in Effective Bond Order (EBO) analysis.
+              </KEYWORD>
 
 :kword:`LOCCanonical orbitals`
   This keyword is used to select atoms for defining the localised canonical
@@ -549,7 +549,6 @@ Optional general keywords
               Specify the number of atoms in the region and the threshold.
               Then the names of the symmetry unique atoms.
               </HELP>
-              </KEYWORD>
               %%Keyword: LOCC <basic>
               This keyword is used to select atoms for defining the localised canonical
               orbitals (LCOs), thus a set of localised orbitals with well-defined orbital energies.
@@ -558,6 +557,7 @@ Optional general keywords
               On the next line give the number of (symmetry unique) atoms that identify the region of interest
               and the threshold used to select the localised orbitals belonging to this region.
               An additional line gives the names of the atoms as defined in the SEWARD input.
+              </KEYWORD>
 
 Limitations
 ...........

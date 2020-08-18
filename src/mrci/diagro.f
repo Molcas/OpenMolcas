@@ -137,18 +137,20 @@ C NR OF OLD VECTORS RETAINED:
 C COPY HSMALL, SSMALL AND PSMALL IN REORDERED FORM, BY AGE:
       DO 206 L=NNEW+1,NVEC
          LL=1+MOD(NVTOT-L,MXVEC)
-         DO 206 K=NNEW+1,NVEC
+         DO 2060 K=NNEW+1,NVEC
             KK=1+MOD(NVTOT-K,MXVEC)
             HCOPY(K,L)=HSMALL(KK,LL)
             SCOPY(K,L)=SSMALL(KK,LL)
             PCOPY(K,L)=PSMALL(KK,LL)
+2060     CONTINUE
 206   CONTINUE
 C CLEAR NEW AREAS TO BE USED:
       DO 207 K=1,NVEC
-         DO 207 L=1,NNEW
+         DO 2070 L=1,NNEW
             HCOPY(K,L)=0.0D00
             SCOPY(K,L)=0.0D00
             PCOPY(K,L)=0.0D00
+2070     CONTINUE
 207   CONTINUE
 C THEN LOOP OVER BUFFERS. FIRST GET COPIES OF DISK ADDRESSES:
       DO 210 K=1,NVEC
@@ -179,9 +181,10 @@ C BUFFER SIZE IS IBUF, WHICH CAN BE SMALLER. ACCUMULATE:
      &               0.0d0,SCR,NVEC)
          KL=0
          DO 230 L=1,NNEW
-            DO 230 K=1,NVEC
+            DO 231 K=1,NVEC
                KL=KL+1
                SCOPY(K,L)=SCOPY(K,L)+SCR(KL)
+231         CONTINUE
 230      CONTINUE
          CALL DGEMM_('T','N',
      &               NVEC,NNEW,IBUF,
@@ -190,9 +193,10 @@ C BUFFER SIZE IS IBUF, WHICH CAN BE SMALLER. ACCUMULATE:
      &               0.0d0,SCR,NVEC)
          KL=0
          DO 240 L=1,NNEW
-            DO 240 K=1,NVEC
+            DO 241 K=1,NVEC
                KL=KL+1
                HCOPY(K,L)=HCOPY(K,L)+SCR(KL)
+241         CONTINUE
 240      CONTINUE
 C ALSO, UPDATE PSMALL, WHICH IS USED FOR SELECTION.
          IF(ISTA.GT.IREFX(NRROOT)) GOTO 200
@@ -203,15 +207,16 @@ C ALSO, UPDATE PSMALL, WHICH IS USED FOR SELECTION.
             IF(IRR.GT.IEND) GOTO 250
             IPOS=IRR+1-ISTA
             DO 260 L=1,NNEW
-               DO 260 K=1,NVEC
+               DO 261 K=1,NVEC
                   PCOPY(K,L)=PCOPY(K,L)+CBUF(IPOS,K)*CBUF(IPOS,L)
+261            CONTINUE
 260         CONTINUE
 250      CONTINUE
 200   CONTINUE
 C TRANSFER ELEMENTS BACK TO HSMALL, ETC.
        DO 256 L=1,NNEW
           LL=1+MOD(NVTOT-L,MXVEC)
-          DO 256 K=1,NVEC
+          DO 2560 K=1,NVEC
              KK=1+MOD(NVTOT-K,MXVEC)
              H=HCOPY(K,L)
              S=SCOPY(K,L)
@@ -225,6 +230,7 @@ C TRANSFER ELEMENTS BACK TO HSMALL, ETC.
              HSMALL(LL,KK)=H
              SSMALL(LL,KK)=S
              PSMALL(LL,KK)=P
+2560     CONTINUE
 256   CONTINUE
       IF(IPRINT.GE.10) THEN
         WRITE(6,*)

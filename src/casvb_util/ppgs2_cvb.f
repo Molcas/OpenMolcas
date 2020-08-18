@@ -37,7 +37,8 @@ c  each fragment is set to perfect-pairing:
       endif
 200   continue
 300   ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-100   icoffs_nconf=icoffs_nconf+nconf_fr(ifrag)
+      icoffs_nconf=icoffs_nconf+nconf_fr(ifrag)
+100   continue
       kbasiscvb_kp=kbasiscvb
       kbasiscvb=1
       call str2vbc_cvb(cvb,cvbdet)

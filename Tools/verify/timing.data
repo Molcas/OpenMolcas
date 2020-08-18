@@ -1,967 +1,981 @@
 # Automatically-generated file. Do not modify!
 #
-# To generate this file run pymolcas verify -timest -pass .everything
+# To generate this file run MOLCAS_MEM=10GB pymolcas verify -timest -pass .everything
 #
 # Note that what matters is relative timings, so do not
 # mix runs with different settings or environments.
 
---- standard:000
-5
---- standard:001
-15
---- standard:002
-8
---- standard:003
-12
---- standard:004
-7
---- standard:005
+--- core:caspt2
 13
---- standard:006
-8
---- standard:007
-6
---- standard:008
-9
---- standard:009
-7
---- standard:010
-6
---- standard:011
-6
---- standard:012
-3
---- standard:014
-6
---- standard:015
-13
---- standard:016
+--- core:vibrot
 1
---- standard:017
-15
---- standard:018
-20
---- standard:019
+--- standard:000
+3
+--- standard:001
+9
+--- standard:002
+5
+--- standard:003
+23
+--- standard:004
 10
---- standard:020
-10
---- standard:021
-11
---- standard:022
-14
---- standard:023
-12
---- standard:024
-11
---- standard:025
+--- standard:005
 8
---- standard:026
+--- standard:006
 5
---- standard:027
-11
---- standard:028
-9
---- standard:029
-16
---- standard:030
-42
---- standard:031
-9
---- standard:032
-10
---- standard:033
-6
---- standard:034
-31
---- standard:035
-15
---- standard:036
-20
---- standard:037
-6
---- standard:038
-5
---- standard:039
-15
---- standard:040
-15
---- standard:041
+--- standard:007
+3
+--- standard:008
 4
+--- standard:009
+4
+--- standard:010
+3
+--- standard:011
+4
+--- standard:012
+2
+--- standard:014
+3
+--- standard:015
+7
+--- standard:016
+0
+--- standard:017
+25
+--- standard:018
+18
+--- standard:019
+7
+--- standard:020
+7
+--- standard:021
+7
+--- standard:022
+9
+--- standard:023
+8
+--- standard:024
+7
+--- standard:025
+5
+--- standard:026
+3
+--- standard:027
+6
+--- standard:028
+5
+--- standard:029
+9
+--- standard:030
+47
+--- standard:031
+6
+--- standard:032
+5
+--- standard:033
+3
+--- standard:034
+16
+--- standard:035
+10
+--- standard:036
+10
+--- standard:037
+3
+--- standard:038
+3
+--- standard:039
+9
+--- standard:040
+16
+--- standard:041
+3
 --- standard:042
-30
+12
 --- standard:043
-14
+4
 --- standard:044
-13
+8
 --- standard:045
-15
+8
 --- standard:046
-14
+10
 --- standard:047
 8
 --- standard:048
-5
+2
 --- standard:049
-28
+21
 --- standard:050
-10
+6
 --- standard:051
-8
+7
 --- standard:052
-6
+3
 --- standard:053
-22
+13
 --- standard:054
-10
---- standard:055
-12
---- standard:056
-22
---- standard:057
-175
---- standard:058
-10
---- standard:059
-17
---- standard:060
-17
---- standard:061
-24
---- standard:062
-25
---- standard:063
-11
---- standard:064
-11
---- standard:065
-4
---- standard:066
-18
---- standard:069
-29
---- standard:070
-20
---- standard:071
-8
---- standard:072
-55
---- standard:073
-30
---- standard:074
-6
---- standard:075
-33
---- standard:076
-19
---- standard:077
 5
---- standard:078
-157
---- standard:079
-153
---- standard:080
-81
---- standard:081
+--- standard:055
+8
+--- standard:056
+10
+--- standard:057
+84
+--- standard:058
+5
+--- standard:059
+9
+--- standard:060
+11
+--- standard:061
+13
+--- standard:062
+14
+--- standard:063
+6
+--- standard:064
+7
+--- standard:065
+2
+--- standard:066
+10
+--- standard:067
+101
+--- standard:068
+101
+--- standard:069
+10
+--- standard:070
+10
+--- standard:071
+5
+--- standard:073
+13
+--- standard:074
 4
+--- standard:075
+25
+--- standard:076
+11
+--- standard:077
+2
+--- standard:078
+102
+--- standard:079
+100
+--- standard:080
+57
+--- standard:081
+3
 --- standard:082
-17
+11
 --- standard:083
-16
+10
 --- standard:084
-16
+10
 --- standard:085
-16
+11
 --- standard:086
-27
+24
 --- standard:087
-30
+26
 --- standard:088
-18
+16
 --- standard:089
 17
 --- standard:090
-100
+91
 --- standard:091
-19
---- standard:092
-22
---- standard:093
 16
+--- standard:092
+17
+--- standard:093
+13
 --- standard:094
-124
+113
 --- standard:095
-129
+99
 --- standard:096
-45
+31
 --- standard:097
-5
---- standard:098
-24
---- standard:099
-82
---- additional:100
-89
---- additional:101
-84
---- additional:102
-30
---- additional:103
-152
---- additional:104
-41
---- additional:105
-73
---- additional:106
-28
---- additional:107
-36
---- additional:108
-14
---- additional:109
-17
---- additional:110
-17
---- additional:111
-23
---- additional:112
-24
---- additional:113
 3
+--- standard:098
+11
+--- standard:099
+53
+--- additional:100
+55
+--- additional:101
+50
+--- additional:102
+21
+--- additional:103
+69
+--- additional:104
+18
+--- additional:105
+40
+--- additional:106
+14
+--- additional:107
+21
+--- additional:108
+11
+--- additional:109
+9
+--- additional:110
+10
+--- additional:111
+14
+--- additional:112
+14
+--- additional:113
+2
 --- additional:114
 2
 --- additional:115
-7
+3
+--- additional:116
+4
 --- additional:117
-8
+4
+--- additional:118
+36
 --- additional:119
-3
+2
 --- additional:120
-3
+1
 --- additional:121
 2
 --- additional:122
-3
+2
 --- additional:123
-4
+2
 --- additional:124
-4
+2
+--- additional:125
+3
 --- additional:126
-2
+1
 --- additional:127
-3
+1
 --- additional:128
-4
---- additional:129
-3
---- additional:130
-3
---- additional:131
-12
---- additional:133
-3
---- additional:134
 2
+--- additional:129
+1
+--- additional:130
+2
+--- additional:131
+8
+--- additional:132
+14
+--- additional:133
+1
+--- additional:134
+1
 --- additional:135
-3
+2
 --- additional:136
-3
+1
 --- additional:137
-4
+2
 --- additional:138
-13
---- additional:140
-3
---- additional:141
-5
---- additional:142
-3
---- additional:143
-3
---- additional:144
-3
---- additional:145
-4
---- additional:146
-15
---- additional:147
 6
+--- additional:139
+4
+--- additional:140
+2
+--- additional:141
+2
+--- additional:142
+2
+--- additional:143
+2
+--- additional:144
+2
+--- additional:145
+3
+--- additional:146
+9
+--- additional:147
+5
 --- additional:148
 7
 --- additional:149
-13
+8
 --- additional:150
-17
+12
+--- additional:152
+12
 --- additional:153
-8
+6
 --- additional:154
-5
+3
 --- additional:155
-12
+9
 --- additional:156
-12
+9
+--- additional:157
+3
 --- additional:158
-4
+3
 --- additional:159
-5
+3
 --- additional:160
-26
+17
 --- additional:161
-23
+10
 --- additional:162
-4
+3
 --- additional:163
-6
+3
 --- additional:164
-4
+2
 --- additional:165
-4
+2
 --- additional:166
-7
+4
 --- additional:167
-9
+4
 --- additional:168
-4
+2
 --- additional:169
-7
+5
 --- additional:170
-4
+2
 --- additional:171
-3
+1
 --- additional:172
-18
+11
 --- additional:173
-5
+3
 --- additional:174
-16
+10
 --- additional:175
-8
+5
 --- additional:176
-7
+5
 --- additional:177
-11
+6
 --- additional:178
-13
+9
 --- additional:179
-18
+12
 --- additional:180
-11
+8
 --- additional:181
-15
+14
 --- additional:182
-12
+11
 --- additional:183
-10
+7
 --- additional:184
-25
+18
 --- additional:185
-12
+6
 --- additional:186
-10
+6
+--- additional:187
+48
 --- additional:188
-25
+14
 --- additional:190
-17
+9
 --- additional:192
-27
+14
 --- additional:193
-19
+12
 --- additional:194
-18
+19
 --- additional:195
-6
+3
 --- additional:196
-8
+4
 --- additional:198
-13
+4
 --- additional:199
-22
+8
 --- additional:200
-5
+3
 --- additional:201
-12
+7
 --- additional:202
-20
+13
 --- additional:203
-25
+14
 --- additional:204
-5
---- additional:205
-3
+4
 --- additional:206
-4
+2
 --- additional:207
-6
+3
 --- additional:208
-6
+3
 --- additional:209
-9
+4
 --- additional:210
-5
+3
 --- additional:211
-9
+5
 --- additional:212
-3
+1
 --- additional:213
-12
+7
 --- additional:214
-13
+6
 --- additional:215
-9
+6
 --- additional:217
-4
+2
 --- additional:218
-3
---- additional:219
-10
+2
 --- additional:220
-12
+6
 --- additional:221
-16
+8
 --- additional:222
-10
+5
 --- additional:223
-20
+12
 --- additional:224
-8
+4
 --- additional:225
-36
+24
 --- additional:226
-13
+8
 --- additional:227
-83
+36
 --- additional:228
-13
+6
 --- additional:229
-3
+2
 --- additional:230
-9
+5
 --- additional:231
-40
+24
 --- additional:232
-25
+12
 --- additional:233
-6
+4
 --- additional:234
-29
---- additional:236
-19
---- additional:237
-3
---- additional:238
-44
---- additional:239
-7
---- additional:240
-4
---- additional:241
-5
---- additional:242
-7
---- additional:243
-24
---- additional:244
-11
---- additional:245
-7
---- additional:246
-4
---- additional:248
-20
---- additional:249
-9
---- additional:250
-2
---- additional:252
-7
---- additional:254
-13
---- additional:255
-15
---- additional:256
-23
---- additional:257
-3
---- additional:258
-28
---- additional:259
-22
---- additional:260
-9
---- additional:261
-5
---- additional:262
-4
---- additional:263
-18
---- additional:264
-13
---- additional:265
-19
---- additional:266
-14
---- additional:267
-6
---- additional:268
-3
---- additional:269
-6
---- additional:270
-18
---- additional:271
-5
---- additional:272
-5
---- additional:273
-3
---- additional:274
-6
---- additional:275
-5
---- additional:276
-4
---- additional:277
-16
---- additional:278
-17
---- additional:279
-118
---- additional:280
-10
---- additional:281
-5
---- additional:282
-10
---- additional:283
-6
---- additional:284
-6
---- additional:285
-6
---- additional:286
-10
---- additional:287
-7
---- additional:288
-83
---- additional:289
-66
---- additional:291
-3
---- additional:293
-3
---- additional:294
-10
---- additional:295
-3
---- additional:296
-23
---- additional:298
-11
---- additional:299
-9
---- additional:300
-3
---- additional:301
-29
---- additional:302
-12
---- additional:303
-25
---- additional:304
-165
---- additional:305
-9
---- additional:306
-41
---- additional:307
-17
---- additional:308
-84
---- additional:309
-33
---- additional:310
-8
---- additional:311
-12
---- additional:312
-18
---- additional:315
-28
---- additional:316
-35
---- additional:317
-24
---- additional:318
-18
---- additional:319
-16
---- additional:320
-8
---- additional:321
-31
---- additional:322
-20
---- additional:323
-154
---- additional:324
-24
---- additional:325
-40
---- additional:326
-36
---- additional:327
-18
---- additional:328
-11
---- additional:329
-28
---- additional:331
-1
---- additional:332
-17
---- additional:333
-5
---- additional:334
-50
---- additional:335
-48
---- additional:336
-48
---- additional:337
-31
---- additional:338
-30
---- additional:340
-6
---- additional:341
-9
---- additional:342
-7
---- additional:343
-14
---- additional:344
-5
---- additional:349
-91
---- additional:350
-93
---- additional:352
-6
---- additional:353
-6
---- additional:354
-31
---- additional:356
-4
---- additional:357
-92
---- additional:358
-37
---- additional:359
-56
---- additional:360
-55
---- additional:361
-46
---- additional:362
-39
---- additional:363
-38
---- additional:364
-22
---- additional:365
-179
---- additional:366
-222
---- additional:367
-107
---- additional:368
-38
---- additional:369
-14
---- additional:370
-61
---- additional:371
-15
---- additional:372
-28
---- additional:373
-50
---- additional:374
-213
---- additional:378
-4
---- additional:379
-31
---- additional:380
-6
---- additional:381
-220
---- additional:382
-9
---- additional:383
-11
---- additional:384
-10
---- additional:385
-13
---- additional:386
-8
---- additional:387
-140
---- additional:388
-11
---- additional:389
-20
---- additional:390
-12
---- additional:391
-26
---- additional:392
-11
---- additional:393
-5
---- additional:397
-191
---- additional:400
-16
---- additional:401
-41
---- additional:402
-9
---- additional:403
-7
---- additional:404
-2
---- additional:406
-8
---- additional:407
-8
---- additional:801
-59
---- additional:802
-5
---- additional:805
-18
---- additional:806
-24
---- additional:809
-19
---- additional:810
-18
---- additional:811
-16
---- additional:812
-16
---- additional:813
-6
---- additional:814
-47
---- additional:821
-333
---- additional:822
-55
---- additional:823
-24
---- additional:824
-11
---- additional:832
-10
---- additional:835
-6
---- additional:836
-47
---- additional:848
-31
---- additional:852
-96
---- additional:855
-18
---- additional:875
-33
---- additional:888
-137
---- additional:894
-42
---- additional:895
-48
---- additional:896
-72
---- additional:897
-3
---- additional:898
-49
---- exhaustive:basis
-2866
---- exhaustive:ecp
-1557
---- hdf5:700
-5
---- hdf5:710
-8
---- hdf5:747
-9
---- hdf5:770
-18
---- hdf5:794
-122
---- qcmaquis:001
-45
---- qcmaquis:002
-95
---- qcmaquis:003
-37
---- qcmaquis:004
-107
---- qcmaquis:005
-110
---- qcmaquis:006
-153
---- qcmaquis:007
-51
---- qcmaquis:009
-201
---- qcmaquis:010
-52
---- benchmark:950
-426
---- benchmark:951
-620
---- benchmark:953
-8162
---- benchmark:961
-26822
---- benchmark:962 F
-52938
---- benchmark:963 F
-86400
---- benchmark:970 S
-20
---- core:caspt2
-25
---- core:vibrot
-0
---- grayzone:067
-222
---- grayzone:068
-215
---- grayzone:116
-9
---- grayzone:139
-5
---- grayzone:251
-10
---- grayzone:395
-38
---- grayzone:405 F
-121
---- grayzone:414
-37
---- grayzone:415
-36
---- grayzone:803
-77
---- grayzone:804
-207
---- grayzone:819 F
-36
---- grayzone:820 F
-6
---- grayzone:834
-22
---- grayzone:850 S
-1
---- grayzone:851 S
-1
---- grayzone:860
-17
---- grayzone:861
-43
---- performance:900
-76
---- performance:901
-33
---- performance:902
-145
---- performance:903
 21
---- performance:904
-36
---- performance:905
-82
---- performance:906
-25
---- performance:907
-237
---- performance:908
-118
---- performance:909
-93
---- performance:910
-48
---- performance:911
-247
---- performance:912
-75
---- performance:913
-80
---- performance:914
-226
---- performance:915
-39
---- performance:916
-157
---- performance:917
-96
---- limannig:000_desym
-5
---- limannig:100 F
-18
---- liviu:faiemp_nacl
-88
---- perake:rassi_trdip F
-5
---- qcmaquis_grayzone:008 F
-1
---- scf:test01
-8
---- scf:test02
-9
---- scf:test03
-7
---- scf:test04
-185
---- scf:test05
-7
---- scf:test06
-9
---- scf:test07
-6
---- scf:test08
-6
---- scf:test09
-8
---- scf:test10
+--- additional:236
+11
+--- additional:237
+2
+--- additional:238
+19
+--- additional:239
+3
+--- additional:240
+2
+--- additional:241
+3
+--- additional:242
+4
+--- additional:243
 15
---- scf:test11
-44
---- scf:test12
-579
---- scf:test13
-42
---- scf:test15
-91
---- scf:test16
-102
---- scf:test17
-7
---- scf:test18
-402
---- stevenv:001
+--- additional:244
+8
+--- additional:245
+4
+--- additional:246
+2
+--- additional:248
+12
+--- additional:249
+5
+--- additional:250
+1
+--- additional:252
+4
+--- additional:254
+8
+--- additional:255
+8
+--- additional:256
+20
+--- additional:257
+1
+--- additional:258
+11
+--- additional:259
+10
+--- additional:260
+6
+--- additional:261
+3
+--- additional:262
+1
+--- additional:263
+13
+--- additional:264
+9
+--- additional:265
+13
+--- additional:266
+10
+--- additional:267
+2
+--- additional:268
+2
+--- additional:269
+3
+--- additional:270
+8
+--- additional:271
+3
+--- additional:272
+2
+--- additional:273
+1
+--- additional:274
+4
+--- additional:275
+2
+--- additional:276
+2
+--- additional:277
+9
+--- additional:278
+10
+--- additional:279
+68
+--- additional:280
+5
+--- additional:281
+3
+--- additional:282
+5
+--- additional:283
+3
+--- additional:284
+3
+--- additional:285
+3
+--- additional:286
+6
+--- additional:287
+4
+--- additional:288
+50
+--- additional:289
 41
---- stevenv:002
-55
---- stevenv:desym
+--- additional:291
+2
+--- additional:293
+2
+--- additional:294
+5
+--- additional:295
+1
+--- additional:296
+14
+--- additional:298
+4
+--- additional:299
+5
+--- additional:300
+2
+--- additional:301
+30
+--- additional:302
+9
+--- additional:303
+20
+--- additional:304
+104
+--- additional:305
+4
+--- additional:306
+21
+--- additional:307
+9
+--- additional:308
+43
+--- additional:309
+24
+--- additional:310
+3
+--- additional:311
+6
+--- additional:312
+3
+--- additional:313
+4
+--- additional:315
+18
+--- additional:316
+14
+--- additional:317
+8
+--- additional:318
+9
+--- additional:319
 7
---- stevenv:hdf5
+--- additional:320
+4
+--- additional:321
+15
+--- additional:322
+1
+--- additional:323
+17
+--- additional:324
+9
+--- additional:325
+12
+--- additional:326
+13
+--- additional:327
+11
+--- additional:328
+5
+--- additional:329
+17
+--- additional:330
+25
+--- additional:331
+0
+--- additional:332
+12
+--- additional:333
+3
+--- additional:334
+32
+--- additional:335
+30
+--- additional:336
+29
+--- additional:337
+17
+--- additional:338
+19
+--- additional:340
+3
+--- additional:341
+12
+--- additional:342
+21
+--- additional:343
+9
+--- additional:344
+3
+--- additional:349
+43
+--- additional:350
+45
+--- additional:352
+3
+--- additional:353
+4
+--- additional:354
+16
+--- additional:356
+3
+--- additional:357
+40
+--- additional:358
+24
+--- additional:359
+43
+--- additional:360
+48
+--- additional:361
+58
+--- additional:362
+19
+--- additional:363
+18
+--- additional:364
+13
+--- additional:365
+38
+--- additional:366
+82
+--- additional:367
+76
+--- additional:368
+33
+--- additional:369
+10
+--- additional:370
+39
+--- additional:371
+9
+--- additional:372
+22
+--- additional:373
+39
+--- additional:374
+79
+--- additional:378
+2
+--- additional:379
+14
+--- additional:380
+2
+--- additional:381
+83
+--- additional:382
+3
+--- additional:383
+5
+--- additional:384
+7
+--- additional:385
+11
+--- additional:386
+6
+--- additional:387
+113
+--- additional:388
+6
+--- additional:389
+16
+--- additional:390
+9
+--- additional:391
+14
+--- additional:392
+4
+--- additional:393
+3
+--- additional:395
+43
+--- additional:397
+80
+--- additional:399
+13
+--- additional:400
+7
+--- additional:401
+21
+--- additional:402
+5
+--- additional:403
+4
+--- additional:404
+1
+--- additional:405
+5
+--- additional:406
+4
+--- additional:407
+4
+--- additional:408
+57
+--- additional:414
+6
+--- additional:415
+6
+--- additional:416
+14
+--- additional:417
+8
+--- additional:418
+16
+--- additional:419
+8
+--- additional:420
+15
+--- additional:421
+9
+--- additional:422
+3
+--- additional:423
+80
+--- additional:424
+2
+--- additional:450
+15
+--- additional:451
+3
+--- additional:452
+12
+--- additional:453
+22
+--- additional:454
+10
+--- additional:455
+5
+--- additional:456
+5
+--- additional:457
+0
+--- additional:458
+19
+--- additional:459
+9
+--- additional:801
+41
+--- additional:802
+3
+--- additional:803
+55
+--- additional:804
+100
+--- additional:805
+9
+--- additional:806
+16
+--- additional:809
+8
+--- additional:810
+9
+--- additional:811
+7
+--- additional:812
+8
+--- additional:813
+3
+--- additional:814
+21
+--- additional:820
+3
+--- additional:821
+181
+--- additional:822
+24
+--- additional:823
+13
+--- additional:824
+6
+--- additional:825
+46
+--- additional:832
+7
+--- additional:836
+42
+--- additional:848
+23
+--- additional:852
+50
+--- additional:855
+10
+--- additional:860
+12
+--- additional:875
+25
+--- additional:888
+109
+--- additional:894
+32
+--- additional:895
+34
+--- additional:896
+26
+--- additional:897
+1
+--- additional:898
+26
+--- additional:899
+5
+--- exhaustive:basis
+1752
+--- exhaustive:ecp
+1059
+--- extra:072
+28
+--- extra:205
+1
+--- extra:219
+6
+--- extra:398
+65
+--- extra:834
+15
+--- extra:835
+4
+--- extra:850 S
+0
+--- extra:851 S
+1
+--- extra:861
+37
+--- hdf5:700
+4
+--- hdf5:701
+14
+--- hdf5:702
+10
+--- hdf5:710
+4
+--- hdf5:747
+4
+--- hdf5:770
+8
+--- hdf5:794
+106
+--- qcmaquis:001
+31
+--- qcmaquis:002
+59
+--- qcmaquis:003
+18
+--- qcmaquis:004
+62
+--- qcmaquis:005
+68
+--- qcmaquis:006
+103
+--- qcmaquis:007
+31
+--- qcmaquis:009
+98
+--- qcmaquis:010
+27
+--- benchmark:950
+169
+--- benchmark:951
+161
+--- benchmark:953
+3651
+--- benchmark:961
+6112
+--- benchmark:962
+46082
+--- benchmark:963 F
+30004
+--- benchmark:970 S
+9
+--- performance:900
+32
+--- performance:901
+18
+--- performance:902
+70
+--- performance:903
+10
+--- performance:904
+9
+--- performance:905
+28
+--- performance:906
+15
+--- performance:907
+153
+--- performance:908
+39
+--- performance:909
+38
+--- performance:910
+20
+--- performance:911
+137
+--- performance:912
+39
+--- performance:913
+41
+--- performance:914
+136
+--- performance:915
+17
+--- performance:916
+74
+--- performance:917
+40
+--- qcmaquis_grayzone:008
 32

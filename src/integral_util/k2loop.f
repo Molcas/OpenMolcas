@@ -21,8 +21,8 @@
      &           Wrk,nWork2,
      &           Cmpct,nScree,mScree,iStb,jStb,
      &           Dij,nDij,nDCR,nHm,ijCmp,DoFock,
-     &           ipTmp1,ipTmp2,ipTmp3,
-     &           ipKnew,ipLnew,ipPnew,ipQnew,DoGrad,HMtrx,nHrrMtrx)
+     &           Scr,nScr,
+     &           Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 ************************************************************************
 *                                                                      *
 * Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -36,7 +36,6 @@
 *              DoZeta                                                  *
 *              Rys                                                     *
 *              DGeTMO  (ESSL)                                          *
-*              GetMem                                                  *
 *              RecPrt                                                  *
 *              Hrr                                                     *
 *              CrSph1                                                  *
@@ -60,15 +59,15 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
      &       Alpha(nAlpha), Beta(nBeta), Dij(nDij,nDCR),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
      &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
-     &       Wrk(nWork2), Q(3), TA(3), TB(3),
+     &       Wrk(nWork2), Q(3), TA(3), TB(3), Scr(nScr,3),
      &       Con(nZeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
      &       Alpha_(nZeta),Beta_(nZeta), HMtrx(nHrrMtrx,2)
+      Real*8  Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3)
       Integer   iDCRR(0:7), iAnga(4), iCmpa(4), mStb(2),
      &          iShll(2), IndP(nZeta)
       Integer isave(1024)
@@ -90,6 +89,21 @@
       Integer, Pointer :: iData(:)
       Logical TF, TstFnc
       External TstFnc
+      Interface
+         SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,
+     &                  Eta,EInv,nEta,
+     &                  P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,
+     &                  mabMin,mabMax,mcdMin,mcdMax,Array,nArray,
+     &                  Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
+         Integer iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax,
+     &           mcdMin, mcdMax, nArray
+         External Tvalue, ModU2, Cff2D, Rys2D
+         Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), rKapab(nZeta),
+     &          Eta(nEta),   EInv(nEta),  Q(lQ,3), rKapcd(nEta),
+     &          CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray)
+         Logical NoSpecial
+         End Subroutine Rys
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -362,10 +376,7 @@
             Delta = 1.0D-03
             iOff_g=ip_abG(nZeta,nHm)+ijCmp*nZeta
             Call FZero(Data(iOff_g,lDCRR+1),nZeta*ijCmp)
-            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp1),1)
-            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp2),1)
-            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp3),1)
-
+            Scr(1:nZeta*ijCmp,:)=Zero
 *
 *---------- Loop over center A and B.
 *
@@ -382,8 +393,8 @@
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
                      Call NewPK(CoorM(1,1),CoorM(1,2),
-     &                          Work(ipPnew),mZeta,nZeta,
-     &                          Work(ipKnew),
+     &                          Pnew,mZeta,nZeta,
+     &                          Knew,
      &                          Data(ip_Alpha(1,nZeta,1),lDCRR+1),
      &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
                      Do iZeta = 1, mZeta, IncZZ
@@ -392,26 +403,26 @@
      &                              iAnga,iCmpa,lZeta,
      &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
-     &                              Work(ipKnew+iZeta-1),
-     &                              Work(ipPnew+iZeta-1),
-     &                              Work(ipKnew+iZeta-1),
-     &                              Work(ipPnew+iZeta-1),
+     &                              Knew(iZeta),
+     &                              Pnew(iZeta),
+     &                              Knew(iZeta),
+     &                              Pnew(iZeta),
      &                              nZeta,Wrk,nWork2,
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
                         Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Work(ipTmp1+iZeta-1),
-     &                              Work(ipKnew+iZeta-1),
+     &                              Scr(iZeta,1),
+     &                              Knew(iZeta),
      &                              .False.,
      &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
      &                              nZeta,
-     &                              Work(ipKnew+iZeta-1))
+     &                              Knew(iZeta))
                      End Do
 *
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
                      Call NewPK(CoorM(1,1),CoorM(1,2),
-     &                          Work(ipQnew),mZeta,nZeta,
-     &                          Work(ipLnew),
+     &                          Qnew,mZeta,nZeta,
+     &                          Lnew,
      &                          Data(ip_Alpha(1,nZeta,1),lDCRR+1),
      &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
                      Do iZeta = 1, mZeta, IncZZ
@@ -420,23 +431,23 @@
      &                              iAnga,iCmpa,lZeta,
      &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
-     &                              Work(ipLnew+iZeta-1),
-     &                              Work(ipQnew+iZeta-1),
-     &                              Work(ipLnew+iZeta-1),
-     &                              Work(ipQnew+iZeta-1),
+     &                              Lnew(iZeta),
+     &                              Qnew(iZeta),
+     &                              Lnew(iZeta),
+     &                              Qnew(iZeta),
      &                              nZeta,Wrk,nWork2,
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
                         Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Work(ipTmp2+iZeta-1),
-     &                              Work(ipLnew+iZeta-1),
+     &                              Scr(iZeta,2),
+     &                              Lnew(iZeta),
      &                              .False.,
      &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
      &                              nZeta,
-     &                              Work(ipLnew+iZeta-1))
+     &                              Lnew(iZeta))
                      End Do
 *
-                     Call DaXpY_(nZeta*ijCmp, One,Work(ipTmp2),1,
-     &                                           Work(ipTmp1),1)
+                     Call DaXpY_(nZeta*ijCmp, One,Scr(1,2),1,
+     &                                           Scr(1,1),1)
 *
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
@@ -446,23 +457,23 @@
      &                              iAnga,iCmpa,lZeta,
      &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
-     &                              Work(ipKnew+iZeta-1),
-     &                              Work(ipPnew+iZeta-1),
-     &                              Work(ipLnew+iZeta-1),
-     &                              Work(ipQnew+iZeta-1),
+     &                              Knew(iZeta),
+     &                              Pnew(iZeta),
+     &                              Lnew(iZeta),
+     &                              Qnew(iZeta),
      &                              nZeta,Wrk,nWork2,
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
                         Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Work(ipTmp3+iZeta-1),
-     &                              Work(ipKnew+iZeta-1),
+     &                              Scr(iZeta,3),
+     &                              Knew(iZeta),
      &                              .False.,
      &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
      &                              nZeta,
-     &                              Work(ipLnew+iZeta-1))
+     &                              Lnew(iZeta))
                      End Do
 *
-                     Call DaXpY_(nZeta*ijCmp,-One,Work(ipTmp3),1,
-     &                                           Work(ipTmp1),1)
+                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
+     &                                           Scr(1,1),1)
 *
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
@@ -472,27 +483,27 @@
      &                              iAnga,iCmpa,lZeta,
      &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
-     &                              Work(ipLnew+iZeta-1),
-     &                              Work(ipQnew+iZeta-1),
-     &                              Work(ipKnew+iZeta-1),
-     &                              Work(ipPnew+iZeta-1),
+     &                              Lnew(iZeta),
+     &                              Qnew(iZeta),
+     &                              Knew(iZeta),
+     &                              Pnew(iZeta),
      &                              nZeta,Wrk,nWork2,
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
                         Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Work(ipTmp3+iZeta-1),
-     &                              Work(ipLnew+iZeta-1),
+     &                              Scr(iZeta,3),
+     &                              Lnew(iZeta),
      &                              .False.,
      &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
      &                              nZeta,
-     &                              Work(ipKnew+iZeta-1))
+     &                              Knew(iZeta))
                      End Do
 *
-                     Call DaXpY_(nZeta*ijCmp,-One,Work(ipTmp3),1,
-     &                                           Work(ipTmp1),1)
+                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
+     &                                           Scr(1,1),1)
 *
                      Call DScal_(nZeta*ijCmp,One/(Four*Delta**2),
-     &                                           Work(ipTmp1),1)
-                     Call AbsAdd(nZeta*ijCmp,    Work(ipTmp1),1,
+     &                                           Scr(1,1),1)
+                     Call AbsAdd(nZeta*ijCmp,    Scr(1,1),1,
      &                                   Data(iOff_g,lDCRR+1),1)
 *
                      CoorM(iComp,iCnt  ) = temp
@@ -505,7 +516,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
@@ -534,7 +545,6 @@
 #endif
  100  Continue ! lDCRR
 *
-*     Call GetMem(' Exit k2Loop','CHECK','REAL',iDum,iDum)
 *     Call QExit('k2Loop')
       Return
       End Subroutine k2loop_internal

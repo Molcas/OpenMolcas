@@ -26,6 +26,7 @@
       use Her_RW
       use Real_Spherical
       use EFP_module
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,11 +47,49 @@
 *
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Info_Status.eq.Active) Then
          Call GetMem('Info','Free','Real',LctInf,nInfo)
          Info_Status=InActive
-      End If
+*                                                                      *
+*        Process "external" centers
 *
+         If (Allocated(EF_Centers)) Then
+            Call mma_deallocate(EF_Centers)
+            nEF=0
+         End If
+         If (Allocated(OAM_Center)) Call mma_deallocate(OAM_Center)
+         If (Allocated(OMQ_Center)) Call mma_deallocate(OMQ_Center)
+         If (Allocated(DMS_Centers)) Then
+            Call mma_deallocate(DMS_Centers)
+            nDMS=0
+         End If
+         If (Allocated(Wel_Info)) Then
+            Call mma_deallocate(Wel_Info)
+            nWel=0
+         End If
+         If (Allocated(AMP_Center)) Call mma_deallocate(AMP_Center)
+         If (Allocated(RP_Centers)) Then
+            Call mma_deallocate(RP_Centers)
+            nRP=0
+         End If
+         If (Allocated(XF)) Then
+            Call mma_deallocate(XF)
+            Call mma_deallocate(XMolnr)
+            Call mma_deallocate(XEle)
+            nData_XF=0
+            nXF=0
+            nXMolnr=0
+         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call Free_iSD()
       Call Freek2()
       Call CloseR()
@@ -65,7 +104,6 @@
       Seward_Status=InActive
       Return
       End
-*
 c
 c This code originally was included into ClsSew
 c occasionally it should be separated

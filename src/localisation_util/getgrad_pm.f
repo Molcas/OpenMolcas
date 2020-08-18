@@ -10,27 +10,25 @@
 *                                                                      *
 * Copyright (C) 2005, Thomas Bondo Pedersen                            *
 ************************************************************************
-      SubRoutine GetGrad_PM(nAtoms,nOrb2Loc,iTab_Ptr,GradNorm,Rmat,
-     &                      Debug)
+      SubRoutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
 C
 C     Thomas Bondo Pedersen, December 2005.
 C
 C     Purpose: compute the gradient of the Pipek-Mezey functional.
 C
       Implicit Real*8 (a-h,o-z)
-      Integer iTab_Ptr(nAtoms)
       Real*8 Rmat(nOrb2Loc,nOrb2Loc)
+      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
       Logical Debug
 #include "WrkSpc.fh"
 
-      Call FZero(Rmat,nOrb2Loc**2)
+      RMat(:,:)=0.0D0
       Do iAtom = 1,nAtoms
-         ip0 = iTab_Ptr(iAtom) - 1
          Do j = 1,nOrb2Loc
-            Rjj = Work(ip0+nOrb2Loc*(j-1)+j)
+            Rjj = PA(j,j,iAtom)
             Do i = 1,nOrb2Loc
                Rmat(i,j) = Rmat(i,j) +
-     &                     Work(ip0+nOrb2Loc*(j-1)+i)*Rjj
+     &                     PA(i,j,iAtom)*Rjj
             End Do
          End Do
       End Do

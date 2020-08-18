@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2019, Oskar Weser                                      *
-***********************************************************************/
+************************************************************************
 
       module fortran_strings
         implicit none
@@ -42,7 +42,7 @@
         end interface
 
         interface operator(.in.)
-          module procedure contains
+          module procedure substr_in_str
         end interface
 
         character(*), parameter ::
@@ -120,10 +120,10 @@
           string(L + 1: ) = ' '
         end function to_lower
 
-        logical pure function contains(substring, string)
+        logical pure function substr_in_str(substring, string)
           character(*), intent(in) :: string, substring
 
-          contains = index(string, substring) /= 0
+          substr_in_str = index(string, substring) /= 0
         end function
 
       end module

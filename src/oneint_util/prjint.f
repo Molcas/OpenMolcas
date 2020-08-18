@@ -102,7 +102,7 @@
       mdc = 0
       Do 1960 iCnttp = 1, nCnttp
          If (.Not.ECP(iCnttp)) Go To 1961
-         Do 1965 iCnt = 1,nCntr(iCnttp)
+         Do 1964 iCnt = 1,nCntr(iCnttp)
             ixyz = ipCntr(iCnttp) + (iCnt-1)*3
             call dcopy_(3,Work(ixyz),1,C,1)
 *
@@ -315,6 +315,7 @@
 *
  1966       Continue
  1965    Continue
+ 1964    Continue
  1961    Continue
          mdc = mdc + nCntr(iCnttp)
  1960 Continue

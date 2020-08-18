@@ -107,9 +107,6 @@
 *             basis set                                                *
 *     nPrm  : number of primitive functions in each irrep              *
 *     iOffSO: number of SO basis functions presiding the i''th irrep   *
-*     nXF   : number of centers in the external field                  *
-*     ipXF  : pointer to external field data                           *
-*     nData_XF: number of entries per center                           *
 *     MolWgh: integer flag to indicate the normalization of the        *
 *             symmetry transformation                                  *
 *             0: double coset represetative normalization              *
@@ -158,8 +155,6 @@
 *             momentum integrals will be computed                      *
 *     lOMQ  : logical flag to indicate that the orbital magnetic       *
 *             quadrupole integrals will be computed                    *
-*     lOMQS : logical flag to indicate that the symmetric part of the  *
-*             orbital magnetic quadrupole integrals will be computed   *
 *     lAMP  : logical flag to indicate that the angular momentum       *
 *             product integrals will be computed                       *
 *     PrPrt : logical flag to indicate that it is a property           *
@@ -264,12 +259,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Integer          iCnttp_Dummy,iLbls,      IntTot,ipAMP,
-     &          ipDMS,ipEF,ipOAM,ipOMQ,ipWel,ipXEle,ipXF,
-     &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
+      Integer          iCnttp_Dummy,iLbls,      IntTot,
+     &          iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
-     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
-     &          nDim,nDMS,nEF,nIrrep,nMltpl,nOrdEF,nShlls,nWel,nXF,
+     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,
+     &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
      &          Ind_Shell(MxShll)
       Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
      &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
@@ -292,11 +286,11 @@
      &          ipM1xp(Mxdbsc),ipM1cf(Mxdbsc),nM1(Mxdbsc), nTtl,
      &          ipM2xp(Mxdbsc),ipM2cf(Mxdbsc),nM2(Mxdbsc),ipBk(Mxshll),
      &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
-     &          kCentr, iRelae_Info, Nuclear_Model, ipRP1,nRP
+     &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
      &          nFragDens(Mxdbsc),ipFragType(Mxdbsc),ipFragCoor(Mxdbsc),
      &          ipFragEner(Mxdbsc),ipFragCoef(Mxdbsc),nBas_Frag(0:7),
-     &          iOrdFm, nOrd_XF,iXPolType,nXMolnr,iRI_Type,
+     &          iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
@@ -312,22 +306,21 @@
      &              iChBas, iSphCr,  nOrdEF,                  kOffAO,
      &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
-     &              nMltpl,  IsChi,                   iLbls,  ipEF,
-     &              nEF,     ipOAM,  ipOMQ,  ipAMP,  ipDMS,
-     &              nDMS,    ipWel,  nWel,   nShlls,          iPack,
+     &              nMltpl,  IsChi,                   iLbls,
+     &              nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,
      &              ipM1cf,  nM1,   ipM2xp,  ipM2cf,  nM2, jMax,
-     &              LenInf,  LenSph, MolWgh, nXF,     ipXF,   iAtmNr,
+     &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
-     &              nSOC_Shells, nXMolnr, ipXMolnr, ipXEle, IsMM,
+     &              nSOC_Shells, IsMM,
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
      &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
      &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,
      &              kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
-     &              Nuclear_Model, ipRP1, nRP,nCtrLD,iCtrLD,iSigma,
-     &              iCnttp_Dummy, nData_XF, nPAMFI, iPAMFI, nPSOI,
+     &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
+     &              iCnttp_Dummy, nPAMFI, iPAMFI, nPSOI,
      &              Ind_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
@@ -343,7 +336,7 @@
 ************************************************************************
 *                                                                      *
       Logical   Prjct(MxShll),Transf(MxShll),DirInt, Onenly, Petite,
-     &          lSOInt, Test, Vlct, lOAM, lOMQ, lOMQS, lAMP, lAux,
+     &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
@@ -363,7 +356,7 @@
      &               DirInt, DKroll, BSS, Primitive_Pass,
      &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
-     &               Test, Vlct,      lOAM, lOMQ, lOMQS, lAMP, FockOp,
+     &               Test, Vlct,      lOAM, lOMQ, lAMP, FockOp,
      &               Prprt, Short, ifallorb, lDMS, lRel,        UnNorm,
      &               lSchw, Dist,ECP, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,

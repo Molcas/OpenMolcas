@@ -26,7 +26,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              CmbnS1                                                  *
 *              QExit                                                   *
@@ -45,7 +44,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Integer IndGrd(3,2), kOp(2), iStabM(0:nStabM-1), lOper(nComp)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
@@ -78,7 +76,7 @@
       ipBeta = nip
       nip = nip + nZeta
       If (nip-1.gt.nArr*nZeta) Then
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Call ErrTra
          Write (6,*) ' Abend in OvrGrd'
          Call Abend()
@@ -134,7 +132,6 @@
      &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
      &            kOp,iChBas,MxFnc)
 *
-*     Call GetMem(' Exit OvrGrd','LIST','REAL',iDum,iDum)
 *     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings

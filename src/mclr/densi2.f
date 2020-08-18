@@ -133,6 +133,7 @@ CFUE  IPRDEN=0
       END DO
       MAXIJ = MXTSOB ** 2
 *.Local scratch arrays for blocks of C and sigma
+      LSCR1 = 0
       IF(ICISTR.LE.2) THEN
         LSCR1 = MXSB
       ELSE IF(ICISTR.EQ.3) THEN

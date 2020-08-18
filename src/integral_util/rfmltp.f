@@ -12,6 +12,7 @@
 *               1994, Markus P. Fuelscher                              *
 ************************************************************************
       SubRoutine RFmltp()
+      use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -24,7 +25,7 @@
       Call GetMem('VTot','Allo','Real',ipVTot,nComp)
       Call GetMem('QTot','Allo','Real',ipQTot,nComp)
 *
-      Call RFmltp_(Work(ipMM),Work(ipVTot),Work(ipQTot),nComp)
+      Call RFmltp_(MM,Work(ipVTot),Work(ipQTot),nComp)
 *
       Call GetMem('QTot','Free','Real',ipQTot,nComp)
       Call GetMem('VTot','Free','Real',ipVTot,nComp)

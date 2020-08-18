@@ -25,7 +25,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              Kntc                                                    *
 *              CmbnKE                                                  *
@@ -40,7 +39,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
@@ -139,7 +137,6 @@
      &            nComp,Array(ipTxyz))
 *
 *
-*     Call GetMem(' Exit KnEInt','LIST','REAL',iDum,iDum)
 *     Call qExit('KnEInt')
       Return
 c Avoid unused argument warnings

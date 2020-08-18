@@ -31,7 +31,7 @@
       INTEGER I, IAD, IDISK, ISY, L1, L2, LBUF, LEN, NB, NBUF
 
       CALL QENTER(ROUTINE)
-
+      CMO(:)=0.0D0
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RDCMO_RASSI: Invalid JOB parameter.'
         WRITE(6,*)' JOB, NJOB:',JOB,NJOB

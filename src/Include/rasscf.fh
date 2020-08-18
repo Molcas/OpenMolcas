@@ -110,6 +110,9 @@
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT
 *
+      INTEGER         IRotPsi,IMSPDFT,IXMSP
+      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP
+*
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S
 *

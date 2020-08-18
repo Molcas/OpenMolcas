@@ -27,7 +27,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              CmbnMP                                                  *
 *              QExit                                                   *
@@ -42,6 +41,7 @@
 *             Modified to gradient calculations May '95                *
 ************************************************************************
       use Her_RW
+      use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -85,7 +85,7 @@
       ipBeta = nip
       nip = nip + nZeta
       If (nip-1.gt.nArr*nZeta) Then
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Call ErrTra
          Write (6,*) ' Abend in RFGrd'
          Call Abend()
@@ -142,14 +142,12 @@
          ip = ip + 1
       End Do
       nCav=(nOrdOp+1)*(nOrdOp+2)*(nOrdOp+3)/6
-      ipEF = ipMM + nCav
       Call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &             nComp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
      &             IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
-     &             kOp,iChBas,MxFnc,Work(ipEF))
+     &             kOp,iChBas,MxFnc,MM(1,2))
 *
-*     Call GetMem(' Exit RFGrd','LIST','REAL',iDum,iDum)
       Call qExit('RFGrd')
       Return
 c Avoid unused argument warnings

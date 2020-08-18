@@ -112,12 +112,12 @@ C Transform to standard representation, contravariant form.
 
 C Loop over types and symmetry block of VEC1 vector:
       DO 400 ICASE1=1,13
-        DO 400 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 400
+        DO 401 ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 401
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NVEC1=NIS1*NAS1
-          IF(NVEC1.EQ.0) GOTO 400
+          IF(NVEC1.EQ.0) GOTO 401
 C Form VEC1 from the BRA vector, transformed to covariant form.
           CALL RHS_ALLO(NAS1,NIS1,LVEC1)
           CALL RHS_SCAL(NAS1,NIS1,LVEC1,0.0D0)
@@ -138,7 +138,7 @@ C Form WEC1 from VEC1, if needed.
           IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) NWEC1=NIS1
           IF(NWEC1.GT.0) THEN
             CALL GETMEM('WEC1','ALLO','REAL',LWEC1,NWEC1)
-            CALL DCOPY_(NWEC1,[0.0D00],0,WORK(LWEC1),1)
+            CALL DCOPY_(NWEC1,[0.0D0],0,WORK(LWEC1),1)
             IMLTOP=1
 #ifdef _MOLCAS_MPP_
             IF (IS_REAL_PAR()) THEN
@@ -216,6 +216,7 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
           CALL RHS_FREE(NAS1,NIS1,LVEC1)
           IF(NWEC1.GT.0)
      &         CALL GETMEM('WEC1','FREE','REAL',LWEC1,NWEC1)
+ 401    CONTINUE
  400  CONTINUE
 
       CALL GADSUM(DPT2,NDPT2)

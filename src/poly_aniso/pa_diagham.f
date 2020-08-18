@@ -34,28 +34,28 @@ c this function builds and diagonalizes the interaction Hamiltonians
       Logical, intent(in)           :: AnisoLines3
       Logical, intent(in)           :: AnisoLines9
       Logical, intent(in)           :: JITO_exchange
-      Real(kind=wp), intent(in)     :: eso(nneq,nmax)
-      Complex(kind=wp), intent(in)  :: HLIN1(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HLIN3(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HLIN9(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HDIP(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HKEX(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HDMO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in)  :: HITO(npair,nmax,nmax,nmax,nmax)
+      Real(kind=8), intent(in)     :: eso(nneq,nmax)
+      Complex(kind=8), intent(in)  :: HLIN1(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HLIN3(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HLIN9(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HDIP(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HKEX(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HDMO(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in)  :: HITO(npair,nmax,nmax,nmax,nmax)
       ! output data:
-      Real(kind=wp), intent(out)    :: wlin(exch) ! total 1+3+9
-      Real(kind=wp), intent(out)    :: wlin1(exch)
-      Real(kind=wp), intent(out)    :: wlin3(exch)
-      Real(kind=wp), intent(out)    :: wlin9(exch)
-      Real(kind=wp), intent(out)    :: wdip(exch)
-      Real(kind=wp), intent(out)    :: wkex(exch)
-      Real(kind=wp), intent(out)    :: wdmo(exch)
-      Real(kind=wp), intent(out)    :: wito(exch)
+      Real(kind=8), intent(out)    :: wlin(exch) ! total 1+3+9
+      Real(kind=8), intent(out)    :: wlin1(exch)
+      Real(kind=8), intent(out)    :: wlin3(exch)
+      Real(kind=8), intent(out)    :: wlin9(exch)
+      Real(kind=8), intent(out)    :: wdip(exch)
+      Real(kind=8), intent(out)    :: wkex(exch)
+      Real(kind=8), intent(out)    :: wdmo(exch)
+      Real(kind=8), intent(out)    :: wito(exch)
 
-      Real(kind=wp), intent(out)    :: w(exch)
-      Complex(kind=wp), intent(out) :: Z(exch,exch)
+      Real(kind=8), intent(out)    :: w(exch)
+      Complex(kind=8), intent(out) :: Z(exch,exch)
 c local variables
-      Complex(kind=wp), allocatable :: HTOT(:,:)
+      Complex(kind=8), allocatable :: HTOT(:,:)
       Integer, allocatable :: nind(:,:), intc(:), ibas(:,:), icoord(:)
       Integer  :: nb1, nb2, lb1, lb2, i1, i2, is1, is2,
      &            js1, js2, nb, i, j, l, lp, lb
@@ -63,20 +63,20 @@ c local variables
       external :: norder
 c diag:
       Integer          :: info, lwork
-      Real(kind=wp), allocatable :: rwork(:) !rwork(3*exch-2)
-      Complex(kind=wp), allocatable :: work(:) !work(2*exch-1)
+      Real(kind=8), allocatable :: rwork(:) !rwork(3*exch-2)
+      Complex(kind=8), allocatable :: work(:) !work(2*exch-1)
       Call qEnter('PA_diagham')
 c allocate memory and initialize variables:
-      If( exch > 0 ) Then
+      If( exch >= 0 ) Then
          Call mma_allocate(HTOT,exch,exch,'HTOT')
          Call mma_allocate(WORK,(2*exch-1),'WORK')
-         If( lmax > 0 ) Then
+         If( lmax >= 0 ) Then
             Call mma_allocate(ibas,exch,lmax,'ibas')
          End If
          Call mma_allocate(rwork,(3*exch-2),'rwork')
       End If
 
-      If( lmax > 0 ) Then
+      If( lmax >= 0 ) Then
          Call mma_allocate(nind,lmax,2,'nind')
          Call mma_allocate(intc,lmax,'intc')
          Call mma_allocate(icoord,lmax,'icoord')
@@ -561,16 +561,16 @@ c diagonalize
 
 !----------------------------------------------------------------------!
 ! deallocate memory:
-      If( exch > 0 ) Then
+      If( exch >= 0 ) Then
          Call mma_deallocate(HTOT)
          Call mma_deallocate(WORK)
-         If( lmax > 0 ) Then
+         If( lmax >= 0 ) Then
             Call mma_deallocate(ibas)
          End If
          Call mma_deallocate(rwork)
       End If
 
-      If( lmax > 0 ) Then
+      If( lmax >= 0 ) Then
          Call mma_deallocate(nind)
          Call mma_deallocate(intc)
          Call mma_deallocate(icoord)

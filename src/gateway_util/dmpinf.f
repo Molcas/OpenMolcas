@@ -32,6 +32,7 @@
 * - changed to used communication file                                 *
 ************************************************************************
       use Real_Spherical
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -64,6 +65,7 @@
       Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
+      Real*8, Allocatable:: RP_Temp(:,:,:)
 *
 *     Prologue
 *
@@ -141,7 +143,9 @@
       Call Put_dArray('SewXInfo',DInf,Len)
 *
       Nullify(p_ix,p_lx,p_rx,p_cx)
-**************************
+*                                                                      *
+************************************************************************
+*                                                                      *
       if(lPAM2) Then
       lPAM = 0
       Do iCnttp=1,nCnttp
@@ -177,8 +181,9 @@
       Call Put_dArray('PamXInfo',PAMst,lPam)
       Call mma_deallocate(PAMst)
       End If
-**************************
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Dump the transformation matrices
 *
       nSphr = 0
@@ -234,6 +239,43 @@
       Call Put_iArray('Quad_c',p_cQ,Len)
 *
       Nullify(p_rQ,p_iQ,p_cQ)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Allocated(EF_Centers)) Then
+         Call Put_dArray('EF_Centers',EF_Centers,3*nEF)
+      End If
+      If (Allocated(OAM_Center)) Then
+         Call Put_dArray('OAM_Center',OAM_Center,3)
+      End If
+      If (Allocated(OMQ_Center)) Then
+         Call Put_dArray('OMQ_Center',OMQ_Center,3)
+      End If
+      If (Allocated(DMS_Centers)) Then
+         Call Put_dArray('DMS_Centers',DMS_Centers,3*nDMS)
+      End If
+      If (Allocated(Wel_Info)) Then
+         Call Put_dArray('Wel_Info',Wel_Info,3*nWel)
+      End If
+      If (Allocated(AMP_Center)) Then
+         Call Put_dArray('AMP_Center',AMP_Center,3)
+      End If
+      If (Allocated(RP_Centers)) Then
+         Call mma_allocate(RP_Temp,3,nRP/3,2)
+         RP_Temp(:,:,1)=RP_Centers(:,1:nRP/3,1)
+         RP_Temp(:,:,2)=RP_Centers(:,1:nRP/3,2)
+         Call Put_dArray('RP_Centers',RP_Temp,nRP*2)
+         Call mma_deallocate(RP_Temp)
+      End If
+      If (Allocated(XF)) Then
+         Call Put_dArray('XF',XF,nData_XF*nXF)
+      End If
+      If (Allocated(XMolnr)) Then
+         Call Put_iArray('XMolnr',XMolnr,nXMolnr*nXF)
+      End If
+      If (Allocated(XEle)) Then
+         Call Put_iArray('XEle',XEle,nXF)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -29,13 +29,15 @@ c  Find update for IORB as projection of JORB on allowed space
       i1 = mstackr_cvb(norb*norb)
       noffort=0
       do 100 ior=1,iorb-1
-100   noffort=noffort+north(ior)
+      noffort=noffort+north(ior)
+100   continue
 c  Collect all constraints and find span :
       call span0_cvb(norb,norb)
       if(north(iorb).gt.0)
      >  call span1_cvb(corth(1,1+noffort),north(iorb),dum,norb,0)
       do 200 i=1,niprev
-200   call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
+      call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
+200   continue
       call span1_cvb(orbs(1,iorb),1,dum,norb,0)
       call span2_cvb(w(i1),ncon,dum,norb,0)
 

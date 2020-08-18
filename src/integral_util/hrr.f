@@ -40,8 +40,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Target(nPrim,nTrgt), A(3), B(3), AB(3)
 *
 *     Statement function for canonical indices
@@ -50,13 +48,9 @@
       Ind1(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6
      &                 + (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout =25
-      iPrint = nPrint(iRout)
 *     Fast exit if HRR will not be applied.
-*     Call GetMem('Enter_HRR','Check','Real',iDum,iDum)
       If (la.eq.0 .or. lb.eq.0) Then
          ipIn = 1
-*        Call GetMem('Fxit_HRR','Check','Real',iDum,iDum)
          Return
       End If
 *

@@ -154,7 +154,12 @@ C
       Call Get_iScalar('Relax CASSCF root',irlxroot)
       Call Get_cArray('Relax Method',Method,8)
       iMCPD=.False.
-      if(Method.eq.'MCPDFT  ')iMCPD=.True.
+      if(Method.eq.'MCPDFT  ') then
+        iMCPD=.True.
+        Do i=1,lroots
+          if(iroot(i).eq.irlxroot)istate=i
+        end do
+      end if
       If (Method.eq.'CASSCFSA') Then
          Call Get_iScalar('SA ready',iGo)
          If (iGO.eq.-1) Then

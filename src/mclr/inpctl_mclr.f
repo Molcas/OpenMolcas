@@ -64,6 +64,7 @@
 
       ldisk  =ipopen(0,.True.)
 *
+      write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td
@@ -109,7 +110,7 @@
 
 ! Here should be the position for introducing the CI(SR) coefficients
 !           iSSM=1     ! yma
-!           write(*,*)"Set ISSM eq 1 ",ISSM
+!           write(6,*)"Set ISSM eq 1 ",ISSM
 
            if(doDMRG)then !yma
              ! mma_allocate and mma_deallocate
@@ -147,7 +148,7 @@
 *        vectors. For Hessian calculations we pick up just one vector.
 *
 C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
-         If (SA) Then
+         If (SA.or.iMCPD) Then
             ipcii=ipget(nconf*nroots)
             call dcopy_(nconf*nroots,Work(ipCI),1,Work(ipin(ipcii)),1)
             nDisp=1

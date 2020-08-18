@@ -13,7 +13,7 @@
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
-**********************************************************************
+************************************************************************
 *  Author : F. Aquilante
 *
 *  Purpose:
@@ -63,7 +63,7 @@
 *  MinMem(nSym) : minimum amount of memory required to read
 *                 a single Cholesky vector in full storage
 *
-***********************************************************************
+************************************************************************
 
       Implicit Real*8 (a-h,o-z)
 

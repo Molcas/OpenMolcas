@@ -26,7 +26,6 @@
 *              RecPrt                                                  *
 *              CrtCmp                                                  *
 *              Assmbl                                                  *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              CmbnMlt1                                                *
 *              QExit                                                   *
@@ -45,7 +44,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #ifdef _DEBUG_
 #include "print.fh"
 #endif
@@ -84,7 +82,7 @@
       ipBeta = nip
       nip = nip + nZeta
       If (nip-1.gt.nArr*nZeta) Then
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Call ErrTra
          Write (6,*) ' Abend in MltGrd'
          Call Abend

@@ -18,10 +18,12 @@
 #include "WrkSpc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
+#include "stdalloc.fh"
       Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),
      &       Enrg(nIter), Grd(3,nAtm,nIter)
-      Integer iPhase(3,0:7),icoset2(0:7,0:7,Mxdc),nStab2(Mxdc),
+      Integer iPhase(3,0:7),nStab2(Mxdc),
      &        iChCar(3)
+      Integer, Allocatable :: icoset2(:,:,:)
       Character*(*) FileName
 *
       Call QEnter('InterGeo')
@@ -136,16 +138,20 @@
 *     Set up the desymmetrization of the coordinates
 *
       Do 10 j=0,4
-         Do 10 i=1,3
-10          iPhase(i,j)=1
+         Do 11 i=1,3
+            iPhase(i,j)=1
+11       Continue
+10    Continue
       iPhase(1,1)=-1
       iPhase(2,2)=-1
       iPhase(1,3)=-1
       iPhase(2,3)=-1
       iPhase(3,4)=-1
       Do 20 j=5,7
-         Do 20 i=1,3
-20          iPhase(i,j)=-1
+         Do 21 i=1,3
+            iPhase(i,j)=-1
+21       Continue
+20    Continue
       iPhase(2,5)=1
       iPhase(1,6)=1
 *
@@ -164,6 +170,8 @@
       ixyz   = ipCx
       ixyz_p = ipCx_p
       MaxDCR=0
+      Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
+     &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
             iChxyz=iChAtm(Work(ixyz  ),iOper,nSym,iChCar)
@@ -243,6 +251,7 @@
             End do
          End do
       End Do
+      Call mma_deallocate(icoset2)
 *
       Close(Lu_Molden)
 *                                                                      *

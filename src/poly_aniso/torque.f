@@ -28,100 +28,100 @@ c------------------------------------------------------------
      &                                nexch(nneq), nH, nTempMagn, nM,
      &                                exch, nCenter, AngPoints,
      &                                nss(nneq), iopt, mem
-      Real(kind=wp), intent(in)    :: TempMagn(nTempMagn), hmin, hmax,
+      Real(kind=8), intent(in)    :: TempMagn(nTempMagn), hmin, hmax,
      &                                dltH0, EM, zJ, THRS, Hexp(nH)
       Logical, intent(in)          :: m_paranoid, m_accurate, smagn,
      &                                hinput
 c correction to M from the local excited states:
-      Real(kind=wp), intent(in)    :: XLM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(in)    :: ZLM( nCenter,nTempMagn)
-      Real(kind=wp), intent(in)    :: XRM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(in)    :: ZRM( nCenter,nTempMagn)
+      Real(kind=8), intent(in)    :: XLM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(in)    :: ZLM( nCenter,nTempMagn)
+      Real(kind=8), intent(in)    :: XRM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(in)    :: ZRM( nCenter,nTempMagn)
 c rotation matrices for equivalent sites:
-      Real(kind=wp), intent(in)    :: R_ROT(nneq,neqv,3,3)
+      Real(kind=8), intent(in)    :: R_ROT(nneq,neqv,3,3)
 c exchange spectum:
 !     exchange energies printed out in the previous part
-      Real(kind=wp), intent(in)    :: W(exch)
+      Real(kind=8), intent(in)    :: W(exch)
 c local spin-orbit spectum:
 !     spin-orbit energies from ANISO files
-      Real(kind=wp), intent(in)    :: ESO(nneq,nLoc)
+      Real(kind=8), intent(in)    :: ESO(nneq,nLoc)
 c magnetic and spin moments (i.e. the BIG matrices):
-      Complex(kind=wp), intent(in) :: DIPEXCH(3,EXCH,EXCH)
-      Complex(kind=wp), intent(in) ::  S_EXCH(3,EXCH,EXCH)
-      Complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-      Complex(kind=wp), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) :: DIPEXCH(3,EXCH,EXCH)
+      Complex(kind=8), intent(in) ::  S_EXCH(3,EXCH,EXCH)
+      Complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
 
 c------------------------------------------------------------
 c         LOCAL VARIABLES:
 c------------------------------------------------------------
 c exchange data:
-      Real(kind=wp), allocatable :: WEX(:)
+      Real(kind=8), allocatable :: WEX(:)
 !                                   WEX(NM)                ! Zeeman exchange energies
-      Real(kind=wp), allocatable :: ZEX(:)
+      Real(kind=8), allocatable :: ZEX(:)
 !                                   ZEX(nTempMagn)         ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: SEX(:,:)
+      Real(kind=8), allocatable :: SEX(:,:)
 !                                   SEX(3,nTempMagn)       ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: MEX(:,:)
+      Real(kind=8), allocatable :: MEX(:,:)
 !                                   MEX(3,nTempMagn)       ! magnetisation, form the exchange block
 c data for individual sites (all states):
-      Real(kind=wp), allocatable :: ZL(:,:)
+      Real(kind=8), allocatable :: ZL(:,:)
 !                                   ZL(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: WL(:,:)
+      Real(kind=8), allocatable :: WL(:,:)
 !                                   WL(nneq,nLoc)          ! Zeeman local energies
-      Real(kind=wp), allocatable :: SL(:,:,:)
+      Real(kind=8), allocatable :: SL(:,:,:)
 !                                   SL(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: ML(:,:,:)
+      Real(kind=8), allocatable :: ML(:,:,:)
 !                                   ML(nneq,3,nTempMagn)   ! magnetisation, from local sites, using ALL states;
 c data for individual sites (only states that enter exchange):
-      Real(kind=wp), allocatable :: ZR(:,:)
+      Real(kind=8), allocatable :: ZR(:,:)
 !                                   ZR(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: WR(:,:)
+      Real(kind=8), allocatable :: WR(:,:)
 !                                   WR(nneq,nLoc)          ! Zeeman local reduced energies, using only NEXCH states;
-      Real(kind=wp), allocatable :: SR(:,:,:)
+      Real(kind=8), allocatable :: SR(:,:,:)
 !                                   SR(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: MR(:,:,:)
+      Real(kind=8), allocatable :: MR(:,:,:)
 !                                   MR(nneq,3,nTempMagn)   ! magnetisation, from local sites, using only NEXCH states;
 c total vectors in general coordinate system:
-      Real(kind=wp), allocatable :: ZRT(:,:)   ! ZRT(nCenter,nTempMagn)
-      Real(kind=wp), allocatable :: ZLT(:,:)   ! ZLT(nCenter,nTempMagn)
-      Real(kind=wp), allocatable :: MRT(:,:,:)
+      Real(kind=8), allocatable :: ZRT(:,:)   ! ZRT(nCenter,nTempMagn)
+      Real(kind=8), allocatable :: ZLT(:,:)   ! ZLT(nCenter,nTempMagn)
+      Real(kind=8), allocatable :: MRT(:,:,:)
 !                                   MRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: MLT(:,:,:)
+      Real(kind=8), allocatable :: MLT(:,:,:)
 !                                   MLT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SRT(:,:,:)
+      Real(kind=8), allocatable :: SRT(:,:,:)
 !                                   SRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SLT(:,:,:)
+      Real(kind=8), allocatable :: SLT(:,:,:)
 !                                   SLT(nCenter,3,nTempMagn)
 c data for total system:
-      Real(kind=wp), allocatable :: ZT(:)
+      Real(kind=8), allocatable :: ZT(:)
 !                                   ZT(nTempMagn)        ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:,:)
+      Real(kind=8), allocatable :: ST(:,:)
 !                                   ST(3,nTempMagn)      ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT(:,:)
+      Real(kind=8), allocatable :: MT(:,:)
 !                                   MT(3,nTempMagn)      ! total magnetisation
 c magnetic field strength and orientation data:
       Integer       :: nPlanes
-      Real(kind=wp) :: dlth
+      Real(kind=8) :: dlth
       parameter (nPlanes=3)
-      Real(kind=wp), allocatable :: H(:)    ! H(nH)
-      Real(kind=wp), allocatable :: dX(:,:) ! dX(nPlanes,AngPoints)
-      Real(kind=wp), allocatable :: dY(:,:) ! dY(nPlanes,AngPoints)
-      Real(kind=wp), allocatable :: dZ(:,:) ! dZ(nPlanes,AngPoints)
-      Real(kind=wp), allocatable :: Ang(:)  ! Ang(AngPoints)
+      Real(kind=8), allocatable :: H(:)    ! H(nH)
+      Real(kind=8), allocatable :: dX(:,:) ! dX(nPlanes,AngPoints)
+      Real(kind=8), allocatable :: dY(:,:) ! dY(nPlanes,AngPoints)
+      Real(kind=8), allocatable :: dZ(:,:) ! dZ(nPlanes,AngPoints)
+      Real(kind=8), allocatable :: Ang(:)  ! Ang(AngPoints)
 c magnetic torque
-      Real(kind=wp), allocatable :: tx(:,:,:,:)
+      Real(kind=8), allocatable :: tx(:,:,:,:)
 !                                   tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, X
-      Real(kind=wp), allocatable :: ty(:,:,:,:)
+      Real(kind=8), allocatable :: ty(:,:,:,:)
 !                                   ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Y
-      Real(kind=wp), allocatable :: tz(:,:,:,:)
+      Real(kind=8), allocatable :: tz(:,:,:,:)
 !                                   tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Z
-      Real(kind=wp), allocatable :: sx(:,:,:,:)
+      Real(kind=8), allocatable :: sx(:,:,:,:)
 !                                   sx(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, X
-      Real(kind=wp), allocatable :: sy(:,:,:,:)
+      Real(kind=8), allocatable :: sy(:,:,:,:)
 !                                   sy(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Y
-      Real(kind=wp), allocatable :: sz(:,:,:,:)
+      Real(kind=8), allocatable :: sz(:,:,:,:)
 !                                   sz(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Z
-      Real(kind=wp) :: cm3tomB
+      Real(kind=8) :: cm3tomB
       Integer :: mem_local, RtoB
 c local data:
       Integer :: IM,I,it
@@ -206,7 +206,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Allocate memory for this calculation:
       mem_local=0
       RtoB=8
-      If(nM>0) Then
+      If(nM>=0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(Wex,nM,'Wex')
          Call dcopy_(nM,[0.0_wp],0,Wex,1)
@@ -215,7 +215,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       If(dbg) Write(6,*) 'mem_local 1 = ', mem_local
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
          ! exchange statistical sum, Boltzmann distribution
          Call mma_allocate(Zex,nTempMagn,'Zex')
          Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
@@ -243,7 +243,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          mem_local=mem_local+3*nTempMagn*RtoB
 
       if(dbg) Write(6,*) 'mem_local 2 = ', mem_local
-         If(nneq>0) Then
+         If(nneq>=0) Then
             ! local statistical sum, Boltzmann distribution
             Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
             Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
@@ -272,7 +272,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          End If
 
       if(dbg) Write(6,*) 'mem_local 3 = ', mem_local
-         If(nCenter>0) Then
+         If(nCenter>=0) Then
             ! ZRT(nCenter,nTempMagn)
             Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
             Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
@@ -301,8 +301,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          If(dbg) Write(6,*) 'mem_local 4 = ', mem_local
 c magnetic torque
-         If( (nPlanes>0).and.(AngPoints>0).and.(nH>0)
-     &                                    .and.(nTempMagn>0) ) Then
+         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0)
+     &                                    .and.(nTempMagn>=0) ) Then
             Call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
             Call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
             Call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
@@ -320,7 +320,7 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 5 = ', mem_local
 
-      If((nLoc>0).and.(nneq>0)) Then
+      If((nLoc>=0).and.(nneq>=0)) Then
          ! Zeeman local energies
          Call mma_allocate(WL,nneq,nLoc,'WL')
          Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
@@ -332,11 +332,11 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 6 = ', mem_local
 
-      If(AngPoints>0) Then
+      If(AngPoints>=0) Then
          Call mma_allocate(Ang,AngPoints,'Ang')
          Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
          mem_local=mem_local+AngPoints*RtoB
-         If(nPlanes>0) Then
+         If(nPlanes>=0) Then
             Call mma_allocate(dX,nPlanes,AngPoints,'dX')
             Call mma_allocate(dY,nPlanes,AngPoints,'dY')
             Call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
@@ -348,7 +348,7 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 7 = ', mem_local
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
@@ -720,11 +720,11 @@ C -------------------------------------------------------------------
 ! 199  Continue
 !-----------------------------------------------------------------------
 ! Deallocate memory for this calculation:
-      If(nM>0) Then
+      If(nM>=0) Then
          Call mma_deallocate(Wex)
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
          Call mma_deallocate(Zex)
          Call mma_deallocate(SEX)
          Call mma_deallocate(MEX)
@@ -732,7 +732,7 @@ C -------------------------------------------------------------------
          Call mma_deallocate(ST)
          Call mma_deallocate(MT)
 
-         If(nneq>0) Then
+         If(nneq>=0) Then
             Call mma_deallocate(ZL)
             Call mma_deallocate(SL)
             Call mma_deallocate(ML)
@@ -741,7 +741,7 @@ C -------------------------------------------------------------------
             Call mma_deallocate(MR)
          End If
 
-         If(nCenter>0) Then
+         If(nCenter>=0) Then
             Call mma_deallocate(ZRT)
             Call mma_deallocate(ZLT)
             Call mma_deallocate(MRT)
@@ -750,7 +750,7 @@ C -------------------------------------------------------------------
             Call mma_deallocate(SLT)
          End If
 
-         If( (nPlanes>0).and.(AngPoints>0).and.(nH>0) ) Then
+         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0) ) Then
             Call mma_deallocate(tx)
             Call mma_deallocate(ty)
             Call mma_deallocate(tz)
@@ -760,21 +760,21 @@ C -------------------------------------------------------------------
          End If
       End If
 
-      If((nLoc>0).and.(nneq>0)) Then
+      If((nLoc>=0).and.(nneq>=0)) Then
          Call mma_deallocate(WL)
          Call mma_deallocate(WR)
       End If
 
-      If(AngPoints>0) Then
+      If(AngPoints>=0) Then
          Call mma_deallocate(Ang)
-         If(nPlanes>0) Then
+         If(nPlanes>=0) Then
             Call mma_deallocate(dX)
             Call mma_deallocate(dY)
             Call mma_deallocate(dZ)
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 

@@ -68,13 +68,16 @@ c  Chirgwin-Coulson weights
         call gaussj_cvb(owrk,gjorb2)
         call applyt_cvb(citmp,gjorb2)
         do 200 idet=1,ndet
-200     vec2(idet)=(vec1(idet)-fac*vec2(idet))*
+        vec2(idet)=(vec1(idet)-fac*vec2(idet))*
      >              (vec3(idet)-fac*vec4(idet))
+200     continue
         do 300 idet=1,ndet
-300     vec1(idet)=vec1(idet)*vec3(idet)
+        vec1(idet)=vec1(idet)*vec3(idet)
+300     continue
       endif
       do 400 idet=1,ndet
-400   vec4(idet)=vec3(idet)-fac*vec4(idet)
+      vec4(idet)=vec3(idet)-fac*vec4(idet)
+400   continue
 
 c  Inverse-overlap weights
       if(.not.mod(iciweights,8).gt.3)goto 4010
@@ -85,12 +88,14 @@ c  Inverse-overlap weights
 c Alpha weight array:
       do 1100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
-1100  maxgrph(iorb)=min(iorb,nalf)
+      maxgrph(iorb)=min(iorb,nalf)
+1100  continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
 c Beta weight array:
       do 1200 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
-1200  maxgrph(iorb)=min(iorb,nbet)
+      maxgrph(iorb)=min(iorb,nbet)
+1200  continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 
       nc=0
@@ -102,21 +107,24 @@ c Beta weight array:
 c  Initialise loop for ionic orbitals
       do 2100 iorb=0,norb
       mingion(iorb)=max(iorb-norb+ion,0)
-2100  maxgion(iorb)=min(iorb,ion)
+      maxgion(iorb)=min(iorb,ion)
+2100  continue
       call weight_cvb(xion,mingion,maxgion,ion,norb)
       call imove_cvb(maxgion,nkion,norb+1)
       call occupy_cvb(nkion,norb,locion,lunion)
 c  Initialise loop for singly occupied orbitals
       do 2200 iorb=0,mrem
       mingsng(iorb)=max(iorb-mrem+nsing,0)
-2200  maxgsng(iorb)=min(iorb,nsing)
+      maxgsng(iorb)=min(iorb,nsing)
+2200  continue
       call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
       call imove_cvb(maxgsng,nksng,mrem+1)
       call occupy_cvb(nksng,mrem,locsng,lunsng)
 c  Initialise loop for singly occupied alpha orbitals
       do 2300 iorb=0,nsing
       mingasg(iorb)=max(iorb-nsing+nalfsng,0)
-2300  maxgasg(iorb)=min(iorb,nalfsng)
+      maxgasg(iorb)=min(iorb,nalfsng)
+2300  continue
       call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
       call imove_cvb(maxgasg,nkasg,nsing+1)
       call occupy_cvb(nkasg,nsing,locasg,lunasg)
@@ -139,13 +147,16 @@ c  Loop singly occupied alpha
       call izero(ibocc,norb)
       do 3300 i=1,ion
       iaocc(locion(i))=1
-3300  ibocc(locion(i))=1
+      ibocc(locion(i))=1
+3300  continue
       do 3400 ia=1,nalfsng
       iaorb=lunion(locsng(locasg(ia)))
-3400  iaocc(iaorb)=1
+      iaocc(iaorb)=1
+3400  continue
       do 3500 ib=1,nbetsng
       iborb=lunion(locsng(lunasg(ib)))
-3500  ibocc(iborb)=1
+      ibocc(iborb)=1
+3500  continue
       inda=indget_cvb(iaocc,nalf,norb,xalf)
       indb=indget_cvb(ibocc,nbet,norb,xbet)
       indavec(indasg)=inda
@@ -168,7 +179,8 @@ c  Loop singly occupied alpha
       inda=indavec(indasg)
       indb=indbvec(indasg)
       indab=(indb-1)*nda+inda
-3600  sm1=sm1+vec3(indab)*vec5(indab)
+      sm1=sm1+vec3(indab)*vec5(indab)
+3600  continue
 
       if(abs(sm1).gt.1.d-20)then
         sm1=s11*s11/sm1
@@ -181,7 +193,8 @@ c  Loop singly occupied alpha
       inda=indavec(indasg)
       indb=indbvec(indasg)
       indab=(indb-1)*nda+inda
-3700  vec5(indab)=vec4(indab)
+      vec5(indab)=vec4(indab)
+3700  continue
 
       call applyt_cvb(civec5,gjorb)
 
@@ -190,7 +203,8 @@ c  Loop singly occupied alpha
       inda=indavec(indasg)
       indb=indbvec(indasg)
       indab=(indb-1)*nda+inda
-3800  sm2=sm2+vec4(indab)*vec5(indab)
+      sm2=sm2+vec4(indab)*vec5(indab)
+3800  continue
 
       if(abs(sm2).gt.1.d-20)then
         sm2=s22*s22/sm2
@@ -211,7 +225,8 @@ c  Loop singly occupied alpha
       sum2=zero
       do 3900 ic=1,ncnfcas
       sum1=sum1+gal1(ic)
-3900  sum2=sum2+gal2(ic)
+      sum2=sum2+gal2(ic)
+3900  continue
       fac1=one/sum1
       if(abs(one-svb*svb).lt.1.d-20.and.abs(sum2).lt.1.d-20)then
         fac2=one
@@ -220,7 +235,8 @@ c  Loop singly occupied alpha
       endif
       do 4000 ic=1,ncnfcas
       gal1(ic)=fac1*gal1(ic)
-4000  gal2(ic)=fac2*gal2(ic)
+      gal2(ic)=fac2*gal2(ic)
+4000  continue
 4010  continue
 
 c  Weights of Lowdin orthonormalized structures
@@ -234,7 +250,8 @@ c  Weights of Lowdin orthonormalized structures
         fac=svb/sqrt(cnrm)
         do 4100 idet=1,ndet
         vec4(idet)=vec4(idet)*vec4(idet)
-4100    vec3(idet)=vec3(idet)*vec3(idet)
+        vec3(idet)=vec3(idet)*vec3(idet)
+4100    continue
       endif
 
       write(6,'(/,2a)')' Weights of CASSCF configurations ',
@@ -293,12 +310,14 @@ c  Weights of Lowdin orthonormalized structures
 c Alpha weight array:
       do 5100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
-5100  maxgrph(iorb)=min(iorb,nalf)
+      maxgrph(iorb)=min(iorb,nalf)
+5100  continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
 c Beta weight array:
       do 5200 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
-5200  maxgrph(iorb)=min(iorb,nbet)
+      maxgrph(iorb)=min(iorb,nbet)
+5200  continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 
       nc=0
@@ -316,21 +335,24 @@ c Beta weight array:
 c  Initialise loop for ionic orbitals
       do 6100 iorb=0,norb
       mingion(iorb)=max(iorb-norb+ion,0)
-6100  maxgion(iorb)=min(iorb,ion)
+      maxgion(iorb)=min(iorb,ion)
+6100  continue
       call weight_cvb(xion,mingion,maxgion,ion,norb)
       call imove_cvb(maxgion,nkion,norb+1)
       call occupy_cvb(nkion,norb,locion,lunion)
 c  Initialise loop for singly occupied orbitals
       do 6200 iorb=0,mrem
       mingsng(iorb)=max(iorb-mrem+nsing,0)
-6200  maxgsng(iorb)=min(iorb,nsing)
+      maxgsng(iorb)=min(iorb,nsing)
+6200  continue
       call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
       call imove_cvb(maxgsng,nksng,mrem+1)
       call occupy_cvb(nksng,mrem,locsng,lunsng)
 c  Initialise loop for singly occupied alpha orbitals
       do 6300 iorb=0,nsing
       mingasg(iorb)=max(iorb-nsing+nalfsng,0)
-6300  maxgasg(iorb)=min(iorb,nalfsng)
+      maxgasg(iorb)=min(iorb,nalfsng)
+6300  continue
       call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
       call imove_cvb(maxgasg,nkasg,nsing+1)
       call occupy_cvb(nkasg,nsing,locasg,lunasg)
@@ -353,13 +375,16 @@ c  Loop singly occupied alpha
       call izero(ibocc,norb)
       do 7300 i=1,ion
       iaocc(locion(i))=1
-7300  ibocc(locion(i))=1
+      ibocc(locion(i))=1
+7300  continue
       do 7400 ia=1,nalfsng
       iaorb=lunion(locsng(locasg(ia)))
-7400  iaocc(iaorb)=1
+      iaocc(iaorb)=1
+7400  continue
       do 7500 ib=1,nbetsng
       iborb=lunion(locsng(lunasg(ib)))
-7500  ibocc(iborb)=1
+      ibocc(iborb)=1
+7500  continue
       inda=indget_cvb(iaocc,nalf,norb,xalf)
       indb=indget_cvb(ibocc,nbet,norb,xbet)
 
@@ -386,10 +411,12 @@ c  Loop singly occupied alpha
         call int2char_cvb(line(ilin:ilin+2),locion(i),3)
         ilin=ilin+3
         call int2char_cvb(line(ilin:ilin+2),locion(i),3)
-7600    ilin=ilin+3
+        ilin=ilin+3
+7600    continue
         do 7700 i=1,nsing
         call int2char_cvb(line(ilin:ilin+2),lunion(locsng(i)),3)
-7700    ilin=ilin+3
+        ilin=ilin+3
+7700    continue
         ilin=max(ilin,19)
         nprint=0
         if(mod(iciweights,2).eq.1)then

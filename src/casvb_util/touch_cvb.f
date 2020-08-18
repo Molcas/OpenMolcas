@@ -17,7 +17,8 @@
 
 50    iobj=0
       do 100 i=1,nobj
-100   if(charobj(i).eq.chr)iobj=i
+      if(charobj(i).eq.chr)iobj=i
+100   continue
       if(iobj.eq.0)then
         if(mustdeclare)then
           write(6,*)' Make object not found :',chr

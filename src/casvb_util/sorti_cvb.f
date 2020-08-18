@@ -20,7 +20,8 @@
       call sortindxi_cvb(n,arrin,iw(i1))
       i2 = mstacki_cvb(n)
       do 100 i=0,n-1
-100   iw(i+i2)=arrin(iw(i+i1))
+      iw(i+i2)=arrin(iw(i+i1))
+100   continue
       call imove_cvb(iw(i2),arrin,n)
       call mfreei_cvb(i1)
       return

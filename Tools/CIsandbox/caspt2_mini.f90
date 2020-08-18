@@ -17,7 +17,7 @@ PROGRAM CASPT2_MINI
 
   ! Steven Vancoillie, November-December 2013, Lund
 
-  USE ISO_FORTRAN_ENV
+  USE ISO_FORTRAN_ENV, ONLY: REAL64
   USE SECOND_QUANTIZATION
   USE WAVEFUNCTION
   USE DENSITY
@@ -25,21 +25,12 @@ PROGRAM CASPT2_MINI
   USE ORBINT
   IMPLICIT NONE
 
-  ! determinant indices
-  INTEGER :: IA, IB
-  INTEGER :: DETA, DETB, TMP, MDETA, MDETB
-  REAL(REAL64) :: FACT
-
   ! orbital indices
-  INTEGER :: I, J, K, L, P, Q, R, S, T, U, V, X, G
+  INTEGER :: P, Q, R, S
 
   ! the wavefunction
   TYPE(WFN) :: PSI
-  INTEGER :: NEL, NORB, MULT, NDET
-
-  INTEGER :: INFO, IERR
-
-  REAL(REAL64) :: ETOT, E1, E2, SCL
+  INTEGER :: NEL, NORB, MULT
 
   ! Fock matrix
   TYPE(FMAT) :: F
@@ -60,6 +51,9 @@ PROGRAM CASPT2_MINI
 
   ! core energy
   REAL(REAL64) :: ECORE
+
+  ! initialize linalg library
+  CALL INIT_LINALG
 
   ! initialize binomial tables needed for ranking
   CALL RANK_INIT

@@ -157,7 +157,7 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
 C This is never used anywhere, and it is actually
 C wrong in XMS, since the DREF used is not the average
 C density.
-      EASUM=0.0D00
+      EASUM=0.0D0
       DO ISYM=1,NSYM
         NA=NASH(ISYM)
         DO I=1,NA

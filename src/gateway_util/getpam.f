@@ -46,6 +46,7 @@ c     data test /.True./
 *
       if (test) Write (6,*) ' Reading PAM potencials'
       iStrt = ipExp(iShll+1)
+      iEnd = 0
       ipPAM2xp = iStrt
 *     Read(Line,*) nPAM2
       Line=Get_Ln(lUnit)

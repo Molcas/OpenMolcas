@@ -105,10 +105,12 @@ c  Here goes the code specific to this loop level.
       idetvb=0
       ixa = 0 ! dummy initialize
       do 2100 ia=1,nda_fr(nestlevel)
-      do 2100 ixa=ixapr(ia+ixapr_off(nestlevel)),
+      do 2101 ixa=ixapr(ia+ixapr_off(nestlevel)),
      >  ixapr(ia+1+ixapr_off(nestlevel))-1
       idetvb=idetvb+1
-2100  if(idetvb.eq.iter)goto 2200
+      if(idetvb.eq.iter)goto 2200
+2101  continue
+2100  continue
       write(6,*)' Error in DPCI2VB '
       call abend_cvb()
 2200  ib=iapr(ixa+ipr_off(nestlevel))

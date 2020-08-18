@@ -16,9 +16,8 @@
 .. xmldoc:: <MODULE NAME="SURFACEHOP">
             %%Description:
             <HELP>
-
-            QUICK DESCRIPTION OF THE PROGRAM
-
+            This module deals with surface hop semiclassical molecular dynamics (SHMD) and has to be used together with module DYNAMIX.
+            Its purpose is the calculation of the relax root for the next step of the SHMD.
             </HELP>
 
 This module deals with surface hop semiclassical molecular dynamics (SHMD) and has to be used together with module DYNAMIX. Its purpose is the calculation of the relax root for the next step of the SHMD. In this moment the implemented algorithm under this module is the Tully's fewest switches :cite:`Tully1990`, along with the Hammes-Schiffer/Tully scheme :cite:`Hammes-Schiffer1994` and the decoherence correction proposed by Granucci and Persico :cite:`Granucci2007`.
@@ -45,7 +44,8 @@ Input
   basis=6-31G*
   group=nosym
 
-  >> FOREACH A in (1..400)
+  >> EXPORT MOLCAS_MAXITER=400
+  >> DOWHILE
 
   &Seward
 
@@ -95,7 +95,7 @@ General keywords
               %%Keyword: DECOherence <advanced>
               This keyword must be used after the TULLY keyword.
               <HELP>
-              It enables the decoherence correction in the population density matrix as reported by Persico--Granucci.
+              It enables the decoherence correction in the population density matrix as reported by Persico-Granucci.
               </HELP>
               </KEYWORD>
 
@@ -204,11 +204,12 @@ Within the :program:`Surfacehop` module The keyword :kword:`TULLY` enables the T
    BASIS= 3-21G
    GROUP= nosym
 
-  >> FOREACH ITER in (1 .. 1000)
+  >> EXPORT MOLCAS_MAXITER=1000
+  >> DOWHILE
 
   &SEWARD
 
-  >> IF ( $ITER = 1 )
+  >> IF ( ITER = 1 )
 
   &RASSCF
     LUMORB

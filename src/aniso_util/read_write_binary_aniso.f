@@ -10,23 +10,25 @@
 ************************************************************************
       Subroutine read_binary_aniso( nss, nstate, multiplicity, eso,
      &                              esfs, U, MM, MS, ML, DM, angmom,
-     &                              edmom )
+     &                              edmom, amfi, HSO )
       Implicit None
       Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
-      Real(kind=wp)      :: eso(nss), esfs(nstate)
-      Real(kind=wp)      :: angmom(3,nstate,nstate)
-      Real(kind=wp)      ::  edmom(3,nstate,nstate)
-      Complex(kind=wp)   :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
-      Complex(kind=wp)   :: DM(3,nss,nss)
-      Complex(kind=wp)   :: U(nss,nss)
+      Real(kind=8)      :: eso(nss), esfs(nstate)
+      Real(kind=8)      :: angmom(3,nstate,nstate)
+      Real(kind=8)      ::  edmom(3,nstate,nstate)
+      Real(kind=8)      ::   amfi(3,nstate,nstate)
+      Complex(kind=8)   :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
+      Complex(kind=8)   :: DM(3,nss,nss)
+      Complex(kind=8)   ::   U(nss,nss)
+      Complex(kind=8)   :: HSO(nss,nss)
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
       Integer            :: luaniso, idisk, idum(1)
-      Real(kind=wp)      :: g_e
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8)      :: g_e
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
       Call qEnter('read_binary_aniso')
       g_e=2.0023193043718_wp
@@ -36,11 +38,13 @@
       esfs=0.0_wp
       angmom=0.0_wp
        edmom=0.0_wp
+        amfi=0.0_wp
       U =(0.0_wp,0.0_wp)
       MS=(0.0_wp,0.0_wp)
       ML=(0.0_wp,0.0_wp)
       MM=(0.0_wp,0.0_wp)
       DM=(0.0_wp,0.0_wp)
+      HSO=(0.0_wp,0.0_wp)
       luaniso=8
       idisk=0
       ! get the information from binary "$project.aniso" file:
@@ -52,19 +56,30 @@
 
       Call mma_allocate(tmpR,nss,nss,'tmpR')
       Call mma_allocate(tmpI,nss,nss,'tmpI')
-      tmpR=0.0_wp
-      tmpI=0.0_wp
 
       Call idafile(luaniso,2,multiplicity,nstate,idisk)
       Call ddafile(luaniso,2,eso,nss,idisk)
       Call ddafile(luaniso,2,esfs,nstate,idisk)
-      Call ddafile(luaniso,2,tmpR,nss**2,idisk)
-      Call ddafile(luaniso,2,tmpI,nss**2,idisk)
 
       ! spin-orbit mixing coefficients:
+      tmpR=0.0_wp
+      tmpI=0.0_wp
+      Call ddafile(luaniso,2,tmpR,nss**2,idisk)
+      Call ddafile(luaniso,2,tmpI,nss**2,idisk)
       Do i=1,nss
         Do j=1,nss
           U(i,j)=cmplx(tmpR(i,j),tmpI(i,j),wp)
+        End Do
+      End Do
+
+      ! spin-orbit Hamiltonian
+      tmpR=0.0_wp
+      tmpI=0.0_wp
+      Call ddafile(luaniso,2,tmpR,nss**2,idisk)
+      Call ddafile(luaniso,2,tmpI,nss**2,idisk)
+      Do i=1,nss
+        Do j=1,nss
+          HSO(i,j)=cmplx(tmpR(i,j),tmpI(i,j),wp)
         End Do
       End Do
 
@@ -72,6 +87,8 @@
       Call ddafile(luaniso,3,angmom,3*nstate*nstate,idisk)
       ! edmom
       Call ddafile(luaniso,3, edmom,3*nstate*nstate,idisk)
+      ! amfi
+      Call ddafile(luaniso,3,  amfi,3*nstate*nstate,idisk)
 
       ! magnetic moment
       Do l=1,3
@@ -132,21 +149,22 @@
 
       Subroutine write_binary_aniso( nss, nstate, multiplicity, eso,
      &                               esfs, U, MM, MS, DM, ANGMOM,
-     &                               EDMOM )
+     &                               EDMOM, AMFI, HSO )
       Implicit None
       Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
-      Real(kind=wp)      :: eso(nss), esfs(nstate)
-      Real(kind=wp)      :: angmom(3,nstate,nstate)
-      Real(kind=wp)      ::  edmom(3,nstate,nstate)
-      Complex(kind=wp)   :: U(nss,nss)
-      Complex(kind=wp)   :: MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss)
+      Real(kind=8)      :: eso(nss), esfs(nstate)
+      Real(kind=8)      :: angmom(3,nstate,nstate)
+      Real(kind=8)      ::  edmom(3,nstate,nstate)
+      Real(kind=8)      ::   amfi(3,nstate,nstate)
+      Complex(kind=8)   :: U(nss,nss), HSO(nss,nss)
+      Complex(kind=8)   :: MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss)
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
       Integer            :: luaniso, idisk
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
       Call qEnter('write_binary_aniso')
       LUANISO=8
@@ -177,10 +195,24 @@
       Call ddafile(luaniso,1,tmpR,nss*nss,idisk)
       Call ddafile(luaniso,1,tmpI,nss*nss,idisk)
 
+      ! spin-orbit Hamiltonian
+      tmpR=0.0_wp
+      tmpI=0.0_wp
+      Do i=1,nss
+        Do j=1,nss
+          tmpR(i,j)= dble( HSO(i,j) )
+          tmpI(i,j)=aimag( HSO(i,j) )
+        End Do
+      End Do
+      Call ddafile(luaniso,1,tmpR,nss*nss,idisk)
+      Call ddafile(luaniso,1,tmpI,nss*nss,idisk)
+
       ! angmom
       Call ddafile(luaniso,1,angmom,3*nstate*nstate,idisk)
       ! edmom
       Call ddafile(luaniso,1, edmom,3*nstate*nstate,idisk)
+      ! amfi
+      Call ddafile(luaniso,1,  amfi,3*nstate*nstate,idisk)
 
       ! magnetic moment:
       Do l=1,3

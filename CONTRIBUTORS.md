@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2019, The OpenMolcas Authors
+Copyright (C) 1989-2020, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -23,6 +23,9 @@ sources may be subject to a more restrictive or otherwise incompatible license.
 
 General citations
 =================
+
+* **OpenMolcas**:
+  *J. Chem. Theory Comput.* **15** (2019) 5925-5964. DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 
 * **Molcas 8**:
   *J. Comput. Chem.* **37** (2016) 506-541. DOI: [10.1002/jcc.24221](https://doi.org/10.1002/jcc.24221)
@@ -91,6 +94,7 @@ Gene H. Golub
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
+Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
 Asbjørn Holt  
@@ -130,6 +134,7 @@ Felix Plasser
 Christian Pomelli  
 Ben Pritchard  
 Juraj Raab  
+Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
 Björn O. Roos  
@@ -140,6 +145,7 @@ Michael A. Saunders
 Igor Schapiro  
 Bernd Schimmelpfennig  
 Martin Schütz  
+Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
 Kamal Sharkas  
@@ -161,7 +167,7 @@ Alessio Valentini
 Valérie Vallet  
 Steven Vancoillie  
 Valera Veryazov  
-Victor Vysotskiy  
+Victor P. Vysotskiy  
 Ulf Wahlgren  
 Yubin Wang  
 Mark A. Watson  

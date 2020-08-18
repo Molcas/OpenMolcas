@@ -28,6 +28,8 @@
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
+      LOGICAL Do_Rotate
+      COMMON /MSPDFT/ Do_Rotate
 #include "WrkSpc.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
@@ -35,47 +37,56 @@
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,A,1X,I2.2,1X,27A)')'**                         '//
+      IF(Do_Rotate) Then
+      write(6,'(6X,A,1X,I2.2,1X,A)')'**                       '//
+     &    ' MS-PDFT INTERMEDIATE STATE', jroot,
+     & '                      ** '
+      ELSE
+      write(6,'(6X,A,1X,I2.2,1X,A)')'**                         '//
      &    ' MC-PDFT RESULTS, STATE', jroot,
      & '                        ** '
-
+      ENDIF
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',
      &                           Ref_Ener(jroot)
       write(6,'(6X,80A)')
-      write(6,'(6X,A25,45X,F10.3)') 'Integrated total density:',Dens_I
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density '//
+      write(6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
+      write(6,'(6X,A,12X,F10.3)') 'Integrated alpha density '//
      &           'before functional transformation:', Dens_a1
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density '//
+      write(6,'(6X,A,12X,F10.3)') 'Integrated  beta density '//
      &           'before functional transformation:', Dens_b1
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density '//
+      write(6,'(6X,A,12X,F10.3)') 'Integrated alpha density '//
      &           ' after functional transformation:', Dens_a2
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density '//
+      write(6,'(6X,A,12X,F10.3)') 'Integrated  beta density '//
      &           ' after functional transformation:', Dens_b2
       write(6,'(6X,80A)')
-      write(6,'(6X,A33,29X,F18.6)') 'Exchange energy scaling factor',
+      write(6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',
      &          CoefX
-      write(6,'(6X,A33,29X,F18.6)') 'Correlation energy scaling factor',
+      write(6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',
      &          CoefR
       write(6,'(6X,80A)')
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated alpha exchange energy',
+      write(6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',
      &          Funcaa
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated beta  exchange energy',
+      write(6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',
      &          Funcbb
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated  correlation   energy',
+      write(6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',
      &          Funccc
       write(6,'(6X,80A)')
 
-      write(6,'(6X,A24,38X,F18.8)') 'Nuclear Repulsion energy',E_nuc
-      write(6,'(6X,A11,51X,F18.8)') 'Core energy',E_cor
-      write(6,'(6X,A26,36X,F18.8)') 'CASSCF contribution energy',E_cas
-      write(6,'(6X,A13,49X,F18.8)') 'On-top energy',E_ot
+      write(6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',E_nuc
+      write(6,'(6X,A,51X,F18.8)') 'Core energy',E_cor
+      write(6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
+      write(6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
 
       write(6,'(6X,80A)')
 
-      write(6,'(6X,A20,42X,F18.8)') 'Total MC-PDFT energy',
-     &         CASDFT_E
-
+      IF(Do_Rotate) Then
+      write(6,'(6X,A,2X,I3,14X,F18.8)')
+     &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
+      ELSE
+      write(6,'(6X,A,2X,I3,27X,F18.8)')
+     &'Total MC-PDFT energy for state',jroot,CASDFT_E
+      END IF
       if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then
          Funcaa1 = Funcaa/CoefX
          Funcbb1 = Funcbb/CoefX
@@ -84,19 +95,19 @@
          CASDFT_E_1 = CASDFT_E-E_ot+E_ot_1
          write(6,'(6X,80A)')
          write(6,'(6X,80A)')
-         write(6,'(6X,A43,19X,F18.6)') 'Integrated alpha exchange '//
+         write(6,'(6X,A,19X,F18.6)') 'Integrated alpha exchange '//
      &          'energy (unscaled)',
      &          Funcaa1
-         write(6,'(6X,A43,19X,F18.6)') 'Integrated beta  exchange '//
+         write(6,'(6X,A,19X,F18.6)') 'Integrated beta  exchange '//
      &          'energy (unscaled)',
      &          Funcbb1
-         write(6,'(6X,A43,19X,F18.6)') 'Integrated  correlation   '//
+         write(6,'(6X,A,19X,F18.6)') 'Integrated  correlation   '//
      &          'energy (unscaled)',
      &          Funccc1
 !         write(6,'(6X,80A)')
-         write(6,'(6X,A24,38X,F18.8)') 'On-top energy (unscaled)',E_ot_1
+         write(6,'(6X,A,38X,F18.8)') 'On-top energy (unscaled)',E_ot_1
 !         write(6,'(6X,80A)')
-         write(6,'(6X,A31,31X,F18.8)') 'Total MC-PDFT energy '//
+         write(6,'(6X,A,31X,F18.8)') 'Total MC-PDFT energy '//
      &         '(unscaled)',
      &         CASDFT_E_1
       end if

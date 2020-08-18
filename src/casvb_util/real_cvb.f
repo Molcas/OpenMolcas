@@ -45,7 +45,8 @@ c  Treat first field differently
       call popfield_cvb(ifcuse)
       call rdreal_cvb(arr(i),ierr)
       if(ierr.gt.0)goto 1000
-100   nread=nread+1
+      nread=nread+1
+100   continue
       goto 2000
 1000  continue
 c  Crash if invalid field and IFC +4 :

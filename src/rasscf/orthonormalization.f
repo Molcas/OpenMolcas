@@ -12,11 +12,14 @@
 ************************************************************************
 #include "intent.h"
       module orthonormalization
+        use definitions, only: wp
         use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
+        use sorting_funcs, only : ge_r
+        use linalg_mod, only: mult
 
         implicit none
         save
@@ -68,10 +71,6 @@
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-        interface mult
-          module procedure mult_2D_2D, mult_2D_1D
-        end interface
-
         interface Gram_Schmidt
           module procedure Gram_Schmidt_Array, Gram_Schmidt_Blocks
         end interface
@@ -97,6 +96,8 @@
 
         integer :: n_to_ON(nSym), n_new(nSym)
 
+! gfortran -O0 warning bug
+        allocate(S(0))
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
 
@@ -122,12 +123,14 @@
 
       subroutine orthonormalize_raw(CMO, scheme, ONB_v)
         use general_data, only : nBas, nSym
-        real*8, intent(in) :: CMO(:)
+        real(wp), intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8, intent(out) :: ONB_v(:)
+        real(wp), intent(out) :: ONB_v(:)
 
         type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
+! gfortran -O0 warning bug
+        allocate(basis(0))
         call new(basis, blocksizes=nBAS(:nSym))
         call new(ONB, blocksizes=nBAS(:nSym))
 
@@ -155,11 +158,11 @@
 
 
       subroutine Lowdin_Array(basis, S, ONB)
-        real*8, intent(in) :: basis(:, :), S(:, :)
-        real*8, intent(out) :: ONB(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(out) :: ONB(:, :)
 
         integer :: i
-        real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
+        real(wp), allocatable :: U(:, :), s_diag(:), X(:, :),
      &        S_transf(:, :), tmp(:, :)
 
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
@@ -219,15 +222,15 @@
 
 
       subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
-        real*8, intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real*8, intent(out) :: ONB(:, :)
+        real(wp), intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
         logical :: lin_dep_detected
         integer :: i
         integer, allocatable :: idx(:)
-        real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
+        real(wp), allocatable :: U(:, :), s_diag(:), S_transf(:, :),
      &      X(:, :), tmp(:, :)
 
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
@@ -244,7 +247,7 @@
 
         call diagonalize(S_transf, U, s_diag)
 
-        idx(:) = argsort(s_diag, ge)
+        idx(:) = argsort(s_diag, ge_r)
         U(:, :) = U(:, idx)
         s_diag(:) = s_diag(idx)
 
@@ -278,11 +281,6 @@
         call mma_deallocate(S_transf)
       end subroutine Canonical_Array
 
-      logical pure function ge(x, y)
-        real*8, intent(in) :: x, y
-        ge = x >= y
-      end function
-
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
 ! As of July 2019 some compilers don't support it.
@@ -303,17 +301,17 @@
 
 
       subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
-        real*8, intent(in) :: basis(:, :), S(:, :)
+        real(wp), intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real*8, target, intent(out) :: ONB(:, :)
+        real(wp), target, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
-        real*8 :: L
+        real(wp) :: L
         integer :: i, j
         logical :: lin_dep_detected, improve_solution
 
-        real*8, allocatable :: previous(:), correction(:), v(:)
-        real*8, pointer :: curr(:)
+        real(wp), allocatable :: previous(:), correction(:), v(:)
+        real(wp), pointer :: curr(:)
 
         call mma_allocate(previous, size(S, 1))
         call mma_allocate(correction, size(S, 1))
@@ -328,7 +326,7 @@
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            correction = 0.d0
+            correction = 0._wp
             call mult(S, curr, v)
 
             do j = 1, n_new
@@ -336,9 +334,9 @@
      &                     + ONB(:, j) * dot_product(ONB(:, j), v)
             end do
             curr = curr - correction
-            improve_solution = norm(correction, S=S) > 0.1d0
+            improve_solution = norm(correction, S=S) > 0.1_wp
             L = norm(curr, S=S)
-            lin_dep_detected = L < 1.0d-10
+            lin_dep_detected = L < 1.0e-10_wp
             if (.not. lin_dep_detected) then
               curr = curr / L
             end if
@@ -410,7 +408,7 @@
 
 
       subroutine read_raw_S(S_buffer)
-        real*8, intent(inout) :: S_buffer(:)
+        real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
 #include "warnings.fh"
 
@@ -439,8 +437,8 @@
 
         parameter(ROUTINE='update_orb_numbe')
         integer :: size_S_buffer
-        real*8 :: Mol_Charge
-        real*8, allocatable :: S_buffer(:)
+        real(wp) :: Mol_Charge
+        real(wp), allocatable :: S_buffer(:)
 
         call qEnter(ROUTINE)
 
@@ -462,13 +460,13 @@
       end subroutine
 
       subroutine diagonalize(A, V, lambda)
-        real*8, intent(in) :: A(:, :)
-        real*8, intent(out) :: V(:, :), lambda(:)
+        real(wp), intent(in) :: A(:, :)
+        real(wp), intent(out) :: V(:, :), lambda(:)
 
         integer, parameter :: do_worksize_query = -1
         integer :: info
-        real*8, allocatable :: work(:)
-        real*8 :: dummy(2), query_result(2)
+        real(wp), allocatable :: work(:)
+        real(wp) :: dummy(2), query_result(2)
 
         V(:, :) = A(:, :)
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
@@ -517,11 +515,11 @@
 ! One cannot use matmul + customly allocated arrays.
 ! .and. One cannot overload dot_product with a non pure function
 ! => call it dot_product_
-        real*8, intent(in) :: v1(:), v2(:)
-        real*8, intent(in), optional :: S(:, :)
-        real*8 :: dot
+        real(wp), intent(in) :: v1(:), v2(:)
+        real(wp), intent(in), optional :: S(:, :)
+        real(wp) :: dot
 
-        real*8, allocatable :: tmp(:)
+        real(wp), allocatable :: tmp(:)
 
         if (present(S)) then
           call mma_allocate(tmp, size(v1))
@@ -534,9 +532,9 @@
       end function
 
       function norm(v, S) result(L)
-        real*8, intent(in) :: v(:)
-        real*8, intent(in), optional :: S(:, :)
-        real*8 :: L
+        real(wp), intent(in) :: v(:)
+        real(wp), intent(in), optional :: S(:, :)
+        real(wp) :: L
         if (present(S)) then
           L = sqrt(dot_product_(v, v, S))
         else
@@ -545,63 +543,4 @@
         end if
       end function
 
-      subroutine mult_2D_2D(A, B, C, transpA, transpB)
-        real*8, intent(in) :: A(:, :), B(:, :)
-        real*8, intent(out) :: C(:, :)
-        logical, intent(in), optional :: transpA, transpB
-        logical :: transpA_, transpB_
-
-        integer :: M, N, K_1, K_2, K
-
-        if (present(transpA)) then
-          transpA_ = transpA
-        else
-          transpA_ = .false.
-        end if
-        if (present(transpB)) then
-          transpB_ = transpB
-        else
-          transpB_ = .false.
-        end if
-
-        M = size(A, merge(1, 2, .not. transpA_))
-        call assert_(M == size(C, 1), 'Shape mismatch.')
-        N = size(B, merge(2, 1, .not. transpB_))
-        call assert_(N == size(C, 2), 'Shape mismatch.')
-        K_1 = size(A, merge(2, 1, .not. transpA_))
-        K_2 = size(B, merge(1, 2, .not. transpB_))
-        call assert_(K_1 == K_2, 'Shape mismatch.')
-        K = K_1
-
-        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_),
-     &              M, N, K, 1.d0,
-     &              A, size(A, 1), B, size(B, 1),
-     &              0.d0, C, size(C, 1))
-      end subroutine
-
-      subroutine mult_2D_1D(A, B, C, transpA)
-        real*8, intent(in) :: A(:, :), B(:)
-        real*8, intent(out) :: C(:)
-        logical, intent(in), optional :: transpA
-        logical :: transpA_
-
-        integer :: M, N, K
-
-        if (present(transpA)) then
-          transpA_ = transpA
-        else
-          transpA_ = .false.
-        end if
-
-        M = size(A, merge(1, 2, .not. transpA_))
-        call assert_(M == size(C, 1), 'Shape mismatch.')
-        N = 1
-        K = size(A, merge(2, 1, .not. transpA_))
-        call assert_(K == size(B, 1), 'Shape mismatch.')
-
-        call dgemm_(merge('T', 'N', transpA_), 'N',
-     &              M, N, K, 1.d0,
-     &              A, size(A, 1), B, size(B, 1),
-     &              0.d0, C, size(C, 1))
-      end subroutine
       end module orthonormalization

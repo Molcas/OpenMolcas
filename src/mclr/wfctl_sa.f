@@ -128,14 +128,24 @@
       ipST =ipGet(nconf3*nroots)
       ipCIT=ipGet(nconf1*nroots)
       ipCId=ipGet(nconf1*nroots)
-
 *
-
       npre2=npre(isym)
       ipPre2=ipGet(npre2)
 
-      Call Prec(Work(ipIn(ipPre2)),isym)
-      irc=ipOut(ippre2)
+      If (TwoStep.and.(StepType.eq.'RUN2')) Then
+         ! fetch data from LuQDAT and skip the call to "Prec"
+         Call ddafile(LuQDAT,2,Work(ipIn(ipPre2)),npre2,iaddressQDAT)
+      Else
+         Call Prec(Work(ipIn(ipPre2)),isym)
+         irc=ipOut(ippre2)
+         If (TwoStep.and.(StepType.eq.'RUN1')) Then
+            ! save the computed data in "Prec" to LuQDAT and skip the
+            ! following part of this function
+            Call ddafile(LuQDAT,1,Work(ipIn(ipPre2)),npre2,iaddressQDAT)
+            Go To 193
+         End If
+      End If
+*
 *
 *     OK START WORKING
 *
@@ -184,8 +194,8 @@
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
-     &      '       Iteration       Delta       Res(kappa)  Res(CI)'
-     &    //'     DeltaK      DeltaC'
+     &      '       Iteration       Delta           Res(kappa)     '//
+     &      '  Res(CI)          DeltaK           DeltaC'
       iLen=nDensC
       iRHSDisp(iDisp)=iDis
       Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
@@ -332,7 +342,7 @@
          End If
          If (iter.ge.niter) goto 210
          If (lprint)
-     &   Write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)')
+     &   Write(6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)')
      &          iter,delta/delta0,resk,resci,deltac,deltak
          iter=iter+1
 *
@@ -373,7 +383,7 @@
 *     &             Work(ipTemp4),ipS2)
       iCISigDisp(iDisp)=iDis
       Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
-      end do
+      end do ! iDisp
 *
       Call Getmem('Scr2   ','FREE','Real',ipSc2  ,nDens2)
       Call Getmem('Scr1   ','FREE','Real',ipSc1  ,nDens2)
@@ -382,11 +392,13 @@
       Call GetMem('sigma  ','FREE','Real',ipSigma,nDens)
       Call GetMem('dkappa ','FREE','Real',ipdKap ,nDens)
       Call GetMem('kappa  ','FREE','Real',ipKap  ,nDens)
-      Call Getmem('FANCY',  'FREE','REAL',ips,nroots**3)
 *
 *     Free all memory and remove from disk all data
 *     related to this symmetry
 *
+193   Continue
+      Call Getmem('FANCY',  'FREE','REAL',ips,nroots**3)
+
       irc=ipclose(ipdia)
       If (.not.CI) irc=ipclose(ipPre2)
 *

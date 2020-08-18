@@ -41,12 +41,11 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Integer (A-Z)
 *
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 
 #include "SysDef.fh"
 #include "print.fh"
@@ -82,12 +81,12 @@
       End If
       lSrtA = lSrtA*lBin
       lSrtA = ((1+RtoI)*lSrtA)/RtoI
-      Call GetMem(' ','Max','Real',iDum,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
       lSrtA=Max(lSrtA,MaxMem/2)
 *
 *----------------------------------------------------------------------*
 *     determine the partitioning of the 2el integrals into             *
-*     submatrices by deviding the symmetry blocks into slices that     *
+*     submatrices by dividing the symmetry blocks into slices that     *
 *     fit into the available memory.                                   *
 *----------------------------------------------------------------------*
 *

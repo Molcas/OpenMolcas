@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PREPSD(WFTP,TRORB,ISGSTR,ICISTR,IXSTR,LSYM,TRA,
+      SUBROUTINE PREPSD(WFTP,ISGSTR,ICISTR,LSYM,
      &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,
      &                  NCONF,CI,DET)
       IMPLICIT NONE
-      LOGICAL TRORB
-      INTEGER ISGSTR(*),ICISTR(*),IXSTR(*)
+      INTEGER ISGSTR(*),ICISTR(*)
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
       INTEGER LSYM,NCONF
-      REAL*8 TRA(*),CI(*),DET(*)
+      REAL*8 CI(*),DET(*)
       INTEGER IMODE,LCTMP
       CHARACTER*8 WFTP
 #include "WrkSpc.fh"
@@ -24,11 +23,6 @@ C Purpose: Given a RASSCF wave function in Split-GUGA format
 C and an orbital transformation matrix for the purpose of
 C getting biorthonormal orbitals, prepare a wave function
 C in the general SD format, using transformed orbitals.
-
-      IF(TRORB) THEN
-C Transform to bion basis, Split-Guga format
-        CALL CITRA (WFTP,ISGSTR,ICISTR,IXSTR,LSYM,TRA,NCONF,CI)
-      END IF
 
       IF(WFTP.EQ.'GENERAL ') THEN
 C Transform SGUGA to SymmG:

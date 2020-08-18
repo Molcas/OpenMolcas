@@ -55,9 +55,9 @@ def fortran_float(num):
   if (num[0] == '$'):
     return 1.0
   # in case there is no exponent marker
-  num = re.sub(r'(\d)([+-]\d)', r'\1e\2', num)
-  # convert D to E
-  num = num.translate(str.maketrans('dD', 'eE'))
+  num = re.sub(r'([\d.])([+-]\d)', r'\1e\2', num)
+  # convert d/D to e
+  num = re.sub(r'[dD]', 'e', num)
   return float(num)
 
 # Convert a list to integers
@@ -119,7 +119,11 @@ def test_keyword(lines, keyword):
   if (parent.tag == 'GROUP'):
     endlist.append('END' + parent.get('NAME')[0])
   l = 0
-  if (cmp_str(name, lines[0])):
+  names = [name]
+  also = keyword.get('ALSO')
+  if (also):
+    names.extend(keyword.get('ALSO').split(','))
+  if (any([cmp_str(i, lines[0]) for i in names])):
     ll = test(lines, keyword, kind, size, choice)
     # try possible <ALTERNATE> definitions
     if (ll is None):
@@ -538,7 +542,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module in ['GATEWAY', 'SEWARD']):
-    if (name == 'COORD'):
+    if (name in ['COORD', 'XYZ']):
       try:
         assert (first_word(lines[l])[0] != '$')
         n = first_int(lines[l])
@@ -778,11 +782,27 @@ def test_custom(lines, keyword):
       l += 1
       if ('.' in lab):
         while (l < len(lines)):
-          if (cmp_str(lines[l].split()[0], 'END')):
-            break
           l += 1
+          if (cmp_str(lines[l-1].split()[0], 'END')):
+            break
         else:
           return None
+    elif (name == 'ZMAT'):
+      n = 0
+      while (l < len(lines)):
+        parts = lines[l].split()
+        l += 1
+        if ((len(parts) == 0) or cmp_str(parts[0], 'END')):
+          break
+        try:
+          for i in range(n):
+            num = fortran_int(parts[2*i+1])
+            num = fortran_float(parts[2*i+2])
+        except:
+          return None
+        n = min(n+1, 3)
+      else:
+        return None
     elif (name == 'XFIELD'):
       nmul = [0, 1, 4, 10]
       npol = [0, 1, 6]
@@ -874,6 +894,92 @@ def test_custom(lines, keyword):
         parts = fortran_split(lines[l])
         assert (len(parts) >= n)
         l += 1
+      except:
+        return None
+    else:
+      return None
+
+  elif (module == 'POLY_ANISO'):
+    if (name in ['PAIR', 'ALIN', 'LIN9']):
+      try:
+        n = first_int(lines[l])
+        l += 1
+        if (name == 'PAIR'):
+          m = 1
+        elif (name == 'ALIN'):
+          m = 3
+        elif (name == 'LIN9'):
+          m = 9
+        for i in range(n):
+          parts = fortran_split(lines[l])
+          nums = to_int(parts[0:2])
+          assert (len(nums) == 2)
+          nums = to_float(parts[2:2+m])
+          assert (len(nums) == m)
+          l += 1
+      except:
+        return None
+    elif (name == 'HEXP'):
+      try:
+        n = first_int(lines[l])
+        ll = test_standard(lines[l-1:], 'REALS_COMPUTED', 1)
+        if ((ll is None) or (ll < 1)):
+          return None
+        l += ll-1
+        ll = test_standard(lines[l-1:], 'REALS_COMPUTED', n+1)
+        if ((ll is None) or (ll < 1)):
+          return None
+        l += ll-1
+      except:
+        return None
+    elif (name == 'NNEQ'):
+      try:
+        parts = fortran_split(lines[l])
+        n = fortran_int(parts[0])
+        gv.lookup['3NNEQ'] = 3*n
+        parts = [i.upper().strip() for i in parts[1:3]]
+        assert (len(parts) == 2)
+        assert all([i in ['T', 'F'] for i in parts])
+        more = (parts[0] == 'F')
+        l += 1
+        parts = fortran_split(lines[l])
+        nums = to_int(parts[0:n])
+        assert (len(nums) == n)
+        l += 1
+        parts = fortran_split(lines[l])
+        nums = to_int(parts[0:n])
+        assert (len(nums) == n)
+        l += 1
+        if (more):
+          parts = fortran_split(lines[l])[0:n]
+          assert (len(parts) == n)
+          parts = [i.upper().strip() for i in parts]
+          assert all([i in ['A', 'B'] for i in parts])
+          l += 1
+          for i in parts:
+            if (i == 'B'):
+              n = fortran_float(first_word(lines[l]))
+              l += 1
+      except:
+        return None
+    elif (name == 'SYMM'):
+      try:
+        m = 1
+        while (l < len(lines)):
+          try:
+            n = first_int(lines[l])
+          except:
+            break
+          assert (n == m)
+          m += 1
+          l += 1
+          while (l < len(lines)):
+            ll = test_standard(lines[l-1:], 'REALS', 9)
+            if ((ll is None) or (ll < 1)):
+              break
+            l += ll-1
+        if (m == 1):
+          return None
       except:
         return None
     else:
@@ -998,12 +1104,8 @@ def test_custom(lines, keyword):
           try:
             n = first_int(lines[l])
             l += 1
-            if (n > 0):
-              parts = fortran_split(lines[l])
-              m = fortran_int(parts[0])
-              nums = to_int(parts[1:m+1])
-              assert (len(nums) == m)
-              l += 1
+            for i in range(n):
+              l += test_standard(lines[l-1:], 'INTS_COMPUTED', 1) - 1
           except:
             if (find and (s in gv.syms)):
               gv.lookup['NSYM'] = s
@@ -1016,7 +1118,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSI'):
-    if (name in ['NROFJOBIPHS', 'NR OF JOBIPHS']):
+    if (name == 'NROFJOBIPHS'):
       try:
         parts = fortran_split(lines[l])
         n = fortran_int(parts[0])
@@ -1291,7 +1393,7 @@ def validate(inp, db):
     return (rc, ['No module named "{0}"'.format(program)])
 
   # This is a hack for the XYZ input of GATEWAY/SEWARD
-  # to hide "XYZ input" keywords (they will be enabled if COORD or GROMACS is found)
+  # to hide "XYZ input" keywords (they will be enabled if COORD, GROMACS or TINKER is found)
   if (module.get('NAME') in ['GATEWAY', 'SEWARD']):
     for kw in module.xpath('KEYWORD[@NAME="BASIS (XYZ)"] | KEYWORD[@NAME="GROUP"]'):
       kw.set('NAME', '*{}'.format(kw.get('NAME')))
@@ -1336,7 +1438,7 @@ def validate(inp, db):
             group = stack.pop(-1)
           bad = False
           found.append(name)
-          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'XBAS'])):
+          if ((program in ['GATEWAY', 'SEWARD']) and (name in ['COORD', 'TINKER'])):
             enable_xyz(kw.getparent())
           break
       else:
@@ -1380,8 +1482,10 @@ def validate(inp, db):
     # skip disabled keywords
     if (name[0] in ['*', '#']):
       continue
-    # special case
-    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS']])):
+    # special cases
+    if ((name == 'COORD') and any([i in found for i in ['BASIS (NATIVE)', 'XBAS', 'GROMACS', 'TINKER']])):
+      continue
+    if ((name == 'BASIS (NATIVE)') and ('XBAS' in found)):
       continue
     if (name not in found):
       result.append('*** Keyword {} is required, but was not found'.format(name))
@@ -1401,10 +1505,12 @@ def validate(inp, db):
   for name in found:
     kw = module.find('.//KEYWORD[@NAME="{}"]'.format(name))
     try:
-      req = kw.get('REQUIRE').split('.OR.')
-      if (not any([i in found for i in req])):
-        result.append('*** Keyword {} is required by {}, but was not found'.format('|'.join(req), name))
-        rc = 7
+      req = kw.get('REQUIRE').split(',')
+      for r in req:
+        alt = r.split('.OR.')
+        if (not any([i in found for i in alt])):
+          result.append('*** Keyword {} is required by {}, but was not found'.format('|'.join(alt), name))
+          rc = 7
     except AttributeError:
       pass
     try:

@@ -13,7 +13,6 @@
       Character*2 PreFix
 #include "Molcas.fh"
 #include "inflocal.fh"
-#include "shinf.fh"
 #include "WrkSpc.fh"
 
       Character*24 SecNam

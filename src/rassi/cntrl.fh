@@ -13,7 +13,7 @@
       INTEGER MXDISP
       PARAMETER (MXDISP=500)
       REAL*8  PNUC,PORIG,CITHR
-      REAL*8  EMIN,EVAC,ERFNUC,EPRTHR, ALPHZ, BETAE
+      REAL*8  EMIN,ERFNUC,EPRTHR, ALPHZ, BETAE
       REAL*8  TSTART,TINCRE,BSTART,BINCRE,BANGRES
       REAL*8  OSTHR_DIPR,OSTHR_QIPR
       REAL*8  TOLERANCE
@@ -21,10 +21,10 @@
       INTEGER NSTAT,ISTAT,NROOTS,NACTE,MLTPLT
       INTEGER IRREP,NHOLE1,NELE3,NCONF,ISPACE,NJOB,NSTATE,NPROP,NSOPR
       INTEGER NRNATO,NBINA,IBINA,IPCODE,LSYM1,LSYM2,NCONF1,NCONF2
-      INTEGER LCI1,LCI2,LCI3,LCMO1,LCMO2,LGAM1,LGAM2,LGAM3
-      INTEGER LTDMAB,LTDMZZ,LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR
-      INTEGER LFMO,LTUVX,liTocM,LHAM,LREFENE,L_HEFF,LEIGVEC,LESHFT
-      INTEGER LHDIAG,lJBNUM,LLROOT,NTSTEP,NBSTEP,LOOPDIVIDE
+      INTEGER LCI1,LCI2,LCI3,            LGAM1,LGAM2,LGAM3
+      INTEGER                                       LIPAIR
+      INTEGER                 LREFENE,L_HEFF
+      INTEGER                      NTSTEP,NBSTEP,LOOPDIVIDE
       INTEGER DYSEXPSF,DYSEXPSO
 c BP - SO Natural orbital information
 c    SONATNSTATE      Number of states to calculate
@@ -32,37 +32,41 @@ c    LSONAT           Pointer to IWORK array of states
 c    SODIAGNSTATE     Number of states to diagonalize
 c    LSONAT           Pointer to IWORK array of states
 c    IFCURD           Do current density stuff
-c    Do_TMOS          Do Transition Moment Oscillator Strengths
+c    Do_TMOM          Do (exact) Transition MOMents
 c    L_Eff            The order of the Lebedev solid angle integration
 c    Do_SK            Do k-vector directions of the exact
 c                     Hamiltonian with a vector field.
 c    nQuad            Number of vectors in the isotropic quadrature
+c    Do_Pol           Specify a polarization vector direction
+c    DOCD             Regular circular dichroism - velocity and mixed gauge
+c    SaveDens         Save input-state transition densities in temp. file
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
-      LOGICAL IFCURD, Do_TMOS, Do_SK
-      REAL*8 TDIPMIN,SOTHR_PRT
+      LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM,
+     &        SaveDens
+      REAL*8 TDIPMIN,SOTHR_PRT,TMGr_thrs
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
       INTEGER L_Eff,nQuad
-      COMMON /PROPS/ EMIN,EVAC,ERFNUC,PNUC(MXPROP),
+      COMMON /PROPS/ EMIN,ERFNUC,PNUC(MXPROP),
      &     PORIG(3,MXPROP),SOTHR_PRT,
      &     BSTART,BINCRE,TSTART,TINCRE,BANGRES,OSTHR_DIPR,OSTHR_QIPR,
-     &     TOLERANCE,LHAM,LREFENE,
+     &     TOLERANCE,     LREFENE,
      &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),
-     &     L_HEFF,LEIGVEC,LESHFT,LHDIAG,
+     &     L_HEFF,
      &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),
      &     NTDISP(MXDISP),NTSTEP,NBSTEP,LOOPDIVIDE,L_Eff,nQuad
       COMMON /CNTRL/ TDIPMIN,CITHR,EPRTHR,
      &     ALPHZ,BETAE,NSTAT(MXJOB),ISTAT(MXJOB),
-     &     NROOTS(MXJOB),LLROOT,
+     &     NROOTS(MXJOB),
      &     NACTE(MXJOB),MLTPLT(MXJOB),IRREP(MXJOB),NHOLE1(MXJOB),
      &     NELE3(MXJOB),NCONF(MXJOB),ISPACE(MXJOB),NJOB,NSTATE,NPROP,
      &     NSOPR,NRNATO,NBINA,IBINA(2,MxRoot),
      &     IPCODE(MXPROP),LSYM1,LSYM2,NCONF1,NCONF2,LCI1,LCI2,LCI3,
-     &     LCMO1,LCMO2,LGAM1,LGAM2,LGAM3,LTDMAB,LTDMZZ,
-     &     LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR,LFMO,LTUVX,lJBNUM,
-     &     liTocM,IFJ2,IFJZ,
-     &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOS,
-     &     Do_SK
+     &                 LGAM1,LGAM2,LGAM3,
+     &                             LIPAIR,
+     &     IFJ2,IFJZ,
+     &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOM,
+     &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM, SaveDens
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
 C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.
@@ -105,7 +109,7 @@ C SOPRNM - LIST OF PROPERTY NAMES, LIKE PNAME, FOR MATRIX ELEMENTS OVER
 C          SPIN-ORBIT STATES.
 C SOPRTP - TYPE NAME, similar to PTYPE
 C RassiT - Title of the Rassi-calculation.
-      LOGICAL PRDIPVEC,PRSXY,PRORB,PRTRA
+      LOGICAL PRDIPVEC,PRDIPCOM,PRSXY,PRORB,PRTRA
       LOGICAL PRCI,IFHAM,IFHEXT,IFHEFF,IFEJOB,IFHCOM
       LOGICAL HAVE_HEFF,HAVE_DIAG
       LOGICAL NONA,IFTRD1,IFTRD2,HOP,TRACK,ONLY_OVERLAPS
@@ -117,7 +121,7 @@ C RassiT - Title of the Rassi-calculation.
       LOGICAL DYSO,DYSEXPORT
       LOGICAL QDPT2SC, QDPT2EV
       LOGICAL PRRAW,PRWEIGHT
-      LOGICAL NEW_TOLERANCE,REDUCELOOP
+      LOGICAL REDUCELOOP
       LOGICAL SECOND_TIME,DoGSOR
 
 c BP - Hyperfine tensor Flags
@@ -161,8 +165,8 @@ cnf
      &    TMAXP,NTP,IFSONCIFC,TMINF,TMAXF,NTF,IFGTCALSA,IFGTSHSA,
      &    MULTIP,IFATCALSA,TRACK,ONLY_OVERLAPS,DQVD,DIPR,QIPR,QIALL,
      &    NOSO,DYSO,DYSEXPORT,DYSEXPSF,DYSEXPSO,LPRPR,LHAMI,
-     &    QDPT2SC, QDPT2EV,
-     &    PRRAW,PRWEIGHT,NEW_TOLERANCE,REDUCELOOP
+     &    QDPT2SC, QDPT2EV, PRDIPCOM,
+     &    PRRAW,PRWEIGHT,REDUCELOOP
 C PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
 C PRORB  - PRINT INPUT ORBITALS.
 C PRTRA  - PRINT TRANSFORMATION COEFFICIENTS.
@@ -192,3 +196,7 @@ C HOP    - Switch for Trajectory Surface Hopping Algorithm
 ! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
 ! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
 !           instead we mix the TDMs)
+C      NTO Calculation Section /// Jie Bao
+       Logical IfNTO
+       COMMON /NTO/ IfNTO
+C

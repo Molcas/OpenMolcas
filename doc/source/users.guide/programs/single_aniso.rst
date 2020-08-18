@@ -9,9 +9,9 @@
 
 .. only:: html
 
-.. contents::
-    :local:
-    :backlinks: none
+  .. contents::
+      :local:
+      :backlinks: none
 
 .. xmldoc:: <MODULE NAME="SINGLE_ANISO" APPEAR="Single_Aniso">
             %%Description:
@@ -200,7 +200,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`TINT`
-  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read four numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
+  Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read three numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
 
   .. container:: list
 
@@ -221,7 +221,7 @@ Optional general keywords to control the input
               %%Keyword: TINT <basic>
               <HELP>
               Specifies the temperature points for the evaluation of the magnetic susceptibility.
-              The program will read four numbers: Tmin, Tmax, nT, and dltT0. Units of temperature = Kelvin (K).
+              The program will read three numbers: Tmin, Tmax, nT. Units of temperature = kelvin (K).
               ||Tmin  -- the minimal temperature (Default 0.0 K)
               ||Tmax  -- the maximal temperature (Default 300.0 K)
               ||nT    -- number of temperature points (Default 101)
@@ -250,7 +250,7 @@ Optional general keywords to control the input
               %%Keyword: HINT <basic>
               <HELP>
               Specifies the field points for the evaluation of the molar magnetization.
-              The program will read four numbers: Hmin, Hmax, nH, and dltH0. Units of magnetic field = Tesla (T).
+              The program will read four numbers: Hmin, Hmax, nH, and dltH0. Units of magnetic field = tesla (T).
               ||Hmin  -- the minimal field (Default 0.0 T)
               ||Hmax  -- the maximal field (Default 300.0 T)
               ||nH    -- number of field points (Default 101)
@@ -270,7 +270,10 @@ Optional general keywords to control the input
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="TMAG" KIND="REAL" LEVEL="BASIC">
               %%Keyword: TMAG <basic>
               <HELP>
-              Specifies the temperature(s) at which the field-dependent magnetization is calculated. The program will read the number of temperature points (NTemp) and then an array of
+              Specifies the temperature(s) at which the field-dependent magnetization is calculated.
+              The program will read the number of temperature points (NTemp) and then an array of
+              numbers specifying the temperatures (in kelvin) at which magnetization is to be computed.
+              Default is to compute magnetization at one temperature point (2.0 K).
               </HELP>
               </KEYWORD>
 
@@ -338,8 +341,8 @@ Optional general keywords to control the input
 
 :kword:`MVEC`
   Defines the number of directions for which the magnetization vector will be computed.
-  On the first line below the keyword, the number of directions should be mentioned (NDIR. Default 0).
-  The program will read NDIR lines for cartesian coordinates specifying the direction :math:`i` of the
+  On the first line below the keyword, the number of directions should be mentioned (:math:`N_{\text{DIR}}`. Default 0).
+  The program will read :math:`N_{\text{DIR}}` lines for Cartesian coordinates specifying the direction :math:`i` of the
   applied magnetic field (:math:`\theta_i` and :math:`\phi_i`). These values may be arbitrary real numbers.
   The direction(s) of applied magnetic field are obtained by normalizing the length of each vector to one.
   Example: ::
@@ -422,7 +425,7 @@ Optional general keywords to control the input
               This keyword allows computation of the magnetic susceptibility at experimental
               temperature points. On the line below the keyword, the number of experimental
               points NT is defined, and on the next NT lines the program reads the experimental
-              temperature (in K) and the experimental magnetic susceptibility (in cm^3Kmol^{-1} ).
+              temperature (in K) and the experimental magnetic susceptibility (in cm^3 K mol^-1).
               TEXP and TINT keywords are mutually exclusive. The SINGLE_ANISO will also print the
               standard deviation from the experiment.
               </HELP>
@@ -439,7 +442,7 @@ Optional general keywords to control the input
               <HELP>
               This keyword allows computation of the molar magnetization at experimental field points.
               On the line below the keyword,the number of experimental points NH is defined, and on
-              the next NH lines the program reads the experimental field strength (Tesla) and the
+              the next NH lines the program reads the experimental field strength (tesla) and the
               experimental magnetization (in Bohr magnetons). HEXP and HINT are mutually exclusive.
               The SINGLE_ANISO will print the standard deviation from the experiment.
               </HELP>
@@ -458,6 +461,22 @@ Optional general keywords to control the input
               mean molecular field acting on the spin of the complex (the average intermolecular
               exchange constant). It is used in the calculation of all magnetic properties (not for
               spin Hamiltonians) (Default is 0.0)
+              </HELP>
+              </KEYWORD>
+
+:kword:`XFIE`
+  This keyword specifies the value (in :math:`\text{T}`) of applied magnetic field
+  for the computation of magnetic susceptibility by :math:`\mathrm{d}M/\mathrm{d}H` and :math:`M/H` formulas.
+  A comparison with the usual formula (in the limit of zero applied field) is provided.
+  (Default is 0.0)
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="XFIE" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: XFIE <basic>
+              <HELP>
+              This keyword specifies the value (in tesla) of applied magnetic field
+              for the computation of magnetic susceptibility by: dM/dH and M/H formulas.
+              A comparison with the usual formula (in the limit of zero applied field) is provided.
+              (Default is 0.0)
               </HELP>
               </KEYWORD>
 
@@ -584,6 +603,22 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`PLOT`
+  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*.
+  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+  The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+  The files are named: :file:`XT.dat`, :file:`XT.plt`, :file:`XT.png`, :file:`MH.dat`, :file:`MH.plt`, :file:`MH.png`, :file:`BARRIER_TME.dat`, :file:`BARRIER_ENE.dat`, :file:`BARRIER.plt` and :file:`BARRIER.png`.
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: PLOT <basic>
+              <HELP>
+              This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".
+              The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+              The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+              The files are named: XT.dat, XT.plt, XT.png, MH.dat, MH.plt, MH.png, BARRIER_TME.dat, BARRIER_ENE.dat, BARRIER.plt and BARRIER.png.
+              </HELP>
+              </KEYWORD>
+
 An input example
 ................
 
@@ -603,11 +638,7 @@ An input example
   0.0  330.0  331
   MAVE
   1  12
-  MVEC
-  3
-  0.0000  0.0000   0.1000
-  1.5707  0.0000   0.5000
-  1.5707  1.5707   1.0000
+  PLOT
 
 .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="ZEEM" KIND="REALS_COMPUTED" SIZE="3" LEVEL="UNDOCUMENTED" />
 

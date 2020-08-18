@@ -245,7 +245,7 @@
       Else If (PT2) Then
          Write(6,Fmt2//'A,A)') 'CALCULATING LAGRANGIAN MULTIPLIER',
      &                      ' FOR CASPT2'
-      Else If (SA) Then
+      Else If (SA.or.iMCPD) Then
          If (isNAC) Then
             Write(6,Fmt2//'A,I3,"/",I3)')'Lagrangian multipliers '//
      &                            'are calculated for states no. ',
@@ -261,6 +261,12 @@
             If (istate.ne.irlxroot) Then
                Write(6,Fmt2//'39X,A,I3,A)')'(SA root no. ',istate,')'
             End If
+         End If
+         If(TwoStep) Then
+            If(StepType.eq.'RUN1') Write(6,Fmt1)
+     &                      'TwoStep activated. Run 1 (preparation).'
+            If(StepType.eq.'RUN2') Write(6,Fmt1)
+     &                      'TwoStep activated. Run 2 (final run).'
          End If
       Else
          If (ndisp.ne.0) Then
@@ -315,7 +321,7 @@
          If (iMethod.eq.iCASSCF) Then
              Write(6,Fmt2//'A,I3)')
      &          'Linear response function is computed '//
-     &                        'for root no. = ',lRoots
+     &                        'for root no. = ',irlxroot
          Else
             Write(6,Fmt2//'A,I3)')
      &         'Linear response function is computed '//

@@ -129,7 +129,7 @@ The following is an example of a shell script. ::
 
 The file :file:`$ThisDir/$Project.input` contains the ordered sequence
 of |molcas| inputs and the EMIL interpreter will call the appropriate
-programs. See section :ref:`UG:sec:EMIL` for an explanation of the
+programs. See :numref:`UG:sec:EMIL` for an explanation of the
 additional tools available in the EMIL interpreter.
 
 The following is an example of a shell script to be submitted for batch
@@ -368,13 +368,13 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_FIM`
-  Activates the Files In Memory I/O layer. See section :ref:`MT:sec:fim` for more details.
+  Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
   *Note that this setting is available only in MOLCAS compiled without Global
   Arrays.*
 
   .. warning::
 
-     This feature is not available in OpenMolcas.
+     This feature is not available in |openmolcas|.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_FIM" APPEAR="FiM" KIND="CHOICE" LIST="----,YES" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_FIM <advanced>
@@ -476,6 +476,12 @@ The complete list of |molcas|-related environment variables:
               If MOLCAS_MOLDEN set to 'ON' a Molden style input file will be generated regardless of the number of orbitals.
               </HELP>
               </KEYWORD>
+
+:variable:`MOLCAS_NEW_DEFAULTS`
+  If set to ``YES`` (case insensitive), some new default values will be activated:
+
+  * :kword:`RICD` will be enabled by default in :program:`GATEWAY`, it can be disabled with :kword:`NOCD`.
+  * The default IPEA shift in :program:`CASPT2` is set to 0.0, other values can be specified normally with the :kword:`IPEA` keyword.
 
 :variable:`MOLCAS_NEW_WORKDIR`
   If set to YES |molcas| will never reuse files in scratch area.

@@ -8,19 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-***********************************************************************
-*                                                                     *
-*  Subroutine Shell_MxDens:   returns max density values for each     *
-*                             shell pair...                           *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*  Subroutine Shell_MxDens:   returns max density values for each      *
+*                             shell pair...                            *
+*                                                                      *
+************************************************************************
       subroutine Shell_MxDens(Dens,DMax,nSkal)
 c----------------------------------------------------------------------
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "shinf.fh"
-#include "WrkSpc.fh"
       dimension dmax(nskal,nskal),dens(*)
       ijoff=0
       call fzero(dmax,nskal*nskal)

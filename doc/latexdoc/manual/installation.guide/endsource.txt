@@ -1,3 +1,0 @@
-%! endsource.tex $ this file belongs to the Molcas repository $*/
-
-\end{sourcelisting}

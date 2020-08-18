@@ -37,7 +37,7 @@ c      Write (*,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
 c     Write (*,*) 'AABB'
       IND=0
       DO 12 IRREP1=2,NIRREP
-      DO 12 IRREP2=1,IRREP1-1
+      DO 120 IRREP2=1,IRREP1-1
        IND=IND+1
        iBlock=iBlock+1
        iTable(1,iBlock)=2
@@ -47,6 +47,7 @@ c     Write (*,*) 'AABB'
        iTable(5,iBlock)=IRREP1-1
        iTable(6,iBlock)=IND
 c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
+120    CONTINUE
 12    CONTINUE
 *
 *----- ABAB
@@ -54,7 +55,7 @@ c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
 *     Write (*,*) 'ABAB'
       IND=0
       DO 13 IRREP=2,NIRREP
-      DO 13 IRREP1=1,NIRREP
+      DO 130 IRREP1=1,NIRREP
        IRREP2=IEor(IRREP-1,IRREP1-1)+1
        IF(IRREP2.GT.IRREP1) THEN
         IND=IND+1
@@ -67,6 +68,7 @@ c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
         iTable(6,iBlock)=IND
 *       Write (*,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
        ENDIF
+130    CONTINUE
 13    CONTINUE
 *
 *----- ABCD

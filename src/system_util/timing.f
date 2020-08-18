@@ -12,7 +12,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*   This file contains Fortran front-ends for the c timing routines:   *
+*   This file contains Fortran front-ends for the C timing routines:   *
 *                                                                      *
 *   (void)timingcinit()    : initialization                            *
 *   (void)timingc(double elapse,double usercpu,double syscpu)          *
@@ -30,7 +30,7 @@
 *     SetTim is used to start a global timer. The second, called       *
 *     Timing, returns the cpu time used since the timer has been       *
 *     and, in addition the cpu time used since the timer has been      *
-*     called the previos time.                                         *
+*     called the previous time.                                        *
 *                                                                      *
 *     calling arguments:                                               *
 *     CPUA     : Type double precision real, output                    *

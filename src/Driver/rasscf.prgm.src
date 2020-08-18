@@ -31,3 +31,7 @@
 #include "chemps2files.inc"
 #include "espffiles.inc"
 #include "geodata.inc"
+ (file)  ROT_HAM   "$WorkDir/"H0_Rotate.txt        rw
+ (file)  ROT_VEC   "$WorkDir/"Do_Rotate.txt        ro
+ (file)  ROT_HAM0  "$WorkDir/"H0_Rotate0.txt       ro
+ (file)  ROT_VEC0  "$WorkDir/"Do_Rotate0.txt       ro

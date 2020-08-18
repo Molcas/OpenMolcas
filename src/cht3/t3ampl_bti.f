@@ -687,7 +687,12 @@ cmp
 #ifdef _MOLCAS_MPP_
 
         it1=NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2)
-        call gadgop (ccsdt,1,'+')
+        block
+            real*8 :: real_buffer(1)
+            real_buffer(1) = ccsdt
+            call gadgop (real_buffer, size(real_buffer), '+')
+            ccsdt = real_buffer(1)
+        end block
         call gadgop (energ,4,'+')
         call gadgop (times_parr,10,'+')
 c
@@ -771,6 +776,7 @@ c Master has only to sum up the results
          enddo
       endif
 
+      ccsdt4=0.d0
       if(ifvo)then
         write (6,*) 'ifvo correspond to open-shell system. Exiting'
         call abend()
@@ -787,8 +793,6 @@ cmp!         ccsdt4=2.0*ddot_(noab(1)*nuab(1),w(t1a),1,w(t1b),1)
 cmp!      else
 cmp!         ccsdt4=ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),w(t1a),1,w(t1b),1)
 cmp!      endif
-      else
-         ccsdt4=0.d0
       endif
 
       RESULT(IT+3,5)=ccsdt4+ccsdt

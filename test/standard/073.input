@@ -11,13 +11,13 @@
 Title
 Comparison to Turbomole
 
-Basis
+Basis set
 H.DEF-SV(P)...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SV(P)...
 O 0.0 0.0 0.0
 End of Basis
@@ -42,13 +42,13 @@ End of input
 Title
 Comparison to Turbomole
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -77,13 +77,13 @@ Comparison to Turbomole
 Symmetry
 z
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -97,7 +97,7 @@ End of Input
 Occupation
 4 1
 KSDFT
-LDA  
+LDA
 ChoInput
 Algo
  3
@@ -112,12 +112,12 @@ Comparison to Turbomole
 Symmetry
 x z
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -131,7 +131,7 @@ End of Input
 Occupation
 3 1 1 0
 KSDFT
-LDA  
+LDA
 ChoInput
 Algo
  3
@@ -143,13 +143,13 @@ End of input
 Title
 Comparison to Turbomole
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -178,13 +178,13 @@ Comparison to Turbomole
 Symmetry
 z
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 H2    -1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -198,7 +198,7 @@ End of Input
 Occupation
 4 1
 KSDFT
-B3LYP  
+B3LYP
 ChoInput
 Algo
  3
@@ -213,12 +213,12 @@ Comparison to Turbomole
 Symmetry
 x z
 
-Basis
+Basis set
 H.DEF-SVP...
 H1     1.43445000    1.11084200    0.00000000
 End of Basis
 
-Basis
+Basis set
 O.DEF-SVP...
 O 0.0 0.0 0.0
 End of Basis
@@ -232,7 +232,7 @@ End of Input
 Occupation
 3 1 1 0
 KSDFT
-B3LYP  
+B3LYP
 ChoInput
 Algo
  3

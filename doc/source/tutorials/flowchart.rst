@@ -1,5 +1,5 @@
-|molcasthis| Flowchart
-======================
+|molcas| Flowchart
+==================
 
 .. figure:: flow-all.*
    :name: flow:flow_all
