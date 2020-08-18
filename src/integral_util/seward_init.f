@@ -96,7 +96,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 
       iChCar(:)=0
       KVector(:)=Zero
-      lOffAO(1:Mxdbsc)=0
       kOffAO(1:Mxdbsc,0:MxAng)=0
       iAOtSO(1:MxAO,0:7)=-999999999
       MaxBas(0:MxAng)=0
@@ -112,8 +111,9 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iSquar=0
       iWRopt=0
       iPAMcount=1
+
+      lOffAO(1:Mxdbsc)=0
       Do i=1, Mxdbsc
-         ECP(i)      =.false.
          AuxCnttp(i) =.false.
          FragCnttp(i)=.false.
          FockOp(i)   = .False.

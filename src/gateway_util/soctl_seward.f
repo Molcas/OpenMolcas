@@ -240,7 +240,7 @@ C     Show=Show.and..Not.Primitive_Pass
             If (AuxCnttp(iCnttp)) output=output .and. iPrint.ge.10
      &                            .and. iCnttp.ne.iCnttp_Dummy
             If (FragCnttp(iCnttp)) output=output .and. iPrint.ge.10
-            kECP = ECP(iCnttp)
+            kECP = dbsc(iCnttp)%ECP
             lMax=nVal_Shells(iCnttp)-1
 *
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
@@ -633,7 +633,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp))
      &        output = output.and.iPrint.ge.10
      &                       .and.iCnttp.ne.iCnttp_Dummy
-            kECP = ECP(iCnttp)
+            kECP = dbsc(iCnttp)%ECP
             lMax=nVal_Shells(iCnttp)-1
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
             If (kECP) Then
@@ -872,7 +872,7 @@ CSVC: basis IDs of non-symmetric case
       iShell = 0
       iAO = 0
       Do 401 iCnttp = 1, nCnttp
-         kECP = ECP(iCnttp)
+         kECP = dbsc(iCnttp)%ECP
 *
 *        Loop over distinct centers
 *

@@ -23,7 +23,7 @@
 *                                                                      *
 ************************************************************************
 *
-      use Basis_Info, only: nCnttp, Shells
+      use Basis_Info, only: dbsc, nCnttp, Shells
 #include "itmax.fh"
 #include "info.fh"
 *
@@ -32,7 +32,7 @@
       nHer = 0
       MemSRO = 0
       Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Cycle
+         If (.Not.dbsc(iCnttp)%ECP) Cycle
          Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
             iShll = ipSRO(iCnttp) + iAng
             nExpi = Shells(iShll)%nExp

@@ -93,7 +93,7 @@
 *
       kdc = 0
       do 1960 kcnttp = 1, ncnttp
-         if (.not.ecp(kcnttp)) Go To 1961
+         if (.not.dbsc(kcnttp)%ECP) Go To 1961
          if (nsro_shells(kcnttp).le.0) Go To 1961
          do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)

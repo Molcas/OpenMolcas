@@ -121,7 +121,7 @@
 *
                      fab=One
                      dfab=Zero
-                     If (ECP(iCnttp)) Then
+                     If (dbsc(iCnttp)%ECP) Then
 *-----------------------Add contribution from M1 operator
                         Cnt0M1=Zero
                         Cnt1M1=Zero
@@ -145,7 +145,7 @@
                         fab=fab+r12*Cnt0M2
                         dfab=dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
                      End If
-                     If (ECP(jCnttp)) Then
+                     If (dbsc(jCnttp)%ECP) Then
 *-----------------------Add contribution from M1 operator
                         Cnt0M1=Zero
                         Cnt1M1=Zero
@@ -311,7 +311,7 @@
                   fab0=One
                   fab1=One
                   fab2=Three
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contribution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
@@ -552,7 +552,7 @@
 *
                   fab=One
                   dfab=Zero
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contribution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero

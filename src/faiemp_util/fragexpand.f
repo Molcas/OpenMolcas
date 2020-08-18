@@ -176,7 +176,7 @@
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),FockOp(nCnttp),
-     &                 ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
+     &                 NoPairL(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),nProj,nAIMP,iOptn,
      &                 UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,

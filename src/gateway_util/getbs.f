@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,FockOp, ECP,NoPairL,SODK,
+     &                 PAM2,FockOp, NoPairL,SODK,
      &                 CrRep,nProj,nAIMP,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
@@ -57,7 +57,7 @@
       External Get_Ln
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
-      Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
+      Logical inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
      &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
      &        isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
@@ -113,7 +113,7 @@
       If (IfTest) iPrint=99
       ip_Dummy=-1
       PAM2 = .False.
-      ECP = .False.
+      dbsc(nCnttp)%ECP = .False.
       FockOp = .True.
       NoPairL = .False.
       nVal=0
@@ -628,7 +628,7 @@
       If ( Index(BSLBl,'.ECP.').ne.0  .or.
      &     Index(BSLBl,'.REL.').ne.0 ) then
          If (IfTest) Write (6,*) ' Process ECPs/RELs'
-         ECP = .True.
+         dbsc(nCnttp)%ECP = .True.
          iPrSh=iShll
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'

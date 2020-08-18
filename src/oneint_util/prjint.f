@@ -102,7 +102,7 @@
       iComp = 1
       mdc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Then
+         If (.Not.dbsc(iCnttp)%ECP) Then
             mdc = mdc + dbsc(iCnttp)%nCntr
             Cycle
          End If

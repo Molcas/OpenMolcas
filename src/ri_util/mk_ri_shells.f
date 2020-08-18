@@ -167,7 +167,7 @@
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
+     &              NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),nProj,nAIMP,iOptn,
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -187,10 +187,10 @@
             Write (6,*)
          End If
          lPAM2 = lPAM2 .or. PAM2(nCnttp)
-         ECP(nCnttp)=(nPrj+nSRO+nSOC+
+         dbsc(nCnttp)%ECP=(nPrj+nSRO+nSOC+
      &                dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
          lPP=lPP .or. nPP.ne.0
-         lECP = lECP .or. ECP(nCnttp)
+         lECP = lECP .or. dbsc(nCnttp)%ECP
          lNoPair = lNoPair .or. NoPairL(nCnttp)
 *
          iAngMx=Max(iAngMx,lAng)
@@ -460,8 +460,8 @@ C        Fixed(nCnttp)=.False.
             nSRO=0
             nSOC=0
             nPP=0
-            ECP(nCnttp)=.False.
-            lECP = lECP .or. ECP(nCnttp)
+            dbsc(nCnttp)%ECP=.False.
+            lECP = lECP .or. dbsc(nCnttp)%ECP
             lPP=lPP .or. nPP.ne.0
             NoPairL(nCnttp)=.False.
             lNoPair = lNoPair .or. NoPairL(nCnttp)

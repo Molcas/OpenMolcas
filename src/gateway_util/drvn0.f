@@ -108,7 +108,7 @@ C     nElem(ixyz) = 2*ixyz+1
                            Call Abend()
                         End If
                         fab = One
-                        If (ECP(iCnttp)) Then
+                        If (dbsc(iCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
                            Do iM1xp=1, dbsc(iCnttp)%nM1
                              Gamma = dbsc(iCnttp)%M1xp(iM1xp)
@@ -122,7 +122,7 @@ C     nElem(ixyz) = 2*ixyz+1
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
                            Do iM1xp=1, dbsc(jCnttp)%nM1
                              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
@@ -277,7 +277,7 @@ C     nElem(ixyz) = 2*ixyz+1
                         r12 = Sqrt(ABx**2 + ABy**2 + ABz**2)
 *
                         fab=One
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
                            Do iM1xp=1, dbsc(jCnttp)%nM1
                              Gamma = dbsc(jCnttp)%M1xp(iM1xp)

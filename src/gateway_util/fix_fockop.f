@@ -473,7 +473,7 @@
          Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
+     &              NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),nProj,nAIMP,iOptn,
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -539,7 +539,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-            If (ECP(iCnttp)) Then
+            If (dbsc(iCnttp)%ECP) Then
 #ifdef _DEBUG_
                If (lPP) Then
                   Write (6,*) 'Reference is ECP (Pseudo Potential)'

@@ -76,6 +76,7 @@
       Len = (Len+nByte_i)/nByte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Put_iArray('SewIInfo',p_ix,Len)
+*
       Call Put_iArray('IndS',IndS,nShlls)
       Call Put_iArray('nOpt',nOpt,nCnttp)
       Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)

@@ -408,7 +408,7 @@
             nPP_Shells(nCnttp)  = 0
             AuxCnttp(nCnttp) =.True.
             lAux =.True.
-            ECP(nCnttp)=.False.
+            dbsc(nCnttp)%ECP=.False.
             aCD_Thr(nCnttp)=aCD_Thr(iCnttp)
             fmass(nCnttp)=fmass(iCnttp)
 *                                                                      *

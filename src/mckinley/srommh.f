@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
 *
-      use Basis_Info, only: nCnttp, Shells
+      use Basis_Info, only: dbsc, nCnttp, Shells
 #include "itmax.fh"
 #include "info.fh"
 *
@@ -35,7 +35,7 @@
       ld=2
       MmSROH = 0
       Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1960
+         If (.Not.dbsc(iCnttp)%ECP) Go To 1960
          Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
             iShll = ipSRO(iCnttp) + iAng
             nExpi=Shells(iShll)%nExp

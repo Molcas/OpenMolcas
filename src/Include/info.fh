@@ -139,7 +139,6 @@
 *             be accumulated and displayed                             *
 *     lECP  : Signifies that ECP''s are present                        *
 *     lNOpar: Signifies that no-pair operators are used                *
-*     ECP   : Signifies that the i''th unique center is of ECP-type    *
 *     lXF   : logical flag to indicate presence of an external field   *
 *     lPP   : logical flag to indicate presence of a pseudo potential  *
 *     lAMFI : logical flag for Atomic Mean Field Integrals             *
@@ -290,7 +289,7 @@
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
-     &          ECP(Mxdbsc), pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
+     &          pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
      &          SODK(Mxdbsc), AuxCnttp(Mxdbsc), Do_GuessOrb,
      &          lFAIEMP,FragCnttp(Mxdbsc),
@@ -307,7 +306,7 @@
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
      &               Test, Vlct,      lOAM, lOMQ, lAMP, FockOp,
      &               Prprt, Short, ifallorb, lDMS, lRel,        UnNorm,
-     &               lSchw, Dist,ECP, lECP, lXF,pChrg, Fixed, lNOpair,
+     &               lSchw, Dist, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,
      &               GIAO, SODK,         Do_FckInt, Cholesky,
      &               lFAIEMP,          FragCnttp,Force_Out_of_Core,

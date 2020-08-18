@@ -115,7 +115,7 @@
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 1961
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
          If (nSRO_Shells(kCnttp).le.0) Go To 1961
 
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr

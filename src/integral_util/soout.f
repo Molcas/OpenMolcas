@@ -56,7 +56,7 @@
          mc  = 1
          iShell = 0
          Do 201 iCnttp = 1, nCnttp
-            kECP = ECP(iCnttp)
+            kECP = dbsc(iCnttp)%ECP
             If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 201
 *
 *           Loop over distinct centers

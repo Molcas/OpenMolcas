@@ -226,7 +226,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
 *
          kShStr = ipPrj(iCnttp)
          kShEnd = kShStr + nPrj_Shells(iCnttp)-1
-         If (output.and.ECP(iCnttp) .AND..NOT.lOPTO) Then
+         If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Write (LuWr,*)
             Write (LuWr,'(6X,A)')
      &             'Effective Core Potential specification:'
@@ -267,7 +267,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
 *--------Spectral resolution basis set
          kShStr = ipSRO(iCnttp)
          kShEnd = kShStr + nSRO_Shells(iCnttp)-1
-         If (output.and.ECP(iCnttp) .AND..NOT.lOPTO) Then
+         If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
                nExpk=Shells(kSh)%nExp
@@ -333,7 +333,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
 *
          kShStr = ipSOC(iCnttp)
          kShEnd = kShStr + nSOC_Shells(iCnttp)-1
-         If (output.and.ECP(iCnttp) .AND..NOT.lOPTO) Then
+         If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
                nExpk=Shells(kSh)%nExp

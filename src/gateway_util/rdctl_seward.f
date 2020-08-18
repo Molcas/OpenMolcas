@@ -1175,7 +1175,7 @@ c Simplistic validity check for value
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           FockOp(nCnttp),
-     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
+     &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),nProj,nAIMP,iOptn,
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -1238,10 +1238,10 @@ c Simplistic validity check for value
          Write (LuWr,*)
       End If
       lPAM2 = lPAM2 .or. PAM2(nCnttp)
-      ECP(nCnttp)=(nPP+nPrj+nSRO+nSOC+
+      dbsc(nCnttp)%ECP=(nPP+nPrj+nSRO+nSOC+
      &             dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
       lPP=lPP .or. nPP.ne.0
-      lECP = lECP .or. ECP(nCnttp)
+      lECP = lECP .or. dbsc(nCnttp)%ECP
       lNoPair = lNoPair .or. NoPairL(nCnttp)
 *
       iAngMx=Max(iAngMx,lAng)

@@ -119,7 +119,7 @@ c     End If
       nb=nZeta*nElem(la)*nElem(lb)
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 111
+         If (.Not.dbsc(kCnttp)%ECP) Go To 111
          If (dbsc(kCnttp)%nM1.eq.0) Go To 111
 
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr

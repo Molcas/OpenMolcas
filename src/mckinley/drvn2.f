@@ -125,7 +125,7 @@ c     Call qEnter('DrvN2')
                dfab=Zero
                ddfab=Zero
 *
-               If (ECP(iCnttp)) Then
+               If (dbsc(iCnttp)%ECP) Then
 *-----------------Add contibution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
@@ -155,7 +155,7 @@ c     Call qEnter('DrvN2')
                   dfab=dfab+Cnt0M2-Two*r12**2*Cnt1M2
                   ddfab=ddfab-Six**r12*Cnt1M2+Four*r12*Three*Cnt2M2
                End If
-               If (ECP(jCnttp)) Then
+               If (dbsc(jCnttp)%ECP) Then
 *-----------------Add contibution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
@@ -374,7 +374,7 @@ c     Call qEnter('DrvN2')
                   fab  =One
                   dfab =Zero
                   ddfab=Zero
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
@@ -562,7 +562,7 @@ c     Call qEnter('DrvN2')
      &                          (A(3)-RB(3))**2 )
                   fab  =One
                   dfab =Zero
-                  If (ECP(iCnttp)) Then
+                  If (dbsc(iCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
@@ -619,7 +619,7 @@ c     Call qEnter('DrvN2')
 *
                   fcd  =One
                   dfcd =Zero
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero

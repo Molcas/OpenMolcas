@@ -275,7 +275,7 @@ Cend
 *
 *------- Huzinaga type ECP
 *
-         If (ECP(iCnttp)) Then
+         If (dbsc(iCnttp)%ECP) Then
             If (iPrint.ge.10) Then
                Write (LuWr,*)
                Write (LuWr,*)
@@ -428,7 +428,7 @@ Cend
                   iSh = iSh + 1
                End Do ! iAng
             End If  ! If (iPrint.ge.10) Then
-         End If ! If (ECP(iCnttp)) Then
+         End If ! If (dbsc(iCnttp)%ECP) Then
 *
       End Do
 *                                                                      *

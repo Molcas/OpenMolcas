@@ -167,7 +167,7 @@
                         r12 = Sqrt(ABx**2 + ABy**2 + ABz**2)
 *
                         fab=One
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
                            Do iM1xp=1, dbsc(jCnttp)%nM1
                              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
