@@ -564,6 +564,16 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_RANDOM_SEED`
+  Set to an integer to provide a fixed seed for operations that use a random number. 
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_RANDOM_SEED" APPEAR="Random number seed" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: MOLCAS_RANDOM_SEED <advanced>
+              <HELP>
+              Set to an integer to provide a fixed seed for operations that use a random number. 
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_REDUCE_PRT`
   If set to NO, print level in DO WHILE loop is not reduced.
 
