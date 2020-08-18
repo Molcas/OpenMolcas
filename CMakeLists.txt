@@ -1826,6 +1826,8 @@ if (MSYM)
     message ("-- MSYM_INCLUDE_PATH: ${MSYM_INCLUDE}")
     message ("-- MSYM_LIBRARIES: ${MSYM_LIBRARIES}")
 
+    add_definitions (-D_MSYM_)
+
     list (APPEND EXTERNAL_LIBRARIES ${MSYM_LIBRARIES})
   else ()
     set (MSYM_FOUND OFF)
