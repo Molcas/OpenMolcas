@@ -905,7 +905,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 *---  Process MSPD command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
       If (KeyMSPD) Then
-       Write(6,*) ' MSPD keyword was used.'
+       If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
        Call ChkIfKey_m()

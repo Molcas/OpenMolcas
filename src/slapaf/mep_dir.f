@@ -321,7 +321,7 @@
 *       to try to break symmetry
 *
         If (nSym.eq.1) Then
-          Call Random_Vector(nCoor,Work(ipDisp))
+          Call Random_Vector(nCoor,Work(ipDisp),.True.)
           dDir=Zero
           iOff=0
           Do iAtom=1,nAtom

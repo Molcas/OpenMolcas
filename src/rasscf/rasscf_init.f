@@ -374,5 +374,8 @@ CSVC: lucia timers
       tsigma = 0.0d0
       tdensi = 0.0d0
 *
+C state rotation
+      iRotPsi=0
+      iXMSP=0
       RETURN
       END

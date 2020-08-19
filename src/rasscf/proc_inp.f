@@ -873,6 +873,15 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        Call SetPos(LUInput,'ROST',Line,iRc)
        Call ChkIfKey()
       End If
+*---  Process XMSI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if XMSI case.'
+      If (KeyXMSI) Then
+       If (DBG) Write(6,*) ' XMSI keyword was used.'
+       iRotPsi=1
+       IXMSP=1
+       Call SetPos(LUInput,'XMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
 *---  Process RFPE command ----- (new!) -------------------------------*
       If(KeyRFPE) Then
        If (DBG) Then
