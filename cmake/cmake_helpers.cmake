@@ -7,3 +7,6 @@ function(add_Fortran_library Target)
     target_include_directories(${Target} INTERFACE ${LIB_DIR}/mod)
 endfunction()
 
+function(add_directory Dir)
+    add_subdirectory(${Dir} bin)
+endfunction()

@@ -1,5 +1,5 @@
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
 # Libfruit provides the machinery for unit testing in Fortran
-add_Fortran_library(fruit
+add_Fortran_library(fruit_molcas
     fruit.f90)
