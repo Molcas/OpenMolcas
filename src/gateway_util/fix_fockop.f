@@ -110,7 +110,7 @@
          iFerm=1
          If (fMass(iCnttp).ne.1.0D0) iFerm=2
 *
-         If (FockOp(iCnttp).and.Charge(iCnttp).eq.0.0D0) Then
+         If (dbsc(iCnttp)%FOp.and.Charge(iCnttp).eq.0.0D0) Then
             Do iAng = 0, nVal_Shells(iCnttp)-1
                iShll_a    = ipVal(iCnttp) + iAng
                Shells(iShll_a)%FockOp(:,:)=Zero
@@ -120,7 +120,7 @@
          If(dbsc(iCnttp)%Aux .or.
      &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
-     &      FockOp(iCnttp)) Then
+     &      dbsc(iCnttp)%FOp) Then
            Cycle
          End If
 *
@@ -398,7 +398,7 @@
                Call mma_deallocate(Scr2)
             End Do
 *
-            FockOp(iCnttp)=.TRUE.
+            dbsc(iCnttp)%FOp=.TRUE.
             Cycle
          End If
 *
@@ -472,8 +472,7 @@
          SODK(nCnttp)=.False.
          Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
-     &              PAM2(nCnttp),FockOp(nCnttp),
-     &              NoPairL(nCnttp),SODK(nCnttp),
+     &              PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),nProj,nAIMP,iOptn,
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -481,7 +480,7 @@
      &              LuRd,BasisTypes,idummy,
      &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
 *
-         If (.Not.FockOp(nCnttp)) Then
+         If (.Not.dbsc(nCnttp)%FOp) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'
      &                //' proper Fock operator'
             Cycle
@@ -529,7 +528,7 @@
             nPrim_r  = Shells(iShll_r)%nExp
             If (nPrim_r.eq.0) Then
                Write (6,*) 'GuessOrb option turned off!'
-               FockOp(iCnttp)=.FALSE.
+               dbsc(iCnttp)%FOp=.FALSE.
                Exit
             End If
             nCntrc_r = Shells(iShll_r)%nBasis_C
@@ -880,7 +879,7 @@ c         write(6,*)'qtest, Test_Charge = ',qtest, Test_Charge
 c         write(6,*)'Charge_Actual,Charge_Effective = ',
 c     &               Charge_Actual,Charge_Effective
          If (qTest.eq.Zero.or.Charge(iCnttp).eq.Zero) Then
-            FockOp(iCnttp)=.TRUE.
+            dbsc(iCnttp)%FOp=.TRUE.
          Else If (Try_Again) Then
             If (qTest.eq.2.0D0) Then
 *              s
@@ -918,7 +917,7 @@ c     &               Charge_Actual,Charge_Effective
             Go To 777
          Else
             Write (6,*) 'GuessOrb option turned off!'
-            FockOp(iCnttp)=.FALSE.
+            dbsc(iCnttp)%FOp=.FALSE.
          End If
 *                                                                      *
 ************************************************************************
@@ -949,9 +948,9 @@ c     &               Charge_Actual,Charge_Effective
          If(dbsc(iCnttp)%Aux .or.
      &      dbsc(iCnttp)%Frag .or.
      &      dbsc(iCnttp)%nFragType.gt.0 .or.
-     &      FockOp(iCnttp)) Cycle
+     &      dbsc(iCnttp)%FOp) Cycle
 *
-         Do_FckInt = Do_FckInt .and. FockOp(iCnttp) ! To be activated!
+         Do_FckInt = Do_FckInt .and. dbsc(iCnttp)%FOp ! To be activated!
 *
       End Do
       Call mma_deallocate(STDINP)

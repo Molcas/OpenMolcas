@@ -149,7 +149,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           FockOp(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),nProj,nAIMP,iOptn,
      &           UnNorm,nDel,
@@ -158,7 +157,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           LuRd,BasisTypes,IsMM(nCnttp),
      &           STDINP,iSTDINP,.True.,.true.,' ',nCnttp)
 *
-      Do_FckInt = Do_FckInt .and. FockOp(nCnttp)
+      Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
          If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2)
      &       iType=BasisTypes(3)

@@ -1173,7 +1173,6 @@ c Simplistic validity check for value
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           FockOp(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),nProj,nAIMP,iOptn,
      &           UnNorm,nDel,
@@ -1183,7 +1182,7 @@ c Simplistic validity check for value
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           nCnttp)
 *
-      Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
+      Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
      &            iAtmNr(nCnttp).le.96
 #ifdef _DEMO_
       Do_GuessOrb = .False.

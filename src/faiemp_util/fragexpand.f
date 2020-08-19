@@ -175,8 +175,7 @@
             mdciCnttp(nCnttp)=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
-     &                 PAM2(nCnttp),FockOp(nCnttp),
-     &                 NoPairL(nCnttp),SODK(nCnttp),
+     &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),nProj,nAIMP,iOptn,
      &                 UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
@@ -190,7 +189,7 @@
             Shells(jShll+2)%Prjct =.False.
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
-            FockOp(nCnttp)=.False.
+            dbsc(nCnttp)%FOp=.False.
             nOpt(nCnttp) = iOptn
             ipVal(nCnttp) = ipVal_
             ipPrj(nCnttp) = ipPrj_

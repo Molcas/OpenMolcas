@@ -49,6 +49,7 @@
 !     ECP      : Flag if dbsc is a ECP basis set
 !     Frag     : Flag if dbsc is a Fragment basis set
 !     Aux      : Flag if dbsc is an auxiliary basis set
+!     FOp      : Flag if dbsc has a Fock Operator
 !
       Type Distinct_Basis_set_centers
           Sequence
@@ -65,6 +66,7 @@
           Logical:: ECP=.False.
           Logical:: Aux =.False.
           Logical:: Frag=.False.
+          Logical:: FOp =.False.
       End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -112,7 +114,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields =10, mFields = 10
+      Integer :: nFrag_LineWords = 0, nFields =11, mFields = 10
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -200,6 +202,8 @@
          If (dbsc(i)%Frag)iDmp(9,i)=1
          iDmp(10,i) = 0
          If (dbsc(i)%Aux )iDmp(10,i)=1
+         iDmp(11,i) = 0
+         If (dbsc(i)%FOp )iDmp(11,i)=1
          nAtoms=nAtoms+dbsc(i)%nCntr
          nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -422,6 +426,7 @@
          dbsc(i)%ECP       = iDmp( 8,i).eq.1
          dbsc(i)%Frag      = iDmp( 9,i).eq.1
          dbsc(i)%Aux       = iDmp(10,i).eq.1
+         dbsc(i)%FOp       = iDmp(11,i).eq.1
          nFragCoor=Max(0,dbsc(i)%nFragCoor)
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
                +nFrag_LineWords*dbsc(i)%nFragType     &

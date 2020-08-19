@@ -286,7 +286,7 @@
       Logical   DirInt, Onenly, Petite,
      &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
-     &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
+     &          lSchw, Dist, lAMFI, force_part_p,
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
      &          pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
@@ -300,13 +300,13 @@
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,
-     &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
+     &               lAux,  NEMO,lPP, LDF, AuxCnttp, Do_RI,
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
-     &               Test, Vlct,      lOAM, lOMQ, lAMP, FockOp,
-     &               Prprt, Short, ifallorb, lDMS, lRel,        UnNorm,
+     &               Test, Vlct, lOAM, lOMQ, lAMP,
+     &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
      &               lSchw, Dist, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,
-     &               GIAO, SODK,         Do_FckInt, Cholesky,
+     &               GIAO, SODK, Do_FckInt, Cholesky,
      &               lFAIEMP, Force_Out_of_Core,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
@@ -326,10 +326,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Real*8         AccMch,         ThrInt, Charge(mxdbsc),
+      Real*8         AccMch, ThrInt, Charge(mxdbsc),
      &               PotNuc, Sum, ExpNuc(mxdbsc), Rtrnc,
      &               SumSq,  SumAbs, CutInt, TMass,  CoM(3), rMI(6),
-     &               Prin(3),PAx(9), CoC(3), qNuc,   PkAcc,  Thrs,
+     &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
      &               CrRep(mxdbsc), FragCharge(mxdbsc), E1, E2,
      &               RMax_Shll(MxShll), Thrshld_CD, RPQMin,SadStep,

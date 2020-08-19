@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,FockOp, NoPairL,SODK,
+     &                 PAM2, NoPairL,SODK,
      &                 CrRep,nProj,nAIMP,iOpt,
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
@@ -58,8 +58,7 @@
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
-     &        UnNorm, PAM2, SODK, FockOp,
-     &        isEorb,isFock
+     &        UnNorm, PAM2, SODK, isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
@@ -114,7 +113,7 @@
       ip_Dummy=-1
       PAM2 = .False.
       dbsc(nCnttp)%ECP = .False.
-      FockOp = .True.
+      dbsc(nCnttp)%FOp = .True.
       NoPairL = .False.
       nVal=0
       nPrj=0
@@ -522,7 +521,7 @@
          Shells(iShll)%FockOp(:,:)=Zero
 
          If (isFock) Then
-            FockOp=FockOp .and. .True.
+            dbsc(nCnttp)%FOp=dbsc(nCnttp)%FOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
             Call mma_allocate(Temp,nEorb,nEorb,Label='Temp')
@@ -539,7 +538,7 @@
             Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else If(isEorb) Then
-            FockOp=FockOp .and. .True.
+            dbsc(nCnttp)%FOp=dbsc(nCnttp)%FOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
             Call mma_allocate(Temp,nEorb,1,Label='Temp')
@@ -555,7 +554,7 @@
             Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else
-            FockOp=.False.
+            dbsc(nCnttp)%FOp=.False.
 #ifdef _DEBUG_
             Call RecPrt('Empty',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
