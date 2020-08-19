@@ -124,9 +124,9 @@
             iAt=1
             nsc=0
             Do i=1,nCnttp
-               Do iCnt=1,nCntr(i)
+               Do iCnt=1,dbsc(i)%nCntr
                   nsc=nsc+1
-                  If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
+                  If (.Not.(pChrg(i).Or.dbsc(i)%Frag.Or.dbsc(i)%Aux))
      &                Then
                      iStab(iAt)=jStab(1,nsc)
                      iAt=iAt+1
@@ -179,25 +179,6 @@
      &             'No or wrong weights were found in the RUNFILE.','')
             End If
 *
-<<<<<<< HEAD
-*           Get the symmetry stabilizers for each center
-*
-            Call mma_allocate(iStab,nAt,label='iStab')
-            iAt=1
-            nsc=0
-            Do i=1,nCnttp
-               Do iCnt=1,dbsc(i)%nCntr
-                  nsc=nsc+1
-                  If (.Not.(pChrg(i).Or.dbsc(i)%Frag.Or.dbsc(i)%Aux))
-     &                Then
-                     iStab(iAt)=jStab(1,nsc)
-                     iAt=iAt+1
-                  End If
-               End Do
-            End Do
-*
-=======
->>>>>>> master
 *           Align the reactant and product structures the first time.
 *           Only if energy is invariant
 *
