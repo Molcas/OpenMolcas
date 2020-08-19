@@ -4604,7 +4604,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   Do j=0,2
                      If (iAnd(jTmp,2**j).eq.0) Then
                         jDim=jDim+1
-                        DInf(ixyz+j)=DInf(ixyz+j)+Shake*RandVect(jDim)
+                        dbsc(iCnttp)%Coor(j+1,iCnt)=
+     &                      dbsc(iCnttp)%Coor(j+1,iCnt)
+     &                     +Shake*RandVect(jDim)
                      End If
                   End Do
                End If
