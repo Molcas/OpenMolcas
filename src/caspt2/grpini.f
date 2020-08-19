@@ -57,13 +57,11 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
-       End If
       END IF
 * ---------------------------------------------------------------------
 
@@ -185,10 +183,6 @@ c Modify the Fock matrix if needed
           write(6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
-
-       if(IFXMS) then
-        call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
-       end if
 
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
