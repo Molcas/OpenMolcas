@@ -239,7 +239,7 @@
      &          iChBas(MxFnc),   iSphCr(MxFnc),
      &          IndS(MxShll), nBas_Aux(0:7),
      &          iAOtSO(MxAO,0:7),lOffAO(Mxdbsc), NrInt(-20:9),
-     &          kOffAO(Mxdbsc,0:iTabMx), Max_Center,  nPrm(0:7),
+     &          kOffAO(MxShll), Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl,

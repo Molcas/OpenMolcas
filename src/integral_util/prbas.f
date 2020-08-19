@@ -82,7 +82,7 @@
             Write (Lines(2),*)
             Write (Lines(3),'(A,A,I3)')
      &         ' Number of different angular functions ',
-     &         'preceding this shell',kOffAO(iCnttp,lSh)
+     &         'preceding this shell',kOffAO(jSh)
             Call Banner(Lines,3,30)
             kCmp = (iAng+1)*(iAng+2)/2
             If (Shells(jSh)%Prjct ) kCmp=2*iAng+1
@@ -149,8 +149,7 @@
 *
 *--------------Loop over the angular components of this unique shell
 *
-               iAO = iAOttp + (iCnt-1)*lOffAO(iCnttp)
-     &             + kOffAO(iCnttp,iAng)
+               iAO = iAOttp + (iCnt-1)*lOffAO(iCnttp) + kOffAO(jSh)
                Do 15 iCmp = 1, kCmp
                   Write (6,*)
                   Write (6,'(A,I3)')

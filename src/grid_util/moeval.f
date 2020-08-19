@@ -102,6 +102,7 @@ c      print *,' iAngMx', iAngMx
             If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
             Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
      &                           Shells(iShll)%pCff)
+            kSh=ipVal(iCnttp)+iAng
 *
 *           Loop over unique centers of basis set "iCnttp"
 *
@@ -109,7 +110,7 @@ c      print *,' iAngMx', iAngMx
 
             Do iCnt = 1, nCnt
 
-               iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(iCnttp,iAng)
+               iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(kSh)
                iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *

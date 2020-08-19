@@ -96,7 +96,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 
       iChCar(:)=0
       KVector(:)=Zero
-      kOffAO(1:Mxdbsc,0:MxAng)=0
       iAOtSO(1:MxAO,0:7)=-999999999
       MaxBas(0:MxAng)=0
       MaxPrm(0:MxAng)=0
@@ -112,6 +111,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
 
+      kOffAO(1:MxShll)=0
       Do i=1, Mxdbsc
          lOffAO(i)=0
          mdciCnttp(i)    =0

@@ -16,9 +16,9 @@
 *
       Do iCnttp = 1, nCnttp
          lComp = 0
-         lSh= 0
          kShStr = ipVal(iCnttp)
          kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
+         lSh= 0
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
             If (Shells(kSh)%Prjct ) Then
@@ -26,7 +26,7 @@
             Else
                kComp = (lSh+1)*(lSh+2)/2
             End If
-            kOffAO(iCnttp,lSh) = lComp
+            kOffAO(kSh) = lComp
             If (Shells(kSh)%nBasis_C.ne.0.and.nExpk.ne.0)
      &         lComp = lComp + kComp
             lSh = lSh + 1

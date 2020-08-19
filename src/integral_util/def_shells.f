@@ -96,6 +96,7 @@
      &             Shells(iShll)%Aux) Go To 200
                iCmp  = (iAng+1)*(iAng+2)/2
                If (Shells(iShll)%Prjct) iCmp = 2*iAng+1
+               kSh=ipVal(iCnttp)+iAng
 *
                nSkal = nSkal + 1
 *
@@ -110,7 +111,7 @@
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
-     &                     + kOffAO(iCnttp,iAng)     !
+     &                     + kOffAO(kSh)             !
                iSD(8,nSkal)= -1                      ! Not used
                itemp=0                               !
                If (Shells(iShll)%Prjct ) itemp=itemp+1      !
@@ -194,6 +195,7 @@
          If (Shells(iShll)%Frag) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
          If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
+         kSh=ipVal(iCnttp)+iAng
 *
          nSkal = nSkal + 1
 *
@@ -207,7 +209,7 @@
          iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
          iSD(7,nSkal)= iAOttp                  ! ? magic
-     &               + kOffAO(iCnttp,iAng)     !
+     &               + kOffAO(kSh)             !
          iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !
          If (Shells(iShll)%Prjct ) itemp=itemp+1      !
@@ -291,6 +293,7 @@
             If (nBasisi.eq.0) Go To 201
             iCmp  = (iAng+1)*(iAng+2)/2
             If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
+            kSh=ipVal(iCnttp)+iAng
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                nSkal = nSkal + 1
 *                                                                      *
@@ -305,7 +308,7 @@
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  ! ? magic
      &                     + (iCnt-1)*lOffAO(iCnttp) !
-     &                     + kOffAO(iCnttp,iAng)     !
+     &                     + kOffAO(kSh)             !
                iSD(8,nSkal)=-1                       ! Not used
                itemp=0                               !
                If (Shells(iSHll)%Prjct ) itemp=itemp+1      !
