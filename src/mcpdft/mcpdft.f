@@ -82,6 +82,7 @@
 #include "mspdft.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+      CHARACTER(Len=18)::MatInfo
       Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
       Dimension WGRONK(2)
@@ -474,25 +475,15 @@ CGG03 Aug 03
        End If
       End IF
       IF(Do_Rotate) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
         write(6,*)
         write(6,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
+        write(6,*)
         write(6,'(6X,A,A)')
      &  'Switching calculation to Multi-State Pair-Density ',
-     &  'Functional Theory (MS-PDFT) calculation'
-        write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,'(8X,2A)')'Reminder: MS-PDF includes a variety',
-     &  ' of specific methods depending on how'
-        write(6,'(8X,A)')'intermediate states are generated.'
-        write(6,'(6X,80A)') ('-',i=1,80)
-        write(6,'(8X,2A)')'--- If you used a CASPT2 module with',
-     &  ' the XROH keyword in your input,'
-        write(6,'(12X,2A)')'note that this MS-PDFT calculation',
-     &  ' can be an XMS-PDFT calculation'
-        write(6,'(12X,2A)')'if it uses the',
-     &  ' rotation matrix from the CASPT2 module.'
-        write(6,'(6X,80A)') ('=',i=1,80)
+     &  'Functional Theory (MS-PDFT) '
+        write(6,'(6X,A)')'calculation.'
         write(6,*)
         NHRot=lroots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
@@ -503,6 +494,17 @@ CGG03 Aug 03
           read(LUMS,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &                 ,kroot=1,lroots)
         End Do
+        Read(LUMS,'(A18)') MatInfo
+        IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
+         write(6,'(6X,A,A)')'The MS-PDFT calculation is ',
+     & 'based on a user-supplied rotation matrix.'
+        ELSE
+         write(6,'(6X,A,A,A)')'The MS-PDFT method is ',
+     &   trim(adjustl(MatInfo)),'.'
+        ENDIF
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
         Close(LUMS)
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+

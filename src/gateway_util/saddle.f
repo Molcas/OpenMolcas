@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Roland Lindh                                     *
 *               2010, Mickael G. Delcey                                *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SubRoutine Saddle(DInf,nDinf)
 ************************************************************************
@@ -44,7 +45,7 @@
       Integer ipX2, ipX3
       Integer ipRef,ipOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
-      Real*8 DInf(nDInf)
+      Real*8 DInf(nDInf), RandVect(3)
 #include "periodic_table.fh"
 ************************************************************************
 *                                                                      *
@@ -116,6 +117,48 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*           Get the symmetry stabilizers for each center
+*
+            Call mma_allocate(iStab,nAt,label='iStab')
+            iAt=1
+            nsc=0
+            Do i=1,nCnttp
+               Do iCnt=1,nCntr(i)
+                  nsc=nsc+1
+                  If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
+     &                Then
+                     iStab(iAt)=jStab(1,nsc)
+                     iAt=iAt+1
+                  End If
+               End Do
+            End Do
+*
+*           Shake initial structures
+*
+            If (Shake.gt.Zero) Then
+               Do iAt=1,nAt
+                  nDim=0
+                  Do j=0,2
+                     If (iAnd(iStab(iAt),2**j).eq.0) nDim=nDim+1
+                  End Do
+                  If (nDim.gt.0) Then
+                     Do iRP=1,2
+                        Call Random_Vector(nDim,
+     &                                     RandVect(1:nDim),.False.)
+                        jDim=0
+                        Do j=0,2
+                           If (iAnd(iStab(iAt),2**j).eq.0) Then
+                              jDim=jDim+1
+                              RP_Centers(jDim,iAt,iRP)=
+     &                           RP_Centers(jDim,iAt,iRP)+
+     &                           Shake*RandVect(jDim)
+                           End If
+                        End Do
+                     End Do
+                  End If
+               End Do
+            End If
+*
 *           Retrieve the weights even if the structures are not
 *           going to be aligned explicitly
 *
@@ -134,22 +177,6 @@
               Call SysAbendMsg('Saddle',
      &             'No or wrong weights were found in the RUNFILE.','')
             End If
-*
-*           Get the symmetry stabilizers for each center
-*
-            Call mma_allocate(iStab,nAt,label='iStab')
-            iAt=1
-            nsc=0
-            Do i=1,nCnttp
-               Do iCnt=1,nCntr(i)
-                  nsc=nsc+1
-                  If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
-     &                Then
-                     iStab(iAt)=jStab(1,nsc)
-                     iAt=iAt+1
-                  End If
-               End Do
-            End Do
 *
 *           Align the reactant and product structures the first time.
 *           Only if energy is invariant
