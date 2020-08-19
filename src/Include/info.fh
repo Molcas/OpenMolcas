@@ -236,7 +236,7 @@
      &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),   iPhase(3,0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
-     &          IsMM(Mxdbsc),    iChBas(MxFnc),   iSphCr(MxFnc),
+     &          iChBas(MxFnc),   iSphCr(MxFnc),
      &          IndS(MxShll), nBas_Aux(0:7),
      &          iAOtSO(MxAO,0:7),lOffAO(Mxdbsc), NrInt(-20:9),
      &          kOffAO(Mxdbsc,0:iTabMx), Max_Center,  nPrm(0:7),
@@ -266,7 +266,7 @@
      &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
-     &              nSOC_Shells, IsMM,
+     &              nSOC_Shells,
      &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,

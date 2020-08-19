@@ -44,7 +44,7 @@
       Common /EmbPCharg/ DoEMPC
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
-      Integer, Dimension(:), Allocatable :: NTC, ICh
+      Integer, Allocatable :: NTC(:), ICh(:), IsMM(:)
 ************************************************************************
 *                                                                      *
       iRout=2
@@ -217,7 +217,13 @@
 *
       Call Put_iScalar('Unique atoms',nNuc)
 *
-      Call Put_iArray('IsMM',IsMM,nCnttp)
+      Call mma_allocate(IsMM,SIZE(dbsc),Label='IsMM')
+      Do i = 1, SIZE(dbsc)
+         IsMM(i)=dbsc(i)%IsMM
+      End Do
+      Call Put_iArray('IsMM',IsMM,SIZE(dbsc))
+      Call mma_deallocate(IsMM)
+*
       Call Put_dArray('Unique Coordinates',DCo,3*nNuc)
       Call Put_dArray('Center of Mass',CoM,3)
       Call Put_dArray('Center of Charge',CoC,3)

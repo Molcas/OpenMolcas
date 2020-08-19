@@ -297,7 +297,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      If (iAnd(iOper(iR),4).ne.0) LPC(3,iyy)=-LPC(3,iyy)
                      LPQ(iyy)=Charge(iCnttp)
                      LPA(iyy)=iAtmnr(iCnttp)
-                     LPMM(iyy)=IsMM(iCnttp)
+                     LPMM(iyy)=dbsc(iCnttp)%IsMM
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                       //ChOper(iOper(iR))
                   End Do
@@ -499,7 +499,7 @@ C     Show=Show.and..Not.Primitive_Pass
      &                          LPC(3,iyy)=-LPC(3,iyy)
 *
                             LPQ(iyy)=Charge(iCnttp)
-                            LPMM(iyy)=IsMM(iCnttp)
+                            LPMM(iyy)=dbsc(iCnttp)%IsMM
                             LPA(iyy)=iAtmnr(iCnttp)
 *
                             LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
@@ -662,7 +662,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                If (nVal_Shells(iCnttp).lt.1) Then
                   LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                   LPQ(mdc)=Charge(iCnttp)
-                  LPMM(mdc)=IsMM(iCnttp)
+                  LPMM(mdc)=dbsc(iCnttp)%IsMM
                   LPA(mdc)=iAtmnr(iCnttp)
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
@@ -815,7 +815,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         End If
                         LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                         LPQ(mdc)=Charge(iCnttp)
-                        LPMM(mdc)=IsMM(iCnttp)
+                        LPMM(mdc)=dbsc(iCnttp)%IsMM
                         LPA(mdc)=iAtmnr(iCnttp)
                         LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *

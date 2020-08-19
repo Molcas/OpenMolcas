@@ -171,7 +171,7 @@
      &              UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,IsMM(nCnttp),
+     &              LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
          dbsc(nCnttp)%Aux=.True.
 *
@@ -200,7 +200,7 @@
          Shells(jShll+2)%Prjct =.False.
          pChrg(nCnttp)=pChrg(iCnttp)
          Fixed(nCnttp)=Fixed(iCnttp)
-         Parent_iCnttp(nCnttp)=iCnttp
+         dbsc(nCnttp)%Parent_iCnttp=iCnttp
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
          nOpt(nCnttp) = iOptn

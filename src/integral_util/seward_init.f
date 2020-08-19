@@ -112,15 +112,15 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
 
-      lOffAO(1:Mxdbsc)=0
       Do i=1, Mxdbsc
-         IsMM(i)         =0
-         Parent_iCnttp(i)=0
+         lOffAO(i)=0
          mdciCnttp(i)    =0
          ExpNuc(i)       =-One
          w_mGauss(i)     = One
          aCD_Thr(i)      = One
          fmass(i)        = One
+         Bsl    (i) = ' '
+         Bsl_Old(i) = ' '
       End Do
       inttot=0
       nOrd_XF = 1
@@ -240,10 +240,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Bline=' '
       Do i = 1, 10
          Title(i)=' '
-      End Do
-      Do i = 1, Mxdbsc
-         Bsl    (i) = ' '
-         Bsl_Old(i) = ' '
       End Do
 *
 *-----PStat

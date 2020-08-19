@@ -477,7 +477,7 @@
      &              UnNorm,nDel,
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,idummy,
+     &              LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
 *
          If (.Not.dbsc(nCnttp)%FOp) Then

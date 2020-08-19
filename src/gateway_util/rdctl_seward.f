@@ -1178,7 +1178,7 @@ c Simplistic validity check for value
      &           UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,IsMM(nCnttp),
+     &           LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
      &           nCnttp)
 *
@@ -1414,7 +1414,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          Call UpCase(KWord)
          Call Get_F1(1,Charge(nCnttp))
          ist = index(KWord,' ')
-         If (IsMM(nCnttp).ne.0) Then
+         If (dbsc(nCnttp)%IsMM.ne.0) Then
             Call WarningMessage(1,
      &         ' Found a charge associated with a MM atom. Ignore it')
             Charge(nCnttp) = Zero

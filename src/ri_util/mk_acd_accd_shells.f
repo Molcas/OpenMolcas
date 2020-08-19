@@ -394,7 +394,7 @@
             Charge(nCnttp)=Zero
             pChrg(nCnttp)=pChrg(iCnttp)
             Fixed(nCnttp)=Fixed(iCnttp)
-            Parent_iCnttp(nCnttp)=iCnttp
+            dbsc(nCnttp)%Parent_iCnttp=iCnttp
             nOpt(nCnttp) = 0
             ipVal(nCnttp) = iShll+1
             ipPrj(nCnttp) = -1

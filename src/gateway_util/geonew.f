@@ -115,7 +115,7 @@
 *
       Do kCnttp = 1, nCnttp
          If (dbsc(kCnttp)%Aux) Then
-            iCnttp=Parent_iCnttp(kCnttp)
+            iCnttp=dbsc(kCnttp)%Parent_iCnttp
             If (iCnttp.ne.0)
      &         dbsc(kCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
          End If

@@ -18,7 +18,7 @@
      &                 UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes, IsMM,
+     &                 BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
      &                 iCnttp)
 ************************************************************************
@@ -127,7 +127,7 @@
       ipSRO_=-1
       ipSOC_=-1
       ipPP_=-1
-      IsMM = 0
+      dbsc(nCnttp)%IsMM = 0
       iOpt = 0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
@@ -152,7 +152,7 @@
          inLn2 = .true.
          inLn3 = .true.
       Else If (Index(Filenm,'MM').ne.0) Then
-         IsMM = 1
+         dbsc(nCnttp)%IsMM = 1
          inLn1 = .True.
          inLn2 = .false.
          inLn3 = .false.
@@ -213,7 +213,7 @@
          Write (6,'(A,A)') 'Ref(2):',Ref(2)
       End If
       Uncontracted = BasisTypes(1).eq.6
-      If (IsMM .eq. 1) Then
+      If (dbsc(nCnttp)%IsMM .eq. 1) Then
          lAng = 0
          Charge = Zero
          Return

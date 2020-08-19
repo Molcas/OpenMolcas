@@ -53,7 +53,7 @@
       nPrj_Shells(nCnttp) = 0
       nSRO_Shells(nCnttp) = 0
       nSOC_Shells(nCnttp) = 0
-      Parent_iCnttp(nCnttp) = 0
+      dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1
       nCntrc=1
