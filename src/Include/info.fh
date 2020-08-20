@@ -223,7 +223,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
-     &          Ind_Shell(MxShll)
+     &          Ind_Shell(MxShll), Jnd_Shell(Mxdc)
       Integer   ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
@@ -246,8 +246,8 @@
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
-      Common /Info/ IndS, nOpt, iCoSet,
-     &              iAOtSO, iSOInf, IrrCmp, ixStrt,
+      Common /Info/ IndS, nOpt, iCoSet, iAOtSO, iSOInf, IrrCmp,
+     &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
@@ -268,7 +268,7 @@
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              nPAMFI, iPAMFI, nPSOI,
-     &              Ind_Shell,
+     &              Ind_Shell, Jnd_Shell,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
       Integer          kCnttpPAM, iPAMPrim, iPAMCount
