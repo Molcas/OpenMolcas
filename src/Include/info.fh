@@ -223,7 +223,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
-     &          Ind_Shell(MxShll), Parent_iCnttp(Mxdbsc)
+     &          Ind_Shell(MxShll)
       Integer   ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
@@ -256,7 +256,7 @@
      &              mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
      &              nMltpl,  IsChi,                   iLbls,
-     &              nShlls,          iPack, Parent_iCnttp,
+     &              nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info,
      &              jMax,
