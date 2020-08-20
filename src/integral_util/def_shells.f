@@ -45,7 +45,7 @@
 *                                                                      *
       iIrrep=0
       nSkal=0
-      iAOttp=0
+      iAOttp=0 ! Number of AO functions proceeding a particular shell
       m2Max=0
 *
       If (Atomic) Go To 300
@@ -109,7 +109,7 @@
                iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
-               iSD(7,nSkal)= iAOttp                  ! ? magic
+               iSD(7,nSkal)= iAOttp                  !
      &                     + (iCnt-1)*lOffAO(iCnttp) !
      &                     + kOffAO(kSh)             !
                iSD(8,nSkal)= -1                      ! Not used
@@ -208,7 +208,7 @@
          iSD(4,nSkal)= -1                      ! Not used
          iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
-         iSD(7,nSkal)= iAOttp                  ! ? magic
+         iSD(7,nSkal)= iAOttp                  !
      &               + kOffAO(kSh)             !
          iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !
@@ -263,80 +263,4 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
-      Subroutine Define_Shells_kext(iSD,ikak,nSkal)
-      use Basis_Info
-      Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-*
-      Parameter(nSD=14)
-      Integer iSD(0:nSD,1024)
-*
-*---- Statement function
-*
-      IndSOff(iCnttp,iCnt)=(iCnttp-1)*Max_Cnt+iCnt
-*
-      nSkal=0
-      iAOttp=0
-      Do 100 iAng=0, iAngMx
-         If (MaxPrm(iAng).eq.0) Go To 100
-         iAOttp=0
-         Do 200 iCnttp = 1, nCnttp
-            mdci = mdciCnttp(iCnttp)
-            nTest = nVal_Shells(iCnttp)-1
-            If (iAng.gt.nTest) Go To 201
-            iShll = ipVal(iCnttp) + iAng
-            nExpi=Shells(iShll)%nExp
-            If (nExpi.eq.0) Go To 201
-            nBasisi=Shells(iShll)%nBasis
-            If (nBasisi.eq.0) Go To 201
-            iCmp  = (iAng+1)*(iAng+2)/2
-            If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
-            kSh=ipVal(iCnttp)+iAng
-            Do iCnt = 1, dbsc(iCnttp)%nCntr
-               nSkal = nSkal + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-               iSD(0,nSkal)=iShll                    ! Unique shell ind.
-               iSD(1,nSkal)=iAng                     ! l value
-               iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-               iSD(3,nSkal)=nBasisi                  ! # of cont. func.
-               iSD(4,nSkal)= -1                      ! Not used
-               iSD(5,nSkal)=  nExpi                  ! # of prim.
-               iSD(6,nSkal)= -1                      ! Not used
-               iSD(7,nSkal)= iAOttp                  ! ? magic
-     &                     + (iCnt-1)*lOffAO(iCnttp) !
-     &                     + kOffAO(kSh)             !
-               iSD(8,nSkal)=-1                       ! Not used
-               itemp=0                               !
-               If (Shells(iSHll)%Prjct ) itemp=itemp+1      !
-               If (Shells(iShll)%Transf) itemp=itemp+2      !
-               iSD(9,nSkal)=itemp                    ! sph., car., cont.
-               iSD(10,nSkal)=mdci+iCnt               ! Center index
-*              iSD(11,nSkal)=iSOff(iCnttp,iCnt)      !
-               iSD(11,nSkal)=Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1!
-               iSD(12,nSkal)= ipVal(iCnttp) + iAng     !
-               iSD(13,nSkal)= iCnttp
-               iSD(14,nSkal)= iCnt
-*                                                                      *
-************************************************************************
-*                                                                      *
-            End Do                       ! iCnt
- 201        Continue
-            iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
- 200     Continue                        ! iCnttp
- 100  Continue                           ! iAng
-*
-*     The order of the shells could be reordered here!
-*debugdebug
-c     Write(6,*) 'in Define_Shells...'
-c     Do i = 1, nSkal
-c        Write (*,'(13I8)') (iSD(j,i),j=0,nSD)
-c     End Do
-*debugdebug
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ikak)
       End

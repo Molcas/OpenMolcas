@@ -106,11 +106,9 @@ c      print *,' iAngMx', iAngMx
 *
 *           Loop over unique centers of basis set "iCnttp"
 *
-            IncAO=lOffAO(iCnttp)
-
             Do iCnt = 1, nCnt
 
-               iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(kSh)
+               iAO = iAOttp + (iCnt-1)*lOffAO(iCnttp) + kOffAO(kSh)
                iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *

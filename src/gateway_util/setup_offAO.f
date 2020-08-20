@@ -14,22 +14,24 @@
 #include "itmax.fh"
 #include "info.fh"
 *
+*     For some reason we need a counter which for a given shell index,
+*     kSh, counts how many angular functions have been in the
+*     proceeding shells. This is stored in kOffAO(kSh).
+*     Additionally, lOffAO gives the total number of angular functions
+*     in a given dbsc.
+*
       Do iCnttp = 1, nCnttp
          lComp = 0
-         kShStr = ipVal(iCnttp)
-         kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
-         lSh= 0
-         Do kSh = kShStr, kShEnd
-            nExpk=Shells(kSh)%nExp
+         Do lSh = 0, nVal_Shells(iCnttp)-1
+            kSh = lSh + ipVal(iCnttp)
             If (Shells(kSh)%Prjct ) Then
                kComp = 2*lSh + 1
             Else
                kComp = (lSh+1)*(lSh+2)/2
             End If
             kOffAO(kSh) = lComp
-            If (Shells(kSh)%nBasis_C.ne.0.and.nExpk.ne.0)
-     &         lComp = lComp + kComp
-            lSh = lSh + 1
+            If (Shells(kSh)%nBasis_C.ne.0 .and.
+     &          Shells(kSh)%nExp    .ne.0 ) lComp = lComp + kComp
          End Do
          lOffAO(iCnttp) = lComp
       End Do
