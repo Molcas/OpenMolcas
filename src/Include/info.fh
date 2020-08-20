@@ -83,10 +83,7 @@
 *             center of the i''th basis set (Placed in dynamic common  *
 *             to reduce the dumping information, RL 970428)            *
 *     iAOtSO: SO index of the i''th AO function of the j''th irrep     *
-*     lOffAO: the AO index of the first function of the i''th basis set*
 *     NrInt : array for integral statistics                            *
-*     kOffAO: offset in the AO index to a given shell of the i''th     *
-*             basis set                                                *
 *     nPrm  : number of primitive functions in each irrep              *
 *     iOffSO: number of SO basis functions presiding the i''th irrep   *
 *     MolWgh: integer flag to indicate the normalization of the        *
@@ -238,8 +235,8 @@
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
      &          iChBas(MxFnc),   iSphCr(MxFnc),
      &          IndS(MxShll), nBas_Aux(0:7),
-     &          iAOtSO(MxAO,0:7),lOffAO(Mxdbsc), NrInt(-20:9),
-     &          kOffAO(MxShll), Max_Center,  nPrm(0:7),
+     &          iAOtSO(MxAO,0:7),NrInt(-20:9),
+     &          Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl,
@@ -255,8 +252,8 @@
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
-     &              iChBas, iSphCr,  nOrdEF,                  kOffAO,
-     &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
+     &              iChBas, iSphCr,  nOrdEF,
+     &              mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
      &              nMltpl,  IsChi,                   iLbls,
      &              nShlls,          iPack, Parent_iCnttp,

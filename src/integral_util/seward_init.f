@@ -111,9 +111,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
 
-      kOffAO(1:MxShll)=0
       Do i=1, Mxdbsc
-         lOffAO(i)=0
          mdciCnttp(i)    =0
          ExpNuc(i)       =-One
          w_mGauss(i)     = One

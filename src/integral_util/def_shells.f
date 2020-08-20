@@ -110,8 +110,8 @@
                iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
                iSD(7,nSkal)= iAOttp                  !
-     &                     + (iCnt-1)*lOffAO(iCnttp) !
-     &                     + kOffAO(kSh)             !
+     &                     + (iCnt-1)*dbsc(iCnttp)%lOffAO
+     &                     + Shells(kSh)%kOffAO      !
                iSD(8,nSkal)= -1                      ! Not used
                itemp=0                               !
                If (Shells(iShll)%Prjct ) itemp=itemp+1      !
@@ -152,7 +152,7 @@
 *                                                                      *
  200        Continue                     ! iAng
          End Do                          ! iCnt
-         iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
+         iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
       End Do                             ! iCnttp
 *
       Return
@@ -209,7 +209,7 @@
          iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
          iSD(7,nSkal)= iAOttp                  !
-     &               + kOffAO(kSh)             !
+     &               + Shells(kSh)%kOffAO      !
          iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !
          If (Shells(iShll)%Prjct ) itemp=itemp+1      !

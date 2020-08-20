@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Setup_OffAO()
-      use Basis_Info, only: nCnttp, Shells
+      use Basis_Info, only: nCnttp, Shells, dbsc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -29,11 +29,11 @@
             Else
                kComp = (lSh+1)*(lSh+2)/2
             End If
-            kOffAO(kSh) = lComp
+            Shells(kSh)%kOffAO = lComp
             If (Shells(kSh)%nBasis_C.ne.0 .and.
      &          Shells(kSh)%nExp    .ne.0 ) lComp = lComp + kComp
          End Do
-         lOffAO(iCnttp) = lComp
+         dbsc(iCnttp)%lOffAO = lComp
       End Do
 *
       Return

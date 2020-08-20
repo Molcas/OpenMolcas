@@ -54,7 +54,7 @@
          Write (Lines(2),*)
          Write (Lines(3),'(A,I3)')
      &         ' Number of different unique angular functions:',
-     &         lOffAO(iCnttp)
+     &         dbsc(iCnttp)%lOffAO
          Call Banner(Lines,3,60)
          nTest = nVal_Shells(iCnttp)
          Write (6,*)
@@ -82,7 +82,7 @@
             Write (Lines(2),*)
             Write (Lines(3),'(A,A,I3)')
      &         ' Number of different angular functions ',
-     &         'preceding this shell',kOffAO(jSh)
+     &         'preceding this shell',Shells(jSh)%kOffAO
             Call Banner(Lines,3,30)
             kCmp = (iAng+1)*(iAng+2)/2
             If (Shells(jSh)%Prjct ) kCmp=2*iAng+1
@@ -149,7 +149,8 @@
 *
 *--------------Loop over the angular components of this unique shell
 *
-               iAO = iAOttp + (iCnt-1)*lOffAO(iCnttp) + kOffAO(jSh)
+               iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
+     &             + Shells(jSh)%kOffAO
                Do 15 iCmp = 1, kCmp
                   Write (6,*)
                   Write (6,'(A,I3)')
@@ -167,7 +168,7 @@
             lSh = lSh + 1
  11      Continue
          mdc = mdc + dbsc(iCnttp)%nCntr
-         iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
+         iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
  10   Continue
       Write (6,*)
       Write (6,'(A42,8I4)') 'Number of basis functions in each irrep:',

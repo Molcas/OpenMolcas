@@ -108,7 +108,8 @@ c      print *,' iAngMx', iAngMx
 *
             Do iCnt = 1, nCnt
 
-               iAO = iAOttp + (iCnt-1)*lOffAO(iCnttp) + kOffAO(kSh)
+               iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
+     &             + Shells(kSh)%kOffAO
                iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
@@ -191,7 +192,7 @@ c      print *,' iAngMx', iAngMx
             End Do
  101        Continue
             mdc = mdc + dbsc(iCnttp)%nCntr
-            iAOttp = iAOttp + lOffAO(iCnttp)*dbsc(iCnttp)%nCntr
+            iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
          End Do
          Call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
          Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
