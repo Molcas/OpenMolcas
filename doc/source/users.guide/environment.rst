@@ -405,7 +405,8 @@ The complete list of |molcas|-related environment variables:
               <HELP>
               If set to NO molcas will remove scratch area after a calculation.
               This setting can be overwritten by running molcas with flag -clean:
-              || molcas -clean input
+
+                molcas -clean input
               </HELP>
               </KEYWORD>
 
@@ -483,6 +484,13 @@ The complete list of |molcas|-related environment variables:
   * :kword:`RICD` will be enabled by default in :program:`GATEWAY`, it can be disabled with :kword:`NOCD`.
   * The default IPEA shift in :program:`CASPT2` is set to 0.0, other values can be specified normally with the :kword:`IPEA` keyword.
 
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NEW_DEFAULTS" APPEAR="New defaults" KIND="CHOICE" LIST="YES,NO" LEVEL="ADVANCED">
+              %%Keyword: MOLCAS_NEW_DEFAULTS <advanced>
+              <HELP>
+              If set to 'YES', activates new defaults (e.g. RICD, IPEA=0.0)
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_NEW_WORKDIR`
   If set to YES |molcas| will never reuse files in scratch area.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-old`:
@@ -493,7 +501,8 @@ The complete list of |molcas|-related environment variables:
               <HELP>
               If set to YES molcas will never reuse files in scratch area.
               This setting can be overwritten by running molcas with flag -old:
-              || molcas -old input
+
+                molcas -old input
               </HELP>
               </KEYWORD>
 
@@ -565,12 +574,12 @@ The complete list of |molcas|-related environment variables:
               </KEYWORD>
 
 :variable:`MOLCAS_RANDOM_SEED`
-  Set to an integer to provide a fixed seed for operations that use a random number. 
+  Set to an integer to provide a fixed seed for operations that use a random number.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_RANDOM_SEED" APPEAR="Random number seed" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_RANDOM_SEED <advanced>
               <HELP>
-              Set to an integer to provide a fixed seed for operations that use a random number. 
+              Set to an integer to provide a fixed seed for operations that use a random number.
               </HELP>
               </KEYWORD>
 
@@ -701,7 +710,3 @@ Example:
   echo Running module $MOLCAS_CURRENT_PROGRAM at $WorkDir
 
 .. xmldoc:: </MODULE>
-
-.. xmldoc:: <MODULE NAME="COMMENT" LEVEL="HIDDEN">
-               <KEYWORD MODULE="COMMENT" NAME="UNDEFINED" APPEAR="Unrecognized Content" KIND="STRINGS" LEVEL="BASIC" />
-            </MODULE>

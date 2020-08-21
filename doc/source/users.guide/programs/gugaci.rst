@@ -19,7 +19,7 @@ Description
 .. xmldoc:: <MODULE NAME="GUGACI">
             %%Description:
             <HELP>
-            The MRCI program is used for Multi-Reference
+            The GUGACI program is used for Multi-Reference
             SDCI calculations. The code originates in an MRCI
             program by Zhenyi Wen and Yubin Wang, Zhenting Gan, Bingbing Suo
             Yibo Lei also contribute to this program.
@@ -61,7 +61,7 @@ symmetry type, they follow this order.
   occupied, i.e., they are not correlated. Orbitals should be frozen
   already in the integral transformation step, program
   :program:`MOTRA`, and need not be specified in the input to the
-  :program:`MRCI` program. If it's specified, it will be ignored.
+  :program:`GUGACI` program. If it's specified, it will be ignored.
 
 * **Inactive:**
   :index:`Inactive orbitals <single: GUGACI; Inactive>` are doubly occupied
@@ -87,7 +87,7 @@ symmetry type, they follow this order.
   correlation, are deleted. Similar to freezing, deleting should be done in
   :program:`MOTRA`,
   which is more efficient, and do not need to be specified in the
-  :program:`MRCI` program.
+  :program:`GUGACI` program.
 
 Since ordinarily the frozen and deleted orbitals were handled by
 :program:`MOTRA`
@@ -169,7 +169,7 @@ Local files
 .. class:: filelist
 
 :file:`FTxxF01`
-  MRCI produces a few scratch files that are not needed by any other program
+  :program:`MRCI` produces a few scratch files that are not needed by any other program
   in |molcas|. Presently, these are xx=14, 15, 16, 21, 25, 26, 27, and 30.
   The files are opened, used, closed and removed automatically.
   See source code for further information.
@@ -186,7 +186,7 @@ This section describes the input to the
 :program:`GUGACI` program in the |molcas| program system, with
 the program name: ::
 
-  &MRCI
+  &GUGACI
 
 .. index::
    pair: GUGACI; Keywords
@@ -202,7 +202,7 @@ The first four characters are decoded and the rest are ignored.
   The lines following this keyword are treated as title lines, until
   another keyword is encountered. A maximum of ten lines is allowed.
 
-  .. xmldoc:: <KEYWORD MODULE="MRCI" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GUGACI" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
               <HELP>
               Enter at most ten lines of arbitrary title. Do not use any keywords
               as the first characters of each line.
