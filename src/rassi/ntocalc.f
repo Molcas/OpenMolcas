@@ -628,8 +628,8 @@ C Recording Printed NTO (PCMO)
       Note='*  Natural Transition Orbitals'
       WRITE(FILENAME,'(6(a))')
      & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
-      WRITE(molden_name,'(7(a))')
-     & 'NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType,'.molden'
+      WRITE(molden_name,'(6(a))')
+     & 'MD_NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
       CALL Molden_interface(0,trim(FILENAME),trim(molden_name),.false.)
