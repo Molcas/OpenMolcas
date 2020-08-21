@@ -97,9 +97,7 @@
       Logical WriteZMat, geoInput, oldZmat,zConstraints
       Logical EFgiven
       Logical Invert
-      Real*8 HypParam(3)
-      Integer iSeed
-      Save iSeed
+      Real*8 HypParam(3), RandVect(3)
       Logical Vlct_, nmwarn
 *
       Logical DoEMPC, Basis_test
@@ -123,7 +121,6 @@
 #include "angstr.fh"
       Data DefNm/'basis_library'/
       Data IfTest/.False./
-      Data iSeed/24619/
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2708,7 +2705,6 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          KWord = Get_Ln(LuRd)
          close(LuIn)
          close(LuRP)
-         Call RecPrt('RP1',' ',RP_Centers(1,1,1),3,nRP/3)
          Go To 9082
       Else
          LuRP=10
@@ -2728,11 +2724,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
      &            (RP_Centers(j,i,2)*Fact,j=1,3)
          End Do
          close(LuRP)
-         Call RecPrt('RP2',' ',RP_Centers(1,1,2),3,nRP/3)
       End If
       RP_Centers(:,:,:)= Fact* RP_Centers(:,:,:)
-      Call RecPrt('RP1*Fact',' ',RP_Centers(1,1,1),3,nRP/3)
-      Call RecPrt('RP2*Fact',' ',RP_Centers(1,1,2),3,nRP/3)
 *
       close(LuIn)
       GWInput = Run_Mode.eq.G_Mode
@@ -3599,10 +3592,6 @@ c
       Call Upcase(KWord)
       Call Get_F1(1,Shake)
       If (Index(KWord,'ANGSTROM').ne.0) Shake = Shake/angstr
-*---- Simple way of changing the seed: add zeros or spaces to the line
-      Do i=1,Len(KWord)
-        iSeed = iSeed+iChar(KWord(i:i))
-      End Do
       Go To 998
 *                                                                      *
 ****** PAMF ************************************************************
@@ -4631,12 +4620,20 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                Do j=1,nStab(mdc)-1
                   jTmp=iOr(jTmp,jStab(j,mdc))
                End Do
+               nDim=0
                Do j=0,2
-                  If (iAnd(jTmp,2**j).eq.0) Then
-                     DInf(ixyz+j)=DInf(ixyz+j)+
-     &                           Shake*(Two*Random_Molcas(iSeed)-One)
-                  End If
+                  If (iAnd(jTmp,2**j).eq.0) nDim=nDim+1
                End Do
+               If (nDim.gt.0) Then
+                  Call Random_Vector(nDim,RandVect(1:nDim),.False.)
+                  jDim=0
+                  Do j=0,2
+                     If (iAnd(jTmp,2**j).eq.0) Then
+                        jDim=jDim+1
+                        DInf(ixyz+j)=DInf(ixyz+j)+Shake*RandVect(jDim)
+                     End If
+                  End Do
+               End If
             End If
             ixyz = ixyz + 3
             If (FragCnttp(iCnttp)) Then

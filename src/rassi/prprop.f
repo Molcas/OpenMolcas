@@ -471,15 +471,26 @@ C printing threshold
       OSTHR=1.0D-5
       OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
-     &                    ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
+     &              'since quadrupole threshold is given '
+      END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-
+      IF(QIPR) THEN
+      WRITE(6,30) 'Quadrupole printing threshold changed to ',OSTHR2
+      END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+
+! Rotatory strength threshold
+      IF(RSPR) THEN
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-07 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -603,7 +614,7 @@ C printing threshold
      & 'Complex transition dipole vectors (SO states):')
           WRITE(6,'(3X,A)') '----------------------------------------'
           IF(OSTHR.GT.0.0D0) THEN
-           WRITE(6,*)'   for osc. strength at least ',OSTHR
+           WRITE(6,30)'   for osc. strength at least ',OSTHR
            WRITE(6,*)
           END IF
           WRITE(6,*) '     From   To',
@@ -619,12 +630,12 @@ C printing threshold
      &                     'Dipole transition strengths (SO states):')
          WRITE(6,'(3X,A)') '----------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -773,12 +784,12 @@ C printing threshold
      &                     'Velocity transition strengths (SO states):')
          WRITE(6,'(3X,A)') '------------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -834,7 +845,7 @@ C printing threshold
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,*) "All dipole oscillator differences above the "//
+         WRITE(6,49) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -977,7 +988,7 @@ C printing threshold
      &                  '---------------------------------'
          END IF
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1132,7 +1143,7 @@ C printing threshold
          WRITE(6,'(3X,A)')
      &                 '--------------------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1354,7 +1365,7 @@ C printing threshold
          WRITE(6,'(3X,A)') '------------------------------------'//
      &                     '---------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1692,7 +1703,7 @@ C printing threshold
          END IF
 
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1998,7 +2009,7 @@ C printing threshold
      &                  '-------------------'
 !
               IF(OSTHR2.GT.0.0D0) THEN
-               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,30)'   for osc. strength at least ',OSTHR2
                WRITE(6,*)
               END IF
               WRITE(6,31) 'From','To','Osc. strength'
@@ -2225,6 +2236,11 @@ C printing threshold
      &                 '------------------------------------'//
      &                 '----------------------------------'//
      &                 '-------------------------------'
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2237,7 +2253,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2343,7 +2359,9 @@ C printing threshold
              END IF
             END IF
 *
-            WRITE(6,33) ISS,JSS,R
+            IF (ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) ISS,JSS,R
+            END IF
 !
             Call Add_Info('CD_V(SO)',[R],1,6)
            END IF
@@ -2597,6 +2615,11 @@ C printing threshold
          WRITE(6,*)
          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
          WRITE(6,*) ' is NOT origin independent - check your results '
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2609,7 +2632,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2714,7 +2737,9 @@ C printing threshold
              END IF
             END IF
 *
-            WRITE(6,33) ISS,JSS,R
+            IF (ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) ISS,JSS,R
+            END IF
 !
             Call Add_Info('CD_M(SO)',[R],1,6)
            END IF
@@ -7092,6 +7117,7 @@ C backtransformation in two steps, -phi and -theta
 
  900  CONTINUE
 
+30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
@@ -7103,6 +7129,7 @@ C backtransformation in two steps, -phi and -theta
 40    FORMAT (5X,63('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
       RETURN
       END

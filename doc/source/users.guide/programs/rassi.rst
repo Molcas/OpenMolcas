@@ -785,7 +785,19 @@ Keywords
               <HELP>
               Enter the threshold for printing quadrupole intensities.
               Default is 1.0D-5.
-              Will overwrite any value choosen for dipole intensities.
+              Will overwrite any value chosen for dipole intensities.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RSPR`
+  The next entry gives the threshold for printing reduced rotatory strength intensities.
+  Default is 1.0D-7.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RSPR" APPEAR="Threshold for reduced rotatory strength intensities" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="1.0D-7" LEVEL="ADVANCED">
+              %%Keyword: RSPR <advanced>
+              <HELP>
+              Enter the threshold for printing reduced rotatory strength.
+              Default is 1.0D-7.
               </HELP>
               </KEYWORD>
 
