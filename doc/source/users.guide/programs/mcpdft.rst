@@ -137,7 +137,7 @@ The :kword:`KSDFT` is the only required keyword.
   The keyword is needed to calculate potentials for analytical gradients.
   This keyword can be used with both state-specific and state-averaged CASSCF reference wavefunctions.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE"  LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
               <HELP>
               Needed to compute potentials for MC-PDFT analytical gradients.
@@ -154,7 +154,7 @@ The :kword:`KSDFT` is the only required keyword.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
               <HELP>
               Enable MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
@@ -220,8 +220,5 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
    KSDFT=TPBE
    NoGrad
    MSPDft
-
-
-.. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRADIENT" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: </MODULE>

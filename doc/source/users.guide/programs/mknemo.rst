@@ -104,13 +104,13 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
 
   .. xmldoc:: %%Keyword: MOLE <basic>
               The Mole block specifies a molecule, in the format:
-              ||
-              ||Mole : MoleculeName
-              ||  AtomLabel  x  y  z
-              ||  .........  .. .. ..
-              ||  AtomLabel  x  y  z
-              ||End
-              ||
+
+                Mole : MoleculeName
+                  AtomLabel  x  y  z
+                  .........  .. .. ..
+                  AtomLabel  x  y  z
+                End
+
               where the Mole is keyword which marks begining of a molecule's block,
               the MoleculeName is an unique name of molecule, the AtomLabel is the label
               of atom, and x, y, and z are coordinates of atoms. The name of the molecule
@@ -130,13 +130,13 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
 
   .. xmldoc:: %%Keyword: CLUS <basic>
               In the Clus block, user defines a cluster in format:
-              ||
-              ||Clus : ClusterName : ClusterTransformation
-              ||  MoleculeName : MoleculeTransformation
-              ||  ............
-              ||  MoleculeName
-              ||End
-              ||
+
+                Clus : ClusterName : ClusterTransformation
+                  MoleculeName : MoleculeTransformation
+                  ............
+                  MoleculeName
+                End
+
               where the Clus keyword marks beginning of cluster's block,
               the ClusterName[MoleculeName] is an unique name of cluster[molecule],
               and the ClusterTransformation[MoleculeTransformation] is an optional
@@ -159,13 +159,13 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
   .. xmldoc:: %%Keyword: DISP <basic>
               The Disp block contains information about transformations
               of one of the clusters in the format:
-              ||
-              ||Disp
-              ||  ClusterName : NumberOfSteps Transformation
-              ||  ........... : ............. ......... .....
-              ||  ClusterName : NumberOfSteps Transformation
-              ||End
-              ||
+
+                Disp
+                  ClusterName : NumberOfSteps Transformation
+                  ........... : ............. ......... .....
+                  ClusterName : NumberOfSteps Transformation
+                End
+
               where the ClusterName is a name one of the clusters which has been
               defined in Clus block, the NumberOfSteps is a number of steps in which
               transformation will be reached, and the Transformation is a translation
@@ -245,23 +245,25 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
   .. xmldoc:: %%Keyword: GETE <basic>
               The GETEnergy block is used to read total energy stored at RUNFILE,
               and to save it into the MKNEMO.Conf file. The format of this block is
-              ||
-              ||&MkNemo&End
-              || GetE
-              ||   Arg
-              ||End Of Input
-              ||
+
+                &MkNemo&End
+                 GetE
+                   Arg
+                End Of Input
+
               where the Arg must be any label from the list below. Use
-              ||- S1 to save the energy of super-system at the first level of theory,
-              ||- S2 to save the energy of super-system at the second level of theory,
-              ||- A1 to save the energy of the A-subsystem with virtual orbitals of
-              ||     the B-subsystem at the first level of theory,
-              ||- A2 to save the energy of the A-subsystem with virtual orbitals of
-              ||     the B-subsystem at the second level of theory,
-              ||- B1 to save the energy of the B-subsystem with virtual orbitals of
-              ||     the A-subsystem at the first level of theory,
-              ||- B2 to save the energy of the B-subsystem with virtual orbitals of
-              ||     the A-subsystem at the second level of theory.
+
+              S1 -- to save the energy of super-system at the first level of theory,
+              S2 -- to save the energy of super-system at the second level of theory,
+              A1 -- to save the energy of the A-subsystem with virtual orbitals of
+                    the B-subsystem at the first level of theory,
+              A2 -- to save the energy of the A-subsystem with virtual orbitals of
+                    the B-subsystem at the second level of theory,
+              B1 -- to save the energy of the B-subsystem with virtual orbitals of
+                    the A-subsystem at the first level of theory,
+              B2 -- to save the energy of the B-subsystem with virtual orbitals of
+                    the A-subsystem at the second level of theory.
+
               Please note, that MKNEMO does not have any possibility to check what
               kind of total energy was computed in the previous step by called
               MOLCAS module.
@@ -281,10 +283,10 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
               curve from previous step into the MKNEMO.Nemo file. This block cannot be used
               before Mole, Clus, and Disp blocks.
               Format:
-              ||
-              ||&MkNemo&End
-              ||  Next
-              ||End Of Input
+
+                &MkNemo&End
+                  Next
+                End Of Input
 
 :kword:`TEST`
   The **TEST** block CAN BE ONLY USED to save verification data for |molcas| command *verify*.
@@ -298,10 +300,10 @@ All keywords can be provided in a full name but only first 4 characters (bold ch
   .. xmldoc:: %%Keyword: TEST <basic>
               The TEST block CAN BE ONLY USED to save verification data for MOLCAS command verify.
               Format:
-              ||
-              ||&MkNemo&End
-              ||  Test
-              ||End Of Input
+
+                &MkNemo&End
+                  Test
+                End Of Input
 
 Finally the structure of a standard input file for :program:`MkNemo` module has the following form: ::
 

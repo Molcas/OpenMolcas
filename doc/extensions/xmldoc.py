@@ -9,7 +9,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015,2018,2020, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 try:
@@ -20,26 +20,27 @@ except ImportError:
 import re
 import codecs
 import os.path
+from help_text_format import *
 
 X_clean = re.compile(r'^%+\+*')
-X_line = re.compile(r'(<\/?(help|key|group|select|module|emil|command|alternate).*?>)', flags=re.IGNORECASE)
+X_line = re.compile(r'(<\/?(help|key|group|select|module|emil|command|alternate|include).*?>)', flags=re.IGNORECASE)
 X_inhelp = re.compile(r'<help>', flags=re.IGNORECASE)
 X_inhelp2 = re.compile(r'<\/help>', flags=re.IGNORECASE)
 X_comment = re.compile(r'\s*<!--.*?-->')
 X_tag = re.compile(r'<')
 X_help = re.compile(r'\s*(<\/?help)', flags=re.IGNORECASE)
 X_key = re.compile(r'(<\/?(key|command))', flags=re.IGNORECASE)
-X_group = re.compile(r'(<\/?(group|select))', flags=re.IGNORECASE)
+X_group = re.compile(r'(<\/?(group|select|include))', flags=re.IGNORECASE)
 X_alt = re.compile(r'(<\/?alternate)', flags=re.IGNORECASE)
+X_pretty = re.compile(r'(?<=.)(?=<[^/])')
 
 H_head = re.compile(r'%%(keyword|description):', flags=re.IGNORECASE)
 H_remove = re.compile(r'(%|<!--$|-->$)')
 H_keyw = re.compile(r'%%keyword:\s*(.*?)\s*<(.*?)>\s*(.*)', flags=re.IGNORECASE)
 H_desc = re.compile(r'%%description', flags=re.IGNORECASE)
 
-nowrap = re.compile(br'^\|+(.*)'.decode('raw_unicode_escape'))
-nowrap2 = re.compile(br'(\u00a6.*?\u00a6)'.decode('raw_unicode_escape'))
-nowrap3 = re.compile(br'\u00a6(.*?)\u00a6'.decode('raw_unicode_escape'))
+nowrap = re.compile(r'$')
+nowrap2 = re.compile(br'\u00a6'.decode('raw_unicode_escape'))
 
 # Create the xmldoc directive
 #
@@ -83,24 +84,33 @@ def write_XMLDocs(app, exception):
 # Reformat before writing to the XML
 #
 def reformat_XML(piece):
-  import textwrap
   # Remove lines we do not want in the XML, and do some initial cleanup
-  text = ' '.join([nowrap.sub(br'\u00a6\1\u00a6'.decode('raw_unicode_escape'),X_clean.sub('',line)) for line in piece if not H_head.match(line)])
+  text = ' '.join([nowrap.sub(br'\u00a6'.decode('raw_unicode_escape'),X_clean.sub('',line)) for line in piece if not H_head.match(line)])
   # XML tags in separate lines
   text = X_line.sub(r'\n\1\n', text)
-  # no-wrap lines in separate lines
-  text = nowrap2.sub(r'\n\1\n', text)
   text = text.split('\n')
   inhelp = False
   for i in range(len(text)):
     line = text[i].strip()
-    if (X_inhelp.match(line)): inhelp = True
-    if (X_inhelp2.match(line)): inhelp = False
-    # Wrap text lines inside <HELP>, discard them outside
-    if (inhelp):
-      if (line and not nowrap2.match(line)):
-        line = textwrap.fill(X_comment.sub('', line), 59, initial_indent=' ', subsequent_indent=' ', break_on_hyphens=False)
-    elif (not X_tag.match(line)):
+    if (X_inhelp.match(line)):
+      help_text = ''
+      inhelp = True
+    if (X_inhelp2.match(line)):
+      # Reformat
+      if (inhelp and not text[i-1]):
+        help_doc = parse_help_text(help_text)
+        if (False):
+          # Format as HTML-like
+          text[i-1] = X_pretty.sub(r'\n', ET.tostring(help_doc, encoding='unicode'))
+        else:
+          # Format as plain text
+          text[i-1] = format_help_text(help_doc)
+      inhelp = False
+    # Restore newlines inside <HELP>, discard text lines outside
+    if (not X_tag.match(line)):
+      if (inhelp):
+        line = nowrap2.sub(r'\n', line).strip('\n')
+        help_text += line
       line = ''
     # Indent XML tags
     line = X_help.sub(r'         \1', line)
@@ -109,7 +119,7 @@ def reformat_XML(piece):
     line = X_group.sub(r'   \1', line)
     text[i] = line
   # Remove empty lines
-  text = [nowrap3.sub(r' \1',line) for line in filter(bool, text)]
+  text = [nowrap2.sub(r' ',line) for line in filter(bool, text)]
   return text
 
 # Write all the xmldoc pieces at the end
@@ -119,7 +129,7 @@ def write_Help(app, exception):
   if hasattr(env, 'XMLDocs'):
     data_dir = app.config.data_dir
     with codecs.open(os.path.join(data_dir, 'keyword.db'), 'w', 'utf-8') as keywordsfile:
-      keywordsfile.write('#This file generated automatically from MOLCAS documentation\n')
+      keywordsfile.write('#This file is generated automatically from the OpenMolcas documentation\n')
       keywordsfile.write('#\n')
       # Sort by docname, then by lineno
       docs = list(set([piece['docname'] for piece in env.XMLDocs]))
@@ -132,7 +142,6 @@ def write_Help(app, exception):
             keywordsfile.write('\n'.join(text)+'\n')
 
 def reformat_Help(piece):
-  import textwrap
   # Find the start of the help section
   index = None
   header = None
@@ -145,18 +154,19 @@ def reformat_Help(piece):
     text = ''
   else:
     # Remove lines we do not want in the help file, and do some initial cleanup
-    text = ' '.join([nowrap.sub(br'\u00a6\1\u00a6'.decode('raw_unicode_escape'),X_clean.sub('',line)) for line in piece[index:] if not (H_remove.match(line) or X_line.match(line))])
-  # no-wrap lines in separate lines
-  text = nowrap2.sub(r'\n\1\n', text)
+    text = ' '.join([nowrap.sub(br'\u00a6'.decode('raw_unicode_escape'),X_clean.sub('',line)) for line in ['\n'] + piece[index:] if not (H_remove.match(line) or X_line.match(line))])
   text = text.split('\n')
   for i in range(len(text)):
     line = text[i].strip()
-    # Wrap text lines
-    if (line and not nowrap2.match(line)):
-      line = textwrap.fill(line, 59, initial_indent=' ', subsequent_indent=' ', break_on_hyphens=False)
+    # Restore newlines
+    line = nowrap2.sub(r'\n', line).strip('\n')
     text[i] = line
   # Remove empty lines
-  text = [nowrap3.sub(r' \1',line) for line in filter(bool, text)]
+  text = [nowrap2.sub(r' ',line) for line in filter(bool, text)]
+  # Reformat
+  help_doc = parse_help_text('\n'.join(text))
+  text = [format_help_text(help_doc)]
+  if text == ['']: text = []
   if (header): text.insert(0, header)
   return text
 
