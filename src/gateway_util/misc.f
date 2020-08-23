@@ -35,6 +35,7 @@
       IndShl=0
       iShell=0
       mc = 1
+      kdc = 0
 *     Loop over basis sets
       iCnttp = 0
       Do jCnttp = 1, nCnttp
@@ -52,6 +53,7 @@
 *        Loop over distinct centers
 *
          Do iCnt = 1, dbsc(iCnttp)%nCntr
+            kdc = kdc + 1
             If (IndSOff(iCnttp,iCnt).gt.MxShll) Then
                Call WarningMessage(2,'MxShll too small:')
                Write(LuWr,*) 'IndSOff(iCnttp,iCnt)=',
@@ -63,6 +65,12 @@
             End If
             Ind_Shell(IndSOff(iCnttp,iCnt)) = iShell
             mdc = iCnt + mdciCnttp(iCnttp)
+            Jnd_Shell(kdc)=iShell
+            Write (6,*) 'Misc'
+            Write (6,*) 'iShell=',iShell
+            Write (6,*) 'iCnttp,iCnt=',iCnttp,iCnt
+            Write (6,*) IndSOff(iCnttp,iCnt),kdc
+            Write (6,*)
             if(mdc.gt.mxdc) then
                Call WarningMessage(2,'mxdc too small:')
                write(LuWr,*) 'mxdc=',mxdc

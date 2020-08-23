@@ -110,7 +110,8 @@ c      print *,' iAngMx', iAngMx
 
                iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
      &             + Shells(kSh)%kOffAO
-               iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
+*              iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
+               iShell = jnd_Shell(iCnt+mdc) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 *--------------Allocate memory for SO and AO values

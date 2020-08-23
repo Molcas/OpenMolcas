@@ -123,7 +123,8 @@
             Write (6,*)
             Write (6,*) 'Charge:',Charge(iCnttp)
             Do 14 iCnt = 1, dbsc(iCnttp)%nCntr
-               mShell = Ind_Shell(IndSOff(iCnttp,iCnt))+iAng+1
+*              mShell = Ind_Shell(IndSOff(iCnttp,iCnt))+iAng+1
+               mShell = Jnd_Shell(iCnt+mdc)+iAng+1
                Write (6,*)
                Write (6,*) 'iChCnt:',iChCnt(mdc+iCnt)
                Write (6,*)
