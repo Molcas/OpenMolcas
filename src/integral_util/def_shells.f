@@ -27,7 +27,6 @@
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
      &                       nStab(mdc))
-      IndSOff(iCnttp,iCnt)=(iCnttp-1)*Max_Cnt+iCnt
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -120,17 +119,7 @@
                If (Shells(iShll)%Transf) itemp=itemp+2      !
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci                    ! Center index
-               If (Ind_Shell(IndSOff(iCnttp,iCnt)).ne.
-     &             Jnd_Shell(mdc)) Then
-                  Write (6,*) Ind_Shell(IndSOff(iCnttp,iCnt)),
-     &                        Jnd_Shell(mdc)
-                   Write (6,*) 'iCnttp,iCnt=',iCnttp,iCnt
-                   Write (6,*) IndSOff(iCnttp,iCnt),mcc
-
-                  Call Abend()
-               End If
-*              iSD(11,nSkal)=Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
-               iSD(11,nSkal)=Jnd_Shell(mdc) + iAng + 1
+               iSD(11,nSkal)=Ind_Shell(mdc) + iAng + 1
                If (pChrg(iCnttp)) Then
                   iSD(12,nSkal)= 1                   ! pseudo charge
                Else
@@ -228,8 +217,7 @@
          If (Shells(iShll)%Transf) itemp=itemp+2      !
          iSD(9,nSkal)=itemp                    ! sph., car., cont.
          iSD(10,nSkal)=mdci                    ! Center index
-*        iSD(11,nSkal)=Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1 !
-         iSD(11,nSkal)=Jnd_Shell(iCnt) + iAng + 1 !
+         iSD(11,nSkal)=Ind_Shell(iCnt) + iAng + 1 !
          If (pChrg(iCnttp)) Then
             iSD(12,nSkal)= 1                   ! pseudo charge
          Else

@@ -16,12 +16,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Statement Function
-*
-      IndSOff(iCnttp,iCnt)=(iCnttp-1)*Max_Cnt+iCnt
-*                                                                      *
-************************************************************************
-*                                                                      *
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -54,24 +48,9 @@
 *
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             kdc = kdc + 1
-            If (IndSOff(iCnttp,iCnt).gt.MxShll) Then
-               Call WarningMessage(2,'MxShll too small:')
-               Write(LuWr,*) 'IndSOff(iCnttp,iCnt)=',
-     &                        IndSOff(iCnttp,iCnt)
-               write(LuWr,*) 'MxShll=',MxShll
-               write(LuWr,*) 'Increase MxShll in Molcas.fh and',
-     &                       ' recompile the code!'
-               Call Abend()
-            End If
-            Ind_Shell(IndSOff(iCnttp,iCnt)) = iShell
             mdc = iCnt + mdciCnttp(iCnttp)
-            Jnd_Shell(kdc)=iShell
-            Write (6,*) 'Misc'
-            Write (6,*) 'iShell=',iShell
-            Write (6,*) 'iCnttp,iCnt=',iCnttp,iCnt
-            Write (6,*) IndSOff(iCnttp,iCnt),kdc
-            Write (6,*)
-            if(mdc.gt.mxdc) then
+            Ind_Shell(kdc)=iShell
+            if(Max(mdc,kdc).gt.mxdc) then
                Call WarningMessage(2,'mxdc too small:')
                write(LuWr,*) 'mxdc=',mxdc
                write(LuWr,*) 'Increase mxAtom in Molcas.fh and',

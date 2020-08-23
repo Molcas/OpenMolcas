@@ -49,7 +49,6 @@
 *     Statement functions
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      IndSOff(iCnttp,iCnt)=(iCnttp-1)*Max_Cnt+iCnt
 *
       iRout = 112
       iPrint = nPrint(iRout)
@@ -62,7 +61,6 @@
 *     Loop over shells.
 *
       iSkal=0
-c      print *,' iAngMx', iAngMx
       Thr=0.0D0
 
       Do iAng = iAngMx , 0, -1
@@ -91,7 +89,6 @@ c      print *,' iAngMx', iAngMx
             If (iAng+1.gt.nTest)  Go To 101
             If (dbsc(iCnttp)%Aux) Go To 101
             If (dbsc(iCnttp)%Frag) Go To 101
-*           Write (*,*) ' iCnttp=',iCnttp
             nCnt = dbsc(iCnttp)%nCntr
             iShll = ipVal(iCnttp) + iAng
             iPrim = Shells(iShll)%nExp
@@ -110,8 +107,7 @@ c      print *,' iAngMx', iAngMx
 
                iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
      &             + Shells(kSh)%kOffAO
-*              iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
-               iShell = jnd_Shell(iCnt+mdc) + iAng + 1
+               iShell = Ind_Shell(iCnt+mdc) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 *--------------Allocate memory for SO and AO values
