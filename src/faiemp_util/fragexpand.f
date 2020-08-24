@@ -68,7 +68,7 @@
       Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       UnNorm = .False.
       LenLbl=0
-      mdc = mdciCnttp(nCnttp)+dbsc(nCnttp)%nCntr
+      mdc = dbsc(nCnttp)%mdci+dbsc(nCnttp)%nCntr
       BasisTypes(:)=0
       iShll = Mx_Shll-1
       lSTDINP=0
@@ -81,13 +81,13 @@
        write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
-       write(6,'(A)') ' mdciCnttp(nCnttp)  '//
+       write(6,'(A)') ' dbsc(nCnttp)%mdci  '//
      &                ' dbsc(nCnttp)%nCntr '//
      &                ' nFragType(nCnttp)  '//
      &                ' nFragCoor(nCnttp)  '
        Do i = 1, mCnttp
        write(6,'(4(3X,I6,11X))')
-     &                              mdciCnttp(i),
+     &                              dbsc(i)%mdci,
      &                              dbsc(i)%nCntr,
      &                              dbsc(i)%nFragType,
      &                              dbsc(i)%nFragCoor
@@ -172,7 +172,7 @@
             jShll = iShll
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
-            mdciCnttp(nCnttp)=mdc
+            dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
@@ -288,13 +288,13 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
        write(6,'(A,i6)')'FragExpand: After the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
-       write(6,'(A)') ' mdciCnttp(nCnttp)  '//
+       write(6,'(A)') ' dbsc(nCnttp)%mdci  '//
      &                ' dbsc(nCnttp)%nCntr '//
      &                ' nFragType(nCnttp)  '//
      &                ' nFragCoor(nCnttp)  '
        Do i = 1, nCnttp
        write(6,'(4(3X,I6,11X))')
-     &                              mdciCnttp(i),
+     &                              dbsc(i)%mdci,
      &                              dbsc(i)%nCntr,
      &                              dbsc(i)%nFragType,
      &                              dbsc(i)%nFragCoor

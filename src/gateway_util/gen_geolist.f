@@ -43,7 +43,7 @@
          If (dbsc(jCnttp)%ECP.and.nVal_Shells(jCnttp).eq.0) Go To 1212
 *
          Do jCnt = 1, mCnt
-            ndc = jCnt + mdciCnttp(jCnttp)
+            ndc = jCnt + dbsc(jCnttp)%mdci
             x1 = dbsc(jCnttp)%Coor(1,jCnt)
             y1 = dbsc(jCnttp)%Coor(2,jCnt)
             z1 = dbsc(jCnttp)%Coor(3,jCnt)
@@ -97,7 +97,7 @@
          mCnt = dbsc(jCnttp)%nCntr
          If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1213
          Do jCnt = 1, mCnt
-            ndc = jCnt + mdciCnttp(jCnttp)
+            ndc = jCnt + dbsc(jCnttp)%mdci
             Do i = 0, nIrrep/nStab(ndc) - 1
                nchr=iAtmNr(jCnttp)
                Chrg(nc) = Z

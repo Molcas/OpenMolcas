@@ -236,7 +236,7 @@
      &          nTtl, iAtmNr(mxdbsc),
      &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
-     &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
+     &          nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
       Common /Info/ IndS, iCoSet, iAOtSO, iSOInf, IrrCmp,
@@ -248,16 +248,13 @@
      &              iChBas, iSphCr,  nOrdEF,
      &              mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
-     &              nMltpl,  IsChi,                   iLbls,
-     &              nShlls,          iPack,
+     &              nMltpl,  IsChi,  iLbls, nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
-     &              lwIntL,  NotZer, iRelae_info,
-     &              jMax,
+     &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh, iAtmNr,
      &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
      &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
-     &              nSOC_Shells,
-     &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
+     &              nSOC_Shells, iOrdFm, ipPP, nPP_Shells, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              nPAMFI, iPAMFI, nPSOI, Ind_Shell,

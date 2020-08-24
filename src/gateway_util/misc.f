@@ -48,7 +48,7 @@
 *
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             kdc = kdc + 1
-            mdc = iCnt + mdciCnttp(iCnttp)
+            mdc = iCnt + dbsc(iCnttp)%mdci
             Ind_Shell(kdc)=iShell
             if(Max(mdc,kdc).gt.mxdc) then
                Call WarningMessage(2,'mxdc too small:')

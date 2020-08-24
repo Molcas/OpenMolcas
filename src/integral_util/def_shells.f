@@ -73,7 +73,7 @@
          End If
 *
          nTest = nVal_Shells(iCnttp)-1
-         mdci = mdciCnttp(iCnttp)
+         mdci = dbsc(iCnttp)%mdci
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdci = mdci + 1
             mdc  = mdc  + 1

@@ -32,7 +32,7 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
-        mdc = mdciCnttp(iCnttp)
+        mdc = dbsc(iCnttp)%mdci
         iShSrt = ipVal(iCnttp)
 *     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
@@ -63,7 +63,7 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
-        mdc = mdciCnttp(iCnttp)
+        mdc = dbsc(iCnttp)%mdci
         iShSrt = ipVal(iCnttp)
 *     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr

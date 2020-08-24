@@ -79,7 +79,7 @@
 
       Do iCnttp = 1, mCnttp
          If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
-         mdc = mdciCnttp(iCnttp)
+         mdc = dbsc(iCnttp)%mdci
          nCnttp=nCnttp+1
 *
          If (nCnttp.gt.Mxdbsc) Then
@@ -226,7 +226,7 @@ C        Fixed(nCnttp)=.False.
 *
          nCnt = dbsc(iCnttp)%nCntr
          dbsc(nCnttp)%nCntr=nCnt
-         mdciCnttp(nCnttp)=mdc
+         dbsc(nCnttp)%mdci =mdc
          Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
          dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *
@@ -251,7 +251,7 @@ C        Fixed(nCnttp)=.False.
 *
       Do iCnttp = 1, mCnttp
          If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
-         mdc = mdciCnttp(iCnttp)
+         mdc = dbsc(iCnttp)%mdci
 *
          Hit=.True.
          Call Decode(Bsl_Old(iCnttp),atom,1,Hit)
@@ -481,8 +481,7 @@ C        Fixed(nCnttp)=.False.
 *
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt
-            mdciCnttp(nCnttp)=mdc
-!           Call allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt))
+            dbsc(nCnttp)%mdci =mdc
             Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
             dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
 *

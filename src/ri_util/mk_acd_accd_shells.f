@@ -107,7 +107,7 @@
 *     Pick up the threshold for the CD procedure. Note that basis
 *     sets might have individual accuracy!
 *
-      mdc = mdciCnttp(iCnttp)
+      mdc = dbsc(iCnttp)%mdci
       Thr_aCD=aCD_Thr(iCnttp)*Thrshld_CD
 *
       nTest= nVal_Shells(iCnttp)-1
@@ -1390,8 +1390,7 @@ C                          Thrs= 1.0D-12
 *
                nCnt = dbsc(iCnttp)%nCntr
                dbsc(nCnttp)%nCntr=nCnt
-               mdciCnttp(nCnttp)=mdc
-!              Call allocate(dbsc(nCnttp)%Coor(1:3,nCnt))
+               dbsc(nCnttp)%mdci =mdc
                Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,
      &                           Label='dbsc:C')
                dbsc(nCnttp)%Coor(:,:) = dbsc(iCnttp)%Coor(:,:)

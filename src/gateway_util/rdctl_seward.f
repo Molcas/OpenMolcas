@@ -1166,7 +1166,7 @@ c Simplistic validity check for value
       jShll = iShll
       SODK(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
-      mdciCnttp(nCnttp)=mdc
+      dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
@@ -4534,7 +4534,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       Do iCnttp = 1, nCnttp
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
-            mdc = iCnt + mdciCnttp(iCnttp)
+            mdc = iCnt + dbsc(iCnttp)%mdci
             Mx_mdc = Max(Mx_mdc,mdc)
             If (mdc.gt.Mxdc) Then
                Call WarningMessage(2,' mdc.gt.Mxdc!;'

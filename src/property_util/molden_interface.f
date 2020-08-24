@@ -299,7 +299,7 @@ c      write(6,*) 'we here 0?'
      &          pChrg(iCnttp)) Go To 775
             Do iCntr=1,dbsc(iCnttp)%nCntr
                iData=iData+1
-               mdc = iCntr + mdciCnttp(iCnttp)
+               mdc = iCntr + dbsc(iCnttp)%mdci
                nDeg=nIrrep/nStab(mdc)
                Do iDeg = 1, nDeg
                   jData=jData+1

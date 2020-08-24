@@ -29,7 +29,7 @@
 ************************************************************************
 *                                                                      *
       iShll = Mx_Shll - 1
-      mdc = mdciCnttp(nCnttp) + dbsc(nCnttp)%nCntr
+      mdc = dbsc(nCnttp)%mdci + dbsc(nCnttp)%nCntr
       nCnttp = nCnttp + 1
       If (nCnttp.gt.Mxdbsc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
@@ -89,7 +89,7 @@
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
          Call Abend()
       End If
-      mdciCnttp(nCnttp)=mdc
+      dbsc(nCnttp)%mdci=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')

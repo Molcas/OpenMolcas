@@ -59,7 +59,7 @@
 *     Valence basis set
 *
       Do iCnttp = 1, nCnttp
-         mdc = mdciCnttp(iCnttp)
+         mdc = dbsc(iCnttp)%mdci
          lSh= 0
          output=Show
          If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)

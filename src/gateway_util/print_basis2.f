@@ -56,7 +56,7 @@
       iShell=0
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
-         mdc = mdciCnttp(iCnttp)
+         mdc = dbsc(iCnttp)%mdci
          output=iPrint.ge.6
          If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
      &     output = output .and. iPrint.ge.10

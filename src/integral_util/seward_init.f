@@ -112,7 +112,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iPAMcount=1
 
       Do i=1, Mxdbsc
-         mdciCnttp(i)    =0
          ExpNuc(i)       =-One
          w_mGauss(i)     = One
          aCD_Thr(i)      = One

@@ -127,8 +127,8 @@
 #ifdef _DEBUG_
 c     data for individual fragments:
       Write (6,*) ' In FragPInt:    nCnttp          = ',nCnttp
-      Write (6,*) ' In FragPInt: mdciCnttp(nCnttp)  = ',
-     &                                 (mdciCnttp(i),i=1,nCnttp)
+      Write (6,*) ' In FragPInt: dbsc(nCnttp)%mdci  = ',
+     &                                 (dbsc(i)%mdci,i=1,nCnttp)
       Write (6,*) ' In FragPInt:     dbsc(nCnttp)%nCntr  = ',
      &                                     (dbsc(i)%nCntr,i=1,nCnttp)
       Write (6,*) ' In FragPInt: nFragType(nCnttp)  = ',
