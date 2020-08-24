@@ -33,7 +33,7 @@
 ************************************************************************
       use Real_Spherical
       use External_Centers
-      use Basis_Info, only: Basis_Info_Dmp, nCnttp
+      use Basis_Info, only: Basis_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -78,7 +78,6 @@
       Call Put_iArray('SewIInfo',p_ix,Len)
 *
       Call Put_iArray('IndS',IndS,nShlls)
-      Call Put_iArray('nOpt',nOpt,nCnttp)
       Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Put_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)

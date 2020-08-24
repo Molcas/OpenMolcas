@@ -516,14 +516,11 @@ c      Write(LU,'(i8)') Mx_Shll
 c      Write(LU,'(i8)') nShlls
 c      Write(LU,'(8i8)') (IndS(i),i=1,nShlls)
 
-      Call Get_iArray('nOpt',nOpt,nCnttp)
-
       iWork(iivv+Icurr)=nCnttp
       Icurr=iCurr+1
-      call icopy(nCnttp,nOpt,1,iWork(iivv+Icurr),1)
-c      do i=1,nCnttp
-c        iWork(iivv+Icurr+i)=nOpt(i)
-c      enddo
+      do i=1,nCnttp
+        iWork(iivv+Icurr+i)=dbsc(i)%nOpt
+      enddo
       Icurr=iCurr+nCnttp
 
 c      Write(LU,'(i8)') nCnttp
@@ -537,7 +534,6 @@ c      do i=1,64*Mx_mdc
 c        iWork(iivv+Icurr+i)=iCoSet(i)
 c      enddo
       Icurr=iCurr+64*Mx_mdc
-
 
 c      Write(LU,'(i8)') 64*Mx_mdc
 c     call pack_me(LU,iCoSet,64*Mx_mdc)

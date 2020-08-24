@@ -49,7 +49,7 @@
       CrRep(nCnttp)=Zero
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = 0
+      dbsc(nCnttp)%nOpt = 0
       nPrj_Shells(nCnttp) = 0
       nSRO_Shells(nCnttp) = 0
       nSOC_Shells(nCnttp) = 0

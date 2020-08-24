@@ -274,17 +274,17 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
                Type(0)=Type(0).or.nExpk.ne.0
             End Do
             If (Type(0)) Then
-               If (nOpt(iCnttp).ne.0) Then
+               If (dbsc(iCnttp)%nOpt.ne.0) Then
                   Write (LuWr,*)
                   Write (LuWr,'(6X,A)') 'Spectral Resolvent Operators :'
-                  If (iAnd(2**0,nOpt(iCnttp)).ne.0)
+                  If (iAnd(2**0,dbsc(iCnttp)%nOpt).ne.0)
      &               Write (LuWr,'(8X,A)') ' Exchange'
-                  If (iAnd(2**1,nOpt(iCnttp)).ne.0)
+                  If (iAnd(2**1,dbsc(iCnttp)%nOpt).ne.0)
      &               Write (LuWr,'(8X,A)') ' Mass-Velocity'
-                  If (iAnd(2**2,nOpt(iCnttp)).ne.0)
+                  If (iAnd(2**2,dbsc(iCnttp)%nOpt).ne.0)
      &               Write (LuWr,'(8X,A)') ' Darwin 1-electron'
      &                      //' contact term'
-                  If (iAnd(2**3,nOpt(iCnttp)).ne.0) Then
+                  If (iAnd(2**3,dbsc(iCnttp)%nOpt).ne.0) Then
                      If (IRELMP.EQ.0) Then
                         Write (LuWr,'(8X,A)') ' No-Pair approximation'
                      Else If (IRELMP.EQ.1) Then
@@ -340,7 +340,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
                Type(0)=Type(0).or.nExpk.ne.0
             End Do
             If (Type(0)) Then
-               If (nOpt(iCnttp).ne.0) Then
+               If (dbsc(iCnttp)%nOpt.ne.0) Then
                   Write (LuWr,*)
                   Write (LuWr,'(6X,A)') 'Auxilliary core basis'
                End If

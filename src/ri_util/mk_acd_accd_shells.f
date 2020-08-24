@@ -395,7 +395,7 @@
             pChrg(nCnttp)=pChrg(iCnttp)
             Fixed(nCnttp)=Fixed(iCnttp)
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
-            nOpt(nCnttp) = 0
+            dbsc(nCnttp)%nOpt = 0
             ipVal(nCnttp) = iShll+1
             ipPrj(nCnttp) = -1
             ipSRO(nCnttp) = -1

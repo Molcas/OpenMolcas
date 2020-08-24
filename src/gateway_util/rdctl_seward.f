@@ -1171,8 +1171,7 @@ c Simplistic validity check for value
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),nProj,nAIMP,iOptn,
-     &           UnNorm,nDel,
+     &           CrRep(nCnttp),nProj,nAIMP, UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,
@@ -1247,7 +1246,6 @@ c Simplistic validity check for value
       Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = iOptn
       ipVal(nCnttp) = ipVal_
       ipPrj(nCnttp) = ipPrj_
       ipSRO(nCnttp) = ipSRO_

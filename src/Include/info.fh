@@ -233,14 +233,13 @@
      &          Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
-     &          nTtl,
-     &          nOpt(mxdbsc), iAtmNr(mxdbsc),
+     &          nTtl, iAtmNr(mxdbsc),
      &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
-      Common /Info/ IndS, nOpt, iCoSet, iAOtSO, iSOInf, IrrCmp,
+      Common /Info/ IndS, iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,

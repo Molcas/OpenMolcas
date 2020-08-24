@@ -134,7 +134,7 @@
          RecLab( 29)='                ' !Free slot
          RecLab( 30)='                ' !Free slot
          RecLab( 31)='                ' !Free slot
-         RecLab( 32)='nOpt            '
+         RecLab( 32)='                ' !Free Slot
          RecLab( 33)='                ' !Free slot
          RecLab( 34)='                ' !Free slot
          RecLab( 35)='iCoSet          '

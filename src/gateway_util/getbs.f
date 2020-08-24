@@ -14,8 +14,7 @@
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2, NoPairL,SODK,
-     &                 CrRep,nProj,nAIMP,iOpt,
-     &                 UnNorm,nDel,
+     &                 CrRep,nProj,nAIMP,UnNorm,nDel,
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,
@@ -128,7 +127,7 @@
       ipSOC_=-1
       ipPP_=-1
       dbsc(nCnttp)%IsMM = 0
-      iOpt = 0
+      dbsc(nCnttp)%nOpt = 0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
       Line=DDName
@@ -918,14 +917,14 @@
 *--------Exchange operator
 *
  1002    Continue
-         iOpt = iOr(iOpt,2**0)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**0)
          Go To 9988
 *
 *--------1st order relativistic correction
 *
  1003    Continue
-         iOpt = iOr(iOpt,2**1)
-         iOpt = iOr(iOpt,2**2)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**1)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**2)
          Line=Get_Ln(lUnit)
          MPLbl=Line(1:20)
          Go To 9988
@@ -937,7 +936,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=0
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK1)
@@ -946,7 +945,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=1
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK2)
@@ -955,7 +954,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=2
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK3)
@@ -964,7 +963,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=3
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK3)
@@ -973,7 +972,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=4
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre RESC operators
@@ -981,7 +980,7 @@
  1009    Continue
          NoPairL=.True.
          IRELMP=11
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre ZORA operators
@@ -989,7 +988,7 @@
  9001    Continue
          NoPairL=.True.
          IRELMP=21
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre ZORA-FP operators
@@ -998,7 +997,7 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=22
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre IORA operators
@@ -1007,11 +1006,12 @@
          NoPairL=.True.
          SODK=.True.
          IRELMP=23
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
  999     Continue
-         If (iAnd(iOpt,2**1).ne.0 .and. iAnd(iOpt,2**3).ne.0) Then
+         If (iAnd(dbsc(nCnttp)%nOpt,2**1).ne.0 .and.
+     &       iAnd(dbsc(nCnttp)%nOpt,2**3).ne.0) Then
             Call WarningMessage(2,
      &                  ' 1st order relativistic correction and '
      &                //' no-pair approximation can not be used'
@@ -1030,8 +1030,8 @@
             LUQRP=33
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
-            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,
-     &                   iPrSh+1,DBLE(iAtmNr))
+            Call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,
+     &                   nProj,iPrSh+1,DBLE(iAtmNr))
             Close (LUQRP)
          End If
       End If

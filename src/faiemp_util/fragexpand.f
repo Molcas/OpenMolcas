@@ -36,7 +36,7 @@
       Real*8      eqBasis(LineWords)
       Integer     BasisTypes(4), nDel(MxAng),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
-     &            ii, Indx, iOptn, iSh, iShll, jShll,
+     &            ii, Indx, iSh, iShll, jShll,
      &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, nAIMP, ndc,
      &            nVal, nPrj, nSRO, nSOC, nPP, nProj,
      &            StayAlone,
@@ -176,8 +176,7 @@
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &                 CrRep(nCnttp),nProj,nAIMP,iOptn,
-     &                 UnNorm,nDel,
+     &                 CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &                 LuRd,BasisTypes,
@@ -190,7 +189,6 @@
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
             dbsc(nCnttp)%FOp=.False.
-            nOpt(nCnttp) = iOptn
             ipVal(nCnttp) = ipVal_
             ipPrj(nCnttp) = ipPrj_
             ipSRO(nCnttp) = ipSRO_

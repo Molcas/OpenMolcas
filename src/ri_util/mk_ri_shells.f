@@ -167,8 +167,7 @@
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              NoPairL(nCnttp),SODK(nCnttp),
-     &              CrRep(nCnttp),nProj,nAIMP,iOptn,
-     &              UnNorm,nDel,
+     &              CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &              LuRd,BasisTypes,
@@ -203,7 +202,6 @@
          dbsc(nCnttp)%Parent_iCnttp=iCnttp
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
-         nOpt(nCnttp) = iOptn
          ipVal(nCnttp) = ipVal_
          ipPrj(nCnttp) = ipPrj_
          ipSRO(nCnttp) = ipSRO_
@@ -466,7 +464,7 @@ C        Fixed(nCnttp)=.False.
             lNoPair = lNoPair .or. NoPairL(nCnttp)
             iAngMx=Max(iAngMx,lAng)
 *
-            nOpt(nCnttp) = 0
+            dbsc(nCnttp)%nOpt = 0
             ipVal(nCnttp) = jShll + 1
             ipPrj(nCnttp) = -1
             ipSRO(nCnttp) = -1

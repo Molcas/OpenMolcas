@@ -150,8 +150,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),nProj,nAIMP,iOptn,
-     &           UnNorm,nDel,
+     &           CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,
@@ -201,7 +200,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = iOptn
       ipVal(nCnttp) = ipVal_
       ipPrj(nCnttp) = ipPrj_
       ipSRO(nCnttp) = ipSRO_
