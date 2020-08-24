@@ -261,15 +261,15 @@ c      write(6,*) 'we here 0?'
         End Do
  995    Continue
       End Do
-      Write (MF,'(A)') '[Molden Format]'
+      Write (MF,'(A)') '[MOLDEN FORMAT]'
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write atomic information
 *
-      Write (MF,'(A)') '[N_Atoms]'
+      Write (MF,'(A)') '[N_ATOMS]'
       Write (MF,*) natom
-      Write (MF,'(A)') '[Atoms] (AU)'
+      Write (MF,'(A)') '[ATOMS] (AU)'
       Do iatom=1,natom
         Write (MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),
      &                (coor(i,iatom),i=1,3)
@@ -287,7 +287,7 @@ c      write(6,*) 'we here 0?'
 *
       Call qpg_dArray('Mulliken Charge',Found,nData)
       If (Found) Then
-         Write (MF,'(A)') '[Charge] (Mulliken)'
+         Write (MF,'(A)') '[CHARGE] (MULLIKEN)'
          Call Allocate_Work(ipMull,nData)
          Call Get_dArray('Mulliken Charge',Work(ipMull),nData)
 *
