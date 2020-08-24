@@ -86,7 +86,7 @@
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
       COMMON SumEigVal
-      EXTERNAL ISFREEUNIT
+      EXTERNAL ISFREEUNIT, Molden_interface
 
       LU=233
 
@@ -476,7 +476,7 @@ C     input variables
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
-      CHARACTER (len=128) FILENAME
+      CHARACTER (len=128) FILENAME, molden_name
 C     Loop control
       INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
@@ -628,8 +628,11 @@ C Recording Printed NTO (PCMO)
       Note='*  Natural Transition Orbitals'
       WRITE(FILENAME,'(6(a))')
      & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
+      WRITE(molden_name,'(6(a))')
+     & 'MD_NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
+      CALL Molden_interface(0,trim(FILENAME),trim(molden_name),.false.)
 
       deallocate(PCMO)
       RETURN
