@@ -304,7 +304,7 @@ Optional general keywords
   Followed by 2 numbers, to limit the interval of
   orbitals by one-electron energies
 
-  .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="ERANGE" APPEAR="eRange" KIND="REALS" SIZE="2" MIN_VALUE="0" MAX_VALUE="2" LEVEL="ADVANCED" EXCLUSIVE="ORANGE,ALL">
+  .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="ERANGE" APPEAR="eRange" KIND="REALS" SIZE="2" LEVEL="ADVANCED" EXCLUSIVE="ORANGE,ALL">
               %%Keyword: ERANge <advanced>
               %%Tested: NONE
               <HELP>
