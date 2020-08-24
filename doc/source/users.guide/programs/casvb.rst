@@ -22,9 +22,9 @@
             CASVB is a program for performing general valence bond calculations.
             It can be used in two basic modes:
             a) variational optimization of quite general types of
-            nonorthogonal MCSCF or modern valence bond wavefunctions, or
+               nonorthogonal MCSCF or modern valence bond wavefunctions, or
             b) representation of CASSCF wavefunctions in modern valence form,
-            using overlap- (relatively inexpensive) or energy-based criteria.
+               using overlap- (relatively inexpensive) or energy-based criteria.
             </HELP>
 
 This program can be used in two basic modes:
@@ -1117,7 +1117,7 @@ Optional keywords for further general options
   be printed in the AO basis (provided that the definition of MOs is
   available).
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="PRINT" APPEAR="Print levels" LEVEL="BASIC" KIND="INTS" SIZE="7" DEFAULT_VALUES="1,1,1,1,1,1,1" MIN_VALUE="-1" MAX_VALUE="2">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="PRINTLEVELS" APPEAR="Print levels" LEVEL="BASIC" KIND="INTS" SIZE="7" DEFAULT_VALUES="1,1,1,1,1,1,1" MIN_VALUE="-1" MAX_VALUE="2">
               %%Keyword: PRINT <basic>
               <HELP>
               Controls the amount of output. See manual.

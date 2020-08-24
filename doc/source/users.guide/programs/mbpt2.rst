@@ -341,12 +341,12 @@ Optional keywords
               <HELP>
               "Freeze-and-Delete" type of MP2, available only in connection with Cholesky or RI.
               An example of input for the keyword LOVM is the following:
-              ||
-              ||LovMP2
-              ||2  0.2  (nCenters,thrs)
-              ||C1 N    (Center labels)
-              ||DoMP2
-              ||
+
+                LovMP2
+                2  0.2  (nCenters,thrs)
+                C1 N    (Center labels)
+                DoMP2
+
               In this case, both occupied and virtual orbitals (localized by the program) are divided in two groups: those (A) mainly located on the
               two (symmetry independent) centers C1 and N, and the remaining ones (B), which are obviously "outside" this region.
               The value of the threshold (between 0 and 1) is used to perform this selection
@@ -380,11 +380,11 @@ Optional keywords
               <HELP>
               Performs a Frozen Natural Orbital (FNO) MP2 calculation, available only in combination with Cholesky or RI integral representation
               An example of input for the keyword FNOM is the following:
-              ||
-              ||FNOMp2
-              || 0.4
-              ||DoMP2
-              ||
+
+                FNOMp2
+                 0.4
+                DoMP2
+
               The keyword FNOM has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
               (in each irrep) to be retained in the FNO-MP2 calculation.
               The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.
@@ -468,9 +468,10 @@ are disregarded for algorithm 0 (see below).
               Specifies the algorithm to use for Cholesky MP2.
               </HELP>
               Options:
-              ||0 [generate MO integrals on disk from Cholesky vectors]
-              ||1 [compute integrals on-the-fly, minimal operation count]
-              ||2 [compute integrals on-the-fly, minimal disk access (default)]
+
+              0 -- generate MO integrals on disk from Cholesky vectors
+              1 -- compute integrals on-the-fly, minimal operation count
+              2 -- compute integrals on-the-fly, minimal disk access (default)
               </KEYWORD>
 
 :kword:`VERBose`
