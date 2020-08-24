@@ -50,7 +50,13 @@
 *     nSOC_Shells: number of auxilliary Spin-Orbit Core basis sets     *
 *                  shells of the i''th basis set.                      *
 *     iPrj_Shells_Start: index of the first projection basis set shell *
-*                   of the i''th basis set.                            * *     iSRO_Shells_Start: index of the first SRO basis set shell of     * *                  the i''th basis set.                                * *     iSOC_Shells_Start: index of the first SOC basis set shell of     * *                  the i''th basis set.                                * *     iChCnt: the symmetry character of the i''th unique center        * *     iChTbl: the character table for the specified point group        *
+*                   of the i''th basis set.                            *
+*     iSRO_Shells_Start: index of the first SRO basis set shell of     *
+*                  the i''th basis set.                                *
+*     iSOC_Shells_Start: index of the first SOC basis set shell of     *
+*                  the i''th basis set.                                *
+*     iChCnt: the symmetry character of the i''th unique center        *
+*     iChTbl: the character table for the specified point group        *
 *     jStab : the stabilizer of the i''th unique center                *
 *     nStab : the number of elements in the stabilizer of the i''th    *
 *             unique center                                            *
