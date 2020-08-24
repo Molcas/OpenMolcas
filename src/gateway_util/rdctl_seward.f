@@ -1269,24 +1269,6 @@ c Simplistic validity check for value
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Compute the effective radius of this center
-*
-      iAng = 0
-      Thrshld_R=1.0D-08
-      Do iSh = ipVal_, ipVal_+nVal-1
-         RMax_R=Zero
-         Do iPrim = 1, Shells(iSh)%nExp
-            ValExp = Shells(iSh)%Exp(iPrim)
-            RMax_R = Max(RMax_R,
-     &                   Eval_RMax(ValExp,iAng,Thrshld_R))
-         End Do
-         RMax_Shll(iSh)=RMax_R
-C        Write (LuWr,*) 'RMax_R=',RMax_R
-         iAng = iAng + 1
-      End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Set Cartesian functions if specified by the basis type
 *     (6-31G family).
 *

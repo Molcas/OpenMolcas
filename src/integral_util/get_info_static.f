@@ -95,9 +95,6 @@
       Len = (Len+nByte_r)/nByte_r
       Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
       Call Get_dArray('SewRInfo',p_rx,Len)
-      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-      Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('RMax_Shll',RMax_Shll,Len)
       CLightAU=CLight_Info
 *
 *     Load the common CINFO

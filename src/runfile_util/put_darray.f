@@ -236,11 +236,11 @@ c mess started here :)
          RecLab( 77)='MpProp Orb Ener '
          RecLab( 78)='LoProp H0       '
          RecLab( 79)='Dipole moment   '
-         RecLab( 80)='****************' ! Unused
+         RecLab( 80)='                ' ! Unused
          RecLab( 81)='BMtrx           '
          RecLab( 82)='CList           '
          RecLab( 83)='DList           '
-         RecLab( 84)='RMax_Shll       '
+         RecLab( 84)='                ' ! Unused
          RecLab( 85)='MkNemo.vDisp    '
          RecLab( 86)='MkNemo.tqCluster'
          RecLab( 87)='MkNemo.Energies '

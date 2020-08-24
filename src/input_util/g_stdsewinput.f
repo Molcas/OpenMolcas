@@ -223,24 +223,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Compute the effective radius of this center
-*
-      iAng = 0
-      Thrshld_R=1.0D-08
-      Do iSh = ipVal_, ipVal_+nVal-1
-         RMax_R=Zero
-         Do iPrim = 1, Shells(iSh)%nExp
-            ValExp = Shells(iSh)%Exp(iPrim)
-            RMax_R = Max(RMax_R,
-     &                   Eval_RMax(ValExp,iAng,Thrshld_R))
-         End Do
-         RMax_Shll(iSh)=RMax_R
-C        Write (LuWr,*) 'RMax_R=',RMax_R
-         iAng = iAng + 1
-      End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Here we will have to fix that the 6-31G family of basis sets
 *     should by default be used with 6 d-functions rather than 5.
 *

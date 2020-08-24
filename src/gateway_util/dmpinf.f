@@ -106,10 +106,6 @@
       Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
       Call Put_dArray('SewRInfo',p_rx,Len)
 *
-      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-      Len = (Len+nByte_r)/nByte_r
-      Call Put_dArray('RMax_Shll',RMax_Shll,Len)
-*
 *     Save the common CINFO
 *
       Len = icLoc(cxEnd)-icLoc(cxStrt)

@@ -234,7 +234,7 @@
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl,
-     &          nOpt(MxShll), iAtmNr(mxdbsc),
+     &          nOpt(mxdbsc), iAtmNr(mxdbsc),
      &          kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
@@ -322,7 +322,7 @@
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
      &               CrRep(mxdbsc), FragCharge(mxdbsc), E1, E2,
-     &               RMax_Shll(MxShll), Thrshld_CD, RPQMin,SadStep,
+     &               Thrshld_CD, RPQMin,SadStep,
      &               Delta_RICD, CLight_Info, w_mGauss(mxdbsc),
      &               aCD_Thr(mxdbsc),radiLD, Shake, KVector(3), ChiI2,
      &               fmass(mxdbsc), CntMass(mxdc)
@@ -332,7 +332,7 @@
      &               SumSq,  SumAbs, CutInt, TMass,  CoM,    rMI,
      &               Prin,   PAx,    CoC,    qNuc,   PkAcc,  Thrs,
      &               Dxyz, RadMax, cdMax, EtMax, rChTbl,CrRep,
-     &               ExpNuc,FragCharge, Rtrnc, RMax_Shll,
+     &               ExpNuc,FragCharge, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               w_mGauss, aCD_Thr, E1, E2, radiLD, SadStep, Shake,
      &               KVector, ChiI2, fmass, CntMass,

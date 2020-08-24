@@ -635,9 +635,6 @@ c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
       Call GETMEM(' SewRInfo ','FREE','REAL',irxStrt,Len)
 
 c VVV /*
-c      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-c      Len = (Len+nByte_r)/nByte_r
-c      Call Get_dArray('RMax_Shll',RMax_Shll,Len)
 c      CLight=CLight_Info
 *
 *     Load the common CINFO
