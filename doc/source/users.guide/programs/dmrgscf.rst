@@ -195,7 +195,7 @@ are listed below. The start and end of the OptimizationSettings input section is
 
   .. xmldoc:: <GROUP MODULE="DMRGSCF" NAME="OOPTIMIZATIONSETTINGS" APPEAR="Orbital optimization settings" KIND="BLOCK" LEVEL="BASIC">
 
-  .. xmldoc:: <INCLUDE MODULE="RASSCF" />
+  .. xmldoc:: <INCLUDE MODULE="RASSCF" EXCEPT="VB,RGINPUT,NEVPT2PREP" />
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="FCIDUMP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: fcidump <basic>
