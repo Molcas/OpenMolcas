@@ -458,15 +458,15 @@ C                    iPrint=99
                      ijSO = iD_c(iCho_c)
                      kAng=iList2_c(1,ijSO)
                      lAng=iList2_c(2,ijSO)
-                     Found = Found .or.
-     &                   iAng.eq.kAng .and. jAng.eq.lAng
                      If ( iAng.eq.kAng .and. jAng.eq.lAng ) Then
                         kShll=iList2_c(7,ijSO)
                         lShll=iList2_c(8,ijSO)
+                        Found=.True.
+                        Exit
                      End If
                   End Do
 *
-*                 Fake not found for shells which should explicitly be
+*                 Fake Found=.FALSE. for shells which should explicitly be
 *                 empty.
 *
                   Found = Found .and. jAng.ge.iAngMin
@@ -1351,7 +1351,7 @@ C                          Thrs= 1.0D-12
 *
 *
                   Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
-                  If (jAng.eq.0) Then
+                  If (jAng.eq.0.and.Found) Then
                      Shells(iShll)%Transf=Shells(kShll)%Transf
                      Shells(iShll)%Prjct =Shells(kShll)%Prjct
                   Else
