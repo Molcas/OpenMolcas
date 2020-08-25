@@ -12,7 +12,5 @@
       Common /iTOff_Data/ iTOffs
 #ifndef _no_nShs_
       Integer nShi(8), nShj(8), nShk(8), nShl(8)
-      Integer nShOffi(8), nShOffj(8), nShOffki(8) ,nShOffl(8)
       Common /nShs/ nShi, nShj, nShk, nShl
-     &              nShOffi, nShOffj, nShOffki ,nShOffl
 #endif

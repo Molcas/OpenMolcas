@@ -46,6 +46,7 @@
       nSkal=0
       iAOttp=0 ! Number of AO functions proceeding a particular shell
       m2Max=0
+      IndShl=0
 *
       If (Atomic) Go To 300
 *                                                                      *
@@ -113,7 +114,7 @@
                iSD(7,nSkal)= iAOttp                  !
      &                     + (iCnt-1)*dbsc(iCnttp)%lOffAO
      &                     + Shells(kSh)%kOffAO      !
-               iSD(8,nSkal)= -1                      ! Not used
+               iSD(8,nSkal)= IndShl                  !
                itemp=0                               !
                If (Shells(iShll)%Prjct ) itemp=itemp+1      !
                If (Shells(iShll)%Transf) itemp=itemp+2      !
@@ -148,6 +149,7 @@
                iSD(15,nSkal) = iTmp
 *
                m2Max=Max(m2Max,nExpi**2)
+               IndShl=IndShl+iCmp
 *                                                                      *
 ************************************************************************
 *                                                                      *

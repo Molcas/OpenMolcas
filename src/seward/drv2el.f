@@ -45,8 +45,7 @@
       Parameter(nTInt=1,mDens=1)
       Real*8 Dens(mDens), Fock(mDens), TInt(nTInt)
       Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8),
-     &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
+     &        nShi(8), nShj(8), nShk(8), nShl(8)
       Logical Verbose, Indexation, FreeK2,
      &        W2Disc, PreSch, DoIntegrals, DoFock, DoGrad,
      &        FckNoClmb, FckNoExch, Rsv_GTList, Triangular
@@ -192,7 +191,6 @@
          Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,nShi,nShj,nShk,nShl,
-     &                   nShOffi,nShOffj,nShOffk,nShOffl,
      &                   Integral_WrOut,
 * the following are dummy arguments
      &                   Dens,Fock,mDens,ExFac,Nr_Dens,

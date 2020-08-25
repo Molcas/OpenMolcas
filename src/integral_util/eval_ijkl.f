@@ -51,19 +51,6 @@
 *                         SAOs in the specified shells and symmetries, *
 *                         otherwise chaos!!                            *
 *                                                                      *
-*     nShOffi,nShOffj,    Offsets of Integral symmetry blocks (input)  *
-*     nShOffk,nShOffl:    An Integral (lso,kso|jso,iso) is placed at   *
-*                         [lb,kb,jb,ib] where lb=lso-nShOffl(lsym),    *
-*                         kb=kso-nShOffk(ksym) etc. Here lso,kso etc   *
-*                         are the SAO labels within their symmetry.    *
-*                         More explicitly, the Integral is stored in   *
-*                         in Tint(ijkl), where                         *
-*                                                                      *
-*                         ijkl = iTOffs(ksym,jsym,isym)                *
-*                           + (ib-1)*nshj(jsym)*nshk(ksym)*nshl(lsym)  *
-*                           + (jb-1)*nshk(ksym)*nshl(lsym)             *
-*                           + (kb-1)*nshl(lsym)                        *
-*                           +  lb                                      *
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
@@ -236,8 +223,8 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
       jBasj    = Shells(iShllV(2))%nBasis
       kBask    = Shells(iShllV(3))%nBasis
       lBasl    = Shells(iShllV(4))%nBasis
-      nZeta = iPrimi * jPrimj
-      nEta = kPrimk * lPriml
+      nZeta    = iPrimi * jPrimj
+      nEta     = kPrimk * lPriml
       mDij=nZeta+1 ! Dummy initialize
       mDkl=nEta+1  ! Dummy initialize
 *
@@ -554,7 +541,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
      &                                  nShi,nShj,nShk,nShl,
-     &                                  nShOffi,nShOffj,nShOffk,nShOffl,
      &                                  Dens,Fock,lDens,ExFac,nDens,
      &                                  Ind,nInd,FckNoClmb,FckNoExch)
                      Else
