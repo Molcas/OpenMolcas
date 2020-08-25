@@ -11,8 +11,7 @@
 * Copyright (C) 1991,1993,1995,1999,2000, Roland Lindh                 *
 ************************************************************************
       Subroutine Eval_Ints_New(iiS,jjS,kkS,llS,TInt,nTInt,
-     &                         iTOffs,nShi,nShj,nShk,nShl,
-     &                         Integ_Proc,
+     &                         iTOffs,Integ_Proc,
      &                         Dens,Fock,lDens,ExFac,nDens,
      &                         Ind,nInd,FckNoClmb,FckNoExch)
 ************************************************************************
@@ -26,16 +25,6 @@
 *          TInt                : Computed Integrals                    *
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
-*                                                                      *
-*     nShi,nShj,          Dimensions used for blocks in Tint (input)   *
-*     nshk,nshl:          Symmetry block isym,jsym,ksym,lsym for       *
-*                         shells iS,jS,kS,lS starts at                 *
-*                         iTOffs(ksym,jsym,isym)+1 and is dimensioned  *
-*                         [nshl(lsym),nshk(ksym),nshj(jsym,nshi(isym)] *
-*                         Note that l runs fastest! The dimensions     *
-*                         must be larger or equal to the number of     *
-*                         SAOs in the specified shells and symmetries, *
-*                         otherwise chaos!!                            *
 *                                                                      *
 *          Dens                : 1-particle density matrix             *
 *          lDens               : length of density/Fock matrices       *
@@ -88,8 +77,7 @@
       Integer lDens
       Real*8  Thize,Fock(lDens,nDens),Dens(lDens,nDens),
      &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt)
-      Integer iTOffs(8,8,8), nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        Ind(nInd,nInd,2)
+      Integer iTOffs(8,8,8), Ind(nInd,nInd,2)
       Logical W2Disc,PreSch,FckNoClmb(nDens),FckNoExch(nDens),
      &        DoIntegrals,DoFock
 *                                                                      *
@@ -120,8 +108,7 @@
 *
       Call Eval_Ints_New_Internal
      &               (iiS,jjS,kkS,llS,TInt,nTInt,
-     &                iTOffs,nShi,nShj,nShk,nShl,
-     &                Integ_Proc,
+     &                iTOffs,Integ_Proc,
      &                Dens,Fock,lDens,ExFac,nDens,
      &                Ind,nInd,FckNoClmb,FckNoExch,
      &                Thize,W2Disc,PreSch,Disc_Mx,Disc, ! New arguments

@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut_Cho(
-     &                           iCmp,iShell,MapOrg,
+     &                           iCmp,iShell,MapOrg,IndShlV,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
      &                           iSOSym,nSkal,nSOs,
      &                           TInt,nTInt,FacInt,itOffs,mSym,
-     &                           nShi,nShj,nShk,nShl,
      &                           Dens,Fock,LDens,ExFac,NDens,
      &                           ind,nind,FckNoClmb,FckNoExch)
 *     calls the proper routines IndSft/PLF
@@ -31,10 +30,9 @@
       Parameter (SecNam = 'Integral_WrOut_Cho')
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4),
+      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:mSym-1,0:mSym-1,0:mSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7)
+     &        itOffs(0:mSym-1,0:mSym-1,0:mSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
       Real*8 Dens(lDens,nDens), Fock(lDens,nDens), ExFac(nDens)
       Integer Ind(nInd,nInd,2)
@@ -51,10 +49,6 @@
          iDummy_1  = Ind(1,1,1)
          iDummy_2  = itOffs(0,0,0)
          iDummy_3  = MapOrg(1)
-         iDummy_8  = nShi(0)
-         iDummy_9  = nShj(0)
-         iDummy_10 = nShk(0)
-         iDummy_11 = nShl(0)
       End If
 *
 * call sorting routine
@@ -66,7 +60,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho(TInt,nTInt,
+           Call IndSft_Cho(TInt,nTInt,IndShlV,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
@@ -77,7 +71,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_2(TInt,nTInt,
+           Call IndSft_Cho_2(TInt,nTInt,IndShlV,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
@@ -88,7 +82,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_3(TInt,nTInt,
+           Call IndSft_Cho_3(TInt,nTInt,IndShlV,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If

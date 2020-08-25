@@ -79,11 +79,16 @@
             mdci = mdci + 1
             mdc  = mdc  + 1
 *
-            Do 200 iAng=0, nTest
+            Do iAng=0, nTest
                iShll = ipVal(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
-               If (nExpi.eq.0)   Cycle
                nBasisi=Shells(iShll)%nBasis
+               If (Shells(iShll)%Prjct) Then
+                  iCmp = 2*iAng+1
+               Else
+                  iCmp  = (iAng+1)*(iAng+2)/2
+               End If
+               If (nExpi.eq.0)   Go To 200
                If (nBasisi.eq.0) Go To 200
                If (Basis_Mode.eq.Valence_Mode .and.
      &             (Shells(iShll)%Aux.or.
@@ -96,8 +101,7 @@
      &             Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Fragment_Mode .and.
      &             Shells(iShll)%Aux) Go To 200
-               iCmp  = (iAng+1)*(iAng+2)/2
-               If (Shells(iShll)%Prjct) iCmp = 2*iAng+1
+
                kSh=ipVal(iCnttp)+iAng
 *
                nSkal = nSkal + 1
@@ -149,11 +153,11 @@
                iSD(15,nSkal) = iTmp
 *
                m2Max=Max(m2Max,nExpi**2)
-               IndShl=IndShl+iCmp
+ 200           IndShl=IndShl+iCmp
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 200        Continue                     ! iAng
+            End Do                       ! iAng
          End Do                          ! iCnt
          iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
       End Do                             ! iCnttp

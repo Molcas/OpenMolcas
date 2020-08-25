@@ -8,13 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_WrOut(iCmp,iShell,MapOrg,
+      SubRoutine Integral_WrOut(iCmp,iShell,MapOrg,IndShlV,
      &                          iBas,jBas,kBas,lBas,kOp,
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
      &                          TInt,nTInt,FacInt,itOffs,nSym,
-     &                          nShi,nShj,nShk,nShl,
      &                          Dens,Fock,LDens,ExFac,NDens,
      &                          ind,nind,FckNoClmb,FckNoExch)
 *     calls the proper routines IndSft/PLF
@@ -26,10 +25,9 @@
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4),
+      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7)
+     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
       If (Petite) Then
@@ -37,7 +35,8 @@
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)
       Else
-        Call IndSft(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+        Call IndSft(iCmp,iShell,IndShlV,
+     &              iBas,jBas,kBas,lBas,Shijij,
      &              iAO,iAOst,ijkl,SOInt,nSOint)
       End If
       Return
@@ -49,10 +48,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(TInt)
          Call Unused_real(FacInt)
          Call Unused_integer_array(itOffs)
-         Call Unused_integer_array(nShi)
-         Call Unused_integer_array(nShj)
-         Call Unused_integer_array(nShk)
-         Call Unused_integer_array(nShl)
          Call Unused_real(Dens)
          Call Unused_real(Fock)
          Call Unused_integer(LDens)

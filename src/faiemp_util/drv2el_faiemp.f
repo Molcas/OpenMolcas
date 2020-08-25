@@ -46,8 +46,7 @@
 *
       Logical      W2Disc, PreSch, FreeK2, Verbose, Indexation,
      &             DoIntegrals, DoFock, DoGrad,NoCoul,NoExch
-      Integer      iTOffs(8,8,8),
-     &             nShi(8), nShj(8), nShk(8), nShl(8)
+      Integer      iTOffs(8,8,8)
       Integer      nBas_Valence(0:7)
       Character*8  Label
       Logical      lNoSkip, EnergyWeight
@@ -301,8 +300,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          If (lNoSkip) Then
            Call Eval_Ints_New_Internal
      &                    (iS,jS,kS,lS,TInt,nTInt,
-     &                     iTOffs,nShi,nShj,nShk,nShl,
-     &                     No_Routine,
+     &                     iTOffs,No_Routine,
      &                     pDq,pFq,mDens,[ExFac],Nr_Dens,
      &                     Ind,nInd,[NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,

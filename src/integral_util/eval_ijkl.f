@@ -41,16 +41,6 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*     nShi,nShj,          Dimensions used for blocks in Tint (input)   *
-*     nshk,nshl:          Symmetry block isym,jsym,ksym,lsym for       *
-*                         shells iS,jS,kS,lS starts at                 *
-*                         iTOffs(ksym,jsym,isym)+1 and is dimensioned  *
-*                         [nshl(lsym),nshk(ksym),nshj(jsym,nshi(isym)] *
-*                         Note that l runs fastest! The dimensions     *
-*                         must be larger or equal to the number of     *
-*                         SAOs in the specified shells and symmetries, *
-*                         otherwise chaos!!                            *
-*                                                                      *
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
@@ -91,7 +81,7 @@
 *     subroutine parameters
       Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax, kOp(4) ,Map4(4)
+     &        ipMem1,MemMax, kOp(4) ,Map4(4), IndShlV(4)
       Logical Shijij, W2Disc,PreSch,NoInts, DoIntegrals,DoFock
 *
 #include "ndarray.fh"
@@ -209,9 +199,8 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,
-     &               Coor,Shijij,
-     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
+     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs,IndShlV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -532,7 +521,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        abs(Sew_Scr(ip+
      &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,
+                        Call Integ_Proc(iCmpV,iShelV,Map4,IndShlV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Sew_Scr(ipMem2),
@@ -540,7 +529,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
-     &                                  nShi,nShj,nShk,nShl,
      &                                  Dens,Fock,lDens,ExFac,nDens,
      &                                  Ind,nInd,FckNoClmb,FckNoExch)
                      Else

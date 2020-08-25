@@ -72,8 +72,7 @@
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
-      Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8)
+      Integer iTOffs(8,8,8)
       Logical Debug
       Character*72 SLine
       Dimension Ind(1,1,2)
@@ -269,8 +268,7 @@ c       iPrint=200
 *                                                                      *
          Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,nShi,nShj,nShk,nShl,
-     &                   No_Routine,
+     &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
      &                   Ind,nInd,[NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
