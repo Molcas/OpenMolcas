@@ -145,7 +145,7 @@
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
 *
@@ -366,7 +366,7 @@
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             nIC=1
             iIC=1
             If (mSO.ne.0)

@@ -289,7 +289,8 @@ c        Write(6,*) ' oneel *',Label,'*'
             nSO=0
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
+     &                        IndShl,JndShl)
             End Do
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
@@ -424,7 +425,7 @@ c        Write(6,*) ' oneel *',Label,'*'
              iIC = 1
              Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
-              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
               If (mSO.eq.0) Then
                  Do iIrrep = 0, nIrrep-1
                     If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -461,7 +462,8 @@ c        Write(6,*) ' oneel *',Label,'*'
             Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
               If (n2Tri(iSmLbl).ne.0) Then
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
+     &                      IndShl,JndShl)
               Else
                  mSO=0
               End If

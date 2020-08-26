@@ -60,15 +60,17 @@
       If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       B(:)=Zero
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -173,7 +175,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -202,14 +204,16 @@
 *
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -559,7 +563,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)

@@ -218,7 +218,7 @@ C        Do jS = 1, iS
 *           pair.
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.eq.0) Go To 131
             Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
             Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)

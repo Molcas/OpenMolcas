@@ -106,7 +106,7 @@ C     Call QEnter('DFT_IntX')
 *
             nOp(2) = NrOpr(kDCRR,iOper,nIrrep)
 *
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
 *
             ij = (mdcj-1)*ndc + mdci
 *                                                                      *

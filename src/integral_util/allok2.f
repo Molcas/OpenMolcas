@@ -85,6 +85,7 @@
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
@@ -95,6 +96,7 @@
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
 *
@@ -105,7 +107,7 @@
             End If
             MaxDe = Max(MaxDe,iDeSiz)
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.gt.0) Then
                nDeDe = nDeDe + nr_of_Densities*iDeSiz*nIrrep
             End If

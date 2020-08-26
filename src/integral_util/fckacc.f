@@ -538,40 +538,40 @@ C                 Write (*,*) 'iOpt=',iOpt
       If (lFij)
      &Call FckDst(TwoHam,nDens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),
      &            kOp2(1),kOp2(2),iIrrep,
-     &            iShell(1),iShell(2),iShij,
+     &            IndShl(1),IndShl(2),iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
      &            Fact)
 *
       If (lFkl)
      &Call FckDst(TwoHam,nDens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),
      &            kOp2(3),kOp2(4),iIrrep,
-     &            iShell(3),iShell(4),iShkl,
+     &            IndShl(3),IndShl(4),iShkl,
      &            iAO(3),iAO(4),iAOst(3),iAOst(4),
      &            Fact)
 *
       If (lFik)
      &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
-     &            iShell(1),iShell(3),iShik,
+     &            IndShl(1),IndShl(3),iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
      &            Fact)
 *
       If (lFjl)
      &Call FckDst(TwoHam,nDens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),
      &            kOp2(2),kOp2(4),iIrrep,
-     &            iShell(2),iShell(4),iShjl,
+     &            IndShl(2),IndShl(4),iShjl,
      &            iAO(2),iAO(4),iAOst(2),iAOst(4),
      &            Fact)
       If (lFil)
      &Call FckDst(TwoHam,nDens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),
      &            kOp2(1),kOp2(4),iIrrep,
-     &            iShell(1),iShell(4),iShil,
+     &            IndShl(1),IndShl(4),iShil,
      &            iAO(1),iAO(4),iAOst(1),iAOst(4),
      &            Fact)
       If (lFjk)
      &Call FckDst(TwoHam,nDens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),
      &            kOp2(2),kOp2(3),iIrrep,
-     &            iShell(2),iShell(3),iShjk,
+     &            IndShl(2),IndShl(3),iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 *

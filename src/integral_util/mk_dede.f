@@ -151,7 +151,7 @@ C     Call QEnter('DeDe')
             ijShll = iTri(iShell,jShell)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.eq.0) Go To 131
 *                                                                      *
 ************************************************************************

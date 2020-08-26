@@ -230,7 +230,7 @@ C     Logical Addpot
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
 *
@@ -242,8 +242,8 @@ C     Logical Addpot
      &   ) Then
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')
+         SOInt(:)=Zero
          ipSO=1
-         Call dCopy_(l_SOInt,[Zero],0,SOInt,1)
          Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,
      &                 Zeta,ZI,Kappa,PCoor,
      &                 Kernel,KrnlMm,Label,lOper,nComp,CCoor,
@@ -256,7 +256,7 @@ C     Logical Addpot
          Do iComp = 1, nComp
             iSmLbl=lOper(iComp)
             If (n2Tri(iSmLbl).ne.0) Then
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             Else
                mSO=0
             End If

@@ -586,42 +586,48 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
-     &                             iIrrep,iShell(1),iShell(2),iShij,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(2),iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
             If (lFkl) Call FckDst(TwoHam(ip),ndens,FT(ipFkl),
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
-     &                             iIrrep,iShell(3),iShell(4),iShkl,
+     &                             iIrrep,
+     &                             IndShl(3),IndShl(4),iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
             If (lFik) Call FckDst(TwoHam(ip),ndens,FT(ipFik),
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
-     &                             iIrrep,iShell(1),iShell(3),iShik,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(3),iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
             If (lFjl) Call FckDst(TwoHam(ip),ndens,FT(ipFjl),
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
-     &                             iIrrep,iShell(2),iShell(4),iShjl,
+     &                             iIrrep,
+     &                             IndShl(2),IndShl(4),iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
             If (lFil) Call FckDst(TwoHam(ip),ndens,FT(ipFil),
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
-     &                             iIrrep,iShell(1),iShell(4),iShil,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(4),iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
             If (lFjk) Call FckDst(TwoHam(ip),ndens,FT(ipFjk),
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
-     &                             iIrrep,iShell(2),iShell(3),iShjk,
+     &                             iIrrep,
+     &                             IndShl(2),IndShl(3),iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
 *           If (DDot_(3468,TwoHam,1,TwoHam,1).gt.Zero) Then
@@ -1128,42 +1134,48 @@ C                 Write (*,*)
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
-     &                             iIrrep,iShell(1),iShell(2),iShij,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(2),iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
             If (lFkl) Call FckDst(TwoHam(ip),ndens,FT(ipFkl),
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
-     &                             iIrrep,iShell(3),iShell(4),iShkl,
+     &                             iIrrep,
+     &                             IndShl(3),IndShl(4),iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
             If (lFik) Call FckDst(TwoHam(ip),ndens,FT(ipFik),
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
-     &                             iIrrep,iShell(1),iShell(3),iShik,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(3),iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
             If (lFjl) Call FckDst(TwoHam(ip),ndens,FT(ipFjl),
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
-     &                             iIrrep,iShell(2),iShell(4),iShjl,
+     &                             iIrrep,
+     &                             IndShl(2),IndShl(4),iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
             If (lFil) Call FckDst(TwoHam(ip),ndens,FT(ipFil),
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
-     &                             iIrrep,iShell(1),iShell(4),iShil,
+     &                             iIrrep,
+     &                             IndShl(1),IndShl(4),iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
             If (lFjk) Call FckDst(TwoHam(ip),ndens,FT(ipFjk),
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
-     &                             iIrrep,iShell(2),iShell(3),iShjk,
+     &                             iIrrep,
+     &                             IndShl(2),IndShl(3),iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
          End If
