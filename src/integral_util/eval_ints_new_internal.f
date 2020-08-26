@@ -258,7 +258,8 @@
 *     No SO block in direct construction of the Fock matrix.
       nSO = MemSO2(iAngV(1),iAngV(2),iAngV(3),iAngV(4),
      &             iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
-     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4))
+     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),
+     &             IndShlV(1),IndShlV(2),IndShlV(3),IndShlV(4))
       If (nSO.eq.0) Then
         Return
       End If

@@ -11,9 +11,8 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      Integer Function MemSO2_P(iAng,jAng,kAng,lAng,
-     &                        iCmp,jCmp,kCmp,lCmp,
-     &                        iShell,jShell,kShell,lShell)
+      Integer Function MemSO2_P(iCmp,jCmp,kCmp,lCmp,
+     &                          IndShl,JndShl,KndShl,LndShl)
 ************************************************************************
 *  Object: to compile the number of SO block which will be generated   *
 *          by the current shell quadruplet.                            *
@@ -55,15 +54,15 @@
 *         integrals.
 *
           Do 110 j1 = 0, nIrrep-1
-             If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 110
+             If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 110
              Do 210 j2 = 0, nIrrep-1
-                If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 210
+                If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0) Go To 210
                 j12 = iEor(j1,j2)
                 Do 310 j3 = 0, nIrrep-1
-                   If (iAnd(IrrCmp(IndS(kShell)+i3),2**j3).eq.0)
+                   If (iAnd(IrrCmp(KndShl+i3),2**j3).eq.0)
      &                Go To 310
                    j4 = iEor(j12,j3)
-                   If (iAnd(IrrCmp(IndS(lShell)+i4),2**j4).eq.0)
+                   If (iAnd(IrrCmp(LndShl+i4),2**j4).eq.0)
      &                Go To 310
                    MemSO2_P = MemSO2_P + 1
 *
@@ -79,11 +78,4 @@
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iAng)
-         Call Unused_integer(jAng)
-         Call Unused_integer(kAng)
-         Call Unused_integer(lAng)
-      End If
       End

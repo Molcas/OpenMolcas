@@ -768,9 +768,9 @@ C              Do lS = 1, kS
 *                 matrix in SO basis.
 *
 *----------------------------------------------------------------------*
-                  nSO = MemSO2_P(iAng,jAng,kAng,lAng,
-     &                           iCmp,jCmp,kCmp,lCmp,
-     &                           iShell,jShell,kShell,lShell)
+                  nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,
+     &                           IndShlV(1),IndShlV(2),
+     &                           IndShlV(3),IndShlV(4))
                   ldot2=ldot
                   If (nSO.eq.0) ldot2=.false.
 *
@@ -796,7 +796,7 @@ C              Do lS = 1, kS
 *                 available memory and the requested memory.
 *
                   Call PSOAO2(nSO,MemPrm, MemMax,
-     &                        iAngV, iCmpV, iShelV,iFnc,
+     &                        iAngV, iCmpV, IndShlV,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,
@@ -981,7 +981,7 @@ C              Do lS = 1, kS
                     If (n8)
      &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
      &                          nAcO,
-     &                          iShelV,iCmpV,
+     &                          IndShlV,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
@@ -1057,7 +1057,7 @@ C           End Do ! kS
                ip6=ip5+jcmp*jbas*naco
                Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
-     &                   naco,ishelV,
+     &                   naco,ishelV,IndShlV,
      &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
      &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If
