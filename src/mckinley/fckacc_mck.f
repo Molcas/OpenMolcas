@@ -13,7 +13,7 @@
 #define _USE_OLD_CODE_
 #ifdef _USE_OLD_CODE_
       Subroutine FckAcc_mck(iAng, iCmp,jCmp,kCmp,lCmp,Shijij,
-     &                  iShll, iShell, kOp, nijkl,
+     &                  iShll, iShell, IndShl, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -80,8 +80,7 @@ c     Logical Qij, Qkl
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 
@@ -185,7 +184,7 @@ c     Logical Qij, Qkl
       Do 100 i1 = 1, iCmp
          Do 101 j = 0, nIrrep-1
             iSym(1,j) =
-     &        iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+     &        iAnd(IrrCmp(IndShl(1)+i1),iTwoj(j))
 101      Continue
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
@@ -194,7 +193,7 @@ c     Logical Qij, Qkl
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               iSym(2,j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               iSym(2,j) = iAnd(IrrCmp(IndShl(2)+i2),iTwoj(j))
 201         Continue
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
@@ -207,7 +206,7 @@ c     Logical Qij, Qkl
             End If
             Do 300 i3 = 1, kCmp
                Do 301 j = 0, nIrrep-1
-                  iSym(3,j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  iSym(3,j) = iAnd(IrrCmp(IndShl(3)+i3),iTwoj(j))
 301            Continue
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
@@ -218,7 +217,7 @@ c     Logical Qij, Qkl
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
                      iSym(4,j) =
-     &                 iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+     &                 iAnd(IrrCmp(IndShl(4)+i4),iTwoj(j))
 401               Continue
 *                 Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
@@ -644,7 +643,7 @@ c     Call QExit('FckAcc')
       End
 #else
       Subroutine FckAcc_Mck(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, kOp, nijkl,
+     &                  iShll, iShell, IndShl, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -713,8 +712,7 @@ c     Call QExit('FckAcc')
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 *     Local Arrays
@@ -819,14 +817,14 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndS(iShell(1))+i1)
+         iSym(1)=IrrCmp(IndShl(1)+i1)
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndS(iShell(2))+i2)
+            iSym(2) =IrrCmp(IndShl(2)+i2)
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
@@ -836,7 +834,7 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndS(iShell(3))+i3)
+               iSym(3) =IrrCmp(IndShl(3)+i3)
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
@@ -844,7 +842,7 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndS(iShell(4))+i4)
+                  iSym(4) =IrrCmp(IndShl(4)+i4)
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))

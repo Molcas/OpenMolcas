@@ -772,7 +772,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                mWork3=nWork2-iW3+1
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Wrk(iW2),TwoHam,nDens,Wrk(iW3),mWork3,
      &                     iAO,iAOst,
      &                     iBasi,jBasj,kBask,lBasl,

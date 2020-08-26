@@ -11,7 +11,7 @@
 * Copyright (C) 1993,1998, Roland Lindh                                *
 ************************************************************************
       Subroutine FckAcc(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, kOp, nijkl,
+     &                  iShll, iShell, IndShl, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -85,8 +85,7 @@
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
 *     Local Arrays
       Integer iSym(4)
       Real*8 Prmt(0:7)
@@ -193,14 +192,14 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndS(iShell(1))+i1)
+         iSym(1)=IrrCmp(IndShl(1)+i1)
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndS(iShell(2))+i2)
+            iSym(2) =IrrCmp(IndShl(2)+i2)
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
@@ -210,7 +209,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndS(iShell(3))+i3)
+               iSym(3) =IrrCmp(IndShl(3)+i3)
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
@@ -218,7 +217,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndS(iShell(4))+i4)
+                  iSym(4) =IrrCmp(IndShl(4)+i4)
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))

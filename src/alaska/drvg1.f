@@ -375,7 +375,7 @@
            Call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #endif
            Call TwoEl_g(Coor,
-     &          iAnga,iCmpa,iShela,iShlla,iAOV,
+     &          iAnga,iCmpa,iShela,iShlla,IndShlV,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
      &          Data_k2(k2ij),nab,nHmab,nDCRR,
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,

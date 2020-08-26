@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine TwoDns(ianga,iCmp,shijij,ishll,ishell,
+      SubRoutine TwoDns(ianga,iCmp,shijij,ishll,ishell,IndShl,
      &           nop,iBasi,jBasj,kBask,lBasl,
      &           Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
      &           nWork4,PSO,nPSO,Fact)
@@ -26,7 +26,7 @@ c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Logical Shijij
-      Integer nOp(4),iAnga(4),iCmp(4),iShell(4),iShll(4)
+      Integer nOp(4),iAnga(4),iCmp(4),iShell(4),iShll(4),IndShl(4)
       Real*8  PSO(nPSO),Aux(nAux),Work2(nWork2),Work3(nWork3),
      &        Work4(nWork4)
 *
@@ -65,7 +65,7 @@ c     Call qEnter('TwoDens')
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),
      &                     iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,nOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,nOp,nijkl,
      &                     Aux,nAux,Work2,PSO,nPSO)
 *
 *
