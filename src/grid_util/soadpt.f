@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAdpt(AOValue,mAO,nCoor,mBas,
-     &                  nCmp,nOp,SOValue,nDeg,iShell)
+     &                  nCmp,nOp,SOValue,nDeg,IndShl)
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -37,7 +37,7 @@
       Do i1 = 1, nCmp
          iaux=0
          Do j1 = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(j1)).eq.0) goto 100
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) goto 100
             iaux=iaux+1
             xa= rChTbl(j1,nOp)
             Aux(iAux)=Fact*xa

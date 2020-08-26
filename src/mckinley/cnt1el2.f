@@ -386,7 +386,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,
+     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas

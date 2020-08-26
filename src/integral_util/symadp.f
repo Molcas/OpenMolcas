@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine SymAdp(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, kOp, ijkl,
+     &                  iShll, iShell, IndShl, kOp, ijkl,
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
 ************************************************************************
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
@@ -50,7 +50,7 @@
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp),
      &       SOInt(ijkl,nSOInt), Aux(nAux)
       Logical Shij, Shkl, Shijij, Qij, Qkl, Qijij, Done
-      Integer iAng(4), iShell(4), iShll(4), kOp(4)
+      Integer iAng(4), iShell(4), iShll(4), kOp(4), IndShl(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Integer iTwoj(0:7)
@@ -87,7 +87,7 @@
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+            iSym(j) = iAnd(IrrCmp(IndShl(1)+i1),iTwoj(j))
 101      Continue
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
@@ -96,7 +96,7 @@
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               jSym(j) = iAnd(IrrCmp(IndShl(2)+i2),iTwoj(j))
 201         Continue
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
@@ -109,7 +109,7 @@
             End If
             Do 300 i3 = 1, kCmp
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  kSym(j) = iAnd(IrrCmp(IndShl(3)+i3),iTwoj(j))
 301            Continue
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
@@ -119,7 +119,7 @@
                pTc = xPrmt(iOper(kOp(3)),kChBs) * pRb
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+                     lSym(j) = iAnd(IrrCmp(IndShl(4)+i4),iTwoj(j))
 401               Continue
                   Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)

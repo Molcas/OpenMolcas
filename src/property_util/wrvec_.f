@@ -507,15 +507,6 @@ c---------------------------------------------------
       Icurr=iCurr+1
 c      Write(LU,'(i8)') Mx_Shll
 
-      Call Get_iArray('IndS',IndS,nShlls)
-      iWork(iivv+Icurr)=nShlls
-      Icurr=iCurr+1
-      call icopy(nShlls,IndS,1,iWork(iivv+Icurr),1)
-      Icurr=iCurr+nShlls
-
-c      Write(LU,'(i8)') nShlls
-c      Write(LU,'(8i8)') (IndS(i),i=1,nShlls)
-
       iWork(iivv+Icurr)=nCnttp
       Icurr=iCurr+1
       do i=1,nCnttp

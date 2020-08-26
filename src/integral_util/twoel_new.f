@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -79,7 +79,7 @@
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
-     &        iAO(4), iAnga(4), iCmp(4),
+     &        iAO(4), iAnga(4), iCmp(4), IndShl(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy,Do_TnsCtl,
@@ -788,7 +788,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Aux,nAux,Wrk(iW2),SOInt,nSOInt,NoInts)
 *
  300        Continue
@@ -799,7 +799,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       End
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -862,7 +862,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &       TwoHam(nDens), Dens(nDens), FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
+      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4), IndShl(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
@@ -910,6 +910,7 @@ c Avoid unused argument warnings
          Call Unused_integer(nHRRAB)
          Call Unused_integer(nHRRCD)
          Call Unused_real_array(Aux)
+         Call Unused_integer_array(IndShl)
       End If
 *
 *     This is to allow type punning without an explicit interface

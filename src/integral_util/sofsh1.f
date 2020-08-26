@@ -55,8 +55,8 @@
       nShOff(:)=1
 *
       Do iSkal = 1, nSkal
-         iShell      = iSD(11,iSkal)
          iAO         = iSD( 7,iSkal)
+         IndShl      = iSD( 8,iSkal)
          iCmp        = iSD( 2,iSkal)
          icntr(iSkal)= iSD(10,iSkal)
 *
@@ -65,7 +65,7 @@
          Do i=1, iCmp
 *           loop over irreps...
             Do irp=0, nSym-1
-               If (iAnd(IrrCmp(IndS(iShell)+i),2**irp).ne.0) Then
+               If (iAnd(IrrCmp(IndShl+i),2**irp).ne.0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
 *#define _CHECK_
 #ifdef _CHECK_

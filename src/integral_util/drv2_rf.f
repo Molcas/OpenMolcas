@@ -371,7 +371,8 @@
             iIC=1
             If (mSO.ne.0)
      &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                     iShell,jShell,iShll,jShll,Scr1,
+     &                     iShell,jShell,iShll,jShll,
+     &                     IndShl,JndShl,Scr1,
      &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 *
  140        Continue

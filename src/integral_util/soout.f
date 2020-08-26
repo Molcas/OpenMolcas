@@ -54,7 +54,7 @@
 *
          mdc = 0
          mc  = 1
-         iShell = 0
+         IndShl = 0
          Do 201 iCnttp = 1, nCnttp
             kECP = dbsc(iCnttp)%ECP
             If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
@@ -71,13 +71,15 @@
                iSh = ipVal(iCnttp) - 1
                Do 203 iAng = 0, nVal_Shells(iCnttp)-1
                   iSh = iSh + 1
-                  iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
                   If (nExpi.eq.0) Go To 2033
                   nBasisi=Shells(iSh)%nBasis
                   If (nBasisi.eq.0) Go To 2033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
                   Do 204 iComp = 1, jComp
                      lComp = kComp + iComp
 *                    Get character of basis function
@@ -89,8 +91,8 @@
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
      &                   nStab(mdc))) Go To 204
-                     IrrCmp(IndS(iShell)+iComp) =
-     &                    iOr(IrrCmp(IndS(iShell)+iComp),2**iIrrep)
+                     IrrCmp(IndShl+iComp) =
+     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
 *
                      Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
@@ -112,6 +114,7 @@
  205                 Continue
 *
  204              Continue
+                  IndShl = IndShl + jComp
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue

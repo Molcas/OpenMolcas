@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,
-     &                  nDeg,MOValue,iShell,
+     &                  nDeg,MOValue,IndShl,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
@@ -54,7 +54,7 @@
       Do i1 = 1, nCmp
          iDeg=0
          Do iIrrep = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(iIrrep)).eq.0)
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(iIrrep)).eq.0)
      &         goto 100
             iDeg=iDeg+1
             iSO=iAOtSO(iAO+i1,iIrrep)
@@ -127,7 +127,7 @@ c          write(*,*) '> iCMO ',iCMO
       END
 *
 c      Subroutine SODist1(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-c     &                  iShell,nSOs,iAO,nCMO)
+c     &                  IndShl,nSOs,iAO,nCMO)
 c      Implicit Real*8 (A-H,O-Z)
 c#include "itmax.fh"
 c#include "info.fh"
@@ -154,14 +154,14 @@ c         iOff=iOff+nBas(i)**2
 c      End Do
 c*
 c      Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-c     &            iShell,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+c     &            IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
 c*
 c      Return
 c      End
 c
 *
       Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &                  iShell,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+     &                  IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -188,7 +188,7 @@ c
       End Do
 *
       Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &            iShell,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+     &            IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
 *
       Return
       End

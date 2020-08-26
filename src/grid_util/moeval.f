@@ -83,6 +83,7 @@
 *
          iAOttp=0
          mdc = 0
+         IndShl_iCnttp=0
          Do iCnttp = 1, nCnttp
 
             nTest = nVal_Shells(iCnttp)
@@ -95,11 +96,29 @@
             If (iPrim.eq.0) Go To 101
             iBas  = Shells(iShll)%nBasis
             If (iBas.eq.0) Go To 101
-            iCmp  = nElem(iAng)
-            If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
+            If (Shells(iShll)%Prjct ) Then
+               iCmp = 2*iAng+1
+            Else
+               iCmp  = nElem(iAng)
+            End If
+
             Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
      &                           Shells(iShll)%pCff)
             kSh=ipVal(iCnttp)+iAng
+*
+*           Compute the total number of function for this
+*           basis set, summed over all shells.
+*
+            IndShl_Shell=0
+            Do jAng = 0, nTest-1
+               jShll = ipVal(iCnttp) + jAng
+               If (Shells(jShll)%Prjct ) Then
+                  jCmp = 2*jAng+1
+               Else
+                  jCmp  = nElem(jAng)
+               End If
+               IndShl_Shell=IndShl_Shell+jCmp
+            End Do
 *
 *           Loop over unique centers of basis set "iCnttp"
 *
@@ -107,8 +126,18 @@
 
                iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
      &             + Shells(kSh)%kOffAO
-               iShell = Ind_Shell(iCnt+mdc) + iAng + 1
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
+
+               IndShl = IndShl_iCnttp + (iCnt-1)*IndShl_Shell
+               Do jAng = 0, iAng-1
+                  jShll = ipVal(iCnttp) + jAng
+                  If (Shells(jShll)%Prjct ) Then
+                     jCmp = 2*jAng+1
+                  Else
+                     jCmp  = nElem(jAng)
+                  End If
+                  IndShl=IndShl+jCmp
+               End Do
 *
 *--------------Allocate memory for SO and AO values
 *
@@ -170,14 +199,14 @@
 *---------------- Distribute contributions to the SOs
 *
                   Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
-     &                        Work(ipSOs),nDeg,iShell)
+     &                        Work(ipSOs),nDeg,IndShl)
 *
-               End Do
+               End Do ! iG
 *
 *------------- Distribute contributions to the MOs
 *
                Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
-     &                     MOValue,iShell,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                     MOValue,IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
 *
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
@@ -186,7 +215,8 @@
                Call GetMem('AOs','Free','Real',ipAOs,nAO)
                Call GetMem('SOs','Free','Real',ipSOs,nSO)
 *
-            End Do
+            End Do ! iCnt
+            IndShl_iCnttp = IndShl_iCnttp + nCnt*IndShl_Shell
  101        Continue
             mdc = mdc + dbsc(iCnttp)%nCntr
             iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr

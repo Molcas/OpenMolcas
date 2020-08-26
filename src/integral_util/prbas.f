@@ -54,15 +54,6 @@
          Call Banner(Lines,3,60)
          nTest = nVal_Shells(iCnttp)
          Write (6,*)
-         Write (6,*) ' IndS'
-         Write (6,*)
-         iStr=iShell+1
-         Do i = 1, dbsc(iCnttp)%nCntr
-            iEnd = iStr + nTest-1
-            Write (6,*) (IndS(j),j=iStr,iEnd)
-            iStr=iEnd+1
-         End Do
-         Write (6,*)
          iShell = iShell + dbsc(iCnttp)%nCntr*nTest
          lComp = 0
          lSh = 0
@@ -134,9 +125,6 @@
                Write (6,*)
                Write (6,'(A,I3)') ' Unique shell index:', mShell
                Write (6,*)
-               Write (6,'(A,I3)')
-     &               ' Number of preseding unique angular functions',
-     &               IndS(mShell)
                Write (6,*) ' Label   Cartesian Coordinates / Bohr'
                Write (6,*)
                Write (6,'(1X,A,1X,3F20.10)') LblCnt(mdc+iCnt),
