@@ -131,6 +131,7 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -144,6 +145,7 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -231,7 +233,8 @@ C        Do jS = 1, iS
 *
             Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
 *           basis on to the primitive basis.
@@ -327,7 +330,7 @@ c VV: gcc bug: one has to use this if!
 *
                Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     DAO,iPrim,jPrim,
+     &                     IndShl,JndShl,DAO,iPrim,jPrim,
      &                     DSOpr,nSO,nOp,FactNd)
 *
 *--------------Project the spherical harmonic space onto the

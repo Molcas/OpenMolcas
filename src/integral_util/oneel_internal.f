@@ -212,16 +212,21 @@ C     Logical Addpot
       If (.Not.Rsv_Tsk(id_Tsk,ijSh)) Go To 11
       iS = Ind_ij(1,ijSh)
       jS = Ind_ij(2,ijSh)
-      iCmp=iSD(2,iS)
-      iBas=iSD(3,iS)
-      iAO=iSD(7,iS)
+
+      iCmp  =iSD(2,iS)
+      iBas  =iSD(3,iS)
+      iAO   =iSD(7,iS)
+      IndShl=iSD(8,iS)
       iShell=iSD(11,iS)
       iCnttp=iSD(13,iS)
-      jCmp=iSD(2,jS)
-      jBas=iSD(3,jS)
-      jAO=iSD(7,jS)
+
+      jCmp  =iSD(2,jS)
+      jBas  =iSD(3,jS)
+      jAO   =iSD(7,jS)
+      JndShl=iSD(8,jS)
       jShell=iSD(11,jS)
       jCnttp=iSD(13,jS)
+
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
@@ -272,7 +277,8 @@ C     Logical Addpot
             If (mSO.ne.0) Then
                Call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),
      &                     n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,
-     &                     jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
+     &                     jShell,IndShl,JndShl,
+     &                     iAO,jAO,nComp,Label,lOper,rHrmt)
                iSOBlk = iSOBlk + mSO*iBas*jBas
             End If
             rHrmt=rHrmt_Save

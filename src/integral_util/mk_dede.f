@@ -134,6 +134,7 @@ C     Call QEnter('DeDe')
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
@@ -144,6 +145,7 @@ C     Call QEnter('DeDe')
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             ijShll = iTri(iShell,jShell)
@@ -220,6 +222,8 @@ C     Call QEnter('DeDe')
               jCmpj = jCmp
               iShlli= iShll
               jShllj= jShll
+              IndShli=IndShl
+              JndShlj=JndShl
             Else
               iSh   = jShell
               jSh   = iShell
@@ -235,6 +239,8 @@ C     Call QEnter('DeDe')
               jCmpj = iCmp
               iShlli= jShll
               jShllj= iShll
+              IndShli=JndShl
+              JndShlj=IndShl
             End If
 *                                                                      *
 ************************************************************************
@@ -256,7 +262,8 @@ C     Call QEnter('DeDe')
 *
             Call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmpi,jCmpj,iSh,jSh,AeqB,iAOi,jAOj)
+     &                  iCmpi,jCmpj,iSh,jSh,IndShl,JndShl,
+     &                  AeqB,iAOi,jAOj)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -328,7 +335,7 @@ C     Call QEnter('DeDe')
 *--------------Desymmetrize the 1st order density matrix(contracted).
 *
                Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,
+     &                     iSh,jSh,iShlli,jShllj,IndShli,JndShlj,
      &                     DAO,iBasi,jBasj,
      &                     DSOc,nSO,nOp,FactNd,Scrt)
 *
@@ -381,7 +388,7 @@ C     Call QEnter('DeDe')
 *--------------Desymmetrize the 1st order density matrix(primitive).
 *
                Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,
+     &                     iSh,jSh,iShlli,jShllj,IndShli,JndShlj,
      &                     DAO,iPrimi,jPrimj,
      &                     DSOp,nSO,nOp,FactNd,Scrt)
 *

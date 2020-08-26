@@ -11,7 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine DesymD(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,DAO,iBas,jBas,DSO,nDSO,nOp,FactNd)
+     &                  iShll,jShll,IndShl,JndShl,DAO,
+     &                  iBas,jBas,DSO,nDSO,nOp,FactNd)
 ************************************************************************
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
@@ -59,7 +60,7 @@
       Do 100 j1 = 0, nIrrep-1
          Xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+            If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 200
             iChBs = iChBas(ii+i1)
             If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
             pa = xPrmt(iOper(nOp(1)),iChBs)
@@ -71,7 +72,7 @@
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0)
+                  If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0)
      &               Go To 400
                   jChBs = iChBas(jj+i2)
                   If (Shells(jShll)%Transf)
