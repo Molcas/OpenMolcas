@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+      Subroutine Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs,IndShlV)
       Use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
@@ -18,7 +18,7 @@
       Integer iSD4(0:nSD,4)
 *
       Real*8  Coor(3,4)
-      Integer iAOV(4), iStabs(4)
+      Integer iAOV(4), iStabs(4), IndShlV(4)
       Logical  Shijij
 *
       iCnttp=iSD4(13,1)
@@ -50,6 +50,7 @@
       Do iQuad = 1, 4
          iAOV(iQuad)   = iSD4( 7,iQuad)
          iStabs(iQuad) = iSD4(10,iQuad)
+         IndShlV(iQuad)= iSD4( 8,iQuad)
       End Do
 *
       Return

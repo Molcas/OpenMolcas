@@ -106,5 +106,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
+         Call Unused_integer_array(IndShlV)
       End If
       End

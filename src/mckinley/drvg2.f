@@ -68,7 +68,7 @@
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
      &        iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4),
-     &        JndHss(4,3,4,3,0:7)
+     &        JndHss(4,3,4,3,0:7), IndShlV(4)
       Logical Shik, Shjl, Shijij, JfGrd(3,4),lpick,
      &        JfHss(4,3,4,3), JfG(4),ltri,ldot, Rsv_Tsk,
      &        l_Hss,l_Grd,lGrad,n8,ldot2,new_fock,
@@ -444,6 +444,7 @@ C     Do iS = 1, nSkal
          iCmpV(1) = iCmp
          iShelV(1) = iShell
          iAOV(1) = iAO
+         IndShlV(1)=iSD( 8,iS)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
@@ -463,6 +464,7 @@ C        Do jS = 1, iS
             iCmpV(2) = jCmp
             iShelV(2) = jShell
             iAOV(2) = jAO
+            IndShlV(2)=iSD( 8,jS)
 *
             ijAng = iAng + jAng
 *
@@ -531,6 +533,7 @@ C           Do kS = 1, nSkal
                iCmpV(3) = kCmp
                iShelV(3) = kShell
                iAOV(3) = kAO
+               IndShlV(3)=iSD( 8,kS)
 *
                Shik = iShell.eq.kShell
 *
@@ -552,6 +555,7 @@ C              Do lS = 1, kS
                   iCmpV(4) = lCmp
                   iShelV(4) = lShell
                   iAOV(4) = lAO
+                  IndShlV(4)=iSD( 8,lS)
 *
 *
                   klAng = kAng + lAng
@@ -981,7 +985,7 @@ C              Do lS = 1, kS
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
-     &               Call PGet0(iCmpV,iShelV,
+     &               Call PGet0(iCmpV,IndShlV,
      &                         iBasn,jBasn,kBasn,lBasn,Shijij,
      &                         iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
