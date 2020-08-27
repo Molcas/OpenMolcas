@@ -201,8 +201,8 @@
      &             iSD( 1,iSkal).eq.l) Then
 *
                    iCnttp = iSD(13,iSkal)
-                   If (nSOC_Shells(iCnttp).ne.0) Then
-                      iShl  = ipSOC(iCnttp)+l
+                   If (dbsc(iCnttp)%nSOC.ne.0) Then
+                      iShl  = dbsc(iCnttp)%iSOC+l
                       jShll  = dbsc(iCnttp)%iPrj+l
 *                     nCore=nCore+Shells(jShll)%nBasis
                       nCore=nCore+kDel(l+1,iCnttp)
@@ -223,8 +223,8 @@
      &                iSD( 1,iSkal).eq.l) Then
 *
                       iCnttp = iSD(13,iSkal)
-                      If (nSOC_Shells(iCnttp).ne.0) Then
-                         iShll  = ipSOC(iCnttp)+l
+                      If (dbsc(iCnttp)%nSOC.ne.0) Then
+                         iShll  = dbsc(iCnttp)%iSOC+l
                          jShll  = dbsc(iCnttp)%iPrj+l
 *                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
                          iDel(1+l)=kDel(l+1,iCnttp)
@@ -249,7 +249,7 @@
      &             iSD( 1,iSkal).eq.l) Then
 *
                    iCnttp = iSD(13,iSkal)
-                   If (nSOC_Shells(iCnttp).eq.0) Then
+                   If (dbsc(iCnttp)%nSOC.eq.0) Then
 *
 *                     Use valence basis
 *
@@ -261,7 +261,7 @@
 *                     Use special valence basis in case of a ECP where the
 *                     normal valence might not be adequate.
 *
-                      iShll  = ipSOC(iCnttp)+l
+                      iShll  = dbsc(iCnttp)%iSOC+l
                       nBas_y = iSD( 3,iSkal)
                       iCase = 1
 *

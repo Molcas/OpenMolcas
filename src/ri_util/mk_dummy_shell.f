@@ -38,7 +38,7 @@
       dbsc(nCnttp)%iVal = iShll + 1
       dbsc(nCnttp)%iPrj = -1
       dbsc(nCnttp)%iSRO = -1
-      ipSOC(nCnttp) = -1
+      dbsc(nCnttp)%iSRO = -1
 *
       Bsl(nCnttp)='.....RI_Dummy'
       Charge(nCnttp)=Zero
@@ -52,7 +52,7 @@
       dbsc(nCnttp)%nOpt = 0
       dbsc(nCnttp)%nPrj = 0
       dbsc(nCnttp)%nSRO = 0
-      nSOC_Shells(nCnttp) = 0
+      dbsc(nCnttp)%nSOC = 0
       dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1

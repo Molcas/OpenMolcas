@@ -192,12 +192,12 @@
             dbsc(nCnttp)%iVal = ipVal_
             dbsc(nCnttp)%iPrj = ipPrj_
             dbsc(nCnttp)%iSRO = ipSRO_
-            ipSOC(nCnttp) = ipSOC_
+            dbsc(nCnttp)%iSOC = ipSOC_
             ipPP(nCnttp)  = ipPP_
             dbsc(nCnttp)%nVal = nVal
             dbsc(nCnttp)%nPrj = nPrj
             dbsc(nCnttp)%nSRO = nSRO
-            nSOC_Shells(nCnttp) = nSOC
+            dbsc(nCnttp)%nSOC = nSOC
             nPP_Shells(nCnttp)  = nPP
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
             CntMass(nCnttp) = rMass(iAtmNr(nCnttp))

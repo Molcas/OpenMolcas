@@ -360,10 +360,10 @@ Cend
 *--------------Auxilliary core basis
 *
             If (iPrint.ge.10) Then
-               iSh = ipSOC(iCnttp)
+               iSh = dbsc(iCnttp)%iSOC
                nSumB = 0
                jSh = iSh
-               Do iAng = 0, nSOC_Shells(iCnttp)-1
+               Do iAng = 0, dbsc(iCnttp)%nSOC-1
                   nSumB = nSumB + Shells(jSh)%nBasis
                   jSh = jSh + 1
                End Do
@@ -372,7 +372,7 @@ Cend
                   Write (LuWr,*)
                   Write (LuWr,*) ' SOC Basis'
                End If
-               Do iAng = 0, nSOC_Shells(iCnttp)-1
+               Do iAng = 0, dbsc(iCnttp)%nSOC-1
                   If (Shells(iSh)%nBasis.ne.0) Then
                      Write (LuWr,*)
                      Write (LuWr,'(19X,A,A)')

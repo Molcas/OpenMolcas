@@ -331,8 +331,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
 *
 *--------Auxilliary SO core
 *
-         kShStr = ipSOC(iCnttp)
-         kShEnd = kShStr + nSOC_Shells(iCnttp)-1
+         kShStr = dbsc(iCnttp)%iSOC
+         kShEnd = kShStr + dbsc(iCnttp)%nSOC-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
