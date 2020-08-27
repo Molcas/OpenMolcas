@@ -172,7 +172,7 @@ c      End If
       Do iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%Aux .and.
      &       .Not.dbsc(iCnttp)%Frag ) Then
-            nTest=nVal_Shells(iCnttp)-1
+            nTest=dbsc(iCnttp)%nVal-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
          End If
       End Do
@@ -190,8 +190,8 @@ c      End If
 *
       Do iCnttp=1,nCnttp
         If (.Not.(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) Then
-         Do l=0,nVal_Shells(iCnttp)-1
-          ishell=ipVal(iCnttp)+l
+         Do l=0,dbsc(iCnttp)%nVal-1
+          ishell=dbsc(iCnttp)%iVal+l
           Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
      &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
@@ -239,9 +239,9 @@ c      End If
       Do iCnttp=1,nCnttp
         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 995
         Do iCntr=1,dbsc(iCnttp)%nCntr
-          Do l=0,nVal_Shells(iCnttp)-1
+          Do l=0,dbsc(iCnttp)%nVal-1
 *           Test for the appearance of cartesian functions with l=2,3,4
-            ishell=ipVal(iCnttp)+l
+            ishell=dbsc(iCnttp)%iVal+l
             if ((l.ge.2).and.(.not.y_cart)) Then
               if (.not.Shells(ishell)%Transf) y_cart=.true.
             End If
@@ -309,8 +309,8 @@ c      End If
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom
 *
-            Do l=0,nVal_Shells(iCnttp)-1
-              ishell=ipVal(iCnttp)+l
+            Do l=0,dbsc(iCnttp)%nVal-1
+              ishell=dbsc(iCnttp)%iVal+l
               If (Shells(iShell)%nBasis.gt.nNumber) Then
                  Write (6,*) 'Interf: too many contracted functions!'
                  Write (6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis

@@ -253,7 +253,7 @@
 *
 *                     Use valence basis
 *
-                      iShll  = ipVal(iCnttp)+l
+                      iShll  = dbsc(iCnttp)%iVal+l
                       iCase  = 2
 *
                    Else

@@ -86,12 +86,12 @@
          IndShl_iCnttp=0
          Do iCnttp = 1, nCnttp
 
-            nTest = nVal_Shells(iCnttp)
+            nTest = dbsc(iCnttp)%nVal
             If (iAng+1.gt.nTest)  Go To 101
             If (dbsc(iCnttp)%Aux) Go To 101
             If (dbsc(iCnttp)%Frag) Go To 101
             nCnt = dbsc(iCnttp)%nCntr
-            iShll = ipVal(iCnttp) + iAng
+            iShll = dbsc(iCnttp)%iVal + iAng
             iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 101
             iBas  = Shells(iShll)%nBasis
@@ -104,14 +104,14 @@
 
             Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
      &                           Shells(iShll)%pCff)
-            kSh=ipVal(iCnttp)+iAng
+            kSh=dbsc(iCnttp)%iVal+iAng
 *
 *           Compute the total number of function for this
 *           basis set, summed over all shells.
 *
             IndShl_Shell=0
             Do jAng = 0, nTest-1
-               jShll = ipVal(iCnttp) + jAng
+               jShll = dbsc(iCnttp)%iVal + jAng
                If (Shells(jShll)%Prjct ) Then
                   jCmp = 2*jAng+1
                Else
@@ -130,7 +130,7 @@
 
                IndShl = IndShl_iCnttp + (iCnt-1)*IndShl_Shell
                Do jAng = 0, iAng-1
-                  jShll = ipVal(iCnttp) + jAng
+                  jShll = dbsc(iCnttp)%iVal + jAng
                   If (Shells(jShll)%Prjct ) Then
                      jCmp = 2*jAng+1
                   Else

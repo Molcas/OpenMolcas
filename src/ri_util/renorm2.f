@@ -97,8 +97,8 @@
 *                                                                      *
 *        Define some parameters to facilitate the atomic calculation
 *
-         nShlls= nVal_Shells(iCnttp)
-         nTest= nVal_Shells(iCnttp)-1
+         nShlls= dbsc(iCnttp)%nVal
+         nTest = dbsc(iCnttp)%nVal-1
 *
 *        Define AOtSO
 *
@@ -106,7 +106,7 @@
          iSO = 0
          nSO=0
          Do iAng = 0, nTest
-            iShll_ = ipVal(iCnttp) + iAng
+            iShll_ = dbsc(iCnttp)%iVal + iAng
             nCmp = (iAng+1)*(iAng+2)/2
             If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
@@ -127,7 +127,7 @@
          ijS_req=0
          Keep_Shell=iTabMx
          Do iAng = 0, nTest
-            iShll = ipVal(iCnttp) + iAng
+            iShll = dbsc(iCnttp)%iVal + iAng
             nExpi = Shells(iShll)%nExp
             nBasisi=Shells(iShll)%nBasis
             If (nExpi*nBasisi.eq.0) Go To 2221

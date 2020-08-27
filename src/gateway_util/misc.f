@@ -57,8 +57,8 @@
             end if
 *           Loop over shells associated with this center
 *           Start with s type shells
-            jSh = ipVal(iCnttp)
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            jSh = dbsc(iCnttp)%iVal
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
                iShell = iShell + 1
 *
                If (Shells(jSh)%nBasis_C.gt.0 )

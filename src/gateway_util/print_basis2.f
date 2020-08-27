@@ -66,7 +66,7 @@
             Write (LuWr,*)
             Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
          End If
-         iShSrt = ipVal(iCnttp)
+         iShSrt = dbsc(iCnttp)%iVal
 *        Loop over distinct centers
          Do icnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
@@ -80,7 +80,7 @@
 *           Loop over shells associated with this center
 *           Start with s type shells
             jSh = iShSrt
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
                iShell = iShell + 1
                nExpj=Shells(jSh)%nExp
                nBasisj=Shells(jSh)%nBasis

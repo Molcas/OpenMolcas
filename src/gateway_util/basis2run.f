@@ -33,7 +33,7 @@
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
         mdc = dbsc(iCnttp)%mdci
-        iShSrt = ipVal(iCnttp)
+        iShSrt = dbsc(iCnttp)%iVal
 *     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
@@ -44,7 +44,7 @@
             jSh = iShSrt
             if (Shells(jSh)%Aux.or.
      &          Shells(jSh)%Frag) cycle
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
               nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
               jSh = jSh + 1
             End Do
@@ -64,7 +64,7 @@
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
         mdc = dbsc(iCnttp)%mdci
-        iShSrt = ipVal(iCnttp)
+        iShSrt = dbsc(iCnttp)%iVal
 *     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
@@ -77,7 +77,7 @@
      &          ShellS(jSh)%Frag) cycle
 *     Get the flat, desymmetrized id of the center
             iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
 *     Pointer to the untouched contraction matrix as after input.
               Do iBasis = 1, Shells(jSh)%nBasis
                 Do kExp = 1, Shells(jSh)%nExp

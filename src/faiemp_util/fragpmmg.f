@@ -53,8 +53,8 @@ c
       Do iCnttp = 1, nCnttp
       If (.Not.dbsc(iCnttp)%Frag) cycle  ! Go To 1960
 *
-         Do iAng = 0, nVal_Shells(iCnttp)-1
-         iShll = ipVal(iCnttp) + iAng
+         Do iAng = 0, dbsc(iCnttp)%nVal-1
+         iShll = dbsc(iCnttp)%iVal + iAng
          nExpi=Shells(iShll)%nExp
          nBasisi=Shells(iShll)%nBasis
          If (nExpi.eq.0 .or. nBasisi.eq.0) cycle !Go To 1966
@@ -64,8 +64,8 @@ c
 * same fragment (keep track of mdc?) ! still to be done !!!
             If (.Not.dbsc(jCnttp)%Frag) cycle !Go To 1970
 *
-               Do jAng = 0, nVal_Shells(jCnttp)-1
-               jShll = ipVal(jCnttp) + jAng
+               Do jAng = 0, dbsc(jCnttp)%nVal-1
+               jShll = dbsc(jCnttp)%iVal + jAng
                nExpj=Shells(jShll)%nExp
                nBasisj=Shells(jShll)%nBasis
                If (nExpj.eq.0 .or. nBasisj.eq.0) cycle

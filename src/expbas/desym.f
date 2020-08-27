@@ -121,7 +121,7 @@
       Do iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%Aux .and.
      &       .Not.dbsc(iCnttp)%Frag ) Then
-            nTest=nVal_Shells(iCnttp)-1
+            nTest=dbsc(iCnttp)%nVal-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
          End If
       End Do
@@ -179,15 +179,15 @@
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
 *
-            If (nVal_Shells(iCnttp).gt.6) Then
+            If (dbsc(iCnttp)%nVal.gt.6) Then
                Write (6,*) 'Desym: too high angular momentum!'
-               write (6,*) 'iCnttp and nVal_Shells(iCnttp)= '
-     &                 ,iCnttp, nVal_Shells(iCnttp)
+               write (6,*) 'iCnttp and dbsc(iCnttp)%nVal= '
+     &                 ,iCnttp, dbsc(iCnttp)%nVal
                Call Abend()
             End If
 *
-            Do l=0,nVal_Shells(iCnttp)-1
-              ishell=ipVal(iCnttp)+l
+            Do l=0,dbsc(iCnttp)%nVal-1
+              ishell=dbsc(iCnttp)%iVal+l
               nBasisi=Shells(iShell)%nBasis
 *              write(6,*) 'nBasisi', Shells(iShell)%nBasis
               If (nBasisi.gt.nNumber) Then

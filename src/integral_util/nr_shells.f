@@ -51,11 +51,11 @@
 ************************************************************************
 *                                                                      *
       Do iCnttp = 1, nCnttp
-         nTest = nVal_Shells(iCnttp)-1
+         nTest = dbsc(iCnttp)%nVal-1
          Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
             Do 200 iAng=0, nTest
-               iShll = ipVal(iCnttp) + iAng
+               iShll = dbsc(iCnttp)%iVal + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0) Cycle
                nBasisi=Shells(iShll)%nBasis
@@ -90,9 +90,9 @@
  300  Continue
 *
       Do iCnttp = kCnttp, lCnttp
-      nTest = nVal_Shells(iCnttp)-1
+      nTest = dbsc(iCnttp)%nVal-1
       Do 400 iAng=0, nTest
-         iShll = ipVal(iCnttp) + iAng
+         iShll = dbsc(iCnttp)%iVal + iAng
          nExpi=Shells(iShll)%nExp
          If (nExpi.eq.0) Cycle
          nBasisi=Shells(iShll)%nBasis

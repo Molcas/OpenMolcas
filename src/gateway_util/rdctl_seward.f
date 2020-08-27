@@ -1246,12 +1246,12 @@ c Simplistic validity check for value
       Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      ipVal(nCnttp) = ipVal_
+      dbsc(nCnttp)%iVal = ipVal_
       ipPrj(nCnttp) = ipPrj_
       ipSRO(nCnttp) = ipSRO_
       ipSOC(nCnttp) = ipSOC_
       ipPP(nCnttp)  = ipPP_
-      nVal_Shells(nCnttp) = nVal
+      dbsc(nCnttp)%nVal = nVal
       nPrj_Shells(nCnttp) = nPrj
       nSRO_Shells(nCnttp) = nSRO
       nSOC_Shells(nCnttp) = nSOC

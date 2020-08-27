@@ -78,7 +78,7 @@
       If (iRI_Type.eq.5) Go To 1000
 
       Do iCnttp = 1, mCnttp
-         If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
+         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) cycle
          mdc = dbsc(iCnttp)%mdci
          nCnttp=nCnttp+1
 *
@@ -202,12 +202,12 @@
          dbsc(nCnttp)%Parent_iCnttp=iCnttp
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
-         ipVal(nCnttp) = ipVal_
+         dbsc(nCnttp)%iVal = ipVal_
          ipPrj(nCnttp) = ipPrj_
          ipSRO(nCnttp) = ipSRO_
          ipSOC(nCnttp) = ipSOC_
          ipPP(nCnttp)  = ipPP_
-         nVal_Shells(nCnttp) = nVal
+         dbsc(nCnttp)%nVal = nVal
          nPrj_Shells(nCnttp) = nPrj
          nSRO_Shells(nCnttp) = nSRO
          nSOC_Shells(nCnttp) = nSOC
@@ -250,7 +250,7 @@ C        Fixed(nCnttp)=.False.
       call molcas_open(Lu_lib,'RICDLIB')
 *
       Do iCnttp = 1, mCnttp
-         If (dbsc(iCnttp)%Frag.or.nVal_Shells(iCnttp).eq.0) cycle
+         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) cycle
          mdc = dbsc(iCnttp)%mdci
 *
          Hit=.True.
@@ -465,13 +465,13 @@ C        Fixed(nCnttp)=.False.
             iAngMx=Max(iAngMx,lAng)
 *
             dbsc(nCnttp)%nOpt = 0
-            ipVal(nCnttp) = jShll + 1
+            dbsc(nCnttp)%iVal = jShll + 1
             ipPrj(nCnttp) = -1
             ipSRO(nCnttp) = -1
             ipSOC(nCnttp) = -1
             ipPP(nCnttp)  = -1
 *
-            nVal_Shells(nCnttp) = nVal
+            dbsc(nCnttp)%nVal = nVal
             nPrj_Shells(nCnttp) = nPrj
             nSRO_Shells(nCnttp) = nSRO
             nSOC_Shells(nCnttp) = nSOC

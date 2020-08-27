@@ -110,7 +110,7 @@
       mdc = dbsc(iCnttp)%mdci
       Thr_aCD=aCD_Thr(iCnttp)*Thrshld_CD
 *
-      nTest= nVal_Shells(iCnttp)-1
+      nTest= dbsc(iCnttp)%nVal-1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -146,7 +146,7 @@
 *                                                                      *
 *     Define some parameters to facilitate the atomic calculation
 *
-      iShell = nVal_Shells(iCnttp)
+      iShell = dbsc(iCnttp)%nVal
       nShlls=iShell
 *                                                                      *
 ************************************************************************
@@ -203,7 +203,7 @@
       iSO = 0
       nSO=0
       Do iAng = 0, nTest
-         iShll_ = ipVal(iCnttp) + iAng
+         iShll_ = dbsc(iCnttp)%iVal + iAng
          nCmp = (iAng+1)*(iAng+2)/2
          If (Shells(iShll_)%Prjct ) nCmp = 2*iAng+1
          iSO = 0
@@ -225,8 +225,7 @@
 *
       nPhi_All=nSO*(nSO+1)/2
       Call mma_allocate(iList2_c,mData*2,nPhi_All,label='iList2_c')
-      Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,
-     &              nTest,ipVal,Mxdbsc,0)
+      Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,nTest,0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -337,7 +336,7 @@
          iSO = 0
          nSO_p=0
          Do iAng = 0, nTest
-            iShll_ = ipVal(iCnttp) + iAng
+            iShll_ = dbsc(iCnttp)%iVal + iAng
             nCmp = (iAng+1)*(iAng+2)/2
             If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
@@ -396,7 +395,7 @@
             Fixed(nCnttp)=Fixed(iCnttp)
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%nOpt = 0
-            ipVal(nCnttp) = iShll+1
+            dbsc(nCnttp)%iVal = iShll+1
             ipPrj(nCnttp) = -1
             ipSRO(nCnttp) = -1
             ipSOC(nCnttp) = -1
@@ -418,13 +417,13 @@
             jShll=iShll
             Do iAng = 0, iAngMax
                jAngMax=Min(iAng,iAngMin)
-               iShll_=ipVal(iCnttp)+iAng
+               iShll_=dbsc(iCnttp)%iVal+iAng
                If (iAng.eq.iAngMax) jAngMax=iAngMax
                If (iAng.lt.iAngMin) jAngMax=0
                jAngMin=iAngMin
                If (iAng.le.iAngMin) jAngMin=0
                Do jAng = jAngMin, jAngMax
-                  jShll_=ipVal(iCnttp)+jAng
+                  jShll_=dbsc(iCnttp)%iVal+jAng
 *
                   iShll = iShll + 1
 #ifdef _DEBUG_
@@ -510,7 +509,7 @@ C                    iPrint=99
                      ijS_Req=(iAng+1)*iAng/2 + jAng + 1
 *
                      Call Mk_List2(iList2_p,nTheta_All,mData,nSO_p,
-     &                             iCnttp, nTest,ipVal,Mxdbsc,ijS_Req)
+     &                             iCnttp, nTest,ijS_Req)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1370,7 +1369,7 @@ C                          Thrs= 1.0D-12
             End Do ! iAng
 *
             nTot_Shells(nCnttp) = iShll-jShll
-            nVal_Shells(nCnttp) = iShll-jShll
+            dbsc(nCnttp)%nVal = iShll-jShll
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1458,15 +1457,15 @@ C                          Thrs= 1.0D-12
             End If
             If (jCnttp.eq.nCnttp_start+1) Then
                Write (Lu_lib,'(F6.2,2I10)') Charge(jCnttp),
-     &               nVal_Shells(jCnttp)-1,nCnttp-nCnttp_start
+     &               dbsc(jCnttp)%nVal-1,nCnttp-nCnttp_start
             Else
                Write (Lu_lib,'(F6.2, I10)') Charge(jCnttp),
-     &               nVal_Shells(jCnttp)-1
+     &               dbsc(jCnttp)%nVal-1
             End If
             Write (Lu_lib,*) ' Dummy reference line.'
             Write (Lu_lib,*) ' Dummy reference line.'
-            Do iAng = 0, nVal_Shells(jCnttp)-1
-               iShll_ = ipVal(jCnttp) + iAng
+            Do iAng = 0, dbsc(jCnttp)%nVal-1
+               iShll_ = dbsc(jCnttp)%iVal + iAng
                nExpi=Shells(iShll_)%nExp
                iSph=0
                If (Shells(iShll_)%Prjct )  iSph=1

@@ -73,7 +73,7 @@
             iCnttp = iCnttp + 1
          End If
 *
-         nTest = nVal_Shells(iCnttp)-1
+         nTest = dbsc(iCnttp)%nVal-1
          mdci = dbsc(iCnttp)%mdci
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdci = mdci + 1
@@ -82,7 +82,7 @@
 *
             Do iAng=0, nTest
                iShell = iShell + 1
-               iShll = ipVal(iCnttp) + iAng
+               iShll = dbsc(iCnttp)%iVal + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
                If (Shells(iShll)%Prjct) Then
@@ -104,7 +104,7 @@
                If (Basis_Mode.eq.With_Fragment_Mode .and.
      &             Shells(iShll)%Aux) Go To 200
 
-               kSh=ipVal(iCnttp)+iAng
+               kSh=dbsc(iCnttp)%iVal+iAng
 *
                nSkal = nSkal + 1
 *
@@ -193,10 +193,10 @@
 *
          iCnttp = iCnttp_Dummy
       End If
-      nTest = nVal_Shells(iCnttp)-1
+      nTest = dbsc(iCnttp)%nVal-1
 *
       Do 400 iAng=0, nTest
-         iShll = ipVal(iCnttp) + iAng
+         iShll = dbsc(iCnttp)%iVal + iAng
          nExpi=Shells(iShll)%nExp
          If (nExpi.eq.0)   Cycle
          nBasisi=Shells(iShll)%nBasis
@@ -204,7 +204,7 @@
          If (Shells(iShll)%Frag) Go To 400
          iCmp  = (iAng+1)*(iAng+2)/2
          If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
-         kSh=ipVal(iCnttp)+iAng
+         kSh=dbsc(iCnttp)%iVal+iAng
 *
          nSkal = nSkal + 1
 *

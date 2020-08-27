@@ -193,7 +193,7 @@
       Do iAng = 0, iAngMx
          MxPrm = Max(MxPrm,MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
-            iShll = ipVal(iCnttp) + iAng
+            iShll = dbsc(iCnttp)%iVal + iAng
             iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 2900
             If (Shells(iShll)%nBasis.eq.0) Go To 2900

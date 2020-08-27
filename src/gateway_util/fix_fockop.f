@@ -111,8 +111,8 @@
          If (fMass(iCnttp).ne.1.0D0) iFerm=2
 *
          If (dbsc(iCnttp)%FOp.and.Charge(iCnttp).eq.0.0D0) Then
-            Do iAng = 0, nVal_Shells(iCnttp)-1
-               iShll_a    = ipVal(iCnttp) + iAng
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
+               iShll_a    = dbsc(iCnttp)%iVal + iAng
                Shells(iShll_a)%FockOp(:,:)=Zero
             End Do
          End If
@@ -144,9 +144,9 @@
                xfactor=xfactor+One/xMass
             End If
 *
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
 *
-               iShll_a    = ipVal(iCnttp) + iAng
+               iShll_a    = dbsc(iCnttp)%iVal + iAng
                nPrim_a  = Shells(iShll_a)%nExp
                If (nPrim_a.eq.0) Cycle
                nCntrc_a = Shells(iShll_a)%nBasis_C
@@ -488,12 +488,12 @@
          Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
          Shells(jShll+2)%Prjct =.False.
-         ipVal(nCnttp) = ipVal_
+         dbsc(nCnttp)%iVal = ipVal_
          ipPrj(nCnttp) = ipPrj_
          ipSRO(nCnttp) = ipSRO_
          ipSOC(nCnttp) = ipSOC_
          ipPP(nCnttp)  = ipPP_
-         nVal_Shells(nCnttp) = nVal
+         dbsc(nCnttp)%nVal = nVal
          nPrj_Shells(nCnttp) = nPrj
          nSRO_Shells(nCnttp) = nSRO
          nSOC_Shells(nCnttp) = nSOC
@@ -510,11 +510,11 @@
  777     Continue
 *
          Test_Charge=Zero
-         Do iAng = 0, nVal_Shells(iCnttp)-1
+         Do iAng = 0, dbsc(iCnttp)%nVal-1
 *
 *           Pointers to the actuall shell
 *
-            iShll_a    = ipVal(iCnttp) + iAng
+            iShll_a    = dbsc(iCnttp)%iVal + iAng
             nPrim_a  = Shells(iShll_a)%nExp
             If (nPrim_a.eq.0) Cycle
             nCntrc_a = Shells(iShll_a)%nBasis_C
@@ -523,7 +523,7 @@
 *
 *           Pointers to the reference shell
 *
-            iShll_r = ipVal(nCnttp) + iAng
+            iShll_r = dbsc(nCnttp)%iVal + iAng
             nPrim_r  = Shells(iShll_r)%nExp
             If (nPrim_r.eq.0) Then
                Write (6,*) 'GuessOrb option turned off!'

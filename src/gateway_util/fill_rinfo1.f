@@ -28,11 +28,11 @@
 *        Loop over distinct centers
          Do icnt = 1, dbsc(iCnttp)%nCntr
             krCnt=krCnt+1
-            nAngr(krCnt)=nVal_Shells(iCnttp)-1
+            nAngr(krCnt)=dbsc(iCnttp)%nVal-1
 *
 *           Start with s type shells
-            jSh = ipVal(iCnttp)
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            jSh = dbsc(iCnttp)%iVal
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
 *
                krBas=krBas+1
                If (krBas.gt.MxAO) Then

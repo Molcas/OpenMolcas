@@ -22,8 +22,8 @@
 *
       Do iCnttp = 1, nCnttp
          lComp = 0
-         Do lSh = 0, nVal_Shells(iCnttp)-1
-            kSh = lSh + ipVal(iCnttp)
+         Do lSh = 0, dbsc(iCnttp)%nVal-1
+            kSh = lSh + dbsc(iCnttp)%iVal
             If (Shells(kSh)%Prjct ) Then
                kComp = 2*lSh + 1
             Else

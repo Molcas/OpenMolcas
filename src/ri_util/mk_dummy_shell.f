@@ -35,7 +35,7 @@
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
          Call Abend()
       End If
-      ipVal(nCnttp) = iShll + 1
+      dbsc(nCnttp)%iVal = iShll + 1
       ipPrj(nCnttp) = -1
       ipSRO(nCnttp) = -1
       ipSOC(nCnttp) = -1
@@ -58,7 +58,7 @@
       nPrim=1
       nCntrc=1
       nTot_Shells(nCnttp) = 1
-      nVal_Shells(nCnttp) = 1
+      dbsc(nCnttp)%nVal = 1
 *
       iShll = iShll + 1
       Shells(iShll)%Aux = .True.

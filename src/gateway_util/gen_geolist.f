@@ -40,7 +40,7 @@
 *        Do not include ECP basis sets which does not have any valence
 *        basis set.
 *
-         If (dbsc(jCnttp)%ECP.and.nVal_Shells(jCnttp).eq.0) Go To 1212
+         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Go To 1212
 *
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci

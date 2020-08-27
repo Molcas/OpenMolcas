@@ -36,13 +36,11 @@
 * Variables:                                                           *
 *                                                                      *
 * -> Integer   <-                                                      *
-*     ipVal: the index of the first valence shell of the ith basis set *
 *     ipPrj: the index of the first projection shell of the ith basis  *
 *            set                                                       *
 *     ipSRO: the index of the first SRO shell of the i''th basis set   *
 *     ipSOC: the index of the first SOC shell of the i''th basis set   *
 *     nTot_Shells: total number of shells of the i''th basis set       *
-*     nVal_Shells: number of valence shells of the i''th basis set     *
 *     nPrj_Shells: number of projection shells associated with the     *
 *                  i''th basis set.                                    *
 *     nSRO_Shells: number of spectral resolvent basis set shells of    *
@@ -221,9 +219,9 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
-      Integer   ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
+      Integer   ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc),
-     &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
+     &          nTot_Shells(Mxdbsc),
      &          nPrj_Shells(Mxdbsc), nSRO_Shells(mxdbsc),
      &          nSOC_Shells(Mxdbsc), nPP_Shells(Mxdbsc),iChCnt(Mxdc),
      &          iChTbl(0:7,0:7), jStab(0:7,Mxdc), nStab(Mxdc),
@@ -254,8 +252,8 @@
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh, iAtmNr,
-     &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
-     &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
+     &              iShll_RF,ipPrj,  ipSRO,   ipSOC,nTot_Shells,
+     &              nPrj_Shells,     nSRO_Shells,
      &              nSOC_Shells, iOrdFm, ipPP, nPP_Shells, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,

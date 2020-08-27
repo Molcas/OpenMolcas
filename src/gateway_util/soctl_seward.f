@@ -240,7 +240,7 @@ C     Show=Show.and..Not.Primitive_Pass
      &                            .and. iCnttp.ne.iCnttp_Dummy
             If (dbsc(iCnttp)%Frag) output=output .and. iPrint.ge.10
             kECP = dbsc(iCnttp)%ECP
-            lMax=nVal_Shells(iCnttp)-1
+            lMax=dbsc(iCnttp)%nVal-1
 *
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
             If (kECP) Then
@@ -284,8 +284,8 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                kComp = 0
                kculf = 0
-               iSh = ipVal(iCnttp) - 1
-               If (nVal_Shells(iCnttp).lt.1) Then
+               iSh = dbsc(iCnttp)%iVal - 1
+               If (dbsc(iCnttp)%nVal.lt.1) Then
                   Do iCo = 0, nIrrep/nStab(mdc)-1
                      iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
                      iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
@@ -301,7 +301,7 @@ C     Show=Show.and..Not.Primitive_Pass
      &                       //ChOper(iOper(iR))
                   End Do
                End If
-               Do 203 iAng = 0, nVal_Shells(iCnttp)-1
+               Do 203 iAng = 0, dbsc(iCnttp)%nVal-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
@@ -633,7 +633,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
      &        output = output.and.iPrint.ge.10
      &                       .and.iCnttp.ne.iCnttp_Dummy
             kECP = dbsc(iCnttp)%ECP
-            lMax=nVal_Shells(iCnttp)-1
+            lMax=dbsc(iCnttp)%nVal-1
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
             If (kECP) Then
                Call ECP_Shells(iAtmNr(iCnttp),list)
@@ -657,15 +657,15 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *
                kComp = 0
                kculf = 0
-               iSh = ipVal(iCnttp) - 1
-               If (nVal_Shells(iCnttp).lt.1) Then
+               iSh = dbsc(iCnttp)%iVal - 1
+               If (dbsc(iCnttp)%nVal.lt.1) Then
                   LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                   LPQ(mdc)=Charge(iCnttp)
                   LPMM(mdc)=dbsc(iCnttp)%IsMM
                   LPA(mdc)=iAtmnr(iCnttp)
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
-               Do 303 iAng = 0, nVal_Shells(iCnttp)-1
+               Do 303 iAng = 0, dbsc(iCnttp)%nVal-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
@@ -882,8 +882,8 @@ CSVC: basis IDs of non-symmetric case
 *           Start with s type shells
 *
             kComp = 0
-            iSh = ipVal(iCnttp) - 1
-            Do 403 iAng = 0, nVal_Shells(iCnttp)-1
+            iSh = dbsc(iCnttp)%iVal - 1
+            Do 403 iAng = 0, dbsc(iCnttp)%nVal-1
                iSh = iSh + 1
                iShell = iShell + 1
                nExpi=Shells(iSh)%nExp

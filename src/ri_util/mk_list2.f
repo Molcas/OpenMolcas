@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_List2(List2,nTheta_All,mData,nSO_Tot,iCnttp,nTest,
-     &                    ipVal,Mxdbsc,ijS_req)
-      Use Basis_Info, only: Shells
+     &                    ijS_req)
+      Use Basis_Info, only: dbsc, Shells
 #include "WrkSpc.fh"
-      Integer List2(2*mData,nTheta_All), ipVal(Mxdbsc)
+      Integer List2(2*mData,nTheta_All)
       Logical Only_DB
 *
       Call GetMem('iList','Allo','Inte',ip_iList,nSO_Tot*mData)
@@ -26,7 +26,7 @@
       iiSO=0
       iSO_= 0
       Do iAng = 0, nTest
-         iShll = ipVal(iCnttp) + iAng
+         iShll = dbsc(iCnttp)%iVal + iAng
          nCmp = (iAng+1)*(iAng+2)/2
          If (Shells(iShll)%Prjct) nCmp = 2*iAng+1
          nSO=nCmp*Shells(iShll)%nBasis
@@ -45,7 +45,7 @@ C        Write (6,*) 'iSO_=',iSO_
          jjSO=0
          Do jAng = 0, iAng
 C           Write (6,*) 'iAng,jAng=',iAng,jAng
-            jShll = ipVal(iCnttp) + jAng
+            jShll = dbsc(iCnttp)%iVal + jAng
             mCmp = (jAng+1)*(jAng+2)/2
             If (Shells(jShll)%Prjct) mCmp = 2*jAng+1
 *

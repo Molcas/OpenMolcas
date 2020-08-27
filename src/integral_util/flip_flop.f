@@ -22,14 +22,14 @@
       MaxPrm(:)=0
 *
       Do iCnttp = 1, nCnttp
-         nTest = nVal_Shells(iCnttp)-1
+         nTest = dbsc(iCnttp)%nVal-1
          If (Shells(iCnttp)%Aux .and.
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
 *        Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
             Do iAng=0, iAngMx
                If (iAng.gt.nTest)  Cycle
-               iShll = ipVal(iCnttp) + iAng
+               iShll = dbsc(iCnttp)%iVal + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0)   Cycle
                If (Shells(iShll)%nBasis_C.eq.0) Cycle

@@ -68,8 +68,8 @@
 *              Start with s type shells
 *
                kComp = 0
-               iSh = ipVal(iCnttp) - 1
-               Do 203 iAng = 0, nVal_Shells(iCnttp)-1
+               iSh = dbsc(iCnttp)%iVal - 1
+               Do 203 iAng = 0, dbsc(iCnttp)%nVal-1
                   iSh = iSh + 1
                   nExpi=Shells(iSh)%nExp
                   If (nExpi.eq.0) Go To 2033

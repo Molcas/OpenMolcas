@@ -149,8 +149,8 @@
   100    Continue
 *
          End If
-         kShStr = ipVal(iCnttp)
-         kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
+         kShStr = dbsc(iCnttp)%iVal
+         kShEnd = dbsc(iCnttp)%iVal+dbsc(iCnttp)%nVal-1
          Type(0) = .False.
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
