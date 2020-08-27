@@ -1248,12 +1248,12 @@ c Simplistic validity check for value
       Fixed(nCnttp)=.False.
       dbsc(nCnttp)%iVal = ipVal_
       dbsc(nCnttp)%iPrj = ipPrj_
-      ipSRO(nCnttp) = ipSRO_
+      dbsc(nCnttp)%iSRO = ipSRO_
       ipSOC(nCnttp) = ipSOC_
       ipPP(nCnttp)  = ipPP_
       dbsc(nCnttp)%nVal = nVal
       dbsc(nCnttp)%nPrj = nPrj
-      nSRO_Shells(nCnttp) = nSRO
+      dbsc(nCnttp)%nSRO = nSRO
       nSOC_Shells(nCnttp) = nSOC
       nPP_Shells(nCnttp)  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP

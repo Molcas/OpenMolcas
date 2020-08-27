@@ -116,7 +116,7 @@
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
 
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965

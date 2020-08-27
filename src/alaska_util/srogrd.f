@@ -115,7 +115,7 @@
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
@@ -171,8 +171,8 @@
             TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
-            Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
-               iShll = ipSRO(kCnttp) + iAng
+            Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
+               iShll = dbsc(kCnttp)%iSRO + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0) Go To 1966
 *

@@ -396,10 +396,10 @@ Cend
 *-----------Spectral Resolution Basis Set
 *
             If (iPrint.ge.10) Then
-               iSh = ipSRO(iCnttp)
+               iSh = dbsc(iCnttp)%iSRO
                nSumA = 0
                jSh = iSh
-               Do iAng = 0, nSRO_Shells(iCnttp)-1
+               Do iAng = 0, dbsc(iCnttp)%nSRO-1
                   nSumA = nSumA + Shells(jSh)%nExp
                   jSh = jSh + 1
                End Do
@@ -408,7 +408,7 @@ Cend
                   Write (LuWr,*)
                   Write (LuWr,*) ' Spectral Resolution Basis Set'
                End If
-               Do iAng = 0, nSRO_Shells(iCnttp)-1
+               Do iAng = 0, dbsc(iCnttp)%nSRO-1
                   nExpi=Shells(iSh)%nExp
                   If (nExpi.ne.0) Then
                      Write (LuWr,*)

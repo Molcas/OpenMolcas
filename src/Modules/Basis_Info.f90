@@ -75,6 +75,7 @@
           Integer:: mdci=0
           Integer:: iVal=0, nVal=0
           Integer:: iPrj=0, nPrj=0
+          Integer:: iSRO=0, nSRO=0
       End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -123,7 +124,7 @@
 !     Actual content of Basis_Info
 !
       Real*8, Allocatable:: PAMexp(:,:)
-      Integer :: nFrag_LineWords = 0, nFields =20, mFields = 11
+      Integer :: nFrag_LineWords = 0, nFields =22, mFields = 11
       Integer :: nCnttp = 0, iCnttp_Dummy = 0
       Integer :: Max_Shells = 0
       Logical :: Initiated = .FALSE.
@@ -222,6 +223,8 @@
          iDmp(18,i) = dbsc(i)%nVal
          iDmp(19,i) = dbsc(i)%iPrj
          iDmp(20,i) = dbsc(i)%nPrj
+         iDmp(21,i) = dbsc(i)%iSRO
+         iDmp(22,i) = dbsc(i)%nSRO
          nAtoms=nAtoms+dbsc(i)%nCntr
          nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -455,6 +458,8 @@
          dbsc(i)%nVal         = iDmp(18,i)
          dbsc(i)%iPrj         = iDmp(19,i)
          dbsc(i)%nPrj         = iDmp(20,i)
+         dbsc(i)%iSRO         = iDmp(21,i)
+         dbsc(i)%nSRO         = iDmp(22,i)
          nFragCoor=Max(0,dbsc(i)%nFragCoor)
          nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
                +nFrag_LineWords*dbsc(i)%nFragType     &

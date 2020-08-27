@@ -103,7 +103,7 @@
       iComp = 1
       mdc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%ECP .or. nSRO_Shells(iCnttp).le.0) Then
+         If (.Not.dbsc(iCnttp)%ECP .or. dbsc(iCnttp)%nSRO.le.0) Then
             mdc = mdc + dbsc(iCnttp)%nCntr
             Cycle
          End If
@@ -118,8 +118,8 @@
             TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
             TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-            Do iAng = 0, nSRO_Shells(iCnttp)-1
-               iShll = ipSRO(iCnttp) + iAng
+            Do iAng = 0, dbsc(iCnttp)%nSRO-1
+               iShll = dbsc(iCnttp)%iSRO + iAng
                nExpi = Shells(iShll)%nExp
                If (nExpi.eq.0) Cycle
 *

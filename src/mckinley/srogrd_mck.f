@@ -117,7 +117,7 @@
       Do 1960 kCnttp = 1, nCnttp
 
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
 
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
@@ -172,8 +172,8 @@
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
-            Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
-               iShll = ipSRO(kCnttp) + iAng
+            Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
+               iShll = dbsc(kCnttp)%iSRO + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then

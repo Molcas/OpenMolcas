@@ -33,8 +33,8 @@
       MemSRO = 0
       Do 1960 iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%ECP) Cycle
-         Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
-            iShll = ipSRO(iCnttp) + iAng
+         Do 1966 iAng = 0, dbsc(iCnttp)%nSRO-1
+            iShll = dbsc(iCnttp)%iSRO + iAng
             nExpi = Shells(iShll)%nExp
             If (nExpi.eq.0) Cycle
 *

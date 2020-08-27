@@ -265,8 +265,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             lSh = lSh + 1
          End Do
 *--------Spectral resolution basis set
-         kShStr = ipSRO(iCnttp)
-         kShEnd = kShStr + nSRO_Shells(iCnttp)-1
+         kShStr = dbsc(iCnttp)%iSRO
+         kShEnd = kShStr + dbsc(iCnttp)%nSRO-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
