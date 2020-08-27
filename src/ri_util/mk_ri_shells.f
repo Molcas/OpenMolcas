@@ -182,8 +182,12 @@
             Write (6,*)
          End If
          lPAM2 = lPAM2 .or. PAM2(nCnttp)
-         dbsc(nCnttp)%ECP=(nPrj+nSRO+nSOC+
-     &                dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
+         dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
+     &                   + dbsc(nCnttp)%nSRO
+     &                   + dbsc(nCnttp)%nSOC
+     &                   + dbsc(nCnttp)%nPP
+     &                   + dbsc(nCnttp)%nM1
+     &                   + dbsc(nCnttp)%nM2) .NE. 0
          lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
          lECP = lECP .or. dbsc(nCnttp)%ECP
          lNoPair = lNoPair .or. NoPairL(nCnttp)

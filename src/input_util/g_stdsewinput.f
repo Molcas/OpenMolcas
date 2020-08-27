@@ -169,7 +169,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       If (itype.eq.1) ifnr=1
       If (itype.eq.2) ifnr=0
 *
-      If (nSOC.gt.-1) Then
+      If (dbsc(nCnttp)%nSOC.gt.-1) Then
          Do l = 1, MxAng
             kDel(l,nCnttp)=nDel(l)
          End Do

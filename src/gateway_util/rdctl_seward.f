@@ -1214,7 +1214,7 @@ c Simplistic validity check for value
          BasisTypes(4)=ign
       End If
 *
-      If (nSOC.gt.-1) Then
+      If (dbsc(nCnttp)%nSOC.gt.-1) Then
          Do l = 1, MxAng
             kDel(l,nCnttp)=nDel(l)
          End Do
