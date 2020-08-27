@@ -261,7 +261,7 @@ c      End If
         End Do
  995    Continue
       End Do
-      Write (MF,'(A)') '[MOLDEN FORMAT]'
+      Write (MF,'(A)') '[Molden Format]'
 *                                                                      *
 ************************************************************************
 *                                                                      *
