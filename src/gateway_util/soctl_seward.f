@@ -134,6 +134,7 @@ C     Show=Show.and..Not.Primitive_Pass
       m2Tot = 0
       iAO=0
       lSkip=.False.
+      IndShl=0
 *
       Call ICopy(8,[0],0,nFCore,1)
 

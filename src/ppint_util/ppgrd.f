@@ -124,10 +124,11 @@
       Do iCnttp = 1, nCnttp
          kdc = kdc + dbsc(iCnttp)%nCntr
          If (Charge(iCnttp).eq.0d0) Cycle
-         If (nPP_Shells(iCnttp).eq.0) Cycle
+         If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
-         do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
+         do kSh = dbsc(iCnttp)%iPP,
+     &            dbsc(iCnttp)%iPP + dbsc(iCnttp)%nPP-1
            If (Shells(kSh)%nExp.le.0) Cycle
            ncrr=Int(Shells(kSh)%Exp(1))
            if(ncrr.le.500) nPP_S=nPP_S+1
@@ -136,18 +137,18 @@ cAOM< Get the "true" (non SO) shells
 cAOM>
 *
          npot = 0
-         kShStr=ipPP(iCnttp)
-cAOM         kShEnd = kShStr + nPP_Shells(iCnttp)-1
+         kShStr=dbsc(iCnttp)%iPP
+cAOM         kShEnd = kShStr + dbsc(iCnttp)%nPP-1
          kShEnd = kShStr + nPP_S-1
-         If (nPP_Shells(iCnttp)-1.gt.lproju) Then
-            Write (6,*) 'nPP_Shells(iCnttp)-1.gt.lproju'
-CAOM            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_Shells(iCnttp)
-            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_S
+         If (dbsc(iCnttp)%nPP-1.gt.lproju) Then
+            Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+CAOM            Write (6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
+            Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
             Call QTrace()
             Call Abend()
          End If
-CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
+CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
          lcr(kcrs)=nPP_S-1
          iSh=0
          iOff = 1

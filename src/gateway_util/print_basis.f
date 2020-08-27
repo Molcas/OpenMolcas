@@ -186,9 +186,9 @@
 *                                                                      *
 *        Process PP part, if any.
 *
-         kShStr=ipPP(iCnttp)
-         kShEnd = kShStr + nPP_Shells(iCnttp)-1
-         If (output.and.nPP_Shells(iCnttp).ne.0 .AND..NOT.lOPTO) Then
+         kShStr=dbsc(iCnttp)%iPP
+         kShEnd = kShStr + dbsc(iCnttp)%nPP-1
+         If (output.and.dbsc(iCnttp)%nPP.ne.0 .AND..NOT.lOPTO) Then
             Write (LuWr,*)
             Write (LuWr,'(6X,A)')
      &             'Pseudo Potential specification:'

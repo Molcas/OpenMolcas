@@ -204,12 +204,12 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       dbsc(nCnttp)%iPrj = ipPrj_
       dbsc(nCnttp)%iSRO = ipSRO_
       dbsc(nCnttp)%iSOC = ipSOC_
-      ipPP(nCnttp)  = ipPP_
+      dbsc(nCnttp)%iPP  = ipPP_
       dbsc(nCnttp)%nVal = nVal
       dbsc(nCnttp)%nPrj = nPrj
       dbsc(nCnttp)%nSRO = nSRO
       dbsc(nCnttp)%nSOC = nSOC
-      nPP_Shells(nCnttp)  = nPP
+      dbsc(nCnttp)%nPP  = nPP
       nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
       nCnt = 0
       lAux = lAux .or. dbsc(nCnttp)%Aux

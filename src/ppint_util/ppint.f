@@ -73,10 +73,11 @@
       Do iCnttp = 1, nCnttp
          kdc = kdc + dbsc(iCnttp)%nCntr
 
-         If (nPP_Shells(iCnttp).eq.0) Cycle
+         If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
-         do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
+         do kSh = dbsc(iCnttp)%iPP,
+     &            dbsc(iCnttp)%iPP + dbsc(iCnttp)%nPP-1
 *           Skip if a cardholder shell
             If (Shells(kSh)%nExp.le.0) Cycle
             ncrr=Int(Shells(kSh)%Exp(1))
@@ -86,11 +87,11 @@ cAOM< Get the "true" (non SO) shells
 cAOM>
 *
          npot = 0
-         kShStr=ipPP(iCnttp)
+         kShStr=dbsc(iCnttp)%iPP
          kShEnd = kShStr + nPP_S-1
          If (nPP_S-1.gt.lproju) Then
-            Write (6,*) 'nPP_Shells(iCnttp)-1.gt.lproju'
-            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_S
+            Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+            Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
             Call QTrace()
             Call Abend()

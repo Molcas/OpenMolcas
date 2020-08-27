@@ -238,15 +238,15 @@ Cend
 *
 *------- Pseudo potential type ECP
 *
-         If (nPP_Shells(iCnttp).ne.0 .and. iPrint.ge.10) Then
+         If (dbsc(iCnttp)%nPP.ne.0 .and. iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)
             Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
             Write (LuWr,*)
             Write (LuWr,'(A)') ' Pseudo Potential'
             Write (LuWr,*)
-            kShStr=ipPP(iCnttp)
-            kShEnd = kShStr + nPP_Shells(iCnttp)-1
+            kShStr=dbsc(iCnttp)%iPP
+            kShEnd = kShStr + dbsc(iCnttp)%nPP-1
             lSh= 0
             Do kSh = kShStr, kShEnd
                nExpk=Shells(kSh)%nExp
