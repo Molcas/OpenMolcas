@@ -396,11 +396,11 @@
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = iShll+1
-            ipPrj(nCnttp) = -1
+            dbsc(nCnttp)%iPrj = -1
             ipSRO(nCnttp) = -1
             ipSOC(nCnttp) = -1
             ipPP(nCnttp)  = -1
-            nPrj_Shells(nCnttp) = 0
+            dbsc(nCnttp)%nPrj = 0
             nSRO_Shells(nCnttp) = 0
             nSOC_Shells(nCnttp) = 0
             nPP_Shells(nCnttp)  = 0

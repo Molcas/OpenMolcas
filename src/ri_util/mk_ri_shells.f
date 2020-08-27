@@ -203,12 +203,12 @@
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
          dbsc(nCnttp)%iVal = ipVal_
-         ipPrj(nCnttp) = ipPrj_
+         dbsc(nCnttp)%iPrj = ipPrj_
          ipSRO(nCnttp) = ipSRO_
          ipSOC(nCnttp) = ipSOC_
          ipPP(nCnttp)  = ipPP_
          dbsc(nCnttp)%nVal = nVal
-         nPrj_Shells(nCnttp) = nPrj
+         dbsc(nCnttp)%nPrj = nPrj
          nSRO_Shells(nCnttp) = nSRO
          nSOC_Shells(nCnttp) = nSOC
          nPP_Shells(nCnttp)  = nPP
@@ -466,13 +466,13 @@ C        Fixed(nCnttp)=.False.
 *
             dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = jShll + 1
-            ipPrj(nCnttp) = -1
+            dbsc(nCnttp)%iPrj = -1
             ipSRO(nCnttp) = -1
             ipSOC(nCnttp) = -1
             ipPP(nCnttp)  = -1
 *
             dbsc(nCnttp)%nVal = nVal
-            nPrj_Shells(nCnttp) = nPrj
+            dbsc(nCnttp)%nPrj = nPrj
             nSRO_Shells(nCnttp) = nSRO
             nSOC_Shells(nCnttp) = nSOC
             nPP_Shells(nCnttp)  = nPP

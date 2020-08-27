@@ -306,10 +306,10 @@ Cend
 *
 *--------------Projection Basis Set
 *
-            iSh = ipPrj(iCnttp)
+            iSh = dbsc(iCnttp)%iPrj
             nSumB = 0
             jSh = iSh
-            Do iAng = 0, nPrj_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nPrj-1
                nSumB = nSumB + Shells(jSh)%nBasis
                jSh = jSh + 1
             End Do
@@ -318,7 +318,7 @@ Cend
                Write (LuWr,*)
                Write (LuWr,*) ' Proj. Operator'
             End If
-            Do iAng = 0, nPrj_Shells(iCnttp)-1
+            Do iAng = 0, dbsc(iCnttp)%nPrj-1
                If (Shells(iSh)%nBk.ne.0) Then
                   If (iPrint.ge.10) Then
                      Write (LuWr,*)

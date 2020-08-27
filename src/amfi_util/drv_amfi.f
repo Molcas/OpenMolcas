@@ -203,7 +203,7 @@
                    iCnttp = iSD(13,iSkal)
                    If (nSOC_Shells(iCnttp).ne.0) Then
                       iShl  = ipSOC(iCnttp)+l
-                      jShll  = ipPrj(iCnttp)+l
+                      jShll  = dbsc(iCnttp)%iPrj+l
 *                     nCore=nCore+Shells(jShll)%nBasis
                       nCore=nCore+kDel(l+1,iCnttp)
                    End If
@@ -225,7 +225,7 @@
                       iCnttp = iSD(13,iSkal)
                       If (nSOC_Shells(iCnttp).ne.0) Then
                          iShll  = ipSOC(iCnttp)+l
-                         jShll  = ipPrj(iCnttp)+l
+                         jShll  = dbsc(iCnttp)%iPrj+l
 *                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
                          iDel(1+l)=kDel(l+1,iCnttp)
                       End If

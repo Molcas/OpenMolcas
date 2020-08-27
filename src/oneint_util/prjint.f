@@ -117,8 +117,8 @@
             TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
             TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
             TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-            Do iAng = 0, nPrj_Shells(iCnttp)-1
-               iShll = ipPrj(iCnttp) + iAng
+            Do iAng = 0, dbsc(iCnttp)%nPrj-1
+               iShll = dbsc(iCnttp)%iPrj + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
                If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle

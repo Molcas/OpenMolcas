@@ -36,8 +36,8 @@
       MmprjH = 0
       Do 1960 iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%ECP) Cycle
-         Do 1966 iAng = 0, nPrj_Shells(iCnttp)-1
-            iShll = ipPrj(iCnttp) + iAng
+         Do 1966 iAng = 0, dbsc(iCnttp)%nPrj-1
+            iShll = dbsc(iCnttp)%iPrj + iAng
             nExpi=Shells(iShll)%nExp
             nBasisi=Shells(iShll)%nBasis
             If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle

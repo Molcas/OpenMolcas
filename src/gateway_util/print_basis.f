@@ -224,8 +224,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
 *                                                                      *
 *        Process ECP part, if any.
 *
-         kShStr = ipPrj(iCnttp)
-         kShEnd = kShStr + nPrj_Shells(iCnttp)-1
+         kShStr = dbsc(iCnttp)%iPrj
+         kShEnd = kShStr + dbsc(iCnttp)%nPrj-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Write (LuWr,*)
             Write (LuWr,'(6X,A)')

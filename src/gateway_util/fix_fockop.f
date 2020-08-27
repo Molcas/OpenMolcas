@@ -489,12 +489,12 @@
          Shells(jShll+2)%Transf=.False.
          Shells(jShll+2)%Prjct =.False.
          dbsc(nCnttp)%iVal = ipVal_
-         ipPrj(nCnttp) = ipPrj_
+         dbsc(nCnttp)%iPrj = ipPrj_
          ipSRO(nCnttp) = ipSRO_
          ipSOC(nCnttp) = ipSOC_
          ipPP(nCnttp)  = ipPP_
          dbsc(nCnttp)%nVal = nVal
-         nPrj_Shells(nCnttp) = nPrj
+         dbsc(nCnttp)%nPrj = nPrj
          nSRO_Shells(nCnttp) = nSRO
          nSOC_Shells(nCnttp) = nSOC
          nPP_Shells(nCnttp)  = nPP
@@ -564,9 +564,9 @@
 *                 Huzinaga type, remove according to the number of
 *                 projected shells.
 *
-                  iAngMax_Proj=nPrj_Shells(iCnttp)
+                  iAngMax_Proj=dbsc(iCnttp)%nPrj
                   If (iAng.le.iAngMax_Proj) Then
-                     iShll_Proj_r = ipPrj(iCnttp) + iAng
+                     iShll_Proj_r = dbsc(iCnttp)%iPrj + iAng
                      nCntrc_Proj = Shells(iShll_Proj_r)%nBasis
                      nRemove = nCntrc_Proj
                   Else

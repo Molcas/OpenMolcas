@@ -168,8 +168,8 @@
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
-            Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
-               iShll = ipPrj(kCnttp) + iAng
+            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
+               iShll = dbsc(kCnttp)%iPrj + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then

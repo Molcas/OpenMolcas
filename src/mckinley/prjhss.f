@@ -125,8 +125,8 @@
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
             Call NucInd(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
-            Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
-               iShll = ipPrj(kCnttp) + iAng
+            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
+               iShll = dbsc(kCnttp)%iPrj + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
                If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
