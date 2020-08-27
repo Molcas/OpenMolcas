@@ -59,8 +59,8 @@
 ************************************************************************
 *                                                                      *
       iCnttp = 0
-*
       mdc=0
+      iShell = 0
       Do jCnttp = 1, nCnttp
 *
 *        Make sure that we process the dummy shell last
@@ -78,8 +78,10 @@
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdci = mdci + 1
             mdc  = mdc  + 1
+            iShell_Set = iShell
 *
             Do iAng=0, nTest
+               iShell = iShell + 1
                iShll = ipVal(iCnttp) + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
@@ -124,7 +126,7 @@
                If (Shells(iShll)%Transf) itemp=itemp+2      !
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci                    ! Center index
-               iSD(11,nSkal)=Ind_Shell(mdc) + iAng + 1
+               iSD(11,nSkal)=iShell_Set + iAng + 1
                If (pChrg(iCnttp)) Then
                   iSD(12,nSkal)= 1                   ! pseudo charge
                Else
@@ -223,7 +225,7 @@
          If (Shells(iShll)%Transf) itemp=itemp+2      !
          iSD(9,nSkal)=itemp                    ! sph., car., cont.
          iSD(10,nSkal)=mdci                    ! Center index
-         iSD(11,nSkal)=Ind_Shell(iCnt) + iAng + 1 !
+         iSD(11,nSkal)= iAng + 1               ! Not used
          If (pChrg(iCnttp)) Then
             iSD(12,nSkal)= 1                   ! pseudo charge
          Else

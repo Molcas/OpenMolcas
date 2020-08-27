@@ -77,7 +77,7 @@ cvv LP_NAMES was used later without initialization.
 *                                                                      *
 *     Compute iBas, iBas_Aux, and iBas_Frag used for double checking
 *     in SOCtl.
-*     Compute cdMax, EtMax, nShlls, and Ind_Shell(IndSOff(iCnttp,iCnt)).
+*     Compute cdMax, EtMax, and nShlls.
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 *                                                                      *

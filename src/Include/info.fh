@@ -220,8 +220,7 @@
      &          iShll_RF,iSigma,ixStrt,ixEnd,LenInf,
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
-     &          nDim,nIrrep,nMltpl,nOrdEF,nShlls,
-     &          Ind_Shell(Mxdc)
+     &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
       Integer   ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
      &          ipSOC(Mxdbsc),ipPP(Mxdbsc),
      &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
@@ -260,7 +259,7 @@
      &              nSOC_Shells, iOrdFm, ipPP, nPP_Shells, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
-     &              nPAMFI, iPAMFI, nPSOI, Ind_Shell,
+     &              nPAMFI, iPAMFI, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
       Integer          kCnttpPAM, iPAMPrim, iPAMCount
