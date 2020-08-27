@@ -180,7 +180,7 @@
      &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &                 LuRd,BasisTypes,
-     &                 STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
+     &                 STDINP,lSTDINP,.False.,.true.,' ')
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.

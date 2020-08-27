@@ -171,7 +171,7 @@
      &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &              LuRd,BasisTypes,
-     &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
+     &              STDINP,lSTDINP,.False.,.true.,' ')
          dbsc(nCnttp)%Aux=.True.
 *
          Charge(nCnttp)=Zero

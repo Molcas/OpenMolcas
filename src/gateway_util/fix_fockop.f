@@ -477,7 +477,7 @@
      &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &              LuRd,BasisTypes,
-     &              STDINP,lSTDINP,.False.,.true.,' ',nCnttp)
+     &              STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'

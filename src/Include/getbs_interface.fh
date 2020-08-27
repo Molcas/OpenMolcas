@@ -18,8 +18,7 @@
      &                 UnNorm,nDel, nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,
-     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 nCnttp)
+     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 #include "Molcas.fh"
       Character*(*) DDname
       Character*80  BSLbl
@@ -39,6 +38,5 @@
       Character*180 STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir
-      Integer nCnttp
       End SubRoutine GetBS
       End Interface

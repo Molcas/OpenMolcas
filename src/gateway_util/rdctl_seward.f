@@ -1175,8 +1175,7 @@ c Simplistic validity check for value
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,
-     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
-     &           nCnttp)
+     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
      &            iAtmNr(nCnttp).le.96

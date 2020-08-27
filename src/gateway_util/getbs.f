@@ -18,8 +18,7 @@
      &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
      &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
      &                 BasisTypes,
-     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 iCnttp)
+     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -80,7 +79,7 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,iShll,
-     &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,iCnttp)
+     &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,nCnttp)
          Integer lUnit
          Integer iShll
          Character*(*) BLine
@@ -88,7 +87,7 @@
          Integer nProj
          Integer ipPP, nPP
          Logical UnNorm
-         Integer iCnttp
+         Integer nCnttp
          End SubRoutine GetECP
          Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
          Character*(*) Title
@@ -580,7 +579,7 @@
          If (IfTest) Write (6,*) ' Process PAM'
          PAM2 = .True.
          If (iPrint.ge.99) Write (6,*) ' Start reading PAMs'
-         Call GetPAM(lUnit,iCnttp)
+         Call GetPAM(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -602,7 +601,7 @@
          If (IfTest) Write (6,*) ' Process FRAGMENT'
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading fragment data'
-         Call GetFragment(lUnit,iCnttp)
+         Call GetFragment(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -632,7 +631,7 @@
      &      Write (6,*) ' Start reading ECPs/RELs'
          ipPrj_=iShll+1
          Call GetECP(lUnit,iShll,Bline,
-     &               CrRep,nProj,ipPP_,nPP,UnNorm,iCnttp)
+     &               CrRep,nProj,ipPP_,nPP,UnNorm,nCnttp)
          nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then

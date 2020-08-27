@@ -154,7 +154,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
      &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
      &           LuRd,BasisTypes,
-     &           STDINP,iSTDINP,.True.,.true.,' ',nCnttp)
+     &           STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
