@@ -473,10 +473,7 @@
          Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
      &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &              CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
-     &              nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,
+     &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then
@@ -488,17 +485,11 @@
          Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
          Shells(jShll+2)%Prjct =.False.
-         dbsc(nCnttp)%iVal = ipVal_
-         dbsc(nCnttp)%iPrj = ipPrj_
-         dbsc(nCnttp)%iSRO = ipSRO_
-         dbsc(nCnttp)%iSOC = ipSOC_
-         dbsc(nCnttp)%iPP  = ipPP_
-         dbsc(nCnttp)%nVal = nVal
-         dbsc(nCnttp)%nPrj = nPrj
-         dbsc(nCnttp)%nSRO = nSRO
-         dbsc(nCnttp)%nSOC = nSOC
-         dbsc(nCnttp)%nPP  = nPP
-         nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
+         dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                        + dbsc(nCnttp)%nPrj
+     &                        + dbsc(nCnttp)%nSRO
+     &                        + dbsc(nCnttp)%nSOC
+     &                        + dbsc(nCnttp)%nPP
 *                                                                      *
 ************************************************************************
 *                                                                      *

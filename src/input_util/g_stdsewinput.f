@@ -150,10 +150,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
-     &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,
+     &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
@@ -191,6 +188,11 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       lPP=lPP .or. nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
       lNoPair = lNoPair .or. NoPairL(nCnttp)
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                     + dbsc(nCnttp)%nPrj
+     &                     + dbsc(nCnttp)%nSRO
+     &                     + dbsc(nCnttp)%nSOC
+     &                     + dbsc(nCnttp)%nPP
 *
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
@@ -200,17 +202,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      dbsc(nCnttp)%iVal = ipVal_
-      dbsc(nCnttp)%iPrj = ipPrj_
-      dbsc(nCnttp)%iSRO = ipSRO_
-      dbsc(nCnttp)%iSOC = ipSOC_
-      dbsc(nCnttp)%iPP  = ipPP_
-      dbsc(nCnttp)%nVal = nVal
-      dbsc(nCnttp)%nPrj = nPrj
-      dbsc(nCnttp)%nSRO = nSRO
-      dbsc(nCnttp)%nSOC = nSOC
-      dbsc(nCnttp)%nPP  = nPP
-      nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
       nCnt = 0
       lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then

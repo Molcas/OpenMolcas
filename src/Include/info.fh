@@ -36,7 +36,6 @@
 * Variables:                                                           *
 *                                                                      *
 * -> Integer   <-                                                      *
-*     nTot_Shells: total number of shells of the i''th basis set       *
 *     iChCnt: the symmetry character of the i''th unique center        *
 *     iChTbl: the character table for the specified point group        *
 *     jStab : the stabilizer of the i''th unique center                *
@@ -203,7 +202,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
-      Integer   nTot_Shells(Mxdbsc), iChCnt(Mxdc),
+      Integer   iChCnt(Mxdc),
      &          iChTbl(0:7,0:7), jStab(0:7,Mxdc), nStab(Mxdc),
      &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),   iPhase(3,0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
@@ -232,7 +231,7 @@
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh, iAtmNr,
-     &              iShll_RF, nTot_Shells,iOrdFm, iRI_Type,
+     &              iShll_RF, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              nPAMFI, iPAMFI, nPSOI,

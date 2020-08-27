@@ -167,10 +167,7 @@
      &              MxAng,Charge(nCnttp),
      &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
      &              NoPairL(nCnttp),SODK(nCnttp),
-     &              CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
-     &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,
+     &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
          dbsc(nCnttp)%Aux=.True.
 *
@@ -202,17 +199,12 @@
          dbsc(nCnttp)%Parent_iCnttp=iCnttp
 C        pChrg(nCnttp)=.False.
 C        Fixed(nCnttp)=.False.
-         dbsc(nCnttp)%iVal = ipVal_
-         dbsc(nCnttp)%iPrj = ipPrj_
-         dbsc(nCnttp)%iSRO = ipSRO_
-         dbsc(nCnttp)%iSOC = ipSOC_
-         dbsc(nCnttp)%iPP  = ipPP_
-         dbsc(nCnttp)%nVal = nVal
-         dbsc(nCnttp)%nPrj = nPrj
-         dbsc(nCnttp)%nSRO = nSRO
-         dbsc(nCnttp)%nSOC = nSOC
-         dbsc(nCnttp)%nPP  = nPP
-         nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
+         dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                        + dbsc(nCnttp)%nPrj
+     &                        + dbsc(nCnttp)%nSRO
+     &                        + dbsc(nCnttp)%nSOC
+     &                        + dbsc(nCnttp)%nPP
+
          lAux = lAux .or. dbsc(nCnttp)%Aux
          Do iSh = jShll+1, iShll
             Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
@@ -452,11 +444,6 @@ C        Fixed(nCnttp)=.False.
             Charge(nCnttp)=Zero
             PAM2(nCnttp)=.False.
             lPAM2 = lPAM2 .or. PAM2(nCnttp)
-            nVal=lAng+1
-            nPrj=0
-            nSRO=0
-            nSOC=0
-            nPP=0
             dbsc(nCnttp)%ECP=.False.
             lECP = lECP .or. dbsc(nCnttp)%ECP
             lPP=lPP .or. nPP.ne.0
@@ -464,19 +451,9 @@ C        Fixed(nCnttp)=.False.
             lNoPair = lNoPair .or. NoPairL(nCnttp)
             iAngMx=Max(iAngMx,lAng)
 *
-            dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = jShll + 1
-            dbsc(nCnttp)%iPrj = -1
-            dbsc(nCnttp)%iSRO = -1
-            dbsc(nCnttp)%iSOC = -1
-            dbsc(nCnttp)%iPP  = -1
-*
-            dbsc(nCnttp)%nVal = nVal
-            dbsc(nCnttp)%nPrj = nPrj
-            dbsc(nCnttp)%nSRO = nSRO
-            dbsc(nCnttp)%nSOC = nSOC
-            dbsc(nCnttp)%nPP  = nPP
-            nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
+            dbsc(nCnttp)%nVal = lAng+1
+            nTot_Shells(nCnttp) = dbsc(nCnttp)%nVal
             lAux = lAux .or. dbsc(nCnttp)%Aux
 *
             nCnt = dbsc(iCnttp)%nCntr

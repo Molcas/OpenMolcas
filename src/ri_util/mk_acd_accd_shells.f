@@ -396,14 +396,6 @@
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = iShll+1
-            dbsc(nCnttp)%iPrj = -1
-            dbsc(nCnttp)%iSRO = -1
-            dbsc(nCnttp)%iSRO = -1
-            dbsc(nCnttp)%iPP  = -1
-            dbsc(nCnttp)%nPrj = 0
-            dbsc(nCnttp)%nSRO = 0
-            dbsc(nCnttp)%nSOC = 0
-            dbsc(nCnttp)%nPP  = 0
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
             dbsc(nCnttp)%ECP=.False.
@@ -1368,8 +1360,8 @@ C                          Thrs= 1.0D-12
                End Do ! jAng
             End Do ! iAng
 *
-            nTot_Shells(nCnttp) = iShll-jShll
             dbsc(nCnttp)%nVal = iShll-jShll
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *                                                                      *
 ************************************************************************
 ************************************************************************

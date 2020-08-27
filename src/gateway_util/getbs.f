@@ -14,10 +14,7 @@
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
      &                 MxAng, Charge,iAtmNr,BLine,Ref,
      &                 PAM2, NoPairL,SODK,
-     &                 CrRep,nProj,nAIMP,UnNorm,nDel,
-     &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
-     &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,
+     &                 CrRep,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
@@ -79,13 +76,12 @@
 *                                                                      *
       Interface
          SubRoutine GetECP(lUnit,iShll,
-     &                     BLine,CrRep,nProj,ipPP,nPP,UnNorm,nCnttp)
+     &                     BLine,CrRep,nProj,UnNorm,nCnttp)
          Integer lUnit
          Integer iShll
          Character*(*) BLine
          Real*8  CrRep
          Integer nProj
-         Integer ipPP, nPP
          Logical UnNorm
          Integer nCnttp
          End SubRoutine GetECP
@@ -113,18 +109,8 @@
       dbsc(nCnttp)%ECP = .False.
       dbsc(nCnttp)%FOp = .True.
       NoPairL = .False.
-      nVal=0
-      nPrj=0
-      nSRO=0
-      nSOC=0
-      nPP=0
       nM1=0
       nM2=0
-      ipVal_=-1
-      ipPrj_=-1
-      ipSRO_=-1
-      ipSOC_=-1
-      ipPP_=-1
       dbsc(nCnttp)%IsMM = 0
       dbsc(nCnttp)%nOpt = 0
 *
@@ -273,9 +259,9 @@
       End If
 *     Loop over each shell type (s,p,d,etc....)
       iValSh=iShll
-      nVal=lAng+1
+      dbsc(nCnttp)%nVal=lAng+1
       mVal=0
-      ipVal_=iShll+1
+      dbsc(nCnttp)%iVal=iShll+1
       Do 10 iAng = 0, lAng
          If (IfTest) Write (6,*) 'iAng=',iAng
          iShll = iShll + 1
@@ -565,7 +551,7 @@
 *
  778     Continue
  10   Continue
-      If (mVal.eq.0) nVal=0
+      If (mVal.eq.0) dbsc(nCnttp)%nVal=0
 ***************************************************************************
 *-----If PAM basis set read the potentials and coefficient!
 *
@@ -629,10 +615,10 @@
          iPrSh=iShll
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
-         ipPrj_=iShll+1
+         dbsc(nCnttp)%iPrj=iShll+1
          Call GetECP(lUnit,iShll,Bline,
-     &               CrRep,nProj,ipPP_,nPP,UnNorm,nCnttp)
-         nPrj=nProj+1
+     &               CrRep,nProj,UnNorm,nCnttp)
+         dbsc(nCnttp)%nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -687,8 +673,8 @@
             Call Quit_OnUserError()
          End If
          nAIMP = lAng
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          jValSh=iValSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
@@ -715,8 +701,8 @@
             Call Quit_OnUserError()
          End If
          nAIMP = nProj
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          jPrSh = iPrSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
@@ -745,8 +731,8 @@
 *        Line = GetLn(lUnit)
          Line = Get_Ln(lUnit)
          Call Get_i1(1,nAIMP)
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
             If (iShll.gt.MxShll) Then
@@ -792,8 +778,8 @@
          Call Get_F1(1,RatioThres)
 *
          nAIMP  = lAng
-         ipSRO_=iShll+1
-         nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
          jValSh = iValSh
          jPrSh  = iPrSh
 *
@@ -851,11 +837,12 @@
             Call Quit_OnUserError()
          End If
 *
-      ipSoc_=iShll+1
+      dbsc(nCnttp)%iSOC=iShll+1
       Line = Get_Ln(lUnit)
       Call Get_I1(1,mSOC)
-      nSOC=mSOC+1
-      IF (IfTest) Write(6,'(A,I4)') 'nSOC =',nSOC
+      dbsc(nCnttp)%nSOC=mSOC+1
+      IF (IfTest) Write(6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',
+     &                               dbsc(nCnttp)%nSOC
       If (mSOC.lt.0) Go To 990
       Do 12 iAng = 0, mSOC
          If (IfTest) Write (6,'(A,I4)') ' iAng=',iAng

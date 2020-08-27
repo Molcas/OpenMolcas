@@ -36,9 +36,8 @@
          Call Abend()
       End If
       dbsc(nCnttp)%iVal = iShll + 1
-      dbsc(nCnttp)%iPrj = -1
-      dbsc(nCnttp)%iSRO = -1
-      dbsc(nCnttp)%iSRO = -1
+      dbsc(nCnttp)%nVal = 1
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *
       Bsl(nCnttp)='.....RI_Dummy'
       Charge(nCnttp)=Zero
@@ -49,16 +48,10 @@
       CrRep(nCnttp)=Zero
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      dbsc(nCnttp)%nOpt = 0
-      dbsc(nCnttp)%nPrj = 0
-      dbsc(nCnttp)%nSRO = 0
-      dbsc(nCnttp)%nSOC = 0
       dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1
       nCntrc=1
-      nTot_Shells(nCnttp) = 1
-      dbsc(nCnttp)%nVal = 1
 *
       iShll = iShll + 1
       Shells(iShll)%Aux = .True.

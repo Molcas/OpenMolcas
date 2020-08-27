@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do k = 0, nTot_Shells(iCnttp)-1
+      Do k = 0, dbsc(iCnttp)%nShells-1
          iShll = dbsc(iCnttp)%iVal + k
 *
          Shells(iShll)%nExp=0

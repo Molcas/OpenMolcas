@@ -12,8 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,iShll,BLine,CrRep,nProj,
-     &                  ipPP,nPP,UnNorm,iCnttp)
+      SubRoutine GetECP(lUnit,iShll,BLine,CrRep,nProj,UnNorm,iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -61,7 +60,7 @@
 *
       If (Index(Line,'PP').ne.0) Then
 *
-         ipPP=iShll+1
+         dbsc(nCnttp)%iPP=iShll+1
 *
 C        Write (6,*) 'Line=',Line
          If (Index(Line,'PPSO').ne.0) Then
@@ -71,11 +70,11 @@ C        Write (6,*) 'Line=',Line
            mPP(2)=0
          Endif
 C        Write (6,*) 'mPP=',mPP
-         nPP = 1 + mPP(1) + mPP(2)
+         dbsc(nCnttp)%nPP = 1 + mPP(1) + mPP(2)
 *
          Do iPP = 0, mPP(1)
             iShll = iShll + 1
-C           Write (6,*) 'iPP,nPP=',iPP,nPP
+C           Write (6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
             If (iShll.gt.MxShll) Then
                Call WarningMessage(2,
      &                     'Abend in GetECP: Increase MxShll')
@@ -111,7 +110,7 @@ C              Write (6,*) 'ccr=',ccr
          End Do
          Do iPP = 1, mPP(2)
             iShll = iShll + 1
-C           Write (6,*) 'iPP,nPP=',iPP,nPP
+C           Write (6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
             If (iShll.gt.MxShll) Then
                Call ErrTra
                Write (6,*) 'Abend in GetECP: Increase MxShll'

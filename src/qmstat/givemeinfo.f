@@ -84,9 +84,9 @@ C     Endif
           krekna2=0
           kaunt=kauntSav
           kaunterPrev=kaunter
-          nBA(krekna)=nTot_Shells(i)
+          nBA(krekna)=dbsc(i)%mShells
           If(nBA(krekna).gt.MaxAng)MaxAng=nBA(krekna)
-          Do 30, j=1,nTot_Shells(i)
+          Do 30, j=1,dbsc(i)%nShells
             kaunt=kaunt+1
             krekna2=krekna2+1
             nCBoA(krekna,krekna2)=Shells(kaunt)%nBasis
@@ -129,7 +129,7 @@ C     Endif
       kaunt=0
       Do 201, i=1,ii
         kaunter=0
-        Do 203, k=1,nTot_Shells(i)
+        Do 203, k=1,dbsc(i)%nShells
           kaunt=kaunt+1
           Do 205, ll=1,Shells(kaunt)%nBasis
             kaunter=kaunter+1
@@ -143,7 +143,7 @@ C     Endif
       nSize=0
       kaunt=0
       Do 2101, kk=1,ii   !Just to get size of vector
-        Do 2102, kkk=1,nTot_Shells(kk)
+        Do 2102, kkk=1,dbsc(kk)%nShells
           kaunt=kaunt+1
           nSize=nSize+Shells(kaunt)%nBasis*Shells(kaunt)%nExp
 2102    Continue
@@ -156,7 +156,7 @@ C     Endif
       Do 211, iCnttp=1,nCnttp  !Here we set NaTyp.
         jSum=0
         iTemp=0
-        nVarv=nTot_Shells(iCnttp)
+        nVarv=dbsc(iCnttp)%nShells
         nSh(iCnttp)=nVarv
         M=iCnttp-1
         Do 212, iCnt=1,dbsc(iCnttp)%nCntr

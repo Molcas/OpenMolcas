@@ -1171,10 +1171,7 @@ c Simplistic validity check for value
      &           MxAng,Charge(nCnttp),
      &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),nProj,nAIMP, UnNorm,nDel,
-     &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,
+     &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
@@ -1231,8 +1228,12 @@ c Simplistic validity check for value
          Write (LuWr,*)
       End If
       lPAM2 = lPAM2 .or. PAM2(nCnttp)
-      dbsc(nCnttp)%ECP=(nPP+nPrj+nSRO+nSOC+
-     &             dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
+      dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
+     &                 +dbsc(nCnttp)%nPrj
+     &                 +dbsc(nCnttp)%nSRO
+     &                 +dbsc(nCnttp)%nSOC
+     &                 +dbsc(nCnttp)%nM1
+     &                 +dbsc(nCnttp)%nM2) .NE. 0
       lPP=lPP .or. nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
       lNoPair = lNoPair .or. NoPairL(nCnttp)
@@ -1245,17 +1246,11 @@ c Simplistic validity check for value
       Shells(jShll+2)%Prjct =.False.
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
-      dbsc(nCnttp)%iVal = ipVal_
-      dbsc(nCnttp)%iPrj = ipPrj_
-      dbsc(nCnttp)%iSRO = ipSRO_
-      dbsc(nCnttp)%iSOC = ipSOC_
-      dbsc(nCnttp)%iPP  = ipPP_
-      dbsc(nCnttp)%nVal = nVal
-      dbsc(nCnttp)%nPrj = nPrj
-      dbsc(nCnttp)%nSRO = nSRO
-      dbsc(nCnttp)%nSOC = nSOC
-      dbsc(nCnttp)%nPP  = nPP
-      nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                     + dbsc(nCnttp)%nPrj
+     &                     + dbsc(nCnttp)%nSRO
+     &                     + dbsc(nCnttp)%nSOC
+     &                     + dbsc(nCnttp)%nPP
       nCnt = 0
       lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then

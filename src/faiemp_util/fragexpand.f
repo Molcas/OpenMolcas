@@ -37,10 +37,8 @@
       Integer     BasisTypes(4), nDel(MxAng),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            ii, Indx, iSh, iShll, jShll,
-     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, nAIMP, ndc,
-     &            nVal, nPrj, nSRO, nSOC, nPP, nProj,
-     &            StayAlone,
-     &            ipVal_, ipPrj_, ipSRO_, ipSOC_, ipPP_
+     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc,
+     &            StayAlone
       Real*8      x1, y1, z1
       Character*4  label
       Character*13 DefNm
@@ -176,10 +174,7 @@
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
      &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &                 CrRep(nCnttp),nProj,nAIMP,UnNorm,nDel,
-     &                 nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &                 ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &                 LuRd,BasisTypes,
+     &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
@@ -189,17 +184,11 @@
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
             dbsc(nCnttp)%FOp=.False.
-            dbsc(nCnttp)%iVal = ipVal_
-            dbsc(nCnttp)%iPrj = ipPrj_
-            dbsc(nCnttp)%iSRO = ipSRO_
-            dbsc(nCnttp)%iSOC = ipSOC_
-            dbsc(nCnttp)%iPP  = ipPP_
-            dbsc(nCnttp)%nVal = nVal
-            dbsc(nCnttp)%nPrj = nPrj
-            dbsc(nCnttp)%nSRO = nSRO
-            dbsc(nCnttp)%nSOC = nSOC
-            dbsc(nCnttp)%nPP  = nPP
-            nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                           + dbsc(nCnttp)%nPrj
+     &                           + dbsc(nCnttp)%nSRO
+     &                           + dbsc(nCnttp)%nSOC
+     &                           + dbsc(nCnttp)%nPP
             CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
             Do iSh = jShll+1,iShll
                Shells(iSh)%Frag=.True.
