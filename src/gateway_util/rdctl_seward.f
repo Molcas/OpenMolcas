@@ -1234,7 +1234,7 @@ c Simplistic validity check for value
      &                 +dbsc(nCnttp)%nSOC
      &                 +dbsc(nCnttp)%nM1
      &                 +dbsc(nCnttp)%nM2) .NE. 0
-      lPP=lPP .or. nPP.ne.0
+      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
       lNoPair = lNoPair .or. NoPairL(nCnttp)
 *

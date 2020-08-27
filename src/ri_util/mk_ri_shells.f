@@ -184,7 +184,7 @@
          lPAM2 = lPAM2 .or. PAM2(nCnttp)
          dbsc(nCnttp)%ECP=(nPrj+nSRO+nSOC+
      &                dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2).ne.0
-         lPP=lPP .or. nPP.ne.0
+         lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
          lECP = lECP .or. dbsc(nCnttp)%ECP
          lNoPair = lNoPair .or. NoPairL(nCnttp)
 *
@@ -446,14 +446,14 @@ C        Fixed(nCnttp)=.False.
             lPAM2 = lPAM2 .or. PAM2(nCnttp)
             dbsc(nCnttp)%ECP=.False.
             lECP = lECP .or. dbsc(nCnttp)%ECP
-            lPP=lPP .or. nPP.ne.0
+            lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
             NoPairL(nCnttp)=.False.
             lNoPair = lNoPair .or. NoPairL(nCnttp)
             iAngMx=Max(iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
             dbsc(nCnttp)%nVal = lAng+1
-            nTot_Shells(nCnttp) = dbsc(nCnttp)%nVal
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
             lAux = lAux .or. dbsc(nCnttp)%Aux
 *
             nCnt = dbsc(iCnttp)%nCntr

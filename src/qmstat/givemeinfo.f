@@ -84,7 +84,7 @@ C     Endif
           krekna2=0
           kaunt=kauntSav
           kaunterPrev=kaunter
-          nBA(krekna)=dbsc(i)%mShells
+          nBA(krekna)=dbsc(i)%nShells
           If(nBA(krekna).gt.MaxAng)MaxAng=nBA(krekna)
           Do 30, j=1,dbsc(i)%nShells
             kaunt=kaunt+1
