@@ -77,8 +77,6 @@
 *     iSphCr: index of a cartesian angular function which will have the*
 *             same symmetry property (D2h) as the i''th spherical      *
 *             harmonic                                                 *
-*     IndS  : the distinct AO type function index for the first angular*
-*             functions of the i''th shell (unique centers)            *
 *     iSOff : the shell index of the i''th basis set and j''th unique  *
 *             center of the i''th basis set (Placed in dynamic common  *
 *             to reduce the dumping information, RL 970428)            *
@@ -233,8 +231,7 @@
      &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),   iPhase(3,0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
-     &          iChBas(MxFnc),   iSphCr(MxFnc),
-     &          IndS(MxShll), nBas_Aux(0:7),
+     &          iChBas(MxFnc),   iSphCr(MxFnc), nBas_Aux(0:7),
      &          iAOtSO(MxAO,0:7),NrInt(-20:9),
      &          Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
@@ -245,7 +242,7 @@
      &          nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
 *
-      Common /Info/ IndS, iCoSet, iAOtSO, iSOInf, IrrCmp,
+      Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,

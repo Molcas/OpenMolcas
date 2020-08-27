@@ -26,7 +26,6 @@
       iBas_Aux  = 0
       iBas_Frag = 0
 *
-      IndShl=0
       iShell=0
       mc = 1
       kdc = 0
@@ -75,10 +74,8 @@
      &                    //'compile the code!')
                   Call Abend()
                End If
-               IndS(iShell) = IndShl
                kCmp=(iAng+1)*(iAng+2)/2
                If (Shells(jSh)%Prjct) kCmp=2*iAng+1
-               IndShl = IndShl + kCmp
 *
                If (Shells(jSh)%nBasis.ne.0 ) Then
                   If (Shells(jSh)%Aux) Then

@@ -77,8 +77,7 @@ cvv LP_NAMES was used later without initialization.
 *                                                                      *
 *     Compute iBas, iBas_Aux, and iBas_Frag used for double checking
 *     in SOCtl.
-*     Compute cdMax, EtMax, IndS(iShell), nShlls, and
-*     Ind_Shell(IndSOff(iCnttp,iCnt)).
+*     Compute cdMax, EtMax, nShlls, and Ind_Shell(IndSOff(iCnttp,iCnt)).
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 *                                                                      *
@@ -133,7 +132,6 @@ C     Show=Show.and..Not.Primitive_Pass
       n2Max = 0
       nDim = 0
       m2Tot = 0
-      iEMax = 0
       iAO=0
       lSkip=.False.
 *
@@ -224,6 +222,7 @@ C     Show=Show.and..Not.Primitive_Pass
             Go To 2011
          End If
          iCnttp = 0
+         IndShl = 0
          Do 201 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -308,10 +307,14 @@ C     Show=Show.and..Not.Primitive_Pass
                   iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
                   nBasisi=Shells(iSh)%nBasis
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
                   If (nExpi.eq.0) Go To 2033
                   If (nBasisi.eq.0) Go To 2033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
+
                   Do 204 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -333,15 +336,9 @@ C     Show=Show.and..Not.Primitive_Pass
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore
-                     iEMax = Max(iEMax,IndS(iShell)+iComp)
-                     If (IndS(iShell)+iComp.gt.MxUnq) Then
-                        Call ErrTra
-                        Write (6,*) ' Increase MxUnq'
-                        Call Abend
-                     End If
                      If (iSkip(iIrrep).eq.0) Then
-                        IrrCmp(IndS(iShell)+iComp) =
-     &                    iOr(IrrCmp(IndS(iShell)+iComp),2**iIrrep)
+                        IrrCmp(IndShl+iComp) =
+     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
                      End If
                      If (output.and.Type(iIrrep)) Then
                         Write (6,*)
@@ -531,11 +528,12 @@ C     Show=Show.and..Not.Primitive_Pass
  204              Continue
  2033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
- 203           Continue
+                  IndShl = IndShl + jComp
+ 203           Continue ! iAng
                mc = mc + nIrrep/nStab(mdc)
- 202        Continue
+ 202        Continue ! iCnt
 *
- 201     Continue
+ 201     Continue ! jCnttp
  2011    Continue
 culf
          nrSym=nIrrep
@@ -545,7 +543,7 @@ culf
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
          m2Tot = m2Tot + nPrm(iIrrep)**2
- 200  Continue
+ 200  Continue ! iIrrep
 *     If (lSkip) nDim = iBas
       If (iBas.ne.iSO .and.
      &    iBas_Aux.ne.iSO_Aux-iSO .and.
@@ -617,6 +615,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          mc  = 1
          iShell = 0
          iCnttp = 0
+         IndShl=0
          Do 301 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -672,10 +671,13 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   iShell = iShell + 1
                   nExpi=Shells(iSh)%nExp
                   nBasisi=Shells(iSh)%nBasis
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
                   If (nExpi.eq.0) Go To 3033
                   If (nBasisi.eq.0) Go To 3033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                   Do 304 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -695,11 +697,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  308                 Continue
                      Go To 304
  307                 Continue
-                     If (IndS(iShell)+iComp.gt.MxUnq) Then
-                        Call ErrTra
-                        Write (6,*) ' Increase MxUnq'
-                        Call Abend
-                     End If
                      If (output.and.Type(iIrrep)) Then
                         Write (6,*)
                         Write (6,'(10X,2A)')
@@ -840,6 +837,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  304              Continue
  3033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
+                  IndShl = IndShl + jComp
  303           Continue
                mc = mc + nIrrep/nStab(mdc)
  302        Continue
@@ -977,7 +975,7 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Unq=IEMax
+      Mx_Unq=IndShl
       Mx_AO=iAO
 *
 #ifdef _DEBUG_
@@ -986,7 +984,7 @@ CSVC: basis IDs of non-symmetric case
          Write (6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
  555  Continue
       Write (6,*) ' *** IrrCmp ***'
-      Do 556 iE = 1, iEMax
+      Do 556 iE = 1, Mx_Unq
          Write (6,*) IrrCmp(iE)
  556  Continue
 #endif
