@@ -925,7 +925,9 @@
                            temp=CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+
      &                                   V_k(jSOj,2)*DSO(Indkl,1)+
      &                                   V_k(jSOj,3)*DSO(Indkl,4)+
-     &                                   V_k(jSOj,4)*DSO(Indkl,3))
+     &                                   V_k(jSOj,4)*DSO(Indkl,3)+
+     &                                   V_k(jSOj,1)*DSO(Indkl,5)+
+     &                                   V_k(jSOj,5)*DSO(Indkl,1))
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *

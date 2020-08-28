@@ -26,6 +26,7 @@
       Integer nU_l(0:7), nU_t(0:7)
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
       COMMON    /CHOTIME /timings
+      Character*8 Method
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -101,7 +102,7 @@
 
          If(iMp2prpt .ne. 2) Then
             If (DoCAS.and.lSA) Then
-               nSA=4
+               nSA=5
                Call GetMem('Dens','Allo','Real',ipDMLT(1),nDens*nSA)
                Do i=2,nSA
                  ipDMLT(i)=ipDMLT(i-1)+nDens
@@ -115,6 +116,7 @@
                      ij = ij + 1
                      Work(ipDMLT(1)+ij)=Two*Work(ipDMLT(1)+ij)
                      Work(ipDMLT(3)+ij)=Two*Work(ipDMLT(3)+ij)
+                     Work(ipDMLT(5)+ij)=Two*Work(ipDMLT(5)+ij)
                    EndDo
                    ij = ij + 1
                  EndDo
@@ -152,8 +154,12 @@
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
 ************************************************************************
-         DoExchange=Exfac.ne.Zero
+*         DoExchange=Exfac.ne.Zero
 *
+         Call Get_cArray('Relax Method',Method,8)
+         If (Method.eq.'MCPDFT ' ) exfac=1.0d0
+         DoExchange=Exfac.ne.Zero
+
          If (DoExchange .or. DoCAS) Then
             Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
             Do i=2,nKdens
