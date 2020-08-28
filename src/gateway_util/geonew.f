@@ -96,7 +96,7 @@
 *
       iDC = 1
       iNuc = 0
-      Call RecPrt('CN',' ',CN,3,nNuc)
+*     Call RecPrt('CN',' ',CN,3,nNuc)
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
      &       .Not.dbsc(iCnttp)%Aux) Then
