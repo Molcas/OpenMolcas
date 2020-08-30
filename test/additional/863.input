@@ -31,6 +31,7 @@ Threshold=1.0D-10, 1.0D-5, 1.0D-5, 0.2D-5
 
 &Alaska
   CUTOFF=1.0D-8
+  Show
 
 &SLAPAF
   Kriging
