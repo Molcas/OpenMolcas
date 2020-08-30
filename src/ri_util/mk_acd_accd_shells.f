@@ -41,7 +41,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+*#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,6 +67,10 @@
          Logical In_Core
          Real*8, Allocatable :: TInt(:), ADiag(:)
          End Subroutine
+         Subroutine Fix_Exponents(nP,mP,nC,Exp,CoeffC,CoeffP)
+         Integer nP, mP, nC
+         Real*8, Allocatable:: Exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
+         End Subroutine Fix_Exponents
       End Interface
 *                                                                      *
 ************************************************************************
@@ -75,14 +79,6 @@
 *---- Statement Function
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _DEBUG_
-       iPrint=99
-#else
-       iPrint=5
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -266,8 +262,7 @@
 *
       If (In_Core) Then
 #ifdef _DEBUG_
-         If (iPrint.ge.99)
-     &   Call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
+         Call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
 #endif
          Call mma_allocate(Vec,nTInt_c**2,label='Vec')
 *
@@ -281,8 +276,7 @@
             Call Abend()
          End If
 #ifdef _DEBUG_
-         If (iPrint.ge.99)
-     &   Call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
+         Call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
 #endif
          Call mma_deallocate(TInt_c)
          Call mma_deallocate(Vec)
@@ -319,11 +313,9 @@
       End If
 *
 #ifdef _DEBUG_
-      If (iPrint.ge.49) Then
-         Write (6,*) ' Thr_aCD:',Thr_aCD
-         Write (6,*) 'NumCho_c:',NumCho_c
-         Call iVcPrt('iD_c',' ',iD_c,NumCho_c)
-      End If
+      Write (6,*) ' Thr_aCD:',Thr_aCD
+      Write (6,*) 'NumCho_c:',NumCho_c
+      Call iVcPrt('iD_c',' ',iD_c,NumCho_c)
 #endif
 *                                                                      *
 ************************************************************************
@@ -419,17 +411,9 @@
 *
                   iShll = iShll + 1
 #ifdef _DEBUG_
-                  If (iAng.eq.3.and.jAng.eq.1) Then
-                     iPrint=49
-C                    iPrint=99
-                  Else
-                     iPrint= 5
-                  End If
-                  If (iPrint.ge.49) Then
-                     Write (6,*)
-                     Write (6,*) 'iAng,jAng=',iAng,jAng
-                     Write (6,*) 'iAngMax=',iAngMax
-                  End If
+                  Write (6,*)
+                  Write (6,*) 'iAng,jAng=',iAng,jAng
+                  Write (6,*) 'iAngMax=',iAngMax
 #endif
                   If (iShll.gt.MxShll) Then
                      Call WarningMessage(2,'Error in Mk_RICD_Shells')
@@ -465,8 +449,7 @@ C                    iPrint=99
      &                          .and. iAng+jAng.le.Keep_Shell
                   Keep_Basis = Found .or. Keep_Basis
 #ifdef _DEBUG_
-                  If (iPrint.ge.49)
-     &            Write (6,*) 'Found,kShll,lShll=',Found,kShll,lShll
+                  Write (6,*) 'Found,kShll,lShll=',Found,kShll,lShll
 #endif
 *                                                                      *
 ************************************************************************
@@ -519,8 +502,7 @@ C                    iPrint=99
                         Call Abend()
                      End If
 #ifdef _DEBUG_
-                     If (iPrint.ge.99)
-     &               Call RecPrt('TInt_p','(5G20.11)',
+                     Call RecPrt('TInt_p','(5G20.11)',
      &                           TInt_p,nTInt_p,nTInt_p)
 #endif
                      Call Flip_Flop(.False.)
@@ -555,7 +537,7 @@ C                    iPrint=99
                         nCntrc_Max=nk*nl
                      End If
 #ifdef _DEBUG_
-                     If (iPrint.ge.49) Write (6,*) 'nCntrc_Max=',
+                     Write (6,*) 'nCntrc_Max=',
      &                                              nCntrc_Max
 #endif
                      Call mma_allocate(Con,nCntrc_Max,label='Con')
@@ -589,27 +571,23 @@ C                    iPrint=99
                                Con(ikl)=1
                                ConR(1,nCntrc)=ik
 #ifdef _DEBUG_
-                              If (iPrint.ge.49) Then
-                                 Write (6,*) 'iCho_c,  ijSO=',
-     &                                        iCho_c+1,ijSO
-                              End If
+                               Write (6,*) 'iCho_c,  ijSO=',
+     &                                      iCho_c+1,ijSO
 #endif
                                ConR(2,nCntrc)=il
                            End If
                         End If
                      End Do    !  iCho_c
 #ifdef _DEBUG_
-                     If (iPrint.ge.49) Then
-                        Write (6,*) 'nCntrc=',nCntrc
-                        Call iVcPrt('Con',' ',Con,nCntrc_Max)
-                        Call iVcPrt('ConR',' ',ConR,2*nCntrc)
-                        Write (6,*)
-                        Write (6,*) 'ConR'
-                        Write (6,'(30I3)')
-     &                        (ConR(1,i),i=1,nCntrc)
-                        Write (6,'(30I3)')
-     &                        (ConR(2,i),i=1,nCntrc)
-                     End If
+                     Write (6,*) 'nCntrc=',nCntrc
+                     Call iVcPrt('Con',' ',Con,nCntrc_Max)
+                     Call iVcPrt('ConR',' ',ConR,2*nCntrc)
+                     Write (6,*)
+                     Write (6,*) 'ConR'
+                     Write (6,'(30I3)')
+     &                     (ConR(1,i),i=1,nCntrc)
+                     Write (6,'(30I3)')
+     &                     (ConR(2,i),i=1,nCntrc)
 #endif
 *
                   Else
@@ -649,8 +627,7 @@ C                    iPrint=99
                            nPrim_Max=npk*npl
                         End If
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                     Write (6,*) 'nPrim_Max:',nPrim_Max
+                           Write (6,*) 'nPrim_Max:',nPrim_Max
 #endif
                         Call mma_allocate(Prm,nPrim_Max,label='Prm')
                         Call IZero(Prm,nPrim_Max)
@@ -682,11 +659,9 @@ C                    iPrint=99
      &                                 2*mData,iAng,jAng,npk,npl,LTP)
 *
 #ifdef _DEBUG_
-                        If (iPrint.ge.99) Then
                         Call RecPrt('TIntP','(5G20.10)',
      &                              TP,nPrim_Max,nPrim_Max)
                         Call iVcPrt('List_TP',' ',LTP,2*nPrim_Max)
-                        End If
 #endif
 *                       Let us now decompose and retrieve the most
 *                       important primitive products, indicies stored in
@@ -712,22 +687,17 @@ C                    iPrint=99
                         End If
 *
 #ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
                         Write (6,*) 'Thrshld_CD_p:',Thrshld_CD_p
                         Write (6,*) 'NumCho_p    :',NumCho_p
                         Call iVcPrt('iD_p',' ',iD_p,NumCho_p)
-                        End If
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
+                        Call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
 #endif
                         If (NumCho_p.lt.nCntrc) Then
-                           If (iPrint.ge.6) Then
                            Write (6,*) 'W a r n i n g!'
                            Write (6,*) 'Fewer primitive functions than'
      &                               //' contracted functions!'
                            Write (6,*) 'NumCho_p=',NumCho_p
                            Write (6,*) '  nCntrc=',nCntrc
-                           End If
                            Thrshld_CD_p=Thrshld_CD_p*0.5
                            If (Thrshld_CD_p.le.1.0D-14) Then
                               Call WarningMessage(2,
@@ -756,10 +726,8 @@ C                    iPrint=99
                         Shells(iShll)%nExp=nPrim
 *
 #ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
                         Write (6,*) 'nPrim=',nPrim
                         Call iVcPrt('Prm',' ',Prm,nPrim_Max)
-                        End If
 #endif
                         Call mma_allocate(Indkl_p,nPrim_Max,
      &                                    label='Indkl_p')
@@ -777,9 +745,8 @@ C                    iPrint=99
                            Shells(iShll)%Exp(iCho_p)=Exp_i+Exp_j
                         End Do
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                    Call RecPrt('SLIM Exponents',' ',
-     &                                Shells(iShll)%Exp,1,nPrim)
+                        Call RecPrt('SLIM Exponents',' ',
+     &                             Shells(iShll)%Exp,1,nPrim)
 #endif
 *                                                                      *
 ************************************************************************
@@ -822,14 +789,12 @@ C                    iPrint=99
                         End If
 *
 #ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
                         If (Diagonal) Then
                            Call TriPrt('aCD Exponents',' ',
      &                                 Shells(iShll)%Exp,nExpk)
                         Else
                            Call RecPrt('aCD Exponents',' ',
      &                                 Shells(iShll)%Exp,nExpk,nExpl)
-                        End If
                         End If
 #endif
                      End If
@@ -854,13 +819,11 @@ C                    iPrint=99
                   MaxPrm(lAng)=Max(MaxPrm(lAng),nPrim)
 *
 #ifdef _DEBUG_
-                  If (iPrint.ge.49) Then
                   Write (6,*)
                   Write (6,*) 'iShll=',iShll
                   Write (6,*) 'nPrim,nCntrc=',nPrim,nCntrc
                   Write (6,*) 'lAng=',lAng
                   Write (6,*) 'MaxPrm(lAng)=',MaxPrm(lAng)
-                  End If
 #endif
 *
                   Shells(iShll)%nBasis_c=nCntrc
@@ -921,16 +884,11 @@ C                    iPrint=99
      &                              AL,nCompA,nCompB)
 *
 #ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
-                           Write (6,*)
-                           Write (6,*) 'tVt(Diag)'
-                           Write (6,*)
-     &                     (tVt(i),i=1,nTheta**2,nTheta+1)
-                        End If
-                        If (iPrint.ge.99) Then
+                        Write (6,*)
+                        Write (6,*) 'tVt(Diag)'
+                        Write (6,*) (tVt(i),i=1,nTheta**2,nTheta+1)
                         Call RecPrt('tVt',' ',tVt,nTheta,nTheta)
                         Call iVcPrt('iD_p',' ',iD_p,NumCho_p)
-                        End If
 #endif
 *
 *                       Generate (theta'|V|theta')^{-1}
@@ -954,7 +912,6 @@ C                    iPrint=99
                            End Do
                         End Do
 #ifdef _DEBUG_
-                        If (iPrint.ge.99) Then
                         Call TriPrt('A',' ',A,nTheta)
 *
                         Call mma_allocate(H,nTri,label='H')
@@ -967,18 +924,15 @@ C                    iPrint=99
                         Call RecPrt('U',' ',U,nTheta,nTheta)
                         Call mma_deallocate(H)
                         Call mma_deallocate(U)
-                        End If
 #endif
 *
 #ifdef _DEBUG_
-                        Call mma_allocate(tVtInv,nTheta*2,
+                        Call mma_allocate(tVtInv,nTheta**2,
      &                                    label='tVtInv')
-                        If (iPrint.ge.49) Then
                         iSing=0
                         Det=0.0D0
                         Call MInv(tVt,tVtInv,iSing,Det,nTheta)
                         Write (6,*) 'iSing,Det=',iSing,Det
-                        End If
 #endif
                         Call mma_deallocate(tVt)
 *
@@ -1005,8 +959,7 @@ C                          Thrs= 1.0D-12
                         Call mma_deallocate(Z)
                         Call mma_deallocate(A)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call TriPrt('Q','(9G10.3)',Q,nTheta)
+                        Call TriPrt('Q','(9G10.3)',Q,nTheta)
 #endif
 *
 *                       Generate the (theta'|V|theta) matrix in the
@@ -1025,8 +978,7 @@ C                          Thrs= 1.0D-12
      &                               AL,nCompA,nCompB)
                         Call mma_deallocate(AL)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
+                        Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
 *
 *                       Pick up the contraction coefficients of the aCD
@@ -1053,8 +1005,7 @@ C                          Thrs= 1.0D-12
      &                                 Shells(lShll)%Cff_p(1,1,1))
                         Call mma_deallocate(Indkl)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('C',' ',C,nTheta_Full,nPhi)
+                        Call RecPrt('C',' ',C,nTheta_Full,nPhi)
 #endif
 *
 *                       Generate the (theta'|V|phi') matrix.
@@ -1066,8 +1017,7 @@ C                          Thrs= 1.0D-12
      &                              0.0d0,tVp,nTheta)
                         Call mma_deallocate(tVtF)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
+                        Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
                         Call mma_deallocate(C)
 *
@@ -1090,8 +1040,7 @@ C                          Thrs= 1.0D-12
                         End Do
                         call mma_deallocate(Q)
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('Q',' ',Temp,nTheta,nTheta)
+                        Call RecPrt('Q',' ',Temp,nTheta,nTheta)
 #endif
 *
 *                       Resort the external index back to original
@@ -1106,11 +1055,12 @@ C                          Thrs= 1.0D-12
                         End Do
                         Call mma_deallocate(Temp)
 #ifdef _DEBUG_
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('Q',' ',QTmp,nTheta,nTheta)
+                        Call RecPrt('Q',' ',QTmp,nTheta,nTheta)
+                        Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
 *                       Q(T) tVp
                         Call mma_allocate(Scr,nTheta*nPhi,label='Scr')
+                        Scr(:)=0.0D0
                         Call DGEMM_('T','N',
      &                              nTheta,nPhi,nTheta,
      &                              1.0d0,QTmp,nTheta,
@@ -1124,11 +1074,10 @@ C                          Thrs= 1.0D-12
      &                              0.0d0,
      &                              Shells(iShll)%Cff_c(1,1,1),nTheta)
 #ifdef _DEBUG_
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('SLIM coeffcients',' ',
+                        Call RecPrt('SLIM coeffcients',' ',
      &                               Shells(iShll)%Cff_c(1,1,1),
      &                               nTheta,nPhi)
-                        If (iPrint.ge.49) Then
+                        Scr(:)=0.0D0
                         Call DGEMM_('N','N',
      &                              nTheta,nPhi,nTheta,
      &                              1.0d0,tVtInv,nTheta,
@@ -1136,7 +1085,6 @@ C                          Thrs= 1.0D-12
      &                              0.0d0,Scr,nTheta)
                         Call RecPrt('SLIM coeffcients2',' ',Scr,
      &                               nTheta,nPhi)
-                        End If
                         Call mma_deallocate(tVtInv)
 #endif
                         Call mma_deallocate(tVp)
@@ -1177,7 +1125,6 @@ C                          Thrs= 1.0D-12
                         Call mma_deallocate(Scr)
                         Call mma_deallocate(QTmp)
 #ifdef _DEBUG_
-*                       If (iPrint.ge.49)
                         Call RecPrt('SLIM coeffcients',' ',
      &                              Shells(iShll)%Cff_c(1,1,1),
      &                              nTheta,nPhi)
@@ -1198,8 +1145,7 @@ C                          Thrs= 1.0D-12
                            kC = ConR(1,iCntrc)
                            lC = ConR(2,iCntrc)
 #ifdef _DEBUG_
-                           If (iPrint.ge.49)
-     &                     Write (6,*) 'kC,lC=',kC,lC
+                           Write (6,*) 'kC,lC=',kC,lC
 #endif
 *                                                                      *
 ************************************************************************
@@ -1247,8 +1193,7 @@ C                          Thrs= 1.0D-12
 *
                         End Do ! iCntrc
 #ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('aCD Coefficients','(6G20.12)',
+                        Call RecPrt('aCD Coefficients','(6G20.12)',
      &                              Shells(iShll)%Cff_c(1,1,1),
      &                              nPrim,nCntrc)
 #endif
@@ -1279,20 +1224,17 @@ C                          Thrs= 1.0D-12
      &                          Shells(iShll)%Cff_p(1,1,1),
      &                          nPrim ,lAng)
 #ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
-                        Call RecPrt('uncon1',' ',
-     &                               Shells(iShll)%Cff_p(:,:,1),
-     &                               nPrim,nPrim)
-                        Call RecPrt('uncon2',' ',
-     &                               Shells(iShll)%Cff_p(:,:,2),
-     &                               nPrim,nPrim)
-                     End If
+                     Call RecPrt('uncon1',' ',
+     &                            Shells(iShll)%Cff_p(:,:,1),
+     &                            nPrim,nPrim)
+                     Call RecPrt('uncon2',' ',
+     &                            Shells(iShll)%Cff_p(:,:,2),
+     &                            nPrim,nPrim)
 #endif
 *
 *                    OK let's do the correction now!
 *
 #ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
                      Call RecPrt('Coefficients 10',' ',
      &                           Shells(iShll)%Cff_c(:,:,1),
      &                           nPrim,nCntrc)
@@ -1300,14 +1242,12 @@ C                          Thrs= 1.0D-12
                      Call RecPrt('Coefficients 20',' ',
      &                           Shells(iShll)%Cff_c(:,:,2),
      &                           nPrim,nCntrc)
-                     End If
 #endif
                      iOff = nPrim*nCntrc
                      Call Fix_Coeff(nPrim,nCntrc,
      &                              Shells(iShll)%Cff_c(:,:,2),
      &                              Shells(iShll)%Cff_p(:,:,1),'F')
 #ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
                      Call RecPrt('Coefficients 1',' ',
      &                            Shells(iShll)%Cff_c(:,:,1),
      &                            nPrim,nCntrc)
@@ -1315,7 +1255,6 @@ C                          Thrs= 1.0D-12
                      Call RecPrt('Coefficients 2','(6G20.13)',
      &                            Shells(iShll)%Cff_c(:,:,2),
      &                            nPrim,nCntrc)
-                     End If
 #endif
 *
 *                    Now remove any primitives with all zero
@@ -1323,12 +1262,11 @@ C                          Thrs= 1.0D-12
 *
                      Call Fix_Exponents(nPrim,mPrim,nCntrc,
      &                                  Shells(iShll)%Exp,
-     &                                  Shells(iShll)%Cff_c(:,:,1),
-     &                                  Shells(iShll)%Cff_p(:,:,1))
+     &                                  Shells(iShll)%Cff_c,
+     &                                  Shells(iShll)%Cff_p)
                      nPrim=mPrim
                      Shells(iShll)%nExp=nPrim
 #ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
                      Call RecPrt('Coefficients 1',' ',
      &                           Shells(iShll)%Cff_c(:,:,1),
      &                           nPrim,nCntrc)
@@ -1336,7 +1274,6 @@ C                          Thrs= 1.0D-12
                      Call RecPrt('Coefficients 2',' ',
      &                           Shells(iShll)%Cff_c(:,:,2),
      &                           nPrim,nCntrc)
-                     End If
 #endif
                   End If
 *
