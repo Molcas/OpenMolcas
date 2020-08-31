@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_Aces(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_Aces(iCmp,IndShl,iBas,jBas,kBas,lBas,
      &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
@@ -38,12 +38,12 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 ************ columbus interface ****************************************
@@ -52,7 +52,7 @@
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -75,8 +75,8 @@
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh
          iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,[ipD0],Work)
-         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
+         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
       End If
 #endif
       lOper = 1
@@ -92,7 +92,7 @@
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(1))+i1),
+            If (iAnd(IrrCmp(IndShl(1)+i1),
      &          iTwoj(j)).ne.0) Then
                iSym(niSym) = j
                niSym = niSym + 1
@@ -101,7 +101,7 @@
          Do 200 i2 = 1, iCmp(2)
             njSym = 0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+               If (iAnd(IrrCmp(IndShl(2)+i2),
      &             iTwoj(j)).ne.0) Then
                   jSym(njSym) = j
                   njSym = njSym + 1
@@ -110,7 +110,7 @@
             Do 300 i3 = 1, iCmp(3)
                nkSym = 0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(3))+i3),
+                  If (iAnd(IrrCmp(IndShl(3)+i3),
      &                iTwoj(j)).ne.0) Then
                      kSym(nkSym) = j
                      nkSym = nkSym + 1
@@ -119,7 +119,7 @@
                Do 400 i4 = 1, iCmp(4)
                   nlSym = 0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+                     If (iAnd(IrrCmp(IndShl(4)+i4),
      &                   iTwoj(j)).ne.0) Then
                         lSym(nlSym) = j
                         nlSym = nlSym + 1

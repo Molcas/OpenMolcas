@@ -40,6 +40,7 @@
 *                                                                      *
 * Modified for GIAOs, R. Lindh, June 2002, Tokyo, Japan.               *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D
@@ -141,9 +142,8 @@
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *-----------Find the DCR for M and S
@@ -270,7 +270,7 @@
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *                                                                      *
 ************************************************************************

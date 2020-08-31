@@ -12,7 +12,7 @@
 *               1991, Per Ake Malmqvist                                *
 *               1998, Roland Lindh                                     *
 ************************************************************************
-      Subroutine SaveBin(iBin,ValBin,IndBin,lIndx,lInts,l_Bin,iOpt)
+      Subroutine SaveBin(iBin,iOpt)
 ************************************************************************
 *                                                                      *
 *     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -27,7 +27,7 @@
 *     Calls to : PKI4,PKR8,DaFile,SetVec,ErrTra,ISORTX,I4Len,R8Len     *
 *                                                                      *
 *     Calling Parameters:                                              *
-*     iBin   : Bin numberto be saved                                   *
+*     iBin   : Bin number to be saved                                  *
 *                                                                      *
 *     Global data declarations (Include files) :                       *
 *     TwoDef  : definitions of the record structure                    *
@@ -52,20 +52,16 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
 #include "PkCtl.fh"
 
-      Dimension ValBin(l_Bin),IndBin(l_Bin)
-      Dimension lIndx(l_Bin),lInts(l_Bin)
       Integer iScr(lStRec)
       Real*8   Scr(lStRec)
       Integer rc
@@ -87,13 +83,11 @@ C     Call QEnter('Savebin')
 *                                                                      *
 *----------------------------------------------------------------------*
       nInts=nInt(iBin)
-      iOff1=nOff1(iBin)
-      iOff2=nOff2(iBin)
 *----------------------------------------------------------------------*
 *         precompute the packed length of a record                     *
 *----------------------------------------------------------------------*
-      Call I4LEN(nInts,iwork(iOff2+1),lIndx)
-      Call R8LEN(iOpt,nInts,work(iOff1+1),lInts)
+      Call I4LEN(nInts,lwIBin(1,iBin),lIndx)
+      Call R8LEN(iOpt,nInts,lwVBin(1,iBin),lInts)
       mxIRec=((lDaRec/idiv)-lTop-1)*ItoB
       mxVRec=(lDaRec-lTop-1)*RtoB
       nSave=0
@@ -113,7 +107,7 @@ C     Call QEnter('Savebin')
 *----------------------------------------------------------------------*
 *         now pack and check the packed record length again            *
 *----------------------------------------------------------------------*
-      Call PKI4(nSave,lIBin,iwork(iOff2+1),IndBin(lTop+1))
+      Call PKI4(nSave,lIBin,lwIBin(1,iBin),IndBin(lTop+1))
       mInds=(lIBin+ItoB-1)/ItoB
       mInt(3,iBin)=mInt(3,iBin)+mInds
       If ( lIBin.gt.mxIRec ) then
@@ -140,7 +134,7 @@ C     Call QEnter('Savebin')
          call xFlush(6)
          Call Abend
       End If
-      Call PKR8(iOpt,nSave,lVBin,Work(iOff1+1),ValBin(lTop+1))
+      Call PKR8(iOpt,nSave,lVBin,lwVBin(1,iBin),ValBin(lTop+1))
       mInts=(lVBin+RtoB-1)/RtoB
       mInt(2,iBin)=mInt(2,iBin)+mInts
       If ( lVBin.gt.mxVRec ) then
@@ -213,8 +207,8 @@ C     Call QEnter('Savebin')
       nKeep=nInts-nSave
       If ( nKeep.gt.0 ) Then
          Do i=1,nKeep
-            iwork(iOff2+i)=iwork(iOff2+nSave+i)
-            work(iOff1+i)=work(iOff1+nSave+i)
+            lwIBin(i,iBin)=lwIBin(nSave+i,iBin)
+            lwVBin(i,iBin)=lwVBin(nSave+i,iBin)
          End Do
       End If
       nInt(iBin)=nKeep

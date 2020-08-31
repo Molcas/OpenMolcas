@@ -13,12 +13,12 @@
   Generation of the auxiliary basis set
  Basis Set
   H.cc-pVDZ.Dunning.4s1p.2s1p..
-  H1            0.000000      -1.430201       1.545520 
-  H2            0.000000       1.430201       1.545520 
+  H1            0.000000      -1.430201       1.545520
+  H2            0.000000       1.430201       1.545520
  End of Basis Set
  Basis Set
   O.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
-  O             0.000000       0.000000       0.402242  
+  O             0.000000       0.000000       0.402242
  End of Basis Set
  RICD
  CDThreshold=1.0d-10

@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
+      use Basis_Info
+      use external_centers
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"
@@ -58,10 +60,9 @@
       If (lXF.and.(nOrd_XF.ge.0)) Then
          write(6,*) 'Here we are!!'
 *
-c         Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *
          If (nIrrep.eq.8) Then
@@ -78,11 +79,6 @@ c         Call Seward_Init()
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
 *
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
-*
          ZA = Zero
          DAx= Zero
          DAy= Zero
@@ -95,34 +91,31 @@ c         Call Seward_Init()
          Qzz= Zero
 *
          PNX=Zero
-         ip = ipXF - 1
-         write(6,*) 'Work(ip + ...) = ',(Work(ip+ii),ii=1,4)
-         write(6,*) 'nCnttp = ',nCnttp
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
+               ZA = XF(4,iFd)
                NoLoop = ZA.eq.Zero
             Else If (nOrd_XF.eq.1) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
      &                  DAz.eq.Zero
             Else If (nOrd_XF.eq.2) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
-               Qxx= Work(ip+(iFd-1)*Inc+8)
-               Qxy= Work(ip+(iFd-1)*Inc+9)
-               Qxz= Work(ip+(iFd-1)*Inc+10)
-               Qyy= Work(ip+(iFd-1)*Inc+11)
-               Qyz= Work(ip+(iFd-1)*Inc+12)
-               Qzz= Work(ip+(iFd-1)*Inc+13)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
+               Qxx= XF(8,iFd)
+               Qxy= XF(9,iFd)
+               Qxz= XF(10,iFd)
+               Qyy= XF(11,iFd)
+               Qyz= XF(12,iFd)
+               Qzz= XF(13,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
@@ -138,9 +131,7 @@ c         Call Seward_Init()
                Call Quit_OnUserError()
             End If
             If (NoLoop) Go To 102
-            A(1) = Work(ip+(iFd-1)*Inc+1)
-            A(2) = Work(ip+(iFd-1)*Inc+2)
-            A(3) = Work(ip+(iFd-1)*Inc+3)
+            A(1:3)=XF(1:3,iFd)
             iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
@@ -149,13 +140,10 @@ c         Call Seward_Init()
                ZB = Charge(jCnttp)
                If (pChrg(jCnttp)) Go To 202
                If (ZB.eq.Zero) Go To 202
-               If (FragCnttp(jCnttp)) Go To 202
+               If (dbsc(jCnttp)%Frag) Go To 202
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
-               Do jCnt = 1, nCntr(jCnttp)
-                  B(1) = Work(jxyz  )
-                  B(2) = Work(jxyz+1)
-                  B(3) = Work(jxyz+2)
+               Do jCnt = 1, dbsc(jCnttp)%nCntr
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
@@ -179,17 +167,17 @@ c         Call Seward_Init()
                         r12 = Sqrt(ABx**2 + ABy**2 + ABz**2)
 *
                         fab=One
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = Work(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = Work(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = Work(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = Work(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
@@ -214,10 +202,9 @@ c         Call Seward_Init()
                   PNX = PNX + ( ( ZAZB*temp0 + ZB*(temp1+temp2))
      &                * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
-                  jxyz = jxyz + 3
                End Do
  202           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
  102        Continue
          End Do

@@ -14,7 +14,8 @@ CR8   1
       DIMENSION VEC1(*),VEC2(*),VEC3(*)
       IF(IST1.EQ.1.AND.IST2.EQ.1.AND.IST3.EQ.1)THEN
       DO 2 I=1,NS
- 2    VEC3(I)=VEC2(I)+VEC1(I)
+      VEC3(I)=VEC2(I)+VEC1(I)
+ 2    CONTINUE
       ELSE
       IS1=1
       IS2=1
@@ -23,7 +24,8 @@ CR8   1
       VEC3(IS3)=VEC2(IS2)+VEC1(IS1)
       IS3=IS3+IST3
       IS1=IS1+IST1
-  1      IS2=IS2+IST2
+      IS2=IS2+IST2
+  1   CONTINUE
       ENDIF
       RETURN
       END

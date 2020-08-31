@@ -32,9 +32,10 @@
 *                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
-*             October '91                                              *
+*             October 1991                                             *
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -124,9 +125,8 @@ c     End If
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
@@ -238,7 +238,7 @@ c              IF (iPrint.gt.23)
 c    &            Call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
       Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *

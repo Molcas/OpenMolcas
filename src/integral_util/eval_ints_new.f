@@ -11,9 +11,7 @@
 * Copyright (C) 1991,1993,1995,1999,2000, Roland Lindh                 *
 ************************************************************************
       Subroutine Eval_Ints_New(iiS,jjS,kkS,llS,TInt,nTInt,
-     &                         iTOffs,nShi,nShj,nShk,nShl,
-     &                         nShOffi,nShOffj,nShOffk,nShOffl,
-     &                         Integ_Proc,
+     &                         iTOffs,Integ_Proc,
      &                         Dens,Fock,lDens,ExFac,nDens,
      &                         Ind,nInd,FckNoClmb,FckNoExch)
 ************************************************************************
@@ -28,36 +26,13 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*     nShi,nShj,          Dimensions used for blocks in Tint (input)   *
-*     nshk,nshl:          Symmetry block isym,jsym,ksym,lsym for       *
-*                         shells iS,jS,kS,lS starts at                 *
-*                         iTOffs(ksym,jsym,isym)+1 and is dimensioned  *
-*                         [nshl(lsym),nshk(ksym),nshj(jsym,nshi(isym)] *
-*                         Note that l runs fastest! The dimensions     *
-*                         must be larger or equal to the number of     *
-*                         SAOs in the specified shells and symmetries, *
-*                         otherwise chaos!!                            *
-*                                                                      *
-*     nShOffi,nShOffj,    Offsets of Integral symmetry blocks (input)  *
-*     nShOffk,nShOffl:    An Integral (lso,kso|jso,iso) is placed at   *
-*                         [lb,kb,jb,ib] where lb=lso-nShOffl(lsym),    *
-*                         kb=kso-nShOffk(ksym) etc. Here lso,kso etc   *
-*                         are the SAO labels within their symmetry.    *
-*                         More explicitly, the Integral is stored in   *
-*                         in Tint(ijkl), where                         *
-*                                                                      *
-*                         ijkl = iTOffs(ksym,jsym,isym)                *
-*                           + (ib-1)*nshj(jsym)*nshk(ksym)*nshl(lsym)  *
-*                           + (jb-1)*nshk(ksym)*nshl(lsym)             *
-*                           + (kb-1)*nshl(lsym)                        *
-*                           +  lb                                      *
 *          Dens                : 1-particle density matrix             *
 *          lDens               : length of density/Fock matrices       *
 *          nDens               : # of density/Fock matrices            *
 *          ExFac               : another scaling factor passed to      *
 *                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
-*                                construction (cf. d1ind_CpFck)        *
+*                                construction                          *
 *          FckNoClmb           : no Coulomb contributions to Fock mat. *
 *          FckNoExch           : no exchange contributions to Fock mat.*
 *          Thize               : int threshold for disk write (SD)     *
@@ -74,7 +49,6 @@
 * Called from:                                                         *
 *                                                                      *
 * Calling    : QEnter,QExit                                            *
-*              GetMem                                                  *
 *              Int_Setup                                               *
 *              Dens_Info                                               *
 *              MemRys                                                  *
@@ -103,9 +77,7 @@
       Integer lDens
       Real*8  Thize,Fock(lDens,nDens),Dens(lDens,nDens),
      &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt)
-      Integer iTOffs(8,8,8), nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7),
-     &        Ind(nInd,nInd,2)
+      Integer iTOffs(8,8,8), Ind(nInd,nInd,2)
       Logical W2Disc,PreSch,FckNoClmb(nDens),FckNoExch(nDens),
      &        DoIntegrals,DoFock
 *                                                                      *
@@ -134,10 +106,9 @@
 *                                                                      *
 *     Call to subroutine with extended parameter list.
 *
-      Call Eval_Ints_New_(iiS,jjS,kkS,llS,TInt,nTInt,
-     &                iTOffs,nShi,nShj,nShk,nShl,
-     &                nShOffi,nShOffj,nShOffk,nShOffl,
-     &                Integ_Proc,
+      Call Eval_Ints_New_Internal
+     &               (iiS,jjS,kkS,llS,TInt,nTInt,
+     &                iTOffs,Integ_Proc,
      &                Dens,Fock,lDens,ExFac,nDens,
      &                Ind,nInd,FckNoClmb,FckNoExch,
      &                Thize,W2Disc,PreSch,Disc_Mx,Disc, ! New arguments

@@ -41,6 +41,7 @@
 *          1991 - February 1992.                                       *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "real.fh"
@@ -68,6 +69,8 @@
         Integer iatom,icen,j
 *                                                                      *
 ************************************************************************
+*                                                                      *
+      Call Alaska_banner()
       npelem=3
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
@@ -92,7 +95,7 @@
 *
       nDiff=1
       DoRys=.True.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
       If (RF_On()) Then
          If (NonEq_Ref) Then
             Call WarningMessage(2,'Error in Alaska')
@@ -286,10 +289,9 @@
 *                                                                      *
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 1999
+         If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
- 1999 Continue
 *
 *     f^AB is the "total derivative coupling"
 *     h^AB is the "CI derivative coupling"
@@ -363,11 +365,11 @@
 *
 *        Skip gradients for pseudo atoms
 *
-         If (pChrg(iCnttp).or.nFragType(iCnttp).gt.0.or.
-     &       FragCnttp(iCnttp)) Then
-            mdc=mdc+nCntr(iCnttp)
+         If (pChrg(iCnttp).or.dbsc(iCnttp)%nFragType.gt.0.or.
+     &       dbsc(iCnttp)%Frag) Then
+            mdc=mdc+dbsc(iCnttp)%nCntr
          Else
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc=mdc+1
                ndc=ndc+1
                Do iCar = 1, 3

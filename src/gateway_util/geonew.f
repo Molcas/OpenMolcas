@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine GeoNew(Print,DInf,nDInf)
+      SubRoutine GeoNew(Print)
 ************************************************************************
 *                                                                      *
 * Object: to pick up the geometry from a special file. This will only  *
@@ -25,8 +25,9 @@
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
-*             March '91                                                *
+*             March 1991                                               *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Logical Print
 #include "itmax.fh"
@@ -36,7 +37,6 @@
 #include "SysDef.fh"
       Logical Exist
       Real*8, Dimension (:,:), Allocatable :: CN
-      Real*8 DInf(nDInf)
       Interface
         Subroutine Get_Coord_New(CN,lBuf)
         Real*8, Dimension (:,:), Allocatable :: CN
@@ -96,15 +96,12 @@
 *
       iDC = 1
       iNuc = 0
+*     Call RecPrt('CN',' ',CN,3,nNuc)
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
-               DInf(ixyz  ) = CN(1,iDC)
-               DInf(ixyz+1) = CN(2,iDC)
-               DInf(ixyz+2) = CN(3,iDC)
-               ixyz = ixyz + 3
+         If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
+               dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)
                iDC = iDC + 1
                iNuc = iNuc + 1
                If (iNuc.eq.nNuc) Go To 999
@@ -112,6 +109,21 @@
          End If
       End Do
  999  Continue
+*
+*     Now put in the updated coordinates for the RI/CD basis too, note
+*     they are pick up from the parent valence basis set.
+*
+      Do kCnttp = 1, nCnttp
+         If (dbsc(kCnttp)%Aux) Then
+            iCnttp=dbsc(kCnttp)%Parent_iCnttp
+            If (iCnttp.ne.0)
+     &         dbsc(kCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
+         End If
+      End Do
+*     Do iCnttp = 1, nCnttp
+*        Call RecPrt('dbsc(iCnttp)%Coor',' ',dbsc(iCnttp)%Coor(1,1),
+*    &               3,dbsc(iCnttp)%nCntr)
+*     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

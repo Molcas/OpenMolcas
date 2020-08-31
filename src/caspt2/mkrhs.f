@@ -100,19 +100,19 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
           CALL GETMEM('WA','ALLO','REAL',LW,NV)
           DO 130 ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 130 ISYMU=1,NSYM
+            DO 131 ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 130 IT=1,NASH(ISYMT)
+              DO 132 IT=1,NASH(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
-                DO 130 II=1,NI
+                DO 133 II=1,NI
                   CALL COUL(ISYMU,ISYMV,ISYMT,ISYM,ITTOT,II,ERI,SCR)
                   ONEADD=0.0D0
                   IF(ISYMT.EQ.ISYM) THEN
                     FTI=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
                     ONEADD=FTI/DBLE(MAX(1,NACTEL))
                   END IF
-                  DO 130 IU=1,NASH(ISYMU)
+                  DO 134 IU=1,NASH(ISYMU)
                     IUTOT=IU+NISH(ISYMU)
                     IUABS=IU+NAES(ISYMU)
                     DO IV=1,NASH(ISYMV)
@@ -126,6 +126,10 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                       IF(IVABS.EQ.IUABS) WTUVI=WTUVI+ONEADD
                       WORK(LW-1+IW)=WTUVI
                     END DO
+ 134              CONTINUE
+ 133            CONTINUE
+ 132          CONTINUE
+ 131        CONTINUE
  130      CONTINUE
 C Put W on disk:
           ICASE=1
@@ -203,7 +207,7 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                   IF(ITABS.NE.IUABS) THEN
                    DO 205 II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 205 IJ=1,NISH(ISYMJ)
+                    DO 206 IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
                       VALUE=0.5D0*ERI(IBUF)
@@ -226,11 +230,12 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IWM=ITUM+NASM*(IIJM-1)
                         WORK(LWM-1+IWM)=WORK(LWM-1+IWM)-VALUE
                       END IF
+ 206                CONTINUE
  205               CONTINUE
                   ELSE
                    DO 215 II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 215 IJ=1,NISH(ISYMJ)
+                    DO 216 IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
                       VALUE=0.25D0*ERI(IBUF)
@@ -247,6 +252,7 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IWP=ITUP+NASP*(IIJP-1)
                         WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+VALUE
                       END IF
+ 216                CONTINUE
  215               CONTINUE
                   END IF
  210            CONTINUE
@@ -303,19 +309,19 @@ C First, just the two-electron integrals. Later, add correction.
           CALL GETMEM('WC','ALLO','REAL',LW,NV)
           DO 310 ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 310 ISYMU=1,NSYM
+            DO 311 ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 310 IU=1,NASH(ISYMU)
+              DO 312 IU=1,NASH(ISYMU)
                 IUTOT=IU+NISH(ISYMU)
                 IUABS=IU+NAES(ISYMU)
-                DO 310 IV=1,NASH(ISYMV)
+                DO 313 IV=1,NASH(ISYMV)
                   IVTOT=IV+NISH(ISYMV)
                   IVABS=IV+NAES(ISYMV)
                   CALL COUL(ISYM,ISYMT,ISYMU,ISYMV,
      &                      IUTOT,IVTOT,ERI,SCR)
-                  DO 310 IA=1,NSSH(ISYM)
+                  DO 314 IA=1,NSSH(ISYM)
                     IATOT=IA+NISH(ISYM)+NASH(ISYM)
-                    DO 310 IT=1,NASH(ISYMT)
+                    DO 315 IT=1,NASH(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       IW1=KTUV(ITABS,IUABS,IVABS)-NTUVES(ISYM)
@@ -323,6 +329,11 @@ C First, just the two-electron integrals. Later, add correction.
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
                       WORK(LW-1+IW)=ERI(IBUF)
+ 315                CONTINUE
+ 314              CONTINUE
+ 313            CONTINUE
+ 312          CONTINUE
+ 311        CONTINUE
  310      CONTINUE
 
           DO IT=1,NASH(ISYM)
@@ -403,24 +414,24 @@ C Compute W2(tu,ai)=(ti,au)
             NFIMOES=NFSUM
             NFSUM=NFSUM+(NORB(ISYMI)*(NORB(ISYMI)+1))/2
             ISYMA=MUL(ISYMI,ISYM)
-            DO 410 ISYMU=1,NSYM
+            DO 411 ISYMU=1,NSYM
               ISYMT=MUL(ISYMU,ISYM)
-              DO 410 II=1,NISH(ISYMI)
-                DO 410 IU=1,NASH(ISYMU)
+              DO 412 II=1,NISH(ISYMI)
+                DO 413 IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
                   CALL EXCH(ISYMA,ISYMI,ISYMT,ISYMU,
      &                      II,IUTOT,ERI1,SCR)
                   CALL EXCH(ISYMT,ISYMI,ISYMA,ISYMU,
      &                      II,IUTOT,ERI2,SCR)
-                  DO 410 IA=1,NSSH(ISYMA)
+                  DO 414 IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
                     ONEADD=0.0D0
                     IF(ISYM.EQ.1) THEN
                       FAI=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
                       ONEADD=FAI/DBLE(MAX(1,NACTEL))
                     END IF
-                    DO 410 IT=1,NASH(ISYMT)
+                    DO 415 IT=1,NASH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       IWA=KTU(ITABS,IUABS)-NTUES(ISYM)
@@ -433,6 +444,11 @@ C Compute W2(tu,ai)=(ti,au)
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
                       WORK(LW-1+IW1)=WAITU
                       WORK(LW-1+IW2)=ERI2(IBUF2)
+ 415                CONTINUE
+ 414              CONTINUE
+ 413            CONTINUE
+ 412          CONTINUE
+ 411        CONTINUE
  410      CONTINUE
 C   Put W on disk.
           ICASE=5
@@ -513,9 +529,9 @@ C With new normalisation, divide by /SQRT(6)
                   CALL EXCH(ISYMA,ISYMJ,ISYM,ISYMI,IJ,II,ERI2,SCR)
                   IGEJ=KIGEJ(IIABS,IJABS)-NIGEJES(ISYMIJ)
                   IGTJ=KIGTJ(IIABS,IJABS)-NIGTJES(ISYMIJ)
-                  DO 510 IA=1,NSSH(ISYMA)
+                  DO 511 IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 510 IT=1,NASH(ISYM)
+                    DO 512 IT=1,NASH(ISYM)
                       ITTOT=IT+NISH(ISYM)
                       IBUF=IATOT+NORB(ISYMA)*(ITTOT-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
@@ -531,6 +547,8 @@ C With new normalisation, divide by /SQRT(6)
                       ELSE
                         WORK(LWP-1+IWP)=0.5D0*A
                       END IF
+ 512                CONTINUE
+ 511              CONTINUE
  510            CONTINUE
  520          CONTINUE
  530        CONTINUE
@@ -605,13 +623,13 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
      &                      IUTOT,ITTOT,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMT,ISYMB,ISYMU,
      &                      ITTOT,IUTOT,ERI2,SCR)
-                  DO 610 IA=1,NSSH(ISYMA)
+                  DO 611 IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
                     DO 600 IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 610
+                      IF(IAABS.LT.IBABS) GOTO 611
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       A=0.5D0*(ERI1(IBUF)+ERI2(IBUF))
                       IF(ITABS.EQ.IUABS) A=0.5D0*A
@@ -631,6 +649,7 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                         WORK(LWP-1+IWP)=SQI2*A
                       END IF
  600                CONTINUE
+ 611              CONTINUE
  610            CONTINUE
  620          CONTINUE
  630        CONTINUE
@@ -705,12 +724,12 @@ C With new normalisation, divide by /SQRT(2+2*Kron(ab))
 C   WM(t,i,ab)=3*(W(t,i,a,b)-W(t,i,b,a))
 C With new normalisation, divide by /SQRT(6)
           DO 730 ISYMA=1,NSYM
-            DO 730 ISYMB=1,ISYMA
+            DO 731 ISYMB=1,ISYMA
               ISYMAB=MUL(ISYMA,ISYMB)
               ISYMI=MUL(ISYMAB,ISYM)
-              DO 730 IT=1,NASH(ISYM)
+              DO 732 IT=1,NASH(ISYM)
                 ITTOT=IT+NISH(ISYM)
-                DO 730 II=1,NISH(ISYMI)
+                DO 733 II=1,NISH(ISYMI)
                   CALL EXCH(ISYMA,ISYM ,ISYMB,ISYMI,
      &                      ITTOT,II,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYM ,
@@ -740,6 +759,9 @@ C With new normalisation, divide by /SQRT(6)
                       END IF
  710                CONTINUE
  720              CONTINUE
+ 733            CONTINUE
+ 732          CONTINUE
+ 731        CONTINUE
  730      CONTINUE
 C   Put WP and WM on disk.
           ICASE=10
@@ -806,12 +828,12 @@ C With new norm., divide by /SQRT(12)
                   IF(IIABS.LT.IJABS) GOTO 820
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYMJ,II,IJ,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMJ,ISYMB,ISYMI,IJ,II,ERI2,SCR)
-                  DO 810 IA=1,NSSH(ISYMA)
+                  DO 811 IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
                     DO 800 IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 810
+                      IF(IAABS.LT.IBABS) GOTO 811
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       IVAP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
@@ -837,6 +859,7 @@ C With new norm., divide by /SQRT(12)
                         END IF
                       END IF
  800                CONTINUE
+ 811              CONTINUE
  810            CONTINUE
  820          CONTINUE
  830        CONTINUE

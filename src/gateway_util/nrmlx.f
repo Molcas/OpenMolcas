@@ -31,15 +31,13 @@
       Real*8 Exp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1),
      &       Scrt2(nScrt2)
 #include "real.fh"
-#include "print.fh"
 *
-      iRout = 24
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' In Nrmlz: iAng=',iAng
-         Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
-         Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
-      End If
+!#define _DEBUG_
+#ifdef _DEBUG_
+      Write (6,*) ' In Nrmlz: iAng=',iAng
+      Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
+      Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
+#endif
 *
 *     Normalize the coefficients (only radial normalization)
 *
@@ -58,31 +56,29 @@
  210        Continue
             Scrt1(nPrim*(iExp-1)+iExp)=One
  200     Continue
-*     Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
 *     Contract right side
       Call DGEMM_('N','N',
      &            nPrim,nCntrc,nPrim,
      &            1.0d0,Scrt1,nPrim,
      &            Coeff,nPrim,
      &            0.0d0,Scrt2,nPrim)
-*     Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
+#ifdef _DEBUG_
+      Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
+      Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
+#endif
 *     Compute the overlap for each contracted basis function, <i|i>
       Call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
 *     Normalize coefficients, i.e. combine the normalization factor
 *     of the primitive and the overlap of the unnormalized contracted
 *     basis function.
-      Do 300 i = 1, nCntrc
+      Do i = 1, nCntrc
          Tmp = 1/Sqrt(Scrt1(i))
-*        Tmp = Scrt1(i)**(-Half)
          Call DScal_(nPrim,Tmp,Coeff(1,i),1)
-*        Do 310 j = 1, nPrim
-*           Coeff(j,i) = Coeff(j,i) * Tmp *
-*    &                (Four*Exp(j))**((Two*iAng+Three)/Four)
-*310     Continue
- 300  Continue
-      If (iPrint.ge.99)
-     &   Call Recprt(' In Nrmlz: Normalized coefficients',' ',
-     &               Coeff,nPrim,nCntrc)
+      End Do
+#ifdef _DEBUG_
+      Call Recprt(' In Nrmlz: Normalized coefficients',' ',
+     &            Coeff,nPrim,nCntrc)
+#endif
 *
       Return
       End

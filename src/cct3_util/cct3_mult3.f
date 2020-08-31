@@ -218,14 +218,14 @@ c
        ix=1
        do 100 sa1=1,nsym
 c
-       do 100 sa2=1,nsym
+       do 101 sa2=1,nsym
        sa12=mmul(sa1,sa2)
        sb1=sa2
 c
        sa3=mmul(ssa,sa12)
        if ((ntest1.eq.1).and.(sa2.lt.sa3)) then
 c     Meggie out
-       goto 100
+       goto 101
        end if
        sb2=sa3
        sb12=mmul(sb1,sb2)
@@ -242,7 +242,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 101
        end if
 c
 c     rowA
@@ -270,6 +270,7 @@ c
 c
        ix=ix+1
 c
+ 101    continue
  100    continue
 c
        else if (pbar.eq.2) then
@@ -569,7 +570,7 @@ c
        sa2=mmul(ssa,sa1)
        sb1=sa2
 c
-       do 100 sb2=1,nsym
+       do 101 sb2=1,nsym
        sb12=mmul(sb1,sb2)
        if (ntest1.eq.1) then
        nsymb3=sb2
@@ -577,13 +578,13 @@ c
        nsymb3=nsym
        end if
 c
-       do 100 sb3=1,nsymb3
+       do 102 sb3=1,nsymb3
        sb123=mmul(sb12,sb3)
 c
        sb4=mmul(ssb,sb123)
        if ((ntest2.eq.1).and.(sb3.lt.sb4)) then
 c     Meggie out
-       goto 100
+       goto 102
        end if
 c
 c1.3  def mvec,mapdc and mapdi
@@ -596,7 +597,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 102
        end if
 c
 c     rowA
@@ -627,6 +628,8 @@ c
 c
        ix=ix+1
 c
+ 102    continue
+ 101    continue
  100    continue
 c
 c
@@ -692,13 +695,13 @@ c
        sa2=mmul(ssa,sa1)
        sb1=sa2
 c
-       do 100 sb2=1,nsym
+       do 101 sb2=1,nsym
        sb12=mmul(sb1,sb2)
 c
        sb3=mmul(ssb,sb12)
        if ((ntest1.eq.1).and.(sb2.lt.sb3)) then
 c     Meggie out
-       goto 100
+       goto 101
        end if
 c
 c1.3  def mvec,mapdc and mapdi
@@ -711,7 +714,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 101
        end if
 c
 c     rowA
@@ -739,6 +742,7 @@ c
 c
        ix=ix+1
 c
+ 101    continue
  100    continue
 c
 c

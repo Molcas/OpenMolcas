@@ -21,10 +21,12 @@ NoCD
 
 >>>>>>>>>>>>>>>>>>> DO while <<<<<<<<<<<<<<<<<<<<
 &SEWARD
-&SCF ; KSDFT=B3LYP
-&ALASKA 
-&SLAPAF ; Numerical Hessian
->>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+&SCF
+KSDFT=B3LYP
+&ALASKA
+&SLAPAF
+Numerical Hessian
+>>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 *-------------------------------------------------------------------------------
 
 >>FILE checkfile

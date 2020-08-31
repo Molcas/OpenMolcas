@@ -8,16 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_RI_2(iCmp,iShell,MapOrg,
+      SubRoutine Integral_RI_2(iCmp,iShell,MapOrg,IndShlV,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,FacInt,itOffs,nSym,
-     &                         nShi,nShj,nShk,nShl,
-     &                         nShOffi,nShOffj,nShOffk,nShOffl,
      &                         Dens,Fock,LDens,ExFac,NDens,
      &                         ind,nind,FckNoClmb,FckNoExch)
+      use Wrj12
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -25,26 +24,23 @@
 *
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
-#include "wrj12.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4),
+      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7)
+     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
       If (Petite) Then
         Call PLF_RI_2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                iBas,jBas,kBas,lBas,kOp,TInt,nTInt,
-     &                iWork(ipSO2Ind),iOffA,nSOs)
+     &                SO2Ind,iOffA,nSOs)
       Else
-        Call IndSft_RI_2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+        Call IndSft_RI_2(iCmp,iShell,IndShlV,
+     &                   iBas,jBas,kBas,lBas,Shijij,
      &                   iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
-     &                   TInt,nTInt,iTOffs,iWork(ipSO2Ind),iOffA)
+     &                   TInt,nTInt,iTOffs,SO2Ind,iOffA)
       End If
 *
       Return
@@ -53,14 +49,6 @@ c Avoid unused argument warnings
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)
-         Call Unused_integer_array(nShi)
-         Call Unused_integer_array(nShj)
-         Call Unused_integer_array(nShk)
-         Call Unused_integer_array(nShl)
-         Call Unused_integer_array(nShOffi)
-         Call Unused_integer_array(nShOffj)
-         Call Unused_integer_array(nShOffk)
-         Call Unused_integer_array(nShOffl)
          Call Unused_real(Dens)
          Call Unused_real(Fock)
          Call Unused_integer(LDens)

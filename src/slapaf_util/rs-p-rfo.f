@@ -12,7 +12,8 @@
 * Copyright (C) 1994,1997, Roland Lindh                                *
 *               2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine RS_P_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
+      Subroutine RS_P_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,
+     &                    Step_Trunc)
 ************************************************************************
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *

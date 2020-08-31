@@ -31,17 +31,19 @@
 &GATEWAY
 Title
  Durene molecule
-Coord=Durene.xyz; basis = STO-3G; group = C1
+Coord=Durene.xyz
+basis = STO-3G
+group = C1
 NoCD
 End of Input
 
-&SEWARD 
+&SEWARD
 End of Input
 
 >> COPY StartOrb INPORB
 
 &RASSCF
-LUMORB 
+LUMORB
 End of Input
 
 ****

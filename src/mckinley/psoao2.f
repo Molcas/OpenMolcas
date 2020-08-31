@@ -13,7 +13,7 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine PSOAO2(nSO,MemPrm,MemM,
-     &                            iAnga, iCmpa, iShela, iFnc,
+     &                            iAnga, iCmpa, IndShl, iFnc,
      &                            iBas,  iBsInc, jBas,  jBsInc,
      &                            kBas,  kBsInc, lBas,  lBsInc,
      &                            iPrim, iPrInc, jPrim, jPrInc,
@@ -90,17 +90,16 @@
 *|      |               |       |integrals      |               |          |
 *---------------------------------------------------------------------------
 *
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-c#include "print.fh"
 #include "pstat.fh"
-#include "pso.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
-      Integer iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4), iShela(4),
+      Integer iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4), IndShl(4),
      &        iFnc(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
       Integer iTwoj(0:7),iMemB
@@ -219,7 +218,7 @@ c     Call qEnter('PSOAO2')
             nTmp1= 0
             Do 10 j = 0, nIrrep-1
                Do 11 i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
+                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &                iTwoj(j)).ne.0) Then
                       nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                       nTmp1= nTmp1+ iiBas(jPam)

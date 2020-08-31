@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet4(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet4(iCmp,IndShl,iBas,jBas,kBas,lBas,
      &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,DSO,nDSO,
      &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
@@ -32,19 +32,19 @@
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer nPam(4,0:7), iPam(n1+n2+n3+n4), iiBas(4),
-     &          iCmp(4), iShell(4), iAO(4),
-     &          iAOst(4), MapPam(4,mDim)
+      Integer nPam(4,0:7), iiBas(4), IndShl(4),
+     &          iCmp(4), iAO(4), iAOst(4)
+      Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -74,7 +74,7 @@
          in2 = 0
          Do 10 j = 0, nIrrep-1
             Do 11 i1 = 1, iCmp(jPam)
-               If (iAnd(IrrCmp(IndS(iShell(jPam))+i1),
+               If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &             iTwoj(j)).ne.0) Then
                    iSO = iAOtSO(iAO(jPam)+i1,j)
      &                 + iAOst(jPam)
@@ -82,8 +82,8 @@
                    Do 12 iAOi = 0, iiBas(jPam)-1
                       iSOi = iSO + iAOi
                       in2 = in2 + 1
-                      iPam(in1+in2) = iSOi
-                      MapPam(jPam,iSOi+iOffSO(j)) = in2
+                      iPam(in1+in2) = DBLE(iSOi)
+                      MapPam(jPam,iSOi+iOffSO(j)) = DBLE(in2)
  12                Continue
                End If
  11         Continue
@@ -104,14 +104,13 @@
 !        write(*,*)i,"V-ipG2",Work(ipG2+i-1)
 !      end do
 
-      Call PTrans_sa(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DSO,PSOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
      &            nScr1)
       Else
-!      write(*,*)"or this ??? in pget4"  !yma
-      Call PTrans(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DSO,PSOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+      Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
 *
@@ -125,7 +124,7 @@
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(1))+i1),
+            If (iAnd(IrrCmp(IndShl(1)+i1),
      &          iTwoj(j)).ne.0) Then
                iSym(niSym) = j
                niSym = niSym + 1
@@ -134,7 +133,7 @@
          Do 200 i2 = 1, iCmp(2)
             njSym = 0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+               If (iAnd(IrrCmp(IndShl(2)+i2),
      &             iTwoj(j)).ne.0) Then
                   jSym(njSym) = j
                   njSym = njSym + 1
@@ -143,7 +142,7 @@
             Do 300 i3 = 1, iCmp(3)
                nkSym = 0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(3))+i3),
+                  If (iAnd(IrrCmp(IndShl(3)+i3),
      &                iTwoj(j)).ne.0) Then
                      kSym(nkSym) = j
                      nkSym = nkSym + 1
@@ -152,7 +151,7 @@
                Do 400 i4 = 1, iCmp(4)
                   nlSym = 0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+                     If (iAnd(IrrCmp(IndShl(4)+i4),
      &                   iTwoj(j)).ne.0) Then
                         lSym(nlSym) = j
                         nlSym = nlSym + 1
@@ -188,17 +187,17 @@
                 nijkl = 0
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
-                   k4 = MapPam(4,lSOl)
+                   k4 = INT(MapPam(4,lSOl))
                    Do 220 kAOk = 0, kBas-1
                       kSOk = kSO + kAOk
-                      k3 = MapPam(3,kSOk)
+                      k3 = INT(MapPam(3,kSOk))
                       Do 320 jAOj = 0, jBas-1
                          jSOj = jSO + jAOj
-                         k2 = MapPam(2,jSOj)
+                         k2 = INT(MapPam(2,jSOj))
                          Do 420 iAOi = 0, iBas-1
                             iSOi = iSO + iAOi
                             nijkl = nijkl + 1
-                            k1 = MapPam(1,iSOi)
+                            k1 = INT(MapPam(1,iSOi))
 *
 *---------------------------Pick up the contribution.
 *

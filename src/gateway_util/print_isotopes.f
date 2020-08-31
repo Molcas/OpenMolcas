@@ -12,6 +12,7 @@
 ************************************************************************
       SubRoutine Print_Isotopes()
       use Period
+      use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -33,7 +34,7 @@
 *
       Changed = .False.
       Do i=1,nCnttp
-        If (AuxCnttp(i).or.FragCnttp(i)) Cycle
+        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
         iAtom=iAtmNr(i)
         If (CntMass(i).ne.rMass(iAtom)) Then
           Changed = .True.
@@ -58,7 +59,7 @@
         Write(LuWr,10) '--------------------------'
       End If
       Do i=1,nCnttp
-        If (AuxCnttp(i).or.FragCnttp(i)) Cycle
+        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
         iAtom=iAtmNr(i)
         act_Mass=CntMass(i)/UToAU
         def_Mass=rmass(iAtom)/UToAU

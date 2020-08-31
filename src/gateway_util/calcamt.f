@@ -8,27 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CalcAMt (iOpt,LUQRP,MPLbl,
-     &                    lMax,iSRShll,ipAkl,ip_Occ,
-     &                    nProj,iCoShll,
-     &                    ipExp,ipCff,nExp,nBasis,MxShll,
-     &                    rcharge,DInf,nDInf)
-C
-C...       calculates the non-diagonal spectral representation
-C          A matrix for an atom. Note that its signs is shuch
-C          that the spectral representation must be ADDED to the
-C          one-electron hamiltonian.
-C
-C     Internal matrices fixed the maximum number of primitives
-C     per symmetry to 'maxprim'
-C
+      Subroutine CalcAMt (iOpt,LUQRP,MPLbl,lMax,iSRShll,
+     &                    nProj,iCoShll,rcharge)
+************************************************************************
+*                                                                      *
+*...       calculates the non-diagonal spectral representation         *
+*          A matrix for an atom. Note that its signs is such           *
+*          that the spectral representation must be ADDED to the       *
+*          one-electron hamiltonian.                                   *
+*                                                                      *
+*     Internal matrices fixed the maximum number of primitives         *
+*     per symmetry to 'maxprim'                                        *
+*                                                                      *
+************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Agin, Ovlmp, Vexch, Vqr
 #include "relmp.fh"
-      Real*8 DInf(nDInf)
+#include "stdalloc.fh"
       Character*20 MPLbl
-      Integer ipExp(MxShll), ipCff(MxShll), ipAkl(MxShll),
-     &           nExp(MxShll), nBasis(MxShll),  ip_Occ(MxShll)
 
 C...  working variables (change this)
       Parameter (maxprim=40)
@@ -59,7 +57,7 @@ c
 c     calculate relativistic integrals if needed
       lpq=0
       do i=1,lmax+1
-         nnexp=nexp(isrshll+i-1)
+         nnexp=Shells(isrshll+i-1)%nExp
          lpq=lpq+nnexp*(nnexp+1)/2
       enddo
       if(4*lpq.gt.Nrel) then
@@ -67,25 +65,20 @@ c     calculate relativistic integrals if needed
          write(6,*) ' The dimension of rel must somehow be increased.'
          Call Abend
       endif
-         if(iprint.ge.10) then
-            lpq=0
-            write(6,*) ' basis:', (nexp(isrshll+i-1),i=1,lmax+1)
-            nbias=ipExp(isrshll)-1
-            do i=1,lmax+1
-              nnexp=nexp(isrshll+i-1)
-              write(6,*) ' number of exponents', nnexp
-              write(6,*) ' exponents, symmetry', i
-              nbias=ipexp(isrshll+i-1)-1
-              do j=1,nnexp
-                 nbias=nbias+1
-                 write(6,*) DInf(nbias)
-              enddo
-            lpq=lpq+nnexp*(nnexp+1)/2
-            enddo
-      endif
+#ifdef _DEBUG_
+      write(6,*) ' basis:', (Shells(isrshll+i-1)%nExp,i=1,lmax+1)
+      do i=1,lmax+1
+         nnExp=Shells(isrshll+i-1)%nExp
+         write(6,*) ' number of exponents', nnExp
+         write(6,*) ' exponents, symmetry', i
+         do j=1,nnExp
+            write(6,*) Shells(iSRShll+i-1)%Exp(j)
+         enddo
+      enddo
+#endif
       Do 1000 lP1=1,lMax+1
         iSRSh=iSRShll+lP1-1
-        nP=nExp(iSRSh)
+        nP=Shells(iSRSh)%nExp
         If (np.gt.maxprim) Then
           Write (6,*) 'CalcAMt: np.gt.maxprim',np,maxprim
           Write (6,*) 'Abend: Increase MaxPrim !'
@@ -99,7 +92,7 @@ C
         If (iAnd(iOpt,iMVPot).ne.0 .and.
      &      iAnd(iOpt,iDWPot).ne.0 ) Then
 C...      Mass-velocity and/or Darwin potentials
-          Call Vqr(LUQRP,MPLbl,lP1,DInf(ipExp(iSRSh)),nP,rel)
+          Call Vqr(LUQRP,MPLbl,lP1,Shells(iSRSh)%Exp,nP,rel)
         Else If ((iAnd(iOpt,iMVPot).ne.0 .and.
      &            iAnd(iOpt,iDWPot).eq.0 ) .or.
      &           (iAnd(iOpt,iMVPot).eq.0 .and.
@@ -110,10 +103,10 @@ C...      Mass-velocity and/or Darwin potentials
         Endif
 C
       If (iAnd(iOpt,iNPPot).ne.0) then   ! Zero
-         call oeisg(rel,srel,trel,urel,DInf(ipExp(iSRSh)),
-     &   rCharge,mx100,lp1,nExp(iSRSh),unrel,tnrel,hcorr,iprint,
+         call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,
+     &   rCharge,mx100,lp1,Shells(iSRSh)%nExp,unrel,tnrel,hcorr,iprint,
      &   VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
-         nmat=(nExp(iSRSh)*(nExp(iSRSh)+1))/2
+         nmat=(Shells(iSRSh)%nExp*(Shells(iSRSh)%nExp+1))/2
          if(iprint.ge.10) then
             write(6,*) ' relativistic integrals'
             write(6,12) (hcorr(i),i=1,nmat)
@@ -125,19 +118,17 @@ C
 C...    Overlap and, if neccesary, exchange.
         IJ=0
         DO 101 I=1,NP
-          ZI=DInf(ipExp(iSRSh)+I-1)
+          ZI=Shells(iSRSh)%Exp(I)
           DO 102 J=1,I
             IJ=IJ+1
-            ZJ=DInf(ipExp(iSRSh)+J-1)
+            ZJ=Shells(iSRSh)%Exp(J)
             COREK(I,J,1)=rel(ij)
             If (iAnd(iOpt,iNPPot).ne.0) Then
                corek(i,j,2)=hcorr(ij)
             End If
             If (iAnd(iOpt,iExch).ne.0) Then
 C...          minus exchange potential
-              AuxLs=VExch(ZI,N,ZJ,N,LAM,
-     &                    ipExp,ipCff,nExp,nBasis,MxShll,
-     &                    nProj,iCoShll, ip_Occ,DInf,nDInf)
+              AuxLs=VExch(ZI,N,ZJ,N,LAM,nProj,iCoShll)
               COREK(I,J,1)=COREK(I,J,1)-AuxLs
             ENDIF
             OVL(I,J)=OVLMP(N,ZI,N,ZJ)
@@ -149,36 +140,38 @@ C...          minus exchange potential
 C
         CALL MATINV (OVL,rel,NP,0,maxprim)
 C
-        IJAM0=ipAkl(iSRSh)-1
         PreFac = sqrt((2D0/PI)**3) * 4D0**(lP1-1)
 *
-        Do iq = 1, 2
-        DO 201 I=1,NP
-          ZI=DInf(ipExp(iSRSh)+I-1)
-          DO 204 L=1,NP
-          rel(L)=0.D0
-            DO 203 K=1,NP
-              rel(L)=rel(L)+OVL(I,K)*COREK(K,L,iq)
-203         CONTINUE
-204       CONTINUE
-          DO 202 J=1,I
-            ZJ=DInf(ipExp(iSRSh)+J-1)
-            ADUM=0.D0
-            DO 214 L=1,NP
-              ADUM=ADUM+rel(L)*OVL(L,J)
-214         CONTINUE
-*           in MOLCAS3:X1
-*           multiply by the (radial) normalization constants
-*           of the primitives i and j, so that the spectral
-*           representation coeffients correspond to the
-*           (radially) unnormalized primitives.
-            ADUM=ADUM*PreFac*sqrt(sqrt( (ZI*ZJ)**(3+2*(lP1-1)) ))
-            DInf(IJAM0+(J-1)*NP+I)=ADUM
-            DInf(IJAM0+(I-1)*NP+J)=ADUM
-202       CONTINUE
-201     CONTINUE
-        IJAM0=IJAM0+NP**2
-        End Do
+        Call mma_Allocate(Shells(ISRSh)%Akl,NP,NP,2,Label='Akl')
+        Shells(ISRSh)%nAkl=NP
+        DO iq = 1, 2
+           DO I=1,NP
+              ZI=Shells(iSRSh)%Exp(I)
+              DO L=1,NP
+                 rel(L)=0.D0
+                 DO K=1,NP
+                    rel(L)=rel(L)+OVL(I,K)*COREK(K,L,iq)
+                 END DO
+              END DO
+              DO J=1,I
+                 ZJ=Shells(iSRSh)%Exp(J)
+                 ADUM=0.D0
+                 DO L=1,NP
+                    ADUM=ADUM+rel(L)*OVL(L,J)
+                 END DO
+*                in MOLCAS3:X1
+*                multiply by the (radial) normalization constants
+*                of the primitives i and j, so that the spectral
+*                representation coeffients correspond to the
+*                (radially) unnormalized primitives.
+                 ADUM=ADUM*PreFac*sqrt(sqrt( (ZI*ZJ)**(3+2*(lP1-1)) ))
+                 Shells(iSRSh)%Akl(I,J,iq)=ADUM
+                 Shells(iSRSh)%Akl(J,I,iq)=ADUM
+              END DO
+           END DO
+           IJAM0=IJAM0+NP**2
+        END DO
+*
 1000  CONTINUE
       Call qExit('CalcAMt')
       RETURN

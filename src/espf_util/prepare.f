@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 *
 *     Some stuff for preparing the gradient integral computation
@@ -25,7 +26,7 @@
       LuWr=6
       DoRys = .True.
       nDiff = 3
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 *
 *     Copy the grid coordinates and weights in ONE array
 *     This is the only solution I found to pass info trough oneel_g !
@@ -39,10 +40,9 @@
 *
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
- 999  Continue
 *
 *---- Compute number of centers and displacements. Ignore pseudo centers.
 *     If any pseudo centers disable use of translational and rotational
@@ -52,10 +52,10 @@
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
          If (pChrg(iCnttp)) Then
-             mdc = mdc + nCntr(iCnttp)
+             mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
          End If
-         Do 20 iCnt = 1, nCntr(iCnttp)
+         Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
  20      Continue
@@ -82,7 +82,7 @@
          mc = 1
          Do iCnttp = 1, nCnttp_Valence
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components

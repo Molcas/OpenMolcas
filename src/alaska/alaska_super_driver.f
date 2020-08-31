@@ -99,7 +99,12 @@
 *
          If( (Method .eq. 'KS-DFT  ') .or.
      &       (Method .eq. 'UHF-SCF ') .or.
-     &       (Method .eq. 'RHF-SCF ') ) Then
+     &       (Method .eq. 'RHF-SCF ') .or.
+     &       (Method .eq. 'CASSCF  ') .or.
+     &       (Method .eq. 'RASSCF  ') .or.
+     &       (Method .eq. 'GASSCF  ') .or.
+     &       (Method .eq. 'DMRGSCF ') .or.
+     &       (Method .eq. 'CASSCFSA') ) Then
             Do_Numerical_Cholesky= .False.
      &
          Else If(Method.eq.'MBPT2   ' .and.nSym.eq.1) Then
@@ -119,7 +124,7 @@
       if(Method .eq. 'DMRGSCFS')then
         Call Get_iScalar('SA ready',iGo)
       end if
-*                                                                      *
+*
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
@@ -313,7 +318,7 @@
             Call Finish(_RC_INVOKED_OTHER_MODULE_)
 *
            End If
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Method.eq.'MCPDFT') Then
@@ -484,7 +489,6 @@
 *                                                                      *
 *        Read the root, as it could be a CASSCF state-specific excited
 *        state calculation
-
 *
          iRlxRoot=0
          Call Qpg_iScalar('Relax CASSCF root',Exist)

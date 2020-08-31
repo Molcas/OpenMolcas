@@ -39,87 +39,87 @@ c constants defining the sizes
       Logical, intent(in)       :: smagn
       Logical, intent(in)       :: doplot
 
-      Real(kind=wp), intent(in) :: R_ROT(nneq,neqv,3,3)
-      Real(kind=wp), intent(in) :: W(exch)
+      Real(kind=8), intent(in) :: R_ROT(nneq,neqv,3,3)
+      Real(kind=8), intent(in) :: W(exch)
 ! exchange energies printed out in the previous part
-      Real(kind=wp), intent(in) :: ESO(nneq,nLoc)
+      Real(kind=8), intent(in) :: ESO(nneq,nLoc)
 ! spin-orbit energies from ANISO files
-      Real(kind=wp), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
-      Real(kind=wp), intent(in) :: thrs
-      Real(kind=wp), intent(in) :: XLM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(in) :: ZLM( nCenter,nTempMagn)
-      Real(kind=wp), intent(in) :: XRM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(in) :: ZRM( nCenter,nTempMagn)
-      Real(kind=wp), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp), intent(in) :: dir_weight(nDirZee,3)
-      Real(kind=wp), intent(in) :: TempMagn(nTempMagn)
-      Real(kind=wp), intent(in) :: zJ, hmin, hmax, em
+      Real(kind=8), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
+      Real(kind=8), intent(in) :: thrs
+      Real(kind=8), intent(in) :: XLM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(in) :: ZLM( nCenter,nTempMagn)
+      Real(kind=8), intent(in) :: XRM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(in) :: ZRM( nCenter,nTempMagn)
+      Real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8), intent(in) :: dir_weight(nDirZee,3)
+      Real(kind=8), intent(in) :: TempMagn(nTempMagn)
+      Real(kind=8), intent(in) :: zJ, hmin, hmax, em
 
-      Complex(kind=wp), intent(in) :: DIPEXCH(3,exch,exch)
-      Complex(kind=wp), intent(in) ::  S_EXCH(3,exch,exch)
-      Complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-      Complex(kind=wp), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) :: DIPEXCH(3,exch,exch)
+      Complex(kind=8), intent(in) ::  S_EXCH(3,exch,exch)
+      Complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
 c exchange data:
 c      Integer NM ! number of states included in the exchange Zeeman matrix, ( Nex .LE. exch)
-      Real(kind=wp), allocatable :: Wex(:)
+      Real(kind=8), allocatable :: Wex(:)
 !                                   WEX(NM) ! Zeeman exchange energies
-      Real(kind=wp), allocatable :: Zex(:)
+      Real(kind=8), allocatable :: Zex(:)
 !                                   ZEX(nTempMagn) ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: Sex(:,:)
+      Real(kind=8), allocatable :: Sex(:,:)
 !                                   SEX(3,nTempMagn) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: Mex(:,:)
+      Real(kind=8), allocatable :: Mex(:,:)
 !                                   MEX(3,nTempMagn) ! magnetisation, from the exchange block
 c data for individual sites (all states):
-      Real(kind=wp), allocatable :: ZL(:,:)
+      Real(kind=8), allocatable :: ZL(:,:)
 !                                   ZL(nneq,nTempMagn) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: WL(:,:)
+      Real(kind=8), allocatable :: WL(:,:)
 !                                   WL(nneq,nLoc) ! Zeeman local energis
-      Real(kind=wp), allocatable :: SL(:,:,:)
+      Real(kind=8), allocatable :: SL(:,:,:)
 !                                   SL(nneq,3,nTempMagn) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: ML(:,:,:)
+      Real(kind=8), allocatable :: ML(:,:,:)
 !                                   ML(nneq,3,nTempMagn) ! magnetisation, from local sites, using ALL states;
 c data for individual sites (only states that enter exchange):
-      Real(kind=wp), allocatable :: ZR(:,:)
+      Real(kind=8), allocatable :: ZR(:,:)
 !                                   ZR(nneq,nTempMagn) ! local statistical sum, Boltzmann distribution, using only Nexch states
-      Real(kind=wp), allocatable :: WR(:,:)
+      Real(kind=8), allocatable :: WR(:,:)
 !                                   WR(nneq,nLoc) ! Zeeman local reduced energies, using only Nexch states;
-      Real(kind=wp), allocatable :: SR(:,:,:)
+      Real(kind=8), allocatable :: SR(:,:,:)
 !                                   SR(nneq,3,nTempMagn) ! spin magnetisation, from the local sites, using only Nexch states ;
-      Real(kind=wp), allocatable :: MR(:,:,:)
+      Real(kind=8), allocatable :: MR(:,:,:)
 !                                   MR(nneq,3,nTempMagn) ! magnetisation, from local sites, using only Nexch states;
 c total vectors in general coordinate system:
-      Real(kind=wp), allocatable :: ZRT(:,:)  !ZRT(nCenter,nTempMagn)
-      Real(kind=wp), allocatable :: ZLT(:,:)  !ZLT(nCenter,nTempMagn)
-      Real(kind=wp), allocatable :: MRT(:,:,:)!MRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: MLT(:,:,:)!MLT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SRT(:,:,:)!SRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SLT(:,:,:)!SLT(nCenter,3,nTempMagn)
+      Real(kind=8), allocatable :: ZRT(:,:)  !ZRT(nCenter,nTempMagn)
+      Real(kind=8), allocatable :: ZLT(:,:)  !ZLT(nCenter,nTempMagn)
+      Real(kind=8), allocatable :: MRT(:,:,:)!MRT(nCenter,3,nTempMagn)
+      Real(kind=8), allocatable :: MLT(:,:,:)!MLT(nCenter,3,nTempMagn)
+      Real(kind=8), allocatable :: SRT(:,:,:)!SRT(nCenter,3,nTempMagn)
+      Real(kind=8), allocatable :: SLT(:,:,:)!SLT(nCenter,3,nTempMagn)
 c data for total system:
-      Real(kind=wp), allocatable :: ZT(:,:)
+      Real(kind=8), allocatable :: ZT(:,:)
 !                                   ZT(nH,nTempMagn) ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:,:,:)
+      Real(kind=8), allocatable :: ST(:,:,:)
 !                                   ST(3,nH,nTempMagn) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT(:,:,:)
+      Real(kind=8), allocatable :: MT(:,:,:)
 !                                   MT(3,nH,nTempMagn) ! total magnetisation
 c magnetic field strength and orientation data:
-      Real(kind=wp) :: dltH
-      Real(kind=wp), allocatable :: H(:) ! H(nH)
-      Real(kind=wp), allocatable :: dHX(:) !dHX(nDirTot)
-      Real(kind=wp), allocatable :: dHY(:) !dHY(nDirTot)
-      Real(kind=wp), allocatable :: dHZ(:) !dHZ(nDirTot)
-      Real(kind=wp), allocatable :: dHW(:) !dHW(nDirTot)
+      Real(kind=8) :: dltH
+      Real(kind=8), allocatable :: H(:) ! H(nH)
+      Real(kind=8), allocatable :: dHX(:) !dHX(nDirTot)
+      Real(kind=8), allocatable :: dHY(:) !dHY(nDirTot)
+      Real(kind=8), allocatable :: dHZ(:) !dHZ(nDirTot)
+      Real(kind=8), allocatable :: dHW(:) !dHW(nDirTot)
 c total average M and average S data:
-      Real(kind=wp), allocatable :: MAV(:,:)      !MAV(nH,nTempMagn)
-      Real(kind=wp), allocatable :: SAV(:,:)      !SAV(nH,nTempMagn)
-      Real(kind=wp), allocatable :: MVEC(:,:,:,:)
+      Real(kind=8), allocatable :: MAV(:,:)      !MAV(nH,nTempMagn)
+      Real(kind=8), allocatable :: SAV(:,:)      !SAV(nH,nTempMagn)
+      Real(kind=8), allocatable :: MVEC(:,:,:,:)
 !MVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=wp), allocatable :: SVEC(:,:,:,:)
+      Real(kind=8), allocatable :: SVEC(:,:,:,:)
 !SVEC(nDirTot,nH,nTempMagn,3)
 
       Integer                   :: IM,I,it,itEnd,J,iH,k,isite,l,n,nP
       Integer                   :: iDir,rtob,ibuf,mem_local
-      Real(kind=wp)             :: cm3tomB
-      Real(kind=wp)             :: dev, dnrm2_
+      Real(kind=8)             :: cm3tomB
+      Real(kind=8)             :: dev, dnrm2_
       External                  :: dev, dnrm2_
       Logical          :: DBG
       Character(15)    :: lbl_X, lbl_Y, lbl_Z

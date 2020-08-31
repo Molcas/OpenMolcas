@@ -106,17 +106,20 @@ c  Add "report" :
 
           iopt2step(0)=0
           do 100 i=1,noptim
-100       iopt2step(i)=1
+          iopt2step(i)=1
+100       continue
           iopt2step(noptim+1)=noptstep+1
         else
           noptim=noptstep
           call izero(ioptcode,noptim)
           do 200 i=0,noptim
-200       iopt2step(i)=i
+          iopt2step(i)=i
+200       continue
 c  Append OPTIM keyword if none present
           noptkw=0
           do 300 lll=1,loopstepmx
-300       if(icode(lll).eq.1)noptkw=noptkw+1
+          if(icode(lll).eq.1)noptkw=noptkw+1
+300       continue
           if(noptkw.eq.0)then
             noptim=noptim+1
             ioptcode(noptim)=2
@@ -125,7 +128,8 @@ c  Append OPTIM keyword if none present
 c  Append REPORT keyword if none present
           nrepkw=0
           do 400 lll=1,loopstepmx
-400       if(icode(lll).eq.3)nrepkw=nrepkw+1
+          if(icode(lll).eq.3)nrepkw=nrepkw+1
+400       continue
           if(nrepkw.eq.0)then
             noptim=noptim+1
             ioptcode(noptim)=1
@@ -262,7 +266,8 @@ c  Next loop iteration :
           endif
         endif
       endif
-100   if(icode(ll).eq.1.or.icode(ll).eq.3)joptstep=joptstep+1
+      if(icode(ll).eq.1.or.icode(ll).eq.3)joptstep=joptstep+1
+100   continue
       ioptstep=noptstep+1
 
 1000  continue

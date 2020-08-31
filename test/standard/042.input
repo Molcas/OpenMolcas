@@ -9,6 +9,7 @@
 * for the verification checks to be satisfied, when run in parallel:
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
+>export MOLCAS_REDUCE_PRT=NO
 >export MOLCAS_THR=2
  &SEWARD  &END
 Title
@@ -49,7 +50,7 @@ nActEl
  2 0 0
 Inactive
   21 20  3  3
-Ras2    
+Ras2
    0  0  1  1
 ChoInput
 NoLK

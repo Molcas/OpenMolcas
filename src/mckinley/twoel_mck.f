@@ -12,7 +12,7 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine TwoEl_mck(Coor,
-     &     iAngV,iCmp,iShell,iShll,iAO,iAOst,
+     &     iAngV,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &     iStb,jStb,kStb,lStb,nRys,
      &     Data1,nab,nData1,Data2,ncd,nData2,Pren,Prem,
      &     Alpha,nAlpha,iPrInc, Beta, nBeta,jPrInc,
@@ -117,6 +117,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
 #include "ndarray.fh"
@@ -151,7 +152,7 @@
 *
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &     iStabM(0:7),  IndGrd(3,4,0:7), iAO(4),
-     &     iCmp(4), iShell(4), iShll(4),
+     &     iCmp(4), iShell(4), iShll(4), IndShl(4),
      &     nOp(4), iAngV(4), iAOst(4),
      &     JndGrd(3,4,0:7),icmpi(4),
      &     IndZet(nAlpha*nBeta),Indeta(nGamma*nDelta), iuvwx(4),
@@ -392,15 +393,15 @@
                   call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
                End If
 *
-*     Calculate the desymmetrized twoelectron density matrix in
+*     Calculate the desymmetrized two-electron density matrix in
 *     cartisian AO base.
 *
                Call Timing(dum1,Time,dum2,dum3)
                If (ldot2)
      &              Call TwoDns(iAngV,iCmp,shijij,ishll,ishell,
-     &              nOp,iBasi,jBasj,kBask,lBasl,
-     &              Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
-     &              nWork4,PSO,nPSO,Fact)
+     &                   IndShl,nOp,iBasi,jBasj,kBask,lBasl,
+     &                   Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
+     &                   nWork4,PSO,nPSO,Fact)
 *
                Call Timing(dum1,Time,dum2,dum3)
                CpuStat(nTwoDens)=CpuStat(nTwoDens)+Time
@@ -602,7 +603,8 @@
                niag=nijkl*nElem(lb)*mcd*nGr
                Call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,
      &              RSph(ipSph(la)),la,
-     &              Transf(iShlla),Prjct(iShlla),
+     &              Shells(iShlla)%Transf,
+     &              Shells(iShlla)%Prjct,
      &              Work3,iCmpa)
                nw3=niag*iCmpa
                ip2=1+nw3
@@ -619,7 +621,8 @@
                End If
                Call CrSph_mck(Work3,niag,(lb+1)*(lb+2)/2,
      &              RSph(ipSph(lb)),lb,
-     &              Transf(jShllb),Prjct(jShllb),
+     &              Shells(jShllb)%Transf,
+     &              Shells(jShllb)%Prjct,
      &              Work3(ip2),jCmpb)
 *-----------------------------------------------------------------*
 *
@@ -630,7 +633,8 @@
                niag=nijkl*nGr*nElem(ld)*iCmpa*jCmpb
                Call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,
      &              RSph(ipSph(lc)),lc,
-     &              Transf(kShllc),Prjct(kShllc),
+     &              Shells(kShllc)%Transf,
+     &              Shells(kShllc)%Prjct,
      &              Work3,kCmpc)
                If (niag*kCmpc.gt.nw3) Then
                   Write (6,*) 'niag*kCmpc.gt.nw3'
@@ -651,7 +655,8 @@
                End If
                Call CrSph_mck(Work3,niag,(ld+1)*(ld+2)/2,
      &              RSph(ipSph(ld)),ld,
-     &              Transf(lShlld),Prjct(lShlld),
+     &              Shells(lShlld)%Transf,
+     &              Shells(lShlld)%Prjct,
      &              Work3(ip2),lCmpd)
 *-----------------------------------------------------------------*
 *
@@ -681,7 +686,7 @@
      &              kStb,
      &              lStb,
      &              Shijij,iAngV,iCmpi,iCmp,
-     &              iShll,iShell,iShell,
+     &              iShll,iShell,iShell,IndShl,
      &              iBasi,jBasj,kBask,lBasl,
      &              Dij1,Dij2,mDij,nDij,
      &              Dkl1,Dkl2,mDkl,nDkl,

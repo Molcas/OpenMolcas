@@ -13,8 +13,8 @@ c The following function returns the size needed by ptrans for
 c temporaries. It also puts into common some offsets and stuff.
 c -------------------------------------------------------------------
       integer function memtra(npam)
+      use pso_stuff
 #include "etwas.fh"
-#include "pso.fh"
       Integer nPam(4,0:7)
       intrinsic max
 *

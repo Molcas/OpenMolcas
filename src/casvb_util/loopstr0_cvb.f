@@ -20,6 +20,7 @@
       endif
       index=1
       do 100 iel=1,nel
-100   iocc(iel)=iel
+      iocc(iel)=iel
+100   continue
       return
       end

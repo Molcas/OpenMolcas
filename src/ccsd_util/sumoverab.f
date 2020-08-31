@@ -175,7 +175,7 @@ c
 c
 c      II   sum over ab
       DO 20 syma=1,nsym
-        DO 20 symb=1,syma
+        DO 21 symb=1,syma
         if (fullprint.ge.2) then
         write (6,*) ' SymA, SymB ',syma,symb
         end if
@@ -184,10 +184,10 @@ c      II.1   read mapdn,mapin
         CALL getmap (lunab, possn0, nlenght, mapdn, mapin, rc)
 c
 c      II.3     skip sum over a,b if N is empty
-        IF (nlenght.eq.0) GO TO 20
+        IF (nlenght.eq.0) GO TO 21
 c
 c      II.4   skip sum over a,b if # of ab is zero
-        IF ((nvb(syma)*nvb(symb)).eq.0) GO TO 20
+        IF ((nvb(syma)*nvb(symb)).eq.0) GO TO 21
 c
 c      II.5   def symmetry of N
         ssn=mmul(syma,symb)
@@ -710,6 +710,7 @@ c
         end if
  10     CONTINUE
 c
+ 21   CONTINUE
  20   CONTINUE
 c
 c      IV   close lunab

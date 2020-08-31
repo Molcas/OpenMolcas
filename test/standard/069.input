@@ -31,7 +31,6 @@ Nosym
 RICD
 
  &SEWARD
-Doana
 
 >> COPY StartOrb INPORB
 
@@ -1936,7 +1935,7 @@ LumOrb
 5 ssssssssss
 6 ssssssssss
 7 ssssssssss
-8 sss       
+8 sss
 >> EOF
 
 >>FILE checkfile

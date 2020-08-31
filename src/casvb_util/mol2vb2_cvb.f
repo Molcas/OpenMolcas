@@ -35,14 +35,16 @@ c  Now loop casvb -> molcas
 
       ioffsa=0
       do 510 is=1,isyma-1
-510   ioffsa=ioffsa+nstra(is)
+      ioffsa=ioffsa+nstra(is)
+510   continue
       ioffsb=0
       do 520 is=1,isymb-1
-520   ioffsb=ioffsb+nstrb(is)
+      ioffsb=ioffsb+nstrb(is)
+520   continue
 
       do 600 isb=1,nnsb
       indbet=indxb(isb+ioffsb)
-      do 600 isa=1,nnsa
+      do 601 isa=1,nnsa
       index=indxa(isa+ioffsa)+(indbet-1)*nda
       idet=idet+1
       if(iwr.eq.0)then
@@ -52,6 +54,7 @@ c  Now loop casvb -> molcas
       elseif(iwr.eq.2)then
         vecvb(index)=vecvb(index)+fac*vecmol(idet)
       endif
+601   continue
 600   continue
 500   continue
       return

@@ -183,7 +183,8 @@ c
 c     help variables
 c
        integer ind(1:4)
-       integer nhelp,mhelp,rc,dimpq,dimrs
+       integer rc,dimpq,dimrs
+       integer :: nhelp=-1,mhelp=-1
 c
 c*    define dimensions of V1
 c
@@ -261,7 +262,7 @@ c
 c     help variables
 c
        integer p,q,r,s,pq,rs,pup,qup,rup,sup,rc,pqyes,rsyes
-       integer paddv1,qaddv1,raddv1,saddv1
+       integer :: paddv1=-1,qaddv1=-1,raddv1=-1,saddv1=-1
        integer ind(1:4)
 c
 c*    def additive constants
@@ -308,19 +309,22 @@ c
        rs=0
        do 100 r=2,rup
        ind(possrv1)=raddv1+r
-       do 100 s=1,r-1
+       do 101 s=1,r-1
        ind(posssv1)=saddv1+s
        rs=rs+1
 c
        pq=0
-       do 100 p=2,pup
+       do 102 p=2,pup
        ind(posspv1)=paddv1+p
-       do 100 q=1,p-1
+       do 103 q=1,p-1
        ind(possqv1)=qaddv1+q
        pq=pq+1
 c
        v2(pq,rs)=v2(pq,rs)+fact*v1(ind(1),ind(2),ind(3),ind(4))
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        else if (pqyes.eq.1) then
@@ -330,19 +334,22 @@ c
        rs=0
        do 200 s=1,sup
        ind(posssv1)=saddv1+s
-       do 200 r=1,rup
+       do 201 r=1,rup
        ind(possrv1)=raddv1+r
        rs=rs+1
 c
        pq=0
-       do 200 p=2,pup
+       do 202 p=2,pup
        ind(posspv1)=paddv1+p
-       do 200 q=1,p-1
+       do 203 q=1,p-1
        ind(possqv1)=qaddv1+q
        pq=pq+1
 c
        v2(pq,rs)=v2(pq,rs)+fact*v1(ind(1),ind(2),ind(3),ind(4))
 c
+ 203    continue
+ 202    continue
+ 201    continue
  200    continue
 c
        else if (rsyes.eq.1) then
@@ -352,19 +359,22 @@ c
        rs=0
        do 300 r=2,rup
        ind(possrv1)=raddv1+r
-       do 300 s=1,r-1
+       do 301 s=1,r-1
        ind(posssv1)=saddv1+s
        rs=rs+1
 c
        pq=0
-       do 300 q=1,qup
+       do 302 q=1,qup
        ind(possqv1)=qaddv1+q
-       do 300 p=1,pup
+       do 303 p=1,pup
        ind(posspv1)=paddv1+p
        pq=pq+1
 c
        v2(pq,rs)=v2(pq,rs)+fact*v1(ind(1),ind(2),ind(3),ind(4))
 c
+ 303    continue
+ 302    continue
+ 301    continue
  300    continue
 c
        else
@@ -374,19 +384,22 @@ c
        rs=0
        do 400 s=1,sup
        ind(posssv1)=saddv1+s
-       do 400 r=1,rup
+       do 401 r=1,rup
        ind(possrv1)=raddv1+r
        rs=rs+1
 c
        pq=0
-       do 400 q=1,qup
+       do 402 q=1,qup
        ind(possqv1)=qaddv1+q
-       do 400 p=1,pup
+       do 403 p=1,pup
        ind(posspv1)=paddv1+p
        pq=pq+1
 c
        v2(pq,rs)=v2(pq,rs)+fact*v1(ind(1),ind(2),ind(3),ind(4))
 c
+ 403    continue
+ 402    continue
+ 401    continue
  400    continue
 c
        end if
@@ -415,24 +428,24 @@ c
        rc=0
 c
        if ((typp.eq.1).or.(typp.eq.2)) then
-       if ((typpv1.eq.1).or.(typpv1.eq.2).or.(typpv1.eq.5)) then
-       paddv1=0
-       else
-       rc=1
-c     RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
-       return
-       end if
+          if ((typpv1.eq.1).or.(typpv1.eq.2).or.(typpv1.eq.5)) then
+             paddv1=0
+          else
+             rc=1
+c            RC=1 : typp=1 or 2, incompatible typpv1 (Stup)
+             return
+          end if
        else if (typp.eq.3) then
        if (typpv1.eq.3) then
-       paddv1=0
+          paddv1=0
        else if (typpv1.eq.4) then
-       paddv1=nvb(symp)-nva(symp)
+           paddv1=nvb(symp)-nva(symp)
        else if (typpv1.eq.5) then
-       paddv1=noa(symp)
+           paddv1=noa(symp)
        else
-       rc=2
-c     RC=2 : typp=3, incompatible typpv1 (Stup)
-       return
+           rc=2
+c          RC=2 : typp=3, incompatible typpv1 (Stup)
+           return
        end if
        else if (typp.eq.4) then
        if (typpv1.eq.4) then

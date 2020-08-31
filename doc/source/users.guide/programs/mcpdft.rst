@@ -121,7 +121,7 @@ The :kword:`KSDFT` is the only required keyword.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.
@@ -137,24 +137,24 @@ The :kword:`KSDFT` is the only required keyword.
   The keyword is needed to calculate potentials for analytical gradients.
   This keyword can be used with both state-specific and state-averaged CASSCF reference wavefunctions.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE"  LEVEL="BASIC">
-                   %%Keyword: GRAD <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: GRAD <basic>
               <HELP>
-              Needed to compute  potentials for MC-PDFT  analytical gradients. 
+              Needed to compute potentials for MC-PDFT analytical gradients.
               </HELP>
               </KEYWORD>
 
 :kword:`MSPDFT`
   This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT).
-  This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. 
-  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST` used) and diagonalizes the new Hamiltonian matrix (called effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below. 
+  This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed.
+  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST` or :kword:`XMSI` is used), and diagonalizes the Hamiltonian matrix in the XMS intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below.
   More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   Currently the only MS-PDFT option in the code is XMS-PDFT.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MSPD" APPEAR="MS-PDFT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
               <HELP>
               Enable MS-PDFT. Requires H0_Rotate.txt file in the scratch directory.
@@ -191,12 +191,12 @@ geometry, etc. has to be given. Such information is supplied by the
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding RASSCF run.
 
-The following example shows a part of the input to run XMS-PDFT calculation. 
+The following example shows a part of the input to run XMS-PDFT calculation.
 The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
 
 ::
 
-   &RASSCF 
+   &RASSCF
    Spin=1
    Symmetry=1
    CIRoot= 2 2 1
@@ -204,9 +204,9 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
    Ras2=4 1 0 1
    Nactel=8 0 0
 
-   >>COPY $CurrDir/LiF.RasOrb $CurrDir/UseOrb 
+   >>COPY $CurrDir/LiF.RasOrb $CurrDir/UseOrb
 
-   &RASSCF 
+   &RASSCF
    CIOnly
    Spin=1
    Symmetry=1
@@ -214,34 +214,11 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
    Inactive=2 0 0 0
    Ras2=4 1 0 1
    Nactel=8 0 0
-
-   *This calculation generates XMS rotated reference states.
-   &CASPT2
-   XROH =All
-
-   >>COPY $CurrDir/UseOrb INPORB
-
-   &RASSCF 
-   CIONLY
-   Spin=1
-   Symmetry=1
-   CIRoot= 2 2 1
-   Inactive=2 0 0 0
-   Ras2=4 1 0 1
-   Nactel=8 0 0
-   ROSTate 
+   XMSI
 
    &MCPDFT
    KSDFT=TPBE
    NoGrad
-   MSPDft 
-
-   *Currently we suggest using three RASSCF modules, the first to obtain reference states by 
-   *an SA-CASSCF or SA-RASSCF calculation, the second to obtain the reference states in a
-   *CASCI or RASCI calculation, which could change the phase of the SA-CASSCF or SA-RASSCF 
-   *states, and the third to obtain the rotated CASCI or RASCI states, which before rotation are 
-   *obtained in the same way as done in the second RASSCF module.
-
-.. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRADIENT" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+   MSPDft
 
 .. xmldoc:: </MODULE>

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Bond_list(
+      Subroutine Bond_List(
      &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,fconst,

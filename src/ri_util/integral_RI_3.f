@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_RI_3(iCmp,iShell,MapOrg,
+      SubRoutine Integral_RI_3(iCmp,iShell,MapOrg,IndShlV,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,FacInt,itOffs,nSym,
-     &                         nShi,nShj,nShk,nShl,
-     &                         nShOffi,nShOffj,nShOffk,nShOffl,
      &                         Dens,Fock,LDens,ExFac,NDens,
      &                         ind,nind,FckNoClmb,FckNoExch)
 *     calls the proper routines IndSft/PLF
@@ -29,11 +27,9 @@
 #include "WrkSpc.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4),
+      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7)
+     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *                                                                      *
 ************************************************************************
@@ -57,7 +53,8 @@
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
-C          Call IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+C          Call IndSft_RI_3(iCmp,iShell,IndShlV,
+C    &                      iBas,jBas,kBas,lBas,Shijij,
 C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
 C    &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
@@ -80,7 +77,8 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                   iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
      &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
       Else
-           Call IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+           Call IndSft_RI_3(iCmp,iShell,IndShlV,
+     &                      iBas,jBas,kBas,lBas,Shijij,
      &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                      TInt,nTInt,iTOffs,
      &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
@@ -100,14 +98,6 @@ c Avoid unused argument warnings
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)
-         Call Unused_integer_array(nShi)
-         Call Unused_integer_array(nShj)
-         Call Unused_integer_array(nShk)
-         Call Unused_integer_array(nShl)
-         Call Unused_integer_array(nShOffi)
-         Call Unused_integer_array(nShOffj)
-         Call Unused_integer_array(nShOffk)
-         Call Unused_integer_array(nShOffl)
          Call Unused_real(Dens)
          Call Unused_real(Fock)
          Call Unused_integer(LDens)

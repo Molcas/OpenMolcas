@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IniSew(Info,DSCF,nDiff)
+      SubRoutine IniSew(DSCF,nDiff)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -29,9 +29,7 @@
 #include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
-#include "print.fh"
 *
       Logical DSCF
 *
@@ -40,9 +38,9 @@
          Call xRlsMem_Ints()
       End If
 *
-      Call Seward_Init
+      Call Seward_Init()
 *
-      Call GetInf(Info,nInfo,DSCF,nDiff,1)
+      Call GetInf(DSCF,nDiff)
 *
       Return
       End

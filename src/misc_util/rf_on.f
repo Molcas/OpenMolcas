@@ -10,9 +10,10 @@
 ************************************************************************
       Logical Function RF_On()
       Implicit Real*8 (a-h,o-z)
+      Integer, Save:: iOption=-99
 *     Call Get_iOption(iOption)
-      Call Get_iScalar('System BitSwitch',iOption)
+      If (iOption.eq.-99) Call Get_iScalar('System BitSwitch',iOption)
 *
-      RF_On=Iand(iOption,4).Eq.4
+      RF_On=iAnd(iOption,4).Eq.4
       Return
       End

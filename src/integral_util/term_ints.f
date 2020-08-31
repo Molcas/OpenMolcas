@@ -19,57 +19,63 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
+      use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
+      use Index_arrays
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nsd.fh"
-#include "shinf.fh"
 #include "status.fh"
       Logical Verbose, Free_K2
 *
       If (ERI_Status.eq.Inactive) Return
       ERI_Status=Inactive
-*     Call QEnter('T_I')
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     In case of semi-direct mode the memory is released externally.
 *
-      If (XMem_Status.eq.InActive) Call RlsMem_Ints
+      Call RlsMem_Ints()
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Allocated(FT)) Call mma_deallocate(FT)
 *
-      If (DoFock_Status.eq.Active) Then
-         DoFock_Status=Inactive
-         Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
-         Call GetMem('FT','Free','Real',ipFT,nFT)
+      If (Allocated(Mem_INT)) Then
+         Call mma_deallocate(Mem_INT)
+         Call mma_deallocate(Mem_DBLE)
+         Call mma_deallocate(Aux)
       End If
 *
-      If (Ind0_Status.eq.InActive) Then
-         Call GetMem('MemI','Free','Inte',ipiZet,MemI)
-         Call GetMem('MemR','Free','Real',ipZeta,MemR)
-         Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
+      Call mma_deallocate(iSOSym)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Indexation_Status.eq.Active) Then
+         Indexation_Status=Inactive
+         Call mma_deallocate(nShBF)
+         Call mma_deallocate(iShOff)
+         Call mma_deallocate(iSh2Sh)
+         Call mma_deallocate(iSO2Sh)
+         Call mma_deallocate(iCntr)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---- Free memory for K2 data
 *
-      Call GetMem('iSOSym','Free','Inte',ipiSOSym,nSOs*2)
-*
-*     Complete Lund IO of two-electron integrals
-*
+      If (Free_K2) Call FreeK2()
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Generate statistic of partioning
 *
       If (Verbose) Call StatP(1)
-*
-      If (Indexation_Status.eq.Active) Then
-         Indexation_Status=Inactive
-         Call GetMem('nShBF','Free','Inte',ipShBF,mSkal*nIrrep)
-         Call GetMem('ShLwC','Free','Inte',ipShLC,mSkal*nIrrep)
-         Call GetMem('ShPSh','Free','Inte',ipShSh,mSkal*nIrrep)
-         Call GetMem('SOShl','Free','Inte',ipSOSh,nSOs)
-         Call GetMem('ICNTR','Free','Inte',ipicntr,mSkal)
-      End If
-*
-*---- Free memory for K2 data
-      If (Free_K2) Call FreeK2
-*
-*     Call QExit('T_I')
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

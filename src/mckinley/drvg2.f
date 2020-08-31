@@ -30,7 +30,6 @@
 * Calling    : QEnter                                                  *
 *              StatP                                                   *
 *              Drvk2                                                   *
-*              GetMem                                                  *
 *              DCopy   (ESSL)                                          *
 *              Swap                                                    *
 *              MemRg2 Calculate memory requirement for calc area       *
@@ -40,13 +39,15 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
+*             March 1990                                               *
 *             Anders Bernhardsson 1995-1996                            *
 ************************************************************************
       use Real_Spherical
       use k2_setup
       use iSD_data
       use k2_arrays
+      use pso_stuff
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -56,18 +57,18 @@
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "pso.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "cputime.fh"
 #include "nsd.fh"
 #include "setup.fh"
 *     Local arrays
-      Real*8, Dimension(:), Allocatable :: DeDe, DeDe2
+      Real*8, Dimension(:), Allocatable :: DeDe2(:)
+      Integer, Allocatable:: ipOffDA(:,:)
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
      &        iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4),
-     &        JndHss(4,3,4,3,0:7)
+     &        JndHss(4,3,4,3,0:7), IndShlV(4)
       Logical Shik, Shjl, Shijij, JfGrd(3,4),lpick,
      &        JfHss(4,3,4,3), JfG(4),ltri,ldot, Rsv_Tsk,
      &        l_Hss,l_Grd,lGrad,n8,ldot2,new_fock,
@@ -76,6 +77,8 @@
 #ifdef _DEBUG_
       Character*40 format
 #endif
+      Real*8, Allocatable:: TMax(:,:)
+      Integer, Allocatable:: Ind_ij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,7 +86,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,12 +136,13 @@
       mDCRjl=0
       mDCRil=0
       mDCRjk=0
+      ipDijS =0
+      ipDijS2=0
 *
       Call CtrlMO(moip,nAco)
 *
       iiii=0
       ipdex=0
-      ipdex2=0
       ndisp=0
       naco=0
       New_Fock=nirrep.eq.1
@@ -178,7 +181,38 @@
 *
       nAux = nIrrep**3
       If (Petite) nAux = 1
-      Call GetMem('AuxBuf','ALLO','REAL',ipAux,nAux)
+      Call mma_allocate(Aux,nAux,Label='Aux')
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Allocate working area
+*
+      MxPrm = 0
+      MxDij = 0
+      MxBsC = 0
+      Do iAng = 0, iAngMx
+         MxPrm = Max(MxPrm,MaxPrm(iAng))
+         Do 2900 iCnttp = 1,nCnttp
+            iShll = dbsc(iCnttp)%iVal + iAng
+            iPrim = Shells(iShll)%nExp
+            If (iPrim.eq.0) Go To 2900
+            If (Shells(iShll)%nBasis.eq.0) Go To 2900
+            iBas  = Shells(iShll)%nBasis
+            iCmp  = (iAng+1)*(iAng+2)/2
+            MxBsC=Max(MxBsC,iBas*iCmp)
+            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
+ 2900    Continue
+      End Do
+      MxDij = 6 * nIrrep * MxDij
+      nZeta = MxPrm * MxPrm
+      nEta  = MxPrm * MxPrm
+      iii=nDens*10+10
+      MemR=9*nZeta + 9*nEta +nZeta*nEta
+      Call mma_allocate(Mem_INT,nZeta+nEta,Label='Mem_INT')
+      ipIndZet=1
+      ipIndEta=ipIndZet+nZeta
+      Call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
+      ipZeta=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -287,7 +321,8 @@
       Else
          mmdede=ndede
          Call mma_allocate(ipOffD,3,nIndij,label='ipOffD')
-         Call mma_allocate(DeDe,mmdede,label='DeDe')
+         Call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
+         ipDijS = 1 + mmDeDe
          If (nMethod.ne.RASSCF) Then
             Call Get_D1ao_Var(ipDTemp,Length)
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
@@ -295,21 +330,24 @@
             Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
             ipDTemp=ip_Dummy
          Else
-            Call GetMem('IndDij2','Allo','Inte',indDij2,3*nIndij)
-            Call mma_allocate(DeDe2,mmdede,label='DeDe2')
+            Call mma_allocate(ipOffDA,3,nIndij,Label='ipOffDA')
+            Call mma_allocate(DeDe2,mmDeDe+MxDij,label='DeDe2')
+            ipDijS2 = 1 + mmDeDe
             Call GetMem('DIN','Allo','Real',ipDIN,ndens)
             Call GetMem('DTemp','Allo','Real',ipDTemp,ndens)
 *
-            Call Din(Work(ipDIN))
             Call Dan(Work(ipDTemp))
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
      &                    DeDe,mmDeDe,mDeDe,mIndij)
             Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
             ipDTemp=ip_Dummy
-            Call DeDe_mck(Work(ipDIN),nFck(0),iWork(indDij2),nIndij,
+
+            Call Din(Work(ipDIN))
+            Call DeDe_mck(Work(ipDIN),nFck(0),ipOffDA,nIndij,
      &                    DeDe2,mmDeDe,mDeDe,mIndij)
             Call GetMem('DIN','Free','Real',ipDIN,ndens)
             ipDIN=ip_Dummy
+
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
                Write (6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
@@ -328,37 +366,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate working area
-*
-      MxPrm = 0
-      MxDij = 0
-      MxBsC = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
-         Do 2900 iCnttp = 1,nCnttp
-            iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 2900
-            If (nBasis(iShll).eq.0) Go To 2900
-            iPrim = nExp(iShll)
-            iBas  = nBasis(iShll)
-            iCmp  = (iAng+1)*(iAng+2)/2
-            MxBsC=Max(MxBsC,iBas*iCmp)
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
- 2900    Continue
-      End Do
-      MxDij = 6 * nIrrep * MxDij
-      If (.not.New_Fock)
-     &   Call GetMem('Dijs','Allo','Real',ipDijs,2*MxDij)
-      nZeta = MxPrm * MxPrm
-      nEta  = MxPrm * MxPrm
-      iii=nDens*10+10
-      MemR=9*nZeta + 9*nEta +nZeta*nEta
-      Call Getmem('Indeta','ALLO','INTE',ipIndeta,nEta)
-      Call Getmem('Indeta','ALLO','INTE',ipIndzet,nEta)
-      Call GetMem('MemR','ALLO','REAL',ipZeta,MemR)
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call Free_iSD()
       Call Set_Basis_Mode('Valence')
       Call Nr_Shells(nSkal)
@@ -371,8 +378,8 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -384,14 +391,14 @@
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(Ind_ij,2,nSkal*(nSkal+1)/2,Label='Ind_ij')
       nijS=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nijS = nijS + 1
-               iWork((nijS-1)*2+ip_ij  )=iS
-               iWork((nijS-1)*2+ip_ij+1)=jS
+               Ind_ij(1,nijS)=iS
+               Ind_ij(2,nijS)=jS
             End If
          End Do
       End Do
@@ -399,8 +406,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem,MemMax-iii)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
+      ipMem=1
       memmax=memmax-iii
 *                                                                      *
 ************************************************************************
@@ -410,8 +418,8 @@
 *     make reservation of a task on global task list and get task range
 *     in return. Function will be false if no more tasks to execute.
       If (.Not.Rsv_Tsk(id_Tsk,ijSh)) Go To 11
-      iS = iWork((ijSh-1)*2+ip_ij)
-      jS = iWork((ijSh-1)*2+ip_ij+1)
+      iS = Ind_ij(1,ijSh)
+      jS = Ind_ij(2,ijSh)
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
@@ -423,44 +431,40 @@ C     Do iS = 1, nSkal
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
          iShelV(1) = iShell
          iAOV(1) = iAO
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
+         IndShlV(1)=iSD( 8,iS)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
             iShelV(2) = jShell
             iAOV(2) = jAO
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
+            IndShlV(2)=iSD( 8,jS)
 *
             ijAng = iAng + jAng
 *
@@ -495,7 +499,7 @@ C        Do jS = 1, iS
                   Call QTrace()
                   Call Abend()
                End If
-               call dcopy_(iMemb,[Zero],0,Work(ipMem),1)
+               Sew_Scr(1:iMemb)=Zero
             Else
                iMemb=0
             End If
@@ -504,8 +508,8 @@ C        Do jS = 1, iS
 *                                                                      *
             Post_Process=.False.
             Do klSh = 1, nijS
-               kS = iWork((klSh-1)*2+ip_ij)
-               lS = iWork((klSh-1)*2+ip_ij+1)
+               ks = Ind_ij(1,klSh)
+               ls = Ind_ij(2,klSh)
 *
                Aint=TMax(iS,jS)*TMax(kS,lS)
 C              Write (*,*) 'is,js,ks,ls=',is,js,ks,ls
@@ -516,22 +520,20 @@ C           Do kS = 1, nSkal
                kAng   = iSD( 1,kS)
                kCmp   = iSD( 2,kS)
                kBas   = iSD( 3,kS)
-               kCff   = iSD( 4,kS)
                kPrim  = iSD( 5,kS)
-               kExp   = iSD( 6,kS)
                kAO    = iSD( 7,kS)
-               kxyz   = iSD( 8,kS)
                mdck   = iSD(10,kS)
                kShell = iSD(11,kS)
                kCnttp = iSD(13,kS)
                kCnt   = iSD(14,kS)
+               Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
                iAngV(3) = kAng
                iShllV(3) = kShll
                iCmpV(3) = kCmp
                iShelV(3) = kShell
                iAOV(3) = kAO
-               call dcopy_(3,Work(kxyz),1,Coor(1,3),1)
+               IndShlV(3)=iSD( 8,kS)
 *
                Shik = iShell.eq.kShell
 *
@@ -540,23 +542,21 @@ C              Do lS = 1, kS
                   lAng   = iSD( 1,lS)
                   lCmp   = iSD( 2,lS)
                   lBas   = iSD( 3,lS)
-                  lCff   = iSD( 4,lS)
                   lPrim  = iSD( 5,lS)
-                  lExp   = iSD( 6,lS)
                   lAO    = iSD( 7,lS)
-                  lxyz   = iSD( 8,lS)
                   mdcl   = iSD(10,lS)
                   lShell = iSD(11,lS)
                   lCnttp = iSD(13,lS)
                   lCnt   = iSD(14,lS)
+                  Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
 *
                   iAngV(4) = lAng
                   iShllV(4) = lShll
                   iCmpV(4) = lCmp
                   iShelV(4) = lShell
                   iAOV(4) = lAO
+                  IndShlV(4)=iSD( 8,lS)
 *
-                  call dcopy_(3,Work(lxyz),1,Coor(1,4),1)
 *
                   klAng = kAng + lAng
                   nHrrcd=0
@@ -598,22 +598,14 @@ C              Do lS = 1, kS
               iCmpV(2)=jcmp
               iCmpV(3)=kcmp
               iCmpV(4)=lcmp
-              iPrimi   = nExp(iShllV(1))
-              jPrimj   = nExp(iShllV(2))
-              kPrimk   = nExp(iShllV(3))
-              lPriml   = nExp(iShllV(4))
-              iBasi    = nBasis(iShllV(1))
-              jBasj    = nBasis(iShllV(2))
-              kBask    = nBasis(iShllV(3))
-              lBasl    = nBasis(iShllV(4))
-              ipExpi   = ipExp(iShllV(1))
-              jpExpj   = ipExp(iShllV(2))
-              kpExpk   = ipExp(iShllV(3))
-              lpExpl   = ipExp(iShllV(4))
-              ipCffi   = ipCff(iShllV(1))
-              jpCffj   = ipCff(iShllV(2))
-              kpCffk   = ipCff(iShllV(3))
-              lpCffl   = ipCff(iShllV(4))
+              iPrimi   = Shells(iShllV(1))%nExp
+              jPrimj   = Shells(iShllV(2))%nExp
+              kPrimk   = Shells(iShllV(3))%nExp
+              lPriml   = Shells(iShllV(4))%nExp
+              iBasi    = Shells(iShllV(1))%nBasis
+              jBasj    = Shells(iShllV(2))%nBasis
+              kBask    = Shells(iShllV(3))%nBasis
+              lBasl    = Shells(iShllV(4))%nBasis
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -656,7 +648,8 @@ C              Do lS = 1, kS
                   nDCRR = Indk2(2,ijS)
                   k2kl  = Indk2(1,klS)
                   nDCRS = Indk2(2,klS)
-                  if (ltri) then
+*
+                  If (ltri) Then
 *
 *-------------------------------------------------------------------*
 *
@@ -666,105 +659,108 @@ C              Do lS = 1, kS
 *                 matrices. Observe that the desymmetrized 1st order
 *                 density matrices follows the contraction index.
 *
+                  ipTmp =0
+                  ipTmp2=0
                   If (lpick) Then
+*
                   ipDij = ipOffD(1,ijS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDij2 = iWork((indDij2-1)+(ijS-1)*3+1)+ipdex2
                   mDCRij= ipOffD(2,ijS)
                   nDij  = ipOffD(3,ijS)
+*
                   ipTmp = ipDijs
+                  If (nMethod.eq.RASSCF) Then
+                     ipDij2 = ipOffDA(1,ijS)
+                     ipTmp2= ipDijs2
+                  End If
+*
                   If (mDCRij.ne.0) Then
                      ipDDij = ipTmp
                      ipTmp = ipTmp + nDij*mDCRij
                      If (nMethod.eq.RASSCF) Then
-                      ipDDij2=ipTmp
-                      ipTmp= ipTmp + nDij*mDCRij
+                        ipDDij2=ipTmp2
+                        ipTmp2= ipTmp2+ nDij*mDCRij
                      End If
                   Else
                      ipDDij = ip_Dummy
                   End If
 *
                   ipDkl = ipOffD(1,klS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDkl2 = iWork((indDij2-1)+(klS-1)*3+1)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDkl2 = ipOffDA(1,klS)
                   mDCRkl= ipOffD(2,klS)
                   nDkl  = ipOffD(3,klS)
                   If (mDCRkl.ne.0) Then
                      ipDDkl = ipTmp
                      ipTmp = ipTmp + nDkl*mDCRkl
-                    If (nMethod.eq.RASSCF) Then
-                      ipDDkl2=ipTmp
-                      ipTmp= ipTmp + nDkl*mDCRkl
-                    End If
+                     If (nMethod.eq.RASSCF) Then
+                       ipDDkl2=ipTmp2
+                       ipTmp2= ipTmp2+ nDkl*mDCRkl
+                     End If
                   Else
                      ipDDkl = ip_Dummy
                   End If
 *
                   ipDik = ipOffD(1,ikS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDik2 = iWork((indDij2-1)+(ikS-1)*3+1)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDik2 = ipOffDA(1,ikS)
                   mDCRik= ipOffD(2,ikS)
                   nDik  = ipOffD(3,ikS)
                   If (mDCRik.ne.0) Then
                      ipDDik = ipTmp
                      ipTmp = ipTmp + nDik*mDCRik
                     If (nMethod.eq.RASSCF) Then
-                      ipDDik2=ipTmp
-                      ipTmp= ipTmp + nDik*mDCRik
+                      ipDDik2=ipTmp2
+                      ipTmp2= ipTmp2+ nDik*mDCRik
                     End If
                   Else
                      ipDDik = ip_Dummy
                   End If
 *
                   ipDil = ipOffD(1,ilS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDil2 = iWork((indDij2-1)+(ilS-1)*3+1)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDil2 = ipOffDA(1,ilS)
                   mDCRil= ipOffD(2,ilS)
                   nDil  = ipOffD(3,ilS)
                   If (mDCRil.ne.0) Then
                      ipDDil = ipTmp
                      ipTmp = ipTmp + nDil*mDCRil
                      If (nMethod.eq.RASSCF) Then
-                      ipDDil2=ipTmp
-                      ipTmp= ipTmp + nDil*mDCRil
+                      ipDDil2=ipTmp2
+                      ipTmp2= ipTmp2+ nDil*mDCRil
                      End If
                   Else
                      ipDDil = ip_Dummy
                   End If
 *
                   ipDjk = ipOffD(1,jkS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDjk2 = iWork((indDij2-1)+(jkS-1)*3+1)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDjk2 = ipOffDA(1,jkS)
                   mDCRjk= ipOffD(2,jkS)
                   nDjk  = ipOffD(3,jkS)
                   If (mDCRjk.ne.0) Then
                      ipDDjk = ipTmp
                      ipTmp = ipTmp + nDjk*mDCRjk
                      If (nMethod.eq.RASSCF) Then
-                      ipDDjk2=ipTmp
-                      ipTmp= ipTmp + nDjk*mDCRjk
+                      ipDDjk2=ipTmp2
+                      ipTmp2= ipTmp2 + nDjk*mDCRjk
                      End If
                   Else
                      ipDDjk = ip_Dummy
                   End If
 *
                   ipDjl = ipOffD(1,jlS)
-                  If (nMethod.eq.RASSCF)
-     &               ipDjl2 = iWork((indDij2-1)+(jlS-1)*3+1)+ipdex2
+                  If (nMethod.eq.RASSCF) ipDjl2 = ipOffDA(1,jlS)
                   mDCRjl= ipOffD(2,jlS)
                   nDjl  = ipOffD(3,jlS)
                   If (mDCRjl.ne.0) Then
                      ipDDjl = ipTmp
                      ipTmp = ipTmp + nDjl*mDCRjl
                      If (nMethod.eq.RASSCF) Then
-                      ipDDjl2=ipTmp
-                      ipTmp= ipTmp + nDjl*mDCRjl
+                      ipDDjl2=ipTmp2
+                      ipTmp2= ipTmp2+ nDjl*mDCRjl
                      End If
                   Else
                      ipDDjl = ip_Dummy
                   End If
-                  End If
-                  End If
+*
+                  End If  ! If (lpick) Then
+                  End If  ! If (ltri) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -772,9 +768,9 @@ C              Do lS = 1, kS
 *                 matrix in SO basis.
 *
 *----------------------------------------------------------------------*
-                  nSO = MemSO2_P(iAng,jAng,kAng,lAng,
-     &                           iCmp,jCmp,kCmp,lCmp,
-     &                           iShell,jShell,kShell,lShell)
+                  nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,
+     &                           IndShlV(1),IndShlV(2),
+     &                           IndShlV(3),IndShlV(4))
                   ldot2=ldot
                   If (nSO.eq.0) ldot2=.false.
 *
@@ -800,7 +796,7 @@ C              Do lS = 1, kS
 *                 available memory and the requested memory.
 *
                   Call PSOAO2(nSO,MemPrm, MemMax,
-     &                        iAngV, iCmpV, iShelV,iFnc,
+     &                        iAngV, iCmpV, IndShlV,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,
@@ -832,17 +828,17 @@ C              Do lS = 1, kS
                     jBasn=Min(jBsInc,jBasj-jBasAO+1)
                     iAOst(2) = jBasAO-1
                     If (lpick.and.nDij*mDCRij.ne.0) Then
-                     Call Picky(Work(ipDij),iBasi,jBasj,
+                     Call Picky(DeDe(ipDij),iBasi,jBasj,
      &                         iPrimi*jPrimj,
      &                         iCmpV(1)*iCmpV(2),mDCRij,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         jBasAO,jBasAO+jBasn-1,Work(ipDDij))
+     &                         jBasAO,jBasAO+jBasn-1,DeDe(ipDDij))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDij2),iBasi,jBasj,
+     &              Call Picky(DeDe2(ipDij2),iBasi,jBasj,
      &                         iPrimi*jPrimj,
      &                         iCmpV(1)*iCmpV(2),mDCRij,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         jBasAO,jBasAO+jBasn-1,Work(ipDDij2))
+     &                         jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
                     End If
                     mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2) +
      &                     iPrimi*jPrimj + 1
@@ -852,33 +848,33 @@ C              Do lS = 1, kS
                     kBasn=Min(kBsInc,kBask-kBasAO+1)
                     iAOst(3) = kBasAO-1
                     If (lpick.and.nDik*mDCRik.ne.0) Then
-                     Call Picky(Work(ipDik),iBasi,kBask,
+                     Call Picky(DeDe(ipDik),iBasi,kBask,
      &                         iPrimi*kPrimk,
      &                         iCmpV(1)*iCmpV(3),mDCRik,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDik))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe(ipDDik))
                      If (nMethod.eq.RASSCF)
-     &               Call Picky(Work(ipDik2),iBasi,kBask,
+     &               Call Picky(DeDe2(ipDik2),iBasi,kBask,
      &                         iPrimi*kPrimk,
      &                         iCmpV(1)*iCmpV(3),mDCRik,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDik2))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
                     End If
                     mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3) +
      &                     iPrimi*kPrimk + 1
                     mDik = Min(nDik,mDik)
                     If (lpick.and.nDjk*mDCRjk.ne.0) Then
-                     Call Picky(Work(ipDjk),jBasj,kBask,
+                     Call Picky(DeDe(ipDjk),jBasj,kBask,
      &                         jPrimj*kPrimk,
      &                         iCmpV(2)*iCmpV(3),mDCRjk,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDjk))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe(ipDDjk))
                     If (nMethod.eq.RASSCF)
-     &               Call Picky(Work(ipDjk2),jBasj,kBask,
+     &               Call Picky(DeDe2(ipDjk2),jBasj,kBask,
      &                         jPrimj*kPrimk,
      &                         iCmpV(2)*iCmpV(3),mDCRjk,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         kBasAO,kBasAO+kBasn-1,Work(ipDDjk2))
+     &                         kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
                     End If
                     mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3) +
      &                     jPrimj*kPrimk + 1
@@ -888,49 +884,49 @@ C              Do lS = 1, kS
                     lBasn=Min(lBsInc,lBasl-lBasAO+1)
                     iAOst(4) = lBasAO-1
                     If (lpick.and.nDkl*mDCRkl.ne.0) Then
-                    Call Picky(Work(ipDkl),kBask,lBasl,
+                    Call Picky(DeDe(ipDkl),kBask,lBasl,
      &                         kPrimk*lPriml,
      &                         iCmpV(3)*iCmpV(4),mDCRkl,
      &                         kBasAO,kBasAO+kBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDkl))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDkl))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDkl2),kBask,lBasl,
+     &              Call Picky(DeDe2(ipDkl2),kBask,lBasl,
      &                         kPrimk*lPriml,
      &                         iCmpV(3)*iCmpV(4),mDCRkl,
      &                         kBasAO,kBasAO+kBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDkl2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
                     End If
                     mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4) +
      &                     kPrimk*lPriml + 1
                     mDkl = Min(nDkl,mDkl)
                     If (lpick.and.nDil*mDCRil.ne.0) Then
-                    Call Picky(Work(ipDil),iBasi,lBasl,
+                    Call Picky(DeDe(ipDil),iBasi,lBasl,
      &                         iPrimi*lPriml,
      &                         iCmpV(1)*iCmpV(4),mDCRil,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDil))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDil))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDil2),iBasi,lBasl,
+     &              Call Picky(DeDe2(ipDil2),iBasi,lBasl,
      &                         iPrimi*lPriml,
      &                         iCmpV(1)*iCmpV(4),mDCRil,
      &                         iBasAO,iBasAO+iBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDil2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
                     End If
                     mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4) +
      &                     iPrimi*lPriml + 1
                     mDil = Min(nDil,mDil)
                     If (lpick.and.nDjl*mDCRjl.ne.0) Then
-                    Call Picky(Work(ipDjl),jBasj,lBasl,
+                    Call Picky(DeDe(ipDjl),jBasj,lBasl,
      &                         jPrimj*lPriml,
      &                         iCmpV(2)*iCmpV(4),mDCRjl,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDjl))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe(ipDDjl))
                     If (nMethod.eq.RASSCF)
-     &              Call Picky(Work(ipDjl2),jBasj,lBasl,
+     &              Call Picky(DeDe2(ipDjl2),jBasj,lBasl,
      &                         jPrimj*lPriml,
      &                         iCmpV(2)*iCmpV(4),mDCRjl,
      &                         jBasAO,jBasAO+jBasn-1,
-     &                         lBasAO,lBasAO+lBasn-1,Work(ipDDjl2))
+     &                         lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
                     End If
                     mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4) +
      &                     jPrimj*lPriml + 1
@@ -983,53 +979,61 @@ C              Do lS = 1, kS
                     nijkl = iBasn*jBasn*kBasn*lBasn
                     Call Timing(dum,Time,Dum,Dum)
                     If (n8)
-     &              Call PickMO(Work(ipMOC),MemCMO,
+     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
      &                          nAcO,
-     &                          iShelV,iCmpV,
+     &                          IndShlV,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
-     &               Call PGet0(iCmpV,iShelV,
+     &               Call PGet0(iCmpV,IndShlV,
      &                         iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                         iAOV,iAOst,nijkl,Work(ip_PP),nSO,
+     &                         iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                         iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                         ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                         Sew_Scr(ipMem2),Mem2,
+     &                         iS,jS,kS,lS,nQuad,PMax)
                     Call Timing(dum,Time,Dum,Dum)
                     CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
 *-------------------Compute gradients of shell quadruplet
 *
-                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,
+                    ipD0=ip_of_Work(D0(1,1))
+                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,
+     &                             IndShlV,iAOV,
      &                   iAOst,mdci,mdcj,mdck,mdcl,nRys,
      &                   Data_k2(k2ij),nab,nDCRR,
      &                   Data_k2(k2kl),ncd,nDCRS,Pren,Prem,
-     &            Work(ipExpi),iPrimi,iPrInc,Work(jpExpj),jPrimj,jPrInc,
-     &            Work(kpExpk),kPrimk,kPrInc,Work(lpExpl),lPriml,lPrInc,
-     &                   Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                   Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                   Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &                   Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &           Work(ipZeta),Work(ipZI),Work(ipP),Work(ipKab),nZeta,
-     &           Work(ipEta), Work(ipEI),Work(ipQ),Work(ipKcd),nEta,
-     &           Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),
-     &                   Work(ipxPre),
+     &            Shells(iShllV(1))%Exp,iPrimi,iPrInc,
+     &            Shells(iShllV(2))%Exp,jPrimj,jPrInc,
+     &            Shells(iShllV(3))%Exp,kPrimk,kPrInc,
+     &            Shells(iShllV(4))%Exp,lPriml,lPrInc,
+     &            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &            Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &            Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &           Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
+     &           Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,
+     &           Mem_DBLE(ipEta), Mem_DBLE(ipEI),
+     &           Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,
+     &           Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &           Mem_DBLE(ipxG),Mem_DBLE(ipxD),
+     &                   Mem_DBLE(ipxPre),
      &                   Hess, nhess,JfGrd,JndGrd,JfHss,JndHss,JfG,
-     &                   Work(ip_PP), nSO,Work(ipMem2),Mem2,
-     &                   Work(ipMem3),Mem3,Work(ipMem4),Mem4,
-     &                   Work(ipAux),nAux,Work(ipMemX),MemX,Shijij,
-     &                   Work(ipDDij),Work(ipDDij2),mDij,mDCRij,
-     &                   Work(ipDDkl),Work(ipDDkl2),mDkl,mDCRkl,
-     &                   Work(ipDDik),Work(ipDDik2),mDik,mDCRik,
-     &                   Work(ipDDil),Work(ipDDil2),mDil,mDCRil,
-     &                   Work(ipDDjk),Work(ipDDjk2),mDjk,mDCRjk,
-     &                   Work(ipDDjl),Work(ipDDjl2),mDjl,mDCRjl,
-     &                   iCmpV,Work(ipFin),MemFin,
-     &                   Work(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
-     &                   iWork(ipIndEta),iWork(ipIndZet),Work(ipInt),
-     &                   ipd0,Work(ipBuffer),MemBuffer,
+     &                   Sew_Scr(ip_PP), nSO,Sew_Scr(ipMem2),Mem2,
+     &                   Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,
+     &                   Aux,nAux,Sew_Scr(ipMemX),MemX,Shijij,
+     &                   DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,
+     &                   DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,
+     &                   DeDe(ipDDik),DeDe2(ipDDik2),mDik,mDCRik,
+     &                   DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,
+     &                   DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk,mDCRjk,
+     &                   DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,
+     &                   iCmpV,Sew_Scr(ipFin),MemFin,
+     &                   Sew_Scr(ipMem2),Mem2+Mem3+MemX,nTwo2,nFT,
+     &                   Mem_INT(ipIndEta),Mem_INT(ipIndZet),
+     &                   Work(ipInt),ipd0,Sew_Scr(ipBuffer),MemBuffer,
      &                   lgrad,ldot2,n8,ltri,Work(ipDTemp),Work(ipDIN),
-     &                   moip,nAco,Work(ipMOC),MemCMO,new_fock)
+     &                   moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
                   Post_Process=.True.
 
 *----------------------------------------------------------------------*
@@ -1051,11 +1055,11 @@ C           End Do ! kS
                ip4=ip3+jcmp*jBas*naco
                ip5=ip4+iCmp*naco*iBas
                ip6=ip5+jcmp*jbas*naco
-               Call CLR2(Work(ipBuffer),Work(ipInt),
+               Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
-     &                   naco,ishelV,
-     &                   Work(ip1),Work(ip2),work(ip3),
-     &                   Work(ip4),work(ip5),work(ip6))
+     &                   naco,ishelV,IndShlV,
+     &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
+     &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If
 *
 C        End Do ! jS
@@ -1118,7 +1122,7 @@ C     End Do !  iS
      &   ' A total of', Pren,' entities were prescreened and',
      &                  Prem,' were kept.'
 #endif
-      Call GetMem('MemMax','Free','Real',ipMem,MemMax-iii)
+      Call mma_deallocate(Sew_Scr)
       Call Free_Tsk(id_Tsk)
 *
 *    YIPPIEEEE Finished OK fill it UP!!
@@ -1131,29 +1135,30 @@ C     End Do !  iS
            Call WrDisk(Work(ipInt),nInt,jdisp,iIrr)
         End Do
       End Do
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+*
+      Call mma_deallocate(Ind_ij)
+      Call mma_deallocate(TMax)
       Call Free_iSD()
-      Call GetMem('MemR','Free','REAL',ipZeta,MemR)
-      Call Getmem('Indeta','Free','INTE',ipIndzet,nEta)
-      Call Getmem('Indeta','Free','INTE',ipIndeta,nEta)
 *
       If (.not.New_Fock) Then
-         Call GetMem('Dijs','Free','Real',ipDijs,MxDij)
          Call mma_deallocate(ipOffD)
          Call mma_deallocate(DeDe)
          If (nMethod.eq.RASSCF) Then
             Call mma_deallocate(DeDe2)
-            Call GetMem('IndDij2','Free','Inte',indDij2,3*nIndij)
+            Call mma_deallocate(ipOffDA)
          End If
       End If
+*
+      Call mma_deallocate(Mem_DBLE)
+      Call mma_deallocate(Mem_INT)
+*
       If (ipDIN.ne.ip_Dummy)
      &   Call GetMem('DIN','Free','Real',ipDIN,ndens)
       If (ipDTemp.ne.ip_Dummy)
      &   Call GetMem('DTemp','Free','Real',ipDTemp,ndens)
       Call GetMem('Integrals','Free','REAL',ipInt,nInt)
 *
-      Call GetMem('AuxBuf','Free','Real',ipAux,nAux)
+      Call mma_deallocate(Aux)
 *
 *-----Generate statistic of partioning
 *

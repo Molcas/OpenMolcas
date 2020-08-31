@@ -7,13 +7,7 @@
 * Comments:
 *-------------------------------------------------------------------------------
 
-* Trick to check that there is enough memory,
-* the second part will be skipped if there is not.
->> FILE checkmem
-if [ $MOLCAS_MEM -lt 1420 ] ; then
-  touch not_enough
-fi
->> EOF
+>> EXPORT MOLCAS_MEM=1500
 
 * No RICD, we can go up to l=iTabMx=15
 &GATEWAY
@@ -71,11 +65,6 @@ fi
 
 &SEWARD
   OneOnly
-
->> SHELL sh checkmem
->> IF ( -FILE not_enough )
->>   EXIT 36
->> ENDIF
 
 * RICD, we can go up to l=int(iTabMx/2)=7
 * but there are some stability and memory issues

@@ -23,6 +23,7 @@
 *       020115                                                     *
 *                                                                  *
 ********************************************************************
+      Use Basis_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
@@ -41,8 +42,8 @@
       mdc=0
       iCen=1
       Do iCnttp=1,nCnttp
-         If (AuxCnttp(iCnttp)) Return
-         Do iCnt=1,nCntr(iCnttp)
+         If (dbsc(iCnttp)%Aux) Return
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             nDispS = IndDsp(mdc,iIrrep)
 

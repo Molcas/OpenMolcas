@@ -16,19 +16,25 @@
       Dimension Tessera(4,*),iSphe(*)
       Dimension DerTes(nTs,nAt,3),DerPunt(nTs,nAt,3,3)
       Dimension DerRad(nS,nAt,3),DerCentr(nS,nAt,3,3)
+      Integer Lu
 cpcm_solvent very temporary! read the potential derivatives from file
-      open(1,file='DerPot.dat',status='old',form='formatted')
+      Lu=1
+      Lu=IsFreeUnit(Lu)
+      Call Molcas_Open(Lu,'DerPot.dat')
+*     open(1,file='DerPot.dat',status='old',form='formatted')
       do 1134 iAt = 1, nAt
-        do 1134 iCoord = 1, 3
+        do 1135 iCoord = 1, 3
           Index = 3 * (iAt-1) + iCoord
-          do 1134 iTs = 1, nTs
+          do 1136 iTs = 1, nTs
             read(1,*)VDer(iTs,Index)
+ 1136     continue
+ 1135   continue
  1134 continue
       close(1)
 cpcm_solvent end
 c     Loop on atoms and coordinates
       Do 100 iAt = 1, nAt
-        Do 100 iCoord = 1, 3
+        Do 101 iCoord = 1, 3
           Index = 3 * (iAt-1) + iCoord
 *
 *---- (Total) derivative of the electronic + nuclear potential
@@ -65,14 +71,16 @@ C     to stop because the abdata.ascii file is not found.
 cpcm_solvent end
 
   200     Continue
+  101   Continue
   100 Continue
 cpcm_solvent
       write(6,'(''At the end of DerPot,VDer(1,ind),VDer(nTs,ind)'')')
-      Do 101 iAt = 1, nAt
-        Do 101 iCoord = 1, 3
+      Do 102 iAt = 1, nAt
+        Do 103 iCoord = 1, 3
           Index = 3 * (iAt-1) + iCoord
           write(6,'(2f12.6)') VDer(1,Index), VDer(nTs,Index)
-  101 continue
+  103   continue
+  102 continue
 cpcm_solvent end
       Return
 c Avoid unused argument warnings

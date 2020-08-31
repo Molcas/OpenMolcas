@@ -592,9 +592,10 @@ c
 c
        pq=0
        do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 101 q=1,p-1
        pq=pq+1
        b(pq)=a(p,q)-a(q,p)
+ 101    continue
  100    continue
 c
        else
@@ -622,8 +623,9 @@ c
 c
        rc=0
        do 100 q=1,dimq
-       do 100 p=1,dimp
+       do 101 p=1,dimp
        b(p,q)=ap(p,q)-am(q,p)
+ 101    continue
  100    continue
 c
        return
@@ -648,10 +650,12 @@ c
 c
        do 100 r=1,dimr
        pq=0
-       do 100 p=2,dimp
-       do 100 q=1,p-1
+       do 101 p=2,dimp
+       do 102 q=1,p-1
        pq=pq+1
        b(pq,r)=a(p,q,r)-a(q,p,r)
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -679,9 +683,11 @@ c
 c
        rc=0
        do 100 r=1,dimr
-       do 100 q=1,dimq
-       do 100 p=1,dimp
+       do 101 q=1,dimq
+       do 102 p=1,dimp
        b(p,q,r)=ap(p,q,r)-am(q,p,r)
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -706,10 +712,12 @@ c
 c
        qr=0
        do 100 q=2,dimq
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        qr=qr+1
-       do 100 p=1,dimp
+       do 102 p=1,dimp
        b(p,qr)=a(p,q,r)-a(p,r,q)
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -737,9 +745,11 @@ c
 c
        rc=0
        do 100 r=1,dimr
-       do 100 q=1,dimq
-       do 100 p=1,dimp
+       do 101 q=1,dimq
+       do 102 p=1,dimp
        b(p,q,r)=ap(p,q,r)-am(p,r,q)
+ 102    continue
+ 101    continue
  100    continue
 c
        return

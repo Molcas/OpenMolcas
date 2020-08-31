@@ -17,7 +17,6 @@ C
       DIMENSION SCR(LSCR)
 #include "itmax.fh"
 #include "cholesky.fh"
-#include "shinf.fh"
 #if defined (_DEBUG_)
       CHARACTER*15 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_DIAGINT')

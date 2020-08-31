@@ -40,6 +40,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
 *             August 1999                                              *
 ************************************************************************
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -193,9 +194,8 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 #endif
          NrExp =iSD( 5,iShell)
          iAng  =iSD( 1,iShell)
-         ip_Exp=iSD( 6,iShell)
+         iShll =iSD( 0,iShell)
          NrBas =iSD( 3,iShell)
-         ip_Cff=iSD( 4,iShell)
          mdci  =iSD(10,iShell)
          nDegi=nSym/nStab(mdci)
 *
@@ -236,7 +236,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
             nExpTmp=0
             Do iExp=1,NrExp
 *------------- Get the value of the exponent
-               ValExp=Work(ip_Exp+iExp-1)
+               ValExp=Shells(iShll)%Exp(iExp)
 *------------- If the exponent has an influence then increase the
 *              number of actives exponents for this shell, else
 *              there is no other active exponent (they ar ordered)
@@ -271,13 +271,15 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 c              list_bas(1,ilist_s)=NrBas ! temporary full shell!
 c              write (6,*) 'ilist_s,NrBas=',ilist_s,NrBas
 c              crite (*,*) 'ilist_s,NrBas=',ilist_s,NrBas
-               list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,Work(ip_Exp),
-     &                                   Work(ip_Cff),list_exp(ilist_s))
+               list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,
+     &                                      Shells(iShll)%Exp,
+     &                                      Shells(iShll)%pCff,
+     &                                      list_exp(ilist_s))
 C              If (list_bas(1,ilist_s).ne.NrBas) Then
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas,'*'
-C                 Call RecPrt('Exponents',' ',Work(ip_Exp),1,
+C                 Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,
 C    &                        list_exp(1,ilist_s))
-C                 Call RecPrt('Cff',' ',Work(ip_Cff),NrExp,NrBas)
+C                 Call RecPrt('Cff',' ',Shells(iShll)%pCff,NrExp,NrBas)
 C              Else
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas
 C              End If

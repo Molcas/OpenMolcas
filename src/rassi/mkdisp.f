@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MkDisp()
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -34,7 +35,7 @@ C The arrays are dynamic, and created here. Pointers and other data
 C is kept in common /DIFF/, see file 'diff.fh'.
 
       nDiff=0
-      Call IniSew(Info,.false.,nDiff)
+      Call IniSew(.false.,nDiff)
 
 C Sizes:
       nUqCnt=0
@@ -42,11 +43,11 @@ C Sizes:
       ic=0
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
-          Do iCnt=1,nCntr(iCnttp)
+          Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             nAlCnt=nAlCnt+nIrrep/nStab(ic)
           End Do
-          nUqCnt=nUqCnt+nCntr(iCnttp)
+          nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If
       End Do
 
@@ -63,19 +64,17 @@ C The nuclear coordinates: First, the symmetry-unique ones.
       ic=0
       Do iCnttp=1,nCnttp
         If(.not.pChrg(iCnttp)) Then
-          ixyz=ipCntr(iCnttp)
-          Do iCnt=1,nCntr(iCnttp)
+          Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             iWork(ipCntId+0+4*(ic-1))=iCnttp
             iWork(ipCntId+1+4*(ic-1))=nUqCnt
             iWork(ipCntId+2+4*(ic-1))=iCnt
             iWork(ipCntId+3+4*(ic-1))=0
-            Work(0+ipCoor+3*(ic-1))=Work(ixyz)
-            Work(1+ipCoor+3*(ic-1))=Work(ixyz+1)
-            Work(2+ipCoor+3*(ic-1))=Work(ixyz+2)
-            ixyz=ixyz+3
+            Work(0+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(1,iCnt)
+            Work(1+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(2,iCnt)
+            Work(2+ipCoor+3*(ic-1))=dbsc(iCnttp)%Coor(3,iCnt)
           End Do
-          nUqCnt=nUqCnt+nCntr(iCnttp)
+          nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If
       End Do
 C Then, the symmetry related nuclei:
@@ -142,7 +141,7 @@ C-------------------------------------------
       mDisp = 0
       mdc = 0
       Do  iCnttp = 1, nCnttp
-         Do  iCnt = 1, nCntr(iCnttp)
+         Do  iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
          End Do
@@ -159,7 +158,7 @@ C-------------------------------------------
          mc  = 1
          Do iCnttp = 1, nCnttp
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components

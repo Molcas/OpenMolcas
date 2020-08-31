@@ -23,7 +23,6 @@
 * Called from: Alaska                                                  *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              OneEl                                                   *
 *              QExit                                                   *
 *                                                                      *
@@ -38,6 +37,8 @@
 *             gradients, April '95. R. Lindh                           *
 *             Modified to Self Consistent Reaction Fields, May '95     *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
@@ -47,6 +48,7 @@
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "wldata.fh"
@@ -58,6 +60,8 @@
       common /finfld/force
       character*30 fldname
       External MltGrd,MltMmG
+      Real*8, Allocatable:: Coor(:,:)
+      Integer, Allocatable:: lOper(:), lOperf(:)
 CAOM>
       Logical DiffOp
 *
@@ -133,14 +137,14 @@ CAOM>
 ************************************************************************
 *                                                                      *
 *     nOrdOp: order/rank of the operator
-*     Work(ip1): lOper of each component of the operator
+*     lOper: lOper of each component of the operator
 *
       nOrdOp=0
       nComp = nElem(nOrdOp)
-      Call GetMem('Coor','Allo','Real',ipC,3*nComp)
-      Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
-      iWork(ip1) = 1
+      Call mma_allocate(Coor,3,nComp,Label='Coor')
+      Call mma_allocate(lOper,nComp,Label='lOper')
+      Coor(:,:)=Zero
+      lOper(1)=1
       If (HF_Force) Go To 1003
 ************************************************************************
 *1)                                                                    *
@@ -151,8 +155,8 @@ CAOM>
 *
       DiffOp = .False.
       Label  = ' The Renormalization Contribution'
-      Call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &           Work(ipFock),nFock,iWork(ip1),nComp,nOrdOp,Label)
+      Call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Coor,
+     &           Work(ipFock),nFock,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,-One,Temp,1,Grad,1)
 *
 ************************************************************************
@@ -164,8 +168,8 @@ CAOM>
 *
       DiffOp = .False.
       Label  = ' The Kinetic Energy Contribution'
-      Call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &           Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+      Call OneEl_g(KneGrd,KneMmG,Temp,nGrad,DiffOp,Coor,
+     &           Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 CAOM<
 C... Check finite field operators...
@@ -186,16 +190,14 @@ C... Check finite field operators...
            Write(6,*) 'Wrong number of components in FF grad'
            Call Quit_OnUserError()
         endif
-        Call GetMem('lOperf','Allo','Inte',ip1f,nCompf)
-        do ii=1,ncompf
-          iwork(ip1f+ii-1)=1
-        enddo
+        Call mma_allocate(lOperf,nCompf,Label='lOperf')
+        lOperf(:)=1
         DiffOp=.False.
         if(nOrdOpf.gt.0) DiffOp=.True.
-        Call OneEl_g(MltGrd,MltMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &           Work(ipD_Var),nDens,iWork(ip1f),nCompf,nOrdOpf,Label)
+        Call OneEl_g(MltGrd,MltMmG,Temp,nGrad,DiffOp,Coor,
+     &           Work(ipD_Var),nDens,lOperf,nCompf,nOrdOpf,Label)
         Call MltGrdNuc(Temp,nGrad,nOrdOpf)
-        Call GetMem('lOperf','Free','Inte',ip1f,nCompf)
+        Call mma_deallocate(lOperf)
         Call DaXpY_(nGrad,-One,Temp,1,Grad,1)
         goto 1100
       endif
@@ -211,8 +213,8 @@ CAOM>
  1003 Continue
       DiffOp = .True.
       Label = ' The Nuclear Attraction Contribution'
-      Call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &           Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+      Call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,
+     &           Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       If (HF_Force) Then
          If (lECP.or.nWel.ne.0.or.lXF.or.lRF) Then
@@ -233,29 +235,29 @@ CAOM>
       If (lECP) Then
          DiffOp = .True.
          Label = ' The Projection Operator Contribution'
-         Call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The M1 Operator Contribution'
-         Call OneEl_g( M1Grd, M1MmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g( M1Grd, M1MmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The M2 Operator Contribution'
-         Call OneEl_g( M2Grd, M2MmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g( M2Grd, M2MmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The SR Operator Contribution'
-         Call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       End If
       If (lPP) Then
          Label = ' The Pseudo Potential Contribution'
-         Call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       End If
 *
@@ -266,13 +268,13 @@ CAOM>
 *                                                                      *
 ************************************************************************
       DiffOp = .True.
-      Do iWel = 0, nWel-1
-         r0   = Work(ipWel+iWel*3  )
-         ExpB = Work(ipWel+iWel*3+1)
+      Do iWel = 1, nWel
+         r0   = Wel_Info(1,iWel)
+         ExpB = Wel_Info(2,iWel)
          Label = ' The Spherical Well Contribution'
-         Call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
-         Fact = Work(ipWel+iWel*3+2)
+         Call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+         Fact = Wel_Info(3,iWel)
          Call DaXpY_(nGrad,Fact,Temp,1,Grad,1)
       End Do
 ************************************************************************
@@ -284,8 +286,8 @@ CAOM>
       If (lXF) Then
          DiffOp = .True.
          Label = ' The External Field Contribution'
-         Call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       End If
 *
@@ -297,18 +299,18 @@ CAOM>
 ************************************************************************
 *
       If (lRF.and..Not.lLangevin.and..Not.PCM) Then
-         Call GetMem('lOper','Free','Inte',ip1,nComp)
-         Call GetMem('Coor','Free','Real',ipC,3*nComp)
+         Call mma_deallocate(lOper)
+         Call mma_deallocate(Coor)
 *
 *------- The Kirkwood model
 *
          nOrdOp=lMax
          nComp=(lMax+1)*(lMax+2)*(lMax+3)/6
-         Call GetMem('lOper','Allo','Inte',ip1,nComp)
+         Call mma_allocate(lOper,nComp,Label='lOper')
 *
 *------- Store permutation symmetry of components of the EF
 *
-         iComp = 0
+         iComp = 1
          Do iMltpl = 0, lMax
             Do ix = iMltpl, 0, -1
                If (Mod(ix,2).eq.0) Then
@@ -331,20 +333,20 @@ CAOM>
                      ixyz=4
                      iSymZ=2**IrrFnc(ixyz)
                   End If
-*                 iWork(ip1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
+*                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
 *    &                                      nIrrep),nIrrep)
 *-----------------Compute only total symmetric contributions
-                  iWork(ip1+iComp) = 1
+                  lOper(iComp) = 1
                   iComp = iComp + 1
                End Do
             End Do
          End Do
-         Call GetMem('Coor','Allo','Real',ipC,3*nComp)
-         call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
+         Call mma_allocate(Coor,3,nComp,Label='Coor')
+         Coor(:,:)=Zero
          DiffOp = .True.
          Label = ' The Electronic Reaction Field Contribution'
-         Call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &              Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+         Call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Coor,
+     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
       Else If (lRF.and.PCM) Then
@@ -353,16 +355,15 @@ CAOM>
 *
          If (iCOSMO.le.0) Then
             iPrint=15
-            Call DScal_(nTs*2,One/DBLE(nIrrep),Work(ip_Q),1)
+            Call DScal_(nTs*2,One/DBLE(nIrrep),PCM_SQ,1)
          End If
-*        iWork(ip1) = 255
-         iWork(ip1) = 1
+         lOper(1) = 1
          DiffOp = .True.
          If (iCOSMO.gt.0) Then
             Call dzero(Temp,ngrad)
             Label= ' The Electronic Reaction Field Contribution (COSMO)'
-            Call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &                   Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,
+            Call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,
+     &                   Work(ipD_Var),nDens,lOper,nComp,nOrdOp,
      &                   Label)
             If (iPrint.ge.15) Then
                Label=' Reaction Field (COSMO) Contribution'
@@ -370,8 +371,8 @@ CAOM>
             End If
          Else
             Label = ' The Electronic Reaction Field Contribution (PCM)'
-            Call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &                   Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,
+            Call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,
+     &                   Work(ipD_Var),nDens,lOper,nComp,nOrdOp,
      &                   Label)
             If (iPrint.ge.15) Then
                Label=' Reaction Field (PCM) Contribution'
@@ -380,7 +381,7 @@ CAOM>
          End If
 
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-         If (iCOSMO.eq.0) Call DScal_(nTs*2,DBLE(nIrrep),Work(ip_Q),1)
+         If (iCOSMO.eq.0) Call DScal_(nTs*2,DBLE(nIrrep),PCM_SQ,1)
 *
       End If
 *
@@ -394,16 +395,16 @@ CAOM>
       If(lFAIEMP) Then
         DiffOp = .True.
         Label = ' The FAIEMP Projection Operator Contribution'
-        Call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &               Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+        Call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,
+     &               Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
         Call DrvG_FAIEMP(Grad,Temp,nGrad)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('lOper','Free','Inte',ip1,nComp)
-      Call GetMem('Coor','Free','Real',ipC,3*nComp)
+      Call mma_deallocate(lOper)
+      Call mma_deallocate(Coor)
 *                                                                      *
 ************************************************************************
 1099  Continue

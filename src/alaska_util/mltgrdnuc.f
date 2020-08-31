@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -30,17 +31,16 @@
 *
       iIrrep=0
       do 800 ixop=0,nOrdOp
-      do 800 iyop=0,nOrdOp-ixop
+      do 801 iyop=0,nOrdOp-ixop
       izop=nOrdOp-ixop-iyop
       icomp=Ind(nOrdOp,ixop,izop)
       ff=Force(icomp)
-      if(ff.eq.0.d0) goto 800
+      if(ff.eq.0.d0) goto 801
         kdc = 0
         Do kCnttp = 1, nCnttp
            If (Charge(kCnttp).eq.0.d0) Go To 411
-           Do kCnt = 1, nCntr(kCnttp)
-              kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-              call dcopy_(3,Work(kxyz),1,C,1)
+           Do kCnt = 1, dbsc(kCnttp)%nCntr
+              C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
               ndc=kdc+kCnt
               Fact=-Charge(kCnttp)*ff
               nDisp = IndDsp(ndc,iIrrep)
@@ -66,8 +66,9 @@
                 End If
              Enddo
            Enddo
-411     kdc = kdc + nCntr(kCnttp)
+411     kdc = kdc + dbsc(kCnttp)%nCntr
         Enddo
+801   continue
 800   continue
 
       Return

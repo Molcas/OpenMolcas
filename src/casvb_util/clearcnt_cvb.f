@@ -29,23 +29,27 @@ c  ICODE=3 : Everything changed
        iunset(1,2)=0
        do 50 i=2,mxciobj
        iunset(i,1)=1
-50     iunset(i,2)=1
+       iunset(i,2)=1
+50     continue
        initialize=.false.
       endif
 
       if(icode.eq.3)then
         do 100 i=1,mxciobj
-100     icnt_ci(i)=0
+        icnt_ci(i)=0
+100     continue
       else
         ipow1=2
         ipow2=1
         do 200 ichg=1,2
         if(mod(icode,ipow1).ge.ipow2)then
           do 300 i=1,mxciobj
-300       if(iunset(i,ichg).eq.1)icnt_ci(i)=0
+          if(iunset(i,ichg).eq.1)icnt_ci(i)=0
+300       continue
         endif
         ipow1=2*ipow1
-200     ipow2=2*ipow2
+        ipow2=2*ipow2
+200     continue
       endif
       return
       end

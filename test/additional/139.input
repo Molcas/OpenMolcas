@@ -21,7 +21,8 @@ NoCD
 End of input
 
 
-&SCF; File=$Project.StrOrb
+&SCF
+File=init.StrOrb
 
 &MOTRA
 Title
@@ -134,7 +135,7 @@ End of input
 *-------------------------------------------------------------------------------
 
 
->> FILE $Project.StrOrb
+>> FILE init.StrOrb
 #INPORB 2.2
 #INFO
 * SCF orbitals

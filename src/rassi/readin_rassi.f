@@ -208,6 +208,12 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF (LINE(1:4).EQ.'TRDC') THEN
+* Print COMPLEX transition dipole vectors
+        PRDIPCOM=.TRUE.
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF (LINE(1:4).EQ.'ORBI') THEN
         PRORB=.TRUE.
         GOTO 100
@@ -648,6 +654,14 @@ C ------------------------------------------
         GOTO 100
       END IF
 C--------------------------------------------
+      IF(LINE(1:4).EQ.'RSPR') THEN
+! Printing threshold for rotatory strength. Current default 1.0D-7
+        RSPR=.TRUE.
+        Read(LuIn,*,ERR=997) RSTHR
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF(LINE(1:4).EQ.'CD  ') THEN
 ! Perform regular circular dichroism - velocity and mixed gauge
         DOCD = .TRUE.
@@ -826,6 +840,15 @@ cnf
          Write(6,*) ' specific k-vector directions.'
          Do_Pol = .False.
       End If
+! Prints warning if rot. str. threshold is defined without any calculations
+      If(RSPR) Then
+        If (.NOT.DOCD .AND. .NOT.Do_TMOM) Then
+          Call WarningMessage(1,'Input request was ignored.')
+          WRITE(6,*)
+     &     'Warning: Rotatory strength threshold specified (RSPR) '//
+     &     'without calculating rotatory strength'
+        End if
+      End if
 * Determine file names, if undefined.
       IF(JBNAME(1).EQ.'UNDEFINE') THEN
 * The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'

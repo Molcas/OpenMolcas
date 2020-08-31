@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Roland Lindh                                     *
 *               2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      SubRoutine Info2Runfile(DInf,nDInf)
+      SubRoutine Info2Runfile()
 ************************************************************************
 *                                                                      *
 *     Object: dump misc. information to the runfile.                   *
@@ -22,9 +22,10 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             October '06                                              *
+*             October 2006                                             *
 ************************************************************************
       use Period
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -43,8 +44,7 @@
       Common /EmbPCharg/ DoEMPC
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
-      Integer, Dimension(:), Allocatable :: NTC, ICh
-      Real*8 DInf(nDInf)
+      Integer, Allocatable :: NTC(:), ICh(:), IsMM(:)
 ************************************************************************
 *                                                                      *
       iRout=2
@@ -147,8 +147,8 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -157,22 +157,18 @@
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)= Charge(iCnttp)
                ICh(iNuc)   = iAtmNr(iCnttp)
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -193,8 +189,8 @@
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+     &       .Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
@@ -204,28 +200,30 @@
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
+     &       .Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)= Charge(iCnttp)
                DCh(iNuc)   = DBLE(iAtmNr(iCnttp))
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
       Call Put_iScalar('Unique atoms',nNuc)
 *
-      Call Put_iArray('IsMM',IsMM,nCnttp)
+      Call mma_allocate(IsMM,SIZE(dbsc),Label='IsMM')
+      Do i = 1, SIZE(dbsc)
+         IsMM(i)=dbsc(i)%IsMM
+      End Do
+      Call Put_iArray('IsMM',IsMM,SIZE(dbsc))
+      Call mma_deallocate(IsMM)
+*
       Call Put_dArray('Unique Coordinates',DCo,3*nNuc)
       Call Put_dArray('Center of Mass',CoM,3)
       Call Put_dArray('Center of Charge',CoC,3)
@@ -233,7 +231,7 @@
       Call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
       Call Put_cArray('Unique Atom Names',xLblCnt(1),(LENIN)*nNuc)
       Call Put_iArray('nStab',nStab,nNuc)
-      If (lXF) Call Put_dArray('GeoPC',DInf(ipXF),nXF*nData_XF)
+      If (lXF) Call Put_iScalar('nXF',nXF)
       If (Cell_l) Then
          Call Put_dArray('Unit Cell Vector',VCell,9)
          Call Put_iArray('Spread of Coord.',ispread,3)
@@ -258,12 +256,12 @@
       iNTC = 0
       Do iCnttp = 1, nCnttp
          If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            Do iNuc = 1, nCntr(iCnttp)
+     &       .Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iNuc = 1, dbsc(iCnttp)%nCntr
                NTC(iNTC+iNuc) = iCnttp
             End Do
-            iNTC = iNTC + nCntr(iCnttp)
+            iNTC = iNTC + dbsc(iCnttp)%nCntr
          End If
       End Do
 *
@@ -277,27 +275,19 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
-      mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
-               mdc = mdc + 1
+         If (.Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
-               ixyz = ixyz + 3
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
-         Else
-            mdc  = mdc + nCntr(iCnttp)
          End If
       End Do
 *
@@ -312,27 +302,20 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (pChrg(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+         If (pChrg(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
-      mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
          If (pChrg(iCnttp))Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
-               mdc = mdc + 1
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = DInf(ixyz  )
-               DCo(2,iNuc) = DInf(ixyz+1)
-               DCo(3,iNuc) = DInf(ixyz+2)
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh(iNuc)   = DBLE(iAtmNr(iCnttp))
-               ixyz = ixyz + 3
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
          End If
       End Do
 *

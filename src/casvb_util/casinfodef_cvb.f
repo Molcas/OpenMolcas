@@ -40,7 +40,8 @@ c  Counters
         do 100 i=1,mxstsy_ci
         iorcore_d(i)=-1
         iorclos_d(i)=-1
-100     iorocc_d(i)=-1
+        iorocc_d(i)=-1
+100     continue
       endif
       return
       end

@@ -19,17 +19,17 @@ c
 #include "stdalloc.fh"
       Integer, parameter          ::  wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer        :: info,i,j,n
-      Complex(kind=wp),intent(in)  :: matrix(n,n)
-      Complex(kind=wp),intent(out) :: z(n,n)
-      Real(kind=wp), intent(out)   :: w(n)
+      Complex(kind=8),intent(in)  :: matrix(n,n)
+      Complex(kind=8),intent(out) :: z(n,n)
+      Real(kind=8), intent(out)   :: w(n)
       ! local variables:
-      Real(kind=wp), allocatable    :: rwork(:) !rwork(3*n-2)
-      Real(kind=wp), allocatable    :: w1(:)    !w1(n)
-      Complex(kind=wp), allocatable :: ap(:)    !ap(n*(n+1)/2)
-      Complex(kind=wp), allocatable :: work(:)  !work(2*n-1)
-      Complex(kind=wp), allocatable :: z1(:,:)  !z1(n,n)
-      Real(kind=wp), external       :: dznrm2_
-      Real(kind=wp)                 :: RM
+      Real(kind=8), allocatable    :: rwork(:) !rwork(3*n-2)
+      Real(kind=8), allocatable    :: w1(:)    !w1(n)
+      Complex(kind=8), allocatable :: ap(:)    !ap(n*(n+1)/2)
+      Complex(kind=8), allocatable :: work(:)  !work(2*n-1)
+      Complex(kind=8), allocatable :: z1(:,:)  !z1(n,n)
+      Real(kind=8), external       :: dznrm2_
+      Real(kind=8)                 :: RM
 
       Call qEnter('diag_c2')
       info=0

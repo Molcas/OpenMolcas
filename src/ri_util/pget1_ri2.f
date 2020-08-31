@@ -11,7 +11,7 @@
 * Copyright (C) 1992,2007, Roland Lindh                                *
 *               2009, Francesco Aquilante                              *
 ************************************************************************
-      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iShell,iAO,iAOst,
+      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,
      &                     Shijij,iBas,jBas,kBas,lBas,kOp,ExFac,
      &                     CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
 ************************************************************************
@@ -39,18 +39,18 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 *                                                                      *
 ************************************************************************
+      use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer ip_CikJ_(2)
       Logical Shijij,Found
 *                                                                      *
@@ -350,7 +350,7 @@
                      temp2=0.0d0
                      Do jp=1,nnP(0)
                        temp2 = temp2 +
-     &                         sign(1.0d0,Work(ipDMdiag+jp-1))*
+     &                         sign(1.0d0,DMdiag(jp,1))*
      &                         Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)
                      End Do
                      temp=temp+temp2
@@ -467,9 +467,9 @@
                      temp2=0.0d0
                      Do jp=1,nnP(0)
                        temp2 = temp2 +
-     &                           sign(1.0d0,Work(ipDMdiag+jp-1))*
+     &                           sign(1.0d0,DMdiag(jp,1))*
      &                         Z_p_K(jp,jSOj,1)*Z_p_K(jp,lSOl,1)+
-     &                           sign(2.0d0,Work(ipDMdiag+jp-1+nG1))*
+     &                           sign(2.0d0,DMdiag(jp,2))*
      &                         (Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+
      &                          Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
                      End Do
@@ -595,7 +595,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)

@@ -51,6 +51,7 @@ code of OpenMolcas. They are hereby acknowledged and collectively identified as
 Christian Ander  
 Kerstin Andersson  
 János G. Ángyán  
+Imaad Ansari  
 Francesco Aquilante  
 Jochen Autschbach  
 Jie J. Bao  
@@ -94,7 +95,7 @@ Gene H. Golub
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
-Matthew R Hermes  
+Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
 Asbjørn Holt  
@@ -134,6 +135,7 @@ Felix Plasser
 Christian Pomelli  
 Ben Pritchard  
 Juraj Raab  
+Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
 Björn O. Roos  
@@ -179,5 +181,5 @@ Sebastian Wouters
 Felipe Zapata  
 Alexander Zech  
 Yan Zhao  
-J. Patrick Zobel
-  
+J. Patrick Zobel  
+

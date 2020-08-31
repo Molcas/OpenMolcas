@@ -23,8 +23,9 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             October '91                                              *
+*             October 1991                                             *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -32,7 +33,6 @@
 #include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
       Real*8 A(3), B(3), RB(3), Grad(nGrad)
       Integer iDCRR(0:7)
       Logical EQ, TstFnc
@@ -47,24 +47,18 @@
       Do 100 iCnttp = 1, nCnttp
          If (Charge(iCnttp).eq.Zero) Go To 101
          ZA = Charge(iCnttp)
-         ixyz = ipCntr(iCnttp)
 *--------Loop over all unique centers of this group
-         Do 110 iCnt = 1, nCntr(iCnttp)
-            A(1) = Work(ixyz  )
-            A(2) = Work(ixyz+1)
-            A(3) = Work(ixyz+2)
+         Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do 200 jCnttp = 1, iCnttp
                If (Charge(jCnttp).eq.Zero) Go To 201
                ZAZB = ZA * Charge(jCnttp)
-               jxyz = ipCntr(jCnttp)
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do 210 jCnt = 1, jCntMx
-                  B(1) = Work(jxyz  )
-                  B(2) = Work(jxyz+1)
-                  B(3) = Work(jxyz+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
                   Fact = One
 *                 Factor due to resticted summation
@@ -126,15 +120,13 @@
  450                 Continue
  300              Continue
 *
-                  jxyz = jxyz + 3
  210           Continue
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
  200        Continue
-            ixyz = ixyz + 3
  110     Continue
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
  100  Continue
 *
       Call qExit('DrvN1')

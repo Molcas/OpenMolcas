@@ -57,7 +57,7 @@
       DO 20 I=2,NRROOT
         IDREST=IDC(I)
         CALL dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
-        DO 20 J=1,I-1
+        DO 21 J=1,I-1
           IDREST=IDC(J)
           CALL dDAFILE(LUREST,2,Work(LSGM),NCONF,IDREST)
 *PAM04          CALL FZERO(HWork(LTDMO),NBAST**2)
@@ -79,7 +79,8 @@
      *               Work(LTDMO),Work(LASCR2),Work(LBSCR2),
      *               Work(LFSCR2))
 *PAM04        CALL dDAFILE(LUEIG,1,HWork(LTDMO),NBAST**2,IDDMO)
-        CALL dDAFILE(LUEIG,1,Work(LTDMO),NBAST**2,IDDMO)
+          CALL dDAFILE(LUEIG,1,Work(LTDMO),NBAST**2,IDDMO)
+21      CONTINUE
 20    CONTINUE
 100   CONTINUE
       CALL GETMEM('CI','FREE','REAL',LCI,NCONF)

@@ -29,6 +29,7 @@
 *             Modified by Anders Bernhardsson for Gradients            *
 *             May 95                                                   *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd_mck,KneGrd_mck,nagrd_mck,prjgrd_mck,m1grd_mck ,
      &         srogrd_mck, nona2
@@ -86,7 +87,7 @@ c     iPrint = nPrint(iRout)
           Label='OVRGRDA '
           idcnt=0
           Do iCnttp=1,nCnttp
-             Do iCnt=1,nCntr(iCnttp)
+             Do iCnt=1,dbsc(iCnttp)%nCntr
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
@@ -104,7 +105,7 @@ c     iPrint = nPrint(iRout)
           Label='NONA2   '
           idcnt=0
           Do iCnttp=1,nCnttp
-             Do iCnt=1,nCntr(iCnttp)
+             Do iCnt=1,dbsc(iCnttp)%nCntr
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(NONA2,NA2Mem,Label,idcnt,idcar,loper,
@@ -125,7 +126,7 @@ c     iPrint = nPrint(iRout)
       Label='OVRGRD  '
       idcnt=0
       Do iCnttp=1,nCnttp
-        Do iCnt=1,nCntr(iCnttp)
+        Do iCnt=1,dbsc(iCnttp)%nCntr
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
@@ -145,7 +146,7 @@ c     iPrint = nPrint(iRout)
       Label='KNEGRD  '
       idcnt=0
       Do iCnttp=1,nCnttp
-        Do iCnt=1,nCntr(iCnttp)
+        Do iCnt=1,dbsc(iCnttp)%nCntr
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(KneGrd_mck,KneMem_mck,Label,idcnt,idcar,loper,
@@ -165,7 +166,7 @@ c     iPrint = nPrint(iRout)
       Label='NAGRD   '
       idcnt=0
       Do iCnttp=1,nCnttp
-        Do iCnt=1,nCntr(iCnttp)
+        Do iCnt=1,dbsc(iCnttp)%nCntr
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(NaGrd_mck,NaMem_mck,Label,idcnt,idcar,loper,
@@ -186,7 +187,7 @@ c     iPrint = nPrint(iRout)
       If (lecp) Then
       idcnt=0
       Do iCnttp=1,nCnttp
-        Do iCnt=1,nCntr(iCnttp)
+        Do iCnt=1,dbsc(iCnttp)%nCntr
           idcnt=idcnt+1
           Do idCar=1,3
             Label='PRJGRD  '

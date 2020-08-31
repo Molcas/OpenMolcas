@@ -162,9 +162,10 @@ Compulsory keywords
               <HELP>
               Specifies parameters of the crystal cell (in Angstroms).
               Three lines, containing three real numbers each, have to be supplied:
-              || 1st line -- components of the cell vector a1;
-              || 2nd line -- components of the cell vector a2;
-              || 3rd line -- components of the cell vector a3.
+
+              1st line -- components of the cell vector a1;
+              2nd line -- components of the cell vector a2;
+              3rd line -- components of the cell vector a3.
               </HELP>
               </KEYWORD>
 
@@ -323,7 +324,7 @@ Optional keywords
   This keyword can be used instead of keywords :kword:`NCCube`, :kword:`NCBLock`, and :kword:`NCSPhere`. Note that only one nano-cluster will be generated.
   Default: the nano-cluster is not generated.
 
-  .. xmldoc:: <GROUP MODULE="EMBQ" NAME="CLUSTER" APPEAR="Nane-cluster specification" KIND="BOX" LEVEL="BASIC" WINDOW="INPLACE">
+  .. xmldoc:: <GROUP MODULE="EMBQ" NAME="CLUSTER" APPEAR="Nano-cluster specification" KIND="BOX" LEVEL="BASIC" WINDOW="INPLACE">
 
   .. xmldoc:: <KEYWORD MODULE="EMBQ" NAME="NANO" APPEAR="Nano-cluster" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" EXCLUSIVE="NCCU,NCBL,NCSP">
               %%Keyword: NANO <advanced>
@@ -332,14 +333,17 @@ Optional keywords
               The first line contains a single integer number (n) which specifies the shape of a nano-cluster
               generated using the modified cells.
               Possible values of n:
-              || 1 - to generate a cubic nano-cluster;
-              || 2 - to generate a block nano-cluster;
-              || 3 - to generate a spherical nano-cluster.
+
+              1 -- to generate a cubic nano-cluster;
+              2 -- to generate a block nano-cluster;
+              3 -- to generate a spherical nano-cluster.
+
               The size of the nano-cluster is defined in the following line.
               The number of input parameters depends on the shape of the nano-cluster.
               For a cube (n=1), provide one integer k to generate a nano-cluster of (2k+1)^3 unit cells.
               For a block (n=2), provide six integers k1 k2 m1 m2 n1 n2 to generate a nano-cluster of
-              || (k2-k1+1)×(m2-m1+1)×(n2-n1+1) unit cells.
+                (k2-k1+1)×(m2-m1+1)×(n2-n1+1)
+              unit cells.
               For a sphere (n=3), provide one real number to generate a nano-cluster of radius R (in Angstroms).
               This keyword can be used instead of keywords NCCube, NCBLock, and NCSPhere.
               Note that only one nano-cluster will be generated.
@@ -430,9 +434,11 @@ Optional keywords
               <HELP>
               Keyword, followed by a single integer number.
               Specifies the general print level:
-              || 0 - minimal print out;
-              || 1 - intermediate print out;
-              || 2 - full print out.
+
+              0 -- minimal print out;
+              1 -- intermediate print out;
+              2 -- full print out.
+
               Default: use the global MOLCAS print level.
               </HELP>
               </KEYWORD>
@@ -456,9 +462,10 @@ Optional keywords
               Keyword, followed by a single integer number.
               Requests calculation of the electrostatic potential and field at all centres of the nano-cluster.
               Possible values are:
-              || 0 - calculate neither the potential nor the field (default);
-              || 1 - calculate the potential only;
-              || 2 - calculate the potential and field.
+
+              0 -- calculate neither the potential nor the field (default);
+              1 -- calculate the potential only;
+              2 -- calculate the potential and field.
               </HELP>
               </KEYWORD>
 

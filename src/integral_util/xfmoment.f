@@ -21,7 +21,7 @@
 *                                                                      *
 *              November 2004                                           *
 ************************************************************************
-
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -39,8 +39,6 @@
          Call Abend()
       EndIf
       nInp=(nOrd_XF+1)*(nOrd_XF+2)*(nOrd_XF+3)/6
-      Inc=nInp+3
-      If(iXPolType.gt.0) Inc = Inc + 6
       Call FZero(Org,3)
       do i=1,nXF
 *
@@ -56,14 +54,14 @@
             nOper=0
          End If
 ! IFG: "A" was undefined, is this the right point?
-         call dcopy_(3,Work(ipXF+(i-1)*Inc),1,A,1)
+         A(1:3)=XF(1:3,i)
          iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
          iDum=0
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1
             Call FZero(Tmom,nCavxyz_)
-            call dcopy_(nInp,Work(ipXF+(i-1)*Inc+3),1,Tmom,1)
-            call dcopy_(3,Work(ipXF+(i-1)*Inc),1,Tco,1)
+            call dcopy_(nInp,XF(4,i),1,Tmom,1)
+            TCo(1:3)=XF(1:3,i)
             Tco(1)=Tco(1)*DBLE(iPhase(1,jCoSet(j,0)))
             Tco(2)=Tco(2)*DBLE(iPhase(2,jCoSet(j,0)))
             Tco(3)=Tco(3)*DBLE(iPhase(3,jCoSet(j,0)))

@@ -38,7 +38,7 @@ c       Matrix product: derivative of PCM matrix times the inverted matrix
         Call DGEMM_('N','N',nTs,nTs,nTs,One,DerDM,nTs,
      &             DM,nTs,Zero,Temp,nTs)
 
-        Do 100 Index2 = 1, nAt3
+        Do 101 Index2 = 1, nAt3
           iAt2 = Int( (Index2-1)/3 ) + 1
           iCoord2 = Index2 - 3 * (iAt2-1)
 c         Derivative of the normal factor n_x
@@ -52,7 +52,7 @@ c         Find out if atom iAt2 has a sphere around
           Sum1 = Zero
           Sum2 = Zero
 c         Loop on tesserae
-          DO 200 iTs = 1, nTs
+          Do 200 iTs = 1, nTs
             QtotI = Q(1,iTs) + Q(2,iTs)
             L = iSphe(iTs)
             XN = - (Sphere(1,L) - Tessera(1,iTs)) / Sphere(4,L)
@@ -67,14 +67,16 @@ c         Loop on tesserae
      &              + YN * DerCentr(L,iAt2,iCoord2,2)
      &              + ZN * DerCentr(L,iAt2,iCoord2,3)
               dN = DerRad(L,iAt2,iCoord2) + dCent
-            EndIF
+            EndIf
             dNI = dN / Tessera(4,iTs)
             Sum1 = Sum1 + QtotI * QtotI * Der1(iTs)
-            Do  200 jTs = 1, nTs
+            Do  201 jTs = 1, nTs
               QtotJ = Q(1,jTs) + Q(2,jTs)
               Sum2 = Sum2 + Two * QtotI * dNI * Temp(iTs,jTs) * QtotJ
+  201       Continue
   200     Continue
           Hess(Index1,Index2) = Fact * (Sum1 + Sum2)
+  101   Continue
   100 Continue
       Return
 c Avoid unused argument warnings

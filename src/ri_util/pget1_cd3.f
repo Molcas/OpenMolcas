@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_k,
      &                 U_k,mV_k)
@@ -36,18 +36,18 @@
 *             R. Lindh                                                 *
 *                                                                      *
 ************************************************************************
+*     use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij, skip
 *                                                                      *
 ************************************************************************
@@ -60,7 +60,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
       End If
 #endif
 *                                                                      *
@@ -345,7 +345,6 @@ C     Fac = One / Four
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_real_array(DSSO)
       End If

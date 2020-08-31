@@ -44,17 +44,20 @@
 ************************************************************************
       use k2_setup
       use iSD_data
+      use PSO_Stuff
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "pso.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -62,7 +65,7 @@
 #include "para_info.fh"
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
-      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
+      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4), IndShlV(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
       Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD, lDummy,
@@ -71,17 +74,13 @@
      &        FreeK2, Verbose, Triangular
       Character Format*72
       Character*8 Method_chk
+      Real*8, Allocatable:: TMax(:,:)
+      Integer, Allocatable:: Ind_ij(:,:)
 ************ columbus interface ****************************************
       Integer  Columbus
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -155,8 +154,8 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -168,14 +167,14 @@
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,Label='Ind_ij')
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               Ind_ij(1,nij)=iS
+               Ind_ij(2,nij)=jS
             End If
          End Do
       End Do
@@ -183,7 +182,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-------Compute FLOP's for the transfer equation.
+*-------Compute FLOPs for the transfer equation.
 *
         Do iAng = 0, iAngMx
            Do jAng = 0, iAng
@@ -225,8 +224,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1 = 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -239,11 +239,11 @@
 *     Now do a quadruple loop over shells
 *
       ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      iS = iWork((ijS-1)*2+ip_ij)
-      jS = iWork((ijS-1)*2+ip_ij+1)
+      iS = Ind_ij(1,ijS)
+      jS = Ind_ij(2,ijS)
       klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      kS = iWork((klS-1)*2+ip_ij)
-      lS = iWork((klS-1)*2+ip_ij+1)
+      kS = Ind_ij(1,klS)
+      lS = Ind_ij(2,klS)
       Count=TskLw
       Call CWTime(TCpu1,TWall1)
   13  Continue
@@ -258,7 +258,7 @@
          Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
          If (No_batch) Go To 140
 *
-         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs,IndShlV)
 
 *
 *                                                                      *
@@ -293,7 +293,6 @@
 
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -308,8 +307,6 @@
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -358,12 +355,12 @@
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,IndShlV,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
            If (AInt*PMax.lt.CutInt) Go To 430
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
@@ -378,21 +375,22 @@
            Call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #endif
            Call TwoEl_g(Coor,
-     &          iAnga,iCmpa,iShela,iShlla,iAOV,
+     &          iAnga,iCmpa,iShela,iShlla,IndShlV,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
      &          Data_k2(k2ij),nab,nHmab,nDCRR,
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &          Work(ipZeta),Work(ipZI),Work(ipP),nZeta,
-     &          Work(ipEta), Work(ipEI),Work(ipQ),nEta,
-     &          Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
+     &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
+     &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
+     &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
+     &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel_CPU = Twoel_CPU + TwoelCPU2-TwoelCPU1
@@ -418,10 +416,10 @@
             ijS = ijS + 1
             klS = 1
          End If
-         iS = iWork((ijS-1)*2+ip_ij  )
-         jS = iWork((ijS-1)*2+ip_ij+1)
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         iS = Ind_ij(1,ijS)
+         jS = Ind_ij(2,ijS)
+         kS = Ind_ij(1,klS)
+         lS = Ind_ij(2,klS)
          Go To 13
 *
 *     Task endpoint
@@ -446,12 +444,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate(Sew_Scr)
       Call Free_GTList
       Call Free_PPList
       Call Free_TList
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      Call mma_deallocate(Ind_ij)
+      Call mma_deallocate(TMax)
 *                                                                      *
 ************************************************************************
 *                                                                      *

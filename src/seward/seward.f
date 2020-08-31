@@ -51,6 +51,7 @@
       use Period
       use GeoList
       use MpmC
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
@@ -69,7 +70,7 @@
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      Integer iix(2), nChoV(8), GB
+      Integer iix(2), nChoV(8)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
 C-SVC: identify runfile with a fingerprint
@@ -79,6 +80,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Seward_Banner()
       lOPTO = .False.
       nByte = iiLoc(iix(2)) - iiLoc(iix(1))
       Call CWTime(TCpu1,TWall1)
@@ -148,43 +150,28 @@ C-SVC: identify runfile with a fingerprint
 *     runfile. If Seward is run in GS_Mode it will handle the input and
 *     runfile in the conventional way.
 *
+      Call Seward_Init()
       If (Run_Mode.eq.S_Mode) Then
 *
 *        S_Mode
 *
-         Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        GS_Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Initialize common blocks
-*
-         Call Seward_Init()
          Call Funi_Init()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Call GetMem to get pointer to first available core allocation.
-*
-         kB=2**10
-         MB=kb*kB
-         GB=kb*MB/8 ! adjust to real*8
-         Call GetMem('Info','Max','Real',iDum,MaxM)
-         nDInf=Max(MaxM/4,Min((9*MaxM)/10,GB))
-         Call GetMem('Info','ALLO','REAL',Info,nDInf)
-         Call FZero(Work(Info),nDInf)
-         Info_Status=Active
-         LctInf = Info
-         nInfo = 0
+         Call Basis_Info_Init()
 *
       End If ! Run_Mode.eq.S_Mode
 
@@ -208,8 +195,12 @@ C-SVC: identify runfile with a fingerprint
       Call SpoolInp(LuSpool)
 *     Read the input from input file
 *
-      Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
-     &                  Work(Info),nDInf)
+      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+      If (Run_Mode.ne.S_Mode) Then
+         Call Basis_Info_Dmp()
+         Call Basis_Info_Free()
+         Call Basis_Info_Get()
+      End If
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
 *
@@ -223,7 +214,7 @@ C-SVC: identify runfile with a fingerprint
 *
 *     Process the input.
 *
-      Call Input_Seward(lOPTO,Info,Work(Info),nDInf)
+      Call Input_Seward(lOPTO)
 *
       If (Primitive_Pass) Then
          PrPrt_Save = PrPrt
@@ -238,9 +229,7 @@ C-SVC: identify runfile with a fingerprint
 *     Compute the Nuclear potential energy
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1))
-         Call DrvN0(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)
+         Call DrvN0()
       End If
 *                                                                      *
 ************************************************************************
@@ -271,10 +260,8 @@ C-SVC: identify runfile with a fingerprint
 *     Write/update information on the run file.
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1))
-         Call DmpInf(Work(Info),nInfo)
-         Call basis2run(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)
+         Call DmpInf()
+         Call basis2run()
       End If
 *                                                                      *
 ************************************************************************
@@ -314,7 +301,7 @@ C-SVC: identify runfile with a fingerprint
       If (Do_OneEl.and.
      &    (.Not.Primitive_Pass .or.
      &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )
-     &   Call Drv1El(Work(Info),nInfo,Info)
+     &   Call Drv1El()
 *
       iOpt = 0
       iRC = -1

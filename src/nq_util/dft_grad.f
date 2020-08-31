@@ -549,6 +549,8 @@
      &        KSDFA(1:7).eq.'TREVPBE'.or.
      &        KSDFA(1:8).eq.'FTREVPBE'.or.
      &        KSDFA(1:5).eq.'TBLYP'.or.
+     &        KSDFA(1:5).eq.'TOPBE'.or.
+     &        KSDFA(1:6).eq.'FTOPBE'.or.
      &        KSDFA(1:4).eq.'TPBE') then
             Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)*0.5
       else

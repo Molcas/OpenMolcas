@@ -1,7 +1,7 @@
 >> RM -FORCE TEST_HDF5
 >> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
 >>   EXPORT MOLCAS_DRIVER=molcas
->> ENDIF 
+>> ENDIF
 >> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
 >> IF ( -FILE TEST_HDF5 )
 >>   EXIT 36
@@ -88,7 +88,7 @@
   ChoInput
     LocK
     NoDecompose
-    dmpk = 1e-1 
+    dmpk = 1e-1
   EndChoInput
 
 >>FILE checkfile

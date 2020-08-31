@@ -20,7 +20,8 @@
       do 200 j=1,i-1
       fac=-ddot_(n,c(1,i),1,sxc(1,j),1)
       call daxpy_(n,fac,c(1,j),1,c(1,i),1)
-200   call daxpy_(nt,fac,t(1,j),1,t(1,i),1)
+      call daxpy_(nt,fac,t(1,j),1,t(1,i),1)
+200   continue
       if(metr.ne.0)call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
       cnrm=ddot_(n,c(1,i),1,sxc(1,i),1)
       if(cnrm.lt.thresh)then
@@ -30,6 +31,7 @@
       fac=one/sqrt(cnrm)
       call dscal_(n,fac,c(1,i),1)
       if(metr.ne.0)call dscal_(n,fac,sxc(1,i),1)
-100   call dscal_(nt,fac,t(1,i),1)
+      call dscal_(nt,fac,t(1,i),1)
+100   continue
       return
       end

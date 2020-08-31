@@ -28,7 +28,6 @@
 * Called from: Drv1El                                                  *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              ZXia                                                    *
 *              SetUp1                                                  *
 *              Kernel                                                  *
@@ -59,11 +58,13 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -74,6 +75,9 @@
       Integer   nOp(2), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
+      Real*8, Allocatable:: Kern(:), Fnl(:,:), Scr1(:), Scr2(:),
+     &                      SO_Int(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Statement functions
@@ -94,10 +98,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call mma_allocate(Zeta,m2Max,Label='Zeta')
+      Call mma_allocate(ZI,m2Max,Label='ZI')
+      Call mma_allocate(Kappa,m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -109,39 +113,39 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll)) Go To 100
+         If (Shells(iShll)%Aux) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         x1 = Work(ixyz)
-         y1 = Work(ixyz+1)
-         z1 = Work(ixyz+2)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         x1 = dbsc(iCnttp)%Coor(1,iCnt)
+         y1 = dbsc(iCnttp)%Coor(2,iCnt)
+         z1 = dbsc(iCnttp)%Coor(3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            x2 = Work(jxyz)
-            y2 = Work(jxyz+1)
-            z2 = Work(jxyz+2)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            x2 = dbsc(jCnttp)%Coor(1,jCnt)
+            y2 = dbsc(jCnttp)%Coor(2,jCnt)
+            z2 = dbsc(jCnttp)%Coor(3,jCnt)
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
 *
@@ -155,43 +159,41 @@
             Call RFMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write(*,*)nOrder,MemKer,iAng,jAng,nOrdOp
             MemKrn=MemKer*m2Max
-            Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
+            Call mma_allocate(Kern,MemKrn,Label='Kern')
 *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
             nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-            lFinal = (nComp+1) * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = MaxPrm(iAng) * MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
-            Call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
-            ipFnl1 = ipFnl +nComp * MaxPrm(iAng) * MaxPrm(jAng) *
-     &               nElem(iAng)*nElem(jAng)
+            Call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
             nScr1 =  Max(MaxPrm(iAng),MaxPrm(jAng)) *
      &               Max(MaxBas(iAng),MaxBas(jAng)) *
      &               nComp*nElem(iAng)*nElem(jAng)
-            Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
+            Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
             nScr2=nComp*MaxBas(iAng)*MaxBas(jAng)
      &           *nElem(iAng)*nElem(jAng)
-            Call GetMem('ScrSph','ALLO','REAL',iScrt2,nScr2)
+            Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
 *           Allocate memory for SO integrals that will be generated by
 *           this batch of AO integrals.
 *
-            Call GetMem(' SO ','ALLO','REAL',ipSO,nSO*iBas*jBas)
-            call dcopy_(nSO*iBas*jBas,[Zero],0,Work(ipSO),1)
+            Call mma_allocate(SO_Int,nSO*iBas*jBas,Label='SO')
+            SO_Int(:)=Zero
 *
 *           Find the DCR for A and B
 *
@@ -268,32 +270,34 @@
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                   A,B,Work(iKappa),Work(iPCoor),Work(ipZI))
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
+     &                   A,B,Kappa,PCoor,ZI)
 *
 *            Compute primitive integrals. Result is ordered ij,ab.
 *
-             Call RFInt(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                   Work(iZeta),Work(ipZI),
-     &                   Work(iKappa),Work(iPcoor),
-     &                   Work(ipFnl),iPrim*jPrim,nComp,
-     &                   iAng,jAng,A,B,nOrder,Work(iKern),
+             Call RFInt(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
+     &                   Zeta,ZI,
+     &                   Kappa,Pcoor,
+     &                   Fnl,iPrim*jPrim,nComp,
+     &                   iAng,jAng,A,B,nOrder,Kern,
      &                   MemKer,Ccoor,lMax)
              If (iPrint.ge.49)
      &          Call RecPrt(' Primitive Integrals',' ',
-     &                      Work(ipFnl),iPrim*jPrim*
+     &                      Fnl,iPrim*jPrim*
      &                      nElem(iAng)*nElem(jAng),nComp)
 *
 *-----------Accumulate contributions due to interaction between the
 *           electric field and the multipole moments.
 *
             nFnc=iPrim*jPrim*nElem(iAng)*nElem(jAng)
-            call dcopy_(nFnc,[Zero],0,Work(ipFnl1),1)
+            call dcopy_(nFnc,[Zero],0,Fnl(1,nComp+1),1)
             Call DNaXpY(nComp,nFnc,Fldxyz,1,
-     &                  Work(ipFnl),1,nFnc,
-     &                  Work(ipFnl1),1,0)
+     &                  Fnl,1,nFnc,
+     &                  Fnl(1,nComp+1),1,0)
             If (iPrint.ge.99) Call RecPrt(' Solvation integrals',' ',
-     &                        Work(ipFnl1),iPrim*jPrim,
+     &                        Fnl(1,nComp+1),iPrim*jPrim,
      &                        nElem(iAng)*nElem(jAng))
 *
 *
@@ -304,104 +308,108 @@
 *
              If (iPrint.ge.99) Then
                 Call RecPrt(' Left side contraction',' ',
-     &                      Work(iCff),iPrim,iBas)
+     &                      Shells(iShll)%pCff,iPrim,iBas)
                 Call RecPrt(' Right side contraction',' ',
-     &                      Work(jCff),jPrim,jBas)
+     &                      Shells(jShll)%pCff,jPrim,jBas)
              End If
 *
 *            Transform ij,x,ab to j,xabI
              kk=nElem(iAng)*nElem(jAng)
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
-     &                   1.0d0,Work(ipFnl1),iPrim,
-     &                   Work(iCff),iPrim,
-     &                   0.0d0,Work(iScrt1),jPrim*kk)
+     &                   1.0d0,Fnl(1,nComp+1),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
+     &                   0.0d0,Scr1,jPrim*kk)
 *            Transform j,xabI to xab,IJ
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
-     &                   1.0d0,Work(iScrt1),jPrim,
-     &                   Work(jCff),jPrim,
-     &                   0.0d0,Work(ipFnl1),kk*iBas)
+     &                   1.0d0,Scr1,jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
+     &                   0.0d0,Fnl(1,nComp+1),kk*iBas)
 *
              If (iPrint.ge.99) Call
      &          RecPrt(' Contracted integrals in cartesians',' ',
-     &                     Work(ipFnl1),kk,iBas*jBas)
+     &                     Fnl(1,nComp+1),kk,iBas*jBas)
 *
 *            Transform to spherical gaussians if needed.
 *
-             If (Transf(iShll).or.Transf(jShll)) Then
+             If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJxAB or IJxAb
-              call dcopy_(kk*iBas*jBas,Work(ipFnl1),1,
-     &                                Work(iScrt2),1)
-              Call CarSph(Work(iScrt2),kk,iBas*jBas,
-     &                    Work(ipFnl1),nScr2,RSph(ipSph(iAng)),
-     &                    iAng,Transf(iShll),Prjct(iShll),
-     &                    RSph(ipSph(jAng)),jAng,Transf(jShll),
-     &                    Prjct(jShll),Work(iScrt1),iCmp*jCmp)
+              call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,
+     &                                Scr2,1)
+              Call CarSph(Scr2,kk,iBas*jBas,
+     &                    Fnl(1,nComp+1),nScr2,
+     &                    RSph(ipSph(iAng)),
+     &                    iAng,Shells(iShll)%Transf,
+     &                         Shells(iShll)%Prjct,
+     &                    RSph(ipSph(jAng)),
+     &                    jAng,Shells(jShll)%Transf,
+     &                         Shells(jShll)%Prjct,
+     &                    Scr1,iCmp*jCmp)
              Else
 *             Transpose back to IJ,x,ab
-              Call DGeTmO(Work(ipFnl1),kk,kk,iBas*jBas,
-     &                   Work(iScrt1),iBas*jBas)
+              Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,
+     &                   Scr1,iBas*jBas)
              End If
              If (iPrint.ge.99)
      &          Call RecPrt(' Contracted Integrals in Sphericals',
-     &                   ' ',Work(iScrt1),iBas*jBas,iCmp*jCmp)
+     &                   ' ',Scr1,iBas*jBas,iCmp*jCmp)
 *
 *            At this point accumulate the batch of integrals onto the
 *            final symmetry adapted integrals.
 *
              If (iPrint.ge.99) Then
                 Call RecPrt (' Accumulated SO integrals, so far...',
-     &                               ' ',Work(ipSO),iBas*jBas,nSO)
+     &                               ' ',SO_Int,iBas*jBas,nSO)
              End If
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             nIC=1
             iIC=1
             If (mSO.ne.0)
      &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                     iShell,jShell,iShll,jShll,Work(iScrt1),
-     &                     iBas,jBas,nIC,iIC,Work(ipSO),mSO,nOp)
+     &                     iShell,jShell,iShll,jShll,
+     &                     IndShl,JndShl,Scr1,
+     &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 *
  140        Continue
  139        Continue
 *
 *           Multiply with factors due to projection operators
 *
-           If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,Work(ipSO),1)
+           If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,SO_Int,1)
             If (iPrint.ge.99) Then
                Write (6,*) ' Scaling SO''s', Fact
                Call RecPrt(' Final SO integrals',' ',
-     &                     Work(ipSO),iBas*jBas,mSO)
+     &                     SO_Int,iBas*jBas,mSO)
             End If
 *
 *-----------Accumulate contribution to the Hamiltonian.
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            Call SOAdd(Work(ipSO),iBas,jBas,mSO,h0,
+            Call SOAdd(SO_Int,iBas,jBas,mSO,h0,
      &                 n2Tri(iSmLbl),iSmLbl,
-     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                 iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                 AeqB,iAO,jAO)
 *
-            Call GetMem('  SO ','FREE','REAL',ipSO,nSO*iBas*jBas)
-            Call GetMem('ScrSph','FREE','REAL',iScrt2,nScr2)
-            Call GetMem('Scrtch','FREE','REAL',iScrt1,nScr1)
-            Call GetMem('Final','FREE','REAL',ipFnl,lFinal)
-            Call GetMem('Kernel','FREE','REAL',iKern,MemKrn)
+            Call mma_deallocate(SO_Int)
+            Call mma_deallocate(Scr2)
+            Call mma_deallocate(Scr1)
+            Call mma_deallocate(Fnl)
+            Call mma_deallocate(Kern)
  131        Continue
          End Do
       End Do
  100  Continue
 *
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
-*
-c     Call GetMem('Drv2_RF','CHEC','REAL',iDum,iDum)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       Call qExit('Drv2_RF')
       Return

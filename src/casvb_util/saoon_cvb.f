@@ -27,9 +27,11 @@ c  Put matrix product S*C1 in C2:
         do 300 i=1,k-1
         ik=ik+1
         c2(i,j)=c2(i,j)+s(ik)*c1(k,j)
-300     c2(k,j)=c2(k,j)+s(ik)*c1(i,j)
+        c2(k,j)=c2(k,j)+s(ik)*c1(i,j)
+300     continue
         ik=ik+1
-200     c2(k,j)=c2(k,j)+s(ik)*c1(k,j)
+        c2(k,j)=c2(k,j)+s(ik)*c1(k,j)
+200     continue
 100     continue
       endif
       return

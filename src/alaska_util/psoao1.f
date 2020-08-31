@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine PSOAO1(nSO,MemPrm,MemMax,
-     &                            iAnga, iCmpa, iShela, iFnc,
+     &                            iAnga, iCmpa,  IndShl,  iFnc,
      &                            iBas,  iBsInc, jBas,  jBsInc,
      &                            kBas,  kBsInc, lBas,  lBsInc,
      &                            iPrim, iPrInc, jPrim, jPrInc,
@@ -39,7 +39,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              Change                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
@@ -49,18 +48,17 @@
 *             of Lund, SWEDEN.                                         *
 *             Modified to first order derivatives. January '92         *
 ************************************************************************
+      use aces_stuff, only: nGamma, Gamma_On
+      use PSO_Stuff
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
-#include "pso.fh"
-#include "aces_gamma.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
-     &          iShela(4), iFnc(4)
+     &          iFnc(4), IndShl(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
       Integer   iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -105,7 +103,6 @@
       iPrInc = iPrim
       kPrInc = kPrim
 *
-*     Call GetMem(' ','MAX ','REAL',iDum,MemMax)
  999  Continue
       QjPrim = .False.
       QlPrim = .True.
@@ -139,7 +136,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
+                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &                iTwoj(j)).ne.0) Then
                       nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                       nTmp1= nTmp1+ iiBas(jPam)
@@ -212,7 +209,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
+                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &                iTwoj(j)).ne.0) Then
                       nTmp1= nTmp1+ iiBas(jPam)
                   End If
@@ -350,7 +347,6 @@
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call GetMem('PSOAO1','CHECK','REAL',iDum,iDum)
 *     Call qExit('PSOAO1')
       Return
       End

@@ -64,6 +64,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -154,26 +155,28 @@ c#include "print.fh"
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *-------Call kernel routine to get memory requirement. Observe, however
 *       that kernels which will use the HRR will allocate that
@@ -215,13 +218,11 @@ c#include "print.fh"
 *         This is now computed in the ij or ji order.
 *
           Call ZXia(Work(iZeta),Work(ipZI),
-     &              iPrim,jPrim,Work(iExp),Work(jExp))
-*
-           call dcopy_(3,Work(ixyz),1,A,1)
+     &              iPrim,jPrim,Shells(iShll)%Exp,
+     &                          Shells(jShll)%Exp)
 *
             DiffCnt=(mdci.eq.iDCnt).or.(mdcj.eq.iDCnt)
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
-            call dcopy_(3,Work(jxyz),1,B,1)
             AeqB = iS.eq.jS
             Call lCopy(6,[.false.],0,IfGrd,1)
             Call lCopy(2,[.false.],0,trans,1)
@@ -246,7 +247,8 @@ c#include "print.fh"
             Do iIrrep=0,nIrrep-1
                 If (iAnd(loper,2**iIrrep).ne.0) Then
                  iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
+     &                          IndShl,JndShl)
                End If
             End Do
 c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
@@ -293,13 +295,15 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *            Compute AO integrals.
 *            for easy implementation of NA integrals.
 *
-             Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   Work(iZeta),Work(ipZI),
      &                   Work(iKappa),Work(iPCoor),
      &                   Work(ipFnl),iPrim*jPrim,
@@ -321,7 +325,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
      &                   1.0d0,Work(ipFnl),iPrim,
-     &                   Work(iCff),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
      &                   0.0d0,Work(iKern),jPrim*kk)
 *
 *            Transform j,abxI to abxI,J
@@ -329,24 +333,25 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
      &                   1.0d0,Work(iKern),jPrim,
-     &                   Work(jCff),jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Work(ipFnl),kk*iBas)
 *
 *            Transform to spherical gaussians if needed.
 *
                  kk=nElem(iAng)*nElem(jAng)
 *
-                 If (Transf(iShll).or.Transf(jShll)) Then
+                 If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJAB or IJAb
 *
                    Call CarSph(Work(ipFnl),kk,iBas*jBas*nIC,
      &                    Work(iKern),nScr1,
      &                    RSph(ipSph(iAng)),iAng,
-     &                    Transf(iShll),Prjct(iShll),
-     &                    RSph(ipSph(jAng)),
-     &                    jAng,Transf(jShll),
-     &                    Prjct(jShll),Work(iScrt1),iCmp*jCmp)
+     &                    Shells(iShll)%Transf,
+     &                    Shells(iShll)%Prjct,
+     &                    RSph(ipSph(jAng)),jAng,
+     &                    Shells(jShll)%Transf,
+     &                    Shells(jShll)%Prjct,Work(iScrt1),iCmp*jCmp)
 *
                   Call DGeTmO(Work(iScrt1),nIC,nIC,
      &                    iBas*jBas*iCmp*jCmp,
@@ -375,14 +380,14 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
                 If (mSO.eq.0) Then
                    Do jIrrep = 0, nIrrep-1
                       If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,
+     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
@@ -404,12 +409,14 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                If (iAnd(lOper,2**iIrrep).ne.0) Then
                  iSmlbl=2**iIrrep
                  iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
+     &                      IndShl,JndShl)
                  If (nfck(iirrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
      &                    Work(ip(iIC)),
      &                    nFck(iIrrep),iSmLbl,
-     &                    iCmp,jCmp,iShell,jShell,iAO,jAO,
+     &                    iCmp,jCmp,iShell,jShell,
+     &                    IndShl,JndShl,iAO,jAO,
      &                    nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

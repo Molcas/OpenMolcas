@@ -20,7 +20,6 @@
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              RecPrt                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
@@ -42,8 +41,7 @@
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
 *
-*     Call qEnter('DoZeta')
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In DoZeta:Beta',' ',Beta,nBeta,1)
@@ -116,6 +114,5 @@
       Call RecPrt(' In DoZeta: P',' ',P,nZeta,3)
 #endif
 *
-*     Call qExit('DoZeta')
       Return
       End

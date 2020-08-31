@@ -19,14 +19,16 @@
       G=1.D0
       IF (MA.EQ.1) GOTO 11
       DO 1 I=2,MA
-1     G=G*DBLE(I-1)
+      G=G*DBLE(I-1)
+1     CONTINUE
       GAM=G
       RETURN
 10    MA=M
       G=SQPI
       IF (MA.EQ.0) GOTO 11
       DO 2 I=1,MA,2
-2     G=G*0.5D0*DBLE(I)
+      G=G*0.5D0*DBLE(I)
+2     CONTINUE
 11    GAM=G
       RETURN
       END

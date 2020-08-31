@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,
-     &                 U_K,mV_k,ZpK,nnP1,Thpkl,nThpkl,nSA,nAct)
+     &                 U_K,mV_k,ZpK,nnP1,nSA,nAct)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
@@ -35,19 +35,18 @@
 *             Modified for 3-center RI gradients, March 2007           *
 *                                                                      *
 ************************************************************************
+      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
-     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*),
-     &       Thpkl(nThpkl)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
@@ -69,7 +68,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
       End If
       Write (6,*)
       Write (6,*) 'Distribution of Ymnij'
@@ -1166,7 +1165,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_real_array(DSSO)

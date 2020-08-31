@@ -480,13 +480,13 @@ c        nCenter=nCenter+newAt
       end
 c---------------------------------------------------
       subroutine Basi2file(Lu)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       Integer ipSph(0:MxAng)
-*     Common /Sph/ ipSph
       Integer iix(2)
       Real*8 rix(2)
       Logical Found
@@ -496,20 +496,8 @@ c---------------------------------------------------
 *
 *     Prologue
 *
-        write(Lu,'(A)') '#BASIS'
+      write(Lu,'(A)') '#BASIS'
 *
-*     Load the common INFO
-*
-      Len = iiLoc(ixEnd)-iiLoc(ixStrt)
-      Len = (Len+nbyte_i)/nbyte_i
-
-      Write(LU,'(i8)') Len
-      Call GETMEM(' SewXInfo ','ALLO','INTE',ixStrt,Len)
-      Call Get_iArray('SewIInfo',iWork(ixStrt),Len)
-      call pack_me(LU,iWork(ixStrt),Len)
-
-      Call GETMEM(' SewXInfo ','FREE','INTE',ixStrt,Len)
-
       Itemp=1+Mx_Shll*7+1+nShlls+1+nCnttp+1+64*Mx_mdc+
      +  1+ Mx_Unq +1 +8*Mx_AO+1+ Mx_Shll*3
 
@@ -519,86 +507,11 @@ c---------------------------------------------------
       Icurr=iCurr+1
 c      Write(LU,'(i8)') Mx_Shll
 
-      Call Get_iArray('nExp',nExp,Mx_Shll)
-      Call Get_iArray('nBasis',nBasis,Mx_Shll)
-      Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
-
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=nExp(i)
-c      enddo
-
-      call icopy(Mx_Shll,nExp,1,iWork(iivv+Icurr),1)
-      Icurr=iCurr+Mx_Shll
-      call icopy(Mx_Shll,nBasis,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=nBasis(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-      call icopy(Mx_Shll,nBasis_Cntrct,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=nBasis_Cntrct(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(12i6)') (nExp(i),i=1,Mx_Shll),
-c     & (nBasis(i),i=1,Mx_Shll),
-c     & (nBasis_Cntrct(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipCff',ipCff,Mx_Shll)
-      call icopy(Mx_Shll,ipCff,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipCff(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipCff_Cntrct',ipCff_Cntrct,Mx_Shll)
-      call icopy(Mx_Shll,ipCff_Cntrct,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff_Cntrct(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-c      Write(LU,'(8i16)') (ipCff_Cntrct(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipCff_Prim',ipCff_Prim,Mx_Shll)
-      call icopy(Mx_Shll,ipCff_Prim,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipCff_Prim(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipCff_Prim(i),i=1,Mx_Shll)
-
-      Call Get_iArray('ipExp',ipExp,Mx_Shll)
-      call icopy(Mx_Shll,ipExp,1,iWork(iivv+Icurr),1)
-c      do i=1,Mx_Shll
-c        iWork(iivv+Icurr+i)=ipExp(i)
-c      enddo
-      Icurr=iCurr+Mx_Shll
-
-c      Write(LU,'(8i16)') (ipExp(i),i=1,Mx_Shll)
-
-      Call Get_iArray('IndS',IndS,nShlls)
-      iWork(iivv+Icurr)=nShlls
-      Icurr=iCurr+1
-      call icopy(nShlls,IndS,1,iWork(iivv+Icurr),1)
-c      do i=1,nShlls
-c        iWork(iivv+Icurr+i)=IndS(i)
-c      enddo
-      Icurr=iCurr+nShlls
-
-c      Write(LU,'(i8)') nShlls
-c      Write(LU,'(8i8)') (IndS(i),i=1,nShlls)
-
-      Call Get_iArray('nOpt',nOpt,nCnttp)
-
       iWork(iivv+Icurr)=nCnttp
       Icurr=iCurr+1
-      call icopy(nCnttp,nOpt,1,iWork(iivv+Icurr),1)
-c      do i=1,nCnttp
-c        iWork(iivv+Icurr+i)=nOpt(i)
-c      enddo
+      do i=1,nCnttp
+        iWork(iivv+Icurr+i)=dbsc(i)%nOpt
+      enddo
       Icurr=iCurr+nCnttp
 
 c      Write(LU,'(i8)') nCnttp
@@ -612,7 +525,6 @@ c      do i=1,64*Mx_mdc
 c        iWork(iivv+Icurr+i)=iCoSet(i)
 c      enddo
       Icurr=iCurr+64*Mx_mdc
-
 
 c      Write(LU,'(i8)') 64*Mx_mdc
 c     call pack_me(LU,iCoSet,64*Mx_mdc)
@@ -662,44 +574,34 @@ c      Call Get_iArray('SewLInfo',lxStrt,Len)
       iWork(iivv+Icurr)=Mx_Shll
       Icurr=iCurr+1
 
-      do i=1,Mx_Shll
+      do i=1,Size(Shells)
         ii=0
-        if(Prjct(i)) ii=1
+        if(Shells(i)%Prjct) ii=1
         iWork(iivv+Icurr+i-1)=ii
       enddo
       Icurr=iCurr+Mx_Shll
 
-      do i=1,Mx_Shll
+      do i=1,Size(Shells)
         ii=0
-        if(Transf(i)) ii=1
+        if(Shells(i)%Transf) ii=1
         iWork(iivv+Icurr+i-1)=ii
       enddo
       Icurr=iCurr+Mx_Shll
 
-      do i=1,Mx_Shll
+      do i=1,Size(Shells)
         ii=0
-        if(AuxShell(i)) ii=1
-c        print *,'VV',icurr+i
+        if(Shells(i)%Aux) ii=1
         iWork(iivv+Icurr+i-1)=ii
       enddo
       Icurr=iCurr+Mx_Shll
 cvv
 c      do i=1,Mx_Shll
 c        ii=0
-c        if(FragShell(i)) ii=1
+c        if(Shells(i)%Frag) ii=1
 c        iWork(iivv+Icurr+i)=ii
 c      enddo
 c      Icurr=iCurr+Mx_Shll
 
-c      Write(LU,'(i8)') LenL
-c      Call Get_lArray('Prjct',Prjct,LenL)
-c      Call Get_lArray('Transf',Transf,LenL)
-c      Call Get_lArray('AuxShell',AuxShell,LenL)
-c      Call Get_lArray('FragShell',FragShell,LenL)
-c      Write(LU,'(40L2)') (Prjct(i),i=1,LenL),
-c     & (Transf(i),i=1,LenL),
-c     & (AuxShell(i),i=1,LenL),
-c     & (FragShell(i),i=1,LenL)
        write(Lu,'(i8)') iTemp
 
        call pack_me(Lu, iWork(iivv),iTemp)
@@ -720,9 +622,6 @@ c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
       Call GETMEM(' SewRInfo ','FREE','REAL',irxStrt,Len)
 
 c VVV /*
-c      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-c      Len = (Len+nByte_r)/nByte_r
-c      Call Get_dArray('RMax_Shll',RMax_Shll,Len)
 c      CLight=CLight_Info
 *
 *     Load the common CINFO
@@ -732,22 +631,6 @@ c      Len = (Len+nByte_i)/nByte_i
 c      Call Get_iArray('SewCInfo',cxStrt,Len)
 c VVV */
 *
-*     Load the dynamic input area.
-*
-c      Call Get_Info_Dynamic_G(Info,nInfo)
-      Call qpg_dArray('SewXInfo',Found,Len)
-      If (.not.Found .or. Len.eq.0) Then
-         Write(6,*) 'Get_info_dynamic: Did not find SewXInfo'
-      End If
-
-      nInfo=Len
-      Write(LU,'(i8)') Len
-
-      Call GETMEM(' SewXInfo ','ALLO','REAL',Info,nInfo)
-      Call Get_dArray('SewXInfo',WORK(Info),Len)
-      Call pack_meR(LU,WORK(Info),Len)
-
-c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
        Call qpg_dArray('SewTInfo',Found,Len2)
       Write(LU,'(i8)') Len2
 
@@ -760,10 +643,6 @@ c      Write(LU,'(4F16.8)') (Work(Info+i),i=0,Len-1)
       call pack_meR(LU,Work(ipSph(0)),Len2)
 
        Call GETMEM(' Sphere','FREE','REAL',ipSph(0),Len2)
-
-      Call GETMEM(' SewXInfo ','FREE','REAL',Info,nInfo)
-*
-
 
       Return
       End

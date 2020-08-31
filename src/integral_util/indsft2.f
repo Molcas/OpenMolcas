@@ -11,7 +11,7 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine IndSft2(iCmp,iShell,IndShl,iBas,jBas,kBas,lBas,
      &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,
      &                   iSOSym,nSOs)
 ************************************************************************
@@ -24,6 +24,7 @@
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          april '90                                                   *
 ************************************************************************
+      use k2_arrays, only: Sew_Scr
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -31,10 +32,10 @@
 #include "print.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 *
       Real*8 SOint(ijkl,nSOint)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
+      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs),
+     &        IndShl(4)
       Logical Shijij, Shij, Shkl, qijij, qij, qkl
 *     local array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -44,7 +45,7 @@
 *     Call qEnter('IndSft2')
       irout = 39
       iprint = nprint(irout)
-C     iPrint=99
+*     iPrint=99
       k12=0
       k34=0
       If (iPrint.ge.49) Then
@@ -78,13 +79,13 @@ C     Write (*,*) 'Shijij=',Shijij
 C     Write (*,*) 'iAO=',iAO
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iand(IrrCmp(inds(iShell(1))+i1),2**j)
+            iSym(j) = iand(IrrCmp(IndShl(1)+i1),2**j)
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+               jSym(j) = iand(IrrCmp(IndShl(2)+i2),2**j)
 201         Continue
             qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) then
@@ -94,13 +95,13 @@ C     Write (*,*) 'iAO=',iAO
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+                  kSym(j) = iand(IrrCmp(IndShl(3)+i3),2**j)
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                     lSym(j) = iand(IrrCmp(IndShl(4)+i4),2**j)
 401               Continue
                   qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) then
@@ -242,13 +243,13 @@ C    &                                   iSOi,jSOj,kSOk,lSO
 C                           Write (*,*) 'ij,kl=',ij,kl
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
                             iSqNum = (kl-iBin*iPP1)*iSq1
      &                             + (ij-iBin*iPP2)*iSq2
      &                             - nkl
-                            work(lwSqN+nUt)=DBLE(iSqNum)
-                            work(lwSyB+nUt)=DBLE(iBin + iStBin(iSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
 C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
 C    &                                   iStBin(iSyBlk)
 *
@@ -277,24 +278,24 @@ C    &                                   iSOi,jSOj,kSOk,lSO
 C                           Write (*,*) 'ij,kl=',ij,kl
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
                             iSqNum = (kl-iBin*iPP1)*iSq1
      &                             + (ij-iBin*iPP2)*iSq2
      &                             - nkl
-                            work(lwSqN+nUt)=DBLE(iSqNum)
-                            work(lwSyB+nUt)=DBLE(iBin + iStBin(iSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
 C                           Write (*,*) 'iSqNum,iBin=',iSqNum,iBin+
 C    &                                   iStBin(iSyBlk)
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=AInt
+                            Sew_Scr(lwInt+nUt)=AInt
                             jBin=(kl-1)/iQQ3 +(ij-1)/iQQ4
                             jSqNum = (kl-jBin*iPP3)*iSq3
      &                             + (ij-jBin*iPP4)*iSq4
      &                             - nij
-                            work(lwSqN+nUt)=DBLE(jSqNum)
-                            work(lwSyB+nUt)=DBLE(jBin + iStBin(jSyBlk))
+                            Sew_Scr(lwSqN+nUt)=DBLE(jSqNum)
+                            Sew_Scr(lwSyB+nUt)=DBLE(jBin+iStBin(jSyBlk))
 C                           Write (*,*) 'jSqNum,jBin=',jSqNum,jBin+
 C    &                                   iStBin(jSyBlk)
 *
@@ -317,13 +318,10 @@ C    &                                   iStBin(jSyBlk)
 *
 *     pass the integral to phase 1 of the bin sorting algorithm
 *
-      Call R8PREP(nUt+1,work(lwInt))
-      Call SORT1A(nUt+1,work(lwInt),work(lwSqN),work(lwSyB))
+      Call R8PREP(nUt+1,Sew_Scr(lwInt))
+      Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       NotZer=NotZer+nUt+1
       nUt=0
-*
-*     release work space
-*
 *     Call qExit('IndSft2')
       Return
       End

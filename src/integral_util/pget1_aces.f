@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,
      &                      iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
@@ -38,12 +38,12 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
@@ -51,7 +51,7 @@
       Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
 *                                                                      *
 ************************************************************************
@@ -68,8 +68,8 @@
       Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
-         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
          Write (6,*) 'iSO2Sh=',iSO2Sh
          Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
@@ -234,7 +234,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

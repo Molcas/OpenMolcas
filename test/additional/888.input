@@ -13,7 +13,6 @@
   Group = NoSym
 
 &SEWARD
-  DoAnalytical
 
 &RASSCF
   FileOrb = $Project.GssOrb

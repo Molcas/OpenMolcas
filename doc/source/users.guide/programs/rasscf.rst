@@ -438,12 +438,12 @@ Optional important keywords are:
               fixed point elements, followed by the order of the non fixed point elements.
               If the total number of active orbitals is e.g. 6
               the following example of the REOR keyword
-              ||
-              ||  REOR
-              ||    3
-              ||    4 5 1
-              ||
-               leads to an order of [4 2 3 5 1 6].
+
+                REOR
+                  3
+                  4 5 1
+
+              leads to an order of [4 2 3 5 1 6].
               </HELP>
               </KEYWORD>
 
@@ -1403,7 +1403,7 @@ A list of these keywords is given below:
    For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
    The default is Gram_Schmidt.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTH" APPEAR="ORTHonormalization" LEVEL="ADVANCED" KIND="CHOICE" LIST="----,Gram_Schmidt,Lowdin,Canonical,no_ON">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTHON" APPEAR="Orthonormalization" LEVEL="ADVANCED" KIND="CHOICE" LIST="----,Gram_Schmidt,Lowdin,Canonical,no_ON">
               %%Keyword: ORTH <basic>
               <HELP>
               Specify the orthonormalization scheme to apply on the input orbitals.
@@ -1612,14 +1612,14 @@ A list of these keywords is given below:
               Performs a Orbital-Free Embedding (OFE)RASSCF calculation, available only in combination with Cholesky or RI integral representation.
               The runfile of the environment subsystem renamed AUXRFIL is required.
               An example of input for the keyword OFEM is the following:
-              ||
-              ||OFEMbedding
-              || ldtf/pbe
-              ||dFMD
-              || 1.0   1.0d2
-              ||FTHAw
-              || 1.0d-4
-              ||
+
+                OFEMbedding
+                 ldtf/pbe
+                dFMD
+                 1.0   1.0d2
+                FTHAw
+                 1.0d-4
+
               The keyword OFEM requires the specification of two functionals in the form fun1/fun2, where fun1 is the functional used for the
               Kinetic Energy (available functionals: Thomas-Fermi, with acronym LDTF, and the NDSD functional), and where
               fun2 is the xc-functional (LDA, LDA5, PBE and BLYP available at the moment).
@@ -1729,7 +1729,7 @@ A list of these keywords is given below:
               %%Keyword: QUNE <advanced>
               <HELP>
               This input keyword is used to switch on the Quasi-Newton update procedure for the
-              Hessian.(Default setting: QN update is used unless the calculation involves
+              Hessian. (Default setting: QN update is used unless the calculation involves
               numerically integrated DFT contributions.)
               </HELP>
               </KEYWORD>
@@ -1877,7 +1877,6 @@ A list of these keywords is given below:
               <HELP>
               Used to prohibit certain orbital rotations. Please consult the manual!
               </HELP>
-              </KEYWORD>
               This input is used to restrict possible orbital rotations. The
               restrictions are introduced by grouping orbitals of the same
               symmetry into additional classes. Orbitals belonging to different
@@ -1889,6 +1888,7 @@ A list of these keywords is given below:
               for each classes the following input: The dimension of the classes and
               the list of orbitals in the classes counted relative to the first orbital
               in this symmetry.
+              </KEYWORD>
 
 :kword:`HOME`
   With this keyword, the root selection in the Super-CI orbital update
@@ -1940,7 +1940,7 @@ A list of these keywords is given below:
               invoking CASVB in place of the CI optimization step.
               </HELP>
 
-  .. xmldoc:: <INCLUDE MODULE="CASVB" />
+  .. xmldoc:: <INCLUDE MODULE="CASVB" EXCEPT="FROZEN,INACTIVE,NACTEL,RAS2,SPIN,SYMMETRY" />
 
   .. xmldoc:: </GROUP>
 
@@ -2058,10 +2058,11 @@ A list of these keywords is given below:
               </HELP>
               %%Keyword: OUTOrbitals <basic>
               Type of orbitals to put in RASORB file. Specify in the next entry any of:
-              || AVERage   (Average MCSCF orbitals.)
-              || CANOnical (Average pseudocanonical orbitals.)
-              || NATUral   (State-specific natural orbitals. Next entry, number of states.)
-              || SPIN      (State-specific spin orbitals. Next entry, number of states.)
+
+              AVERage   -- Average MCSCF orbitals.
+              CANOnical -- Average pseudocanonical orbitals.
+              NATUral   -- State-specific natural orbitals. Next entry, number of states.
+              SPIN      -- State-specific spin orbitals. Next entry, number of states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGEORB" APPEAR="Average" KIND="SINGLE" LEVEL="BASIC">
               <HELP>
@@ -2338,14 +2339,28 @@ A list of these keywords is given below:
               (Default: 0)
               </KEYWORD>
 
-:kword:`ROSTate`
-  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules). This keyword stands for ROtate STates, and it rotate the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation. 
-  This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated. 
-  The file :file:`Do_Rotate.txt` stores the rotation vector that rotates the states; the rotation vector is stored in a format such that the first line of the file records the first row of the rotation matrix, and so on. If there is no :file:`H0_Rotate.txt` file in the scratch directory, this keyword also writes a file called :file:`H0_Rotate.txt` in the scratch directory; :file:`H0_Rotate.txt` contains the Hamiltonian matrix of the rotated states.
-  This keyword currently does not work for wave functions optimized with the DMRG algorithm. 
+:kword:`XMSInter`
+  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF` and :program:`MCPDFT` modules). This keyword stands for XMS Intermediate states. It rotates the CASSCF, CASCI, RASSCF or RASCI states into the XMS intermediate states.
+  This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix for the XMS intermediate states.
+  This keyword currently does not work for wave functions optimized with the DMRG algorithm.
+  This keyword performs the functions called by :kword:`ROSTate`; therefore one does not need to use :kword:`ROSTate` when this keyword is used.
   More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="XMSI" APPEAR="XMS Intermediate States" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into XMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ROSTate`
+  This keyword can be used in an MS-PDFT calculation. This keyword stands for ROtate STates, and it rotate the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
+  This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated.
+  The file :file:`Do_Rotate.txt` stores the rotation vector that rotates the states; the rotation vector is stored in a format such that the first line of the file records the first row of the rotation matrix, and so on. This keyword writes a file called :file:`H0_Rotate.txt` in the scratch directory; :file:`H0_Rotate.txt` contains the Hamiltonian matrix of the rotated states.
+  This keyword currently does not work for wave functions optimized with the DMRG algorithm.
+  More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTate" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: ROSTate <basic>

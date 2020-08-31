@@ -28,7 +28,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              XRysg1                                                  *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *             M. Diedenhofen Nov. 2003                                 *
@@ -41,6 +40,7 @@
 *             Modified to PCM gradients September 2001, Lund, by       *
 *             R. Lindh.                                                *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ, PCMTess
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "itmax.fh"
@@ -137,14 +137,14 @@
 *     Loop over the tiles
 *
       Do iTs = 1, nTs
-         Q=Work((iTs-1)+ip_Q)
+         Q=PCM_SQ(1,iTs)
          NoLoop = Q.eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the tile coordinates
-         C(1) = Work((iTs-1)*4+ip_Tess  )
-         C(2) = Work((iTs-1)*4+ip_Tess+1)
-         C(3) = Work((iTs-1)*4+ip_Tess+2)
-         kat  = nint(Work((iTs-1)*4+ip_Tess+3))
+         C(1) = PCMTess(1,iTs)
+         C(2) = PCMTess(2,iTs)
+         C(3) = PCMTess(3,iTs)
+         kat = nint(PCMTess(4,iTs))
          If (iPrint.ge.99) Call RecPrt('C',' ',C,3,1)
 *
 *------- Generate stabilizor of C
@@ -257,7 +257,6 @@ c             skip 2 center
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-*     Call GetMem(' Exit COSgrd','LIST','REAL',iDum,iDum)
       Call qExit('COSgrd')
       Return
 c Avoid unused argument warnings

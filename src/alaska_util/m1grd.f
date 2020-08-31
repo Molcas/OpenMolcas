@@ -29,7 +29,6 @@
 *              DCopy   (ESSL)                                          *
 *              DCR                                                     *
 *              Rysg1                                                   *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
@@ -62,6 +61,7 @@
 *                                                                      *
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -163,11 +163,10 @@
 *
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 111
-         If (nM1(kCnttp).eq.0) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 111
+         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
@@ -196,8 +195,8 @@
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
 *
-               Do 1011 iM1xp=0, nM1(kCnttp)-1
-                  Gamma = Work(ipM1xp(kCnttp)+iM1xp)
+               Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+                  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
 *
                   Call ICopy(6,IndGrd,1,JndGrd,1)
                   Do 10 i = 1, 3
@@ -299,7 +298,7 @@
 *
 *-----------------Modify the density matrix with the prefactor
 *
-                  Fact = -Charge(kCnttp)*Work(ipM1cf(kCnttp)+iM1xp)*
+                  Fact = -Charge(kCnttp)*dbsc(kCnttp)%M1cf(iM1xp)*
      &                   (DBLE(nStabM) / DBLE(LmbdT)) * Two * Pi
                   nDAO = nElem(la)*nElem(lb)
                   Do 300 iDAO = 1, nDAO
@@ -332,11 +331,10 @@
  1011          Continue
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
 *
-*     Call GetMem(' Exit M1Grd','LIST','REAL',iDum,iDum)
 *     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings

@@ -11,7 +11,6 @@
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE Dynamix(iReturn)
-      USE Isotopes
       IMPLICIT REAL*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -39,7 +38,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       PARAMETER  (iQ1=1,iQ2=2,iX1=3,iX2=4,iVx1=5,iVx2=6)
       CHARACTER, ALLOCATABLE :: atom(:)*2
       REAL*8, ALLOCATABLE ::    Mass(:),vel(:),pcoo(:,:)
-      INTEGER Iso
 
 *
       CALL QEnter('Dynamix')
@@ -99,10 +97,9 @@ C     Check if the RESTART keyword was used.
          CALL mma_allocate(atom,natom)
          CALL mma_allocate(Mass,natom)
          CALL mma_allocate(vel,natom*3)
-         CALL mma_allocate(pcoo,POUT,natom*3)
 
-         CALL Get_nAtoms_All(matom)
-         CALL Get_Mass_All(Mass,matom)
+         CALL Get_Name_Full(atom)
+         CALL GetMassDx(Mass,natom)
 
 C Initialize Thermostat Variables
 
@@ -127,13 +124,21 @@ C Initialize Thermostat Variables
          END IF
 
 C Check if nuclear coordinates to project out from the dynamics
-         IF (POUT.eq.0) THEN
+         IF ((POUT.eq.0) .AND. (PIN.eq.natom*3)) THEN
             WRITE(6,'(5X,A,T55)') 'Dynamics in full dimensionality.'
          ELSE
             WRITE(6,'(5X,A,T55)') 'Dynamics in reduced dimensionality.'
-            CALL DxRdOut(pcoo,POUT,natom)
+            IF (POUT .NE. 0) THEN
+              CALL mma_allocate(pcoo,POUT,natom*3)
+              CALL DxRdOut(pcoo,POUT,natom)
 C Save on RUNFILE
-            CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
+              CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
+            ELSEIF (PIN .NE. natom*3) THEN
+              CALL mma_allocate(pcoo,PIN,natom*3)
+              CALL DxRdIn(pcoo,PIN,natom)
+C Save on RUNFILE
+              CALL Put_dArray('Keep_Coord',pcoo,PIN*natom*3)
+            ENDIF
          ENDIF
 
 
@@ -144,13 +149,6 @@ C Save on RUNFILE
          ELSEIF (VELO.eq.2) THEN
             CALL DxRdVel(vel,natom)
             DO i=1, natom
-               IF (i.gt.matom) THEN
-                  CALL LeftAd(atom(i))
-                  Iso=0
-                  CALL Isotope(Iso,atom(i),Mass(i))
-               END IF
-C-------------------------------------------
-
                DO j=1, 3
                   vel(3*(i-1)+j)=vel(3*(i-1)+j)/SQRT(Mass(i))
                END DO
@@ -163,7 +161,6 @@ C Maxwell-Boltzmann distribution
             nFlag=0
             val=0.d0
             buffer=0.D0
-            CALL Get_Name_Full(atom)
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
@@ -175,13 +172,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
             CALL getSeed(iseed)
 
             DO i=1, natom
-               IF (i.gt.matom) THEN
-                  CALL LeftAd(atom(i))
-                  Iso=0
-                  CALL Isotope(Iso,atom(i),Mass(i))
-               END IF
-C-------------------------------------------
-
                arg=TEMP*Kb/Mass(i)
                Sigma=SQRT(arg)
                mean = 0.D0
@@ -200,22 +190,24 @@ C                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
             WRITE(6,'(5X,A,T55)')
      &      'The initial velocities are set to zero.'
          END IF
-         CALL Get_Name_Full(atom)
          caption='Velocities'
          CALL DxPtTableWithoutMassForce(caption,time,natom,
      &        atom,vel)
 
+C Check if reduced dimensionality
+         IF (POUT .NE. 0) THEN
+           CALL project_out_vel(vel,natom)
+         ELSEIF (PIN .NE. natom*3) THEN
+           CALL project_in_vel(vel,natom)
+           caption='Vel (red dim)'
+           CALL DxPtTableWithoutMassForce(caption,time,natom,
+     &        atom,vel)
+         ENDIF
+
 C     Calculate the kinetic energy
          IF (VELO.gt.0) THEN
             Ekin=0.000000000000D0
-            CALL Get_Name_Full(atom)
             DO i=1, natom
-               IF (i.GT.matom) THEN
-                  CALL LeftAd(atom(i))
-                  Iso=0
-                  CALL Isotope(Iso,atom(i),Mass(i))
-               END IF
-C-------------------------------------------
                DO j=1, 3
                   Ekin=Ekin+(5.0D-01)*Mass(i)*(vel(3*(i-1)+j)**2)
                END DO
@@ -241,7 +233,9 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL mma_deallocate(atom)
          CALL mma_deallocate(Mass)
          CALL mma_deallocate(vel)
-         CALL mma_deallocate(pcoo)
+         IF ((POUT.NE.0) .OR. (PIN.NE.natom*3)) THEN
+           CALL mma_deallocate(pcoo)
+         ENDIF
       END IF
 
 C
@@ -298,6 +292,8 @@ C
                   Write (LuInput,*) VELO
                   Write (LuInput,'(A)') 'OUT'
                   Write (LuInput,*) POUT
+                  Write (LuInput,'(A)') 'IN'
+                  Write (LuInput,*) PIN
                   Write (LuInput,'(A)') 'End of Input'
                   Write (LuInput,'(A)')
      &                  '>export MOLCAS_TRAP=$DYN_OLD_TRAP'

@@ -44,8 +44,8 @@
         ZNI = (ZI - Coor_Sph(3,LI)) / Coor_Sph(4,LI)
         SMat(ITs,ITs) = PotFac * Sqrt(FPI / Tessera(4,ITs))
         DMat(ITs,ITs) = DMat(ITs,ITs) - TPI / Tessera(4,ITs)
-        Do 1000 JTs = 1, NTs
-          If(JTs.eq.ITs) goto 1000
+        Do 1001 JTs = 1, NTs
+          If(JTs.eq.ITs) goto 1001
           XJ = Tessera(1,jTs)
           YJ = Tessera(2,jTs)
           ZJ = Tessera(3,jTs)
@@ -55,15 +55,19 @@
           DMat(ITs,JTs) = - Prod / RIJ**3
           DMat(JTs,JTs) = DMat(JTs,JTs)
      &                  - DMat(ITs,JTs)*Tessera(4,ITs) / Tessera(4,JTs)
+ 1001   Continue
  1000 Continue
 *
 * S*A*D matrix
       call dcopy_(nTs*nTs,[Zero],0,SDMat,1)
       Do 1500 ITs = 1, NTs
-        Do 1500 JTs = 1, NTs
-          Do 1500 KTs = 1, NTs
- 1500       SDMat(ITs,JTs) = SDMat(ITs,JTs) +
+        Do 1501 JTs = 1, NTs
+          Do 1502 KTs = 1, NTs
+            SDMat(ITs,JTs) = SDMat(ITs,JTs) +
      &      SMat(ITs,KTs) * Tessera(4,KTs) * DMat(KTs,JTs)
+ 1502     Continue
+ 1501   Continue
+ 1500 Continue
 *
 * The charges are defined as
 * q = T-1 R V,         T = f(e)*S - SAD / 2p
@@ -74,10 +78,11 @@
         Rad = Coor_Sph(4,ISphe(ITs))
         TMat(ITs,ITs) = Fac * SMat(ITs,ITs) - SDMat(ITs,ITs) / TPI
         RMat(ITs,ITs) = - One + DMat(ITs,ITs) * Tessera(4,ITs) / TPI
-        Do 2000 JTs = 1, NTs
-          If(JTs.eq.ITs) goto 2000
+        Do 2001 JTs = 1, NTs
+          If(JTs.eq.ITs) goto 2001
           TMat(ITs,JTs) = Fac * SMat(ITs,JTs) - SDMat(ITs,JTs) / TPI
           RMat(ITs,JTs) = Tessera(4,JTs) * DMat(JTs,ITs) / TPI
+ 2001   Continue
  2000 Continue
 *
 * Invert T matrix
@@ -108,13 +113,14 @@
         YI = Tessera(2,iTs)
         ZI = Tessera(3,iTs)
         SMat(ITs,ITs) = - PotFac * EpsFac * Sqrt(FPI / Tessera(4,ITs))
-        Do 1010 JTs = 1, ITs-1
+        Do 1011 JTs = 1, ITs-1
           XJ = Tessera(1,jTs)
           YJ = Tessera(2,jTs)
           ZJ = Tessera(3,jTs)
           RIJ = Sqrt( (XI - XJ)**2 + (YI - YJ)**2 + (ZI - ZJ)**2 )
           SMat(ITs,JTs) = - EpsFac * One / RIJ
           SMat(JTs,ITs) = SMat(ITs,JTs)
+ 1011   Continue
  1010 Continue
 *
 * Invert S matrix and store it in D

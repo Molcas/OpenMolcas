@@ -20,13 +20,13 @@
 *       Adapted by Giovanni Ghigo                                      *
 *       University of Torino, July 2006                                *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       Dimension GradIn(nGrad)
@@ -42,16 +42,15 @@
       iCen=0
 *     nCnttp_Valence=0
 *     Do iCnttp = 1, nCnttp
-*        If (AuxCnttp(iCnttp)) Go To 999
+*        If (dbsc(iCnttp)%Aux) Go To 999
 *        nCnttp_Valence = nCnttp_Valence+1
 *     End Do
 *999  Continue
 *
       Do iCnttp=1,nCnttp
-         If (.Not.(pChrg(iCnttp).or.FragCnttp(iCnttp).or.
-     &             AuxCnttp(iCnttp))) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt=1,nCntr(iCnttp)
+         If (.Not.(pChrg(iCnttp).or.dbsc(iCnttp)%Frag.or.
+     &             dbsc(iCnttp)%Aux)) Then
+            Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
                Do iCo=0,nIrrep/nStab(mdc)-1
                   kop=iCoSet(iCo,0,mdc)
@@ -68,7 +67,6 @@
                   CNames(iCen)=LblCnt(mdc)
                End Do
             End Do
-            ixyz=ixyz+3
          End If
       End Do
 *

@@ -9,39 +9,32 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAO_g(iSD4,nSD,nSO, MemPrm, MemMax,
-     &                  nExp,nBasis,MxShll,
      &                  iBsInc,jBsInc,kBsInc,lBsInc,
      &                  iPrInc,jPrInc,kPrInc,lPrInc,
      &                  ipMem1,ipMem2, Mem1,  Mem2,
      &                  iPrint,iFnc, MemPSO)
+      use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 *
       Integer iSD4(0:nSD,4), iAnga(4), iCmpa(4),
-     &        nExp(MxShll), nBasis(MxShll), iFnc(4), iShela(4)
+     &        iFnc(4), IndShl(4)
 *
-      iAnga(1)=iSD4(1,1)
-      iAnga(2)=iSD4(1,2)
-      iAnga(3)=iSD4(1,3)
-      iAnga(4)=iSD4(1,4)
-      iCmpa(1)=iSD4(2,1)
-      iCmpa(2)=iSD4(2,2)
-      iCmpa(3)=iSD4(2,3)
-      iCmpa(4)=iSD4(2,4)
-      iPrimi   =   nExp(iSD4( 0,1))
-      jPrimj   =   nExp(iSD4( 0,2))
-      kPrimk   =   nExp(iSD4( 0,3))
-      lPriml   =   nExp(iSD4( 0,4))
-      iBasi    = nBasis(iSD4( 0,1))
-      jBasj    = nBasis(iSD4( 0,2))
-      kBask    = nBasis(iSD4( 0,3))
-      lBasl    = nBasis(iSD4( 0,4))
-      iShela(1) = iSD4(11,1)
-      iShela(2) = iSD4(11,2)
-      iShela(3) = iSD4(11,3)
-      iShela(4) = iSD4(11,4)
+      iPrimi   = Shells(iSD4( 0,1))%nExp
+      jPrimj   = Shells(iSD4( 0,2))%nExp
+      kPrimk   = Shells(iSD4( 0,3))%nExp
+      lPriml   = Shells(iSD4( 0,4))%nExp
+      iBasi    = Shells(iSD4( 0,1))%nBasis
+      jBasj    = Shells(iSD4( 0,2))%nBasis
+      kBask    = Shells(iSD4( 0,3))%nBasis
+      lBasl    = Shells(iSD4( 0,4))%nBasis
+      Do iQuad = 1, 4
+         iAnga(iQuad)  = iSD4( 1,iQuad)
+         iCmpa(iQuad)  = iSD4( 2,iQuad)
+         IndShl(iQuad) = iSD4( 8,iQuad)
+      End Do
 *
                   Call PSOAO1(nSO,MemPrm, MemMax,
-     &                        iAnga, iCmpa, iShela,iFnc,
+     &                        iAnga, iCmpa, IndShl,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,

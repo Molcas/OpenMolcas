@@ -27,7 +27,6 @@ H  1.880903  1.213924  0.000000
   Group = NoSymm
   RICD
 &SEWARD
-  DoAnalytical
 &SCF
 &RASSCF
   FileOrb = $Project.ScfOrb

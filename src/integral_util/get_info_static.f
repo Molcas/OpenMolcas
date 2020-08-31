@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Get_Info_Static(ioffr)
+      SubRoutine Get_Info_Static()
 ************************************************************************
 *                                                                      *
 * Object: to read all input information stored in common blocks        *
@@ -31,19 +31,18 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "relae.fh"
 #include "RelLight.fh"
       Integer iix(2)
       Real*8 rix(2)
+      Integer, Allocatable:: AS(:,:)
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
       Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ioffr)
 *
 *     This is to allow type punning without an explicit interface
       Contains
@@ -64,34 +63,20 @@ c Avoid unused argument warnings
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
-      Call Get_iArray('nExp',nExp,Mx_Shll)
-      Call Get_iArray('nBasis',nBasis,Mx_Shll)
-      Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
-      Call Get_iArray('ipCff',ipCff,Mx_Shll)
-      Call Get_iArray('ipCff_Cntrct',ipCff_Cntrct,Mx_Shll)
-      Call Get_iArray('ipCff_Prim',ipCff_Prim,Mx_Shll)
-      Call Get_iArray('ipExp',ipExp,Mx_Shll)
-      Call Get_iArray('IndS',IndS,nShlls)
-      Call Get_iArray('ip_Occ',ip_Occ,Mx_Shll)
-      Call Get_iArray('ipAkl',ipAkl,Mx_Shll)
-      Call Get_iArray('ipBk',ipBk,Mx_Shll)
-      Call Get_iArray('nOpt',nOpt,nCnttp)
+
       Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(MxUnq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
-      Call Get_iArray('ipFockOp',ipFockOp,Mx_Shll)
 *
 *     And some in iAOtSO
 *
-      Call Allocate_iWork(ip_AS,8*Mx_AO)
-      Call Get_iArray('iAOtSO',iWork(ip_AS),8*Mx_AO)
-      jp_AS = ip_AS
+      Call mma_allocate(AS,8,Mx_AO,Label='AS')
+      Call Get_iArray('iAOtSO',AS,8*Mx_AO)
       Do i = 1, Mx_AO
-         Call ICopy(8,iWork(jp_AS),1,iAOtSO(i,0),MxAO)
-         jp_AS = jp_AS + 8
+         Call ICopy(8,AS(1,i),1,iAOtSO(i,0),MxAO)
       End Do
-      Call Free_iWork(ip_AS)
+      Call mma_deallocate(AS)
 *
       iRELAE=iRELAE_Info
 *
@@ -101,12 +86,6 @@ c Avoid unused argument warnings
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
       Call Get_iArray('SewLInfo',p_lx,Len)
-      Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
-      Len = (Len+nByte_i)/nByte_i
-      Call Get_lArray('Prjct',Prjct,Len)
-      Call Get_lArray('Transf',Transf,Len)
-      Call Get_lArray('AuxShell',AuxShell,Len)
-      Call Get_lArray('FragShell',FragShell,Len)
 *
 *     Load the common RINFO
 *
@@ -114,9 +93,6 @@ c Avoid unused argument warnings
       Len = (Len+nByte_r)/nByte_r
       Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
       Call Get_dArray('SewRInfo',p_rx,Len)
-      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-      Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('RMax_Shll',RMax_Shll,Len)
       CLightAU=CLight_Info
 *
 *     Load the common CINFO

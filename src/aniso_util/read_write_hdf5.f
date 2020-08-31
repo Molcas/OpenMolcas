@@ -112,34 +112,34 @@
       Integer, intent(in)           :: nstate,nss
       Integer, intent(out)          :: multiplicity(nstate)
 
-      Real(kind=wp), intent(out)    :: esfs(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss)
-      Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
-      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
-      Real(kind=wp), intent(out)    :: angmom(3,nstate,nstate)
-      Complex(kind=wp), intent(out) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
+      Real(kind=8), intent(out)    :: esfs(nstate)
+      Real(kind=8), intent(out)    :: eso(nss)
+      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Real(kind=8), intent(out)    :: angmom(3,nstate,nstate)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
 !     electric dipole moment
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: U(nss,nss)
-      Complex(kind=wp), intent(out) :: HSO(nss,nss)
+      Complex(kind=8), intent(out) :: DM(3,nss,nss)
+      Complex(kind=8), intent(out) :: U(nss,nss)
+      Complex(kind=8), intent(out) :: HSO(nss,nss)
 
-      Real(kind=wp)                 :: AU2CM
-      Real(kind=wp), allocatable    :: etmp(:)
-      Real(kind=wp), allocatable    :: RR(:,:), RI(:,:)
-      Real(kind=wp), allocatable    :: AL(:,:,:)
+      Real(kind=8)                 :: AU2CM
+      Real(kind=8), allocatable    :: etmp(:)
+      Real(kind=8), allocatable    :: RR(:,:), RI(:,:)
+      Real(kind=8), allocatable    :: AL(:,:,:)
       Integer                       :: fileid,jend,INRM
       Character(180)                :: file_h5
-      Real(kind=wp)                 :: RNRM
-      Real(kind=wp), external       :: dnrm2_, dznrm2_
-      Complex(kind=wp), external    :: spin
+      Real(kind=8)                 :: RNRM
+      Real(kind=8), external       :: dnrm2_, dznrm2_
+      Complex(kind=8), external    :: spin
       ! local variables:
       Integer       :: iss, ibas(nstate,-50:50)
       Integer       :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer       :: l, ipar
-      Real(kind=wp) :: g_e
-      Complex(kind=wp), allocatable    :: tmp(:,:)
+      Real(kind=8) :: g_e
+      Complex(kind=8), allocatable    :: tmp(:,:)
 
 !      Logical :: Exist
       Logical :: found_edmom, found_angmom, found_hso, found_amfi,
@@ -591,34 +591,34 @@ c----- expand the spin free basis to the spin-orbit basis:
       Integer                       :: multiplicity(nstate)
       Integer                       :: iReturn
 
-!      Real(kind=wp), intent(out)    :: esfs(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss)
-!      Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
-!      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
-      Real(kind=wp)                 :: angmom(3,nstate,nstate)
-      Complex(kind=wp)  :: MM(3,nss,nss)
-      Complex(kind=wp)  :: MS(3,nss,nss)
-!      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-!      Complex(kind=wp), intent(out) :: DM(3,nss,nss) ! electric dipole moment
-!      Complex(kind=wp)              :: U(nLoc,nLoc)
-!      Complex(kind=wp), intent(out) :: HSO(nss,nss)
+!      Real(kind=8), intent(out)    :: esfs(nstate)
+      Real(kind=8), intent(out)    :: eso(nss)
+!      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+!      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Real(kind=8)                 :: angmom(3,nstate,nstate)
+      Complex(kind=8)  :: MM(3,nss,nss)
+      Complex(kind=8)  :: MS(3,nss,nss)
+!      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+!      Complex(kind=8), intent(out) :: DM(3,nss,nss) ! electric dipole moment
+!      Complex(kind=8)              :: U(nLoc,nLoc)
+!      Complex(kind=8), intent(out) :: HSO(nss,nss)
 
-      Real(kind=wp)                 :: AU2CM
-      Real(kind=wp), allocatable    :: etmp(:)
-      Real(kind=wp), allocatable    :: RR(:,:), RI(:,:)
-      Real(kind=wp), allocatable    :: AL(:,:,:)
-      Complex(kind=wp), allocatable :: U(:,:)
+      Real(kind=8)                 :: AU2CM
+      Real(kind=8), allocatable    :: etmp(:)
+      Real(kind=8), allocatable    :: RR(:,:), RI(:,:)
+      Real(kind=8), allocatable    :: AL(:,:,:)
+      Complex(kind=8), allocatable :: U(:,:)
       Integer                       :: fileid,jend,INRM
       Character(180)                :: file_h5
-      Real(kind=wp)                 :: RNRM
-      Real(kind=wp), external       :: dnrm2_, dznrm2_
-      Complex(kind=wp), external    :: spin
+      Real(kind=8)                 :: RNRM
+      Real(kind=8), external       :: dnrm2_, dznrm2_
+      Complex(kind=8), external    :: spin
       ! local variables:
       Integer       :: iss, ibas(nstate,-50:50)
       Integer       :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer       :: l, ipar
-      Real(kind=wp) :: g_e
-      Complex(kind=wp), allocatable    :: tmp(:,:)
+      Real(kind=8) :: g_e
+      Complex(kind=8), allocatable    :: tmp(:,:)
 
 !      Logical :: Exist
       Logical :: found_edmom, found_angmom, found_hso, found_amfi,

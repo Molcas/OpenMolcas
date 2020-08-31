@@ -37,9 +37,11 @@ C
             DO 343 L=1,K
                LG=LG+1
                JL=JL+1
-  343       ETOT=ETOT+SS(LG)*G(JL)
+               ETOT=ETOT+SS(LG)*G(JL)
+  343       CONTINUE
             S1KK=S1KK-ETOT*ETOT
-  342    A1(K)=ETOT
+            A1(K)=ETOT
+  342    CONTINUE
          IF=1
          JL=IL
          DO 344 K=1,J1
@@ -49,22 +51,27 @@ C
          IH=IF
          DO 345 L=K,J1
          IH=IH+L-1
-  345    SUM=SUM+A1(L)*G(IH)
-  344    G(JL)=-SUM
+         SUM=SUM+A1(L)*G(IH)
+  345    CONTINUE
+         G(JL)=-SUM
+  344    CONTINUE
   341    S1KK=1.D0/sqrt(S1KK)
          JL=IL
-         DO 340 K=1,J
+         DO 346 K=1,J
          JL=JL+1
          IQ=IQ+1
          G(JL)=G(JL)*S1KK
-  340 P(IQ)=G(JL)
+         P(IQ)=G(JL)
+  346    CONTINUE
+  340 CONTINUE
 *
       IJ=0
       DO 1 I=1,N
          DO 2 J=1,I
             IJ=IJ+1
             SINV(I,J)=0.D0
-2        SINV(J,I)=P(IJ)
+            SINV(J,I)=P(IJ)
+2        CONTINUE
 1     CONTINUE
       RETURN
       END

@@ -26,6 +26,7 @@
 *> @param[in] iPrint Print level
 ************************************************************************
       SUBROUTINE Process_Weights(iPrint)
+      use Basis_Info
       IMPLICIT REAL*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -41,9 +42,9 @@
       nSymAt=0
       ndc=0
       DO i=1,nCnttp
-        DO j=1,nCntr(i)
+        DO j=1,dbsc(i)%nCntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
+          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             nAt=nAt+nIrrep/nStab(ndc)
             nSymAt=nSymAt+1
           END IF
@@ -58,8 +59,8 @@
 *---- Set the weights to the mass of each atom
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            DO iCnt=1,nCntr(i)
+          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            DO iCnt=1,dbsc(i)%nCntr
               W(j)=CntMass(i)/UTOAU
               j=j+1
             END DO
@@ -69,8 +70,8 @@
 *---- Set the the weight to 1 for heavy atoms, 0 for hydrogens
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            DO iCnt=1,nCntr(i)
+          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            DO iCnt=1,dbsc(i)%nCntr
               IF (iAtmNr(i).LE.1) W(j)=Zero
               j=j+1
             END DO
@@ -93,9 +94,9 @@
       iAt=1+nSymAt
       ndc=0
       DO i=1,nCnttp
-        DO j=1,nCntr(i)
+        DO j=1,dbsc(i)%ncntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
+          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO k=1,nIrrep/nStab(ndc)-1
               W(iAt)=W(iSymAt)
               iAt=iAt+1

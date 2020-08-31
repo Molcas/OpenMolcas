@@ -11,8 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,DAO,iBas,jBas,DSO,nDSO,nOp,FactNd,
-     &                  Scrt)
+     &                  iShll,jShll,IndShl,JndShl,DAO,iBas,jBas,
+     &                  DSO,nDSO,nOp,FactNd,Scrt)
 ************************************************************************
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
@@ -57,7 +57,7 @@
       Do 100 j1 = 0, nIrrep-1
          Xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+            If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 200
 *
             Do 300 j2 = 0, j1
                j12 = iEor(j1,j2)
@@ -66,7 +66,7 @@
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0)
+                  If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0)
      &               Go To 400
                   lSO = lSO + 1
 *
@@ -96,7 +96,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
-*     Call GetMem(' Exit Desym1','CHECK','ALLO',iDum,iDum)
 *     Call QExit('Desym1',iQ)
       Return
 c Avoid unused argument warnings

@@ -181,11 +181,9 @@ C
        END IF
 
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
          WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
          CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
-        End If
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -194,9 +192,6 @@ C
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
 CProducing XMS Rotated States
-       If(IFNOPT2) then
-        GOTO 9999
-       END IF
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -334,7 +329,8 @@ C     transition density matrices.
 
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
-          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',JSTATE
+          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',
+     &                         MSTATE(JSTATE)
           WRITE(6,*)
           WRITE(6,'(A)')       '                        '//
      &                         ' cpu time  (s) '//
@@ -369,31 +365,22 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
          CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
-        End If
        END IF
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
-9999    write (6,*)
       END DO STATELOOP
 
 1000  CONTINUE
 
       IF (IRETURN.NE.0) GOTO 9000
-       If(IFNOPT2) then  !XMS Skip multistate calculation.
-        write(6,*)'PT2 calculation skipped with XROH keyword'
-        write(6,*)
-        CALL MMA_DEALLOCATE(UEFF)
-        CALL MMA_DEALLOCATE(U0)
-       Else
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
         IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
-     &    'CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+     &    'CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
        END DO
        WRITE(6,*)
        IF (IFXMS) THEN
@@ -407,13 +394,17 @@ C End of long loop over groups
        WRITE(6,*)' Relative CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
+       ISTATE=1
+       DO I=2,NSTATE
+         IF (ENERGY(I).LT.ENERGY(ISTATE)) ISTATE=I
+       END DO
        DO I=1,NSTATE
-        RELAU = ENERGY(I)-ENERGY(1)
+        RELAU = ENERGY(I)-ENERGY(ISTATE)
         RELEV = RELAU * CONV_AU_TO_EV_
         RELCM = RELAU * CONV_AU_TO_CM1_
         RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
         WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
-     &   I, RELAU, RELEV, RELCM, RELKJ
+     &   MSTATE(I), RELAU, RELEV, RELCM, RELKJ
        END DO
        WRITE(6,*)
       END IF
@@ -422,29 +413,36 @@ C End of long loop over groups
       IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,UEFF,U0)
+
+        IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
+         WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
+         WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+     &     'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
+         DO I=1,NSTATE
+          RELAU = ENERGY(I)-ENERGY(1)
+          RELEV = RELAU * CONV_AU_TO_EV_
+          RELCM = RELAU * CONV_AU_TO_CM1_
+          RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+          WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+     &     I, RELAU, RELEV, RELCM, RELKJ
+         END DO
+         WRITE(6,*)
+        END IF
       END IF
 
-      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
-       WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
-       WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
-     &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
-       DO I=1,NSTATE
-        RELAU = ENERGY(I)-ENERGY(1)
-        RELEV = RELAU * CONV_AU_TO_EV_
-        RELCM = RELAU * CONV_AU_TO_CM1_
-        RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
-        WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
-     &   I, RELAU, RELEV, RELCM, RELKJ
-       END DO
-       WRITE(6,*)
-      END IF
+* Back-transform the effective Hamiltonian and the transformation matrix
+* to the basis of original CASSCF states
+      CALL Backtransform(Heff,Ueff,U0)
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
       CALL CREIPH_CASPT2(Heff,Ueff,U0)
 
-* Store the PT2 energy and effective hamiltonian on the wavefunction file
+* Store the PT2 energy and effective Hamiltonian on the wavefunction file
       CALL PT2WFN_ESTORE(HEFF)
+
+* Store rotated states if XMUL + NOMUL
+      IF (IFXMS.AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
 
 * store information on runfile for geometry optimizations
       Call Put_iScalar('NumGradRoot',iRlxRoot)
@@ -452,7 +450,6 @@ C End of long loop over groups
 
       CALL MMA_DEALLOCATE(UEFF)
       CALL MMA_DEALLOCATE(U0)
-      End If  !Skipping MultiState calculation when IFNOPT2=true
 9000  CONTINUE
 
 C Free resources, close files

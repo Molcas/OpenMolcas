@@ -64,7 +64,7 @@
 
       ldisk  =ipopen(0,.True.)
 *
-      write(*,*) "iMethod:",iMethod,iCASSCF
+      write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td
@@ -110,7 +110,7 @@
 
 ! Here should be the position for introducing the CI(SR) coefficients
 !           iSSM=1     ! yma
-!           write(*,*)"Set ISSM eq 1 ",ISSM
+!           write(6,*)"Set ISSM eq 1 ",ISSM
 
            if(doDMRG)then !yma
              ! mma_allocate and mma_deallocate

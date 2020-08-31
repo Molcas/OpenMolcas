@@ -82,6 +82,7 @@
 #include "mspdft.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+      CHARACTER(Len=18)::MatInfo
       Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
       Dimension WGRONK(2)
@@ -224,7 +225,7 @@
 
 
 * Process the input:
-      Call Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Call Proc_InpX(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -463,7 +464,6 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-      Call XFlush(6)
       Do_Rotate=.false.
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
@@ -475,25 +475,15 @@ CGG03 Aug 03
        End If
       End IF
       IF(Do_Rotate) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
         write(6,*)
         write(6,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
+        write(6,*)
         write(6,'(6X,A,A)')
      &  'Switching calculation to Multi-State Pair-Density ',
-     &  'Functional Theory (MS-PDFT) calculation'
-        write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,'(8X,2A)')'Reminder: MS-PDF includes a variety',
-     &  ' of specific methods depending on how'
-        write(6,'(8X,A)')'intermediate states are generated.'
-        write(6,'(6X,80A)') ('-',i=1,80)
-        write(6,'(8X,2A)')'--- If you used a CASPT2 module with',
-     &  ' the XROH keyword in your input,'
-        write(6,'(12X,2A)')'note that this MS-PDFT calculation',
-     &  ' can be an XMS-PDFT calculation'
-        write(6,'(12X,2A)')'if it uses the',
-     &  ' rotation matrix from the CASPT2 module.'
-        write(6,'(6X,80A)') ('=',i=1,80)
+     &  'Functional Theory (MS-PDFT) '
+        write(6,'(6X,A)')'calculation.'
         write(6,*)
         NHRot=lroots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
@@ -504,6 +494,17 @@ CGG03 Aug 03
           read(LUMS,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
      &                 ,kroot=1,lroots)
         End Do
+        Read(LUMS,'(A18)') MatInfo
+        IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
+         write(6,'(6X,A,A)')'The MS-PDFT calculation is ',
+     & 'based on a user-supplied rotation matrix.'
+        ELSE
+         write(6,'(6X,A,A,A)')'The MS-PDFT method is ',
+     &   trim(adjustl(MatInfo)),'.'
+        ENDIF
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
         Close(LUMS)
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
@@ -519,7 +520,6 @@ CGG03 Aug 03
            Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
         end do
       End IF!End IF for Do_Rotate=.true.
-        CALL XFLUSH(6)
 
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
@@ -565,6 +565,8 @@ CGG03 Aug 03
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
          Call FZero(Work(LPUVX),NFINT)
+      Else
+         LPUVX=ip_Dummy
       EndIf
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
 
@@ -612,8 +614,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         end if
        IADR19(:)=0
        IAD19=0
-       Open(unit=87,file='CI_THETA',iostat=ios,
-     &    action='read')
+       LUCT=87
+       LUCT=IsFreeUnit(LUCT)
+       CALL Molcas_Open(LUCT,'CI_THETA')
 
       Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
           CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
@@ -633,7 +636,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
           DO jRoot=1,lroots
            do i=1,nconf
-             read(87,*) Work(LW4-1+i)
+             read(LUCT,*) Work(LW4-1+i)
            end do
            Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
@@ -658,7 +661,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
          Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
        end do
-       Close(87)
+       Close(LUCT)
 
        Call fCopy('JOBIPH','JOBGS',ierr)
 

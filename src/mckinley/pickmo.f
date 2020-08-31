@@ -10,18 +10,18 @@
 ************************************************************************
       SubRoutine PickMO(COUT,nOut,
      &                  nAcO,
-     &                  ishell,icmp,iBasi,iBasn,jBasj,jBasn,
+     &                  IndShl,icmp,iBasi,iBasn,jBasj,jBasn,
      &                  kBask,kBasn,lBasl,lBasn,iaoii)
+      use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
 #include "etwas.fh"
-#include "pso.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 COUT(nOut)
       Integer iCmp(4),iBas(4),nBs(4)
-      Integer iTwoj(0:7),ishell(4),iaoii(4)
+      Integer iTwoj(0:7),IndShl(4),iaoii(4)
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iBas(1)=iBasi
@@ -38,7 +38,7 @@
           nA=nA+nAsh(iIrrep)
       End Do
       Do iCnt=3,4
-         ipC=ipCMO-1
+         ipC=0
          Do iIrrep=0,nIrrep-1
             iOrb=nIsh(iIrrep)
             Do iAsh=1,nAsh(iIrrep)
@@ -46,9 +46,9 @@
                Do i1=1,jj
                   iSO=iAOtSO(iAOii(iCnt)+i1,iIrrep)+iBas(iCnt)-1
                   ip1=ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
-                  If (iAnd(IrrCmp(IndS(iShell(iCnt))+i1),
+                  If (iAnd(IrrCmp(IndShl(iCnt)+i1),
      &                iTwoj(iIrrep)).ne.0) Then
-                     call dcopy_(nBs(iCnt),Work(ip1),1,COUT(ip2),1)
+                     call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
                   Else
                      call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)
                   End If

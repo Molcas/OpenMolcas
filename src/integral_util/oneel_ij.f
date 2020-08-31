@@ -27,6 +27,7 @@
 *
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -59,14 +60,17 @@
       If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
+      B(:)=Zero
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -78,25 +82,22 @@
       Call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
-      iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
-      iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
-      ixyz   = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
-      Call DCopy_(3,Work(ixyz),1,A,1)
+      iCnt   = iSD(14,iS)
+      A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
       dbas= LblCnt(mdci)(1:LENIN)
       Call UpCase(dbas)
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
-      jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
-      jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
-      jxyz   = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
+      jCnt   = iSD(14,jS)
+      B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
        if (iPrint.ge.19) Then
         write(6,*) "interacted Ato.Fun "
           Write (6,'(A,A,A,A,A)')
@@ -158,10 +159,12 @@
         call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
      &                                     iBas,jBas,iAng,jAng,
      &                                     iPrim,jPrim,mdci,mdcj,
-     &                                     Work(iExp),Work(jExp),
-     &                                     Work(iCff+iPrim*iBas),
-     &                         Work(jCff+jPrim*jBas),nAtoms,NATEST,
-     &                         Coord,nPSOI,Final)
+     &                                     Shells(iShll)%Exp,
+     &                                     Shells(jShll)%Exp,
+     &                                     Shells(iShll)%Cff_c(1,1,2),
+     &                                     Shells(jShll)%Cff_c(1,1,2),
+     &                                     nAtoms,NATEST,
+     &                                     Coord,nPSOI,Final)
 #else
          Call WarningMessage(2,
      &   'OneEl_IJ: NO Gen1int interface available!')
@@ -172,7 +175,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -181,7 +184,8 @@
                Else
                  !write(6,*) "Symmetry adapt component"
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                        iShell,jShell,iShll,jShll,Final,
+     &                        iShell,jShell,iShll,jShll,
+     &                        IndShl,JndShl,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
@@ -200,14 +204,16 @@
 *
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -222,26 +228,25 @@
 *
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
-      iCff   = iSD( 4,iS)
       iPrim  = iSD( 5,iS)
-      iExp   = iSD( 6,iS)
       iAO    = iSD( 7,iS)
-      ixyz   = iSD( 8,iS)
+      IndShl = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
-      call dcopy_(3,Work(ixyz),1,A,1)
+      iCnt   = iSD(14,iS)
+      A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
       dbas= LblCnt(mdci)(1:LENIN)
       Call UpCase(dbas)
 
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
-      jCff   = iSD( 4,jS)
       jPrim  = iSD( 5,jS)
-      jExp   = iSD( 6,jS)
       jAO    = iSD( 7,jS)
-      jxyz   = iSD( 8,jS)
+      JndShl = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
+      jCnt   = iSD(14,jS)
+      B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *---- Identify if shell doublet should be computed with special
 *     R-Matrix code.
@@ -257,7 +262,6 @@
       Else
          RMat_type_integrals=.False.
       End If
-      call dcopy_(3,Work(jxyz),1,B,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -343,7 +347,8 @@
 *     At this point we can compute Zeta.
 *     This is now computed in the ij or ji order.
 *
-      Call ZXia(xZeta,xZI,iPrim,jPrim,Work(iExp),Work(jExp))
+      Call ZXia(xZeta,xZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                Shells(jShll)%Exp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -414,12 +419,14 @@
 *
 *           Compute kappa and P.
 *
-            Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+            Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                  A,RB,xKappa,xPCoor,xZI)
 *
 *           Compute primitive integrals. Result is ordered ij,ab.
 *
-            Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+            Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                  xZeta,xZI,
      &                  xKappa,xPCoor,
      &                  Final,iPrim*jPrim,nIC,nComp,
@@ -437,9 +444,9 @@
 *
            If (iPrint.ge.99) Then
                 Call RecPrt(' Left side contraction',' ',
-     &                        Work(iCff+iPrim*iBas),iPrim,iBas)
+     &                        Shells(iShll)%pCff,iPrim,iBas)
                 Call RecPrt(' Right side contraction',' ',
-     &                        Work(jCff+jPrim*jBas),jPrim,jBas)
+     &                        Shells(jShll)%pCff,jPrim,jBas)
 *
             End If
 *
@@ -448,13 +455,13 @@
             Call DGEMM_('T','N',
      &                  jPrim*kk*nIC,iBas,iPrim,
      &                  1.0d0,Final,iPrim,
-     &                  Work(iCff),iPrim,
+     &                        Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Scrtch,jPrim*kk*nIC)
 *           Transform j,abxI to abxI,J
             Call DGEMM_('T','N',
      &                  kk*nIC*iBas,jBas,jPrim,
      &                  1.0d0,Scrtch,jPrim,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,ScrSph,kk*nIC*iBas)
 *
             If (iPrint.ge.99) Then
@@ -465,13 +472,17 @@
 *           Transform to spherical gaussians if needed.
 *
 
-            If (Transf(iShll).or.Transf(jShll)) Then
+            If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *              Result comes back as xIJAB or xIJAb
                Call CarSph(ScrSph,kk,iBas*jBas*nIC,
-     &                     Final,lScrSph,RSph(ipSph(iAng)),
-     &                     iAng,Transf(iShll),Prjct(iShll),
-     &                     RSph(ipSph(jAng)),jAng,Transf(jShll),
-     &                     Prjct(jShll),Scrtch,iCmp*jCmp)
+     &                     Final,lScrSph,
+     &                     RSph(ipSph(iAng)),
+     &                     iAng,Shells(iShll)%Transf,
+     &                          Shells(iShll)%Prjct,
+     &                     RSph(ipSph(jAng)),
+     &                     jAng,Shells(jShll)%Transf,
+     &                          Shells(jShll)%Prjct,
+     &                     Scrtch,iCmp*jCmp)
                Call DGeTmO(Scrtch,nIC,nIC,iBas*jBas*iCmp*jCmp,
      &                     Final,iBas*jBas*iCmp*jCmp)
             Else
@@ -552,7 +563,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -560,7 +571,8 @@
                   End Do
                Else
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                        iShell,jShell,iShll,jShll,Final,
+     &                        iShell,jShell,iShll,jShll,
+     &                        IndShl,JndShl,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

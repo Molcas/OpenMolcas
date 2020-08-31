@@ -1,9 +1,9 @@
 *-------------------------------------------------------------------------------
 * Molecule: Acrolein
 * Basis: cc-pVDZ
-* Symmetry: C1 
+* Symmetry: C1
 * Features tested: acCD-4  in  SEWARD, SCF, FNO-MP2, FNO-CCSD
-* Responsible person: F. Aquilante            
+* Responsible person: F. Aquilante
 * Comments: Test of "Frozen Natural Orbital" (FNO) MP2 and CCSD
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
@@ -48,13 +48,13 @@ EndChoInput
 End of input
 *-------------------------------------------------------------------------------
  &MBPT2 &END
-FNOmp2    
- 0.4   
+FNOmp2
+ 0.4
 DoMP2
-End of input                                                                  
+End of input
 *-------------------------------------------------------------------------------
  &CHCC &END
-End of input                                                                  
+End of input
 *-------------------------------------------------------------------------------
 
 >>FILE checkfile

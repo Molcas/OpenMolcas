@@ -21,7 +21,6 @@
 * Called from: RctFld                                                  *
 *                                                                      *
 * Calling    : QEnter                                                  *
-*              GetMem                                                  *
 *              ZXia                                                    *
 *              SetUp1                                                  *
 *              MltInt                                                  *
@@ -54,11 +53,13 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -70,6 +71,9 @@
       Integer   lOper(nTs), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
       Logical AeqB
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
+      Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
+     &                      DAO(:), DSOpr(:), DSO(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Statement functions
@@ -83,10 +87,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call mma_allocate(Zeta,m2Max,Label='Zeta')
+      Call mma_allocate(ZI,m2Max,Label='ZI')
+      Call mma_allocate(Kappa,m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -100,34 +104,34 @@
 
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll)) Go To 100
+         If (Shells(iShll)%Aux) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         call dcopy_(3,Work(ixyz),1,A,1)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            call dcopy_(3,Work(jxyz),1,B,1)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.eq.0) Go To 131
             If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -137,7 +141,7 @@
             Call EFMmP(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write (*,*)nOrder,MemKer,iAng,jAng,nOrdOp
             MemKrn=MemKer*m2Max
-            Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
+            Call mma_allocate(Kern,MemKrn,Label='Kern')
 *
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
@@ -146,26 +150,26 @@
             lFinal = MaxPrm(iAng) * MaxPrm(jAng)
      &             * nElem(iAng)*nElem(jAng)
      &             * nComp
-            Call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
+            Call mma_allocate(Fnl,lFinal,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
             nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
-            Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
+            Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
             nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
-            Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
+            Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
             nDAO =iPrim*jPrim*nElem(iAng)*nElem(jAng)
-            Call GetMem(' DAO ','Allo','Real',ipDAO,nDAO)
+            Call mma_allocate(DAO,nDAO,Label='DAO')
 *
 *           At this point we can compute Zeta.
 *
-            Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -187,45 +191,46 @@
 *           denisty matrix which are associated with the current shell
 *           pair.
 *
-            Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
-            Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
+            Call mma_allocate(DSOpr,nSO*iPrim*jPrim,Label='DSOpr')
+            Call mma_allocate(DSO,nSO*iPrim*jPrim,Label='DSO')
 *
 *           Gather the elements from 1st order density / Fock matrix.
 *
-            Call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,
+            Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
 *           basis on to the primitive basis.
 *
             If (iPrint.ge.99) Then
                Call RecPrt(' Left side contraction',' ',
-     &                     Work(iCff),iPrim,iBas)
+     &                     Shells(iShll)%pCff,iPrim,iBas)
                Call RecPrt(' Right side contraction',' ',
-     &                     Work(jCff),jPrim,jBas)
+     &                     Shells(jShll)%pCff,jPrim,jBas)
             End If
 *
 *           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBas*nSO,iPrim,iBas,
-     &                  1.0d0,Work(ipDSO),iBas,
-     &                  Work(iCff),iPrim,
-     &                  0.0d0,Work(ipDSOp),jBas*nSO)
+     &                  1.0d0,DSO,iBas,
+     &                        Shells(iShll)%pCff,iPrim,
+     &                  0.0d0,DSOpr,jBas*nSO)
 *           Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrim,jPrim,jBas,
-     &                  1.0d0,Work(ipDSOp),jBas,
-     &                  Work(jCff),jPrim,
-     &                  0.0d0,Work(ipDSO),nSO*iPrim)
+     &                  1.0d0,DSOpr,jBas,
+     &                        Shells(jShll)%pCff,jPrim,
+     &                  0.0d0,DSO,nSO*iPrim)
 *           Transpose to ij,AB
-            Call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),
+            Call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,
      &                  iPrim*jPrim)
-            Call GetMem('DSO ','Free','Real',ipDSO,nSO*iBas*jBas)
+            Call mma_deallocate(DSO)
 *
             If (iPrint.ge.99) Call
      &         RecPrt(' Decontracted 1st order density/Fock matrix',
-     &                ' ',Work(ipDSOp),iPrim*jPrim,nSO)
+     &                ' ',DSOpr,iPrim*jPrim,nSO)
 *
 *           Loops over symmetry operations.
 *
@@ -296,55 +301,59 @@
 *
                      Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                           iShell,jShell,iShll,jShll,
-     &                           Work(ipDAO),iPrim,jPrim,
-     &                           Work(ipDSOp),nSO,nOp,FactNd)
+     &                           IndShl,JndShl,DAO,iPrim,jPrim,
+     &                           DSOpr,nSO,nOp,FactNd)
 *
 *--------------------Project the spherical harmonic space onto the
 *                    cartesian space.
 *
                      kk = nElem(iAng)*nElem(jAng)
-                     If (Transf(iShll).or.Transf(jShll)) Then
+                     If (Shells(iShll)%Transf.or.
+     &                   Shells(jShll)%Transf) Then
 *
 *-----------------------ij,AB --> AB,ij
-                        Call DGeTmO(Work(ipDAO),iPrim*jPrim,iPrim*jPrim,
-     &                              iCmp*jCmp,Work(iScrt1),iCmp*jCmp)
+                        Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,
+     &                              iCmp*jCmp,Scr1,iCmp*jCmp)
 *-----------------------AB,ij --> ij,ab
-                        Call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,
-     &                              Work(iScrt2),nScr2,
+                        Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
+     &                              Scr2,nScr2,
      &                              RSph(ipSph(iAng)),
-     &                              iAng,Transf(iShll),Prjct(iShll),
+     &                              iAng,Shells(iShll)%Transf,
+     &                                   Shells(iShll)%Prjct,
      &                              RSph(ipSph(jAng)),
-     &                              jAng,Transf(jShll),Prjct(jShll),
-     &                              Work(ipDAO),kk)
+     &                              jAng,Shells(jShll)%Transf,
+     &                                   Shells(jShll)%Prjct,
+     &                              DAO,kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(
      &                        ' Decontracted FD in the cartesian space',
-     &                        ' ',Work(ipDAO),iPrim*jPrim,kk)
+     &                        ' ',DAO,iPrim*jPrim,kk)
 *
 *--------------------Compute kappa and P.
 *
-                     Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                   TA,TRB,Work(iKappa),Work(iPCoor),Work(ipZI))
+                     Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                           Shells(jShll)%Exp,jPrim,
+     &                           TA,TRB,Kappa,PCoor,ZI)
 *
 *
 *--------------------Compute the potential at a tessera.
 *
-                     Call EFPrm(Work(iExp),iPrim,Work(jExp),jPrim,
-     &                          Work(iZeta),Work(ipZI),
-     &                          Work(iKappa),Work(iPcoor),
-     &                          Work(ipFnl),iPrim*jPrim,nComp,
-     &                          iAng,jAng,TA,TRB,nOrder,Work(iKern),
+                     Call EFPrm(Shells(iShll)%Exp,iPrim,
+     &                          Shells(jShll)%Exp,jPrim,
+     &                          Zeta,ZI,Kappa,Pcoor,
+     &                          Fnl,iPrim*jPrim,nComp,
+     &                          iAng,jAng,TA,TRB,nOrder,Kern,
      &                          MemKer,C,nOrdOp)
                      If (iPrint.ge.49) Call RecPrt(' Final Integrals',
-     &                                 ' ',Work(ipFnl),nDAO,nComp)
+     &                                 ' ',Fnl,nDAO,nComp)
 *
 *--------------------Trace with 1st order density matrix and accumulate
 *                    to the potenital at tessera iTile
 *
                      If (iPrint.ge.49) Call RecPrt(
      &                        ' Decontracted FD in the cartesian space',
-     &                        ' ',Work(ipDAO),nDAO,1)
-                     ipFnlc=ipFnl
+     &                        ' ',DAO,nDAO,1)
+                     ipFnlc=1
                      Do iComp = 1, nComp
                         If (iPrint.ge.49)
      &                     Call RecPrt('VTessera(iComp,2,iTile)',' ',
@@ -352,7 +361,7 @@
 
                         VTessera(iComp,2,iTile)=
      &                      VTessera(iComp,2,iTile) +
-     &                      DDot_(nDAO,Work(ipDAO),1,Work(ipFnlc),1)
+     &                      DDot_(nDAO,DAO,1,Fnl(ipFnlc),1)
                         If (iPrint.ge.49)
      &                     Call RecPrt('VTessera(iComp,2,iTile)',' ',
      &                                  VTessera(iComp,2,iTile),1,1)
@@ -363,24 +372,21 @@
  5000          Continue
             End Do
 *
-            Call GetMem('DSOpr ','Free','REAL',ipDSOp,nSO*iPrim*jPrim)
-            Call GetMem(' DAO ','Free','Real',ipDAO,iPrim*jPrim*
-     &                  nElem(iAng)*nElem(jAng))
-            Call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
-            Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
-            Call GetMem('Final','Free','Real',ipFnl,lFinal)
-            Call GetMem('Kernel','Free','Real',iKern,MemKrn)
+            Call mma_deallocate(DSOpr)
+            Call mma_deallocate(DAO)
+            Call mma_deallocate(Scr2)
+            Call mma_deallocate(Scr1)
+            Call mma_deallocate(Fnl)
+            Call mma_deallocate(Kern)
  131        Continue
          End Do
       End Do
  100  Continue
 *
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
-*
-c     Call GetMem('Drv1_PCM','CHEC','REAL',iDum,iDum)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       Call qExit('Drv1_PCM')
       Return

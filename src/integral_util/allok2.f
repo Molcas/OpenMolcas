@@ -29,19 +29,19 @@
 *             University of Lund, Sweden. Jun '95                      *
 ************************************************************************
       use k2_setup
+      use k2_arrays
       use iSD_data
+      use IOBUF
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "IOBuf.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
 *     declaration of local vars...
       Logical Debug
@@ -80,21 +80,23 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll) .and. iS.ne.nSkal) Go To 100
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(jShll) .and. jS.eq.nSkal) Go To 200
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
 *
@@ -105,7 +107,7 @@
             End If
             MaxDe = Max(MaxDe,iDeSiz)
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.gt.0) Then
                nDeDe = nDeDe + nr_of_Densities*iDeSiz*nIrrep
             End If
@@ -122,10 +124,10 @@
  100     Continue
       End Do
 *     now ... allocate memory
-      Call mma_allocate(Data_k2,nk2)
-      Call FZero(Data_k2,nk2)
+      Call mma_allocate(Data_k2,nk2,Label='Data_k2')
+      Data_k2(:)=Zero
       nIndk2=nShlls*(nShlls+1)/2
-      call mma_allocate(Indk2,2,nIndk2)
+      call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return
       End

@@ -34,6 +34,8 @@
 *
 *     Compute an approximative R_D_0
 *
+      Dr=Zero
+      h=Zero
        Do k = 0, l_Max, l_Max-1
       R_D_0=Relative_Max_Error/(10.0D0**k)
       Dr=-Log10(R_D_0)

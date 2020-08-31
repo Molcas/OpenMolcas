@@ -12,6 +12,7 @@
       implicit real*8 (a-h,o-z)
       dimension iv1(n),iv2(n)
       do 100 i=1,n
-100   iv2(i)=iv1(i)
+      iv2(i)=iv1(i)
+100   continue
       return
       end

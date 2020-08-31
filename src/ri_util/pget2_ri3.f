@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI3(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI3(iCmp,IndShl,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k,
-     &                  ZpK,Thpkl,nSA,nAct)
+     &                  ZpK,nSA,nAct)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
@@ -35,18 +35,18 @@
 *             Modified for 3-center RI gradients, March 2007           *
 *                                                                      *
 ************************************************************************
+      use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
-     &       Thpkl(*),Zpk(*)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+     &       Zpk(*)
+      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
       Logical Shijij
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
@@ -70,7 +70,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
          Write (6,*)
          Write (6,*) 'Distribution of Ymnij'
@@ -117,7 +117,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &          iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -126,7 +126,7 @@
          Do i3 = 1, iCmp(3)
             nkSym = 0
             Do 301 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(3))+i3),
+               If (iAnd(IrrCmp(IndShl(3)+i3),
      &             iTwoj(j)).ne.0) Then
                   kSym(nkSym) = j
                   nkSym = nkSym + 1
@@ -135,7 +135,7 @@
             Do i4 = 1, iCmp(4)
                nlSym = 0
                Do 401 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+                  If (iAnd(IrrCmp(IndShl(4)+i4),
      &                 iTwoj(j)).ne.0) Then
                      lSym(nlSym) = j
                      nlSym = nlSym + 1

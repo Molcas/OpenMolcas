@@ -30,11 +30,13 @@
 c Set xalf and xbet for indget :
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
-100   maxgrph(iorb)=min(iorb,nalf)
+      maxgrph(iorb)=min(iorb,nalf)
+100   continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
       do 200 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
-200   maxgrph(iorb)=min(iorb,nbet)
+      maxgrph(iorb)=min(iorb,nbet)
+200   continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 
 c  Transformation matrix VB structures  <->  determinants
@@ -45,7 +47,7 @@ c  Transformation matrix VB structures  <->  determinants
       nalfsing=nalf-ion
       nbetsing=nbet-ion
 c  Skip if configurations are incompatible with Ms :
-      if(nalfsing.lt.0.or.nbetsing.lt.0.or.nelsing.lt.0)goto 1000
+      if(nalfsing.lt.0.or.nbetsing.lt.0.or.nelsing.lt.0)goto 1001
 
 c  Generate alpha/beta strings for singly occupied electrons :
       call icomb_cvb(nelsing,nalfsing,nstring)
@@ -72,7 +74,8 @@ c  Generate alpha/beta strings for singly occupied electrons :
         incr=incr+1
         iaccm(incr)=iorb
       endif
-1200  inewocc(iorb)=max(0,inewocc(iorb)-1)
+      inewocc(iorb)=max(0,inewocc(iorb)-1)
+1200  continue
 
 c  Spin string loop :
       do 1300 index=1,nstring
@@ -80,20 +83,24 @@ c  Spin string loop :
 c  Alpha index in full string space ...
       do 1400 i=1,nalfsing
       iaocc=iaccm(iw(i+(index-1)*nalfsing+iastr-1))
-1400  inewocc(iaocc)=inewocc(iaocc)+1
+      inewocc(iaocc)=inewocc(iaocc)+1
+1400  continue
       iaind=indget_cvb(inewocc,nalf,norb,xalf)
       do 1500 i=1,nalfsing
       iaocc=iaccm(iw(i+(index-1)*nalfsing+iastr-1))
-1500  inewocc(iaocc)=inewocc(iaocc)-1
+      inewocc(iaocc)=inewocc(iaocc)-1
+1500  continue
 
 c  Beta index in full string space ...
       do 1600 i=1,nbetsing
       ibocc=iaccm(iw(i+(index-1)*nbetsing+ibstr-1))
-1600  inewocc(ibocc)=inewocc(ibocc)+1
+      inewocc(ibocc)=inewocc(ibocc)+1
+1600  continue
       ibind=indget_cvb(inewocc,nbet,norb,xbet)
       do 1700 i=1,nbetsing
       ibocc=iaccm(iw(i+(index-1)*nbetsing+ibstr-1))
-1700  inewocc(ibocc)=inewocc(ibocc)-1
+      inewocc(ibocc)=inewocc(ibocc)-1
+1700  continue
 
       incrdet=incrdet+1
       idetavb(incrdet)=iaind
@@ -101,7 +108,8 @@ c  Beta index in full string space ...
 1300  continue
 1100  continue
       call mfreei_cvb(iastr)
-1000  ioff_nconf=ioff_nconf+nconfion(ion)
+1001  ioff_nconf=ioff_nconf+nconfion(ion)
+1000  continue
       if(debug)then
         write(6,*)' idetavb='
         write(6,'(10i6)')idetavb

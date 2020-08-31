@@ -6,7 +6,7 @@ Symmetry
 y
 Expert
 Douglas
-Basis Set                                                                       
+Basis Set
 Mn.ANO-rcc...7s6p5d2f1g.
 Mn         0.0000000000         0.0000000000         0.0000000000
 End of basis
@@ -50,10 +50,10 @@ Thrc
 Endchoinput
 
  &RASSCF
-Symmetry                                                                        
-    1                                                                           
-Spin                                                                            
-    3                                                                           
+Symmetry
+    1
+Spin
+    3
 fileorb=startorb
 supsym
 1
@@ -63,23 +63,23 @@ tight
 0.0000001 0.01
 CiRoot
    1 1
-   1 
+   1
 CIOnly
 nActEl
-   36  2  2    
-Inactive          
-   43 32             
+   36  2  2
+Inactive
+   43 32
 Ras1
     9 8
 Ras2
-    2 0 
+    2 0
 Ras3
     8 8
-Iterations                                                                      
+Iterations
 15,49
 CiMx
-99                                                                             
-lumorb                                                                          
+99
+lumorb
 LevShift
 3.0
 Orblisting
@@ -97,13 +97,13 @@ IPEA
 Imaginary
   0.1
 Frozen
-  17 12    
+  17 12
 NoMult
 
 >> FILE startorb
-#INPORB 1.1         
+#INPORB 1.1
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       2       0
      283     244
      283     244
@@ -35910,7 +35910,7 @@ NoMult
 5 ssssssssss
 6 ssssssssss
 7 ssssssssss
-8 sss       
+8 sss
 * 1234567890
 0 iiiiiiiiii
 1 iiiiiiiiii
@@ -35936,7 +35936,7 @@ NoMult
 1 ssssssssss
 2 ssssssssss
 3 ssssssssss
-4 ssss      
+4 ssss
 
 >> EOF
 

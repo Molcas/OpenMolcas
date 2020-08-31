@@ -29,17 +29,16 @@
 *             University of Lund, Sweden. Jun '95                      *
 ************************************************************************
       use iSD_data
+      use k2_arrays
+      use IOBUF
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
-#include "IOBuf.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "k2.fh"
 *
 *     Call QEnter('AlloK2')
 *
@@ -59,6 +58,7 @@ C        iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
+         IndShl = iSD( 8,iS)
 C        mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
@@ -67,6 +67,7 @@ C           jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
+            JndShl = iSD( 8,jS)
 C           mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
 *
@@ -74,7 +75,7 @@ C           iDeSiz = 1 + iPrim*jPrim + (iBas*jBas+1)*iCmp*jCmp
             iDeSiz = iBas*jBas*iCmp*jCmp
             MaxDe = Max(MaxDe,iDeSiz)
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.gt.0) Then
                nDeDe_DFT = nDeDe_DFT
      &                   + nr_of_Densities*iDeSiz*nIrrep
@@ -83,7 +84,5 @@ C           iDeSiz = 1 + iPrim*jPrim + (iBas*jBas+1)*iCmp*jCmp
          End Do
       End Do
 *
-c     Call GetMem('Allok2','List','Real',iDum,iDum)
-*     Call QExit('AlloK2')
       Return
       End

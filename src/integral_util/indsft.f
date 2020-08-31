@@ -11,7 +11,7 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine IndSft(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine IndSft(iCmp,iShell,IndShl,iBas,jBas,kBas,lBas,
      &                  Shijij,iAO,iAOst,ijkl,SOInt,nSOInt)
 ************************************************************************
 *  Object: to sift and index the SO integrals.                         *
@@ -37,7 +37,7 @@
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), IndShl(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
      &        iQij, iQkl, Wijij
 *     Local Array
@@ -62,13 +62,13 @@
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+            iSym(j) = iAnd(IrrCmp(IndShl(1)+i1),iTwoj(j))
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               jSym(j) = iAnd(IrrCmp(IndShl(2)+i2),iTwoj(j))
 201         Continue
             Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
@@ -78,13 +78,13 @@
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  kSym(j) = iAnd(IrrCmp(IndShl(3)+i3),iTwoj(j))
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+                     lSym(j) = iAnd(IrrCmp(IndShl(4)+i4),iTwoj(j))
 401               Continue
                   Qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) Then
@@ -229,6 +229,5 @@
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit IndSft','CHECK','REAL',iDum,iDum)
       Return
       End

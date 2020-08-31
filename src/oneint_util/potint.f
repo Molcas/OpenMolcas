@@ -28,7 +28,6 @@
 *              Rys                                                     *
 *              Hrr                                                     *
 *              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
@@ -40,7 +39,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
@@ -149,11 +147,11 @@ c Avoid unused argument warnings
       End If
       End
       SubRoutine Pot_nuc(CCoor,pot,nGrid)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8  CCoor(3,nGrid),pot(nGrid)
       Real*8 C(3), TC(3)
@@ -173,10 +171,9 @@ chjw is this always correct?
       Do 100 kCnttp = 1, nCnttp
          If (Charge(kCnttp).eq.Zero) Go To 111
 *
-         Do 101 kCnt = 1, nCntr(kCnttp)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
 *
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
@@ -196,7 +193,7 @@ chjw is this always correct?
 *
             End Do
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
       Return

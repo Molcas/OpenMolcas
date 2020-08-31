@@ -102,11 +102,20 @@ C Compute transition strengths for spin-orbit states:
 C printing threshold
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Threshold changed to ',OSTHR,
-     &                    ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
+     &              ' since quadrupole threshold is given '
+      END IF
+! Rotatory strength threshold
+      IF(RSPR) THEN
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-07 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -184,7 +193,7 @@ C printing threshold
 *     Initiate the Seward environment
 *
       nDiff=0
-      Call IniSew(Info,.FALSE.,nDiff)
+      Call IniSew(.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -841,102 +850,114 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  Call Add_Info('ROTS(SO)',[R],1,4)
 *
                  IF (Do_Pol) THEN
-                    LMAX_=LMAX+8*(ij_-1)
-                    F_CHECK=ABS(WORK(LMAX_+0))
+                   LMAX_=LMAX+8*(ij_-1)
+                   F_CHECK=ABS(WORK(LMAX_+0))
+                   R_CHECK=0.0D0 ! dummy assign
                  ELSE
-                    F_CHECK=ABS(F)
+                   F_CHECK=ABS(F)
+                   R_CHECK=ABS(R)
                  END IF
-                 IF (F_CHECK.LT.OSTHR) CYCLE
+                 IF ( (F_CHECK.LT.OSTHR).AND.(R_CHECK.LT.RSTHR) ) CYCLE
                  A =(AFACTOR*EDIFF**2)*F
 *
-            If (iPrint.eq.0) Then
-               WRITE(6,*)
-               If (Do_SK) Then
-                  CALL CollapseOutput(1,
-     &              'Transition moment strengths (SO states):')
-                  WRITE(6,'(3X,A)')
-     &              '----------------------------------------'
-                  If (Do_Pol) Then
+                 If (iPrint.eq.0) Then
+                   WRITE(6,*)
+                   If (Do_SK) Then
+                     CALL CollapseOutput(1,
+     &                'Transition moment strengths (SO states):')
+                     WRITE(6,'(3X,A)')
+     &                '----------------------------------------'
+                   If (Do_Pol) Then
                       iVec_=(iVec-1)*nQuad+1
-                      WRITE(6,'(4x,a,3F8.4)')
+                      WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the polarization: ',
      &                  (pol_vector(k,iVec),k=1,3)
-                  Else
-                     WRITE(6,'(4x,a)')
+                   Else
+                      WRITE(6,'(4x,a)')
      &                 'The oscillator strength is integrated '//
      &                 'over all directions of the polarization '//
      &                 'vector'
-                  End If
-                  WRITE(6,'(4x,a,3F8.4)')
+                   End If
+                   WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the k-vector: ',
      &                   (Work(ipR+k),k=0,2)
-               Else
-                  CALL CollapseOutput(1,
+                 Else
+                   CALL CollapseOutput(1,
      &              'Isotropic transition moment strengths '//
      &              '(SO states):')
-                  WRITE(6,'(3X,A)')
+                   WRITE(6,'(3X,A)')
      &              '--------------------------------------'//
      &              '------------'
-               End If
-               IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,30) 'for osc. strength at least ',OSTHR
-               END IF
-               WRITE(6,*)
-               If (.NOT.Do_SK) Then
-                 WRITE(6,'(4x,a,I4,a)')
-     &             'Integrated over ',2*nQuad,' directions of the '//
-     &             'wave vector'
-                 WRITE(6,'(4x,a)')
-     &             'The oscillator strength is '//
-     &             'integrated over all directions of the polar'//
-     &             'ization vector'
-                  WRITE(6,*)
-               End If
-               WRITE(6,31) 'From', 'To', 'Osc. strength',
+                 End If
+                 IF (OSTHR.GT.0.0D0) THEN
+                   WRITE(6,45)
+     &                  'For osc. strength at least',OSTHR,'and '//
+     &                  'red. rot. strength  at least',RSTHR
+                 END IF
+                 WRITE(6,*)
+                 If (.NOT.Do_SK) Then
+                   WRITE(6,'(4x,a,I4,a)')
+     &               'Integrated over ',2*nQuad,' directions of the '//
+     &               'wave vector'
+                   WRITE(6,'(4x,a)')
+     &               'The oscillator strength is '//
+     &               'integrated over all directions of the polar'//
+     &               'ization vector'
+                   WRITE(6,*)
+                 End If
+                 WRITE(6,31) 'From', 'To', 'Osc. strength',
      &                     'Red. rot. str.', 'Total A (sec-1)'
-               WRITE(6,32)
-              iPrint=1
-            END IF
+                 WRITE(6,32)
+                 iPrint=1
+                 END IF
 *
 *     Regular print
 *
-            WRITE(6,33) ISO,JSO,F,R,A
-*
-            IF (Do_SK) THEN
-               WRITE(6,50) 'maximum',WORK(LMAX_+0),
-     &            'for polarization direction:',
-     &            WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
-               WRITE(6,50) 'minimum',WORK(LMAX_+4),
-     &            'for polarization direction:',
-     &            WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
-            END IF
+                !Don't print osc. str. if below threshold
+                 IF(F_CHECK.LT.OSTHR) THEN
+                   WRITE(6,46) ISO,JSO,'below threshold',R,A
+                 !Don't print rot. str. if below threshold
+                 ELSE IF(R_CHECK.LT.RSTHR) THEN
+                   WRITE(6,47) ISO,JSO,F,'below threshold',A
+                 ELSE
+                   WRITE(6,33) ISO,JSO,F,R,A
+                 END IF
+
+                 IF (Do_SK) THEN
+                  WRITE(6,50) 'maximum',WORK(LMAX_+0),
+     &               'for polarization direction:',
+     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
+                  WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &               'for polarization direction:',
+     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+                 END IF
 *
 *
 *     Printing raw (unweighted) and direction for every transition
 *
-            IF(PRRAW) THEN
-              WRITE(6,*)
-              WRITE(6,*)
-              WRITE(6,34) 'From', 'To', 'Raw osc. str.',
-     &                    'Red. rot. str.','kx','ky','kz'
-              WRITE(6,35)
-              NQUAD_=2*NQUAD
-              LRAW_=LRAW+6*NQUAD_*(ij_-1)
-              DO IQUAD = 1, NQUAD
-                DO kp=1,2
-                  IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
-                  IQUAD_=2*(IQUAD-1)+(kp-1)
-                  WRITE(6,33) ISO,JSO,
-     &            WORK(LRAW_+IQUAD_+0*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+1*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
-                END DO
-              END DO
-              WRITE(6,35)
-              WRITE(6,*)
-            END IF
+                 IF(PRRAW) THEN
+                   WRITE(6,*)
+                   WRITE(6,*)
+                   WRITE(6,34) 'From', 'To', 'Raw osc. str.',
+     &                         'Red. rot. str.','kx','ky','kz'
+                   WRITE(6,35)
+                   NQUAD_=2*NQUAD
+                   LRAW_=LRAW+6*NQUAD_*(ij_-1)
+                   DO IQUAD = 1, NQUAD
+                     DO kp=1,2
+                       IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
+                       IQUAD_=2*(IQUAD-1)+(kp-1)
+                       WRITE(6,33) ISO,JSO,
+     &                 WORK(LRAW_+IQUAD_+0*NQUAD_),
+     &                 WORK(LRAW_+IQUAD_+1*NQUAD_),
+     &                 WORK(LRAW_+IQUAD_+2*NQUAD_),
+     &                 WORK(LRAW_+IQUAD_+3*NQUAD_),
+     &                 WORK(LRAW_+IQUAD_+4*NQUAD_)
+                     END DO
+                   END DO
+                   WRITE(6,35)
+                   WRITE(6,*)
+                 END IF
 *
 *     Printing weighted and direction for every transition
 *
@@ -1041,6 +1062,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
 34    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
 35    FORMAT (5X,95('-'))
+45    FORMAT (4X,2(A,1X,ES15.8,1X))
+46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
+47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
 *
 ************************************************************************
@@ -1055,4 +1080,3 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
       RETURN
       END Subroutine PRPROP_TM_Exact
-

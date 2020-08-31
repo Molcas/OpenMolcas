@@ -24,12 +24,11 @@
 
 c The following initialization is to appease a compiler
       fx=zero
+      ioptc=0
+      iter=0
 
       if(imethod.eq.11)then
 c  Method = None :
-        fx=zero
-        ioptc=0
-        iter=0
         goto 10
       endif
       if(imethod.eq.4)then

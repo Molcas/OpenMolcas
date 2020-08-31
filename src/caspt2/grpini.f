@@ -57,13 +57,11 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
-       End If
       END IF
 * ---------------------------------------------------------------------
 
@@ -127,19 +125,19 @@ c Modify the Fock matrix if needed
             write(6,*) 'Fock matrix couplings'
             write(6,*) '---------------------'
             write(6,*)
-            write(6,'(10X,6X,A3,I4,A3)') ' | ', Jstate, ' > '
+            write(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(Jstate), ' > '
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
                 call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
-* Then set it to zero becuase we are within the diagonal approximation
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
+* Then set it to zero because we are within the diagonal approximation
                 H0(Istate,Jstate) = 0.0d0
               else
 * Just print out the already computed diagonal element
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
               end if
             end do
             write(6,*)
@@ -185,10 +183,6 @@ c Modify the Fock matrix if needed
           write(6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
-
-       if(IFXMS) then
-        call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
-       end if
 
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
