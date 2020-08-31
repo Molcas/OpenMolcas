@@ -155,15 +155,12 @@
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
 ************************************************************************
-<<<<<<< HEAD
 *         DoExchange=Exfac.ne.Zero
 *
          Call Get_cArray('Relax Method',Method,8)
          If (Method.eq.'MCPDFT ' ) exfac=1.0d0
          DoExchange=Exfac.ne.Zero
 
-=======
->>>>>>> 2c87dcaabecb25c61583c4a549e1afaf29ddbb3e
          If (DoExchange .or. DoCAS) Then
             Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
             Do i=2,nKdens
