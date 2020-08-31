@@ -27,6 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *
 ************************************************************************
+      Use AMFI_Info
       Use Basis_Info
       Use GeoList
       Use MpmC
@@ -1717,28 +1718,25 @@ C     mMltpl=-1 ! Do only overlap.
 
 * BP - Turn off AMFI integrals for certain atom types
 *      as requested by the PAMF keyword
-c         write(6,*) "nPAMFI:", nPAMFI
-c         write(6,*) "iPAMFI:", iPAMFI(1:nPAMFI)
 
-         Do iAtm=1,nCnttp
-           iAtmNr2(iAtm) = dbsc(iAtm)%AtmNr
-           Charge2(iAtm) = dbsc(iAtm)%Charge
+         Do i=1,nCnttp
+            iAtmNr2(i) = dbsc(i)%AtmNr
+            Charge2(i) = dbsc(i)%Charge
 
-c           write(6,*) "iAtmNr2(iAtm)",iAtm, iAtmNr2(iAtm)
-c           write(6,*) "Charge(iAtm)", iAtm, dbsc(iAtm)%Charge
+c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
+c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
-           do iPAM=1,nPAMFI
-             if(dbsc(iAtm)%AtmNr.EQ.iPAMFI(iPAM)) then
+            iAtom_Number= dbsc(i)%AtmNr
+            If (No_AMFI(iAtom_Number)) then
                write(6,*) "Disabling AMFI for atom type ",
-     &                    dbsc(iAtm)%AtmNr
-               iAtmNr2(iAtm) = 0
-               Charge2(iAtm) = 0.0d0
-             end if
-           end do
+     &                 dbsc(i)%AtmNr
+               iAtmNr2(i) = 0
+               Charge2(i) = 0.0d0
+            End if
          End do
 
-         Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,
-     &                 OperC, iAtmNr2, Charge2)
+         Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,
+     &                 Charge2)
 
          Call Deallocate_Auxiliary()
       End If

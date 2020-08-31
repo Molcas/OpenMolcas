@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use AMFI_Info
       use Basis_Info
       use Her_RW
       use Period
@@ -195,8 +196,6 @@
       ipRTmp=ip_Dummy
       ipITmp=ip_iDummy
       lMltpl=.False.
-*
-      nPAMFI=0
 *
       CholeskyWasSet=.False.
       do1CCD=.false.
@@ -3548,8 +3547,8 @@ c
 *     Disable AMFI for an atom type
 *
  8060 KWord = Get_Ln(LuRd)
-      nPAMFI=nPAMFI+1
-      Call Get_I1(1,iPAMFI(nPAMFI))
+      Call Get_I1(1,iAtom_Number)
+      No_AMFI(iAtom_Number)=.True.
       Go To 998
 *                                                                      *
 ******* GROM ***********************************************************

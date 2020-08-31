@@ -78,8 +78,6 @@
 *     nCtrLD: number of centers in the LDKH procedure                  *
 *     iCtrLD: ith center for the LDKH procedure                        *
 *     iSigma: rotational symmetry number                               *
-*     iPAMFI: center types for which to disable AMFI                   *
-*     nPAMFI: number of center types for which to disable AMFI         *
 *                                                                      *
 * -> Logical <-                                                        *
 *     Onenly: logical flag to indicate that only the 1-electron        *
@@ -122,7 +120,6 @@
 *     force_part_p: logical flag to force partitioning on primitive    *
 *     GIAO: integrals for first derivative with respect to B           *
 *     Cholesky: logical flag for Cholesky decomposition.               *
-*     AuxCnttp: logical flag for auxiliary basis set                   *
 *     lAux: logical flag that there is an auxiliary basis              *
 *     Do_RI: logical flag for RI apporach                              *
 *     lFAIEMP: logical flag for Fragment AIEMP                         *
@@ -213,8 +210,7 @@
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl, kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
-     &          nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
-     &          nPAMFI, nPSOI, IsChi
+     &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
       Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
@@ -222,16 +218,15 @@
      &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
-     &              iChBas, iSphCr,  nOrdEF,
-     &              mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
+     &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,
+     &              m2Tot,  IntTot,
      &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh,iShll_RF, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
-     &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
-     &              nPAMFI, iPAMFI, nPSOI,
+     &              Nuclear_Model, nCtrLD,iCtrLD,iSigma, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
       Integer          kCnttpPAM, iPAMPrim, iPAMCount
@@ -250,7 +245,7 @@
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
      &          pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
-     &          SODK(Mxdbsc), AuxCnttp(Mxdbsc), Do_GuessOrb,
+     &          SODK(Mxdbsc), Do_GuessOrb,
      &          lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
@@ -259,10 +254,9 @@
      &          lUPONLY, lDOWNONLY, FNMC
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, DKroll, BSS, Primitive_Pass,
-     &               lAux,  NEMO,lPP, LDF, AuxCnttp, Do_RI,
-     &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
-     &               Test, Vlct, lOAM, lOMQ, lAMP,
+     &               DirInt, DKroll, BSS, Primitive_Pass, lAux,  NEMO,
+     &               lPP, LDF, Do_RI, lAMFI,  Onenly, Petite, lSOInt,
+     &               Do_GuessOrb, Test, Vlct, lOAM, lOMQ, lAMP,
      &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
      &               lSchw, Dist, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,
