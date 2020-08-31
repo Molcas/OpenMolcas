@@ -122,7 +122,7 @@
                End If
                Write (LuWr,'(6X,A,F10.6,A)')
      &               'Associated Actual Charge    ',
-     &               Max(Zero,DBLE(iAtmNr(iCnttp))), ' au'
+     &               Max(Zero,DBLE(dbsc(iCnttp)%AtmNr)), ' au'
 *
                If (Nuclear_Model.eq.Point_Charge) Then
                   Write (LuWr,'(6X,A)') 'Nuclear Model: Point charge'

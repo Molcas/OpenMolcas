@@ -41,7 +41,7 @@
 *
       Bsl(nCnttp)='.....RI_Dummy'
       Charge(nCnttp)=Zero
-      iAtmNr(nCnttp)=1
+      dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
       aCD_Thr(nCnttp)=One
       NoPairL(nCnttp)=.False.

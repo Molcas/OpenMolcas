@@ -136,7 +136,7 @@
 *
             xFactor=1.0D0/fMass(iCnttp)
             If (FNMC) Then
-               iAtom=iAtmNr(iCnttp)
+               iAtom=dbsc(iCnttp)%AtmNr
 *              Get the atom mass in au (me=1)
                xMass=CntMass(iCnttp)
 *              Substract the electron mass to get the nuclear mass.
@@ -415,7 +415,7 @@
 *        read the corresponding ANO-RCC basis set.
 *
          BSLbl=' '
-         BSLbl=PTab(iAtmNr(iCnttp))
+         BSLbl=PTab(dbsc(iCnttp)%AtmNr)
 *
          If (BSLbl(1:1).eq.' ') Then
             BSLbl=BSLbl(2:2)//'.ANO-RCC.....'
@@ -471,7 +471,7 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
-     &              Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
+     &              Charge(nCnttp),BLine,Ref,
      &              PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
@@ -542,8 +542,8 @@
                Call RecPrt('Reference Fock operator',' ',
      &                    Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
 #endif
-               Call OrbType(iAtmNr(nCnttp),List_AE,31)
-               Call ECP_Shells(iAtmNr(iCnttp),List)
+               Call OrbType(dbsc(nCnttp)%AtmNr,List_AE,31)
+               Call ECP_Shells(dbsc(iCnttp)%AtmNr,List)
                If (lPP.or.dbsc(iCnttp)%nM1.eq.0) Then
 *
 *                 Pseud potential case
@@ -861,7 +861,7 @@
 ************************************************************************
 *                                                                      *
 *
-         Charge_Actual=DBLE(iAtmNr(iCnttp))
+         Charge_Actual=DBLE(dbsc(iCnttp)%AtmNr)
          Charge_Effective=Charge(iCnttp)
          qTest=Test_Charge -
      &         (Charge_Actual-Charge_Effective)

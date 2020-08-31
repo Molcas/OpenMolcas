@@ -56,9 +56,9 @@
       Do jCnttp = 1, nCnttp
          Z = Charge(jCnttp)
          mCnt = dbsc(jCnttp)%nCntr
-         If (iAtmNr(jCnttp).ge.1) Then
-*            Atod = CovRad (iAtmNr(jCnttp))
-             Atod = CovRadT(iAtmNr(jCnttp))
+         If (dbsc(jCnttp)%AtmNr.ge.1) Then
+*            Atod = CovRad (dbsc(jCnttp)%AtmNr)
+             Atod = CovRadT(dbsc(jCnttp)%AtmNr)
          Else
              Atod = Zero
          End If

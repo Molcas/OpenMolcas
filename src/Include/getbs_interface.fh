@@ -12,7 +12,7 @@
 ************************************************************************
       Interface
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, Charge,iAtmNr,BLine,Ref,
+     &                 MxAng, Charge,BLine,Ref,
      &                 PAM2,NoPairL,SODK,CrRep,
      &                 UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
@@ -22,7 +22,6 @@
       Integer       iBSLbl, lAng
       Integer       iShll, MxAng
       Real*8        Charge
-      Integer       iAtmNr
       Character*80  BLine, Ref(2)
       Logical       PAM2
       Logical       NoPairL, SODK

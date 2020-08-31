@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, Charge,iAtmNr,BLine,Ref,
+     &                 MxAng, Charge,BLine,Ref,
      &                 PAM2, NoPairL,SODK,
      &                 CrRep,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
@@ -168,7 +168,7 @@
 *        Find and decode basis set label
 *
          Call Rdbsl(DirName,BSLbl,Type,nCGTO,mCGTO,lAng,Itabmx,lUnit,
-     &              iAtmNr,BasisTypes,ExtBasDir)
+     &              dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
          Line=Get_Ln(lUnit)
          Ref(1)=Line(1:80)
          Line=Get_Ln(lUnit)
@@ -176,7 +176,7 @@
       Else
          Hit=.True.
          Call Decode(BSLbl,atom,1,Hit)
-         iAtmNr=Lbl2Nr(atom)
+         dbsc(nCnttp)%AtmNr=Lbl2Nr(atom)
          lUnit=LuRd
          Ref(1) = BLine
          Ref(2) = BLine
@@ -1017,7 +1017,7 @@
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,
-     &                   nProj,iPrSh+1,DBLE(iAtmNr))
+     &                   nProj,iPrSh+1,DBLE(dbsc(nCnttp)%AtmNr))
             Close (LUQRP)
          End If
       End If

@@ -243,12 +243,12 @@ C     Show=Show.and..Not.Primitive_Pass
             kECP = dbsc(iCnttp)%ECP
             lMax=dbsc(iCnttp)%nVal-1
 *
-            Call OrbType(iAtmNr(iCnttp),List_AE,31)
+            Call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
             If (kECP) Then
 *
 *              ECP case
 *
-               Call ECP_Shells(iAtmNr(iCnttp),list)
+               Call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
 *
 *              No core to freeze!
 *
@@ -264,7 +264,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *              Pick up which orbitals should be frozen as default.
 *
                If (Charge(iCnttp).ne.Zero) Then
-                  Call Freeze_Default(iAtmNr(iCnttp),nCore_Sh,lMax)
+                  Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
 *
 *                 If there charge is zero we presume that these are
@@ -296,7 +296,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      If (iAnd(iOper(iR),2).ne.0) LPC(2,iyy)=-LPC(2,iyy)
                      If (iAnd(iOper(iR),4).ne.0) LPC(3,iyy)=-LPC(3,iyy)
                      LPQ(iyy)=Charge(iCnttp)
-                     LPA(iyy)=iAtmnr(iCnttp)
+                     LPA(iyy)=dbsc(iCnttp)%AtmNr
                      LPMM(iyy)=dbsc(iCnttp)%IsMM
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                       //ChOper(iOper(iR))
@@ -498,7 +498,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                             LPQ(iyy)=Charge(iCnttp)
                             LPMM(iyy)=dbsc(iCnttp)%IsMM
-                            LPA(iyy)=iAtmnr(iCnttp)
+                            LPA(iyy)=dbsc(iCnttp)%AtmNr
 *
                             LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                                    //ChOper(iOper(iR))
@@ -635,16 +635,16 @@ CSVC: basis IDs of both symmetric and non-symmetric case
      &                       .and.iCnttp.ne.iCnttp_Dummy
             kECP = dbsc(iCnttp)%ECP
             lMax=dbsc(iCnttp)%nVal-1
-            Call OrbType(iAtmNr(iCnttp),List_AE,31)
+            Call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
             If (kECP) Then
-               Call ECP_Shells(iAtmNr(iCnttp),list)
+               Call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
                Call ICopy(lmax+1,[0],0,nCore_Sh,1)
             Else
                Call ICopy(1+iTabMx,List_AE,1,List,1)
                If (Charge(iCnttp).ne.Zero) Then
-                  Call Freeze_Default(iAtmNr(iCnttp),nCore_Sh,lMax)
+                  Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
-                  Call Freeze_Default(0             ,nCore_Sh,lMax)
+                  Call Freeze_Default(0                 ,nCore_Sh,lMax)
                End If
             End If
 *
@@ -663,7 +663,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                   LPQ(mdc)=Charge(iCnttp)
                   LPMM(mdc)=dbsc(iCnttp)%IsMM
-                  LPA(mdc)=iAtmnr(iCnttp)
+                  LPA(mdc)=dbsc(iCnttp)%AtmNr
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
                Do 303 iAng = 0, dbsc(iCnttp)%nVal-1
@@ -814,7 +814,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                         LPQ(mdc)=Charge(iCnttp)
                         LPMM(mdc)=dbsc(iCnttp)%IsMM
-                        LPA(mdc)=iAtmnr(iCnttp)
+                        LPA(mdc)=dbsc(iCnttp)%AtmNr
                         LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *
 ************************************************************************

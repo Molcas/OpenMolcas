@@ -165,7 +165,7 @@
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &              MxAng,Charge(nCnttp),
-     &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
+     &              BLine,Ref,PAM2(nCnttp),
      &              NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')

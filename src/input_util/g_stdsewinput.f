@@ -148,7 +148,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
+     &           BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,iSTDINP,.True.,.true.,' ')

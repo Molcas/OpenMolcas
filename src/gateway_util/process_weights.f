@@ -72,7 +72,7 @@
         DO i=1,nCnttp
           IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO iCnt=1,dbsc(i)%nCntr
-              IF (iAtmNr(i).LE.1) W(j)=Zero
+              IF (dbsc(i)%AtmNr.LE.1) W(j)=Zero
               j=j+1
             END DO
           END IF

@@ -172,7 +172,7 @@
             SODK(nCnttp)=.False.
             dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
-     &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
+     &                 Charge(nCnttp),BLine,Ref,
      &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')
@@ -189,7 +189,7 @@
      &                           + dbsc(nCnttp)%nSRO
      &                           + dbsc(nCnttp)%nSOC
      &                           + dbsc(nCnttp)%nPP
-            CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
+            CntMass(nCnttp) = rMass(dbsc(nCnttp)%AtmNr)
             Do iSh = jShll+1,iShll
                Shells(iSh)%Frag=.True.
             End Do
@@ -266,7 +266,7 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
             dbsc(nCnttp)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
             If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
-     &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
+     &        NucExp(iMostAbundantIsotope(dbsc(nCnttp)%AtmNr))
           End Do  ! iAtom
         End Do    ! iCntr
       End Do      ! iCnttp

@@ -121,7 +121,7 @@ C     Call qEnter('NAInt')
 *        is used for the DKH transformation (see dkh_util/dkrelint.f)!
 *
          If (DKroll.and.Primitive_Pass.and.lECP) Then
-            Q_Nuc=DBLE(iAtmNr(kCnttp))
+            Q_Nuc=DBLE(dbsc(kCnttp)%AtmNr)
          Else
             Q_Nuc=Charge(kCnttp)
          End If

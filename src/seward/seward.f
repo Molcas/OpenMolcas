@@ -80,7 +80,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Seward_Banner()
+C     Call Seward_Banner()
       lOPTO = .False.
       nByte = iiLoc(iix(2)) - iiLoc(iix(1))
       Call CWTime(TCpu1,TWall1)

@@ -54,13 +54,13 @@
                Centr(1,nc) = x1*DBLE(iFacx)
                Centr(2,nc) = y1*DBLE(iFacy)
                Centr(3,nc) = z1*DBLE(iFacz)
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
                   Mass(nc) = CntMass(jCnttp)
                Else
                   Mass(nc) = Zero
                End If
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
                   Chrg(nc) = DBLE(nchr)
                Else
@@ -99,7 +99,7 @@
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
             Do i = 0, nIrrep/nStab(ndc) - 1
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                Chrg(nc) = Z
                nc = nc + 1
             End Do

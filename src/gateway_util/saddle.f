@@ -207,7 +207,7 @@
      &                          dbsc(iCnttp)%Frag.Or.
      &                          dbsc(iCnttp)%Aux)) Then
                         iAt=iAt+1
-                        Elm(iAt)=PTab(iAtmNr(iCnttp))
+                        Elm(iAt)=PTab(dbsc(iCnttp)%AtmNr)
                         Do i=1,nIrrep/nStab(ndc)-1
                           iAtSym=iAtSym+1
                           Elm(iAtSym)=Elm(iAt)

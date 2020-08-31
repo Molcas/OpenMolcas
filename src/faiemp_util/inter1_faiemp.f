@@ -61,7 +61,7 @@
                Coor(1,ndc)=A1
                Coor(2,ndc)=A2
                Coor(3,ndc)=A3
-               ZNUC(ndc)=DBLE(iAtmNr(iCnttp))
+               ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
             End Do
          End Do
  99      Continue

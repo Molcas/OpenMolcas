@@ -1169,17 +1169,17 @@ c Simplistic validity check for value
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
      &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
+     &           BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
-     &            iAtmNr(nCnttp).le.96
+     &            dbsc(nCnttp)%AtmNr.le.96
 #ifdef _DEMO_
       Do_GuessOrb = .False.
 #else
-      Do_GuessOrb = Do_GuessOrb .and. iAtmNr(nCnttp).le.96
+      Do_GuessOrb = Do_GuessOrb .and. dbsc(nCnttp)%AtmNr.le.96
 #endif
 *
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
@@ -3900,11 +3900,11 @@ c      endif
             Do iCnt = 1, nCnt
                iUnique = iUnique+1
 *              Get the mass for this center
-               dm = rMass(iAtmNr(iCnttp))
+               dm = rMass(dbsc(iCnttp)%AtmNr)
                Do j = 1, Size(nIsot, 1)
                   If (nIsot(j,1).eq.iUnique) Then
                      If (nIsot(j,2).ge.0) Then
-                        dm = rMassx(iAtmNr(iCnttp),nIsot(j,2))
+                        dm = rMassx(dbsc(iCnttp)%AtmNr,nIsot(j,2))
                      Else
                         dm = mIsot(j)
                      End If
@@ -4097,7 +4097,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           Get parameters for the Modified Gaussian Nuclear
 *           charge distribution.
 *
-            jAtmNr=iAtmNr(iCnttp)
+            jAtmNr=dbsc(iCnttp)%AtmNr
             nMass = nInt(CntMass(iCnttp)/UToAU)
             Call ModGauss(DBLE(jAtmNr),nMass,
      &                    ExpNuc(iCnttp),

@@ -1721,15 +1721,16 @@ c         write(6,*) "nPAMFI:", nPAMFI
 c         write(6,*) "iPAMFI:", iPAMFI(1:nPAMFI)
 
          Do iAtm=1,nCnttp
-           iAtmNr2(iAtm) = iAtmNr(iAtm)
+           iAtmNr2(iAtm) = dbsc(iAtm)%AtmNr
            Charge2(iAtm) = Charge(iAtm)
 
 c           write(6,*) "iAtmNr2(iAtm)",iAtm, iAtmNr2(iAtm)
 c           write(6,*) "Charge(iAtm)", iAtm, Charge(iAtm)
 
            do iPAM=1,nPAMFI
-             if(iAtmNr(iAtm).EQ.iPAMFI(iPAM)) then
-               write(6,*) "Disabling AMFI for atom type ",iAtmNr(iAtm)
+             if(dbsc(iAtm)%AtmNr.EQ.iPAMFI(iPAM)) then
+               write(6,*) "Disabling AMFI for atom type ",
+     &                    dbsc(iAtm)%AtmNr
                iAtmNr2(iAtm) = 0
                Charge2(iAtm) = 0.0d0
              end if

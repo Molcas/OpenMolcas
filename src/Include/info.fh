@@ -212,8 +212,7 @@
      &          Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
-     &          nTtl, iAtmNr(mxdbsc),
-     &          kCentr, iRelae_Info, Nuclear_Model
+     &          nTtl, kCentr, iRelae_Info, Nuclear_Model
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
      &          nPAMFI, nPSOI, IsChi
@@ -230,8 +229,7 @@
      &              nMltpl,  IsChi,  iLbls, nShlls,          iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,
-     &              LenInf,  LenSph, MolWgh, iAtmNr,
-     &              iShll_RF, iOrdFm, iRI_Type,
+     &              LenInf,  LenSph, MolWgh,iShll_RF, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
      &              Nuclear_Model, nCtrLD,iCtrLD,iSigma,
      &              nPAMFI, iPAMFI, nPSOI,

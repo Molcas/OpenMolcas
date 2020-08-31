@@ -536,7 +536,7 @@
      &             A(2).eq.RB(2) .AND.
      &             A(3).eq.RB(3)) .AND.
      &             Charge(iCnttp).ne.Zero) Then
-                     iAtom=iAtmNr(iCnttp)
+                     iAtom=dbsc(iCnttp)%AtmNr
 *                    Get the atom mass in au (me=1)
                      xMass=CntMass(iCnttp)
 *                    Substract the electron mass to get the nuclear

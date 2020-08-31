@@ -114,17 +114,17 @@
 *
 *        Pick up the angular index of the highest valence shell
 *
-         If (iAtmNr(iCnttp).le.2) Then
+         If (dbsc(iCnttp)%AtmNr.le.2) Then
             iVal=0
-         Else If (iAtmNr(iCnttp).le.10) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.10) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.18) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.18) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.36) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.36) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.54) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.54) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.86) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.86) Then
             iVal=3
          Else
             iVal=3

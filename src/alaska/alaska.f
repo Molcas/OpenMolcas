@@ -70,7 +70,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Alaska_banner()
+*     Call Alaska_banner()
       npelem=3
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
