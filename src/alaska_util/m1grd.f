@@ -298,7 +298,7 @@
 *
 *-----------------Modify the density matrix with the prefactor
 *
-                  Fact = -Charge(kCnttp)*dbsc(kCnttp)%M1cf(iM1xp)*
+                  Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*
      &                   (DBLE(nStabM) / DBLE(LmbdT)) * Two * Pi
                   nDAO = nElem(la)*nElem(lb)
                   Do 300 iDAO = 1, nDAO
@@ -310,7 +310,7 @@
  310                 Continue
  300              Continue
                   If (iPrint.ge.99) Then
-                     Write (6,*) ' Charge=',Charge(kCnttp)
+                     Write (6,*) ' Charge=',dbsc(kCnttp)%Charge
                      Write (6,*) ' Fact=',Fact
                      Write (6,*) ' IndGrd=',IndGrd
                      Write (6,*) ' JndGrd=',JndGrd

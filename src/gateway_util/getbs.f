@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, Charge,BLine,Ref,
+     &                 MxAng, BLine,Ref,
      &                 PAM2, NoPairL,SODK,
      &                 CrRep,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
@@ -199,7 +199,7 @@
       Uncontracted = BasisTypes(1).eq.6
       If (dbsc(nCnttp)%IsMM .eq. 1) Then
          lAng = 0
-         Charge = Zero
+         dbsc(nCnttp)%Charge = Zero
          Return
       End If
 *
@@ -240,16 +240,16 @@
       If (L_STDINP.AND.inLn1) then              ! CGGn
         Call Pick_Words(Line,2,Nwords,Words)    ! CGGn
         If (Nwords.NE.2) Call Abend()           ! CGGn
-        Call Get_dNumber(Words(1),Charge,iErr)  ! CGGn
+        Call Get_dNumber(Words(1),dbsc(nCnttp)%Charge,iErr)  ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
         Call Get_iNumber(Words(2),lAng,iErr)    ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
       else                                      ! CGGn
-        call get_f1(1,Charge)
+        call get_f1(1,dbsc(nCnttp)%Charge)
         if (inLn1) call get_i1(2,lAng)
       EndIf                                     ! CGGn
       If (iPrint.ge.99) Then
-         Write (6,*) 'lAng, Charge=',lAng, Charge
+         Write (6,*) 'lAng, Charge=',lAng, dbsc(nCnttp)%Charge
          Write (6,*) ' Start reading valence basis'
       End If
       If (lAng.gt.MxAng) Then

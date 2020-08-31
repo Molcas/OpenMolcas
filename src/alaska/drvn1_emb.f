@@ -65,7 +65,7 @@
       ZA=1.0d0
       iCnttp=1
       Do while (iCnttp.le.nCnttp .and. ZA.gt.0.0d0)
-         ZA = Charge(iCnttp)
+         ZA = dbsc(iCnttp)%Charge
          iCnttp = iCnttp + 1
       End Do
       iCnttp_B=iCnttp-1  ! start of atoms of subsystem B
@@ -74,7 +74,7 @@
          ZB=0.0d0
          nCnttp_B=1
          Do while (nCnttp_B.le.nCnttp .and. ZB.eq.0.0d0)
-            ZB = Charge(nCnttp_B)
+            ZB = dbsc(nCnttp_B)%Charge
             nCnttp_B = nCnttp_B + 1
          End Do
          nCnttp_B=nCnttp_B-1  ! end of atoms of subsystem B
@@ -85,7 +85,7 @@
       mdc = 0
 *-----Loop over centers with the same charge (A-subsystem)
       Do iCnttp = 1, nCnttp
-         ZA = Charge(iCnttp)
+         ZA = dbsc(iCnttp)%Charge
          If (iCnttp.ge.iCnttp_B .and. iCnttp.le.nCnttp_B
      &                          .and. ZA.gt.0.0d0) Then
             Call WarningMessage(2,'Internal error in DrvN1_Emb')

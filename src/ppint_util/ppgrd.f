@@ -123,7 +123,7 @@
       kdc =-dbsc(1)%nCntr
       Do iCnttp = 1, nCnttp
          kdc = kdc + dbsc(iCnttp)%nCntr
-         If (Charge(iCnttp).eq.0d0) Cycle
+         If (dbsc(iCnttp)%Charge.eq.0d0) Cycle
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0

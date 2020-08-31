@@ -34,6 +34,7 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -100,7 +101,7 @@ C     Call qEnter('NAPrm')
       End If
 *
       iCnttp = INT(CCoor(1,2))
-      Q_Nuc=Charge(iCnttp)
+      Q_Nuc=dbsc(iCnttp)%Charge
 
       If (Q_Nuc.eq.Zero) Go To 111
       call dcopy_(3,CCoor,1,C,1)

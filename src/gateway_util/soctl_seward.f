@@ -263,7 +263,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *              Pick up which orbitals should be frozen as default.
 *
-               If (Charge(iCnttp).ne.Zero) Then
+               If (dbsc(iCnttp)%Charge.ne.Zero) Then
                   Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
 *
@@ -295,7 +295,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      If (iAnd(iOper(iR),1).ne.0) LPC(1,iyy)=-LPC(1,iyy)
                      If (iAnd(iOper(iR),2).ne.0) LPC(2,iyy)=-LPC(2,iyy)
                      If (iAnd(iOper(iR),4).ne.0) LPC(3,iyy)=-LPC(3,iyy)
-                     LPQ(iyy)=Charge(iCnttp)
+                     LPQ(iyy)=dbsc(iCnttp)%Charge
                      LPA(iyy)=dbsc(iCnttp)%AtmNr
                      LPMM(iyy)=dbsc(iCnttp)%IsMM
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
@@ -496,9 +496,9 @@ C     Show=Show.and..Not.Primitive_Pass
                             If (iAnd(iOper(iR),4).ne.0)
      &                          LPC(3,iyy)=-LPC(3,iyy)
 *
-                            LPQ(iyy)=Charge(iCnttp)
+                            LPQ(iyy) =dbsc(iCnttp)%Charge
                             LPMM(iyy)=dbsc(iCnttp)%IsMM
-                            LPA(iyy)=dbsc(iCnttp)%AtmNr
+                            LPA(iyy) =dbsc(iCnttp)%AtmNr
 *
                             LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                                    //ChOper(iOper(iR))
@@ -641,7 +641,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                Call ICopy(lmax+1,[0],0,nCore_Sh,1)
             Else
                Call ICopy(1+iTabMx,List_AE,1,List,1)
-               If (Charge(iCnttp).ne.Zero) Then
+               If (dbsc(iCnttp)%Charge.ne.Zero) Then
                   Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
                   Call Freeze_Default(0                 ,nCore_Sh,lMax)
@@ -661,9 +661,9 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                iSh = dbsc(iCnttp)%iVal - 1
                If (dbsc(iCnttp)%nVal.lt.1) Then
                   LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
-                  LPQ(mdc)=Charge(iCnttp)
+                  LPQ(mdc) =dbsc(iCnttp)%Charge
                   LPMM(mdc)=dbsc(iCnttp)%IsMM
-                  LPA(mdc)=dbsc(iCnttp)%AtmNr
+                  LPA(mdc) =dbsc(iCnttp)%AtmNr
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
                Do 303 iAng = 0, dbsc(iCnttp)%nVal-1
@@ -812,9 +812,9 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            iOT(iSO)=Vir
                         End If
                         LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
-                        LPQ(mdc)=Charge(iCnttp)
+                        LPQ(mdc) =dbsc(iCnttp)%Charge
                         LPMM(mdc)=dbsc(iCnttp)%IsMM
-                        LPA(mdc)=dbsc(iCnttp)%AtmNr
+                        LPA(mdc) =dbsc(iCnttp)%AtmNr
                         LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *
 ************************************************************************

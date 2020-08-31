@@ -57,7 +57,7 @@ C     nElem(ixyz) = 2*ixyz+1
       mdc = 0
       ZB=Zero
       Do iCnttp = 1, nCnttp
-         ZA = Charge(iCnttp)
+         ZA = dbsc(iCnttp)%Charge
          If (dbsc(iCnttp)%Frag) ZA = FragCharge(iCnttp)
          If (ZA.eq.Zero) Go To 101
          Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -67,7 +67,7 @@ C     nElem(ixyz) = 2*ixyz+1
             Do jCnttp = 1, iCnttp
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
                If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
-               ZB = Charge(jCnttp)
+               ZB = dbsc(jCnttp)%Charge
                If (dbsc(jCnttp)%Frag) ZB = FragCharge(jCnttp)
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
@@ -247,7 +247,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
-               ZB = Charge(jCnttp)
+               ZB = dbsc(jCnttp)%Charge
                If (pChrg(jCnttp)) Go To 202
                If (ZB.eq.Zero) Go To 202
                If (dbsc(jCnttp)%Frag) Go To 202

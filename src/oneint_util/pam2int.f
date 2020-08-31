@@ -248,7 +248,7 @@
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*PAMexp(iM2xp,2)
+                  Factor = -dbsc(kCnttp)%Charge*PAMexp(iM2xp,2)
      &                   * Fact
 *
 *                 FOR DMFT calculation!!!

@@ -294,7 +294,7 @@
 *-----------------Combine the cartesian components to the full one
 *                 electron integral gradient.
 *
-                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M2cf(iM2xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   Call CmbnM2(Array(ipQxyz),nZeta,la,lb,
      &                        Array(ipZ),Array(ipK),Final,

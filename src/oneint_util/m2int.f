@@ -235,7 +235,7 @@
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M2cf(iM2xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   If (iPrint.ge.99) Write (6,*) ' Factor=',Factor
                   Call DaXpY_(nZeta*nElem(la)*nElem(lb)*nIC,Factor,

@@ -82,6 +82,7 @@ Type Distinct_Basis_set_centers
     Integer:: iPP =0, nPP =0
     Integer:: nShells =0
     Integer:: AtmNr=0
+    Real*8:: Charge=0.0D0
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -326,7 +327,7 @@ Call mma_deallocate(iDmp)
 !
 !**********************************************************************
 !
-Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
+Call mma_allocate(rDmp,3,nAtoms+nCnttp,Label='rDmp')
 nAtoms = 0
 Do i = 1, nCnttp
 !  Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
@@ -334,6 +335,10 @@ Do i = 1, nCnttp
       nAtoms=nAtoms+1
       rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
    End Do
+   nAtoms=nAtoms+1
+   rDmp(1,nAtoms)=dbsc(i)%Charge
+   rDmp(2,nAtoms)=0.0D0
+   rDmp(3,nAtoms)=0.0D0
 End Do
 Call Put_dArray('rDmp',rDmp,3*nAtoms)
 Call mma_deallocate(rDmp)
@@ -565,6 +570,8 @@ Do i = 1, nCnttp
       nAtoms=nAtoms+1
       dbsc(i)%Coor(1:3,j)=rDmp(1:3,nAtoms)
    End Do
+   nAtoms=nAtoms+1
+   dbsc(i)%Charge    =rDmp(1,nAtoms)
 End Do
 Call mma_deallocate(rDmp)
 !

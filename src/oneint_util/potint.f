@@ -169,7 +169,7 @@ chjw is this always correct?
       nstabm=1
 *
       Do 100 kCnttp = 1, nCnttp
-         If (Charge(kCnttp).eq.Zero) Go To 111
+         If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
 *
@@ -188,7 +188,7 @@ chjw is this always correct?
      &                   +(TC(2)-CCoor(2,iGrid))**2
      &                   +(TC(3)-CCoor(3,iGrid))**2)
                  if(r12.gt.1.d-8)
-     &            pot(iGrid)=pot(iGrid)+Charge(kCnttp)*fact/r12
+     &            pot(iGrid)=pot(iGrid)+dbsc(kCnttp)%Charge*fact/r12
                End Do
 *
             End Do

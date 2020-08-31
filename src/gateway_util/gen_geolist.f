@@ -93,7 +93,7 @@
 *
       nc = 1
       Do jCnttp = 1, nCnttp
-         Z = Charge(jCnttp)
+         Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
          If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1213
          Do jCnt = 1, mCnt

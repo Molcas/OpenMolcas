@@ -38,11 +38,11 @@
       if(ff.eq.0.d0) goto 801
         kdc = 0
         Do kCnttp = 1, nCnttp
-           If (Charge(kCnttp).eq.0.d0) Go To 411
+           If (dbsc(kCnttp)%Charge.eq.0.d0) Go To 411
            Do kCnt = 1, dbsc(kCnttp)%nCntr
               C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
               ndc=kdc+kCnt
-              Fact=-Charge(kCnttp)*ff
+              Fact=-dbsc(kCnttp)%Charge*ff
               nDisp = IndDsp(ndc,iIrrep)
               Do iCar = 0, 2
                 iComp = 2**iCar

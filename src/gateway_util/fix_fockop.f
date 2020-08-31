@@ -110,7 +110,7 @@
          iFerm=1
          If (fMass(iCnttp).ne.1.0D0) iFerm=2
 *
-         If (dbsc(iCnttp)%FOp.and.Charge(iCnttp).eq.0.0D0) Then
+         If (dbsc(iCnttp)%FOp.and.dbsc(iCnttp)%Charge.eq.0.0D0) Then
             Do iAng = 0, dbsc(iCnttp)%nVal-1
                iShll_a    = dbsc(iCnttp)%iVal + iAng
                Shells(iShll_a)%FockOp(:,:)=Zero
@@ -471,7 +471,7 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Call GetBS(Fname,Bsl_,Indx-1,lAng,iShll,MxAng,
-     &              Charge(nCnttp),BLine,Ref,
+     &              BLine,Ref,
      &              PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
@@ -628,7 +628,7 @@
                Check=DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,
      &                                 Shells(iShll_r)%FockOp,1)
             End If
-            If (Check.eq.Zero .or.  Charge(iCnttp).eq.Zero) Then
+            If (Check.eq.Zero .or.  dbsc(iCnttp)%Charge.eq.Zero) Then
                If (Allocated(FockOp_t)) Call mma_deallocate(FockOp_t)
                Cycle
             End If
@@ -862,13 +862,13 @@
 *                                                                      *
 *
          Charge_Actual=DBLE(dbsc(iCnttp)%AtmNr)
-         Charge_Effective=Charge(iCnttp)
+         Charge_Effective=dbsc(iCnttp)%Charge
          qTest=Test_Charge -
      &         (Charge_Actual-Charge_Effective)
 c         write(6,*)'qtest, Test_Charge = ',qtest, Test_Charge
 c         write(6,*)'Charge_Actual,Charge_Effective = ',
 c     &               Charge_Actual,Charge_Effective
-         If (qTest.eq.Zero.or.Charge(iCnttp).eq.Zero) Then
+         If (qTest.eq.Zero.or.dbsc(iCnttp)%Charge.eq.Zero) Then
             dbsc(iCnttp)%FOp=.TRUE.
          Else If (Try_Again) Then
             If (qTest.eq.2.0D0) Then

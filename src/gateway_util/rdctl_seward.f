@@ -1168,8 +1168,7 @@ c Simplistic validity check for value
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &           MxAng,Charge(nCnttp),
-     &           BLine,Ref, PAM2(nCnttp),
+     &           MxAng,BLine,Ref, PAM2(nCnttp),
      &           NoPairL(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
@@ -1383,12 +1382,12 @@ c Simplistic validity check for value
       If (KWord(1:4).eq.'CHAR') Then
          KWord = Get_Ln(LuRd)
          Call UpCase(KWord)
-         Call Get_F1(1,Charge(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%Charge)
          ist = index(KWord,' ')
          If (dbsc(nCnttp)%IsMM.ne.0) Then
             Call WarningMessage(1,
      &         ' Found a charge associated with a MM atom. Ignore it')
-            Charge(nCnttp) = Zero
+            dbsc(nCnttp)%Charge = Zero
          End If
          Go To 777
       End If

@@ -40,7 +40,6 @@
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *
       Bsl(nCnttp)='.....RI_Dummy'
-      Charge(nCnttp)=Zero
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
       aCD_Thr(nCnttp)=One

@@ -25,7 +25,7 @@
         If (jirrep.eq.iirrep) Then
          mdc=0
          Do  iCnttp = 1, nCnttp
-          ZA = Charge(iCnttp)
+          ZA = dbsc(iCnttp)%Charge
           Do  iCnt = 1, dbsc(iCnttp)%nCntr
            mdc=mdc+1
            Do iCar=1,3

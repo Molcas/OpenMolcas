@@ -45,16 +45,16 @@
       mdc = 0
 *-----Loop over centers with the same change
       Do 100 iCnttp = 1, nCnttp
-         If (Charge(iCnttp).eq.Zero) Go To 101
-         ZA = Charge(iCnttp)
+         ZA = dbsc(iCnttp)%Charge
+         If (ZA.eq.Zero) Go To 101
 *--------Loop over all unique centers of this group
          Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do 200 jCnttp = 1, iCnttp
-               If (Charge(jCnttp).eq.Zero) Go To 201
-               ZAZB = ZA * Charge(jCnttp)
+               ZAZB = ZA * dbsc(jCnttp)%Charge
+               If (ZAZB.eq.Zero) Go To 201
                jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do 210 jCnt = 1, jCntMx

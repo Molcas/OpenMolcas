@@ -164,14 +164,14 @@
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &              MxAng,Charge(nCnttp),
+     &              MxAng,
      &              BLine,Ref,PAM2(nCnttp),
      &              NoPairL(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
          dbsc(nCnttp)%Aux=.True.
 *
-         Charge(nCnttp)=Zero
+         dbsc(nCnttp)%Charge=Zero
 *
          If (Show.and.iPrint.ge.6 .and.
      &      Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
@@ -445,7 +445,6 @@ C        Fixed(nCnttp)=.False.
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            Charge(nCnttp)=Zero
             PAM2(nCnttp)=.False.
             lPAM2 = lPAM2 .or. PAM2(nCnttp)
             dbsc(nCnttp)%ECP=.False.

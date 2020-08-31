@@ -114,11 +114,12 @@
                If (pChrg(iCnttp)) Then
                   Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
-     &               Charge(iCnttp), ' au (this is a pseudo charge)'
+     &               dbsc(iCnttp)%Charge,
+     &                ' au (this is a pseudo charge)'
                Else
                   Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
-     &               Charge(iCnttp), ' au'
+     &               dbsc(iCnttp)%Charge, ' au'
                End If
                Write (LuWr,'(6X,A,F10.6,A)')
      &               'Associated Actual Charge    ',

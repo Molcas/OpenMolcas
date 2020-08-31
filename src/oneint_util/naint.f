@@ -123,7 +123,7 @@ C     Call qEnter('NAInt')
          If (DKroll.and.Primitive_Pass.and.lECP) Then
             Q_Nuc=DBLE(dbsc(kCnttp)%AtmNr)
          Else
-            Q_Nuc=Charge(kCnttp)
+            Q_Nuc=dbsc(kCnttp)%Charge
          End If
 
          If (Q_Nuc.eq.Zero) Go To 111

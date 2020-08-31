@@ -172,7 +172,7 @@
             SODK(nCnttp)=.False.
             dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
-     &                 Charge(nCnttp),BLine,Ref,
+     &                 BLine,Ref,
      &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')

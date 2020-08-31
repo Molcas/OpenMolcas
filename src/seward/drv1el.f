@@ -1722,10 +1722,10 @@ c         write(6,*) "iPAMFI:", iPAMFI(1:nPAMFI)
 
          Do iAtm=1,nCnttp
            iAtmNr2(iAtm) = dbsc(iAtm)%AtmNr
-           Charge2(iAtm) = Charge(iAtm)
+           Charge2(iAtm) = dbsc(iAtm)%Charge
 
 c           write(6,*) "iAtmNr2(iAtm)",iAtm, iAtmNr2(iAtm)
-c           write(6,*) "Charge(iAtm)", iAtm, Charge(iAtm)
+c           write(6,*) "Charge(iAtm)", iAtm, dbsc(iAtm)%Charge
 
            do iPAM=1,nPAMFI
              if(dbsc(iAtm)%AtmNr.EQ.iPAMFI(iPAM)) then

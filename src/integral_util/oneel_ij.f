@@ -535,7 +535,7 @@
      &             A(1).eq.RB(1) .AND.
      &             A(2).eq.RB(2) .AND.
      &             A(3).eq.RB(3)) .AND.
-     &             Charge(iCnttp).ne.Zero) Then
+     &             dbsc(iCnttp)%Charge.ne.Zero) Then
                      iAtom=dbsc(iCnttp)%AtmNr
 *                    Get the atom mass in au (me=1)
                      xMass=CntMass(iCnttp)

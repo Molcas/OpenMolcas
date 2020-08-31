@@ -70,7 +70,7 @@
          If (dbsc(iCnttp)%Frag) Then
            ZA = FragCharge(iCnttp)
          Else
-           ZA = Charge(iCnttp)
+           ZA = dbsc(iCnttp)%Charge
          End If
          If (ZA.eq.Zero) Go To 101
 *--------Loop over all unique centers of this group
@@ -82,7 +82,7 @@
                If (dbsc(jCnttp)%Frag) Then
                  ZB = FragCharge(jCnttp)
                Else
-                 ZB = Charge(jCnttp)
+                 ZB = dbsc(jCnttp)%Charge
                End If
                If (ZB.eq.Zero) Go To 201
                If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
@@ -274,7 +274,7 @@
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 202
             If (pChrg(jCnttp)) Go To 202
             If (dbsc(jCnttp)%Frag) Go To 202
@@ -406,9 +406,9 @@
 *
                mdc = 0
                Do iCnttp = 1, nCnttp
-                  If (Charge(iCnttp).eq.Zero) Go To 103
+                  If (dbsc(iCnttp)%Charge.eq.Zero) Go To 103
                   If (dbsc(iCnttp)%Frag) Go To 103
-                  ZA = Charge(iCnttp)
+                  ZA = dbsc(iCnttp)%Charge
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
@@ -520,7 +520,7 @@
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
             If (pChrg(jCnttp)) Go To 212
             If (dbsc(jCnttp)%Frag) Go To 212

@@ -382,11 +382,9 @@
             SODK(nCnttp)=.False.
             Bsl(nCnttp)=Label
             Bsl_Old(nCnttp)=Bsl(nCnttp)
-            Charge(nCnttp)=Zero
             pChrg(nCnttp)=pChrg(iCnttp)
             Fixed(nCnttp)=Fixed(iCnttp)
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
-            dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
@@ -1385,10 +1383,10 @@ C                          Thrs= 1.0D-12
                Write (Lu_lib,'(A)') Label
             End If
             If (jCnttp.eq.nCnttp_start+1) Then
-               Write (Lu_lib,'(F6.2,2I10)') Charge(jCnttp),
+               Write (Lu_lib,'(F6.2,2I10)') dbsc(jCnttp)%Charge,
      &               dbsc(jCnttp)%nVal-1,nCnttp-nCnttp_start
             Else
-               Write (Lu_lib,'(F6.2, I10)') Charge(jCnttp),
+               Write (Lu_lib,'(F6.2, I10)') dbsc(jCnttp)%Charge,
      &               dbsc(jCnttp)%nVal-1
             End If
             Write (Lu_lib,*) ' Dummy reference line.'

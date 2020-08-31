@@ -76,15 +76,15 @@ c     Call qEnter('DrvN2')
       mdc = 0
 *-----Loop over centers with the same change
       Do iCnttp = 1, nCnttp
-       If (Charge(iCnttp).eq.Zero) Go To 101
-       ZA = Charge(iCnttp)
+       ZA = dbsc(iCnttp)%Charge
+       If (ZA.eq.Zero) Go To 101
 *--------Loop over all unique centers of this group
        Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
         A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          ndc = 0
          Do jCnttp = 1, iCnttp
-           ZB=Charge(jCnttp)
+           ZB=dbsc(jCnttp)%Charge
            If (ZB.eq.Zero) Go To 201
            ZAZB = ZA * ZB
            jCntMx = dbsc(jCnttp)%nCntr
@@ -341,7 +341,7 @@ c     Call qEnter('DrvN2')
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
             If (pChrg(jCnttp)) Go To 212
             If (dbsc(jCnttp)%Frag) Go To 212
@@ -536,7 +536,7 @@ c     Call qEnter('DrvN2')
 *
          mdc = 0
          Do iCnttp = 1, nCnttp
-            ZA = Charge(iCnttp)
+            ZA = dbsc(iCnttp)%Charge
             If (ZA.eq.Zero) Go To 222
             If (pChrg(iCnttp)) Go To 222
             If (dbsc(iCnttp)%Frag) Go To 222
@@ -592,7 +592,7 @@ c     Call qEnter('DrvN2')
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 232
             If (pChrg(jCnttp)) Go To 232
             If (dbsc(jCnttp)%Frag) Go To 232

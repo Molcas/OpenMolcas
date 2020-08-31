@@ -134,7 +134,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (Charge(kCnttp).eq.Zero) Go To 111
+         If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
@@ -180,7 +180,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                 End Do
 
 *
-                Fact = -Charge(kCnttp)*DBLE(nStabM) /
+                Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 *               Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
                 iuvwx(3) = nStab(kdc+kCnt)

@@ -101,7 +101,7 @@
 *              contribution.
 *
                Do 210 iZeta = 1, nZeta
-                  Bxyz(iZeta,3,0) = Charge(kCnttp) *
+                  Bxyz(iZeta,3,0) = dbsc(kCnttp)%Charge *
      &                Exp ( -Zeta(iZeta) * ( (TC(1)-P(iZeta,1))**2 +
      &                                       (TC(2)-P(iZeta,2))**2 +
      &                                       (TC(3)-P(iZeta,3))**2 ))
