@@ -227,7 +227,7 @@
             dbsc(nCnttp)%Coor(2,1) = y1
             dbsc(nCnttp)%Coor(3,1) = z1
 * store the Mulliken charge
-            FragCharge(nCnttp) = dbsc(iCnttp)%FragCoor(5,iAtom)
+            dbsc(nCnttp)%FragCharge = dbsc(iCnttp)%FragCoor(5,iAtom)
 * create custom (hopefully) unique label
             LenLbl = Index(sBasis,'.') - 1
             label = sBasis(1:LenLbl)

@@ -58,7 +58,7 @@ C     nElem(ixyz) = 2*ixyz+1
       ZB=Zero
       Do iCnttp = 1, nCnttp
          ZA = dbsc(iCnttp)%Charge
-         If (dbsc(iCnttp)%Frag) ZA = FragCharge(iCnttp)
+         If (dbsc(iCnttp)%Frag) ZA = dbsc(iCnttp)%FragCharge
          If (ZA.eq.Zero) Go To 101
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -68,7 +68,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (dbsc(iCnttp)%pChrg.and.dbsc(jCnttp)%pChrg) Go To 201
                If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
                ZB = dbsc(jCnttp)%Charge
-               If (dbsc(jCnttp)%Frag) ZB = FragCharge(jCnttp)
+               If (dbsc(jCnttp)%Frag) ZB = dbsc(jCnttp)%FragCharge
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
                jCntMx = dbsc(jCnttp)%nCntr

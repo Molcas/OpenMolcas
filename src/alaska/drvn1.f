@@ -68,7 +68,7 @@
 *-----Loop over centers with the same charge
       Do iCnttp = 1, nCnttp
          If (dbsc(iCnttp)%Frag) Then
-           ZA = FragCharge(iCnttp)
+           ZA = dbsc(iCnttp)%FragCharge
          Else
            ZA = dbsc(iCnttp)%Charge
          End If
@@ -80,7 +80,7 @@
             ndc = 0
             Do jCnttp = 1, iCnttp
                If (dbsc(jCnttp)%Frag) Then
-                 ZB = FragCharge(jCnttp)
+                 ZB = dbsc(jCnttp)%FragCharge
                Else
                  ZB = dbsc(jCnttp)%Charge
                End If

@@ -88,6 +88,7 @@ Type Distinct_Basis_set_centers
     Logical:: pChrg =.False.
     Logical:: Fixed =.False.
     Real*8::  CrRep=0.0D0
+    Real*8::  FragCharge=0.0D0
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -359,7 +360,7 @@ Do i = 1, nCnttp
    nAtoms=nAtoms+1
    rDmp(1,nAtoms)=dbsc(i)%Charge
    rDmp(2,nAtoms)=dbsc(i)%CrRep
-   rDmp(3,nAtoms)=0.0D0
+   rDmp(3,nAtoms)=dbsc(i)%FragCharge
 End Do
 Call Put_dArray('rDmp',rDmp,3*nAtoms)
 Call mma_deallocate(rDmp)
@@ -600,6 +601,7 @@ Do i = 1, nCnttp
    nAtoms=nAtoms+1
    dbsc(i)%Charge    =rDmp(1,nAtoms)
    dbsc(i)%CrRep     =rDmp(2,nAtoms)
+   dbsc(i)%FragCharge=rDmp(3,nAtoms)
 End Do
 Call mma_deallocate(rDmp)
 !
