@@ -61,7 +61,7 @@
         DO i=1,nCnttp
           IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO iCnt=1,dbsc(i)%nCntr
-              W(j)=CntMass(i)/UTOAU
+              W(j)=dbsc(i)%CntMass/UTOAU
               j=j+1
             END DO
           END IF

@@ -77,7 +77,7 @@
       Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
 !     Temporary buffer
       Integer, Parameter:: nBuff=10000
-      Real*8, Allocatable:: Buffer(:)
+      Real*8, Allocatable:: Buffer(:), Isotopes(:)
 !
       Character*180, Allocatable :: STDINP(:)
       Character Basis_lib*256, CHAR4*4
@@ -3888,9 +3888,9 @@ c      endif
       If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
 
       If (Run_Mode.ne.S_Mode) Then
-         Call dZero(CntMass,nCnttp)
 *        Loop over unique centers
          iUnique = 0
+         Call mma_allocate(Isotopes,nCnttp,Label='Isotopes')
          Do iCnttp = 1, nCnttp
             nCnt = dbsc(iCnttp)%nCntr
             Do iCnt = 1, nCnt
@@ -3908,9 +3908,9 @@ c      endif
                   End If
                End Do
                If (iCnt.eq.1) Then
-                  CntMass(iCnttp) = dm
+                  dbsc(iCnttp)%CntMass = dm
                Else
-                  If (dm.ne.CntMass(iCnttp)) Then
+                  If (dm.ne.dbsc(iCnttp)%CntMass) Then
                      Call WarningMessage(2,
      &                 'Error: All centers of the same type must '//
      &                 'have the same mass')
@@ -3918,8 +3918,10 @@ c      endif
                   End If
                End If
             End Do
-         End Do
-         Call Put_dArray('Isotopes',CntMass,nCnttp)
+            Isotopes(iCnttp)=dbsc(iCnttp)%CntMass
+         End Do ! iCnttp
+         Call Put_dArray('Isotopes',Isotopes,nCnttp)
+         Call mma_deallocate(Isotopes)
 
 *        Find errors
          Do j = 1, Size(nIsot, 1)
@@ -4085,7 +4087,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           If ExpNuc not explicitly defined use default value.
 *
-            nMass = nInt(CntMass(iCnttp)/UToAU)
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
             If (ExpNuc(iCnttp).lt.Zero)
      &          ExpNuc(iCnttp)=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
@@ -4094,7 +4096,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           charge distribution.
 *
             jAtmNr=dbsc(iCnttp)%AtmNr
-            nMass = nInt(CntMass(iCnttp)/UToAU)
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
             Call ModGauss(DBLE(jAtmNr),nMass,
      &                    ExpNuc(iCnttp),
      &                    w_mGauss(iCnttp))

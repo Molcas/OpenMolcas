@@ -160,7 +160,6 @@
 *     rChTbl: the character table for the specified point group        *
 *     radiLD: cutoff radius for LDKH procedure                         *
 *     KVector: the k-vector of the EMFR                                *
-*     CntMass: the mass of the i''th unique center                     *
 *                                                                      *
 * -> Character <-                                                      *
 *     BLine : blank line                                               *
@@ -275,7 +274,7 @@
      &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
      &               E1, E2, Thrshld_CD, RPQMin,SadStep,
      &               Delta_RICD, CLight_Info, w_mGauss(mxdbsc),
-     &               radiLD, Shake, KVector(3), ChiI2, CntMass(mxdc)
+     &               radiLD, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               AccMch,         ThrInt, PotNuc, Sum,
@@ -284,7 +283,7 @@
      &               Dxyz, RadMax, cdMax, EtMax, rChTbl, ExpNuc, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               w_mGauss, E1, E2, radiLD, SadStep, Shake,
-     &               KVector, ChiI2, CntMass,
+     &               KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
 *                                                                      *
 ************************************************************************

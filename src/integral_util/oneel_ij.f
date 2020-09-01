@@ -537,7 +537,7 @@
      &             dbsc(iCnttp)%Charge.ne.Zero) Then
                      iAtom=dbsc(iCnttp)%AtmNr
 *                    Get the atom mass in au (me=1)
-                     xMass=CntMass(iCnttp)
+                     xMass=dbsc(iCnttp)%CntMass
 *                    Substract the electron mass to get the nuclear
 *                    mass.
                      xMass=xMass-DBLE(iAtom)

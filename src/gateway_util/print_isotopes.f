@@ -36,7 +36,7 @@
       Do i=1,nCnttp
         If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
         iAtom=dbsc(i)%AtmNr
-        If (CntMass(i).ne.rMass(iAtom)) Then
+        If (dbsc(i)%CntMass.ne.rMass(iAtom)) Then
           Changed = .True.
           Exit
         End If
@@ -61,7 +61,7 @@
       Do i=1,nCnttp
         If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
         iAtom=dbsc(i)%AtmNr
-        act_Mass=CntMass(i)/UToAU
+        act_Mass=dbsc(i)%CntMass/UToAU
         def_Mass=rmass(iAtom)/UToAU
         If (act_Mass.ne.def_Mass) Then
           Write(LuWr,101) i,iAtom,nInt(act_Mass),act_Mass,

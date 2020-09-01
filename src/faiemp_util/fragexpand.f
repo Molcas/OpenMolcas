@@ -187,7 +187,7 @@
      &                           + dbsc(nCnttp)%nSRO
      &                           + dbsc(nCnttp)%nSOC
      &                           + dbsc(nCnttp)%nPP
-            CntMass(nCnttp) = rMass(dbsc(nCnttp)%AtmNr)
+            dbsc(nCnttp)%CntMass = rMass(dbsc(nCnttp)%AtmNr)
             Do iSh = jShll+1,iShll
                Shells(iSh)%Frag=.True.
             End Do
