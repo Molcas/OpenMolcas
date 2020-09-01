@@ -108,7 +108,7 @@
 ************************************************************************
 *                                                                      *
          iFerm=1
-         If (fMass(iCnttp).ne.1.0D0) iFerm=2
+         If (dbsc(iCnttp)%fMass.ne.1.0D0) iFerm=2
 *
          If (dbsc(iCnttp)%FOp.and.dbsc(iCnttp)%Charge.eq.0.0D0) Then
             Do iAng = 0, dbsc(iCnttp)%nVal-1
@@ -134,7 +134,7 @@
 *           The Fock operator will simply be the one-particle
 *           Hamiltonian (kinetic + nuclear-attraction operator)
 *
-            xFactor=1.0D0/fMass(iCnttp)
+            xFactor=1.0D0/dbsc(iCnttp)%fMass
             If (FNMC) Then
                iAtom=dbsc(iCnttp)%AtmNr
 *              Get the atom mass in au (me=1)

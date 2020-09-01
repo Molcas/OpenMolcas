@@ -526,8 +526,7 @@
 *              multiply with 1/m, where m is the mass of an electron
 *              or muon.
 *
-               xfactor=One/fmass(iCnttp)
-*              Write (*,*) 'fmass(iCnttp)=',fmass(iCnttp)
+               xfactor=One/dbsc(iCnttp)%fMass
 *
 *              Add the Finite Nuclear Mass Correction if activated
 *

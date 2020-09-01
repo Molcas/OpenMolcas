@@ -96,7 +96,7 @@
                   Write (LuWr,'(6X,A)') 'Fragment basis set:'
                   Write (LuWr,'(6X,A)') '=================='
                Else
-                  If (fmass(iCnttp).eq.One) Then
+                  If (dbsc(iCnttp)%fMass.eq.One) Then
                      Write (LuWr,'(6X,A)')
      &                      'Electronic valence basis set:'
                      Write (LuWr,'(6X,A)') '------------------'

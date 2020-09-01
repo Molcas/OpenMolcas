@@ -388,7 +388,7 @@
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
             dbsc(nCnttp)%aCD_Thr=dbsc(iCnttp)%aCD_Thr
-            fmass(nCnttp)=fmass(iCnttp)
+            dbsc(nCnttp)%fMass=dbsc(iCnttp)%fMass
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -1276,7 +1276,7 @@ c Simplistic validity check for value
       KWord=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
          tDel=1.0D50
@@ -1309,7 +1309,7 @@ c Simplistic validity check for value
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          Go To 777
       End If

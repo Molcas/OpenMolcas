@@ -516,7 +516,8 @@ C     Show=Show.and..Not.Primitive_Pass
                         basis_ids(3,iSO) = llab
                         basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
-                        If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
+                        If (dbsc(iCnttp)%fMass.ne.1.0D0)
+     &                     fermion_type(iSO)=1
                         if (.Not.Primitive_Pass) then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc
@@ -825,7 +826,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         basis_ids(3,iSO) = llab
                         basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
-                        If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
+                        If (dbsc(iCnttp)%fMass.ne.1.0D0)
+     &                     fermion_type(iSO)=1
                         If (.Not.Primitive_Pass) Then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc

@@ -34,6 +34,7 @@
 *             Modified driver. Jan. '98                                *
 ************************************************************************
       use iSD_data
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
 #include "itmax.fh"
@@ -169,10 +170,10 @@
 *
       iCnttp=iSD(13,iS)
       jCnttp=iSD(13,jS)
-      If (fmass(iCnttp).ne.fmass(jCnttp)) Go To 14
+      If (dbsc(iCnttp)%fMass.ne.dbsc(jCnttp)%fMass) Go To 14
       kCnttp=iSD(13,kS)
       lCnttp=iSD(13,lS)
-      If (fmass(kCnttp).ne.fmass(lCnttp)) Go To 14
+      If (dbsc(kCnttp)%fMass.ne.dbsc(lCnttp)%fMass) Go To 14
 *
       S_Eff=DBLE(ijS)
       T_Eff=DBLE(klS)
