@@ -1166,9 +1166,8 @@ c Simplistic validity check for value
       SODK(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &           MxAng,BLine,Ref, PAM2(nCnttp),
-     &           NoPairL(nCnttp),SODK(nCnttp),
+      Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
+     &           MxAng,BLine,Ref, PAM2(nCnttp),SODK(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
@@ -1234,8 +1233,11 @@ c Simplistic validity check for value
      &                 +dbsc(nCnttp)%nM2) .NE. 0
       lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. NoPairL(nCnttp)
+      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+      lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.

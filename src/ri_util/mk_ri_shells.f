@@ -163,10 +163,8 @@
          jShll = iShll
          SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &              MxAng,
-     &              BLine,Ref,PAM2(nCnttp),
-     &              NoPairL(nCnttp),SODK(nCnttp),
+         Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
+     &              MxAng,BLine,Ref,PAM2(nCnttp),SODK(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
          dbsc(nCnttp)%Aux=.True.
@@ -190,8 +188,11 @@
      &                   + dbsc(nCnttp)%nM2) .NE. 0
          lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
          lECP = lECP .or. dbsc(nCnttp)%ECP
-         lNoPair = lNoPair .or. NoPairL(nCnttp)
+         lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+         lAng=Max(dbsc(nCnttp)%nVal,
+     &            dbsc(nCnttp)%nSRO,
+     &            dbsc(nCnttp)%nPrj)-1
          iAngMx=Max(iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
@@ -447,11 +448,9 @@ C        Fixed(nCnttp)=.False.
             dbsc(nCnttp)%Aux=.True.
             PAM2(nCnttp)=.False.
             lPAM2 = lPAM2 .or. PAM2(nCnttp)
-            dbsc(nCnttp)%ECP=.False.
             lECP = lECP .or. dbsc(nCnttp)%ECP
             lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-            NoPairL(nCnttp)=.False.
-            lNoPair = lNoPair .or. NoPairL(nCnttp)
+            lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
             iAngMx=Max(iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1

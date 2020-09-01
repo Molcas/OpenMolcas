@@ -171,11 +171,13 @@
             ExpNuc(nCnttp)=-One
             SODK(nCnttp)=.False.
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
-     &                 BLine,Ref,
-     &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
+            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,iShll,MxAng,
+     &                 BLine,Ref,PAM2(nCnttp),SODK(nCnttp),
      &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')
+           lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.
@@ -183,7 +185,6 @@
             Shells(jShll+2)%Prjct =.False.
             pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
-            dbsc(nCnttp)%FOp=.False.
             dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                           + dbsc(nCnttp)%nPrj
      &                           + dbsc(nCnttp)%nSRO

@@ -43,7 +43,6 @@
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
       aCD_Thr(nCnttp)=One
-      NoPairL(nCnttp)=.False.
       CrRep(nCnttp)=Zero
       pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.

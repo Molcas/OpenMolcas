@@ -182,10 +182,6 @@
       Integer, Parameter :: MxUnq=MaxBfn+MaxBfn_Aux
       Integer, Parameter :: MxAO=MaxBfn+MaxBfn_Aux
       Integer, Parameter :: MxFnc=(MxAng+1)*(MxAng+2)*(MxAng+3)/6
-*
-      Integer, Parameter :: Point_Charge  = 0
-      Integer, Parameter :: Gaussian_type = 1
-      Integer, Parameter :: mGaussian_Type= 2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -208,7 +204,7 @@
      &          Max_Center,  nPrm(0:7),
      &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
-     &          nTtl, kCentr, iRelae_Info, Nuclear_Model
+     &          nTtl, kCentr, iRelae_Info
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
@@ -226,7 +222,7 @@
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh,iShll_RF, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
-     &              Nuclear_Model, nCtrLD,iCtrLD,iSigma, nPSOI,
+     &              nCtrLD,iCtrLD,iSigma, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
       Integer          kCnttpPAM, iPAMPrim, iPAMCount

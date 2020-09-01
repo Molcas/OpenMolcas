@@ -135,7 +135,7 @@
                call dcopy_(nExpi**2,Shells(iShll)%Akl(1,1,1),1,
      &                                    Array(ipC),1)
                If (EQ(A,RB).and.EQ(A,TC).and.
-     &            lNoPair.and.NoPairL(iCnttp)) Then
+     &            lNoPair.and.dbsc(iCnttp)%NoPair) Then
                   If (iPrint.ge.49)
      &               Call RecPrt(' The Adl matrix',' ',
      &                           Shells(iShll)%Akl(1,1,2),

@@ -166,7 +166,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.
-      Nuclear_Model=Point_Charge
       force_part_c=.False.
       force_part_p=.False.
       GIAO=.False.
@@ -174,11 +173,13 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lFAIEMP=.False.
       Do_FckInt=.True.
       Do_GuessOrb=.True.
+*
       Do_acCD_Basis=.True.
       Do_nacCD_Basis=.False.
       Skip_High_AC = .False.
       LDF=.False.
       LocalDF=.False.
+*
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.

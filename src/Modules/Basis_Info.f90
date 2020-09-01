@@ -15,10 +15,9 @@
 Module Basis_Info
 Implicit None
 Private
-Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
-          Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
-          PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, &
-          Basis_Info_Init
+Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
+          PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
+          Nuclear_Model, Basis_Info_Init
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -83,6 +82,7 @@ Type Distinct_Basis_set_centers
     Integer:: nShells =0
     Integer:: AtmNr=0
     Real*8:: Charge=0.0D0
+    Logical:: NoPair=.False.
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -130,11 +130,16 @@ End Type Shell_Info
 !
 !     Actual content of Basis_Info
 !
+Integer, Parameter :: Point_Charge  = 0
+Integer, Parameter :: Gaussian_type = 1
+Integer, Parameter :: mGaussian_Type= 2
+
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =28, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =29, mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
+Integer :: Nuclear_Model=Point_Charge
 
 Type (Distinct_Basis_set_centers) , Allocatable:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
@@ -261,6 +266,8 @@ Do i = 1, nCnttp
    iDmp(26,i) = dbsc(i)%nPP
    iDmp(27,i) = dbsc(i)%nShells
    iDmp(28,i) = dbsc(i)%AtmNr
+   iDmp(29,i) = 0
+   If (dbsc(i)%NoPair)iDmp(29,i)=1
    nAtoms=nAtoms+dbsc(i)%nCntr
    nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -285,6 +292,7 @@ iDmp(1,nCnttp+1)=nFrag_LineWords
 iDmp(2,nCnttp+1)=nCnttp
 iDmp(3,nCnttp+1)=iCnttp_Dummy
 iDmp(4,nCnttp+1)=Max_Shells
+iDmp(5,nCnttp+1)=Nuclear_Model
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -471,6 +479,7 @@ nFrag_LineWords=iDmp(1,Len2)
 nCnttp         =iDmp(2,Len2)
 iCnttp_Dummy   =iDmp(3,Len2)
 Max_Shells     =iDmp(4,Len2)
+Nuclear_Model  =iDmp(5,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells
@@ -506,6 +515,7 @@ Do i = 1, nCnttp
    dbsc(i)%nPP          = iDmp(26,i)
    dbsc(i)%nShells      = iDmp(27,i)
    dbsc(i)%AtmNr        = iDmp(28,i)
+   dbsc(i)%NoPair       = iDmp(29,i).eq.1
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &

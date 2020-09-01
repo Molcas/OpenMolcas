@@ -11,10 +11,8 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, BLine,Ref,
-     &                 PAM2, NoPairL,SODK,
-     &                 CrRep,UnNorm,nDel,LuRd,BasisTypes,
+      SubRoutine GetBS(DDname,BSLbl,iBSLbl,iShll,MxAng, BLine,Ref,
+     &                 PAM2, SODK,CrRep,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
@@ -52,7 +50,7 @@
       External Get_Ln
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
-      Logical inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
+      Logical inLn1, inLn2, inLn3, Hit, IfTest,
      &        UnNorm, PAM2, SODK, isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
@@ -106,13 +104,10 @@
       If (IfTest) iPrint=99
       ip_Dummy=-1
       PAM2 = .False.
-      dbsc(nCnttp)%ECP = .False.
       dbsc(nCnttp)%FOp = .True.
-      NoPairL = .False.
       nM1=0
       nM2=0
-      dbsc(nCnttp)%IsMM = 0
-      dbsc(nCnttp)%nOpt = 0
+      lAng=0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
       Line=DDName
@@ -919,7 +914,7 @@
 *        one-centre no-pair operators
 *
  1005    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=0
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -928,7 +923,7 @@
 *        one-centre no-pair operators (DK1)
 *
  1006    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=1
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -937,7 +932,7 @@
 *        one-centre no-pair operators (DK2)
 *
  1007    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=2
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -946,7 +941,7 @@
 *        one-centre no-pair operators (DK3)
 *
  1008    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=3
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -955,7 +950,7 @@
 *        one-centre no-pair operators (DK3)
 *
  1010    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=4
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -964,7 +959,7 @@
 *        one-centre RESC operators
 *
  1009    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=11
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -972,7 +967,7 @@
 *        one-centre ZORA operators
 *
  9001    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=21
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -980,7 +975,7 @@
 *        one-centre ZORA-FP operators
 *
  9002    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=22
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
@@ -989,7 +984,7 @@
 *        one-centre IORA operators
 *
  9003    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          SODK=.True.
          IRELMP=23
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)

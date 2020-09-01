@@ -388,7 +388,6 @@
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
-            dbsc(nCnttp)%ECP=.False.
             aCD_Thr(nCnttp)=aCD_Thr(iCnttp)
             fmass(nCnttp)=fmass(iCnttp)
 *                                                                      *
