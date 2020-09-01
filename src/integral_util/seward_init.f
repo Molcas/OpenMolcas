@@ -112,7 +112,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iPAMcount=1
 
       Do i=1, Mxdbsc
-         w_mGauss(i)     = One
          Bsl    (i) = ' '
          Bsl_Old(i) = ' '
       End Do

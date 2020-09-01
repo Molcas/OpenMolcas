@@ -206,7 +206,7 @@ C     Call qEnter('NAInt')
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
                   rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
-     &                   /(One+Three*w_mGauss(kCnttp)/(Two*Eta))
+     &                   /(One+Three*dbsc(kCnttp)%w_mGauss/(Two*Eta))
 *                 s type function
                   mcdMin=0
                   mcdMax=0
@@ -218,8 +218,8 @@ C     Call qEnter('NAInt')
      &                     TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 *
 *                 d type function w*(x**2+y**2+z**2)
-                  If (w_mGauss(kCnttp).gt.0.0D0) Then
-                     rKappcd = rKappcd*w_mGauss(kCnttp)
+                  If (dbsc(kCnttp)%w_mGauss.gt.0.0D0) Then
+                     rKappcd = rKappcd*dbsc(kCnttp)%w_mGauss
                      iAnga(3)=2
                      mcdMin=nabSz(2+ld-1)+1
                      mcdMax = nabSz(2+ld)

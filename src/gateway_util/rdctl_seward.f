@@ -4098,7 +4098,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             jAtmNr=dbsc(iCnttp)%AtmNr
             nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
             Call ModGauss(DBLE(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,
-     &                    w_mGauss(iCnttp))
+     &                    dbsc(iCnttp)%w_mGauss)
 *
          Else
 *

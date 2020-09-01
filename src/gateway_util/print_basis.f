@@ -140,7 +140,7 @@
      &                             //'Modified Gaussian distribution'
                   Write (LuWr,'(6X,A,E12.5,A,E12.5)')
      &               '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',
-     &               dbsc(iCnttp)%ExpNuc,', ',w_mGauss(iCnttp)
+     &               dbsc(iCnttp)%ExpNuc,', ',dbsc(iCnttp)%w_mGauss
                Else
                   Call WarningMessage(2,'Illegal Nuclear Model!')
                   Call Abend()
