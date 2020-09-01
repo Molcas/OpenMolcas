@@ -1163,11 +1163,10 @@ c Simplistic validity check for value
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &           MxAng,BLine,Ref, PAM2(nCnttp),SODK(nCnttp),
+     &           MxAng,BLine,Ref, PAM2(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *

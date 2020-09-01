@@ -169,10 +169,9 @@
 *
             jShll = iShll
             ExpNuc(nCnttp)=-One
-            SODK(nCnttp)=.False.
             dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,iShll,MxAng,
-     &                 BLine,Ref,PAM2(nCnttp),SODK(nCnttp),
+     &                 BLine,Ref,PAM2(nCnttp),
      &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,

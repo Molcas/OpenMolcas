@@ -469,9 +469,8 @@
 *
          iShll = Mx_Shll-1
          jShll = iShll
-         SODK(nCnttp)=.False.
          Call GetBS(Fname,Bsl_,Indx-1,iShll,MxAng,
-     &              BLine,Ref,PAM2(nCnttp),SODK(nCnttp),
+     &              BLine,Ref,PAM2(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
 *

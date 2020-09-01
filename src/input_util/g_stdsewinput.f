@@ -143,11 +143,10 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &           MxAng, BLine,Ref, PAM2(nCnttp),SODK(nCnttp),
+     &           MxAng, BLine,Ref, PAM2(nCnttp),
      &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,iSTDINP,.True.,.true.,' ')
 *

@@ -379,7 +379,6 @@
 *
 *           Some generic setting of information
 *
-            SODK(nCnttp)=.False.
             Bsl(nCnttp)=Label
             Bsl_Old(nCnttp)=Bsl(nCnttp)
             pChrg(nCnttp)=pChrg(iCnttp)

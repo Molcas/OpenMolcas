@@ -161,10 +161,9 @@
          End if
 *
          jShll = iShll
-         SODK(nCnttp)=.False.
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &              MxAng,BLine,Ref,PAM2(nCnttp),SODK(nCnttp),
+     &              MxAng,BLine,Ref,PAM2(nCnttp),
      &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
          dbsc(nCnttp)%Aux=.True.
@@ -326,7 +325,6 @@ C        Fixed(nCnttp)=.False.
                Write(6,'(1X,A)') 'Basis set is read from the workdir.'
             End if
 *
-            SODK(nCnttp)=.False.
             Bsl(nCnttp)=BSLB(2:80)
             Bsl_Old(nCnttp)=Bsl(nCnttp)
 *

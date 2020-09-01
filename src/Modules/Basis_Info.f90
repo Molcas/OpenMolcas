@@ -83,6 +83,7 @@ Type Distinct_Basis_set_centers
     Integer:: AtmNr=0
     Real*8:: Charge=0.0D0
     Logical:: NoPair=.False.
+    Logical:: SODK  =.False.
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -135,7 +136,7 @@ Integer, Parameter :: Gaussian_type = 1
 Integer, Parameter :: mGaussian_Type= 2
 
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =29, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =30, mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
@@ -268,6 +269,8 @@ Do i = 1, nCnttp
    iDmp(28,i) = dbsc(i)%AtmNr
    iDmp(29,i) = 0
    If (dbsc(i)%NoPair)iDmp(29,i)=1
+   iDmp(30,i) = 0
+   If (dbsc(i)%SODk  )iDmp(30,i)=1
    nAtoms=nAtoms+dbsc(i)%nCntr
    nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -516,6 +519,7 @@ Do i = 1, nCnttp
    dbsc(i)%nShells      = iDmp(27,i)
    dbsc(i)%AtmNr        = iDmp(28,i)
    dbsc(i)%NoPair       = iDmp(29,i).eq.1
+   dbsc(i)%SODK         = iDmp(30,i).eq.1
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &

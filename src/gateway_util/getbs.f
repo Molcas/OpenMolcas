@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,iShll,MxAng, BLine,Ref,
-     &                 PAM2, SODK,CrRep,UnNorm,nDel,LuRd,BasisTypes,
+     &                 PAM2, CrRep,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
@@ -51,7 +51,7 @@
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,
-     &        UnNorm, PAM2, SODK, isEorb,isFock
+     &        UnNorm, PAM2, isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
@@ -892,7 +892,7 @@
 *------  Use DKSO on request
 *
  1015    Continue
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          Go To 9988
 *
 *--------Exchange operator
@@ -915,7 +915,7 @@
 *
  1005    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=0
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -924,7 +924,7 @@
 *
  1006    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=1
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -933,7 +933,7 @@
 *
  1007    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=2
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -942,7 +942,7 @@
 *
  1008    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=3
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -951,7 +951,7 @@
 *
  1010    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=4
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -976,7 +976,7 @@
 *
  9002    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=22
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -985,7 +985,7 @@
 *
  9003    Continue
          dbsc(nCnttp)%NoPair=.True.
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=23
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
