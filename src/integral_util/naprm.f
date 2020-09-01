@@ -128,7 +128,7 @@ C     Call qEnter('NAPrm')
 *        Gaussian nuclear charge distribution
 *
          NoSpecial=.False.
-         Eta=ExpNuc(iCnttp)
+         Eta=dbsc(iCnttp)%ExpNuc
          EInv=One/Eta
          rKappcd=TwoP54/Eta
 *        Tag on the normalization
@@ -150,7 +150,7 @@ C     Call qEnter('NAPrm')
 *        Modified Gaussian nuclear charge distribution
 *
          NoSpecial=.False.
-         Eta=ExpNuc(iCnttp)
+         Eta=dbsc(iCnttp)%ExpNuc
          EInv=One/Eta
          rKappcd=TwoP54/Eta
 *        Tag on the normalization

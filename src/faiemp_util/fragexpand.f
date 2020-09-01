@@ -168,7 +168,6 @@
 *           contains the basis set label
 *
             jShll = iShll
-            ExpNuc(nCnttp)=-One
             dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,iShll,MxAng,
      &                 BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
@@ -263,7 +262,7 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * size of dbsc()%FragCoor is 0 and nothing else.
             dbsc(nCnttp)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
-            If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
+            If (dbsc(nCnttp)%ExpNuc.lt.Zero) dbsc(nCnttp)%ExpNuc =
      &        NucExp(iMostAbundantIsotope(dbsc(nCnttp)%AtmNr))
           End Do  ! iAtom
         End Do    ! iCntr

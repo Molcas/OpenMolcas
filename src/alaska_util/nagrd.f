@@ -148,7 +148,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *           Modify the density matrix with prefactors in case of finite nuclei
 *
             If (Nuclear_Model.eq.Gaussian_Type) Then
-               Eta=ExpNuc(kCnttp)
+               Eta=dbsc(kCnttp)%ExpNuc
                rKappcd=TwoP54/Eta
 *              Tag on the normalization factor of the nuclear Gaussian
                Fact=Fact*(Eta/Pi)**(Three/Two)
@@ -235,7 +235,7 @@ C           If (iPrint.ge.99) Write (6,*) ' mGrad=',mGrad
 *
 *
                If (Nuclear_Model.eq.Gaussian_Type) Then
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   Call Rysg1(iAnga,nRys,nZeta,
      &                       Array(ipA),Array(ipB),[One],[One],

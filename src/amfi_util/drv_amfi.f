@@ -164,7 +164,7 @@
                      Call Abend()
                   End If
                   If (Nuclear_Model.eq.Gaussian_Type) Then
-                     Eta_Nuc=ExpNuc(iCnttp)
+                     Eta_Nuc=dbsc(iCnttp)%ExpNuc
                   End If
                   Go To 99
                End If

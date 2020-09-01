@@ -172,7 +172,7 @@
                nT=nZeta
                If (Nuclear_Model.eq.Gaussian_Type) Then
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
@@ -224,7 +224,7 @@
 *
                If (Nuclear_Model.eq.Gaussian_Type) Then
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization

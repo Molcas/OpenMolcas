@@ -1315,7 +1315,7 @@ c Simplistic validity check for value
       End If
       If (KWord(1:4).eq.'NUCL') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,ExpNuc(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%ExpNuc)
          Go To 777
       End If
       If (KWord(1:4).eq.'FIXE') Then
@@ -4088,8 +4088,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           If ExpNuc not explicitly defined use default value.
 *
             nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
-            If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(nMass)
+            If (dbsc(iCnttp)%ExpNuc.lt.Zero)
+     &          dbsc(iCnttp)%ExpNuc=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
@@ -4097,8 +4097,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             jAtmNr=dbsc(iCnttp)%AtmNr
             nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
-            Call ModGauss(DBLE(jAtmNr),nMass,
-     &                    ExpNuc(iCnttp),
+            Call ModGauss(DBLE(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,
      &                    w_mGauss(iCnttp))
 *
          Else

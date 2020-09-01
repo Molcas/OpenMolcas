@@ -92,6 +92,7 @@ Type Distinct_Basis_set_centers
     Real*8::  aCD_Thr=1.0D0
     Real*8::  fmass=1.0D0
     Real*8::  CntMass=0.0D0
+    Real*8::  ExpNuc =-1.0D0
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -352,7 +353,7 @@ Call mma_deallocate(iDmp)
 !
 !**********************************************************************
 !
-Call mma_allocate(rDmp,3,nAtoms+2*nCnttp,Label='rDmp')
+Call mma_allocate(rDmp,3,nAtoms+3*nCnttp,Label='rDmp')
 nAtoms = 0
 Do i = 1, nCnttp
 !  Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
@@ -368,6 +369,10 @@ Do i = 1, nCnttp
    rDmp(1,nAtoms)=dbsc(i)%aCD_Thr
    rDmp(2,nAtoms)=dbsc(i)%fMass
    rDmp(3,nAtoms)=dbsc(i)%CntMass
+   nAtoms=nAtoms+1
+   rDmp(1,nAtoms)=dbsc(i)%ExpNuc
+   rDmp(2,nAtoms)=0.0D0
+   rDmp(3,nAtoms)=0.0D0
 End Do
 Call Put_dArray('rDmp',rDmp,3*nAtoms)
 Call mma_deallocate(rDmp)
@@ -613,6 +618,8 @@ Do i = 1, nCnttp
    dbsc(i)%aCD_Thr   =rDmp(1,nAtoms)
    dbsc(i)%fMass     =rDmp(2,nAtoms)
    dbsc(i)%CntMass   =rDmp(3,nAtoms)
+   nAtoms=nAtoms+1
+   dbsc(i)%ExpNuc    =rDmp(1,nAtoms)
 End Do
 Call mma_deallocate(rDmp)
 !

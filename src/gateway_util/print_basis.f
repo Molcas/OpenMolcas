@@ -133,14 +133,14 @@
      &                             //'Gaussian distribution'
                   Write (LuWr,'(6X,A,E12.5)')
      &               '  Gaussian exponent, Xi/bohr**(-2): ',
-     &               ExpNuc(iCnttp)
+     &               dbsc(iCnttp)%ExpNuc
                Else If (Nuclear_Model.eq.mGaussian_type) Then
                   Write (LuWr,'(6X,A)')
      &                'Nuclear Model: Finite nucleus - '
      &                             //'Modified Gaussian distribution'
                   Write (LuWr,'(6X,A,E12.5,A,E12.5)')
      &               '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',
-     &               ExpNuc(iCnttp),', ',w_mGauss(iCnttp)
+     &               dbsc(iCnttp)%ExpNuc,', ',w_mGauss(iCnttp)
                Else
                   Call WarningMessage(2,'Illegal Nuclear Model!')
                   Call Abend()

@@ -136,8 +136,6 @@
 * -> Real*8 <-                                                         *
 *     AccMch: approximative relative accuracy of real*8 representation *
 *     ThrInt: threshold for writing intgerals to disc                  *
-*     ExpNuc: the nuclear radius exponent of the i''th unique center   *
-*             used for finite nuclei calculations.                     *
 *     PotNuc: the nuclear repulsion energy                             *
 *     Sum   : array used for debug purposes                            *
 *     SumSq : array used for debug purposes                            *
@@ -268,7 +266,7 @@
 ************************************************************************
 *                                                                      *
       Real*8         AccMch, ThrInt,
-     &               PotNuc, Sum, ExpNuc(mxdbsc), Rtrnc,
+     &               PotNuc, Sum, Rtrnc,
      &               SumSq,  SumAbs, CutInt, TMass,  CoM(3), rMI(6),
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
@@ -280,7 +278,7 @@
      &               AccMch,         ThrInt, PotNuc, Sum,
      &               SumSq,  SumAbs, CutInt, TMass,  CoM,    rMI,
      &               Prin,   PAx,    CoC,    qNuc,   PkAcc,  Thrs,
-     &               Dxyz, RadMax, cdMax, EtMax, rChTbl, ExpNuc, Rtrnc,
+     &               Dxyz, RadMax, cdMax, EtMax, rChTbl, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               w_mGauss, E1, E2, radiLD, SadStep, Shake,
      &               KVector, ChiI2,
