@@ -179,7 +179,7 @@ C     Call Gateway_banner()
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
@@ -193,7 +193,7 @@ C     Call Gateway_banner()
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -235,7 +235,7 @@ C     Call Gateway_banner()
       If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (pChrg(iCnttp) .and. Fixed(iCnttp))
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. Fixed(iCnttp))
       End Do
       If (lXF.or.Pseudo) Then
          iOption=iOr(iOption,2**7)

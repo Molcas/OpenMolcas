@@ -186,7 +186,7 @@
                      End If
                      df_dr=(dfab*r12-fab)/r12**2
 *
-                     If (.Not.pChrg(iCnttp)) Then
+                     If (.Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
                      igu=nIrrep/nStab(mdc+iCnt)
                      Do iCar = 0, 2

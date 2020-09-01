@@ -343,7 +343,7 @@ c     Call qEnter('DrvN2')
          Do jCnttp = 1, nCnttp
             ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
-            If (pChrg(jCnttp)) Go To 212
+            If (dbsc(jCnttp)%pChrg) Go To 212
             If (dbsc(jCnttp)%Frag) Go To 212
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr
@@ -538,7 +538,7 @@ c     Call qEnter('DrvN2')
          Do iCnttp = 1, nCnttp
             ZA = dbsc(iCnttp)%Charge
             If (ZA.eq.Zero) Go To 222
-            If (pChrg(iCnttp)) Go To 222
+            If (dbsc(iCnttp)%pChrg) Go To 222
             If (dbsc(iCnttp)%Frag) Go To 222
 *
             Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -594,7 +594,7 @@ c     Call qEnter('DrvN2')
          Do jCnttp = 1, nCnttp
             ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 232
-            If (pChrg(jCnttp)) Go To 232
+            If (dbsc(jCnttp)%pChrg) Go To 232
             If (dbsc(jCnttp)%Frag) Go To 232
 *
             Do jCnt = 1, dbsc(jCnttp)%nCntr

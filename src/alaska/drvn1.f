@@ -85,7 +85,7 @@
                  ZB = dbsc(jCnttp)%Charge
                End If
                If (ZB.eq.Zero) Go To 201
-               If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
+               If (dbsc(iCnttp)%pChrg.and.dbsc(jCnttp)%pChrg) Go To 201
                If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
                ZAZB = ZA * ZB
                jCntMx = dbsc(jCnttp)%nCntr
@@ -171,7 +171,7 @@
                      End If
                      df_dr=(dfab*r12-fab)/r12**2
 *
-                     If (.Not.pChrg(iCnttp)) Then
+                     If (.Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
                      igu=nIrrep/nStab(mdc+iCnt)
                      Do iCar = 0, 2
@@ -191,7 +191,7 @@
                      End Do
                      End If
 *
-                     If (.Not.pChrg(jCnttp)) Then
+                     If (.Not.dbsc(jCnttp)%pChrg) Then
                      nDisp = IndDsp(ndc+jCnt,iIrrep)
                      igv=nIrrep/nStab(ndc+jCnt)
                      Do iCar = 0, 2
@@ -276,7 +276,7 @@
          Do jCnttp = 1, nCnttp
             ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 202
-            If (pChrg(jCnttp)) Go To 202
+            If (dbsc(jCnttp)%pChrg) Go To 202
             If (dbsc(jCnttp)%Frag) Go To 202
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr
@@ -522,7 +522,7 @@
          Do jCnttp = 1, nCnttp
             ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
-            If (pChrg(jCnttp)) Go To 212
+            If (dbsc(jCnttp)%pChrg) Go To 212
             If (dbsc(jCnttp)%Frag) Go To 212
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr

@@ -381,7 +381,7 @@
 *
             Bsl(nCnttp)=Label
             Bsl_Old(nCnttp)=Bsl(nCnttp)
-            pChrg(nCnttp)=pChrg(iCnttp)
+            dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
             Fixed(nCnttp)=Fixed(iCnttp)
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%iVal = iShll+1

@@ -182,7 +182,6 @@
             Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.
             Shells(jShll+2)%Prjct =.False.
-            pChrg(nCnttp)=.False.
             Fixed(nCnttp)=.True.
             dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                           + dbsc(nCnttp)%nPrj

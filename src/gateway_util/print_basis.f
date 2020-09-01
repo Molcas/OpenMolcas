@@ -111,7 +111,7 @@
             If (dbsc(iCnttp)%IsMM.eq.1) Then
                Write (LuWr,'(6X,A)') 'This is a MM atom: no basis set'
             Else
-               If (pChrg(iCnttp)) Then
+               If (dbsc(iCnttp)%pChrg) Then
                   Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
      &               dbsc(iCnttp)%Charge,

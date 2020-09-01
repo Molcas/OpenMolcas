@@ -295,8 +295,9 @@ c      write(6,*) 'we here 0?'
          iData = 0
          jData = 0
          Do iCnttp=1,nCnttp
-            If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag.or.
-     &          pChrg(iCnttp)) Go To 775
+            If (dbsc(iCnttp)%Aux.or.
+     &          dbsc(iCnttp)%Frag.or.
+     &          dbsc(iCnttp)%pChrg) Go To 775
             Do iCntr=1,dbsc(iCnttp)%nCntr
                iData=iData+1
                mdc = iCntr + dbsc(iCnttp)%mdci

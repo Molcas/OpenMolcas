@@ -198,11 +198,9 @@
          Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
          Shells(jShll+2)%Prjct =.False.
-         pChrg(nCnttp)=pChrg(iCnttp)
+         dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
          Fixed(nCnttp)=Fixed(iCnttp)
          dbsc(nCnttp)%Parent_iCnttp=iCnttp
-C        pChrg(nCnttp)=.False.
-C        Fixed(nCnttp)=.False.
          dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                        + dbsc(nCnttp)%nPrj
      &                        + dbsc(nCnttp)%nSRO

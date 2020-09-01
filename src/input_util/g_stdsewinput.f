@@ -204,7 +204,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
-      pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
       nCnt = 0
       lAux = lAux .or. dbsc(nCnttp)%Aux

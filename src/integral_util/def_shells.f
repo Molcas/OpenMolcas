@@ -127,7 +127,7 @@
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci                    ! Center index
                iSD(11,nSkal)=iShell_Set + iAng + 1
-               If (pChrg(iCnttp)) Then
+               If (dbsc(iCnttp)%pChrg) Then
                   iSD(12,nSkal)= 1                   ! pseudo charge
                Else
                   iSD(12,nSkal)= 0                   ! pseudo charge
@@ -140,7 +140,7 @@
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If (TF(mdci,iIrrep,iComp).and.
-     &                .Not.pChrg(iCnttp)) Then
+     &                .Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = nDisp + 1
                      If (Direct(nDisp)) Then
                         iSD(iCar+16,nSkal) = nDisp
@@ -226,7 +226,7 @@
          iSD(9,nSkal)=itemp                    ! sph., car., cont.
          iSD(10,nSkal)=mdci                    ! Center index
          iSD(11,nSkal)= iAng + 1               ! Not used
-         If (pChrg(iCnttp)) Then
+         If (dbsc(iCnttp)%pChrg) Then
             iSD(12,nSkal)= 1                   ! pseudo charge
          Else
             iSD(12,nSkal)= 0                   ! pseudo charge

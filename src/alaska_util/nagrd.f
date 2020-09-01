@@ -186,7 +186,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                iComp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iComp) .and.
      &              .Not.dbsc(kCnttp)%Frag .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
 *--------------------Reset flags for the basis set centers so that we

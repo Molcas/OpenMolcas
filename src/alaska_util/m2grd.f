@@ -196,7 +196,7 @@
                      JfGrad(iCar+1,3) = .False.
                      iCmp = 2**iCar
                      If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &                    .Not.pChrg(kCnttp) ) Then
+     &                    .Not.dbsc(kCnttp)%pChrg ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
 *--------------------------Reset flags for the basis set centers so that

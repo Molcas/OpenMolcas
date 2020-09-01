@@ -47,7 +47,7 @@
               Do iCar = 0, 2
                 iComp = 2**iCar
                 If ( TF(ndc,iIrrep,iComp) .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                    XGrad=0.d0

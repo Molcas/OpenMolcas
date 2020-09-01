@@ -98,7 +98,7 @@
       iNuc = 0
 *     Call RecPrt('CN',' ',CN,3,nNuc)
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
+         If (.Not.dbsc(iCnttp)%pChrg.and..Not.dbsc(iCnttp)%Frag .and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)

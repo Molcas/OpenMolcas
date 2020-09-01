@@ -217,7 +217,7 @@
                      JndGrd(iCar+1,3) = 0
                      iCmp = 2**iCar
                      If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &                    .Not.pChrg(kCnttp) ) Then
+     &                    .Not.dbsc(kCnttp)%pChrg ) Then
 *-----------------------Displacement is symmetric
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then

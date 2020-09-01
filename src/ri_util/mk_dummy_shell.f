@@ -44,7 +44,6 @@
       dbsc(nCnttp)%Aux=.True.
       aCD_Thr(nCnttp)=One
       CrRep(nCnttp)=Zero
-      pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
       dbsc(nCnttp)%Parent_iCnttp = 0
 *

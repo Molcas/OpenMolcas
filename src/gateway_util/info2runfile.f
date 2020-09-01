@@ -94,7 +94,7 @@
       If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (pChrg(iCnttp) .and. Fixed(iCnttp))
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. Fixed(iCnttp))
       End Do
       If (.not.DoEMPC) Then
          If (lXF.or.Pseudo) Then
@@ -188,7 +188,7 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
@@ -199,7 +199,7 @@
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -255,7 +255,7 @@
 *
       iNTC = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iNuc = 1, dbsc(iCnttp)%nCntr
@@ -302,14 +302,14 @@
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (pChrg(iCnttp)) nNuc = nNuc + dbsc(iCnttp)%nCntr
+         If (dbsc(iCnttp)%pChrg) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (pChrg(iCnttp))Then
+         If (dbsc(iCnttp)%pChrg)Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                iNuc = iNuc+ 1
                DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)

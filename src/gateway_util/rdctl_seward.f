@@ -1243,7 +1243,6 @@ c Simplistic validity check for value
       Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
-      pChrg(nCnttp)=.False.
       Fixed(nCnttp)=.False.
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                     + dbsc(nCnttp)%nPrj
@@ -1302,7 +1301,7 @@ c Simplistic validity check for value
       Call UpCase(KWord)
       Call LeftAd(KWord)
       If (KWord(1:4).eq.'PSEU') Then
-         pChrg(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
          Fixed(nCnttp)=.True.
          Go To 777
       End If
@@ -1392,7 +1391,7 @@ c Simplistic validity check for value
          Go To 777
       End If
       If (KWord(1:4).eq.'FRAG') Then
-         pChrg(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
          Fixed(nCnttp)=.True.
          lFAIEMP=.True.
          Go To 777
