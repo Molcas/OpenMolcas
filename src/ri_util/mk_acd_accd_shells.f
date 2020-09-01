@@ -382,7 +382,7 @@
             Bsl(nCnttp)=Label
             Bsl_Old(nCnttp)=Bsl(nCnttp)
             dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
-            Fixed(nCnttp)=Fixed(iCnttp)
+            dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.

@@ -235,7 +235,8 @@ C     Call Gateway_banner()
       If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. Fixed(iCnttp))
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
+     &                         dbsc(iCnttp)%Fixed)
       End Do
       If (lXF.or.Pseudo) Then
          iOption=iOr(iOption,2**7)

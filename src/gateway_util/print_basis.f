@@ -106,7 +106,7 @@
                   End If
                End If
             End If
-            If (Fixed(iCnttp)) Write (LuWr,'(6X,A)')
+            If (dbsc(iCnttp)%Fixed) Write (LuWr,'(6X,A)')
      &          'Centers of this basis set are frozen!'
             If (dbsc(iCnttp)%IsMM.eq.1) Then
                Write (LuWr,'(6X,A)') 'This is a MM atom: no basis set'
