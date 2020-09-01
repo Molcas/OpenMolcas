@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,iShll,MxAng, BLine,Ref,
-     &                 PAM2, CrRep,UnNorm,nDel,LuRd,BasisTypes,
+     &                 UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
@@ -51,7 +51,7 @@
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,
-     &        UnNorm, PAM2, isEorb,isFock
+     &        UnNorm, isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
@@ -73,12 +73,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,iShll,
-     &                     BLine,CrRep,nProj,UnNorm,nCnttp)
+         SubRoutine GetECP(lUnit,iShll,BLine,nProj,UnNorm,nCnttp)
          Integer lUnit
          Integer iShll
          Character*(*) BLine
-         Real*8  CrRep
          Integer nProj
          Logical UnNorm
          Integer nCnttp
@@ -103,7 +101,6 @@
 #endif
       If (IfTest) iPrint=99
       ip_Dummy=-1
-      PAM2 = .False.
       dbsc(nCnttp)%FOp = .True.
       nM1=0
       nM2=0
@@ -558,7 +555,7 @@
       End If
       If ( Index(BSLBl,'.PAM.').ne.0) then
          If (IfTest) Write (6,*) ' Process PAM'
-         PAM2 = .True.
+         dbsc(nCnttp)%lPAM2 = .True.
          If (iPrint.ge.99) Write (6,*) ' Start reading PAMs'
          Call GetPAM(lUnit,nCnttp)
 *
@@ -611,8 +608,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          dbsc(nCnttp)%iPrj=iShll+1
-         Call GetECP(lUnit,iShll,Bline,
-     &               CrRep,nProj,UnNorm,nCnttp)
+         Call GetECP(lUnit,iShll,Bline,nProj,UnNorm,nCnttp)
          dbsc(nCnttp)%nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then

@@ -172,7 +172,7 @@
          Write (LuWr,'(19X,A)')
      &         ' *************************************************'
          Do iCnttp=1,nCnttp
-         If (PAM2(iCnttp)) Then
+         If (dbsc(iCnttp)%lPAM2) Then
 *            If (iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)

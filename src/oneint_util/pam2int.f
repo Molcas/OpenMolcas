@@ -138,7 +138,7 @@
 
 
       kCnttp = kCnttpPAM
-         If (.Not.PAM2(kCnttp)) Go To 111
+         If (.Not.dbsc(kCnttp)%lPAM2) Go To 111
          If (dbsc(kCnttp)%nPAM2.eq.-1) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr

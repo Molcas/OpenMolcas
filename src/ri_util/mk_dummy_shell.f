@@ -43,7 +43,6 @@
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
       aCD_Thr(nCnttp)=One
-      CrRep(nCnttp)=Zero
       dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1

@@ -171,8 +171,7 @@
             ExpNuc(nCnttp)=-One
             dbsc(nCnttp)%mdci=mdc
             Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,iShll,MxAng,
-     &                 BLine,Ref,PAM2(nCnttp),
-     &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
+     &                 BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,lSTDINP,.False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,

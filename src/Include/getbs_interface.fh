@@ -12,15 +12,13 @@
 ************************************************************************
       Interface
       SubRoutine GetBS(DDname,BSLbl,iBSLbl,iShll,MxAng,BLine,Ref,
-     &                 PAM2,CrRep,UnNorm,nDel,LuRd,BasisTypes,STDINP,
+     &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,
      &                 iSTDINP,L_STDINP,Expert,ExtBasDir)
 #include "Molcas.fh"
       Character*(*) DDname
       Character*80  BSLbl
       Integer       iBSLbl, iShll, MxAng
       Character*80  BLine, Ref(2)
-      Logical       PAM2
-      Real*8        CrRep
       Logical       UnNorm
       Integer       nDel(0:MxAng), LuRd, BasisTypes(4)
       Character*180 STDINP(MxAtom*2)

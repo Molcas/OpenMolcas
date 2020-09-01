@@ -1166,8 +1166,7 @@ c Simplistic validity check for value
       Bsl_Old(nCnttp)=Bsl(nCnttp)
       dbsc(nCnttp)%mdci=mdc
       Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &           MxAng,BLine,Ref, PAM2(nCnttp),
-     &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
+     &           MxAng,BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
      &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
@@ -1223,7 +1222,7 @@ c Simplistic validity check for value
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. PAM2(nCnttp)
+      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
      &                 +dbsc(nCnttp)%nPrj
      &                 +dbsc(nCnttp)%nSRO

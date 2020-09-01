@@ -163,11 +163,10 @@
          jShll = iShll
          Bsl_Old(nCnttp)=Bsl(nCnttp)
          Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &              MxAng,BLine,Ref,PAM2(nCnttp),
-     &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
+     &              MxAng,BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
      &              STDINP,lSTDINP,.False.,.true.,' ')
-         dbsc(nCnttp)%Aux=.True.
 *
+         dbsc(nCnttp)%Aux=.True.
          dbsc(nCnttp)%Charge=Zero
 *
          If (Show.and.iPrint.ge.6 .and.
@@ -178,7 +177,7 @@
             Write (6,*)
             Write (6,*)
          End If
-         lPAM2 = lPAM2 .or. PAM2(nCnttp)
+         lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
          dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                   + dbsc(nCnttp)%nSRO
      &                   + dbsc(nCnttp)%nSOC
@@ -442,8 +441,7 @@
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            PAM2(nCnttp)=.False.
-            lPAM2 = lPAM2 .or. PAM2(nCnttp)
+            lPAM2 = lPAM2 .or.dbsc(nCnttp)%lPAM2
             lECP = lECP .or. dbsc(nCnttp)%ECP
             lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
             lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair

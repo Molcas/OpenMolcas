@@ -63,6 +63,7 @@ Type Distinct_Basis_set_centers
     Real*8, Allocatable:: M2xp(:), M2cf(:)
     Integer:: nFragType=0, nFragCoor=0, nFragEner=0, nFragDens=0
     Real*8, Allocatable:: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
+    Logical:: lPAM2=.False.
     Integer:: nPAM2=-1
     Real*8, Allocatable:: PAM2(:)
     Logical:: ECP=.False.
@@ -81,11 +82,12 @@ Type Distinct_Basis_set_centers
     Integer:: iPP =0, nPP =0
     Integer:: nShells =0
     Integer:: AtmNr=0
-    Real*8:: Charge=0.0D0
+    Real*8::  Charge=0.0D0
     Logical:: NoPair=.False.
     Logical:: SODK  =.False.
     Logical:: pChrg =.False.
     Logical:: Fixed =.False.
+    Real*8::  CrRep=0.0D0
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -138,7 +140,7 @@ Integer, Parameter :: Gaussian_type = 1
 Integer, Parameter :: mGaussian_Type= 2
 
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =32, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =33, mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
@@ -277,6 +279,8 @@ Do i = 1, nCnttp
    If (dbsc(i)%pChrg )iDmp(31,i)=1
    iDmp(32,i) = 0
    If (dbsc(i)%Fixed )iDmp(32,i)=1
+   iDmp(33,i) = 0
+   If (dbsc(i)%lPAM2 )iDmp(33,i)=1
    nAtoms=nAtoms+dbsc(i)%nCntr
    nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
@@ -354,7 +358,7 @@ Do i = 1, nCnttp
    End Do
    nAtoms=nAtoms+1
    rDmp(1,nAtoms)=dbsc(i)%Charge
-   rDmp(2,nAtoms)=0.0D0
+   rDmp(2,nAtoms)=dbsc(i)%CrRep
    rDmp(3,nAtoms)=0.0D0
 End Do
 Call Put_dArray('rDmp',rDmp,3*nAtoms)
@@ -528,6 +532,7 @@ Do i = 1, nCnttp
    dbsc(i)%SODK         = iDmp(30,i).eq.1
    dbsc(i)%pChrg        = iDmp(31,i).eq.1
    dbsc(i)%Fixed        = iDmp(32,i).eq.1
+   dbsc(i)%lPAM2        = iDmp(33,i).eq.1
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
@@ -594,6 +599,7 @@ Do i = 1, nCnttp
    End Do
    nAtoms=nAtoms+1
    dbsc(i)%Charge    =rDmp(1,nAtoms)
+   dbsc(i)%CrRep     =rDmp(2,nAtoms)
 End Do
 Call mma_deallocate(rDmp)
 !

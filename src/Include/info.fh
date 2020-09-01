@@ -158,7 +158,6 @@
 *             magnetic shielding integrals                             *
 *     RadMax: the largest of a contraction coefficient and prefactor   *
 *     rChTbl: the character table for the specified point group        *
-*     CrRep : Contains the core-overlap parm for the i:th basis set    *
 * FragCharge: Mulliken charge for each expanded fragment atom          *
 *     radiLD: cutoff radius for LDKH procedure                         *
 *     KVector: the k-vector of the EMFR                                *
@@ -238,16 +237,16 @@
      &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p,
-     &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
-     &          lXF, BSS,
+     &          lECP, lNOpair, force_part_c, Expert, lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
-     &          Do_GuessOrb,
-     &          lFAIEMP,Cholesky, Do_FckInt, Align_Only,
+     &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
      &          Do_Numerical_Gradients, VarT, VarR, EMFR,
      &          lUPONLY, lDOWNONLY, FNMC
+      Logical lPAM2
+      Logical lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass, lAux,  NEMO,
@@ -255,20 +254,15 @@
      &               Do_GuessOrb, Test, Vlct, lOAM, lOMQ, lAMP,
      &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
      &               lSchw, Dist, lECP, lXF, lNOpair,
-     &               NoPairL, force_part_c, force_part_p, Expert,
+     &               force_part_c, force_part_p, Expert,
      &               GIAO, Do_FckInt, Cholesky,
      &               lFAIEMP, Force_Out_of_Core,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
      &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,
      &               Do_Align, Do_Numerical_Gradients, VarR, VarT,
-     &               EMFR, lUPONLY, lDOWNONLY, FNMC,
+     &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPAM2,lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
-*
-      Logical PAM2(Mxdbsc), lPAM2
-      Logical lPSOI
-      Common /LInfoPAM/ lPAM2,PAM2
-      Common /LInfoPSO/ lPSOI
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -281,7 +275,7 @@
      &               SumSq,  SumAbs, CutInt, TMass,  CoM(3), rMI(6),
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
-     &               CrRep(mxdbsc), FragCharge(mxdbsc), E1, E2,
+     &               FragCharge(mxdbsc), E1, E2,
      &               Thrshld_CD, RPQMin,SadStep,
      &               Delta_RICD, CLight_Info, w_mGauss(mxdbsc),
      &               aCD_Thr(mxdbsc),radiLD, Shake, KVector(3), ChiI2,
@@ -291,7 +285,7 @@
      &               AccMch,         ThrInt, PotNuc, Sum,
      &               SumSq,  SumAbs, CutInt, TMass,  CoM,    rMI,
      &               Prin,   PAx,    CoC,    qNuc,   PkAcc,  Thrs,
-     &               Dxyz, RadMax, cdMax, EtMax, rChTbl,CrRep,
+     &               Dxyz, RadMax, cdMax, EtMax, rChTbl,
      &               ExpNuc,FragCharge, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               w_mGauss, aCD_Thr, E1, E2, radiLD, SadStep, Shake,

@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,iShll,BLine,CrRep,nProj,UnNorm,iCnttp)
+      SubRoutine GetECP(lUnit,iShll,BLine,nProj,UnNorm,iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -205,9 +205,8 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)CrRep
       Line=Get_Ln(lUnit)
-      Call Get_F1(1,CrRep)
+      Call Get_F1(1,dbsc(nCnttp)%CrRep)
 *                                                                      *
 ************************************************************************
 *                                                                      *
