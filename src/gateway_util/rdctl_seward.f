@@ -1305,7 +1305,7 @@ c Simplistic validity check for value
       End If
       If (KWord(1:4).eq.'ACDT') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,aCD_Thr(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%aCD_Thr)
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then

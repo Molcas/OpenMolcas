@@ -104,7 +104,7 @@
 *     sets might have individual accuracy!
 *
       mdc = dbsc(iCnttp)%mdci
-      Thr_aCD=aCD_Thr(iCnttp)*Thrshld_CD
+      Thr_aCD=dbsc(iCnttp)%aCD_Thr*Thrshld_CD
 *
       nTest= dbsc(iCnttp)%nVal-1
 *                                                                      *
@@ -387,7 +387,7 @@
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
-            aCD_Thr(nCnttp)=aCD_Thr(iCnttp)
+            dbsc(nCnttp)%aCD_Thr=dbsc(iCnttp)%aCD_Thr
             fmass(nCnttp)=fmass(iCnttp)
 *                                                                      *
 ************************************************************************

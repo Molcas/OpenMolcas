@@ -86,11 +86,11 @@
                If (dbsc(iCnttp)%Aux) Then
                   Write (LuWr,'(6X,A)') 'Auxiliary basis set:'
                   Write (LuWr,'(6X,A)') '=================='
-                  If (aCD_Thr(iCnttp).ne.One) Then
+                  If (dbsc(iCnttp)%aCD_Thr.ne.One) Then
                      Write (LuWr,'(6X,A,G9.2)') 'Threshold in the '
      &                    //'auxiliary basis set generation is '
      &                    //'modified to ',
-     &                    aCD_Thr(iCnttp)*Thrshld_CD
+     &                    dbsc(iCnttp)%aCD_Thr*Thrshld_CD
                   End If
                Else If (dbsc(iCnttp)%Frag) Then
                   Write (LuWr,'(6X,A)') 'Fragment basis set:'

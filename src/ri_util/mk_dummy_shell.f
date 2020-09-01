@@ -42,8 +42,6 @@
       Bsl(nCnttp)='.....RI_Dummy'
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
-      aCD_Thr(nCnttp)=One
-      dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1
       nCntrc=1

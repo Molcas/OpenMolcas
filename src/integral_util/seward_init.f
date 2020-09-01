@@ -114,7 +114,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Do i=1, Mxdbsc
          ExpNuc(i)       =-One
          w_mGauss(i)     = One
-         aCD_Thr(i)      = One
          fmass(i)        = One
          Bsl    (i) = ' '
          Bsl_Old(i) = ' '

@@ -24,7 +24,7 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
-      use Basis_Info, only: nCnttp
+      use Basis_Info, only: nCnttp, dbsc
       use Period
       use GeoList
       use MpmC
@@ -383,7 +383,7 @@
      &                 '  - CD Threshold: ',Thrshld_CD
                l_aCD_Thr=.False.
                Do iCnttp = 1, nCnttp
-                  l_aCD_Thr=l_aCD_Thr .or. aCD_Thr(iCnttp).ne.One
+                  l_aCD_Thr=l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr.ne.One
                End Do
                If (l_aCD_Thr) Then
                   Write (LuWr,'(17X,A)')
