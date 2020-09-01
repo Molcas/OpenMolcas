@@ -763,6 +763,7 @@ Keywords associated to one-electron integrals
               Here XX represents the order of the DKH correction to the one-electron Hamiltonian and
               yy the order of the picture-change correction. The character P denotes the parameterization
               used in the DKH procedure.
+
               The possible parametrizations P of the unitary transformation used
               in the DKH transformation supported by MOLCAS are:
 
