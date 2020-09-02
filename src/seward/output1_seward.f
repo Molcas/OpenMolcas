@@ -24,7 +24,7 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
-      use Basis_Info, only: nCnttp, dbsc
+      use Basis_Info
       use Period
       use GeoList
       use MpmC
