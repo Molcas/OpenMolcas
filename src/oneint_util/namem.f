@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      use Basis_Info
       Subroutine NAMem(nRys,MemNA,la,lb,lr)
+      use Basis_Info
 #include "itmax.fh"
 #include "info.fh"
       Integer iAngV(4)
