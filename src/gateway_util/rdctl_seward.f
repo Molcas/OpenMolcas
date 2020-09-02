@@ -1129,7 +1129,7 @@ c Simplistic validity check for value
       If (Indx.eq.0) Then
          Fname=BasLib
          Indx = Last+1
-         Bsl(nCnttp)=BSLbl
+         dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -1143,13 +1143,13 @@ c Simplistic validity check for value
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
       If (n.eq.0) n=81
       Do i=n,80
-        Bsl(nCnttp)(i:i)='.'
+        dbsc(nCnttp)%Bsl(i:i)='.'
       End Do
 *
       If ((Show.and.nPrint(2).ge.6) .or.
@@ -1163,11 +1163,11 @@ c Simplistic validity check for value
       End if
 *
       jShll = iShll
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &           MxAng,BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
-     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+     &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
+     &           ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
      &            dbsc(nCnttp)%AtmNr.le.96

@@ -110,7 +110,7 @@ C      iPrint=99
 *
          W2L=.True.
          Do jCnttp = iCnttp+1, mCnttp
-            If (Bsl_Old(iCnttp).eq.Bsl_Old(jCnttp)) Then
+            If (dbsc(iCnttp)%Bsl_old.eq.dbsc(jCnttp)%Bsl_old) Then
                W2L=.False.
                Exit
             End If

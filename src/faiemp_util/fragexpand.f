@@ -145,7 +145,7 @@
                 Fname=DefNm
               Endif
               Indx = Last+1
-              Bsl(nCnttp) = Trim(sBasis)
+              dbsc(nCnttp)%Bsl = Trim(sBasis)
             Else
               Fname = sBasis(Indx+2:Last)
               If (Fname.eq.' ') Then
@@ -158,20 +158,20 @@
                 Fname(80:80) = ' '
                 Go To 1001
               End If
-              Bsl(nCnttp)=sBasis(1:Indx-1)
+              dbsc(nCnttp)%Bsl=sBasis(1:Indx-1)
             Endif
 #ifdef _DEBUG_
-            write(6,*) 'Setting Bsl(',nCnttp,') to ',Bsl(nCnttp)
+            write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
             write(6,*) 'Fname = ',Fname
 #endif
-*           Now Fname contains the basis set directory and Bsl(nCnttp)
+*           Now Fname contains the basis set directory and dbsc(.)%Bsl
 *           contains the basis set label
 *
             jShll = iShll
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,iShll,MxAng,
-     &                 BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
-     &                 STDINP,lSTDINP,.False.,.true.,' ')
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,BLine,Ref,
+     &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,lSTDINP,
+     &                 .False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1

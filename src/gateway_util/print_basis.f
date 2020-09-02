@@ -69,7 +69,7 @@
             Write (LuWr,*)
             Write (LuWr,*)
             Write (LuWr,'(6X,A,1X,A)') 'Basis set label:',
-     *        Trim(Bsl(iCnttp))
+     *        Trim(dbsc(iCnttp)%Bsl)
             If (lOPTO) GoTo 100
             Write (LuWr,*)
             dbas=LblCnt(mdc+1)(1:4)

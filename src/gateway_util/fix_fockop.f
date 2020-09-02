@@ -469,9 +469,8 @@
 *
          iShll = Mx_Shll-1
          jShll = iShll
-         Call GetBS(Fname,Bsl_,Indx-1,iShll,MxAng,
-     &              BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
-     &              STDINP,lSTDINP,.False.,.true.,' ')
+         Call GetBS(Fname,Bsl_,iShll,MxAng,BLine,Ref,UnNorm,nDel,LuRd,
+     &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then
             Write (6,*) 'Fix_FockOp: reference basis doesn''t contain a'

@@ -11,7 +11,7 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,iShll,MxAng, BLine,Ref,
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng, BLine,Ref,
      &                 UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
@@ -1016,8 +1016,6 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iBSLbl)
       End
       Subroutine Check_Info()
 #include "itmax.fh"

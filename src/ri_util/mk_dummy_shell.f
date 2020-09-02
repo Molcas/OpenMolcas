@@ -39,7 +39,7 @@
       dbsc(nCnttp)%nVal = 1
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *
-      Bsl(nCnttp)='.....RI_Dummy'
+      dbsc(nCnttp)%Bsl='.....RI_Dummy'
       dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
 *

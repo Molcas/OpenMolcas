@@ -111,10 +111,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       iWRopt=0
       iPAMcount=1
 
-      Do i=1, Mxdbsc
-         Bsl    (i) = ' '
-         Bsl_Old(i) = ' '
-      End Do
       inttot=0
       nOrd_XF = 1
       iOrdFm=0

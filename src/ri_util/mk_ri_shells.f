@@ -91,34 +91,34 @@
 *        Resolve the name of the valence basis and find the name of
 *        the appropriate auxiliary basis set.
 *
-         Bsl(nCnttp)=Bsl_Old(iCnttp)
+         dbsc(nCnttp)%Bsl=dbsc(iCnttp)%Bsl_old
 *
          Hit=.True.
-         Call Decode(Bsl(nCnttp),atom,1,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,atom,1,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),type,2,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,type,2,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),author,3,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,author,3,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),basis,4,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,basis,4,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),CGTO,5,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,CGTO,5,Hit)
          Hit=.False.
-         Call Decode(Bsl(nCnttp),Aux,6,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,Aux,6,Hit)
          If (.Not.Hit) Aux = ' '
 *
          n=Index(Atom,' ')-1
-         Bsl(nCnttp)(1:n+1)=atom(1:n)//'.'
+         dbsc(nCnttp)%Bsl(1:n+1)=atom(1:n)//'.'
          nn = n + 1
 *
          n=Index(Type,' ')-1
-         Bsl(nCnttp)(nn+1:nn+n+5)=Type(1:n)//'.....'
+         dbsc(nCnttp)%Bsl(nn+1:nn+n+5)=Type(1:n)//'.....'
 *
 *        Modify basis set library correctly
 *
-         Indx=Index(Bsl(nCnttp),' ')
+         Indx=Index(dbsc(nCnttp)%Bsl,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl(nCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(nCnttp)%Bsl(1:Indx-1)
          Call WhichMolcas(Basis_lib)
          If (Basis_lib(1:1).ne.' ') Then
             ib=index(Basis_lib,' ')-1
@@ -161,10 +161,10 @@
          End if
 *
          jShll = iShll
-         Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &              MxAng,BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
-     &              STDINP,lSTDINP,.False.,.true.,' ')
+         dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+     &              nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,
+     &              ' ')
 *
          dbsc(nCnttp)%Aux=.True.
          dbsc(nCnttp)%Charge=Zero
@@ -247,20 +247,20 @@
          mdc = dbsc(iCnttp)%mdci
 *
          Hit=.True.
-         Call Decode(Bsl_Old(iCnttp),atom,1,Hit)
+         Call Decode(dbsc(iCnttp)%Bsl_old,atom,1,Hit)
          Type=' '
          Author=' '
          basis=' '
          CGTO=' '
          Aux=' '
          If (IfTest) Then
-            Write (6,*) 'Bsl_Old=',Bsl_Old(iCnttp)
+            Write (6,*) 'Bsl_Old=',dbsc(iCnttp)%Bsl_old
             Write (6,*) 'Atom=',Atom
          End If
 *
-         Indx=Index(Bsl_Old(iCnttp),' ')
+         Indx=Index(dbsc(iCnttp)%Bsl_old,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl_Old(iCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(iCnttp)%Bsl_old(1:Indx-1)
 *
 *        Find the basis set
 *
@@ -322,8 +322,8 @@
                Write(6,'(1X,A)') 'Basis set is read from the workdir.'
             End if
 *
-            Bsl(nCnttp)=BSLB(2:80)
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
+            dbsc(nCnttp)%Bsl=BSLB(2:80)
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
 *
 *           Loop over the angular shells
 *

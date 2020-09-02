@@ -291,14 +291,13 @@
       Character*(LENIN)  lblxxx(8*mxdc)
       Character*(LENIN4) LblCnt(Mxdc)
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
-      Character Title(10)*80, Bsl(Mxdbsc)*80, Bsl_Old(Mxdbsc)*80
+      Character Title(10)*80
       Character SW_FileOrb*512, Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               LblCBs, LblSBs, Title, Bsl, Bsl_Old,
-     &               BLine, lIrrep, lBsFnc, LblCnt, lblxxx,
-     &               SW_FileOrb, Align_Weights,
+     &               LblCBs, LblSBs, Title,BLine, lIrrep, lBsFnc,
+     &               LblCnt, lblxxx, SW_FileOrb, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************

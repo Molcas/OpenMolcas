@@ -94,6 +94,8 @@ Type Distinct_Basis_set_centers
     Real*8::  CntMass=0.0D0
     Real*8::  ExpNuc =-1.0D0
     Real*8::  w_mGauss =1.0D0
+    Character*80 :: Bsl
+    Character*80 :: Bsl_Ol
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -209,8 +211,12 @@ Subroutine Basis_Info_Init()
 If (Initiated) Return
 If (nCnttp.eq.0) Then
    Allocate(dbsc(1:Mxdbsc))
+   dbsc(1:Mxdbsc)%Bsl=" "        ! could get this to work at the point of declaring the member.
+   dbsc(1:Mxdbsc)%Bsl_Old=" "
 Else
    Allocate(dbsc(1:nCnttp))
+   dbsc(1:nCnttp)%Bsl=" "
+   dbsc(1:nCnttp)%Bsl_Old=" "
 End If
 If (Max_Shells.eq.0) Then
    Allocate(Shells(1:MxShll))
@@ -226,10 +232,11 @@ End Subroutine Basis_Info_Init
 !
 Subroutine Basis_Info_Dmp()
 !
-Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis
+Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis, lcDmp
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
+Character*160, Allocatable:: cDmp(:)
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Dmp'
 Do i = 1, nCnttp
@@ -350,9 +357,7 @@ End Do
 Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
 Call mma_deallocate(iDmp)
 !
-!**********************************************************************
-!
-!**********************************************************************
+!    Real*8 Stuff
 !
 Call mma_allocate(rDmp,3,nAtoms+3*nCnttp,Label='rDmp')
 nAtoms = 0
@@ -476,6 +481,18 @@ If (nAux2.gt.0) Then
    Call Put_dArray('rDmp:S',rDmp,nAux2)
    Call mma_deallocate(rDmp)
 End If
+!
+!  Character Stuff
+!
+Call mma_allocate(cDmp,nCnttp,Label='cDmp')
+Do i = 1, nCnttp
+   cDmp(i)(1:80)  =dbsc(i)%Bsl
+   cDmp(i)(81:160)=dbsc(i)%Bsl_Old
+End Do
+lcDmp=160*nCnttp
+Call Put_cArray('cDmp',cDmp,lcDmp)
+Call mma_deallocate(cDmp)
+
 Return
 End Subroutine Basis_Info_Dmp
 !
@@ -487,8 +504,9 @@ Subroutine Basis_Info_Get()
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:), pDmp(:)
+Character*160, Allocatable:: cDmp(:)
 Logical Found
-Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2
+Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Get()'
@@ -752,6 +770,17 @@ If (nAux2.gt.0) Then
    End Do
    Call mma_deallocate(rDmp)
 End If
+!
+!  Character stuff
+!
+Call mma_allocate(cDmp,nCnttp,Label='cDmp')
+lcDmp=160*nCnttp
+Call Get_cArray('cDmp',cDmp,lcDmp)
+Do i = 1, nCnttp
+   dbsc(i)%Bsl    =cDmp(i)(1:80)
+   dbsc(i)%Bsl_Old=cDmp(i)(81:160)
+End Do
+Call mma_deallocate(cDmp)
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Get'
 Do i = 1, nCnttp

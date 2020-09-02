@@ -149,7 +149,7 @@
 *                                                                      *
 *     Use the name of the old valence basis
 *
-      Label=Bsl_Old(iCnttp)
+      Label=dbsc(iCnttp)%Bsl_old
 *
       Hit=.True.
       Call Decode(Label,atom,1,Hit)
@@ -379,8 +379,8 @@
 *
 *           Some generic setting of information
 *
-            Bsl(nCnttp)=Label
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
+            dbsc(nCnttp)%Bsl=Label
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
             dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
             dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
             dbsc(nCnttp)%Parent_iCnttp=iCnttp

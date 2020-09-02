@@ -113,7 +113,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          Fname=DefNm
        endif
        Indx = Last+1
-       Bsl(nCnttp)=BSLbl
+       dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -127,11 +127,11 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
-      Bsl(nCnttp)(n:n+5)='.....'
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
+      dbsc(nCnttp)%Bsl(n:n+5)='.....'
 *
       If (Show.and.nPrint(2).ge.6) Then
          Write (LuWr,*)
@@ -143,11 +143,10 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       End if
 *
       jShll = iShll
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,iShll,
-     &           MxAng, BLine,Ref,UnNorm,nDel,LuRd,BasisTypes,
-     &           STDINP,iSTDINP,.True.,.true.,' ')
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng, BLine,Ref,UnNorm,
+     &           nDel,LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
