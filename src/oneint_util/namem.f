@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
+      use Basis_Info
       Subroutine NAMem(nRys,MemNA,la,lb,lr)
 #include "itmax.fh"
 #include "info.fh"
