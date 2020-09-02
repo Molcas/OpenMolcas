@@ -398,6 +398,35 @@
           end if
         end if
       end subroutine
+      subroutine pmma_allo_2D(buffer,n1,n2,label)
+        implicit none
+        real*8, pointer :: buffer(:,:)
+        integer :: n1, n2
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "cptr2loff.fh"
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+C       if (allocated(buffer)) then
+C         call mma_double_allo
+C       end if
+        call mma_maxbytes(mma_avail)
+        bufsize = rtob * n1 * n2
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer(n1,n2))
+          if (n1*n2.gt.0) then
+            loffset = cptr2loff(buffer(1,1))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,n1*n2)
+            else
+              call getmem('dmma_2D','RGST','REAL',loffset,n1*n2)
+            end if
+          end if
+        end if
+      end subroutine
       subroutine dmma_allo_2D(buffer,n1,n2,label)
         implicit none
         real*8, allocatable :: buffer(:,:)
@@ -1317,6 +1346,26 @@
         else
           call mma_double_free
         end if
+      end subroutine
+      subroutine pmma_free_2D(buffer)
+        implicit none
+        real*8, pointer :: buffer(:,:)
+#include "SysDef.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+C       if (allocated(buffer)) then
+          if (n1*n2.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2)))
+            call getmem('dmma_2D','EXCL','REAL',loffset,n1*n2)
+          end if
+          deallocate(buffer)
+C       else
+C         call mma_double_free
+C       end if
       end subroutine
       subroutine imma_free_2D(buffer)
         implicit none

@@ -55,7 +55,7 @@ Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Ce
 !
 Type Distinct_Basis_set_centers
     Sequence
-    Real*8, Allocatable:: Coor(:,:)
+    Real*8, Pointer:: Coor(:,:)
     Integer:: nCntr=0
     Integer:: nM1=0
     Real*8, Allocatable:: M1xp(:), M1cf(:)
@@ -95,7 +95,7 @@ Type Distinct_Basis_set_centers
     Real*8::  ExpNuc =-1.0D0
     Real*8::  w_mGauss =1.0D0
     Character*80 :: Bsl
-    Character*80 :: Bsl_Ol
+    Character*80 :: Bsl_Old
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -622,7 +622,7 @@ Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
 Call Get_dArray('rDmp',rDmp,3*nAtoms)
 nAtoms = 0
 Do i = 1, nCnttp
-   If (.Not.Allocated(dbsc(i)%Coor)) Then
+   If (dbsc(i)%nCntr.gt.0) Then
       Call mma_Allocate(dbsc(i)%Coor,3,dbsc(i)%nCntr,Label='dbsc:C')
    End If
    Do j = 1, dbsc(i)%nCntr
@@ -807,8 +807,8 @@ Do i = 1, nCnttp
 !
 !  Molecular Coordinates
 !
-   If (allocated(dbsc(i)%Coor)) Call mma_deallocate(dbsc(i)%Coor)
-   dbsc(i)%nCntr=-1
+   If (dbsc(i)%nCntr.gt.0) Call mma_deallocate(dbsc(i)%Coor)
+   dbsc(i)%nCntr=0
 !
 !  ECP stuff
 !

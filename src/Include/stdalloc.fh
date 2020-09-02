@@ -56,6 +56,11 @@
          end subroutine
 
 ! 2D allocate
+         subroutine pmma_allo_2D(buffer,n1,n2,label)
+           real*8, pointer :: buffer(:,:)
+           integer :: n1, n2
+           character (len=*), optional :: label
+         end subroutine
          subroutine dmma_allo_2D(buffer,n1,n2,label)
            real*8, allocatable :: buffer(:,:)
            integer :: n1, n2
@@ -212,6 +217,9 @@
          end subroutine
 
 ! 2D deallocate
+         subroutine pmma_free_2D(buffer)
+           real*8, pointer :: buffer(:,:)
+         end subroutine
          subroutine dmma_free_2D(buffer)
            real*8, allocatable :: buffer(:,:)
          end subroutine
