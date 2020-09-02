@@ -294,7 +294,9 @@ Do i = 1, nCnttp
    If (dbsc(i)%Fixed )iDmp(32,i)=1
    iDmp(33,i) = 0
    If (dbsc(i)%lPAM2 )iDmp(33,i)=1
-   nAtoms=nAtoms+dbsc(i)%nCntr
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      nAtoms=nAtoms+dbsc(i)%nCntr
+   End If
    nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
@@ -363,10 +365,12 @@ Call mma_allocate(rDmp,3,nAtoms+3*nCnttp,Label='rDmp')
 nAtoms = 0
 Do i = 1, nCnttp
 !  Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
-   Do j = 1, dbsc(i)%nCntr
-      nAtoms=nAtoms+1
-      rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
-   End Do
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      Do j = 1, dbsc(i)%nCntr
+         nAtoms=nAtoms+1
+         rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
+      End Do
+   End If
    nAtoms=nAtoms+1
    rDmp(1,nAtoms)=dbsc(i)%Charge
    rDmp(2,nAtoms)=dbsc(i)%CrRep
@@ -509,7 +513,6 @@ Logical Found
 Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
 #ifdef _DEBUG_
-Write (6,*) 'Basis_Info_Get()'
 #endif
 Call qpg_iArray('iDmp',Found,Len)
 Len2=Len/nFields
@@ -622,13 +625,18 @@ Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
 Call Get_dArray('rDmp',rDmp,3*nAtoms)
 nAtoms = 0
 Do i = 1, nCnttp
-   If (dbsc(i)%nCntr.gt.0) Then
-      Call mma_Allocate(dbsc(i)%Coor,3,dbsc(i)%nCntr,Label='dbsc:C')
-   End If
-   Do j = 1, dbsc(i)%nCntr
-      nAtoms=nAtoms+1
-      dbsc(i)%Coor(1:3,j)=rDmp(1:3,nAtoms)
-   End Do
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      If (dbsc(i)%nCntr.gt.0) Then
+         Call mma_Allocate(dbsc(i)%Coor,3,dbsc(i)%nCntr,Label='dbsc:C')
+      End If
+      Do j = 1, dbsc(i)%nCntr
+         nAtoms=nAtoms+1
+         dbsc(i)%Coor(1:3,j)=rDmp(1:3,nAtoms)
+      End Do
+   Else
+      j=dbsc(i)%Parent_iCnttp
+      dbsc(i)%Coor => dbsc(j)%Coor(1:3,1:dbsc(j)%nCntr)
+    End If
    nAtoms=nAtoms+1
    dbsc(i)%Charge    =rDmp(1,nAtoms)
    dbsc(i)%CrRep     =rDmp(2,nAtoms)
@@ -807,8 +815,14 @@ Do i = 1, nCnttp
 !
 !  Molecular Coordinates
 !
-   If (dbsc(i)%nCntr.gt.0) Call mma_deallocate(dbsc(i)%Coor)
-   dbsc(i)%nCntr=0
+   If (dbsc(i)%nCntr.gt.0) Then
+       If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+          Call mma_deallocate(dbsc(i)%Coor)
+       Else
+          Nullify(dbsc(i)%Coor)
+       End If
+       dbsc(i)%nCntr=0
+   End If
 !
 !  ECP stuff
 !

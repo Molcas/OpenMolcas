@@ -89,12 +89,13 @@
       Max_Shells=Mx_Shll
       Mx_mdc=mdc
 *
+      If (iCnttp_Dummy.ne.0) Then
+         Write (6,*) 'Mk_dummy_shell: iCnttp_Dummy'
+         Call Abend()
+      End If
       iCnttp_Dummy=nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Info)
-*
       End

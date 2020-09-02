@@ -1315,9 +1315,8 @@ C                          Thrs= 1.0D-12
                nCnt = dbsc(iCnttp)%nCntr
                dbsc(nCnttp)%nCntr=nCnt
                dbsc(nCnttp)%mdci =mdc
-               Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,
-     &                           Label='dbsc:C')
-               dbsc(nCnttp)%Coor(:,:) = dbsc(iCnttp)%Coor(:,:)
+*              Create a pointer to the actual coordinates
+               dbsc(nCnttp)%Coor => dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.
