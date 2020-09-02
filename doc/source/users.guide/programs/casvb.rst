@@ -21,6 +21,7 @@
             <HELP>
             CASVB is a program for performing general valence bond calculations.
             It can be used in two basic modes:
+
             a) variational optimization of quite general types of
                nonorthogonal MCSCF or modern valence bond wavefunctions, or
             b) representation of CASSCF wavefunctions in modern valence form,

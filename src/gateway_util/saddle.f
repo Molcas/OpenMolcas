@@ -688,6 +688,12 @@
                 End Do
               End If
             End Do
+            Do iCnttp=1,nCnttp
+              j=dbsc(iCnttp)%Parent_iCnttp
+              If (j.gt.0) Then
+                dbsc(iCnttp)%Coor(:,:)=dbsc(j)%Coor(:,:)
+              End If
+            End Do
             If (Not_First_Iter) Call Put_Coord_New(Vec(1,1),nAt)
             Call mma_deallocate(Vec)
          Else
@@ -730,6 +736,12 @@
                     j=j+1
                   End Do
                 End Do
+              End If
+            End Do
+            Do iCnttp=1,nCnttp
+              j=dbsc(iCnttp)%Parent_iCnttp
+              If (j.gt.0) Then
+                dbsc(iCnttp)%Coor(:,:)=dbsc(j)%Coor(:,:)
               End If
             End Do
             If (Not_First_Iter) Call Put_Coord_New(TmpA,nAt)

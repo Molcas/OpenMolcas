@@ -22,6 +22,7 @@
             the spin-orbit interaction. As a starting point it uses the results
             of a RASSI calculation for the ground and several excited spin-orbital
             multiplets.
+
             The following quantities can be computed:
 
             1. Parameters of pseudospin magnetic Hamiltonians:
