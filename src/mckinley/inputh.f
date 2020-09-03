@@ -617,7 +617,7 @@ c      EndIf
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC
-                     call dcopy_(3,dbsc(iCnttp)%Coor(1,iCnt),1,
+                     call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,
      &                          Work(ip),1)
 *--------------------Transfer the multiplicity factor
                      Work(ip+3) = Fact
