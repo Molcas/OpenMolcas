@@ -4345,7 +4345,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.dbsc(iCnttp)%Aux .and.
      &             .NOT.dbsc(iCnttp)%Frag) Then
                   call dcopy_(3*dbsc(iCnttp)%nCntr,
-     &                                        dbsc(iCnttp)%Coor(1,1),1,
+     &                                        dbsc(iCnttp)%Coor,1,
      &                                        EF_Centers(1,iEF),1)
                   iEF = iEF + dbsc(iCnttp)%nCntr
                End If
@@ -4373,7 +4373,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iDMS = 1
             Do iCnttp = 1, nCnttp
                call dcopy_(3*dbsc(iCnttp)%nCntr,
-     &                                     dbsc(iCnttp)%Coor(1,1),1,
+     &                                     dbsc(iCnttp)%Coor,1,
      &                                     DMS_Centers(1,iDMS),1)
                iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
@@ -4552,7 +4552,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(1,iCnt),
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
      &                       iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
