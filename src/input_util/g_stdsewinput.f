@@ -240,7 +240,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
      &                     Label='dbsc:C')
          dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
-         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor(1,1),1)
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
          mdc = mdc + nCnt
          Go To 900
       End If
