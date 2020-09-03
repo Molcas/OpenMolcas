@@ -408,7 +408,7 @@
         integer :: bufsize
         integer :: loffset
         integer :: mma_avail
-C       if (allocated(buffer)) then
+C       if (associated(buffer)) then
 C         call mma_double_allo
 C       end if
         call mma_maxbytes(mma_avail)

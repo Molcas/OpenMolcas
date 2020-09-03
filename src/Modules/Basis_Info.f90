@@ -55,7 +55,7 @@ Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Ce
 !
 Type Distinct_Basis_set_centers
     Sequence
-    Real*8, Pointer:: Coor(:,:)
+    Real*8, Pointer:: Coor(:,:)=>Null()
     Integer:: nCntr=0
     Integer:: nM1=0
     Real*8, Allocatable:: M1xp(:), M1cf(:)
@@ -94,8 +94,8 @@ Type Distinct_Basis_set_centers
     Real*8::  CntMass=0.0D0
     Real*8::  ExpNuc =-1.0D0
     Real*8::  w_mGauss =1.0D0
-    Character*80 :: Bsl
-    Character*80 :: Bsl_Old
+    Character(LEN=80) :: Bsl
+    Character(LEN=80) :: Bsl_Old
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -211,12 +211,12 @@ Subroutine Basis_Info_Init()
 If (Initiated) Return
 If (nCnttp.eq.0) Then
    Allocate(dbsc(1:Mxdbsc))
-   dbsc(1:Mxdbsc)%Bsl=" "        ! could get this to work at the point of declaring the member.
-   dbsc(1:Mxdbsc)%Bsl_Old=" "
+   dbsc(1:Mxdbsc)%Bsl=""        ! I could not get this to work at the point of declaring the member.
+   dbsc(1:Mxdbsc)%Bsl_Old=""
 Else
    Allocate(dbsc(1:nCnttp))
-   dbsc(1:nCnttp)%Bsl=" "
-   dbsc(1:nCnttp)%Bsl_Old=" "
+   dbsc(1:nCnttp)%Bsl=""
+   dbsc(1:nCnttp)%Bsl_Old=""
 End If
 If (Max_Shells.eq.0) Then
    Allocate(Shells(1:MxShll))
