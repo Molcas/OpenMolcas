@@ -366,8 +366,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               Call Write_LblCnt(LuWr,LblCnt(mdc+iCnt),
-     &                           dbsc(iCnttp)%Coor(1,iCnt))
+               Write (LuWr,'(1X,A,1X,3F20.10)') LblCnt(mdc+iCnt),
+     &                                    dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
          End If
       End Do
