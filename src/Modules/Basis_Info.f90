@@ -495,7 +495,7 @@ Do i = 1, nCnttp
    cDmp(i)(81:160)=dbsc(i)%Bsl_Old
 End Do
 lcDmp=160*nCnttp
-Call Put_cArray('cDmp',cDmp(1:lcDmp),lcDmp)
+Call Put_cArray('cDmp',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
 Return
@@ -785,7 +785,7 @@ End If
 !
 Call mma_allocate(cDmp,nCnttp,Label='cDmp')
 lcDmp=160*nCnttp
-Call Get_cArray('cDmp',cDmp(1:lcDmp),lcDmp)
+Call Get_cArray('cDmp',cDmp(1),lcDmp)
 Do i = 1, nCnttp
    dbsc(i)%Bsl    =cDmp(i)(1:80)
    dbsc(i)%Bsl_Old=cDmp(i)(81:160)
