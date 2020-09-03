@@ -413,7 +413,7 @@
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
                      Call RecPrt(' Centers',' ',
-     &                           dbsc(iCnttp)%Coor(1,1),3,
+     &                           dbsc(iCnttp)%Coor,3,
      &                           dbsc(iCnttp)%nCntr)
                   End If
                   Do iCnt = 1, dbsc(iCnttp)%nCntr
