@@ -237,7 +237,7 @@ Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
-Character*160, Allocatable:: cDmp(:)
+Character(LEN=160), Allocatable:: cDmp(:)
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Dmp'
 Do i = 1, nCnttp
@@ -495,7 +495,7 @@ Do i = 1, nCnttp
    cDmp(i)(81:160)=dbsc(i)%Bsl_Old
 End Do
 lcDmp=160*nCnttp
-Call Put_cArray('cDmp',cDmp,lcDmp)
+Call Put_cArray('cDmp',cDmp(1:lcDmp),lcDmp)
 Call mma_deallocate(cDmp)
 
 Return
@@ -509,7 +509,7 @@ Subroutine Basis_Info_Get()
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:), pDmp(:)
-Character*160, Allocatable:: cDmp(:)
+Character(LEN=160), Allocatable:: cDmp(:)
 Logical Found
 Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
@@ -785,7 +785,7 @@ End If
 !
 Call mma_allocate(cDmp,nCnttp,Label='cDmp')
 lcDmp=160*nCnttp
-Call Get_cArray('cDmp',cDmp,lcDmp)
+Call Get_cArray('cDmp',cDmp(1:lcDmp),lcDmp)
 Do i = 1, nCnttp
    dbsc(i)%Bsl    =cDmp(i)(1:80)
    dbsc(i)%Bsl_Old=cDmp(i)(81:160)
