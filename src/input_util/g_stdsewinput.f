@@ -237,8 +237,9 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
             Call Quit_OnUserError()
          End If
          dbsc(nCnttp)%nCntr = nCnt
-!        call allocate(dbsc(nCnttp)%Coor(1:3,nCnt))
-         call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
          Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor(1,1),1)
          mdc = mdc + nCnt
          Go To 900

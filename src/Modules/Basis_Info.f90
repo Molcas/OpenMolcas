@@ -56,6 +56,7 @@ Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Ce
 Type Distinct_Basis_set_centers
     Sequence
     Real*8, Pointer:: Coor(:,:)=>Null()
+    Real*8, Allocatable:: Coor_Hidden(:,:)
     Integer:: nCntr=0
     Integer:: nM1=0
     Real*8, Allocatable:: M1xp(:), M1cf(:)
@@ -154,7 +155,7 @@ Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
 Integer :: Nuclear_Model=Point_Charge
 
-Type (Distinct_Basis_set_centers) , Allocatable:: dbsc(:)
+Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -627,7 +628,8 @@ nAtoms = 0
 Do i = 1, nCnttp
    If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
       If (dbsc(i)%nCntr.gt.0) Then
-         Call mma_Allocate(dbsc(i)%Coor,3,dbsc(i)%nCntr,Label='dbsc:C')
+         Call mma_Allocate(dbsc(i)%Coor_Hidden,3,dbsc(i)%nCntr,Label='dbsc:C')
+         dbsc(i)%Coor => dbsc(i)%Coor_Hidden(:,:)
       End If
       Do j = 1, dbsc(i)%nCntr
          nAtoms=nAtoms+1
@@ -817,10 +819,9 @@ Do i = 1, nCnttp
 !
    If (dbsc(i)%nCntr.gt.0) Then
        If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
-          Call mma_deallocate(dbsc(i)%Coor)
-       Else
-          Nullify(dbsc(i)%Coor)
+          Call mma_deallocate(dbsc(i)%Coor_Hidden)
        End If
+       Nullify(dbsc(i)%Coor)
        dbsc(i)%nCntr=0
    End If
 !

@@ -78,7 +78,8 @@
       dbsc(nCnttp)%mdci=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+      Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,Label='dbsc:C')
+      dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
       dbsc(nCnttp)%Coor(1:3,1:1)=Zero
       dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt

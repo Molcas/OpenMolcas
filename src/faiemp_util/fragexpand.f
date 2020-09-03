@@ -221,7 +221,9 @@
      &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 #endif
 * store them
-            Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+            Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,
+     &                        Label='dbsc:C')
+            dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
             dbsc(nCnttp)%Coor(1,1) = x1
             dbsc(nCnttp)%Coor(2,1) = y1
             dbsc(nCnttp)%Coor(3,1) = z1

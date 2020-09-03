@@ -1403,7 +1403,9 @@ c Simplistic validity check for value
          mdc = mdc + nCnt
 !        Now allocate the array for the coordinates and copy them over.
 !        Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
-         Call mma_Allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         Call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
          Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
 !
          Go To 998
