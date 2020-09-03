@@ -312,7 +312,7 @@
               Ccoor(:)=Zero
               Call Allocate_Auxiliary()
               Do iComp=0,nComp-1
-                 Call dcopy_(3,dbsc(kCnttpPAM)%Coor(1,1),1,
+                 Call dcopy_(3,dbsc(kCnttpPAM)%Coor,1,
      &                       CoorO(1+3*iComp),1)
               End Do
 *
