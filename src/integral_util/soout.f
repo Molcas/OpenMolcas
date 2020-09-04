@@ -27,6 +27,7 @@
       Subroutine SOCtl_mod(ChOper,Mamn,nMamn,nDkroll,nCall,Cnt_ico,
      &                     Phase_ico)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -110,7 +111,7 @@
      &                        iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep))
                         End Do
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
+                        Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
  205                 Continue
 *
  204              Continue

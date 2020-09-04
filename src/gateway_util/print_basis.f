@@ -25,6 +25,7 @@
 *             September 2006                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -72,7 +73,7 @@
      *        Trim(dbsc(iCnttp)%Bsl)
             If (lOPTO) GoTo 100
             Write (LuWr,*)
-            dbas=LblCnt(mdc+1)(1:4)
+            dbas=dc(mdc+1)%LblCnt(1:4)
             Call Upcase(dbas)
             If (dbas.eq.'DBAS') Then
                Write (LuWr,'(6X,A)') 'Diffuse basis set for R-matrix:'
@@ -366,7 +367,7 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               Write (LuWr,'(1X,A,1X,3F20.10)') LblCnt(mdc+iCnt),
+               Write (LuWr,'(1X,A,1X,3F20.10)') dc(mdc+iCnt)%LblCnt,
      &                                    dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
          End If

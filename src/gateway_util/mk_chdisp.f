@@ -24,6 +24,7 @@
 *             Modified to complement GetInf, January '92.              *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -78,7 +79,7 @@
                      iDisp = iDisp + 1
                      ChDisp(iDisp)=' '
                      Write (ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)')
-     &                     LblCnt(mdc)(1:LENIN4),xyz(iCar)
+     &                     dc(mdc)%LblCnt(1:LENIN4),xyz(iCar)
                      DegDisp(iDisp)=nIrrep/nstab(mdc)
                      nDisp(iIrrep)=nDisp(iIrrep)+1
                   End If

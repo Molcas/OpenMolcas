@@ -34,6 +34,7 @@
       use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
+      use Center_Info, only: Center_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -116,6 +117,7 @@
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
+      Call Center_Info_Dmp()
       Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************

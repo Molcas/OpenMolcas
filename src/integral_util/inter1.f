@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
       Use Basis_Info
+      Use Center_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -34,7 +35,7 @@
          End If
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            Lbl=LblCnt(mdc)(1:LENIN)
+            Lbl=dc(mdc)%LblCnt(1:LENIN)
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/nStab(mdc)-1
                ndc=ndc+1
@@ -49,7 +50,6 @@
                Coor(3,ndc)=A3
                ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
             End Do
-            ixyz=ixyz+3
          End Do
  99      Continue
       End Do

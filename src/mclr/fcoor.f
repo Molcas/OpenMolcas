@@ -20,6 +20,7 @@
 *                                                                  *
 ********************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -41,7 +42,7 @@
                A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
                A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
                ii=nint(dbsc(icnttp)%Charge)
-               Lab=LblCnt(mdc)(1:LENIN)
+               Lab=dc(mdc)%LblCnt(1:LENIN)
                call setLab(Lab,ico)
                write (LUT,'(1X,A,1X,3F20.10,1X,I3)')
      &                  Lab,A1,A2,A3,ii

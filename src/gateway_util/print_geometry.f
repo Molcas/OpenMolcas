@@ -25,6 +25,7 @@
 *             September 2006                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Period
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -110,7 +111,7 @@
                   if(iOpt.eq.0) then
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6,7X,3F15.6)')
-     &                    nc, help_c, LblCnt(ndc),
+     &                    nc, help_c, dc(ndc)%LblCnt,
      &                    x1*Facx, y1*Facy, z1*Facz,
      &                    x1*Facx*angstr,
      &                    y1*Facy*angstr,
@@ -118,7 +119,7 @@
                   else
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6)')
-     &                    nc, help_c, LblCnt(ndc),
+     &                    nc, help_c, dc(ndc)%LblCnt,
      &                    x1*Facx*angstr,
      &                    y1*Facy*angstr,
      &                    z1*Facz*angstr
@@ -132,7 +133,7 @@
                   Call WarningMessage(2,'lblxxx too small')
                   Call Abend()
                End If
-               lblxxx(nc)=lblcnt(ndc)(1:LENIN)
+               lblxxx(nc)=dc(ndc)%LblCnt(1:LENIN)
                nc = nc + 1
             End Do
          End Do

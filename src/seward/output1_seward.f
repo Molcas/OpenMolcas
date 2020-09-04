@@ -25,6 +25,7 @@
 *             September '06                                            *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Period
       use GeoList
       use MpmC
@@ -198,7 +199,7 @@
                      Write(LuWr,'(17X,A)')
      &               '   - Partial local approximation:'
                      Write(LuWr,'(17X,A,10(A4))')
-     &          '     - Centers: ', (LblCnt(iCtrLD(i)),i=1,nCtrLD)
+     &          '     - Centers: ', (dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
                      Write(LuWr,'(17X,A,F6.2,A)')
      &          '     - Cutoff radius: ', radiLD, ' Bohr'
                  End If

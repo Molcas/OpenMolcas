@@ -37,6 +37,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -267,8 +268,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
                C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
                If ( EQ(Work(jNQ),C) ) Then
                   mdci=iSD(10,iS)
-                  Write (6,*) 'LblCnt(mdci)=',LblCnt(mdci)
-                  If (LblCnt(mdci).eq.MBC) Then
+                  If (dc(mdci)%LblCnt.eq.MBC) Then
                      nR_tmp=nR
                      nR=INT(DBLE(nR)*2.0D0)
                      Threshold_tmp=Threshold

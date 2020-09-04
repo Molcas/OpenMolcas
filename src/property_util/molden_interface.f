@@ -12,7 +12,7 @@
 *               1999, Anders Bernhardsson                              *
 *               1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Molden_Interface(iUHF,FName,filename,AddFragments)
+      Subroutine Molden_Interface(iUHF,FName,filename)
 ************************************************************************
 *                                                                      *
 *     Object: to generate MOLDEN input file                            *
@@ -45,7 +45,7 @@ c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
       Real*8 r_Norm(maxbfn)
       Character*(*) Filename, FName
       Character VTitle*40, Env*8
-      Logical Exist,y_cart,y_sphere, AddFragments, Found, Reduce_Prt
+      Logical Exist,y_cart,y_sphere, Found, Reduce_Prt
       External Reduce_Prt
       Character*100 Supername,Get_SuperName
       External Get_SuperName
@@ -147,12 +147,7 @@ c      End If
 *     NOTICE!!!
 *     This call will also fill info.fh and the Basis_Info.
 *
-      If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      Else
-c      write(6,*) 'we here 0?'
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      End If
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)

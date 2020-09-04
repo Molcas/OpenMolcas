@@ -52,6 +52,7 @@
       use GeoList
       use MpmC
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
@@ -172,6 +173,7 @@ C     Call Seward_Banner()
 *                                                                      *
          Call Funi_Init()
          Call Basis_Info_Init()
+         Call Center_Info_Init()
 *
       End If ! Run_Mode.eq.S_Mode
 
@@ -200,6 +202,9 @@ C     Call Seward_Banner()
          Call Basis_Info_Dmp()
          Call Basis_Info_Free()
          Call Basis_Info_Get()
+         Call Center_Info_Dmp()
+         Call Center_Info_Free()
+         Call Center_Info_Get()
       End If
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.

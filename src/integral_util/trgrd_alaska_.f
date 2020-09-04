@@ -21,6 +21,7 @@
 *       University of Torino, July 2006                                *
 ************************************************************************
       Use Basis_Info
+      Use Center_Info
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
 #include "itmax.fh"
@@ -65,7 +66,7 @@
                         CGrad(iCar+1,iCen)=XR*GradIn(nDispS)
                      End If
                   End Do
-                  CNames(iCen)=LblCnt(mdc)
+                  CNames(iCen)=dc(mdc)%LblCnt
                End Do
             End Do
          End If

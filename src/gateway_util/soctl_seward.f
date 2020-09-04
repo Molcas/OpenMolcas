@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine SOCtl_Seward(Mamn,nMamn)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -298,7 +299,7 @@ C     Show=Show.and..Not.Primitive_Pass
                      LPQ(iyy)=dbsc(iCnttp)%Charge
                      LPA(iyy)=dbsc(iCnttp)%AtmNr
                      LPMM(iyy)=dbsc(iCnttp)%IsMM
-                     LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
+                     LP_Names(iyy)=dc(mdc)%LblCnt(1:LENIN)//':'
      &                       //ChOper(iOper(iR))
                   End Do
                End If
@@ -425,7 +426,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                         If(output)
      &                  Write (6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))')
-     &                        iSO_,LblCnt(mdc),ChTmp,
+     &                        iSO_,dc(mdc)%LblCnt,ChTmp,
      &                        (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep),iChbs)*
      &                        iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
@@ -500,7 +501,7 @@ C     Show=Show.and..Not.Primitive_Pass
                             LPMM(iyy)=dbsc(iCnttp)%IsMM
                             LPA(iyy) =dbsc(iCnttp)%AtmNr
 *
-                            LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
+                            LP_Names(iyy)=dc(mdc)%LblCnt(1:LENIN)//':'
      &                                    //ChOper(iOper(iR))
                             desym_basis_ids(1,ixxx) = iyy
                             desym_basis_ids(2,ixxx) = iCntrc
@@ -510,7 +511,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
+                        Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
                         basis_ids(3,iSO) = llab
@@ -665,7 +666,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   LPQ(mdc) =dbsc(iCnttp)%Charge
                   LPMM(mdc)=dbsc(iCnttp)%IsMM
                   LPA(mdc) =dbsc(iCnttp)%AtmNr
-                  LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
+                  LP_Names(mdc)=dc(mdc)%LblCnt(1:LENIN)//'    '
                End If
                Do 303 iAng = 0, dbsc(iCnttp)%nVal-1
                   nCore=nCore_Sh(iAng)
@@ -784,7 +785,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         ChTmp=Clean_BName(ChTemp,0)
 *
                         if(output) Write (6,'(I5,2X,A8,5X,A8,I3)')
-     &                        iSO_,LblCnt(mdc),ChTmp,mc+imc
+     &                        iSO_,dc(mdc)%LblCnt,ChTmp,mc+imc
 *
                         iSOInf(1,iSO_)=iCnttp
                         iSOInf(2,iSO_)=iCnt
@@ -816,11 +817,11 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         LPQ(mdc) =dbsc(iCnttp)%Charge
                         LPMM(mdc)=dbsc(iCnttp)%IsMM
                         LPA(mdc) =dbsc(iCnttp)%AtmNr
-                        LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
+                        LP_Names(mdc)=dc(mdc)%LblCnt(1:LENIN)//'    '
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
+                        Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
                         basis_ids(3,iSO) = llab

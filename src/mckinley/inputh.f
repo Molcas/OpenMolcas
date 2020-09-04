@@ -35,6 +35,7 @@
 *             Modified to complement GetInf, January 1992              *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -443,14 +444,14 @@ c      EndIf
                       End If
                       If (iPrint.ge.6)
      &                Write (6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
-     &                      nDisp,LblCnt(mdc),xyz(iCar),
+     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
      &                      (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                      iOper,nIrrep),iComp)*
      &                      iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
      &                      iOper,nIrrep)),
      &                      iCo=0,nIrrep/nStab(mdc)-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
-     &                       LblCnt(mdc),xyz(iCar)
+     &                       dc(mdc)%LblCnt,xyz(iCar)
                       iwork(ipad+ndisp-1)=icnttp
                       iwork(ipdd+ndisp-1)=nIrrep/nstab(mdc)
                   End If

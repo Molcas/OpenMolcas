@@ -12,6 +12,7 @@
       use SW_File
       use AMFI_Info
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Period
       use MpmC
@@ -1416,6 +1417,7 @@ c Simplistic validity check for value
 *     Read Coordinates
 *
       nCnt = nCnt + 1
+      n_dc=max(mdc+nCnt,n_dc)
       If (mdc+nCnt.gt.Mxdc) Then
          Call WarningMessage(2,' RdCtl: Increase Mxdc')
          Write (LuWr,*) '        Mxdc=',Mxdc
@@ -1426,14 +1428,14 @@ c Simplistic validity check for value
          Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
       End If
-      LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))
-      dbas=LblCnt(mdc+nCnt)(1:LENIN)
+      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))
+      dbas=dc(mdc+nCnt)%LblCnt(1:LENIN)
       Call Upcase(dbas)
       If (dbas.eq.'DBAS') Then
          RMat_On=.True.
       End If
       If (mdc+nCnt.gt.1) then
-        Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+        Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       endif
       iOff=1+(nCnt-1)*3
       Call Get_F(2,Buffer(iOff),3)
@@ -1469,6 +1471,7 @@ c Simplistic validity check for value
 
                   nCnt = nCnt + 1
 
+                  n_dc=max(mdc+nCnt,n_dc)
                   If (mdc+nCnt.gt.Mxdc) Then
                      Call WarningMessage(2,' RdCtl: Increase Mxdc')
                      Write (LuWr,*) '        Mxdc=',Mxdc
@@ -1480,10 +1483,10 @@ c Simplistic validity check for value
                      Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
                   End If
-                  LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))//
+                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))//
      &              CHAR4
 
-                  Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+                  Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
 
                   iOff=1+(nCnt-1)*3
 
@@ -2181,7 +2184,7 @@ c     Go To 998
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
                Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
-                  If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
+                  If (Key(1:iEnd) .Eq. dc(iCnt)%LblCnt(1:iEnd)) Then
                      iFound_Label = 1
                      EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
@@ -2946,7 +2949,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       k=0
       Do i=1,nAtom
         Do j=1,nCtrLD
-          if (CtrLDK(j).eq.LblCnt(i)(1:LENIN)) Then
+          if (CtrLDK(j).eq.dc(i)%LblCnt(1:LENIN)) Then
              iCtrLD(j)=i
              k=k+1
           End If
@@ -4531,6 +4534,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Do iCnt = 1, nCnt
             mdc = iCnt + dbsc(iCnttp)%mdci
             Mx_mdc = Max(Mx_mdc,mdc)
+            n_dc=max(mdc,n_dc)
             If (mdc.gt.Mxdc) Then
                Call WarningMessage(2,' mdc.gt.Mxdc!;'
      &                      //' Increase Mxdc in info.fh.')

@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *
 *     Some stuff for preparing the gradient integral computation
@@ -103,7 +104,7 @@
                          End Do
                       End If
                       Write (ChDisp(nDisp),'(A,1X,A1)')
-     &                       LblCnt(mdc),xyz(iCar)
+     &                       dc(mdc)%LblCnt,xyz(iCar)
 
                   End If
                End Do

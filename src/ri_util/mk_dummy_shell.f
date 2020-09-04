@@ -18,6 +18,7 @@
 * 2008 R. Lindh, Dept. of Theor. Chem., Univ. of Lund, Sweden          *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
 #include "itmax.fh"
@@ -71,13 +72,14 @@
 *-----The coordinates
 *
       nCnt = 1
+      n_dc=max(mdc+nCnt,n_dc)
       If (mdc+nCnt.gt.Mxdc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
          Call Abend()
       End If
       dbsc(nCnttp)%mdci=mdc
-      LblCnt(mdc+nCnt) = 'Origin'
-      If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+      dc(mdc+nCnt)%LblCnt = 'Origin'
+      If (mdc+nCnt.gt.1) Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,Label='dbsc:C')
       dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
       dbsc(nCnttp)%Coor(1:3,1:1)=Zero

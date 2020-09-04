@@ -26,6 +26,7 @@
       use GeoList
       use MpmC
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -86,6 +87,7 @@ C     Call Gateway_banner()
       Call Funi_Init()
       Call NQGrid_Init()
       Call Basis_Info_Init()
+      Call Center_Info_Init()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,6 +119,9 @@ C     Call Gateway_banner()
       Call Basis_Info_Dmp()
       Call Basis_Info_Free()
       Call Basis_Info_Get()
+      Call Center_Info_Dmp()
+      Call Center_Info_Free()
+      Call Center_Info_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -202,7 +207,7 @@ C     Call Gateway_banner()
                DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
                DCh(iNuc)=DBLE(dbsc(iCnttp)%AtmNr)
-               xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
+               xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr

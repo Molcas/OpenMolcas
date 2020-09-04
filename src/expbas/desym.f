@@ -59,7 +59,7 @@
 *      Character*8 Filename
       Character*50 VTitle
       character*128 SymOrbName
-      Logical Exist,y_cart,AddFragments, Found, Reduce_Prt
+      Logical Exist,y_cart,Found, Reduce_Prt
       External Reduce_Prt
 
       data number /'1','2','3','4','5','6','7','8','9','0',
@@ -101,13 +101,7 @@
 *     This call will also fill info.fh and the dynamic storage in
 *     Work(ipInf)
 *
-      AddFragments=.true.
-
-      If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      Else
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      End If
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)

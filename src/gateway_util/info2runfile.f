@@ -26,6 +26,7 @@
 ************************************************************************
       use Period
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,9 +48,6 @@
       Integer, Allocatable :: NTC(:), ICh(:), IsMM(:)
 ************************************************************************
 *                                                                      *
-      iRout=2
-      iPrint = nPrint(iRout)
-      Call qEnter('I2R')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -166,7 +164,7 @@
                DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
                ICh(iNuc)    =dbsc(iCnttp)%AtmNr
-               xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
+               xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -209,7 +207,7 @@
                DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
                DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
                DCh(iNuc)    =DBLE(dbsc(iCnttp)%AtmNr)
-               xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
+               xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -333,7 +331,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('I2R')
       Return
       End
       Subroutine Put_LDFAccuracy()

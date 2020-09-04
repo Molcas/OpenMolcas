@@ -24,8 +24,6 @@
 *                                                                      *
 *                                                                      *
 * Parameters:                                                          *
-*     Mxdbsc: Max number of different basis sets                       *
-*     MxShll: Max number of distinct basis set shell                   *
 *     Mxdc  : Max Number of distinct centra                            *
 *     MxAng : Highest angular momentum index                           *
 *     MxUnq : Max number of distinct basis functions                   *
@@ -162,8 +160,6 @@
 * -> Character <-                                                      *
 *     lIrrep: label of the i''th irrep                                 *
 *     lBsFnc: label of the basis functions of the i''th irrep          *
-*     LblCnt: label of the i''th unique center                         *
-*     Lblxxx: local array for labels                                   *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -286,7 +282,6 @@
 ************************************************************************
 *                                                                      *
       Character lIrrep(0:7)*3, lBsFnc(0:7)*80
-      Character*(LENIN4) LblCnt(Mxdc)
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
       Character Align_Weights*512
@@ -294,7 +289,7 @@
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
      &               LblCBs, LblSBs, Title, lIrrep, lBsFnc,
-     &               LblCnt, Align_Weights,
+     &               Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************

@@ -485,7 +485,7 @@ C     ------------------
 
       iUHF=0
       Filename='MD_LOC'
-      Call Molden_Interface(iUHF,Namefile,Filename,.False.)
+      Call Molden_Interface(iUHF,Namefile,Filename)
       If (.not.Silent) Then
          Write(6,'(1X,A)') 'The MOLDEN file has been written.'
       End If

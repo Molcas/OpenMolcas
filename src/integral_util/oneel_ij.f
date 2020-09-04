@@ -28,6 +28,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -88,7 +89,7 @@
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
       A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-      dbas= LblCnt(mdci)(1:LENIN)
+      dbas= dc(mdci)%LblCnt(1:LENIN)
       Call UpCase(dbas)
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
@@ -235,7 +236,7 @@
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
       A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-      dbas= LblCnt(mdci)(1:LENIN)
+      dbas= dc(mdci)%LblCnt(1:LENIN)
       Call UpCase(dbas)
 
       jShll  = iSD( 0,jS)
