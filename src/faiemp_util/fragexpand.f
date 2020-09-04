@@ -249,7 +249,6 @@ c LENIN possible BUG
             Else
               write(label,'(i4)') mdc
             End If
-c            LblCnt(mdc)(LENIN1:LENIN4) = label
             LblCnt(mdc)(5:LENIN2) = label
 #ifdef _DEBUG_
             Write (6,'(2A)') 'Label=',label

@@ -4544,7 +4544,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             If (dbsc(iCnttp)%Frag) Then
 *              Check the FragExpand routine!
-               iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
+               If (Abs(dbsc(iCnttp)%nFragCoor)>mdc) Then
+                  Write (6,*) 'rdctl_seward: incorrect mdc index'
+                  Call Abend()
+               End If
+               iChxyz = iChCnt(Abs(dbsc(iCnttp)%nFragCoor))
             Else
 *
 *------------- To assign the character of a center we need to find
