@@ -32,8 +32,9 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Character help_c*1
-      Character FMT*16
+      Character(LEN=1) help_c*1
+      Character(LEN=16) FMT
+      Character(LEN=LENIN), Allocatable:: Lblxxx(:)
       Real*8, Dimension (:,:), Allocatable :: Centr
 #include "angstr.fh"
 *                                                                      *
@@ -42,12 +43,12 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_Geometry')
       LuWr=6
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Centr,3,mCentr)
+      Call mma_allocate(Centr,3,mCentr,Label='Centr')
+      Call mma_allocate(Lblxxx,mCentr,Label='Lblxxx')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -144,8 +145,7 @@
 *     Compute distances
 *
       If (mCentr.le.2) Go To 55
-      Call Dstncs(lblxxx,Centr,nc,
-     &            angstr,Max_Center,6)
+      Call Dstncs(lblxxx,Centr,nc,angstr,Max_Center,6)
       If (.Not.Expert) Call DstChk(Centr,lblxxx,nc)
 *
 *     Compute valence bond angels
@@ -157,16 +157,17 @@
 *
       If (iPrint.lt.5.or.mCentr.lt.4) Go To 55
       Call Dihedr(lblxxx,Centr,nc,rtrnc,Max_Center)
- 55   Continue
 *                                                                      *
 ************************************************************************
 *                                                                      *
+ 55   Continue
+*
+      Call mma_deallocate(Lblxxx)
       Call mma_deallocate(Centr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call CollapseOutput(0,'   Molecular structure info:')
       Write (LuWr,*)
-      Call qExit('Print_Geometry')
       Return
       End

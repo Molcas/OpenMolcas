@@ -35,12 +35,12 @@
 *
 *        Do not include Auxiliary basis sets, or fragment basis sets
 *
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1212
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
 *
 *        Do not include ECP basis sets which does not have any valence
 *        basis set.
 *
-         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Go To 1212
+         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Cycle
 *
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
@@ -66,16 +66,10 @@
                Else
                   Chrg(nc) = Zero
                End If
-               if (nc.gt.8*mxdc) Then
-                  Call WarningMessage(2,'lblxxx too small')
-                  Call Abend()
-               End If
-               lblxxx(nc)=lblcnt(ndc)(1:LENIN)
                nc = nc + 1
             End Do
             kCentr = kCentr + nIrrep/nStab(ndc)
          End Do
- 1212    Continue
       End Do
 *                                                                      *
 ************************************************************************
@@ -95,7 +89,7 @@
       Do jCnttp = 1, nCnttp
          Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1213
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
             Do i = 0, nIrrep/nStab(ndc) - 1
@@ -104,7 +98,6 @@
                nc = nc + 1
             End Do
          End Do
- 1213    Continue
       End Do
 *                                                                      *
 ************************************************************************
