@@ -41,7 +41,7 @@
 #include "nac.fh"
 #include "srint.fh"
       Logical lGENINT
-      Character*180 Env
+      Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,7 +143,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lOMQ=.False.
       lDMS=.False.
       lRel=.False.
-      SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
 *--sdong, Apr. 2018--*

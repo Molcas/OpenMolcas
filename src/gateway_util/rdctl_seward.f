@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use SW_File
       use AMFI_Info
       use Basis_Info
       use Her_RW

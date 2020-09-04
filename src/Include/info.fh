@@ -164,7 +164,6 @@
 *     lBsFnc: label of the basis functions of the i''th irrep          *
 *     LblCnt: label of the i''th unique center                         *
 *     Lblxxx: local array for labels                                   *
-*     SW_FileOrb: orbital file for Seward to read                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -290,12 +289,12 @@
       Character*(LENIN4) LblCnt(Mxdc)
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
-      Character SW_FileOrb*512, Align_Weights*512
+      Character Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
      &               LblCBs, LblSBs, Title, lIrrep, lBsFnc,
-     &               LblCnt, SW_FileOrb, Align_Weights,
+     &               LblCnt, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************
