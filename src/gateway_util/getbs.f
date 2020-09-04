@@ -11,10 +11,8 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2, NoPairL,SODK,
-     &                 CrRep,UnNorm,nDel,LuRd,BasisTypes,
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng, BLine,Ref,
+     &                 UnNorm,nDel,LuRd,BasisTypes,
      &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
@@ -52,8 +50,8 @@
       External Get_Ln
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
-      Logical inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
-     &        UnNorm, PAM2, SODK, isEorb,isFock
+      Logical inLn1, inLn2, inLn3, Hit, IfTest,
+     &        UnNorm, isEorb,isFock
       Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
@@ -75,12 +73,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,iShll,
-     &                     BLine,CrRep,nProj,UnNorm,nCnttp)
+         SubRoutine GetECP(lUnit,iShll,BLine,nProj,UnNorm,nCnttp)
          Integer lUnit
          Integer iShll
          Character*(*) BLine
-         Real*8  CrRep
          Integer nProj
          Logical UnNorm
          Integer nCnttp
@@ -105,14 +101,10 @@
 #endif
       If (IfTest) iPrint=99
       ip_Dummy=-1
-      PAM2 = .False.
-      dbsc(nCnttp)%ECP = .False.
       dbsc(nCnttp)%FOp = .True.
-      NoPairL = .False.
       nM1=0
       nM2=0
-      dbsc(nCnttp)%IsMM = 0
-      dbsc(nCnttp)%nOpt = 0
+      lAng=0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
       Line=DDName
@@ -168,7 +160,7 @@
 *        Find and decode basis set label
 *
          Call Rdbsl(DirName,BSLbl,Type,nCGTO,mCGTO,lAng,Itabmx,lUnit,
-     &              iAtmNr,BasisTypes,ExtBasDir)
+     &              dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
          Line=Get_Ln(lUnit)
          Ref(1)=Line(1:80)
          Line=Get_Ln(lUnit)
@@ -176,7 +168,7 @@
       Else
          Hit=.True.
          Call Decode(BSLbl,atom,1,Hit)
-         iAtmNr=Lbl2Nr(atom)
+         dbsc(nCnttp)%AtmNr=Lbl2Nr(atom)
          lUnit=LuRd
          Ref(1) = BLine
          Ref(2) = BLine
@@ -199,7 +191,7 @@
       Uncontracted = BasisTypes(1).eq.6
       If (dbsc(nCnttp)%IsMM .eq. 1) Then
          lAng = 0
-         Charge = Zero
+         dbsc(nCnttp)%Charge = Zero
          Return
       End If
 *
@@ -240,16 +232,16 @@
       If (L_STDINP.AND.inLn1) then              ! CGGn
         Call Pick_Words(Line,2,Nwords,Words)    ! CGGn
         If (Nwords.NE.2) Call Abend()           ! CGGn
-        Call Get_dNumber(Words(1),Charge,iErr)  ! CGGn
+        Call Get_dNumber(Words(1),dbsc(nCnttp)%Charge,iErr)  ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
         Call Get_iNumber(Words(2),lAng,iErr)    ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
       else                                      ! CGGn
-        call get_f1(1,Charge)
+        call get_f1(1,dbsc(nCnttp)%Charge)
         if (inLn1) call get_i1(2,lAng)
       EndIf                                     ! CGGn
       If (iPrint.ge.99) Then
-         Write (6,*) 'lAng, Charge=',lAng, Charge
+         Write (6,*) 'lAng, Charge=',lAng, dbsc(nCnttp)%Charge
          Write (6,*) ' Start reading valence basis'
       End If
       If (lAng.gt.MxAng) Then
@@ -563,7 +555,7 @@
       End If
       If ( Index(BSLBl,'.PAM.').ne.0) then
          If (IfTest) Write (6,*) ' Process PAM'
-         PAM2 = .True.
+         dbsc(nCnttp)%lPAM2 = .True.
          If (iPrint.ge.99) Write (6,*) ' Start reading PAMs'
          Call GetPAM(lUnit,nCnttp)
 *
@@ -616,8 +608,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          dbsc(nCnttp)%iPrj=iShll+1
-         Call GetECP(lUnit,iShll,Bline,
-     &               CrRep,nProj,UnNorm,nCnttp)
+         Call GetECP(lUnit,iShll,Bline,nProj,UnNorm,nCnttp)
          dbsc(nCnttp)%nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then
@@ -897,7 +888,7 @@
 *------  Use DKSO on request
 *
  1015    Continue
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          Go To 9988
 *
 *--------Exchange operator
@@ -919,8 +910,8 @@
 *        one-centre no-pair operators
 *
  1005    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=0
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -928,8 +919,8 @@
 *        one-centre no-pair operators (DK1)
 *
  1006    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=1
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -937,8 +928,8 @@
 *        one-centre no-pair operators (DK2)
 *
  1007    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=2
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -946,8 +937,8 @@
 *        one-centre no-pair operators (DK3)
 *
  1008    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=3
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -955,8 +946,8 @@
 *        one-centre no-pair operators (DK3)
 *
  1010    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=4
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -964,7 +955,7 @@
 *        one-centre RESC operators
 *
  1009    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=11
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -972,7 +963,7 @@
 *        one-centre ZORA operators
 *
  9001    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=21
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -980,8 +971,8 @@
 *        one-centre ZORA-FP operators
 *
  9002    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=22
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -989,8 +980,8 @@
 *        one-centre IORA operators
 *
  9003    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=23
          dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
@@ -1017,7 +1008,7 @@
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
             Call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,
-     &                   nProj,iPrSh+1,DBLE(iAtmNr))
+     &                   nProj,iPrSh+1,DBLE(dbsc(nCnttp)%AtmNr))
             Close (LUQRP)
          End If
       End If
@@ -1025,8 +1016,6 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iBSLbl)
       End
       Subroutine Check_Info()
 #include "itmax.fh"

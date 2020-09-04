@@ -26,8 +26,9 @@
       mdc=0
       ndc=0
       Do iCnttp=1,nCnttp
-         If(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag.or.
-     &      pChrg(iCnttp)) Then
+         If(dbsc(iCnttp)%Aux.or.
+     &      dbsc(iCnttp)%Frag.or.
+     &      dbsc(iCnttp)%pChrg) Then
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
          End If
@@ -46,7 +47,7 @@
                Coor(1,ndc)=A1
                Coor(2,ndc)=A2
                Coor(3,ndc)=A3
-               ZNUC(ndc)=DBLE(iAtmNr(iCnttp))
+               ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
             End Do
             ixyz=ixyz+3
          End Do

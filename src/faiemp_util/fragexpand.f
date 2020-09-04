@@ -145,7 +145,7 @@
                 Fname=DefNm
               Endif
               Indx = Last+1
-              Bsl(nCnttp) = Trim(sBasis)
+              dbsc(nCnttp)%Bsl = Trim(sBasis)
             Else
               Fname = sBasis(Indx+2:Last)
               If (Fname.eq.' ') Then
@@ -158,38 +158,35 @@
                 Fname(80:80) = ' '
                 Go To 1001
               End If
-              Bsl(nCnttp)=sBasis(1:Indx-1)
+              dbsc(nCnttp)%Bsl=sBasis(1:Indx-1)
             Endif
 #ifdef _DEBUG_
-            write(6,*) 'Setting Bsl(',nCnttp,') to ',Bsl(nCnttp)
+            write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
             write(6,*) 'Fname = ',Fname
 #endif
-*           Now Fname contains the basis set directory and Bsl(nCnttp)
+*           Now Fname contains the basis set directory and dbsc(.)%Bsl
 *           contains the basis set label
 *
             jShll = iShll
-            ExpNuc(nCnttp)=-One
-            SODK(nCnttp)=.False.
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,iShll,MxAng,
-     &                 Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
-     &                 PAM2(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &                 CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
-     &                 STDINP,lSTDINP,.False.,.true.,' ')
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,BLine,Ref,
+     &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,lSTDINP,
+     &                 .False.,.true.,' ')
+           lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
             iAngMx=Max(iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.
             Shells(jShll+2)%Prjct =.False.
-            pChrg(nCnttp)=.False.
-            Fixed(nCnttp)=.True.
-            dbsc(nCnttp)%FOp=.False.
+            dbsc(nCnttp)%Fixed=.True.
             dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                           + dbsc(nCnttp)%nPrj
      &                           + dbsc(nCnttp)%nSRO
      &                           + dbsc(nCnttp)%nSOC
      &                           + dbsc(nCnttp)%nPP
-            CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
+            dbsc(nCnttp)%CntMass = rMass(dbsc(nCnttp)%AtmNr)
             Do iSh = jShll+1,iShll
                Shells(iSh)%Frag=.True.
             End Do
@@ -224,12 +221,14 @@
      &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 #endif
 * store them
-            Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+            Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,
+     &                        Label='dbsc:C')
+            dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
             dbsc(nCnttp)%Coor(1,1) = x1
             dbsc(nCnttp)%Coor(2,1) = y1
             dbsc(nCnttp)%Coor(3,1) = z1
 * store the Mulliken charge
-            FragCharge(nCnttp) = dbsc(iCnttp)%FragCoor(5,iAtom)
+            dbsc(nCnttp)%FragCharge = dbsc(iCnttp)%FragCoor(5,iAtom)
 * create custom (hopefully) unique label
             LenLbl = Index(sBasis,'.') - 1
             label = sBasis(1:LenLbl)
@@ -265,8 +264,8 @@ c            LblCnt(mdc)(LENIN1:LENIN4) = label
 * size of dbsc()%FragCoor is 0 and nothing else.
             dbsc(nCnttp)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
-            If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
-     &        NucExp(iMostAbundantIsotope(iAtmNr(nCnttp)))
+            If (dbsc(nCnttp)%ExpNuc.lt.Zero) dbsc(nCnttp)%ExpNuc =
+     &        NucExp(iMostAbundantIsotope(dbsc(nCnttp)%AtmNr))
           End Do  ! iAtom
         End Do    ! iCntr
       End Do      ! iCnttp

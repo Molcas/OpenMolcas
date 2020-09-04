@@ -169,7 +169,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       Do iShell = 1, nShell
 *
 *------- Get the Atom number
-         iANr=iAtmNr(iSD(13,iShell))
+         iANr=dbsc(iSD(13,iShell))%AtmNr
 *
          iShll=iSD(0,iShell)   ! Get the angular momentum of ishell
          iAng=iSD(1,iShell)   ! Get the angular momentum of ishell

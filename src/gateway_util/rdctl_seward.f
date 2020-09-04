@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use AMFI_Info
       use Basis_Info
       use Her_RW
       use Period
@@ -76,7 +77,7 @@
       Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
 !     Temporary buffer
       Integer, Parameter:: nBuff=10000
-      Real*8, Allocatable:: Buffer(:)
+      Real*8, Allocatable:: Buffer(:), Isotopes(:)
 !
       Character*180, Allocatable :: STDINP(:)
       Character Basis_lib*256, CHAR4*4
@@ -195,8 +196,6 @@
       ipRTmp=ip_Dummy
       ipITmp=ip_iDummy
       lMltpl=.False.
-*
-      nPAMFI=0
 *
       CholeskyWasSet=.False.
       do1CCD=.false.
@@ -1130,7 +1129,7 @@ c Simplistic validity check for value
       If (Indx.eq.0) Then
          Fname=BasLib
          Indx = Last+1
-         Bsl(nCnttp)=BSLbl
+         dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -1144,13 +1143,13 @@ c Simplistic validity check for value
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
       If (n.eq.0) n=81
       Do i=n,80
-        Bsl(nCnttp)(i:i)='.'
+        dbsc(nCnttp)%Bsl(i:i)='.'
       End Do
 *
       If ((Show.and.nPrint(2).ge.6) .or.
@@ -1164,22 +1163,18 @@ c Simplistic validity check for value
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
-     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir)
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+     &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
+     &           ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
-     &            iAtmNr(nCnttp).le.96
+     &            dbsc(nCnttp)%AtmNr.le.96
 #ifdef _DEMO_
       Do_GuessOrb = .False.
 #else
-      Do_GuessOrb = Do_GuessOrb .and. iAtmNr(nCnttp).le.96
+      Do_GuessOrb = Do_GuessOrb .and. dbsc(nCnttp)%AtmNr.le.96
 #endif
 *
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
@@ -1227,7 +1222,7 @@ c Simplistic validity check for value
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. PAM2(nCnttp)
+      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
      &                 +dbsc(nCnttp)%nPrj
      &                 +dbsc(nCnttp)%nSRO
@@ -1236,16 +1231,17 @@ c Simplistic validity check for value
      &                 +dbsc(nCnttp)%nM2) .NE. 0
       lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. NoPairL(nCnttp)
+      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+      lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
       Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                     + dbsc(nCnttp)%nPrj
      &                     + dbsc(nCnttp)%nSRO
@@ -1280,7 +1276,7 @@ c Simplistic validity check for value
       KWord=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
          tDel=1.0D50
@@ -1303,27 +1299,27 @@ c Simplistic validity check for value
       Call UpCase(KWord)
       Call LeftAd(KWord)
       If (KWord(1:4).eq.'PSEU') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'ACDT') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,aCD_Thr(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%aCD_Thr)
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          Go To 777
       End If
       If (KWord(1:4).eq.'NUCL') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,ExpNuc(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%ExpNuc)
          Go To 777
       End If
       If (KWord(1:4).eq.'FIXE') Then
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'SPHE') Then
@@ -1383,18 +1379,18 @@ c Simplistic validity check for value
       If (KWord(1:4).eq.'CHAR') Then
          KWord = Get_Ln(LuRd)
          Call UpCase(KWord)
-         Call Get_F1(1,Charge(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%Charge)
          ist = index(KWord,' ')
          If (dbsc(nCnttp)%IsMM.ne.0) Then
             Call WarningMessage(1,
      &         ' Found a charge associated with a MM atom. Ignore it')
-            Charge(nCnttp) = Zero
+            dbsc(nCnttp)%Charge = Zero
          End If
          Go To 777
       End If
       If (KWord(1:4).eq.'FRAG') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          lFAIEMP=.True.
          Go To 777
       End If
@@ -1407,7 +1403,9 @@ c Simplistic validity check for value
          mdc = mdc + nCnt
 !        Now allocate the array for the coordinates and copy them over.
 !        Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
-         Call mma_Allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
+         Call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
          Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
 !
          Go To 998
@@ -3549,8 +3547,8 @@ c
 *     Disable AMFI for an atom type
 *
  8060 KWord = Get_Ln(LuRd)
-      nPAMFI=nPAMFI+1
-      Call Get_I1(1,iPAMFI(nPAMFI))
+      Call Get_I1(1,iAtom_Number)
+      No_AMFI(iAtom_Number)=.True.
       Go To 998
 *                                                                      *
 ******* GROM ***********************************************************
@@ -3892,19 +3890,19 @@ c      endif
       If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
 
       If (Run_Mode.ne.S_Mode) Then
-         Call dZero(CntMass,nCnttp)
 *        Loop over unique centers
          iUnique = 0
+         Call mma_allocate(Isotopes,nCnttp,Label='Isotopes')
          Do iCnttp = 1, nCnttp
             nCnt = dbsc(iCnttp)%nCntr
             Do iCnt = 1, nCnt
                iUnique = iUnique+1
 *              Get the mass for this center
-               dm = rMass(iAtmNr(iCnttp))
+               dm = rMass(dbsc(iCnttp)%AtmNr)
                Do j = 1, Size(nIsot, 1)
                   If (nIsot(j,1).eq.iUnique) Then
                      If (nIsot(j,2).ge.0) Then
-                        dm = rMassx(iAtmNr(iCnttp),nIsot(j,2))
+                        dm = rMassx(dbsc(iCnttp)%AtmNr,nIsot(j,2))
                      Else
                         dm = mIsot(j)
                      End If
@@ -3912,9 +3910,9 @@ c      endif
                   End If
                End Do
                If (iCnt.eq.1) Then
-                  CntMass(iCnttp) = dm
+                  dbsc(iCnttp)%CntMass = dm
                Else
-                  If (dm.ne.CntMass(iCnttp)) Then
+                  If (dm.ne.dbsc(iCnttp)%CntMass) Then
                      Call WarningMessage(2,
      &                 'Error: All centers of the same type must '//
      &                 'have the same mass')
@@ -3922,8 +3920,10 @@ c      endif
                   End If
                End If
             End Do
-         End Do
-         Call Put_dArray('Isotopes',CntMass,nCnttp)
+            Isotopes(iCnttp)=dbsc(iCnttp)%CntMass
+         End Do ! iCnttp
+         Call Put_dArray('Isotopes',Isotopes,nCnttp)
+         Call mma_deallocate(Isotopes)
 
 *        Find errors
          Do j = 1, Size(nIsot, 1)
@@ -4089,19 +4089,18 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           If ExpNuc not explicitly defined use default value.
 *
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(nMass)
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            If (dbsc(iCnttp)%ExpNuc.lt.Zero)
+     &          dbsc(iCnttp)%ExpNuc=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
 *           charge distribution.
 *
-            jAtmNr=iAtmNr(iCnttp)
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            Call ModGauss(DBLE(jAtmNr),nMass,
-     &                    ExpNuc(iCnttp),
-     &                    w_mGauss(iCnttp))
+            jAtmNr=dbsc(iCnttp)%AtmNr
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            Call ModGauss(DBLE(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,
+     &                    dbsc(iCnttp)%w_mGauss)
 *
          Else
 *
@@ -4346,7 +4345,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                If (.NOT.dbsc(iCnttp)%Aux .and.
      &             .NOT.dbsc(iCnttp)%Frag) Then
                   call dcopy_(3*dbsc(iCnttp)%nCntr,
-     &                                        dbsc(iCnttp)%Coor(1,1),1,
+     &                                        dbsc(iCnttp)%Coor,1,
      &                                        EF_Centers(1,iEF),1)
                   iEF = iEF + dbsc(iCnttp)%nCntr
                End If
@@ -4374,7 +4373,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iDMS = 1
             Do iCnttp = 1, nCnttp
                call dcopy_(3*dbsc(iCnttp)%nCntr,
-     &                                     dbsc(iCnttp)%Coor(1,1),1,
+     &                                     dbsc(iCnttp)%Coor,1,
      &                                     DMS_Centers(1,iDMS),1)
                iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
@@ -4553,7 +4552,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(1,iCnt),
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
      &                       iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
@@ -4563,7 +4562,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           Perturb the initial geometry if the SHAKE keyword was given,
 *           but maintain the symmetry
 *
-            If (Shake.gt.Zero) Then
+            If ((Shake.gt.Zero).And.
+     &          .Not.(dbsc(iCnttp)%pChrg.Or.
+     &                dbsc(iCnttp)%Frag.Or.
+     &                dbsc(iCnttp)%Aux)) Then
                jTmp=0
                Do j=1,nStab(mdc)-1
                   jTmp=iOr(jTmp,jStab(j,mdc))
@@ -4581,7 +4583,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                         dbsc(iCnttp)%Coor(j+1,iCnt)=
      &                      dbsc(iCnttp)%Coor(j+1,iCnt)
      &                     +Shake*RandVect(jDim)
-                     End If
+                  End If
                   End Do
                End If
             End If

@@ -113,7 +113,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          Fname=DefNm
        endif
        Indx = Last+1
-       Bsl(nCnttp)=BSLbl
+       dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -127,11 +127,11 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
-      Bsl(nCnttp)(n:n+5)='.....'
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
+      dbsc(nCnttp)%Bsl(n:n+5)='.....'
 *
       If (Show.and.nPrint(2).ge.6) Then
          Write (LuWr,*)
@@ -143,15 +143,10 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           NoPairL(nCnttp),SODK(nCnttp),
-     &           CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
-     &           STDINP,iSTDINP,.True.,.true.,' ')
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng, BLine,Ref,UnNorm,
+     &           nDel,LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
@@ -182,7 +177,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. PAM2(nCnttp)
+      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                + dbsc(nCnttp)%nSRO
      &                + dbsc(nCnttp)%nSOC
@@ -191,21 +186,22 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &                + dbsc(nCnttp)%nM2) .NE.0
       lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
       lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. NoPairL(nCnttp)
+      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                     + dbsc(nCnttp)%nPrj
      &                     + dbsc(nCnttp)%nSRO
      &                     + dbsc(nCnttp)%nSOC
      &                     + dbsc(nCnttp)%nPP
 *
+      lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
       Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
       nCnt = 0
       lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then
@@ -241,9 +237,10 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
             Call Quit_OnUserError()
          End If
          dbsc(nCnttp)%nCntr = nCnt
-!        call allocate(dbsc(nCnttp)%Coor(1:3,nCnt))
-         call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
-         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor(1,1),1)
+         call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
          mdc = mdc + nCnt
          Go To 900
       End If

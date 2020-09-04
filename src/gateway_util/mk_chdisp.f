@@ -46,7 +46,7 @@
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
-         If (pChrg(iCnttp)) Then
+         If (dbsc(iCnttp)%pChrg) Then
              mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
          End If
@@ -74,7 +74,7 @@
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                nIrrep/nStab(mdc),iChTbl,iIrrep,
      &                iComp,nStab(mdc)) .and.
-     &                .Not.pChrg(iCnttp) ) Then
+     &                .Not.dbsc(iCnttp)%pChrg ) Then
                      iDisp = iDisp + 1
                      ChDisp(iDisp)=' '
                      Write (ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)')

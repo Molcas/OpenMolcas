@@ -214,7 +214,7 @@
 *-----------------Accumulate result for all nuclei. Take the charge on
 *                 the center into account.
 *
-                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M1cf(iM1xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)
      &                   * Fact
                   Call DaXpY_(nZeta*mAInt,Factor,Array(ipTmp),1,
      &                       Array(ipAInt),1)

@@ -137,7 +137,7 @@
                JfGrad(iCar+1,3) = .False.
                iCmp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                      JndGrd(iCar+1,1) = Abs(JndGrd(iCar+1,1))
@@ -185,7 +185,7 @@
                call dcopy_(nExpi**2,Shells(iShll)%Akl(1,1,1),1,
      &                     Array(ipC),1)
                If (EQ(A,RB).and.EQ(A,TC).and.
-     &            lNoPair.and.NoPairL(kCnttp)) Then
+     &            lNoPair.and.dbsc(kCnttp)%NoPair) Then
                   Call DaXpY_(nExpi**2,One,
      &                        Shells(iShll)%Akl(1,1,2),1,Array(ipC),1)
                   If (iPrint.ge.49) Call RecPrt(' The Adl matrix',' ',

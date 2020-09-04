@@ -137,8 +137,8 @@
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
-               ZB = Charge(jCnttp)
-               If (pChrg(jCnttp)) Go To 202
+               ZB = dbsc(jCnttp)%Charge
+               If (dbsc(jCnttp)%pChrg) Go To 202
                If (ZB.eq.Zero) Go To 202
                If (dbsc(jCnttp)%Frag) Go To 202
                ZAZB = ZA * ZB

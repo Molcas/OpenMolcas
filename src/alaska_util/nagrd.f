@@ -137,18 +137,18 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *
       kdc = 0
       Do kCnttp = 1, nCnttp
-         If (Charge(kCnttp).eq.Zero) Go To 111
+         If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
          Do kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
-            Fact = -Charge(kCnttp)*DBLE(nStabM) / DBLE(LmbdT)
+            Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) / DBLE(LmbdT)
 *
 *           Modify the density matrix with prefactors in case of finite nuclei
 *
             If (Nuclear_Model.eq.Gaussian_Type) Then
-               Eta=ExpNuc(kCnttp)
+               Eta=dbsc(kCnttp)%ExpNuc
                rKappcd=TwoP54/Eta
 *              Tag on the normalization factor of the nuclear Gaussian
                Fact=Fact*(Eta/Pi)**(Three/Two)
@@ -186,7 +186,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                iComp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iComp) .and.
      &              .Not.dbsc(kCnttp)%Frag .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
 *--------------------Reset flags for the basis set centers so that we
@@ -235,7 +235,7 @@ C           If (iPrint.ge.99) Write (6,*) ' mGrad=',mGrad
 *
 *
                If (Nuclear_Model.eq.Gaussian_Type) Then
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   Call Rysg1(iAnga,nRys,nZeta,
      &                       Array(ipA),Array(ipB),[One],[One],

@@ -146,10 +146,10 @@
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdci=mdci+1
                If (mdci.eq.iCenter) Then
-               If ((.Not.DKroll).and.(.Not.SODK(iCnttp)))
+               If ((.Not.DKroll).and.(.Not.dbsc(iCnttp)%SODK))
      &            Write (Lu_AMFI,'(A)') 'Breit-Pauli'
                   If (IfTest) Then
-                  If (.Not.DKroll.and..Not.SODK(iCnttp))
+                  If (.Not.DKroll.and..Not.dbsc(iCnttp)%SODK)
      &            Write (6,'(A)') 'Breit-Pauli'
                End If
                   If (iAtmNr2(iCnttp).ge.1) Then
@@ -164,7 +164,7 @@
                      Call Abend()
                   End If
                   If (Nuclear_Model.eq.Gaussian_Type) Then
-                     Eta_Nuc=ExpNuc(iCnttp)
+                     Eta_Nuc=dbsc(iCnttp)%ExpNuc
                   End If
                   Go To 99
                End If

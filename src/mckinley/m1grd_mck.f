@@ -129,12 +129,12 @@ c     End If
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
-*           Fact = -Charge(kCnttp)*DBLE(nStabM*nIrrep) /
+*           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
 *    &             DBLE(LmbdT*nStab(kdc+kCnt))
-            Fact = -Charge(kCnttp)*DBLE(nStabM) /
+            Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 c           If (iPrint.ge.99) Then
-c              Write (*,*) ' Charge=',Charge(kCnttp)
+c              Write (*,*) ' Charge=',dbsc(kCnttp)%Charge
 c              write(*,*)   'NZeta=',nzeta
 c              Write(*,*)    'NrOp=',nrop
 c              Write (*,*) ' Fact=',Fact

@@ -526,8 +526,7 @@
 *              multiply with 1/m, where m is the mass of an electron
 *              or muon.
 *
-               xfactor=One/fmass(iCnttp)
-*              Write (*,*) 'fmass(iCnttp)=',fmass(iCnttp)
+               xfactor=One/dbsc(iCnttp)%fMass
 *
 *              Add the Finite Nuclear Mass Correction if activated
 *
@@ -535,10 +534,10 @@
      &             A(1).eq.RB(1) .AND.
      &             A(2).eq.RB(2) .AND.
      &             A(3).eq.RB(3)) .AND.
-     &             Charge(iCnttp).ne.Zero) Then
-                     iAtom=iAtmNr(iCnttp)
+     &             dbsc(iCnttp)%Charge.ne.Zero) Then
+                     iAtom=dbsc(iCnttp)%AtmNr
 *                    Get the atom mass in au (me=1)
-                     xMass=CntMass(iCnttp)
+                     xMass=dbsc(iCnttp)%CntMass
 *                    Substract the electron mass to get the nuclear
 *                    mass.
                      xMass=xMass-DBLE(iAtom)

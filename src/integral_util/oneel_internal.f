@@ -71,6 +71,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm, Rsv_Tsk
 #include "itmax.fh"
@@ -238,7 +239,7 @@ C     Logical Addpot
 *     muonic basis sets are mixed.
 *
       If (nSO.gt.0 .AND.
-     &   fmass(iCnttp).eq.fmass(jCnttp)
+     &   dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass
      &   ) Then
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')

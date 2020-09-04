@@ -91,34 +91,34 @@
 *        Resolve the name of the valence basis and find the name of
 *        the appropriate auxiliary basis set.
 *
-         Bsl(nCnttp)=Bsl_Old(iCnttp)
+         dbsc(nCnttp)%Bsl=dbsc(iCnttp)%Bsl_old
 *
          Hit=.True.
-         Call Decode(Bsl(nCnttp),atom,1,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,atom,1,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),type,2,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,type,2,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),author,3,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,author,3,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),basis,4,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,basis,4,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),CGTO,5,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,CGTO,5,Hit)
          Hit=.False.
-         Call Decode(Bsl(nCnttp),Aux,6,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,Aux,6,Hit)
          If (.Not.Hit) Aux = ' '
 *
          n=Index(Atom,' ')-1
-         Bsl(nCnttp)(1:n+1)=atom(1:n)//'.'
+         dbsc(nCnttp)%Bsl(1:n+1)=atom(1:n)//'.'
          nn = n + 1
 *
          n=Index(Type,' ')-1
-         Bsl(nCnttp)(nn+1:nn+n+5)=Type(1:n)//'.....'
+         dbsc(nCnttp)%Bsl(nn+1:nn+n+5)=Type(1:n)//'.....'
 *
 *        Modify basis set library correctly
 *
-         Indx=Index(Bsl(nCnttp),' ')
+         Indx=Index(dbsc(nCnttp)%Bsl,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl(nCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(nCnttp)%Bsl(1:Indx-1)
          Call WhichMolcas(Basis_lib)
          If (Basis_lib(1:1).ne.' ') Then
             ib=index(Basis_lib,' ')-1
@@ -161,17 +161,13 @@
          End if
 *
          jShll = iShll
-         SODK(nCnttp)=.False.
-         Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,iShll,
-     &              MxAng,Charge(nCnttp),
-     &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
-     &              NoPairL(nCnttp),SODK(nCnttp),
-     &              CrRep(nCnttp),UnNorm,nDel,LuRd,BasisTypes,
-     &              STDINP,lSTDINP,.False.,.true.,' ')
-         dbsc(nCnttp)%Aux=.True.
+         dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+     &              nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,
+     &              ' ')
 *
-         Charge(nCnttp)=Zero
+         dbsc(nCnttp)%Aux=.True.
+         dbsc(nCnttp)%Charge=Zero
 *
          If (Show.and.iPrint.ge.6 .and.
      &      Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
@@ -181,7 +177,7 @@
             Write (6,*)
             Write (6,*)
          End If
-         lPAM2 = lPAM2 .or. PAM2(nCnttp)
+         lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
          dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                   + dbsc(nCnttp)%nSRO
      &                   + dbsc(nCnttp)%nSOC
@@ -190,19 +186,20 @@
      &                   + dbsc(nCnttp)%nM2) .NE. 0
          lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
          lECP = lECP .or. dbsc(nCnttp)%ECP
-         lNoPair = lNoPair .or. NoPairL(nCnttp)
+         lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+         lAng=Max(dbsc(nCnttp)%nVal,
+     &            dbsc(nCnttp)%nSRO,
+     &            dbsc(nCnttp)%nPrj)-1
          iAngMx=Max(iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
          Shells(jShll+1)%Prjct =.False.
          Shells(jShll+2)%Transf=.False.
          Shells(jShll+2)%Prjct =.False.
-         pChrg(nCnttp)=pChrg(iCnttp)
-         Fixed(nCnttp)=Fixed(iCnttp)
+         dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
+         dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
          dbsc(nCnttp)%Parent_iCnttp=iCnttp
-C        pChrg(nCnttp)=.False.
-C        Fixed(nCnttp)=.False.
          dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                        + dbsc(nCnttp)%nPrj
      &                        + dbsc(nCnttp)%nSRO
@@ -223,8 +220,8 @@ C        Fixed(nCnttp)=.False.
          nCnt = dbsc(iCnttp)%nCntr
          dbsc(nCnttp)%nCntr=nCnt
          dbsc(nCnttp)%mdci =mdc
-         Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
-         dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
+*        Create a pointer to the actual coordinates of the parent dbsc
+         dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
          Mx_Shll=iShll+1
          Max_Shells=Mx_Shll
@@ -250,20 +247,20 @@ C        Fixed(nCnttp)=.False.
          mdc = dbsc(iCnttp)%mdci
 *
          Hit=.True.
-         Call Decode(Bsl_Old(iCnttp),atom,1,Hit)
+         Call Decode(dbsc(iCnttp)%Bsl_old,atom,1,Hit)
          Type=' '
          Author=' '
          basis=' '
          CGTO=' '
          Aux=' '
          If (IfTest) Then
-            Write (6,*) 'Bsl_Old=',Bsl_Old(iCnttp)
+            Write (6,*) 'Bsl_Old=',dbsc(iCnttp)%Bsl_old
             Write (6,*) 'Atom=',Atom
          End If
 *
-         Indx=Index(Bsl_Old(iCnttp),' ')
+         Indx=Index(dbsc(iCnttp)%Bsl_old,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl_Old(iCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(iCnttp)%Bsl_old(1:Indx-1)
 *
 *        Find the basis set
 *
@@ -325,9 +322,8 @@ C        Fixed(nCnttp)=.False.
                Write(6,'(1X,A)') 'Basis set is read from the workdir.'
             End if
 *
-            SODK(nCnttp)=.False.
-            Bsl(nCnttp)=BSLB(2:80)
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
+            dbsc(nCnttp)%Bsl=BSLB(2:80)
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
 *
 *           Loop over the angular shells
 *
@@ -445,14 +441,10 @@ C        Fixed(nCnttp)=.False.
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            Charge(nCnttp)=Zero
-            PAM2(nCnttp)=.False.
-            lPAM2 = lPAM2 .or. PAM2(nCnttp)
-            dbsc(nCnttp)%ECP=.False.
+            lPAM2 = lPAM2 .or.dbsc(nCnttp)%lPAM2
             lECP = lECP .or. dbsc(nCnttp)%ECP
             lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-            NoPairL(nCnttp)=.False.
-            lNoPair = lNoPair .or. NoPairL(nCnttp)
+            lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
             iAngMx=Max(iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
@@ -463,8 +455,9 @@ C        Fixed(nCnttp)=.False.
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt
             dbsc(nCnttp)%mdci =mdc
-            Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,Label='dbsc:C')
-            dbsc(nCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
+            dbsc(nCnttp)%Parent_iCnttp=iCnttp
+*           Create a pointer to the actual coordinates.
+            dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
             Mx_Shll=iShll+1
             Max_Shells=Mx_Shll

@@ -41,7 +41,7 @@
       mdc=0
       ndc=0
       Do iCnttp=1,nCnttp
-         If (pChrg(iCnttp).or.dbsc(iCnttp)%Aux.or.
+         If (dbsc(iCnttp)%pChrg.or.dbsc(iCnttp)%Aux.or.
      &       dbsc(iCnttp)%Frag) Then
            mdc = mdc + dbsc(iCnttp)%nCntr
            Go To 99
@@ -61,7 +61,7 @@
                Coor(1,ndc)=A1
                Coor(2,ndc)=A2
                Coor(3,ndc)=A3
-               ZNUC(ndc)=DBLE(iAtmNr(iCnttp))
+               ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
             End Do
          End Do
  99      Continue

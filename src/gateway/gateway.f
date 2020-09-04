@@ -52,7 +52,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gateway_banner()
+C     Call Gateway_banner()
       iReturn = 0
 *
 *     If Gateway is running the Run_Mode on the runfile should always
@@ -179,7 +179,7 @@ C-SVC: identify runfile with a fingerprint
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
@@ -193,15 +193,15 @@ C-SVC: identify runfile with a fingerprint
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.
      &       .Not.dbsc(iCnttp)%Frag.and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
                DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
-               DCh_Eff(iNuc)=Charge(iCnttp)
-               DCh(iNuc)=DBLE(iAtmNr(iCnttp))
+               DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
+               DCh(iNuc)=DBLE(dbsc(iCnttp)%AtmNr)
                xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
             End Do
          Else
@@ -235,7 +235,8 @@ C-SVC: identify runfile with a fingerprint
       If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (pChrg(iCnttp) .and. Fixed(iCnttp))
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
+     &                         dbsc(iCnttp)%Fixed)
       End Do
       If (lXF.or.Pseudo) Then
          iOption=iOr(iOption,2**7)

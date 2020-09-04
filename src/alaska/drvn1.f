@@ -68,9 +68,9 @@
 *-----Loop over centers with the same charge
       Do iCnttp = 1, nCnttp
          If (dbsc(iCnttp)%Frag) Then
-           ZA = FragCharge(iCnttp)
+           ZA = dbsc(iCnttp)%FragCharge
          Else
-           ZA = Charge(iCnttp)
+           ZA = dbsc(iCnttp)%Charge
          End If
          If (ZA.eq.Zero) Go To 101
 *--------Loop over all unique centers of this group
@@ -80,12 +80,12 @@
             ndc = 0
             Do jCnttp = 1, iCnttp
                If (dbsc(jCnttp)%Frag) Then
-                 ZB = FragCharge(jCnttp)
+                 ZB = dbsc(jCnttp)%FragCharge
                Else
-                 ZB = Charge(jCnttp)
+                 ZB = dbsc(jCnttp)%Charge
                End If
                If (ZB.eq.Zero) Go To 201
-               If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
+               If (dbsc(iCnttp)%pChrg.and.dbsc(jCnttp)%pChrg) Go To 201
                If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
                ZAZB = ZA * ZB
                jCntMx = dbsc(jCnttp)%nCntr
@@ -171,7 +171,7 @@
                      End If
                      df_dr=(dfab*r12-fab)/r12**2
 *
-                     If (.Not.pChrg(iCnttp)) Then
+                     If (.Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
                      igu=nIrrep/nStab(mdc+iCnt)
                      Do iCar = 0, 2
@@ -191,7 +191,7 @@
                      End Do
                      End If
 *
-                     If (.Not.pChrg(jCnttp)) Then
+                     If (.Not.dbsc(jCnttp)%pChrg) Then
                      nDisp = IndDsp(ndc+jCnt,iIrrep)
                      igv=nIrrep/nStab(ndc+jCnt)
                      Do iCar = 0, 2
@@ -274,9 +274,9 @@
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 202
-            If (pChrg(jCnttp)) Go To 202
+            If (dbsc(jCnttp)%pChrg) Go To 202
             If (dbsc(jCnttp)%Frag) Go To 202
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr
@@ -406,14 +406,14 @@
 *
                mdc = 0
                Do iCnttp = 1, nCnttp
-                  If (Charge(iCnttp).eq.Zero) Go To 103
+                  If (dbsc(iCnttp)%Charge.eq.Zero) Go To 103
                   If (dbsc(iCnttp)%Frag) Go To 103
-                  ZA = Charge(iCnttp)
+                  ZA = dbsc(iCnttp)%Charge
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
                      Write (6,*) ' ixyz=',ixyz
                      Call RecPrt(' Centers',' ',
-     &                           dbsc(iCnttp)%Coor(1,1),3,
+     &                           dbsc(iCnttp)%Coor,3,
      &                           dbsc(iCnttp)%nCntr)
                   End If
                   Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -520,9 +520,9 @@
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
-            If (pChrg(jCnttp)) Go To 212
+            If (dbsc(jCnttp)%pChrg) Go To 212
             If (dbsc(jCnttp)%Frag) Go To 212
             ZAZB = ZA * ZB
             Do jCnt = 1, dbsc(jCnttp)%nCntr

@@ -515,7 +515,7 @@ c      nprint(26)=99
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
-         If (pChrg(iCnttp)) Then
+         If (dbsc(iCnttp)%pChrg) Then
              TRSymm=.False.
              mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
@@ -580,7 +580,7 @@ c      nprint(26)=99
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                nIrrep/nStab(mdc),iChTbl,iIrrep,
      &                iComp,nStab(mdc)) .and.
-     &                .Not.pChrg(iCnttp) ) Then
+     &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                       lDisp(iIrrep) = lDisp(iIrrep) + 1
@@ -714,7 +714,7 @@ c      nprint(26)=99
                      Direct(lDsp)=.True.
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC
-                     call dcopy_(3,dbsc(iCnttp)%Coor(1,iCnt),1,
+                     call dcopy_(3,dbsc(iCnttp)%Coor(1:3,iCnt),1,
      &                           Work(ip),1)
 *--------------------Transfer the multiplicity factor
                      Work(ip+3) = Fact

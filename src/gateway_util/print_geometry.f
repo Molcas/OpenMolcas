@@ -126,8 +126,7 @@
                Centr(1,nc) = x1*Facx
                Centr(2,nc) = y1*Facy
                Centr(3,nc) = z1*Facz
-               nchr=iAtmNr(jCnttp)
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                if (nc.gt.8*mxdc) Then
                   Call WarningMessage(2,'lblxxx too small')
                   Call Abend()

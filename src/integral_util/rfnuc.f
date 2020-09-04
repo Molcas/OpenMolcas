@@ -62,11 +62,11 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 *
             ndc = 0
             Do iCnttp = 1, nCnttp
-               If (Charge(iCnttp).eq.Zero) Go To 101
-               ZA = Charge(iCnttp)
+               ZA = dbsc(iCnttp)%Charge
+               If (ZA.eq.Zero) Go To 101
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
-                  Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor(1,1),3,
+                  Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
      &                        dbsc(iCnttp)%nCntr)
                End If
                Do iCnt = 1, dbsc(iCnttp)%nCntr

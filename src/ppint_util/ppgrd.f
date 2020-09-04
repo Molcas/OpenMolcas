@@ -123,7 +123,7 @@
       kdc =-dbsc(1)%nCntr
       Do iCnttp = 1, nCnttp
          kdc = kdc + dbsc(iCnttp)%nCntr
-         If (Charge(iCnttp).eq.0d0) Cycle
+         If (dbsc(iCnttp)%Charge.eq.0d0) Cycle
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
@@ -202,7 +202,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                JfGrad(iCar+1,3) = .False.
                iCmp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &              .Not.pChrg(iCnttp) ) Then
+     &              .Not.dbsc(iCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                      JndGrd(iCar+1,1) = Abs(JndGrd(iCar+1,1))

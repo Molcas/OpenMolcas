@@ -11,25 +11,16 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Interface
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,lAng,iShll,
-     &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,NoPairL,SODK,CrRep,
-     &                 UnNorm,nDel,LuRd,BasisTypes,
-     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,BLine,Ref,UnNorm,nDel,
+     &                 LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+     &                 ExtBasDir)
 #include "Molcas.fh"
       Character*(*) DDname
       Character*80  BSLbl
-      Integer       iBSLbl, lAng
       Integer       iShll, MxAng
-      Real*8        Charge
-      Integer       iAtmNr
       Character*80  BLine, Ref(2)
-      Logical       PAM2
-      Logical       NoPairL, SODK
-      Real*8        CrRep
       Logical       UnNorm
-      Integer       nDel(0:MxAng),LuRd,
-     &              BasisTypes(4)
+      Integer       nDel(0:MxAng), LuRd, BasisTypes(4)
       Character*180 STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir

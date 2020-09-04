@@ -75,7 +75,7 @@ C         Write (*,*) 'nDCRR=',nDCRR
           i9    = ip_EstI(nZeta)-1
           i10   = nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
 *         now loop over  R operator...
-          If (fmass(iCnttp).eq.fmass(jCnttp)) Then
+          If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
              Schwz_tmp=Data_k2(k2ij+i9)
              Do lDCRR = 1, nDCRR-1
                 Schwz_tmp=Max(Schwz_tmp,Data_k2(k2ij+i10*lDCRR+i9))

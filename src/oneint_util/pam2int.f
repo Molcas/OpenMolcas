@@ -138,7 +138,7 @@
 
 
       kCnttp = kCnttpPAM
-         If (.Not.PAM2(kCnttp)) Go To 111
+         If (.Not.dbsc(kCnttp)%lPAM2) Go To 111
          If (dbsc(kCnttp)%nPAM2.eq.-1) Go To 111
 *
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
@@ -248,7 +248,7 @@
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*PAMexp(iM2xp,2)
+                  Factor = -dbsc(kCnttp)%Charge*PAMexp(iM2xp,2)
      &                   * Fact
 *
 *                 FOR DMFT calculation!!!

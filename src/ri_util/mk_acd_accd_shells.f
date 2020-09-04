@@ -104,7 +104,7 @@
 *     sets might have individual accuracy!
 *
       mdc = dbsc(iCnttp)%mdci
-      Thr_aCD=aCD_Thr(iCnttp)*Thrshld_CD
+      Thr_aCD=dbsc(iCnttp)%aCD_Thr*Thrshld_CD
 *
       nTest= dbsc(iCnttp)%nVal-1
 *                                                                      *
@@ -114,17 +114,17 @@
 *
 *        Pick up the angular index of the highest valence shell
 *
-         If (iAtmNr(iCnttp).le.2) Then
+         If (dbsc(iCnttp)%AtmNr.le.2) Then
             iVal=0
-         Else If (iAtmNr(iCnttp).le.10) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.10) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.18) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.18) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.36) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.36) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.54) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.54) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.86) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.86) Then
             iVal=3
          Else
             iVal=3
@@ -149,7 +149,7 @@
 *                                                                      *
 *     Use the name of the old valence basis
 *
-      Label=Bsl_Old(iCnttp)
+      Label=dbsc(iCnttp)%Bsl_old
 *
       Hit=.True.
       Call Decode(Label,atom,1,Hit)
@@ -379,20 +379,16 @@
 *
 *           Some generic setting of information
 *
-            SODK(nCnttp)=.False.
-            Bsl(nCnttp)=Label
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
-            Charge(nCnttp)=Zero
-            pChrg(nCnttp)=pChrg(iCnttp)
-            Fixed(nCnttp)=Fixed(iCnttp)
+            dbsc(nCnttp)%Bsl=Label
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+            dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
+            dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
-            dbsc(nCnttp)%nOpt = 0
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.
             lAux =.True.
-            dbsc(nCnttp)%ECP=.False.
-            aCD_Thr(nCnttp)=aCD_Thr(iCnttp)
-            fmass(nCnttp)=fmass(iCnttp)
+            dbsc(nCnttp)%aCD_Thr=dbsc(iCnttp)%aCD_Thr
+            dbsc(nCnttp)%fMass=dbsc(iCnttp)%fMass
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1319,9 +1315,8 @@ C                          Thrs= 1.0D-12
                nCnt = dbsc(iCnttp)%nCntr
                dbsc(nCnttp)%nCntr=nCnt
                dbsc(nCnttp)%mdci =mdc
-               Call mma_allocate(dbsc(nCnttp)%Coor,3,nCnt,
-     &                           Label='dbsc:C')
-               dbsc(nCnttp)%Coor(:,:) = dbsc(iCnttp)%Coor(:,:)
+*              Create a pointer to the actual coordinates
+               dbsc(nCnttp)%Coor => dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.
@@ -1385,10 +1380,10 @@ C                          Thrs= 1.0D-12
                Write (Lu_lib,'(A)') Label
             End If
             If (jCnttp.eq.nCnttp_start+1) Then
-               Write (Lu_lib,'(F6.2,2I10)') Charge(jCnttp),
+               Write (Lu_lib,'(F6.2,2I10)') dbsc(jCnttp)%Charge,
      &               dbsc(jCnttp)%nVal-1,nCnttp-nCnttp_start
             Else
-               Write (Lu_lib,'(F6.2, I10)') Charge(jCnttp),
+               Write (Lu_lib,'(F6.2, I10)') dbsc(jCnttp)%Charge,
      &               dbsc(jCnttp)%nVal-1
             End If
             Write (Lu_lib,*) ' Dummy reference line.'

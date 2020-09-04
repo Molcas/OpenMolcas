@@ -42,7 +42,7 @@ C Sizes:
       nAlCnt=0
       ic=0
       Do iCnttp=1,nCnttp
-        If(.not.pChrg(iCnttp)) Then
+        If(.not.dbsc(iCnttp)%pChrg) Then
           Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             nAlCnt=nAlCnt+nIrrep/nStab(ic)
@@ -63,7 +63,7 @@ C The nuclear coordinates: First, the symmetry-unique ones.
       nUqCnt=0
       ic=0
       Do iCnttp=1,nCnttp
-        If(.not.pChrg(iCnttp)) Then
+        If(.not.dbsc(iCnttp)%pChrg) Then
           Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
             iWork(ipCntId+0+4*(ic-1))=iCnttp

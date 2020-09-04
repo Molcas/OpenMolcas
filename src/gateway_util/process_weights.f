@@ -44,7 +44,7 @@
       DO i=1,nCnttp
         DO j=1,dbsc(i)%nCntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             nAt=nAt+nIrrep/nStab(ndc)
             nSymAt=nSymAt+1
           END IF
@@ -59,9 +59,9 @@
 *---- Set the weights to the mass of each atom
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO iCnt=1,dbsc(i)%nCntr
-              W(j)=CntMass(i)/UTOAU
+              W(j)=dbsc(i)%CntMass/UTOAU
               j=j+1
             END DO
           END IF
@@ -70,9 +70,9 @@
 *---- Set the the weight to 1 for heavy atoms, 0 for hydrogens
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO iCnt=1,dbsc(i)%nCntr
-              IF (iAtmNr(i).LE.1) W(j)=Zero
+              IF (dbsc(i)%AtmNr.LE.1) W(j)=Zero
               j=j+1
             END DO
           END IF
@@ -96,7 +96,7 @@
       DO i=1,nCnttp
         DO j=1,dbsc(i)%ncntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
             DO k=1,nIrrep/nStab(ndc)-1
               W(iAt)=W(iSymAt)
               iAt=iAt+1

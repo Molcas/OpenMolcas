@@ -125,6 +125,7 @@ cvv      Character*(*) Data(nData)
          RecLab( 21)='Frag_Type       ' ! EFP fragment labels
          RecLab( 22)='ABC             ' ! EFP atom labels
          RecLab( 23)='Un_cen Names    '
+         RecLab( 24)='cDmp            '
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)

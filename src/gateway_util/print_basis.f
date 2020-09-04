@@ -69,7 +69,7 @@
             Write (LuWr,*)
             Write (LuWr,*)
             Write (LuWr,'(6X,A,1X,A)') 'Basis set label:',
-     *        Trim(Bsl(iCnttp))
+     *        Trim(dbsc(iCnttp)%Bsl)
             If (lOPTO) GoTo 100
             Write (LuWr,*)
             dbas=LblCnt(mdc+1)(1:4)
@@ -86,17 +86,17 @@
                If (dbsc(iCnttp)%Aux) Then
                   Write (LuWr,'(6X,A)') 'Auxiliary basis set:'
                   Write (LuWr,'(6X,A)') '=================='
-                  If (aCD_Thr(iCnttp).ne.One) Then
+                  If (dbsc(iCnttp)%aCD_Thr.ne.One) Then
                      Write (LuWr,'(6X,A,G9.2)') 'Threshold in the '
      &                    //'auxiliary basis set generation is '
      &                    //'modified to ',
-     &                    aCD_Thr(iCnttp)*Thrshld_CD
+     &                    dbsc(iCnttp)%aCD_Thr*Thrshld_CD
                   End If
                Else If (dbsc(iCnttp)%Frag) Then
                   Write (LuWr,'(6X,A)') 'Fragment basis set:'
                   Write (LuWr,'(6X,A)') '=================='
                Else
-                  If (fmass(iCnttp).eq.One) Then
+                  If (dbsc(iCnttp)%fMass.eq.One) Then
                      Write (LuWr,'(6X,A)')
      &                      'Electronic valence basis set:'
                      Write (LuWr,'(6X,A)') '------------------'
@@ -106,23 +106,24 @@
                   End If
                End If
             End If
-            If (Fixed(iCnttp)) Write (LuWr,'(6X,A)')
+            If (dbsc(iCnttp)%Fixed) Write (LuWr,'(6X,A)')
      &          'Centers of this basis set are frozen!'
             If (dbsc(iCnttp)%IsMM.eq.1) Then
                Write (LuWr,'(6X,A)') 'This is a MM atom: no basis set'
             Else
-               If (pChrg(iCnttp)) Then
+               If (dbsc(iCnttp)%pChrg) Then
                   Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
-     &               Charge(iCnttp), ' au (this is a pseudo charge)'
+     &               dbsc(iCnttp)%Charge,
+     &                ' au (this is a pseudo charge)'
                Else
                   Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
-     &               Charge(iCnttp), ' au'
+     &               dbsc(iCnttp)%Charge, ' au'
                End If
                Write (LuWr,'(6X,A,F10.6,A)')
      &               'Associated Actual Charge    ',
-     &               Max(Zero,DBLE(iAtmNr(iCnttp))), ' au'
+     &               Max(Zero,DBLE(dbsc(iCnttp)%AtmNr)), ' au'
 *
                If (Nuclear_Model.eq.Point_Charge) Then
                   Write (LuWr,'(6X,A)') 'Nuclear Model: Point charge'
@@ -132,14 +133,14 @@
      &                             //'Gaussian distribution'
                   Write (LuWr,'(6X,A,E12.5)')
      &               '  Gaussian exponent, Xi/bohr**(-2): ',
-     &               ExpNuc(iCnttp)
+     &               dbsc(iCnttp)%ExpNuc
                Else If (Nuclear_Model.eq.mGaussian_type) Then
                   Write (LuWr,'(6X,A)')
      &                'Nuclear Model: Finite nucleus - '
      &                             //'Modified Gaussian distribution'
                   Write (LuWr,'(6X,A,E12.5,A,E12.5)')
      &               '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',
-     &               ExpNuc(iCnttp),', ',w_mGauss(iCnttp)
+     &               dbsc(iCnttp)%ExpNuc,', ',dbsc(iCnttp)%w_mGauss
                Else
                   Call WarningMessage(2,'Illegal Nuclear Model!')
                   Call Abend()
@@ -365,8 +366,8 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               Call Write_LblCnt(LuWr,LblCnt(mdc+iCnt),
-     &                           dbsc(iCnttp)%Coor(1,iCnt))
+               Write (LuWr,'(1X,A,1X,3F20.10)') LblCnt(mdc+iCnt),
+     &                                    dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
          End If
       End Do

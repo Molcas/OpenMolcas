@@ -98,7 +98,7 @@
       iNuc = 0
 *     Call RecPrt('CN',' ',CN,3,nNuc)
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and..Not.dbsc(iCnttp)%Frag .and.
+         If (.Not.dbsc(iCnttp)%pChrg.and..Not.dbsc(iCnttp)%Frag .and.
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)
@@ -109,21 +109,6 @@
          End If
       End Do
  999  Continue
-*
-*     Now put in the updated coordinates for the RI/CD basis too, note
-*     they are pick up from the parent valence basis set.
-*
-      Do kCnttp = 1, nCnttp
-         If (dbsc(kCnttp)%Aux) Then
-            iCnttp=dbsc(kCnttp)%Parent_iCnttp
-            If (iCnttp.ne.0)
-     &         dbsc(kCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
-         End If
-      End Do
-*     Do iCnttp = 1, nCnttp
-*        Call RecPrt('dbsc(iCnttp)%Coor',' ',dbsc(iCnttp)%Coor(1,1),
-*    &               3,dbsc(iCnttp)%nCntr)
-*     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

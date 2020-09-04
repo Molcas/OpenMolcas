@@ -51,7 +51,8 @@ C
       Call GetMem('LDFUAR','Allo','Real',ip_UAR,l_UAR)
       Do jCnttp=1,nCnttp
          mCnt=dbsc(jCnttp)%nCntr
-         If (pChrg(jCnttp) .or. dbsc(jCnttp)%Aux .or.
+         If (dbsc(jCnttp)%pChrg .or.
+     &       dbsc(jCnttp)%Aux .or.
      &       dbsc(jCnttp)%Frag) Then
             ndc=ndc+mCnt
          Else

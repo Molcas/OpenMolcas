@@ -15,10 +15,9 @@
 Module Basis_Info
 Implicit None
 Private
-Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
-          Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
-          PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, &
-          Basis_Info_Init
+Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
+          PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
+          Nuclear_Model, Basis_Info_Init
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -56,7 +55,8 @@ Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free,  &
 !
 Type Distinct_Basis_set_centers
     Sequence
-    Real*8, Allocatable:: Coor(:,:)
+    Real*8, Pointer:: Coor(:,:)=>Null()
+    Real*8, Allocatable:: Coor_Hidden(:,:)
     Integer:: nCntr=0
     Integer:: nM1=0
     Real*8, Allocatable:: M1xp(:), M1cf(:)
@@ -64,6 +64,7 @@ Type Distinct_Basis_set_centers
     Real*8, Allocatable:: M2xp(:), M2cf(:)
     Integer:: nFragType=0, nFragCoor=0, nFragEner=0, nFragDens=0
     Real*8, Allocatable:: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
+    Logical:: lPAM2=.False.
     Integer:: nPAM2=-1
     Real*8, Allocatable:: PAM2(:)
     Logical:: ECP=.False.
@@ -81,6 +82,21 @@ Type Distinct_Basis_set_centers
     Integer:: iSOC=0, nSOC=0
     Integer:: iPP =0, nPP =0
     Integer:: nShells =0
+    Integer:: AtmNr=0
+    Real*8::  Charge=0.0D0
+    Logical:: NoPair=.False.
+    Logical:: SODK  =.False.
+    Logical:: pChrg =.False.
+    Logical:: Fixed =.False.
+    Real*8::  CrRep=0.0D0
+    Real*8::  FragCharge=0.0D0
+    Real*8::  aCD_Thr=1.0D0
+    Real*8::  fmass=1.0D0
+    Real*8::  CntMass=0.0D0
+    Real*8::  ExpNuc =-1.0D0
+    Real*8::  w_mGauss =1.0D0
+    Character(LEN=80) :: Bsl
+    Character(LEN=80) :: Bsl_Old
 End Type Distinct_Basis_set_centers
 !
 !     nExp  : number of exponents of the i''th shell
@@ -128,13 +144,18 @@ End Type Shell_Info
 !
 !     Actual content of Basis_Info
 !
+Integer, Parameter :: Point_Charge  = 0
+Integer, Parameter :: Gaussian_type = 1
+Integer, Parameter :: mGaussian_Type= 2
+
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =27, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =33, mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
+Integer :: Nuclear_Model=Point_Charge
 
-Type (Distinct_Basis_set_centers) , Allocatable:: dbsc(:)
+Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -191,8 +212,12 @@ Subroutine Basis_Info_Init()
 If (Initiated) Return
 If (nCnttp.eq.0) Then
    Allocate(dbsc(1:Mxdbsc))
+   dbsc(1:Mxdbsc)%Bsl=""        ! I could not get this to work at the point of declaring the member.
+   dbsc(1:Mxdbsc)%Bsl_Old=""
 Else
    Allocate(dbsc(1:nCnttp))
+   dbsc(1:nCnttp)%Bsl=""
+   dbsc(1:nCnttp)%Bsl_Old=""
 End If
 If (Max_Shells.eq.0) Then
    Allocate(Shells(1:MxShll))
@@ -208,10 +233,11 @@ End Subroutine Basis_Info_Init
 !
 Subroutine Basis_Info_Dmp()
 !
-Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis
+Integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis, lcDmp
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
+Character(LEN=160), Allocatable:: cDmp(:)
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Dmp'
 Do i = 1, nCnttp
@@ -258,7 +284,20 @@ Do i = 1, nCnttp
    iDmp(25,i) = dbsc(i)%iPP
    iDmp(26,i) = dbsc(i)%nPP
    iDmp(27,i) = dbsc(i)%nShells
-   nAtoms=nAtoms+dbsc(i)%nCntr
+   iDmp(28,i) = dbsc(i)%AtmNr
+   iDmp(29,i) = 0
+   If (dbsc(i)%NoPair)iDmp(29,i)=1
+   iDmp(30,i) = 0
+   If (dbsc(i)%SODk  )iDmp(30,i)=1
+   iDmp(31,i) = 0
+   If (dbsc(i)%pChrg )iDmp(31,i)=1
+   iDmp(32,i) = 0
+   If (dbsc(i)%Fixed )iDmp(32,i)=1
+   iDmp(33,i) = 0
+   If (dbsc(i)%lPAM2 )iDmp(33,i)=1
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      nAtoms=nAtoms+dbsc(i)%nCntr
+   End If
    nFragCoor=Max(0,dbsc(i)%nFragCoor)  ! Fix the misuse in FragExpand
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
@@ -282,6 +321,7 @@ iDmp(1,nCnttp+1)=nFrag_LineWords
 iDmp(2,nCnttp+1)=nCnttp
 iDmp(3,nCnttp+1)=iCnttp_Dummy
 iDmp(4,nCnttp+1)=Max_Shells
+iDmp(5,nCnttp+1)=Nuclear_Model
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -320,18 +360,30 @@ End Do
 Call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
 Call mma_deallocate(iDmp)
 !
-!**********************************************************************
+!    Real*8 Stuff
 !
-!**********************************************************************
-!
-Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
+Call mma_allocate(rDmp,3,nAtoms+3*nCnttp,Label='rDmp')
 nAtoms = 0
 Do i = 1, nCnttp
 !  Call RecPrt('dbsc(i)%Coor',' ',dbsc(i)%Coor(1,1),3,dbsc(i)%nCntr)
-   Do j = 1, dbsc(i)%nCntr
-      nAtoms=nAtoms+1
-      rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
-   End Do
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      Do j = 1, dbsc(i)%nCntr
+         nAtoms=nAtoms+1
+         rDmp(1:3,nAtoms)=dbsc(i)%Coor(1:3,j)
+      End Do
+   End If
+   nAtoms=nAtoms+1
+   rDmp(1,nAtoms)=dbsc(i)%Charge
+   rDmp(2,nAtoms)=dbsc(i)%CrRep
+   rDmp(3,nAtoms)=dbsc(i)%FragCharge
+   nAtoms=nAtoms+1
+   rDmp(1,nAtoms)=dbsc(i)%aCD_Thr
+   rDmp(2,nAtoms)=dbsc(i)%fMass
+   rDmp(3,nAtoms)=dbsc(i)%CntMass
+   nAtoms=nAtoms+1
+   rDmp(1,nAtoms)=dbsc(i)%ExpNuc
+   rDmp(2,nAtoms)=dbsc(i)%w_mGauss
+   rDmp(3,nAtoms)=0.0D0
 End Do
 Call Put_dArray('rDmp',rDmp,3*nAtoms)
 Call mma_deallocate(rDmp)
@@ -434,6 +486,18 @@ If (nAux2.gt.0) Then
    Call Put_dArray('rDmp:S',rDmp,nAux2)
    Call mma_deallocate(rDmp)
 End If
+!
+!  Character Stuff
+!
+Call mma_allocate(cDmp,nCnttp,Label='cDmp')
+Do i = 1, nCnttp
+   cDmp(i)(1:80)  =dbsc(i)%Bsl
+   cDmp(i)(81:160)=dbsc(i)%Bsl_Old
+End Do
+lcDmp=160*nCnttp
+Call Put_cArray('cDmp',cDmp(1),lcDmp)
+Call mma_deallocate(cDmp)
+
 Return
 End Subroutine Basis_Info_Dmp
 !
@@ -445,11 +509,11 @@ Subroutine Basis_Info_Get()
 Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:), pDmp(:)
+Character(LEN=160), Allocatable:: cDmp(:)
 Logical Found
-Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2
+Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
 #ifdef _DEBUG_
-Write (6,*) 'Basis_Info_Get()'
 #endif
 Call qpg_iArray('iDmp',Found,Len)
 Len2=Len/nFields
@@ -464,6 +528,7 @@ nFrag_LineWords=iDmp(1,Len2)
 nCnttp         =iDmp(2,Len2)
 iCnttp_Dummy   =iDmp(3,Len2)
 Max_Shells     =iDmp(4,Len2)
+Nuclear_Model  =iDmp(5,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells
@@ -498,6 +563,12 @@ Do i = 1, nCnttp
    dbsc(i)%iPP          = iDmp(25,i)
    dbsc(i)%nPP          = iDmp(26,i)
    dbsc(i)%nShells      = iDmp(27,i)
+   dbsc(i)%AtmNr        = iDmp(28,i)
+   dbsc(i)%NoPair       = iDmp(29,i).eq.1
+   dbsc(i)%SODK         = iDmp(30,i).eq.1
+   dbsc(i)%pChrg        = iDmp(31,i).eq.1
+   dbsc(i)%Fixed        = iDmp(32,i).eq.1
+   dbsc(i)%lPAM2        = iDmp(33,i).eq.1
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
@@ -555,13 +626,30 @@ Call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
 Call Get_dArray('rDmp',rDmp,3*nAtoms)
 nAtoms = 0
 Do i = 1, nCnttp
-   If (.Not.Allocated(dbsc(i)%Coor)) Then
-      Call mma_Allocate(dbsc(i)%Coor,3,dbsc(i)%nCntr,Label='dbsc:C')
-   End If
-   Do j = 1, dbsc(i)%nCntr
-      nAtoms=nAtoms+1
-      dbsc(i)%Coor(1:3,j)=rDmp(1:3,nAtoms)
-   End Do
+   If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+      If (dbsc(i)%nCntr.gt.0) Then
+         Call mma_Allocate(dbsc(i)%Coor_Hidden,3,dbsc(i)%nCntr,Label='dbsc:C')
+         dbsc(i)%Coor => dbsc(i)%Coor_Hidden(:,:)
+      End If
+      Do j = 1, dbsc(i)%nCntr
+         nAtoms=nAtoms+1
+         dbsc(i)%Coor(1:3,j)=rDmp(1:3,nAtoms)
+      End Do
+   Else
+      j=dbsc(i)%Parent_iCnttp
+      dbsc(i)%Coor => dbsc(j)%Coor(1:3,1:dbsc(j)%nCntr)
+    End If
+   nAtoms=nAtoms+1
+   dbsc(i)%Charge    =rDmp(1,nAtoms)
+   dbsc(i)%CrRep     =rDmp(2,nAtoms)
+   dbsc(i)%FragCharge=rDmp(3,nAtoms)
+   nAtoms=nAtoms+1
+   dbsc(i)%aCD_Thr   =rDmp(1,nAtoms)
+   dbsc(i)%fMass     =rDmp(2,nAtoms)
+   dbsc(i)%CntMass   =rDmp(3,nAtoms)
+   nAtoms=nAtoms+1
+   dbsc(i)%ExpNuc    =rDmp(1,nAtoms)
+   dbsc(i)%w_mGauss  =rDmp(2,nAtoms)
 End Do
 Call mma_deallocate(rDmp)
 !
@@ -692,6 +780,17 @@ If (nAux2.gt.0) Then
    End Do
    Call mma_deallocate(rDmp)
 End If
+!
+!  Character stuff
+!
+Call mma_allocate(cDmp,nCnttp,Label='cDmp')
+lcDmp=160*nCnttp
+Call Get_cArray('cDmp',cDmp(1),lcDmp)
+Do i = 1, nCnttp
+   dbsc(i)%Bsl    =cDmp(i)(1:80)
+   dbsc(i)%Bsl_Old=cDmp(i)(81:160)
+End Do
+Call mma_deallocate(cDmp)
 #ifdef _DEBUG_
 Write (6,*) 'Basis_Info_Get'
 Do i = 1, nCnttp
@@ -718,8 +817,13 @@ Do i = 1, nCnttp
 !
 !  Molecular Coordinates
 !
-   If (allocated(dbsc(i)%Coor)) Call mma_deallocate(dbsc(i)%Coor)
-   dbsc(i)%nCntr=-1
+   If (dbsc(i)%nCntr.gt.0) Then
+       If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
+          Call mma_deallocate(dbsc(i)%Coor_Hidden)
+       End If
+       Nullify(dbsc(i)%Coor)
+       dbsc(i)%nCntr=0
+   End If
 !
 !  ECP stuff
 !

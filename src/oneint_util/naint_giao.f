@@ -141,7 +141,7 @@
 *
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (Charge(kCnttp).eq.Zero) Go To 111
+         If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
@@ -172,7 +172,7 @@
                nT=nZeta
                If (Nuclear_Model.eq.Gaussian_Type) Then
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
@@ -224,7 +224,7 @@
 *
                If (Nuclear_Model.eq.Gaussian_Type) Then
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
@@ -266,7 +266,7 @@
 *
                nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                Call SymAdO(Array(ipEFInt),nZeta,la,lb,nComp,Final,nIC,
-     &                     nOp         ,lOper,iChO,-Fact*Charge(kCnttp))
+     &                     nOp,lOper,iChO,-Fact*dbsc(kCnttp)%Charge)
 *
  102        Continue
  101     Continue

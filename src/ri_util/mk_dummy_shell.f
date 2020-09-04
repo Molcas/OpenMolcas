@@ -39,16 +39,9 @@
       dbsc(nCnttp)%nVal = 1
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *
-      Bsl(nCnttp)='.....RI_Dummy'
-      Charge(nCnttp)=Zero
-      iAtmNr(nCnttp)=1
+      dbsc(nCnttp)%Bsl='.....RI_Dummy'
+      dbsc(nCnttp)%AtmNr=1
       dbsc(nCnttp)%Aux=.True.
-      aCD_Thr(nCnttp)=One
-      NoPairL(nCnttp)=.False.
-      CrRep(nCnttp)=Zero
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
-      dbsc(nCnttp)%Parent_iCnttp = 0
 *
       nPrim=1
       nCntrc=1
@@ -85,7 +78,8 @@
       dbsc(nCnttp)%mdci=mdc
       LblCnt(mdc+nCnt) = 'Origin'
       If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      Call mma_allocate(dbsc(nCnttp)%Coor,3,1,Label='dbsc:C')
+      Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,Label='dbsc:C')
+      dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
       dbsc(nCnttp)%Coor(1:3,1:1)=Zero
       dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt
@@ -96,12 +90,13 @@
       Max_Shells=Mx_Shll
       Mx_mdc=mdc
 *
+      If (iCnttp_Dummy.ne.0) Then
+         Write (6,*) 'Mk_dummy_shell: iCnttp_Dummy'
+         Call Abend()
+      End If
       iCnttp_Dummy=nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Info)
-*
       End

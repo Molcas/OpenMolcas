@@ -70,7 +70,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Alaska_banner()
+*     Call Alaska_banner()
       npelem=3
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
@@ -365,7 +365,7 @@
 *
 *        Skip gradients for pseudo atoms
 *
-         If (pChrg(iCnttp).or.dbsc(iCnttp)%nFragType.gt.0.or.
+         If (dbsc(iCnttp)%pChrg.or.dbsc(iCnttp)%nFragType.gt.0.or.
      &       dbsc(iCnttp)%Frag) Then
             mdc=mdc+dbsc(iCnttp)%nCntr
          Else

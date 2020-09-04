@@ -22,6 +22,7 @@
             the spin-orbit interaction. As a starting point it uses the results
             of a RASSI calculation for the ground and several excited spin-orbital
             multiplets.
+
             The following quantities can be computed:
 
             1. Parameters of pseudospin magnetic Hamiltonians:
@@ -260,8 +261,10 @@ Mandatory keywords defining the calculation
               <HELP>
               This keyword defines several important parameters of the calculation. On the
               first line after the keyword the program reads 2 values:
+
               1) the number of types of different magnetic centers (NON-EQ) of the cluster and
               2) a letter "T" or "F" in the second position of the same line.
+
               The number of NON-EQ is the total number of magnetic centers of the cluster
               which cannot be related by point group symmetry.
               In the second position the answer to the question: "Have all NON-EQ centers been computed ab initio?"

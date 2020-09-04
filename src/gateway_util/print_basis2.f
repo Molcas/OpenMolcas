@@ -64,7 +64,7 @@
          If(output) then
             Write (LuWr,*)
             Write (LuWr,*)
-            Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
+            Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
          End If
          iShSrt = dbsc(iCnttp)%iVal
 *        Loop over distinct centers
@@ -172,11 +172,11 @@
          Write (LuWr,'(19X,A)')
      &         ' *************************************************'
          Do iCnttp=1,nCnttp
-         If (PAM2(iCnttp)) Then
+         If (dbsc(iCnttp)%lPAM2) Then
 *            If (iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)
-            Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
+            Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
             If (dbsc(iCnttp)%nPAM2.ne.-1) Then
                Write (LuWr,*)
                Write (LuWr,*) 'Angular momentum of PAM operator: ',
@@ -241,7 +241,7 @@ Cend
          If (dbsc(iCnttp)%nPP.ne.0 .and. iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)
-            Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
+            Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
             Write (LuWr,*)
             Write (LuWr,'(A)') ' Pseudo Potential'
             Write (LuWr,*)
@@ -279,7 +279,7 @@ Cend
             If (iPrint.ge.10) Then
                Write (LuWr,*)
                Write (LuWr,*)
-               Write (LuWr,'(A,A)') ' Basis set:',Bsl(iCnttp)
+               Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
 *
                If (dbsc(iCnttp)%nM1.ne.0) Then
                   Write (LuWr,*)

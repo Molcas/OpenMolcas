@@ -19,16 +19,15 @@ H  0.000000000 -2.474374550  0.000000000
   Group = NoSym
   RICD
 
+>>> Copy init.orb $Project.ScfOrb
 
 >>> Do While
 
 &SEWARD
 
 &SCF
-  FILE=$Project.ScfOrb
   KSDFT=B3LYP
-Threshold=1.0D-10, 1.0D-5, 1.0D-5, 0.2D-5
-
+  Threshold=1.0D-10, 1.0D-5, 1.0D-5, 0.2D-5
 
 &Alaska
   CUTOFF=1.0D-8
@@ -39,7 +38,8 @@ Threshold=1.0D-10, 1.0D-5, 1.0D-5, 0.2D-5
   Iteration=7
 
 >>> End Do
->>FILE $Project.ScfOrb
+
+>>FILE init.orb
 #INPORB 2.2
 #INFO
 * RKS-DFT orbitals / B3LYP

@@ -196,7 +196,7 @@
                      JfGrad(iCar+1,3) = .False.
                      iCmp = 2**iCar
                      If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &                    .Not.pChrg(kCnttp) ) Then
+     &                    .Not.dbsc(kCnttp)%pChrg ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
 *--------------------------Reset flags for the basis set centers so that
@@ -294,7 +294,7 @@
 *-----------------Combine the cartesian components to the full one
 *                 electron integral gradient.
 *
-                  Factor = -Charge(kCnttp)*dbsc(kCnttp)%M2cf(iM2xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   Call CmbnM2(Array(ipQxyz),nZeta,la,lb,
      &                        Array(ipZ),Array(ipK),Final,
