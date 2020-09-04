@@ -11,9 +11,9 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng, BLine,Ref,
-     &                 UnNorm,nDel,LuRd,BasisTypes,
-     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+     &                 ExtBasDir)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -37,9 +37,9 @@
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character*80 BSLbl, BLine, Ref(2), MPLbl*20,
+      Character(LEN=80) BSLbl, Ref(2), MPLbl*20,
      &             Filenm, Atom, Type
-      Character*256 DirName
+      Character(LEN=256) DirName
 *
       Character Basis_Lib*256, Filename*263, DefNm*13
       Integer StrnLn
@@ -73,13 +73,11 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,iShll,BLine,nProj,UnNorm,nCnttp)
+         SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
          Integer lUnit
          Integer iShll
-         Character*(*) BLine
          Integer nProj
          Logical UnNorm
-         Integer nCnttp
          End SubRoutine GetECP
          Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
          Character*(*) Title
@@ -170,8 +168,8 @@
          Call Decode(BSLbl,atom,1,Hit)
          dbsc(nCnttp)%AtmNr=Lbl2Nr(atom)
          lUnit=LuRd
-         Ref(1) = BLine
-         Ref(2) = BLine
+         Ref(1) = ''
+         Ref(2) = ''
          Hit=.True.
          Call Decode(BSLBl(1:80),type,2,Hit)
          Basis_Lib=' '
@@ -608,7 +606,7 @@
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
          dbsc(nCnttp)%iPrj=iShll+1
-         Call GetECP(lUnit,iShll,Bline,nProj,UnNorm,nCnttp)
+         Call GetECP(lUnit,iShll,nProj,UnNorm)
          dbsc(nCnttp)%nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then

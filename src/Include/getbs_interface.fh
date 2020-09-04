@@ -11,17 +11,17 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Interface
-      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,BLine,Ref,UnNorm,nDel,
-     &                 LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
      &                 ExtBasDir)
 #include "Molcas.fh"
       Character*(*) DDname
-      Character*80  BSLbl
+      Character(LEN=80)  BSLbl
       Integer       iShll, MxAng
-      Character*80  BLine, Ref(2)
+      Character(LEN=80)  Ref(2)
       Logical       UnNorm
       Integer       nDel(0:MxAng), LuRd, BasisTypes(4)
-      Character*180 STDINP(MxAtom*2)
+      Character(LEN=180) STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir
       End SubRoutine GetBS

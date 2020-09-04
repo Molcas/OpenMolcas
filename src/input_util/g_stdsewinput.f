@@ -145,7 +145,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng, BLine,Ref,UnNorm,
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,
      &           nDel,LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp

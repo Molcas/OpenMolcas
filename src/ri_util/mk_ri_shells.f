@@ -162,9 +162,8 @@
 *
          jShll = iShll
          dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
-         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
-     &              nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,
-     &              ' ')
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,nDel,
+     &              LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          dbsc(nCnttp)%Aux=.True.
          dbsc(nCnttp)%Charge=Zero
