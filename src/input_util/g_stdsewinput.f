@@ -170,10 +170,10 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          End Do
       End If
       If (Show.and.nPrint(2).ge.6 .and.
-     &   Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.BLine) Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.BLine) Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
          Write (LuWr,*)
          Write (LuWr,*)
       End If

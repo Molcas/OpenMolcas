@@ -160,7 +160,6 @@
 *     KVector: the k-vector of the EMFR                                *
 *                                                                      *
 * -> Character <-                                                      *
-*     BLine : blank line                                               *
 *     lIrrep: label of the i''th irrep                                 *
 *     lBsFnc: label of the basis functions of the i''th irrep          *
 *     LblCnt: label of the i''th unique center                         *
@@ -287,7 +286,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Character BLine*80, lIrrep(0:7)*3, lBsFnc(0:7)*80
+      Character lIrrep(0:7)*3, lBsFnc(0:7)*80
       Character*(LENIN4) LblCnt(Mxdc)
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
@@ -295,7 +294,7 @@
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               LblCBs, LblSBs, Title,BLine, lIrrep, lBsFnc,
+     &               LblCBs, LblSBs, Title, lIrrep, lBsFnc,
      &               LblCnt, SW_FileOrb, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *

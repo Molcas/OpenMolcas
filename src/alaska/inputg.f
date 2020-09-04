@@ -139,7 +139,7 @@ c      nprint(26)=99
       KWord = Key
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord.eq.'')       Go To 998
       If (KWord(1:4).eq.'VERB') Go To 912
       If (KWord(1:4).eq.'PRIN') Go To 930
       If (KWord(1:4).eq.'EQUI') Go To 935
@@ -192,12 +192,12 @@ c      nprint(26)=99
 *
  930  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 930
-      If (KWord.eq.BLine)    Go To 930
+      If (KWord.eq.'')    Go To 930
       Read(KWord,*,Err=988) n
       Do 931 i = 1, n
  9301    Read(LuSpool,'(A)',Err=988) KWord
          If (KWord(1:1).eq.'*') Go To 9301
-         If (KWord.eq.BLine)    Go To 9301
+         If (KWord.eq.'')    Go To 9301
          Read(KWord,*,Err=988) jRout, iPrint
          nPrint(jRout)=iPrint
  931  Continue
@@ -216,12 +216,12 @@ c      nprint(26)=99
       lEq=.True.
  936  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 936
-      If (KWord.eq.BLine)    Go To 936
+      If (KWord.eq.'')    Go To 936
       Read(KWord,*) nGroup
       Do 937 iGroup = 1, nGroup
  938     Read(LuSpool,'(A)',Err=988) KWord
          If (KWord(1:1).eq.'*') Go To 938
-         If (KWord.eq.BLine)    Go To 938
+         If (KWord.eq.'')    Go To 938
          Read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
          Do 939 iElem=2,nElem
             IndxEq(iTemp(iElem)) = iTemp(1)
@@ -236,7 +236,7 @@ c      nprint(26)=99
 *
  942  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 942
-      If (KWord.eq.BLine)    Go To 942
+      If (KWord.eq.'')    Go To 942
       Read(KWord,*,Err=988) CutGrd
       CutGrd = Abs(CutGrd)
       Go To 998
@@ -247,7 +247,7 @@ c      nprint(26)=99
 *
  951  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 951
-      If (KWord.eq.BLine)    Go To 951
+      If (KWord.eq.'')    Go To 951
       Read(KWord,*,Err=988) MemHid
       If (MemHid.le.0) MemHid = 1
       Go To 998
@@ -285,12 +285,12 @@ c      nprint(26)=99
  961  Continue
  962  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 962
-      If (KWord.eq.BLine)    Go To 962
+      If (KWord.eq.'')    Go To 962
       Read(KWord,*) nSlct
 *
  963  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 963
-      If (KWord.eq.BLine)    Go To 963
+      If (KWord.eq.'')    Go To 963
       Read(KWord,*) (iTemp(iElem),iElem=1,nSlct)
       Do 964 iElem=1,nSlct
          Direct(iTemp(iElem)) = .True.
@@ -412,7 +412,7 @@ c      nprint(26)=99
 *
  973  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 973
-      If (KWord.eq.BLine)    Go To 973
+      If (KWord.eq.'')    Go To 973
       Call UpCase(KWord)
       Call LeftAd(KWord)
       Read(KWord,'(A)') OFE_KSDFT
@@ -433,7 +433,7 @@ c      nprint(26)=99
 *
  975  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 975
-      If (KWord.eq.BLine)    Go To 975
+      If (KWord.eq.'')    Go To 975
       Read(KWord,*) dFMD, Xsigma
       Go To 998
 *                                                                      *
@@ -444,7 +444,7 @@ c      nprint(26)=99
 *
  976  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 976
-      If (KWord.eq.BLine)    Go To 976
+      If (KWord.eq.'')    Go To 976
       Read(KWord,*) iRoot
       Go To 998
 *                                                                      *
@@ -456,7 +456,7 @@ c      nprint(26)=99
  977  Read(LuSpool,'(A)',Err=988) KWord
       isNAC=.True.
       If (KWord(1:1).eq.'*') Go To 977
-      If (KWord.eq.BLine)    Go To 977
+      If (KWord.eq.'')    Go To 977
       Read(KWord,*) NACstates(1),NACstates(2)
       Go To 998
 *                                                                      *

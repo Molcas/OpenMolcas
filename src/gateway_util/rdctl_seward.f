@@ -384,7 +384,7 @@ cperiod
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
       If (KWord(1:1).eq.'*') Go To 998
-      If (KWord.eq.BLine)    Go To 998
+      If (KWord.eq.'')    Go To 998
       If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
@@ -810,7 +810,8 @@ c     Call Quit_OnUserError()
       nc = 80-(i2-i1+1)
       nc2=nc/2
       nc3=(nc+1)/2
-      Title(nTtl)=BLine(1:nc2)//Key(i1:i2)//BLine(1:nc3)
+      Title(nTtl)=''
+      Title(nTtl)(nc2+1:nc2+i2-i1+1)=Key(i1:i2)
       Go To 9988
 *                                                                      *
 ****** ECPS **** or ****** AUXS ****************************************
@@ -1215,10 +1216,10 @@ c Simplistic validity check for value
          End Do
       End If
       If (Show.and.nPrint(2).ge.6 .and.
-     &   Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.BLine) Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.BLine) Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
          Write (LuWr,*)
          Write (LuWr,*)
       End If

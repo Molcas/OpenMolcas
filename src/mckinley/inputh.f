@@ -98,7 +98,7 @@ c      EndIf
       KWord = Key
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord.eq.'')       Go To 998
 *     If (KWord(1:4).eq.'EQUI') Go To 935
 *     If (KWord(1:4).eq.'MEMO') Go To 951
 *     If (KWord(1:4).eq.'NOTR') Go To 952
@@ -143,7 +143,7 @@ c      EndIf
 *
 975   Read(5,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 975
-      If (KWord.eq.BLine)    Go To 975
+      If (KWord.eq.'')    Go To 975
       Call UpCase(KWord)
       Lab=KWORD(1:4)
       If (KWORD(1:4).eq.'HESS') Then
@@ -167,12 +167,12 @@ c      EndIf
 *     lEq=.True.
 *936  Read(5,'(A)',Err=988) KWord
 *     If (KWord(1:1).eq.'*') Go To 936
-*     If (KWord.eq.BLine)    Go To 936
+*     If (KWord.eq.'')    Go To 936
 *     Read(KWord,*) nGroup
 *     Do 937 iGroup = 1, nGroup
 *938     Read(5,'(A)',Err=988) KWord
 *        If (KWord(1:1).eq.'*') Go To 938
-*        If (KWord.eq.BLine)    Go To 938
+*        If (KWord.eq.'')    Go To 938
 *        Read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
 *        Do 939 iElem=2,nElem
 *           IndxEq(iTemp(iElem)) = iTemp(1)
@@ -187,7 +187,7 @@ c      EndIf
 *
  942  Read(5,*) Cutint
 *     If (KWord(1:1).eq.'*') Go To 942
-*     If (KWord.eq.BLine)    Go To 942
+*     If (KWord.eq.'')    Go To 942
 *     Read(KWord,*,Err=988) CutInt
       CutInt = Abs(CutInt)
       Go To 998
@@ -198,7 +198,7 @@ c      EndIf
 *
 *951  Read(5,'(A)',Err=988) KWord
 *     If (KWord(1:1).eq.'*') Go To 951
-*     If (KWord.eq.BLine)    Go To 951
+*     If (KWord.eq.'')    Go To 951
 *     Read(KWord,*,Err=988) MemHid
 *     If (MemHid.le.0) MemHid = 1
 *     Go To 998
@@ -222,7 +222,7 @@ c      EndIf
 *962  Continue
       Read(5,*) nslct
 *     If (KWord(1:1).eq.'*') Go To 962
-*     If (KWord.eq.BLine)    Go To 962
+*     If (KWord.eq.'')    Go To 962
 *     Read(KWord,*) nSlct
 *
       Read(5,*) (iTemp(iElem),iElem=1,nSlct)
