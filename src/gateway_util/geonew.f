@@ -109,21 +109,6 @@
          End If
       End Do
  999  Continue
-*
-*     Now put in the updated coordinates for the RI/CD basis too, note
-*     they are pick up from the parent valence basis set.
-*
-      Do kCnttp = 1, nCnttp
-         If (dbsc(kCnttp)%Aux) Then
-            iCnttp=dbsc(kCnttp)%Parent_iCnttp
-            If (iCnttp.ne.0)
-     &         dbsc(kCnttp)%Coor(:,:)=dbsc(iCnttp)%Coor(:,:)
-         End If
-      End Do
-*     Do iCnttp = 1, nCnttp
-*        Call RecPrt('dbsc(iCnttp)%Coor',' ',dbsc(iCnttp)%Coor(1,1),
-*    &               3,dbsc(iCnttp)%nCntr)
-*     End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
