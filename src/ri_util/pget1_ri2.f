@@ -458,7 +458,9 @@
                      temp=CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+
      &                             V_K(lSOl,2)*V_K(jSOj,1)+
      &                             V_K(lSOl,3)*V_K(jSOj,4)+
-     &                             V_K(lSOl,4)*V_K(jSOj,3))
+     &                             V_K(lSOl,4)*V_K(jSOj,3)+
+     &                             V_K(lSOl,1)*V_K(jSOj,5)+
+     &                             V_K(lSOl,5)*V_K(jSOj,1))
                      temp = temp - ExFac*Work(ip_A+nijkl-1)
 *
 *----- Active space contribution
