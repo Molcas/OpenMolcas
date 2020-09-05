@@ -75,13 +75,23 @@ Contains
 !     run file.
 !
 Subroutine Center_Info_Init()
-If (Initiated) Return
+If (Initiated) Then
+   Write (6,*) 'Center_Info already initiated!'
+   Write (6,*) 'May the is a missing call to Center_Info_Free.'
+   Call Abend()
+End If
+#ifdef _DEBUG_
+Write (6,*) 'Enter Center_Info_Init'
+#endif
 If (n_dc.eq.0) Then
    Allocate(dc(1:MxAtom))
 Else
    Allocate(dc(1:n_dc))
 End If
 Initiated=.True.
+#ifdef _DEBUG_
+Write (6,*) 'Exit Center_Info_Init'
+#endif
 Return
 End Subroutine Center_Info_Init
 !
@@ -96,12 +106,19 @@ Character(LEN=1), Allocatable:: cDmp(:)
 !
 !     Integer dc stuff
 !
+#ifdef _DEBUG_
+Write (6,*) 'Enter Center_Info_Dmp'
+Write (6,*) 'n_dc=',n_dc
+#endif
 Call mma_Allocate(iDmp,1,Label='iDmp')
 iDmp(1)=n_dc
 Call Put_iArray('icDmp',iDmp,1)
 Call mma_deallocate(iDmp)
 
 lcDmp=n_dc*LENIN4
+#ifdef _DEBUG_
+Write (6,*) 'lcDmp=',n_dc
+#endif
 Call mma_allocate(cDmp,lcDmp,Label='cDmp')
 k = 0
 Do i = 1, n_dc
@@ -110,8 +127,14 @@ Do i = 1, n_dc
    End Do
    k = k + LENIN4
 End Do
-Call Put_cArray('dc: cDmp',cDmp,lcDmp)
+#ifdef _DEBUG_
+Write (6,*) 'cDmp=',cDmp(1:lcDmp)
+#endif
+Call Put_cArray('dc: cDmp',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
+#ifdef _DEBUG_
+Write (6,*) 'Exit Center_Info_Dmp'
+#endif
 Return
 End Subroutine Center_Info_Dmp
 !
@@ -125,6 +148,9 @@ Character(LEN=1), Allocatable:: cDmp(:)
 Logical Found
 Integer i, j, k, Len,lcDmp
 
+#ifdef _DEBUG_
+Write (6,*) 'Enter Center_Info_Get'
+#endif
 Call qpg_iArray('icDmp',Found,Len)
 Call mma_Allocate(iDmp,Len,Label='iDmp')
 If (Found) Then
@@ -136,6 +162,11 @@ End If
 n_dc=iDmp(1)
 Call mma_deAllocate(iDmp)
 lcDmp=n_dc*LENIN4
+#ifdef _DEBUG_
+Write (6,*) 'Len=',Len
+Write (6,*) 'n_dc=',n_dc
+Write (6,*) 'lcDmp=',lcDmp
+#endif
 !
 !     Initiate the memory allocation of dc
 !
@@ -147,7 +178,10 @@ If (Len/=lcDmp) Then
    Call Abend()
 End If
 Call mma_Allocate(cDmp,lcDmp,Label='cDmp')
-Call Get_cArray('dc: cDmp',cDmp,lcDmp)
+Call Get_cArray('dc: cDmp',cDmp(1),lcDmp)
+#ifdef _DEBUG_
+Write (6,*) 'cDmp=',cDmp(1:lcDmp)
+#endif
 k=0
 Do i = 1, n_dc
    Do j = 1, LENIN4
@@ -156,6 +190,9 @@ Do i = 1, n_dc
    k = k + LENIN4
 End Do
 Call mma_deAllocate(cDmp)
+#ifdef _DEBUG_
+Write (6,*) 'Exit Center_Info_Get'
+#endif
 !
 End Subroutine Center_Info_Get
 !
@@ -166,10 +203,17 @@ Subroutine Center_Info_Free()
 !
 !     Deallocate all allocatable parts of dc.
 !
+If (.Not.Allocated(dc)) Return
+#ifdef _DEBUG_
+Write (6,*) 'Enter Center_Info_Free'
+#endif
 Deallocate(dc)
 n_dc=0
 Initiated=.False.
 !
+#ifdef _DEBUG_
+Write (6,*) 'Exit Center_Info_Free'
+#endif
 Return
 End Subroutine Center_Info_Free
 !

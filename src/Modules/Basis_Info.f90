@@ -209,7 +209,11 @@ Contains
 !     run file.
 !
 Subroutine Basis_Info_Init()
-If (Initiated) Return
+If (Initiated) Then
+   Write (6,*) ' Basis_Info already initiated!'
+   Write (6,*) ' Maybe there is missing a Basis_Info_Free call.'
+   Call Abend()
+End If
 If (nCnttp.eq.0) Then
    Allocate(dbsc(1:Mxdbsc))
    dbsc(1:Mxdbsc)%Bsl=""        ! I could not get this to work at the point of declaring the member.
