@@ -26,9 +26,9 @@ Public :: dc, n_dc, Center_Info_Init, Center_Info_Dmp, Center_Info_Get, Center_I
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 Type Distinct_centers
-    Sequence
-    Character(LEN=LENIN4):: LblCnt=''
+!   Sequence
     Integer :: iChCnt
+    Character(LEN=LENIN4):: LblCnt=''
 End Type Distinct_centers
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -39,7 +39,7 @@ End Type Distinct_centers
 Integer, Parameter:: nFields=1
 Logical :: Initiated = .FALSE.
 Integer :: n_dc=0
-Type (Distinct_centers) , Allocatable:: dc(:)
+Type (Distinct_centers), Allocatable:: dc(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !

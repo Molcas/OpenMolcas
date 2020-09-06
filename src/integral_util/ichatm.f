@@ -9,24 +9,46 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Function iChAtm(Coor,iOper,nOper,iChCar)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       Integer iChAtm, iOper(0:7), iChCar(3)
       Real*8 Coor(3)
+      Integer iCar, nOper, i, j
 *
+*     iChAtm is an integer function which will return an integer such
+*     that the three first bits will represent the characteristics of
+*     the Cartesian components. If the bit is set then the Cartesian
+*     component will change sign if the symmetry operator contains a
+*     part which operates on that particular Cartesian direction.
+*
+!     Default that none of the Cartesians will change sign.
       iChAtm=0
-      Do 2000 kxyz = 1, 3
-*        Test if component is not zero
-         If (Abs(Coor(kxyz)).lt.1.D-12) Go to 2000
-*------- Loop over the group generators
-         Do 2001 i = 1, nOper
-            j = i
-            If (i.eq.3) j = 4
+!
+!     Loop over the Cartesian components.
+!
+      Do iCar = 1, 3
+!
+*        Test if component is not zero. If zero no operator will change
+!        the sign of the component.
+         If (Abs(Coor(iCar)).lt.1.D-12) Cycle
+*
+*        Here if the Component is none zero.
+*
+*------- Loop over the group generators and check if there is an
+*        operator that will change the sign.
+*
+*        The generators are stored in positions 1, 2, and 4.
+*
+         Do i = 1, nOper  ! skip the unit operator -- i=0
+            j = 2**(i-1)
+*
 *           Test if symoperation will permute component
-            If (iAnd(iOper(j),iChCar(kxyz)).ne.0) Go To 2002
- 2001    Continue
-         Go To 2000
- 2002    iChAtm = iChAtm + 2**(kxyz-1)
- 2000 Continue
+*
+            If (iAnd(iOper(j),iChCar(iCar)).ne.0) Then
+               iChAtm = iChAtm + 2**(iCar-1)
+               Exit
+            End If
+         End Do
+      End Do
 *
       Return
       End
