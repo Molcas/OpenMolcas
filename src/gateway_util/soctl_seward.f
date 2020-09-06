@@ -880,7 +880,7 @@ CSVC: basis IDs of non-symmetric case
 *
          Do 402 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = iCnt + dbsc(iCnttp)%mdci
-            iChxyz=iChCnt(mdc)
+            iChxyz=dc(mdc)%iChCnt
 *
 *           Loop over shells associated with this center
 *           Start with s type shells

@@ -28,6 +28,7 @@ Public :: dc, n_dc, Center_Info_Init, Center_Info_Dmp, Center_Info_Get, Center_I
 Type Distinct_centers
     Sequence
     Character(LEN=LENIN4):: LblCnt=''
+    Integer :: iChCnt
 End Type Distinct_centers
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -35,6 +36,7 @@ End Type Distinct_centers
 !     E N D   D E C L A R E   D E R I V E D   T Y P E S
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Integer, Parameter:: nFields=1
 Logical :: Initiated = .FALSE.
 Integer :: n_dc=0
 Type (Distinct_centers) , Allocatable:: dc(:)
@@ -81,6 +83,7 @@ If (Initiated) Then
    Call Abend()
 End If
 #ifdef _DEBUG_
+Write (6,*)
 Write (6,*) 'Enter Center_Info_Init'
 #endif
 If (n_dc.eq.0) Then
@@ -100,19 +103,24 @@ End Subroutine Center_Info_Init
 !
 Subroutine Center_Info_Dmp()
 !
-Integer i, j, k, lcDmp
+Integer i, j, k, licDmp, lcDmp
 Integer, Allocatable:: iDmp(:)
 Character(LEN=1), Allocatable:: cDmp(:)
 !
 !     Integer dc stuff
 !
 #ifdef _DEBUG_
+Write (6,*)
 Write (6,*) 'Enter Center_Info_Dmp'
 Write (6,*) 'n_dc=',n_dc
 #endif
-Call mma_Allocate(iDmp,1,Label='iDmp')
-iDmp(1)=n_dc
-Call Put_iArray('icDmp',iDmp,1)
+licDmp=n_dc*nFields
+Call mma_Allocate(iDmp,licDmp+1,Label='iDmp')
+Do i = 1, n_dc
+   iDmp(i)=dc(i)%iChCnt
+End Do
+iDmp(licDmp+1)=n_dc
+Call Put_iArray('icDmp',iDmp,licDmp+1)
 Call mma_deallocate(iDmp)
 
 lcDmp=n_dc*LENIN4
@@ -149,6 +157,7 @@ Logical Found
 Integer i, j, k, Len,lcDmp
 
 #ifdef _DEBUG_
+Write (6,*)
 Write (6,*) 'Enter Center_Info_Get'
 #endif
 Call qpg_iArray('icDmp',Found,Len)
@@ -159,18 +168,27 @@ Else
    Write (6,*) 'Center_Info_Get: icDmp not found!'
    Call Abend()
 End If
-n_dc=iDmp(1)
-Call mma_deAllocate(iDmp)
-lcDmp=n_dc*LENIN4
-#ifdef _DEBUG_
-Write (6,*) 'Len=',Len
-Write (6,*) 'n_dc=',n_dc
-Write (6,*) 'lcDmp=',lcDmp
-#endif
+lcDmp=Len-1
+n_dc=lcDmp/nFields
 !
 !     Initiate the memory allocation of dc
 !
 If (.Not.Initiated) Call Center_Info_Init()
+#ifdef _DEBUG_
+Write (6,*) 'iDmp(1:Len)=',iDmp(1:Len)
+Write (6,*) 'Len=',Len
+Write (6,*) 'n_dc=',n_dc
+Write (6,*) 'lcDmp=',lcDmp
+#endif
+Do i = 1, n_dc
+   dc(i)%iChCnt = iDmp(i)
+End Do
+Call mma_deAllocate(iDmp)
+!
+lcDmp=n_dc*LENIN4
+#ifdef _DEBUG_
+Write (6,*) 'lcDmp=',lcDmp
+#endif
 !
 Call qpg_cArray('dc: cDmp',Found,Len)
 If (Len/=lcDmp) Then
@@ -205,6 +223,7 @@ Subroutine Center_Info_Free()
 !
 If (.Not.Allocated(dc)) Return
 #ifdef _DEBUG_
+Write (6,*)
 Write (6,*) 'Enter Center_Info_Free'
 #endif
 Deallocate(dc)

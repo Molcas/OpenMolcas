@@ -4552,7 +4552,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   Write (6,*) 'rdctl_seward: incorrect mdc index'
                   Call Abend()
                End If
-               iChxyz = iChCnt(Abs(dbsc(iCnttp)%nFragCoor))
+               iChxyz = dc(Abs(dbsc(iCnttp)%nFragCoor))%iChCnt
             Else
 *
 *------------- To assign the character of a center we need to find
@@ -4565,7 +4565,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
      &                       iOper,nOper,iChCar)
             End If
-            iChCnt(mdc) = iChxyz
+            dc(mdc)%iChCnt = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
      &                 MaxDCR,iCoSet(0,0,mdc))
 *
