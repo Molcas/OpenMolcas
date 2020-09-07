@@ -91,6 +91,8 @@
 *             be computed                                              *
 *     lOAM  : logical flag to indicate that the orbital angular        *
 *             momentum integrals will be computed                      *
+*     lOAMc : logical flag to indicate that the orbital angular        *
+*             momentum center has been explicitly given                *
 *     lOMQ  : logical flag to indicate that the orbital magnetic       *
 *             quadrupole integrals will be computed                    *
 *     lAMP  : logical flag to indicate that the angular momentum       *
@@ -229,7 +231,7 @@
 ************************************************************************
 *                                                                      *
       Logical   DirInt, Onenly, Petite,
-     &          lSOInt, Test, Vlct, lOAM, lOMQ, lAMP, lAux,
+     &          lSOInt, Test, Vlct, lOAM, lOAMc, lOMQ, lAMP, lAux,
      &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
      &          lSchw, Dist, lAMFI, force_part_p,
      &          lECP, lNOpair, force_part_c, Expert, lXF, BSS,
@@ -246,7 +248,7 @@
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass, lAux,  NEMO,
      &               lPP, LDF, Do_RI, lAMFI,  Onenly, Petite, lSOInt,
-     &               Do_GuessOrb, Test, Vlct, lOAM, lOMQ, lAMP,
+     &               Do_GuessOrb, Test, Vlct, lOAM, lOAMc, lOMQ, lAMP,
      &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
      &               lSchw, Dist, lECP, lXF, lNOpair,
      &               force_part_c, force_part_p, Expert,

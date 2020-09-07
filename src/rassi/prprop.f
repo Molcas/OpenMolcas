@@ -2016,6 +2016,7 @@ C printing threshold
               WRITE(6,35)
              END IF
              WRITE(6,33) ISS,JSS,F
+             Call Add_Info('TMS(SO,2nd)',[F],1,6)
             END IF
            END IF
           END DO
