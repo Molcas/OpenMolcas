@@ -38,6 +38,7 @@
 *             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 ************************************************************************
       use PCM_arrays
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D

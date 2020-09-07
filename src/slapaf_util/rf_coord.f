@@ -15,6 +15,7 @@
      &                 rMult,LuIC,Indq,dMass,iCoSet,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -26,7 +27,7 @@
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
-     &          jStab(0:7,nAtoms), iPhase(3,0:7), nqB(nB),
+     &          jStab(0:7,nAtoms), nqB(nB),
      &          iANr(nAtoms), Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
       Logical Smmtrc(3,nAtoms), Process, PSPrint,
      &        TransVar, RotVar, Proc_dB, Invariant
@@ -40,8 +41,6 @@
       Integer, Dimension(:), Allocatable :: Ind, iDCR
       Dimension dum(1)
       Data TR_type/'Tx ','Ty ','Tz ','Ryz','Rzx','Rxy'/
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       iRout=151
       iPrint=nPrint(iRout)

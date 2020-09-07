@@ -16,6 +16,7 @@
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -25,7 +26,7 @@
      &       fconst(nB), Value(nB,nIter), rMult(nB),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nStab(nAtoms), iOper(0:nSym-1),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+     &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
@@ -41,8 +42,6 @@
 #include "ddvdt.fh"
 #define _SCHLEGEL_
 #include "ddvdt_bond.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 *                                                                      *

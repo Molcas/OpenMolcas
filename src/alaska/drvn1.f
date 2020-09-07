@@ -28,6 +28,7 @@
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
       use Basis_Info
+      use Phase_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
       Implicit Real*8 (A-H,O-Z)

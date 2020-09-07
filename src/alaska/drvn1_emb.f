@@ -21,6 +21,7 @@
 * Author : F. Aquilante, Geneva, Nov 2010                              *
 ************************************************************************
       Use Basis_Info
+      Use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"

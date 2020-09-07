@@ -26,6 +26,7 @@
 *             October 1991                                             *
 ************************************************************************
       use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

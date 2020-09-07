@@ -32,6 +32,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University      *
 *             of Lund, Sweden, September 2002.                         *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

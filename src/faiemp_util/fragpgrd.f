@@ -68,6 +68,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Phase_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"

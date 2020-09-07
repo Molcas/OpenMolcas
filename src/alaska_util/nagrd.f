@@ -32,6 +32,7 @@
 *             October '91                                              *
 ************************************************************************
       Use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     For normal nuclear attraction
       External TNAI1, Fake, Cff2D

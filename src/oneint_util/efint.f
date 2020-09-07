@@ -38,6 +38,7 @@
 *                                                                      *
 * Modified for explicit code, R. Lindh, February '95.                  *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"

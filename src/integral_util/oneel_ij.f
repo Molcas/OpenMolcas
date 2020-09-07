@@ -29,6 +29,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "angtp.fh"

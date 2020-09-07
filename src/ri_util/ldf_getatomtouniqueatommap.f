@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine LDF_GetAtomToUniqueAtomMap(A2UA,nA)
       Use Basis_Info
+      use Phase_Info
 C
 C     Thomas Bondo Pedersen, June 2010.
 C     - based on Print_Geometry by Roland Lindh.

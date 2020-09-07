@@ -37,6 +37,7 @@
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D

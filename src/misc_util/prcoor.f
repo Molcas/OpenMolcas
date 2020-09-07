@@ -14,21 +14,14 @@
 *     purpose: Write coordinates.                                      *
 *                                                                      *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "angstr.fh"
-      Integer iGen(3), iPhase(3,0:7), iCoSet(0:7,0:7), iStab(0:7),
-     &        iOper(0:7)
-c      Real*8 RotVec(3)
-      Character*(LENIN) AtomLbl(MxAtom), Byte4
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
-*----------------------------------------------------------------------*
-*     Prologue                                                         *
-*----------------------------------------------------------------------*
-      Call qEnter('PrCoor')
+      Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
+      Character(LEN=LENIN) AtomLbl(MxAtom), Byte4
 *----------------------------------------------------------------------*
 *     Read no.of symm. species                                         *
 *----------------------------------------------------------------------*
@@ -117,6 +110,5 @@ c      Real*8 RotVec(3)
 *----------------------------------------------------------------------*
 *     Normal exit                                                      *
 *----------------------------------------------------------------------*
-      Call qExit('PrCoor')
       Return
       End

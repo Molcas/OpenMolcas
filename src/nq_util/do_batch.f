@@ -45,6 +45,7 @@
       use iSD_data
       use Real_Spherical
       use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"

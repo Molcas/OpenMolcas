@@ -144,6 +144,7 @@ c----------------------------------------------------------------------
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"

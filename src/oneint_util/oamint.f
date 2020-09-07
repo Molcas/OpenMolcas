@@ -35,6 +35,7 @@
 *             of Lund, Sweden, February '91                            *
 *             Placed restrictions on the differentiation. Lasse '16    *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

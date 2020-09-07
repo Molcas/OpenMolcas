@@ -40,8 +40,6 @@
 *             unique center                                            *
 *     iCoSet: the cosets of the i''th unique center                    *
 *     iSkip : flag to indicate that certain irreps are ignored         *
-*     iPhase: phase factors for the x-, y- and z-component under       *
-*             the symmetry operations.                                 *
 *     iAngMx: higest angular momentum specified in the input           *
 *     iOper : the symmetry operators                                   *
 *     nBas  : number of basis functions in each irrep                  *
@@ -182,7 +180,7 @@
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
       Integer   iChTbl(0:7,0:7), jStab(0:7,Mxdc), nStab(Mxdc),
-     &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),   iPhase(3,0:7),
+     &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
      &          iChBas(MxFnc),   iSphCr(MxFnc), nBas_Aux(0:7),
@@ -197,7 +195,7 @@
       Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
-     &              iChTbl, jStab,   nStab, nBas_Aux, iPhase,
+     &              iChTbl, jStab,   nStab, nBas_Aux,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
      &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,

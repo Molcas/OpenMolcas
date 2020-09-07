@@ -22,6 +22,7 @@
 *              November 2004                                           *
 ************************************************************************
       use External_Centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

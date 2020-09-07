@@ -26,6 +26,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Phase_Info
       use Period
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"

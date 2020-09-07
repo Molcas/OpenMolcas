@@ -47,14 +47,12 @@
       End
       Subroutine Get_Coord_All_(Coord_Unique,nUnique_Atoms,
      &                          Coord_All,nAll_Atoms)
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7),
-     &        iPhase(3,0:7)
+      Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
       Real*8  Coord_Unique(3,nUnique_Atoms),
      &        Coord_All(3,nAll_Atoms)
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       integer is_nSym, nSym
       integer is_iOper, iOper(0:7)
       save is_nSym, is_iOper

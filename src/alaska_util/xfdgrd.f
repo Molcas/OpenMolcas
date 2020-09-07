@@ -30,9 +30,10 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, May '95                                 *
+*             of Lund, Sweden, May 1995                                *
 ************************************************************************
       use external_centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"

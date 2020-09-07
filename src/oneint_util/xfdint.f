@@ -35,6 +35,7 @@
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
       use external_centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"

@@ -75,6 +75,7 @@
 ************************************************************************
 *                                                                      *
       Subroutine Chkpnt_init()
+      use Phase_Info
 #ifdef _HDF5_
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
@@ -82,9 +83,6 @@
       Character :: lIrrep(24)
       Integer :: dsetid, attrid, mAtom, i, j, k
       Real*8, Allocatable :: charges(:)
-      Integer :: iPhase(3,0:7)
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Integer, Allocatable :: desym(:,:), symdof(:,:)
 
       chkpnt_id = mh5_create_file(filename)

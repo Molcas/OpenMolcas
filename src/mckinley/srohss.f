@@ -60,6 +60,7 @@
 ************************************************************************
       use Basis_Info
       use Real_Spherical
+      use Phase_Info
       implicit real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"

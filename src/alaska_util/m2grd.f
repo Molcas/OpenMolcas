@@ -66,6 +66,7 @@
 ************************************************************************
       use Basis_Info
       use Her_RW
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

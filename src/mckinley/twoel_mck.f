@@ -118,6 +118,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
 #include "ndarray.fh"

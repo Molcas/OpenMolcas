@@ -13,6 +13,7 @@
      &                   mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,
      &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,
      &                   rMult)
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -22,11 +23,8 @@
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent),
      &       dB(3,nCent,3,nCent), BM(nB_Tot), dBM(ndB_Tot)
       Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
-     &          iDCRs(nCent), iPhase(3,0:7),
-     &          iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+     &          iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
       Logical Smmtrc(3,nAtoms), Print, Proc_dB
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       If (Print) Then
          Call RecPrt('B',' ',B,3,nCent)
@@ -121,6 +119,7 @@ c Avoid unused argument warnings
       End
       Subroutine ProjSym2(nAtoms,nCent,Ind,nStab,jStab,A,
      &                   iDCRs,B,BqR,Smmtrc,Print,dB,dBqR)
+      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -130,10 +129,8 @@ c Avoid unused argument warnings
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), BqR(3,nAtoms),
      &       dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms)
       Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
-     &          iDCRs(nCent), iPhase(3,0:7)
+     &          iDCRs(nCent)
       Logical Smmtrc(3,nAtoms), Print
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       If (Print) Then
          Call RecPrt('B',' ',B,3,nCent)

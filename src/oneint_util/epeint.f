@@ -34,6 +34,7 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, Cff2D, XRys2D
 #include "real.fh"

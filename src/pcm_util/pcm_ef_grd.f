@@ -11,6 +11,7 @@
       SubRoutine PCM_EF_grd(Grad,nGrad)
       use Basis_Info
       use PCM_arrays
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
 #include "itmax.fh"

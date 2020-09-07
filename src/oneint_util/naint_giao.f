@@ -41,6 +41,7 @@
 * Modified for GIAOs, R. Lindh, June 2002, Tokyo, Japan.               *
 ************************************************************************
       Use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D

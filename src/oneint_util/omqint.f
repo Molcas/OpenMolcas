@@ -34,6 +34,7 @@
 *     Author: Lasse Kragh Soerensen and Roland Lindh  2015             *
 *             Based on OAMInt                                          *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

@@ -11,6 +11,7 @@
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
       use Basis_Info
       use PCM_arrays, only: PCMTess, PCMDM
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"

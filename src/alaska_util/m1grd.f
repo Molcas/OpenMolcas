@@ -62,6 +62,7 @@
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
       use Basis_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"

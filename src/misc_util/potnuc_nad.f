@@ -23,14 +23,10 @@
 #include "angstr.fh"
       Integer nSym, nAtoms
       Real*8  ReCharge(nAtoms)
-      Integer iGen(3), iPhase(3,0:7), iCoSet(0:7,0:7), iStab(0:7),
-     &        iOper(0:7)
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
+      Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
 *----------------------------------------------------------------------*
 *     Prologue                                                         *
 *----------------------------------------------------------------------*
-      Call qEnter('PotNuc_NAD')
 *----------------------------------------------------------------------*
 *     Read symm. oper per symm. species                                *
 *----------------------------------------------------------------------*
@@ -162,6 +158,5 @@
 *----------------------------------------------------------------------*
       Call GetMem('Charge','Free','REAL',lw0,8*nAtoms)
       Call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
-      Call qExit('PotNuc_NAD')
       Return
       End

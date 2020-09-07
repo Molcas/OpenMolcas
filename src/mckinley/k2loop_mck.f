@@ -81,6 +81,7 @@ c Avoid unused argument warnings
 *     This is to allow type punning without an explicit interface
       Contains
       SubRoutine k2Loop_mck_internal(Data)
+      use Phase_Info
       Use Iso_C_Binding
       Real*8, Target :: Data(nAlpha*nBeta*nDArray+nDScalar,nDCRR)
       Integer, Pointer :: iData(:)

@@ -12,6 +12,7 @@
       Use Basis_Info
       Use Langevin_arrays
       use External_Centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
