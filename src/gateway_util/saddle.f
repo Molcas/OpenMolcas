@@ -129,7 +129,11 @@
                   If (.Not.
      &                (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &               ) Then
-                     iStab(iAt)=jStab(1,nsc)
+                     jTmp=0
+                     Do j = 1, nStab(nsc)-1
+                        jTmp=iOr(jTmp,jStab(j,nsc))
+                     End Do
+                     iStab(iAt)=jTmp
                      iAt=iAt+1
                   End If
                End Do
