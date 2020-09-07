@@ -36,7 +36,6 @@
 *             November '96                                             *
 *     After pattern of other SEWARD soubroutines by R. Lindh.          *
 ************************************************************************
-      Use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -107,9 +106,7 @@ C Compute stabilizer, and then the double coset representation:
 
 C Loop over the cosets of the stabilizer group:
       Do lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT), Ccoor, TC)
 
 
 C Generate the quadrupole integral tables:

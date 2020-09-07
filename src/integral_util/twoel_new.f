@@ -238,9 +238,7 @@ c Avoid unused argument warnings
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
          kOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
          lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
@@ -254,9 +252,7 @@ c Avoid unused argument warnings
          Do 200 lDCRS = 0, MxDCRS
             RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
 *switch (to generate better start orbitals...)
@@ -274,15 +270,9 @@ c Avoid unused argument warnings
                RST_triplet=DBLE(lDCRT*nDCRR*nDCRS)+RS_doublet
                QInd(2)=RST_triplet
 *              Write (*,*) QInd(1), QInd(2)
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *              If (iPrint.ge.9)
 *
 *    &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)

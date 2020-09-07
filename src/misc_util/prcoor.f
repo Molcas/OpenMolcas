@@ -14,14 +14,14 @@
 *     purpose: Write coordinates.                                      *
 *                                                                      *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "angstr.fh"
       Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
       Character(LEN=LENIN) AtomLbl(MxAtom), Byte4
+      Real*8, Allocatable:: W1(:,:)
 *----------------------------------------------------------------------*
 *     Read no.of symm. species                                         *
 *----------------------------------------------------------------------*
@@ -41,8 +41,8 @@
 *----------------------------------------------------------------------*
 *     Read coordinates of atoms                                        *
 *----------------------------------------------------------------------*
-      Call GetMem('Coor','ALLO','REAL',lw1,3*8*nAtoms)
-      Call Get_dArray('Unique Coordinates',Work(lw1),3*nAtoms)
+      Call mma_Allocate(W1,3,8*nAtoms)
+      Call Get_dArray('Unique Coordinates',W1,3*nAtoms)
 *----------------------------------------------------------------------*
 *     Read nuclear repulsion energy                                    *
 *----------------------------------------------------------------------*
@@ -62,24 +62,16 @@
       MaxDCR=0
       iAll_Atom=nAtoms
       Do iAtom = 1, nAtoms
-         iChAtom=iChxyz(Work(lw1+(iAtom-1)*3),iGen,nGen)
+         iChAtom=iChxyz(w1(1:3,iAtom),iGen,nGen)
          Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
-         XOld=Work(lw1+(iAtom-1)*3 )
-         YOld=Work(lw1+(iAtom-1)*3+1)
-         ZOld=Work(lw1+(iAtom-1)*3+2)
          Byte4=AtomLbl(iAtom)
 
 *
          Do iCo = 1, nCoSet-1
 *
             iAll_Atom = iAll_Atom + 1
-            Work(lw1+(iAll_Atom-1)*3  )=
-     &           XOld*DBLE(iPhase(1,iCoSet(iCo,0)))
-            Work(lw1+(iAll_Atom-1)*3+1)=
-     &           YOld*DBLE(iPhase(2,iCoSet(iCo,0)))
-            Work(lw1+(iAll_Atom-1)*3+2)=
-     &           ZOld*DBLE(iPhase(3,iCoSet(iCo,0)))
+            Call OA(iCoSet(iCo,0),W1(1:3,iAtom),W1(1:3,iAll_Atom))
             AtomLbl(iAll_Atom)=Byte4
 *
          End Do
@@ -96,17 +88,14 @@
      &                 'Z        '
       Write(6,'(6X,A)')'--------------------------------------------'//
      &                 '---------'
-      Do iAt=0,iAll_Atom-1
+      Do iAt=1,iAll_Atom
         Write(6,'(4X,I4,3X,A,2X,3F13.8)')
-     &  iAt+1,AtomLbl(iAt+1),
-     &  Angstr*Work(lw1+3*iAt),
-     &  Angstr*Work(lw1+3*iAt+1),
-     &  Angstr*Work(lw1+3*iAt+2)
+     &  iAt,AtomLbl(iAt), Angstr*W1(1:3,iAt)
       End Do
       Write(6,'(6X,A)')'--------------------------------------------'//
      &                 '---------'
       Write(6,'(6X,A,F14.8)')'Nuclear repulsion energy =',PotNuc
-      Call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
+      Call mma_deallocate(W1)
 *----------------------------------------------------------------------*
 *     Normal exit                                                      *
 *----------------------------------------------------------------------*

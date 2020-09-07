@@ -54,7 +54,6 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -236,9 +235,7 @@
 *           Loops over symmetry operations.
 *
             Do lDCRR = 0, nDCRR-1
-               RB(1)  = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-               RB(2)  = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-               RB(3)  = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
+               Call OA(iDCRR(lDCRR),B,RB)
 *
 *--------------Loop over operators
 *
@@ -282,12 +279,8 @@
      &                             iDCRR(lDCRR)),iOper,nIrrep)
                      nOp(3) = NrOpr(0,iOper,nIrrep)
 
-                     TA(1) =  DBLE(iPhase(1,iDCRT(lDCRT)))*A(1)
-                     TA(2) =  DBLE(iPhase(2,iDCRT(lDCRT)))*A(2)
-                     TA(3) =  DBLE(iPhase(3,iDCRT(lDCRT)))*A(3)
-                     TRB(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*RB(1)
-                     TRB(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*RB(2)
-                     TRB(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*RB(3)
+                     Call OA(iDCRT(lDCRT),A,TA)
+                     Call OA(iDCRT(lDCRT),RB,TRB)
                      If (iPrint.ge.49) Then
                         Write (6,'(A,/,3(3F6.2,2X))')
      &                  ' *** Centers A, B, C ***',

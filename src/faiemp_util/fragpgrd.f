@@ -68,7 +68,6 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
-      use Phase_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -323,12 +322,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
           Do 1967 lDCRT = 0, nDCRT-1
             lOp(3) = iDCRT(lDCRT)
             lOp(4) = lOp(3)
-            TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-            TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-            TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
-            TB(1) = iPhase(1,iDCRT(lDCRT))*B(1)
-            TB(2) = iPhase(2,iDCRT(lDCRT))*B(2)
-            TB(3) = iPhase(3,iDCRT(lDCRT))*B(3)
+            Call OA(iDCRT(lDCRT),C,TC)
+            Call OA(iDCRT(lDCRT),B,TB)
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 *                                                                      *
 ************************************************************************

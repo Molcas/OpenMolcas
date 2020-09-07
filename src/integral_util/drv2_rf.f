@@ -59,7 +59,6 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -125,9 +124,6 @@
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
-         x1 = dbsc(iCnttp)%Coor(1,iCnt)
-         y1 = dbsc(iCnttp)%Coor(2,iCnt)
-         z1 = dbsc(iCnttp)%Coor(3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
@@ -140,9 +136,6 @@
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
-            x2 = dbsc(jCnttp)%Coor(1,jCnt)
-            y2 = dbsc(jCnttp)%Coor(2,jCnt)
-            z2 = dbsc(jCnttp)%Coor(3,jCnt)
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
@@ -251,18 +244,12 @@
 *           Loops over symmetry operations.
 *
             Do 139 lDCRT = 0, nDCRT-1
-            A(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*x1
-            A(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*y1
-            A(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*z1
+            Call OA(iDCRT(lDCRT),dbsc(iCnttp)%Coor(1:3,iCnt),A)
             nOp(1) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
             if(jbas.lt.-99999) write(6,*) 'nDCRR=',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
-             B(1) = DBLE(iPhase(1,iDCRR(lDCRR))*
-     &              iPhase(1,iDCRT(lDCRT)))*x2
-             B(2) = DBLE(iPhase(2,iDCRR(lDCRR))*
-     &              iPhase(2,iDCRT(lDCRT)))*y2
-             B(3) = DBLE(iPhase(3,iDCRR(lDCRR))*
-     &              iPhase(3,iDCRT(lDCRT)))*z2
+             iDCRRT=iEor(iDCRR(lDCRR),iDCRT(lDCRT))
+             Call OA(iDCRRT,dbsc(jCnttp)%Coor(1:3,jCnt),B)
              nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)),iOper,
      &                nIrrep)
              If (iPrint.ge.49) Write (6,'(A,3(3F6.2,2X))')

@@ -18,7 +18,6 @@
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -220,15 +219,9 @@
      &                            i=0,nDCRR-1),'}  '
             Write (6,'(2A)') 'R=',ChOp(kDCRR)
 #endif
-            A(1,2)   = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iIter)
-            A(2,2)   = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iIter)
-            A(3,2)   = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iIter)
-            Ref(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iRef)
-            Ref(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iRef)
-            Ref(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iRef)
-            Prv(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iPrv)
-            Prv(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iPrv)
-            Prv(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iPrv)
+            Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,2))
+            Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,2))
+            Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,2))
 #ifdef _DEBUG_
             Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                         i=0,nStab(iAtom)-1),'}  '
@@ -362,18 +355,10 @@
                Write (6,'(2A)') 'S=',ChOp(kDCRS)
 #endif
 *
-               Ref(1,3) = Cx(1,kAtom,iRef)
-               Ref(2,3) = Cx(2,kAtom,iRef)
-               Ref(3,3) = Cx(3,kAtom,iRef)
-               Ref(1,4) = DBLE(iPhase(1,kDCRS))*Cx(1,lAtom,iRef)
-               Ref(2,4) = DBLE(iPhase(2,kDCRS))*Cx(2,lAtom,iRef)
-               Ref(3,4) = DBLE(iPhase(3,kDCRS))*Cx(3,lAtom,iRef)
-               Prv(1,3) = Cx(1,kAtom,iPrv)
-               Prv(2,3) = Cx(2,kAtom,iPrv)
-               Prv(3,3) = Cx(3,kAtom,iPrv)
-               Prv(1,4) = DBLE(iPhase(1,kDCRS))*Cx(1,lAtom,iPrv)
-               Prv(2,4) = DBLE(iPhase(2,kDCRS))*Cx(2,lAtom,iPrv)
-               Prv(3,4) = DBLE(iPhase(3,kDCRS))*Cx(3,lAtom,iPrv)
+               Ref(1:3,3) = Cx(1:3,kAtom,iRef)
+               Call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,4))
+               Prv(1:3,3) = Cx(1:3,kAtom,iPrv)
+               Call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,4))
 *
                If (Help) Then
                   rkl2=(Ref(1,3)-Ref(1,4))**2
@@ -437,24 +422,12 @@
                kDCRTS=iEor(kDCRT,kDCRS)
 *
                If (PSPrint) Write (6,'(2A)') 'T=',ChOp(kDCRT)
-               A(1,3)   = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iIter)
-               A(2,3)   = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iIter)
-               A(3,3)   = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iIter)
-               Ref(1,3) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iRef)
-               Ref(2,3) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iRef)
-               Ref(3,3) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iRef)
-               Prv(1,3) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iPrv)
-               Prv(2,3) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iPrv)
-               Prv(3,3) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iPrv)
-               A(1,4)   = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iIter)
-               A(2,4)   = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iIter)
-               A(3,4)   = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iIter)
-               Ref(1,4) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iRef)
-               Ref(2,4) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iRef)
-               Ref(3,4) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iRef)
-               Prv(1,4) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iPrv)
-               Prv(2,4) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iPrv)
-               Prv(3,4) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iPrv)
+               Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,3))
+               Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,3))
+               Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,3))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iIter),  A(1:3,4))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iRef ),Ref(1:3,4))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iPrv ),Prv(1:3,4))
 *
 *------------- Form the stabilizer for the torsion
 *

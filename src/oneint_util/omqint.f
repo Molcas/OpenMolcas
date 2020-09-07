@@ -34,7 +34,6 @@
 *     Author: Lasse Kragh Soerensen and Roland Lindh  2015             *
 *             Based on OAMInt                                          *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -101,9 +100,7 @@
  100  Continue
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
          iComp=6 ! Why are these here ncomp is passed down?
 *

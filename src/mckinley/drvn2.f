@@ -31,7 +31,6 @@
 ************************************************************************
       use Basis_Info
       use PCM_arrays
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
 #include "real.fh"
@@ -106,9 +105,7 @@ c     Call qEnter('DrvN2')
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
              Do iR = 0, nDCRR-1
-               RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-               RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-               RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+               Call OA(iDCRR(iR),B,RB)
                nOp(1) = NrOpr(0,iOper,nIrrep)
                nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
                kop(1)=0
@@ -359,9 +356,7 @@ c     Call qEnter('DrvN2')
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                  Call OA(iDCRR(iR),B,RB)
                   nOp(1) = NrOpr(0,iOper,nIrrep)
                   nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
                   r12 = Sqrt((A(1)-RB(1))**2 +
@@ -554,9 +549,7 @@ c     Call qEnter('DrvN2')
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                  Call OA(iDCRR(iR),B,RB)
                   nOp(1) = NrOpr(iDCRR(iR),iOper,nIrrep)
                   r12_AB = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
@@ -610,9 +603,7 @@ c     Call qEnter('DrvN2')
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
                Do iS = 0, nDCRS-1
-                  SD(1) = DBLE(iPhase(1,iDCRS(iS)))*D(1)
-                  SD(2) = DBLE(iPhase(2,iDCRS(iS)))*D(2)
-                  SD(3) = DBLE(iPhase(3,iDCRS(iS)))*D(3)
+                  Call OA(iDCRS(iS),D,SD)
                   nOp(2) = NrOpr(iDCRS(iS),iOper,nIrrep)
                   r12_CD = Sqrt((C(1)-SD(1))**2 +
      &                          (C(2)-SD(2))**2 +

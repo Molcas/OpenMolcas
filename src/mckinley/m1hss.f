@@ -34,7 +34,6 @@
 *             October 1991                                             *
 ************************************************************************
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -148,9 +147,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                Call LCopy(12,[.False.],0,jfGrd,1)
                mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                mOp(4) = mOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)

@@ -16,7 +16,6 @@
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -141,9 +140,7 @@
             End If
 #endif
 *
-            A(1,2) = DBLE(iPhase(1,iDCR(2)))*Cx(1,jAtom,iIter)
-            A(2,2) = DBLE(iPhase(2,iDCR(2)))*Cx(2,jAtom,iIter)
-            A(3,2) = DBLE(iPhase(3,iDCR(2)))*Cx(3,jAtom,iIter)
+            Call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
 *
 *---------- Compute the stabilizer of A & R(B), this is done in two ways.
 *

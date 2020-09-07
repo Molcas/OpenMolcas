@@ -243,17 +243,13 @@
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
          nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
          MxDCRS = nDCRS-1
          Do 200 lDCRS = 0, MxDCRS
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
             Do 300 lDCRT = nDCRT-1, 0, -1
@@ -265,18 +261,11 @@
 #endif
 *
                nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               nOp(4) = NrOpr(iDCRTS,      iOper,nIrrep)
 *
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *
 #ifdef _DEBUG_
                If (iPrint.ge.59)

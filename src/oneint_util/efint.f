@@ -38,7 +38,6 @@
 *                                                                      *
 * Modified for explicit code, R. Lindh, February '95.                  *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
@@ -114,9 +113,7 @@
 *
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
          call dcopy_(3,TC,1,CoorAC(1,2),1)
          call dcopy_(3,TC,1, Coori(1,3),1)
          call dcopy_(3,TC,1, Coori(1,4),1)

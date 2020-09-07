@@ -166,9 +166,7 @@ C     nElem(ixyz) = 2*ixyz+1
 
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 *
             jElem=0
             Do ix = iOrdOp, 0, -1

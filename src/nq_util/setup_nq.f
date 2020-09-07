@@ -38,7 +38,6 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -198,9 +197,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          iCnt  =iSD(14,iShell)
          C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do iIrrep = 0, nIrrep-1
-            Coor(1) = C(1)*DBLE(iPhase(1,iOper(iIrrep)))
-            Coor(2) = C(2)*DBLE(iPhase(2,iOper(iIrrep)))
-            Coor(3) = C(3)*DBLE(iPhase(3,iOper(iIrrep)))
+            Call OA(iOper(iIrrep),C,Coor)
          Do iNQ=1,nNQ
             jNQ=ip_Coor(iNQ)
 *

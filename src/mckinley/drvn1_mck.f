@@ -26,7 +26,6 @@
 *             October 1991                                             *
 ************************************************************************
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -74,9 +73,7 @@
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do 300 iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                     Call OA(iDCRR(iR),B,RB)
                      nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
                      If (EQ(A,RB)) Go To 300
                      r12 = Sqrt((A(1)-RB(1))**2 +

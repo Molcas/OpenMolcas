@@ -29,7 +29,6 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -139,9 +138,7 @@
        nOp(1) = NrOpr(0,iOper,nIrrep)
       If (nDCRR.ge.1) Then
          Do lDCRR = 0, nDCRR-1
-            RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-            RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-            RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
+            Call OA(iDCRR(lDCRR),B,RB)
             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
                If (iPrint.ge.49) Then
                Write (6,'(A,3F6.2,2X,3F6.2)') '*',
@@ -410,9 +407,7 @@
        nOp(1) = NrOpr(0,iOper,nIrrep)
       If (nDCRR.ge.1) Then
          Do lDCRR = 0, nDCRR-1
-            RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-            RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-            RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
+            Call OA(iDCRR(lDCRR),B,RB)
             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
              If (iPrint.ge.49) Then
                Write (6,'(A,3F6.2,2X,3F6.2)') '*',

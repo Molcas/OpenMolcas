@@ -11,7 +11,6 @@
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
       use Basis_Info
       use PCM_arrays, only: PCMTess, PCMDM
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -60,16 +59,9 @@
          If (dbsc(jCnttp)%Aux) mCnt = 0
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Cord(1,nc)  = x1*DBLE(iFacx)
-               Cord(2,nc)  = y1*DBLE(iFacy)
-               Cord(3,nc)  = z1*DBLE(iFacz)
+               Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Cord(1:3,nc))
                Chrg(nc)    = Z
                nc = nc + 1
             End Do

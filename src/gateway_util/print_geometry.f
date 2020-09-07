@@ -26,7 +26,6 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Phase_Info
       use Period
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -99,9 +98,8 @@
             y1 = dbsc(jCnttp)%Coor(2,jCnt)
             z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
-               Facx=DBLE(iPhase(1,iCoset(i,0,ndc)))
-               Facy=DBLE(iPhase(2,iCoset(i,0,ndc)))
-               Facz=DBLE(iPhase(3,iCoset(i,0,ndc)))
+               Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Centr(1:3,nc))
                If (Show) Then
                   help_c = ' '
                   If(Cell_l) Then
@@ -113,22 +111,15 @@
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6,7X,3F15.6)')
      &                    nc, help_c, dc(ndc)%LblCnt,
-     &                    x1*Facx, y1*Facy, z1*Facz,
-     &                    x1*Facx*angstr,
-     &                    y1*Facy*angstr,
-     &                    z1*Facz*angstr
+     &                    Centr(1:3,nc),
+     &                    Centr(1:3,nc)*angstr
                   else
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6)')
      &                    nc, help_c, dc(ndc)%LblCnt,
-     &                    x1*Facx*angstr,
-     &                    y1*Facy*angstr,
-     &                    z1*Facz*angstr
+     &                    Centr(1:3,nc)*angstr
                   endif
                End If
-               Centr(1,nc) = x1*Facx
-               Centr(2,nc) = y1*Facy
-               Centr(3,nc) = z1*Facz
                nchr=dbsc(jCnttp)%AtmNr
                if (nc.gt.8*mxdc) Then
                   Call WarningMessage(2,'lblxxx too small')

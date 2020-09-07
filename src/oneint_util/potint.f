@@ -180,9 +180,7 @@ chjw is this always correct?
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                Do iGrid=1,nGrid
                  r12=sqrt((TC(1)-CCoor(1,iGrid))**2

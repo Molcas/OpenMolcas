@@ -57,7 +57,6 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -260,9 +259,7 @@ C        Do jS = 1, iS
 c VV: gcc bug: one has to use this if!
           if(nDCRR.ge.1) then
             Do 140 lDCRR = 0, nDCRR-1
-               RB(1)  = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-               RB(2)  = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-               RB(3)  = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
+               Call OA(iDCRR(lDCRR),B,RB)
                nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
                If (EQ(A,RB).and. .Not.DiffOp) Go To 140
                If (.Not.DiffOp) Then

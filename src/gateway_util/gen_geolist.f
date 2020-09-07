@@ -11,7 +11,6 @@
       Subroutine Gen_GeoList()
       use GeoList
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -45,16 +44,9 @@
 *
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Centr(1,nc) = x1*DBLE(iFacx)
-               Centr(2,nc) = y1*DBLE(iFacy)
-               Centr(3,nc) = z1*DBLE(iFacz)
+               Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Centr(1:3,nc))
                nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
                   Mass(nc) = dbsc(jCnttp)%CntMass

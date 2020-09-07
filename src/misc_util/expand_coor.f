@@ -14,7 +14,6 @@
 *     purpose: to generate a list of all atoms                         *
 *                                                                      *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
       Real*8 Coord(3,nAtoms)
@@ -39,16 +38,11 @@
          iChAtom=iChxyz(W1(1,iAtom),iGen,nGen)
          Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
-         XOld=W1(1,iAtom)
-         YOld=W1(2,iAtom)
-         ZOld=W1(3,iAtom)
 *
          Do iCo = 1, nCoSet-1
 *
             iAll_Atom = iAll_Atom + 1
-            W1(1,iAll_Atom)=XOld*DBLE(iPhase(1,iCoSet(iCo,0)))
-            W1(2,iAll_Atom)=YOld*DBLE(iPhase(2,iCoSet(iCo,0)))
-            W1(3,iAll_Atom)=ZOld*DBLE(iPhase(3,iCoSet(iCo,0)))
+            Call OA(iCoSet(iCo,0),W1(1:3,iAtom),W1(1:3,iAll_Atom))
 *
          End Do
 *

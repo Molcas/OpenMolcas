@@ -34,7 +34,6 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, Cff2D, XRys2D
 #include "real.fh"
@@ -93,9 +92,7 @@
       Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
      &         iDCRT,nDCRT)
       Do 100 lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*CCoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*CCoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
          call dcopy_(3,TC,1,CoorAC(1,2),1)
          call dcopy_(3,TC,1,Coori(1,3),1)
          call dcopy_(3,TC,1,Coori(1,4),1)

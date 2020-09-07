@@ -23,7 +23,6 @@
 *     This is a quick and possibly dirty implementation of the out-    *
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -164,15 +163,9 @@
             End If
 #endif
 *
-            A(1,1)   = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iIter)
-            A(2,1)   = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iIter)
-            A(3,1)   = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iIter)
-            Ref(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iRef)
-            Ref(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iRef)
-            Ref(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iRef)
-            Prv(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iPrv)
-            Prv(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iPrv)
-            Prv(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iPrv)
+            Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,1))
 *
 *---------- Form stabilizer for (iAtom,jAtom)
 *
@@ -311,18 +304,10 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  Ref(1,2) =                        Cx(1,kAtom,iRef)
-                  Ref(2,2) =                        Cx(2,kAtom,iRef)
-                  Ref(3,2) =                        Cx(3,kAtom,iRef)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iRef)
-                  Prv(1,2) =                        Cx(1,kAtom,iPrv)
-                  Prv(2,2) =                        Cx(2,kAtom,iPrv)
-                  Prv(3,2) =                        Cx(3,kAtom,iPrv)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iPrv)
+                  Ref(1:3,2) =  Cx(1:3,kAtom,iRef)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,3))
+                  Prv(1:3,2) =  Cx(1:3,kAtom,iPrv)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,3))
 *
 *---------------- Form stabilizer for (kAtom,lAtom)
 *
@@ -374,24 +359,12 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  A(1,2)   = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iIter)
-                  A(2,2)   = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iIter)
-                  A(3,2)   = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iIter)
-                  Ref(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iRef)
-                  Ref(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iRef)
-                  Ref(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iRef)
-                  Prv(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iPrv)
-                  Prv(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iPrv)
-                  Prv(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iPrv)
-                  A(1,3)   = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iIter)
-                  A(2,3)   = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iIter)
-                  A(3,3)   = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iIter)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iRef)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iPrv)
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,2))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iIter),  A(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iRef ),Ref(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iPrv ),Prv(1:3,3))
 *
 *---------------- Form the stabilizer for the out-of-plane
 *

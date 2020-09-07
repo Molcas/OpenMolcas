@@ -32,7 +32,6 @@
 *             October '91                                              *
 ************************************************************************
       Use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     For normal nuclear attraction
       External TNAI1, Fake, Cff2D
@@ -227,9 +226,7 @@ C           If (iPrint.ge.99) Write (6,*) ' mGrad=',mGrad
             Do lDCRT = 0, nDCRT-1
                lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
                call dcopy_(3,TC,1,Coori(1,3),1)
                call dcopy_(3,TC,1,Coori(1,4),1)

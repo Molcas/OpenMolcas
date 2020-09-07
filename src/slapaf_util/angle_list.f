@@ -18,7 +18,6 @@
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
-      use Phase_info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -191,15 +190,9 @@
                End If
 #endif
 *
-               A(1,3)   = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iIter)
-               A(2,3)   = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iIter)
-               A(3,3)   = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iIter)
-               Ref(1,3) = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iRef )
-               Ref(2,3) = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iRef )
-               Ref(3,3) = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iRef )
-               Prv(1,3) = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iPrv )
-               Prv(2,3) = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iPrv )
-               Prv(3,3) = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iPrv )
+               Call OA(kDCRT,Cx(1:3,jAtom,iIter),  A(1:3,3))
+               Call OA(kDCRT,Cx(1:3,jAtom,iRef ),Ref(1:3,3))
+               Call OA(kDCRT,Cx(1:3,jAtom,iPrv ),Prv(1:3,3))
 *
 *------------- Form the stabilizer for (iAtom,jAtom)
 *
@@ -236,15 +229,9 @@
                End If
 #endif
 *
-               A(1,2)   = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iIter)
-               A(2,2)   = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iIter)
-               A(3,2)   = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iIter)
-               Ref(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iRef )
-               Ref(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iRef )
-               Ref(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iRef )
-               Prv(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iPrv )
-               Prv(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iPrv )
-               Prv(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iPrv )
+               Call OA(kDCRR,Cx(1:3,mAtom,iIter),  A(1:3,2))
+               Call OA(kDCRR,Cx(1:3,mAtom,iRef ),Ref(1:3,2))
+               Call OA(kDCRR,Cx(1:3,mAtom,iPrv ),Prv(1:3,2))
 *
 *------------- Form the stabilizer for ((iAtom,mAtom),jAtom)
 *

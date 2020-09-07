@@ -47,7 +47,6 @@
       End
       Subroutine Get_Coord_All_(Coord_Unique,nUnique_Atoms,
      &                          Coord_All,nAll_Atoms)
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
@@ -102,20 +101,12 @@
 *        Write (*,*) 'nCoset=',nCoset
 *        Write (*,*) 'iCoset=',(iCoset(i,0),i=0,nCoset-1)
 *
-         XOld=Coord_Unique(1,iUnique_Atom)
-         YOld=Coord_Unique(2,iUnique_Atom)
-         ZOld=Coord_Unique(3,iUnique_Atom)
-*        Write (*,*) 'XOld,YOld,ZOld=',XOld,YOld,ZOld
          Do iCo = 0, nCoSet-1
 *           Write (*,*) 'In Get_Coord_All'
 *           Write (*,*) 'iCo,iCoSet(iCo,0)=',iCo,iCoSet(iCo,0)
-*           Write (*,*) iPhase(1,iCoSet(iCo,0))
-*           Write (*,*) iPhase(2,iCoSet(iCo,0))
-*           Write (*,*) iPhase(3,iCoSet(iCo,0))
             iAll_Atom = iAll_Atom + 1
-            Coord_All(1,iAll_Atom)=XOld*Dble(iPhase(1,iCoSet(iCo,0)))
-            Coord_All(2,iAll_Atom)=YOld*Dble(iPhase(2,iCoSet(iCo,0)))
-            Coord_All(3,iAll_Atom)=ZOld*Dble(iPhase(3,iCoSet(iCo,0)))
+            Call OA(iCoSet(iCo,0),Coord_Unique(1:3,iUnique_Atom),
+     &              Coord_All(1:3,iAll_Atom))
          End Do
 *
       End Do

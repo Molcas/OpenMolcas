@@ -62,7 +62,6 @@
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
       use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -177,9 +176,7 @@
             Do 102 lDCRT = 0, nDCRT-1
                lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *--------------Branch out if one-center integral
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102
                If (iPrint.ge.99) Call RecPrt(' In M1Grd: TC',' ',TC,1,3)

@@ -37,7 +37,6 @@
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -153,9 +152,7 @@ C     Call qEnter('NAInt')
 
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *              switch (only two center NA matrix...)
                If (No3Cnt .AND. .NOT.(EQ(A,TC).OR.EQ(RB,TC))) Go To 102
 *              switch

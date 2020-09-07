@@ -15,7 +15,6 @@
      &                 rMult,LuIC,Indq,dMass,iCoSet,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
-      use Phase_Info
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -77,26 +76,14 @@
 *
       iCent=0
       Do iAtom = 1, nAtoms
-         x=Cx(1,iAtom,iIter)
-         y=Cx(2,iAtom,iIter)
-         z=Cx(3,iAtom,iIter)
 *
-         x_ref=Cx(1,iAtom,iRef)
-         y_ref=Cx(2,iAtom,iRef)
-         z_ref=Cx(3,iAtom,iRef)
          Do i = 0, nSym/nStab(iAtom)-1
             iCent = iCent + 1
-            iFacx=iPhase(1,iCoSet(i,iAtom))
-            iFacy=iPhase(2,iCoSet(i,iAtom))
-            iFacz=iPhase(3,iCoSet(i,iAtom))
-*
-            currXYZ(1,iCent)=DBLE(iFacx)*x
-            currXYZ(2,iCent)=DBLE(iFacy)*y
-            currXYZ(3,iCent)=DBLE(iFacz)*z
-*
-            Ref123(1,iCent)=DBLE(iFacx)*x_ref
-            Ref123(2,iCent)=DBLE(iFacy)*y_ref
-            Ref123(3,iCent)=DBLE(iFacz)*z_ref
+            Call OA(iCoSet(i,iAtom),Cx(1:3,iAtom,iIter),
+     &              CurrXYZ(1:3,iCent))
+            Call OA(iCoSet(i,iAtom),Cx(1:3,iAtom,iRef),
+     &              Ref123(1:3,iCent))
+
 *
             Ind(iCent)=iAtom
             iDCR(iCent)=iCoSet(i,iAtom)

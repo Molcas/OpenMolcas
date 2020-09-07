@@ -28,7 +28,6 @@
 *             Modified for ECP's and external electric fields, May '95 *
 ************************************************************************
       use Basis_Info
-      use Phase_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
       Implicit Real*8 (A-H,O-Z)
@@ -107,9 +106,7 @@
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                     Call OA(iDCRR(iR),B,RB)
                      nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
                      If (EQ(A,RB)) Go To 301
                      r12 = Sqrt((A(1)-RB(1))**2 +
@@ -292,9 +289,7 @@
 *
                PreFct = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                  Call OA(iDCRR(iR),B,RB)
                   nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
                   If (EQ(A,RB)) Go To 302
                   r12 = Sqrt((A(1)-RB(1))**2 +
@@ -538,9 +533,7 @@
 *
                PreFct = ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                  Call OA(iDCRR(iR),B,RB)
                   nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
                   If (EQ(A,RB)) Go To 312
                   r12 = Sqrt((A(1)-RB(1))**2 +

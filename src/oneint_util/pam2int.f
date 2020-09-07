@@ -63,7 +63,6 @@
 ************************************************************************
       use Basis_Info
       use Her_RW
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -150,9 +149,7 @@
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-               TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-               TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                   Call GetMem(' Scr','ALLO','REAL',ipScr,
      &                       nZeta*nElem(la)*nElem(lb)*nComp)

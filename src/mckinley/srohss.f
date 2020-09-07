@@ -60,7 +60,6 @@
 ************************************************************************
       use Basis_Info
       use Real_Spherical
-      use Phase_Info
       implicit real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
@@ -115,10 +114,8 @@
             mop(3) = nropr(kop(3),ioper,nirrep)
             mop(4) = mop(3)
 
-            tc(1) = DBLE(iphase(1,idCRT(lDCRT)))*C(1)
-            tc(2) = DBLE(iphase(2,idCRT(lDCRT)))*C(2)
-            tc(3) = DBLE(iphase(3,idCRT(lDCRT)))*C(3)
-            call dcopy_(3,tc,1,coor(1,3),1)
+            Call OA(iDCRT(lDCRT),C,TC)
+            call dcopy_(3,TC,1,Coor(1,3),1)
 
             if (eq(a,rb).and.eq(A,TC)) Go To 1967
             call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,

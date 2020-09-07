@@ -32,7 +32,6 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University      *
 *             of Lund, Sweden, September 2002.                         *
 ************************************************************************
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -95,12 +94,8 @@
      &         iDCRT,nDCRT)
 *
       Do lDCRT = 0, nDCRT-1
-         TC(1,1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1,1)
-         TC(2,1) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2,1)
-         TC(3,1) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3,1)
-         TC(1,2) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1,2)
-         TC(2,2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2,2)
-         TC(3,2) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3,2)
+         Call OA(iDCRT(lDCRT),Ccoor(1:3,1),TC(1:3,1))
+         Call OA(iDCRT(lDCRT),Ccoor(1:3,2),TC(1:3,2))
 *
 *-------Compute contribution from a,b+1
 *
