@@ -658,9 +658,6 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
     set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
   endif ()
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fallow-argument-mismatch" )
-  endif ()
 endif ()
 
 # Add runtime checks
