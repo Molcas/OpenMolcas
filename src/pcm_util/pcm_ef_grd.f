@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine PCM_EF_grd(Grad,nGrad)
       use Basis_Info
+      use Center_Info
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
@@ -59,7 +60,7 @@
          mCnt = dbsc(jCnttp)%nCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Cord(1:3,nc))
                Chrg(nc) = Z

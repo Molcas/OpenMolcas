@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine Niclas(H,coor,LUT)
       use Basis_Info
+      use Center_Info
 * eaw 970909
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
@@ -27,8 +28,8 @@
       Dimension Coor(*)
       Dimension Dummy(1)
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=nd*(j-1)+i-1
@@ -47,7 +48,7 @@
           If (TF(mdc,iIrrep,iComp)) Then
              idsp=idsp+1
              ldisp(iirrep)=ldisp(iirrep)+1
-             ndeg(idsp)=nIrrep/nstab(mdc)
+             ndeg(idsp)=nIrrep/dc(mdc)%nStab
           End If
          End Do
         End Do
@@ -98,7 +99,7 @@
        Do iCnt = 1, nCnti
         mdc=mdc+1
 *
-        nCenti=nIrrep/nStab(mdc)
+        nCenti=nIrrep/dc(mdc)%nStab
 *
       ndc=0
       jPERT=0
@@ -107,7 +108,7 @@
        Do jCnt = 1, nCntj
         ndc=ndc+1
 
-        nCentj=nIrrep/nStab(ndc)
+        nCentj=nIrrep/dc(ndc)%nStab
         Do iIrrep=0,nIrrep-1
          iDsp = IndDsp(mdc,iIrrep)
          Do iCar = 0, 2

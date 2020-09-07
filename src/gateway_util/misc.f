@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -79,18 +80,18 @@
                If (Shells(jSh)%nBasis.ne.0 ) Then
                   If (Shells(jSh)%Aux) Then
                      iBas_Aux  = iBas_Aux  + Shells(jSh)%nBasis * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else If (Shells(jSh)%Frag) Then
                      iBas_Frag = iBas_Frag  + Shells(jSh)%nBasis * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else
                      iBas  = iBas  + Shells(jSh)%nBasis * kCmp
-     &                     * nIrrep/nStab(mdc)
+     &                     * nIrrep/dc(mdc)%nStab
                   End If
                End If
                jSh = jSh + 1
             End Do
-            mc = mc + nIrrep/nStab(mdc)
+            mc = mc + nIrrep/dc(mdc)%nStab
          End Do
          nShlls = iShell
 *

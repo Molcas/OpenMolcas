@@ -525,7 +525,7 @@ c      nprint(26)=99
          End If
          Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
 *
@@ -579,13 +579,13 @@ c      nprint(26)=99
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) .and.
+     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                       lDisp(iIrrep) = lDisp(iIrrep) + 1
-                      mult_Disp(nDisp)=nIrrep/nStab(mdc)
+                      mult_Disp(nDisp)=nIrrep/dc(mdc)%nStab
                       If (Type) Then
       If (Show.and.iPrint.ge.6) then
                          Write (LuWr,*)
@@ -615,14 +615,14 @@ c      nprint(26)=99
      &                      iOper,nIrrep),iComp)*
      &                      iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
      &                      iOper,nIrrep)),
-     &                      iCo=0,nIrrep/nStab(mdc)-1 )
+     &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
       End If
       Write (ChDisp(nDisp),'(A,1X,A1)')
      &      dc(mdc)%LblCnt,xyz(iCar)
                   End If
 *
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
 *
@@ -701,16 +701,16 @@ c      nprint(26)=99
      &             iComp = iOr(iComp,4)
                Do jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,jIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+     &                  nIrrep/dc(mdc)%nStab,iChTbl,jIrrep,
+     &                  iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
                End Do
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+     &                  nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                  iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
                      Direct(lDsp)=.True.
 *--------------------Transfer the coordinates

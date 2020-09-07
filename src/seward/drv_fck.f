@@ -324,13 +324,13 @@ c        Write(6,*) ' oneel *',Label,'*'
 *           Find the DCR for A and B
 *
             Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               nStab(mdci),dc(mdcj)%iStab,
-     &               nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%nStab,dc(mdcj)%iStab,
+     &               dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(dc(mdci)%iStab,nStab(mdci),
-     &                 dc(mdcj)%iStab,nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
             Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
@@ -339,12 +339,12 @@ c        Write(6,*) ' oneel *',Label,'*'
             If (iPrint.ge.19) Then
                Write (6,*)
                Write (6,*) ' g      =',nIrrep
-               Write (6,*) ' u      =',nStab(mdci)
+               Write (6,*) ' u      =',dc(mdci)%nStab
                Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
-     &               ii = 0, nStab(mdci)-1)
-               Write (6,*) ' v      =',nStab(mdcj)
+     &               ii = 0, dc(mdci)%nStab-1)
+               Write (6,*) ' v      =',dc(mdcj)%nStab
                Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
-     &               ii = 0, nStab(mdcj)-1)
+     &               ii = 0, dc(mdcj)%nStab-1)
                Write (6,*) ' LambdaR=',LmbdR
                Write (6,*) ' r      =',nDCRR
                Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
@@ -358,7 +358,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nStabO) / DBLE(LambdT)
             Else If (MolWgh.eq.0) Then

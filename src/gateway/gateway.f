@@ -50,6 +50,7 @@ C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Found
       Real*8, Allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
+      Integer, Allocatable :: nStab(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -192,6 +193,7 @@ C     Call Gateway_banner()
       Call mma_allocate(DCo,3,nNuc)
       Call mma_allocate(DCh,nNuc)
       Call mma_allocate(DCh_Eff,nNuc)
+      Call mma_allocate(nStab,nNuc)
       iDCo = 1
       iDCh = 1
       iDChE= 1
@@ -208,6 +210,7 @@ C     Call Gateway_banner()
                DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
                DCh(iNuc)=DBLE(dbsc(iCnttp)%AtmNr)
                xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
+               nStab(iNuc)=dc(mdc)%nStab
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -220,6 +223,7 @@ C     Call Gateway_banner()
       Call Put_cArray('Unique Atom Names',xLblCnt(1),LENIN*nNuc)
       Call Put_iArray('nStab',nStab,nNuc)
 *
+      Call mma_deallocate(nStab)
       Call mma_deallocate(DCo)
       Call mma_deallocate(DCh)
       Call mma_deallocate(DCh_Eff)

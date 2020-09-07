@@ -83,8 +83,8 @@
        nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *
-      iuvwx(1) = nstab(mdc)
-      iuvwx(2) = nstab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kop(1) = ioper(nop(1))
       kop(2) = ioper(nop(2))
@@ -100,11 +100,11 @@
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *
-            iuvwx(3) = nstab(kdc+kCnt)
-            iuvwx(4) = nstab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 *
          do 1967 ldcrt = 0, ndcRT-1

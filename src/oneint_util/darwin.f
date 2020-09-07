@@ -63,7 +63,7 @@
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 502 lDCRT = 0, nDCRT-1

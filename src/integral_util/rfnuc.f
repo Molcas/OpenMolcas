@@ -25,6 +25,7 @@
 *             November '90                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -73,7 +74,7 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                Do iCnt = 1, dbsc(iCnttp)%nCntr
                   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
-                  Do i = 0, nIrrep/nStab(mdc) - 1
+                  Do i = 0, nIrrep/dc(mdc)%nStab - 1
                      Call OA(iCoset(i,0,mdc),A,RA)
 C                    Call RecPrt(' RA',' ',RA,1,3)
 C                    Call RecPrt(' CoOp',' ',CoOp,1,3)

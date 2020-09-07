@@ -15,6 +15,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -32,8 +33,8 @@
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
@@ -119,13 +120,13 @@
 *
 #ifdef _OLD_CODE_
             Call DCR(LmbdR,iOper,nIrrep,dc(iCo(iAtom))%iStab,
-     &               nStab(iCo(iAtom)),dc(iCo(jAtom))%iStab,
-     &               nStab(iCo(jAtom)),iDCRR,nDCRR)
+     &               dc(iCo(iAtom))%nStab,dc(iCo(jAtom))%iStab,
+     &               dc(iCo(jAtom))%nStab,iDCRR,nDCRR)
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(dc(iCo(iAtom))%iStab,nStab(iCo(iAtom)),
-     &                 dc(iCo(jAtom))%iStab,nStab(iCo(jAtom)),
+            Call Inter(dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                 dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet

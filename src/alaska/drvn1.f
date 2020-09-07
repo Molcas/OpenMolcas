@@ -101,8 +101,8 @@
 *                 Find the DCR for the two centers
 *
                   Call DCR(LmbdR,iOper,nIrrep,
-     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
-     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
@@ -172,14 +172,14 @@
 *
                      If (.Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
-                     igu=nIrrep/nStab(mdc+iCnt)
+                     igu=nIrrep/dc(mdc+iCnt)%nStab
                      Do iCar = 0, 2
                         dr_dA=(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
                         If ( TstFnc(iOper,nIrrep,
      &                     iCoSet(0,0,mdc+iCnt),
-     &                     nIrrep/nStab(mdc+iCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(mdc+iCnt)) ) Then
+     &                     nIrrep/dc(mdc+iCnt)%nStab,iChTbl,iIrrep,
+     &                     iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               Temp(nDisp) = Temp(nDisp) +
@@ -192,14 +192,14 @@
 *
                      If (.Not.dbsc(jCnttp)%pChrg) Then
                      nDisp = IndDsp(ndc+jCnt,iIrrep)
-                     igv=nIrrep/nStab(ndc+jCnt)
+                     igv=nIrrep/dc(ndc+jCnt)%nStab
                      Do iCar = 0, 2
                         dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
                         If ( TstFnc(iOper,nIrrep,
      &                     iCoSet(0,0,ndc+jCnt),
-     &                     nIrrep/nStab(ndc+jCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(ndc+jCnt)) ) Then
+     &                     nIrrep/dc(ndc+jCnt)%nStab,iChTbl,iIrrep,
+     &                     iComp,dc(ndc+jCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))
@@ -285,7 +285,7 @@
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                  iDCRR,nDCRR)
 *
                PreFct = DBLE(nIrrep)/DBLE(LmbdR)
@@ -336,13 +336,13 @@
                   End If
 *
                   nDisp = IndDsp(ndc+jCnt,iIrrep)
-                  igv=nIrrep/nStab(ndc+jCnt)
+                  igv=nIrrep/dc(ndc+jCnt)%nStab
                   Do iCar = 0, 2
                      iComp = 2**iCar
                      If ( TstFnc(iOper,nIrrep,
      &                  iCoSet(0,0,ndc+jCnt),
-     &                  nIrrep/nStab(ndc+jCnt),iChTbl,iIrrep,
-     &                  iComp,nStab(ndc+jCnt)) ) Then
+     &                  nIrrep/dc(ndc+jCnt)%nStab,iChTbl,iIrrep,
+     &                  iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
                            ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))
@@ -464,8 +464,8 @@
                         iComp = 2**iCar
                         If ( TstFnc(iOper,nIrrep,
      &                     iCoSet(0,0,mdc+iCnt),
-     &                     nIrrep/nStab(mdc+iCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(mdc+iCnt)) ) Then
+     &                     nIrrep/dc(mdc+iCnt)%nStab,iChTbl,iIrrep,
+     &                     iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               Temp(nDisp) = Temp(nDisp) - Tempd(iCar+1)
@@ -529,7 +529,7 @@
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                  iDCRR,nDCRR)
 *
                PreFct = ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
@@ -574,14 +574,14 @@
                   df_dr=(dfab*r12-fab)/r12**2
 *
                   nDisp = IndDsp(ndc+jCnt,iIrrep)
-                  igv=nIrrep/nStab(ndc+jCnt)
+                  igv=nIrrep/dc(ndc+jCnt)%nStab
                   Do iCar = 0, 2
                      dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                      iComp = 2**iCar
                      If ( TstFnc(iOper,nIrrep,
      &                  iCoSet(0,0,ndc+jCnt),
-     &                  nIrrep/nStab(ndc+jCnt),iChTbl,iIrrep,
-     &                  iComp,nStab(ndc+jCnt)) ) Then
+     &                  nIrrep/dc(ndc+jCnt)%nStab,iChTbl,iIrrep,
+     &                  iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
                            ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -26,8 +27,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *
       iIrrep=0
       do 800 ixop=0,nOrdOp

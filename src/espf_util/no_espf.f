@@ -150,7 +150,7 @@
 *
                   Call DCR(LmbdR,iOper,nIrrep,
      &                     iStb,nStb,
-     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero

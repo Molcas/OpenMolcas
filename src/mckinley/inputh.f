@@ -365,7 +365,7 @@ c      EndIf
       Do 10 iCnttp = 1, nCnttp
          Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
 *
@@ -418,8 +418,8 @@ c      EndIf
                Do 130 iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) ) Then
+     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                iComp,dc(mdc)%nStab) ) Then
                       nDisp = nDisp + 1
                       If (nDisp.gt.mDisp) Then
                          Write (6,*) 'nDisp.gt.mDisp'
@@ -449,15 +449,15 @@ c      EndIf
      &                      iOper,nIrrep),iComp)*
      &                      iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
      &                      iOper,nIrrep)),
-     &                      iCo=0,nIrrep/nStab(mdc)-1 )
+     &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
      &                       dc(mdc)%LblCnt,xyz(iCar)
                       iwork(ipad+ndisp-1)=icnttp
-                      iwork(ipdd+ndisp-1)=nIrrep/nstab(mdc)
+                      iwork(ipdd+ndisp-1)=nIrrep/dc(mdc)%nStab
                   End If
 *
  130           Continue
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
  120        Continue
  110     Continue
 *
@@ -605,16 +605,16 @@ c      EndIf
      &            iComp = iOr(iComp,4)
                Do 2250 jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,jIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+     &                  nIrrep/dc(mdc)%nStab,iChTbl,jIrrep,
+     &                  iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
  2250          Continue
                Do 2300 iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+     &                  nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                  iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC

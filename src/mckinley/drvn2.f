@@ -54,8 +54,8 @@ c#include "print.fh"
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************
@@ -100,8 +100,8 @@ c     Call qEnter('DrvN2')
 *                 Find the DCR for the two centers
 *
              Call DCR(LmbdR,iOper,nIrrep,
-     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
-     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
@@ -247,8 +247,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
            Do iIrrep=0,nnIrrep-1
              Do iCent=1,2
@@ -352,7 +352,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                  iDCRR,nDCRR)
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
@@ -458,7 +458,7 @@ c     Call qEnter('DrvN2')
              End Do     ! iCar
            End Do         ! iIrrep
 *
-           ii(1)=nStab(ndc+jcnt)
+           ii(1)=dc(ndc+jcnt)%nStab
 *
            iCent=1
            jCent=1
@@ -545,7 +545,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
+     &                  dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
      &                  iDCRR,nDCRR)
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
@@ -599,7 +599,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdS,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                  iDCRS,nDCRS)
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
@@ -699,8 +699,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
 *          Note that we have two different cases here, depending on if
 *          iTs=jTs or not!

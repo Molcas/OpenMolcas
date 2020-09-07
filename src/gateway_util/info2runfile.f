@@ -45,7 +45,7 @@
       Common /EmbPCharg/ DoEMPC
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
-      Integer, Allocatable :: NTC(:), ICh(:), IsMM(:)
+      Integer, Allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)
 ************************************************************************
 *                                                                      *
       LuWr=6
@@ -195,6 +195,7 @@
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
       Call mma_allocate(DCh_Eff,nNuc,label='DCh_Eff')
+      Call mma_allocate(nStab,nNuc,label='nStab')
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
@@ -208,6 +209,7 @@
                DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
                DCh(iNuc)    =DBLE(dbsc(iCnttp)%AtmNr)
                xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
+               nStab(iNuc)=dc(mdc)%nStab
             End Do
          Else
             mdc  = mdc + dbsc(iCnttp)%nCntr
@@ -242,6 +244,7 @@
       call dcopy_(nNuc,[0.0D0],0,DCh_Eff,1)
       Call Put_dArray('Mulliken Charge',DCh_Eff,nNuc)
 *
+      Call mma_deallocate(nStab)
       Call mma_deallocate(DCh_Eff)
       Call mma_deallocate(DCh)
       Call mma_deallocate(DCo)

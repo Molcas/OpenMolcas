@@ -177,15 +177,15 @@
 *           Find the DCR for A and B
 *
             Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               nStab(mdci),dc(mdcj)%iStab,
-     &               nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%nStab,dc(mdcj)%iStab,
+     &               dc(mdcj)%nStab,iDCRR,nDCRR)
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(dc(mdci)%iStab,nStab(mdci),
-     &                 dc(mdcj)%iStab,nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order
@@ -264,7 +264,7 @@
 *-----------------Compute normalization factor due the DCR symmetrization
 *                 of the two basis functions and the operator.
 *
-                  iuv = nStab(mdci)*nStab(mdcj)
+                  iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                   FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2*LmbdT)
                   If (MolWgh.eq.1) Then
                      FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)

@@ -91,8 +91,8 @@ c#include "print.fh"
 *     Statement functions
 *
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *-----Compute the number of blocks from each component of the operator
@@ -260,13 +260,13 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *           Find the DCR for A and B
 *
             Call DCR(LmbdR,iOper,nIrrep,
-     &               dc(mdci)%iStab,nStab(mdci),
-     &               dc(mdcj)%iStab,nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%iStab,dc(mdci)%nStab,
+     &               dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(dc(mdci)%iStab,nStab(mdci),
-     &                 dc(mdcj)%iStab,nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
@@ -274,7 +274,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             Fact = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
             If (MolWgh.eq.1) Then
                Fact = Fact * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -308,8 +308,8 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
      &                   Work(ipFnl),iPrim*jPrim,
      &                   iAng,jAng,A,RB,nOrder,Work(iKern),
      &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
-     &                   nStab(mdci),
-     &                   nStab(mdcj),nic,idcar,idcnt,
+     &                   dc(mdci)%nStab,
+     &                   dc(mdcj)%nStab,nic,idcar,idcnt,
      &                   iStabM,nStabM,trans,kcar,isym)
 *
 *

@@ -97,7 +97,7 @@
             x1 = dbsc(jCnttp)%Coor(1,jCnt)
             y1 = dbsc(jCnttp)%Coor(2,jCnt)
             z1 = dbsc(jCnttp)%Coor(3,jCnt)
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Centr(1:3,nc))
                If (Show) Then

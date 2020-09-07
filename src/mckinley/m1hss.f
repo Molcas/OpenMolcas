@@ -66,8 +66,8 @@ c#include "print.fh"
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       IX(i1,i2)=i1*(i1-1)/2+i2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *
 c     iRout = 150
 c     iPrint = nPrint(iRout)
@@ -99,8 +99,8 @@ c     End If
       Else
          call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
 *
@@ -139,7 +139,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Do 102 lDCRT = 0, nDCRT-1
                Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
                Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
@@ -182,8 +182,8 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                 Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 *               Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
-                iuvwx(3) = nStab(kdc+kCnt)
-                iuvwx(4) = nStab(kdc+kCnt)
+                iuvwx(3) = dc(kdc+kCnt)%nStab
+                iuvwx(4) = dc(kdc+kCnt)%nStab
 *
 *-----------Derivatives with respect to the operator is computed via the
 *           translational invariance.

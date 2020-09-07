@@ -149,8 +149,8 @@ C        Do jS = 1, iS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,nStab(mdci),
-     &                                  dc(mdcj)%iStab,nStab(mdcj),
+            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                                  dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                                                iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
             If (iPrint.ge.49) Write (6,'(10A)')
@@ -205,8 +205,8 @@ C        Do jS = 1, iS
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(dc(mdci)%iStab,nStab(mdci),
-     &                 dc(mdcj)%iStab,nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                             iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order
@@ -290,7 +290,7 @@ c VV: gcc bug: one has to use this if!
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                   FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)

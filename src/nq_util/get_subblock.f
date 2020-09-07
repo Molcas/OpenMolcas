@@ -41,6 +41,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
 ************************************************************************
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -197,7 +198,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          iShll =iSD( 0,iShell)
          NrBas =iSD( 3,iShell)
          mdci  =iSD(10,iShell)
-         nDegi=nSym/nStab(mdci)
+         nDegi=nSym/dc(mdci)%nStab
 *
          Do jSym = 0, nDegi-1
             iSym=iCoSet(jSym,0,mdci)
@@ -401,9 +402,9 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                   Xref=Work(ip_Coor(kNQ)+iCar)
                   X   =Work(ip_Coor(iNQ)+iCar)
                   If (X.eq.Xref) Then
-                     iTab(4,nGrad_Eff)=nStab(mdci)
+                     iTab(4,nGrad_Eff)=dc(mdci)%nStab
                   Else
-                     iTab(4,nGrad_Eff)=-nStab(mdci)
+                     iTab(4,nGrad_Eff)=-dc(mdci)%nStab
                   End If
 *
 *---------------- Find all other shells which contibute to the same
@@ -432,7 +433,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        List_G(1+iCar,ilist_s)=nGrad_Eff
                        iTab(1,nGrad_Eff)=iCar+1
                        iTab(3,nGrad_Eff)=iNQ
-                       iTab(4,nGrad_Eff)=nStab(mdci)
+                       iTab(4,nGrad_Eff)=dc(mdci)%nStab
 *
 *--------------------- Find all other shells which contibute to the same
 *                      gradient.

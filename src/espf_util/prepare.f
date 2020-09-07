@@ -58,7 +58,7 @@
          End If
          Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
 *
@@ -90,13 +90,13 @@
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) .and.
+     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                       lDisp(iIrrep) = lDisp(iIrrep) + 1
-                      mult_Disp(nDisp)=nIrrep/nStab(mdc)
+                      mult_Disp(nDisp)=nIrrep/dc(mdc)%nStab
                       If (iIrrep.eq.0) Then
                          Do jOper = 0, nIrrep-1
                             Disp_Fac(iCar+1,jOper,mdc)=
@@ -108,7 +108,7 @@
 
                   End If
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
 *

@@ -90,8 +90,8 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *
 *     Call qEnter('SROGrd')
       iRout = 191
@@ -107,8 +107,8 @@
 *
       nDAO= nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
@@ -121,11 +121,11 @@
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2

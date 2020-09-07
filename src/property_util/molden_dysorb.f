@@ -27,6 +27,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -304,7 +305,7 @@ c      End If
 *
         Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom

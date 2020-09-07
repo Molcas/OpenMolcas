@@ -132,9 +132,9 @@ c     End If
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
 *           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
-*    &             DBLE(LmbdT*nStab(kdc+kCnt))
+*    &             DBLE(LmbdT*dc(kdc+kCnt)%nStab)
             Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 c           If (iPrint.ge.99) Then
@@ -143,8 +143,8 @@ c              write(*,*)   'NZeta=',nzeta
 c              Write(*,*)    'NrOp=',nrop
 c              Write (*,*) ' Fact=',Fact
 c           End If
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call LCopy(12,[.false.],0,JFgrd,1)
             Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2

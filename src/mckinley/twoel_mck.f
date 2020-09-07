@@ -227,10 +227,10 @@
          Call Abend()
       End If
 *
-      iuvwx(1) = nStab(iStb)
-      iuvwx(2) = nStab(jStb)
-      iuvwx(3) = nStab(kStb)
-      iuvwx(4) = nStab(lStb)
+      iuvwx(1) = dc(iStb)%nStab
+      iuvwx(2) = dc(jStb)%nStab
+      iuvwx(3) = dc(kStb)%nStab
+      iuvwx(4) = dc(lStb)%nStab
 *
       iffab = 9
       iffcd = 9
@@ -248,12 +248,12 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,nStab(iStb),
-     &                               dc(jStb)%iStab,nStab(jStb),
+         Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                               dc(jStb)%iStab,dc(jStb)%nStab,
      &                               iDCRR,nDCRR)
       End If
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 *
 *--------Find stabilizer for center A and B
 *
@@ -261,8 +261,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(dc(iStb)%iStab,nStab(iStb),
-     &              dc(jStb)%iStab,nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -274,12 +274,12 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,nStab(kStb),
-     &                               dc(lStb)%iStab,nStab(lStb),
+         Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                               dc(lStb)%iStab,dc(lStb)%nStab,
      &                               iDCRS,nDCRS)
       End If
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 *
 *-----------Find stabilizer for center C and D
 *
@@ -287,8 +287,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(dc(kStb)%iStab,nStab(kStb),
-     &              dc(lStb)%iStab,nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************

@@ -45,6 +45,7 @@
       use iSD_data
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -407,7 +408,7 @@ c            write(6,*) 'iOff =', iOff
 *
 cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
             Call FZero(Work(ipSOs),nSO)

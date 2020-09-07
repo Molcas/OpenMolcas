@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine MkDisp()
       Use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -46,7 +47,7 @@ C Sizes:
         If(.not.dbsc(iCnttp)%pChrg) Then
           Do iCnt=1,dbsc(iCnttp)%nCntr
             ic=ic+1
-            nAlCnt=nAlCnt+nIrrep/nStab(ic)
+            nAlCnt=nAlCnt+nIrrep/dc(ic)%nStab
           End Do
           nUqCnt=nUqCnt+dbsc(iCnttp)%nCntr
         End If
@@ -84,7 +85,7 @@ C Then, the symmetry related nuclei:
         iCnttp=iWork(ipCntId+0+4*(ic-1))
         iOff  =iWork(ipCntId+1+4*(ic-1))
         iCnt  =iWork(ipCntId+2+4*(ic-1))
-        Do iOpNr=1,nIrrep/nStab(ic) -1
+        Do iOpNr=1,nIrrep/dc(ic)%nStab -1
           jc=jc+1
           iWork(ipCntId+0+4*(jc-1))=iCnttp
           iWork(ipCntId+1+4*(jc-1))=iOff
@@ -144,7 +145,7 @@ C-------------------------------------------
       Do  iCnttp = 1, nCnttp
          Do  iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
          End Do
       End Do
       !
@@ -166,8 +167,8 @@ C-------------------------------------------
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                 nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                 iComp,nStab(mdc)) ) Then
+     &                 nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                 iComp,dc(mdc)%nStab) ) Then
                      nDisp = nDisp + 1
                      If (nDisp.gt.mDisp) Then
                         Write (6,*) 'nDisp.gt.mDisp'
@@ -178,7 +179,7 @@ C-------------------------------------------
                      Type = .False.
                   End If
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
       End Do

@@ -709,7 +709,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          If (On_Top) Then
             mdci  = iSD(10,iSh)
             kAO=iCmp*iBas*nGridMax
-            nSO=kAO*nSym/nStab(mdci)*mAO
+            nSO=kAO*nSym/dc(mdci)%nStab*mAO
          End If
 c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
          nMem=Max(nMem,nxyz+nAngular+nRad+nRadial,2*nSO)
@@ -778,15 +778,15 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
       ndc2 = ndc**2
       Call GetMem('Fact','Allo','Real',ip_Fact,ndc2)
       Do mdci = 1, ndc
-         nDegi=nIrrep/nStab(mdci)
+         nDegi=nIrrep/dc(mdci)%nStab
          Do mdcj = 1, ndc
-            nDegj=nIrrep/nStab(mdcj)
+            nDegj=nIrrep/dc(mdcj)%nStab
 *
             Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               nStab(mdci),dc(mdcj)%iStab,
-     &               nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%nStab,dc(mdcj)%iStab,
+     &               dc(mdcj)%nStab,iDCRR,nDCRR)
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nIrrep) / DBLE(LmbdR)
             Else If (MolWgh.eq.0) Then

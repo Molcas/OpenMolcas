@@ -39,6 +39,7 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -168,7 +169,7 @@
 *         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
         Do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
 *            write(6,*)'nDeg', nDeg
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1

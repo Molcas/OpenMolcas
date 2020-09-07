@@ -90,8 +90,8 @@
 *                    Skip if function not a basis of irreps.
 *
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
-     &                   nStab(mdc))) Go To 204
+     &                   nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iChBs,
+     &                   dc(mdc)%nStab)) Go To 204
                      IrrCmp(IndShl+iComp) =
      &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
 *
@@ -103,7 +103,7 @@
                         End If
                         ChTemp=LblCBs(lComp)
                         If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
-                        Do ico=0,nIrrep/nStab(mdc)-1
+                        Do ico=0,nIrrep/dc(mdc)%nStab-1
                         Cnt_ico(ico,iso)=mc+ico
                         Phase_ico(ico,iso)=
      &                        iPrmt(NrOpr(iCoSet(iCo,0,mdc),
@@ -119,7 +119,7 @@
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
  202        Continue
 *
  201     Continue

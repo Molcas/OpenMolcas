@@ -53,7 +53,7 @@
          End If
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
          End Do
  10   Continue
 *                                                                      *
@@ -73,19 +73,19 @@
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) .and.
+     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                      iDisp = iDisp + 1
                      ChDisp(iDisp)=' '
                      Write (ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)')
      &                     dc(mdc)%LblCnt(1:LENIN4),xyz(iCar)
-                     DegDisp(iDisp)=nIrrep/nstab(mdc)
+                     DegDisp(iDisp)=nIrrep/dc(mdc)%nStab
                      nDisp(iIrrep)=nDisp(iIrrep)+1
                   End If
 *
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
 *

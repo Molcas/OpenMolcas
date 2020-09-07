@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
       Use Basis_Info
+      use Center_Info
       Use Langevin_arrays
       use External_Centers
       use Phase_Info
@@ -44,7 +45,7 @@
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = mdc + 1
-            MaxAto = MaxAto + nIrrep/nStab(mdc)
+            MaxAto = MaxAto + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *
@@ -65,7 +66,7 @@
          End If
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Work(ipCord+(nc-1)*3  :
      &                      ipCord+(nc-1)*3+2))

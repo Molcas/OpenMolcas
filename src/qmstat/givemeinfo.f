@@ -14,6 +14,7 @@
      &                      MxAtQ,MxPrCon,MxBasQ,MxAngqNr,ipAcc,
      &                      nACCSize)
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
@@ -161,7 +162,7 @@ C     Endif
         M=iCnttp-1
         Do 212, iCnt=1,dbsc(iCnttp)%nCntr
           ndc=ndc+1
-          iTemp=iTemp+nStab(ndc)
+          iTemp=iTemp+dc(ndc)%nStab
 212     Continue
         NaTyp(iCnttp)=iTemp
         Do 213, iAng=0,nVarv-1  !And in this loop we get hold of the

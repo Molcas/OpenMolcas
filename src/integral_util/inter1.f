@@ -37,17 +37,12 @@
             mdc=mdc+1
             Lbl=dc(mdc)%LblCnt(1:LENIN)
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-            Do iCo=0,nIrrep/nStab(mdc)-1
+            Do iCo=0,nIrrep/dc(mdc)%nStab-1
                ndc=ndc+1
                kop=iCoSet(iCo,0,mdc)
-               A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
-               A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
-               A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
+               Call OA(kOp,A,Coor(1:3,ndc))
                Label(ndc)=Lbl(1:LENIN)
-               iBas_Lab(ndc)=icnttp
-               Coor(1,ndc)=A1
-               Coor(2,ndc)=A2
-               Coor(3,ndc)=A3
+               iBas_Lab(ndc)=iCnttp
                ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
             End Do
          End Do

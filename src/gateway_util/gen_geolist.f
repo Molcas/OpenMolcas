@@ -11,6 +11,7 @@
       Subroutine Gen_GeoList()
       use GeoList
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -44,7 +45,7 @@
 *
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Centr(1:3,nc))
                nchr=dbsc(jCnttp)%AtmNr
@@ -61,7 +62,7 @@
                End If
                nc = nc + 1
             End Do
-            kCentr = kCentr + nIrrep/nStab(ndc)
+            kCentr = kCentr + nIrrep/dc(ndc)%nStab
          End Do
       End Do
 *                                                                      *
@@ -85,7 +86,7 @@
          If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                nchr=dbsc(jCnttp)%AtmNr
                Chrg(nc) = Z
                nc = nc + 1

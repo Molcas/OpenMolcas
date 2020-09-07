@@ -11,6 +11,7 @@
       Subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
       use Real_Spherical
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -36,8 +37,8 @@
 *
       IX(i1,i2)=i1*(i1-1)/2+i2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &     nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &     nStab(mdc))
+     &     nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &     dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

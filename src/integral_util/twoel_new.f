@@ -182,11 +182,11 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center A and B
 *
-      Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,nStab(iStb),
-     &                            dc(jStb)%iStab,nStab(jStb),
+      Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                            dc(jStb)%iStab,dc(jStb)%nStab,
      &                            iDCRR,nDCRR)
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 #ifdef _DEBUG_
       If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
@@ -194,8 +194,8 @@ c Avoid unused argument warnings
 *
 *-----Find stabilizer for center A and B
 *
-      Call Inter(dc(iStb)%iStab,nStab(iStb),
-     &           dc(jStb)%iStab,nStab(jStb),iStabM,lStabM)
+      Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &           dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
 *     Write (*,'(20A)') ' M=(',
 *    &      (ChOper(iStabM(i)),',',i=0,lStabM-1),')'
 *
@@ -204,11 +204,11 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center C and D.
 *
-      Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,nStab(kStb),
-     &                            dc(lStb)%iStab,nStab(lStb),
+      Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                            dc(lStb)%iStab,dc(lStb)%nStab,
      &                            iDCRS,nDCRS)
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 #ifdef _DEBUG_
       If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
@@ -216,8 +216,8 @@ c Avoid unused argument warnings
 *
 *-----Find stabilizer for center C and D
 *
-      Call Inter(dc(kStb)%iStab,nStab(kStb),
-     &           dc(lStb)%iStab,nStab(lStb),iStabN,lStabN)
+      Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &           dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
 *     Write (*,'(20A)') ' N=(',
 *    &      (ChOper(iStabN(i)),',',i=0,lStabN-1),')'
 *                                                                      *

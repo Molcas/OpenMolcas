@@ -53,6 +53,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
@@ -112,8 +113,8 @@
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

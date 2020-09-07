@@ -154,8 +154,8 @@
 *
       nDAO = nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
@@ -233,8 +233,8 @@ c     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
 c        write(*,*) '  iPrim,iBas =',iPrim,iBas
 *
 * extra derivative stuff
-            iuvwx(3) = nStab(mdci)
-            iuvwx(4) = nStab(mdci)
+            iuvwx(3) = dc(mdci)%nStab
+            iuvwx(4) = dc(mdci)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -313,7 +313,7 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 * DCR stuff (iS and jS have always the same symmetry character)
 *
           Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             dc(mdci)%iStab,nStab(mdci),iDCRT,nDCRT)
+     &             dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************

@@ -85,8 +85,8 @@ C     nElem(ixyz) = 2*ixyz+1
 *                 Find the DCR for the two centers
 *
                   Call DCR(LmbdR,iOper,nIrrep,
-     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
-     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp = Zero
@@ -261,7 +261,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
                   Call DCR(LmbdR,iOper,nIrrep,
      &                     iStb,nStb,
-     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero

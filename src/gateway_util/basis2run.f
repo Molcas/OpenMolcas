@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine basis2run()
       use Basis_Info
+      use Center_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -38,7 +39,7 @@
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt
@@ -69,7 +70,7 @@
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt

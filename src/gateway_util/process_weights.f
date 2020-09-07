@@ -27,6 +27,7 @@
 ************************************************************************
       SUBROUTINE Process_Weights(iPrint)
       use Basis_Info
+      use Center_Info
       IMPLICIT REAL*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -45,7 +46,7 @@
         DO j=1,dbsc(i)%nCntr
           ndc=ndc+1
           IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            nAt=nAt+nIrrep/nStab(ndc)
+            nAt=nAt+nIrrep/dc(ndc)%nStab
             nSymAt=nSymAt+1
           END IF
         END DO
@@ -97,7 +98,7 @@
         DO j=1,dbsc(i)%ncntr
           ndc=ndc+1
           IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            DO k=1,nIrrep/nStab(ndc)-1
+            DO k=1,nIrrep/dc(ndc)%nStab-1
               W(iAt)=W(iSymAt)
               iAt=iAt+1
             END DO

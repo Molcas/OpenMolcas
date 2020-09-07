@@ -339,6 +339,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "itmax.fh"
@@ -499,7 +500,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
             iShell= iSD(11,iSh)
 
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
 

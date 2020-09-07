@@ -135,16 +135,16 @@ C     Call qEnter('NAInt')
 *-----------Find the DCR for M and S
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+kCnt)%iStab ,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             If (iPrint.ge.99) Then
                Write (6,*) ' m      =',nStabM
                Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &               ii = 0, nStabM-1)
-               Write (6,*) ' s      =',nStab(kdc+kCnt)
+               Write (6,*) ' s      =',dc(kdc+kCnt)%nStab
                Write (6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),
-     &               ii = 0, nStab(kdc+kCnt)-1)
+     &               ii = 0, dc(kdc+kCnt)%nStab-1)
                Write (6,*) ' LambdaT=',LmbdT
                Write (6,*) ' t      =',nDCRT
                Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),

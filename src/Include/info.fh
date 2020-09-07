@@ -35,8 +35,6 @@
 *                                                                      *
 * -> Integer   <-                                                      *
 *     iChTbl: the character table for the specified point group        *
-*     nStab : the number of elements in the stabilizer of the i''th    *
-*             unique center                                            *
 *     iCoSet: the cosets of the i''th unique center                    *
 *     iSkip : flag to indicate that certain irreps are ignored         *
 *     iAngMx: higest angular momentum specified in the input           *
@@ -178,7 +176,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
-      Integer   iChTbl(0:7,0:7), nStab(Mxdc),
+      Integer   iChTbl(0:7,0:7),
      &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
@@ -194,7 +192,7 @@
       Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
-     &              iChTbl, nStab, nBas_Aux,
+     &              iChTbl, nBas_Aux,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
      &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,

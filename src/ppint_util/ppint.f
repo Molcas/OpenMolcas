@@ -134,7 +134,8 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *-----------Find the DCR for M and S
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               dc(kdc+iCntr)%iStab ,nStab(kdc+iCntr),iDCRT,nDCRT)
+     &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,
+     &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1

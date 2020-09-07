@@ -23,6 +23,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -296,7 +297,7 @@ c      End If
             Do iCntr=1,dbsc(iCnttp)%nCntr
                iData=iData+1
                mdc = iCntr + dbsc(iCnttp)%mdci
-               nDeg=nIrrep/nStab(mdc)
+               nDeg=nIrrep/dc(mdc)%nStab
                Do iDeg = 1, nDeg
                   jData=jData+1
                   Write (MF,*) Work(ipMull+iData-1)
@@ -342,7 +343,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *
         Do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom

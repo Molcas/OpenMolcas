@@ -32,6 +32,7 @@
 *                                                                      *
 *             Modified to gradients, April '95. R. Lindh               *
 ************************************************************************
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -203,7 +204,7 @@
       Call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),
      &            nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),
      &            Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
      &            kOp,iChBas,MxFnc)
 
 *

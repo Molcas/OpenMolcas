@@ -32,6 +32,7 @@ C             SCR:  Transition density matrice in AO basis.             C
 C                                                                       C
 C***********************************************************************C
       Use Basis_Info
+      use Center_Info
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"
@@ -51,8 +52,8 @@ C***********************************************************************C
       Logical TF, TstFnc
 * Statement Function
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 
       CALL QENTER(ROUTINE)
 

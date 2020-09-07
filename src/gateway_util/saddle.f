@@ -131,7 +131,7 @@
      &                (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &               ) Then
                      jTmp=0
-                     Do j = 1, nStab(nsc)-1
+                     Do j = 1, dc(nsc)%nStab-1
                         jTmp=iOr(jTmp,dc(nsc)%iStab(j))
                      End Do
                      iStab(iAt)=jTmp
@@ -214,7 +214,7 @@
      &                          dbsc(iCnttp)%Aux)) Then
                         iAt=iAt+1
                         Elm(iAt)=PTab(dbsc(iCnttp)%AtmNr)
-                        Do i=1,nIrrep/nStab(ndc)-1
+                        Do i=1,nIrrep/dc(ndc)%nStab-1
                           iAtSym=iAtSym+1
                           Elm(iAtSym)=Elm(iAt)
                         End Do
@@ -276,7 +276,7 @@
      &             (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &            ) Then
                   jTmp=0
-                  Do j = 1, nStab(nsc)-1
+                  Do j = 1, dc(nsc)%nStab-1
                      jTmp=iOr(jTmp,dc(nsc)%iStab(j))
                   End Do
                   iStab(iAt)=jTmp
@@ -855,7 +855,7 @@
      &                dbsc(i)%Frag .Or.
      &                dbsc(i)%Aux)) Then
                jTmp=0
-               Do j = 1, nStab(nsc)-1
+               Do j = 1, dc(nsc)%nStab-1
                   jTmp=iOr(jTmp,dc(nsc)%iStab(j))
                End Do
                iStab(iAt)=jTmp

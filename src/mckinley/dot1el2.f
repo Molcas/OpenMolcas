@@ -80,8 +80,8 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *
@@ -174,14 +174,14 @@ C        Do jS = 1, iS
 *           Find the DCR for A and B
 *
             Call DCR(LmbdR,iOper,nIrrep,
-     &               dc(mdci)%iStab,nStab(mdci),
-     &               dc(mdcj)%iStab,nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%iStab,dc(mdci)%nStab,
+     &               dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(dc(mdci)%iStab,nStab(mdci),
-     &                 dc(mdcj)%iStab,nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet
@@ -273,7 +273,7 @@ C        Do jS = 1, iS
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                   FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)
