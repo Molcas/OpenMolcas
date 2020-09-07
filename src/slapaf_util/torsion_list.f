@@ -547,20 +547,15 @@
 *
                mCent=3
                delta = (15.0D0/180.D0)*Pi
-               Call Bend(Ref(1,1),mCent,Fi2,Grad_ref,
-     &                   .False.,
+               If (nAtoms.eq.4) delta = -Ten
+               Call Bend(Ref(1,1),mCent,Fi2,Grad_ref,.False.,
      &                   .False.,'        ',Hess,.False.)
-               Call Bend(A(1,1),mCent,Fi2_a,Grad,.False.,
+               If (Fi2.gt.Pi-delta) Go To 401
+               If (Fi2.lt.delta) Go To 401
+               Call Bend(Ref(1,2),mCent,Fi3,Grad_ref,.False.,
      &                   .False.,'        ',Hess,.False.)
-               If (Fi2.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
-               If (Fi2.lt.delta.and.nAtoms.ne.4) Go To 401
-               Call Bend(Ref(1,2),mCent,Fi3,Grad_ref,
-     &                   .False.,
-     &                   .False.,'        ',Hess,.False.)
-               Call Bend(A(1,2),mCent,Fi3_a,Grad,.False.,
-     &                   .False.,'        ',Hess,.False.)
-               If (Fi3.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
-               If (Fi3.lt.delta.and.nAtoms.ne.4) Go To 401
+               If (Fi3.gt.Pi-delta) Go To 401
+               If (Fi3.lt.delta) Go To 401
 *              Write (6,*) ' T Force Constant:',f_Const
 *
                nq = nq + 1
@@ -678,6 +673,13 @@
                   End If
                   fconst(nq)=Sqrt(f_Const)
                   rMult(nq)=Deg
+*                 Scale down fconst if angles are close to linear
+                  CosFi=Max(Abs(Cos(Fi2)),Abs(Cos(Fi3)))
+                  CosThr=0.97D0
+                  If (CosFi.gt.CosThr) Then
+                    CosFi=(CosFi-CosThr)/(One-CosThr)
+                    fconst(nq)=(One-CosFi**2)*fconst(nq)
+                  End If
 *
                   Value(nq,iIter)=Val
                   qLbl(nq) = Label
