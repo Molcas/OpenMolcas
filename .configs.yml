@@ -182,6 +182,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - docker
 
