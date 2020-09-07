@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Basis_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -43,7 +44,7 @@
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
      &            'THER','NEWC','TWOS'/
-      Dimension idum(1)
+      Integer iDum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -53,7 +54,8 @@
 *----------------------------------------------------------------------*
       debug=.False.
       Epsilon_Undef=.True.
-      Call Get_info_Static(iDum(1))
+      Call Basis_Info_Get()
+      Call Get_info_Static()
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.
       If (debug) write(6,*) 'Got info.fh'

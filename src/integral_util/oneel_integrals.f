@@ -84,7 +84,8 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call OneEl_(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+      Call OneEl_Internal
+     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
      &            dum,dum,1,idum,0,0,
      &            iStabO,nStabO,nIC,

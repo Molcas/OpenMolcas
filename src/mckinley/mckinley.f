@@ -46,6 +46,7 @@
 *          '95                                                         *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 *
 #include "real.fh"
@@ -67,6 +68,7 @@ c      Parameter (nLines=12)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Call McKinley_banner()
       Call CWTime(TCpu1,TWall1)
       Call qEnter('McKinley')
       iRout=1
@@ -122,7 +124,7 @@ C     Call Banner(Lines,nLines,lLine)
 *
       nDiff=2
       DoRys=.True.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 cpcm_solvent
 c check if there is a reaction field
 c     write(6,*)'In mckinley PCM',pcm
@@ -134,7 +136,7 @@ C        Call Abend()
 C     End If
       nsAtom=0
       Do  iCnttp = 1, nCnttp
-            nsAtom=nsAtom+nCntr(iCnttp)
+            nsAtom=nsAtom+dbsc(iCnttp)%nCntr
       End Do
       Call Inputh(Run_MCLR)
       iPrint=nPrint(iRout)

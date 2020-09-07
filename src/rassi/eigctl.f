@@ -2392,7 +2392,7 @@ C                                                                      C
 *     Initiate the Seward environment
 *
       nDiff=0
-      Call IniSew(Info,.FALSE.,nDiff)
+      Call IniSew(.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *

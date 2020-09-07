@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Int_LDF_JK_2P(iCmp,iShell,MapOrg,
+      SubRoutine Int_LDF_JK_2P(iCmp,iShell,MapOrg,IndShlV,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,FacInt,itOffs,nSym,
-     &                         nShi,nShj,nShk,nShl,
-     &                         nShOffi,nShOffj,nShOffk,nShOffl,
      &                         Dens,Fock,LDens,ExFac,NDens,
      &                         ind,nind,FckNoClmb,FckNoExch)
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
@@ -27,11 +25,9 @@
 #include "localdf_int2.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4),
+      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7)
+     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
       Real*8 Dens(lDens,nDens), Fock(lDens,nDens), ExFac(nDens)
       Integer Ind(nInd,nInd,2)
@@ -50,14 +46,6 @@
          iDummy_1  = Ind(1,1,1)
          iDummy_2  = itOffs(0,0,0)
          iDummy_3  = iShell(1)
-         iDummy_4  = nShOffi(0)
-         iDummy_5  = nShOffj(0)
-         iDummy_6  = nShOffk(0)
-         iDummy_7  = nShOffl(0)
-         iDummy_8  = nShi(0)
-         iDummy_9  = nShj(0)
-         iDummy_10 = nShk(0)
-         iDummy_11 = nShl(0)
       End If
 *
 * call sorting routine
@@ -125,5 +113,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
+         Call Unused_integer_array(IndShlV)
       End If
       End

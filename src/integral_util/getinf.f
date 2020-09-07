@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
+* Copyright (C) 1992,2020, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GetInf(Info_,nInfo,DoRys,nDiff,icase)
+      SubRoutine GetInf(DoRys,nDiff)
 ************************************************************************
 *                                                                      *
 * Object: to read all input information on the file INFO.              *
@@ -66,128 +66,15 @@
 *
 *     Call qEnter('GetInf')
 *
-      ioffr=0
+*     Load the dynamic input area.
+*
+      Call Get_Info_Dynamic()
 *
 *     Load the static input area.
 *
-      Call Get_Info_Static(ioffr)
-*
-*     Load the dynamic input area.
-*
-      Call Get_Info_Dynamic(Info_,nInfo,ioffr,icase)
+      Call Get_Info_Static()
 *                                                                      *
-************************************************************************
-*                                                                      *
-      Call qpg_dArray('EF_Centers',Found,Len2)
-      If (Found) Then
-         nEF=Len2/3
-         If (Allocated(EF_Centers)) Then
-            If (SIZE(EF_Centers,2).ne.nEF) Then
-               Write (6,*) 'SIZE(EF_Centers,2).ne.nEF'
-               Call Abend()
-            End If
-         Else
-            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
-         End If
-         Call Get_dArray('EF_Centers',EF_Centers,3*nEF)
-      End If
-*
-      Call qpg_dArray('OAM_Center',Found,Len2)
-      If (Found) Then
-         If (.Not.Allocated(OAM_Center)) Then
-            Call mma_allocate(OAM_Center,3,Label='OAM_Center')
-         End If
-         Call Get_dArray('OAM_Center',OAM_Center,3)
-      End If
-*
-      Call qpg_dArray('OAM_Center',Found,Len2)
-      If (Found) Then
-         If (.Not.Allocated(OAM_Center)) Then
-            Call mma_allocate(OAM_Center,3,Label='OAM_Center')
-         End If
-         Call Get_dArray('OAM_Center',OAM_Center,3)
-      End If
-*
-      Call qpg_dArray('OMQ_Center',Found,Len2)
-      If (Found) Then
-         If (.Not.Allocated(OMQ_Center)) Then
-            Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
-         End If
-         Call Get_dArray('OMQ_Center',OMQ_Center,3)
-      End If
-*
-      Call qpg_dArray('DMS_Centers',Found,Len2)
-      If (Found) Then
-         nDMS=Len2/3
-         If (Allocated(DMS_Centers)) Then
-            If (SIZE(DMS_Centers,2).ne.nDMS) Then
-               Write (6,*) 'SIZE(DMS_Centers,2).ne.nDMS'
-               Call Abend()
-            End If
-         Else
-            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
-         End If
-         Call Get_dArray('DMS_Centers',DMS_Centers,3*nDMS)
-      End If
-*
-      Call qpg_dArray('Wel_Info',Found,Len2)
-      If (Found) Then
-         nWel=Len2/3
-         If (Allocated(Wel_Info)) Then
-            If (SIZE(Wel_Info,2).ne.nWel) Then
-               Write (6,*) 'SIZE(Wel_Info,2).ne.nWel'
-               Call Abend()
-            End If
-         Else
-            Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
-         End If
-         Call Get_dArray('Wel_Info',Wel_Info,3*nWel)
-      End If
-*
-      Call qpg_dArray('AMP_Center',Found,Len2)
-      If (Found) Then
-         If (.Not.Allocated(AMP_Center)) Then
-            Call mma_allocate(AMP_Center,3,Label='AMP_Center')
-         End If
-         Call Get_dArray('AMP_Center',AMP_Center,3)
-      End If
-*
-      Call qpg_dArray('RP_Centers',Found,Len2)
-      If (Found) Then
-         nRP=Len2/2
-         If (Allocated(RP_Centers)) Then
-            If (SIZE(RP_Centers,2).ne.nRP/3) Then
-               Write (6,*) 'SIZE(RP_Centers,2).ne.nRP/3'
-               Call Abend()
-            End If
-         Else
-            Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
-         End If
-         Call Get_dArray('RP_Centers',RP_Centers,2*nRP)
-      End If
-*
-      Call qpg_iArray('XEle',Found,Len2)
-      If (Found) Then
-         nXF=Len2
-         If (.Not.Allocated(XEle)) Then
-            Call mma_allocate(XEle,nXF,Label='XEle')
-         End If
-         Call Get_iArray('XEle',XEle,nXF)
-*
-         Call qpg_dArray('XMolnr',Found,Len2)
-         nXMolnr=Len2/nXF
-         If (.Not.Allocated(XMolnr)) Then
-            Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
-         End If
-         Call Get_iArray('XMolnr',XMolnr,nXMolnr*nXF)
-*
-         Call qpg_dArray('XF',Found,Len2)
-         nData_XF=Len2/nXF
-         If (.Not.Allocated(XF)) Then
-            Call mma_allocate(XF,nData_XF,nXF,Label='XF')
-         End If
-         Call Get_dArray('XF',XF,nData_XF*nXF)
-      End If
+      Call External_Centers_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,6 +148,7 @@
             ipSph(iAng+1)= ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
  2       Continue
          Call Get_dArray('SewTInfo',RSph(ipSph(0)),Len)
+         lmax_internal=iAngMx
       Else
          Call Sphere(lMax)
       End If

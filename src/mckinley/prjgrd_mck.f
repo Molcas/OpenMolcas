@@ -62,8 +62,9 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
-*             Physics, University of Stockholm, Sweden, October '93.   *
+*             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -114,14 +115,13 @@
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
 
-         Do 1965 kCnt = 1,nCntr(kCnttp)
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
 
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
@@ -168,17 +168,18 @@
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
-            Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
-               iShll = ipPrj(kCnttp) + iAng
-
+            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
+               iShll = dbsc(kCnttp)%iPrj + iAng
+               nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
-                  Write (6,*) 'nExp(iShll)=',nExp(iShll)
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nExp(iShll)=',nExpi
+                  Write (6,*) 'nBasisi=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip=1
 
@@ -186,10 +187,10 @@
                ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
                ipFB2 = ip
                ipFA2 = ip
@@ -218,7 +219,7 @@
 
 
                call  CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
-     &                        Fact,nAlpha,nBeta,Dum,nBasis(ishll),
+     &                        Fact,nAlpha,nBeta,Dum,nBasisi,
      &                        la,lb,iang,jfgrad,Dum,.false.,
      &                        index,mvec,idcar)
 
@@ -233,7 +234,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
       Return

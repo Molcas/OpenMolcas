@@ -8,10 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*-----------------------------------------------------------------------*
-      Subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA
-     &,nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,MxAtQ,MxPrCon,MxBasQ
-     &,MxAngqNr,ipAcc,nACCSize)
+*----------------------------------------------------------------------*
+      Subroutine GiveMeInfo(nBB,nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,
+     &                      nBona,ipExpo,ipCont,nSh,nfSh,nSize,iPrint,
+     &                      MxAtQ,MxPrCon,MxBasQ,MxAngqNr,ipAcc,
+     &                      nACCSize)
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
@@ -31,6 +33,7 @@
       Dimension nSh(MxAtQ),nFSh(MxAtQ,MxAngqNr),iCon(MxAtQ,MxPrCon)
       Dimension natyp(MxAtQ),nPrim(MxBasQ),nBA(MxAtQ)
       Dimension nCBoA(MxAtQ,MxAngqNr)
+      Real*8, Allocatable:: TEMP1(:), TEMP2(:)
       Logical DoRys
 
       Call QEnter('GiveMeInfo')
@@ -38,7 +41,7 @@
 *------------------------------------------------------------------------*
 * Initialize in order to read properly from the info file.               *
 *------------------------------------------------------------------------*
-      Call Seward_Init
+      Call Seward_Init()
 
 *------------------------------------------------------------------------*
 * GetInf reads everything in the info file and put it in variables       *
@@ -47,7 +50,7 @@
 *------------------------------------------------------------------------*
       nDiff=0
       DoRys=.false.
-      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
+      Call GetInf(DoRys,nDiff)
 
 *------------------------------------------------------------------------*
 * Set nntyp.                                                             *
@@ -58,15 +61,17 @@
 * Compute what we came here for. iBasAng will contain nBas elements with *
 * integers, such that 1=s-orbitals, 2=p-orbitals, 3=d-orbitals, ...      *
 *------------------------------------------------------------------------*
-      ii=0  !ii is number of basis sets.
-10    Continue
-        ii=ii+1
-      If(nCntr(ii).ne.0) Go To 10
-      ii=ii-1
-      If(ii.eq.0) then
-        Write(6,*)
-        Write(6,*)'ERROR in GiveMeInfo. No atoms?'
-      Endif
+C     ii=0  !ii is number of basis sets.
+C10   Continue
+C       ii=ii+1
+C     If(dbsc(ii)%nCntr.ne.0) Go To 10
+C     ii=ii-1
+C     If(ii.eq.0) then
+C       Write(6,*)
+C       Write(6,*)'ERROR in GiveMeInfo. No atoms?'
+C     Endif
+      ii=nCnttp
+*
       kaunta=0
       kaunt=0
       kaunter=0
@@ -74,18 +79,18 @@
       MaxAng=0
       Do 20, i=1,ii
         kauntSav=kaunt
-        Do 25, ioio=1,nCntr(i)
+        Do 25, ioio=1,dbsc(i)%nCntr
           krekna=krekna+1
           krekna2=0
           kaunt=kauntSav
           kaunterPrev=kaunter
-          nBA(krekna)=nTot_Shells(i)
+          nBA(krekna)=dbsc(i)%nShells
           If(nBA(krekna).gt.MaxAng)MaxAng=nBA(krekna)
-          Do 30, j=1,nTot_Shells(i)
+          Do 30, j=1,dbsc(i)%nShells
             kaunt=kaunt+1
             krekna2=krekna2+1
-            nCBoA(krekna,krekna2)=nBasis(kaunt)
-            Do 40, jj=1,nBasis(kaunt)
+            nCBoA(krekna,krekna2)=Shells(kaunt)%nBasis
+            Do 40, jj=1,Shells(kaunt)%nBasis
               kaunter=kaunter+1
 40          Continue
 30        Continue
@@ -100,12 +105,12 @@
       kaunter=0
       kaunt=0
       Do 101, i=1,ii
-        Do 111, j=1,nCntr(i)
+        Do 111, j=1,dbsc(i)%nCntr
           kaunt=kaunt+1
           Do 121, kk=1,nBonA(kaunt)
             kaunter=kaunter+1
             Do 131, k=1,3
-              BasCoo(k,kaunter)=Work(ipCntr(i)+(j-1)*3+k-1)
+              BasCoo(k,kaunter)=dbsc(i)%Coor(k,j)
 131         Continue
 121       Continue
 111     Continue
@@ -124,11 +129,11 @@
       kaunt=0
       Do 201, i=1,ii
         kaunter=0
-        Do 203, k=1,nTot_Shells(i)
+        Do 203, k=1,dbsc(i)%nShells
           kaunt=kaunt+1
-          Do 205, ll=1,nBasis(kaunt)
+          Do 205, ll=1,Shells(kaunt)%nBasis
             kaunter=kaunter+1
-            Icon(i,kaunter)=nExp(kaunt)
+            Icon(i,kaunter)=Shells(kaunt)%nExp
 205       Continue
 203     Continue
 201   Continue
@@ -138,21 +143,23 @@
       nSize=0
       kaunt=0
       Do 2101, kk=1,ii   !Just to get size of vector
-        Do 2102, kkk=1,nTot_Shells(kk)
+        Do 2102, kkk=1,dbsc(kk)%nShells
           kaunt=kaunt+1
-          nSize=nSize+nBasis(kaunt)*nExp(kaunt)
+          nSize=nSize+Shells(kaunt)%nBasis*Shells(kaunt)%nExp
 2102    Continue
 2101  Continue
       Call GetMem('Exponents','Allo','Real',ipExpo,nSize*MxAtQ)
       Call GetMem('ContrCoef','Allo','Real',ipCont,nSize*MxAtQ)
+      Call FZero(Work(ipExpo),nSize*MxAtQ)
+      Call FZero(Work(ipCont),nSize*MxAtQ)
 
       Do 211, iCnttp=1,nCnttp  !Here we set NaTyp.
         jSum=0
         iTemp=0
-        nVarv=nTot_Shells(iCnttp)
+        nVarv=dbsc(iCnttp)%nShells
         nSh(iCnttp)=nVarv
         M=iCnttp-1
-        Do 212, iCnt=1,nCntr(iCnttp)
+        Do 212, iCnt=1,dbsc(iCnttp)%nCntr
           ndc=ndc+1
           iTemp=iTemp+nStab(ndc)
 212     Continue
@@ -160,27 +167,26 @@
         Do 213, iAng=0,nVarv-1  !And in this loop we get hold of the
                           !contraction coefficients and the exponents.
           iCount=iAng+iAngSav
-          iCff=ipCff(iCount)
-          iExp=ipExp(iCount)
-          iPrim=nExp(iCount)
-          iBas=nBasis(iCount)
+          iPrim=Shells(iCount)%nExp
+          iBas=Shells(iCount)%nBasis
+c         Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
+          Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)
           nfSh(iCnttp,iAng+1)=iBas
           Do 214, i=1,iBas
-            Call dCopy_(iPrim,Work(iExp),1,Work(ipExpo+jSum*MxAtQ+M)
-     &                ,MxAtQ)
-            Call dCopy_(iPrim,Work(iCff),1,Work(ipCont+jSum*MxAtQ+M)
-     &                ,MxAtQ)
+            Call dCopy_(iPrim,Shells(iCount)%Exp,1,
+     &                        Work(ipExpo+jSum*MxAtQ+M),MxAtQ)
+            Call dCopy_(iPrim,Shells(iCount)%pCff(1,i),1,
+     &                        Work(ipCont+jSum*MxAtQ+M),MxAtQ)
             jSum=jSum+iPrim
-            iCff=iCff+iPrim
 214       Continue
 213     Continue
         iAngSav=iAngSav+iAng
 211   Continue
       If(iPrint.ge.30) then
         Write(6,*)'Exp.'
-        Write(6,'(10F13.4)')(Work(ipExpo+k),k=0,nSize*MxAtQ-1)
+        Write(6,'(10G13.4)')(Work(ipExpo+k),k=0,nSize*MxAtQ-1)
         Write(6,*)'Contr.'
-        Write(6,'(10F13.4)')(Work(ipCont+k),k=0,nSize*MxAtQ-1)
+        Write(6,'(10G13.4)')(Work(ipCont+k),k=0,nSize*MxAtQ-1)
       Endif
 
 *---------------------------------------------------------------------------*
@@ -202,7 +208,6 @@
 303       Continue
 302     Continue
 301   Continue
-
 *
 *-- Then since overlap integrations are in cartesian coordinates while
 *   the AO-basis is spherical, we need transformation matrix for this.
@@ -213,35 +218,35 @@
       MaxAng=MaxAng-1
       nSize=(2*MaxAng+1)*(MaxAng+1)*(MaxAng+2)/2
       nACCSize=0
-      Do 980, i=2,MaxAng
+      Do i=2,MaxAng
         nACCSize=nACCSize+(2*i+1)*(i+1)*(i+2)/2
-980   Continue
+      End Do
       nSumma=0
-      Call GetMem('TEMP1','Allo','Real',ipTEMP1,nSize)
-      Call GetMem('TEMP2','Allo','Real',ipTEMP2,nSize)
+      Call mma_allocate(TEMP1,nSize,Label='TEMP1')
+      Call mma_allocate(TEMP2,nSize,Label='TEMP2')
       Call GetMem('AccTransa','Allo','Real',ipAcc,nACCSize)
-      Do 981, i=2,MaxAng
-        ind1=(i+1)*(i+2)/2
-        ind2=2*i+1
-        iHowMuch=ind1*ind2
-        Call DCopy_(iHowMuch,RSph(ipSph(i)),iONE,Work(ipTEMP1),iONE)
-        ind3=0
-        Do 982, jj=1,ind1
-          call dcopy_(ind2,Work(ipTEMP1+jj-1),ind1
-     &                   ,Work(ipTEMP2+ind3),iONE)
-          ind3=ind3+ind2
-982     Continue
-*        Call recprt('FFF',' ',Work(ipTEMP1),(i+1)*(i+2)/2,2*i+1)
-*        Call recprt('GGG',' ',Work(ipTEMP2),ind2,ind1)
-        call dcopy_(iHowMuch,Work(ipTEMP2),iONE,Work(ipAcc+nSumma),iONE)
-        nSumma=nSumma+iHowMuch
-981   Continue
-      Call GetMem('TEMP1','Free','Real',ipTEMP1,nSize)
-      Call GetMem('TEMP2','Free','Real',ipTEMP2,nSize)
-
-*---------------------------------------------------------------------------*
-* Make deallocations. They are necessary because of the getinf.             *
-*---------------------------------------------------------------------------*
+*
+      Do i=2,MaxAng
+         ind1=(i+1)*(i+2)/2
+         ind2=2*i+1
+         iHowMuch=ind1*ind2
+         Call DCopy_(iHowMuch,RSph(ipSph(i)),iONE,TEMP1,iONE)
+         ind3=1
+         Do jj=1,ind1
+            call dcopy_(ind2,TEMP1(jj),ind1,TEMP2(ind3),iONE)
+            ind3=ind3+ind2
+         End Do
+*        Call recprt('FFF',' ',TEMP1,(i+1)*(i+2)/2,2*i+1)
+*        Call recprt('GGG',' ',TEMP2,ind2,ind1)
+         call dcopy_(iHowMuch,TEMP2,iONE,Work(ipAcc+nSumma),iONE)
+         nSumma=nSumma+iHowMuch
+      End Do
+*
+      Call mma_deallocate(TEMP1)
+      Call mma_deallocate(TEMP2)
+*----------------------------------------------------------------------*
+* Make deallocations. They are necessary because of the getinf.        *
+*----------------------------------------------------------------------*
       Call ClsSew()
       Call QEXit('GiveMeInfo')
 

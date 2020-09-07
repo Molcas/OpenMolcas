@@ -36,8 +36,8 @@
 *    It was hard to write, and it must be hard to understand..."       *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Basis_Info_Free
       Implicit Real*8 (a-h,o-z)
-
 #include "Input.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
@@ -63,6 +63,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Call MCLR_banner()
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
@@ -241,6 +242,10 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Basis_Info_Free()
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 *     Deallocate memory
 *
@@ -298,7 +303,6 @@ c      idp=rtoi
       Call GetMem('RHSFile','Free','INTE',ifpRHS,nisp)
       Call GetMem('SigFile','Free','INTE',ifpS,nisp)
       Call GetMem('KapFile','Free','INTE',ifpK,nisp)
-
 *
 *     Close files
 *

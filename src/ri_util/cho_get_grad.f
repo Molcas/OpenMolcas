@@ -140,7 +140,6 @@
 #endif
 #include "para_info.fh"
 #include "print.fh"
-      Parameter (MxShll=iTabMx*MxAtom)
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
 

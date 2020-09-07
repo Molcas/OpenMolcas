@@ -41,13 +41,13 @@
       use k2_setup
       use iSD_data
       use k2_arrays
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "lundio.fh"
 #include "print.fh"
@@ -86,6 +86,7 @@
 *                                                                      *
       iRout = 240
       iPrint = nPrint(iRout)
+*     iPrint = 99
       Call QEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
@@ -157,55 +158,49 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
 *
       Do iS = 1, mSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll).and.iS.ne.mSkal) Go To 100
+         If (Shells(iShll)%Aux.and.iS.ne.mSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-         If (ReOrder) Call OrdExpD2C(iPrim,Work(iExp),iBas,Work(iCff))
+         If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+     &                                     Shells(iShll)%pCff)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(iShll).and..Not.AuxShell(jShll)) Go To 200
-            If (AuxShell(jShll).and.jS.eq.mSkal) Go To 200
+            If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Go To 200
+            If (Shells(jShll)%Aux.and.jS.eq.mSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
 *           Fix for the dummy basis set
-            If (AuxShell(iShll))
-     &         call dcopy_(3,Work(jxyz),1,Coor(1,1),1)
+            If (Shells(iShll)%Aux) Coor(1:3,1)=Coor(1:3,2)
 *
             Call iCopy(2,iAngV(1),1,iAngV(3),1)
             Call ICopy(2,iCmpV(1),1,iCmpV(3),1)
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipExpi   = iExp
-            jpExpj   = jExp
-            ipCffi   = iCff
-            ipCffj   = jCff
             nBasi    = iBas
             nBasj    = jBas
 *
@@ -219,7 +214,8 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             nZeta = iPrimi * jPrimj
 *
             Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
-     &                  Work(ipCffi),nBasi,Work(ipCffj),nBasj)
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj)
 *
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
             If (iPrint.ge.99) Call RecPrt(' Sym. Dist. Centers',' ',
@@ -231,7 +227,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
                nDCR  =ipOffD(2,ijS)
                nDij  =ipOffD(3,ijS)
             Else
-               ipDij=ip_Dummy
+               ipDij= -1
                nDCR  =1
                nDij=1
             End If
@@ -300,11 +296,11 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,Data_k2(jpk2),
-     &                  Work(ipExpi),iPrimi,
-     &                  Work(jpExpj),jPrimj,
+     &                  Shells(iShll)%Exp,iPrimi,
+     &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
-     &                  Work(ipCffi),nBasi,
-     &                  Work(ipCffj),nBasj,
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj,
      &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
      &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
      &                  nZeta,ijInc,Mem_DBLE(ipCon),

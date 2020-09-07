@@ -26,7 +26,7 @@
 *   rewrite it, in the mean time, dont worry.
 *
 
-
+      Use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
@@ -150,15 +150,16 @@
 *
          iGr=index(icar,icent)
          Call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),nINT2,
-     &           Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
-     &           MOInt,nMOINt,ishell,
-     &           rmoin(ipCi),nCi,rmoin(ipCj),nCj,
-     &           rmoin(ipCk),nCk,rmoin(ipCl),nCl,
-     &           Moip,nACO,pert,nOp,ibas,icmpa,
-     &           iCar,icent,indgrd,rmoin(ipD),
-     &           DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
-     &           buffer,Temp(ip2),nij,nkl,
-     &           nBasis(ishll(1)),nBasis(ishll(2)),icmpa(1),icmpa(2))
+     &              Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
+     &              MOInt,nMOINt,ishell,
+     &              rmoin(ipCi),nCi,rmoin(ipCj),nCj,
+     &              rmoin(ipCk),nCk,rmoin(ipCl),nCl,
+     &              Moip,nACO,pert,nOp,ibas,icmpa,
+     &              iCar,icent,indgrd,rmoin(ipD),
+     &              DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
+     &              buffer,Temp(ip2),nij,nkl,
+     &              Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,
+     &            icmpa(1),icmpa(2))
 *
         Else If (Index(iCar,iCent).lt.0) Then
          call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
@@ -172,15 +173,16 @@
            End If
          End Do
          Call MOAcc(Temp(ip5),nInt2,
-     &           Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
-     &           MOInt,nMOINt,ishell,
-     &           rmoin(ipCi),nCi,rmoin(ipCj),nCj,
-     &           rmoin(ipCk),nCk,rmoin(ipCl),nCl,
-     &           moip,nACO,pert,nOp,ibas,icmpa,
-     &           iCar,icent,indgrd,rMoin(ipD),
-     &           DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
-     &           buffer,Temp(ip2),nij,nkl,
-     &           nBasis(ishll(1)),nBasis(ishll(2)),icmpa(1),icmpa(2))
+     &              Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
+     &              MOInt,nMOINt,ishell,
+     &              rmoin(ipCi),nCi,rmoin(ipCj),nCj,
+     &              rmoin(ipCk),nCk,rmoin(ipCl),nCl,
+     &              moip,nACO,pert,nOp,ibas,icmpa,
+     &              iCar,icent,indgrd,rMoin(ipD),
+     &              DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
+     &              buffer,Temp(ip2),nij,nkl,
+     &              Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,
+     &              icmpa(1),icmpa(2))
 *
         End If
         End If

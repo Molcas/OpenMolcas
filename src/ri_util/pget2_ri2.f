@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI2(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI2(iCmp,IndShl,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,
      &                  nZ_p_k)
@@ -46,7 +46,7 @@
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
@@ -111,7 +111,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &         iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -121,7 +121,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+               If (iAnd(IrrCmp(IndShl(4)+i4),
      &             iTwoj(j)).ne.0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
@@ -184,7 +184,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &         iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -194,7 +194,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+               If (iAnd(IrrCmp(IndShl(4)+i4),
      &             iTwoj(j)).ne.0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
@@ -304,7 +304,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &         iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -314,7 +314,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+               If (iAnd(IrrCmp(IndShl(4)+i4),
      &             iTwoj(j)).ne.0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
@@ -428,7 +428,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &         iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -438,7 +438,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+               If (iAnd(IrrCmp(IndShl(4)+i4),
      &             iTwoj(j)).ne.0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
@@ -545,7 +545,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+            If (iAnd(IrrCmp(IndShl(2)+i2),
      &         iTwoj(j)).ne.0) Then
                jSym(njSym) = j
                njSym = njSym + 1
@@ -555,7 +555,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+               If (iAnd(IrrCmp(IndShl(4)+i4),
      &             iTwoj(j)).ne.0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1

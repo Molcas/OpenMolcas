@@ -31,8 +31,6 @@
       Integer iAnr(nAtoms),iT_Sets(nij), iWarnings(nij)
 C      Parameter (mxAtoms=500)
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(lMax)
 *
       call dcopy_(3*nij,[Zero],0,B,1)
@@ -122,8 +120,7 @@ C??               End If
       End Do
       call dcopy_(3*nij,B,1,EC,1)
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *
       Return
 c Avoid unused argument warnings

@@ -47,8 +47,6 @@
 ************************************************************************
 *                                                                      *
       Center_OK = .True.
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(lMax)
 *                                                                      *
 ************************************************************************

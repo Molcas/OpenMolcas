@@ -143,6 +143,7 @@ c----------------------------------------------------------------------
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -189,30 +190,30 @@ c----------------------------------------------------------------------
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         call dcopy_(3,Work(ixyz),1,A,1)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            call dcopy_(3,Work(jxyz),1,B,1)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (nSO.eq.0) Go To 131
             If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -250,7 +251,8 @@ c----------------------------------------------------------------------
 *           At this point we can compute Zeta.
 *
             Call ZXia(Work(iZeta),Work(ipZI),
-     &                iPrim,jPrim,Work(iExp),Work(jExp))
+     &                iPrim,jPrim,Shells(iShll)%Exp,
+     &                            Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -279,29 +281,30 @@ c----------------------------------------------------------------------
 *
             Call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
 *           basis on to the primitive basis.
 *
             If (iPrint.ge.99) Then
                Call RecPrt(' Left side contraction',' ',
-     &                     Work(iCff),iPrim,iBas)
+     &                     Shells(iShll)%pCff,iPrim,iBas)
                Call RecPrt(' Right side contraction',' ',
-     &                     Work(jCff),jPrim,jBas)
+     &                     Shells(jShll)%pCff,jPrim,jBas)
             End If
 *
 *           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBas*nSO,iPrim,iBas,
      &                  1.0d0,Work(ipDSO),iBas,
-     &                  Work(iCff),iPrim,
+     &                        Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Work(ipDSOp),jBas*nSO)
 *           Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrim,jPrim,jBas,
      &                  1.0d0,Work(ipDSOp),jBas,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,Work(ipDSO),nSO*iPrim)
 *           Transpose to ij,AB
             Call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),
@@ -381,14 +384,15 @@ c----------------------------------------------------------------------
 *
                      Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                           iShell,jShell,iShll,jShll,
-     &                           Work(ipDAO),iPrim,jPrim,
+     &                           IndShl,JndShl,Work(ipDAO),iPrim,jPrim,
      &                           Work(ipDSOp),nSO,nOp,FactNd)
 *
 *--------------------Project the spherical harmonic space onto the
 *                    cartesian space.
 *
                      kk = nElem(iAng)*nElem(jAng)
-                     If (Transf(iShll).or.Transf(jShll)) Then
+                     If (Shells(iShll)%Transf.or.
+     &                   Shells(jShll)%Transf) Then
 *
 *-----------------------ij,AB --> AB,ij
                         Call DGeTmO(Work(ipDAO),iPrim*jPrim,iPrim*jPrim,
@@ -397,9 +401,11 @@ c----------------------------------------------------------------------
                         Call SphCar(Work(iScrt1),iCmp*jCmp,iPrim*jPrim,
      &                              Work(iScrt2),nScr2,
      &                              RSph(ipSph(iAng)),
-     &                              iAng,Transf(iShll),Prjct(iShll),
+     &                              iAng,Shells(iShll)%Transf,
+     &                                   Shells(iShll)%Prjct,
      &                              RSph(ipSph(jAng)),
-     &                              jAng,Transf(jShll),Prjct(jShll),
+     &                              jAng,Shells(jShll)%Transf,
+     &                                   Shells(jShll)%Prjct,
      &                              Work(ipDAO),kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(
@@ -408,7 +414,8 @@ c----------------------------------------------------------------------
 *
 *--------------------Compute kappa and P.
 *
-                     Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                           Shells(jShll)%Exp,jPrim,
      &                   TA,TRB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *
@@ -416,13 +423,14 @@ c----------------------------------------------------------------------
 *
 cpcm_solvent
 c        write(6,*)'Work(iExp),iPrim,Work(jExp),jPrim'
-c        write(6,*)Work(iExp),iPrim,Work(jExp),jPrim
+c        write(6,*)Shells(iShll)%Exp(1),iPrim,Shells(jShll)%Exp(1),jPrim
 c        write(6,*)'Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)'
 c        write(6,*)Work(iZeta),Work(ipZI),Work(iKappa),Work(iPcoor)
 c        write(6,*)'Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder'
 c        write(6,*)Work(ipFnl),iPrim*jPrim,nComp,iAng,jAng,norder
 cpcm_solvent end
-                     Call EFPrm(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call EFPrm(Shells(iShll)%Exp,iPrim,
+     &                          Shells(jShll)%Exp,jPrim,
      &                          Work(iZeta),Work(ipZI),
      &                          Work(iKappa),Work(iPcoor),
      &                          Work(ipFnl),iPrim*jPrim,nComp,

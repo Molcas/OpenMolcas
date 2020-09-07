@@ -18,6 +18,7 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -50,24 +51,26 @@
 ************************************************************************
 *                                                                      *
       Do iCnttp = 1, nCnttp
-         nTest = nVal_Shells(iCnttp)-1
-         Do iCnt = 1, nCntr(iCnttp)
+         nTest = dbsc(iCnttp)%nVal-1
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
             Do 200 iAng=0, nTest
-               iShll = ipVal(iCnttp) + iAng
-               If (nExp(iShll).eq.0) Go To 200
-               If (nBasis(iShll).eq.0) Go To 200
+               iShll = dbsc(iCnttp)%iVal + iAng
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0) Cycle
+               nBasisi=Shells(iShll)%nBasis
+               If (nBasisi.eq.0) Cycle
 *
                If (Basis_Mode.eq.Valence_Mode .and.
-     &             (AuxShell(iShll).or.FragShell(iShll))) Go To 200
+     &             (Shells(iShll)%Aux.or.Shells(iShll)%Frag)) Go To 200
                If (Basis_Mode.eq.Auxiliary_Mode .and.
-     &             .Not.AuxShell(iShll)) Go To 200
+     &             .Not.Shells(iShll)%Aux) Go To 200
                If (Basis_Mode.eq.Fragment_Mode .and.
-     &             .Not.FragShell(iShll)) Go To 200
+     &             .Not.Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Auxiliary_Mode .and.
-     &             FragShell(iShll)) Go To 200
+     &             Shells(iShll)%Frag) Go To 200
                If (Basis_Mode.eq.With_Fragment_Mode .and.
-     &             AuxShell(iShll)) Go To 200
+     &             Shells(iShll)%Aux) Go To 200
                nSkal = nSkal + 1
 *
  200        Continue                     ! iAng
@@ -87,18 +90,20 @@
  300  Continue
 *
       Do iCnttp = kCnttp, lCnttp
-      nTest = nVal_Shells(iCnttp)-1
+      nTest = dbsc(iCnttp)%nVal-1
       Do 400 iAng=0, nTest
-         iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0) Go To 400
-         If (nBasis(iShll).eq.0) Go To 400
+         iShll = dbsc(iCnttp)%iVal + iAng
+         nExpi=Shells(iShll)%nExp
+         If (nExpi.eq.0) Cycle
+         nBasisi=Shells(iShll)%nBasis
+         If (nBasisi.eq.0) Cycle
 *
-         If (FragShell(iShll)) Go To 400
+         If (Shells(iShll)%Frag) Go To 400
          nSkal = nSkal + 1
 *
  400  Continue                     ! iAng
       End Do
-      If (AuxCnttp(kCnttp)) nSkal=nSkal+1 ! Add dummy shell
+      If (dbsc(kCnttp)%Aux) nSkal=nSkal+1 ! Add dummy shell
 *                                                                      *
 ************************************************************************
 *                                                                      *

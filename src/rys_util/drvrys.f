@@ -86,7 +86,7 @@
 *     Local arrays
       Integer lZeta, lEta, i_Int, n1, n2, n3, n4, iW3, nWork3, nW2
       Logical Nospecial
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*) 'Enter DrvRys'
       Write (6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',

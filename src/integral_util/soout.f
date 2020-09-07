@@ -26,6 +26,7 @@
 *
       Subroutine SOCtl_mod(ChOper,Mamn,nMamn,nDkroll,nCall,Cnt_ico,
      &                     Phase_ico)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -53,50 +54,54 @@
 *
          mdc = 0
          mc  = 1
-         iShell = 0
+         IndShl = 0
          Do 201 iCnttp = 1, nCnttp
-            kECP = ECP(iCnttp)
-            If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 201
+            kECP = dbsc(iCnttp)%ECP
+            If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
 *
 *           Loop over distinct centers
 *
-            Do 202 iCnt = 1, nCntr(iCnttp)
+            Do 202 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
 *
 *              Loop over shells associated with this center
 *              Start with s type shells
 *
                kComp = 0
-               iSh = ipVal(iCnttp) - 1
-               Do 203 iAng = 0, nVal_Shells(iCnttp)-1
+               iSh = dbsc(iCnttp)%iVal - 1
+               Do 203 iAng = 0, dbsc(iCnttp)%nVal-1
                   iSh = iSh + 1
-                  iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 2033
-                  If (nBasis(iSh).eq.0) Go To 2033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  nExpi=Shells(iSh)%nExp
+                  If (nExpi.eq.0) Go To 2033
+                  nBasisi=Shells(iSh)%nBasis
+                  If (nBasisi.eq.0) Go To 2033
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
                   Do 204 iComp = 1, jComp
                      lComp = kComp + iComp
 *                    Get character of basis function
                      iChBs = iChBas(lComp)
-                     If (Transf(iSh)) iChBs=iChBas(iSphCr(lComp))
+                     If (Shells(iSh)%Transf) iChBs=iChBas(iSphCr(lComp))
 *
 *                    Skip if function not a basis of irreps.
 *
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
      &                   nStab(mdc))) Go To 204
-                     IrrCmp(IndS(iShell)+iComp) =
-     &                    iOr(IrrCmp(IndS(iShell)+iComp),2**iIrrep)
+                     IrrCmp(IndShl+iComp) =
+     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
 *
-                     Do 205 iCntrc = 1, nBasis(iSh)
+                     Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
                         If (iSO.gt.nMamn) Then
                            Call WarningMessage(2,'SOout: iSO.gt.nMamn')
                            Call Abend()
                         End If
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
                         Do ico=0,nIrrep/nStab(mdc)-1
                         Cnt_ico(ico,iso)=mc+ico
                         Phase_ico(ico,iso)=
@@ -109,6 +114,7 @@
  205                 Continue
 *
  204              Continue
+                  IndShl = IndShl + jComp
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue

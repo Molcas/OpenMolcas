@@ -67,6 +67,7 @@
       use Her_RW
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -89,23 +90,23 @@
       Character*80 Label
       Logical  IfGrad(3,2), JfGrad(3,4), ABeq(3), EQ
       Logical  EnergyWeight
-      Integer  i,j,ixyz,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
+      Integer  i,j,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
       Integer  iRout,iPrint,nSkal,iCar
-      Integer  iCent,iCff,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc,iExp
+      Integer  iCent,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
       Integer  ipF1a,ipF2a,ipIJ,ipK1,ipK2,ipP1,ipP2,ipQ1,iPrim,ipRxyz
       Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShell,iShll
-      Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas,jCff
-      Integer  jCmp,jCnttp,jExp,jPrim,jS,jSbasis,jShell,jShll,jSize
-      Integer  jSlocal,jxyz,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
+      Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas
+      Integer  jCmp,jCnttp,jPrim,jS,jSbasis,jShell,jShll,jSize
+      Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
       Integer  mVecCB,nac,ncb,nDAO,nDCRT,nDisp,nHer,jAO,maxDensSize
-      Integer  nVecAC,nVecCB,iTri
+      Integer  nVecAC,nVecCB,iTri,iCnt, jCnt
       Real*8   Fact,DNrm2_
       External DNrm2_
 *
 *     Statement function for Cartesian index
 *
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+      nElem(i) = (i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
 *     Call qEnter('FragPGrd')
@@ -132,7 +133,7 @@
       Call Nr_Shells(nSkal)
       If(iPrint.ge.99) Then
         write(6,*) 'looping over ',nSkal,' shells'
-        write(6,*) 'FragShell() = ',(FragShell(i),i=1,10)
+        write(6,*) 'Shells()%Frag = ',(Shells(i)%Frag,i=1,10)
       End If
 
 *                                                                      *
@@ -142,8 +143,8 @@
 * density matrix
       maxDensSize = 0
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDensSize = Max(maxDensSize,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If(dbsc(iCnttp)%nFragType.gt.0) maxDensSize = Max(maxDensSize,
+     &      dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
 *                                                                      *
 ************************************************************************
@@ -175,23 +176,24 @@ c      ! Dummy initialize
         iAng   = iSD( 1,iS)
         iCmp   = iSD( 2,iS)
         iBas   = iSD( 3,iS)
-        iCff   = iSD( 4,iS)
         iPrim  = iSD( 5,iS)
-        iExp   = iSD( 6,iS)
         iAO    = iSD( 7,iS)
-        ixyz   = iSD( 8,iS)
         mdci   = iSD(10,iS)
         iShell = iSD(11,iS)
         iCnttp = iSD(13,iS)
+        iCnt   = iSD(14,iS)
+        C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+
         iSize = nElem(iAng)
-        if(Transf(iShll).and.Prjct(iShll)) iSize = 2*iAng+1
-        If(nFragCoor(mdci).ne.iCurMdc) Then
+        if(Shells(iShll)%Transf.and.
+     &     Shells(iShll)%Prjct ) iSize = 2*iAng+1
+        If(Abs(dbsc(iCnttp)%nFragCoor).ne.iCurMdc) Then
 * update fragment related quantities
-          iCurMdc = nFragCoor(mdci)
+          iCurMdc = Abs(dbsc(iCnttp)%nFragCoor)
           iSstart = iS
           iSend = nSkal
           Do iStemp = iSstart + 1,nSkal
-            If(nFragCoor(iSD(10,iStemp)).ne.iCurMdc) Then
+            If(Abs(dbsc(iSD(13,iStemp))%nFragCoor).ne.iCurMdc) Then
               iSend = iStemp - 1
               goto 101
             End If
@@ -199,10 +201,10 @@ c      ! Dummy initialize
  101      Continue
           iSbasis= 1
           iCurCenter = iCurCenter + 1
-          If(iCurCenter.gt.nCntr(iCurCnttp)) Then
+          If(iCurCenter.gt.dbsc(iCurCnttp)%nCntr) Then
             iCurCenter = 1
             Do jCnttp = iCurCnttp+1, nCnttp
-              If(nFragType(jCnttp).gt.0) Then
+              If(dbsc(jCnttp)%nFragType.gt.0) Then
                 iCurCnttp = jCnttp
                 goto 102
               End If
@@ -210,19 +212,21 @@ c      ! Dummy initialize
  102        Continue
 * update the energy weighted density matrix of the current fragment
             EnergyWeight = .true.
-            Call MakeDens(nFragDens(iCurCnttp),nFragEner(iCurCnttp),
-     &        Work(ipFragCoef(iCurCnttp)),Work(ipFragEner(iCurCnttp)),
-     &        EnergyWeight,Array)
+            Call MakeDens(dbsc(iCurCnttp)%nFragDens,
+     &                    dbsc(iCurCnttp)%nFragEner,
+     &                    dbsc(iCurCnttp)%FragCoef,
+     &                    dbsc(iCurCnttp)%FragEner,
+     &                    EnergyWeight,Array)
            If(iPrint.ge.49) Call TriPrt('Energy weighted fragment dens',
-     &        ' ',Array,nFragDens(iCurCnttp))
+     &        ' ',Array,dbsc(iCurCnttp)%nFragDens)
 * include the minus sign of -2eta_i
-           Call DScal_(nFragDens(iCurCnttp)*(nFragDens(iCurCnttp)+1)/2,
+           Call DScal_(dbsc(iCurCnttp)%nFragDens
+     &               *(dbsc(iCurCnttp)%nFragDens+1)/2,
      &                -One,Array,1)
-           If(maxDensSize.lt.nFragDens(iCurCnttp)*
-     &        (nFragDens(iCurCnttp)+1)/2) Stop 'maxIJSize'
+           If(maxDensSize.lt.dbsc(iCurCnttp)%nFragDens*
+     &        (dbsc(iCurCnttp)%nFragDens+1)/2) Stop 'maxIJSize'
           End If
         End If
-        call dcopy_(3,Work(ixyz),1,C,1)
 c        write(*,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',
 c     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
 c        write(*,*) '  iPrim,iBas =',iPrim,iBas
@@ -266,20 +270,19 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
           jAng   = iSD( 1,jS)
           jCmp   = iSD( 2,jS)
           jBas   = iSD( 3,jS)
-          jCff   = iSD( 4,jS)
           jPrim  = iSD( 5,jS)
-          jExp   = iSD( 6,jS)
           jAO    = iSD( 7,iS)
-          jxyz   = iSD( 8,jS)
           mdcj   = iSD(10,jS)
           jShell = iSD(11,jS)
           jCnttp = iSD(13,jS)
+          jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
-          if(Transf(jShll).and.Prjct(jShll)) jSize = 2*jAng+1
-          call dcopy_(3,Work(jxyz),1,B,1)
-c          write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
-c     &                    jShll,jAng,mdcj,jShell,jCnttp
-c          write(*,*) '    jPrim,jBas =',jPrim,jBas
+          If(Shells(jShll)%Transf.and.
+     &       Shells(jShll)%Prjct ) jSize = 2*jAng+1
+          B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
+c         write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
+c    &                    jShll,jAng,mdcj,jShell,jCnttp
+c         write(*,*) '    jPrim,jBas =',jPrim,jBas
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -353,8 +356,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 **** Effective center and exponent
 *
             Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,iPrim,
-     &                Alpha,Work(iExp))
-            Call SetUp1(Alpha,nAlpha,Work(iExp),iPrim,
+     &                Alpha,Shells(iShll)%Exp)
+            Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,
      &                  A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 **** Overlap and derivative
@@ -450,8 +453,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 **** Effective center and exponent
 *
             Call ZXia(Array(ipZ2),Array(ipZI2),jPrim,nBeta,
-     &                Work(jExp),Beta)
-            Call SetUp1(Work(jExp),jPrim,Beta,nBeta,
+     &                Shells(jShll)%Exp,Beta)
+            Call SetUp1(Shells(jShll)%Exp,jPrim,Beta,nBeta,
      &                  TB,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 **** Overlap and derivative
@@ -561,7 +564,7 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
             Call DGEMM_('T','N',
      &                  nac*nVecAC*nAlpha,iBas,iPrim,
      &                  1.0d0,Array(ipTmp),iPrim,
-     &                  Work(iCff),iPrim,
+     &                  Shells(iShll)%pCff,iPrim,
      &                  0.0d0,Array(ipF1),nac*nVecAC*nAlpha)
 *
 *-----------3) a,ciK -> ciKa
@@ -573,7 +576,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 *
 *-----------4) iKa,C = c,iKa * c,C
 *
-            If(Transf(iShll).and.Prjct(iShll)) Then
+            If(Shells(iShll)%Transf.and.
+     &         Shells(iShll)%Prjct ) Then
               Call DGEMM_('T','N',
      &                    nVecAC*nAlpha*iBas*nElem(la),iSize,
      &                    nElem(iAng),
@@ -602,7 +606,7 @@ C what does this do and is it needed? (from PrjGrd)
             Call DGEMM_('T','N',
      &                  nBeta*ncb*nVecCB,jBas,jPrim,
      &                  1.0d0,Array(ipF2),jPrim,
-     &                  Work(jCff),jPrim,
+     &                  Shells(jShll)%pCff,jPrim,
      &                  0.0d0,Array(ipTmp),nBeta*ncb*nVecCB)
 *
 *-----------2)  j,dbL -> dbL,j
@@ -613,7 +617,8 @@ C what does this do and is it needed? (from PrjGrd)
 *
 *-----------3) bLj,D = d,bLj * d,D
 *
-            If(Transf(jShll).and.Prjct(jShll)) Then
+            If(Shells(jShll)%Transf.and.
+     &         Shells(jShll)%Prjct ) Then
               Call DGEMM_('T','N',
      &                    nElem(lb)*nVecCB*jBas*nBeta,jSize,nElem(jAng),
      &                    1.0d0,Array(ipF2),nElem(jAng),

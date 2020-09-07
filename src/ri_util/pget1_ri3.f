@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,
      &                 U_K,mV_k,ZpK,nnP1,nSA,nAct)
@@ -46,7 +46,7 @@
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
      &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
@@ -924,7 +924,9 @@
                            temp=CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+
      &                                   V_k(jSOj,2)*DSO(Indkl,1)+
      &                                   V_k(jSOj,3)*DSO(Indkl,4)+
-     &                                   V_k(jSOj,4)*DSO(Indkl,3))
+     &                                   V_k(jSOj,4)*DSO(Indkl,3)+
+     &                                   V_k(jSOj,1)*DSO(Indkl,5)+
+     &                                   V_k(jSOj,5)*DSO(Indkl,1))
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
@@ -1163,7 +1165,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_real_array(DSSO)

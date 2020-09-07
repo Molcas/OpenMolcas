@@ -147,7 +147,7 @@
       nKvec=nKdens
 *
       If (lPSO.and.lSA) Then
-        nJdens=4
+        nJdens=5
         nKdens=4
         nKVec=2
         nAdens=2

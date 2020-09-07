@@ -47,6 +47,7 @@
       use iSD_data
       use k2_arrays
       use pso_stuff
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -67,7 +68,7 @@
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
      &        iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4),
-     &        JndHss(4,3,4,3,0:7)
+     &        JndHss(4,3,4,3,0:7), IndShlV(4)
       Logical Shik, Shjl, Shijij, JfGrd(3,4),lpick,
      &        JfHss(4,3,4,3), JfG(4),ltri,ldot, Rsv_Tsk,
      &        l_Hss,l_Grd,lGrad,n8,ldot2,new_fock,
@@ -192,11 +193,11 @@
       Do iAng = 0, iAngMx
          MxPrm = Max(MxPrm,MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
-            iShll = ipVal(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 2900
-            If (nBasis(iShll).eq.0) Go To 2900
-            iPrim = nExp(iShll)
-            iBas  = nBasis(iShll)
+            iShll = dbsc(iCnttp)%iVal + iAng
+            iPrim = Shells(iShll)%nExp
+            If (iPrim.eq.0) Go To 2900
+            If (Shells(iShll)%nBasis.eq.0) Go To 2900
+            iBas  = Shells(iShll)%nBasis
             iCmp  = (iAng+1)*(iAng+2)/2
             MxBsC=Max(MxBsC,iBas*iCmp)
             MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
@@ -430,44 +431,40 @@ C     Do iS = 1, nSkal
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
          iShelV(1) = iShell
          iAOV(1) = iAO
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
+         IndShlV(1)=iSD( 8,iS)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
             iShelV(2) = jShell
             iAOV(2) = jAO
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
+            IndShlV(2)=iSD( 8,jS)
 *
             ijAng = iAng + jAng
 *
@@ -523,22 +520,20 @@ C           Do kS = 1, nSkal
                kAng   = iSD( 1,kS)
                kCmp   = iSD( 2,kS)
                kBas   = iSD( 3,kS)
-               kCff   = iSD( 4,kS)
                kPrim  = iSD( 5,kS)
-               kExp   = iSD( 6,kS)
                kAO    = iSD( 7,kS)
-               kxyz   = iSD( 8,kS)
                mdck   = iSD(10,kS)
                kShell = iSD(11,kS)
                kCnttp = iSD(13,kS)
                kCnt   = iSD(14,kS)
+               Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
                iAngV(3) = kAng
                iShllV(3) = kShll
                iCmpV(3) = kCmp
                iShelV(3) = kShell
                iAOV(3) = kAO
-               call dcopy_(3,Work(kxyz),1,Coor(1,3),1)
+               IndShlV(3)=iSD( 8,kS)
 *
                Shik = iShell.eq.kShell
 *
@@ -547,23 +542,21 @@ C              Do lS = 1, kS
                   lAng   = iSD( 1,lS)
                   lCmp   = iSD( 2,lS)
                   lBas   = iSD( 3,lS)
-                  lCff   = iSD( 4,lS)
                   lPrim  = iSD( 5,lS)
-                  lExp   = iSD( 6,lS)
                   lAO    = iSD( 7,lS)
-                  lxyz   = iSD( 8,lS)
                   mdcl   = iSD(10,lS)
                   lShell = iSD(11,lS)
                   lCnttp = iSD(13,lS)
                   lCnt   = iSD(14,lS)
+                  Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
 *
                   iAngV(4) = lAng
                   iShllV(4) = lShll
                   iCmpV(4) = lCmp
                   iShelV(4) = lShell
                   iAOV(4) = lAO
+                  IndShlV(4)=iSD( 8,lS)
 *
-                  call dcopy_(3,Work(lxyz),1,Coor(1,4),1)
 *
                   klAng = kAng + lAng
                   nHrrcd=0
@@ -605,22 +598,14 @@ C              Do lS = 1, kS
               iCmpV(2)=jcmp
               iCmpV(3)=kcmp
               iCmpV(4)=lcmp
-              iPrimi   = nExp(iShllV(1))
-              jPrimj   = nExp(iShllV(2))
-              kPrimk   = nExp(iShllV(3))
-              lPriml   = nExp(iShllV(4))
-              iBasi    = nBasis(iShllV(1))
-              jBasj    = nBasis(iShllV(2))
-              kBask    = nBasis(iShllV(3))
-              lBasl    = nBasis(iShllV(4))
-              ipExpi   = ipExp(iShllV(1))
-              jpExpj   = ipExp(iShllV(2))
-              kpExpk   = ipExp(iShllV(3))
-              lpExpl   = ipExp(iShllV(4))
-              ipCffi   = ipCff(iShllV(1))
-              jpCffj   = ipCff(iShllV(2))
-              kpCffk   = ipCff(iShllV(3))
-              lpCffl   = ipCff(iShllV(4))
+              iPrimi   = Shells(iShllV(1))%nExp
+              jPrimj   = Shells(iShllV(2))%nExp
+              kPrimk   = Shells(iShllV(3))%nExp
+              lPriml   = Shells(iShllV(4))%nExp
+              iBasi    = Shells(iShllV(1))%nBasis
+              jBasj    = Shells(iShllV(2))%nBasis
+              kBask    = Shells(iShllV(3))%nBasis
+              lBasl    = Shells(iShllV(4))%nBasis
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -783,9 +768,9 @@ C              Do lS = 1, kS
 *                 matrix in SO basis.
 *
 *----------------------------------------------------------------------*
-                  nSO = MemSO2_P(iAng,jAng,kAng,lAng,
-     &                           iCmp,jCmp,kCmp,lCmp,
-     &                           iShell,jShell,kShell,lShell)
+                  nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,
+     &                           IndShlV(1),IndShlV(2),
+     &                           IndShlV(3),IndShlV(4))
                   ldot2=ldot
                   If (nSO.eq.0) ldot2=.false.
 *
@@ -811,7 +796,7 @@ C              Do lS = 1, kS
 *                 available memory and the requested memory.
 *
                   Call PSOAO2(nSO,MemPrm, MemMax,
-     &                        iAngV, iCmpV, iShelV,iFnc,
+     &                        iAngV, iCmpV, IndShlV,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,
@@ -996,11 +981,11 @@ C              Do lS = 1, kS
                     If (n8)
      &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
      &                          nAcO,
-     &                          iShelV,iCmpV,
+     &                          IndShlV,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
-     &               Call PGet0(iCmpV,iShelV,
+     &               Call PGet0(iCmpV,IndShlV,
      &                         iBasn,jBasn,kBasn,lBasn,Shijij,
      &                         iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -1013,16 +998,19 @@ C              Do lS = 1, kS
 *-------------------Compute gradients of shell quadruplet
 *
                     ipD0=ip_of_Work(D0(1,1))
-                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,
+                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,
+     &                             IndShlV,iAOV,
      &                   iAOst,mdci,mdcj,mdck,mdcl,nRys,
      &                   Data_k2(k2ij),nab,nDCRR,
      &                   Data_k2(k2kl),ncd,nDCRS,Pren,Prem,
-     &            Work(ipExpi),iPrimi,iPrInc,Work(jpExpj),jPrimj,jPrInc,
-     &            Work(kpExpk),kPrimk,kPrInc,Work(lpExpl),lPriml,lPrInc,
-     &                   Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                   Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                   Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &                   Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &            Shells(iShllV(1))%Exp,iPrimi,iPrInc,
+     &            Shells(iShllV(2))%Exp,jPrimj,jPrInc,
+     &            Shells(iShllV(3))%Exp,kPrimk,kPrInc,
+     &            Shells(iShllV(4))%Exp,lPriml,lPrInc,
+     &            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &            Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &            Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
      &           Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
      &           Mem_DBLE(ipP),Mem_DBLE(ipKab),nZeta,
      &           Mem_DBLE(ipEta), Mem_DBLE(ipEI),
@@ -1069,7 +1057,7 @@ C           End Do ! kS
                ip6=ip5+jcmp*jbas*naco
                Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
-     &                   naco,ishelV,
+     &                   naco,ishelV,IndShlV,
      &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
      &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If

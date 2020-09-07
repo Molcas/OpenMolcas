@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IniSew(Info,DSCF,nDiff)
+      SubRoutine IniSew(DSCF,nDiff)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -38,9 +38,9 @@
          Call xRlsMem_Ints()
       End If
 *
-      Call Seward_Init
+      Call Seward_Init()
 *
-      Call GetInf(Info,nInfo,DSCF,nDiff,1)
+      Call GetInf(DSCF,nDiff)
 *
       Return
       End

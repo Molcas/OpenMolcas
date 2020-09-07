@@ -83,6 +83,7 @@ C     Call QEnter('DFT_IntX')
          iBas  = iSD( 3,iSkal)
          iBas_Eff=list_bas(1,ilist_s)
          iAO   = iSD( 7,iSkal)
+         IndShl= iSD( 8,iSkal)
          mdci  = iSD(10,iSkal)
          iShell= iSD(11,iSkal)
 *
@@ -99,12 +100,13 @@ C     Call QEnter('DFT_IntX')
             jBas  = iSD( 3,jSkal)
             jBas_Eff=list_bas(1,jlist_s)
             jAO   = iSD( 7,jSkal)
+            JndShl= iSD( 8,jSkal)
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
 *
             nOp(2) = NrOpr(kDCRR,iOper,nIrrep)
 *
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
 *
             ij = (mdcj-1)*ndc + mdci
 *                                                                      *
@@ -143,7 +145,8 @@ C     Call QEnter('DFT_IntX')
                   iIC = 1
                   Call FZero(SOTemp(1,iD),iBas*jBas*nSO)
                   Call SymAdd2(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,AOInt(1,iD),
+     &                         iShell,jShell,iShll,jShll,
+     &                         IndShl,JndShl,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
      &                         nIC,iIC,SOTemp(1,iD),nSO,nOp,
      &                         iSkal,jSkal)
@@ -155,7 +158,7 @@ C     Call QEnter('DFT_IntX')
 *
                   Call SOAdd(SOTemp(1,iD),iBas,jBas,nSO,
      &                       FckInt(1,iD),nFckInt,iSmLbl,
-     &                       iCmp,jCmp,iShell,jShell,
+     &                       iCmp,jCmp,iShell,jShell,IndShl,JndShl,
      &                       iSkal.eq.jSkal,iAO,jAO)
 *
                Else

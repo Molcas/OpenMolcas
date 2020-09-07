@@ -25,12 +25,13 @@ c----------------------------------------------------------------------
 #include "info.fh"
 *
       nbfshl=0
-      iShell = iSD(11,iSkal)
+      IndShl = iSD( 8,iSkal)
       iCmp   = iSD( 2,iSkal)
 *     loop over components of shell...
       Do i=1, iCmp
-        If (IAND(IrrCmp(IndS(iShell)+i),2**irp).ne.0) nbfshl =
-     &           nbfshl + iSD(3,iSkal)
+         If (IAND(IrrCmp(IndShl+i),2**irp).ne.0)
+     &       nbfshl = nbfshl + iSD(3,iSkal)
       End Do
+
       return
       End
