@@ -30,6 +30,7 @@
 *             September 1995                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
@@ -99,8 +100,8 @@ c     Call qEnter('DrvN2')
 *                 Find the DCR for the two centers
 *
              Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
+     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                     iDCRR,nDCRR)
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
@@ -351,7 +352,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                  iDCRR,nDCRR)
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
@@ -544,7 +545,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdR,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  jStab(0,mdc+iCnt),nStab(mdc+iCnt),
+     &                  dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
      &                  iDCRR,nDCRR)
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
@@ -598,7 +599,7 @@ c     Call qEnter('DrvN2')
 *
                Call DCR(LmbdS,iOper,nIrrep,
      &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                  dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                  iDCRS,nDCRS)
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)

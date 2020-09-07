@@ -26,6 +26,7 @@
 *             October 1991                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -67,8 +68,8 @@
 *                 Find the DCR for the two centers
 *
                   Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
+     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                     iDCRR,nDCRR)
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)

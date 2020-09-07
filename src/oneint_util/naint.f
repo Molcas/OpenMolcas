@@ -37,6 +37,7 @@
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -134,7 +135,7 @@ C     Call qEnter('NAInt')
 *-----------Find the DCR for M and S
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab ,nStab(kdc+kCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             If (iPrint.ge.99) Then
@@ -142,7 +143,7 @@ C     Call qEnter('NAInt')
                Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &               ii = 0, nStabM-1)
                Write (6,*) ' s      =',nStab(kdc+kCnt)
-               Write (6,'(9A)') '(S)=',(ChOper(jStab(ii,kdc+kCnt)),
+               Write (6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),
      &               ii = 0, nStab(kdc+kCnt)-1)
                Write (6,*) ' LambdaT=',LmbdT
                Write (6,*) ' t      =',nDCRT

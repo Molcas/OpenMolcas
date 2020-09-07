@@ -32,7 +32,7 @@
 *
 *-----Local arrays
 *
-      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3)
+      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3),TZFd(3)
       Logical NoLoop, JfGrad(3,4)
       Integer iAnga(4), iStb(0:7),
      &          jCoSet(8,8), JndGrd(3,4), lOp(4), iuvwx(4)
@@ -211,9 +211,7 @@
          Do lDCRT = 0, nDCRT-1
             lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
             lOp(4) = lOp(3)
-            TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-            TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-            TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -221,14 +219,15 @@
             If (iOrdOp.eq.0) Then
                Call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)
             Else
+               Call OA(iDCRT(lDCRT),ZFd,TZFd)
                jpDAO = ipDAO
-               ZFdx=iPhase(1,iDCRT(lDCRT))*ZFd(1)
+               ZFdx=TZFd(1)
                Call DYaX(nZeta*nDAO,Fact*ZFdx,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdy=iPhase(2,iDCRT(lDCRT))*ZFd(2)
+               ZFdy=TZFd(2)
                Call DYaX(nZeta*nDAO,Fact*ZFdy,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdz=iPhase(3,iDCRT(lDCRT))*ZFd(3)
+               ZFdz=TZFd(3)
                Call DYaX(nZeta*nDAO,Fact*ZFdz,DAO,1,Array(jpDAO),1)
             End If
 *

@@ -64,6 +64,7 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -110,7 +111,7 @@
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
+     &               dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
          Do lDCRT = 0, nDCRT-1

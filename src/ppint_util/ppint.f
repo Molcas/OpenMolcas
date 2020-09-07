@@ -23,6 +23,7 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -133,7 +134,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *-----------Find the DCR for M and S
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+iCntr) ,nStab(kdc+iCntr),iDCRT,nDCRT)
+     &               dc(kdc+iCntr)%iStab ,nStab(kdc+iCntr),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1

@@ -4566,7 +4566,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                       iOper,nOper,iChCar)
             End If
             dc(mdc)%iChCnt = iChxyz
-            Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
+            Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),dc(mdc)%iStab,
      &                 MaxDCR,iCoSet(0,0,mdc))
 *
 *           Perturb the initial geometry if the SHAKE keyword was given,
@@ -4578,7 +4578,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                dbsc(iCnttp)%Aux)) Then
                jTmp=0
                Do j=1,nStab(mdc)-1
-                  jTmp=iOr(jTmp,jStab(j,mdc))
+                  jTmp=iOr(jTmp,dc(mdc)%iStab(j))
                End Do
                nDim=0
                Do j=0,2

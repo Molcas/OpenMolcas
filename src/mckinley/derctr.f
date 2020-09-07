@@ -118,14 +118,14 @@
 *        If turned on it should not do much of a difference.
 *
 #ifdef _OLD_CODE_
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,iCo(iAtom)),
-     &               nStab(iCo(iAtom)),jStab(0,iCo(jAtom)),
+            Call DCR(LmbdR,iOper,nIrrep,dc(iCo(iAtom))%iStab,
+     &               nStab(iCo(iAtom)),dc(iCo(jAtom))%iStab,
      &               nStab(iCo(jAtom)),iDCRR,nDCRR)
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,iCo(iAtom)),nStab(iCo(iAtom)),
-     &                 jStab(0,iCo(jAtom)),nStab(iCo(jAtom)),
+            Call Inter(dc(iCo(iAtom))%iStab,nStab(iCo(iAtom)),
+     &                 dc(iCo(jAtom))%iStab,nStab(iCo(jAtom)),
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet

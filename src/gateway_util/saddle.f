@@ -27,6 +27,7 @@
 *             January 2009                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -131,7 +132,7 @@
      &               ) Then
                      jTmp=0
                      Do j = 1, nStab(nsc)-1
-                        jTmp=iOr(jTmp,jStab(j,nsc))
+                        jTmp=iOr(jTmp,dc(nsc)%iStab(j))
                      End Do
                      iStab(iAt)=jTmp
                      iAt=iAt+1
@@ -274,7 +275,11 @@
                If (.Not.
      &             (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &            ) Then
-                  iStab(iAt)=jStab(1,nsc)
+                  jTmp=0
+                  Do j = 1, nStab(nsc)-1
+                     jTmp=iOr(jTmp,dc(nsc)%iStab(j))
+                  End Do
+                  iStab(iAt)=jTmp
                   iAt=iAt+1
                End If
             End Do
@@ -816,6 +821,7 @@
 ************************************************************************
       subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
@@ -848,7 +854,11 @@
             If (.Not.(dbsc(i)%pChrg.Or.
      &                dbsc(i)%Frag .Or.
      &                dbsc(i)%Aux)) Then
-               iStab(iAt)=jStab(1,nsc)
+               jTmp=0
+               Do j = 1, nStab(nsc)-1
+                  jTmp=iOr(jTmp,dc(nsc)%iStab(j))
+               End Do
+               iStab(iAt)=jTmp
                iAt=iAt+1
             End If
          End Do

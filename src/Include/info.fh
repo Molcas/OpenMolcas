@@ -35,7 +35,6 @@
 *                                                                      *
 * -> Integer   <-                                                      *
 *     iChTbl: the character table for the specified point group        *
-*     jStab : the stabilizer of the i''th unique center                *
 *     nStab : the number of elements in the stabilizer of the i''th    *
 *             unique center                                            *
 *     iCoSet: the cosets of the i''th unique center                    *
@@ -179,7 +178,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
-      Integer   iChTbl(0:7,0:7), jStab(0:7,Mxdc), nStab(Mxdc),
+      Integer   iChTbl(0:7,0:7), nStab(Mxdc),
      &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
@@ -195,7 +194,7 @@
       Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
-     &              iChTbl, jStab,   nStab, nBas_Aux,
+     &              iChTbl, nStab, nBas_Aux,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
      &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,

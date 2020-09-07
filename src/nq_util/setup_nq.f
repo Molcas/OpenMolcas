@@ -782,8 +782,8 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
          Do mdcj = 1, ndc
             nDegj=nIrrep/nStab(mdcj)
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
+            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
+     &               nStab(mdci),dc(mdcj)%iStab,
      &               nStab(mdcj),iDCRR,nDCRR)
 *
             iuv = nStab(mdci)*nStab(mdcj)

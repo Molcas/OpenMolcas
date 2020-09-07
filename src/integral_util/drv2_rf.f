@@ -59,6 +59,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -191,14 +192,14 @@
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),nStab(mdci),
-     &                                  jStab(0,mdcj),nStab(mdcj),
+            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,nStab(mdci),
+     &                                  dc(mdcj)%iStab,nStab(mdcj),
      &                                                iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,nStab(mdci),
+     &                 dc(mdcj)%iStab,nStab(mdcj),
      &                 iStabM,nStabM)
 *
 *           Find the DCR for M and S
@@ -210,10 +211,10 @@
                Write (6,*)
                Write (6,*) ' g      =',nIrrep
                Write (6,*) ' u      =',nStab(mdci)
-               Write (6,'(9A)') '(U)=',(ChOper(jStab(ii,mdci)),
+               Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
      &               ii = 0, nStab(mdci)-1)
                Write (6,*) ' v      =',nStab(mdcj)
-               Write (6,'(9A)') '(V)=',(ChOper(jStab(ii,mdcj)),
+               Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
      &               ii = 0, nStab(mdcj)-1)
                Write (6,*) ' LambdaR=',LmbdR
                Write (6,*) ' r      =',nDCRR

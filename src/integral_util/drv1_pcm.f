@@ -54,6 +54,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -175,16 +176,16 @@
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
+            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
+     &               nStab(mdci),dc(mdcj)%iStab,
      &               nStab(mdcj),iDCRR,nDCRR)
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,nStab(mdci),
+     &                 dc(mdcj)%iStab,nStab(mdcj),
      &                 iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order

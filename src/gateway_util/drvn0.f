@@ -27,6 +27,7 @@
 ************************************************************************
       use external_centers
       use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
@@ -84,8 +85,8 @@ C     nElem(ixyz) = 2*ixyz+1
 *                 Find the DCR for the two centers
 *
                   Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                     dc(mdc+iCnt)%iStab,nStab(mdc+iCnt),
+     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                     iDCRR,nDCRR)
 *
                   temp = Zero
@@ -260,7 +261,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
                   Call DCR(LmbdR,iOper,nIrrep,
      &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero

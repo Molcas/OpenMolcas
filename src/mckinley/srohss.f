@@ -59,6 +59,7 @@
 *      nordop: order of the operator                                   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
       implicit real*8 (a-h,o-z)
 #include "real.fh"
@@ -99,7 +100,7 @@
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
-     &               jstab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *
             iuvwx(3) = nstab(kdc+kCnt)

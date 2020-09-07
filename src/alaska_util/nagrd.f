@@ -32,6 +32,7 @@
 *             October '91                                              *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *     For normal nuclear attraction
       External TNAI1, Fake, Cff2D
@@ -142,7 +143,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
             Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) / DBLE(LmbdT)
 *
 *           Modify the density matrix with prefactors in case of finite nuclei

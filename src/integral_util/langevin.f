@@ -65,16 +65,10 @@
          End If
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Work(ipCord+(nc-1)*3) =   x1*DBLE(iFacx)
-               Work(ipCord+(nc-1)*3+1) = y1*DBLE(iFacy)
-               Work(ipCord+(nc-1)*3+2) = z1*DBLE(iFacz)
+               Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Work(ipCord+(nc-1)*3  :
+     &                      ipCord+(nc-1)*3+2))
                Work(ipAtod+(nc-1)) = Atod
                Work(ipChrg+(nc-1)) = Z
 *              Write (*,*) 'Z=',Z

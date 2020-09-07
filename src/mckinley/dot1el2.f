@@ -57,6 +57,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -173,14 +174,14 @@ C        Do jS = 1, iS
 *           Find the DCR for A and B
 *
             Call DCR(LmbdR,iOper,nIrrep,
-     &               jStab(0,mdci),nStab(mdci),
-     &               jStab(0,mdcj),nStab(mdcj),iDCRR,nDCRR)
+     &               dc(mdci)%iStab,nStab(mdci),
+     &               dc(mdcj)%iStab,nStab(mdcj),iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,nStab(mdci),
+     &                 dc(mdcj)%iStab,nStab(mdcj),
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet

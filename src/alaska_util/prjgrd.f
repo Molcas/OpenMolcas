@@ -63,6 +63,7 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -122,7 +123,7 @@
             If (iPrint.ge.49) Call RecPrt(' In PrjGrd: C',' ',C,1,3)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             iuvwx(3) = nStab(kdc+kCnt)

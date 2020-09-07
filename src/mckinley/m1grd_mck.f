@@ -36,6 +36,7 @@
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -128,7 +129,7 @@ c     End If
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+     &               dc(kdc+kCnt)%iStab,nStab(kdc+kCnt),iDCRT,nDCRT)
 *           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
 *    &             DBLE(LmbdT*nStab(kdc+kCnt))
             Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /

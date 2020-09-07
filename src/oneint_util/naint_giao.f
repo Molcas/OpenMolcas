@@ -41,6 +41,7 @@
 * Modified for GIAOs, R. Lindh, June 2002, Tokyo, Japan.               *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D
@@ -149,7 +150,7 @@
 *-----------Find the DCR for M and S
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),
+     &               dc(kdc+kCnt)%iStab, nStab(kdc+kCnt),
      &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *

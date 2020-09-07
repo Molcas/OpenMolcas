@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
       use Basis_Info
+      use Center_Info
       use external_centers
       Implicit Real*8 (a-h,o-z)
 *
@@ -149,16 +150,14 @@
 *
                   Call DCR(LmbdR,iOper,nIrrep,
      &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+     &                     dc(ndc+jCnt)%iStab,nStab(ndc+jCnt),
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero
                   temp1= Zero
                   temp2= Zero
                   Do iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                     Call OA(iDCRR(iR),B,RB)
 *                    The index A=RB is illegal.
                      If (.Not.EQ(A,RB)) Then
                         ABx=A(1)-RB(1)

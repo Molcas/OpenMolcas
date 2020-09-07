@@ -118,6 +118,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
@@ -247,8 +248,8 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                               jStab(0,jStb),nStab(jStb),
+         Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,nStab(iStb),
+     &                               dc(jStb)%iStab,nStab(jStb),
      &                               iDCRR,nDCRR)
       End If
       u = DBLE(nStab(iStb))
@@ -260,8 +261,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(jStab(0,iStb),nStab(iStb),
-     &              jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,nStab(iStb),
+     &              dc(jStb)%iStab,nStab(jStb),iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -273,8 +274,8 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                               jStab(0,lStb),nStab(lStb),
+         Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,nStab(kStb),
+     &                               dc(lStb)%iStab,nStab(lStb),
      &                               iDCRS,nDCRS)
       End If
       w = DBLE(nStab(kStb))
@@ -286,8 +287,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(jStab(0,kStb),nStab(kStb),
-     &              jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,nStab(kStb),
+     &              dc(lStb)%iStab,nStab(lStb),iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************

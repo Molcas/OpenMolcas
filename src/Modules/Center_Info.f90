@@ -27,7 +27,8 @@ Public :: dc, n_dc, Center_Info_Init, Center_Info_Dmp, Center_Info_Get, Center_I
 !
 Type Distinct_centers
 !   Sequence
-    Integer :: iChCnt
+    Integer :: iChCnt=0
+    Integer :: iStab(0:7)=[0,0,0,0,0,0,0,0]
     Character(LEN=LENIN4):: LblCnt=''
 End Type Distinct_centers
 !
@@ -36,7 +37,7 @@ End Type Distinct_centers
 !     E N D   D E C L A R E   D E R I V E D   T Y P E S
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Integer, Parameter:: nFields=1
+Integer, Parameter:: nFields=1+8
 Logical :: Initiated = .FALSE.
 Integer :: n_dc=0
 Type (Distinct_centers), Allocatable:: dc(:)
@@ -116,8 +117,12 @@ Write (6,*) 'n_dc=',n_dc
 #endif
 licDmp=n_dc*nFields
 Call mma_Allocate(iDmp,licDmp+1,Label='iDmp')
+j=0
 Do i = 1, n_dc
-   iDmp(i)=dc(i)%iChCnt
+   iDmp(j+1)=dc(i)%iChCnt
+   j=j+1
+   iDmp(j+1:j+8)=dc(i)%iStab(0:7)
+   j=j+8
 End Do
 iDmp(licDmp+1)=n_dc
 Call Put_iArray('icDmp',iDmp,licDmp+1)
@@ -180,8 +185,12 @@ Write (6,*) 'Len=',Len
 Write (6,*) 'n_dc=',n_dc
 Write (6,*) 'lcDmp=',lcDmp
 #endif
+j=0
 Do i = 1, n_dc
-   dc(i)%iChCnt = iDmp(i)
+   dc(i)%iChCnt = iDmp(j+1)
+   j = j + 1
+   dc(i)%iStab(0:7) = iDmp(j+1:j+8)
+   j = j + 8
 End Do
 Call mma_deAllocate(iDmp)
 !

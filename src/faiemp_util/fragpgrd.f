@@ -68,6 +68,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -312,7 +313,7 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 * DCR stuff (iS and jS have always the same symmetry character)
 *
           Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             jStab(0,mdci),nStab(mdci),iDCRT,nDCRT)
+     &             dc(mdci)%iStab,nStab(mdci),iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************
