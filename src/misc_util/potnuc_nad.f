@@ -20,10 +20,12 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "angstr.fh"
       Integer nSym, nAtoms
       Real*8  ReCharge(nAtoms)
       Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
+      Real*8, Allocatable:: Charge(:), Coor(:,:)
 *----------------------------------------------------------------------*
 *     Prologue                                                         *
 *----------------------------------------------------------------------*
@@ -34,13 +36,13 @@
 *----------------------------------------------------------------------*
 *     Read atom Charges                                                *
 *----------------------------------------------------------------------*
-      Call GetMem('Charge','ALLO','REAL',lw0,8*nAtoms)
-      Call Get_dArray('Effective nuclear Charge',Work(lw0),nAtoms)
+      Call mma_allocate(Charge,8*nAtoms,Label='Charge')
+      Call Get_dArray('Effective nuclear Charge',Charge,nAtoms)
 *----------------------------------------------------------------------*
 *     Read coordinates of atoms                                        *
 *----------------------------------------------------------------------*
-      Call GetMem('Coor','ALLO','REAL',lw1,3*8*nAtoms)
-      Call Get_dArray('Unique Coordinates',Work(lw1),3*nAtoms)
+      Call mma_allocate(Coor,3,8*nAtoms,Label='Coor')
+      Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 *----------------------------------------------------------------------*
 *     Apply the symmetry operations                                    *
 *----------------------------------------------------------------------*
@@ -56,26 +58,18 @@
       MaxDCR=0
       iAll_Atom=nAtoms
       Do iAtom = 1, nAtoms
-         iChAtom=iChxyz(Work(lw1+(iAtom-1)*3),iGen,nGen)
+         iChAtom=iChxyz(Coor(1:3,iAtom),iGen,nGen)
          Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
-         XOld=Work(lw1+(iAtom-1)*3 )
-         YOld=Work(lw1+(iAtom-1)*3+1)
-         ZOld=Work(lw1+(iAtom-1)*3+2)
-         Charge_=Work(lw0+iAtom-1)
+         Charge_=Charge(iAtom)
 
 *
          Do iCo = 1, nCoSet-1
 *
-            Work(lw0+iAll_Atom)=Charge_
-*
             iAll_Atom = iAll_Atom + 1
-            Work(lw1+(iAll_Atom-1)*3  )=
-     &           XOld*DBLE(iPhase(1,iCoSet(iCo,0)))
-            Work(lw1+(iAll_Atom-1)*3+1)=
-     &           YOld*DBLE(iPhase(2,iCoSet(iCo,0)))
-            Work(lw1+(iAll_Atom-1)*3+2)=
-     &           ZOld*DBLE(iPhase(3,iCoSet(iCo,0)))
+            Charge(iAll_Atom)=Charge_
+*
+            Call OA(iCoSet(iCo,0),Coor(1:3,iAtom),Coor(1:3,iAll_Atom))
 *
          End Do
 *
@@ -90,16 +84,16 @@
       If (ReCharge(1).gt.0.0d0) Then
 
          Do jAt=0,iAll_Atom-1
-           pCharge=Work(lw0+jAt)
+           pCharge=Charge(jAt+1)
            If (pCharge.gt.0.0d0) Then
               Do iAt=0,jAt-1  ! loop downwards
                  kAt=mod(iAt+1,nAtoms)
                  If (kAt.eq.0) kAt=nAtoms
                  qCharge=ReCharge(kAt)
                  If (qCharge.gt.0.0d0) Then
-                    Xpq = Work(lw1+3*iAt) - Work(lw1+3*jAt)
-                    Ypq = Work(lw1+3*iAt+1) - Work(lw1+3*jAt+1)
-                    Zpq = Work(lw1+3*iAt+2) - Work(lw1+3*jAt+2)
+                    Xpq = Coor(1,iAt+1)-Coor(1,jAt+1)
+                    Ypq = Coor(2,iAt+1)-Coor(2,jAt+1)
+                    Zpq = Coor(3,iAt+1)-Coor(3,jAt+1)
                     Rpq = sqrt(Xpq**2+Ypq**2+Zpq**2)
                     pq_rep = pCharge*qCharge/Rpq
                     ZRE_nad = ZRE_nad + pq_rep
@@ -111,16 +105,16 @@
       Else
 
          Do jAt=0,iAll_Atom-1
-           pCharge=Work(lw0+jAt)
+           pCharge=Charge(jAt+1)
            If (pCharge.gt.0.0d0) Then
               Do iAt=jAt+1,iAll_Atom-1   ! loop upwards
                  kAt=mod(iAt+1,nAtoms)
                  If (kAt.eq.0) kAt=nAtoms
                  qCharge=ReCharge(kAt)
                  If (qCharge.gt.0.0d0) Then
-                    Xpq = Work(lw1+3*iAt) - Work(lw1+3*jAt)
-                    Ypq = Work(lw1+3*iAt+1) - Work(lw1+3*jAt+1)
-                    Zpq = Work(lw1+3*iAt+2) - Work(lw1+3*jAt+2)
+                    Xpq = Coor(1,iAt+1)-Coor(1,jAt+1)
+                    Ypq = Coor(2,iAt+1)-Coor(2,jAt+1)
+                    Zpq = Coor(3,iAt+1)-Coor(3,jAt+1)
                     Rpq = sqrt(Xpq**2+Ypq**2+Zpq**2)
                     pq_rep = pCharge*qCharge/Rpq
                     ZRE_nad = ZRE_nad + pq_rep
@@ -143,10 +137,8 @@
       Do iAt=0,iAll_Atom-1
         kAt=mod(iAt+1,nAtoms)
         Write(6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)')
-     &  iAt+1,Work(lw0+iAt),Recharge(kAt),
-     &  Angstr*Work(lw1+3*iAt),
-     &  Angstr*Work(lw1+3*iAt+1),
-     &  Angstr*Work(lw1+3*iAt+2)
+     &  iAt+1,Charge(1+iAt),Recharge(kAt),
+     &  Angstr*Coor(1:3,iAt+1)
       End Do
       Write(6,'(6X,A)')'-----------------------------------------------'
       Write(6,'(6X,A,F12.6)')'Nuclear repulsion energy (NAD) =',ZRE_nad
@@ -156,7 +148,7 @@
 *----------------------------------------------------------------------*
 *     Normal exit                                                      *
 *----------------------------------------------------------------------*
-      Call GetMem('Charge','Free','REAL',lw0,8*nAtoms)
-      Call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
+      Call mma_deallocate(Coor)
+      Call mma_deallocate(Charge)
       Return
       End
