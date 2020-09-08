@@ -15,6 +15,7 @@
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -30,16 +31,21 @@
 C      CHARACTER(len=1)::CDummy
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(:,:,:),Allocatable::GDMat
+      INTEGER LGDMAT
       call readmat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
 
 C      call printmat(CDummy,VecName,RotMat,lroots,lroots,0,16,'N')
-
       CALL LoadGtuvx(TUVX,Gtuvx)
 
-      CALL GetGDMat(GDMAt)
+      LGDMAt=LRoots*(LRoots+1)/2
+      CALL mma_allocate(GDMat,LGDMat,NAC,NAC)
 
-      CALL GetDDgMat(DDg,GDMat,Gtuvx)
+      CALL GetGDMat(GDMat,LGDMat)
+
+      CALL GetDDgMat(DDg,GDMat,Gtuvx,LGDMat)
+
+      CALL mma_deallocate(GDMat)
 
       CALL RotMatOpt(RotMat,DDg)
 
@@ -339,89 +345,6 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       END SUBROUTINE
 ***********************************************************************
 ***********************************************************************
-      Subroutine MatProduct(M3,M1,M2,J,K,L)
-      INTEGER J,K,L
-      Real*8,DIMENSION(J,K)::M1
-      Real*8,DIMENSION(K,L)::M2
-      Real*8,DIMENSION(J,L)::M3
-      DO IJ=1,J
-       DO IL=1,L
-        M3(IJ,IL)=0.0d0
-        DO IK=1,K
-        M3(IJ,IL)=M3(IJ,IL)+M1(IJ,IK)*M2(IK,IL)
-        END DO
-       END DO
-      END DO
-      RETURN
-      END SUBROUTINE
-***********************************************************************
-
-C***********************************************************************
-C      Subroutine TwoStateOpt(RotMat,DDg)
-C#include "rasdim.fh"
-C#include "rasscf.fh"
-C#include "general.fh"
-C#include "WrkSpc.fh"
-C#include "SysDef.fh"
-C#include "input_ras.fh"
-C#include "warnings.fh"
-C      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-C      Real*8,DIMENSION(lroots,lroots)::RotMat
-C      Real*8 angle
-C      Real*8,DIMENSION(4)::theta
-C      Real*8,DIMENSION(4)::SumVee
-C      INTEGER IRot,ISmall,ICount
-C      Real*8 stepsize,Calc2SumVee,Threshold,SumOld,SumVee4
-C      Logical Converged
-C      External Calc2SumVee
-C      write(6,*)RotMat(1,1),RotMat(1,2),RotMat(2,1),RotMat(2,2)
-C      write(6,*)'rotation angle scanning'
-C      DO ICount=0,45
-C       angle=ICount*atan(1.0d0)/45.0d0
-C       write(6,'(F8.6,2X,F6.4,2X,F16.6)')
-C     & angle,cos(angle),Calc2SumVee(angle,DDg)
-C      End Do
-C******Iteration Preparation
-C      stepsize=atan(1.0d0)/9.0d0
-C      SumOld=0.0d0
-C      Converged=.false.
-C      Threshold=1.0d-6
-C      ICount=0
-C      theta(2)=acos(RotMat(1,1))
-C      DO WHILE(.not.Converged)
-C       ICount=ICount+1
-C       theta(1)=theta(2)-stepsize
-C       theta(3)=theta(2)+stepsize
-C       SumVee(1)=Calc2SumVee(theta(1),DDg)
-C       SumVee(2)=Calc2SumVee(theta(2),DDg)
-C       SumVee(3)=Calc2SumVee(theta(3),DDg)
-C       CALL CMSFitTrigonometric(Theta,SumVee)
-C       sumvee4=SumVee(4)
-C       SumVee(4)=Calc2SumVee(theta(4),DDg)
-C       write(6,'(4X,I3,5(4X,F8.4,4X,F10.6))')
-C     &ICount,theta(1),SumVee(1),theta(2),SumVee(2),theta(3),SumVee(3),
-C     &theta(4),SumVee(4),theta(4),SumVee4
-C       IF(abs(SumVee(4)-SumOld).le.Threshold) THEN
-C        Converged=.true.
-C        write(6,*)'Convergence reached'
-C       ELSE
-C        If(ICount.eq.100) Then
-C         Converged=.true.
-C         write(6,*)'No Convergence reached after 100 cycles'
-C        End If
-C        SumOld=SumVee(4)
-C        theta(2)=theta(4)
-C       END IF
-C      END DO
-C      angle=theta(4)
-C      RotMat(1,1)=cos(angle)
-C      RotMat(1,2)=sin(angle)
-C      RotMat(2,1)=-sin(angle)
-C      RotMat(2,2)=cos(angle)
-C      RETURN
-C      END Subroutine
-C***********************************************************************
-***********************************************************************
       Subroutine CMSFitTrigonometric(x,y)
       real*8,DIMENSION(4)::x,y
       real*8 s12,s23,c12,c23,d12,d23,k,a,b,c,phi,psi1,psi2,val1,val2
@@ -459,30 +382,6 @@ C      write(6,*)a,b,c,x(4),y(4)
       END Subroutine
 ***********************************************************************
 
-C***********************************************************************
-C      Function Calc2SumVee(angle,DDg)
-C#include "rasdim.fh"
-C#include "rasscf.fh"
-C#include "general.fh"
-C#include "WrkSpc.fh"
-C#include "SysDef.fh"
-C#include "input_ras.fh"
-C#include "warnings.fh"
-C      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-C      Real*8,DIMENSION(lroots,lroots)::RotMat
-C      Real*8,DIMENSION(lroots)::Vee
-C      Real*8 angle
-C      Real*8 Calc2SumVee
-C      RotMat(1,1)=cos(angle)
-C      RotMat(1,2)=sin(angle)
-C      RotMat(2,1)=-sin(angle)
-C      RotMat(2,2)=cos(angle)
-C      CALL CalcVee(Vee,RotMat,DDg)
-C      Calc2SumVee=Vee(1)+Vee(2)
-C      RETURN
-C      End FUNCTION
-C***********************************************************************
-
 ***********************************************************************
       Subroutine CalcVee(Vee,RMat,DDg)
 #include "rasdim.fh"
@@ -516,7 +415,7 @@ C     & IState,' is ',Vee(IState)
       END SUBROUTINE
 ***********************************************************************
 ***********************************************************************
-      Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
+      Subroutine GetDDgMat(DDg,GDMat,Gtuvx,LGDMat)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -524,9 +423,10 @@ C     & IState,' is ',Vee(IState)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.fh"
+      INTEGER LGDMat
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
 
       INTEGER iI,iJ,iK,iL,it,iu,iv,ix,iII,iJJ,iKK,iLL
       DO iI=1,lRoots

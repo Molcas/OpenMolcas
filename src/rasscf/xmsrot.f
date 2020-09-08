@@ -15,6 +15,7 @@
 * history:                                                       *
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
+      use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -33,14 +34,20 @@
 ******FckO:  Fock matrix for MO
       Real*8,DIMENSION(lRoots,lRoots)::FckS,EigVec
 ******FckS:  Fock matrix for states
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(:,:,:),Allocatable::GDMat
+      INTEGER LGDMat
 ******GDMat: density matrix or transition density matrix
 
       CALL CalcFckO(CMO,FI,FA,FckO)
 
-      CALL GetGDMat(GDMAt)
+      LGDMat=lRoots*(lRoots+1)/2
+      CALL mma_allocate(GDMat,LGDMat,NAC,NAC)
+
+      CALL GetGDMat(GDMAt,LGDMat)
 C
-      CALL CalcFckS(FckO,GDMat,FckS)
+      CALL CalcFckS(FckO,GDMat,FckS,LGDMat)
+
+      CALL mma_deallocate(GDMat)
 C
       CALL CalcEigVec(FckS,lRoots,EigVec)
 C
@@ -136,7 +143,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 ******************************************************
 
 ******************************************************
-      Subroutine GetGDMat(GDMat)
+      Subroutine GetGDMat(GDMat,LGDMat)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -145,8 +152,9 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
+      INTEGER LGDMat
 *     Output
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
 *     Auxillary qunatities
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
@@ -191,7 +199,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       END Subroutine
 
 ******************************************************
-      Subroutine CalcFckS(FckO,GDMat,FckS)
+      Subroutine CalcFckS(FckO,GDMat,FckS,LGDMat)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -202,8 +210,9 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "rasscf_lucia.fh"
 
 ******Input
+      INTEGER LGDMat
       Real*8,DIMENSION(NAC,NAC)::FckO
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
 ******Output
       Real*8,DIMENSION(lRoots,lRoots)::FckS
 ******Auxillary variables

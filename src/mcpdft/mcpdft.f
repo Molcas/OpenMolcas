@@ -50,6 +50,7 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
+      use stdalloc, only : mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -740,7 +741,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     Jroot,'Total energy:',Work(LRState+Jroot-1)
          End Do
          Write(6,*)
-         Allocate(VecStat(lRoots))
+         CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots
           write(StatVec,'(A6,I2)')'Root ',JRoot
           VecStat(JRoot)=StatVec
@@ -755,7 +756,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     '(13X,',lRoots,'(A8,16X))'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
          end if
-         Deallocate (VecStat)
+         CALL mma_deallocate(VecStat)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
          Write(6,*)
          Write(6,'(6X,80a)') ('*',i=1,80)
