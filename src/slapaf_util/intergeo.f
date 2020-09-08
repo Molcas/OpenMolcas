@@ -13,6 +13,7 @@
 * Add geometry optimization info  *
 *   to the Molden inputfile       *
 *---------------------------------*
+      use Symmetry_Info, only: nIrrep, iOper
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
@@ -93,7 +94,7 @@
             grx=Grd(1,ndc,iIter)
             gry=Grd(2,ndc,iIter)
             grz=Grd(3,ndc,iIter)
-            Do i=0,nSym/nStab(ndc)-1
+            Do i=0,nIrrep/nStab(ndc)-1
                grtot=grtot+grx*grx+gry*gry+grz*grz
                ngrad=ngrad+1
             End Do
@@ -125,7 +126,7 @@
             dx=Crd(1,ndc,iIter+1)-Crd(1,ndc,iIter)
             dy=Crd(2,ndc,iIter+1)-Crd(2,ndc,iIter)
             dz=Crd(3,ndc,iIter+1)-Crd(3,ndc,iIter)
-            Do i=0,nSym/nStab(ndc)-1
+            Do i=0,nIrrep/nStab(ndc)-1
                step=step+dx*dx+dy*dy+dz*dz
             End Do
          End Do
@@ -158,7 +159,7 @@
       iSymX = 0
       iSymY = 0
       iSymZ = 0
-      Do i = 0, nSym-1
+      Do i = 0, nIrrep-1
          If (iAnd(iOper(i),1).ne.0) iSymX = 1
          If (iAnd(iOper(i),2).ne.0) iSymY = 2
          If (iAnd(iOper(i),4).ne.0) iSymZ = 4
@@ -189,7 +190,7 @@
       nAt=0
       Write (Lu_Molden,*) '[GEOMETRIES] (XYZ)'
       Do ndc = 1, msAtom+msAtom_p
-         Do i=0,nSym/nStab2(ndc)-1
+         Do i=0,nIrrep/nStab2(ndc)-1
             nAt=nAt+1
          End do
       End do
@@ -208,7 +209,7 @@
                y=Work(ixyz_p+1)
                z=Work(ixyz_p+2)
             End If
-            Do i=0,nSym/nStab2(ndc)-1
+            Do i=0,nIrrep/nStab2(ndc)-1
                iFacx=iPhase(1,icoset2(i,0,ndc))
                iFacy=iPhase(2,icoset2(i,0,ndc))
                iFacz=iPhase(3,icoset2(i,0,ndc))
@@ -239,7 +240,7 @@
                y=0.0D0
                z=0.0D0
             End If
-            Do i=0,nSym/nStab2(ndc)-1
+            Do i=0,nIrrep/nStab2(ndc)-1
                iFacx=iPhase(1,icoset2(i,0,ndc))
                iFacy=iPhase(2,icoset2(i,0,ndc))
                iFacz=iPhase(3,icoset2(i,0,ndc))

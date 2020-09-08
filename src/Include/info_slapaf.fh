@@ -12,7 +12,7 @@
       Integer   mxdc,MaxItr
       Parameter(mxdc=MxAtom,MaxItr=2000)
 *
-      Integer   iOper(0:7), iSym(3), iCoSet(0:7,mxdc), nStab(mxdc),
+      Integer   iSym(3), iCoSet(0:7,mxdc), nStab(mxdc),
      &          ipAtom, ipNSup, ipR12, iRef, nQQ, mRowH(10), nRowH,
      &          ipEner, ipGnrm, ipdqInt, ipH, ipQInt, NmIter,
      &          ipShf, ipGrd, ipRlx, ipStat, iter, Lngth, nDimBC,
@@ -21,9 +21,9 @@
      &          iOptC, mode, mTROld, nWndw, iOptH, jStab(0:7,mxdc),
      &          ipMF, nLambda, iRow_c, ipL, ipEner0, ipGx0, nqInt,
      &          nMEP, ipRef, ipGradRef, ipDipM, ipK_Ref, nBVec, IRC,
-     &          ipCM, ipCoor, mTtAtm, nsAtom, nSym, MEPnum,
+     &          ipCM, ipCoor, mTtAtm, nsAtom, MEPnum,
      &          RootMap(MxRoot)
-      Common /iInfSla/ iOper,iSym,ipCoor,nSym,ipCM,nsAtom,
+      Common /iInfSla/ iSym,ipCoor,ipCM,nsAtom,
      &               ipAtom, ipNSup, ipR12, iRef, nQQ, mRowH,
      &          ipEner, ipGnrm, ipdqInt, ipH, ipQInt, nRowH,
      &          ipShf, ipGrd, ipRlx, ipStat, iter, Lngth, nDimBC,

@@ -27,7 +27,7 @@
 *> @param[in]     nAtom Number of symmetry-unique atoms
 ************************************************************************
       Subroutine Align(Coord,Ref,nAtom)
-
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "sbs.fh"
@@ -62,14 +62,14 @@ c     Call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
         iChxyz=0
         Do i=0,2
           If (Ref(iAdr+i).ne.Zero) Then
-            Do iIrrep=0,nSym-1
+            Do iIrrep=0,nIrrep-1
               If (iAnd(2**i,iOper(iIrrep)).ne.0)
      &           iChxyz=iOr(iChxyz,2**i)
             End Do
           End If
         End Do
         nStb=0
-        Do iIrrep=0,nSym-1
+        Do iIrrep=0,nIrrep-1
           If ((nStb.le.1).And.
      &       (iAnd(iChxyz,iOper(iIrrep)).eq.0)) Then
             iStab(iAt)=iOper(iIrrep)

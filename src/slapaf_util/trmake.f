@@ -21,10 +21,8 @@
 *
       iRout = 131
       iPrint=nPrint(iRout)
-*     Call QEnter('TRMake')
       If (iPrint.ge.99) Then
          Call RecPrt(' In TRMake: Coor',' ',Coor,3,nAtoms)
-         Write (6,*) ' nSym=',nSym
          Write (6,*) ' nDim=',nDim
       End If
 *
@@ -124,7 +122,6 @@ C     Write (6,*) 'TrMake CM=',CM
 *
       If (iPrint.ge.99) Call RecPrt(' In TRMake: TRVec',' ',
      &                           TRVec,nTR,nDim)
-*     Call QExit('TRMake')
 *                                                                      *
 ************************************************************************
 *                                                                      *
