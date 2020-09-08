@@ -156,7 +156,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),nSym,iOper,Smmtrc,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
      &                  Degen,Iter,Work(ipCx),mTtAtm,iWork(ipANr),
      &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
 *                                                                      *

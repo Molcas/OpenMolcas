@@ -102,7 +102,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),iOper,nSym,
+      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),
      &            mTtAtm,Work(ipVec),Smmtrc,nDim,iAnr,iWork(ipAN),
      &            iWork(ip_TabAI),Degen)
 *
