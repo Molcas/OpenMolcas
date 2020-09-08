@@ -22,7 +22,6 @@
 *             September 1991                                           *
 ************************************************************************
       use Symmetry_Info
-      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
       Integer iCoSet(0:7,0:7), iAcc(0:7)
 *

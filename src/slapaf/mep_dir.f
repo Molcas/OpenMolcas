@@ -36,6 +36,7 @@
 ************************************************************************
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -320,7 +321,7 @@
 *       Randomly displace the new geometry 1/20th of the MEP distance
 *       to try to break symmetry
 *
-        If (nSym.eq.1) Then
+        If (nIrrep.eq.1) Then
           Call Random_Vector(nCoor,Work(ipDisp),.True.)
           dDir=Zero
           iOff=0
