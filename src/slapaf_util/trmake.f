@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,iOper,nSym,
-     &                  Smmtrc,nDim,dMass,CofM)
+      Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,Smmtrc,nDim,dMass,
+     &                  CofM)
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -17,7 +17,6 @@
 #include "print.fh"
       Real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms),uMtrx(3*nAtoms),
      &       CM(3), dMass(nAtoms)
-      Integer   iOper(0:nSym-1)
       Logical SymDsp, Smmtrc(3,nAtoms), TransVar, RotVar, CofM
 *
       iRout = 131
@@ -41,7 +40,7 @@
       If (TransVar) Go To 100
       Do i = 1, 3
          iCmp=2**(i-1)
-         If (SymDsp(iOper,nSym,iCmp)) Then
+         If (SymDsp(iCmp)) Then
             nTR = nTR + 1
             call dcopy_(nAtoms,[One],0,TRVec(nTR,i),18)
          End If
@@ -88,7 +87,7 @@ C     Write (6,*) 'TrMake CM=',CM
 *        symmetry.
 *
          iCmp = 2**(j-1) + 2**(k-1)
-         If (SymDsp(iOper,nSym,iCmp)) Then
+         If (SymDsp(iCmp)) Then
             nTR = nTR + 1
             Call DYaX (nAtoms, One,Coor(j,1),3,TRVec(nTR,k),18)
             Call DaXpY_(nAtoms,-One,CM(j)    ,0,TRVec(nTR,k),18)

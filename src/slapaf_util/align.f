@@ -45,9 +45,9 @@
       If (.Not.Invar) Return
 
       Call mma_allocate(Coor_All,3,nAtom*8,Label='Coor_All')
-      Call Expand_Coor(Coord,nAtom,Coor_All,mAtom,nSym,iOper)
+      Call Expand_Coor(Coord,nAtom,Coor_All,mAtom)
       Call mma_allocate(Ref_All ,3,nAtom*8,Label='Ref_All')
-      Call Expand_Coor(Ref,  nAtom,Ref_All,mAtom,nSym,iOper)
+      Call Expand_Coor(Ref,  nAtom,Ref_All,mAtom)
 
 c     Call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
 

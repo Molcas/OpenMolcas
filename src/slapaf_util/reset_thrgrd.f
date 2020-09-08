@@ -33,8 +33,8 @@
       Call Allocate_Work(ipTR,18*nAtom)
       Call FZero(Work(ipTR),18*nAtom)
 *
-      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,nSym,iOper,Smmtrc,mTR,
-     &            dMass,.False.,Work(ipTR))
+      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,Smmtrc,mTR,dMass,.False.,
+     &            Work(ipTR))
 *
 *     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
 *                                                                      *

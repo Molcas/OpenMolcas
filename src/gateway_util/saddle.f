@@ -172,10 +172,8 @@
             Call mma_Allocate(XYZ,3*nAt*8,2,label='XYZ')
             iReac=1
             iProd=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iReac),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iProd),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iReac),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iProd),mAt)
             Call Qpg_dArray('Weights',Found,nData)
             If (Found.And.(nData.ge.mAt)) Then
               Call mma_allocate(W,nData,label='W')
@@ -288,10 +286,8 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRA1=1
          iRA2=2
-         Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,nIrrep,
-     &                    iOper)
-         Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,nIrrep,
-     &                    iOper)
+         Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+         Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
          Call Qpg_dArray('Weights',Found,nData)
          If (Found.And.(nData.ge.mAt)) Then
            Call mma_allocate(W,nData,label='W')
@@ -398,14 +394,12 @@
                   iXA1=2
                   iXA2=3
                   iXA3=4
-                  Call Expand_Coor(MEP(1,iX0),nAt,XYZ(1,iXA0),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(MEP(1,iX1),nAt,XYZ(1,iXA1),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(RP_Centers(1,1,ipX2),nAt,XYZ(1,iXA2),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(RP_Centers(1,1,ipX3),nAt,XYZ(1,iXA3),
-     &                             mAt,nIrrep,iOper)
+                  Call Expand_Coor(MEP(1,iX0),nAt,XYZ(1,iXA0),mAt)
+                  Call Expand_Coor(MEP(1,iX1),nAt,XYZ(1,iXA1),mAt)
+                  Call Expand_Coor(RP_Centers(1,1,ipX2),nAt,
+     &                             XYZ(1,iXA2),mAt)
+                  Call Expand_Coor(RP_Centers(1,1,ipX3),nAt,
+     &                             XYZ(1,iXA3),mAt)
                   If (Invar) Then
                     Call Superpose_w(XYZ(1,iXA0),XYZ(1,iXA2),W,
      &                               mAt,RMSD,RMax)
@@ -583,10 +577,9 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRefAlign=1
          iOptExp  =2
-         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,XYZ(1,iRefAlign),
-     &                    mAt,nIrrep,iOper)
-         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),
-     &                    mAt,nIrrep,iOper)
+         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,
+     &                    XYZ(1,iRefAlign),mAt)
+         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),mAt)
          If (Invar) Then
            Call Superpose_w(XYZ(1,iRefAlign),XYZ(1,iOptExp),W,
      &                      mAt,RMSD,RMax)
@@ -664,10 +657,8 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
             If (Mode.eq.'R') Then
               If (Invar) Then
                 Call Superpose_w(XYZ(1,iRA2),XYZ(1,iRA1),W,mAt,
@@ -710,10 +701,8 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
             If (Invar) Then
               If (Mode.eq.'R') Then
                 Call Superpose_w(XYZ(1,iRA2),XYZ(1,iRA1),W,mAt,
