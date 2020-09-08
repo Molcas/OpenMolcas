@@ -177,16 +177,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       If (lXF.and.(nOrd_XF.ge.0)) Then
 *
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
-*
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
@@ -244,7 +234,7 @@ C     nElem(ixyz) = 2*ixyz+1
             End If
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+            iChxyz=iChAtm(A,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
@@ -403,7 +393,7 @@ C     nElem(ixyz) = 2*ixyz+1
 
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+            iChxyz=iChAtm(A,iChBas(2))
             Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
@@ -444,7 +434,7 @@ C     nElem(ixyz) = 2*ixyz+1
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
-               iChxyz=iChAtm(B,iOper,nOper,iChBas(2))
+               iChxyz=iChAtm(B,iChBas(2))
                Call Stblz(iChxyz,iOper,nIrrep,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.

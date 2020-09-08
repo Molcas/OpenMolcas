@@ -178,16 +178,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *------------- Generate Stabilazor of C
 *
-               If (nIrrep.eq.8) Then
-                  nOper=3
-               Else If (nIrrep.eq.4) Then
-                  nOper=2
-               Else If (nIrrep.eq.2) Then
-                  nOper=1
-               Else
-                  nOper=0
-               End If
-               iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+               iChxyz=iChAtm(A,iChBas(2))
                iDum=0
                Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *

@@ -234,16 +234,6 @@
 
       If (.Not.lXF) Go To 666
 *
-      If (nIrrep.eq.8) Then
-         nOper=3
-      Else If (nIrrep.eq.4) Then
-         nOper=2
-      Else If (nIrrep.eq.2) Then
-         nOper=1
-      Else
-         nOper=0
-      End If
-*
       If((nOrd_XF.gt.1).or.(iXPolType.gt.0)) Then
          Call WarningMessage(2,'Error in DrvN1')
          Write(6,*)'Sorry, gradients are not implemented for'
@@ -265,7 +255,7 @@
      &            .and. DA(3).eq.Zero
          If (NoLoop) Go To 102
          A(1:3)=XF(1:3,iFd)
-         iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+         iChxyz=iChAtm(A,iChBas(2))
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
          ndc = 0

@@ -174,10 +174,10 @@
      &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
-            iChxyz=iChAtm(Work(ixyz  ),iOper,nSym,iChCar)
+            iChxyz=iChAtm(Work(ixyz  ),iChCar)
             ixyz   = ixyz   + 3
          Else
-            iChxyz=iChAtm(Work(ixyz_p),iOper,nSym,iChCar)
+            iChxyz=iChAtm(Work(ixyz_p),iChCar)
             ixyz_p = ixyz_p + 3
          End If
          Call Stblz(iChxyz,iOper,nSym,nStab2(ndc),jStab(0,ndc),

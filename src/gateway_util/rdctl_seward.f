@@ -4562,8 +4562,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
-     &                       iOper,nOper,iChCar)
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),iChCar)
             End If
             dc(mdc)%iChCnt = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,dc(mdc)%nStab,dc(mdc)%iStab,

@@ -158,16 +158,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
 *------- Generate stabilizor of C
 *
-         If (nIrrep.eq.8) Then
-             nOper=3
-         Else If (nIrrep.eq.4) Then
-             nOper=2
-         Else If (nIrrep.eq.2) Then
-             nOper=1
-         Else
-             nOper=0
-         End If
-         iChxyz=iChAtm(C,iOper,nOper,iChBas(2))
+         iChxyz=iChAtm(C,iChBas(2))
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S

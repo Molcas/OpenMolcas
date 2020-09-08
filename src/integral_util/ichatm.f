@@ -8,11 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function iChAtm(Coor,iOper,nOper,iChCar)
+      Function iChAtm(Coor,iChCar)
+      Use Symmetry_Info, only: nIrrep, iOper
       Implicit None
-      Integer iChAtm, iOper(0:7), iChCar(3)
+      Integer iChAtm, iChCar(3)
       Real*8 Coor(3)
-      Integer iCar, nOper, i, j
+      Integer iCar, i, j, nOper
+      If (nIrrep.eq.8) Then
+         nOper=3
+      Else If (nIrrep.eq.4) Then
+         nOper=2
+      Else If (nIrrep.eq.2) Then
+         nOper=1
+      Else
+         nOper=0
+      End If
+
 *
 *     iChAtm is an integer function which will return an integer such
 *     that the three first bits will represent the characteristics of
@@ -38,7 +49,7 @@
 *
 *        The generators are stored in positions 1, 2, and 4.
 *
-         Do i = 1, nOper  ! skip the unit operator -- i=0
+         Do i = 1, nOper    ! skip the unit operator -- i=0
             j = 2**(i-1)
 *
 *           Test if symoperation will permute component

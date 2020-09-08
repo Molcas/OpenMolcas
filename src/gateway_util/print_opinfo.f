@@ -41,18 +41,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (nIrrep.eq.8) Then
-         nOper=3
-      Else If (nIrrep.eq.4) Then
-         nOper=2
-      Else If (nIrrep.eq.2) Then
-         nOper=1
-      Else
-         nOper=0
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
       PrintOperators=.False.
       PrintOperators=PrintOperators.or.(nEF.ne.0)
       PrintOperators=PrintOperators.or.(nDMS.ne.0)
@@ -151,7 +139,7 @@
          Do iXF = 1, nXF
             A(1:3)=XF(1:3,iXF)
             Charge_iXF=XF(4,iXF)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+            iChxyz=iChAtm(A,iChBas(2))
             iDum=0
             Call Stblz(iChxyz,iOper,nIrrep,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)

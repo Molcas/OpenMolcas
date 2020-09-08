@@ -45,18 +45,9 @@
 *
 *------------- Generate Stabilizer of C
 *
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
 ! IFG: "A" was undefined, is this the right point?
          A(1:3)=XF(1:3,i)
-         iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+         iChxyz=iChAtm(A,iChBas(2))
          iDum=0
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1
