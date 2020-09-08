@@ -72,8 +72,9 @@
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
-      Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3)
-      Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
+      Real*8 NucExp, WellCff(3), WellExp(3), WellRad(3),
+     &       OAMt(3), OMQt(3)
+      Real*8, Allocatable :: RTmp(:,:), EFt(:,:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
@@ -2214,8 +2215,8 @@ c     Go To 998
 *     Orbital angular momentum
 *
  995  lOAM = .True.
+      lOAMc = .True.
       GWInput=.True.
-      Call mma_allocate(OAMt,3,label='OAMt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OAMt,3)
@@ -2233,13 +2234,12 @@ c     Go To 998
  1002 lDOWNONLY = .True.
       Go To 998
 *                                                                      *
-****** OMQ *************************************************************
+****** OMQI ************************************************************
 *                                                                      *
-*     Orbital angular momentum
+*     Orbital magnetic quadrupole
 *
  999  lOMQ = .True.
       GWInput=.True.
-      Call mma_allocate(OMQt,3,label='OMQt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OMQt,3)
@@ -4672,8 +4672,7 @@ C     Mx_mdc=mdc
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,OAMt,1,OAM_Center,1)
-         Call mma_deallocate(OAMt)
-      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
+      Else If (.NOT.allocated(OAM_Center)) Then
          lOAM=.True.
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,CoM,1,OAM_Center,1)
@@ -4687,7 +4686,6 @@ C     Mx_mdc=mdc
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
          Call DCopy_(3,OMQt,1,OMQ_Center,1)
-         Call mma_deallocate(OMQt)
       End If
 *                                                                      *
 ************************************************************************
