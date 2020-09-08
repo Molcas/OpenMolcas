@@ -19,7 +19,7 @@
 *--------Do a intger inner product.
          iGo = 0
          Do 11 j = 1, nIrrep
-            iGo = iGo + iTest(j)*iChTab(i-1,j-1)
+            iGo = iGo + iTest(j)*iChTbl(i-1,j-1)
  11      Continue
          If (iGo.ne.0) Then
 *-----------Here if row already defined.

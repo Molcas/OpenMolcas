@@ -580,7 +580,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
@@ -1128,7 +1128,7 @@ C                 Write (*,*)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),

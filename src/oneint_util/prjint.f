@@ -307,7 +307,7 @@
                            If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            iIC = iIC + 1
                            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                           Xg=rChTbl(iIrrep,nOp         )
+                           Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',
      &                                nAlpha,nBeta,nBasisi,

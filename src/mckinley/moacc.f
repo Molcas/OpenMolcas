@@ -63,7 +63,7 @@ c#include "print.fh"
       lCmp=iCmpa(4)
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(3))
+       sfact=DBLE(ichtbl(kirrep,nop(3)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,kcmp*kbas
          kk=kk+1
@@ -73,7 +73,7 @@ c#include "print.fh"
       End Do
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(4))
+       sfact=DBLE(ichtbl(kirrep,nop(4)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,lcmp*lbas
          kk=kk+1
@@ -124,7 +124,7 @@ c#include "print.fh"
 
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
-           rFact2=rFact*rChtbl(ispert,nop(icnt))
+           rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
            llash=0
            k=abs(indgrd(icar,icnt,ispert))
            j=0
@@ -139,9 +139,9 @@ c#include "print.fh"
                ll=lash+moip(lirr)
                j=j+1
                Do jIrr=0,nIrrep-1
-                rPj=rChTbl(jIrr,nop(2))
+                rPj=DBLE(iChTbl(jIrr,nop(2)))
                  iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
-                 rPij=rPj*rChTbl(iIrr,nop(1))*rfact2
+                 rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                  buffer(ib,ic,jb,jc,iirr,j,k)=
      &               buffer(ib,ic,jb,jc,iirr,j,k)+
      &               rpij*Temp2(kk,ll)+
@@ -157,7 +157,7 @@ c#include "print.fh"
 *
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
-           rFact2=rFact*rChtbl(ispert,nop(icnt))
+           rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
            llash=0
            k=abs(indgrd(icar,icnt,ispert))
            j=0
@@ -172,9 +172,9 @@ c#include "print.fh"
                ll=lash+moip(lirr)
                j=j+1
                Do jIrr=0,nIrrep-1
-                rPj=rChTbl(jIrr,nop(2))
+                rPj=DBLE(iChTbl(jIrr,nop(2)))
                 iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
-                rPij=rPj*rChTbl(iIrr,nop(1))*rfact2
+                rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                 buffer(ib,ic,jb,jc,iirr,j,k)=
      &              buffer(ib,ic,jb,jc,iirr,j,k)+
      &              rpij*Temp2(kk,ll)
@@ -194,7 +194,7 @@ c#include "print.fh"
 *
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(3))
+       sfact=DBLE(ichtbl(kirrep,nop(3)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,kcmp*kbas
          kk=kk+1
@@ -204,7 +204,7 @@ c#include "print.fh"
       End Do
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(4))
+       sfact=DBLE(ichtbl(kirrep,nop(4)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,lcmp*lbas
          kk=kk+1

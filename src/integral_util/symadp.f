@@ -141,12 +141,12 @@
        iAux = 0
        Do 110 j1 = 0, nIrrep-1
           If (iSym(j1).eq.0) Go To 110
-          Xa = rChTbl(j1,kOp(1)) * pTSd
+          Xa = DBLE(iChTbl(j1,kOp(1))) * pTSd
           j2Max = nIrrep-1
           If (Shij .and. Qij) j2Max = j1
           Do 210 j2 = 0, j2Max
              If (jSym(j2).eq.0) Go To 210
-             Xb = rChTbl(j2,kOp(2)) * Xa
+             Xb = DBLE(iChTbl(j2,kOp(2))) * Xa
              j12 = iEor(j1,j2)
              If (Qijij) Then
                 If (Shij .and. Qij) Then
@@ -176,9 +176,9 @@
                    End If
                    If (Qijij .and. k34.gt.k12) Go To 310
                 End If
-                Xg = rChTbl(j3,kOp(3)) * Xb
+                Xg = DBLE(iChTbl(j3,kOp(3))) * Xb
                 iAux = iAux + 1
-                Aux(iAux) = rChTbl(j4,kOp(4)) * Xg
+                Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg
 *
  310         Continue
  210      Continue

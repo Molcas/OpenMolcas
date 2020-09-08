@@ -59,7 +59,7 @@
          End If
 *
          iCom=iAnd(iOper(i),iBsFnc)
-         iAcc(n) = iAcc(n) + iChTab(iIrrep,i)*iPrmt_(iCom)
+         iAcc(n) = iAcc(n) + iChTbl(iIrrep,i)*iPrmt_(iCom)
 *
       End Do
       Do i = 0, nCoSet-1

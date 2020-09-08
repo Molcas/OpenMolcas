@@ -42,7 +42,7 @@ C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
          Do 104 iIrrep = 0, nIrrep-1
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).eq.0) Go To 104
             iIC = iIC + 1
-            Xg = rChTbl(iIrrep,iDCRT)
+            Xg = DBLE(iChTbl(iIrrep,iDCRT))
             Call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,
      &                 ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
  104     Continue

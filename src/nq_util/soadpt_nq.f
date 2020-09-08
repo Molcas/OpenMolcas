@@ -40,7 +40,7 @@
          Do j1 = 0, nIrrep-1
             If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).ne.0) Then
                iaux=iaux+1
-               xa= rChTbl(j1,nOp)
+               xa= DBLE(iChTbl(j1,nOp))
                Aux(iAux)=Fact*xa
             End If
          End Do

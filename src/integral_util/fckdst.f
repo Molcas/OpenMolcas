@@ -52,7 +52,7 @@
             ipntij = iPnt(iIrrep)
             iSO=iAOtSO(iAO1+i1,iIrrep)+iAOst1
             jSO=iAOtSO(iAO2+i2,iIrrep)+iAOst2
-            XR = rChTbl(iIrrep,iiR)
+            XR = DBLE(iChTbl(iIrrep,iiR))
 *
             Do jAOj = 0, jBas-1
               Do iAOi = 0, iBas-1
@@ -97,10 +97,10 @@
             Do 110 iIrrep = 0, nIrrep-1
                jIrrep=jIrr(iIrrep)
                If (iIrrep.lt.jIrrep) Goto 110
-               X1 = rChTbl(iIrrep,l1)
-               X2 = rChTbl(jIrrep,l2)
-               X3 = rChTbl(jIrrep,l1)
-               X4 = rChTbl(iIrrep,l2)
+               X1 = DBLE(iChTbl(iIrrep,l1))
+               X2 = DBLE(iChTbl(jIrrep,l2))
+               X3 = DBLE(iChTbl(jIrrep,l1))
+               X4 = DBLE(iChTbl(iIrrep,l2))
                iSOi=iAOtSO(iAO1+i1,iIrrep)+iAOst1
                jSOj=iAOtSO(iAO2+i2,jIrrep)+iAOst2
                jSOi=iAOtSO(iAO2+i2,iIrrep)+iAOst2

@@ -112,7 +112,7 @@ C center nr ic=iCntDf(I), which is presumably the number it will have
 C on the MCKINT file; unless, of curse, ic is larger than nUqCnt,
 C in which case the number of the center in the MCKINT file will be
 C actually iCntId(2,ic)+iCntId(3,ic), and integrals with have to
-C change sign according to rChTbl(iIrrep,iCntId(4,ic)).
+C change sign according to iChTbl(iIrrep,iCntId(4,ic)).
 
       Write(6,*)' MKDISP: Tables of coordinates and displacements.'
       Write(6,*)' Nr of symmetry-unique centers, nUqCnt=',nUqCnt

@@ -65,7 +65,7 @@
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
       Do 100 j1 = 0, nIrrep-1
-         xa = rChTbl(j1,nOp(1))
+         xa = DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
             If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) Go To 200
 *
@@ -74,7 +74,7 @@
 *
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                kIC = jIC(j12)
-               xb = rChTbl(j2,nOp(2))
+               xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *

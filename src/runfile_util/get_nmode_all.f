@@ -16,7 +16,6 @@
       Real*8  Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
       Integer iChTbl(0:7,0:7), iGen(3), iCoSet(0:7,0:7), mDisp(0:7),
      &        iChCar(3), nDisp(0:7), iStab(0:7)
-      Real*8  rChTbl(0:7,0:7)
       Character lIrrep(8)*3, lBsFnc(8)*80
 #ifdef _DEBUG_
       Logical Temp
@@ -72,7 +71,7 @@
 *                                                                      *
 *     Generate character table
 *
-      Call ChTab(iOper,nSym,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nSym,iChTbl,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -208,7 +207,7 @@ C                     Write (*,*) 'Belong!'
                       End If
                       Vec=Vectors(iVector+iVec)
                       XR=DBLE(iPrmt(NrOpr(kOp,iOper,nIrrep),iComp))
-                      XY=rChTbl(iIrrep,NrOpr(kOp,iOper,nIrrep))
+                      XY=DBLE(iChTbl(iIrrep,NrOpr(kOp,iOper,nIrrep)))
                       Vectors_All(iVector_All)=Vec*XR*XY
                    Else
 C                     Write (*,*) 'Doesn''t belong!'

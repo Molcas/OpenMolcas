@@ -14,12 +14,12 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTab, Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get
+Public :: nIrrep, iOper, iChTbl, Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get
 
 #include "stdalloc.fh"
 Integer:: nIrrep=0
 Integer:: iOper(0:7)=[0,0,0,0,0,0,0,0]
-Integer:: iChTab(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
+Integer:: iChTbl(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
@@ -65,7 +65,7 @@ Integer:: jOper(0:7)
 Integer:: jChTab(0:7,0:7)
 nIrrep=mIrrep
 iOper(:)=jOper(:)
-iChTab(:,:)=jChTab(:,:)
+iChTbl(:,:)=jChTab(:,:)
 End Subroutine Symmetry_Info_Set
 !
 !***********************************************************************
@@ -78,21 +78,21 @@ iDmp(i+1)=nIrrep
 i=i+1
 iDmp(i+1:i+8)=iOper(:)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,0)
+iDmp(i+1:i+8)=iChTbl(:,0)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,1)
+iDmp(i+1:i+8)=iChTbl(:,1)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,2)
+iDmp(i+1:i+8)=iChTbl(:,2)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,3)
+iDmp(i+1:i+8)=iChTbl(:,3)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,4)
+iDmp(i+1:i+8)=iChTbl(:,4)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,5)
+iDmp(i+1:i+8)=iChTbl(:,5)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,6)
+iDmp(i+1:i+8)=iChTbl(:,6)
 i=i+8
-iDmp(i+1:i+8)=iChTab(:,7)
+iDmp(i+1:i+8)=iChTbl(:,7)
 i=i+8
 Call Put_iArray('Symmetry Info',iDmp,i)
 End Subroutine Symmetry_Info_Dmp
@@ -109,21 +109,21 @@ nIrrep     =iDmp(i+1)
 i=i+1
 iOper(:)   =iDmp(i+1:i+8)
 i=i+8
-iChTab(:,0)=iDmp(i+1:i+8)
+iChTbl(:,0)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,1)=iDmp(i+1:i+8)
+iChTbl(:,1)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,2)=iDmp(i+1:i+8)
+iChTbl(:,2)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,3)=iDmp(i+1:i+8)
+iChTbl(:,3)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,4)=iDmp(i+1:i+8)
+iChTbl(:,4)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,5)=iDmp(i+1:i+8)
+iChTbl(:,5)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,6)=iDmp(i+1:i+8)
+iChTbl(:,6)=iDmp(i+1:i+8)
 i=i+8
-iChTab(:,7)=iDmp(i+1:i+8)
+iChTbl(:,7)=iDmp(i+1:i+8)
 i=i+8
 End Subroutine Symmetry_Info_Get
 !

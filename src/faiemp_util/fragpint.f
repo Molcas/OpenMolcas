@@ -661,7 +661,7 @@ c some printouts:
               If (iAnd(llOper,iTwoj(iIrrep)).ne.0) Then
                 iIC = iIC + 1
                 nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                Xg=rChTbl(iIrrep,nOp)
+                Xg=DBLE(iChTbl(iIrrep,nOp))
 * Half is needed because we do a complete loop over iS,jS
                 Factor=Xg*Fact*Half
                 ! write(6,'(A,i24)') 'FragPInt:  ipIJ=', ipIJ

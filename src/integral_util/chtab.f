@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ChTab(iOper,nIrrep,iChTab,rChTab,lIrrep,lBsFnc,iSigma)
+      SubRoutine ChTab(iOper,nIrrep,iChTbl,lIrrep,lBsFnc,iSigma)
 ************************************************************************
 *                                                                      *
 * Object: to generate the character table of a point group within      *
@@ -28,8 +28,7 @@
       use Symmetry_Info, only: Symmetry_Info_Set
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 rChTab(1:8,1:8)
-      Integer iOper(nIrrep), iChTab(1:8,1:8)
+      Integer iOper(nIrrep), iChTbl(1:8,1:8)
       Integer iTest(8)
       Character*80 lIrrep(8)*3, lBsFnc(8), Tmp
       Character*6 xyz(0:7), SymLab*3
@@ -86,7 +85,7 @@
          Write (6,*) 'nIrrep=',nIrrep
          Call Abend()
       End If
-      Call ICopy(8**2,[0],0,iChTab,1)
+      Call ICopy(8**2,[0],0,iChTbl,1)
 *
 *     Go through the functions x, y, and z, and the dyadic functions.
 *
@@ -139,7 +138,7 @@
          End If
          If (lBsFnc(jIrrep)(1:1).eq.' ') Then
             lBsFnc(jIrrep) = Tmp
-            Call ICopy(nIrrep,iTest,1,iChTab(jIrrep,1),8)
+            Call ICopy(nIrrep,iTest,1,iChTbl(jIrrep,1),8)
          Else
             LenlBs=Len(lBsFnc(jIrrep))
             LenTmp=Len(Tmp)
@@ -159,12 +158,10 @@
 *           If the character of an rotation in an irreps is -1 then
 *           the irreps is assigned the character B, otherwise A.
 *
-*           Write (*,*) iOper(i),iChTab(iIrrep,i)
+*           Write (*,*) iOper(i),iChTbl(iIrrep,i)
             If ((iOper(i).eq.3 .or. iOper(i).eq.5 .or.
-     &           iOper(i).eq.6) .and. iChTab(iIrrep,i).eq.-1)
+     &           iOper(i).eq.6) .and. iChTbl(iIrrep,i).eq.-1)
      &          lIrrep(iIrrep)='b'
-*
-             rChTab(iIrrep,i) = DBLE(iChTab(iIrrep,i))
 *
  110     Continue
  100  Continue
@@ -207,13 +204,13 @@
                Write (Tmp,'(I1)') iRot
                If (ia.gt.1) Then
                   Do 321 j = 1, nIrrep
-                     If (lIrrep(j)(1:1).eq.'a'.and.iChTab(j,i).eq.1)
+                     If (lIrrep(j)(1:1).eq.'a'.and.iChTbl(j,i).eq.1)
      &                  lIrrep(j)=lIrrep(j)(1:1)//Tmp(1:1)
  321              Continue
                End If
                If (ib.gt.1) Then
                   Do 322 j = 1, nIrrep
-                     If (lIrrep(j)(1:1).eq.'b'.and.iChTab(j,i).eq.1)
+                     If (lIrrep(j)(1:1).eq.'b'.and.iChTbl(j,i).eq.1)
      &                  lIrrep(j)=lIrrep(j)(1:1)//Tmp(1:1)
  322              Continue
                End If
@@ -237,7 +234,7 @@
      &         iRot = i
  351     Continue
          Do 352 i = 1, nIrrep
-            If (iChTab(i,iRot).eq.1) Then
+            If (iChTbl(i,iRot).eq.1) Then
                j = 1
             Else
                j = 2
@@ -266,9 +263,9 @@
 *
             Do 211 i = 1, nIrrep
                If (iOper(i).eq.7) Then
-                  If (iChTab(iIrrep,i).eq.1) Then
+                  If (iChTbl(iIrrep,i).eq.1) Then
                      lIrrep(iIrrep)(i1:i1)='g'
-                  Else If (iChTab(iIrrep,i).eq.-1) Then
+                  Else If (iChTbl(iIrrep,i).eq.-1) Then
                       lIrrep(iIrrep)(i1:i1)='u'
                   End If
                End If
@@ -283,7 +280,7 @@
          lIrrep(2) = 'a"'
       End If
 *
-      Call Symmetry_Info_Set(nIrrep,iOper,iChTab)
+      Call Symmetry_Info_Set(nIrrep,iOper,iChTbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *
