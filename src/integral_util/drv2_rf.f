@@ -58,6 +58,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -112,39 +113,39 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll)) Go To 100
+         If (Shells(iShll)%Aux) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
+         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         x1 = Work(ixyz)
-         y1 = Work(ixyz+1)
-         z1 = Work(ixyz+2)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         x1 = dbsc(iCnttp)%Coor(1,iCnt)
+         y1 = dbsc(iCnttp)%Coor(2,iCnt)
+         z1 = dbsc(iCnttp)%Coor(3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
+            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            x2 = Work(jxyz)
-            y2 = Work(jxyz+1)
-            z2 = Work(jxyz+2)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            x2 = dbsc(jCnttp)%Coor(1,jCnt)
+            y2 = dbsc(jCnttp)%Coor(2,jCnt)
+            z2 = dbsc(jCnttp)%Coor(3,jCnt)
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
 *
@@ -183,7 +184,8 @@
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Zeta,ZI,iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
@@ -268,12 +270,14 @@
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   A,B,Kappa,PCoor,ZI)
 *
 *            Compute primitive integrals. Result is ordered ij,ab.
 *
-             Call RFInt(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call RFInt(Shells(iShll)%Exp,iPrim,
+     &                  Shells(jShll)%Exp,jPrim,
      &                   Zeta,ZI,
      &                   Kappa,Pcoor,
      &                   Fnl,iPrim*jPrim,nComp,
@@ -304,9 +308,9 @@
 *
              If (iPrint.ge.99) Then
                 Call RecPrt(' Left side contraction',' ',
-     &                      Work(iCff),iPrim,iBas)
+     &                      Shells(iShll)%pCff,iPrim,iBas)
                 Call RecPrt(' Right side contraction',' ',
-     &                      Work(jCff),jPrim,jBas)
+     &                      Shells(jShll)%pCff,jPrim,jBas)
              End If
 *
 *            Transform ij,x,ab to j,xabI
@@ -314,13 +318,13 @@
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
      &                   1.0d0,Fnl(1,nComp+1),iPrim,
-     &                   Work(iCff),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
      &                   0.0d0,Scr1,jPrim*kk)
 *            Transform j,xabI to xab,IJ
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
      &                   1.0d0,Scr1,jPrim,
-     &                   Work(jCff),jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Fnl(1,nComp+1),kk*iBas)
 *
              If (iPrint.ge.99) Call
@@ -329,16 +333,20 @@
 *
 *            Transform to spherical gaussians if needed.
 *
-             If (Transf(iShll).or.Transf(jShll)) Then
+             If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJxAB or IJxAb
               call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,
      &                                Scr2,1)
               Call CarSph(Scr2,kk,iBas*jBas,
-     &                    Fnl(1,nComp+1),nScr2,RSph(ipSph(iAng)),
-     &                    iAng,Transf(iShll),Prjct(iShll),
-     &                    RSph(ipSph(jAng)),jAng,Transf(jShll),
-     &                    Prjct(jShll),Scr1,iCmp*jCmp)
+     &                    Fnl(1,nComp+1),nScr2,
+     &                    RSph(ipSph(iAng)),
+     &                    iAng,Shells(iShll)%Transf,
+     &                         Shells(iShll)%Prjct,
+     &                    RSph(ipSph(jAng)),
+     &                    jAng,Shells(jShll)%Transf,
+     &                         Shells(jShll)%Prjct,
+     &                    Scr1,iCmp*jCmp)
              Else
 *             Transpose back to IJ,x,ab
               Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,
@@ -358,12 +366,13 @@
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             nIC=1
             iIC=1
             If (mSO.ne.0)
      &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                     iShell,jShell,iShll,jShll,Scr1,
+     &                     iShell,jShell,iShll,jShll,
+     &                     IndShl,JndShl,Scr1,
      &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 *
  140        Continue
@@ -384,7 +393,8 @@
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
             Call SOAdd(SO_Int,iBas,jBas,mSO,h0,
      &                 n2Tri(iSmLbl),iSmLbl,
-     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                 iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                 AeqB,iAO,jAO)
 *
             Call mma_deallocate(SO_Int)
             Call mma_deallocate(Scr2)

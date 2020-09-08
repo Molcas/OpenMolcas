@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,
-     &                  iShell, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
+     &                  iShell, IndShl, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
 ************************************************************************
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
 *          orbitals , SO. This is done by accumulating the AO inte-    *
@@ -45,6 +45,7 @@
 *             Modified to desymmetrization of the second order density *
 *             matrix, January '92.                                     *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -52,7 +53,7 @@
 #include "real.fh"
       Real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)
       Logical Shij, Shkl, Shijij
-      Integer iAng(4), iShell(4), kOp(4), iShll(4)
+      Integer iAng(4), iShell(4), kOp(4), iShll(4), IndShl(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Integer iTwoj(0:7)
@@ -101,11 +102,11 @@
       ll = iAng(4)*(iAng(4)+1)*(iAng(4)+2)/6
       Do 100 i1 = 1, iCmp
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pa = xPrmt(iOper(kOp(1)),iChBs)
          niSym=0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(1))+i1),
+            If (iAnd(IrrCmp(IndShl(1)+i1),
      &          iTwoj(j)).ne.0) Then
                iSym(niSym)=j
                niSym=niSym+1
@@ -113,11 +114,11 @@
 101      Continue
          Do 200 i2 = 1, jCmp
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pb = xPrmt(iOper(kOp(2)),jChBs)
             njSym=0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(2))+i2),
+               If (iAnd(IrrCmp(IndShl(2)+i2),
      &             iTwoj(j)).ne.0) Then
                   jSym(njSym) = j
                   njSym=njSym+1
@@ -125,11 +126,12 @@
 201         Continue
             Do 300 i3 = 1, kCmp
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pc = xPrmt(iOper(kOp(3)),kChBs)
                nkSym=0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(3))+i3),
+                  If (iAnd(IrrCmp(IndShl(3)+i3),
      &                iTwoj(j)).ne.0) Then
                      kSym(nkSym) = j
                      nkSym=nkSym+1
@@ -137,13 +139,14 @@
 301            Continue
                Do 400 i4 = 1, lCmp
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
 *-----------------Parity factor due to symmetry operations applied to the
 *                 angular part of the basis functions.
                   FactNs = pa*pb*pc * xPrmt(iOper(kOp(4)),lChBs)
                   nlSym=0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndS(iShell(4))+i4),
+                     If (iAnd(IrrCmp(IndShl(4)+i4),
      &                   iTwoj(j)).ne.0) Then
                         lSym(nlSym)=j
                         nlSym=nlSym+1

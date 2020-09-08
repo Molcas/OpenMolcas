@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
+      Subroutine SOCtl_Seward(Mamn,nMamn)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -34,7 +35,6 @@
      &                                      jCI, iOT, LPA, LPMM
       Real*8, Dimension(:), Allocatable :: LPQ
       Real*8, Dimension(:,:), Allocatable :: SM, LPC
-      Real*8 DInf(nDInf)
       Character*(LENIN8) Clean_BName,ChTmp
       External Clean_BName
 
@@ -77,10 +77,9 @@ cvv LP_NAMES was used later without initialization.
 *                                                                      *
 *     Compute iBas, iBas_Aux, and iBas_Frag used for double checking
 *     in SOCtl.
-*     Compute cdMax, EtMax, IndS(iShell), nShlls, and
-*     Ind_Shell(IndSOff(iCnttp,iCnt)).
+*     Compute cdMax, EtMax, and nShlls.
 *
-      Call Misc_Seward(iBas,iBas_Aux,iBas_Frag,DInf,nDInf)
+      Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -133,9 +132,9 @@ C     Show=Show.and..Not.Primitive_Pass
       n2Max = 0
       nDim = 0
       m2Tot = 0
-      iEMax = 0
       iAO=0
       lSkip=.False.
+      IndShl=0
 *
       Call ICopy(8,[0],0,nFCore,1)
 
@@ -224,6 +223,7 @@ C     Show=Show.and..Not.Primitive_Pass
             Go To 2011
          End If
          iCnttp = 0
+         IndShl = 0
          Do 201 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -237,18 +237,18 @@ C     Show=Show.and..Not.Primitive_Pass
             End If
 *
             output = show .and. iPrint.ge.6
-            If (AuxCnttp(iCnttp)) output=output .and. iPrint.ge.10
+            If (dbsc(iCnttp)%Aux) output=output .and. iPrint.ge.10
      &                            .and. iCnttp.ne.iCnttp_Dummy
-            If (FragCnttp(iCnttp)) output=output .and. iPrint.ge.10
-            kECP = ECP(iCnttp)
-            lMax=nVal_Shells(iCnttp)-1
+            If (dbsc(iCnttp)%Frag) output=output .and. iPrint.ge.10
+            kECP = dbsc(iCnttp)%ECP
+            lMax=dbsc(iCnttp)%nVal-1
 *
-            Call OrbType(iAtmNr(iCnttp),List_AE,31)
+            Call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
             If (kECP) Then
 *
 *              ECP case
 *
-               Call ECP_Shells(iAtmNr(iCnttp),list)
+               Call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
 *
 *              No core to freeze!
 *
@@ -263,8 +263,8 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *              Pick up which orbitals should be frozen as default.
 *
-               If (Charge(iCnttp).ne.Zero) Then
-                  Call Freeze_Default(iAtmNr(iCnttp),nCore_Sh,lMax)
+               If (dbsc(iCnttp)%Charge.ne.Zero) Then
+                  Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
 *
 *                 If there charge is zero we presume that these are
@@ -277,44 +277,45 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *           Loop over distinct centers
 *
-            Do 202 iCnt = 1, nCntr(iCnttp)
-               mdc = iCnt + mdciCnttp(iCnttp)
+            Do 202 iCnt = 1, dbsc(iCnttp)%nCntr
+               mdc = iCnt + dbsc(iCnttp)%mdci
 *
 *              Loop over shells associated with this center
 *              Start with s type shells
 *
                kComp = 0
                kculf = 0
-               iSh = ipVal(iCnttp) - 1
-               If (nVal_Shells(iCnttp).lt.1) Then
+               iSh = dbsc(iCnttp)%iVal - 1
+               If (dbsc(iCnttp)%nVal.lt.1) Then
                   Do iCo = 0, nIrrep/nStab(mdc)-1
                      iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
                      iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
-                     ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
-                     XCoor=Dinf(ipxyz  )
-                     If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
-                     YCoor=Dinf(ipxyz+1)
-                     If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
-                     ZCoor=Dinf(ipxyz+2)
-                     If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
-                     LPC(1,iyy)=XCoor
-                     LPC(2,iyy)=YCoor
-                     LPC(3,iyy)=ZCoor
-                     LPQ(iyy)=Charge(iCnttp)
-                     LPA(iyy)=iAtmnr(iCnttp)
-                     LPMM(iyy)=IsMM(iCnttp)
+
+                     LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                     If (iAnd(iOper(iR),1).ne.0) LPC(1,iyy)=-LPC(1,iyy)
+                     If (iAnd(iOper(iR),2).ne.0) LPC(2,iyy)=-LPC(2,iyy)
+                     If (iAnd(iOper(iR),4).ne.0) LPC(3,iyy)=-LPC(3,iyy)
+                     LPQ(iyy)=dbsc(iCnttp)%Charge
+                     LPA(iyy)=dbsc(iCnttp)%AtmNr
+                     LPMM(iyy)=dbsc(iCnttp)%IsMM
                      LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                       //ChOper(iOper(iR))
                   End Do
                End If
-               Do 203 iAng = 0, nVal_Shells(iCnttp)-1
+               Do 203 iAng = 0, dbsc(iCnttp)%nVal-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 2033
-                  If (nBasis(iSh).eq.0) Go To 2033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  nExpi=Shells(iSh)%nExp
+                  nBasisi=Shells(iSh)%nBasis
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
+                  If (nExpi.eq.0) Go To 2033
+                  If (nBasisi.eq.0) Go To 2033
+
                   Do 204 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -326,25 +327,19 @@ C     Show=Show.and..Not.Primitive_Pass
                      lculf = kculf + icomp
 *                    Get character of basis function
                      iChBs = iChBas(lComp)
-                     If (Transf(iSh)) iChBs=iChBas(iSphCr(lComp))
+                     If (Shells(iSh)%Transf) iChBs=iChBas(iSphCr(lComp))
 *
 *                    Skip if function not a basis of irreps.
 *
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
      &                   nStab(mdc))) Go To 204
-                     If(.not.FragShell(iSh) .and.
-     &                  .not.AuxCnttp(iCnttp))
+                     If(.not.Shells(iSh)%Frag .and.
+     &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore
-                     iEMax = Max(iEMax,IndS(iShell)+iComp)
-                     If (IndS(iShell)+iComp.gt.MxUnq) Then
-                        Call ErrTra
-                        Write (6,*) ' Increase MxUnq'
-                        Call Abend
-                     End If
                      If (iSkip(iIrrep).eq.0) Then
-                        IrrCmp(IndS(iShell)+iComp) =
-     &                    iOr(IrrCmp(IndS(iShell)+iComp),2**iIrrep)
+                        IrrCmp(IndShl+iComp) =
+     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
                      End If
                      If (output.and.Type(iIrrep)) Then
                         Write (6,*)
@@ -361,15 +356,15 @@ C     Show=Show.and..Not.Primitive_Pass
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExp(iSh)
-                     m2Max = Max(m2Max,nExp(iSh)**2)
-                     Do 205 iCntrc = 1, nBasis(iSh)
+                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
+                     m2Max = Max(m2Max,nExpi**2)
+                     Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
-                        If (AuxShell(iSh)) Then
+                        If (Shells(iSh)%Aux) Then
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
-                        Else If (FragShell(iSh)) Then
+                        Else If (Shells(iSh)%Frag) Then
                            iSO_Frag = iSO_Frag + 1
                            iSO_=iSO_Frag
                            nBas_Frag(iIrrep) = nBas_Frag(iIrrep) + 1
@@ -387,7 +382,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         jSO = jSO + 1
 *
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
 *
                         Call Name_to_lm(ChTemp,llab,mlab)
 *
@@ -397,7 +392,7 @@ C     Show=Show.and..Not.Primitive_Pass
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExp(iSh).eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasisi) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -411,7 +406,7 @@ C     Show=Show.and..Not.Primitive_Pass
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExp(iSh).eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasisi) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -445,7 +440,8 @@ C     Show=Show.and..Not.Primitive_Pass
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.FragShell(iSh)) Go To 205
+                        If (Shells(iSh)%Aux.or.
+     &                      Shells(iSh)%Frag) Go To 205
 *
                         If (.Not.Primitive_Pass) Then
                            Write (isymunit,'(13(I4,4X))')
@@ -492,20 +488,17 @@ C     Show=Show.and..Not.Primitive_Pass
 *
                             iR=NrOpr(iCoSet(iCo,0,mdc),iOper,
      &                               nIrrep)
-                            ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
-                            XCoor=Dinf(ipxyz  )
-                            If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
-                            YCoor=Dinf(ipxyz+1)
-                            If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
-                            ZCoor=Dinf(ipxyz+2)
-                            If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
-                            LPC(1,iyy)=XCoor
-                            LPC(2,iyy)=YCoor
-                            LPC(3,iyy)=ZCoor
+                            LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                            If (iAnd(iOper(iR),1).ne.0)
+     &                          LPC(1,iyy)=-LPC(1,iyy)
+                            If (iAnd(iOper(iR),2).ne.0)
+     &                          LPC(2,iyy)=-LPC(2,iyy)
+                            If (iAnd(iOper(iR),4).ne.0)
+     &                          LPC(3,iyy)=-LPC(3,iyy)
 *
-                            LPQ(iyy)=Charge(iCnttp)
-                            LPMM(iyy)=IsMM(iCnttp)
-                            LPA(iyy)=iAtmnr(iCnttp)
+                            LPQ(iyy) =dbsc(iCnttp)%Charge
+                            LPMM(iyy)=dbsc(iCnttp)%IsMM
+                            LPA(iyy) =dbsc(iCnttp)%AtmNr
 *
                             LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
      &                                    //ChOper(iOper(iR))
@@ -523,7 +516,8 @@ C     Show=Show.and..Not.Primitive_Pass
                         basis_ids(3,iSO) = llab
                         basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
-                        If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
+                        If (dbsc(iCnttp)%fMass.ne.1.0D0)
+     &                     fermion_type(iSO)=1
                         if (.Not.Primitive_Pass) then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc
@@ -536,11 +530,12 @@ C     Show=Show.and..Not.Primitive_Pass
  204              Continue
  2033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
- 203           Continue
+                  IndShl = IndShl + jComp
+ 203           Continue ! iAng
                mc = mc + nIrrep/nStab(mdc)
- 202        Continue
+ 202        Continue ! iCnt
 *
- 201     Continue
+ 201     Continue ! jCnttp
  2011    Continue
 culf
          nrSym=nIrrep
@@ -550,7 +545,7 @@ culf
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
          m2Tot = m2Tot + nPrm(iIrrep)**2
- 200  Continue
+ 200  Continue ! iIrrep
 *     If (lSkip) nDim = iBas
       If (iBas.ne.iSO .and.
      &    iBas_Aux.ne.iSO_Aux-iSO .and.
@@ -622,6 +617,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          mc  = 1
          iShell = 0
          iCnttp = 0
+         IndShl=0
          Do 301 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -635,56 +631,55 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             End If
 *
             output = show .and. iPrint.ge.6
-            If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp))
+            If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
      &        output = output.and.iPrint.ge.10
      &                       .and.iCnttp.ne.iCnttp_Dummy
-            kECP = ECP(iCnttp)
-            lMax=nVal_Shells(iCnttp)-1
-            Call OrbType(iAtmNr(iCnttp),List_AE,31)
+            kECP = dbsc(iCnttp)%ECP
+            lMax=dbsc(iCnttp)%nVal-1
+            Call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
             If (kECP) Then
-               Call ECP_Shells(iAtmNr(iCnttp),list)
+               Call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
                Call ICopy(lmax+1,[0],0,nCore_Sh,1)
             Else
                Call ICopy(1+iTabMx,List_AE,1,List,1)
-               If (Charge(iCnttp).ne.Zero) Then
-                  Call Freeze_Default(iAtmNr(iCnttp),nCore_Sh,lMax)
+               If (dbsc(iCnttp)%Charge.ne.Zero) Then
+                  Call Freeze_Default(dbsc(iCnttp)%AtmNr,nCore_Sh,lMax)
                Else
-                  Call Freeze_Default(0             ,nCore_Sh,lMax)
+                  Call Freeze_Default(0                 ,nCore_Sh,lMax)
                End If
             End If
 *
 *           Loop over distinct centers
 *
-            Do 302 iCnt = 1, nCntr(iCnttp)
-               mdc = iCnt + mdciCnttp(iCnttp)
+            Do 302 iCnt = 1, dbsc(iCnttp)%nCntr
+               mdc = iCnt + dbsc(iCnttp)%mdci
 *
 *              Loop over shells associated with this center
 *              Start with s type shells
 *
                kComp = 0
                kculf = 0
-               iSh = ipVal(iCnttp) - 1
-               If (nVal_Shells(iCnttp).lt.1) Then
-                  ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
-                  XCoor=Dinf(ipxyz  )
-                  YCoor=Dinf(ipxyz+1)
-                  ZCoor=Dinf(ipxyz+2)
-                  LPC(1,mdc)=XCoor
-                  LPC(2,mdc)=YCoor
-                  LPC(3,mdc)=ZCoor
-                  LPQ(mdc)=Charge(iCnttp)
-                  LPMM(mdc)=IsMM(iCnttp)
-                  LPA(mdc)=iAtmnr(iCnttp)
+               iSh = dbsc(iCnttp)%iVal - 1
+               If (dbsc(iCnttp)%nVal.lt.1) Then
+                  LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                  LPQ(mdc) =dbsc(iCnttp)%Charge
+                  LPMM(mdc)=dbsc(iCnttp)%IsMM
+                  LPA(mdc) =dbsc(iCnttp)%AtmNr
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
-               Do 303 iAng = 0, nVal_Shells(iCnttp)-1
+               Do 303 iAng = 0, dbsc(iCnttp)%nVal-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
                   iShell = iShell + 1
-                  If (nExp(iSh).eq.0) Go To 3033
-                  If (nBasis(iSh).eq.0) Go To 3033
-                  jComp = (iAng+1)*(iAng+2)/2
-                  If(Prjct(iSh)) jComp = 2*iAng + 1
+                  nExpi=Shells(iSh)%nExp
+                  nBasisi=Shells(iSh)%nBasis
+                  If (Shells(iSh)%Prjct ) Then
+                     jComp = 2*iAng + 1
+                  Else
+                     jComp = (iAng+1)*(iAng+2)/2
+                  End If
+                  If (nExpi.eq.0) Go To 3033
+                  If (nBasisi.eq.0) Go To 3033
                   Do 304 iComp = 1, jComp
                      iAO = iAO + 1
                      If (iAO.gt.MxAO) Then
@@ -704,11 +699,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  308                 Continue
                      Go To 304
  307                 Continue
-                     If (IndS(iShell)+iComp.gt.MxUnq) Then
-                        Call ErrTra
-                        Write (6,*) ' Increase MxUnq'
-                        Call Abend
-                     End If
                      If (output.and.Type(iIrrep)) Then
                         Write (6,*)
                         Write (6,'(10X,2A)')
@@ -721,21 +711,21 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExp(iSh)
-                     m2Max = Max(m2Max,nExp(iSh)**2)
-                     If(.not.FragShell(iSh) .and.
-     &                  .not.AuxCnttp(iCnttp))
+                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
+                     m2Max = Max(m2Max,nExpi**2)
+                     If(.not.Shells(iSh)%Frag .and.
+     &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(0)=nFCore(0)+nCore
 *
 *                    Loop over contracted basis functions
 *
-                     Do 305 iCntrc = 1, nBasis(iSh)
+                     Do 305 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
-                        If (AuxShell(iSh)) Then
+                        If (Shells(iSh)%Aux) Then
                            iSO_Aux = iSO_Aux + 1
                            iSO_=iSO_Aux
                            nBas_Aux(iIrrep) = nBas_Aux(iIrrep) + 1
-                        Else If (FragShell(iSh)) Then
+                        Else If (Shells(iSh)%Frag) Then
                            iSO_Frag = iSO_Frag + 1
                            iSO_=iSO_Frag
                            nBas_Frag(iIrrep) = nBas_Frag(iIrrep) + 1
@@ -753,7 +743,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         jSO = jSO + 1
 *
                         ChTemp=LblCBs(lComp)
-                        If (Transf(iSh)) ChTemp=LblSbs(lComp)
+                        If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
 *
                         Call Name_to_lm(ChTemp,llab,mlab)
 *
@@ -763,7 +753,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            If (IsBasisANO) Then
                               Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
-                              If (nExp(iSh).eq.nBasis(iSh)) Then
+                              If (nExpi.eq.nBasisi) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
                                  If (llab.ge.0)
      &                              Write(ChTemp(2:2),'(A1)') '0'
@@ -777,7 +767,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
-                           If (nExp(iSh).eq.nBasis(iSh)) Then
+                           If (nExpi.eq.nBasisi) Then
                               Write (ChTemp(1:1),'(A1)') '*'
                               If (llab.ge.0)
      &                           Write(ChTemp(2:2),'(A1)') '0'
@@ -800,7 +790,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng
 *
-                        If (AuxShell(iSh).or.FragShell(iSh)) Go To 305
+                        If (Shells(iSh)%Aux.or.
+     &                      Shells(iSh)%Frag) Go To 305
                         Write (isymunit,'(13(I4,4X))')
      &                     iSO,mdc,LVAL(lculf),MVAL(lculf),
      &                     nIrrep/nStab(mdc),
@@ -821,16 +812,10 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Else
                            iOT(iSO)=Vir
                         End If
-                        ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
-                        XCoor=Dinf(ipxyz  )
-                        YCoor=Dinf(ipxyz+1)
-                        ZCoor=Dinf(ipxyz+2)
-                        LPC(1,mdc)=XCoor
-                        LPC(2,mdc)=YCoor
-                        LPC(3,mdc)=ZCoor
-                        LPQ(mdc)=Charge(iCnttp)
-                        LPMM(mdc)=IsMM(iCnttp)
-                        LPA(mdc)=iAtmnr(iCnttp)
+                        LPC(1:3,mdc)=dbsc(iCnttp)%Coor(1:3,iCnt)
+                        LPQ(mdc) =dbsc(iCnttp)%Charge
+                        LPMM(mdc)=dbsc(iCnttp)%IsMM
+                        LPA(mdc) =dbsc(iCnttp)%AtmNr
                         LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *
 ************************************************************************
@@ -841,7 +826,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         basis_ids(3,iSO) = llab
                         basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
-                        If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
+                        If (dbsc(iCnttp)%fMass.ne.1.0D0)
+     &                     fermion_type(iSO)=1
                         If (.Not.Primitive_Pass) Then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc
@@ -854,6 +840,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  304              Continue
  3033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
+                  IndShl = IndShl + jComp
  303           Continue
                mc = mc + nIrrep/nStab(mdc)
  302        Continue
@@ -886,26 +873,28 @@ CSVC: basis IDs of non-symmetric case
       iShell = 0
       iAO = 0
       Do 401 iCnttp = 1, nCnttp
-         kECP = ECP(iCnttp)
+         kECP = dbsc(iCnttp)%ECP
 *
 *        Loop over distinct centers
 *
-         Do 402 iCnt = 1, nCntr(iCnttp)
-            mdc = iCnt + mdciCnttp(iCnttp)
+         Do 402 iCnt = 1, dbsc(iCnttp)%nCntr
+            mdc = iCnt + dbsc(iCnttp)%mdci
             iChxyz=iChCnt(mdc)
 *
 *           Loop over shells associated with this center
 *           Start with s type shells
 *
             kComp = 0
-            iSh = ipVal(iCnttp) - 1
-            Do 403 iAng = 0, nVal_Shells(iCnttp)-1
+            iSh = dbsc(iCnttp)%iVal - 1
+            Do 403 iAng = 0, dbsc(iCnttp)%nVal-1
                iSh = iSh + 1
                iShell = iShell + 1
-               If (nExp(iSh).eq.0) Go To 4033
-               If (nBasis(iSh).eq.0) Go To 4033
+               nExpi=Shells(iSh)%nExp
+               nBasisi=Shells(iSh)%nBasis
+               If (nExpi.eq.0) Go To 4033
+               If (nBasisi.eq.0) Go To 4033
                jComp = (iAng+1)*(iAng+2)/2
-               If(Prjct(iSh)) jComp = 2*iAng + 1
+               If(Shells(iSh)%Prjct ) jComp = 2*iAng + 1
                Do 404 iComp = 1, jComp
                   iAO = iAO + 1
                   If (iAO.gt.MxAO) Then
@@ -989,7 +978,7 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Unq=IEMax
+      Mx_Unq=IndShl
       Mx_AO=iAO
 *
 #ifdef _DEBUG_
@@ -998,7 +987,7 @@ CSVC: basis IDs of non-symmetric case
          Write (6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
  555  Continue
       Write (6,*) ' *** IrrCmp ***'
-      Do 556 iE = 1, iEMax
+      Do 556 iE = 1, Mx_Unq
          Write (6,*) IrrCmp(iE)
  556  Continue
 #endif
@@ -1010,5 +999,4 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
       Call qExit ('SOCtl')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

@@ -11,9 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
-     &                  iCmp,jCmp,iShell,jShell,
-     &                  iAO,jAO,
-     &                  nComp,Label,kOper,rHrmt)
+     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  iAO,jAO,nComp,Label,kOper,rHrmt)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -44,7 +43,7 @@
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
        Do 200 i1 = 1, iCmp
-        If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+        If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 200
 *
 *       Scatter the SO's onto lower rectangular blocks and triangular
 *       diagonal blocks.
@@ -55,7 +54,7 @@
          jjMx = jCmp
          If (iShell.eq.jShell .and. j1.eq.j2) jjMx = i1
          Do 400 i2 = 1, jjMx
-          If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 400
+          If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0) Go To 400
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)

@@ -22,6 +22,7 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -144,14 +145,13 @@ c      End If
 *     a link between an atom and its basis set ---
 *
 *     NOTICE!!!
-*     This call will also fill info.fh and the dynamic storage in
-*     Work(ipInf)
+*     This call will also fill info.fh and the Basis_Info.
 *
       If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Else
 c      write(6,*) 'we here 0?'
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       End If
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
@@ -164,9 +164,9 @@ c      write(6,*) 'we here 0?'
 *                                                                      *
       iAngMx_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.AuxCnttp(iCnttp) .and.
-     &       .Not.FragCnttp(iCnttp) ) Then
-            nTest=nVal_Shells(iCnttp)-1
+         If (.Not.dbsc(iCnttp)%Aux .and.
+     &       .Not.dbsc(iCnttp)%Frag ) Then
+            nTest=dbsc(iCnttp)%nVal-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
          End If
       End Do
@@ -183,17 +183,18 @@ c      write(6,*) 'we here 0?'
 *     Unnormalize contraction coefficients for the valence shells
 *
       Do iCnttp=1,nCnttp
-        If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
-         Do l=0,nVal_Shells(iCnttp)-1
-          ishell=ipVal(iCnttp)+l
-          If (Transf(ishell).and..not.Prjct(ishell)) Then
+        If (.Not.(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) Then
+         Do l=0,dbsc(iCnttp)%nVal-1
+          ishell=dbsc(iCnttp)%iVal+l
+          If (Shells(ishell)%Transf.and.
+     &  .not. Shells(iShell)%Prjct) Then
            If (jPL.ge.2) Then
             Write(6,*) 'Sorry, Molden does not support contaminants'
            End If
            Go To 999
           End If
-          Call Unnrmlz(Work(ipExp(ishell)),nexp(ishell),
-     &                 Work(ipCff(ishell)),nbasis(ishell),l)
+          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
+     &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do
@@ -237,16 +238,16 @@ c      write(6,*) 'we here 0?'
       y_cart=.false.
       y_sphere=.false.
       Do iCnttp=1,nCnttp
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 995
-        Do iCntr=1,nCntr(iCnttp)
-          Do l=0,nVal_Shells(iCnttp)-1
+        If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 995
+        Do iCntr=1,dbsc(iCnttp)%nCntr
+          Do l=0,dbsc(iCnttp)%nVal-1
 *           Test for the appearance of cartesian functions with l=2,3,4
-            ishell=ipVal(iCnttp)+l
+            ishell=dbsc(iCnttp)%iVal+l
             if ((l.ge.2).and.(.not.y_cart)) Then
-              if (.not.transf(ishell)) y_cart=.true.
+              if (.not.Shells(ishell)%Transf) y_cart=.true.
             End If
             if ((l.ge.2).and.(.not.y_sphere)) Then
-              if (transf(ishell)) y_sphere=.true.
+              if (Shells(ishell)%Transf) y_sphere=.true.
             end if
             if (y_sphere.and.y_cart) Then
               If (jPL.ge.2) Then
@@ -261,7 +262,7 @@ c      write(6,*) 'we here 0?'
         End Do
  995    Continue
       End Do
-      Write (MF,'(A)') '[MOLDEN FORMAT]'
+      Write (MF,'(A)') '[Molden Format]'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -294,11 +295,12 @@ c      write(6,*) 'we here 0?'
          iData = 0
          jData = 0
          Do iCnttp=1,nCnttp
-            If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp).or.
-     &          pChrg(iCnttp)) Go To 775
-            Do iCntr=1,nCntr(iCnttp)
+            If (dbsc(iCnttp)%Aux.or.
+     &          dbsc(iCnttp)%Frag.or.
+     &          dbsc(iCnttp)%pChrg) Go To 775
+            Do iCntr=1,dbsc(iCnttp)%nCntr
                iData=iData+1
-               mdc = iCntr + mdciCnttp(iCnttp)
+               mdc = iCntr + dbsc(iCnttp)%mdci
                nDeg=nIrrep/nStab(mdc)
                Do iDeg = 1, nDeg
                   jData=jData+1
@@ -341,33 +343,32 @@ C     Write (MF,'(A)') '[DIPOLE]'
       kk=0
 *
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
+        If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 996
 *
-        Do iCntr=1,nCntr(iCnttp)     ! loop over sym. unique centers
+        Do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
           mdc=mdc+1
           nDeg=nIrrep/nStab(mdc)
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom
 *
-            Do l=0,nVal_Shells(iCnttp)-1
-              ishell=ipVal(iCnttp)+l
-              If (nBasis(iShell).gt.nNumber) Then
+            Do l=0,dbsc(iCnttp)%nVal-1
+              ishell=dbsc(iCnttp)%iVal+l
+              If (Shells(iShell)%nBasis.gt.nNumber) Then
                  Write (6,*) 'Interf: too many contracted functions!'
-                 Write (6,*) 'nBasis(iShell)=',nBasis(iShell)
+                 Write (6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
                  Call Abend()
               End If
 *
 *             Iterate over each contracted GTO
 *
-              Do icontr=1,nBasis(ishell)
+              Do icontr=1,Shells(ishell)%nBasis
 *
 *               Find the number of exponents with non-zero exponents
 *
                 isegm=0
-                Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
+                Do iprim=1,Shells(ishell)%nExp
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
                   If (coeff.ne.Zero) Then
                     isegm=isegm+1
                   End If
@@ -377,10 +378,9 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *
 *               Write exponents and contraction coefficients.
 *
-                Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
-                  prim=work(ipExp(ishell)+iprim-1)
+                Do iprim=1,Shells(ishell)%nExp
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
+                  prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then
                     Write (MF,'(E17.9,E17.9)') prim,coeff
                   End If
@@ -919,11 +919,11 @@ cvv this statement prevents overoptimization
 ************************************************************************
 *                                                                      *
       Do iCnttp=1,nCnttp
-        If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
-         Do l=0,nVal_Shells(iCnttp)-1
-          ishell=ipVal(iCnttp)+l
-          Call Unnrmlz2(Work(ipExp(ishell)),  nexp(ishell),
-     &                  Work(ipCff(ishell)),nbasis(ishell),l)
+        If (.Not.(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) Then
+         Do l=0,dbsc(iCnttp)%nVal-1
+          ishell=dbsc(iCnttp)%iVal+l
+          Call Unnrmlz2(Shells(ishell)%Exp, Shells(ishell)%nExp,
+     &                  Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do

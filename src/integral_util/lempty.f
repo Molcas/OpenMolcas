@@ -24,16 +24,18 @@
 *             June '91                                                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Real*8 Coeff(ld2,m2)
+      Integer, Intent(In):: n2, ld2, m2
+      Real*8, Intent(In):: Coeff(ld2,m2)
 #include "real.fh"
 *
       lEmpty = .True.
       Temp = Zero
-      Do 10 i = 1, n2
-         Do 20 j = 1, m2
+      Do i = 1, n2
+         Do j = 1, m2
             Temp = Temp + Abs(Coeff(i,j))
- 20      Continue
- 10   Continue
+         End Do
+      End Do
+*
       lEmpty = Temp.eq.Zero
 *
       Return

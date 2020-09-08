@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Gen_GeoList(DInf,nDInf)
+      Subroutine Gen_GeoList()
       use GeoList
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -31,23 +31,22 @@
 *
       nc = 1
       Do jCnttp = 1, nCnttp
-         mCnt = nCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
 *
 *        Do not include Auxiliary basis sets, or fragment basis sets
 *
-         If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1212
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1212
 *
-*        Do not include ECP basis sets which doesn't have any valence
+*        Do not include ECP basis sets which does not have any valence
 *        basis set.
 *
-         If (ECP(jCnttp).and.nVal_Shells(jCnttp).eq.0) Go To 1212
+         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Go To 1212
 *
-         jxyz = ipCntr(jCnttp)
          Do jCnt = 1, mCnt
-            ndc = jCnt + mdciCnttp(jCnttp)
-            x1 = DInf(jxyz)
-            y1 = DInf(jxyz+1)
-            z1 = DInf(jxyz+2)
+            ndc = jCnt + dbsc(jCnttp)%mdci
+            x1 = dbsc(jCnttp)%Coor(1,jCnt)
+            y1 = dbsc(jCnttp)%Coor(2,jCnt)
+            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
                iFacx=iPhase(1,iCoset(i,0,ndc))
                iFacy=iPhase(2,iCoset(i,0,ndc))
@@ -55,13 +54,13 @@
                Centr(1,nc) = x1*DBLE(iFacx)
                Centr(2,nc) = y1*DBLE(iFacy)
                Centr(3,nc) = z1*DBLE(iFacz)
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
-                  Mass(nc) = CntMass(jCnttp)
+                  Mass(nc) = dbsc(jCnttp)%CntMass
                Else
                   Mass(nc) = Zero
                End If
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
                   Chrg(nc) = DBLE(nchr)
                Else
@@ -74,7 +73,6 @@
                lblxxx(nc)=lblcnt(ndc)(1:LENIN)
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
             kCentr = kCentr + nIrrep/nStab(ndc)
          End Do
  1212    Continue
@@ -95,18 +93,16 @@
 *
       nc = 1
       Do jCnttp = 1, nCnttp
-         Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
-         If (AuxCnttp(jCnttp).or.FragCnttp(jCnttp)) Go To 1213
-         jxyz = ipCntr(jCnttp)
+         Z = dbsc(jCnttp)%Charge
+         mCnt = dbsc(jCnttp)%nCntr
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1213
          Do jCnt = 1, mCnt
-            ndc = jCnt + mdciCnttp(jCnttp)
+            ndc = jCnt + dbsc(jCnttp)%mdci
             Do i = 0, nIrrep/nStab(ndc) - 1
-               nchr=iAtmNr(jCnttp)
+               nchr=dbsc(jCnttp)%AtmNr
                Chrg(nc) = Z
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
  1213    Continue
       End Do

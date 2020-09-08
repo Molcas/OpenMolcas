@@ -72,7 +72,6 @@
       Logical DoERI
 
       Integer LDF_Unset
-      Integer Info
       Integer iCLDF
 
       Save FirstCall
@@ -124,7 +123,7 @@
             Return
          Else
             DoERI=.True.
-            Call IniSew(Info,DoERI,nDiff)
+            Call IniSew(DoERI,nDiff)
          End If
       End If
 

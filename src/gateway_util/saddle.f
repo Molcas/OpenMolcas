@@ -10,8 +10,9 @@
 *                                                                      *
 * Copyright (C) 2009, Roland Lindh                                     *
 *               2010, Mickael G. Delcey                                *
+*               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      SubRoutine Saddle(DInf,nDinf)
+      SubRoutine Saddle()
 ************************************************************************
 *                                                                      *
 * Object: to set up for a TS optimization with the SADDLE approach.    *
@@ -25,6 +26,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 2009                                             *
 ************************************************************************
+      use Basis_Info
       use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -44,7 +46,7 @@
       Integer ipX2, ipX3
       Integer ipRef,ipOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
-      Real*8 DInf(nDInf)
+      Real*8 RandVect(3)
 #include "periodic_table.fh"
 ************************************************************************
 *                                                                      *
@@ -116,6 +118,49 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*           Get the symmetry stabilizers for each center
+*
+            Call mma_allocate(iStab,nAt,label='iStab')
+            iAt=1
+            nsc=0
+            Do i=1,nCnttp
+               Do iCnt=1,dbsc(i)%nCntr
+                  nsc=nsc+1
+                  If (.Not.
+     &                (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
+     &               ) Then
+                     iStab(iAt)=jStab(1,nsc)
+                     iAt=iAt+1
+                  End If
+               End Do
+            End Do
+*
+*           Shake initial structures
+*
+            If (Shake.gt.Zero) Then
+               Do iAt=1,nAt
+                  nDim=0
+                  Do j=0,2
+                     If (iAnd(iStab(iAt),2**j).eq.0) nDim=nDim+1
+                  End Do
+                  If (nDim.gt.0) Then
+                     Do iRP=1,2
+                        Call Random_Vector(nDim,
+     &                                     RandVect(1:nDim),.False.)
+                        jDim=0
+                        Do j=0,2
+                           If (iAnd(iStab(iAt),2**j).eq.0) Then
+                              jDim=jDim+1
+                              RP_Centers(jDim,iAt,iRP)=
+     &                           RP_Centers(jDim,iAt,iRP)+
+     &                           Shake*RandVect(jDim)
+                           End If
+                        End Do
+                     End Do
+                  End If
+               End Do
+            End If
+*
 *           Retrieve the weights even if the structures are not
 *           going to be aligned explicitly
 *
@@ -134,22 +179,6 @@
               Call SysAbendMsg('Saddle',
      &             'No or wrong weights were found in the RUNFILE.','')
             End If
-*
-*           Get the symmetry stabilizers for each center
-*
-            Call mma_allocate(iStab,nAt,label='iStab')
-            iAt=1
-            nsc=0
-            Do i=1,nCnttp
-               Do iCnt=1,nCntr(i)
-                  nsc=nsc+1
-                  If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i)))
-     &                Then
-                     iStab(iAt)=jStab(1,nsc)
-                     iAt=iAt+1
-                  End If
-               End Do
-            End Do
 *
 *           Align the reactant and product structures the first time.
 *           Only if energy is invariant
@@ -173,13 +202,13 @@
                   iAtSym=nAt
                   ndc=0
                   Do iCnttp=1,nCnttp
-                    Do iCnt=1,nCntr(iCnttp)
+                    Do iCnt=1,dbsc(iCnttp)%nCntr
                       ndc=ndc+1
-                      If (.Not.(pChrg(iCnttp).Or.
-     &                          FragCnttp(iCnttp).Or.
-     &                          AuxCnttp(iCnttp))) Then
+                      If (.Not.(dbsc(iCnttp)%pChrg.Or.
+     &                          dbsc(iCnttp)%Frag.Or.
+     &                          dbsc(iCnttp)%Aux)) Then
                         iAt=iAt+1
-                        Elm(iAt)=PTab(iAtmNr(iCnttp))
+                        Elm(iAt)=PTab(dbsc(iCnttp)%AtmNr)
                         Do i=1,nIrrep/nStab(ndc)-1
                           iAtSym=iAtSym+1
                           Elm(iAtSym)=Elm(iAt)
@@ -236,9 +265,11 @@
          iAt=1
          nsc=0
          Do i=1,nCnttp
-            Do iCnt=1,nCntr(i)
+            Do iCnt=1,dbsc(i)%nCntr
                nsc=nsc+1
-               If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
+               If (.Not.
+     &             (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
+     &            ) Then
                   iStab(iAt)=jStab(1,nsc)
                   iAt=iAt+1
                End If
@@ -646,13 +677,12 @@
             Call mma_deallocate(XYZ)
             j=1
             Do iCnttp=1,nCnttp
-              If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
-     &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=ipCntr(iCnttp)
-                Do iCnt=1,nCntr(iCnttp)
-                  Do i=0,2
-                    DInf(ixyz)=Vec(j,1)
-                    ixyz=ixyz+1
+              If (.Not.dbsc(iCnttp)%pChrg.and.
+     &            .Not.dbsc(iCnttp)%Frag .and.
+     &            .Not.dbsc(iCnttp)%Aux) Then
+                Do iCnt=1,dbsc(iCnttp)%nCntr
+                  Do i=1,3
+                    dbsc(iCnttp)%Coor(i,iCnt)=Vec(j,1)
                     j=j+1
                   End Do
                 End Do
@@ -691,13 +721,12 @@
             Call mma_deallocate(XYZ)
             j=1
             Do iCnttp=1,nCnttp
-              If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
-     &            .Not.AuxCnttp(iCnttp)) Then
-                ixyz=ipCntr(iCnttp)
-                Do iCnt=1,nCntr(iCnttp)
-                  Do i=0,2
-                    DInf(ixyz)=TmpA(j)
-                    ixyz=ixyz+1
+              If (.Not.dbsc(iCnttp)%pChrg.and.
+     &            .Not.dbsc(iCnttp)%Frag .and.
+     &            .Not.dbsc(iCnttp)%Aux) Then
+                Do iCnt=1,dbsc(iCnttp)%nCntr
+                  Do i=1,3
+                    dbsc(iCnttp)%Coor(i,iCnt)=TmpA(j)
                     j=j+1
                   End Do
                 End Do
@@ -733,6 +762,7 @@
 ************************************************************************
 ************************************************************************
       Real*8 function dmwdot(nAt,mAt,A,B)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       Integer nAt,mAt
       Real*8 A(3,nAt),B(3,nAt)
@@ -759,9 +789,10 @@
       End If
       iAt=0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and..Not.FragCnttp(iCnttp) .and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-             Do iCnt = 1, nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%pChrg.and.
+     &       .Not.dbsc(iCnttp)%Frag .and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+             Do iCnt = 1, dbsc(iCnttp)%nCntr
                 iAt = iAt + 1
                 Fact=DBLE(iDeg(A(1,iAt),iOper,nIrrep))
                 xMass=Fact*W(iAt)
@@ -780,6 +811,7 @@
 ************************************************************************
 ************************************************************************
       subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
@@ -807,9 +839,11 @@
       iAt=1
       nsc=0
       Do i=1,nCnttp
-         Do iCnt=1,nCntr(i)
+         Do iCnt=1,dbsc(i)%nCntr
             nsc=nsc+1
-            If (.Not.(pChrg(i).Or.FragCnttp(i).Or.AuxCnttp(i))) Then
+            If (.Not.(dbsc(i)%pChrg.Or.
+     &                dbsc(i)%Frag .Or.
+     &                dbsc(i)%Aux)) Then
                iStab(iAt)=jStab(1,nsc)
                iAt=iAt+1
             End If

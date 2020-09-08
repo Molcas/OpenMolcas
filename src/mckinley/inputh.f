@@ -30,10 +30,11 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             September '91                                            *
+*             September 1991                                           *
 *                                                                      *
-*             Modified to complement GetInf, January '92.              *
+*             Modified to complement GetInf, January 1992              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -361,7 +362,7 @@ c      EndIf
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp
-         Do 20 iCnt = 1, nCntr(iCnttp)
+         Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             mDisp = mDisp + 3*(nIrrep/nStab(mdc))
  20      Continue
@@ -409,7 +410,7 @@ c      EndIf
          mc = 1
          Do 110 iCnttp = 1, nCnttp
 *           Loop over unique centers associated with this basis set.
-            Do 120 iCnt = 1, nCntr(iCnttp)
+            Do 120 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components
@@ -585,19 +586,22 @@ c      EndIf
 *        Generate temporary information of the symmetrical
 *        displacements.
 *
-         ldsp = 0
+        ldsp = 0
          mdc = 0
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp
-            jxyz = ipCntr(iCnttp)
-            Do 2200 iCnt = 1, nCntr(iCnttp)
+            Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
-*              Call RecPrt(' Coordinates',' ',Work(jxyz),1,3)
+*              Call RecPrt(' Coordinates',' ',
+*    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
                Fact = Zero
                iComp = 0
-               If (Work(jxyz  ).ne.Zero) iComp = iOr(iComp,1)
-               If (Work(jxyz+1).ne.Zero) iComp = iOr(iComp,2)
-               If (Work(jxyz+2).ne.Zero) iComp = iOr(iComp,4)
+               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)
+     &            iComp = iOr(iComp,1)
+               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)
+     &            iComp = iOr(iComp,2)
+               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
+     &            iComp = iOr(iComp,4)
                Do 2250 jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                  nIrrep/nStab(mdc),iChTbl,jIrrep,
@@ -613,13 +617,13 @@ c      EndIf
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC
-                     call dcopy_(3,Work(jxyz),1,Work(ip),1)
+                     call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,
+     &                          Work(ip),1)
 *--------------------Transfer the multiplicity factor
                      Work(ip+3) = Fact
                      iWork(ipCar-1+ldsp) = iCar + 1
                   End If
  2300          Continue
-               jxyz = jxyz + 3
  2200       Continue
  2100    Continue
          If (iPrint.ge.99) Then
@@ -813,13 +817,6 @@ c      EndIf
 *
  9876 Continue
       Call Datimx(KWord)
-      goto 888
-        Call qTrace
-        Write(6,*) ' *** Error in subroutine INPUTG ***'
-        Write(6,*) '     Abend in subroutine WrOne'
-        Call Abend
-
- 888  Continue
       Call ICopy(nIrrep,[0],0,nFck,1)
       Do iIrrep=0,nIrrep-1
         If (iIrrep.ne.0) Then

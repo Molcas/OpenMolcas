@@ -23,6 +23,7 @@
 *******************************************************************************
 *
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 
 #include "itmax.fh"
@@ -34,47 +35,49 @@
 
 *******************************************************************************
       ncb=nelem(lb)*nelem(iang)
+      nExpi=Shells(iShll)%nExp
+      nBasisi=Shells(iShll)%nBasis
       Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
+     &             nExpi*ncb*nVecCB*nBeta)
       Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
+     &             nExpi*ncb*nVecCB*nBeta)
 *
 *--------------And (almost) the same thing for the righthand side, form
 *              KjCb from kjcb
 *              1) jcb,K = k,jcb * k,K
 *
       Call DGEMM_('T','N',
-     &            nBeta*ncb*nVecCB,nBasis(iShll),nExp(iShll),
-     &            1.0d0,F,nExp(iShll),
-     &            Work(ipCff(iShll)),nExp(iShll),
+     &            nBeta*ncb*nVecCB,nBasisi,nExpi,
+     &            1.0d0,F,nExpi,
+     &            Shells(iShll)%pCff,nExpi,
      &            0.0d0,Work(ipTmp),nBeta*ncb*nVecCB)
 *
 *--------------2)  j,cbK -> cbK,j
 *
       Call DgeTMo(Work(ipTmp),nBeta,nBeta,
-     &            ncb*nVecCB*nBasis(iShll),Work(ipF),
-     &            ncb*nVecCB*nBasis(iShll))
+     &            ncb*nVecCB*nBasisi,Work(ipF),
+     &            ncb*nVecCB*nBasisi)
 *
 *--------------3) bKj,C = c,bKj * c,C
 *
       Call DGEMM_('T','N',
-     &            nElem(lb)*nVecCB*nBasis(iShll)*nBeta,
+     &            nElem(lb)*nVecCB*nBasisi*nBeta,
      &            (2*iAng+1),nElem(iAng),
      &            1.0d0,Work(ipF),nElem(iAng),
      &            RSph(ipSph(iAng)),nElem(iAng),
      &            0.0d0,Work(ipTmp),
-     &            nElem(lb)*nVecCB*nBasis(iShll)*nBeta)
+     &            nElem(lb)*nVecCB*nBasisi*nBeta)
 *
 *--------------4) b,KjC -> KjC,b
 *
       Call DgeTMo(Work(ipTmp),nElem(lb)*nVecCB,
      &            nElem(lb)*nVecCB,
-     &            nBasis(iShll)*nBeta*(2*iAng+1),F,
-     &            nBasis(iShll)*nBeta*(2*iAng+1))
+     &            nBasisi*nBeta*(2*iAng+1),F,
+     &            nBasisi*nBeta*(2*iAng+1))
 *
       Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
+     &            nExpi*ncb*nVecCB*nBeta)
       Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
+     &            nExpi*ncb*nVecCB*nBeta)
        Return
        End

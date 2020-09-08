@@ -64,6 +64,7 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -156,12 +157,11 @@
 *
       kdc=0
       Do 100 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 111
-         If (nM2(kCnttp).eq.0) Go To 111
+         If (.Not.dbsc(kCnttp)%ECP) Go To 111
+         If (dbsc(kCnttp)%nM2.eq.0) Go To 111
 *
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),iDCRT,nDCRT)
@@ -177,8 +177,8 @@
                TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102
 *
-               Do 1011 iM2xp = 0, nM2(kCnttp)-1
-                  Gamma = Work(ipM2xp(kCnttp)+ iM2xp)
+               Do 1011 iM2xp = 1, dbsc(kCnttp)%nM2
+                  Gamma = dbsc(kCnttp)%M2xp(iM2xp)
                   If (iPrint.ge.99) Write (6,*) ' Gamma=',Gamma
 *
                   Call ICopy(6,IndGrd,1,JndGrd,1)
@@ -196,7 +196,7 @@
                      JfGrad(iCar+1,3) = .False.
                      iCmp = 2**iCar
                      If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &                    .Not.pChrg(kCnttp) ) Then
+     &                    .Not.dbsc(kCnttp)%pChrg ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
 *--------------------------Reset flags for the basis set centers so that
@@ -294,7 +294,7 @@
 *-----------------Combine the cartesian components to the full one
 *                 electron integral gradient.
 *
-                  Factor = -Charge(kCnttp)*Work(ipM2cf(kCnttp)+iM2xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)
      &                   * Fact
                   Call CmbnM2(Array(ipQxyz),nZeta,la,lb,
      &                        Array(ipZ),Array(ipK),Final,
@@ -312,7 +312,7 @@
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
 *
  100  Continue
 *

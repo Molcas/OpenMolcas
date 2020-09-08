@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl,DInf,nDInf)
+      Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use AMFI_Info
+      use Basis_Info
       use Her_RW
       use Period
       use MpmC
       use EFP_Module
-      use Real_Spherical, only : Condon_Shortley_phase_factor
+      use Real_Spherical, only: Condon_Shortley_phase_factor, Sphere
       use fortran_strings, only : str
       use External_Centers
 #ifndef _HAVE_EXTRA_
@@ -47,7 +49,7 @@
       Common /AMFn/ iAMFn
       Common /delete/ kDel(0:MxAng,MxDc)
 *
-      Real*8 DInf(nDInf), Lambda
+      Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:MxAng)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
@@ -68,11 +70,16 @@
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
-      Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3)
-      Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
+      Real*8 NucExp, WellCff(3), WellExp(3), WellRad(3),
+     &       OAMt(3), OMQt(3)
+      Real*8, Allocatable :: RTmp(:,:), EFt(:,:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
+!     Temporary buffer
+      Integer, Parameter:: nBuff=10000
+      Real*8, Allocatable:: Buffer(:), Isotopes(:)
+!
       Character*180, Allocatable :: STDINP(:)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
@@ -97,9 +104,7 @@
       Logical WriteZMat, geoInput, oldZmat,zConstraints
       Logical EFgiven
       Logical Invert
-      Real*8 HypParam(3)
-      Integer iSeed
-      Save iSeed
+      Real*8 HypParam(3), RandVect(3)
       Logical Vlct_, nmwarn
 *
       Logical DoEMPC, Basis_test
@@ -123,18 +128,23 @@
 #include "angstr.fh"
       Data DefNm/'basis_library'/
       Data IfTest/.False./
-      Data iSeed/24619/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
+#include "getbs_interface.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
       iRout=3
       iPrint = nPrint(iRout)
       Call qEnter('RdCtl')
 #ifdef _DEBUG_
       IfTest=.True.
 #endif
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_allocate(Buffer,nBuff,Label='Buffer')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -187,8 +197,6 @@
       ipRTmp=ip_Dummy
       ipITmp=ip_iDummy
       lMltpl=.False.
-*
-      nPAMFI=0
 *
       CholeskyWasSet=.False.
       do1CCD=.false.
@@ -273,16 +281,12 @@
             Oper(i)=' '
          End Do
          nOper=0
-         ipExp(1) = 1
          CLightAU = CONST_C_IN_AU_
       End If
 *
       nDKfull = 0
       iAMFn = 0   ! usual AMFI
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      BasisTypes(:)=0
       KeepBasis=' '
 cperiod
       lthCell = 0
@@ -348,7 +352,6 @@ cperiod
       Call mma_allocate(STDINP,MxAtom*2,label='STDINP')
 *
       nDone=0
-      Call Gen_RelPointers(Info-1) ! Work  Mode
  998  lTtl = .False.
       If (Basis_Test.and.nDone.eq.1) Then
          nDone=0
@@ -852,40 +855,35 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in Z-Matrix format
 *
 1920  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
-      Call Gen_RelPointers(Info-1)   ! Work Mode
       Go To 998
 *                                                                      *
 ****** XBAS ************************************************************
 *                                                                      *
 1924  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
       GWInput=.True.
       isxbas=1
       if(ierr.eq.1) Call Quit_OnUserError()
-      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** XYZ  ************************************************************
 *                                                                      *
 1917  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       if(isxbas.eq.0) Call Quit_OnUserError()
       Call XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       XYZdirect=.true.
 *      If (SymmSet) Then
@@ -898,7 +896,6 @@ c     Call Quit_OnUserError()
      &                 'GROUP keyword is not compatible with XYZ')
          Call Quit_OnUserError()
       End If
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 
 *                                                                      *
@@ -907,7 +904,6 @@ c     Call Quit_OnUserError()
 *     Read Basis Sets & Coordinates in xyz format
 *
 6000  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with COORD')
@@ -934,7 +930,6 @@ c      End If
 #else
       Call Read_XYZ(LuRd,OrigRot,OrigTrans)
 #endif
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** GROUP ***********************************************************
@@ -942,7 +937,6 @@ c      End If
 *     Read information for a group
 *
 6010  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with GROUP')
@@ -974,7 +968,6 @@ c Simplistic validity check for value
       GroupSet=.true.
       GWInput=.True.
       DoneCoord=.True.
-      Call Gen_RelPointers(Info-1) ! Work Mode
       goto 998
 *                                                                      *
 ****** BSSE ************************************************************
@@ -1093,7 +1086,6 @@ c Simplistic validity check for value
       Goto 998
 *
  9201 Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
@@ -1138,7 +1130,7 @@ c Simplistic validity check for value
       If (Indx.eq.0) Then
          Fname=BasLib
          Indx = Last+1
-         Bsl(nCnttp)=BSLbl
+         dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -1152,13 +1144,13 @@ c Simplistic validity check for value
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
       If (n.eq.0) n=81
       Do i=n,80
-        Bsl(nCnttp)(i:i)='.'
+        dbsc(nCnttp)%Bsl(i:i)='.'
       End Do
 *
       If ((Show.and.nPrint(2).ge.6) .or.
@@ -1172,37 +1164,18 @@ c Simplistic validity check for value
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
-      AuxCnttp(nCnttp)=.False.
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
-      mdciCnttp(nCnttp)=mdc
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &           ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
-     &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
-     &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
-     &           FockOp(nCnttp),
-     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &           ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &           ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
-     &           CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
-     &           UnNorm,nDel,
-     &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &           nFragType(nCnttp),nFragCoor(nCnttp),nFragEner(nCnttp),
-     &           nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
-     &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
-     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
-     &           DInf,nDInf)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+      dbsc(nCnttp)%mdci=mdc
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+     &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
+     &           ExtBasDir)
 *
-      Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
-     &            iAtmNr(nCnttp).le.96
+      Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
+     &            dbsc(nCnttp)%AtmNr.le.96
 #ifdef _DEMO_
       Do_GuessOrb = .False.
 #else
-      Do_GuessOrb = Do_GuessOrb .and. iAtmNr(nCnttp).le.96
+      Do_GuessOrb = Do_GuessOrb .and. dbsc(nCnttp)%AtmNr.le.96
 #endif
 *
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
@@ -1237,7 +1210,7 @@ c Simplistic validity check for value
          BasisTypes(4)=ign
       End If
 *
-      If (nSOC.gt.-1) Then
+      If (dbsc(nCnttp)%nSOC.gt.-1) Then
          Do l = 1, MxAng
             kDel(l,nCnttp)=nDel(l)
          End Do
@@ -1250,58 +1223,38 @@ c Simplistic validity check for value
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. PAM2(nCnttp)
-      ECP(nCnttp)=(nPP+nPrj+nSRO+nSOC+nM1(nCnttp)+nM2(nCnttp)).ne.0
-      lPP=lPP .or. nPP.ne.0
-      lECP = lECP .or. ECP(nCnttp)
-      lNoPair = lNoPair .or. NoPairL(nCnttp)
+      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
+      dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
+     &                 +dbsc(nCnttp)%nPrj
+     &                 +dbsc(nCnttp)%nSRO
+     &                 +dbsc(nCnttp)%nSOC
+     &                 +dbsc(nCnttp)%nM1
+     &                 +dbsc(nCnttp)%nM2) .NE. 0
+      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
+      lECP = lECP .or. dbsc(nCnttp)%ECP
+      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+      lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
       iAngMx=Max(iAngMx,lAng)
 *     No transformation needed for s and p shells
-      Transf(jShll+1)=.False.
-      Prjct(jShll+1)=.False.
-      Transf(jShll+2)=.False.
-      Prjct(jShll+2)=.False.
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = iOptn
-      ipVal(nCnttp) = ipVal_
-      ipPrj(nCnttp) = ipPrj_
-      ipSRO(nCnttp) = ipSRO_
-      ipSOC(nCnttp) = ipSOC_
-      ipPP(nCnttp)  = ipPP_
-      nVal_Shells(nCnttp) = nVal
-      nPrj_Shells(nCnttp) = nPrj
-      nSRO_Shells(nCnttp) = nSRO
-      nSOC_Shells(nCnttp) = nSOC
-      nPP_Shells(nCnttp)  = nPP
-      nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-      ipCntr(nCnttp) = ipExp(iShll+1)
+      Shells(jShll+1)%Transf=.False.
+      Shells(jShll+1)%Prjct =.False.
+      Shells(jShll+2)%Transf=.False.
+      Shells(jShll+2)%Prjct =.False.
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                     + dbsc(nCnttp)%nPrj
+     &                     + dbsc(nCnttp)%nSRO
+     &                     + dbsc(nCnttp)%nSOC
+     &                     + dbsc(nCnttp)%nPP
       nCnt = 0
-      lAux = lAux .or. AuxCnttp(nCnttp)
-      If (AuxCnttp(nCnttp)) Then
+      lAux = lAux .or. dbsc(nCnttp)%Aux
+      If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
-            AuxShell(iSh)=.True.
+            Shells(iSh)%Aux=.True.
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute the effective radius of this center
-*
-      iAng = 0
-      Thrshld_R=1.0D-08
-      Do iSh = ipVal_, ipVal_+nVal-1
-         RMax_R=Zero
-         Do iPrim = 0, nExp(iSh)-1
-            ValExp = DInf(ipExp(iSh)+iPrim)
-            RMax_R = Max(RMax_R,
-     &                   Eval_RMax(ValExp,iAng,Thrshld_R))
-         End Do
-         RMax_Shll(iSh)=RMax_R
-C        Write (LuWr,*) 'RMax_R=',RMax_R
-         iAng = iAng + 1
-      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1310,8 +1263,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
       If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
-            Prjct(iSh)=.False.
-            Transf(iSh)=.False.
+            Shells(iSh)%Transf=.False.
+            Shells(iSh)%Prjct =.False.
          End Do
       End If
 *                                                                      *
@@ -1324,7 +1277,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       KWord=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
          tDel=1.0D50
@@ -1347,34 +1300,34 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       Call UpCase(KWord)
       Call LeftAd(KWord)
       If (KWord(1:4).eq.'PSEU') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'ACDT') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,aCD_Thr(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%aCD_Thr)
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          Go To 777
       End If
       If (KWord(1:4).eq.'NUCL') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,ExpNuc(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%ExpNuc)
          Go To 777
       End If
       If (KWord(1:4).eq.'FIXE') Then
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'SPHE') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+3, iShll
-               Transf(iSh)=.True.
-               Prjct(iSh)=.True.
+               Shells(iSh)%Transf=.True.
+               Shells(iSh)%Prjct =.True.
             End Do
             Go To 777
          End If
@@ -1382,8 +1335,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 2
          Do iSh = jShll+3, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .True.
-               Prjct(iSh) = .True.
+               Shells(iSh)%Transf = .True.
+               Shells(iSh)%Prjct  = .True.
             End If
             iAng = iAng + 1
          End Do
@@ -1392,8 +1345,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CART') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Transf(iSh)=.False.
-               Prjct(iSh)=.False.
+               Shells(iSh)%Transf=.False.
+               Shells(iSh)%Prjct =.False.
             End Do
             Go To 777
          End If
@@ -1401,8 +1354,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .False.
-               Prjct(iSh) = .False.
+               Shells(iSh)%Transf = .False.
+               Shells(iSh)%Prjct  = .False.
             End If
             iAng = iAng + 1
          End Do
@@ -1411,7 +1364,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CONT') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Prjct(iSh)=.False.
+               Shells(iSh)%Prjct  = .False.
             End Do
             Go To 777
          End If
@@ -1419,7 +1372,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0)
-     &          Prjct(iSh) = .False.
+     &          Shells(iSh)%Prjct  = .False.
             iAng = iAng + 1
          End Do
          Go To 777
@@ -1427,18 +1380,18 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CHAR') Then
          KWord = Get_Ln(LuRd)
          Call UpCase(KWord)
-         Call Get_F1(1,Charge(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%Charge)
          ist = index(KWord,' ')
-         If (IsMM(nCnttp).ne.0) Then
+         If (dbsc(nCnttp)%IsMM.ne.0) Then
             Call WarningMessage(1,
      &         ' Found a charge associated with a MM atom. Ignore it')
-            Charge(nCnttp) = Zero
+            dbsc(nCnttp)%Charge = Zero
          End If
          Go To 777
       End If
       If (KWord(1:4).eq.'FRAG') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          lFAIEMP=.True.
          Go To 777
       End If
@@ -1447,16 +1400,15 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
             Call WarningMessage(2,' Input error, no center specified!')
             Call Quit_OnUserError()
          End If
-         nCntr(nCnttp) = nCnt
+         dbsc(nCnttp)%nCntr = nCnt
          mdc = mdc + nCnt
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-         nInfo = ipExp(iShll+1) - 1
-* the next line seems to convince IBM XLF 6.1 to forgo its otherwise
-* crass behaviour. Who can tell why? Peter Knowles, 7/99
-         ninfo_stupid = nInfo
-         Call Gen_RelPointers(Info-1) ! Work Mode
+!        Now allocate the array for the coordinates and copy them over.
+!        Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
+         Call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
+!
          Go To 998
       End If
 *
@@ -1482,11 +1434,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (mdc+nCnt.gt.1) then
         Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
       endif
-      iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Call Get_F(2,DInf(iOff),3)
+      iOff=1+(nCnt-1)*3
+      Call Get_F(2,Buffer(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            DInf(iOff+i) = DInf(iOff+i)/angstr
+            Buffer(iOff+i) = Buffer(iOff+i)/angstr
          End Do
       End If
 *
@@ -1532,13 +1484,13 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 
                   Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
 
-                  iOff=ipCntr(nCnttp)+(nCnt-1)*3
+                  iOff=1+(nCnt-1)*3
 
 *                 Copy old coordinate  first
-                  CALL DCOPY_(3,DInf(iOff0),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,DInf(iOff),1)
-                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,DInf(iOff),1)
+                  CALL DCOPY_(3,Buffer(iOff0),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Buffer(iOff),1)
 *
   110          Continue
 *
@@ -1755,7 +1707,6 @@ c     Go To 998
 *     User specified external field
 *
  975  lXF=.True.
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
@@ -1896,7 +1847,6 @@ c     Go To 998
       If (isXfield.eq.1) Then
          goto 9755
       End If
-      Call Gen_RelPointers(Info-1) ! Work Mode
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -2229,17 +2179,13 @@ c     Go To 998
             iOff = 0
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
-               iStrt = ipCntr(iCnttp)
-               Do iCnt = iOff+1, iOff+nCntr(iCnttp)
+               Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
                   If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
                      iFound_Label = 1
-                     Do I = 1,3
-                        EFt(I,iEF) = Work(iStrt+I-1)
-                     End Do
+                     EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
-                  iStrt = iStrt + 3
                End Do
-               iOff = iOff + nCntr(iCnttp)
+               iOff = iOff + dbsc(iCnttp)%nCntr
             End Do
             If (iFound_Label .Eq. 0) Then
                Call WarningMessage(2,';'
@@ -2264,8 +2210,8 @@ c     Go To 998
 *     Orbital angular momentum
 *
  995  lOAM = .True.
+      lOAMc = .True.
       GWInput=.True.
-      Call mma_allocate(OAMt,3,label='OAMt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OAMt,3)
@@ -2283,13 +2229,12 @@ c     Go To 998
  1002 lDOWNONLY = .True.
       Go To 998
 *                                                                      *
-****** OMQ *************************************************************
+****** OMQI ************************************************************
 *                                                                      *
-*     Orbital angular momentum
+*     Orbital magnetic quadrupole
 *
  999  lOMQ = .True.
       GWInput=.True.
-      Call mma_allocate(OMQt,3,label='OMQt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OMQt,3)
@@ -2708,7 +2653,6 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          KWord = Get_Ln(LuRd)
          close(LuIn)
          close(LuRP)
-         Call RecPrt('RP1',' ',RP_Centers(1,1,1),3,nRP/3)
          Go To 9082
       Else
          LuRP=10
@@ -2728,11 +2672,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
      &            (RP_Centers(j,i,2)*Fact,j=1,3)
          End Do
          close(LuRP)
-         Call RecPrt('RP2',' ',RP_Centers(1,1,2),3,nRP/3)
       End If
       RP_Centers(:,:,:)= Fact* RP_Centers(:,:,:)
-      Call RecPrt('RP1*Fact',' ',RP_Centers(1,1,1),3,nRP/3)
-      Call RecPrt('RP2*Fact',' ',RP_Centers(1,1,2),3,nRP/3)
 *
       close(LuIn)
       GWInput = Run_Mode.eq.G_Mode
@@ -3599,10 +3540,6 @@ c
       Call Upcase(KWord)
       Call Get_F1(1,Shake)
       If (Index(KWord,'ANGSTROM').ne.0) Shake = Shake/angstr
-*---- Simple way of changing the seed: add zeros or spaces to the line
-      Do i=1,Len(KWord)
-        iSeed = iSeed+iChar(KWord(i:i))
-      End Do
       Go To 998
 *                                                                      *
 ****** PAMF ************************************************************
@@ -3610,8 +3547,8 @@ c
 *     Disable AMFI for an atom type
 *
  8060 KWord = Get_Ln(LuRd)
-      nPAMFI=nPAMFI+1
-      Call Get_I1(1,iPAMFI(nPAMFI))
+      Call Get_I1(1,iAtom_Number)
+      No_AMFI(iAtom_Number)=.True.
       Go To 998
 *                                                                      *
 ******* GROM ***********************************************************
@@ -3882,7 +3819,6 @@ c
 *                                                                      *
 *
  997  Continue
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
 c     Postprocessing for COORD
 c      ik=index(KeepBasis,'....')
 c      if(ik.ne.0) then
@@ -3936,7 +3872,6 @@ c      endif
 #endif
          LuRd=LuFS
          GWInput=.True.
-         Call Gen_RelPointers(Info-1) !Work Mode
          Go To 998
       Else
          If (DoneCoord) Then
@@ -3955,19 +3890,19 @@ c      endif
       If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
 
       If (Run_Mode.ne.S_Mode) Then
-         Call dZero(CntMass,nCnttp)
 *        Loop over unique centers
          iUnique = 0
+         Call mma_allocate(Isotopes,nCnttp,Label='Isotopes')
          Do iCnttp = 1, nCnttp
-            nCnt = nCntr(iCnttp)
+            nCnt = dbsc(iCnttp)%nCntr
             Do iCnt = 1, nCnt
                iUnique = iUnique+1
 *              Get the mass for this center
-               dm = rMass(iAtmNr(iCnttp))
+               dm = rMass(dbsc(iCnttp)%AtmNr)
                Do j = 1, Size(nIsot, 1)
                   If (nIsot(j,1).eq.iUnique) Then
                      If (nIsot(j,2).ge.0) Then
-                        dm = rMassx(iAtmNr(iCnttp),nIsot(j,2))
+                        dm = rMassx(dbsc(iCnttp)%AtmNr,nIsot(j,2))
                      Else
                         dm = mIsot(j)
                      End If
@@ -3975,9 +3910,9 @@ c      endif
                   End If
                End Do
                If (iCnt.eq.1) Then
-                  CntMass(iCnttp) = dm
+                  dbsc(iCnttp)%CntMass = dm
                Else
-                  If (dm.ne.CntMass(iCnttp)) Then
+                  If (dm.ne.dbsc(iCnttp)%CntMass) Then
                      Call WarningMessage(2,
      &                 'Error: All centers of the same type must '//
      &                 'have the same mass')
@@ -3985,8 +3920,10 @@ c      endif
                   End If
                End If
             End Do
-         End Do
-         Call Put_dArray('Isotopes',CntMass,nCnttp)
+            Isotopes(iCnttp)=dbsc(iCnttp)%CntMass
+         End Do ! iCnttp
+         Call Put_dArray('Isotopes',Isotopes,nCnttp)
+         Call mma_deallocate(Isotopes)
 
 *        Find errors
          Do j = 1, Size(nIsot, 1)
@@ -4027,6 +3964,7 @@ c      endif
       iPrint = nPrint(iRout)
 *
       Mx_Shll = iShll + 1
+      Max_Shells=Mx_Shll
 *
       If (nCnttp.eq.0) then
          Call WarningMessage(2,'Input does not contain any basis sets')
@@ -4151,19 +4089,18 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           If ExpNuc not explicitly defined use default value.
 *
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(nMass)
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            If (dbsc(iCnttp)%ExpNuc.lt.Zero)
+     &          dbsc(iCnttp)%ExpNuc=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
 *           charge distribution.
 *
-            jAtmNr=iAtmNr(iCnttp)
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            Call ModGauss(DBLE(jAtmNr),nMass,
-     &                    ExpNuc(iCnttp),
-     &                    w_mGauss(iCnttp))
+            jAtmNr=dbsc(iCnttp)%AtmNr
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            Call ModGauss(DBLE(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,
+     &                    dbsc(iCnttp)%w_mGauss)
 *
          Else
 *
@@ -4328,8 +4265,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      If (lFAIEMP.and.Run_Mode.ne.S_Mode)
-     &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
+      If (lFAIEMP.and.Run_Mode.ne.S_Mode) Call FragExpand(LuRd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4340,13 +4276,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo,DInf,nDInf)
+            Call Mk_RICD_Shells()
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
+            Call Mk_RI_Shells(LuRd)
 *
          End If
       End If
@@ -4399,19 +4335,19 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Else
             nEF = 0
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
-     &         nEF = nEF + nCntr(iCnttp)
+               If (.NOT.dbsc(iCnttp)%Aux .and. .NOT.dbsc(iCnttp)%Frag)
+     &         nEF = nEF + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
 *
             iEF = 1
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and.
-     &             .NOT.FragCnttp(iCnttp)) Then
-                  ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+               If (.NOT.dbsc(iCnttp)%Aux .and.
+     &             .NOT.dbsc(iCnttp)%Frag) Then
+                  call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                        dbsc(iCnttp)%Coor,1,
      &                                        EF_Centers(1,iEF),1)
-                  iEF = iEF + nCntr(iCnttp)
+                  iEF = iEF + dbsc(iCnttp)%nCntr
                End If
             End Do
          End If
@@ -4431,28 +4367,28 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Else
             nDMS = 0
             Do iCnttp = 1, nCnttp
-               nDMS = nDMS + nCntr(iCnttp)
+               nDMS = nDMS + dbsc(iCnttp)%nCntr
             End Do
             Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
             iDMS = 1
             Do iCnttp = 1, nCnttp
-               ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),DInf(ixyz),1,
+               call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                     dbsc(iCnttp)%Coor,1,
      &                                     DMS_Centers(1,iDMS),1)
-               iDMS = iDMS + nCntr(iCnttp)
+               iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
          End If
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate memory for iSOff. This is the last thing to be done
-*     before unused core is release!!!!!
 *
       If (Run_Mode.ne.S_Mode) Then
          Max_Cnt=0
          Do iCnttp = 1, nCnttp
-            Max_Cnt=Max(Max_Cnt,nCntr(iCnttp))
+*           Skip dbsc if it is a cardholder for fragment information.
+            If (dbsc(iCnttp)%nFragType.gt.0) Cycle
+            Max_Cnt=Max(Max_Cnt,dbsc(iCnttp)%nCntr)
          End Do
       End If
 *                                                                      *
@@ -4487,14 +4423,14 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     been fixed in size.
 *
       If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(1,nInfo,LuRd,DInf,nDInf)
+         Call Fix_FockOp(LuRd)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
-      If (DKroll.or.NEMO) Call Fill_rInfo1(DInf,nDInf)
+      If (DKroll.or.NEMO) Call Fill_rInfo1()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4589,10 +4525,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (nIrrep.eq.2) nOper=1
       MaxDCR = nIrrep
       Do iCnttp = 1, nCnttp
-         nCnt = nCntr(iCnttp)
-         ixyz = ipCntr(iCnttp)
+         nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
-            mdc = iCnt + mdciCnttp(iCnttp)
+            mdc = iCnt + dbsc(iCnttp)%mdci
             Mx_mdc = Max(Mx_mdc,mdc)
             If (mdc.gt.Mxdc) Then
                Call WarningMessage(2,' mdc.gt.Mxdc!;'
@@ -4605,9 +4540,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           always be identical to that of the fragment's
 *           pseudocenter/placeholder
 *
-            If (FragCnttp(iCnttp)) Then
+            If (dbsc(iCnttp)%Frag) Then
 *              Check the FragExpand routine!
-               iChxyz = iChCnt(nFragCoor(mdc))
+               iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
             Else
 *
 *------------- To assign the character of a center we need to find
@@ -4617,7 +4552,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(DInf(ixyz),iOper,nOper,iChCar)
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
+     &                       iOper,nOper,iChCar)
             End If
             iChCnt(mdc) = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
@@ -4626,22 +4562,34 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *           Perturb the initial geometry if the SHAKE keyword was given,
 *           but maintain the symmetry
 *
-            If (Shake.gt.Zero) Then
+            If ((Shake.gt.Zero).And.
+     &          .Not.(dbsc(iCnttp)%pChrg.Or.
+     &                dbsc(iCnttp)%Frag.Or.
+     &                dbsc(iCnttp)%Aux)) Then
                jTmp=0
                Do j=1,nStab(mdc)-1
                   jTmp=iOr(jTmp,jStab(j,mdc))
                End Do
+               nDim=0
                Do j=0,2
-                  If (iAnd(jTmp,2**j).eq.0) Then
-                     DInf(ixyz+j)=DInf(ixyz+j)+
-     &                           Shake*(Two*Random_Molcas(iSeed)-One)
-                  End If
+                  If (iAnd(jTmp,2**j).eq.0) nDim=nDim+1
                End Do
+               If (nDim.gt.0) Then
+                  Call Random_Vector(nDim,RandVect(1:nDim),.False.)
+                  jDim=0
+                  Do j=0,2
+                     If (iAnd(jTmp,2**j).eq.0) Then
+                        jDim=jDim+1
+                        dbsc(iCnttp)%Coor(j+1,iCnt)=
+     &                      dbsc(iCnttp)%Coor(j+1,iCnt)
+     &                     +Shake*RandVect(jDim)
+                  End If
+                  End Do
+               End If
             End If
-            ixyz = ixyz + 3
-            If (FragCnttp(iCnttp)) Then
+            If (dbsc(iCnttp)%Frag) Then
                mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
-            Else If (AuxCnttp(iCnttp)) Then
+            Else If (dbsc(iCnttp)%Aux) Then
                mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)
             Else
                mCentr = mCentr + nIrrep/nStab(mdc)
@@ -4670,20 +4618,20 @@ C     Mx_mdc=mdc
 *     method.
 *
       If (Run_Mode.ne.G_Mode) Then
-         Call Saddle(DInf,nDInf)
+         Call Saddle()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Read coordinates from run file (if any), ditto for external
 *     field. Do not do this in the Gateway!
 *
-         Call GeoNew(Show,DInf,nDInf)
+         Call GeoNew(Show)
          If (lXF) Call GeoNew_PC()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_GeoList(DInf,nDInf)
+      Call Gen_GeoList()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4714,8 +4662,7 @@ C     Mx_mdc=mdc
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,OAMt,1,OAM_Center,1)
-         Call mma_deallocate(OAMt)
-      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
+      Else If (.NOT.allocated(OAM_Center)) Then
          lOAM=.True.
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,CoM,1,OAM_Center,1)
@@ -4729,7 +4676,6 @@ C     Mx_mdc=mdc
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
          Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
          Call DCopy_(3,OMQt,1,OMQ_Center,1)
-         Call mma_deallocate(OMQt)
       End If
 *                                                                      *
 ************************************************************************
@@ -4750,6 +4696,10 @@ C     Mx_mdc=mdc
 *                                                                      *
       If (Run_Mode.eq.G_Mode)
      &   Call Put_lScalar('Invert constraints',Invert)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_deallocate(Buffer)
 *                                                                      *
 ************************************************************************
 *                                                                      *

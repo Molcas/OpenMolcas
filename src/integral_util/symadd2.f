@@ -11,7 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine SymAdd2(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                   iShll,jShll,AOInt,iBas,iBas_Eff,
+     &                   iShll,jShll,IndShl,JndShl,
+     &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,nIC,iIC,
      &                   SOInt,nSOInt,nOp,iSkal,jSkal)
 ************************************************************************
@@ -66,7 +67,7 @@
       Do 100 j1 = 0, nIrrep-1
          xa = rChTbl(j1,nOp(1))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(j1)).eq.0) Go To 200
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) Go To 200
 *
             Do 300 j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
@@ -78,7 +79,7 @@
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),iTwoj(j2)).eq.0)
+                  If (iAnd(IrrCmp(JndShl+i2),iTwoj(j2)).eq.0)
      &               Go To 400
                   lSO = lSO + 1
 *

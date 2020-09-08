@@ -121,12 +121,14 @@ C     Call QEnter('DrvNQ')
       Do iSkal = 1, nShell
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
+         IndShl= iSD( 8,iSkal)
          iShell= iSD(11,iSkal)
          Do jSkal = 1, iSkal
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
+            JndShl= iSD( 8,jSkal)
             jShell= iSD(11,jSkal)
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
             nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
          End Do
       End Do
@@ -543,7 +545,8 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
 
       end if
 
-      Call DrvNQ_(Kernel,Func,
+      Call DrvNQ_Internal(
+     &            Kernel,Func,
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,

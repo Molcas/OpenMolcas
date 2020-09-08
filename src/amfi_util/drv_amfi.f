@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Drv_AMFI(Label,ip,lOper,nComp,rHrmt,iChO, iAtmNr2,
-     &                    Charge2,DInf,nDInf)
+     &                    Charge2)
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 #include "angtp.fh"
@@ -19,9 +20,7 @@
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "print.fh"
 #include "para.fh"
-      Real*8 DInf(nDInf)
       Integer, Allocatable :: iDel(:)
       Real*8, Allocatable :: SOInt(:)
       Real*8 Coor(3)
@@ -33,25 +32,20 @@
       Common /delete/ kDel(0:MxAng,MxDc)
       Data IfTest/.False./
 *
-      iRout=112
-      iPrint=nPrint(iRout)
-      Call QEnter('Drv_AMFI')
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       IfTest=.True.
+      Write (6,*) ' In OneEl: Label', Label
+      Write (6,*) ' In OneEl: nComp'
+      Write (6,'(1X,8I5)') nComp
+      Write (6,*) ' In OneEl: lOper'
+      Write (6,'(1X,8I5)') lOper
+      Write (6,*) ' In OneEl: n2Tri'
+      Do iComp = 1, nComp
+         ip(iComp) = n2Tri(lOper(iComp))
+      End Do
+      Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
 #endif
-      If (iPrint.ge.19) Then
-         Write (6,*) ' In OneEl: Label', Label
-         Write (6,*) ' In OneEl: nComp'
-         Write (6,'(1X,8I5)') nComp
-         Write (6,*) ' In OneEl: lOper'
-         Write (6,'(1X,8I5)') lOper
-         Write (6,*) ' In OneEl: n2Tri'
-         Do iComp = 1, nComp
-            ip(iComp) = n2Tri(lOper(iComp))
-         End Do
-         Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-      End If
 *
       Eta_Nuc=Zero
 *
@@ -59,7 +53,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,[-1],0,ip,1)
+      ip(:)=-1
       LenTot=0
       Do iComp = 1, nComp
          ip(iComp)=1+LenTot
@@ -67,7 +61,7 @@
          LenTot=LenTot+LenInt+4
       End Do
       Call mma_allocate(SOInt,LenTot,label='SOInt')
-      Call DCopy_(LenTot,[Zero],0,SOInt,1)
+      SOInt(:)=Zero
 *
 *---- Generate list of shell information
 *
@@ -89,18 +83,31 @@
             Call Quit_OnUserError()
          End If
       End Do
-      iCnttp=0
+      Coor(:)=Zero
       Do iCenter=1,nCenter
+*
+*        Identify which dbsc this center belongs.
+*
+         iCnttp=0
          Do iSkal=1,nSkal
             If (iSD(10,iSkal).eq.iCenter) Then
                iCnttp=iSD(13,iSkal)
-               call dcopy_(3,DInf(iSD(8,iSkal)),1,Coor,1)
+               iCnt  =iSD(14,iSkal)
+               Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             End If
          End Do
+*
+*        If iCenter is not a center in the current list of shells that
+*        is to be processed then test the next iCenter.
+*
+         If (iCnttp.eq.0) Cycle
+*
          Do iSkal=1,nSkal
             If (iSD(13,iSkal).ne.iCnttp .and.
      &          iSD(10,iSkal).ne.iCenter) Then
-               If (EQ(Coor,DInf( iSD(8,iSkal) ))) Then
+               jCnttp=iSD(13,iSkal)
+               jCnt  =iSD(14,iSkal)
+               If (  EQ(Coor, dbsc(jCnttp)%Coor(1,jCnt)) ) Then
                   Write (6,*) 'Multiple instances of the same center!'
                   Write (6,*) 'This is not allowed with AMFI.'
                   Call Quit_OnUserError()
@@ -136,13 +143,13 @@
 *
          mdci=0
          Do iCnttp = 1, nCnttp
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdci=mdci+1
                If (mdci.eq.iCenter) Then
-               If ((.Not.DKroll).and.(.Not.SODK(iCnttp)))
+               If ((.Not.DKroll).and.(.Not.dbsc(iCnttp)%SODK))
      &            Write (Lu_AMFI,'(A)') 'Breit-Pauli'
                   If (IfTest) Then
-                  If (.Not.DKroll.and..Not.SODK(iCnttp))
+                  If (.Not.DKroll.and..Not.dbsc(iCnttp)%SODK)
      &            Write (6,'(A)') 'Breit-Pauli'
                End If
                   If (iAtmNr2(iCnttp).ge.1) Then
@@ -157,7 +164,7 @@
                      Call Abend()
                   End If
                   If (Nuclear_Model.eq.Gaussian_Type) Then
-                     Eta_Nuc=ExpNuc(iCnttp)
+                     Eta_Nuc=dbsc(iCnttp)%ExpNuc
                   End If
                   Go To 99
                End If
@@ -194,10 +201,10 @@
      &             iSD( 1,iSkal).eq.l) Then
 *
                    iCnttp = iSD(13,iSkal)
-                   If (nSOC_Shells(iCnttp).ne.0) Then
-                      iShll  = ipSOC(iCnttp)+l
-                      jShll  = ipPrj(iCnttp)+l
-*                     nCore=nCore+nBasis(jShll)
+                   If (dbsc(iCnttp)%nSOC.ne.0) Then
+                      iShl  = dbsc(iCnttp)%iSOC+l
+                      jShll  = dbsc(iCnttp)%iPrj+l
+*                     nCore=nCore+Shells(jShll)%nBasis
                       nCore=nCore+kDel(l+1,iCnttp)
                    End If
                End If
@@ -216,10 +223,10 @@
      &                iSD( 1,iSkal).eq.l) Then
 *
                       iCnttp = iSD(13,iSkal)
-                      If (nSOC_Shells(iCnttp).ne.0) Then
-                         iShll  = ipSOC(iCnttp)+l
-                         jShll  = ipPrj(iCnttp)+l
-*                        iDel(ip_iDel+l)=nBasis(jShll)
+                      If (dbsc(iCnttp)%nSOC.ne.0) Then
+                         iShll  = dbsc(iCnttp)%iSOC+l
+                         jShll  = dbsc(iCnttp)%iPrj+l
+*                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
                          iDel(1+l)=kDel(l+1,iCnttp)
                       End If
                   End If
@@ -242,51 +249,40 @@
      &             iSD( 1,iSkal).eq.l) Then
 *
                    iCnttp = iSD(13,iSkal)
-                   If (nSOC_Shells(iCnttp).eq.0) Then
+                   If (dbsc(iCnttp)%nSOC.eq.0) Then
 *
 *                     Use valence basis
 *
-                      iShll  = ipVal(iCnttp)+l
-                      nBas_x = nBasis(iShll)
-                      nExp_x = nExp(iShll)
-                      ipExp_x= ipExp(iShll)
-                      ipCff_x= ipCff(iShll)+nExp_x*nBas_x
-*
-*                     Offset to the contraction coefficient for normalized
-*                     Gaussian.
-*
-                      ipCff_x= iSD(4,iSkal)+nExp_x*nBas_x
+                      iShll  = dbsc(iCnttp)%iVal+l
+                      iCase  = 2
 *
                    Else
 *
 *                     Use special valence basis in case of a ECP where the
 *                     normal valence might not be adequate.
 *
-                      iShll  = ipSOC(iCnttp)+l
-                      nBas_x = nBasis(iShll)
-                      nExp_x = nExp(iShll)
-                      ipExp_x= ipExp(iShll)
-*
-*                     Offset to the contraction coefficient for normalized
-*                     Gaussian.
-*
-                      ipCff_x= ipCff(iShll)
+                      iShll  = dbsc(iCnttp)%iSOC+l
                       nBas_y = iSD( 3,iSkal)
+                      iCase = 1
+*
                    End If
+                   nBas_x = Shells(iShll)%nBasis
+                   nExp_x = Shells(iShll)%nExp
 *
                    If (IfTest) Write (6,*)  'iShll=',iShll
                    Write (Lu_AMFI,*) nExp_x, nBas_x
                    If (IfTest) Write (6,*) nExp_x, nBas_x
-                   Write (Lu_AMFI,*) (DInf(ipExp_x+iExp_x),
-     &                                  iExp_x=0,nExp_x-1)
-                   If (IfTest) Write (6,*) (DInf(ipExp_x+iExp_x),
-     &                                       iExp_x=0,nExp_x-1)
-                   Do iExp_x = 0, nExp_x-1
-                      Write (Lu_AMFI,*) (DInf(ipCff_x+iExp_x+iCff_x),
-     &                              iCff_x=0,nBas_x*nExp_x-1,nExp_x)
+                   Write (Lu_AMFI,*) (Shells(iShll)%Exp(iExp_x),
+     &                                  iExp_x=1,nExp_x)
+                   If (IfTest) Write (6,*) (Shells(iShll)%Exp(iExp_x),
+     &                                       iExp_x=1,nExp_x)
+                   Do iExp_x = 1, nExp_x
+                      Write (Lu_AMFI,*)
+     &                     (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),
+     &                              iCff_x=1,nBas_x)
                       If (IfTest) Write (6,*)
-     &                                  (DInf(ipCff_x+iExp_x+iCff_x),
-     &                              iCff_x=0,nBas_x*nExp_x-1,nExp_x)
+     &                     (Shells(iShll)%Cff_c(iExp_x,iCff_x,iCase),
+     &                              iCff_x=1,nBas_x)
                    End Do
 *
                End If
@@ -318,7 +314,6 @@
       Close(LUPROP)
 *
       Call mma_deallocate(SOInt)
-      Call QExit('Drv_AMFI')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

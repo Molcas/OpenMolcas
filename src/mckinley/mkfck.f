@@ -12,7 +12,7 @@
 ************************************************************************
           SubRoutine MkFck(iAnga,iCmpa,iCmp,
      &                        Shijij,
-     &                        iShll,iShell,
+     &                        iShll,iShell,IndShl,
      &                        iBasi,jBasj,kBask,lBasl,
      &                        iAO,iAOst,nOp,jOp,
      &                        Dij,mDij,nDij,ij1,ij2,ij3,ij4,
@@ -58,7 +58,7 @@ c#include "print.fh"
      &       FckTmp(nFT),AOInt(nAO),TwoHam(nFock),
      &       Scrtch1(nS1),Scrtch2(nS2)
       Integer iCmp(4), nOp(4),iAnga(4), iShll(4),iShell(4),
-     &        jOp(6),iCmpa(4) , iAO(4), iAOst(4),
+     &        jOp(6),iCmpa(4) , iAO(4), iAOst(4), IndShl(4),
      &        indgrd(3,4,0:nirrep-1),ipdisp(*)
       Logical Shijij,pert(0:nIrrep-1)
 *
@@ -74,7 +74,7 @@ c     iPrint = nPrint(iRout)
       Fact=DBLE(iuvwx)/DBLE(nIrrep)
 *
       Call FckAcc_mck(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &            Shijij,iShll,iShell,nOp,nijkl,
+     &            Shijij,iShll,iShell,IndShl,nOp,nijkl,
      &            AOInt,TwoHam,nFock,Scrtch2,nS2,
      &            iAO,iAOst,
      &            iBasi,jBasj,kBask,lBasl,

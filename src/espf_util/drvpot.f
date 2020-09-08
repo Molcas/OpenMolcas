@@ -28,6 +28,7 @@
 *     Modified for Properties only by HJW Aug 2001                     *
 *     Restricted to POT: Ignacio Fdez. Galvan, March 2019              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External PotInt, NAMem
 #include "stdalloc.fh"
@@ -58,14 +59,13 @@ c
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         mCnt = nCntr(jCnttp)
-         If (AuxCnttp(jCnttp)) mCnt = 0
-         jxyz = ipCntr(jCnttp)
+         mCnt = dbsc(jCnttp)%nCntr
+         If (dbsc(jCnttp)%Aux) mCnt = 0
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Work(jxyz)
-            y1 = Work(jxyz+1)
-            z1 = Work(jxyz+2)
+            x1 = dbsc(jCnttp)%Coor(1,jCnt)
+            y1 = dbsc(jCnttp)%Coor(2,jCnt)
+            z1 = dbsc(jCnttp)%Coor(3,jCnt)
             Do i = 0, nIrrep/nStab(ndc) - 1
                iFacx=iPhase(1,iCoset(i,0,ndc))
                iFacy=iPhase(2,iCoset(i,0,ndc))

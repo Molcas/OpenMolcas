@@ -11,7 +11,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2019, Ignacio Fdez. Galván                        *
+#               2017-2020, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # verify
@@ -37,7 +37,10 @@
 # Ignacio Fdez. Galván, May 2018
 #
 # Add --timest and --validate options
-# Ignacio Fdez. Galván, Aug-Sep 2019
+# Ignacio Fdez. Galván, August-September 2019
+#
+# Add --grep option
+# Ignacio Fdez. Galván, September 2020
 
 # perl modules
 use warnings;
@@ -81,6 +84,7 @@ GetOptions ( \%opt,
              "fromfile=s",
              "fuzzy",
              "generate",
+             "grep=s",
              "grouplist",
              "keep",
              "list",
@@ -342,7 +346,7 @@ foreach my $key (sort by_type_first keys %included) {
 
 # build up the regex pattern to use for filtering
 # this is a very simple filter: match _any_ pattern
-if ($opt{module} or $opt{word}) {
+if ($opt{module} or $opt{word} or $opt{grep}) {
         my @pattern_list;
         if ($opt{module}) {
                 foreach my $mod (split(',', $opt{module})) {
@@ -352,6 +356,11 @@ if ($opt{module} or $opt{word}) {
         if ($opt{word}) {
                 foreach my $key (split(',', $opt{word})) {
                         push @pattern_list, "$key";
+                }
+        }
+        if ($opt{grep}) {
+                foreach my $key (split(',', $opt{grep})) {
+                        push @pattern_list, "[^*]*$key";
                 }
         }
         my $filter_pattern = '^\s*(' . join ('|', @pattern_list) . ')';
@@ -819,6 +828,7 @@ options:
   --fromfile FILE  read tasks from file FILE, in addition to command line
   --fuzzy          do not fail if a label is not in the reference (old behavior)
   --generate       generate checkfile and append to input
+  --grep WORD      filter test files containing WORD (anywhere but comments)
   --grouplist      list the groups (see below)
   --keep           keep the work directory after running a test
   --list           only list matching tests
@@ -833,7 +843,7 @@ options:
   --status         print status of the verification (useful for redirecting the output)
   --timest         write time estimates (for split_tests)
   --trap           stop immediately after a failed test
-  --word WORD      filter test files containing WORD
+  --word WORD      filter test files containing keyword WORD
 
 Any options can be used also in a short form, as long
 as it can be uniquely identified, e.g. -d instead of

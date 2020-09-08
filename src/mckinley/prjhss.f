@@ -59,8 +59,9 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
-*             Physics, University of Stockholm, Sweden, October '93.   *
+*             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -98,10 +99,9 @@
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 1961
-         Do 1965 kCnt = 1,nCntr(kCnttp)
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
@@ -125,9 +125,11 @@
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
             Call NucInd(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
-            Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
-               iShll = ipPrj(kCnttp) + iAng
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
+               iShll = dbsc(kCnttp)%iPrj + iAng
+               nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip = 1
 
@@ -135,16 +137,16 @@
                ip = ip + nZeta*nElem(la)*nElem(lb)*21
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
                ipFA2 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*6
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*6
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
                ipFB2 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
                call dcopy_(nArr,[0.0d0],0,Array,1)
 *              <a|c>,<a'|c>,<a"|c>
@@ -167,7 +169,7 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Dum,nBasis(ishll),
+     &                        Dum,nBasisi,
      &                        la,lb,iang,jfhss,dum,.false.)
 
 *              contract density
@@ -188,7 +190,7 @@
  1967    Continue !DCR
  1965    Continue !cnt
  1961    Continue !cont
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue !cnttp
          Return
 c Avoid unused argument warnings

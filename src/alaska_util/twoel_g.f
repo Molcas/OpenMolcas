@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1992, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,
+      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,IndShl,iAO,
      &                   iStb,jStb,kStb,lStb,nRys,
      &                   Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,
      &                   Pren,Prem,
@@ -56,6 +56,7 @@
 *          Lund, SWEDEN. Modified to gradients, January '92.           *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
 #include "ndarray.fh"
@@ -76,7 +77,7 @@
      &       PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2),
      &       Aux(nAux)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
-     &        iStabM(0:7), IndGrd(3,4), iAO(4),
+     &        iStabM(0:7), IndGrd(3,4), iAO(4), IndShl(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -433,7 +434,7 @@
 *--------------(faA fbR(B) | fcT(C) fdTS(D))ijkl
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Aux,nAux,Wrk2(iW2),PSO,nPSO)
 *
                If (Fact.ne.One) Call DScal_(nijkl*
@@ -450,9 +451,11 @@
                Call SphCr1(Wrk2(iW2),ijklab,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Transf(kShllc),Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,
+     &                     Shells(kShllc)%Prjct,
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Transf(lShlld),Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,
+     &                     Shells(lShlld)%Prjct,
      &                     Wrk2(iW2),mcd)
                If (iW2.eq.iW4) Then
                   nW2 = nijkl*mcd*Max(iCmpa*jCmpb,mab)
@@ -466,9 +469,11 @@
                Call SphCr2(Wrk2(iW2),nijkl,mcd,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Transf(iShlla),Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,
+     &                     Shells(iShlla)%Prjct,
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Transf(jShllb),Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,
+     &                     Shells(jShllb)%Prjct,
      &                     Wrk2(iW4),mab)
 *
 *--------------Transpose the 2nd order density matrix

@@ -13,7 +13,8 @@
 ************************************************************************
       Integer Function MemSO2(iAng,jAng,kAng,lAng,
      &                        iCmp,jCmp,kCmp,lCmp,
-     &                        iShell,jShell,kShell,lShell)
+     &                        iShell,jShell,kShell,lShell,
+     &                        IndShl,JndShl,KndShl,LndShl)
 ************************************************************************
 *  Object: to compile the number of SO block which will be generated   *
 *          by the current shell quadruplet.                            *
@@ -81,20 +82,20 @@
 *         integrals.
 *
           Do 110 j1 = 0, nIrrep-1
-             If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 110
+             If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 110
              j2Max = nIrrep-1
              If (Shij .and. i1.eq.i2) j2Max = j1
              Do 210 j2 = 0, j2Max
-                If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 210
+                If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0) Go To 210
                 j12 = iEor(j1,j2)
                 j3Max = nIrrep-1
                 If (Shik .and. i1.eq.i3 .and.
      &              Shjl .and. i2.eq.i4) j3Max = j1
                 Do 310 j3 = 0, j3Max
-                   If (iAnd(IrrCmp(IndS(kShell)+i3),2**j3).eq.0)
+                   If (iAnd(IrrCmp(KndShl+i3),2**j3).eq.0)
      &                Go To 310
                    j4 = iEor(j12,j3)
-                   If (iAnd(IrrCmp(IndS(lShell)+i4),2**j4).eq.0)
+                   If (iAnd(IrrCmp(LndShl+i4),2**j4).eq.0)
      &                Go To 310
                    If (Shkl .and. i3.eq.i4 .and. j4.gt.j3) Go To 310
                    If (Shik .and. i1.eq.i3 .and. Shjl .and. i2.eq.i4

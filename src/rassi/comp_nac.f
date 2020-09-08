@@ -31,6 +31,7 @@ C On Input:                                                             C
 C             SCR:  Transition density matrice in AO basis.             C
 C                                                                       C
 C***********************************************************************C
+      Use Basis_Info
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"
@@ -67,7 +68,7 @@ C***********************************************************************C
       Nprop = 0
       Job   = Jstate
       Do ICnttp=1,nCnttp
-         Do ICnt=1,nCntr(iCnttp)
+         Do ICnt=1,dbsc(iCnttp)%nCntr
             IdCnt=IdCnt+1
             Do IdCar=1,3
                Nprop=Nprop+1

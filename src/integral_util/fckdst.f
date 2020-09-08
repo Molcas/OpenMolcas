@@ -11,9 +11,8 @@
 * Copyright (C) 1995, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,
-     &                  ikop1,ikop2,Irrep,
-     &                  iShell,jShell,Shij,iAO1,iAO2,iAOst1,iAOst2,
-     &                  fact)
+     &                  ikop1,ikop2,Irrep,IndShl,JndShl,
+     &                  Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
       Implicit Real*8 (a-h,o-z)
       integer jirr(0:7)
 *
@@ -46,9 +45,9 @@
          Do i1 = 1, iCmp
           Do i2 = 1, jCmp
            Do iIrrep = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(iIrrep)).eq.0
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(iIrrep)).eq.0
      &            .or.
-     &         iAnd(IrrCmp(IndS(jShell)+i2),iTwoj(iIrrep)).eq.0)
+     &          iAnd(IrrCmp(JndShl+i2),iTwoj(iIrrep)).eq.0)
      &         Go To 1110
             ipntij = iPnt(iIrrep)
             iSO=iAOtSO(iAO1+i1,iIrrep)+iAOst1

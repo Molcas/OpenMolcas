@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_InpX(DSCF,lOPTO,iRc)
 
 ! module dependencies
 #ifdef module_DMRG
@@ -905,7 +905,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 *---  Process MSPD command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
       If (KeyMSPD) Then
-       Write(6,*) ' MSPD keyword was used.'
+       If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
        Call ChkIfKey_m()
@@ -2786,7 +2786,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data

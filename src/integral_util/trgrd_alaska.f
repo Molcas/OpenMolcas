@@ -18,13 +18,13 @@
 *       Written by Anders Bernhardsson                             *
 *       960427                                                     *
 ********************************************************************
+      use Basis_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
@@ -39,16 +39,15 @@
       iCen=0
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Go To 999
          nCnttp_Valence = nCnttp_Valence+1
       End Do
  999  Continue
 *
       Do iCnttp=1,nCnttp_Valence
-         ixyz = ipCntr(iCnttp)
-         Do iCnt=1,nCntr(iCnttp)
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            call dcopy_(3,Work(ixyz),1,A,1)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/nStab(mdc)-1
                kop=iCoSet(iCo,0,mdc)
                nDispS = IndDsp(mdc,iIrrep)
@@ -66,7 +65,6 @@
                End Do
             End Do
          End Do
-         ixyz=ixyz+3
       End Do
 *
 *     Call RecPrt('CGrad',' ',CGrad,3,iCen)

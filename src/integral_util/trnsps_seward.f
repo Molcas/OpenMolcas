@@ -43,6 +43,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -66,21 +67,21 @@
       jj = iOff(jAng)
       Do 10 i1 = 1, iCmp
        iChBs = iChBas(ii+i1)
-       If (Transf(iShll)) iChBs = iChBas(iSphCr(ii+i1))
+       If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
        pa1T = DBLE(iPrmt(kOp,iChBs))
        Do 11 i2 = 1, jCmp
         jChBs = iChBas(jj+i2)
-        If (Transf(jShll)) jChBs = iChBas(iSphCr(jj+i2))
+        If (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
         pb1T = DBLE(iPrmt(kOp,jChBs))
         ij1 = iCmp*(i2-1)+i1
 *
         Do 12 i3 = 1, iCmp
          kChBs = iChBas(ii+i3)
-         If (Transf(iShll)) kChBs = iChBas(iSphCr(ii+i3))
+         If (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
          pa2T = DBLE(iPrmt(kOp,kChBs))
          Do 13 i4 = 1, jCmp
           lChBs = iChBas(jj+i4)
-          If (Transf(jShll)) lChBs = iChBas(iSphCr(jj+i4))
+          If (Shells(jShll)%Transf) lChBs = iChBas(iSphCr(jj+i4))
           pb2T = DBLE(iPrmt(kOp,lChBs))
           ij2 = iCmp*(i4-1)+i3
           Factor=pa1T*pb1T*pa2T*pb2T

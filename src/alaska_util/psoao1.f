@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine PSOAO1(nSO,MemPrm,MemMax,
-     &                            iAnga, iCmpa, iShela, iFnc,
+     &                            iAnga, iCmpa,  IndShl,  iFnc,
      &                            iBas,  iBsInc, jBas,  jBsInc,
      &                            kBas,  kBsInc, lBas,  lBsInc,
      &                            iPrim, iPrInc, jPrim, jPrInc,
@@ -58,7 +58,7 @@
 #include "lCache.fh"
 #include "pstat.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
-     &          iShela(4), iFnc(4)
+     &          iFnc(4), IndShl(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
       Integer   iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -136,7 +136,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
+                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &                iTwoj(j)).ne.0) Then
                       nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                       nTmp1= nTmp1+ iiBas(jPam)
@@ -209,7 +209,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
+                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
      &                iTwoj(j)).ne.0) Then
                       nTmp1= nTmp1+ iiBas(jPam)
                   End If

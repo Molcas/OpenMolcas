@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -58,6 +58,7 @@
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -78,7 +79,7 @@
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
-     &        iAO(4), iAnga(4), iCmp(4),
+     &        iAO(4), iAnga(4), iCmp(4), IndShl(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy,Do_TnsCtl,
@@ -88,7 +89,7 @@
      &        Batch_On_Disk, W2Disc,
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
@@ -130,8 +131,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
 *
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
       iPrint = nPrint(iRout)
       QInd(1)=Quad_ijkl
       RST_triplet=One
@@ -154,6 +157,7 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
+      Call RecPrt('Coor',' ',Coor,3,4)
 #endif
 *
       la = iAnga(1)
@@ -768,7 +772,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                mWork3=nWork2-iW3+1
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Wrk(iW2),TwoHam,nDens,Wrk(iW3),mWork3,
      &                     iAO,iAOst,
      &                     iBasi,jBasj,kBask,lBasl,
@@ -784,7 +788,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Aux,nAux,Wrk(iW2),SOInt,nSOInt,NoInts)
 *
  300        Continue
@@ -795,7 +799,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       End
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -840,6 +844,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -857,7 +862,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &       TwoHam(nDens), Dens(nDens), FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
+      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4), IndShl(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
@@ -905,6 +910,7 @@ c Avoid unused argument warnings
          Call Unused_integer(nHRRAB)
          Call Unused_integer(nHRRCD)
          Call Unused_real_array(Aux)
+         Call Unused_integer_array(IndShl)
       End If
 *
 *     This is to allow type punning without an explicit interface
@@ -916,8 +922,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
       iPrint = nPrint(iRout)
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
 *
 #ifdef _DEBUG_
       Call RecPrt('Twoel: Data1',' ',

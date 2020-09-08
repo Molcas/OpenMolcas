@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -37,17 +38,16 @@
       if(ff.eq.0.d0) goto 801
         kdc = 0
         Do kCnttp = 1, nCnttp
-           If (Charge(kCnttp).eq.0.d0) Go To 411
-           Do kCnt = 1, nCntr(kCnttp)
-              kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-              call dcopy_(3,Work(kxyz),1,C,1)
+           If (dbsc(kCnttp)%Charge.eq.0.d0) Go To 411
+           Do kCnt = 1, dbsc(kCnttp)%nCntr
+              C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
               ndc=kdc+kCnt
-              Fact=-Charge(kCnttp)*ff
+              Fact=-dbsc(kCnttp)%Charge*ff
               nDisp = IndDsp(ndc,iIrrep)
               Do iCar = 0, 2
                 iComp = 2**iCar
                 If ( TF(ndc,iIrrep,iComp) .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                    XGrad=0.d0
@@ -66,7 +66,7 @@
                 End If
              Enddo
            Enddo
-411     kdc = kdc + nCntr(kCnttp)
+411     kdc = kdc + dbsc(kCnttp)%nCntr
         Enddo
 801   continue
 800   continue

@@ -22,6 +22,7 @@
 *    @parameter Number of derivatives
 *
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -30,14 +31,16 @@
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nac=nelem(la)*nelem(iang)
+      nExpi=Shells(iShll)%nExp
+      nBasisi=Shells(iShll)%nBasis
       Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
       Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
 *--------------From the lefthandside overlap, form iKaC from ikac by
 *              1) i,kac -> k,aci
 *
-      n = nExp(iShll)*nac*nVecAC
+      n = nExpi*nac*nVecAC
       Call DgeTMo(F,nAlpha,
      &            nAlpha, n,
      &            Work(ipTmp),n)
@@ -45,45 +48,45 @@
 *--------------2) aciK =  k,aci * k,K (Contract over core orbital)
 *
       Call DGEMM_('T','N',
-     &            nac*nVecAC*nAlpha,nBasis(iShll),nExp(iShll),
-     &            1.0d0,Work(ipTmp),nExp(ishll),
-     &            Work(ipCff(iShll)),nExp(iShll),
+     &            nac*nVecAC*nAlpha,nBasisi,nExpi,
+     &            1.0d0,Work(ipTmp),nExpi,
+     &            Shells(iShll)%pCff,nExpi,
      &            0.0d0,Work(ipF),nac*nVecAC*nAlpha)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-      Do iBk = 0, nBasis(iShll)-1
-         Call DYaX(nac*nVecAC*nAlpha,Work(ipBk(iShll)+iBk),
-     &              Work(iBk*nac*nVecAC*nAlpha+ipF),1,
-     &              Work(iBk*nac*nVecAC*nAlpha+ipTmp),1)
+      Do iBk = 1, nBasisi
+         Call DYaX(nac*nVecAC*nAlpha,Shells(iShll)%Bk(iBk),
+     &              Work((iBk-1)*nac*nVecAC*nAlpha+ipF),1,
+     &              Work((iBk-1)*nac*nVecAC*nAlpha+ipTmp),1)
       End Do
 *
 *--------------4) a,ciK -> ciKa
 *
       Call DgeTMo(Work(ipTmp),nElem(la),nElem(la),
-     &            nElem(iAng)*nVecAC*nAlpha*nBasis(iShll),
+     &            nElem(iAng)*nVecAC*nAlpha*nBasisi,
      &            Work(ipF),
-     &            nElem(iAng)*nVecAC*nAlpha*nBasis(iShll))
+     &            nElem(iAng)*nVecAC*nAlpha*nBasisi)
 *
 *--------------5) iKa,C = c,iKa * c,C
 *
       Call DGEMM_('T','N',
-     &            nVecAC*nAlpha*nBasis(iShll)*nElem(la),
+     &            nVecAC*nAlpha*nBasisi*nElem(la),
      &            (2*iAng+1),nElem(iAng),
      &            1.0d0,Work(ipF),nElem(iAng),
      &            RSph(ipSph(iAng)),nElem(iAng),
      &            0.0d0,Work(ipTmp),
-     &            nVecAC*nAlpha*nBasis(iShll)*nElem(la))
+     &            nVecAC*nAlpha*nBasisi*nElem(la))
 *
       Call DgeTMo(Work(ipTmp),nVecAC,nVecAC,
-     &            nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1),
+     &            nAlpha*nBasisi*nElem(la)*(2*iAng+1),
      &            F,
-     &            nAlpha*nBasis(iShll)*nElem(la)*(2*iAng+1))
+     &            nAlpha*nBasisi*nElem(la)*(2*iAng+1))
 
       Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExp(iShll)*nac*nVecAC*nalpha)
+     &            nExpi*nac*nVecAC*nalpha)
 
       Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExp(iShll)*nac*nVecAC*nalpha)
+     &            nExpi*nac*nVecAC*nalpha)
       Return
       End

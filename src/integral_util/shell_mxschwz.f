@@ -19,6 +19,7 @@ c----------------------------------------------------------------------
       use k2_setup
       use k2_arrays
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
@@ -40,7 +41,7 @@ c     Call GetMem('_scf','List','Real',iDum,iDum)
       nSDp1=nSD+1
       Do iS = 1, nSkal
         iShll= iSD( 0,iS)
-        If (AuxShell(iShll) .and. iS.ne.nSkal) Go To 100
+        If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
         iShell=iSD(11,iS)
         iPrimi=iSD( 5,iS)
         iCmp=iSD(2,iS)
@@ -48,8 +49,8 @@ c     Call GetMem('_scf','List','Real',iDum,iDum)
         iCnttp=iSD(13,iS)
         Do jS = 1, iS
           jShll= iSD( 0,jS)
-          If (AuxShell(iShll).and..Not.AuxShell(jShll)) Go To 200
-          If (AuxShell(jShll) .and. jS.eq.nSkal) Go To 200
+          If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Go To 200
+          If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
 C         Write (*,*) 'Shell_..:iS,jS=',iS,jS
           jShell=iSD(11,jS)
           jPrimj=iSD( 5,jS)
@@ -74,7 +75,7 @@ C         Write (*,*) 'nDCRR=',nDCRR
           i9    = ip_EstI(nZeta)-1
           i10   = nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
 *         now loop over  R operator...
-          If (fmass(iCnttp).eq.fmass(jCnttp)) Then
+          If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
              Schwz_tmp=Data_k2(k2ij+i9)
              Do lDCRR = 1, nDCRR-1
                 Schwz_tmp=Max(Schwz_tmp,Data_k2(k2ij+i10*lDCRR+i9))

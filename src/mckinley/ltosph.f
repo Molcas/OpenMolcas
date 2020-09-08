@@ -27,6 +27,7 @@
 *    @parameter Number of derivatives
 *******************************************************************************
 *
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
 
@@ -38,42 +39,42 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *******************************************************************************
 *
-
+      nExpi=Shells(iShll)%nExp
       nac=nelem(la)*nelem(iang)
       Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
       Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
 
 
-      Call DgeTMo(F,nAlpha*nExp(iShll)*nElem(la),
-     &            nAlpha*nExp(iShll)*nElem(la),
+      Call DgeTMo(F,nAlpha*nExpi*nElem(la),
+     &            nAlpha*nExpi*nElem(la),
      &            nElem(iAng)*nVecAC,Work(ipTmp),
      &            nElem(iAng)*nVecAC)
 *
 *--------------2) xika,C = c,xika * c,C
 *
       Call DGEMM_('T','N',
-     &            nVecAC*nAlpha*nExp(iShll)*nElem(la),
+     &            nVecAC*nAlpha*nExpi*nElem(la),
      &            (2*iAng+1),nElem(iAng),
      &            1.0d0,Work(ipTmp),nElem(iAng),
      &            RSph(ipSph(iAng)),nElem(iAng),
      &            0.0d0,Work(ipF),
-     &            nVecAC*nAlpha*nExp(iShll)*nElem(la))
+     &            nVecAC*nAlpha*nExpi*nElem(la))
 *
 *--------------3) x,ikaC -> ikaC,x
 *
       Call DGetMo(Work(ipF),nVecAC,nVecAC,
-     &            nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1),
+     &            nAlpha*nExpi*nElem(la)*(2*iAng+1),
      &            Work(ipTmp),
-     &            nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1))
+     &            nAlpha*nExpi*nElem(la)*(2*iAng+1))
       call dcopy_(nVecAC*
-     &           nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1),
+     &           nAlpha*nExpi*nElem(la)*(2*iAng+1),
      &           Work(ipTmp),1,F,1)
 *
       Call Getmem('TMP1','FREE','REAL',iptmp,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
       Call Getmem('TMP2','FREE','REAL',ipF,
-     &             nExp(iShll)*nac*nVecAC*nalpha)
+     &             nExpi*nac*nVecAC*nalpha)
       Return
       End
