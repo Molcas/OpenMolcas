@@ -138,6 +138,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Test=.False.
       Vlct=.True.
       lOAM=.False.
+      lOAMc=.False.
       lUPONLY=.False.
       lDOWNONLY=.False.
       lOMQ=.False.

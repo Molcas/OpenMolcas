@@ -43,11 +43,13 @@
 ************************************************************************
 *                                                                      *
       Subroutine External_Centers_Dmp()
+#include "angtp.fh"
+#include "info.fh"
       Real*8, Allocatable:: RP_Temp(:,:,:)
       If (Allocated(EF_Centers)) Then
          Call Put_dArray('EF_Centers',EF_Centers,3*nEF)
       End If
-      If (Allocated(OAM_Center)) Then
+      If (Allocated(OAM_Center).And.lOAMc) Then
          Call Put_dArray('OAM_Center',OAM_Center,3)
       End If
       If (Allocated(OMQ_Center)) Then
@@ -131,14 +133,6 @@
             Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
          End If
          Call Get_dArray('EF_Centers',EF_Centers,3*nEF)
-      End If
-*
-      Call qpg_dArray('OAM_Center',Found,Len2)
-      If (Found) Then
-         If (.Not.Allocated(OAM_Center)) Then
-            Call mma_allocate(OAM_Center,3,Label='OAM_Center')
-         End If
-         Call Get_dArray('OAM_Center',OAM_Center,3)
       End If
 *
       Call qpg_dArray('OAM_Center',Found,Len2)

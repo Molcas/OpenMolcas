@@ -1797,6 +1797,7 @@ C                                                                      C
          iPrint=1
              End If
              WRITE(6,33) I,J,F
+             Call Add_Info('TMS(SF,2nd)',[F],1,6)
             END IF
            END IF
           END DO
