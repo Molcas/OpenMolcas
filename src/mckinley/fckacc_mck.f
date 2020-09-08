@@ -61,6 +61,7 @@
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -699,6 +700,7 @@ c     Call QExit('FckAcc')
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

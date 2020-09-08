@@ -57,7 +57,7 @@ C
      &       dbsc(jCnttp)%Frag) Then
             ndc=ndc+mCnt
          Else
-            Call OA(dc(ndc+1)%iCoSet,dbsc(jCnttp)%Coor(1:3,1),
+            Call OA(dc(ndc+1)%iCoSet(0,0),dbsc(jCnttp)%Coor(1:3,1),
      &                               Work(ip_UAR:ip_UAR+2))
             ndc=ndc+1
             jxyz=jxyz+3
@@ -80,7 +80,8 @@ C
             iAtom_Unique=iAtom
             A2UA(iAtom)=iAtom_Unique
             Do jCnt=2,mCnt
-               Call OA(dc(ndc+1)%iCoSet,dbsc(jCnttp)%Coor(1:3,jCnt),
+               Call OA(dc(ndc+1)%iCoSet(0,0),
+     &                                  dbsc(jCnttp)%Coor(1:3,jCnt),
      &                                  Work(ip_UAR:ip_UAR+2))
                ndc=ndc+1
                jxyz=jxyz+3

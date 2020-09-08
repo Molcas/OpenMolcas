@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine SOAdpt_NQ(AOValue,mAO,nCoor,mBas,mBas_Eff,
      &                     nCmp,nOp,SOValue,nDeg,IndShl)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

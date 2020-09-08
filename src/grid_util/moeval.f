@@ -174,6 +174,12 @@
                Do iG = 0, nIrrep/dc(mdc+iCnt)%nStab - 1
                   iSkal=iSkal+1
                   Call OA(dc(mdc+iCnt)%iCoSet(iG,0),A,RA)
+                  ipx=iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipy=iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipz=iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0))
+                  px=DBLE(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  py=DBLE(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  pz=DBLE(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
                   nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0),iOper,nIrrep)
 *
 *---------------- Evaluate AOs at RA

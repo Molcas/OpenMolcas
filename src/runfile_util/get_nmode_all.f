@@ -10,11 +10,12 @@
 ************************************************************************
       Subroutine Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,
      &                          Vectors_All,nAll_Atoms,mDisp)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8  Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
-      Integer iChTbl(0:7,0:7), iGen(3), iCoSet(0:7,0:7), mDisp(0:7),
+      Integer iGen(3), iCoSet(0:7,0:7), mDisp(0:7),
      &        iChCar(3), nDisp(0:7), iStab(0:7)
       Character lIrrep(8)*3, lBsFnc(8)*80
 #ifdef _DEBUG_
@@ -71,7 +72,7 @@
 *                                                                      *
 *     Generate character table
 *
-      Call ChTab(iOper,nSym,iChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nSym,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,6 +11,7 @@
       SubRoutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 *
 *     Some stuff for preparing the gradient integral computation

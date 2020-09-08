@@ -28,6 +28,7 @@
      &                     Phase_ico)
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"

@@ -13,6 +13,7 @@
       Subroutine Niclas(H,coor,LUT)
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iChTbl
 * eaw 970909
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"

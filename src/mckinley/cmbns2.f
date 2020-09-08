@@ -24,6 +24,7 @@
 *              QExit                                                   *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
 #include "real.fh"

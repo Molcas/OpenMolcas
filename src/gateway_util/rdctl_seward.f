@@ -4479,7 +4479,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call ChTab(iOper,nIrrep,iChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4514,7 +4514,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
-      Call ChTab(iOper,nIrrep,iChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *

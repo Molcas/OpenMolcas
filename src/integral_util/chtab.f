@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ChTab(iOper,nIrrep,iChTbl,lIrrep,lBsFnc,iSigma)
+      SubRoutine ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 ************************************************************************
 *                                                                      *
 * Object: to generate the character table of a point group within      *

@@ -80,6 +80,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
