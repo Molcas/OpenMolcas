@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_List(
-     &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nq,nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,fconst,
      &                 rMult,iOptC,LuIC,Name,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -24,8 +25,7 @@
       Real*8 Cx(3,nAtoms,nIter), A(3,2), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter), rMult(nB),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
+      Integer   nStab(nAtoms), iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
@@ -166,10 +166,10 @@
 *
 *---------- Now evaluate the degeneracy of the bond.
 *
-            iDeg=nSym/nStabM
+            iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
 #ifdef _DEBUG_
-            If (PSPrint) Write (6,*)' nSym,nStabM=',nSym,nStabM
+            If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
             nq = nq + 1

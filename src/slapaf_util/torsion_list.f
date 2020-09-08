@@ -10,14 +10,14 @@
 ************************************************************************
       Subroutine Torsion_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,iPrv,
-     &                 Proc_dB,
+     &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -26,7 +26,7 @@
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB), Grad_ref(9),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
+      Integer   nStab(nAtoms), iANr(nAtoms),
      &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
@@ -455,7 +455,7 @@
 *
 *------------- Compute the degeneracy of the torsion
 *
-               iDeg=nSym/nStabO
+               iDeg=nIrrep/nStabO
                Deg=Sqrt(DBLE(iDeg))
 *
 *------------- Test if coordinate should be included

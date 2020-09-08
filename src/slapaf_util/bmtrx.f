@@ -201,7 +201,7 @@
          Call BMtrx_Internal(
      &                 nLines,ipBMx,nAtom,nInter,
      &                 ip_rInt,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
+     &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,

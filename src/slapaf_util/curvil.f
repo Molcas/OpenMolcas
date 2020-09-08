@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,iOper,
-     &                  nSym,jStab,Degen,Smmtrc,mTR,TRVec,
+      Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
+     &                  jStab,Degen,Smmtrc,mTR,TRVec,
      &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,Proj,
      &                  dMass,iCoSet,iTabBonds,
@@ -36,7 +36,7 @@
       Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms),
      &       Gx(3*nAtoms,nIter), Proj(nDim), dMass(nAtoms),
      &       TRVec(nDim,mTR)
-      Integer nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
+      Integer nStab(nAtoms), iCoSet(0:7,nAtoms),
      &        jStab(0:7,nAtoms), iANr(nAtoms), iDum(6),
      &        iTabBonds(3,nBonds), iTabAtoms(0:nMax,nAtoms),
      &        iTabAI(2,mAtoms)
@@ -129,7 +129,7 @@
       Do While (Thr_small.gt.1.0D-6)
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
-     &           nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &           nAtoms,iIter,nIter,Cx,jStab,
      &           nStab,nDim,Smmtrc,Proc,Dum,1,iANr,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
      &           Name,iDum,iIter,dMass,iCoSet,Dum,
@@ -194,7 +194,7 @@
 *
       Call Get_Curvil
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
-     &           nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &           nAtoms,iIter,nIter,Cx,jStab,
      &           nStab,nDim,Smmtrc,Proc,
      &           Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &           iRef,Work(ipf_c),Work(ipMult),iOptC,
@@ -411,7 +411,7 @@ C        iEnd = 1
 *                                                                      *
          Call Get_Curvil
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
-     &              nAtoms,jIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,jIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Proc,
      &              Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &              iRef, Work(ipf_c),Work(ipMult),

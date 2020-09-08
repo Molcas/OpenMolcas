@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Angle_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,
@@ -18,6 +18,7 @@
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -29,7 +30,7 @@
      &       Grad_Ref(9), Axis(3), Perp_Axis(3,2), Grad(mB),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
+      Integer   nStab(nAtoms), iANr(nAtoms),
      &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
@@ -248,10 +249,10 @@
 *
 *------------- Compute the degeneracy of the angle
 *
-               ideg=nSym/nStabM
+               ideg=nIrrep/nStabM
                Deg=Sqrt(DBLE(iDeg))
 #ifdef _DEBUG_
-               If (PSPrint) Write (6,*)' nSym,nStabM=',nSym,nStabM
+               If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
 *------------- Test if coordinate should be included

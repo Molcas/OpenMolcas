@@ -9,12 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RF_Coord(
-     &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nq,nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,fconst,
      &                 rMult,LuIC,Indq,dMass,iCoSet,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -25,7 +26,7 @@
      &       dMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
+      Integer   nStab(nAtoms), iCoSet(0:7,nAtoms),
      &          jStab(0:7,nAtoms), nqB(nB),
      &          iANr(nAtoms), Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
       Logical Smmtrc(3,nAtoms), Process, PSPrint,
@@ -60,7 +61,7 @@
 *
       nCent=0
       Do iAtom = 1, nAtoms
-         nCent=nCent+nSym/nStab(iAtom)
+         nCent=nCent+nIrrep/nStab(iAtom)
       End Do
       mB = nCent*3
       Call mma_allocate(currXYZ,3,nCent,label='currXYZ')
@@ -77,7 +78,7 @@
       iCent=0
       Do iAtom = 1, nAtoms
 *
-         Do i = 0, nSym/nStab(iAtom)-1
+         Do i = 0, nIrrep/nStab(iAtom)-1
             iCent = iCent + 1
             Call OA(iCoSet(i,iAtom),Cx(1:3,iAtom,iIter),
      &              CurrXYZ(1:3,iCent))
@@ -109,7 +110,7 @@
 *
          Invariant=.False.
          iTest=2**(ixyz-1)
-         Do iSym = 0, nSym-1
+         Do iSym = 0, nIrrep-1
             If (iOper(iSym).eq.iTest) Invariant=.True.
          End Do
          If (Invariant) Go To 199
@@ -210,7 +211,7 @@ C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
          Else
             iTest=3
          End If
-         Do iSym = 0, nSym-1
+         Do iSym = 0, nIrrep-1
             If (iOper(iSym).eq.iTest) Invariant=.True.
          End Do
          If (Invariant) Go To 299
