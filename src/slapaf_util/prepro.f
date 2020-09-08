@@ -76,7 +76,7 @@
 *
       If (LSup) Then
          Call SupSym(Work(ipGrd),nAtom,cMass,Coor,nSupSy,
-     &               iWork(ipNSup),iWork(ipAtom),iOper,nSym)
+     &               iWork(ipNSup),iWork(ipAtom))
          Call GetMem('iAtom ','Free','Inte',ipAtom,nAtom)
          Call GetMem(' NSUP ','Free','Inte',ipNSup,nSupSy)
       End If

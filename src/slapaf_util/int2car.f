@@ -149,7 +149,7 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
      &          Abs(Coor(3,iAtom)).lt.1.0D-13) Coor(3,iAtom)=Zero
          End Do
 *
-         Call CofMss(Coor,dMass,iOper,nSym,nAtom,.False.,cMass,iSym)
+         Call CofMss(Coor,dMass,nAtom,.False.,cMass,iSym)
          call dcopy_(3*nAtom,Coor,1,Cx(1,Iter+1),1)
          If (iPrint.ge.99)
      &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',

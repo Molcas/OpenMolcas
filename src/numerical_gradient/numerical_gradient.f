@@ -359,7 +359,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       Call Allocate_Work(ipDeg,3*nAtoms)
       Call FZero(Work(ipDeg),3*nAtoms)
       Do i = 1, nAtoms
-         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3),iOper,nSym))
+         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3)))
          Work(ipDeg+(i-1)*3  )=rDeg
          Work(ipDeg+(i-1)*3+1)=rDeg
          Work(ipDeg+(i-1)*3+2)=rDeg

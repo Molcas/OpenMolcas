@@ -456,8 +456,8 @@ C           NADC= .False. ! for debugging
       mTtAtm=0
       Do 4100 isAtom = 1, nsAtom
          iOff = 3*(isAtom-1) + ipCoor
-         mTtAtm=mTtAtm+iDeg(Work(iOff),iOper,nSym)
-         tmp = DBLE(iDeg(Work(iOff),iOper,nSym))
+         mTtAtm=mTtAtm+iDeg(Work(iOff))
+         tmp = DBLE(iDeg(Work(iOff)))
          i=(isAtom-1)*3+1
          Degen(i)=tmp
          i=(isAtom-1)*3+2
@@ -485,8 +485,7 @@ C           NADC= .False. ! for debugging
      &                   AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Work(ipCoor),Work(ipCM),iOper,nSym,
-     &            nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Work(ipCoor),Work(ipCM),nsAtom,LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',

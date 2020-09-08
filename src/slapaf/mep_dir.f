@@ -95,7 +95,7 @@
       dPrevDirPostDir=Zero
       iOff=0
       Do iAtom=1,nAtom
-        Fact=Dble(iDeg(Cx(1+iOff,iter),iOper,nSym))
+        Fact=Dble(iDeg(Cx(1+iOff,iter)))
         xWeight=Work(ipWeights+iAtom-1)
         TWeight=TWeight+Fact*xWeight
         Do ixyz=1,3
@@ -287,7 +287,7 @@
         dDir=Zero
         iOff=0
         Do iAtom=1,nAtom
-          Fact=Dble(iDeg(Cx(1+iOff,iter),iOper,nSym))
+          Fact=Dble(iDeg(Cx(1+iOff,iter)))
           xWeight=Work(ipWeights+iAtom-1)
           Do ixyz=1,3
             dDir=dDir+Fact*xWeight*Work(ipDir+iOff)**2

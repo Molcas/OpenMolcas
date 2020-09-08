@@ -803,7 +803,7 @@
      &       .Not.dbsc(iCnttp)%Aux) Then
              Do iCnt = 1, dbsc(iCnttp)%nCntr
                 iAt = iAt + 1
-                Fact=DBLE(iDeg(A(1,iAt),iOper,nIrrep))
+                Fact=DBLE(iDeg(A(1,iAt)))
                 xMass=Fact*W(iAt)
                 TMass=TMass+xMass
                 Do i = 1, 3
