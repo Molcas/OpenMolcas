@@ -66,7 +66,8 @@
      &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
       Integer iPvt(nInter+1), iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup, First_MicroIteration
+      Logical Line_Search, Found, IRC_setup, First_MicroIteration,
+     &        Recompute_disp
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
@@ -958,9 +959,6 @@ C           Write (6,*) 'gBeta=',gBeta
 *------- Compute updated geometry in internal coordinates
 *
          fact=One
-         GNrm=
-     &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
-C        tBeta= Min(1.0D3*GNrm,Beta)
          tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
          Thr_RS=1.0D-7
 #ifdef _DEBUG_
@@ -1058,10 +1056,12 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
       du(1+nLambda:nInter)=dx(:,nIter)
 *     For kriging, in the last 10 micro iterations, give up trying to
 *     optimize and just focus on fulfilling the constraints.
+      Recompute_disp=.False.
       If ((miAI.ge.50).and.(niter-iter_+1.gt.miAI-10)) Then
          du(1+nLambda:nInter)=Zero
          dydy=Sqrt(DDot_(nLambda,dy,1,dy,1))
          If (dydy.lt.1.0D-12) Step_Trunc='#'
+         Recompute_disp=.True.
       End If
       Call DGEMM_('N','N',nInter,1,nInter,
      &            One,T,nInter,
@@ -1071,6 +1071,8 @@ C        tBeta= Min(1.0D3*GNrm,Beta)
 *     Compute q for the next iteration
 *
       q(:,nIter+1) = q(:,nIter) + dq(:,nIter)
+      If (Recompute_disp)
+     &   Call Dispersion_Kriging_Layer(q(1,nIter+1),disp_save,nInter)
 *
 #ifdef _DEBUG_
       Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
