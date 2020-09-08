@@ -90,8 +90,7 @@
 *                                                                      *
       If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
      &                                   nsAtom,AtomLbl,
-     &                                   Work(ipCoor),nSym,iOper,
-     &                                   jStab,nStab)
+     &                                   Work(ipCoor),jStab,nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -341,7 +340,7 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,iOper,nSym,ed,
+     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
@@ -360,7 +359,7 @@
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
       If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
-     &         nsAtom,AtomLbl,Work(ipCoor),nSym,iOper,jStab,nStab)
+     &         nsAtom,AtomLbl,Work(ipCoor),jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *
