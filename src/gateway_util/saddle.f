@@ -858,8 +858,8 @@
       Call mma_allocate(XYZ,3*nAt*8,2)
       iReacA=1
       iProdA=2
-      Call Expand_Coor(Reac,nAt,XYZ(1,iReacA),mAt,nIrrep,iOper)
-      Call Expand_Coor(Prod,nAt,XYZ(1,iProdA),mAt,nIrrep,iOper)
+      Call Expand_Coor(Reac,nAt,XYZ(1,iReacA),mAt)
+      Call Expand_Coor(Prod,nAt,XYZ(1,iProdA),mAt)
       Call Qpg_dArray('Weights',Found,nData)
       If (Found.And.(nData.ge.mAt)) Then
         Call mma_allocate(W,nData,label='W')

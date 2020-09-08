@@ -24,6 +24,7 @@
 *> @param[in]  nAtoms_All Number of atoms
 ************************************************************************
       Subroutine Get_Mass_All(Mass_All,nAtoms_All)
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit None
 #include "stdalloc.fh"
       Integer nAtoms_All, nAtoms_Allx, nAtoms
@@ -34,6 +35,7 @@
       Integer iGen(3),iCoSet(0:7,0:7),iStab(0:7)
       Integer, External :: iChxyz
 
+      Call Symmetry_Info_Get()
 *     Obtain symmetry-unique masses
       Call Get_nAtoms_All(nAtoms_Allx)
       If (nAtoms_All.ne.nAtoms_Allx) Then
