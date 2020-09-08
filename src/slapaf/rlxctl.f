@@ -127,8 +127,8 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,
-     &           iOper,Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -283,7 +283,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &               AtomLbl,iSym,Smmtrc,Degen,
      &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,

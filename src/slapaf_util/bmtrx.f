@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
+     &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 ipShift,Gx,Cx,mTtAtm,iAnr,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
@@ -26,7 +26,7 @@
       Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
-      Integer   iOper(0:nSym-1), iAnr(nAtom),
+      Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
@@ -143,7 +143,7 @@
      &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
      &            Smmtrc,Cx,Gx,nIter,iOptH,Degen, DDV_Schlegel,
      &            Analytic_Hessian,iOptC,iWork(ip_TabB),iWork(ip_TabA),
-     &            nBonds,nMax,nHidden,nMDstep,ipMMKept,nSym)
+     &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
       Call GetMem('scr2','Free','Real',ipScr2,(3*mTtAtm)**2)
 *                                                                      *
@@ -226,7 +226,7 @@
          Call BMtrx_Cartesian(
      &                 nLines,ipBMx,nAtom,nInter,
      &                 ip_rInt,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
+     &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,

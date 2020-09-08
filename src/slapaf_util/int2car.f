@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Int2Car(dSS,rInt,nInter,ip_qInt,Coor,nAtom,nBVct,
      &                  ipBMx,dMass,nLines,DFC,
-     &                  nDim,Lbl,Name,iOper,nSym,iSym,
+     &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
      &                  ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
      &                  User_Def,nStab,jStab,Curvilinear,
@@ -39,7 +39,7 @@
      &       Gx(3*nAtom,iter), Cx(3*nAtom,iter+1),
      &       cMass(3)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   iOper(0:7), iSym(3), iANr(nAtom),
+      Integer   iSym(3), iANr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
@@ -162,7 +162,7 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
          nWndw=1
          Call BMtrx(nLines,nBVct,ipBMx,nAtom,nInter,
      &              ip_qInt,Lbl,Coor,nDim,dMass,
-     &              Name,nSym,iOper,Smmtrc,
+     &              Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,ip_dqInt,
      &              ipShift,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
