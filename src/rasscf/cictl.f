@@ -521,6 +521,10 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
         IF(IXMSP.eq.1) THEN
          CALL XMSRot(CMO,FI,FA)
         End If
+        IF(ICMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+         CALL CMSRot(TUVX)
+        END IF
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)
         End If

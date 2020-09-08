@@ -2341,7 +2341,7 @@ A list of these keywords is given below:
 
 :kword:`XMSInter`
   This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF` and :program:`MCPDFT` modules). This keyword stands for XMS Intermediate states. It rotates the CASSCF, CASCI, RASSCF or RASCI states into the XMS intermediate states.
-  This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix for the XMS intermediate states.
+  This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix, called the intermediate Hamiltonian matrix, for the XMS intermediate states. The intermediate Hamiltonian matrix is the XMS-PDFT effective Hamiltonian matrix before one replaces the diagonal elements with the MC-PDFT energies.
   This keyword currently does not work for wave functions optimized with the DMRG algorithm.
   This keyword performs the functions called by :kword:`ROSTate`; therefore one does not need to use :kword:`ROSTate` when this keyword is used.
   More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
@@ -2349,11 +2349,58 @@ A list of these keywords is given below:
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="XMSI" APPEAR="XMS Intermediate States" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: ROSTate <basic>
+                   %%Keyword: ROSTate <basic>
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into XMS intermediate states.
               </HELP>
               </KEYWORD>
+
+:kword:`CMSInter`
+  This keyword can be used in a CMS-PDFT calculation (which needs :program:`RASSCF` and :program:`MCPDFT` modules). This keyword stands for CMS Intermediate states. It rotates the CASSCF, CASCI, RASSCF or RASCI states into the CMS intermediate states.
+  This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix, called intermediate the Hamiltonian matrix, for the CMS intermediate states. The intermediate Hamiltonian matrix is the CMS-PDFT effective Hamiltonian matrix before one replaces the diagonal elements with the MC-PDFT energies.
+  This keyword currently does not work for wave functions optimized with the DMRG algorithm.
+  This keyword performs the functions called by :kword:`ROSTate`; therefore one does not need to use :kword:`ROSTate` when this keyword is used.
+  More information regarding CMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+
+  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSI" APPEAR="CMS Intermediate States" KIND="SINGLE" LEVEL="BASIC">
+                   %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation into CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CMMAx`
+   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMA" APPEAR="CMS Maximum Cycles" LEVEL="BASIC" KIND="INT" DEFAULT_VALUE="100" MIN_VALUE="1">
+                   %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword specifies the maximum number of cycles to optimize the CMS intermeidate states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CMMIn`
+   This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMI" APPEAR="CMS Mininum Cylces" LEVEL="BASIC" KIND="INT" DEFAULT_VALUE="5" MIN_VALUE="1">
+                   %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword specifies the minimum number of cycles to optimize the CMS intermeidate states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CMTHreshold`
+   This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge.(see :kword:`CMSInter`). The default value is 1.0d-6.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="BASIC" KIND="REALS" DEFAULT_VALUE="1.0d-6" >
+                   %%Keyword: ROSTate <basic>
+              <HELP>
+              This keyword specifies the minimum number of cycles to optimize the CMS intermeidate states.
+              </HELP>
+              </KEYWORD>
+
 
 :kword:`ROSTate`
   This keyword can be used in an MS-PDFT calculation. This keyword stands for ROtate STates, and it rotate the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.

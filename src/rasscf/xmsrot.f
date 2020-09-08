@@ -44,7 +44,7 @@ C
 C
       CALL CalcEigVec(FckS,lRoots,EigVec)
 C
-      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'T')
+      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
 
       RETURN
       End Subroutine
@@ -343,7 +343,7 @@ C       END DO
       ELSE
       LU=6
       END IF
-      IF(Trans.eq.'T') THEN
+      IF(Trans.eq.'N') THEN
        DO IRow=1,NRow
         write(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
@@ -360,6 +360,42 @@ C       END DO
       End Subroutine
 ******************************************************
 
+******************************************************
+      Subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,
+     &LenName,LenInfo,Trans)
+
+      INTEGER NRow,NCol,LenName
+      CHARACTER(Len=LenName)::FileName
+      CHARACTER(Len=LenInfo)::MatInfo
+      CHARACTER(Len=1)::Trans
+      Real*8,DIMENSION(NRow,NCol)::Matrix
+
+      INTEGER LU,IsFreeUnit,IRow,ICol
+      External IsFreeUnit
+
+      IF(LenName.gt.0) THEN
+      LU=100
+      LU=IsFreeUnit(LU)
+      CALL Molcas_Open(LU,FileName)
+      ELSE
+      LU=6
+      END IF
+      IF(Trans.eq.'N') THEN
+       DO IRow=1,NRow
+        Read(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
+       END DO
+      ELSE
+       DO ICol=1,NCol
+        Read(LU,*) (Matrix(IRow,ICol),IRow=1,NRow)
+       END DO
+      END IF
+      Read(LU,*)MatInfo
+      IF(LenName.gt.0) THEN
+       Close(LU)
+      END IF
+      RETURN
+      End Subroutine
+******************************************************
 
 
 ******************************************************
