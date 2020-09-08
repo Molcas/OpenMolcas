@@ -32,6 +32,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -152,8 +153,8 @@
 
 
                nAO=(iCmp*iBas*nCoor)*(mAO)
-               nSO=nAO*nIrrep/nStab(mdc+iCnt)
-               nDeg=nIrrep/nStab(mdc+iCnt)
+               nSO=nAO*nIrrep/dc(mdc+iCnt)%nStab
+               nDeg=nIrrep/dc(mdc+iCnt)%nStab
                Call GetMem('AOs','Allo','Real',ipAOs,nAO)
                Call GetMem('SOs','Allo','Real',ipSOs,nSO)
                call dcopy_(nSO,[Zero],0,Work(ipSOs),1)
@@ -170,7 +171,7 @@
 *------------- Loops over symmetry operations operating on the basis
 *              set center.
 *
-               Do iG = 0, nIrrep/nStab(mdc+iCnt) - 1
+               Do iG = 0, nIrrep/dc(mdc+iCnt)%nStab - 1
                   iSkal=iSkal+1
 *                 Write (*,*) 'iSkal=',iSkal
                   ipx=iPhase(1,iCoSet(iG,0,mdc+iCnt))

@@ -19,6 +19,7 @@
 *       960427                                                     *
 ********************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
@@ -30,8 +31,8 @@
       dimension GradIn(nGrad),A(3)
       Logical TF,TstFnc
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       dc(mdc)%nStab)
       mdc=0
       iIrrep=0
 *
@@ -48,7 +49,7 @@
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-            Do iCo=0,nIrrep/nStab(mdc)-1
+            Do iCo=0,nIrrep/dc(mdc)%nStab-1
                kop=iCoSet(iCo,0,mdc)
                nDispS = IndDsp(mdc,iIrrep)
                A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
