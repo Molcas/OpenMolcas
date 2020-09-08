@@ -67,10 +67,9 @@
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
-     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
-     &                     iDCRR,nDCRR)
+                  Call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                           dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                           iDCRR,nDCRR)
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do 300 iR = 0, nDCRR-1

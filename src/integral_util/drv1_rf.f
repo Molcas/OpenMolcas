@@ -174,9 +174,8 @@
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               dc(mdci)%nStab,dc(mdcj)%iStab,
-     &               dc(mdcj)%nStab,iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 *
@@ -248,8 +247,8 @@
 *
 *-----------------Find the DCR for M and S
 *
-                  Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &                     iStabO,nStabO,iDCRT,nDCRT)
+                  Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,
+     &                     iDCRT,nDCRT)
                   If (iPrint.ge.49) Then
                      Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),
      &                     i=0,nStabM-1),')'

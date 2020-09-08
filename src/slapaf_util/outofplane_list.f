@@ -146,7 +146,7 @@
 *
 *---------- Form double coset representatives for (iAtom,jAtom)
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
@@ -286,7 +286,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *---------------- Form double coset representatives for (kAtom,lAtom)
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     jStab(0,kAtom),nStab(kAtom),
      &                     jStab(0,lAtom),nStab(lAtom),
      &                     iDCRS,nDCRS)
@@ -325,7 +325,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *---------------- Form double coset representatives for
 *                 ((iAtom,jAtom),(kAtom,lAtom))
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     iSTabM,nStabM,
      &                     iStabN,nStabN,
      &                     iDCRT,nDCRT)

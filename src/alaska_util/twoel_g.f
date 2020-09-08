@@ -153,9 +153,8 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,dc(iStb)%nStab,
-     &                               dc(jStb)%iStab,dc(jStb)%nStab,
-     &                                iDCRR,nDCRR)
+         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                  dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       End If
 #ifdef _DEBUG_
       If (iPrint.ge.99) Write (6,'(20A)') ' {R}=(',
@@ -187,8 +186,8 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,dc(kStb)%nStab,
-     &                               dc(lStb)%iStab,dc(lStb)%nStab,
+         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                  dc(lStb)%iStab,dc(lStb)%nStab,
      &                               iDCRS,nDCRS)
       End If
 #ifdef _DEBUG_
@@ -219,8 +218,7 @@
          iDCRT(0)=0
          LmbdT=1
       Else
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,
-     &                               iStabN,lStabN,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
       End If
 *                                                                      *
 ************************************************************************

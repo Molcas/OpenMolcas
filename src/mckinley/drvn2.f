@@ -99,10 +99,9 @@ c     Call qEnter('DrvN2')
 *
 *                 Find the DCR for the two centers
 *
-             Call DCR(LmbdR,iOper,nIrrep,
-     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
-     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
-     &                     iDCRR,nDCRR)
+             Call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                      dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                      iDCRR,nDCRR)
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
              Do iR = 0, nDCRR-1
@@ -350,10 +349,9 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
@@ -543,10 +541,9 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
@@ -597,10 +594,9 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdS,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
-     &                  iDCRS,nDCRS)
+               Call DCR(LmbdS,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRS,nDCRS)
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
                Do iS = 0, nDCRS-1

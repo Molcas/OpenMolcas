@@ -182,9 +182,8 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center A and B
 *
-      Call DCR(LmbdR,iOper,nIrrep,dc(iStb)%iStab,dc(iStb)%nStab,
-     &                            dc(jStb)%iStab,dc(jStb)%nStab,
-     &                            iDCRR,nDCRR)
+      Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &               dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       u = DBLE(dc(iStb)%nStab)
       v = DBLE(dc(jStb)%nStab)
 #ifdef _DEBUG_
@@ -204,9 +203,8 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center C and D.
 *
-      Call DCR(LmbdS,iOper,nIrrep,dc(kStb)%iStab,dc(kStb)%nStab,
-     &                            dc(lStb)%iStab,dc(lStb)%nStab,
-     &                            iDCRS,nDCRS)
+      Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &               dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
       w = DBLE(dc(kStb)%nStab)
       x = DBLE(dc(lStb)%nStab)
 #ifdef _DEBUG_
@@ -227,8 +225,7 @@ c Avoid unused argument warnings
 *-----Find the Double Coset Representatives for the two charge
 *     distributions.
 *
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,iStabN,lStabN,
-     &                                               iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
 *     Write (*,*) ' LmbdT=',LmbdT
 *     Write (*,'(20A)') ' T=(',
 *    &      (ChOper(iDCRT(i)),',',i=0,nDCRT-1),')'

@@ -137,7 +137,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
          If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Do 102 lDCRT = 0, nDCRT-1
                Call ICopy(nIrrep*16*9,[0],0,JndHss,1)

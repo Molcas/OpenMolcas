@@ -108,8 +108,7 @@
          llOper = iOr(llOper,lOper(iComp))
  90   Continue
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *
       Do 102 lDCRT = 0, nDCRT-1

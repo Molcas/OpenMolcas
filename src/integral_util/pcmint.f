@@ -110,8 +110,7 @@
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            jStab_ ,nStab_,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
          Fact = One / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then

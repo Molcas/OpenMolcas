@@ -149,9 +149,8 @@ C        Do jS = 1, iS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,dc(mdci)%nStab,
-     &                                  dc(mdcj)%iStab,dc(mdcj)%nStab,
-     &                                                iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
@@ -284,8 +283,7 @@ c VV: gcc bug: one has to use this if!
                   llOper = iOr(llOper,lOper(iComp))
                End Do
                Call SOS(iStabO,nStabO,llOper)
-               Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &                  iDCRT,nDCRT)
+               Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.

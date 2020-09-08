@@ -298,9 +298,8 @@ C differentiation wrt center iCnt
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,
-     &              dc(mdci)%iStab,dc(mdci)%nStab,
-     &              dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
@@ -308,8 +307,7 @@ C differentiation wrt center iCnt
      &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *           Compute normalization factor
 *

@@ -118,9 +118,9 @@
 *        If turned on it should not do much of a difference.
 *
 #ifdef _OLD_CODE_
-            Call DCR(LmbdR,iOper,nIrrep,dc(iCo(iAtom))%iStab,
-     &               dc(iCo(iAtom))%nStab,dc(iCo(jAtom))%iStab,
-     &               dc(iCo(jAtom))%nStab,iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                     dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
+     &                     iDCRR,nDCRR)
 *
 *-----------Find the stabilizer for A and B
 *

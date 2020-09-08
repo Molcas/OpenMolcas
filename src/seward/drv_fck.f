@@ -323,9 +323,8 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               dc(mdci)%nStab,dc(mdcj)%iStab,
-     &               dc(mdcj)%nStab,iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
@@ -333,8 +332,7 @@ c        Write(6,*) ' oneel *',Label,'*'
      &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
             If (iPrint.ge.19) Then
                Write (6,*)

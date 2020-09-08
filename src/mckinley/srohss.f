@@ -99,7 +99,7 @@
          do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
+            call dcr(lmbdt,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *

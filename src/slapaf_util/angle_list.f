@@ -169,7 +169,7 @@
 *
 *------------- Form double coset representatives for (iAtom,jAtom)
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  jStab(0,iAtom),nStab(iAtom),
      &                  jStab(0,jAtom),nStab(jAtom),iDCRT,nDCRT)
 #ifdef _DEBUG_
@@ -216,7 +216,7 @@
 *------------- Form double coset representatives for
 *              ((iAtom,mAtom),jAtom)
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  jStab(0,mAtom),nStab(mAtom),
      &                  iStabN,nStabN,iDCRR,nDCRR)
                kDCRR = iDCR(2)

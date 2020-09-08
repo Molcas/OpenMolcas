@@ -157,8 +157,7 @@
      &                Array(ipFnl),nComp)
 *
          Call SOS(iStabO,nStabO,llOper)
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &            iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
          If (iPrint.ge.99) Then
             Write (6,*) ' m      =',nStabM
             Write (6,'(9A)') '{M}=',
@@ -192,8 +191,7 @@
      &               lb,HerR(iHerR(nHer)),nHer,ABeq)
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       If (iPrint.ge.99) Then
          Write (6,*) ' m      =',nStabM
          Write (6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii = 0, nStabM-1)

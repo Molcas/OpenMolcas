@@ -133,7 +133,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,
      &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)

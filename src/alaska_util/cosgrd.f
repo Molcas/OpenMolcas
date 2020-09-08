@@ -155,8 +155,7 @@
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then

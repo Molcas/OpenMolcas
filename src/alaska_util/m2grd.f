@@ -163,7 +163,7 @@
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab, dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
             iuvwx(3) = dc(kdc+kCnt)%nStab

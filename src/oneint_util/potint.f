@@ -90,8 +90,7 @@
 *-----------Find the DCR for M and S
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 c     Fact = DBLE(nStabM) / DBLE(LmbdT)
       FACT=1.D0
 
@@ -176,7 +175,7 @@ chjw is this always correct?
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
 *
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *

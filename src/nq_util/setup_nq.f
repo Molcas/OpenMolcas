@@ -782,9 +782,8 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
          Do mdcj = 1, ndc
             nDegj=nIrrep/dc(mdcj)%nStab
 *
-            Call DCR(LmbdR,iOper,nIrrep,dc(mdci)%iStab,
-     &               dc(mdci)%nStab,dc(mdcj)%iStab,
-     &               dc(mdcj)%nStab,iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
             iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then

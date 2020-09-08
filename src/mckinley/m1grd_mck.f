@@ -128,7 +128,7 @@ c     End If
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
+            Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
 *           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
 *    &             DBLE(LmbdT*dc(kdc+kCnt)%nStab)

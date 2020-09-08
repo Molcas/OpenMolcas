@@ -148,8 +148,7 @@
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     iStb,nStb,
+                  Call DCR(LmbdR,iStb,nStb,
      &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *

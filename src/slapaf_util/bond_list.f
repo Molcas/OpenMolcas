@@ -123,7 +123,7 @@
 *
 *------------- Form double coset representatives
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
              kDCRR = iDCR(2)

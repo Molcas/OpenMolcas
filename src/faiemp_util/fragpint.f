@@ -381,8 +381,8 @@ c some printouts:
 *                                                                      *
 * DCR stuff (iS and jS have always the same symmetry character)
 *
-          Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
+          Call DCR(LmbdT,iStabM,nStabM,
+     &                   dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************

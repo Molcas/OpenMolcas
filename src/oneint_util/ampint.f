@@ -101,8 +101,7 @@
 
 C Compute stabilizer, and then the double coset representation:
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 C Loop over the cosets of the stabilizer group:
       Do lDCRT = 0, nDCRT-1

@@ -160,8 +160,7 @@
          C(1:3)=PCMTess(1:3,iTs)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -q_i*DBLE(nStabM) / DBLE(LmbdT)
 *
          Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
