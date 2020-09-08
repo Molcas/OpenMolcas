@@ -64,7 +64,6 @@
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
 
-      Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(MxUnq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)

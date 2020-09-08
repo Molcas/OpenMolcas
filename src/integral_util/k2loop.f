@@ -112,7 +112,7 @@
 *     Statement function to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************

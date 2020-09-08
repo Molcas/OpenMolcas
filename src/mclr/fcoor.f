@@ -36,7 +36,7 @@
             mdc=mdc+1
             call dcopy_(3,Coor(1,mdc),1,A,1)
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
-               kop=iCoSet(iCo,0,mdc)
+               kop=dc(mdc)%iCoSet(iCo,0)
                Call OA(kOp,A,B)
                ii=nint(dbsc(icnttp)%Charge)
                Lab=dc(mdc)%LblCnt(1:LENIN)

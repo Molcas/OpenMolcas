@@ -72,7 +72,7 @@
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                iChTbl,iIrrep,iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                      iDisp = iDisp + 1

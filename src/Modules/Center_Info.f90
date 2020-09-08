@@ -30,6 +30,14 @@ Type Distinct_centers
     Integer :: iChCnt=0
     Integer :: iStab(0:7)=[0,0,0,0,0,0,0,0]
     Integer :: nStab=0
+    Integer :: iCoSet(0:7,0:7)=ReShape([0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0,                    &
+                                        0,0,0,0,0,0,0,0],[8,8])
     Character(LEN=LENIN4):: LblCnt=''
 End Type Distinct_centers
 !
@@ -38,7 +46,7 @@ End Type Distinct_centers
 !     E N D   D E C L A R E   D E R I V E D   T Y P E S
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Integer, Parameter:: nFields=1+8+1
+Integer, Parameter:: nFields=1+8+1+64
 Logical :: Initiated = .FALSE.
 Integer :: n_dc=0
 Type (Distinct_centers), Allocatable:: dc(:)
@@ -126,6 +134,22 @@ Do i = 1, n_dc
    j=j+8
    iDmp(j+1)=dc(i)%nStab
    j=j+1
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,0)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,1)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,2)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,3)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,4)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,5)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,6)
+   j=j+8
+   iDmp(j+1:j+8)=dc(i)%iCoSet(:,7)
+   j=j+8
 End Do
 iDmp(licDmp+1)=n_dc
 Call Put_iArray('icDmp',iDmp,licDmp+1)
@@ -196,6 +220,22 @@ Do i = 1, n_dc
    j = j + 8
    dc(i)%nStab  = iDmp(j+1)
    j = j + 1
+   dc(i)%iCoSet(:,0) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,1) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,2) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,3) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,4) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,5) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,6) = iDmp(j+1:j+8)
+   j = j + 8
+   dc(i)%iCoSet(:,7) = iDmp(j+1:j+8)
+   j = j + 8
 End Do
 Call mma_deAllocate(iDmp)
 !

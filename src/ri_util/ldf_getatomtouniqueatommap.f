@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine LDF_GetAtomToUniqueAtomMap(A2UA,nA)
       Use Basis_Info
-      use Phase_Info
+      use Center_Info
 C
 C     Thomas Bondo Pedersen, June 2010.
 C     - based on Print_Geometry by Roland Lindh.
@@ -57,10 +57,8 @@ C
      &       dbsc(jCnttp)%Frag) Then
             ndc=ndc+mCnt
          Else
-            Do i=0,2
-               Work(ip_UAR+i)=dbsc(jCnttp)%Coor(i+1,1)*
-     &                               dble(iPhase(i+1,iCoset(0,0,ndc+1)))
-            End Do
+            Call OA(dc(ndc+1)%iCoSet,dbsc(jCnttp)%Coor(1:3,1),
+     &                               Work(ip_UAR:ip_UAR+2))
             ndc=ndc+1
             jxyz=jxyz+3
             iAtom=LDF_AtomWithCoordinates(Work(ip_UAR))
@@ -82,10 +80,8 @@ C
             iAtom_Unique=iAtom
             A2UA(iAtom)=iAtom_Unique
             Do jCnt=2,mCnt
-               Do i=0,2
-                  Work(ip_UAR+i)=dbsc(jCnttp)%Coor(i+1,jCnt)*
-     &                               dble(iPhase(i+1,iCoset(0,0,ndc+1)))
-               End Do
+               Call OA(dc(ndc+1)%iCoSet,dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                                  Work(ip_UAR:ip_UAR+2))
                ndc=ndc+1
                jxyz=jxyz+3
                iAtom=LDF_AtomWithCoordinates(Work(ip_UAR))

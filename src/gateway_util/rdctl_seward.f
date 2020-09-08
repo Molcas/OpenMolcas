@@ -4567,7 +4567,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End If
             dc(mdc)%iChCnt = iChxyz
             Call Stblz(iChxyz,iOper,nIrrep,dc(mdc)%nStab,dc(mdc)%iStab,
-     &                 MaxDCR,iCoSet(0,0,mdc))
+     &                 MaxDCR,dc(mdc)%iCoSet)
 *
 *           Perturb the initial geometry if the SHAKE keyword was given,
 *           but maintain the symmetry

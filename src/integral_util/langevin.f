@@ -67,7 +67,7 @@
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             Do i = 0, nIrrep/dc(ndc)%nStab - 1
-               Call OA(iCoset(i,0,ndc),dbsc(jCnttp)%Coor(1:3,jCnt),
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
      &                 Work(ipCord+(nc-1)*3  :
      &                      ipCord+(nc-1)*3+2))
                Work(ipAtod+(nc-1)) = Atod

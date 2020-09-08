@@ -33,7 +33,7 @@
      &       DCntr(nS,MxAto,3,3), Q(2,nTs)
       Integer iSph(nTs)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *
       iIrrep=0

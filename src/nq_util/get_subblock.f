@@ -201,7 +201,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          nDegi=nSym/dc(mdci)%nStab
 *
          Do jSym = 0, nDegi-1
-            iSym=iCoSet(jSym,0,mdci)
+            iSym=dc(mdci)%iCoSet(jSym,0)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif

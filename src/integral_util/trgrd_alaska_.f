@@ -33,7 +33,7 @@
       Dimension GradIn(nGrad)
       Character CNames(MxAtom)*(LENIN5)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
       mdc=0
       iIrrep=0
@@ -54,7 +54,7 @@
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
                Do iCo=0,nIrrep/dc(mdc)%nStab-1
-                  kop=iCoSet(iCo,0,mdc)
+                  kop=dc(mdc)%iCoSet(iCo,0)
                   nDispS = IndDsp(mdc,iIrrep)
                   iCen=iCen+1
                   Do iCar=0,2

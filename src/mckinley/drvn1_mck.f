@@ -89,7 +89,7 @@
                      igu=nIrrep/dc(mdc+iCnt)%nStab
                      Do 400 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc+iCnt),
+                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
      &                     iChTbl,iIrrep,iComp,dc(mdc+iCnt)%nStab)
      &                     ) Then
                            nDisp = nDisp + 1
@@ -103,7 +103,7 @@
                      igv=nIrrep/dc(ndc+jCnt)%nStab
                      Do 450 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,ndc+jCnt),
+                        If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
      &                     iChTbl,iIrrep,iComp,dc(ndc+jCnt)%nStab)
      &                     ) Then
                            nDisp = nDisp + 1

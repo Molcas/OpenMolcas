@@ -417,7 +417,7 @@ c      EndIf
 *              Loop over the cartesian components
                Do 130 iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                       nDisp = nDisp + 1
                       If (nDisp.gt.mDisp) Then
@@ -444,9 +444,9 @@ c      EndIf
                       If (iPrint.ge.6)
      &                Write (6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
      &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
-     &                      (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
+     &                      (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
      &                      iOper,nIrrep),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
      &                      iOper,nIrrep)),
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
@@ -603,14 +603,14 @@ c      EndIf
                If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
      &            iComp = iOr(iComp,4)
                Do 2250 jIrrep = 0, nIrrep-1
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                  iChTbl,jIrrep,iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
  2250          Continue
                Do 2300 iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                 iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates

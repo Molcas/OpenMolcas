@@ -27,7 +27,7 @@
       logical tf,tstfnc
       Dimension Coor(*)
       Dimension Dummy(1)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -124,9 +124,9 @@
                Do jCo=0,Ncentj-1
                 i=iPert+ico*3+icar+1
                 j=jPert+jco*3+jcar+1
-                kop_m=iCoSet(iCo,0,mdc)
+                kop_m=dc(mdc)%iCoSet(iCo,0)
                 nop_m=nropr(kop_m,ioper,nirrep)
-                kop_n=iCoSet(jCo,0,ndc)
+                kop_n=dc(ndc)%iCoSet(jCo,0)
                 nop_n=nropr(kop_n,ioper,nirrep)
                 riPh=DBLE(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))
      &           /sqrt(DBLE(nCENTI))

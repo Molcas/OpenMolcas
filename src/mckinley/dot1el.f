@@ -84,7 +84,7 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,
      &                       dc(mdc)%nStab)
 *

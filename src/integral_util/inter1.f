@@ -39,7 +39,7 @@
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
                ndc=ndc+1
-               kop=iCoSet(iCo,0,mdc)
+               kop=dc(mdc)%iCoSet(iCo,0)
                Call OA(kOp,A,Coor(1:3,ndc))
                Label(ndc)=Lbl(1:LENIN)
                iBas_Lab(ndc)=iCnttp

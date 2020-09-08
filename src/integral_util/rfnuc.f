@@ -75,7 +75,7 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
                   Do i = 0, nIrrep/dc(mdc)%nStab - 1
-                     Call OA(iCoset(i,0,mdc),A,RA)
+                     Call OA(dc(mdc)%iCoSet(i,0),A,RA)
 C                    Call RecPrt(' RA',' ',RA,1,3)
 C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 #ifdef NAGFOR

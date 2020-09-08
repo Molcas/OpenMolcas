@@ -30,7 +30,7 @@
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
       mdc=0
       iIrrep=0
@@ -49,7 +49,7 @@
             mdc=mdc+1
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
-               kop=iCoSet(iCo,0,mdc)
+               kop=dc(mdc)%iCoSet(iCo,0)
                nDispS = IndDsp(mdc,iIrrep)
                A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
                A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)

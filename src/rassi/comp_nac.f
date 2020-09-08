@@ -51,7 +51,7 @@ C***********************************************************************C
       Integer IndGrd(0:7)
       Logical TF, TstFnc
 * Statement Function
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 
       CALL QENTER(ROUTINE)

@@ -87,7 +87,7 @@
 *-----Statement function for Cartesian index
 *
       nElem(k)=(k+1)*(k+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *
       iRout = 122

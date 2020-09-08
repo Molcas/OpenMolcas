@@ -11,7 +11,6 @@
       Subroutine MkDisp()
       Use Basis_Info
       use Center_Info
-      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -90,14 +89,10 @@ C Then, the symmetry related nuclei:
           iWork(ipCntId+0+4*(jc-1))=iCnttp
           iWork(ipCntId+1+4*(jc-1))=iOff
           iWork(ipCntId+2+4*(jc-1))=iCnt
-          iOp=iCoSet(iOpNr,0,ic)
+          iOp=dc(ic)%iCoSet(iOpNr,0)
           iWork(ipCntId+3+4*(jc-1))=iOp
-          x=DBLE(iPhase(1,iOp))*Work(0+ipCoor+3*(ic-1))
-          y=DBLE(iPhase(2,iOp))*Work(1+ipCoor+3*(ic-1))
-          z=DBLE(iPhase(3,iOp))*Work(2+ipCoor+3*(ic-1))
-          Work(0+ipCoor+3*(jc-1))=x
-          Work(1+ipCoor+3*(jc-1))=y
-          Work(2+ipCoor+3*(jc-1))=z
+          Call OA(iOp,Work(ipCoor+3*(ic-1):ipCoor+3*(ic-1)+2),
+     &                Work(ipCoor+3*(jc-1):ipCoor+3*(jc-1)+2))
         End Do
       End Do
       nAlCnt=jc
@@ -166,7 +161,7 @@ C-------------------------------------------
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                 iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                      nDisp = nDisp + 1
                      If (nDisp.gt.mDisp) Then

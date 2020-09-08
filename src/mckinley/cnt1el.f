@@ -92,7 +92,7 @@
 *                                                                      *
 *     Statement functions
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *                                                                      *

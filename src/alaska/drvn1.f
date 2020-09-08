@@ -176,7 +176,7 @@
                      Do iCar = 0, 2
                         dr_dA=(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc+iCnt),
+                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
      &                     iChTbl,iIrrep,
      &                     iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
@@ -195,7 +195,7 @@
                      Do iCar = 0, 2
                         dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,ndc+jCnt),
+                        If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
      &                     iChTbl,iIrrep,
      &                     iComp,dc(ndc+jCnt)%nStab) ) Then
                            nDisp = nDisp + 1
@@ -337,7 +337,7 @@
                   igv=nIrrep/dc(ndc+jCnt)%nStab
                   Do iCar = 0, 2
                      iComp = 2**iCar
-                     If ( TstFnc(iOper,nIrrep,iCoSet(0,0,ndc+jCnt),
+                     If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
      &                  iChTbl,iIrrep,
      &                  iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1
@@ -459,7 +459,7 @@
                      nDisp=IndDsp(mdc+iCnt,iIrrep)
                      Do iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc+iCnt),
+                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
      &                     iChTbl,iIrrep,
      &                     iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
@@ -574,7 +574,7 @@
                   Do iCar = 0, 2
                      dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                      iComp = 2**iCar
-                     If ( TstFnc(iOper,nIrrep,iCoSet(0,0,ndc+jCnt),
+                     If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
      &                  iChTbl,iIrrep,
      &                  iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1

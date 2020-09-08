@@ -32,7 +32,7 @@
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
+      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
      &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *
        nnIrrep=nIrrep

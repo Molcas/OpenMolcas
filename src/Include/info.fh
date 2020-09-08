@@ -35,7 +35,6 @@
 *                                                                      *
 * -> Integer   <-                                                      *
 *     iChTbl: the character table for the specified point group        *
-*     iCoSet: the cosets of the i''th unique center                    *
 *     iSkip : flag to indicate that certain irreps are ignored         *
 *     iAngMx: higest angular momentum specified in the input           *
 *     iOper : the symmetry operators                                   *
@@ -178,8 +177,7 @@
      &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
      &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,
      &          nDim,nIrrep,nMltpl,nOrdEF,nShlls
-      Integer   iChTbl(0:7,0:7),
-     &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),
+      Integer   iChTbl(0:7,0:7),iSkip(0:7),
      &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
      &          iChBas(MxFnc),   iSphCr(MxFnc), nBas_Aux(0:7),
@@ -191,7 +189,7 @@
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
-      Common /Info/ iCoSet, iAOtSO, iSOInf, IrrCmp,
+      Common /Info/ iAOtSO, iSOInf, IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iChTbl, nBas_Aux,
