@@ -10,15 +10,16 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Integer Function iNew(iTest,nIrrep,iChTab,iIrrep)
-      Integer iTest(nIrrep), iChTab(8,8)
+      Integer Function iNew(iTest,iIrrep)
+      use Symmetry_Info
+      Integer iTest(8)
       iNew = 0
 *-----Test iTest against all rows thus far.
       Do 10 i = 1, iIrrep
 *--------Do a intger inner product.
          iGo = 0
          Do 11 j = 1, nIrrep
-            iGo = iGo + iTest(j)*iChTab(i,j)
+            iGo = iGo + iTest(j)*iChTab(i-1,j-1)
  11      Continue
          If (iGo.ne.0) Then
 *-----------Here if row already defined.
