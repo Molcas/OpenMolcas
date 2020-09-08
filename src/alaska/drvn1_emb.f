@@ -191,9 +191,8 @@
                      Do iCar = 0, 2
                         dr_dA=(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,
-     &                     iCoSet(0,0,mdc+iCnt),
-     &                     nIrrep/dc(mdc+iCnt)%nStab,iChTbl,iIrrep,
+                        If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc+iCnt),
+     &                     iChTbl,iIrrep,
      &                     iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then

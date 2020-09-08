@@ -333,8 +333,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                    Skip if function not a basis of irreps.
 *
                      If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                   nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iChBs,
-     &                   dc(mdc)%nStab)) Go To 204
+     &                   iChTbl,iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore

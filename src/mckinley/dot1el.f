@@ -85,7 +85,7 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
+     &                       iChTbl,iIrrep,iComp,
      &                       dc(mdc)%nStab)
 *
       call dcopy_(nHess,[Zero],0,Hess,1)
@@ -245,9 +245,8 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
                       iComp1=2**iCar
                       iComp2=2**jCar
                       iComp=iEOr(iComp1,iComp2)
-                      Chck=TstFnc(iOper,nIrrep,iCoM,
-     &                       nCoM,iChTbl,0,iComp,
-     &                       nStabM)
+                      Chck=TstFnc(iOper,nIrrep,iCoM,iChTbl,0,iComp,
+     &                            nStabM)
                       If (Chck)
      &                  IfHss(iAtom,iCar,jAtom,jCar)=.true.
  430            Continue
@@ -257,7 +256,8 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
            Call ICopy(nirrep*36,[0],0,Indhss(0,0,0,0,0),1)
            Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
-*          Determine which displacement in all IR's, each center is associated with
+*          Determine which displacement in all IR''s, each center is
+*          associated with.
 *
            nnIrrep=nIrrep
            If (sIrrep) nnIrrep=1

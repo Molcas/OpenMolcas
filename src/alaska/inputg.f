@@ -579,7 +579,7 @@ c      nprint(26)=99
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                iChTbl,iIrrep,
      &                iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
@@ -701,7 +701,7 @@ c      nprint(26)=99
      &             iComp = iOr(iComp,4)
                Do jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/dc(mdc)%nStab,iChTbl,jIrrep,
+     &                  iChTbl,jIrrep,
      &                  iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
@@ -709,7 +709,7 @@ c      nprint(26)=99
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
+     &                  iChTbl,iIrrep,
      &                  iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
                      Direct(lDsp)=.True.

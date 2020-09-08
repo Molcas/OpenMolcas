@@ -27,8 +27,7 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
-     &                       dc(mdc)%nStab)
+     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *
       iIrrep=0
       do 800 ixop=0,nOrdOp

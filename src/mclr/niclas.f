@@ -28,8 +28,7 @@
       Dimension Coor(*)
       Dimension Dummy(1)
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
-     &                       dc(mdc)%nStab)
+     &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=nd*(j-1)+i-1
@@ -55,13 +54,13 @@
        End Do
       End Do
 *
-********************************************************************************
+************************************************************************
 *
 *    Steady
 *
 *    Make the symmetrized Hessian correct for degenerated geometries
 *
-********************************************************************************
+************************************************************************
 *
       nd=0
       Do i=0,nIrrep-1

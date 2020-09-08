@@ -167,8 +167,7 @@ C-------------------------------------------
                Do iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                 nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
-     &                 iComp,dc(mdc)%nStab) ) Then
+     &                 iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                      nDisp = nDisp + 1
                      If (nDisp.gt.mDisp) Then
                         Write (6,*) 'nDisp.gt.mDisp'

@@ -32,7 +32,7 @@
 *                                                                      *
 *     Statement function
 *
-      TF(iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet,nCoSet,iChTbl,
+      TF(iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet,iChTbl,
      &                          iIrrep,iComp,nIrrep/nCoSet)
 *                                                                      *
 ************************************************************************

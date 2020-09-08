@@ -91,8 +91,7 @@ c#include "print.fh"
 *     Statement functions
 *
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
-     &                       dc(mdc)%nStab)
+     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *-----Compute the number of blocks from each component of the operator

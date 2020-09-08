@@ -418,8 +418,7 @@ c      EndIf
                Do 130 iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
-     &                iComp,dc(mdc)%nStab) ) Then
+     &                iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                       nDisp = nDisp + 1
                       If (nDisp.gt.mDisp) Then
                          Write (6,*) 'nDisp.gt.mDisp'
@@ -605,16 +604,14 @@ c      EndIf
      &            iComp = iOr(iComp,4)
                Do 2250 jIrrep = 0, nIrrep-1
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/dc(mdc)%nStab,iChTbl,jIrrep,
-     &                  iComp,dc(mdc)%nStab) ) Then
+     &                  iChTbl,jIrrep,iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
  2250          Continue
                Do 2300 iCar = 0, 2
                   iComp = 2**iCar
                   If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,
-     &                  iComp,dc(mdc)%nStab) ) Then
+     &                 iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates
                      ip = 4*(ldsp-1) + ipC

@@ -80,8 +80,7 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/dc(mdc)%nStab,iChTbl,iIrrep,iComp,
-     &                       dc(mdc)%nStab)
+     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *
