@@ -159,7 +159,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *------- Generate stabilizor of C
 *
          iChxyz=iChAtm(C,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
 *

@@ -111,7 +111,7 @@
 #endif
             iChAtom=iChxyz(Work(ipTmp),iGen,nGen)
             ipTmp=ipTmp+3
-            Call Stblz(iChAtom,iOper,nIrrep,nStab,iStab,MaxDCR,iCoSet)
+            Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
             nCoSet=nIrrep/nStab
 #ifdef _DEBUG_
             Write (6,*) 'nCoSet=',nCoSet
@@ -169,7 +169,7 @@
 #endif
             iChAtom=iChxyz(Work(ipTmp),iGen,nGen)
             ipTmp=ipTmp+3
-            Call Stblz(iChAtom,iOper,nIrrep,nStab,iStab,MaxDCR,iCoSet)
+            Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
             nCoSet=nIrrep/nStab
 #ifdef _DEBUG_
             Write (6,*) 'nCoSet=',nCoSet

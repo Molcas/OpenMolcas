@@ -180,7 +180,7 @@
             iChxyz=iChAtm(Work(ixyz_p),iChCar)
             ixyz_p = ixyz_p + 3
          End If
-         Call Stblz(iChxyz,iOper,nSym,nStab2(ndc),jStab(0,ndc),
+         Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),
      &              MaxDCR,iCoSet2(0,0,ndc))
       End Do
 *                                                                      *

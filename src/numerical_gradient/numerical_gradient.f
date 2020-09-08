@@ -304,7 +304,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *           Find the stabilizer of this center
 *
             iChxyz=iChAtm(Work(ipCoor+(i-1)*3),iChCar)
-            Call Stblz(iChxyz,iOper,nIrrep,nStab,jStab,MaxDCR,iCoSet)
+            Call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 *
             Call IZero(iDispXYZ,3)
             Do j = 0, nStab-1

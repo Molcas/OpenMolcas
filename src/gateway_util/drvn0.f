@@ -235,7 +235,7 @@ C     nElem(ixyz) = 2*ixyz+1
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
             iChxyz=iChAtm(A,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
@@ -394,7 +394,7 @@ C     nElem(ixyz) = 2*ixyz+1
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
             iChxyz=iChAtm(A,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
                If (nOrd_XF.eq.0) Then
@@ -435,7 +435,7 @@ C     nElem(ixyz) = 2*ixyz+1
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
                iChxyz=iChAtm(B,iChBas(2))
-               Call Stblz(iChxyz,iOper,nIrrep,mStb,jStb,iDum,jCoSet)
+               Call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.
                Fact = One

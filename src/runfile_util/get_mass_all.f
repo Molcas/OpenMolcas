@@ -63,7 +63,7 @@
       j=0
       Do i=1,nAtoms
         iChAtom=iChxyz(CU(1,i),iGen,nGen)
-        Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
+        Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
         nCoSet=nSym/nStab
         Do iCo=0,nCoSet-1
           j=j+1

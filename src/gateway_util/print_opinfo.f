@@ -141,7 +141,7 @@
             Charge_iXF=XF(4,iXF)
             iChxyz=iChAtm(A,iChBas(2))
             iDum=0
-            Call Stblz(iChxyz,iOper,nIrrep,nStab_iXF,iStb,iDum,jCoSet)
+            Call Stblz(iChxyz,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)
      &         Write(LuWr,Format_XF) (XF(i,iXF),i=1,nData_XF)
             XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*Charge_iXF

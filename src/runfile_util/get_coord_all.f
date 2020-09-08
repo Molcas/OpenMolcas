@@ -95,7 +95,7 @@
          iChAtom=iChxyz(Coord_Unique(1,iUnique_Atom),iGen,nGen)
 *        Write (*,*) 'iChAtom=',iChAtom
 *        Call CoSet(iCoSet,nCoSet,iChAtom,iOper,nSym)
-         Call Stblz(iChAtom,iOper,nIrrep,nStab,iStab,MaxDCR,iCoSet)
+         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nIrrep/nStab
 *        Write (*,*) 'In Get_Coord_All'
 *        Write (*,*) 'nCoset=',nCoset

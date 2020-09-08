@@ -36,7 +36,7 @@
       iAll_Atom=nAtoms
       Do iAtom = 1, nAtoms
          iChAtom=iChxyz(W1(1,iAtom),iGen,nGen)
-         Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
+         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
 *
          Do iCo = 1, nCoSet-1

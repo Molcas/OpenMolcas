@@ -256,7 +256,7 @@
          If (NoLoop) Go To 102
          A(1:3)=XF(1:3,iFd)
          iChxyz=iChAtm(A,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
          ndc = 0
          Do jCnttp = 1, nCnttp

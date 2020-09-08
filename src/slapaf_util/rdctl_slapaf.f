@@ -52,8 +52,8 @@
 *
 *-----Initiate some parameters
 *
-      Call Init_Slapaf(iRow)
       Call Symmetry_Info_Get()
+      Call Init_Slapaf(iRow)
       iPrint=nPrint(iRout)
       iSetAll=2**30 - 1
 *

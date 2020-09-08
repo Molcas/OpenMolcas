@@ -59,7 +59,7 @@
       iAll_Atom=nAtoms
       Do iAtom = 1, nAtoms
          iChAtom=iChxyz(Coor(1:3,iAtom),iGen,nGen)
-         Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
+         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
          Charge_=Charge(iAtom)
 

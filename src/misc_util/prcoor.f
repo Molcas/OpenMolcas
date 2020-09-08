@@ -14,6 +14,7 @@
 *     purpose: Write coordinates.                                      *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -48,6 +49,10 @@
 *----------------------------------------------------------------------*
       Call Get_dScalar('PotNuc',PotNuc)
 *----------------------------------------------------------------------*
+*     Pick up the symmetry information                                 *
+*----------------------------------------------------------------------*
+      Call Symmetry_Info_Get()
+*----------------------------------------------------------------------*
 *     Apply the symmetry operations                                    *
 *----------------------------------------------------------------------*
       nGen=0
@@ -63,7 +68,7 @@
       iAll_Atom=nAtoms
       Do iAtom = 1, nAtoms
          iChAtom=iChxyz(w1(1:3,iAtom),iGen,nGen)
-         Call Stblz(iChAtom,iOper,nSym,nStab,iStab,MaxDCR,iCoSet)
+         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nSym/nStab
          Byte4=AtomLbl(iAtom)
 

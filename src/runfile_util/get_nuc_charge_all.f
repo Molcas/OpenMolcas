@@ -104,7 +104,7 @@
       MaxDCR=0
       Do iUnique_Atom = 1, nUnique_Atoms
          iChAtom=iChxyz(Coord_Unique(1,iUnique_Atom),iGen,nGen)
-         Call Stblz(iChAtom,iOper,nIrrep,nStab,iStab,MaxDCR,iCoSet)
+         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nIrrep/nStab
 
          Charge_Old = Charges_Unique(iUnique_Atom)

@@ -180,7 +180,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
                iChxyz=iChAtm(A,iChBas(2))
                iDum=0
-               Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+               Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *              Write (*,*) ' nStb=',nStb
                Do i = 0, nIrrep/nStb - 1

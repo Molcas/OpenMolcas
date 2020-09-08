@@ -49,7 +49,7 @@
          A(1:3)=XF(1:3,i)
          iChxyz=iChAtm(A,iChBas(2))
          iDum=0
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1
             Call FZero(Tmom,nCavxyz_)
             call dcopy_(nInp,XF(4,i),1,Tmom,1)
