@@ -106,8 +106,8 @@ c     Call qEnter('DrvN2')
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
              Do iR = 0, nDCRR-1
                Call OA(iDCRR(iR),B,RB)
-               nOp(1) = NrOpr(0,iOper,nIrrep)
-               nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+               nOp(1) = NrOpr(0)
+               nOp(2) = NrOpr(iDCRR(iR))
                kop(1)=0
                kop(2)=iDCRR(iR)
                If (EQ(A,RB)) Go To 301
@@ -356,8 +356,8 @@ c     Call qEnter('DrvN2')
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
                   Call OA(iDCRR(iR),B,RB)
-                  nOp(1) = NrOpr(0,iOper,nIrrep)
-                  nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  nOp(1) = NrOpr(0)
+                  nOp(2) = NrOpr(iDCRR(iR))
                   r12 = Sqrt((A(1)-RB(1))**2 +
      &                       (A(2)-RB(2))**2 +
      &                       (A(3)-RB(3))**2 )
@@ -548,7 +548,7 @@ c     Call qEnter('DrvN2')
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
                   Call OA(iDCRR(iR),B,RB)
-                  nOp(1) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  nOp(1) = NrOpr(iDCRR(iR))
                   r12_AB = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
      &                          (A(3)-RB(3))**2 )
@@ -601,7 +601,7 @@ c     Call qEnter('DrvN2')
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
                Do iS = 0, nDCRS-1
                   Call OA(iDCRS(iS),D,SD)
-                  nOp(2) = NrOpr(iDCRS(iS),iOper,nIrrep)
+                  nOp(2) = NrOpr(iDCRS(iS))
                   r12_CD = Sqrt((C(1)-SD(1))**2 +
      &                          (C(2)-SD(2))**2 +
      &                          (C(3)-SD(3))**2 )

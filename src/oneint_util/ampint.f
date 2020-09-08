@@ -145,7 +145,7 @@ C Generate the dipole integral tables:
 
 C Symmetry adaption:
          if(iprint.gt.49) write(6,*)' AMPInt calling SymAdO'
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp,lOper,iChO,One)
          if(iprint.gt.49) write(6,*)' Back to AMPInt.'

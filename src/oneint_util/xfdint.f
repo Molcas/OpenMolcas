@@ -230,7 +230,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *-----------Accumulate contributions to the symmetry adapted operator
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             ipI=ip1
 *
             Do i = 1, nElem(iOrdOp)

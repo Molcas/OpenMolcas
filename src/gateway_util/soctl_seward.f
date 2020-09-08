@@ -291,7 +291,7 @@ C     Show=Show.and..Not.Primitive_Pass
                If (dbsc(iCnttp)%nVal.lt.1) Then
                   Do iCo = 0, nIrrep/dc(mdc)%nStab-1
                      iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
-                     iR=NrOpr(dc(mdc)%iCoSet(iCo,0),iOper,nIrrep)
+                     iR=NrOpr(dc(mdc)%iCoSet(iCo,0))
 
                      LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
                      If (iAnd(iOper(iR),1).ne.0) LPC(1,iyy)=-LPC(1,iyy)
@@ -427,10 +427,10 @@ C     Show=Show.and..Not.Primitive_Pass
                         If(output)
      &                  Write (6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))')
      &                        iSO_,dc(mdc)%LblCnt,ChTmp,
-     &                        (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep),iChbs)*
-     &                        iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep)),
+     &                        (mc+iCo,iPrmt(
+     &                        NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                        iChTbl(iIrrep,
+     &                        NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                        iCo=0,nIrrep/dc(mdc)%nStab-1 )
 *
                         If (iSO_.gt.4*MxAO) Then
@@ -448,10 +448,10 @@ C     Show=Show.and..Not.Primitive_Pass
                            Write (isymunit,'(13(I4,4X))')
      &                        iSO_,mdc,LVAL(lculf),MVAL(lculf),
      &                        nIrrep/dc(mdc)%nStab,
-     &                        (iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep),iChbs)*
-     &                        iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep)),
+     &                        (iPrmt(
+     &                        NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                        iChTbl(iIrrep,
+     &                        NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                        iCo=0,nIrrep/dc(mdc)%nStab-1 )
                         End If
 *                                                                      *
@@ -465,10 +465,9 @@ C     Show=Show.and..Not.Primitive_Pass
                             jxxx = Index_NoSym(iCntrc,iComp,iAng,
      &                        mdc,iirrep,Index2,jCounter,iBas)
                             fact =DBLE(iPrmt(NrOpr(
-     &                                 dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep),iChbs)*
-     &                        iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep)))
+     &                                 dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                        iChTbl(iIrrep,NrOpr(
+     &                                  dc(mdc)%iCoSet(iCo,0))))
 *
                             FacN = One/DBLE(nIrrep/dc(mdc)%nStab)
                             If (MolWgh.eq.1) Then
@@ -488,8 +487,7 @@ C     Show=Show.and..Not.Primitive_Pass
                                iOT(ixxx)=Vir
                             End If
 *
-                            iR=NrOpr(dc(mdc)%iCoSet(iCo,0),iOper,
-     &                               nIrrep)
+                            iR=NrOpr(dc(mdc)%iCoSet(iCo,0))
                             LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
                             If (iAnd(iOper(iR),1).ne.0)
      &                          LPC(1,iyy)=-LPC(1,iyy)
@@ -797,10 +795,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Write (isymunit,'(13(I4,4X))')
      &                     iSO,mdc,LVAL(lculf),MVAL(lculf),
      &                     nIrrep/dc(mdc)%nStab,
-     &                     (iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                     iOper,nIrrep),iChbs)*
-     &                     iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                     iOper,nIrrep)),
+     &                     (iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                     iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                     iCo=0,nIrrep/dc(mdc)%nStab-1 )
 *                                                                      *
 ************************************************************************
@@ -909,7 +905,7 @@ CSVC: basis IDs of non-symmetric case
 *
                      Do 408 imc = 0, (nIrrep/dc(mdc)%nStab)-1
                         itest1 = iAnd(dc(mdc)%iCoSet(imc,0),iChxyz)
-                        Nr = NrOpr(dc(mdc)%iCoSet(imc,0),iOper,nIrrep)
+                        Nr = NrOpr(dc(mdc)%iCoSet(imc,0))
                         Do 409 jIrrep = 0, nIrrep-1
                            itest2 = iAnd(iOper(jIrrep),iChxyz)
                            If (itest1.eq.itest2)

@@ -371,11 +371,11 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 *           Do lDCRR = 0, nDCRR-1
             Do lDCRR = 0, 0
              Call OA(iDCRR(lDCRR),B,RB)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (iPrint.ge.49) Write (6,'(A,3F6.2,2X,3F6.2)') '*',
      &             (A(i),i=1,3),(RB(i),i=1,3)
 *                                                                      *

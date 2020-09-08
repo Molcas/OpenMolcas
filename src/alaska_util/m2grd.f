@@ -170,7 +170,7 @@
             iuvwx(4) = dc(kdc+kCnt)%nStab
 *
             Do 102 lDCRT = 0, nDCRT-1
-               lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               lOp(3) = NrOpr(iDCRT(lDCRT))
                lOp(4) = lOp(3)
                Call OA(iDCRT(lDCRT),C,TC)
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102

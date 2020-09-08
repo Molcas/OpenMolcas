@@ -611,10 +611,9 @@ c      nprint(26)=99
       If (Show.and.iPrint.ge.6) Then
                       Write (LuWr,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
      &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
-     &                      (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                      iOper,nIrrep),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                      iOper,nIrrep)),
+     &                      (mc+iCo,iPrmt(
+     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
       End If
       Write (ChDisp(nDisp),'(A,1X,A1)')

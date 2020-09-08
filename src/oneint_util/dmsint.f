@@ -106,7 +106,7 @@
          Call Util4(nZeta,Array(ipRes),la,lb,
      &              Array(ipS1),Array(ipS2),RB,TC(1,2))
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp,lOper,iChO,One)
 *

@@ -123,7 +123,7 @@
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do iR = 0, nDCRR-1
                      Call OA(iDCRR(iR),B,RB)
-                     nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
+                     nOp = NrOpr(iDCRR(iR))
                      If (EQ(A,RB)) Go To 301
                      r12 = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +

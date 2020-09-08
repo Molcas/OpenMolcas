@@ -116,7 +116,7 @@
          Do 1967 lDCRT = 0, nDCRT-1
             kOp(3) = iDCRT(lDCRT)
             kOp(4) = kOp(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
             Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,Coor(1,3),1)

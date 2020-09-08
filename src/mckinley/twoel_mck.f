@@ -320,7 +320,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
+      nOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
 *                                                                      *
 ************************************************************************
@@ -330,7 +330,7 @@
 ************************************************************************
 *                                                                      *
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+         nOp(2)=NrOpr(iDCRR(lDCRR))
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *                                                                      *
@@ -353,9 +353,8 @@
 *                                                                      *
             Do 300 lDCRT = nDCRT-1, 0, -1
 
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &              iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
+               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
                iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
                Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
@@ -402,8 +401,8 @@
 *     Loops to partion the primitives
 *
 *----------------------------------------------------------------*
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix2 = iPhase(1,iDCRT(lDCRT))
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))

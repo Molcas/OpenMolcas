@@ -62,7 +62,7 @@
       Do mIrr=0,nIrrep-1
        iiii=0
        Do iS=0,nIrrep-1
-        js=nrOpr(ieor(ioper(is),iOper(mIrr)),ioper,nirrep)
+        js=nrOpr(ieor(ioper(is),iOper(mIrr)))
         ipp(is)=iiii
         iiii=nbas(is)*nash(js)+iiii
        End Do
@@ -78,8 +78,7 @@
            l=0
            Do lIrr=0,kIrr
             kls=iEOR(iOper(kIrr),iOper(lIrr))
-            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls),
-     &                 ioper,nirrep)
+            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls))
             ja=1
             Do j=0,jirr-1
              ja=ja+nAsh(j)
@@ -87,10 +86,8 @@
 *
 *           Symmetry of Q matrix
 *
-            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
-            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
+            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)))
+            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
 *
             lMax=nAsh(lIrr)
             If (lIrr.eq.kirr) lmax=kash

@@ -24,8 +24,7 @@
 *
       n=0
       Do  jIrrep=0,nIrrep-1
-       iirrep=nropr(ieor(ioper(jirrep),ioper(ksym)),
-     &              ioper,nirrep)
+       iirrep=nropr(ieor(ioper(jirrep),ioper(ksym)))
        If (Indgrd(jIrrep).ne.0) Then
         n=n+1
         Do iCn=1,2

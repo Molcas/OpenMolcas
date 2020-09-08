@@ -661,7 +661,7 @@ c some printouts:
             Do iIrrep = 0, nIrrep - 1
               If (iAnd(llOper,iTwoj(iIrrep)).ne.0) Then
                 iIC = iIC + 1
-                nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+                nOp = NrOpr(iDCRT(lDCRT))
                 Xg=DBLE(iChTbl(iIrrep,nOp))
 * Half is needed because we do a complete loop over iS,jS
                 Factor=Xg*Fact*Half

@@ -270,12 +270,12 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 c VV: gcc bug: one has to use this if!
           if(nDCRR.ge.1) then
             Do 140 lDCRR = 0, nDCRR-1
                Call OA(iDCRR(lDCRR),B,RB)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
 *
 *              For the CSF contribution we cannot skip the A,A case
 *              (lack of translational invariance is taken care of by CmbnS1)

@@ -42,7 +42,7 @@
 *-----Distribute contributions from the intermediate skeleton
 *     Fock matrix onto the symmetry adapted Fock matrix.
 *
-         iiR = NrOpr(iEor(ikOp1,ikOp2),iOper,nIrrep)
+         iiR = NrOpr(iEor(ikOp1,ikOp2))
          Do i1 = 1, iCmp
           Do i2 = 1, jCmp
            Do iIrrep = 0, nIrrep-1
@@ -76,7 +76,7 @@
 *
          Do iIrrep=0,nIrrep-1
             jIrr(iIrrep)=
-     &      NrOpr(iEOr(iOper(iIrrep),iChO),iOper,nIrrep)
+     &      NrOpr(iEOr(iOper(iIrrep),iChO))
          End Do
 *
          iPntij = 0
@@ -90,8 +90,8 @@
 *-----Distribute contributions from the intermediate skeleton
 *     Fock matrix onto the symmetry adapted Fock matrix.
 *
-         l1=NrOpr(ikop1,ioper,nIrrep)
-         l2=NrOpr(ikop2,ioper,nIrrep)
+         l1=NrOpr(ikop1)
+         l2=NrOpr(ikop2)
          Do 100 i1 = 1, iCmp
            Do 200 i2 = 1, jCmp
             ip=0

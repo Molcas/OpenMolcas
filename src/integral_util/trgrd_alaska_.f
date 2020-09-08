@@ -61,7 +61,7 @@
                      iComp = 2**iCar
                      If ( TF(mdc,iIrrep,iComp)) Then
                         nDispS = nDispS + 1
-                        XR=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),icomp))
+                        XR=DBLE(iPrmt(NrOpr(kop),icomp))
                         CGrad(iCar+1,iCen)=XR*GradIn(nDispS)
                      End If
                   End Do

@@ -244,13 +244,12 @@
 *
             Do 139 lDCRT = 0, nDCRT-1
             Call OA(iDCRT(lDCRT),dbsc(iCnttp)%Coor(1:3,iCnt),A)
-            nOp(1) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp(1) = NrOpr(iDCRT(lDCRT))
             if(jbas.lt.-99999) write(6,*) 'nDCRR=',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
              iDCRRT=iEor(iDCRR(lDCRR),iDCRT(lDCRT))
              Call OA(iDCRRT,dbsc(jCnttp)%Coor(1:3,jCnt),B)
-             nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)),iOper,
-     &                nIrrep)
+             nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)))
              If (iPrint.ge.49) Write (6,'(A,3(3F6.2,2X))')
      &             '***** Centers A, B, & C. *****',
      &             (A(i),i=1,3),(B(i),i=1,3),(Ccoor(i),i=1,3)

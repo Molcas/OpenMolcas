@@ -255,11 +255,11 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
                Call OA(iDCRR(lDCRR),B,RB)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
                If (EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *
 *

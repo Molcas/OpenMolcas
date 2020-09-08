@@ -106,10 +106,9 @@
                         Do ico=0,nIrrep/dc(mdc)%nStab-1
                         Cnt_ico(ico,iso)=mc+ico
                         Phase_ico(ico,iso)=
-     &                        iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep),iChbs)*
-     &                        iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                        iOper,nIrrep))
+     &                        iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                        iChTbl(iIrrep,
+     &                              NrOpr(dc(mdc)%iCoSet(iCo,0)))
                         End Do
                         Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
  205                 Continue

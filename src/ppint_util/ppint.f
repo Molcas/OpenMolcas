@@ -170,7 +170,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *                                                                      *
 *              Symmetry Adapt
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp,lOper,iChO,Fact)
             End Do        ! lDCRT

@@ -164,7 +164,7 @@
 *
          Do 1967 lDCRT = 0, nDCRT-1
 
-            mOp(3) = nropr(iDCRT(lDCRT),ioper,nirrep)
+            mOp(3) = nropr(iDCRT(lDCRT))
             mOp(4) = mOp(3)
 
             Call OA(iDCRT(lDCRT),C,TC)

@@ -126,9 +126,9 @@
                 i=iPert+ico*3+icar+1
                 j=jPert+jco*3+jcar+1
                 kop_m=dc(mdc)%iCoSet(iCo,0)
-                nop_m=nropr(kop_m,ioper,nirrep)
+                nop_m=nropr(kop_m)
                 kop_n=dc(ndc)%iCoSet(jCo,0)
-                nop_n=nropr(kop_n,ioper,nirrep)
+                nop_n=nropr(kop_n)
                 riPh=DBLE(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))
      &           /sqrt(DBLE(nCENTI))
                 rjPh=DBLE(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n))

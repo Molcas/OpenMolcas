@@ -232,14 +232,14 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kOp(1)=NrOpr(0,iOper,nIrrep)
+      kOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
-         kOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+         kOp(2)=NrOpr(iDCRR(lDCRR))
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
-         lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
+         lDCR1=NrOpr(iDCRR(lDCRR))+1
 *
          vijij=Data1(ip_abMax(nZeta),lDCR1)
 *
@@ -256,7 +256,7 @@ c Avoid unused argument warnings
 *switch (to generate better start orbitals...)
             If (NDDO .AND. .NOT.CeqD) Go To 200
 *
-            lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+            lDCR2=NrOpr(iDCRS(lDCRS))+1
 *
 *-----------Pickup estimated largest integral value (AO)
 *
@@ -291,9 +291,8 @@ clwj
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               kOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               kOp(3) = NrOpr(iDCRT(lDCRT))
+               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
                ix1 = 1
                iy1 = 1
@@ -313,22 +312,22 @@ clwj
                If (DoFock) Then
 *--------------Dij
                iR = iDCRR(lDCRR)
-               jOp(1) = NrOpr(iR,iOper,nIrrep) + 1
+               jOp(1) = NrOpr(iR) + 1
 *--------------Dkl
                iS = iDCRS(lDCRS)
-               jOp(2)= NrOpr(iS,iOper,nIrrep) + 1
+               jOp(2)= NrOpr(iS) + 1
 *--------------Dik
                iT  = iDCRT(lDCRT)
-               jOp(3)= NrOpr(iT,iOper,nIrrep) + 1
+               jOp(3)= NrOpr(iT) + 1
 *--------------Dil
                iTS = iEor(iT,iS)
-               jOp(4)= NrOpr(iTS,iOper,nIrrep) + 1
+               jOp(4)= NrOpr(iTS) + 1
 *--------------Djk
                iRT = iEor(iR,iT)
-               jOp(5)= NrOpr(iRT,iOper,nIrrep) + 1
+               jOp(5)= NrOpr(iRT) + 1
 *--------------Djl
                iRTS= iEor(iRT,iS)
-               jOp(6)= NrOpr(iRTS,iOper,nIrrep) + 1
+               jOp(6)= NrOpr(iRTS) + 1
 *
                End If ! DoFock
 *                                                                      *
@@ -580,10 +579,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta),lDCR1),nZeta+1)
                nEta_Tot =iGet(Data2(ip_IndZ(1,nEta ),lDCR2),nEta +1)
 *
-               iZ13_=ip_HrrMtrx(nZeta)+
-     &              (NrOpr(lDCRE_,iOper,nIrrep)*nHRRAB)/nIrrep
-               iE13_=ip_HrrMtrx( nEta)+
-     &              (NrOpr(lDCRT_,iOper,nIrrep)*nHRRCD)/nIrrep
+               iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
+               iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
 *
                kabcd=0
                Do_TnsCtl=.False.

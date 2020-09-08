@@ -357,10 +357,9 @@ c----------------------------------------------------------------------
                   FactNd = FactNd * FactOp(iTile)
 *
                   Do lDCRT = 0, nDCRT-1
-                     nOp(1) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                     nOp(2) = NrOpr(iEor(iDCRT(lDCRT),
-     &                             iDCRR(lDCRR)),iOper,nIrrep)
-                     nOp(3) = NrOpr(0,iOper,nIrrep)
+                     nOp(1) = NrOpr(iDCRT(lDCRT))
+                     nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)))
+                     nOp(3) = NrOpr(0)
 
                      Call OA(iDCRT(lDCRT),A,TA)
                      Call OA(iDCRT(lDCRT),RB,TRB)

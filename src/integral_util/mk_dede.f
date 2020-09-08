@@ -302,7 +302,7 @@ C     Call QEnter('DeDe')
 *                                                                      *
 *-----------Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             If (iFD.eq.1) Then
 *
 *------------- Store away pointer to the block of density info
@@ -329,7 +329,7 @@ C     Call QEnter('DeDe')
      &                       ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
             End If
             Do lDCRR = 0, nDCRR-1
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
 *                                                                      *
 ************************************************************************
 *                                                                      *

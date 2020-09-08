@@ -221,7 +221,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
             Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)

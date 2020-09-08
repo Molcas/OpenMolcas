@@ -255,12 +255,12 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 c VV: gcc bug: one has to use this if!
           if(nDCRR.ge.1) then
             Do 140 lDCRR = 0, nDCRR-1
                Call OA(iDCRR(lDCRR),B,RB)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
                If (EQ(A,RB).and. .Not.DiffOp) Go To 140
                If (.Not.DiffOp) Then
 *--------------Use the translational invariance to reduce the set of

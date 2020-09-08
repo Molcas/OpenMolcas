@@ -262,7 +262,7 @@ c                  write(6,*) ' Cff',PAMexp(iM2xp,2)
 *
 *-----------------Accumulate contributions
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Work(ipScr),nZeta,la,lb,nComp,Final,
      &                 nIC,nOp,lOper,iChO,One)
             Call GetMem(' Scr','FREE','REAL',ipScr,

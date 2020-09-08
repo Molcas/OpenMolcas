@@ -180,7 +180,7 @@
                   px=DBLE(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)))
                   py=DBLE(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
                   pz=DBLE(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
-                  nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0),iOper,nIrrep)
+                  nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0))
 *
 *---------------- Evaluate AOs at RA
 *

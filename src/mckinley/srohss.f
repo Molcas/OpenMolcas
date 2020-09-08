@@ -112,7 +112,7 @@
 
             kop(3) = idcrt(ldcrT)
             kop(4) = kop(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
 
             Call OA(iDCRT(lDCRT),C,TC)

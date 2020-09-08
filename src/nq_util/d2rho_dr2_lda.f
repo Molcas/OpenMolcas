@@ -104,7 +104,7 @@
          iPrim      =iSD( 5,iS)
          index_i    =list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE,iOper,nIrrep)
+         lDCRE=NrOpr(kDCRE)
          Phase(1,1)=DBLE(dc(mdci)%nStab)
          Phase(2,1)=DBLE(dc(mdci)%nStab)
          Phase(3,1)=DBLE(dc(mdci)%nStab)
@@ -127,7 +127,7 @@
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
 *
-            lDCRR=NrOpr(kDCRR,iOper,nIrrep)
+            lDCRR=NrOpr(kDCRR)
             Phase(1,2)=DBLE(dc(mdcj)%nStab)
             Phase(2,2)=DBLE(dc(mdcj)%nStab)
             Phase(3,2)=DBLE(dc(mdcj)%nStab)
@@ -159,7 +159,7 @@
             If (ilist_s.eq.jlist_s) Deg=One
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a

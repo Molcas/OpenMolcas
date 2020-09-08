@@ -103,7 +103,7 @@ c     Fact = DBLE(nStabM) / DBLE(LmbdT)
          Do i = 1, 3
             iph(i) = iPhase(i,iDCRT(lDCRT))
          End Do
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
 
          Do 100 iGrid = 1, nGrid
             If (iAddPot.ne.0) Chrg=ptchrg(iGrid)

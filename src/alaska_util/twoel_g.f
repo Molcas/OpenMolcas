@@ -238,10 +238,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
+      nOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+         nOp(2)=NrOpr(iDCRR(lDCRR))
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
@@ -259,9 +259,9 @@
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
                iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
-               nOp(4) = NrOpr(iDCRTS,      iOper,nIrrep)
+               nOp(4) = NrOpr(iDCRTS)
 *
                Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
                Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
@@ -474,8 +474,8 @@
                   call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
                End If
 *
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix1 = 1
                iy1 = 1
                iz1 = 1

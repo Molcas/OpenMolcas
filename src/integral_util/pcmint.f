@@ -150,7 +150,7 @@
 *
 *-----------Accumulate contributions to the symmetry adapted operator
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
             If (iPrint.ge.99) Then

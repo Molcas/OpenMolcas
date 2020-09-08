@@ -207,8 +207,8 @@ C                     Write (*,*) 'Belong!'
                          Go To 999
                       End If
                       Vec=Vectors(iVector+iVec)
-                      XR=DBLE(iPrmt(NrOpr(kOp,iOper,nIrrep),iComp))
-                      XY=DBLE(iChTbl(iIrrep,NrOpr(kOp,iOper,nIrrep)))
+                      XR=DBLE(iPrmt(NrOpr(kOp),iComp))
+                      XY=DBLE(iChTbl(iIrrep,NrOpr(kOp)))
                       Vectors_All(iVector_All)=Vec*XR*XY
                    Else
 C                     Write (*,*) 'Doesn''t belong!'

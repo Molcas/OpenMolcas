@@ -174,7 +174,7 @@
             iuvwx(4) = dc(kdc+kCnt)%nStab
 *
             Do 102 lDCRT = 0, nDCRT-1
-               lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               lOp(3) = NrOpr(iDCRT(lDCRT))
                lOp(4) = lOp(3)
                Call OA(iDCRT(lDCRT),C,TC)
 *--------------Branch out if one-center integral

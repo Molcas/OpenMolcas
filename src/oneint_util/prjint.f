@@ -307,7 +307,7 @@
                         Do iIrrep = 0, nIrrep-1
                            If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            iIC = iIC + 1
-                           nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+                           nOp = NrOpr(iDCRT(lDCRT))
                            Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',

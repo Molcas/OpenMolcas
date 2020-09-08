@@ -139,7 +139,7 @@ c#include "print.fh"
                j=j+1
                Do jIrr=0,nIrrep-1
                 rPj=DBLE(iChTbl(jIrr,nop(2)))
-                 iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
+                 iirr=nropr(ieor(iOPER(jirr),irest))
                  rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                  buffer(ib,ic,jb,jc,iirr,j,k)=
      &               buffer(ib,ic,jb,jc,iirr,j,k)+
@@ -172,7 +172,7 @@ c#include "print.fh"
                j=j+1
                Do jIrr=0,nIrrep-1
                 rPj=DBLE(iChTbl(jIrr,nop(2)))
-                iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
+                iirr=nropr(ieor(iOPER(jirr),irest))
                 rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                 buffer(ib,ic,jb,jc,iirr,j,k)=
      &              buffer(ib,ic,jb,jc,iirr,j,k)+

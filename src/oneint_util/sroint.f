@@ -319,7 +319,7 @@
                            If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            If (iPrint.ge.99) Write (6,*) ' iIC=',iIC
                            iIC = iIC + 1
-                           nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+                           nOp = NrOpr(iDCRT(lDCRT))
                            Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',

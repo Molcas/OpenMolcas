@@ -263,7 +263,7 @@
 *                                                                      *
 *------- Accumulate contributions
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipEFInt),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp,lOper,iChO,-Fact*dbsc(kCnttp)%Charge)
 *

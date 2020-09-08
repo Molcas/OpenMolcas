@@ -445,10 +445,9 @@ c      EndIf
                       If (iPrint.ge.6)
      &                Write (6,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
      &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
-     &                      (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                      iOper,nIrrep),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0),
-     &                      iOper,nIrrep)),
+     &                      (mc+iCo,iPrmt(
+     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
      &                       dc(mdc)%LblCnt,xyz(iCar)
@@ -820,8 +819,7 @@ c      EndIf
       Do iIrrep=0,nIrrep-1
         If (iIrrep.ne.0) Then
           Do jIrrep=0,nIrrep-1
-           kIrrep=NrOpr(iEOR(ioper(jIrrep),ioper(iIrrep)),
-     &                  iOper,nIrrep)
+           kIrrep=NrOpr(iEOR(ioper(jIrrep),ioper(iIrrep)))
            If (kIrrep.lt.jIrrep)
      &     nFck(iIrrep)=nFck(iIrrep)+nBas(jIrrep)*nBas(kIrrep)
           End Do

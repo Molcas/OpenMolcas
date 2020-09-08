@@ -206,7 +206,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
             If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif
 *
-            iNQ=Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ=Maps2p(iShell,NrOpr(iSym))
             RMax_NQ = Work(ip_R_Max(iNQ))
 #ifdef _DEBUG_
             If (debug) Then
@@ -378,7 +378,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
             iShell=list_s(1,ilist_s)
             iSym  =list_s(2,ilist_s)
             mdci  =iSD(10,iShell)
-            iNQ = Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ = Maps2p(iShell,NrOpr(iSym))
             Do iCar=0,2
                If ((iSD(16+iCar,iShell).ne.0 .or.
      &              iSD(12,iShell).eq.1) .and.
@@ -441,7 +441,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        Do jlist_s = ilist_s+1, nlist_s
                           jShell=list_s(1,jlist_s)
                           jSym  =list_s(2,jlist_s)
-                          jNQ = Maps2p(jShell,NrOpr(jSym,iOper,nSym))
+                          jNQ = Maps2p(jShell,NrOpr(jSym))
                           If (iNQ.eq.jNQ) Then
                              List_G(1+iCar,jlist_s)=nGrad_Eff
                           End If

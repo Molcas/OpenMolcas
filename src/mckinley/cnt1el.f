@@ -321,11 +321,11 @@ C differentiation wrt center iCnt
 *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
              Call OA(iDCRR(lDCRR),B,RB)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (Label.ne.'CONNECTI'
      &           .and.EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *

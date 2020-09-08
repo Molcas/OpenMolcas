@@ -51,15 +51,15 @@
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
                kop=dc(mdc)%iCoSet(iCo,0)
                nDispS = IndDsp(mdc,iIrrep)
-               A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
-               A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
-               A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
+               A1=DBLE(iPrmt(NrOpr(kop),1))*A(1)
+               A2=DBLE(iPrmt(NrOpr(kop),2))*A(2)
+               A3=DBLE(iPrmt(NrOpr(kop),4))*A(3)
                iCen=iCen+1
                Do iCar=0,2
                   iComp = 2**iCar
                   If ( TF(mdc,iIrrep,iComp)) Then
                      nDispS = nDispS + 1
-                     XR=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),icomp))
+                     XR=DBLE(iPrmt(NrOpr(kop),icomp))
                      CGrad(iCar+1,iCen)=XR*GradIn(nDispS)
                   End If
                End Do

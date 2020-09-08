@@ -102,7 +102,7 @@
          ij = (mdci-1)*mdc + mdci
 *
          iER=iEOr(kDCRE,kDCRE)
-         lDCRER=NrOpr(iER,iOper,nIrrep)
+         lDCRER=NrOpr(iER)
 *
          ip_D_a=ipDij+lDCRER*mDij
          ip_D_b=ip_D_a
@@ -166,7 +166,7 @@
             ij = (mdcj-1)*mdc + mdci
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a

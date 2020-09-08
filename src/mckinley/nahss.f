@@ -155,7 +155,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *
             Do 102 lDCRT = 0, nDCRT-1
 *
-               mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               mOp(3) = NrOpr(iDCRT(lDCRT))
                mOp(4) = mOp(3)
                Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
