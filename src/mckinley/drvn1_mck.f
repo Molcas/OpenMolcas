@@ -89,8 +89,8 @@
                      igu=nIrrep/dc(mdc+iCnt)%nStab
                      Do 400 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
-     &                     iChTbl,iIrrep,iComp,dc(mdc+iCnt)%nStab)
+                        If ( TstFnc(dc(mdc+iCnt)%iCoSet,
+     &                            iIrrep,iComp,dc(mdc+iCnt)%nStab)
      &                     ) Then
                            nDisp = nDisp + 1
                            If (.true.) Grad(nDisp) =
@@ -103,8 +103,8 @@
                      igv=nIrrep/dc(ndc+jCnt)%nStab
                      Do 450 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
-     &                     iChTbl,iIrrep,iComp,dc(ndc+jCnt)%nStab)
+                        If ( TstFnc(dc(ndc+jCnt)%iCoSet,
+     &                            iIrrep,iComp,dc(ndc+jCnt)%nStab)
      &                     ) Then
                            nDisp = nDisp + 1
                            If (.true.) Then

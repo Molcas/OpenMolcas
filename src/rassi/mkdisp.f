@@ -161,8 +161,8 @@ C-------------------------------------------
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                 iChTbl,iIrrep,iComp,dc(mdc)%nStab) ) Then
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                        iIrrep,iComp,dc(mdc)%nStab) ) Then
                      nDisp = nDisp + 1
                      If (nDisp.gt.mDisp) Then
                         Write (6,*) 'nDisp.gt.mDisp'

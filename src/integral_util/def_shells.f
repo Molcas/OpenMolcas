@@ -25,8 +25,8 @@
 *                                                                      *
 *     Statement functions
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

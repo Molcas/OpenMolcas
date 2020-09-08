@@ -25,6 +25,7 @@
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
 ************************************************************************
+      use Symmetry_Info, only: Symmetry_Info_Set
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 rChTab(1:8,1:8)
@@ -281,6 +282,8 @@
          lIrrep(1) = 'a'''
          lIrrep(2) = 'a"'
       End If
+*
+      Call Symmetry_Info_Set(nIrrep,iOper,iChTab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

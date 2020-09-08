@@ -32,8 +32,8 @@
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
@@ -174,7 +174,7 @@
                End If
                Do jCar=1,istop
                   iComp=iEOr(2**(iCar-1),2**(jCar-1))
-                  Chck=TstFnc(iOper,nIrrep,iCoM,iChTbl,0,iComp,nStabM)
+                  Chck=TstFnc(iCoM,0,iComp,nStabM)
                   If (Chck)
      &                 IfHss(iAtom,iCar,jAtom,jCar)=.true.
                End Do

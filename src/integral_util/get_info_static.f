@@ -28,6 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -52,10 +53,6 @@
       Real*8, Target :: rxStrt
       Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
       Real*8, Pointer :: p_rx(:)
-*
-*     Prologue
-*
-*     Call qEnter('GetInfo')
 *
 *     Load the common INFO
 *
@@ -103,9 +100,8 @@
 *
       Nullify(p_ix,p_lx,p_rx,p_cx)
 *
-*     Epilogue, end
+      Call Symmetry_Info_Get()
 *
-*     Call qExit('GetInfo')
       Return
       End SubRoutine Get_Info_Static_Internal
 *

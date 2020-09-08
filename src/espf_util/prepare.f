@@ -89,8 +89,8 @@
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                iChTbl,iIrrep,iComp,dc(mdc)%nStab) .and.
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                       iIrrep,iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp

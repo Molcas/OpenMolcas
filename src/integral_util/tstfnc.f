@@ -11,8 +11,7 @@
 * Copyright (C) 1990, IBM                                              *
 *               1991, Roland Lindh                                     *
 ************************************************************************
-      Logical Function TstFnc(iOper,nIrrep,iCoSet,iChTab,iIrrep,iBsFnc,
-     &                        nStab)
+      Logical Function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
 ************************************************************************
 *                                                                      *
 * Object: to establish if a function is a basis function of a          *
@@ -22,9 +21,9 @@
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
 ************************************************************************
+      use Symmetry_Info
       Implicit Real*8 (A-H,O-Z)
-      Integer iOper(0:nIrrep-1), iCoSet(0:7,0:7), iAcc(0:7),
-     &        iChTab(0:7,0:7)
+      Integer iCoSet(0:7,0:7), iAcc(0:7)
 *
       TstFnc = .True.
       nCoSet=nIrrep/nStab

@@ -89,8 +89,8 @@
 *
 *                    Skip if function not a basis of irreps.
 *
-                     If (.Not.TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                   iChTbl,iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
+                     If (.Not.TstFnc(dc(mdc)%iCoSet,
+     &                          iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
                      IrrCmp(IndShl+iComp) =
      &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
 *

@@ -16,8 +16,8 @@
 #include "info.fh"
       Logical TF,tstfnc
       Real*8 Grad(*)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       idisp=0
       do jIrrep=0,nirrep-1
        Do Jcar=1,3

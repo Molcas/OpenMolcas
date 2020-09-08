@@ -176,9 +176,8 @@
                      Do iCar = 0, 2
                         dr_dA=(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
-     &                     iChTbl,iIrrep,
-     &                     iComp,dc(mdc+iCnt)%nStab) ) Then
+                        If ( TstFnc(dc(mdc+iCnt)%iCoSet,
+     &                     iIrrep,iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               Temp(nDisp) = Temp(nDisp) +
@@ -195,8 +194,8 @@
                      Do iCar = 0, 2
                         dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
-     &                     iChTbl,iIrrep,
+                        If ( TstFnc(dc(ndc+jCnt)%iCoSet,
+     &                     iIrrep,
      &                     iComp,dc(ndc+jCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
@@ -337,9 +336,8 @@
                   igv=nIrrep/dc(ndc+jCnt)%nStab
                   Do iCar = 0, 2
                      iComp = 2**iCar
-                     If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
-     &                  iChTbl,iIrrep,
-     &                  iComp,dc(ndc+jCnt)%nStab) ) Then
+                     If ( TstFnc(dc(ndc+jCnt)%iCoSet,
+     &                  iIrrep,iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
                            ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))
@@ -459,9 +457,8 @@
                      nDisp=IndDsp(mdc+iCnt,iIrrep)
                      Do iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,dc(mdc+iCnt)%iCoSet,
-     &                     iChTbl,iIrrep,
-     &                     iComp,dc(mdc+iCnt)%nStab) ) Then
+                        If ( TstFnc(dc(mdc+iCnt)%iCoSet,
+     &                     iIrrep,iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               Temp(nDisp) = Temp(nDisp) - Tempd(iCar+1)
@@ -574,9 +571,8 @@
                   Do iCar = 0, 2
                      dr_dB=-(A(iCar+1)-RB(iCar+1))/r12
                      iComp = 2**iCar
-                     If ( TstFnc(iOper,nIrrep,dc(ndc+jCnt)%iCoSet,
-     &                  iChTbl,iIrrep,
-     &                  iComp,dc(ndc+jCnt)%nStab) ) Then
+                     If ( TstFnc(dc(ndc+jCnt)%iCoSet,
+     &                  iIrrep,iComp,dc(ndc+jCnt)%nStab) ) Then
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
                            ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))

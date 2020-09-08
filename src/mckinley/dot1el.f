@@ -84,9 +84,8 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,
-     &                       dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nHess,[Zero],0,Hess,1)
 *
@@ -245,8 +244,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
                       iComp1=2**iCar
                       iComp2=2**jCar
                       iComp=iEOr(iComp1,iComp2)
-                      Chck=TstFnc(iOper,nIrrep,iCoM,iChTbl,0,iComp,
-     &                            nStabM)
+                      Chck=TstFnc(iCoM,0,iComp,nStabM)
                       If (Chck)
      &                  IfHss(iAtom,iCar,jAtom,jCar)=.true.
  430            Continue

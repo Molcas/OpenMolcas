@@ -30,8 +30,8 @@
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       mdc=0
       iIrrep=0
 *

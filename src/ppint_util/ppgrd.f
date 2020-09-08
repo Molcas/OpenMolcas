@@ -57,8 +57,8 @@
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *

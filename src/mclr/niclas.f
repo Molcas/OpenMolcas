@@ -27,8 +27,8 @@
       logical tf,tstfnc
       Dimension Coor(*)
       Dimension Dummy(1)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                              iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=nd*(j-1)+i-1

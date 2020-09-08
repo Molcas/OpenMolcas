@@ -65,8 +65,8 @@ c#include "print.fh"
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       IX(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 c     iRout = 150
 c     iPrint = nPrint(iRout)

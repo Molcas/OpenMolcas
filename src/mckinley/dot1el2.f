@@ -79,8 +79,8 @@
 *     Statement functions
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *

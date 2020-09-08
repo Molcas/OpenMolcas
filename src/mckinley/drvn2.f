@@ -53,8 +53,8 @@ c#include "print.fh"
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,dc(mdc)%iCoSet,
-     &                       iChTbl,iIrrep,iComp,dc(mdc)%nStab)
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************
