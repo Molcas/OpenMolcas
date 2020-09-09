@@ -38,6 +38,7 @@
       End
 
       Subroutine fmsym_release_context(ctx)
+      Implicit Real*8 (a-h,o-z)
       Integer ret
 *     INT cmsym_release_context(msym_context *pctx, int*err)
       call cmsym_release_context(ctx,ret)
