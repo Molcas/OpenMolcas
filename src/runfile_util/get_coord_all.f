@@ -47,38 +47,30 @@
       End
       Subroutine Get_Coord_All_(Coord_Unique,nUnique_Atoms,
      &                          Coord_All,nAll_Atoms)
+      use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
       Real*8  Coord_Unique(3,nUnique_Atoms),
      &        Coord_All(3,nAll_Atoms)
-      integer is_nSym, nSym
-      integer is_iOper, iOper(0:7)
-      save is_nSym, is_iOper
-      data is_nSym/0/, is_iOper/0/
-      save nSym, iOper
+      integer, Save:: Active=0
 *     Write (*,*) 'Enter Get_Coord_All_'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if(is_nSym.eq.0) then
-       Call Get_iScalar('nSym',nSym)
-       is_nSym=1
+      if(Active.eq.0) then
+       Call Symmetry_Info_Get()
+       Active=1
       endif
-      nIrrep=nSym
-*     Write (*,*) 'Get_Coord_All_: nSym=',nSym
-      if(is_iOper.eq.0) then
-       Call Get_iArray('Symmetry operations',iOper,nSym)
-       is_iOper=1
-      endif
-*     Write (*,*) 'Get_Coord_All_: iOper=',(iOper(i),i=0,nSym-1)
+*     Write (*,*) 'Get_Coord_All_: nIrrep=',nIrrep
+*     Write (*,*) 'Get_Coord_All_: iOper=',(iOper(i),i=0,nIrrep-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       nGen=0
-      If (nSym.eq.2) nGen=1
-      If (nSym.eq.4) nGen=2
-      If (nSym.eq.8) nGen=3
+      If (nIrrep.eq.2) nGen=1
+      If (nIrrep.eq.4) nGen=2
+      If (nIrrep.eq.8) nGen=3
       If (nGen.ge.1) iGen(1)=iOper(1)
       If (nGen.ge.2) iGen(2)=iOper(2)
       If (nGen.eq.3) iGen(3)=iOper(4)
@@ -94,7 +86,6 @@
 *
          iChAtom=iChxyz(Coord_Unique(1,iUnique_Atom),iGen,nGen)
 *        Write (*,*) 'iChAtom=',iChAtom
-*        Call CoSet(iCoSet,nCoSet,iChAtom,iOper,nSym)
          Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
          nCoSet=nIrrep/nStab
 *        Write (*,*) 'In Get_Coord_All'

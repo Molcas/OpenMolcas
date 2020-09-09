@@ -24,18 +24,22 @@
 *> @param[in]  nAtoms_All Number of atoms
 ************************************************************************
       Subroutine Get_Mass_All(Mass_All,nAtoms_All)
-      use Symmetry_Info, only: Symmetry_Info_Get
+      use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
       Implicit None
 #include "stdalloc.fh"
       Integer nAtoms_All, nAtoms_Allx, nAtoms
       Real*8 Mass_All(nAtoms_All)
       Real*8, Dimension (:), Allocatable :: Mass
       Real*8, Dimension (:,:), Allocatable :: CU
-      Integer i,j,nSym,nGen,MaxDCR,iOper(0:7),iChAtom,iCo,nCoSet,nStab
+      Integer i,j,nGen,MaxDCR,iChAtom,iCo,nCoSet,nStab
       Integer iGen(3),iCoSet(0:7,0:7),iStab(0:7)
       Integer, External :: iChxyz
+      Integer, Save:: Active=0
 
-      Call Symmetry_Info_Get()
+      If (Active.eq.0) Then
+         Call Symmetry_Info_Get()
+         Active=1
+      End If
 *     Obtain symmetry-unique masses
       Call Get_nAtoms_All(nAtoms_Allx)
       If (nAtoms_All.ne.nAtoms_Allx) Then
@@ -52,12 +56,10 @@
 *     Replicate masses
       Call mma_allocate(CU,3,nAtoms)
       Call Get_dArray('Unique Coordinates',CU,3*nAtoms)
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('Symmetry operations',iOper,nSym)
       nGen=0
-      If (nSym.eq.2) nGen=1
-      If (nSym.eq.4) nGen=2
-      If (nSym.eq.8) nGen=3
+      If (nIrrep.eq.2) nGen=1
+      If (nIrrep.eq.4) nGen=2
+      If (nIrrep.eq.8) nGen=3
       If (nGen.ge.1) iGen(1)=iOper(1)
       If (nGen.ge.2) iGen(2)=iOper(2)
       If (nGen.eq.3) iGen(3)=iOper(4)
@@ -66,7 +68,7 @@
       Do i=1,nAtoms
         iChAtom=iChxyz(CU(1,i),iGen,nGen)
         Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
-        nCoSet=nSym/nStab
+        nCoSet=nIrrep/nStab
         Do iCo=0,nCoSet-1
           j=j+1
           Mass_all(j)=Mass(i)

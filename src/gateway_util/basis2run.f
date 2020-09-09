@@ -32,16 +32,17 @@
       nPrim=0
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
-        if (iCnttp.eq.iCnttp_Dummy) cycle
+        If (iCnttp.eq.iCnttp_Dummy) cycle
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
-*     Loop over distinct centers
+*       Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
-*     Loop over symmetry-related centers
+*         Loop over symmetry-related centers
           Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-*     Loop over shells associated with this center
-*     Start with s type shells
+*           Loop over shells associated with this center
+*           Start with s type shells
             jSh = iShSrt
             if (Shells(jSh)%Aux.or.
      &          Shells(jSh)%Frag) cycle
@@ -64,6 +65,7 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
 *     Loop over distinct centers

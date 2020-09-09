@@ -10,23 +10,18 @@
 ************************************************************************
       Subroutine Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,
      &                          Vectors_All,nAll_Atoms,mDisp)
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: iChTbl, nIrrep, iOper, Symmetry_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8  Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
       Integer iGen(3), iCoSet(0:7,0:7), mDisp(0:7),
      &        iChCar(3), nDisp(0:7), iStab(0:7)
-      Character lIrrep(8)*3, lBsFnc(8)*80
 #ifdef _DEBUG_
       Logical Temp
 #endif
       Logical TF, TstFnc
-      integer is_nSym, nSym
-      integer is_iOper, iOper(0:7)
-      save is_nSym, is_iOper
-      data is_nSym/0/, is_iOper/0/
-      save nSym, iOper
+      Integer, Save:: Active=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,22 +38,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if(is_nSym.eq.0) then
-       Call get_iScalar('nSym',nSym)
-       is_nSym=1
-      endif
-      if(is_iOper.eq.0) then
-       Call Get_iArray('Symmetry operations',iOper,nSym)
-       is_iOper=1
-      endif
-      nIrrep=nSym
+      If (Active.eq.0) Then
+         Call Symmetry_Info_Get()
+         Active=1
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
       nGen=0
-      If (nSym.eq.2) nGen=1
-      If (nSym.eq.4) nGen=2
-      If (nSym.eq.8) nGen=3
+      If (nIrrep.eq.2) nGen=1
+      If (nIrrep.eq.4) nGen=2
+      If (nIrrep.eq.8) nGen=3
       If (nGen.ge.1) iGen(1)=iOper(1)
       If (nGen.ge.2) iGen(2)=iOper(2)
       If (nGen.eq.3) iGen(3)=iOper(4)
@@ -67,12 +57,6 @@
       Write (6,*) 'iGen=',(iGen(i),i=1,nGen)
 #endif
       Call ChCar(iChCar,iGen,nGen)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate character table
-*
-      Call ChTab(iOper,nSym,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,7 +127,7 @@
       iVector=0
       iVector_all=0
       iFreq=0
-      Do iIrrep = 0, nSym-1
+      Do iIrrep = 0, nIrrep-1
 #ifdef _DEBUG_
          Write (6,*) 'iIrrep,nDisp(iIrrep)=',iIrrep,nDisp(iIrrep)
 #endif
