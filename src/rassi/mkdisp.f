@@ -144,8 +144,8 @@ C-------------------------------------------
          End Do
       End Do
       !
-      Call ICopy(mxdc*8,[0],0,IndDsp,1)
-      Call ICopy(mxdc*3,[0],0,InxDsp,1)
+      Call ICopy(MxAtom*8,[0],0,IndDsp,1)
+      Call ICopy(MxAtom*3,[0],0,InxDsp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0

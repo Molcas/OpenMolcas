@@ -250,9 +250,9 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *
       nCnt = nCnt + 1
       n_dc=max(mdc+nCnt,n_dc)
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,' RdCtl: Increase Mxdc')
-         Write (LuWr,*) '        Mxdc=',Mxdc
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,' RdCtl: Increase MxAtom')
+         Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
       iend=Index(KWord,' ')

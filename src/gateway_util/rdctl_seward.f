@@ -1419,9 +1419,9 @@ c Simplistic validity check for value
 *
       nCnt = nCnt + 1
       n_dc=max(mdc+nCnt,n_dc)
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,' RdCtl: Increase Mxdc')
-         Write (LuWr,*) '        Mxdc=',Mxdc
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,' RdCtl: Increase MxAtom')
+         Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
       iend=Index(KWord,' ')
@@ -1473,9 +1473,9 @@ c Simplistic validity check for value
                   nCnt = nCnt + 1
 
                   n_dc=max(mdc+nCnt,n_dc)
-                  If (mdc+nCnt.gt.Mxdc) Then
-                     Call WarningMessage(2,' RdCtl: Increase Mxdc')
-                     Write (LuWr,*) '        Mxdc=',Mxdc
+                  If (mdc+nCnt.gt.MxAtom) Then
+                     Call WarningMessage(2,' RdCtl: Increase MxAtom')
+                     Write (LuWr,*) '        MxAtom=',MxAtom
                      Call Quit_OnUserError()
                   End If
 
@@ -4535,10 +4535,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             mdc = iCnt + dbsc(iCnttp)%mdci
             Mx_mdc = Max(Mx_mdc,mdc)
             n_dc=max(mdc,n_dc)
-            If (mdc.gt.Mxdc) Then
-               Call WarningMessage(2,' mdc.gt.Mxdc!;'
-     &                      //' Increase Mxdc in info.fh.')
-               Write (LuWr,*) ' Mxdc=',Mxdc
+            If (mdc.gt.MxAtom) Then
+               Call WarningMessage(2,' mdc.gt.MxAtom!;'
+     &                      //' Increase MxAtom in info.fh.')
+               Write (LuWr,*) ' MxAtom=',MxAtom
                Call Abend()
             End If
 *
