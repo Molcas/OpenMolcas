@@ -784,7 +784,7 @@ Optional optimization procedure keywords
   of the origin of the hyper sphere. The default origin is the structure
   of the first iteration.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: REFErence <basic>
               <HELP>
               The keyword is followed by a list of the symmetry unique coordinates (in au)
