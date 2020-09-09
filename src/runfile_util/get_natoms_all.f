@@ -76,7 +76,7 @@
 *
          iChAtom=iChxyz(Coord_Unique_Atoms(1,iUnique_Atom),iGen,nGen)
 *        Write (*,*) 'iChAtom=',iChAtom
-         Call CoSet(iCoSet,nCoSet,iChAtom,iOper,nIrrep)
+         Call CoSet(iCoSet,nCoSet,iChAtom)
 *        Write (*,*) 'nCoSet=',nCoSet
 *        Write (*,*) 'iCoSet=',(iCoSet(i),i=0,nCoset-1)
 *

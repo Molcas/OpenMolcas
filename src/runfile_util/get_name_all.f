@@ -60,7 +60,7 @@
       Do iUnique_Atom = 1, nUnique_Atoms
 *
          iChAtom=iChxyz(Coord_Unique_Atoms(1,iUnique_Atom),iGen,nGen)
-         Call CoSet(iCoSet,nCoSet,iChAtom,iOper,nIrrep)
+         Call CoSet(iCoSet,nCoSet,iChAtom)
 *
          Do i = 1, nCoSet
             iAll_Atom = iAll_Atom + 1

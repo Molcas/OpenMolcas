@@ -24,7 +24,6 @@
 *                                                                      *
 *                                                                      *
 * Parameters:                                                          *
-*     Mxdc  : Max Number of distinct centra                            *
 *     MxAng : Highest angular momentum index                           *
 *     MxUnq : Max number of distinct basis functions                   *
 *     MxAO  : Max number of distinct AO type functions                 *
@@ -158,7 +157,6 @@
 *                                                                      *
 #include "Molcas.fh"
 *
-      Integer, Parameter :: Mxdc=MxAtom
       Integer, Parameter :: MxAng=iTabMx
       Integer, Parameter :: MxUnq=MaxBfn+MaxBfn_Aux
       Integer, Parameter :: MxAO=MaxBfn+MaxBfn_Aux
