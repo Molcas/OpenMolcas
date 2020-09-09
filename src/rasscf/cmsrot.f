@@ -26,62 +26,43 @@
 #include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(NACPR2)::TUVX
-      Real*8,DIMENSION(lroots,lroots)::RotMat
       CHARACTER(len=16)::VecName
-C      CHARACTER(len=1)::CDummy
-      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
+      Real*8,DIMENSION(:,:,:,:),Allocatable::Gtuvx
+      Real*8,DIMENSION(:,:,:,:),Allocatable::DDG
       Real*8,DIMENSION(:,:,:),Allocatable::GDMat
-      INTEGER LGDMAT
-      call readmat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+      Real*8,DIMENSION(:,:),Allocatable::RotMat
+C     Allocating Memory
+      CALL mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
+      CALL mma_allocate(RotMat,lRoots,lRoots)
+      CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
+      CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
-C      call printmat(CDummy,VecName,RotMat,lroots,lroots,0,16,'N')
+      CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+
       CALL LoadGtuvx(TUVX,Gtuvx)
 
-      LGDMAt=LRoots*(LRoots+1)/2
-      CALL mma_allocate(GDMat,LGDMat,NAC,NAC)
+      CALL GetGDMat(GDMat)
 
-      CALL GetGDMat(GDMat,LGDMat)
+      CALL GetDDgMat(DDg,GDMat,Gtuvx)
 
-      CALL GetDDgMat(DDg,GDMat,Gtuvx,LGDMat)
-
-      CALL mma_deallocate(GDMat)
-
-      CALL RotMatOpt(RotMat,DDg)
+      CALL NStateOpt(RotMat,DDg)
 
       VecName='CMS-PDFT'
       CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+
+C     Deallocating Memory
+      CALL mma_deallocate(GDMat)
+      CALL mma_deallocate(RotMat)
+      CALL mma_deallocate(Gtuvx)
+      CALL mma_deallocate(DDg)
       RETURN
       End Subroutine
 
 ***********************************************************************
 
 ***********************************************************************
-      Subroutine RotMatOpt(RotMat,DDg)
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-#include "input_ras.fh"
-#include "warnings.fh"
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(lroots,lroots)::RotMat
-C      CALL CalcVee(Vee,RotMat,DDg)
-C      write(6,*)'XMS Rotation Matrix'
-C      call printmat(CDummy,CDummy,RotMat,lroots,lroots,0,0,'N')
-C      IF(lroots.eq.2) THEN
-C       CALL TwoStateOpt(RotMat,DDg)
-C      ELSE
-       CALL NStateOpt(RotMat,DDg)
-C      END IF
-      RETURN
-      END SUBROUTINE
-***********************************************************************
-
-
-***********************************************************************
       Subroutine NStateOpt(RotMat,DDg)
+      use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -94,13 +75,16 @@ C      END IF
 
       INTEGER IState,JState,NPairs,IPair,ICMSIter
       Real*8 VeeSumOld,VeeSumNew,Threshold
-      INTEGER,DIMENSION(lRoots*(lRoots-1)/2,2)::StatePair
-      Real*8,DIMENSION(lRoots*(lRoots-1)/2)::theta
-      Real*8,DIMENSION(lroots,lroots)::FRot
+      INTEGER,DIMENSION(:,:),Allocatable::StatePair
+      Real*8,DIMENSION(:),Allocatable::theta
+      Real*8,DIMENSION(:,:),Allocatable::FRot
       Logical Converged
       Real*8 CalcNSumVee
       External CalcNSumVee
 
+      CALL mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
+      CALL mma_allocate(theta,LRoots*(LRoots-1)/2)
+      CALL mma_allocate(FRot,lRoots,lRoots)
       Threshold=CMSThreshold
       NPairs=lRoots*(lRoots-1)/2
       IPair=0
@@ -162,6 +146,9 @@ C      END IF
       END DO
       write(6,*)('=',i=1,71)
       CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
+      CALL mma_deallocate(StatePair)
+      CALL mma_deallocate(theta)
+      CALL mma_deallocate(FRot)
       RETURN
       END SUBROUTINE
 ***********************************************************************
@@ -208,6 +195,7 @@ C      CALL PrintMat(' ',' ',FRot,lRoots,lRoots,0,0,'N')
 ***********************************************************************
 ***********************************************************************
       SUBROUTINE OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
+      use stdalloc, only : mma_allocate, mma_deallocate
       real*8 Angle,SumVee
       INTEGER I1,I2,lRoots
       Real*8,DIMENSION(lRoots,lRoots)::RotMat
@@ -216,14 +204,20 @@ C      CALL PrintMat(' ',' ',FRot,lRoots,lRoots,0,0,'N')
       Logical Converged
       INTEGER Iter,IterMax,IA,IMax
       Real*8 Threshold,StepSize,SumOld
-      Real*8,DIMENSION(4)::Angles,Sums
-      Real*8,DIMENSION(31)::ScanA,ScanS
-      Real*8,DIMENSION(lRoots,lRoots)::RTmp
+      Real*8,DIMENSION(:),Allocatable::Angles,Sums
+      Real*8,DIMENSION(:),Allocatable::ScanA,ScanS
+      Real*8,DIMENSION(:,:),Allocatable::RTmp
 
       Real*8 CalcNSumVee
       INTEGER RMax
       External RMax
       External CalcNSumVee
+
+      CALL mma_allocate(Angles,4)
+      CALL mma_allocate(Sums,4)
+      CALL mma_allocate(ScanA,31)
+      CALL mma_allocate(ScanS,31)
+      CALL mma_allocate(RTmp,lRoots,lRoots)
 
       Converged=.false.
       stepsize=dble(atan(1.0d0))/15
@@ -277,6 +271,11 @@ C     &'Convergence reached after ',Iter,' micro cycles'
         End If
        END IF
       END DO
+      CALL mma_deallocate(Angles)
+      CALL mma_deallocate(Sums)
+      CALL mma_deallocate(ScanA)
+      CALL mma_deallocate(ScanS)
+      CALL mma_deallocate(RTmp)
 
       RETURN
       END SUBROUTINE
@@ -295,6 +294,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 
 ***********************************************************************
       Function CalcNSumVee(RotMat,DDg)
+      use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -304,15 +304,17 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 #include "warnings.fh"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
-      Real*8,DIMENSION(lRoots)::Vee
+      Real*8,DIMENSION(:),Allocatable::Vee
       Real*8 CalcNSumVee
       INTEGER IState
 
+      CALL mma_allocate(Vee,lRoots)
       CalcNSumVee=0.0d0
       CALL CalcVee(Vee,RotMat,DDg)
       DO IState=1,lRoots
        CalcNSumVee=CalcNSumVee+Vee(IState)
       END DO
+      CALL mma_deallocate(Vee)
       RETURN
       END Function
 ***********************************************************************
@@ -415,7 +417,7 @@ C     & IState,' is ',Vee(IState)
       END SUBROUTINE
 ***********************************************************************
 ***********************************************************************
-      Subroutine GetDDgMat(DDg,GDMat,Gtuvx,LGDMat)
+      Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -423,10 +425,9 @@ C     & IState,' is ',Vee(IState)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.fh"
-      INTEGER LGDMat
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
-      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
 
       INTEGER iI,iJ,iK,iL,it,iu,iv,ix,iII,iJJ,iKK,iLL
       DO iI=1,lRoots

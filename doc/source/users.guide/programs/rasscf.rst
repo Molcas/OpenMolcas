@@ -2397,7 +2397,7 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6" >
               %%Keyword: CMTH <advanced>
               <HELP>
-              This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermeidate states to converge.
+              This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermediate states to converge.
               </HELP>
               </KEYWORD>
 

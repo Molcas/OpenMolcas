@@ -28,30 +28,34 @@
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
       Real*8,Dimension(NTOT2)::CMO
-
 ******Auxillary quantities
-      Real*8,DIMENSION(NAC,NAC)::FckO
+      Real*8,DIMENSION(:,:),Allocatable::FckO
 ******FckO:  Fock matrix for MO
-      Real*8,DIMENSION(lRoots,lRoots)::FckS,EigVec
+      Real*8,DIMENSION(:,:),Allocatable::FckS,EigVec
 ******FckS:  Fock matrix for states
       Real*8,DIMENSION(:,:,:),Allocatable::GDMat
-      INTEGER LGDMat
 ******GDMat: density matrix or transition density matrix
 
+C     Allocating Memory
+      CALL mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
+      CALL mma_allocate(FckO,NAC,NAC)
+      CALL mma_allocate(FckS,lRoots,lRoots)
+      CALL mma_allocate(EigVec,lRoots,lRoots)
+C
       CALL CalcFckO(CMO,FI,FA,FckO)
 
-      LGDMat=lRoots*(lRoots+1)/2
-      CALL mma_allocate(GDMat,LGDMat,NAC,NAC)
-
-      CALL GetGDMat(GDMAt,LGDMat)
+      CALL GetGDMat(GDMAt)
 C
-      CALL CalcFckS(FckO,GDMat,FckS,LGDMat)
-
-      CALL mma_deallocate(GDMat)
+      CALL CalcFckS(FckO,GDMat,FckS)
 C
       CALL CalcEigVec(FckS,lRoots,EigVec)
 C
       call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
+C     Deallocating Memory
+      CALL mma_deallocate(GDMat)
+      CALL mma_deallocate(FckO)
+      CALL mma_deallocate(FckS)
+      CALL mma_deallocate(EigVec)
 
       RETURN
       End Subroutine
@@ -143,7 +147,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 ******************************************************
 
 ******************************************************
-      Subroutine GetGDMat(GDMat,LGDMat)
+      Subroutine GetGDMat(GDMat)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -152,9 +156,8 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "input_ras.fh"
 #include "warnings.fh"
 #include "rasscf_lucia.fh"
-      INTEGER LGDMat
 *     Output
-      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
+      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxillary qunatities
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
@@ -199,7 +202,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       END Subroutine
 
 ******************************************************
-      Subroutine CalcFckS(FckO,GDMat,FckS,LGDMat)
+      Subroutine CalcFckS(FckO,GDMat,FckS)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -210,9 +213,8 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "rasscf_lucia.fh"
 
 ******Input
-      INTEGER LGDMat
       Real*8,DIMENSION(NAC,NAC)::FckO
-      Real*8,DIMENSION(LGDMat,NAC,NAC)::GDMat
+      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 ******Output
       Real*8,DIMENSION(lRoots,lRoots)::FckS
 ******Auxillary variables
