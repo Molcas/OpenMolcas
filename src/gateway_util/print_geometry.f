@@ -121,7 +121,7 @@
                   endif
                End If
                nchr=dbsc(jCnttp)%AtmNr
-               if (nc.gt.8*mxdc) Then
+               if (nc.gt.8*MxAtom) Then
                   Call WarningMessage(2,'lblxxx too small')
                   Call Abend()
                End If

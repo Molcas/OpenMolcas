@@ -71,10 +71,10 @@
 *        Loop over distinct centers
          Do icnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            if (mdc.gt.mxdc) then
-               Call WarningMessage(2,'mxdc too small')
-               write(LuWr,*) 'mxdc=',mxdc
-               write(LuWr,*) 'Increase mxdc in info.fh and',
+            if (mdc.gt.MxAtom) then
+               Call WarningMessage(2,'MxAtom too small')
+               write(LuWr,*) 'MxAtom=',MxAtom
+               write(LuWr,*) 'Increase MxAtom in info.fh and',
      &                       ' recompile the code!'
                Call Abend()
             end if

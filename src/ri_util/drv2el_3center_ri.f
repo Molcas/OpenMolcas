@@ -223,8 +223,8 @@
 *     the RI vectors.
 *
       Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,iSOInf,
-     &               MxAO,Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
+     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
+     &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
       Call GetMem('iRv','Allo','Inte',ip_iRv,nSkal2)

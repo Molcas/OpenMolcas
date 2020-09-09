@@ -55,7 +55,7 @@ c      Logical DoCholesky
       character*4 lab
       Logical Run_MCLR
       Character*80  KWord, Key
-      Integer iSym(3), iTemp(3*mxdc)
+      Integer iSym(3), iTemp(3*MxAtom)
       Data xyz/'x','y','z'/
 *
       Call QEnter('InputH')
@@ -88,7 +88,7 @@ c      EndIf
       Call lCopy(mxpert,[.true.],0,lPert,1)
       sIrrep=.false.
       iprint=0
-      Do 109 i = 1, 3*mxdc
+      Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue
 *
@@ -399,8 +399,8 @@ c      EndIf
      &           '********************************************'
       Write (6,*)
       End If
-      Call ICopy(mxdc*8,[0],0,IndDsp,1)
-      Call ICopy(mxdc*3,[0],0,InxDsp,1)
+      Call ICopy(MxAtom*8,[0],0,IndDsp,1)
+      Call ICopy(MxAtom*3,[0],0,InxDsp,1)
       Call GetMem('ATDISP','ALLO','INTE',ipad,mdisp)
       Call GetMem('DEGDISP','ALLO','INTE',ipdd,mdisp)
       nDisp = 0

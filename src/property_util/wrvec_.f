@@ -547,7 +547,6 @@ c      Write(LU,'(8i8)') (nOpt(i),i=1,nCnttp)
           iCurr=iCurr+8
        enddo
 
-cc      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(Mx_Unq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
 

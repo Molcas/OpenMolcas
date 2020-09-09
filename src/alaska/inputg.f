@@ -51,7 +51,7 @@
       Logical TstFnc, Type, Slct, T_Only, No_Input_OK
       Character*1 xyz(0:2)
       Character KWord*80, Key*80
-      Integer iSym(3), iTemp(3*mxdc)
+      Integer iSym(3), iTemp(3*MxAtom)
       Logical timings,Reduce_Prt
       External Reduce_Prt
       Data xyz/'x','y','z'/
@@ -122,10 +122,10 @@ c      onenly=.true.
 c      nprint(112)=99
 c      nprint(133)=99
 c      nprint(26)=99
-      Do 109 i = 1, 3*mxdc
+      Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue
-      Do 1500 ldsp = 1, 3*mxdc
+      Do 1500 ldsp = 1, 3*MxAtom
          Direct(ldsp) = .True.
  1500 Continue
 *                                                                      *
@@ -282,7 +282,7 @@ c      nprint(26)=99
      &                  ' Equivalence option to work together.'
          Call Quit_OnUserError()
       End If
-      Do 961 i = 1, 3*mxdc
+      Do 961 i = 1, 3*MxAtom
          Direct(i) = .False.
  961  Continue
  962  Read(LuSpool,'(A)',Err=988) KWord
@@ -560,10 +560,10 @@ c      nprint(26)=99
          Write (LuWr,*)
       End If
 *
-      Call ICopy(mxdc*8,[0],0,IndDsp,1)
-      Call ICopy(mxdc*3,[0],0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
-      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
+      Call ICopy(MxAtom*8,[0],0,IndDsp,1)
+      Call ICopy(MxAtom*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*MxAtom,[One],0,Disp_Fac,1)
+      Call ICopy(3*MxAtom,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0

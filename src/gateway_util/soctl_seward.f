@@ -12,6 +12,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -82,6 +83,7 @@ cvv LP_NAMES was used later without initialization.
 *     Compute cdMax, EtMax, and nShlls.
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
+      Call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -128,7 +130,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
       iSO = 0
       iSO_Aux=iBas+iBas_Frag
-      iSO_Frag = 0
+      iSO_Frag=iBas
       iSO_Tot=0
       n2Tot = 0
       n2Max = 0
@@ -433,8 +435,8 @@ C     Show=Show.and..Not.Primitive_Pass
      &                        NrOpr(dc(mdc)%iCoSet(iCo,0))),
      &                        iCo=0,nIrrep/dc(mdc)%nStab-1 )
 *
-                        If (iSO_.gt.4*MxAO) Then
-                           Write (6,*) 'iSO_.gt.2*MxAO'
+                        If (iSO_.gt.nSOInf) Then
+                           Write (6,*) 'iSO_.gt.nSOInf'
                            Call Abend()
                         End If
                         iSOInf(1,iSO_)=iCnttp
@@ -786,6 +788,10 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         if(output) Write (6,'(I5,2X,A8,5X,A8,I3)')
      &                        iSO_,dc(mdc)%LblCnt,ChTmp,mc+imc
 *
+                        If (iSO_.gt.nSOInf) Then
+                           Write (6,*) 'iSO_.gt.nSOInf'
+                           Call Abend()
+                        End If
                         iSOInf(1,iSO_)=iCnttp
                         iSOInf(2,iSO_)=iCnt
                         iSOInf(3,iSO_)=iAng

@@ -48,7 +48,7 @@ c
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxDc)
+      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Character Key*180, KWord*180,            BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, dbas*4

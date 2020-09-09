@@ -49,7 +49,7 @@
 #include "relae.fh"
 #include "periodic_table.fh"
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxDc)
+      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,

@@ -73,8 +73,8 @@
 *
       nCnt = 1
       n_dc=max(mdc+nCnt,n_dc)
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,'Mk_Dummy_Shell: Increase MxAtom')
          Call Abend()
       End If
       dbsc(nCnttp)%mdci=mdc

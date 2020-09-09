@@ -29,7 +29,7 @@
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Integer iAtmNr2(mxdbsc)
       Real*8 Charge2(mxdbsc)
-      Common /delete/ kDel(0:MxAng,MxDc)
+      Common /delete/ kDel(0:MxAng,MxAtom)
       Data IfTest/.False./
 *
 !#define _DEBUG_

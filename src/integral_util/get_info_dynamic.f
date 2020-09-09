@@ -32,11 +32,13 @@
 *                                                                      *
       Use Basis_Info
       Use Center_Info
+      Use SOAO_Info
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Get()
       Call Center_Info_Get()
+      Call SOAO_Info_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -48,14 +48,14 @@
 #include "info_expbas.fh"
 #include "stdalloc.fh"
       Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,mxdc),Znuc(mxdc)
-      Character*(LENIN) AtomLabel(mxdc)
+      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
+      Character*(LENIN) AtomLabel(MxAtom)
       Character*512 FilesOrb
       Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
-      Integer ibas_lab(mxdc), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
+      Integer ibas_lab(MxAtom), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
       Character*(LENIN8+1) gtolabel(maxbfn)
 *      Character*8 Filename
       Character*50 VTitle

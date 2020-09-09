@@ -49,9 +49,9 @@
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             kdc = kdc + 1
             mdc = iCnt + dbsc(iCnttp)%mdci
-            if(Max(mdc,kdc).gt.mxdc) then
-               Call WarningMessage(2,'mxdc too small:')
-               write(LuWr,*) 'mxdc=',mxdc
+            if(Max(mdc,kdc).gt.MxAtom) then
+               Call WarningMessage(2,'MxAtom too small:')
+               write(LuWr,*) 'MxAtom=',MxAtom
                write(LuWr,*) 'Increase mxAtom in Molcas.fh and',
      &                       ' recompile the code!'
                Call Abend()

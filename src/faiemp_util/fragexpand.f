@@ -204,9 +204,9 @@
 *
             mdc = mdc + 1
             n_dc=max(mdc,n_dc)
-            If (mdc.gt.Mxdc) Then
-              Write (6,*) ' FragExpand: Increase Mxdc'
-              Write (6,*) '        Mxdc=',Mxdc
+            If (mdc.gt.MxAtom) Then
+              Write (6,*) ' FragExpand: Increase MxAtom'
+              Write (6,*) '        MxAtom=',MxAtom
               Call ErrTra
               Call Quit_OnUserError()
             End If
