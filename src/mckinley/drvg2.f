@@ -229,8 +229,7 @@
             jDisp=jDisp+1
             ipDisp(jDisp)=nInt+1
             Do jIrr=0,nIrrep-1
-               kIrr=nrOpr(iEOr(iOper(iIrrep),iOper(jIrr)),
-     &                    iOper,nIrrep)
+               kIrr=nrOpr(iEOr(iOper(iIrrep),iOper(jIrr)))
                If (jIrr.eq.kIrr) Then
                   nInt=nInt+nBas(jIrr)*(nBas(jIrr)+1)/2
                Else If (kIrr.lt.jIrr) Then
@@ -243,8 +242,7 @@
                nInt=nInt+nMO(iIrrep)
                ipdisp2(jdisp)=nInt+1
                Do jIrr=0,nIrrep-1
-                  kIrr=nrOpr(iEOr(iOper(iIrrep),iOper(jIrr)),
-     &                       iOper,nIrrep)
+                  kIrr=nrOpr(iEOr(iOper(iIrrep),iOper(jIrr)))
                   If (jIrr.eq.jIrr) Then
                      nInt=nInt+nBas(jIrr)*(nBas(jIrr)+1)/2
                   Else If (kIrr.lt.jIrr) Then
@@ -263,8 +261,7 @@
                jDisp=jDisp+1
                ipdisp3(jdisp)=nInt+1
                Do iS=0,nirrep-1
-                  js=nrOpr(iEOr(iOper(is),iOper(iIrrep)),
-     &                     iOper,nIrrep)
+                  js=nrOpr(iEOr(iOper(is),iOper(iIrrep)))
                   nInt=nInt+nBas(iS)*nAsh(jS)
                End Do
             End Do

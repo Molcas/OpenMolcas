@@ -101,14 +101,11 @@
 
 C Compute stabilizer, and then the double coset representation:
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 C Loop over the cosets of the stabilizer group:
       Do lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT), Ccoor, TC)
 
 
 C Generate the quadrupole integral tables:
@@ -148,7 +145,7 @@ C Generate the dipole integral tables:
 
 C Symmetry adaption:
          if(iprint.gt.49) write(6,*)' AMPInt calling SymAdO'
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp,lOper,iChO,One)
          if(iprint.gt.49) write(6,*)' Back to AMPInt.'

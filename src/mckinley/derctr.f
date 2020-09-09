@@ -15,6 +15,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -31,9 +32,8 @@
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
@@ -118,14 +118,14 @@
 *        If turned on it should not do much of a difference.
 *
 #ifdef _OLD_CODE_
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,iCo(iAtom)),
-     &               nStab(iCo(iAtom)),jStab(0,iCo(jAtom)),
-     &               nStab(iCo(jAtom)),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                     dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
+     &                     iDCRR,nDCRR)
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,iCo(iAtom)),nStab(iCo(iAtom)),
-     &                 jStab(0,iCo(jAtom)),nStab(iCo(jAtom)),
+            Call Inter(dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                 dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet
@@ -174,9 +174,7 @@
                End If
                Do jCar=1,istop
                   iComp=iEOr(2**(iCar-1),2**(jCar-1))
-                  Chck=TstFnc(iOper,nIrrep,iCoM,
-     &                        nCoM,iChTbl,0,iComp,
-     &                        nStabM)
+                  Chck=TstFnc(iCoM,0,iComp,nStabM)
                   If (Chck)
      &                 IfHss(iAtom,iCar,jAtom,jCar)=.true.
                End Do

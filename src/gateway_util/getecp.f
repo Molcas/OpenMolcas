@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,iShll,BLine,nProj,UnNorm,iCnttp)
+      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -35,13 +35,11 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character*180 Line, Get_Ln
-      Character*(*) BLine
+      Character(LEN=180) Line, Get_Ln
 *     External Get_Ln
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
       Integer mPP(2)
       Logical UnNorm
-      Integer iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -147,7 +145,7 @@ C              Write (6,*) 'ccr=',ccr
          End Do
 C        Write (6,*) 'Done'
 *
-         Go To 999
+         Return
       End If
 *                                                                      *
 ************************************************************************
@@ -163,12 +161,12 @@ C        Write (6,*) 'Done'
       Endif
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM1)
-      dbsc(iCnttp)%nM1=nM1
+      dbsc(nCnttp)%nM1=nM1
       If (nM1.gt.0) Then
-         Call mma_allocate(dbsc(iCnttp)%M1xp,nM1,Label='dbsc:M1xp')
-         Call mma_allocate(dbsc(iCnttp)%M1cf,nM1,Label='dbsc:M1cf')
-         Call Read_v(lUnit,dbsc(iCnttp)%M1xp(1),1,nM1,1,ierr)
-         Call Read_v(lUnit,dbsc(iCnttp)%M1cf(1),1,nM1,1,ierr)
+         Call mma_allocate(dbsc(nCnttp)%M1xp,nM1,Label='dbsc:M1xp')
+         Call mma_allocate(dbsc(nCnttp)%M1cf,nM1,Label='dbsc:M1cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M1xp(1),1,nM1,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M1cf(1),1,nM1,1,ierr)
        End If
 *                                                                      *
 ************************************************************************
@@ -185,12 +183,12 @@ C        Write (6,*) 'Done'
       Endif
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM2)
-      dbsc(iCnttp)%nM2=nM2
+      dbsc(nCnttp)%nM2=nM2
       If (nM2.gt.0) Then
-         Call mma_allocate(dbsc(iCnttp)%M2xp,nM2,Label='dbsc:M2xp')
-         Call mma_allocate(dbsc(iCnttp)%M2cf,nM2,Label='dbsc:M2cf')
-         Call Read_v(lUnit,dbsc(iCnttp)%M2xp,1,nM2,1,ierr)
-         Call Read_v(lUnit,dbsc(iCnttp)%M2cf,1,nM2,1,ierr)
+         Call mma_allocate(dbsc(nCnttp)%M2xp,nM2,Label='dbsc:M2xp')
+         Call mma_allocate(dbsc(nCnttp)%M2cf,nM2,Label='dbsc:M2cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
       End If
 *                                                                      *
 ************************************************************************
@@ -228,7 +226,7 @@ C        Write (6,*) 'Done'
       Line = Get_Ln(lUnit)
       Call Get_I1(1,nProj)
 *
-      If (nProj.lt.0) Go To 999
+      If (nProj.lt.0) Return
       Do 10 iAng = 0, nProj
 *        Write (6,*) ' iAng=',iAng
          n_Elec=2*(2*iAng+1)
@@ -329,36 +327,11 @@ C        Write (6,*) 'Done'
          Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
  10   Continue
- 999  Continue
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(BLine)
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*998  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Basis set label not found in library')
-*        Call Quit_OnUserError()
-*997  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error on opening the basis set library')
-*        Call Quit_OnUserError()
-*996  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: No library file available with this name')
-*        Call Quit_OnUserError()
-*995  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error while reading from basis library')
-*        Call Quit_OnUserError()
-*993  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error while reading the primitive line'
-*    &                //' Line reads:'//Line)
-*        Call Quit_OnUserError()
  992  Continue
          Call WarningMessage(2,
      &      'Abend in GetBS: Error while reading the exponents')

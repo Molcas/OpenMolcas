@@ -34,6 +34,9 @@
       use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
+      use Center_Info, only: Center_Info_Dmp
+      use Symmetry_Info, only: Symmetry_Info_Dmp
+      use SOAO_Info, only: SOAO_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -77,8 +80,7 @@
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Put_iArray('SewIInfo',p_ix,Len)
 *
-      Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      Call Put_iArray('iSOInf',iSOInf,3*4*MxAO)
+      Call SOAO_Info_Dmp()
       Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)
 *
 *     Finally some on iAOtSO
@@ -116,6 +118,8 @@
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
+      Call Center_Info_Dmp()
+      Call Symmetry_Info_Dmp()
       Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************

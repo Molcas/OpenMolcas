@@ -16,7 +16,7 @@
      &                     Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
+     &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -41,7 +41,7 @@
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), dEner,
      &       Cx(3*nsAtom,Iter+1), Gx(3*nsAtom,Iter), MF(3*nsAtom)
-      Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
+      Integer jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -212,7 +212,7 @@
          Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,Cx,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,

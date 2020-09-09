@@ -21,6 +21,7 @@
 *       University of Torino, July 2006                                *
 ************************************************************************
       Use Basis_Info
+      Use Center_Info
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
 #include "itmax.fh"
@@ -32,9 +33,8 @@
       Dimension GradIn(nGrad)
       Character CNames(MxAtom)*(LENIN5)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       mdc=0
       iIrrep=0
 *
@@ -53,19 +53,19 @@
      &             dbsc(iCnttp)%Aux)) Then
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1
-               Do iCo=0,nIrrep/nStab(mdc)-1
-                  kop=iCoSet(iCo,0,mdc)
+               Do iCo=0,nIrrep/dc(mdc)%nStab-1
+                  kop=dc(mdc)%iCoSet(iCo,0)
                   nDispS = IndDsp(mdc,iIrrep)
                   iCen=iCen+1
                   Do iCar=0,2
                      iComp = 2**iCar
                      If ( TF(mdc,iIrrep,iComp)) Then
                         nDispS = nDispS + 1
-                        XR=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),icomp))
+                        XR=DBLE(iPrmt(NrOpr(kop),icomp))
                         CGrad(iCar+1,iCen)=XR*GradIn(nDispS)
                      End If
                   End Do
-                  CNames(iCen)=LblCnt(mdc)
+                  CNames(iCen)=dc(mdc)%LblCnt
                End Do
             End Do
          End If

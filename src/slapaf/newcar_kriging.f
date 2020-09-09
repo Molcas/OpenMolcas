@@ -46,7 +46,7 @@
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Work(ipCoor),
      &            ipBMx,dMass,Lbl,kShift,ip_qInt,ip_dqInt,DFC,dss,
-     &            qTemp,Name,iOper,nSym,iSym,Smmtrc,Degen,
+     &            qTemp,Name,iSym,Smmtrc,Degen,
      &            Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,

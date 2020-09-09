@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GF_on_the_Fly(iDo_dDipM)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -118,7 +119,7 @@
       Call RecPrt('NModes',' ',Work(ipNMod),nX,nInter)
 #endif
 *
-      If (nSym.eq.1) Then
+      If (nIrrep.eq.1) Then
          Call Print_Mode_Components(Work(ipNMod),Work(ipEVal),
      &                              nModes,lModes,mDisp)
       End If

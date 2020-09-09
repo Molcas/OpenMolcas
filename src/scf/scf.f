@@ -121,11 +121,9 @@
 *     Call MolDen Interface
 *
       If(iUHF.eq.0) Then
-         Call Molden_Interface(iUHF,'SCFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','SCFORB',iRc)
+         Call Molden_Interface(iUHF,'SCFORB','MD_SCF')
       Else
-         Call Molden_Interface(iUHF,'UHFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','UNAORB',iRc)
+         Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
       End If
       Call qExit('SCF')
       if(iStatPRN.gt.0) then

@@ -28,6 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -53,10 +54,6 @@
       Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
       Real*8, Pointer :: p_rx(:)
 *
-*     Prologue
-*
-*     Call qEnter('GetInfo')
-*
 *     Load the common INFO
 *
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)
@@ -64,8 +61,6 @@
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
 
-      Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(MxUnq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
 *
@@ -104,9 +99,8 @@
 *
       Nullify(p_ix,p_lx,p_rx,p_cx)
 *
-*     Epilogue, end
+      Call Symmetry_Info_Get()
 *
-*     Call qExit('GetInfo')
       Return
       End SubRoutine Get_Info_Static_Internal
 *

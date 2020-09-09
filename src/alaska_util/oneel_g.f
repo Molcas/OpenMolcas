@@ -56,6 +56,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "angtp.fh"
@@ -158,8 +159,8 @@ C        Do jS = 1, iS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),nStab(mdci),
-     &                                  jStab(0,mdcj),nStab(mdcj),
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                                  dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                                                iDCRR,nDCRR)
 *
 *           For the CSF contribution we cannot skip the A,A case
@@ -218,8 +219,8 @@ C        Do jS = 1, iS
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                             iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order
@@ -269,14 +270,12 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 c VV: gcc bug: one has to use this if!
           if(nDCRR.ge.1) then
             Do 140 lDCRR = 0, nDCRR-1
-               RB(1)  = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-               RB(2)  = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-               RB(3)  = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               Call OA(iDCRR(lDCRR),B,RB)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
 *
 *              For the CSF contribution we cannot skip the A,A case
 *              (lack of translational invariance is taken care of by CmbnS1)
@@ -305,13 +304,12 @@ c VV: gcc bug: one has to use this if!
                   llOper = iOr(llOper,lOper(iComp))
                End Do
                Call SOS(iStabO,nStabO,llOper)
-               Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &                  iDCRT,nDCRT)
+               Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                 FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)

@@ -62,6 +62,7 @@
 *             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -87,8 +88,8 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 *
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kOp(1) = iOper(nOp(1))
       kOp(2) = iOper(nOp(2))
@@ -103,23 +104,21 @@
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 
 *
          Do 1967 lDCRT = 0, nDCRT-1
             kOp(3) = iDCRT(lDCRT)
             kOp(4) = kOp(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,Coor(1,3),1)
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967

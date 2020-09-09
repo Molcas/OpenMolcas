@@ -28,6 +28,8 @@
       use EFP_module
       use External_Centers
       use Basis_Info
+      use Center_Info
+      Use SOAO_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,7 +48,9 @@
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
       Call Sphere_Free()
+      Call SOAO_Info_Free()
       Call Basis_Info_Free()
+      Call Center_Info_Free()
       Call External_Centers_Free()
       Call Free_iSD()
       Call Freek2()

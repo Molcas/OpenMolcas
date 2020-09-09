@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine SOAdpt(AOValue,mAO,nCoor,mBas,
      &                  nCmp,nOp,SOValue,nDeg,IndShl)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -39,7 +40,7 @@
          Do j1 = 0, nIrrep-1
             If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) goto 100
             iaux=iaux+1
-            xa= rChTbl(j1,nOp)
+            xa= DBLE(iChTbl(j1,nOp))
             Aux(iAux)=Fact*xa
  100     Continue
          End Do

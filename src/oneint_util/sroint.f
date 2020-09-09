@@ -64,7 +64,9 @@
 *             September '94.                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -110,14 +112,12 @@
          Do iCnt = 1,dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             Do iAng = 0, dbsc(iCnttp)%nSRO-1
                iShll = dbsc(iCnttp)%iSRO + iAng
                nExpi = Shells(iShll)%nExp
@@ -319,8 +319,8 @@
                            If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            If (iPrint.ge.99) Write (6,*) ' iIC=',iIC
                            iIC = iIC + 1
-                           nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                           Xg=rChTbl(iIrrep,nOp         )
+                           nOp = NrOpr(iDCRT(lDCRT))
+                           Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',
      &                                nAlpha,nExpi,nExpi,

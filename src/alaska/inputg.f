@@ -34,6 +34,8 @@
 *             Modified to complement GetInf, January '92.              *
 ************************************************************************
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -49,7 +51,7 @@
       Logical TstFnc, Type, Slct, T_Only, No_Input_OK
       Character*1 xyz(0:2)
       Character KWord*80, Key*80
-      Integer iSym(3), iTemp(3*mxdc)
+      Integer iSym(3), iTemp(3*MxAtom)
       Logical timings,Reduce_Prt
       External Reduce_Prt
       Data xyz/'x','y','z'/
@@ -120,10 +122,10 @@ c      onenly=.true.
 c      nprint(112)=99
 c      nprint(133)=99
 c      nprint(26)=99
-      Do 109 i = 1, 3*mxdc
+      Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue
-      Do 1500 ldsp = 1, 3*mxdc
+      Do 1500 ldsp = 1, 3*MxAtom
          Direct(ldsp) = .True.
  1500 Continue
 *                                                                      *
@@ -139,7 +141,7 @@ c      nprint(26)=99
       KWord = Key
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord.eq.'')       Go To 998
       If (KWord(1:4).eq.'VERB') Go To 912
       If (KWord(1:4).eq.'PRIN') Go To 930
       If (KWord(1:4).eq.'EQUI') Go To 935
@@ -192,12 +194,12 @@ c      nprint(26)=99
 *
  930  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 930
-      If (KWord.eq.BLine)    Go To 930
+      If (KWord.eq.'')    Go To 930
       Read(KWord,*,Err=988) n
       Do 931 i = 1, n
  9301    Read(LuSpool,'(A)',Err=988) KWord
          If (KWord(1:1).eq.'*') Go To 9301
-         If (KWord.eq.BLine)    Go To 9301
+         If (KWord.eq.'')    Go To 9301
          Read(KWord,*,Err=988) jRout, iPrint
          nPrint(jRout)=iPrint
  931  Continue
@@ -216,12 +218,12 @@ c      nprint(26)=99
       lEq=.True.
  936  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 936
-      If (KWord.eq.BLine)    Go To 936
+      If (KWord.eq.'')    Go To 936
       Read(KWord,*) nGroup
       Do 937 iGroup = 1, nGroup
  938     Read(LuSpool,'(A)',Err=988) KWord
          If (KWord(1:1).eq.'*') Go To 938
-         If (KWord.eq.BLine)    Go To 938
+         If (KWord.eq.'')    Go To 938
          Read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
          Do 939 iElem=2,nElem
             IndxEq(iTemp(iElem)) = iTemp(1)
@@ -236,7 +238,7 @@ c      nprint(26)=99
 *
  942  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 942
-      If (KWord.eq.BLine)    Go To 942
+      If (KWord.eq.'')    Go To 942
       Read(KWord,*,Err=988) CutGrd
       CutGrd = Abs(CutGrd)
       Go To 998
@@ -247,7 +249,7 @@ c      nprint(26)=99
 *
  951  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 951
-      If (KWord.eq.BLine)    Go To 951
+      If (KWord.eq.'')    Go To 951
       Read(KWord,*,Err=988) MemHid
       If (MemHid.le.0) MemHid = 1
       Go To 998
@@ -280,17 +282,17 @@ c      nprint(26)=99
      &                  ' Equivalence option to work together.'
          Call Quit_OnUserError()
       End If
-      Do 961 i = 1, 3*mxdc
+      Do 961 i = 1, 3*MxAtom
          Direct(i) = .False.
  961  Continue
  962  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 962
-      If (KWord.eq.BLine)    Go To 962
+      If (KWord.eq.'')    Go To 962
       Read(KWord,*) nSlct
 *
  963  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 963
-      If (KWord.eq.BLine)    Go To 963
+      If (KWord.eq.'')    Go To 963
       Read(KWord,*) (iTemp(iElem),iElem=1,nSlct)
       Do 964 iElem=1,nSlct
          Direct(iTemp(iElem)) = .True.
@@ -412,7 +414,7 @@ c      nprint(26)=99
 *
  973  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 973
-      If (KWord.eq.BLine)    Go To 973
+      If (KWord.eq.'')    Go To 973
       Call UpCase(KWord)
       Call LeftAd(KWord)
       Read(KWord,'(A)') OFE_KSDFT
@@ -433,7 +435,7 @@ c      nprint(26)=99
 *
  975  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 975
-      If (KWord.eq.BLine)    Go To 975
+      If (KWord.eq.'')    Go To 975
       Read(KWord,*) dFMD, Xsigma
       Go To 998
 *                                                                      *
@@ -444,7 +446,7 @@ c      nprint(26)=99
 *
  976  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 976
-      If (KWord.eq.BLine)    Go To 976
+      If (KWord.eq.'')    Go To 976
       Read(KWord,*) iRoot
       Go To 998
 *                                                                      *
@@ -456,7 +458,7 @@ c      nprint(26)=99
  977  Read(LuSpool,'(A)',Err=988) KWord
       isNAC=.True.
       If (KWord(1:1).eq.'*') Go To 977
-      If (KWord.eq.BLine)    Go To 977
+      If (KWord.eq.'')    Go To 977
       Read(KWord,*) NACstates(1),NACstates(2)
       Go To 998
 *                                                                      *
@@ -524,7 +526,7 @@ c      nprint(26)=99
          End If
          Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
 *
@@ -558,10 +560,10 @@ c      nprint(26)=99
          Write (LuWr,*)
       End If
 *
-      Call ICopy(mxdc*8,[0],0,IndDsp,1)
-      Call ICopy(mxdc*3,[0],0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
-      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
+      Call ICopy(MxAtom*8,[0],0,IndDsp,1)
+      Call ICopy(MxAtom*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*MxAtom,[One],0,Disp_Fac,1)
+      Call ICopy(3*MxAtom,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
@@ -577,14 +579,13 @@ c      nprint(26)=99
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) .and.
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                iIrrep,iComp,dc(mdc)%nStab) .and.
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                       lDisp(iIrrep) = lDisp(iIrrep) + 1
-                      mult_Disp(nDisp)=nIrrep/nStab(mdc)
+                      mult_Disp(nDisp)=nIrrep/dc(mdc)%nStab
                       If (Type) Then
       If (Show.and.iPrint.ge.6) then
                          Write (LuWr,*)
@@ -609,19 +610,18 @@ c      nprint(26)=99
                       End If
       If (Show.and.iPrint.ge.6) Then
                       Write (LuWr,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
-     &                      nDisp,LblCnt(mdc),xyz(iCar),
-     &                      (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
-     &                      iOper,nIrrep),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
-     &                      iOper,nIrrep)),
-     &                      iCo=0,nIrrep/nStab(mdc)-1 )
+     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
+     &                      (mc+iCo,iPrmt(
+     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
+     &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
       End If
       Write (ChDisp(nDisp),'(A,1X,A1)')
-     &      LblCnt(mdc),xyz(iCar)
+     &      dc(mdc)%LblCnt,xyz(iCar)
                   End If
 *
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
 *
@@ -699,17 +699,15 @@ c      nprint(26)=99
                If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
      &             iComp = iOr(iComp,4)
                Do jIrrep = 0, nIrrep-1
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,jIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                  jIrrep,iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
                End Do
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                  nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                  iComp,nStab(mdc)) ) Then
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                  iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
                      Direct(lDsp)=.True.
 *--------------------Transfer the coordinates

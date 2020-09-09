@@ -41,7 +41,7 @@
 #include "nac.fh"
 #include "srint.fh"
       Logical lGENINT
-      Character*180 Env
+      Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,26 +61,7 @@ C
 *
 *-----Info
 *
-c     data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Seward_Status=InActive
-      do 10 j=0,4
-      do 11 i=1,3
-      iPhase(i,j)=1
-11    continue
-10    continue
-      iPhase(1,1)=-1
-      iPhase(2,2)=-1
-      iPhase(1,3)=-1
-      iPhase(2,3)=-1
-      iPhase(3,4)=-1
-      do 20 j=5,7
-      do 21 i=1,3
-      iPhase(i,j)=-1
-21    continue
-20    continue
-      iPhase(2,5)=1
-      iPhase(1,6)=1
 *
 *     Info
 *
@@ -144,7 +125,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lOMQ=.False.
       lDMS=.False.
       lRel=.False.
-      SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
 *--sdong, Apr. 2018--*
@@ -228,7 +208,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
 *-----CInfo
 *
-      Bline=' '
       Do i = 1, 10
          Title(i)=' '
       End Do

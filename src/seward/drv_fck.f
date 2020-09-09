@@ -15,7 +15,6 @@
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot)
-      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -212,6 +211,7 @@ c        Write(6,*) ' oneel *',Label,'*'
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -323,28 +323,26 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
-     &               nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
             If (iPrint.ge.19) Then
                Write (6,*)
                Write (6,*) ' g      =',nIrrep
-               Write (6,*) ' u      =',nStab(mdci)
-               Write (6,'(9A)') '(U)=',(ChOper(jStab(ii,mdci)),
-     &               ii = 0, nStab(mdci)-1)
-               Write (6,*) ' v      =',nStab(mdcj)
-               Write (6,'(9A)') '(V)=',(ChOper(jStab(ii,mdcj)),
-     &               ii = 0, nStab(mdcj)-1)
+               Write (6,*) ' u      =',dc(mdci)%nStab
+               Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+     &               ii = 0, dc(mdci)%nStab-1)
+               Write (6,*) ' v      =',dc(mdcj)%nStab
+               Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+     &               ii = 0, dc(mdcj)%nStab-1)
                Write (6,*) ' LambdaR=',LmbdR
                Write (6,*) ' r      =',nDCRR
                Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
@@ -358,7 +356,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nStabO) / DBLE(LambdT)
             Else If (MolWgh.eq.0) Then
@@ -373,13 +371,11 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 *           Do lDCRR = 0, nDCRR-1
             Do lDCRR = 0, 0
-             RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-             RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-             RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             Call OA(iDCRR(lDCRR),B,RB)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (iPrint.ge.49) Write (6,'(A,3F6.2,2X,3F6.2)') '*',
      &             (A(i),i=1,3),(RB(i),i=1,3)
 *                                                                      *

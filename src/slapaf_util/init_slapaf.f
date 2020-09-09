@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -230,21 +231,10 @@
 *
       Call Get_cArray('Seward Title',Header,144)
 *
-*...  Read the number of irreps
-*
-      Call Get_iScalar('nSym',nSym)
-      nIrrep=nSym
-*
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
       Call Get_Molecule(ipCM,ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...  Read the symmetry operators
-*
-      Call Get_iArray('Symmetry operations',iOper,nSym)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -342,7 +332,7 @@ C           NADC= .False. ! for debugging
 *---  Set up of symmetry and degeneracy
 *
       Call ICopy(3,[0],0,iSym,1)
-      Do 600 iIrrep = 1, Min(4,nSym-1)
+      Do 600 iIrrep = 1, Min(4,nIrrep-1)
          jIrrep = iIrrep
          If (iIrrep.eq.3) jIrrep = 4
          Do 601 k = 1, 3
@@ -362,14 +352,14 @@ C           NADC= .False. ! for debugging
          iChxyz=0
          Do i = 1, 3
             If (Work(iAdr+i).ne.Zero) Then
-               Do iIrrep= 0, nSym-1
+               Do iIrrep= 0, nIrrep-1
                   If (iAnd(2**(i-1),iOper(iIrrep)).ne.0)
      &               iChxyz=iOr(iChxyz,2**(i-1))
                End Do
             End If
          End Do
          nStb = 0
-         Do iIrrep = 0, nSym-1
+         Do iIrrep = 0, nIrrep-1
             If (iAnd(iChxyz,iOper(iIrrep)).eq.0) Then
                jStab(nStb,isAtom)=iOper(iIrrep)
                nStb = nStb + 1
@@ -379,7 +369,7 @@ C           NADC= .False. ! for debugging
 *...     Find the coset representatives
          iCoSet(0,nsAtom) = 0      ! Put in the unit operator
          nCoSet = 1
-         Do iIrrep = 1, nSym-1
+         Do iIrrep = 1, nIrrep-1
             itest=iAnd(iChxyz,iOper(iIrrep))
             Same=.False.
             Do jCoSet = 0, nCoSet-1
@@ -393,14 +383,14 @@ C           NADC= .False. ! for debugging
                iCoSet(nCoSet-1,isAtom) = iOper(iIrrep)
             End If
          End Do
-         If (nSym/nStb.ne.nCoSet) Then
+         If (nIrrep/nStb.ne.nCoSet) Then
             Call WarningMessage(2,' Error while doing cosets.')
             Call Abend()
          End If
          Do 611 i = 1, 3
             iComp = 2**(i-1)
             Call ICopy(nCoSet,[0],0,iAdd,1)
-            Do 640 iIrrep = 0, nSym-1
+            Do 640 iIrrep = 0, nIrrep-1
 *...           find the stabilizer index
                iTest=iAnd(iChxyz,iOper(iIrrep))
                n=-1
@@ -456,8 +446,8 @@ C           NADC= .False. ! for debugging
       mTtAtm=0
       Do 4100 isAtom = 1, nsAtom
          iOff = 3*(isAtom-1) + ipCoor
-         mTtAtm=mTtAtm+iDeg(Work(iOff),iOper,nSym)
-         tmp = DBLE(iDeg(Work(iOff),iOper,nSym))
+         mTtAtm=mTtAtm+iDeg(Work(iOff))
+         tmp = DBLE(iDeg(Work(iOff)))
          i=(isAtom-1)*3+1
          Degen(i)=tmp
          i=(isAtom-1)*3+2
@@ -485,8 +475,7 @@ C           NADC= .False. ! for debugging
      &                   AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Work(ipCoor),Work(ipCM),iOper,nSym,
-     &            nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Work(ipCoor),Work(ipCM),nsAtom,LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',

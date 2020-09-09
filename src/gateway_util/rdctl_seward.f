@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use SW_File
       use AMFI_Info
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Period
       use MpmC
@@ -47,7 +49,7 @@
 #include "relae.fh"
 #include "periodic_table.fh"
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxDc)
+      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
@@ -385,7 +387,7 @@ cperiod
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
       If (KWord(1:1).eq.'*') Go To 998
-      If (KWord.eq.BLine)    Go To 998
+      If (KWord.eq.'')    Go To 998
       If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
@@ -811,7 +813,8 @@ c     Call Quit_OnUserError()
       nc = 80-(i2-i1+1)
       nc2=nc/2
       nc3=(nc+1)/2
-      Title(nTtl)=BLine(1:nc2)//Key(i1:i2)//BLine(1:nc3)
+      Title(nTtl)=''
+      Title(nTtl)(nc2+1:nc2+i2-i1+1)=Key(i1:i2)
       Go To 9988
 *                                                                      *
 ****** ECPS **** or ****** AUXS ****************************************
@@ -1166,7 +1169,7 @@ c Simplistic validity check for value
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,
      &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
      &           ExtBasDir)
 *
@@ -1216,10 +1219,10 @@ c Simplistic validity check for value
          End Do
       End If
       If (Show.and.nPrint(2).ge.6 .and.
-     &   Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.BLine) Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.BLine) Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
          Write (LuWr,*)
          Write (LuWr,*)
       End If
@@ -1415,9 +1418,10 @@ c Simplistic validity check for value
 *     Read Coordinates
 *
       nCnt = nCnt + 1
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,' RdCtl: Increase Mxdc')
-         Write (LuWr,*) '        Mxdc=',Mxdc
+      n_dc=max(mdc+nCnt,n_dc)
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,' RdCtl: Increase MxAtom')
+         Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
       iend=Index(KWord,' ')
@@ -1425,14 +1429,14 @@ c Simplistic validity check for value
          Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
       End If
-      LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))
-      dbas=LblCnt(mdc+nCnt)(1:LENIN)
+      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))
+      dbas=dc(mdc+nCnt)%LblCnt(1:LENIN)
       Call Upcase(dbas)
       If (dbas.eq.'DBAS') Then
          RMat_On=.True.
       End If
       If (mdc+nCnt.gt.1) then
-        Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+        Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       endif
       iOff=1+(nCnt-1)*3
       Call Get_F(2,Buffer(iOff),3)
@@ -1468,9 +1472,10 @@ c Simplistic validity check for value
 
                   nCnt = nCnt + 1
 
-                  If (mdc+nCnt.gt.Mxdc) Then
-                     Call WarningMessage(2,' RdCtl: Increase Mxdc')
-                     Write (LuWr,*) '        Mxdc=',Mxdc
+                  n_dc=max(mdc+nCnt,n_dc)
+                  If (mdc+nCnt.gt.MxAtom) Then
+                     Call WarningMessage(2,' RdCtl: Increase MxAtom')
+                     Write (LuWr,*) '        MxAtom=',MxAtom
                      Call Quit_OnUserError()
                   End If
 
@@ -1479,10 +1484,10 @@ c Simplistic validity check for value
                      Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
                   End If
-                  LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))//
+                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))//
      &              CHAR4
 
-                  Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+                  Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
 
                   iOff=1+(nCnt-1)*3
 
@@ -2180,7 +2185,7 @@ c     Go To 998
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
                Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
-                  If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
+                  If (Key(1:iEnd) .Eq. dc(iCnt)%LblCnt(1:iEnd)) Then
                      iFound_Label = 1
                      EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
@@ -2944,7 +2949,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       k=0
       Do i=1,nAtom
         Do j=1,nCtrLD
-          if (CtrLDK(j).eq.LblCnt(i)(1:LENIN)) Then
+          if (CtrLDK(j).eq.dc(i)%LblCnt(1:LENIN)) Then
              iCtrLD(j)=i
              k=k+1
           End If
@@ -4474,7 +4479,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4509,7 +4514,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
-      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4529,10 +4534,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Do iCnt = 1, nCnt
             mdc = iCnt + dbsc(iCnttp)%mdci
             Mx_mdc = Max(Mx_mdc,mdc)
-            If (mdc.gt.Mxdc) Then
-               Call WarningMessage(2,' mdc.gt.Mxdc!;'
-     &                      //' Increase Mxdc in info.fh.')
-               Write (LuWr,*) ' Mxdc=',Mxdc
+            n_dc=max(mdc,n_dc)
+            If (mdc.gt.MxAtom) Then
+               Call WarningMessage(2,' mdc.gt.MxAtom!;'
+     &                      //' Increase MxAtom in info.fh.')
+               Write (LuWr,*) ' MxAtom=',MxAtom
                Call Abend()
             End If
 *
@@ -4542,7 +4548,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
             If (dbsc(iCnttp)%Frag) Then
 *              Check the FragExpand routine!
-               iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
+               If (Abs(dbsc(iCnttp)%nFragCoor)>mdc) Then
+                  Write (6,*) 'rdctl_seward: incorrect mdc index'
+                  Call Abend()
+               End If
+               iChxyz = dc(Abs(dbsc(iCnttp)%nFragCoor))%iChCnt
             Else
 *
 *------------- To assign the character of a center we need to find
@@ -4552,12 +4562,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
-     &                       iOper,nOper,iChCar)
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),iChCar)
             End If
-            iChCnt(mdc) = iChxyz
-            Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
-     &                 MaxDCR,iCoSet(0,0,mdc))
+            dc(mdc)%iChCnt = iChxyz
+            Call Stblz(iChxyz,dc(mdc)%nStab,dc(mdc)%iStab,
+     &                 MaxDCR,dc(mdc)%iCoSet)
 *
 *           Perturb the initial geometry if the SHAKE keyword was given,
 *           but maintain the symmetry
@@ -4567,8 +4576,8 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                dbsc(iCnttp)%Frag.Or.
      &                dbsc(iCnttp)%Aux)) Then
                jTmp=0
-               Do j=1,nStab(mdc)-1
-                  jTmp=iOr(jTmp,jStab(j,mdc))
+               Do j=1,dc(mdc)%nStab-1
+                  jTmp=iOr(jTmp,dc(mdc)%iStab(j))
                End Do
                nDim=0
                Do j=0,2
@@ -4588,11 +4597,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                End If
             End If
             If (dbsc(iCnttp)%Frag) Then
-               mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
+               mCentr_Frag = mCentr_Frag + nIrrep/dc(mdc)%nStab
             Else If (dbsc(iCnttp)%Aux) Then
-               mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)
+               mCentr_Aux = mCentr_Aux + nIrrep/dc(mdc)%nStab
             Else
-               mCentr = mCentr + nIrrep/nStab(mdc)
+               mCentr = mCentr + nIrrep/dc(mdc)%nStab
             End If
          End Do
       End Do

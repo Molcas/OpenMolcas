@@ -28,6 +28,7 @@
 *                                                                      *
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
+      use Symmetry_Info, only: nIrrep
 #  include "info_slapaf.fh"
       Character(Len=3) :: level
       Logical :: create
@@ -49,7 +50,7 @@
         chkpnt_force = mh5_open_dset(chkpnt_id, 'FORCES')
         chkpnt_hess = mh5_open_dset(chkpnt_id, 'HESSIAN')
         Call mh5_fetch_attr(chkpnt_id, 'NSYM', tmp)
-        If (tmp.ne.nSym) create = .True.
+        If (tmp.ne.nIrrep) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'NATOMS_UNIQUE', tmp)
         If (tmp.ne.nsAtom) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'ITERATIONS', tmp)
@@ -76,15 +77,14 @@
 *                                                                      *
       Subroutine Chkpnt_init()
 #ifdef _HDF5_
+      use Phase_Info
+      use Symmetry_Info, only: nIrrep
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
       Integer :: dsetid, attrid, mAtom, i, j, k
       Real*8, Allocatable :: charges(:)
-      Integer :: iPhase(3,0:7)
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Integer, Allocatable :: desym(:,:), symdof(:,:)
 
       chkpnt_id = mh5_create_file(filename)
@@ -92,10 +92,10 @@
       Call mh5_init_attr(chkpnt_id, 'MOLCAS_MODULE', 'SLAPAF')
 
 *     symmetry information
-      Call mh5_init_attr(chkpnt_id, 'NSYM', nSym)
+      Call mh5_init_attr(chkpnt_id, 'NSYM', nIrrep)
       Call Get_cArray('Irreps', lIrrep, 24)
       Call mh5_init_attr(chkpnt_id, 'IRREP_LABELS',
-     &                   1, [nSym], lIrrep, 3)
+     &                   1, [nIrrep], lIrrep, 3)
 
       Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', nsAtom)
 
@@ -140,18 +140,18 @@
      &     'Atom coordinates for new iteration, matrix of size '//
      &     '[NATOMS_UNIQUE,3], stored with atom index varying slowest')
 
-      If (nSym.gt.1) Then
+      If (nIrrep.gt.1) Then
 
         mAtom = 0
         Do i=1,nsAtom
-          mAtom = mAtom+nSym/nStab(i)
+          mAtom = mAtom+nIrrep/nStab(i)
         End Do
         Call mma_allocate(desym, 4, mAtom)
         Call mma_allocate(symdof, 2, nDimBC)
         mAtom = 0
         k = 0
         Do i=1,nsAtom
-          Do j=0,nSym/nStab(i)-1
+          Do j=0,nIrrep/nStab(i)-1
             mAtom = mAtom+1
             desym(1,mAtom) = i
             desym(2,mAtom) = iPhase(1,iCoSet(j,i))

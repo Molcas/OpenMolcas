@@ -41,6 +41,7 @@
 *             Modified to gradient calculations May '95                *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -138,7 +139,7 @@
      &            rKappa,Array(ipFinal),
      &             ncomp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),DAO,
-     &             nStab(mdc),nStab(ndc),nOp,rout,indgrd)
+     &             dc(mdc)%nStab,dc(ndc)%nStab,nOp,rout,indgrd)
 *o
 *     Call GetMem(' Exit RFGrd','LIST','REAL',iDum,iDum)
       Return

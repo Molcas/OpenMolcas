@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
      &                  Coor,ipBMx,dMass,Lbl,Shift,ip_qInt,ip_dqInt,
-     &                  DFC,dss,Tmp,Name,iOper,nSym,iSym,Smmtrc,
+     &                  DFC,dss,Tmp,Name,iSym,Smmtrc,
      &                  Degen,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
@@ -23,7 +23,7 @@
       Real*8 Coor(3,nAtom), dMass(nAtom),Shift(nInter,kIter),
      &       DFC(3*nAtom), dss(nInter), Tmp(nInter), Degen(3*nAtom),
      &       Gx(3*nAtom,kIter), Cx(3*nAtom,kIter+1)
-      Integer   iOper(0:7), iSym(3), iANr(nAtom),
+      Integer   iSym(3), iANr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Logical Smmtrc(3,nAtom), User_Def, Redundant,
@@ -58,7 +58,7 @@
       Call DaXpY_(nInter,One,dss,1,Tmp,1)
 *
       Call Int2Car(dss,Tmp,nInter,ip_qInt,Coor,nAtom,nBVec,ipBMx,dMass,
-     &             nLines,DFC,ndim,Lbl,Name,iOper,nSym,iSym,Smmtrc,
+     &             nLines,DFC,ndim,Lbl,Name,iSym,Smmtrc,
      &             Degen,kIter,ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,

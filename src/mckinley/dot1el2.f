@@ -57,6 +57,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -78,9 +79,8 @@
 *     Statement functions
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *
@@ -172,15 +172,14 @@ C        Do jS = 1, iS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,
-     &               jStab(0,mdci),nStab(mdci),
-     &               jStab(0,mdcj),nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet
@@ -256,25 +255,22 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
-               RB(1)  = iPhase(1,iDCRR(lDCRR))*B(1)
-               RB(2)  = iPhase(2,iDCRR(lDCRR))*B(2)
-               RB(3)  = iPhase(3,iDCRR(lDCRR))*B(3)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               Call OA(iDCRR(lDCRR),B,RB)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
                If (EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *
 *
                lloper=1
                Call SOS(iStabO,nStabO,llOper)
-               Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &                  iDCRT,nDCRT)
+               Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                   FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)

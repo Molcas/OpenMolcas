@@ -45,6 +45,8 @@
       use iSD_data
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -253,7 +255,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(1) = px*A(1)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'mAO=',mAO
             If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
@@ -406,13 +408,13 @@ c            write(6,*) 'iOff =', iOff
 *
 cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
             Call FZero(Work(ipSOs),nSO)
 *
             iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 *
 *---------- Distribute contributions of AOs if this particular shell
 *           on to the SOs of this shell. The SOs are only stored

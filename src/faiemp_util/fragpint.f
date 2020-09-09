@@ -79,6 +79,8 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -379,8 +381,8 @@ c some printouts:
 *                                                                      *
 * DCR stuff (iS and jS have always the same symmetry character)
 *
-          Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             jStab(0,mdci),nStab(mdci),iDCRT,nDCRT)
+          Call DCR(LmbdT,iStabM,nStabM,
+     &                   dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************
@@ -388,12 +390,8 @@ c some printouts:
 * Loop over symmetry operations acting on the basis.
 *
           Do lDCRT = 0, nDCRT-1
-            TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-            TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-            TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
-            TB(1) = iPhase(1,iDCRT(lDCRT))*B(1)
-            TB(2) = iPhase(2,iDCRT(lDCRT))*B(2)
-            TB(3) = iPhase(3,iDCRT(lDCRT))*B(3)
+            Call OA(iDCRT(lDCRT),C,TC)
+            Call OA(iDCRT(lDCRT),B,TB)
 
 *                                                                      *
 ************************************************************************
@@ -663,8 +661,8 @@ c some printouts:
             Do iIrrep = 0, nIrrep - 1
               If (iAnd(llOper,iTwoj(iIrrep)).ne.0) Then
                 iIC = iIC + 1
-                nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                Xg=rChTbl(iIrrep,nOp)
+                nOp = NrOpr(iDCRT(lDCRT))
+                Xg=DBLE(iChTbl(iIrrep,nOp))
 * Half is needed because we do a complete loop over iS,jS
                 Factor=Xg*Fact*Half
                 ! write(6,'(A,i24)') 'FragPInt:  ipIJ=', ipIJ

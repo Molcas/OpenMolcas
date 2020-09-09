@@ -61,6 +61,7 @@
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -580,7 +581,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
@@ -699,6 +700,7 @@ c     Call QExit('FckAcc')
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -1128,7 +1130,7 @@ C                 Write (*,*)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),

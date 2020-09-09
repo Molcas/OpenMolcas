@@ -24,6 +24,7 @@
 *                                                                      *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -56,9 +57,8 @@
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,8 +67,8 @@
 *
       nDAO=nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *                                                                      *
@@ -184,12 +184,12 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -232,9 +232,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
             Do lDCRT = 0, nDCRT-1
                lOp(3) = iDCRT(lDCRT)
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                If (EQ(A,RB).and.EQ(A,TC)) Cycle
 *                                                                      *
 ************************************************************************

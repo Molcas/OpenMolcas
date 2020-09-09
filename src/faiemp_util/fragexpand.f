@@ -25,6 +25,7 @@
 *                                                                      *
 ************************************************************************
       Use Basis_Info
+      Use Center_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -169,7 +170,7 @@
 *
             jShll = iShll
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,BLine,Ref,
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,Ref,
      &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,lSTDINP,
      &                 .False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,
@@ -202,9 +203,10 @@
             dbsc(nCnttp)%nCntr = 1
 *
             mdc = mdc + 1
-            If (mdc.gt.Mxdc) Then
-              Write (6,*) ' FragExpand: Increase Mxdc'
-              Write (6,*) '        Mxdc=',Mxdc
+            n_dc=max(mdc,n_dc)
+            If (mdc.gt.MxAtom) Then
+              Write (6,*) ' FragExpand: Increase MxAtom'
+              Write (6,*) '        MxAtom=',MxAtom
               Call ErrTra
               Call Quit_OnUserError()
             End If
@@ -239,7 +241,7 @@
             Write (6,'(2A)') 'Label=',label
 #endif
 c LENIN possible BUG
-            LblCnt(mdc) = label
+            dc(mdc)%LblCnt = label
             If(mdc.lt.10) then
               write(label,'(a3,i1)') '___',mdc
             Else If(mdc.lt.100) then
@@ -249,13 +251,12 @@ c LENIN possible BUG
             Else
               write(label,'(i4)') mdc
             End If
-c            LblCnt(mdc)(LENIN1:LENIN4) = label
-            LblCnt(mdc)(5:LENIN2) = label
+            dc(mdc)%LblCnt(5:LENIN2) = label
 #ifdef _DEBUG_
             Write (6,'(2A)') 'Label=',label
-            Write (6,'(2A)') 'LblCnt(mdc)=',LblCnt(mdc)
+            Write (6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
 #endif
-            Call ChkLbl(LblCnt(mdc),LblCnt,mdc-1)
+            Call Chk_LblCnt(dc(mdc)%LblCnt,mdc-1)
 * store a reference to the originating fragment placeholder
 * misuse nFragCoor for this purpose: it will not overwrite anything, but
 * beware of redimensioning this array to anything other than Mxdbsc

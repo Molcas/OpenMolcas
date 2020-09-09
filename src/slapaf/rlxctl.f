@@ -90,8 +90,7 @@
 *                                                                      *
       If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
      &                                   nsAtom,AtomLbl,
-     &                                   Work(ipCoor),nSym,iOper,
-     &                                   jStab,nStab)
+     &                                   Work(ipCoor),jStab,nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -127,8 +126,8 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,
-     &           iOper,Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -156,7 +155,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),nSym,iOper,Smmtrc,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
      &                  Degen,Iter,Work(ipCx),mTtAtm,iWork(ipANr),
      &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
 *                                                                      *
@@ -238,7 +237,7 @@
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),Work(ipGx),
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -252,7 +251,7 @@
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -284,7 +283,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &               AtomLbl,iSym,Smmtrc,Degen,
      &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -343,7 +342,7 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,iOper,nSym,ed,
+     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
@@ -362,7 +361,7 @@
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
       If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
-     &         nsAtom,AtomLbl,Work(ipCoor),nSym,iOper,jStab,nStab)
+     &         nsAtom,AtomLbl,Work(ipCoor),jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *

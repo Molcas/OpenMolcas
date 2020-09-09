@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -51,6 +52,7 @@
 *
 *-----Initiate some parameters
 *
+      Call Symmetry_Info_Get()
       Call Init_Slapaf(iRow)
       iPrint=nPrint(iRout)
       iSetAll=2**30 - 1

@@ -13,6 +13,7 @@
       Subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,
      &                  ikop1,ikop2,Irrep,IndShl,JndShl,
      &                  Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
       integer jirr(0:7)
 *
@@ -41,7 +42,7 @@
 *-----Distribute contributions from the intermediate skeleton
 *     Fock matrix onto the symmetry adapted Fock matrix.
 *
-         iiR = NrOpr(iEor(ikOp1,ikOp2),iOper,nIrrep)
+         iiR = NrOpr(iEor(ikOp1,ikOp2))
          Do i1 = 1, iCmp
           Do i2 = 1, jCmp
            Do iIrrep = 0, nIrrep-1
@@ -52,7 +53,7 @@
             ipntij = iPnt(iIrrep)
             iSO=iAOtSO(iAO1+i1,iIrrep)+iAOst1
             jSO=iAOtSO(iAO2+i2,iIrrep)+iAOst2
-            XR = rChTbl(iIrrep,iiR)
+            XR = DBLE(iChTbl(iIrrep,iiR))
 *
             Do jAOj = 0, jBas-1
               Do iAOi = 0, iBas-1
@@ -75,7 +76,7 @@
 *
          Do iIrrep=0,nIrrep-1
             jIrr(iIrrep)=
-     &      NrOpr(iEOr(iOper(iIrrep),iChO),iOper,nIrrep)
+     &      NrOpr(iEOr(iOper(iIrrep),iChO))
          End Do
 *
          iPntij = 0
@@ -89,18 +90,18 @@
 *-----Distribute contributions from the intermediate skeleton
 *     Fock matrix onto the symmetry adapted Fock matrix.
 *
-         l1=NrOpr(ikop1,ioper,nIrrep)
-         l2=NrOpr(ikop2,ioper,nIrrep)
+         l1=NrOpr(ikop1)
+         l2=NrOpr(ikop2)
          Do 100 i1 = 1, iCmp
            Do 200 i2 = 1, jCmp
             ip=0
             Do 110 iIrrep = 0, nIrrep-1
                jIrrep=jIrr(iIrrep)
                If (iIrrep.lt.jIrrep) Goto 110
-               X1 = rChTbl(iIrrep,l1)
-               X2 = rChTbl(jIrrep,l2)
-               X3 = rChTbl(jIrrep,l1)
-               X4 = rChTbl(iIrrep,l2)
+               X1 = DBLE(iChTbl(iIrrep,l1))
+               X2 = DBLE(iChTbl(jIrrep,l2))
+               X3 = DBLE(iChTbl(jIrrep,l1))
+               X4 = DBLE(iChTbl(iIrrep,l2))
                iSOi=iAOtSO(iAO1+i1,iIrrep)+iAOst1
                jSOj=iAOtSO(iAO2+i2,jIrrep)+iAOst2
                jSOi=iAOtSO(iAO2+i2,iIrrep)+iAOst2

@@ -481,6 +481,7 @@ c        nCenter=nCenter+newAt
 c---------------------------------------------------
       subroutine Basi2file(Lu)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -517,20 +518,35 @@ c      Write(LU,'(i8)') Mx_Shll
 c      Write(LU,'(i8)') nCnttp
 c      Write(LU,'(8i8)') (nOpt(i),i=1,nCnttp)
 
-      Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      iWork(iivv+Icurr)=64*Mx_mdc
+      iWork(iivv+Icurr)=64*n_dc
       Icurr=iCurr+1
-      call icopy(64*Mx_mdc,iCoset,1,iWork(iivv+Icurr),1)
-c      do i=1,64*Mx_mdc
-c        iWork(iivv+Icurr+i)=iCoSet(i)
-c      enddo
-      Icurr=iCurr+64*Mx_mdc
+       do i=1,n_dc
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,0)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,1)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,2)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,3)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,4)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,5)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,6)
+          iCurr=iCurr+8
+          iA=iivv+iCurr
+          iWork(iA+1:iA+8)=dc(i)%iCoSet(:,7)
+          iCurr=iCurr+8
+       enddo
 
-c      Write(LU,'(i8)') 64*Mx_mdc
-c     call pack_me(LU,iCoSet,64*Mx_mdc)
-
-
-cc      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
       Call ICopy(Mx_Unq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
 

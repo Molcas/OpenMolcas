@@ -13,7 +13,7 @@
       Subroutine Update_sl_(kIter,iInt,nFix,nInter,qInt,Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
+     &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -45,8 +45,6 @@
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      nSym           : number of irreps                               *
-*      iOper          : integer representations of symmetry operators  *
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
@@ -86,7 +84,7 @@
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom),
      &       Cx(3*nsAtom,kIter+1)
-      Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
+      Integer jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
@@ -413,7 +411,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   Work(ipValue),cInt,cInt0,
      &                   Lbl(nInter+1),AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   nSym,iOper,jStab,nStab,mxdc,
+     &                   jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)
 *

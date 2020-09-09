@@ -46,7 +46,7 @@
       nna=0
       ipCC=1
       Do jIrrep=0,nIrrep-1
-         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
          If (kIrrep.lt.jIrrep) Then
             ip(jIrrep)=nIn
             nIn=nIN+nBas(kIrrep)*nBas(jIrrep)
@@ -90,7 +90,7 @@
          Write (6,*)
       End If
       Do jIrrep=0,nIrrep-1
-         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
          If (nBAs(jIrrep).gt.0.and.nbas(kIrrep).gt.0) Then
             If (kIrrep.lt.jIrrep) Then
                Call DGEMM_('N','N',
@@ -161,7 +161,7 @@
             Write (6,*)
          End If
          Do jIrrep=0,nIrrep-1
-            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
             If (nBas(jIrrep).gt.0.and.nBas(kIrrep).gt.0) Then
                If (kIrrep.eq.jIrrep) Then
                   Call Square(rIn(ipDisp2(jDisp)+ip(jIrrep)),Work(ipX),
@@ -210,7 +210,7 @@
          End If
          iii=0
          Do jIrrep=0,nIrrep-1
-            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
 *
             If (nBas(jIrrep)*nIsh(kIrrep).gt.0) Then
                Call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),2.0d0,

@@ -270,10 +270,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       iChCar(1) = iSymX
       iChCar(2) = iSymY
       iChCar(3) = iSymZ
-      nOper=0
-      If (nIrrep.eq.8) nOper=3
-      If (nIrrep.eq.4) nOper=2
-      If (nIrrep.eq.2) nOper=1
       MaxDCR = nIrrep
 *                                                                      *
 ************************************************************************
@@ -307,8 +303,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *           Find the stabilizer of this center
 *
-            iChxyz=iChAtm(Work(ipCoor+(i-1)*3),iOper,nOper,iChCar)
-            Call Stblz(iChxyz,iOper,nIrrep,nStab,jStab,MaxDCR,iCoSet)
+            iChxyz=iChAtm(Work(ipCoor+(i-1)*3),iChCar)
+            Call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 *
             Call IZero(iDispXYZ,3)
             Do j = 0, nStab-1
@@ -363,7 +359,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       Call Allocate_Work(ipDeg,3*nAtoms)
       Call FZero(Work(ipDeg),3*nAtoms)
       Do i = 1, nAtoms
-         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3),iOper,nSym))
+         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3)))
          Work(ipDeg+(i-1)*3  )=rDeg
          Work(ipDeg+(i-1)*3+1)=rDeg
          Work(ipDeg+(i-1)*3+2)=rDeg

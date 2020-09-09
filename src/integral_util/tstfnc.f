@@ -11,34 +11,25 @@
 * Copyright (C) 1990, IBM                                              *
 *               1991, Roland Lindh                                     *
 ************************************************************************
-      Logical Function TstFnc(iOper,nIrrep,iCoSet,nCoSet,iChTab,
-     &                        iIrrep,iBsFnc,nStab)
+      Logical Function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
 ************************************************************************
 *                                                                      *
 * Object: to establish if a function is a basis function of a          *
 *         irreducible representation.                                  *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ICopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             September '91                                            *
+*             September 1991                                           *
 ************************************************************************
+      use Symmetry_Info
       Implicit Real*8 (A-H,O-Z)
-      Integer iOper(0:nIrrep-1), iCoSet(0:7,0:7), iAcc(0:7),
-     &          iChTab(0:7,0:7)
-#include "print.fh"
-#include "real.fh"
+      Integer iCoSet(0:7,0:7), iAcc(0:7)
+*
       TstFnc = .True.
-      Call iCopy(nCoSet,[0],0,iAcc,1)
+      nCoSet=nIrrep/nStab
+      iAcc(0:nCoSet-1)=0
 *
-*     Call qEnter('TstFnc')
-*
-*define _DEBUG_
+*#define _DEBUG_
 #ifdef _DEBUG_
       Do i = 0, nCoSet-1
          Write (6,*) (iCoSet(i,j),j=0,nStab-1)
@@ -49,18 +40,17 @@
 *
 *     Loop over operators
 *
-      Do 10 i = 0, nIrrep-1
+      Do i = 0, nIrrep-1
 *
 *        Find index of the generated center
 *
          n = -1
-         Do 20 j = 0, nCoSet-1
-          If (n.lt.0) Then
-            Do 21 k = 0, nStab-1
+         Do j = 0, nCoSet-1
+            If (n.ge.0) Cycle
+            Do k = 0, nStab-1
                If (iOper(i).eq.iCoSet(j,k)) n = j
- 21         Continue
-          End If
- 20      Continue
+            End Do
+         End Do
 *
          If (n.lt.0 .or. n.gt.nCoSet-1) Then
             Call WarningMessage(2,'TstFnc: n.lt.0 .or. n.gt.nCoSet-1')
@@ -69,16 +59,15 @@
          End If
 *
          iCom=iAnd(iOper(i),iBsFnc)
-         iAcc(n) = iAcc(n) + iChTab(iIrrep,i)*iPrmt_(iCom)
+         iAcc(n) = iAcc(n) + iChTbl(iIrrep,i)*iPrmt_(iCom)
 *
- 10   Continue
-      Do 30 i = 0, nCoSet-1
+      End Do
+      Do i = 0, nCoSet-1
          If (iAcc(i).eq.0) TstFnc = .False.
- 30   Continue
+      End Do
 *
-*     Call qExit('TstFnc')
       Return
-      End
+      End Function TstFnc
       Integer Function iPrmt_(iCom)
 ************************************************************************
 *     Returns the phase factor of a basis function under a symmetry    *
@@ -86,9 +75,10 @@
 *     character of the basis function.                                 *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      Integer i, iCom
       iPrmt_= 1
-      Do 10 i = 1, 3
+      Do i = 1, 3
          If (iAnd(iCom,2**(i-1)).ne.0) iPrmt_= iPrmt_*(-1)
- 10   Continue
+      End Do
       Return
-      End
+      End Function iPrmt_

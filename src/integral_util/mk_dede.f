@@ -56,6 +56,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -187,7 +188,7 @@ C     Call QEnter('DeDe')
 *-----------Compute normalization factor due the DCR symmetrization
 *           of the two basis functions and the operator.
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             FactNd = DBLE(iuv)/DBLE(nIrrep * LmbdR)
             If (MolWgh.eq.1) Then
                FactNd = FactNd * DBLE(nIrrep)/DBLE(iuv)
@@ -301,7 +302,7 @@ C     Call QEnter('DeDe')
 *                                                                      *
 *-----------Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             If (iFD.eq.1) Then
 *
 *------------- Store away pointer to the block of density info
@@ -321,14 +322,14 @@ C     Call QEnter('DeDe')
 *
                ipOffD(4,ijShll) = jOffD + ipDeDe
             End If
-            mIndij = mIndij + (nIrrep/nStab(mdci))*
-     &                        (nIrrep/nStab(mdcj))
+            mIndij = mIndij + (nIrrep/dc(mdci)%nStab)*
+     &                        (nIrrep/dc(mdcj)%nStab)
             If (iPrint.ge.99) Then
                Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',
      &                       ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
             End If
             Do lDCRR = 0, nDCRR-1
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
 *                                                                      *
 ************************************************************************
 *                                                                      *

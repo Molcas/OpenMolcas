@@ -46,6 +46,7 @@
 *             matrix, January '92.                                     *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -168,21 +169,21 @@
       iAux = 0
       Do 110 is = 0, niSym-1
          j1=iSym(is)
-         Xa = rChTbl(j1,kOp(1)) * FactNs
+         Xa = DBLE(iChTbl(j1,kOp(1))) * FactNs
          Do 210 js = 0, njSym-1
             j2=jSym(js)
-            Xb = rChTbl(j2,kOp(2)) * Xa
+            Xb = DBLE(iChTbl(j2,kOp(2))) * Xa
             j12 = iEor(j1,j2)
             Do 310 ks = 0, nkSym-1
                j3=kSym(ks)
-               Xg = rChTbl(j3,kOp(3)) * Xb
+               Xg = DBLE(iChTbl(j3,kOp(3))) * Xb
                j123=iEor(j12,j3)
                Do 320 ls = 0, nlSym-1
                   j4=lSym(ls)
                   If (j123.ne.j4) Go To 320
 *
                   iAux = iAux + 1
-                  Aux(iAux) = rChTbl(j4,kOp(4)) * Xg *
+                  Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg *
      &                        Fact
                   Go To 310
 *
