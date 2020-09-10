@@ -369,7 +369,7 @@ cend
 *----------Compute gradients of shell quadruplet
 *
            Call TwoEl_g(Coor,
-     &          iAnga,iCmpa,iShela,iShlla,IndShlV,iAOV,
+     &          iAnga,iCmpa,iShela,iShlla,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
      &          Data_k2(k2ij),nab,nHmab,nDCRR,
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,

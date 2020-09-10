@@ -995,8 +995,7 @@ C              Do lS = 1, kS
 *-------------------Compute gradients of shell quadruplet
 *
                     ipD0=ip_of_Work(D0(1,1))
-                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,
-     &                             IndShlV,iAOV,
+                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,
      &                   iAOst,mdci,mdcj,mdck,mdcl,nRys,
      &                   Data_k2(k2ij),nab,nDCRR,
      &                   Data_k2(k2kl),ncd,nDCRS,Pren,Prem,
