@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI3(iCmp,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI3(iCmp,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k,
      &                  ZpK,nSA,nAct)
@@ -47,7 +47,7 @@
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
      &       Zpk(*)
-      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
@@ -118,8 +118,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &          iTwoj(j)).ne.0) Then
+           If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -127,8 +126,7 @@
          Do i3 = 1, iCmp(3)
             nkSym = 0
             Do 301 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(3)+i3),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(3)+i3,j)>0) Then
                   kSym(nkSym) = j
                   nkSym = nkSym + 1
                End If
@@ -136,8 +134,7 @@
             Do i4 = 1, iCmp(4)
                nlSym = 0
                Do 401 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndShl(4)+i4),
-     &                 iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(4)+i4,j)>0) Then
                      lSym(nlSym) = j
                      nlSym = nlSym + 1
                   End If

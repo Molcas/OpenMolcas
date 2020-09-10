@@ -131,7 +131,7 @@
          Else
             If (Case_2C) Then
                If (Do_RI) Then
-                  Call PGet2_RI2(iCmp,IndShl,
+                  Call PGet2_RI2(iCmp,
      &                           iBas,jBas,kBas,lBas,
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           ExFac,CoulFac,
@@ -144,7 +144,7 @@
                EndIf
             Else If (Case_3C) Then
                If (Do_RI) Then
-                  Call PGet2_RI3(iCmp,IndShl,
+                  Call PGet2_RI3(iCmp,
      &                           iBas,jBas,kBas,lBas,
      &                           Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                           D0,DS,nDens,ExFac,
@@ -273,7 +273,7 @@
      &                       Mem2,nGamma,
      &                       LuGamma,Bin,lBin)
                endif
-               Call PGet2_Aces(iCmp,IndShl,
+               Call PGet2_Aces(iCmp,
      &                         iBas,jBas,kBas,lBas,
      &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                         D0,DVar,DS,
@@ -283,14 +283,14 @@
                If (Case_2C) Then
                   If (Do_RI) Then
 
-                     Call PGet2_RI2(iCmp,IndShl,
+                     Call PGet2_RI2(iCmp,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
      &                              PMax,V_K,nV_K,
      &                              Z_p_k, nSA,nZ_p_k)
                   Else
-                     Call PGet2_CD2(iCmp,IndShl,
+                     Call PGet2_CD2(iCmp,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              ExFac,CoulFac,
@@ -298,14 +298,14 @@
                   End If
                Else If (Case_3C) Then
                   If (Do_RI) Then
-                     Call PGet2_RI3(iCmp,IndShl,
+                     Call PGet2_RI3(iCmp,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              D0,DS,nDens,ExFac,
      &                              CoulFac,PMax,V_K,nV_K,
      &                              Z_p_k,nSA,nAsh)
                   Else
-                     Call PGet2_CD3(iCmp,IndShl,
+                     Call PGet2_CD3(iCmp,
      &                              iBas,jBas,kBas,lBas,
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              D0,DS,nDens,ExFac,
@@ -313,7 +313,7 @@
                   End If
 *
                Else
-                  Call PGet2(iCmp,IndShl,
+                  Call PGet2(iCmp,
      &                       iBas,jBas,kBas,lBas,
      &                       Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                       D0,DS,nDens,ExFac,CoulFac,
