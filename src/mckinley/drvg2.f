@@ -975,7 +975,7 @@ C              Do lS = 1, kS
                     nijkl = iBasn*jBasn*kBasn*lBasn
                     Call Timing(dum,Time,Dum,Dum)
                     If (n8)
-     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,CmpV,
+     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
