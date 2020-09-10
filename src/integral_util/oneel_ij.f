@@ -62,12 +62,10 @@
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
       iAO    = iSD( 7,iS)
-      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
       jAO    = iSD( 7,jS)
-      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       B(:)=Zero
@@ -182,7 +180,7 @@
                  !write(6,*) "Symmetry adapt component"
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                        iShell,jShell,iShll,jShll,
-     &                        IndShl,JndShl,Final,
+     &                        iAO,jAO,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
@@ -202,12 +200,10 @@
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
       iAO    = iSD( 7,iS)
-      IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
       jAO    = iSD( 7,jS)
-      JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       Do iComp = 1, nComp
@@ -562,7 +558,7 @@
                Else
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                        iShell,jShell,iShll,jShll,
-     &                        IndShl,JndShl,Final,
+     &                        iAO,jAO,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

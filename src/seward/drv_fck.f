@@ -429,7 +429,7 @@ c        Write(6,*) ' oneel *',Label,'*'
               Else
                  Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                       iShell,jShell,iShll,jShll,
-     &                       IndShl,JndShl,Fnl,
+     &                       iAO,jAO,Fnl,
      &                       iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
               End If

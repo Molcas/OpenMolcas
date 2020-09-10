@@ -425,7 +425,7 @@ C differentiation wrt center iCnt
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
+     &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas

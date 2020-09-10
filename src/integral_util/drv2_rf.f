@@ -120,7 +120,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -132,7 +131,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -358,7 +356,7 @@
             If (mSO.ne.0)
      &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     IndShl,JndShl,Scr1,
+     &                     iAO,jAO,Scr1,
      &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 *
  140        Continue
