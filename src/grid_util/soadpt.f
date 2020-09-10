@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAdpt(AOValue,mAO,nCoor,mBas,
-     &                  nCmp,nOp,SOValue,nDeg,IndShl)
+     &                  nCmp,nOp,SOValue,nDeg,iAO)
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -38,11 +39,10 @@
       Do i1 = 1, nCmp
          iaux=0
          Do j1 = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) goto 100
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
             iaux=iaux+1
             xa= DBLE(iChTbl(j1,nOp))
             Aux(iAux)=Fact*xa
- 100     Continue
          End Do
          If (iPrint.ge.49) Call RecPrt('Aux',' ',Aux,1,iAux)
          Call DnaXpY(iAux,mAO*nCoor*mBas,Aux,1,

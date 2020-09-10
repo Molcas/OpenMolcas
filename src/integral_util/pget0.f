@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet0(iCmp,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine PGet0(iCmp,iBas,jBas,kBas,lBas,
      &                 Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                 n1,n2,n3,n4,MemPSO,Mem2,nMem2,
      &                 iShell_A,iShell_B,iShell_C,iShell_D,nQuad,PMax)
@@ -49,7 +49,7 @@
 #include "etwas.fh"
 #include "columbus_gamma.fh"
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
-      Integer iAO(4), iCmp(4), kOp(4), iAOst(4), IndShl(4)
+      Integer iAO(4), iCmp(4), kOp(4), iAOst(4)
       Logical Shijij
 *                                                                      *
 ************************************************************************
@@ -167,7 +167,7 @@
 !      write(*,*)"Print out in integral_util/pget0 before"
 !      Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
-               Call PGet4(iCmp,IndShl,iBas,jBas,kBas,lBas,
+               Call PGet4(iCmp,iBas,jBas,kBas,lBas,
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                    D0,nDens,
      &                    Mem2(ipPam),n1,n2,n3,n4,

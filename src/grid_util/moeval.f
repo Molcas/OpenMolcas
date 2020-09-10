@@ -198,7 +198,7 @@
 *---------------- Distribute contributions to the SOs
 *
                   Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
-     &                        Work(ipSOs),nDeg,IndShl)
+     &                        Work(ipSOs),nDeg,iAO)
 *
                End Do ! iG
 *

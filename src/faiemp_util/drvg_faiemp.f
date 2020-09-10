@@ -358,7 +358,7 @@ cend
 *----------Get the 2nd order density matrix in SO basis.
 *
            nijkl = iBasn*jBasn*kBasn*lBasn
-           Call PGet0(iCmpa,IndShlV,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
