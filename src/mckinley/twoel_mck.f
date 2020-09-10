@@ -676,7 +676,7 @@
      &              kStb,
      &              lStb,
      &              Shijij,iAngV,iCmpi,iCmp,
-     &              iShll,iShell,iShell,IndShl,
+     &              iShll,iShell,iShell,
      &              iBasi,jBasj,kBask,lBasl,
      &              Dij1,Dij2,mDij,nDij,
      &              Dkl1,Dkl2,mDkl,nDkl,

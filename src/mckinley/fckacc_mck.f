@@ -13,7 +13,7 @@
 #define _USE_OLD_CODE_
 #ifdef _USE_OLD_CODE_
       Subroutine FckAcc_mck(iAng, iCmp,jCmp,kCmp,lCmp,Shijij,
-     &                  iShll, iShell, IndShl, kOp, nijkl,
+     &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -62,6 +62,7 @@
 ************************************************************************
       use Basis_Info
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -81,7 +82,7 @@ c     Logical Qij, Qkl
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 
@@ -184,8 +185,8 @@ c     Logical Qij, Qkl
       iShjl = iShell(2).eq.iShell(4)
       Do 100 i1 = 1, iCmp
          Do 101 j = 0, nIrrep-1
-            iSym(1,j) =
-     &        iAnd(IrrCmp(IndShl(1)+i1),iTwoj(j))
+            iSym(1,j) = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) iSym(1,j) = iTwoj(j)
 101      Continue
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
@@ -194,7 +195,8 @@ c     Logical Qij, Qkl
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               iSym(2,j) = iAnd(IrrCmp(IndShl(2)+i2),iTwoj(j))
+               iSym(2,j) = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) iSym(2,j) = iTwoj(j)
 201         Continue
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
@@ -207,7 +209,8 @@ c     Logical Qij, Qkl
             End If
             Do 300 i3 = 1, kCmp
                Do 301 j = 0, nIrrep-1
-                  iSym(3,j) = iAnd(IrrCmp(IndShl(3)+i3),iTwoj(j))
+                  iSym(3,j) = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) iSym(3,j) = iTwoj(j)
 301            Continue
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
@@ -217,8 +220,8 @@ c     Logical Qij, Qkl
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     iSym(4,j) =
-     &                 iAnd(IrrCmp(IndShl(4)+i4),iTwoj(j))
+                     iSym(4,j) = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) iSym(4,j) = iTwoj(j)
 401               Continue
 *                 Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
@@ -648,7 +651,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
       End
 #else
       Subroutine FckAcc_Mck(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, IndShl, kOp, nijkl,
+     &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -699,6 +702,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 ************************************************************************
       use Basis_Info
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -718,7 +722,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 *     Local Arrays
@@ -823,14 +827,22 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndShl(1)+i1)
+         ix = 0
+         Do j = 0, nIrrep-1
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = iOr(ix,2**j)
+         End Do
+         iSym(1)=ix
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndShl(2)+i2)
+            ix = 0
+            Do j = 0, nIrrep-1
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = iOr(ix,2**j)
+            End Do
+            iSym(2)=ix
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
@@ -840,7 +852,11 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndShl(3)+i3)
+               ix = 0
+               Do j = 0, nIrrep-1
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = iOr(ix,2**j)
+               End Do
+               iSym(3)=ix
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
@@ -848,7 +864,11 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndShl(4)+i4)
+                  ix = 0
+                  Do j = 0, nIrrep-1
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = iOr(ix,2**j)
+                  End Do
+                  iSym(4)=ix
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))
