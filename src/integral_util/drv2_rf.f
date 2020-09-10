@@ -379,8 +379,7 @@
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
             Call SOAdd(SO_Int,iBas,jBas,mSO,h0,
      &                 n2Tri(iSmLbl),iSmLbl,
-     &                 iCmp,jCmp,iShell,jShell,IndShl,JndShl,
-     &                 AeqB,iAO,jAO)
+     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 *
             Call mma_deallocate(SO_Int)
             Call mma_deallocate(Scr2)

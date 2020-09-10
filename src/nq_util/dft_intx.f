@@ -158,7 +158,7 @@ C     Call QEnter('DFT_IntX')
 *
                   Call SOAdd(SOTemp(1,iD),iBas,jBas,nSO,
      &                       FckInt(1,iD),nFckInt,iSmLbl,
-     &                       iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                       iCmp,jCmp,iShell,jShell,
      &                       iSkal.eq.jSkal,iAO,jAO)
 *
                Else

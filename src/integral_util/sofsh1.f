@@ -30,9 +30,7 @@
 *     University of Lund, Sweden, 1995                                 *
 ************************************************************************
 *#define _CHECK_
-#ifdef _CHECK_
       use SOAO_Info, only: iAOtSO
-#endif
       use iSD_data
       use Index_arrays
       Implicit Real*8 (A-H,O-Z)
@@ -60,7 +58,6 @@
 *
       Do iSkal = 1, nSkal
          iAO         = iSD( 7,iSkal)
-         IndShl      = iSD( 8,iSkal)
          iCmp        = iSD( 2,iSkal)
          icntr(iSkal)= iSD(10,iSkal)
 *
@@ -69,7 +66,7 @@
          Do i=1, iCmp
 *           loop over irreps...
             Do irp=0, nSym-1
-               If (iAnd(IrrCmp(IndShl+i),2**irp).ne.0) Then
+               If (iAOtSO(iAO+i,irp)>0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
 #ifdef _CHECK_
                   If (Basis_Mode.eq.Auxiliary_Mode) Then
