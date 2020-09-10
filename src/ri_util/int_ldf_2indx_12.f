@@ -84,8 +84,7 @@
             Call PLF_LDF_2Indx_12(TInt,nTInt,
      &                            AOInt,ijkl,
      &                            iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                            iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                            iAOtSO,MxAO)
+     &                            iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &                  'Shell combination not implemented in '//SecNam)

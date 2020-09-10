@@ -47,10 +47,6 @@
 *     iSphCr: index of a cartesian angular function which will have the*
 *             same symmetry property (D2h) as the i''th spherical      *
 *             harmonic                                                 *
-*     iSOff : the shell index of the i''th basis set and j''th unique  *
-*             center of the i''th basis set (Placed in dynamic common  *
-*             to reduce the dumping information, RL 970428)            *
-*     iAOtSO: SO index of the i''th AO function of the j''th irrep     *
 *     NrInt : array for integral statistics                            *
 *     nPrm  : number of primitive functions in each irrep              *
 *     iOffSO: number of SO basis functions presiding the i''th irrep   *
@@ -176,14 +172,13 @@
       Integer   iSkip(0:7),iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
       Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
      &          iChBas(MxFnc),   iSphCr(MxFnc), nBas_Aux(0:7),
-     &          iAOtSO(MxAO,0:7),NrInt(-20:9),
-     &          Max_Center,  nPrm(0:7), iOffSO(0:7), jMax,
+     &          NrInt(-20:9), Max_Center,  nPrm(0:7), iOffSO(0:7), jMax,
      &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
      &          nTtl, kCentr, iRelae_Info
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
-      Common /Info/ iAOtSO, IrrCmp,
+      Common /Info/ IrrCmp,
      &              ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType, nBas_Aux,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,

@@ -538,40 +538,40 @@ C                 Write (*,*) 'iOpt=',iOpt
       If (lFij)
      &Call FckDst(TwoHam,nDens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),
      &            kOp2(1),kOp2(2),iIrrep,
-     &            IndShl(1),IndShl(2),iShij,
+     &            iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
      &            Fact)
 *
       If (lFkl)
      &Call FckDst(TwoHam,nDens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),
      &            kOp2(3),kOp2(4),iIrrep,
-     &            IndShl(3),IndShl(4),iShkl,
+     &            iShkl,
      &            iAO(3),iAO(4),iAOst(3),iAOst(4),
      &            Fact)
 *
       If (lFik)
      &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
-     &            IndShl(1),IndShl(3),iShik,
+     &            iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
      &            Fact)
 *
       If (lFjl)
      &Call FckDst(TwoHam,nDens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),
      &            kOp2(2),kOp2(4),iIrrep,
-     &            IndShl(2),IndShl(4),iShjl,
+     &            iShjl,
      &            iAO(2),iAO(4),iAOst(2),iAOst(4),
      &            Fact)
       If (lFil)
      &Call FckDst(TwoHam,nDens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),
      &            kOp2(1),kOp2(4),iIrrep,
-     &            IndShl(1),IndShl(4),iShil,
+     &            iShil,
      &            iAO(1),iAO(4),iAOst(1),iAOst(4),
      &            Fact)
       If (lFjk)
      &Call FckDst(TwoHam,nDens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),
      &            kOp2(2),kOp2(3),iIrrep,
-     &            IndShl(2),IndShl(3),iShjk,
+     &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 *

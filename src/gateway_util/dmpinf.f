@@ -49,7 +49,6 @@
 #include "RelLight.fh"
       Integer  iix(2)
       Real*8   rix(2)
-      Integer, Dimension(:,:), Allocatable :: jAOtSO
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
@@ -82,15 +81,6 @@
 *
       Call SOAO_Info_Dmp()
       Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)
-*
-*     Finally some on iAOtSO
-*
-      Call mma_allocate(jAOtSO,8,Mx_AO)
-      Do i = 1, Mx_AO
-         Call ICopy(8,iAOtSO(i,0),MxAO,jAOtSO(1,i),1)
-      End Do
-      Call Put_iArray('iAOtSO',jAOtSO,8*Mx_AO)
-      Call mma_deallocate(jAOtSO)
 *
 *     Save the common LINFO
 *

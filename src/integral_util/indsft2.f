@@ -25,6 +25,7 @@
 *          april '90                                                   *
 ************************************************************************
       use k2_arrays, only: Sew_Scr
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

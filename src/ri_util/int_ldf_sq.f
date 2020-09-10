@@ -81,8 +81,7 @@
             ! type (ij|kl)
             Call PLF_LDF_SQ(TInt,nTInt,
      &                      AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                      iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                      iAOtSO,MxAO)
+     &                      iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &      'Shell combination not implemented in Int_LDF_SQ')

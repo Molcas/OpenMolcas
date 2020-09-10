@@ -15,6 +15,7 @@
      &                temp1,temp2,temp3,temp4,temp5,temp6)
 *
       use pso_stuff
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

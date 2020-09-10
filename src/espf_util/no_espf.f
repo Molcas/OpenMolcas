@@ -22,11 +22,6 @@
       Character*180 Line,Get_Ln
       External Get_Ln
 *
-*     Statement function for Cartesian index
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-      Call qEnter('no_espf')
       iPL = iPL_espf()
       NoLoop = .True.
 *
@@ -207,7 +202,6 @@
 *
 *     Update the 1-e integrals
 *
-      Call qExit('no_espf')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(natom)

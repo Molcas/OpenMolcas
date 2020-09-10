@@ -26,6 +26,7 @@
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

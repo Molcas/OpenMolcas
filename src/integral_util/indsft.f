@@ -29,6 +29,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

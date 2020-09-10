@@ -12,6 +12,7 @@
      &                  nAcO,
      &                  IndShl,icmp,iBasi,iBasn,jBasj,jBasn,
      &                  kBask,kBasn,lBasl,lBasn,iaoii)
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"

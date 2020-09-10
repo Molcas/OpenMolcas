@@ -80,8 +80,7 @@
             ! type (J|uv)
             Call PLF_LDF_uvJ_1(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.le.nS_Val .and.
@@ -89,8 +88,7 @@
             ! type (kl|uv) [kl being 2-center aux functions]
             Call PLF_LDF_uvJ_2(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO,MapOrg)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,MapOrg)
          Else
             Call WarningMessage(2,
      &      'Shell combination not implemented in Int_LDF_uvJ')

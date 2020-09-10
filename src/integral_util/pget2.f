@@ -31,6 +31,7 @@
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"

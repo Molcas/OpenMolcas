@@ -12,7 +12,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl
-      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf
+      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -83,7 +83,7 @@ cvv LP_NAMES was used later without initialization.
 *     Compute cdMax, EtMax, and nShlls.
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
-      Call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux)
+      Call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux,nIrrep)
 *                                                                      *
 ************************************************************************
 *                                                                      *

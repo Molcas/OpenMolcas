@@ -588,7 +588,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(2),iShij,
+     &                             iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
@@ -596,7 +596,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(3),IndShl(4),iShkl,
+     &                             iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
@@ -604,7 +604,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(3),iShik,
+     &                             iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
@@ -612,7 +612,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(2),IndShl(4),iShjl,
+     &                             iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
@@ -620,7 +620,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(4),iShil,
+     &                             iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
@@ -628,7 +628,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
      &                             iIrrep,
-     &                             IndShl(2),IndShl(3),iShjk,
+     &                             iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
 *           If (DDot_(3468,TwoHam,1,TwoHam,1).gt.Zero) Then
@@ -644,8 +644,6 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 *           End If
          End If
       End Do
-c     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
-c     Call QExit('FckAcc')
       Return
       End
 #else
@@ -1137,7 +1135,7 @@ C                 Write (*,*)
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(2),iShij,
+     &                             iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
@@ -1145,7 +1143,7 @@ C                 Write (*,*)
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(3),IndShl(4),iShkl,
+     &                             iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
@@ -1153,7 +1151,7 @@ C                 Write (*,*)
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(3),iShik,
+     &                             iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
@@ -1161,7 +1159,7 @@ C                 Write (*,*)
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(2),IndShl(4),iShjl,
+     &                             iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
@@ -1169,7 +1167,7 @@ C                 Write (*,*)
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
      &                             iIrrep,
-     &                             IndShl(1),IndShl(4),iShil,
+     &                             iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
@@ -1177,7 +1175,7 @@ C                 Write (*,*)
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
      &                             iIrrep,
-     &                             IndShl(2),IndShl(3),iShjk,
+     &                             iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
          End If

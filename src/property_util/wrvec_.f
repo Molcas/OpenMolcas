@@ -562,26 +562,6 @@ c      Write(LU,'(i8)') Mx_Unq
 c      call pack_me(LU,irrCmp,Mx_Unq)
 
 *
-*     And some in iAOtSO
-*
-      Call GETMEM('AS','ALLO','INTE',ip_AS,8*Mx_AO)
-      Call Get_iArray('iAOtSO',iWork(ip_AS),8*Mx_AO)
-
-      iWork(iivv+Icurr)=8*Mx_AO
-      Icurr=iCurr+1
-      call icopy(8*Mx_AO,iWork(ip_AS),1,iWork(iivv+Icurr),1)
-c      do i=1,8*Mx_AO
-c        iWork(iivv+Icurr+i)=iWork(ip_AS+i-1)
-c      enddo
-      Icurr=iCurr+8*Mx_AO
-
-c      Write(LU,'(i8)') 8*Mx_AO
-c      call pack_me(LU,iWork(ip_AS),8*Mx_AO)
-
-
-      Call GETMEM('AS','FREE','INTE',ip_AS,8*Mx_AO)
-
-*
 *     Load the common LINFO
 *
 c      Len = iiLoc(lxEnd)-iiLoc(lxStrt)

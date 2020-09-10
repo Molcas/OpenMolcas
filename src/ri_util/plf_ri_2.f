@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990,1995, Roland Lindh                                *
+* Copyright (C) 1990,2005, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
@@ -28,6 +28,7 @@
 *          Modified to 2-center RI June '05                            *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

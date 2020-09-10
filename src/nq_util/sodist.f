@@ -11,6 +11,7 @@
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,
      &                  nDeg,MOValue,IndShl,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

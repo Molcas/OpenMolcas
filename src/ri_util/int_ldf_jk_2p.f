@@ -61,8 +61,7 @@
             ! type (J|L)
             Call PLF_LDF_JK_2P_1(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.eq.iS_Dum .and.
      &            SHB.gt.nS_Val .and. SHB.lt.iS_Dum .and.
      &            SHC.le.nS_Val .and.
@@ -70,8 +69,7 @@
             ! type (J|uv)
             Call PLF_LDF_JK_2P_2(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.eq.iS_Dum .and.
@@ -79,8 +77,7 @@
             ! type (uv|J)
             Call PLF_LDF_JK_2P_3(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.le.nS_Val .and.
@@ -88,8 +85,7 @@
             ! type (uv|kl)
             Call PLF_LDF_JK_2P_4(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &             'Shell combination not implemented in Int_LDF_JK_2P')

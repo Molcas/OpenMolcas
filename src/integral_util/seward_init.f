@@ -77,7 +77,6 @@ C
 
       iChCar(:)=0
       KVector(:)=Zero
-      iAOtSO(1:MxAO,0:7)=-999999999
       MaxBas(0:MxAng)=0
       MaxPrm(0:MxAng)=0
       IrrCmp(1:MxUnq)=0
