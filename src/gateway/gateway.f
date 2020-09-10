@@ -25,6 +25,8 @@
       use Period
       use GeoList
       use MpmC
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -48,10 +50,11 @@ C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Found
       Real*8, Allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
-      Integer GB
+      Integer, Allocatable :: nStab(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+C     Call Gateway_banner()
       iReturn = 0
 *
 *     If Gateway is running the Run_Mode on the runfile should always
@@ -79,11 +82,13 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Initialize common blocks
+*     Initialize common blocks and start from scratch
 *
       Call Seward_Init()
       Call Funi_Init()
       Call NQGrid_Init()
+      Call Basis_Info_Init()
+      Call Center_Info_Init()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -91,21 +96,6 @@ C-SVC: identify runfile with a fingerprint
 *
       LuSpool=21
       Call SpoolInp(LuSpool)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Call GetMem to get pointer to first available core allocation.
-*
-      kB=2**10
-      MB=kb*kB
-      GB=kb*MB/8 ! divide with 8 to get the number of real
-      Call GetMem('Info','Max','Real',iDum,MaxM)
-      nDInf=Max(MaxM/4,Min((9*MaxM)/10,GB))
-      Call GetMem('Info','ALLO','REAL',Info,nDInf)
-      Call FZero(Work(Info),nDInf)
-      Info_Status=Active
-      LctInf = Info
-      nInfo = 0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -121,10 +111,18 @@ C-SVC: identify runfile with a fingerprint
 *     Read the input.
 *
       lOPTO = .False.
-      Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
-     &                  Work(Info),nDInf)
-      Call Gen_RelPointers(Info-1) ! Work Mode
-#include "release_core.fh"
+      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+*
+*     Write the Basis_Info data to file. Release the arrays and read
+*     them back from the runfile now allocating them to the proper
+*     size.
+*
+      Call Basis_Info_Dmp()
+      Call Basis_Info_Free()
+      Call Basis_Info_Get()
+      Call Center_Info_Dmp()
+      Call Center_Info_Free()
+      Call Center_Info_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -136,15 +134,14 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 *     Print out section
 *
-      Call Gen_RelPointers(-(Info-1)) ! DInf Mode
       Call Print_Symmetry()
       Call Flip_Flop(.False.)
-      Call Print_Basis(lOPTO,Work(Info),nDInf)
-      Call Print_Geometry(0,Work(Info),nDInf)
+      Call Print_Basis(lOPTO)
+      Call Print_Geometry(0)
       Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
-      Call Print_Basis2(Work(Info),nDInf)
+      Call Print_Basis2()
       Call Print_OpInfo()
 *                                                                      *
 ************************************************************************
@@ -154,18 +151,18 @@ C-SVC: identify runfile with a fingerprint
       Primitive_Pass=.False.
       Call Flip_Flop(Primitive_Pass)
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,Work(Info),nDInf,Info)
+      Call SOCtl_Seward(Mamn,nMamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call DmpInf(Work(Info),nInfo)
+      Call DmpInf()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Produce minimal set of entries on the runfile to facilitate
 *     Grid_It's and ExpBas's needs.
 *
-      Call Drvn0(Work(Info),nInfo)
+      Call Drvn0()
 *
       Call Datimx(KWord)
       Header(1)=Title(1)(5:76)
@@ -181,45 +178,42 @@ C-SVC: identify runfile with a fingerprint
       Call Put_cArray('Irreps',lIrrep(0),24)
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
-      call basis2run(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1) ! Work Mode
+      call basis2run()
       Call mma_deallocate(Mamn)
 *
 *     Generate list of unique atoms
 *
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) nNuc = nNuc + nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%pChrg.and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
 *
       Call mma_allocate(DCo,3,nNuc)
       Call mma_allocate(DCh,nNuc)
       Call mma_allocate(DCh_Eff,nNuc)
+      Call mma_allocate(nStab,nNuc)
       iDCo = 1
       iDCh = 1
       iDChE= 1
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.pChrg(iCnttp).and.
-     &       .Not.FragCnttp(iCnttp).and.
-     &       .Not.AuxCnttp(iCnttp)) Then
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%pChrg.and.
+     &       .Not.dbsc(iCnttp)%Frag.and.
+     &       .Not.dbsc(iCnttp)%Aux) Then
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                iNuc = iNuc+ 1
-               DCo(1,iNuc) = Work(ixyz  )
-               DCo(2,iNuc) = Work(ixyz+1)
-               DCo(3,iNuc) = Work(ixyz+2)
-               DCh_Eff(iNuc)=Charge(iCnttp)
-               DCh(iNuc)=DBLE(iAtmNr(iCnttp))
-               xLblCnt(iNuc)=LblCnt(mdc)(1:LENIN)
-               ixyz = ixyz + 3
+               DCo(1:3,iNuc)=dbsc(iCnttp)%Coor(1:3,iCnt)
+               DCh_Eff(iNuc)=dbsc(iCnttp)%Charge
+               DCh(iNuc)=DBLE(dbsc(iCnttp)%AtmNr)
+               xLblCnt(iNuc)=dc(mdc)%LblCnt(1:LENIN)
+               nStab(iNuc)=dc(mdc)%nStab
             End Do
          Else
-            mdc  = mdc + nCntr(iCnttp)
+            mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
       Call Put_iScalar('Unique atoms',nNuc)
@@ -229,6 +223,7 @@ C-SVC: identify runfile with a fingerprint
       Call Put_cArray('Unique Atom Names',xLblCnt(1),LENIN*nNuc)
       Call Put_iArray('nStab',nStab,nNuc)
 *
+      Call mma_deallocate(nStab)
       Call mma_deallocate(DCo)
       Call mma_deallocate(DCh)
       Call mma_deallocate(DCh_Eff)
@@ -249,7 +244,8 @@ C-SVC: identify runfile with a fingerprint
       If (lRF.and..not.PCM) iOption=iOr(iOption,2**7)
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (pChrg(iCnttp) .and. Fixed(iCnttp))
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
+     &                         dbsc(iCnttp)%Fixed)
       End Do
       If (lXF.or.Pseudo) Then
          iOption=iOr(iOption,2**7)

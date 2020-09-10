@@ -762,8 +762,8 @@ Optional optimization procedure keywords
   By default it is the same as the gradient threshold for the normal iterations, specified with :kword:`THRShld`,
   it may be necessary to reduce it to follow a path on a very flat surface.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPCONVERGENCE" APPEAR="MEP gradient convergence" KIND="REAL" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="BASIC" ALSO="IRCCONVERGENCE">
-              %%Keyword: MEPConvergence <basic>
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPCONVERGENCE" APPEAR="MEP gradient convergence" KIND="REAL" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCCONVERGENCE">
+              %%Keyword: MEPConvergence <advanced>
               <HELP>
               Sets the gradient convergence for a MEP search or IRC analysis.
               The path will be terminated when the gradient norm at an optimized point is below this threshold.
@@ -773,7 +773,7 @@ Optional optimization procedure keywords
               IRCConvergence is a valid synonym.
               </KEYWORD>
 
-              %%Keyword: IRCConvergence <basic>
+              %%Keyword: IRCConvergence <advanced>
               Sets the gradient convergence for a MEP search or IRC analysis.
               The path will be terminated when the gradient norm at an optimized point is below this threshold.
               By default it is the same as the gradient threshold for the normal iterations, specified with THRShld,
@@ -784,7 +784,7 @@ Optional optimization procedure keywords
   of the origin of the hyper sphere. The default origin is the structure
   of the first iteration.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: REFErence <basic>
               <HELP>
               The keyword is followed by a list of the symmetry unique coordinates (in au)
@@ -863,17 +863,16 @@ Optional force constant keywords
               Input of Hessian in internal coordinates.
               Note this is
               There are two different syntaxes.
-              ||
+
               1) The keyword is followed by an entry with
-              the number of elements which will be set (observe that the
-              update will preserve that the elements Hij and Hji are
-              equal). The next lines will contain the value and the indices of
-              the elements to be replaced.
-              ||
+                 the number of elements which will be set (observe that the
+                 update will preserve that the elements Hij and Hji are
+                 equal). The next lines will contain the value and the indices of
+                 the elements to be replaced.
               2) The keyword if followed by the label "Square" or
-              "Triangular". The subsequent entry specifies the rank of the
-              Hessian. This is then followed by entries specifying the Hessian
-              in square or lower triangular order.
+                 "Triangular". The subsequent entry specifies the rank of the
+                 Hessian. This is then followed by entries specifying the Hessian
+                 in square or lower triangular order.
 
 :kword:`XFCOnstant`
   Input of an external Hessian matrix in cartesian coordinates. The

@@ -279,7 +279,7 @@ Keywords
   see also :kword:`XMULtistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
+              <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: Multistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
@@ -301,7 +301,7 @@ Keywords
   This keyword is mutually exclusive with :kword:`MULTistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
+              <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
@@ -453,11 +453,11 @@ Keywords
               <HELP>
               "Freeze-and-Delete" type of CASPT2, available only in connection with Cholesky or RI.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword LOVC is the following:
-              ||
-              ||LovCASPT2
-              || 0.3
-              ||DoMP2  (or DoEnv)
-              ||
+
+                LovCASPT2
+                 0.3
+                DoMP2  (or DoEnv)
+
               In this case, both occupied and virtual orbitals (localized by the program) are divided in two groups: those mainly located on
               the region determined (automatically) by the spatial extent of the active orbitals ("active site"),
               and the remaining ones, which are obviously "outside" this region.
@@ -496,11 +496,11 @@ Keywords
               <HELP>
               Performs a Frozen Natural Orbital (FNO) CASPT2 calculation, available only in combination with Cholesky or RI integral representation.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword FNOC is the following:
-              ||
-              ||FNOCaspt2
-              || 0.4
-              ||DoMP2
-              ||
+
+                FNOCaspt2
+                 0.4
+                DoMP2
+
               The keyword FNOC has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
               (in each irrep) to be retained in the FNO-CASPT2 calculation.
               The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.

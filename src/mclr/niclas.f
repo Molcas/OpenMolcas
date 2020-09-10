@@ -11,6 +11,9 @@
 * Copyright (C) 1997, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine Niclas(H,coor,LUT)
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChTbl
 * eaw 970909
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
@@ -25,9 +28,8 @@
       logical tf,tstfnc
       Dimension Coor(*)
       Dimension Dummy(1)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=nd*(j-1)+i-1
@@ -37,7 +39,7 @@
       Do iIrrep=0,nIrrep-1
       mdc=0
        Do iCnttp = 1, nCnttp
-        nCnti = nCntr(iCnttp)
+        nCnti = dbsc(iCnttp)%nCntr
         Do iCnt = 1, nCnti
          mdc=mdc+1
          IndDsp(mdc,iIrrep)=idsp
@@ -46,20 +48,20 @@
           If (TF(mdc,iIrrep,iComp)) Then
              idsp=idsp+1
              ldisp(iirrep)=ldisp(iirrep)+1
-             ndeg(idsp)=nIrrep/nstab(mdc)
+             ndeg(idsp)=nIrrep/dc(mdc)%nStab
           End If
          End Do
         End Do
        End Do
       End Do
 *
-********************************************************************************
+************************************************************************
 *
 *    Steady
 *
 *    Make the symmetrized Hessian correct for degenerated geometries
 *
-********************************************************************************
+************************************************************************
 *
       nd=0
       Do i=0,nIrrep-1
@@ -93,20 +95,20 @@
       mdc=0
       iPERT=0
       Do iCnttp = 1, nCnttp
-       nCnti = nCntr(iCnttp)
+       nCnti = dbsc(iCnttp)%nCntr
        Do iCnt = 1, nCnti
         mdc=mdc+1
 *
-        nCenti=nIrrep/nStab(mdc)
+        nCenti=nIrrep/dc(mdc)%nStab
 *
       ndc=0
       jPERT=0
       Do jCnttp = 1, nCnttp
-       nCntj = nCntr(jCnttp)
+       nCntj = dbsc(jCnttp)%nCntr
        Do jCnt = 1, nCntj
         ndc=ndc+1
 
-        nCentj=nIrrep/nStab(ndc)
+        nCentj=nIrrep/dc(ndc)%nStab
         Do iIrrep=0,nIrrep-1
          iDsp = IndDsp(mdc,iIrrep)
          Do iCar = 0, 2
@@ -123,10 +125,10 @@
                Do jCo=0,Ncentj-1
                 i=iPert+ico*3+icar+1
                 j=jPert+jco*3+jcar+1
-                kop_m=iCoSet(iCo,0,mdc)
-                nop_m=nropr(kop_m,ioper,nirrep)
-                kop_n=iCoSet(jCo,0,ndc)
-                nop_n=nropr(kop_n,ioper,nirrep)
+                kop_m=dc(mdc)%iCoSet(iCo,0)
+                nop_m=nropr(kop_m)
+                kop_n=dc(ndc)%iCoSet(jCo,0)
+                nop_n=nropr(kop_n)
                 riPh=DBLE(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))
      &           /sqrt(DBLE(nCENTI))
                 rjPh=DBLE(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n))

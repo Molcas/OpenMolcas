@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1995, Roland Lindh                                *
 ************************************************************************
-      SubRoutine DrvN0(DInf,nDInf)
+      SubRoutine DrvN0()
 ************************************************************************
 *                                                                      *
 * Object: to compute the nuclear contibutions to the nuclear potential *
@@ -26,12 +26,15 @@
 *             Modified for various other contributions May 95', RL     *
 ************************************************************************
       use external_centers
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-      Real*8 A(3), B(3), RB(3), DInf(nDInf)
+      Real*8 A(3), B(3), RB(3)
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)
       Logical EQ, NoLoop
 *
@@ -56,40 +59,34 @@ C     nElem(ixyz) = 2*ixyz+1
       mdc = 0
       ZB=Zero
       Do iCnttp = 1, nCnttp
-         ZA = Charge(iCnttp)
-         If (FragCnttp(iCnttp)) ZA = FragCharge(iCnttp)
+         ZA = dbsc(iCnttp)%Charge
+         If (dbsc(iCnttp)%Frag) ZA = dbsc(iCnttp)%FragCharge
          If (ZA.eq.Zero) Go To 101
-         ixyz = ipCntr(iCnttp)
-         Do iCnt = 1, nCntr(iCnttp)
-            A(1) = DInf(ixyz  )
-            A(2) = DInf(ixyz+1)
-            A(3) = DInf(ixyz+2)
+         Do iCnt = 1, dbsc(iCnttp)%nCntr
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             ndc = 0
             Do jCnttp = 1, iCnttp
-               If (pChrg(iCnttp).and.pChrg(jCnttp)) Go To 201
-               If (FragCnttp(iCnttp).and.FragCnttp(jCnttp)) Go To 201
-               ZB = Charge(jCnttp)
-               If (FragCnttp(jCnttp)) ZB = FragCharge(jCnttp)
+               If (dbsc(iCnttp)%pChrg.and.dbsc(jCnttp)%pChrg) Go To 201
+               If (dbsc(iCnttp)%Frag.and.dbsc(jCnttp)%Frag) Go To 201
+               ZB = dbsc(jCnttp)%Charge
+               If (dbsc(jCnttp)%Frag) ZB = dbsc(jCnttp)%FragCharge
                If (ZB.eq.Zero) Go To 201
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
-               jCntMx = nCntr(jCnttp)
+               jCntMx = dbsc(jCnttp)%nCntr
                If (iCnttp.eq.jCnttp) jCntMx = iCnt
                Do jCnt = 1, jCntMx
 *                 Introduce factor to ensure that contributions from
 *                 A>B are the only to be accumulated.
                   Fact = One
                   If (iCnttp.eq.jCnttp.and.iCnt.eq.jCnt) Fact = Half
-                  B(1) = DInf(jxyz  )
-                  B(2) = DInf(jxyz+1)
-                  B(3) = DInf(jxyz+2)
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp = Zero
@@ -113,31 +110,31 @@ C     nElem(ixyz) = 2*ixyz+1
                            Call Abend()
                         End If
                         fab = One
-                        If (ECP(iCnttp)) Then
+                        If (dbsc(iCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(iCnttp)-1
-                             Gamma = DInf(ipM1xp(iCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(iCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(iCnttp)%nM1
+                             Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(iCnttp)-1
-                             Gamma = DInf(ipM2xp(iCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(iCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(iCnttp)%nM2
+                             Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = DInf(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = DInf(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
@@ -164,12 +161,11 @@ C     nElem(ixyz) = 2*ixyz+1
                   jxyz = jxyz + 3
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
-            ixyz = ixyz + 3
          End Do
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
 *
       If (Show) Then
@@ -180,16 +176,6 @@ C     nElem(ixyz) = 2*ixyz+1
       End If
 *
       If (lXF.and.(nOrd_XF.ge.0)) Then
-*
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
 *
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
@@ -248,27 +234,23 @@ C     nElem(ixyz) = 2*ixyz+1
             End If
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            iChxyz=iChAtm(A,iChBas(2))
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
-               ZB = Charge(jCnttp)
-               If (pChrg(jCnttp)) Go To 202
+               ZB = dbsc(jCnttp)%Charge
+               If (dbsc(jCnttp)%pChrg) Go To 202
                If (ZB.eq.Zero) Go To 202
-               If (FragCnttp(jCnttp)) Go To 202
+               If (dbsc(jCnttp)%Frag) Go To 202
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
-               Do jCnt = 1, nCntr(jCnttp)
-                  B(1) = DInf(jxyz  )
-                  B(2) = DInf(jxyz+1)
-                  B(3) = DInf(jxyz+2)
+               Do jCnt = 1, dbsc(jCnttp)%nCntr
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,iStb,nStb,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero
@@ -286,17 +268,17 @@ C     nElem(ixyz) = 2*ixyz+1
                         r12 = Sqrt(ABx**2 + ABy**2 + ABz**2)
 *
                         fab=One
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = DInf(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = DInf(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = DInf(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = DInf(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
@@ -321,10 +303,9 @@ C     nElem(ixyz) = 2*ixyz+1
                   PNX = PNX + ( ( ZAZB*temp0 + ZB*(temp1+temp2))
      &                * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
-                  jxyz = jxyz + 3
                End Do
  202           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
  102        Continue
          End Do
@@ -412,8 +393,8 @@ C     nElem(ixyz) = 2*ixyz+1
 
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            iChxyz=iChAtm(A,iChBas(2))
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
                If (nOrd_XF.eq.0) Then
@@ -453,8 +434,8 @@ C     nElem(ixyz) = 2*ixyz+1
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
-               iChxyz=iChAtm(B,iOper,nOper,iChBas(2))
-               Call Stblz(iChxyz,iOper,nIrrep,mStb,jStb,iDum,jCoSet)
+               iChxyz=iChAtm(B,iChBas(2))
+               Call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.
                Fact = One
@@ -462,8 +443,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *              Find the DCR for the two centers
 *
-               Call DCR(LmbdR,iOper,nIrrep,iStb,nStb,jStb,mStb,
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,jStb,mStb,iDCRR,nDCRR)
 *
                temp = Zero
                Do iR = 0, nDCRR-1

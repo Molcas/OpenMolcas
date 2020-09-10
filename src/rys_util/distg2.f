@@ -29,6 +29,7 @@
 *     Author: Anders Bernhardsson Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

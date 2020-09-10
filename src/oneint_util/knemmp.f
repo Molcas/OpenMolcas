@@ -8,10 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Write_LblCnt(LuWr,LblCnt,x)
-      Implicit Real*8 (A-H,O-Z)
-      Character*(*) LblCnt
-      Real*8 x(3)
-      Write (LuWr,'(1X,A,1X,3F20.10)') LblCnt,x
+      Subroutine KnEMmP(nHer,MmKneP,la,lb,lr)
+*
+      nHer=(la+lb+lr+2)/2
+      MmKnEP = 3*nHer*(la+2) +
+     &         3*nHer*(lb+2) +
+     &         3*nHer*(lr-1) +
+     &         3*(la+2)*(lb+2)*(lr-1) +
+     &         3*(la+1)*(lb+1) + 1 + 1
+*
       Return
       End

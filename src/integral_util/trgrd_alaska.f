@@ -18,20 +18,20 @@
 *       Written by Anders Bernhardsson                             *
 *       960427                                                     *
 ********************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       mdc=0
       iIrrep=0
 *
@@ -39,34 +39,32 @@
       iCen=0
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Go To 999
          nCnttp_Valence = nCnttp_Valence+1
       End Do
  999  Continue
 *
       Do iCnttp=1,nCnttp_Valence
-         ixyz = ipCntr(iCnttp)
-         Do iCnt=1,nCntr(iCnttp)
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            call dcopy_(3,Work(ixyz),1,A,1)
-            Do iCo=0,nIrrep/nStab(mdc)-1
-               kop=iCoSet(iCo,0,mdc)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
+            Do iCo=0,nIrrep/dc(mdc)%nStab-1
+               kop=dc(mdc)%iCoSet(iCo,0)
                nDispS = IndDsp(mdc,iIrrep)
-               A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
-               A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
-               A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
+               A1=DBLE(iPrmt(NrOpr(kop),1))*A(1)
+               A2=DBLE(iPrmt(NrOpr(kop),2))*A(2)
+               A3=DBLE(iPrmt(NrOpr(kop),4))*A(3)
                iCen=iCen+1
                Do iCar=0,2
                   iComp = 2**iCar
                   If ( TF(mdc,iIrrep,iComp)) Then
                      nDispS = nDispS + 1
-                     XR=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),icomp))
+                     XR=DBLE(iPrmt(NrOpr(kop),icomp))
                      CGrad(iCar+1,iCen)=XR*GradIn(nDispS)
                   End If
                End Do
             End Do
          End Do
-         ixyz=ixyz+3
       End Do
 *
 *     Call RecPrt('CGrad',' ',CGrad,3,iCen)

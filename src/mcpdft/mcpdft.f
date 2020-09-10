@@ -225,7 +225,7 @@
 
 
 * Process the input:
-      Call Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Call Proc_InpX(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then

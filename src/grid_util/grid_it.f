@@ -79,16 +79,9 @@ c      Call bXML('GRID_IT')
 *
       endif
 *
-c      Call Seward_init
-c*
-c*     Get the input information as Seward dumped on INFO.
-c*
-c      nDiff=0
-c      DoRys=.False.
-c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
       nDiff=0
       DoRys=.False.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 
       OldTst = Test
 *

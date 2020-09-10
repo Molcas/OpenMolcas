@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ_(Kernel,Func,
+      Subroutine DrvNQ_Internal(
+     &                  Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
      &                  AOInt,nAOInt,FckInt,nFckDim,

@@ -125,13 +125,10 @@
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do lDCRT = 0, nDCRT-1
-         TC(1) = iPhase(1,iDCRT(lDCRT))*CCoor(1)
-         TC(2) = iPhase(2,iDCRT(lDCRT))*CCoor(2)
-         TC(3) = iPhase(3,iDCRT(lDCRT))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
 *        Compute the contribution from the multipole moment operator
 *
@@ -180,7 +177,7 @@
 *
 *        Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *

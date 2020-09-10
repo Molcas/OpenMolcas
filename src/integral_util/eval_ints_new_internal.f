@@ -11,10 +11,9 @@
 * Copyright (C) 1991,1993,1999, Roland Lindh                           *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine Eval_Ints_New_(iiS,jjS,kkS,llS,TInt,nTInt,
-     &                          iTOffs,nShi,nShj,nShk,nShl,
-     &                          nShOffi,nShOffj,nShOffk,nShOffl,
-     &                          Integ_Proc,
+      SubRoutine Eval_Ints_New_Internal
+     &                         (iiS,jjS,kkS,llS,TInt,nTInt,
+     &                          iTOffs,Integ_Proc,
      &                          Dens,Fock,lDens,ExFac,nDens,
      &                          Ind,nInd,FckNoClmb,FckNoExch,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
@@ -31,37 +30,13 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-*     nShi,nShj,          Dimensions used for blocks in Tint (input)   *
-*     nshk,nshl:          Symmetry block isym,jsym,ksym,lsym for       *
-*                         shells iS,jS,kS,lS starts at                 *
-*                         iTOffs(ksym,jsym,isym)+1 and is dimensioned  *
-*                         [nshl(lsym),nshk(ksym),nshj(jsym,nshi(isym)] *
-*                         Note that l runs fastest! The dimensions     *
-*                         must be larger or equal to the number of     *
-*                         SAOs in the specified shells and symmetries, *
-*                         otherwise chaos!!                            *
-*                                                                      *
-*     nShOffi,nShOffj,    Offsets of Integral symmetry blocks (input)  *
-*     nShOffk,nShOffl:    An Integral (lso,kso|jso,iso) is placed at   *
-*                         [lb,kb,jb,ib] where lb=lso-nShOffl(lsym),    *
-*                         kb=kso-nShOffk(ksym) etc. Here lso,kso etc   *
-*                         are the SAO labels within their symmetry.    *
-*                         More explicitly, the Integral is stored in   *
-*                         in Tint(ijkl), where                         *
-*                                                                      *
-*                         ijkl = iTOffs(ksym,jsym,isym)                *
-*                           + (ib-1)*nshj(jsym)*nshk(ksym)*nshl(lsym)  *
-*                           + (jb-1)*nshk(ksym)*nshl(lsym)             *
-*                           + (kb-1)*nshl(lsym)                        *
-*                           +  lb                                      *
-*                                                                      *
 *          Dens                : 1-particle density matrix             *
 *          lDens               : length of density/Fock matrices       *
 *          nDens               : # of density/Fock matrices            *
 *          ExFac               : another scaling factor passed to      *
 *                                Integ_Proc                            *
 *          Ind,nInd            : auxiliary index list for Fock matrix  *
-*                                construction (cf. d1ind_CpFck)        *
+*                                construction                          *
 *          FckNoClmb           : no Coulomb contributions to Fock mat. *
 *          FckNoExch           : no exchange contributions to Fock mat.*
 *          Thize               : int threshold for disk write (SD)     *
@@ -114,19 +89,17 @@
       use k2_setup
       use k2_arrays
       use iSD_data
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *     subroutine parameters
       Integer lDens
       Real*8  Coor(3,4),Thize,Fock(lDens,nDens),Dens(lDens,nDens),
      &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt), Tmax
-      Integer iAngV(4),iCmpV(4),
+      Integer iAngV(4),iCmpV(4), IndShlV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
-     &        iTOffs(8,8,8),Map4(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7),
-     &        Ind(nInd,nInd,2),kOp(4)
+     &        iTOffs(8,8,8),Map4(4), Ind(nInd,nInd,2),kOp(4)
       Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb(nDens),
      &        FckNoExch(nDens), DoIntegrals,DoFock
 *
@@ -153,7 +126,6 @@
 *     other local variables
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
-     &  ipCffi,jpCffj,kpCffk,lpCffl,
      &  iBasn,jBasn,kBasn,lBasn,
      &  k2ij,nDCRR,k2kl,nDCRS, ipTmp,
      &  mDij,mDik,mDjk,mDkl,mDil,mDjl,
@@ -232,24 +204,19 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,
-     &               Coor,Shijij,
-     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
+     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs,IndShlV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iPrimi   = nExp(iShllV(1))
-      jPrimj   = nExp(iShllV(2))
-      kPrimk   = nExp(iShllV(3))
-      lPriml   = nExp(iShllV(4))
-      iBasi    = nBasis(iShllV(1))
-      jBasj    = nBasis(iShllV(2))
-      kBask    = nBasis(iShllV(3))
-      lBasl    = nBasis(iShllV(4))
-      ipCffi   = ipCff(iShllV(1))
-      jpCffj   = ipCff(iShllV(2))
-      kpCffk   = ipCff(iShllV(3))
-      lpCffl   = ipCff(iShllV(4))
+      iPrimi   = Shells(iShllV(1))%nExp
+      jPrimj   = Shells(iShllV(2))%nExp
+      kPrimk   = Shells(iShllV(3))%nExp
+      lPriml   = Shells(iShllV(4))%nExp
+      iBasi    = Shells(iShllV(1))%nBasis
+      jBasj    = Shells(iShllV(2))%nBasis
+      kBask    = Shells(iShllV(3))%nBasis
+      lBasl    = Shells(iShllV(4))%nBasis
       nZeta = iPrimi * jPrimj
       nEta = kPrimk * lPriml
       mDij=nZeta+1 ! Dummy initialize
@@ -291,7 +258,8 @@
 *     No SO block in direct construction of the Fock matrix.
       nSO = MemSO2(iAngV(1),iAngV(2),iAngV(3),iAngV(4),
      &             iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
-     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4))
+     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),
+     &             IndShlV(1),IndShlV(2),IndShlV(3),IndShlV(4))
       If (nSO.eq.0) Then
         Return
       End If
@@ -477,23 +445,25 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *
                   Call TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,
+     &                            iAngV,iCmpV,iShelV,iShllV,IndShlV,
      &                            iAOV,iAOst,NoInts,
      &                            iStabs(1),iStabs(2),
      &                            iStabs(3),iStabs(4),
      &                            iPrimi,iPrInc,jPrimj,jPrInc,
      &                            kPrimk,kPrInc,lPriml,lPrInc,
      &                            Data_k2(k2ij),mData1,nDCRR,
-     *                            Data_k2(k2kl),mData2,nDCRS,
+     &                            Data_k2(k2kl),mData2,nDCRS,
      &                            IJeqKL,kOp,Disc_Mx,Disc,Thize,
      &                            DeDe(ipDDij),mDij,mDCRij,
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk,DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     &           Fock,Dens,lDens,
+     &                Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &                Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &                Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &                Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &                            FT,nFT,
      & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_Int(ipiZet),Mem_DBLE(ipKab),
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
@@ -508,7 +478,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 
                   Call TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,
+     &                            iAngV,iCmpV,iShelV,iShllV,IndShlV,
      &                            iAOV,iAOst,NoInts,
      &                            iStabs(1),iStabs(2),
      &                            iStabs(3),iStabs(4),
@@ -521,10 +491,12 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                            DeDe(ipDDkl),mDkl,mDCRkl,
      & DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,
      & DeDe(ipDDjk),mDjk,mDCRjk, DeDe(ipDDjl),mDjl,mDCRjl,
-     &           Fock,Dens,lDens, Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &                            Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &                            Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     & Work(lpCffl+(lBasAO-1)*lPriml),lBasn, FT,nFT,
+     &           Fock,Dens,lDens,
+     &                Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
+     &                Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
+     &                Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
+     &                Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
+     &                            FT,nFT,
      & Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_Int(ipiZet),Mem_DBLE(ipKab),
      & Mem_DBLE(ipP),nZeta,
      & Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_Int(ipiEta),Mem_DBLE(ipKcd),
@@ -554,7 +526,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        abs(Sew_Scr(ip+
      &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,
+                        Call Integ_Proc(iCmpV,iShelV,Map4,IndShlV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Sew_Scr(ipMem2),
@@ -562,8 +534,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
-     &                                  nShi,nShj,nShk,nShl,
-     &                                  nShOffi,nShOffj,nShOffk,nShOffl,
      &                                  Dens,Fock,lDens,ExFac,nDens,
      &                                  Ind,nInd,FckNoClmb,FckNoExch)
                      Else

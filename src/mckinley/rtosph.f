@@ -23,6 +23,7 @@
 *    @parameter Number of derivatives
 *******************************************************************************
       use Real_Spherical
+      use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 
 #include "itmax.fh"
@@ -35,41 +36,42 @@
 *******************************************************************************
 
       ncb=nelem(lb)*nelem(iang)
+      nExpi=Shells(iShll)%nExp
       Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
+     &             nExpi*ncb*nVecCB*nBeta)
       Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
+     &             nExpi*ncb*nVecCB*nBeta)
 
 
 *-------------1) kj,cbx -> cbx,kj
 *
       Call DgeTMo(F,
-     &            nBeta*nExp(iShll),nBeta*nExp(iShll),
+     &            nBeta*nExpi,nBeta*nExpi,
      &            ncb*nVecCB,Work(ipTmp),ncb*nVecCB)
 *
 *--------------2) bxkj,C = c,bxkj * c,C
 *
       Call DGEMM_('T','N',
-     &            nElem(lb)*nVecCB*nExp(iShll)*nBeta,
+     &            nElem(lb)*nVecCB*nExpi*nBeta,
      &            (2*iAng+1),nElem(iAng),
      &            1.0d0,Work(ipTmp),nElem(iAng),
      &            RSph(ipSph(iAng)),nElem(iAng),
-     &            0.0d0,Work(ipF),nElem(lb)*nVecCB*nExp(iShll)*nBeta)
+     &            0.0d0,Work(ipF),nElem(lb)*nVecCB*nExpi*nBeta)
 *
 *--------------3) bx,kjC -> kjC,bx
 *
                Call DgeTMo(Work(ipF),nElem(lb)*nVecCB,
      &            nElem(lb)*nVecCB,
-     &            nExp(iShll)*nBeta*(2*iAng+1),Work(ipTmp),
-     &            nExp(iShll)*nBeta*(2*iAng+1))
+     &            nExpi*nBeta*(2*iAng+1),Work(ipTmp),
+     &            nExpi*nBeta*(2*iAng+1))
 
-      call dcopy_(nExp(iShll)*
+      call dcopy_(nExpi*
      &           nBeta*(2*iAng+1)*nElem(lb)*nVecCB,
      &           Work(ipTmp),1,F,1)
 
       Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
+     &            nExpi*ncb*nVecCB*nBeta)
       Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
+     &            nExpi*ncb*nVecCB*nBeta)
        Return
        End

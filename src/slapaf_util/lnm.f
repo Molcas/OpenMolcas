@@ -12,7 +12,8 @@
      &               mAtoms,nDim,iAnr,Smmtrc,Cx,Gx,nIter,iOptH,
      &               Degen,Schlegel,Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden,
-     &               nMDstep,MMkept,nSym)
+     &               nMDstep,MMkept)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
@@ -204,7 +205,7 @@ cnf
          If (iPrint.ge.19)
      &      Call RecPrt(' Scrt1',' ',Scrt1,3*nAtoms,3*nAtoms)
 #endif
-         If (nSym.eq.1) Go To 99
+         If (nIrrep.eq.1) Go To 99
 *
 *------  Now project out the total symmetric part of the Hessian
 *

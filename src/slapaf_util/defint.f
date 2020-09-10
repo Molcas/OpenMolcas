@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
-     &                  rInt,Lbl,Name,Coor,dMass,nSym,iOper,
+     &                  rInt,Lbl,Name,Coor,dMass,
      &                  jStab,nStab,mxdc,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
@@ -49,7 +49,7 @@
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical First, lWrite, Flip, lPIC(6*nAtom), lAtom(nAtom), lErr,
      &        Redundant
-      Integer   iOper(0:7), nStab(mxdc), jStab(0:7,mxdc)
+      Integer nStab(mxdc), jStab(0:7,mxdc)
       Save First
       Data First/.True./
 *
@@ -250,7 +250,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
      &              Name,nAtom,Coor,nCntr,mCntr,
      &              Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
      &              dMass,Work(ipMass),Work(ipTM),lWrite,
-     &              Labels(iBVct),nSym,lWrite,iOper,jStab,nStab,mxdc,
+     &              Labels(iBVct),lWrite,jStab,nStab,mxdc,
      &              rMult(iBVct),lAtom)
 *
          If (.Not.First .and.

@@ -88,10 +88,6 @@ C     &            iBas,iBas,iOrb)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Work(iTmp1),
      &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &               0.0d0,Work(iTmp2),iBas)
@@ -168,8 +164,9 @@ c --- decompose the Inactive density on request
              nChI(i) = NumV
              if ( NumV .ne. nIsh(i)+nForb(i) ) then
                write(6,*)'Warning! The number of occupied from the deco'
-     &'position of the Inactive density matrix is ',numV,' in symm. ',i
-         write(6,*)'Expected value = ',nIsh(i)+nForb(i)
+     &                 //'mposition of the Inactive density matrix is ',
+     &                   numV,' in symm. ',i
+               write(6,*)'Expected value = ',nIsh(i)+nForb(i)
                incs=incs+1
                Ymax=0.0d0
                do ja=1,nBas(i)
@@ -177,7 +174,7 @@ c --- decompose the Inactive density on request
                   Ymax=Max(Ymax,Work(jaa))
                end do
                write(6,*)'Max diagonal of the density in symm. ',i,' is'
-     &' equal to ',Ymax
+     &                   //' equal to ',Ymax
              endif
             else
              nChI(i) = 0

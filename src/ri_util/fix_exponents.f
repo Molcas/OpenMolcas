@@ -10,60 +10,83 @@
 ************************************************************************
        Subroutine Fix_Exponents(nP,mP,nC,Exp,CoeffC,CoeffP)
        Implicit Real*8 (a-h,o-z)
-       Real*8 Exp(nP), CoeffC(nP*nC*2), CoeffP(nP*nP*2)
+#include "stdalloc.fh"
+       Real*8, Allocatable:: Exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
+       Real*8, Allocatable:: Scr(:,:,:)
+*
+*#define _DEBUG_
+#ifdef _DEBUG_
+       Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
+       Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
+       Call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),nP,nC)
+       Call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),nP,nP)
+       Call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),nP,nP)
+#endif
 *
        mP = nP
+       Call Fix_Exp()
 *
-       Call Fix_Exp(nP,mP,nC,Exp,CoeffC,CoeffP)
+#ifdef _DEBUG_
+       Write (6,*) 'After Fix_Exp'
+       Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
+       Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
+       Call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),nP,nC)
+       Call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),nP,nP)
+       Call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),nP,nP)
+#endif
+*
+*      Reallocate arrays if the number of primitives is reduced.
 *
        If (mP.ne.nP) Then
-          nCP=nC*nP
-          Do iC = 2, nC
-             Do iP = 1, mP
-                iFrom = (iC-1)*nP + iP
-                iTo   = (iC-1)*mP + iP
-                CoeffC(iTo    )=CoeffC(iFrom    )
-                CoeffC(iTo+nCP)=CoeffC(iFrom+nCP)
-             End Do
-          End Do
-          mCP=nC*mP
-          Do iCP = 1, mCP
-             iFrom = iCP + nCP
-             iTo   = iCP + mCP
-             CoeffC(iTo) = CoeffC(iFrom)
-          End Do
+          Call mma_allocate(Scr,mP,1,1,Label='Scr')
+          Scr(1:mP,1,1)=Exp(1:mP)
+          Call mma_deallocate(Exp)
+          Call mma_allocate(Exp,nP,Label='Exp')
+          Exp(:)=Scr(:,1,1)
+          Call mma_deallocate(Scr)
 *
-          nPP=nP*nP
-          Do iC = 2, mP
-             Do iP = 1, mP
-                iFrom = (iC-1)*nP + iP
-                iTo   = (iC-1)*mP + iP
-                CoeffP(iTo    )=CoeffP(iFrom    )
-                CoeffP(iTo+nCP)=CoeffP(iFrom+nCP)
-             End Do
-          End Do
-          mCP=mP*mP
-          Do iCP = 1, mCP
-             iFrom = iCP + nCP
-             iTo   = iCP + mCP
-             CoeffP(iTo) = CoeffP(iFrom)
-          End Do
+          Call mma_allocate(Scr,mP,nC,2,Label='Scr')
+          Scr(1:mP,1:nC,:) = CoeffC(1:mP,1:nC,:)
+          Call mma_deallocate(CoeffC)
+          Call mma_allocate(CoeffC,mP,nC,2,Label='CoeffC')
+          CoeffC(:,:,:)=Scr(:,:,:)
+          Call mma_deallocate(Scr)
+*
+          Call mma_allocate(Scr,mP,mP,2,Label='Scr')
+          Scr(1:mP,1:mP,:) = CoeffP(1:mP,1:mP,:)
+          Call mma_deallocate(CoeffP)
+          Call mma_allocate(CoeffP,mP,mP,2,Label='CoeffP')
+          CoeffP(:,:,:)=Scr(:,:,:)
+          Call mma_deallocate(Scr)
        End If
 *
+#ifdef _DEBUG_
+       Write (6,*) 'After Reallocation'
+       Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,mP)
+       Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),mP,nC)
+       Call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),mP,nC)
+       Call RecPrt('Fix_Exponents: CoeffP(1)',' ',CoeffP(1,1,1),mP,mP)
+       Call RecPrt('Fix_Exponents: CoeffP(2)',' ',CoeffP(1,1,2),mP,mP)
+#endif
        Return
-       End
-       Subroutine Fix_Exp(nP,mP,nC,Exp,CoeffC,CoeffP)
-       Implicit Real*8 (a-h,o-z)
-       Real*8 Exp(nP), CoeffC(nP,nC,2), CoeffP(nP,nP,2)
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Contains
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Subroutine Fix_Exp
 *
-*      First, put the exponents with all zero coefficients
-*      at the end.
+*      First, put the exponents with all coefficients less than the
+*      threshold, Thr_Skip, at the end.
 *
+       Thr_Skip = 1.0D-13
        Do iP = nP, 1, -1
 *
           iSkip=1
           Do iC = 1, nC
-             If (Abs(CoeffC(iP,iC,1)).ne.0.0D0) iSkip=0
+             If (Abs(CoeffC(iP,iC,1)).ge.Thr_Skip) iSkip=0
           End Do
 *
           If (iSkip.eq.1) Then
@@ -71,19 +94,15 @@
                 Temp   =Exp(iP)
                 Exp(iP)=Exp(mP)
                 Exp(mP)=Temp
-                Temp           =CoeffP(iP,iP,1)
-                CoeffP(iP,iP,1)=CoeffP(mP,mP,1)
-                CoeffP(mP,mP,1)=Temp
-                Temp           =CoeffP(iP,iP,2)
-                CoeffP(iP,iP,1)=CoeffP(mP,mP,2)
-                CoeffP(mP,mP,1)=Temp
-                Do iC = 1, nC
-                   Temp            = CoeffC(iP,iC,1)
-                   CoeffC(iP,iC,1) = CoeffC(mP,iC,1)
-                   CoeffC(mP,iC,1) = Temp
-                   Temp            = CoeffC(iP,iC,2)
-                   CoeffC(iP,iC,2) = CoeffC(mP,iC,2)
-                   CoeffC(mP,iC,2) = Temp
+                Do i = 1, 2
+                   Temp           =CoeffP(iP,iP,i)
+                   CoeffP(iP,iP,i)=CoeffP(mP,mP,i)
+                   CoeffP(mP,mP,i)=Temp
+                   Do iC = 1, nC
+                      Temp            = CoeffC(iP,iC,i)
+                      CoeffC(iP,iC,i) = CoeffC(mP,iC,i)
+                      CoeffC(mP,iC,i) = Temp
+                   End Do
                 End Do
              End If
              mP = mP -1
@@ -91,7 +110,7 @@
 *
        End Do
 *
-*      Second, order from largest to smallest
+*      Second, order from largest to smallest exponent
 *
        Do iP = 1, mP-1
           Do jP = iP+1, mP
@@ -99,23 +118,23 @@
                 Temp   =Exp(iP)
                 Exp(iP)=Exp(jP)
                 Exp(jP)=Temp
-                Temp           =CoeffP(iP,iP,1)
-                CoeffP(iP,iP,1)=CoeffP(jP,jP,1)
-                CoeffP(jP,jP,1)=Temp
-                Temp           =CoeffP(iP,iP,2)
-                CoeffP(iP,iP,1)=CoeffP(jP,jP,2)
-                CoeffP(jP,jP,1)=Temp
-                Do iC = 1, nC
-                   Temp            = CoeffC(iP,iC,1)
-                   CoeffC(iP,iC,1) = CoeffC(jP,iC,1)
-                   CoeffC(jP,iC,1) = Temp
-                   Temp            = CoeffC(iP,iC,2)
-                   CoeffC(iP,iC,2) = CoeffC(jP,iC,2)
-                   CoeffC(jP,iC,2) = Temp
+                Do i = 1, 2
+                   Temp           =CoeffP(iP,iP,i)
+                   CoeffP(iP,iP,i)=CoeffP(jP,jP,i)
+                   CoeffP(jP,jP,i)=Temp
+                   Do iC = 1, nC
+                      Temp            = CoeffC(iP,iC,i)
+                      CoeffC(iP,iC,i) = CoeffC(jP,iC,i)
+                      CoeffC(jP,iC,i) = Temp
+                   End Do
                 End Do
              End If
           End Do
        End Do
 *
        Return
-       End
+       End Subroutine Fix_Exp
+*                                                                      *
+************************************************************************
+*                                                                      *
+       End Subroutine Fix_Exponents

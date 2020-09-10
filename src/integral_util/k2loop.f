@@ -52,6 +52,8 @@
 *             Modified for direct SCF, January '93                     *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
@@ -110,14 +112,14 @@
 *     Statement function to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout = 241
       iPrint = nPrint(iRout)
+*     iPrint = 99
 *     Call QEnter('k2Loop')
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
@@ -144,9 +146,7 @@
          Call ICopy(1024,[5],0,nPrint,1)
          iR = iDCRR(lDCRR)
 *
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *        Branch out if integrals are zero by symmetry.
          If (AeqB .and. Mod(iSmAng,2).eq.1) Go To 100
@@ -180,16 +180,12 @@
          ne=(mabMax-mabMin+1)
          Do iIrrep = 0, nIrrep-1
             i13_=ip_HrrMtrx(nZeta)+(iIrrep*nHm)/nIrrep
-            TA(1) = DBLE(iPhase(1,iOper(iIrrep)))*CoorM(1,1)
-            TA(2) = DBLE(iPhase(2,iOper(iIrrep)))*CoorM(2,1)
-            TA(3) = DBLE(iPhase(3,iOper(iIrrep)))*CoorM(3,1)
-            TB(1) = DBLE(iPhase(1,iOper(iIrrep)))*CoorM(1,2)
-            TB(2) = DBLE(iPhase(2,iOper(iIrrep)))*CoorM(2,2)
-            TB(3) = DBLE(iPhase(3,iOper(iIrrep)))*CoorM(3,2)
+            Call OA(iOper(iIrrep),CoorM(1:3,1),TA)
+            Call OA(iOper(iIrrep),CoorM(1:3,2),TB)
             Call HrrMtrx(Data(i13_,lDCRR+1),
      &                   ne,la,lb,TA,TB,
-     &                   Transf(iShlla),RSph(ipSph(la)),iCmpa_,
-     &                   Transf(jShllb),RSph(ipSph(lb)),jCmpb_)
+     &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
+     &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
          End Do
 *                                                                      *
 ************************************************************************

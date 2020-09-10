@@ -64,6 +64,8 @@
 *                                                                      *
 *             Modified to gradients April '95. R. Lindh                *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
@@ -87,9 +89,8 @@
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 *     Call qEnter('SROGrd')
       iRout = 191
@@ -105,26 +106,25 @@
 *
       nDAO= nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
       iComp = 1
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
-         Do 1965 kCnt = 1,nCntr(kCnttp)
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -137,7 +137,7 @@
                JfGrad(iCar+1,3) = .False.
                iCmp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &              .Not.pChrg(kCnttp) ) Then
+     &              .Not.dbsc(kCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                      JndGrd(iCar+1,1) = Abs(JndGrd(iCar+1,1))
@@ -167,71 +167,70 @@
          Do 1967 lDCRT = 0, nDCRT-1
             lOp(3) = iDCRT(lDCRT)
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
-            Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
-               iShll = ipSRO(kCnttp) + iAng
-               If (nExp(iShll).eq.0) Go To 1966
+            Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
+               iShll = dbsc(kCnttp)%iSRO + iAng
+               nExpi=Shells(iShll)%nExp
+               If (nExpi.eq.0) Go To 1966
 *
                ip = 1
                ipC = ip
-               ip = ip + nExp(iShll)**2
+               ip = ip + nExpi**2
 *
-               ipCk = ipAkl(iShll)
                If (iPrint.ge.49) Call RecPrt(' The Akl matrix',
-     &            ' ', Work(ipCk),nExp(iShll),nExp(iShll))
-               call dcopy_(nExp(iShll)**2,Work(ipCk),1,Array(ipC),1)
+     &            ' ', Shells(iShll)%Akl(1,1,1),nExpi,nExpi)
+               call dcopy_(nExpi**2,Shells(iShll)%Akl(1,1,1),1,
+     &                     Array(ipC),1)
                If (EQ(A,RB).and.EQ(A,TC).and.
-     &            lNoPair.and.NoPairL(kCnttp)) Then
-                  ipCd = ipCk + nExp(iShll)**2
-                  Call DaXpY_(nExp(iShll)**2,One,Work(ipCd),1,
-     &                       Array(ipC),1)
-                  If (iPrint.ge.49) Call RecPrt(' The Adl matrix',
-     &               ' ', Work(ipCd),nExp(iShll),nExp(iShll))
+     &            lNoPair.and.dbsc(kCnttp)%NoPair) Then
+                  Call DaXpY_(nExpi**2,One,
+     &                        Shells(iShll)%Akl(1,1,2),1,Array(ipC),1)
+                  If (iPrint.ge.49) Call RecPrt(' The Adl matrix',' ',
+     &                                      Shells(iShll)%Akl(1,1,2),
+     &                                      nExpi,nExpi)
                End If
 *
                ipF1 = ip
                nac = nElem(la)*nElem(iAng)*4
-               ip = ip + nAlpha*nExp(iShll)*nac
+               ip = ip + nAlpha*nExpi*nac
                ipP1 = ip
-               ip = ip + 3 * nAlpha*nExp(iShll)
+               ip = ip + 3 * nAlpha*nExpi
                ipZ1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipK1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipZI1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(1) in SROGrd'
                   Write (6,*) ' nArr, nZeta=',nArr, nZeta
                   Write (6,*) ' nac, nAlpha=', nac, nAlpha
-                  Write (6,*) ' nExp(iShll)=',nExp(iShll)
+                  Write (6,*) ' nExpi=',nExpi
                   Call Abend()
                End If
 *
 *--------------Calculate Effective center and exponent for <A|alm>
 *
-               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExp(iShll),
-     &                   Alpha,Work(ipExp(iShll)))
-               Call SetUp1(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExpi,
+     &                   Alpha,Shells(iShll)%Exp)
+               Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,
      &                     A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 *--------------Calculate Overlap <A|core> and derivative <A'|core>
 *
                nHer = ((la+1)+iAng+2)/2
                ipAxyz = ip
-               ip = ip + nAlpha*nExp(iShll)*3*nHer*(la+2)
+               ip = ip + nAlpha*nExpi*3*nHer*(la+2)
                ipCxyz = ip
-               ip = ip + nAlpha*nExp(iShll)*3*nHer*(iAng+1)
+               ip = ip + nAlpha*nExpi*3*nHer*(iAng+1)
                ipRxyz = ip
-               ip = ip + nAlpha*nExp(iShll)*3*nHer*(nOrdOp+1)
+               ip = ip + nAlpha*nExpi*3*nHer*(nOrdOp+1)
                ipQ1 = ip
                ip = ip +
-     &               nAlpha*nExp(iShll)*3*(la+2)*(iAng+1)*(nOrdOp+1)
+     &               nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1)
                ipA = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(1b) in PrjGrd'
                   Call Abend()
@@ -239,71 +238,71 @@
                ABeq(1) = A(1).eq.TC(1)
                ABeq(2) = A(2).eq.TC(2)
                ABeq(3) = A(3).eq.TC(3)
-               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExp(iShll),
+               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,
      &                     A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
-               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExp(iShll),
+               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,
      &                     TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
                ABeq(1) = .False.
                ABeq(2) = .False.
                ABeq(3) = .False.
-               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExp(iShll),
+               Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,
      &                     Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
                If (iPrint.ge.49) Then
                   Write (6,*) ' Array(ipAxyz)=',
-     &             DNrm2_(nAlpha*nExp(iShll)*3*nHer*(la+2),
+     &             DNrm2_(nAlpha*nExpi*3*nHer*(la+2),
      &             Array(ipAxyz),1)
                   Write (6,*) ' Array(ipCxyz)=',
-     &             DNrm2_(nAlpha*nExp(iShll)*3*nHer*(iAng+1),
+     &             DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),
      &             Array(ipCxyz),1)
                   Write (6,*) ' Array(ipRxyz)=',
-     &             DNrm2_(nAlpha*nExp(iShll)*3*nHer*(nOrdOp+1),
+     &             DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),
      &             Array(ipRxyz),1)
                End If
                Call Assmbl(Array(ipQ1),
      &                     Array(ipAxyz),la+1,
      &                     Array(ipRxyz),nOrdOp,
      &                     Array(ipCxyz),iAng,
-     &                     nAlpha*nExp(iShll),HerW(iHerW(nHer)),nHer)
+     &                     nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
                iStrt = ipA
-               Do 20 iGamma = 1, nExp(iShll)
+               Do 20 iGamma = 1, nExpi
                   call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
                   iStrt = iStrt + nAlpha
  20            Continue
                If (iPrint.ge.49) Then
                   Write (6,*) ' Array(ipA)=',
-     &            DNrm2_(nAlpha*nExp(iShll),Array(ipA),1)
+     &            DNrm2_(nAlpha*nExpi,Array(ipA),1)
                End If
                Call rKappa_Zeta(Array(ipK1),Array(ipZ1),
-     &                          nExp(iShll)*nAlpha)
+     &                          nExpi*nAlpha)
                ld=1
-               Call CmbnAC(Array(ipQ1),nAlpha*nExp(iShll),la,iAng,
+               Call CmbnAC(Array(ipQ1),nAlpha*nExpi,la,iAng,
      &                     Array(ipK1),Array(ipF1),
      &                     Array(ipA),JfGrad(1,1),ld,nVecAC)
                If (iPrint.ge.49) Then
                 Write (6,*) ' Array(ipQ1)=',
-     &          DNrm2_(nAlpha*nExp(iShll)*3*(la+2)*(iAng+1)*(nOrdOp+1),
+     &          DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),
      &          Array(ipQ1),1)
                 Write (6,*) ' Array(ipA)=',
-     &          DNrm2_(nAlpha*nExp(iShll),Array(ipA),1)
+     &          DNrm2_(nAlpha*nExpi,Array(ipA),1)
                End If
-               ip = ip - nAlpha*nExp(iShll)
+               ip = ip - nAlpha*nExpi
      &            * ( 6 + 3*nHer*(la+2) + 3*nHer*(iAng+1)
      &            + 3*nHer*(nOrdOp+1) + 3*(la+2)*(iAng+1)*(nOrdOp+1) +1)
 *
                ipF2 = ip
                ncb = nElem(iAng)*nElem(lb)*4
-               ip = ip + nExp(iShll)*nBeta*ncb
+               ip = ip + nExpi*nBeta*ncb
                ipP2 = ip
-               ip = ip + 3 * nExp(iShll)*nBeta
+               ip = ip + 3 * nExpi*nBeta
                ipZ2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipK2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipZI2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(2) in SROGrd'
                   Call Abend()
@@ -311,25 +310,25 @@
 *
 *--------------Calculate Effective center and exponent for <blm|B>
 *
-               Call ZXia(Array(ipZ2),Array(ipZI2),nExp(iShll),nBeta,
-     &                   Work(ipExp(iShll)),Beta)
-               Call SetUp1(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+               Call ZXia(Array(ipZ2),Array(ipZI2),nExpi,nBeta,
+     &                   Shells(iShll)%Exp,Beta)
+               Call SetUp1(Shells(iShll)%Exp,nExpi,Beta,nBeta,
      &                    TC,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 *--------------Calculate Overlap <core|B> and <core|B'>
 *
                nHer = ((iAng+1)+lb+2)/2
                ipCxyz = ip
-               ip = ip + nBeta*nExp(iShll)*3*nHer*(iAng+1)
+               ip = ip + nBeta*nExpi*3*nHer*(iAng+1)
                ipBxyz = ip
-               ip = ip + nBeta*nExp(iShll)*3*nHer*(lb+2)
+               ip = ip + nBeta*nExpi*3*nHer*(lb+2)
                ipRxyz = ip
-               ip = ip + nBeta*nExp(iShll)*3*nHer*(nOrdOp+1)
+               ip = ip + nBeta*nExpi*3*nHer*(nOrdOp+1)
                ipQ1 = ip
                ip = ip +
-     &               nBeta*nExp(iShll)*3*(iAng+1)*(lb+2)*(nOrdOp+1)
+     &               nBeta*nExpi*3*(iAng+1)*(lb+2)*(nOrdOp+1)
                ipB = ip
-               ip = ip + nBeta*nExp(iShll)
+               ip = ip + nBeta*nExpi
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(2b) in PrjGrd'
                   Call Abend()
@@ -337,64 +336,64 @@
                ABeq(1) = TC(1).eq.RB(1)
                ABeq(2) = TC(2).eq.RB(2)
                ABeq(3) = TC(3).eq.RB(3)
-               Call CrtCmp(Array(ipZ2),Array(ipP2),nExp(iShll)*nBeta,
+               Call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,
      &                     TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
-               Call CrtCmp(Array(ipZ2),Array(ipP2),nExp(iShll)*nBeta,
+               Call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,
      &                     RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
                ABeq(1) = .False.
                ABeq(2) = .False.
                ABeq(3) = .False.
-               Call CrtCmp(Array(ipZ2),Array(ipP2),nExp(iShll)*nBeta,
+               Call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,
      &                     Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
      &                     nHer,ABeq)
                If (iPrint.ge.49) Then
                   Write (6,*) ' Array(ipCxyz)=',
-     &             DNrm2_(nBeta*nExp(iShll)*3*nHer*(iAng+1),
+     &             DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),
      &             Array(ipCxyz),1)
                   Write (6,*) ' Array(ipBxyz)=',
-     &             DNrm2_(nBeta*nExp(iShll)*3*nHer*(lb+2),
+     &             DNrm2_(nBeta*nExpi*3*nHer*(lb+2),
      &             Array(ipBxyz),1)
                   Write (6,*) ' Array(ipRxyz)=',
-     &             DNrm2_(nBeta*nExp(iShll)*3*nHer*(nOrdOp+1),
+     &             DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),
      &             Array(ipRxyz),1)
                End If
                Call Assmbl(Array(ipQ1),
      &                     Array(ipCxyz),iAng,
      &                     Array(ipRxyz),nOrdOp,
      &                     Array(ipBxyz),lb+1,
-     &                     nExp(iShll)*nBeta,HerW(iHerW(nHer)),nHer)
+     &                     nExpi*nBeta,HerW(iHerW(nHer)),nHer)
                iStrt = ipB
-               Do 21 iGamma = 1, nExp(iShll)
-                  call dcopy_(nBeta,Beta,1,Array(iStrt),nExp(iShll))
+               Do 21 iGamma = 1, nExpi
+                  call dcopy_(nBeta,Beta,1,Array(iStrt),nExpi)
                   iStrt = iStrt + 1
  21            Continue
                If (iPrint.ge.49) Then
                   Write (6,*) ' Array(ipB)=',
-     &            DNrm2_(nExp(iShll)*nBeta,Array(ipB),1)
+     &            DNrm2_(nExpi*nBeta,Array(ipB),1)
                End If
                Call rKappa_Zeta(Array(ipK2),Array(ipZ2),
-     &                          nExp(iShll)*nBeta)
+     &                          nExpi*nBeta)
                ld=1
-               Call CmbnCB(Array(ipQ1),nExp(iShll)*nBeta,iAng,lb,
+               Call CmbnCB(Array(ipQ1),nExpi*nBeta,iAng,lb,
      &                     Array(ipK2),Array(ipF2),
      &                     Array(ipB),JfGrad(1,2),ld,nVecCB)
                If (iPrint.ge.49) Then
                  Write (6,*) ' Array(ipQ1)=',
-     &           DNrm2_(nExp(iShll)*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),
+     &           DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),
      &           Array(ipQ1),1)
                  Write (6,*) ' Array(ipB)=',
-     &           DNrm2_(nExp(iShll)*nBeta,Array(ipB),1)
+     &           DNrm2_(nExpi*nBeta,Array(ipB),1)
                End If
-               ip = ip - nBeta*nExp(iShll)
+               ip = ip - nBeta*nExpi
      &            * ( 6 + 3*nHer*(lb+2) + 3*nHer*(iAng+1)
      &            + 3*nHer*(nOrdOp+1) + 3*(lb+2)*(iAng+1)*(nOrdOp+1) +1)
                nac = nElem(la)*nElem(iAng)*nVecAC
                ncb = nElem(iAng)*nElem(lb)*nVecCB
                ipTmp = ip
-               ip = ip + Max(nAlpha*nExp(iShll)*nac,
-     &                       nExp(iShll)*nBeta*ncb)
+               ip = ip + Max(nAlpha*nExpi*nac,
+     &                       nExpi*nBeta*ncb)
                If (ip-1.gt.nArr*nZeta) Then
                   Write (6,*) '  ip-1.gt.nArr*nZeta(3) in SROGrd'
                   Call Abend()
@@ -413,29 +412,29 @@
 *--------------From the lefthandside overlap, form ikaCx from ikacx by
 *              1) ika,cx -> cx,ika
 *
-               Call DgeTMo(Array(ipF1),nAlpha*nExp(iShll)*nElem(la),
-     &                     nAlpha*nExp(iShll)*nElem(la),
+               Call DgeTMo(Array(ipF1),nAlpha*nExpi*nElem(la),
+     &                     nAlpha*nExpi*nElem(la),
      &                     nElem(iAng)*nVecAC,Array(ipTmp),
      &                     nElem(iAng)*nVecAC)
 *
 *--------------2) xika,C = c,xika * c,C
 *
                Call DGEMM_('T','N',
-     &                     nVecAC*nAlpha*nExp(iShll)*nElem(la),
+     &                     nVecAC*nAlpha*nExpi*nElem(la),
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipTmp),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipF1),
-     &                     nVecAC*nAlpha*nExp(iShll)*nElem(la))
+     &                     nVecAC*nAlpha*nExpi*nElem(la))
 *
 *--------------3) x,ikaC -> ikaC,x
 *
                Call DGetMo(Array(ipF1),nVecAC,nVecAC,
-     &                     nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1),
+     &                     nAlpha*nExpi*nElem(la)*(2*iAng+1),
      &                     Array(ipTmp),
-     &                     nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1))
+     &                     nAlpha*nExpi*nElem(la)*(2*iAng+1))
                call dcopy_(nVecAC*
-     &                    nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1),
+     &                    nAlpha*nExpi*nElem(la)*(2*iAng+1),
      &                    Array(ipTmp),1,Array(ipF1),1)
 *
 *--------------And (almost) the same thing for the righthand side, form
@@ -443,26 +442,26 @@
 *-------------1) kj,cbx -> cbx,kj
 *
                Call DgeTMo(Array(ipF2),
-     &                     nBeta*nExp(iShll),nBeta*nExp(iShll),
+     &                     nBeta*nExpi,nBeta*nExpi,
      &                     ncb*nVecCB,Array(ipTmp),ncb*nVecCB)
 *
 *--------------2) bxkj,C = c,bxkj * c,C
 *
                Call DGEMM_('T','N',
-     &                     nElem(lb)*nVecCB*nExp(iShll)*nBeta,
+     &                     nElem(lb)*nVecCB*nExpi*nBeta,
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipTmp),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipF2),
-     &                     nElem(lb)*nVecCB*nExp(iShll)*nBeta)
+     &                     nElem(lb)*nVecCB*nExpi*nBeta)
 *
 *--------------3) bx,kjC -> kjC,bx
 *
                Call DgeTMo(Array(ipF2),nElem(lb)*nVecCB,
      &                     nElem(lb)*nVecCB,
-     &                     nExp(iShll)*nBeta*(2*iAng+1),Array(ipTmp),
-     &                     nExp(iShll)*nBeta*(2*iAng+1))
-               call dcopy_(nExp(iShll)*
+     &                     nExpi*nBeta*(2*iAng+1),Array(ipTmp),
+     &                     nExpi*nBeta*(2*iAng+1))
+               call dcopy_(nExpi*
      &                    nBeta*(2*iAng+1)*nElem(lb)*nVecCB,
      &                    Array(ipTmp),1,Array(ipF2),1)
 *
@@ -489,13 +488,13 @@
                         If (iCent.eq.1) Then
                            mVecAC = mVecAC+1
                            ipF1a = ipF1 + (mVecAC-1) *
-     &                        nAlpha*nExp(iShll)*nElem(la)*(2*iAng+1)
+     &                        nAlpha*nExpi*nElem(la)*(2*iAng+1)
                            ipF2a = ipF2
                         Else
                            ipF1a = ipF1
                            mVecCB = mVecCB+1
                            ipF2a = ipF2 + (mVecCB-1) *
-     &                       nExp(iShll)*nBeta*(2*iAng+1)*nElem(lb)
+     &                       nExpi*nBeta*(2*iAng+1)*nElem(lb)
                         End If
 
                Do 1030 ib = 1, nElem(lb)
@@ -505,26 +504,26 @@
                      Do 1032 iC = 1, (2*iAng+1)
                         If (iPrint.ge.99) Write (6,*) ' iC,=',iC
                         iaC = (iC-1)*nElem(la) + ia
-                        ipaC = (iaC-1)*nAlpha*nExp(iShll) + ipF1a
+                        ipaC = (iaC-1)*nAlpha*nExpi + ipF1a
                         iCb = (ib-1)*(2*iAng+1) + iC
-                        ipCb = (iCb-1)*nExp(iShll)*nBeta  + ipF2a
+                        ipCb = (iCb-1)*nExpi*nBeta  + ipF2a
 *
                         If (iPrint.ge.99) Then
                            Call RecPrt('<ia|iC>',' ',Array(ipaC),
-     &                                  nAlpha,nExp(iShll))
+     &                                  nAlpha,nExpi)
                            Call RecPrt('<iC|ib>',' ',Array(ipCb),
-     &                                  nExp(iShll),nBeta)
+     &                                  nExpi,nBeta)
                         End If
 *
                         Call DGEMM_('N','N',
-     &                             nAlpha,nExp(iShll),nExp(iShll),
+     &                             nAlpha,nExpi,nExpi,
      &                             One,Array(ipaC),nAlpha,
-     &                               Array(ipC),nExp(iShll),
+     &                               Array(ipC),nExpi,
      &                             Zero,Array(ipTmp),nAlpha)
                         Call DGEMM_('N','N',
-     &                             nAlpha,nBeta,nExp(iShll),
+     &                             nAlpha,nBeta,nExpi,
      &                             Fact,Array(ipTmp),nAlpha,
-     &                                 Array(ipCb),nExp(iShll),
+     &                                 Array(ipCb),nExpi,
      &                             One,Final(1,ia,ib,mVec),nAlpha)
 *
  1032                Continue
@@ -565,7 +564,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
 *     Call QExit('SROGrd')

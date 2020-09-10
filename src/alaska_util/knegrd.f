@@ -41,6 +41,7 @@
 *             Modified to gradients October '91.                       *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -146,7 +147,7 @@
       Call CmbnT1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipTxyz),Array(ipA),Array(ipB),
      &            Grad,nGrad,DAO,IfGrad,IndGrd,
-     &            nStab(mdc),nStab(ndc),nIrrep,kOp,iChBas,MxFnc)
+     &            dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,kOp,iChBas,MxFnc)
 *
 *     Call qExit('KnEGrd')
       Return

@@ -105,7 +105,7 @@
          iPrim      =iSD( 5,iS)
          index_i    =list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE,iOper,nIrrep)
+         lDCRE=NrOpr(kDCRE)
 *
          jNQ=Maps2p(iS,lDCRE)
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
@@ -125,7 +125,7 @@
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
 *
-            lDCRR=NrOpr(kDCRR,iOper,nIrrep)
+            lDCRR=NrOpr(kDCRR)
 *
             kNQ=Maps2p(jS,lDCRR)
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
@@ -154,7 +154,7 @@
             If (ilist_s.eq.jlist_s) Deg=One
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a

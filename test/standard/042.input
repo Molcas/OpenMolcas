@@ -9,6 +9,7 @@
 * for the verification checks to be satisfied, when run in parallel:
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
+>export MOLCAS_REDUCE_PRT=NO
 >export MOLCAS_THR=2
  &SEWARD  &END
 Title

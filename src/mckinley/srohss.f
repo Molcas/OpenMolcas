@@ -58,6 +58,8 @@
 *      ccoor : coordinates of the operator, zero for symmetric oper.   *
 *      nordop: order of the operator                                   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Real_Spherical
       implicit real*8 (a-h,o-z)
 #include "real.fh"
@@ -81,8 +83,8 @@
        nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *
-      iuvwx(1) = nstab(mdc)
-      iuvwx(2) = nstab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kop(1) = ioper(nop(1))
       kop(2) = ioper(nop(2))
@@ -92,18 +94,17 @@
 *
       kdc = 0
       do 1960 kcnttp = 1, ncnttp
-         if (.not.ecp(kcnttp)) Go To 1961
-         if (nsro_shells(kcnttp).le.0) Go To 1961
-         do 1965 kcnt = 1,ncntr(kCnttp)
-            ixyz = ipcntr(kcnttp) + (kCnt-1)*3
-            call dcopy_(3,work(ixyz),1,C,1)
+         if (.not.dbsc(kcnttp)%ECP) Go To 1961
+         if (dbsc(kcnttp)%nSRO.le.0) Go To 1961
+         do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
-     &               jstab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            call dcr(lmbdt,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *
-            iuvwx(3) = nstab(kdc+kCnt)
-            iuvwx(4) = nstab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 *
          do 1967 ldcrt = 0, ndcRT-1
@@ -111,34 +112,33 @@
 
             kop(3) = idcrt(ldcrT)
             kop(4) = kop(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
 
-            tc(1) = DBLE(iphase(1,idCRT(lDCRT)))*C(1)
-            tc(2) = DBLE(iphase(2,idCRT(lDCRT)))*C(2)
-            tc(3) = DBLE(iphase(3,idCRT(lDCRT)))*C(3)
-            call dcopy_(3,tc,1,coor(1,3),1)
+            Call OA(iDCRT(lDCRT),C,TC)
+            call dcopy_(3,TC,1,Coor(1,3),1)
 
             if (eq(a,rb).and.eq(A,TC)) Go To 1967
             call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
-            do 1966 iang = 0, nSRO_Shells(kCnttp)-1
-               ishll = ipsro(kcnttp) + iAng
-               if (nexp(ishll).eq.0) Go To 1966
+            do 1966 iang = 0, dbsc(kCnttp)%nSRO-1
+               ishll = dbsc(kcnttp)%iSRO + iAng
+               nExpi=Shells(iShll)%nExp
+               if (nExpi.eq.0) Go To 1966
 *
                ip = 1
                ipfin = ip
                ip = ip + nzeta*nElem(la)*nElem(lb)*21
                ipfa1 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*4
                iptmp = ip
-               ip = ip + nalpha*nExp(iShll)
+               ip = ip + nalpha*nExpi
                ipfa2 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*6
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*6
                ipfb1 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
                ipfb2 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
                call dcopy_(narr,[Zero],0,Array,1)
 *              <a|c>, <a'|c>, <a",c>
@@ -163,7 +163,7 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Work(ipAkl(iShll)),nexp(ishll),
+     &                        Shells(iShll)%Akl,nExpi,
      &                        la,lb,iang,jfhss,Array(ipTmp),.true.)
 
 
@@ -185,7 +185,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960    Continue
          Return
 c Avoid unused argument warnings

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,
      &                      iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
@@ -51,7 +51,7 @@
       Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
 *                                                                      *
 ************************************************************************
@@ -234,7 +234,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

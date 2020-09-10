@@ -24,8 +24,8 @@
       CofM = Iter.eq.1 .and. lNmHss
       Call Allocate_Work(ipTR,18*nAtom)
       Call FZero(Work(ipTR),18*nAtom)
-      Call TRPGen(nDimBC,nAtom,Coor,Degen,nSym,iOper,
-     &            Smmtrc,mTR,Work(ipCM),CofM,Work(ipTR))
+      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,Work(ipCM),CofM,
+     &            Work(ipTR))
       Call Free_Work(ipTR)
       If (lNmHss) Then
          If (Iter.eq.1) mTROld=mTR
@@ -76,7 +76,7 @@
 *
       If (LSup) Then
          Call SupSym(Work(ipGrd),nAtom,cMass,Coor,nSupSy,
-     &               iWork(ipNSup),iWork(ipAtom),iOper,nSym)
+     &               iWork(ipNSup),iWork(ipAtom))
          Call GetMem('iAtom ','Free','Inte',ipAtom,nAtom)
          Call GetMem(' NSUP ','Free','Inte',ipNSup,nSupSy)
       End If

@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAdpt_NQ(AOValue,mAO,nCoor,mBas,mBas_Eff,
-     &                     nCmp,nOp,SOValue,nDeg,iShell)
+     &                     nCmp,nOp,SOValue,nDeg,IndShl)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -38,9 +39,9 @@
       Do i1 = 1, nCmp
          iaux=0
          Do j1 = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(j1)).ne.0) Then
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).ne.0) Then
                iaux=iaux+1
-               xa= rChTbl(j1,nOp)
+               xa= DBLE(iChTbl(j1,nOp))
                Aux(iAux)=Fact*xa
             End If
          End Do

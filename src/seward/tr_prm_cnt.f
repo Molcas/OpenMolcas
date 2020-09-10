@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
+      use Basis_Info
       implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -50,7 +51,7 @@
       ia=0  ! center index
       ka=0  ! shell index
       Do iCnttp=1,nCnttp
-         Do icnt = 1, nCntr(iCnttp)
+         Do icnt = 1, dbsc(iCnttp)%nCntr
             ia=ia+1
             Do la=1,nAngr(ia)+1
                ka=ka+1
@@ -63,7 +64,7 @@
          write(idbg,*) ' Help vector'
          ia=0
          Do iCnttp=1,nCnttp
-            Do icnt = 1, nCntr(iCnttp)
+            Do icnt = 1, dbsc(iCnttp)%nCntr
                ia=ia+1
                write(idbg,'(10i5)') (ihelp(ia,j),j=1,nAngr(ia)+1)
            End Do
@@ -98,7 +99,7 @@
             ka=0
             ia=0
             Do iCnttp = 1, nCnttp
-               Do iCnt = 1, nCntr(iCnttp)
+               Do iCnt = 1, dbsc(iCnttp)%nCntr
                   ia=ia+1
                   Do la = 1, nAngr(ia)+1
                      ka=ka+1

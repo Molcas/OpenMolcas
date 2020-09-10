@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -58,6 +58,9 @@
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -78,7 +81,7 @@
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
-     &        iAO(4), iAnga(4), iCmp(4),
+     &        iAO(4), iAnga(4), iCmp(4), IndShl(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy,Do_TnsCtl,
@@ -88,7 +91,7 @@
      &        Batch_On_Disk, W2Disc,
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
@@ -130,8 +133,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
 *
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
       iPrint = nPrint(iRout)
       QInd(1)=Quad_ijkl
       RST_triplet=One
@@ -154,6 +159,7 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
+      Call RecPrt('Coor',' ',Coor,3,4)
 #endif
 *
       la = iAnga(1)
@@ -176,11 +182,10 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center A and B
 *
-      Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                             jStab(0,jStb),nStab(jStb),
-     &                             iDCRR,nDCRR)
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &               dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 #ifdef _DEBUG_
       If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
@@ -188,8 +193,8 @@ c Avoid unused argument warnings
 *
 *-----Find stabilizer for center A and B
 *
-      Call Inter(jStab(0,iStb),nStab(iStb),
-     &           jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+      Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &           dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
 *     Write (*,'(20A)') ' M=(',
 *    &      (ChOper(iStabM(i)),',',i=0,lStabM-1),')'
 *
@@ -198,11 +203,10 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center C and D.
 *
-      Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                            jStab(0,lStb),nStab(lStb),
-     &                            iDCRS,nDCRS)
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &               dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 #ifdef _DEBUG_
       If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
@@ -210,8 +214,8 @@ c Avoid unused argument warnings
 *
 *-----Find stabilizer for center C and D
 *
-      Call Inter(jStab(0,kStb),nStab(kStb),
-     &           jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+      Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &           dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
 *     Write (*,'(20A)') ' N=(',
 *    &      (ChOper(iStabN(i)),',',i=0,lStabN-1),')'
 *                                                                      *
@@ -221,24 +225,21 @@ c Avoid unused argument warnings
 *-----Find the Double Coset Representatives for the two charge
 *     distributions.
 *
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,iStabN,lStabN,
-     &                                               iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
 *     Write (*,*) ' LmbdT=',LmbdT
 *     Write (*,'(20A)') ' T=(',
 *    &      (ChOper(iDCRT(i)),',',i=0,nDCRT-1),')'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kOp(1)=NrOpr(0,iOper,nIrrep)
+      kOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
-         kOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         kOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
-         lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
+         lDCR1=NrOpr(iDCRR(lDCRR))+1
 *
          vijij=Data1(ip_abMax(nZeta),lDCR1)
 *
@@ -249,15 +250,13 @@ c Avoid unused argument warnings
          Do 200 lDCRS = 0, MxDCRS
             RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
 *switch (to generate better start orbitals...)
             If (NDDO .AND. .NOT.CeqD) Go To 200
 *
-            lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+            lDCR2=NrOpr(iDCRS(lDCRS))+1
 *
 *-----------Pickup estimated largest integral value (AO)
 *
@@ -269,15 +268,9 @@ c Avoid unused argument warnings
                RST_triplet=DBLE(lDCRT*nDCRR*nDCRS)+RS_doublet
                QInd(2)=RST_triplet
 *              Write (*,*) QInd(1), QInd(2)
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *              If (iPrint.ge.9)
 *
 *    &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
@@ -298,9 +291,8 @@ clwj
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               kOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               kOp(3) = NrOpr(iDCRT(lDCRT))
+               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
                ix1 = 1
                iy1 = 1
@@ -320,22 +312,22 @@ clwj
                If (DoFock) Then
 *--------------Dij
                iR = iDCRR(lDCRR)
-               jOp(1) = NrOpr(iR,iOper,nIrrep) + 1
+               jOp(1) = NrOpr(iR) + 1
 *--------------Dkl
                iS = iDCRS(lDCRS)
-               jOp(2)= NrOpr(iS,iOper,nIrrep) + 1
+               jOp(2)= NrOpr(iS) + 1
 *--------------Dik
                iT  = iDCRT(lDCRT)
-               jOp(3)= NrOpr(iT,iOper,nIrrep) + 1
+               jOp(3)= NrOpr(iT) + 1
 *--------------Dil
                iTS = iEor(iT,iS)
-               jOp(4)= NrOpr(iTS,iOper,nIrrep) + 1
+               jOp(4)= NrOpr(iTS) + 1
 *--------------Djk
                iRT = iEor(iR,iT)
-               jOp(5)= NrOpr(iRT,iOper,nIrrep) + 1
+               jOp(5)= NrOpr(iRT) + 1
 *--------------Djl
                iRTS= iEor(iRT,iS)
-               jOp(6)= NrOpr(iRTS,iOper,nIrrep) + 1
+               jOp(6)= NrOpr(iRTS) + 1
 *
                End If ! DoFock
 *                                                                      *
@@ -587,10 +579,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta),lDCR1),nZeta+1)
                nEta_Tot =iGet(Data2(ip_IndZ(1,nEta ),lDCR2),nEta +1)
 *
-               iZ13_=ip_HrrMtrx(nZeta)+
-     &              (NrOpr(lDCRE_,iOper,nIrrep)*nHRRAB)/nIrrep
-               iE13_=ip_HrrMtrx( nEta)+
-     &              (NrOpr(lDCRT_,iOper,nIrrep)*nHRRCD)/nIrrep
+               iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
+               iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
 *
                kabcd=0
                Do_TnsCtl=.False.
@@ -768,7 +758,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                mWork3=nWork2-iW3+1
                If (DoFock)
      &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Wrk(iW2),TwoHam,nDens,Wrk(iW3),mWork3,
      &                     iAO,iAOst,
      &                     iBasi,jBasj,kBask,lBasl,
@@ -784,7 +774,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
      &                     Aux,nAux,Wrk(iW2),SOInt,nSOInt,NoInts)
 *
  300        Continue
@@ -795,7 +785,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       End
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
+     &           iAnga,iCmp,iShell,iShll,IndShl,iAO,iAOst,
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
@@ -840,6 +830,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -857,7 +849,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &       TwoHam(nDens), Dens(nDens), FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
+      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4), IndShl(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
@@ -905,6 +897,7 @@ c Avoid unused argument warnings
          Call Unused_integer(nHRRAB)
          Call Unused_integer(nHRRCD)
          Call Unused_real_array(Aux)
+         Call Unused_integer_array(IndShl)
       End If
 *
 *     This is to allow type punning without an explicit interface
@@ -916,8 +909,10 @@ c Avoid unused argument warnings
 *
       iRout = 12
       iPrint = nPrint(iRout)
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
 *
 #ifdef _DEBUG_
       Call RecPrt('Twoel: Data1',' ',

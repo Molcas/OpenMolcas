@@ -121,11 +121,9 @@
 *     Call MolDen Interface
 *
       If(iUHF.eq.0) Then
-         Call Molden_Interface(iUHF,'SCFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','SCFORB',iRc)
+         Call Molden_Interface(iUHF,'SCFORB','MD_SCF')
       Else
-         Call Molden_Interface(iUHF,'UHFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','UNAORB',iRc)
+         Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
       End If
       Call qExit('SCF')
       if(iStatPRN.gt.0) then
@@ -329,45 +327,6 @@ c     MemRsv=6*nBT
       Return
       End
 *----------------------------------------------------------------------*
-#ifdef _NOTUSED_
-*debug routine
-      SubRoutine DumDum
-*     dummy routine with endless loop for parallel debugging
-      use Real_Spherical
-      Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-      Integer iflag
-      Integer   idbx1(MxShll),idbx2(Mxshll)
-      Real*8 rdbx1,rdbx2(mxdbsc)
-*
-      iflag=0
-      Write (6,*) 'nexp:'
-      Write (6,*) (nExp(i),i=1,10)
-c 100 If (iflag.eq.1) Go To 110
-c     Go To 100
-c 110 Continue
-      Do i=1,Mxshll
-        idbx1(i)=nExp(i)
-        idbx2(i)=ipBk(i)
-      End Do
-      rdbx1=TMass
-      Do i=1,mxdbsc
-        rdbx2(i)=Charge(i)
-      End Do
-      Do i=1,4
-        rdbx1=Work(ipCff(i))
-        rdbx1=Work(ipExp(i))
-      End Do
-      Do iAng = 0, iAngMx-1
-        idbx0=ipSph(iAng+1)
-        rdbx1=RSph(ipSph(iAng+1))
-      End Do
-      Return
-      End
-#endif
-*debug routine
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"

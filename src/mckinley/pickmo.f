@@ -10,7 +10,7 @@
 ************************************************************************
       SubRoutine PickMO(COUT,nOut,
      &                  nAcO,
-     &                  ishell,icmp,iBasi,iBasn,jBasj,jBasn,
+     &                  IndShl,icmp,iBasi,iBasn,jBasj,jBasn,
      &                  kBask,kBasn,lBasl,lBasn,iaoii)
       use pso_stuff
       Implicit Real*8 (a-h,o-z)
@@ -21,7 +21,7 @@
 #include "WrkSpc.fh"
       Real*8 COUT(nOut)
       Integer iCmp(4),iBas(4),nBs(4)
-      Integer iTwoj(0:7),ishell(4),iaoii(4)
+      Integer iTwoj(0:7),IndShl(4),iaoii(4)
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iBas(1)=iBasi
@@ -46,7 +46,7 @@
                Do i1=1,jj
                   iSO=iAOtSO(iAOii(iCnt)+i1,iIrrep)+iBas(iCnt)-1
                   ip1=ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
-                  If (iAnd(IrrCmp(IndS(iShell(iCnt))+i1),
+                  If (iAnd(IrrCmp(IndShl(iCnt)+i1),
      &                iTwoj(iIrrep)).ne.0) Then
                      call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
                   Else

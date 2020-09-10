@@ -11,7 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,AOInt,iBas,jBas,nIC,iIC,
+     &                  iShll,jShll,IndShl,JndShl,
+     &                  AOInt,iBas,jBas,nIC,iIC,
      &                  SOInt,nSOInt,nOp)
 ************************************************************************
 *                                                                      *
@@ -28,6 +29,8 @@
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use Basis_Info
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -67,11 +70,11 @@
 *
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
-         xa= rChTbl(j1,nOp(1))
+         xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(j1)).eq.0) Go To 200
+            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) Go To 200
             iChBs = iChBas(ii+i1)
-            If (Transf(iShll)) iChBs = iChBas(iSphCr(ii+i1))
+            If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
             pae = xPrmt(iOper(nOp(1)),iChBs)
 *
 *old        Do 300 j2 = 0, j1
@@ -80,16 +83,17 @@
 *
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                kIC = jIC(j12)
-               xb = rChTbl(j2,nOp(2))
+               xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),iTwoj(j2)).eq.0)
+                  If (iAnd(IrrCmp(JndShl+i2),iTwoj(j2)).eq.0)
      &               Go To 400
                   lSO = lSO + 1
                   jChBs = iChBas(jj+i2)
-                  If (Transf(jShll)) jChBs = iChBas(iSphCr(jj+i2))
+                  If (Shells(jShll)%Transf)
+     &               jChBs = iChBas(iSphCr(jj+i2))
                   pbr = xPrmt(iOper(nOp(2)),jChBs)
                   Call DaXpY_(iBas*jBas,xa*pae*xb*pbr,
      &                       AOInt(1,i1,i2,kIC),1,
