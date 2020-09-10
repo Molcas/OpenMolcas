@@ -80,7 +80,6 @@
       Call Put_iArray('SewIInfo',p_ix,Len)
 *
       Call SOAO_Info_Dmp()
-      Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)
 *
 *     Save the common LINFO
 *

@@ -79,7 +79,6 @@ C
       KVector(:)=Zero
       MaxBas(0:MxAng)=0
       MaxPrm(0:MxAng)=0
-      IrrCmp(1:MxUnq)=0
       NrInt(-20:9)=0
       iSkip(0:7)=0
 

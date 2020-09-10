@@ -138,7 +138,6 @@ C     Show=Show.and..Not.Primitive_Pass
       m2Tot = 0
       iAO=0
       lSkip=.False.
-      IndShl=0
 *
       Call ICopy(8,[0],0,nFCore,1)
 
@@ -199,9 +198,6 @@ C     Show=Show.and..Not.Primitive_Pass
       Do iIrrep = 0, 7
         jOffSO(iIrrep) = 0
       End Do
-      Do i = 1, MxUnq
-         IrrCmp(i) = 0
-      End Do
       kIrrep=0
       Do 200 iIrrep = 0, nIrrep-1
          iOffSO(iIrrep) = iSO_Tot
@@ -227,7 +223,6 @@ C     Show=Show.and..Not.Primitive_Pass
             Go To 2011
          End If
          iCnttp = 0
-         IndShl = 0
          Do 201 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -340,10 +335,6 @@ C     Show=Show.and..Not.Primitive_Pass
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(iIrrep)=nFCore(iIrrep)+nCore
-                     If (iSkip(iIrrep).eq.0) Then
-                        IrrCmp(IndShl+iComp) =
-     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
-                     End If
                      If (output.and.Type(iIrrep)) Then
                         Write (6,*)
                         Write (6,'(10X,A,A)')
@@ -532,7 +523,6 @@ C     Show=Show.and..Not.Primitive_Pass
  204              Continue
  2033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
-                  IndShl = IndShl + jComp
  203           Continue ! iAng
                mc = mc + nIrrep/dc(mdc)%nStab
  202        Continue ! iCnt
@@ -600,9 +590,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          Write (6,*)
       End If
 *
-      Do i = 1, MxUnq
-         IrrCmp(i) = 1
-      End Do
       kIrrep=0
       Do 300 iIrrep = 0, nIrrep-1
          iOffSO(iIrrep) = iSO_Tot
@@ -619,7 +606,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          mc  = 1
          iShell = 0
          iCnttp = 0
-         IndShl=0
          Do 301 jCnttp = 1, nCnttp
 *
 *           Make sure that we process the dummy shell last
@@ -844,7 +830,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  304              Continue
  3033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
-                  IndShl = IndShl + jComp
  303           Continue
                mc = mc + nIrrep/dc(mdc)%nStab
  302        Continue
@@ -982,7 +967,6 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Unq=IndShl
       Mx_AO=iAO
 *
 #ifdef _DEBUG_
@@ -990,10 +974,6 @@ CSVC: basis IDs of non-symmetric case
       Do 555 jAO = 1, iAO
          Write (6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
  555  Continue
-      Write (6,*) ' *** IrrCmp ***'
-      Do 556 iE = 1, Mx_Unq
-         Write (6,*) IrrCmp(iE)
- 556  Continue
 #endif
 *
       write(isymunit,'(A3)') 'END'
