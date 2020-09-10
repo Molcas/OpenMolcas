@@ -12,8 +12,8 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine Cnt1El2(Kernel,KrnlMm,Label,
-     &                 iDCnt,iDCar,loper,rHrmt,DiffOp,
-     &                  Lab_Dsk,iadd,isym,kcar,nordop)
+     &                   iDCnt,iDCar,loper,rHrmt,DiffOp,
+     &                   Lab_Dsk,iadd,isym,kcar,nordop)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -156,7 +156,6 @@ c#include "print.fh"
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -170,7 +169,6 @@ c#include "print.fh"
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -406,11 +404,9 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                  mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iirrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
-     &                    Work(ip(iIC)),
-     &                    nFck(iIrrep),iSmLbl,
+     &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
-     &                    IndShl,JndShl,iAO,jAO,
-     &                    nIC,Label,2**iIrrep,rHrmt)
+     &                    iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
              End Do

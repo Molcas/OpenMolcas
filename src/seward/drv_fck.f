@@ -261,7 +261,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -274,7 +273,6 @@ c        Write(6,*) ' oneel *',Label,'*'
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -464,8 +462,7 @@ c        Write(6,*) ' oneel *',Label,'*'
               If (mSO.ne.0) Then
                  Call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Int1El(ip(iComp)),
      &                       n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,
-     &                       jShell,IndShl,JndShl,
-     &                       iAO,jAO,nComp,Label,lOper,rHrmt)
+     &                       jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
               End If
             End Do
