@@ -2362,8 +2362,6 @@ A list of these keywords is given below:
   This keyword performs the functions called by :kword:`ROSTate`; therefore one does not need to use :kword:`ROSTate` when this keyword is used.
   More information regarding CMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
-  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
-
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSI" APPEAR="CMS Intermediate States" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: CMSI <basic>
               <HELP>
