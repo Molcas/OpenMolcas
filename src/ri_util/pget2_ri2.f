@@ -192,7 +192,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAOtSO(iAO(2)+i2,j)>0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
