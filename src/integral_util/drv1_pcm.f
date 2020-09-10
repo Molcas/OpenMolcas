@@ -198,7 +198,7 @@
 *
             Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  iCmp,jCmp,iShell,jShell,
      &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO

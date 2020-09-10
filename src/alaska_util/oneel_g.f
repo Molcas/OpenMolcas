@@ -232,10 +232,8 @@ C        Do jS = 1, iS
 *
 *           Gather the elements from 1st order density / Fock matrix.
 *
-            Call SOGthr(DSO,iBas,jBas,nSO,FD,
-     &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
-     &                  AeqB,iAO,jAO)
+            Call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,
+     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
 *           basis on to the primitive basis.

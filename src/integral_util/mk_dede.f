@@ -263,7 +263,7 @@ C     Call QEnter('DeDe')
 *
             Call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmpi,jCmpj,iSh,jSh,IndShl,JndShl,
+     &                  iCmpi,jCmpj,iSh,jSh,
      &                  AeqB,iAOi,jAOj)
 *                                                                      *
 ************************************************************************
