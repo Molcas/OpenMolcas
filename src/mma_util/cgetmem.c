@@ -849,9 +849,9 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
             if(MlM.nmentry==0) {
                break;
             } else {
-#if defined(_DEBUG_MEM_) || defined(_BIGOT_)
+#if defined(_DEBUG_MEM_) || !defined(_DEVEL_)
                printf("MEMORY ERROR: some memory allocations are not released!\n");
-               abort();
+               rc=-1;
 #else
                printf("MEMORY WARNING: some memory allocations are not released!\n");
 #endif

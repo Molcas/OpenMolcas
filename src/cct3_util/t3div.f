@@ -551,11 +551,13 @@ c
 c
        do 100 r=1,dimr
        denijkr=denijk-diagr(addr+r)
-       do 100 q=1,dimq
+       do 101 q=1,dimq
        denijkqr=denijkr-diagq(q+addq)
-       do 100 p=1,dimp
+       do 102 p=1,dimp
        denijkpqr=denijkqr-diagp(p+addp)
        ec=ec+w(p,q,r)*v(p,q,r)/denijkpqr
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -604,12 +606,14 @@ c
        do 100 r=1,dimr
        denijkr=denijk-diagr(addr+r)
        pq=0
-       do 100 p=2,dimp
+       do 101 p=2,dimp
        denijkpr=denijkr-diagp(p+addp)
-       do 100 q=1,p-1
+       do 102 q=1,p-1
        pq=pq+1
        denijkpqr=denijkpr-diagp(q+addp)
        ec=ec+w(pq,r)*v(pq,r)/denijkpqr
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -658,12 +662,14 @@ c
        qr=0
        do 100 q=2,dimq
        denijkq=denijk-diagq(addq+q)
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        denijkqr=denijkq-diagq(r+addq)
        qr=qr+1
-       do 100 p=1,dimp
+       do 102 p=1,dimp
        denijkpqr=denijkqr-diagp(p+addp)
        ec=ec+w(p,qr)*v(p,qr)/denijkpqr
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -707,12 +713,14 @@ c
        pqr=0
        do 100 p=3,dimp
        denijkp=denijk-diagp(p+addp)
-       do 100 q=2,p-1
+       do 101 q=2,p-1
        denijkpq=denijkp-diagp(q+addp)
-       do 100 r=1,q-1
+       do 102 r=1,q-1
        denijkpqr=denijkpq-diagp(r+addp)
        pqr=pqr+1
        ec=ec+w(pqr)*v(pqr)/denijkpqr
+ 102    continue
+ 101    continue
  100    continue
 c
        return

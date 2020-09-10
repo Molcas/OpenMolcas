@@ -121,12 +121,17 @@ c      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
 c initialize:
       do 10 a=0,mDeg
-      do 10 b=0,mDeg
-      do 10 c=0,mDeg
-      do 10 p=0,mDeg
-      do 10 q=0,mDeg
-      do 10 r=0,mDeg
+      do 11 b=0,mDeg
+      do 12 c=0,mDeg
+      do 13 p=0,mDeg
+      do 14 q=0,mDeg
+      do 15 r=0,mDeg
        I(a,b,c,p,q,r)=0
+  15  continue
+  14  continue
+  13  continue
+  12  continue
+  11  continue
   10  continue
       I(0,0,0,0,0,0)=1
       If (mDeg.gt.0) Then
@@ -135,11 +140,11 @@ c initialize:
          I(0,0,1,0,0,1)=-1
       End If
       do 100 n=2,mDeg
-      do 100 a=0,n
-      do 100 b=0,n-a
+      do 101 a=0,n
+      do 102 b=0,n-a
       c=n-a-b
-      do 100 p=0,n
-      do 100 q=0,n-p
+      do 103 p=0,n
+      do 104 q=0,n-p
       r=n-p-q
       new=0
       if(a.gt.0) then
@@ -156,6 +161,10 @@ c initialize:
         if(q.gt.1) new=new+(r+1)*I(a,b,c-1,p,q-2,r+1)
       end if
       I(a,b,c,p,q,r)=new
+ 104  continue
+ 103  continue
+ 102  continue
+ 101  continue
  100  continue
 c
 c write out only elements with a>=b>=c. The others are obtained

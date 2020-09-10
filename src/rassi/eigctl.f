@@ -180,6 +180,10 @@ C    and Hamiltonian into square storage:
         DO JJ=1,II
           J=IWORK(LSTK-1+JJ)
           IJ=IJ+1
+          If (I.NE.J .AND.
+     &    (ABS(ovlp(i,j)).gt.1.0D-9.or.ABS(ham(i,j)).gt.1.0D-9)) Then
+            DIAGONAL=.FALSE.
+          EndIf
           if(debug_dmrg_rassi_code)then
             write(6,*) 'overlap     for i,j',i,j,ovlp(i,j)
             write(6,*) 'Hamiltonian for i,j',i,j,HAM(i,j)
@@ -201,18 +205,6 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
         END DO
       END DO
 
-      IJ=0
-      DO I=1,MSTATE
-        DO J=1,I
-          IJ=IJ+1
-          If (I.NE.J .AND.
-     &    ABS(WORK(LHSQ-1+I+MSTATE*(J-1))).gt.1.0D-9) Then
-            DIAGONAL=.FALSE.
-            go to 11
-          EndIf
-        End Do
-      End Do
- 11   Continue
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
 *        CALL MXMA(WORK(LHSQ),1,MSTATE,
@@ -629,17 +621,31 @@ C                                                                      C
 
       OSTHR=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) THEN
+        WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
+      END IF
 ! this is to ensure that the total transistion strength is non-zero
 ! Negative transitions strengths can occur for quadrupole transistions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
-     &                       ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+      WRITE(6,49) 'Printing threshold changed to ',OSTHR,
+     &           ' since quadrupole printing threshold is given '
+      END IF
       OSTHR2=1.0D-5
       IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-      IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+      IF(QIPR) THEN
+       WRITE(6,30) 'Quadrupole printing threshold changed to ',OSTHR2
+      END IF
+      IF(QIALL) WRITE(6,*) 'Will write all quadrupole contributions '
+
+!Rotatory strength threshold
+      IF(RSPR) THEN
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-07 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -756,7 +762,7 @@ C                                                                      C
               IF (LNCNT.EQ.0) THEN
                  If (Do_SK) Then
                     WRITE(6,*)
-                    WRITE(6,'(4x,a,3F8.4)')
+                    WRITE(6,'(4x,a,3F10.6)')
      &                 'Direction of the k-vector: ',
      &                  (k_vector(k,iVec),k=1,3)
                     WRITE(6,'(4x,a)')
@@ -848,7 +854,7 @@ C                                                                      C
             IF(LNCNT.EQ.0) THEN
              If (Do_SK) Then
                 WRITE(6,*)
-                WRITE(6,'(4x,a,3F8.4)')
+                WRITE(6,'(4x,a,3F10.6)')
      &             'Direction of the k-vector: ',
      &              (k_vector(k,iVec),k=1,3)
                 WRITE(6,'(4x,a)')
@@ -959,7 +965,7 @@ C                                                                      C
                   IF (LNCNT.EQ.0) THEN
                      If (Do_SK) Then
                         WRITE(6,*)
-                        WRITE(6,'(4x,a,3F8.4)')
+                        WRITE(6,'(4x,a,3F10.6)')
      &                        'Direction of the k-vector: ',
      &                         (k_vector(k,ivec),k=1,3)
                         WRITE(6,'(4x,a)')
@@ -1012,7 +1018,7 @@ C                                                                      C
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,*) "All dipole oscillator differences above the "//
+         WRITE(6,49) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -1791,6 +1797,7 @@ C                                                                      C
          iPrint=1
              End If
              WRITE(6,33) I,J,F
+             Call Add_Info('TMS(SF,2nd)',[F],1,6)
             END IF
            END IF
           END DO
@@ -1864,6 +1871,12 @@ C                                                                      C
      &                 '------------------------------------'//
      &                 '----------------------------------'//
      &                 '--------------------------------------'
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
+
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -1876,7 +1889,7 @@ C                                                                      C
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2023,7 +2036,9 @@ C                                                                      C
              END IF
             END IF
 *
-            WRITE(6,33) I,J,R
+            IF(ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) I,J,R
+            END IF
 !
             Call Add_Info('CD_V(SF)',[R],1,6)
            END IF
@@ -2098,6 +2113,11 @@ C                                                                      C
          WRITE(6,*)
          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
          WRITE(6,*) ' is NOT origin independent - check your results '
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2110,7 +2130,7 @@ C                                                                      C
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2257,8 +2277,10 @@ C                                                                      C
              END IF
             END IF
 *
-            WRITE(6,33) I,J,R
-!
+            IF(ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) I,J,R
+            END IF
+
             Call Add_Info('CD_M(SF)',[R],1,6)
            END IF
           END DO
@@ -2371,7 +2393,7 @@ C                                                                      C
 *     Initiate the Seward environment
 *
       nDiff=0
-      Call IniSew(Info,.FALSE.,nDiff)
+      Call IniSew(.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -2645,7 +2667,9 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                         END DO ! IPRP
                      Else
 
-                        Forall (iprp=1:12) Prop(:,:,IPRTMOM(IPRP))=0.0D0
+                        Do IPRP=1,12
+                           Prop(:,:,IPRTMOM(IPRP))=0.0D0
+                        End Do
                         Do k_ = 1, nState
                            k=IndexE(k_)
                            JOB3=JBNUM(k)
@@ -2853,10 +2877,12 @@ C                 Why do it when we don't do the L.S-term!
                 IF (Do_Pol) THEN
                    LMAX_=LMAX+8*(ij_-1)
                    F_CHECK=ABS(WORK(LMAX_+0))
+                   R_CHECK=0.0D0 ! dummy assign
                 ELSE
                    F_CHECK=ABS(F)
+                   R_CHECK=ABS(R)
                 END IF
-                IF (F_CHECK.LT.OSTHR) CYCLE
+                IF ( (F_CHECK.LT.OSTHR).AND.(R_CHECK.LT.RSTHR) ) CYCLE
                 A =(AFACTOR*EDIFF**2)*F
 *
                 If (iPrint.eq.0) Then
@@ -2879,7 +2905,7 @@ C                 Why do it when we don't do the L.S-term!
      &                     'over all directions of the polarization '//
      &                     'vector'
                       End If
-                      WRITE(6,'(4x,a,3F8.4)')
+                      WRITE(6,'(4x,a,3F10.6)')
      &                  'Direction of the k-vector: ',
      &                  (k_vector(k,iVec),k=1,3)
                    Else
@@ -2891,7 +2917,9 @@ C                 Why do it when we don't do the L.S-term!
      &                  '-------------------'
                    End If
                    IF (OSTHR.GT.0.0D0) THEN
-                      WRITE(6,30) 'for osc. strength at least',OSTHR
+                      WRITE(6,45)
+     &                  'For osc. strength at least',OSTHR,'and '//
+     &                  'red. rot. strength  at least',RSTHR
                    END IF
                    WRITE(6,*)
                    If (.NOT.Do_SK) Then
@@ -2912,7 +2940,16 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Regular print
 *
-                WRITE(6,33) I,J,F,R,A
+                IF(F_CHECK.LT.OSTHR) THEN
+                  WRITE(6,46) I,J,'below threshold',R,A
+                !Don't print rot. str. if below threshold
+                ELSE IF(R_CHECK.LT.RSTHR) THEN
+                  WRITE(6,47) I,J,F,'below threshold',A
+                ELSE
+                  WRITE(6,33) I,J,F,R,A
+                END IF
+
+
 *
                 IF (Do_SK) THEN
                    WRITE(6,50) 'maximum',WORK(LMAX_+0),
@@ -3061,6 +3098,9 @@ C                 Why do it when we don't do the L.S-term!
 42    FORMAT (5X,79('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
+45    FORMAT (4X,2(A,1X,ES15.8,1X))
+46    FORMAT (5X,2(1X,I4),5X,(1X,A15),2(1X,ES15.8))
+47    FORMAT (5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
-

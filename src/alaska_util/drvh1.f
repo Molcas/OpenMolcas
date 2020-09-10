@@ -37,6 +37,8 @@
 *             gradients, April '95. R. Lindh                           *
 *             Modified to Self Consistent Reaction Fields, May '95     *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
@@ -266,13 +268,13 @@ CAOM>
 *                                                                      *
 ************************************************************************
       DiffOp = .True.
-      Do iWel = 0, nWel-1
-         r0   = Work(ipWel+iWel*3  )
-         ExpB = Work(ipWel+iWel*3+1)
+      Do iWel = 1, nWel
+         r0   = Wel_Info(1,iWel)
+         ExpB = Wel_Info(2,iWel)
          Label = ' The Spherical Well Contribution'
          Call OneEl_g(WelGrd,WelMmG,Temp,nGrad,DiffOp,Coor,
      &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
-         Fact = Work(ipWel+iWel*3+2)
+         Fact = Wel_Info(3,iWel)
          Call DaXpY_(nGrad,Fact,Temp,1,Grad,1)
       End Do
 ************************************************************************
@@ -353,7 +355,7 @@ CAOM>
 *
          If (iCOSMO.le.0) Then
             iPrint=15
-            Call DScal_(nTs*2,One/DBLE(nIrrep),Work(ip_Q),1)
+            Call DScal_(nTs*2,One/DBLE(nIrrep),PCM_SQ,1)
          End If
          lOper(1) = 1
          DiffOp = .True.
@@ -379,7 +381,7 @@ CAOM>
          End If
 
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-         If (iCOSMO.eq.0) Call DScal_(nTs*2,DBLE(nIrrep),Work(ip_Q),1)
+         If (iCOSMO.eq.0) Call DScal_(nTs*2,DBLE(nIrrep),PCM_SQ,1)
 *
       End If
 *

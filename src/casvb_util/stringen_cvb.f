@@ -20,7 +20,8 @@
 c Spin string loop initialization (use xdet as graph storage) :
       do 100 iorb=0,norb
       iw(iorb+i_nkmin)=max(iorb-norb+nel,0)
-100   iw(iorb+i_nkmax)=min(iorb,nel)
+      iw(iorb+i_nkmax)=min(iorb,nel)
+100   continue
       call mmstringen_cvb(norb,nel,locc,lunocc,nstring,
      >  iw(i_nkmin),iw(i_nkmax))
       call mfreei_cvb(i_nkmin)

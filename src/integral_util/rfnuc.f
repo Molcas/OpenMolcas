@@ -24,6 +24,9 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -61,23 +64,18 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 *
             ndc = 0
             Do iCnttp = 1, nCnttp
-               If (Charge(iCnttp).eq.Zero) Go To 101
-               ZA = Charge(iCnttp)
-               ixyz = ipCntr(iCnttp)
+               ZA = dbsc(iCnttp)%Charge
+               If (ZA.eq.Zero) Go To 101
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
-                  Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',Work(ixyz),3,nCntr(iCnttp))
+                  Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
+     &                        dbsc(iCnttp)%nCntr)
                End If
-               Do iCnt = 1, nCntr(iCnttp)
-                  A(1) = Work(ixyz  )
-                  A(2) = Work(ixyz+1)
-                  A(3) = Work(ixyz+2)
+               Do iCnt = 1, dbsc(iCnttp)%nCntr
+                  A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
-                  Do i = 0, nIrrep/nStab(mdc) - 1
-                     RA(1)=A(1)*DBLE(iPhase(1,iCoset(i,0,mdc)))
-                     RA(2)=A(2)*DBLE(iPhase(2,iCoset(i,0,mdc)))
-                     RA(3)=A(3)*DBLE(iPhase(3,iCoset(i,0,mdc)))
+                  Do i = 0, nIrrep/dc(mdc)%nStab - 1
+                     Call OA(dc(mdc)%iCoSet(i,0),A,RA)
 C                    Call RecPrt(' RA',' ',RA,1,3)
 C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 #ifdef NAGFOR
@@ -102,10 +100,9 @@ C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                      temp = temp + ZA * CCoMx * CCoMy * CCoMz
                   End Do
-                  ixyz = ixyz + 3
                End Do
  101           Continue
-               ndc = ndc + nCntr(iCnttp)
+               ndc = ndc + dbsc(iCnttp)%nCntr
             End Do
             rNucMm(iq) = temp
          End Do
@@ -130,10 +127,6 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *     Write (*,*) ' Adding contibutions from esef!'
 
-      nInp=(nOrd_XF+1)*(nOrd_XF+2)*(nOrd_XF+3)/6
-      Inc=nInp+3
-      If(iXPolType.gt.0) Inc = Inc + 6
-
       iq = 0
       Do ix = ir, 0, -1
          Do iy = ir-ix, 0, -1
@@ -142,7 +135,6 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
             temp = Zero
 *           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 *
-            ip = ipXF-1
             Do iFd = 1, nXF
                DAx=Zero
                DAy=Zero
@@ -154,59 +146,45 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                Qyz=Zero
                Qzz=Zero
                If (nOrd_XF.eq.0) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
+                  ZA = XF(4,iFd)
                Else If (nOrd_XF.eq.1) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
-                  DAx= Work(ip+(iFd-1)*Inc+5)
-                  DAy= Work(ip+(iFd-1)*Inc+6)
-                  DAz= Work(ip+(iFd-1)*Inc+7)
+                  ZA = XF(4,iFd)
+                  DAx= XF(5,iFd)
+                  DAy= XF(6,iFd)
+                  DAz= XF(7,iFd)
                Else If (nOrd_XF.eq.2) Then
-                  ZA = Work(ip+(iFd-1)*Inc+4)
-                  DAx= Work(ip+(iFd-1)*Inc+5)
-                  DAy= Work(ip+(iFd-1)*Inc+6)
-                  DAz= Work(ip+(iFd-1)*Inc+7)
-                  Qxx= Work(ip+(iFd-1)*Inc+8)
-                  Qxy= Work(ip+(iFd-1)*Inc+9)
-                  Qxz= Work(ip+(iFd-1)*Inc+10)
-                  Qyy= Work(ip+(iFd-1)*Inc+11)
-                  Qyz= Work(ip+(iFd-1)*Inc+12)
-                  Qzz= Work(ip+(iFd-1)*Inc+13)
+                  ZA = XF(4,iFd)
+                  DAx= XF(5,iFd)
+                  DAy= XF(6,iFd)
+                  DAz= XF(7,iFd)
+                  Qxx= XF(8,iFd)
+                  Qxy= XF(9,iFd)
+                  Qxz= XF(10,iFd)
+                  Qyy= XF(11,iFd)
+                  Qyz= XF(12,iFd)
+                  Qzz= XF(13,iFd)
                Else
                   Call WarningMessage(2,
      &                      'RFNuc: Option not implemented yet!')
                   Call Abend()
                End If
-               ixyz = ip+(iFd-1)*Inc+1
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
                   Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',Work(ixyz),3,1)
+                  Call RecPrt(' Centers',' ',XF(1,iXF),3,1)
                End If
 *
-               A(1) = Work(ixyz  )
-               A(2) = Work(ixyz+1)
-               A(3) = Work(ixyz+2)
+               A(1:3) = XF(1:3,iXF)
 *
 *------------- Generate Stabilazor of C
 *
-               If (nIrrep.eq.8) Then
-                  nOper=3
-               Else If (nIrrep.eq.4) Then
-                  nOper=2
-               Else If (nIrrep.eq.2) Then
-                  nOper=1
-               Else
-                  nOper=0
-               End If
-               iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+               iChxyz=iChAtm(A,iChBas(2))
                iDum=0
-               Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+               Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *              Write (*,*) ' nStb=',nStb
                Do i = 0, nIrrep/nStb - 1
-                  RA(1)=A(1)*DBLE(iPhase(1,jCoSet(i,0)))
-                  RA(2)=A(2)*DBLE(iPhase(2,jCoSet(i,0)))
-                  RA(3)=A(3)*DBLE(iPhase(3,jCoSet(i,0)))
+                  Call OA(jCoSet(i,0),A,RA)
                   rRMy(1)=DAx*DBLE(iPhase(1,jCoSet(i,0)))
                   rRMy(2)=DAy*DBLE(iPhase(2,jCoSet(i,0)))
                   rRMy(3)=DAz*DBLE(iPhase(3,jCoSet(i,0)))

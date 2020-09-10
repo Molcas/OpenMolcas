@@ -24,7 +24,7 @@
       Call FZero(Grd,3*nAt)
       Call FZero(DerDM,nTs*nTs)
       Do 1000 IAtom = 1, nAt
-        Do 1000 IXYZ = 1, 3
+        Do 1001 IXYZ = 1, 3
 *---- Dielectric model
           If(.not.Cond) then
             Call Over(IAtom,IXYZ,GeoGrd,nAt,nTs,nS,Eps,Sphere,ISphe,
@@ -39,10 +39,11 @@
               Do 2010 jTs = 1, nTs
                 Qj = Q(1,jTs) + Q(2,jTs)
                 GeoGrd = GeoGrd + Qi * DerDM(iTs,jTs) * Qj
- 2010       Continue
+ 2010         Continue
  2000       Continue
           EndIf
           Grd(IXYZ,IAtom) =  GeoGrd / Two
+ 1001   Continue
  1000 Continue
       Return
       End

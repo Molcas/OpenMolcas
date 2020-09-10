@@ -32,6 +32,7 @@
       call ci2vbg_cvb(civbh,cvbdet)
       call vb2strg_cvb(cvbdet,axc(1,ivec))
       call ci2vbg_cvb(civbs,cvbdet)
-100   call vb2strg_cvb(cvbdet,sxc(1,ivec))
+      call vb2strg_cvb(cvbdet,sxc(1,ivec))
+100   continue
       return
       end

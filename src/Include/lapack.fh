@@ -20,6 +20,7 @@
 
 #include "dbdsdc.f"
 #include "dbdsqr.f"
+#include "dcombssq.f"
 #include "dgebak.f"
 #include "dgebal.f"
 #include "dgebd2.f"

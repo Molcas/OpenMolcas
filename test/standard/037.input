@@ -6,13 +6,13 @@
 * Responsible person: P.-O. Widmark 041230
 * Comments: Test of timdependent polarizabilities in MCLR
 *-------------------------------------------------------------------------------
- &SEWARD &END  
-Title                
+ &SEWARD &END
+Title
 water
 *RASSCF OPTIMIZED GEO O.ANO-L...3s2P1d., H.ANO-L...2s1P.
 Symmetry
-x xy 
-Basis set 
+x xy
+Basis set
 H.ano-s...2s1p.
 
  H              0.0000000000        1.4499030287        1.0033239388
@@ -27,10 +27,10 @@ O              0.0000000000       0.0000000000        -0.1264370914
 End of basis
 expert
 Basis set
-*Diffuse basis, charge 0, 2 prim, 2 contr, exponents 0.05 0.02 - Should be less 
+*Diffuse basis, charge 0, 2 prim, 2 contr, exponents 0.05 0.02 - Should be less
 *than a third of the largest exponenet in $MOLCAS/baslib
 O..... / inline
- 0.0 2   
+ 0.0 2
  2 2
 0.02 0.01
 1.0 0.0
@@ -48,11 +48,11 @@ End of Basis
 NoCD
 End of input
 *-------------------------------------------------------------------------------
- &SCF &END 
-Title     
-water           
-Occupied 
-3 0 2 0        
+ &SCF &END
+Title
+water
+Occupied
+3 0 2 0
 Thre
 0.5d-10 0.5d-7 0.5d-7 0.2d-5
 End of input
@@ -64,9 +64,9 @@ Iter
 Inactive
  1 0 0 0
 ras1
- 0 0 0 0 
+ 0 0 0 0
 ras2
- 4 0 2 2 
+ 4 0 2 2
 ras3
  0 0 0 0
 nactel

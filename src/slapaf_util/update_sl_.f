@@ -13,7 +13,7 @@
       Subroutine Update_sl_(kIter,iInt,nFix,nInter,qInt,Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
+     &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -41,12 +41,10 @@
 *      GNrm           : the norm of the gradient in each iteration     *
 *      Energy         : the energy of each iteration                   *
 *      Line_Search    : logical flag for line search                   *
-*      nLambda        : number of contraints                           *
+*      nLambda        : number of constraints                          *
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      nSym           : number of irreps                               *
-*      iOper          : integer representations of symmetry operators  *
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
@@ -86,7 +84,7 @@
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom),
      &       Cx(3*nsAtom,kIter+1)
-      Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
+      Integer jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
@@ -324,8 +322,8 @@ C           Write (6,*) 'tBeta=',tBeta
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
 *
-           If (nFix.gt.0)
-     &        call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
+            If (nFix.gt.0)
+     &         Call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
 *
 *           Rough conversion to Cartesians
 *
@@ -407,7 +405,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                   Lbl(nInter+1),AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   nSym,iOper,jStab,nStab,mxdc,
+     &                   jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)
 *
@@ -424,10 +422,10 @@ C           Write (6,*) 'tBeta=',tBeta
 *
             ip_drdq=ipdrdq+(lIter-1)*nInter*nLambda
             Call FZero(Work(ip_drdq),nInter*nLambda)
-*           Call RecPrt('BMx',' ',BMx,3*nsAtom,nInter)
-*           Call RecPrt('Work(ipBMx)',' ',Work(ipBMx),3*nsAtom,nLambda)
+*           Call RecPrt('BMx',' ',BMx,n1,nInter)
+*           Call RecPrt('Work(ipBMx)',' ',Work(ipBMx),n1,nLambda)
 *
-            M=3*nsAtom
+            M=n1
             N=nInter
             NRHS=nLambda
 *
@@ -436,8 +434,8 @@ C           Write (6,*) 'tBeta=',tBeta
 *
             If (.NOT.Curvilinear) Then
                Do iLambda=1,nLambda
-                  Do i = 1, 3*nsAtom
-                     ij = (iLambda-1)*3*nsAtom + i -1
+                  Do i = 1, n1
+                     ij = (iLambda-1)*n1 + i -1
                      Work(ij+ipBMx)=Work(ij+ipBMx)/Degen(i)
                   End Do
                End Do
@@ -446,8 +444,8 @@ C           Write (6,*) 'tBeta=',tBeta
             Call DaName(LudRdX,'dRdX')
             iAd=0
             Call iDaFile(LudRdX,1,[nLambda],1,iAd)
-            Call iDaFile(LudRdX,1,[3*nsAtom],1,iAd)
-            Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*3*nsAtom,iAd)
+            Call iDaFile(LudRdX,1,[n1],1,iAd)
+            Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*n1,iAd)
             Call DaClos(LudRdX)
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,
      &                     Work(ipBMx),Work(ip_drdq))

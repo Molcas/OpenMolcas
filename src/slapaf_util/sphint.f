@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SphInt(xyz,nCent,RR0,Bf,l_Write,lWarn,Label,dBf,ldB)
+      Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,lWarn,Label,
+     &                  dBf,ldB)
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -18,7 +19,7 @@
       Logical l_Write, ldB, lWarn
       Character*8 Label
 *
-      xyz0(i,j)=Work(ipRef+(j-1)*3+i-1)
+      xyz0(i,j)=Work(ipRef_+(j-1)*3+i-1)
 *
 *     Call QEnter('SphInt')
 *
@@ -27,12 +28,17 @@
 *                                                                      *
 *     Compute the radius of the hypersphere
 *
+      If (iOfRef.eq.ip_Dummy) Then
+         ipRef_=ipRef
+      Else
+         ipRef_=iOfRef
+      End If
 C     Call RecPrt('SphInt: xyz',' ',xyz,3,nCent)
-C     Call RecPrt('Ref: xyz0',' ',Work(ipRef),3,nCent)
+C     Call RecPrt('Ref: xyz0',' ',Work(ipRef_),3,nCent)
       RR0=Zero
       TWeight=Zero
       Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact=DBLE(iDeg(xyz(1,iCent)))
          xWeight=Fact*Work(ipWeights+iCent-1)
          TWeight=TWeight+xWeight
 C        Write (*,*) 'xWeight=',xWeight
@@ -62,7 +68,7 @@ C           Write (*,*)xyz(ixyz,iCent),xyz0(ixyz,iCent)
 *
 *FIXME: revise the symmetry
       Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact=DBLE(iDeg(xyz(1,iCent)))
          xWeight=Fact*Work(ipWeights+iCent-1)
          Do iCar = 1, 3
             temp=xyz(iCar,iCent)-xyz0(iCar,iCent)
@@ -90,12 +96,12 @@ c     Call RecPrt('Bf',' ',Bf,3,nCent)
          Call FZero(dBf,(3*nCent)**2)
          If (RR0.eq.Zero) Go To 99
          Do iCent = 1, nCent
-            Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+            Fact=DBLE(iDeg(xyz(1,iCent)))
             xWeight=Fact*Work(ipWeights+iCent-1)
             Do ixyz = 1, 3
                tempi=xyz(ixyz,iCent)-xyz0(ixyz,iCent)
                Do jCent = 1, nCent
-                  Fact=DBLE(iDeg(xyz(1,jCent),iOper,nSym))
+                  Fact=DBLE(iDeg(xyz(1,jCent)))
                   yWeight=Fact*Work(ipWeights+jCent-1)
                   Do jxyz = 1, 3
                      tempj=xyz(jxyz,jCent)-xyz0(jxyz,jCent)

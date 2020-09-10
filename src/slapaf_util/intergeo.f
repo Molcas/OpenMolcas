@@ -13,15 +13,18 @@
 * Add geometry optimization info  *
 *   to the Molden inputfile       *
 *---------------------------------*
+      use Symmetry_Info, only: nIrrep, iOper
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
+#include "stdalloc.fh"
       Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),
      &       Enrg(nIter), Grd(3,nAtm,nIter)
-      Integer iPhase(3,0:7),icoset2(0:7,0:7,Mxdc),nStab2(Mxdc),
+      Integer iPhase(3,0:7),nStab2(Mxdc),
      &        iChCar(3)
+      Integer, Allocatable :: icoset2(:,:,:)
       Character*(*) FileName
 *
       Call QEnter('InterGeo')
@@ -54,7 +57,7 @@
 *
       Lu_Molden=19
       Call molcas_open(Lu_Molden,FileName)
-      Write (Lu_Molden,*) '[MOLDEN FORMAT]'
+      Write (Lu_Molden,*) '[Molden Format]'
       Write (Lu_Molden,*) '[N_GEO]'
       Write (Lu_Molden,*) nIter
       Write (Lu_Molden,*) '[GEOCONV]'
@@ -91,7 +94,7 @@
             grx=Grd(1,ndc,iIter)
             gry=Grd(2,ndc,iIter)
             grz=Grd(3,ndc,iIter)
-            Do i=0,nSym/nStab(ndc)-1
+            Do i=0,nIrrep/nStab(ndc)-1
                grtot=grtot+grx*grx+gry*gry+grz*grz
                ngrad=ngrad+1
             End Do
@@ -123,7 +126,7 @@
             dx=Crd(1,ndc,iIter+1)-Crd(1,ndc,iIter)
             dy=Crd(2,ndc,iIter+1)-Crd(2,ndc,iIter)
             dz=Crd(3,ndc,iIter+1)-Crd(3,ndc,iIter)
-            Do i=0,nSym/nStab(ndc)-1
+            Do i=0,nIrrep/nStab(ndc)-1
                step=step+dx*dx+dy*dy+dz*dz
             End Do
          End Do
@@ -136,23 +139,27 @@
 *     Set up the desymmetrization of the coordinates
 *
       Do 10 j=0,4
-         Do 10 i=1,3
-10          iPhase(i,j)=1
+         Do 11 i=1,3
+            iPhase(i,j)=1
+11       Continue
+10    Continue
       iPhase(1,1)=-1
       iPhase(2,2)=-1
       iPhase(1,3)=-1
       iPhase(2,3)=-1
       iPhase(3,4)=-1
       Do 20 j=5,7
-         Do 20 i=1,3
-20          iPhase(i,j)=-1
+         Do 21 i=1,3
+            iPhase(i,j)=-1
+21       Continue
+20    Continue
       iPhase(2,5)=1
       iPhase(1,6)=1
 *
       iSymX = 0
       iSymY = 0
       iSymZ = 0
-      Do i = 0, nSym-1
+      Do i = 0, nIrrep-1
          If (iAnd(iOper(i),1).ne.0) iSymX = 1
          If (iAnd(iOper(i),2).ne.0) iSymY = 2
          If (iAnd(iOper(i),4).ne.0) iSymZ = 4
@@ -164,15 +171,17 @@
       ixyz   = ipCx
       ixyz_p = ipCx_p
       MaxDCR=0
+      Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
+     &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
-            iChxyz=iChAtm(Work(ixyz  ),iOper,nSym,iChCar)
+            iChxyz=iChAtm(Work(ixyz  ),iChCar)
             ixyz   = ixyz   + 3
          Else
-            iChxyz=iChAtm(Work(ixyz_p),iOper,nSym,iChCar)
+            iChxyz=iChAtm(Work(ixyz_p),iChCar)
             ixyz_p = ixyz_p + 3
          End If
-         Call Stblz(iChxyz,iOper,nSym,nStab2(ndc),jStab(0,ndc),
+         Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),
      &              MaxDCR,iCoSet2(0,0,ndc))
       End Do
 *                                                                      *
@@ -181,7 +190,7 @@
       nAt=0
       Write (Lu_Molden,*) '[GEOMETRIES] (XYZ)'
       Do ndc = 1, msAtom+msAtom_p
-         Do i=0,nSym/nStab2(ndc)-1
+         Do i=0,nIrrep/nStab2(ndc)-1
             nAt=nAt+1
          End do
       End do
@@ -200,7 +209,7 @@
                y=Work(ixyz_p+1)
                z=Work(ixyz_p+2)
             End If
-            Do i=0,nSym/nStab2(ndc)-1
+            Do i=0,nIrrep/nStab2(ndc)-1
                iFacx=iPhase(1,icoset2(i,0,ndc))
                iFacy=iPhase(2,icoset2(i,0,ndc))
                iFacz=iPhase(3,icoset2(i,0,ndc))
@@ -231,7 +240,7 @@
                y=0.0D0
                z=0.0D0
             End If
-            Do i=0,nSym/nStab2(ndc)-1
+            Do i=0,nIrrep/nStab2(ndc)-1
                iFacx=iPhase(1,icoset2(i,0,ndc))
                iFacy=iPhase(2,icoset2(i,0,ndc))
                iFacz=iPhase(3,icoset2(i,0,ndc))
@@ -243,6 +252,7 @@
             End do
          End do
       End Do
+      Call mma_deallocate(icoset2)
 *
       Close(Lu_Molden)
 *                                                                      *

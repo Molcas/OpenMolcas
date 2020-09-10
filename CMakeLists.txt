@@ -18,7 +18,7 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
@@ -643,6 +643,7 @@ list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
 set (FFLAGS_GNU_BASIC "")
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
+set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -651,13 +652,12 @@ set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
 
-# Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
-# version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-    (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
-  set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
-  set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  # Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8")
+    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
+    set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+  endif ()
 endif ()
 
 # Add runtime checks
@@ -763,9 +763,19 @@ set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
+#          "externals" means "implicit none (external)", ditto (only 19.1 and later)
+#v.13 puts the full path of included files as a comment and then complains about truncated source lines
 set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
 set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable remark")
+set (warnings "all,nodeclarations")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")
+    set (warnings "${warnings},notruncated_source")
+  elseif (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "19.1")
+    set (warnings "${warnings},noexternals")
+  endif ()
+endif ()
+set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -1056,6 +1066,10 @@ if (OPENMP)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_OPENMP}")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_OPENMP}")
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_OPENMP}")
+else ()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_NO_OPENMP}")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_NO_OPENMP}")
+  set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_NO_OPENMP}")
 endif ()
 
 if (BOUNDS)
@@ -1262,13 +1276,27 @@ if (LINALG STREQUAL "MKL")
   if (NOT MKLROOT STREQUAL MKLROOT_LAST)
     # reset MKL paths
     set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH "location of MKL include files." FORCE)
-    if (ADDRMODE EQUAL 64)
-      set (libpath "${MKLROOT}/lib/intel64")
-    elseif (ADDRMODE EQUAL 32)
-      set (libpath "${MKLROOT}/lib/ia32")
+
+    if (PLATFORM STREQUAL "MacOS")
+      if (ADDRMODE EQUAL 64)
+        set (libpath "${MKLROOT}/lib")
+      elseif (ADDRMODE EQUAL 32)
+        message (FATAL_ERROR
+                 "PLATFORM=MacOS, but you use ADDRMODE=32. This is "
+                 "either a VERY old, unsupported platform, or "
+                 "there is a configuration error.")
+      endif ()
+    else ()
+      if (ADDRMODE EQUAL 64)
+        set (libpath "${MKLROOT}/lib/intel64")
+      elseif (ADDRMODE EQUAL 32)
+        set (libpath "${MKLROOT}/lib/ia32")
+      endif ()
     endif ()
     set (MKL_LIBRARY_PATH ${libpath} CACHE PATH "location of MKL libraries." FORCE)
     # uncache variables
+    unset (LIBMKL_BLAS CACHE)
+    unset (LIBMKL_LAPACK CACHE)
     unset (LIBMKL_CORE CACHE)
     unset (LIBMKL_INTERFACE CACHE)
     unset (LIBMKL_SEQUENTIAL CACHE)
@@ -1282,12 +1310,26 @@ if (LINALG STREQUAL "MKL")
   message ("-- MKL_LIBRARY_PATH = ${MKL_LIBRARY_PATH}")
 
   # core library
-  find_library (LIBMKL_CORE NAMES "mkl_core"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  if (PLATFORM STREQUAL "MacOS")
+    find_library (LIBMKL_CORE NAMES "libmkl_core.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  else ()
+    find_library (LIBMKL_CORE NAMES "mkl_core"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  endif ()
   # compiler-specific library interface
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    if (PLATFORM STREQUAL "MacOS")
+      find_library (LIBMKL_BLAS NAMES "libmkl_blas95_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+      find_library (LIBMKL_LAPACK NAMES "libmkl_lapack95_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+      find_library (LIBMKL_INTERFACE NAMES "libmkl_intel_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    else ()
     find_library (LIBMKL_INTERFACE NAMES "mkl_gf_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    endif ()
   elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
     find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
@@ -1296,8 +1338,13 @@ if (LINALG STREQUAL "MKL")
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
   # sequential/compiler-specific threading interface
-  find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  if (PLATFORM STREQUAL "MacOS")
+    find_library (LIBMKL_SEQUENTIAL NAMES "libmkl_sequential.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  else ()
+    find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  endif ()
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_GNU_OPENMP}")
     find_library (LIBMKL_THREADING NAMES "mkl_gnu_thread"
@@ -1325,6 +1372,10 @@ if (LINALG STREQUAL "MKL")
   if (MPI)
     add_definitions (-DSCALAPACK)
     list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
+  endif ()
+  if (PLATFORM STREQUAL "MacOS")
+    list (APPEND MKL_LIBRARIES ${LIBMKL_BLAS})
+    list (APPEND MKL_LIBRARIES ${LIBMKL_LAPACK})
   endif ()
   list (APPEND MKL_LIBRARIES ${LIBMKL_INTERFACE})
   list (APPEND MKL_LIBRARIES ${LIBMKL_CORE})
@@ -1786,7 +1837,8 @@ if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
       unset (internal_linalg)
       list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
     else ()
-      message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+      # Note: initial space causes line not to break in output
+      message (FATAL_ERROR " LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
     endif ()
   endif ()
 endif ()
@@ -2103,16 +2155,30 @@ endif ()
 
 message ("Configuring runtime environment settings:")
 
+cmake_host_system_information (RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information (RESULT host_name QUERY HOSTNAME)
+if (${CMAKE_VERSION} VERSION_LESS "3.10.0")
+  set (host_system "unknown")
+else ()
+  cmake_host_system_information (RESULT host_system QUERY OS_NAME)
+endif ()
+
 # memory/disk default sizes
 #==========================
 
 if (ADDRMODE EQUAL 64)
-  set (DEFMOLCASMEM "2048" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "20000" CACHE STRING "Set default max file size (MB).")
+  set (mem "2048")
+  set (disk "20000")
 else ()
-  set (DEFMOLCASMEM "1024" CACHE STRING "Set default max memory (MB).")
-  set (DEFMOLCASDISK "2047"  CACHE STRING "Set default max file size (MB).")
+  set (mem "1024")
+  set (disk "2047")
 endif ()
+math (EXPR max_mem "${host_mem}*3/4")
+if (${max_mem} LESS ${mem})
+  set (mem ${max_mem})
+endif ()
+set (DEFMOLCASMEM ${mem} CACHE STRING "Set default max memory (MiB).")
+set (DEFMOLCASDISK ${disk} CACHE STRING "Set default max file size (MiB).")
 
 message ("-- DEFMOLCASMEM:  ${DEFMOLCASMEM}")
 message ("-- DEFMOLCASDISK: ${DEFMOLCASDISK}")
@@ -2760,11 +2826,6 @@ if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
   set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
-# compiler wrong warning
-if (BIGOT AND (${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU"))
-  set_property(SOURCE ${rasscf_src}/orthonormalization.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error=maybe-uninitialized")
-endif ()
-
 # set up proper RPATH for executables, use RUNPATH if on Linux
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -3000,6 +3061,7 @@ if (NOT BUILD_TARGET STREQUAL "NONE")
   file (WRITE "${PROJECT_BINARY_DIR}/data/info.txt"
     "\nconfiguration info\n"
     "------------------\n"
+    "Host name: ${host_name} (${host_system})\n"
     "C Compiler ID: ${CMAKE_C_COMPILER_ID}\n"
     "C flags: ${CMAKE_C_FLAGS}\n"
     "Fortran Compiler ID: ${CMAKE_Fortran_COMPILER_ID}\n"

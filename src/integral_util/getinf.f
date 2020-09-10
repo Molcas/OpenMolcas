@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
+* Copyright (C) 1992,2020, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GetInf(Info_,nInfo,DoRys,nDiff,icase)
+      SubRoutine GetInf(DoRys,nDiff)
 ************************************************************************
 *                                                                      *
 * Object: to read all input information on the file INFO.              *
@@ -31,6 +31,7 @@
 ************************************************************************
       use Real_Spherical
       use Her_RW
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -65,15 +66,15 @@
 *
 *     Call qEnter('GetInf')
 *
-      ioffr=0
+*     Load the dynamic input area.
+*
+      Call Get_Info_Dynamic()
 *
 *     Load the static input area.
 *
-      Call Get_Info_Static(ioffr)
-*
-*     Load the dynamic input area.
-*
-      Call Get_Info_Dynamic(Info_,nInfo,ioffr,icase)
+      Call Get_Info_Static()
+*                                                                      *
+      Call External_Centers_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -147,6 +148,7 @@
             ipSph(iAng+1)= ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
  2       Continue
          Call Get_dArray('SewTInfo',RSph(ipSph(0)),Len)
+         lmax_internal=iAngMx
       Else
          Call Sphere(lMax)
       End If

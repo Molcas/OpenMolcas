@@ -627,10 +627,10 @@ c      write(6,'(1x,14i3)')(ncibl(i),i=1,14)
 
       numb = 1
       do 10  i = 1,norb_all-1
-        do 10  j = i+1,norb_all
+        do 11  j = i+1,norb_all
           lri=norb_number(i)
           lrj=norb_number(j)
-          if(lsm(lri).ne.lsm(lrj)) goto 10
+          if(lsm(lri).ne.lsm(lrj)) goto 11
 !          write(6,*) "lri=",lri,"lrj=",lrj
 !          write(6,*) "lsm(lri)",lsm(lri),"lsm(lrj)",lsm(lrj)
 
@@ -645,19 +645,20 @@ c    *        vint_ci(numb),vint_ci(numb+1)
             numb=numb+2*norb_all
 !20        continue
 
+11      continue
 10    continue
 !      write(6,*) "number 3 index",numb
 !      stop 777
 c=======================================================================
 c      la<lb<lc<ld
       do 30 ld = 1,norb_all-3
-        do 30 lc = ld+1,norb_all-2
+        do 31 lc = ld+1,norb_all-2
           lrd=norb_all-ld+1
           lrc=norb_all-lc+1
           msd  = lsm(lrd)
           msc  = lsm(lrc)
           mscd = mul_tab(msd,msc)
-          do 30 lb = lc+1,norb_all-1
+          do 32 lb = lc+1,norb_all-1
             lrb=norb_all-lb+1
             msb = lsm(lrb)
             msa = mul_tab(mscd,msb)
@@ -682,6 +683,8 @@ c     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
 c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
               numb=numb+3
 40         continue
+32        continue
+31      continue
 30    continue
 !              stop 777
       return

@@ -74,7 +74,7 @@ c
        ix=1
        do 100 sa1=1,nsym
 c
-       do 100 sa2=1,nsym
+       do 101 sa2=1,nsym
        sa12=mmul(sa1,sa2)
        sb1=sa2
        if (ntest1.eq.1) then
@@ -83,7 +83,7 @@ c
        nsyma3=nsym
        end if
 c
-       do 100 sa3=1,nsyma3
+       do 102 sa3=1,nsyma3
        sa123=mmul(sa12,sa3)
        sb2=sa3
        sb12=mmul(sb1,sb2)
@@ -94,7 +94,7 @@ c
        sb4=mmul(ssb,sb123)
        if ((ntest2.gt.0).and.(sa3.lt.sa4)) then
 c     Meggie out
-       goto 100
+       goto 102
        end if
 c
 c1.3  def mvec,mapdc and mapdi
@@ -107,7 +107,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 102
        end if
 c
 c     rowA
@@ -138,6 +138,8 @@ c
 c
        ix=ix+1
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        else if (pbar.eq.2) then
@@ -352,10 +354,10 @@ c
        nsyma2=nsym
        end if
 c
-       do 100 sa2=1,nsyma2
+       do 101 sa2=1,nsyma2
        sa12=mmul(sa1,sa2)
 c
-       do 100 sa3=1,nsym
+       do 102 sa3=1,nsym
        sa123=mmul(sa12,sa3)
        sb1=sa3
 c
@@ -364,7 +366,7 @@ c
        sb12=mmul(sb1,sb2)
        if ((ntest2.eq.1).and.(sa3.lt.sa4)) then
 c     Meggie out
-       goto 100
+       goto 102
        end if
 c
        sb3=mmul(ssb,sb12)
@@ -379,7 +381,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 102
        end if
 c
 c     rowA
@@ -413,6 +415,8 @@ c
 c
        ix=ix+1
 c
+ 102    continue
+ 101    continue
  100    continue
 c
 c
@@ -496,7 +500,7 @@ c
        nsyma2=nsym
        end if
 c
-       do 100 sa2=1,nsyma2
+       do 101 sa2=1,nsyma2
        sa12=mmul(sa1,sa2)
        if (ntest2.eq.1) then
        nsyma3=sa2
@@ -504,7 +508,7 @@ c
        nsyma3=nsym
        end if
 c
-       do 100 sa3=1,nsyma3
+       do 102 sa3=1,nsyma3
        sa123=mmul(sa12,sa3)
 c
        sa4=mmul(ssa,sa123)
@@ -522,7 +526,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 102
        end if
 c
 c     rowA
@@ -553,6 +557,8 @@ c
 c
        ix=ix+1
 c
+ 102    continue
+ 101    continue
  100    continue
 c
 c

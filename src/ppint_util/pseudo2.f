@@ -43,7 +43,8 @@ c
       aa=ai+aj
       do 120 i=1,3
       crda(1,i)=1.d0
-  120 crdb(1,i)=1.d0
+      crdb(1,i)=1.d0
+  120 continue
       xka=xc-xi
       yka=yc-yi
       zka=zc-zi
@@ -54,8 +55,10 @@ c
       crda(2,3)=zka
       if(lit.eq.2) go to 220
       do 210 i=1,3
-      do 210 j=3,lit
-  210 crda(j,i)=crda(2,i)*crda(j-1,i)
+      do 211 j=3,lit
+      crda(j,i)=crda(2,i)*crda(j-1,i)
+  211 continue
+  210 continue
   220 xkb=xc-xj
       ykb=yc-yj
       zkb=zc-zj
@@ -66,8 +69,10 @@ c
       crdb(2,3)=zkb
       if(ljt.eq.2) go to 240
       do 230 i=1,3
-      do 230 j=3,ljt
-  230 crdb(j,i)=crdb(2,i)*crdb(j-1,i)
+      do 231 j=3,ljt
+      crdb(j,i)=crdb(2,i)*crdb(j-1,i)
+  231 continue
+  230 continue
   240 continue
       aarr2=(ai*aj/aa)*(ca-cb)**2
 c*

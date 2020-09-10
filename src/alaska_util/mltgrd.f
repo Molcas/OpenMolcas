@@ -40,6 +40,7 @@
 *             '91.                                                     *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -138,7 +139,7 @@
  21   Continue
       Call CmbnMlt1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,
      &            nIrrep,kOp,iChBas,MxFnc,nOrdOp,Force)
 *
       Return

@@ -26,6 +26,8 @@
 *> @param[in] iPrint Print level
 ************************************************************************
       SUBROUTINE Process_Weights(iPrint)
+      use Basis_Info
+      use Center_Info
       IMPLICIT REAL*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -41,10 +43,10 @@
       nSymAt=0
       ndc=0
       DO i=1,nCnttp
-        DO j=1,nCntr(i)
+        DO j=1,dbsc(i)%nCntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            nAt=nAt+nIrrep/nStab(ndc)
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            nAt=nAt+nIrrep/dc(ndc)%nStab
             nSymAt=nSymAt+1
           END IF
         END DO
@@ -58,9 +60,9 @@
 *---- Set the weights to the mass of each atom
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            DO iCnt=1,nCntr(i)
-              W(j)=CntMass(i)/UTOAU
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            DO iCnt=1,dbsc(i)%nCntr
+              W(j)=dbsc(i)%CntMass/UTOAU
               j=j+1
             END DO
           END IF
@@ -69,9 +71,9 @@
 *---- Set the the weight to 1 for heavy atoms, 0 for hydrogens
         j=1
         DO i=1,nCnttp
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            DO iCnt=1,nCntr(i)
-              IF (iAtmNr(i).LE.1) W(j)=Zero
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            DO iCnt=1,dbsc(i)%nCntr
+              IF (dbsc(i)%AtmNr.LE.1) W(j)=Zero
               j=j+1
             END DO
           END IF
@@ -93,10 +95,10 @@
       iAt=1+nSymAt
       ndc=0
       DO i=1,nCnttp
-        DO j=1,nCntr(i)
+        DO j=1,dbsc(i)%ncntr
           ndc=ndc+1
-          IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
-            DO k=1,nIrrep/nStab(ndc)-1
+          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
+            DO k=1,nIrrep/dc(ndc)%nStab-1
               W(iAt)=W(iSymAt)
               iAt=iAt+1
             END DO

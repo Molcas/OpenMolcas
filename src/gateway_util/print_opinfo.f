@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Print_OpInfo(DInf,nDInf)
+      Subroutine Print_OpInfo()
 #ifdef _EFP_
       Use EFP_Module
       Use EFP
 #endif
+      use External_Centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -23,7 +24,6 @@
       Logical PrintOperators
       Real*8 A(3)
       Integer iStb(0:7), jCoSet(8,8)
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -38,18 +38,6 @@
       If (iPrint.eq.0) Return
       Call qEnter('Print_OpInfo')
       LuWr=6
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (nIrrep.eq.8) Then
-         nOper=3
-      Else If (nIrrep.eq.4) Then
-         nOper=2
-      Else If (nIrrep.eq.2) Then
-         nOper=1
-      Else
-         nOper=0
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,10 +68,8 @@
      &      'Centers for electric field gradient and contact option:',
      &      nEF
         End If
-        j=ipEF
         Do i=1,nEF
-          Write(LuWr,'(4X,I8,3(1X,F14.8))') i,(DInf(jj),jj=j,j+2)
-          j=j+3
+          Write(LuWr,'(4X,I8,3(1X,F14.8))') i,(EF_Centers(j,i),j=1,3)
         End Do
       End If
 *                                                                      *
@@ -93,7 +79,7 @@
          Call RecPrt(' Gauge Origin for diamagnetic shielding',' ',
      &               Dxyz,1,3)
          Call RecPrt(' Centers for diamagnetic shielding',
-     &               ' ',DInf(ipDMS),3,nDMS)
+     &               ' ',DMS_Centers,3,nDMS)
       End If
 *                                                                      *
 ************************************************************************
@@ -103,10 +89,10 @@
          Write (LuWr,*) ' Spherical well specification in au'
          Write (LuWr,*) ' =================================='
          Write (LuWr,*) '   Coeff.      Exp.        R0      '
-         ip = ipWel
          Do iWel = 1, nWel
-            Write (LuWr,'(3(F10.6,2x))') DInf(ip+2),DInf(ip+1),DInf(ip)
-            ip=ip+3
+            Write (LuWr,'(3(F10.6,2x))') Wel_Info(3,iWel),
+     &                                   Wel_Info(2,iWel),
+     &                                   Wel_Info(1,iWel)
          End Do
          Write (LuWr,*)
       End If
@@ -114,6 +100,7 @@
 ************************************************************************
 *                                                                      *
       If (lXF) Then
+*
          If (nPrint(2).lt.6) Go To 666
          If (iXPolType.gt.0) Then
             tempStr = '       a(xx)       a(xy)    '
@@ -146,28 +133,18 @@
          End If
 *
 666      Continue
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
 *
-         If (iXPolType.gt.0) Inc = Inc + 6
-*
-         Write(Format_XF,'(A,I2.2,A)') '(',Inc,'(F10.6,2x))'
-         ip=ipXF
+         Write(Format_XF,'(A,I2.2,A)') '(',nData_XF,'(F10.6,2x))'
          XnetCharg=0.0
          Do iXF = 1, nXF
-            A(1)      =DInf(ip  )
-            A(2)      =DInf(ip+1)
-            A(3)      =DInf(ip+2)
-            Charge_iXF=DInf(ip+3)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+            A(1:3)=XF(1:3,iXF)
+            Charge_iXF=XF(4,iXF)
+            iChxyz=iChAtm(A,iChBas(2))
             iDum=0
-            Call Stblz(iChxyz,iOper,nIrrep,nStab_iXF,iStb,iDum,jCoSet)
+            Call Stblz(iChxyz,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)
-     &         Write(LuWr,Format_XF) (DInf(i),i=ip,ip+Inc-1)
-            XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*DInf(ip+3)
-            ip = ip + Inc
+     &         Write(LuWr,Format_XF) (XF(i,iXF),i=1,nData_XF)
+            XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*Charge_iXF
          End do
          Write (LuWr,*)
          Write (LuWr,*) ' Net charge from external field: ',XnetCharg

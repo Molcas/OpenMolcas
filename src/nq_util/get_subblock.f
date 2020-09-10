@@ -40,6 +40,8 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
 *             August 1999                                              *
 ************************************************************************
       use iSD_data
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -193,19 +195,18 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 #endif
          NrExp =iSD( 5,iShell)
          iAng  =iSD( 1,iShell)
-         ip_Exp=iSD( 6,iShell)
+         iShll =iSD( 0,iShell)
          NrBas =iSD( 3,iShell)
-         ip_Cff=iSD( 4,iShell)
          mdci  =iSD(10,iShell)
-         nDegi=nSym/nStab(mdci)
+         nDegi=nSym/dc(mdci)%nStab
 *
          Do jSym = 0, nDegi-1
-            iSym=iCoSet(jSym,0,mdci)
+            iSym=dc(mdci)%iCoSet(jSym,0)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif
 *
-            iNQ=Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ=Maps2p(iShell,NrOpr(iSym))
             RMax_NQ = Work(ip_R_Max(iNQ))
 #ifdef _DEBUG_
             If (debug) Then
@@ -236,7 +237,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
             nExpTmp=0
             Do iExp=1,NrExp
 *------------- Get the value of the exponent
-               ValExp=Work(ip_Exp+iExp-1)
+               ValExp=Shells(iShll)%Exp(iExp)
 *------------- If the exponent has an influence then increase the
 *              number of actives exponents for this shell, else
 *              there is no other active exponent (they ar ordered)
@@ -271,13 +272,15 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 c              list_bas(1,ilist_s)=NrBas ! temporary full shell!
 c              write (6,*) 'ilist_s,NrBas=',ilist_s,NrBas
 c              crite (*,*) 'ilist_s,NrBas=',ilist_s,NrBas
-               list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,Work(ip_Exp),
-     &                                   Work(ip_Cff),list_exp(ilist_s))
+               list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,
+     &                                      Shells(iShll)%Exp,
+     &                                      Shells(iShll)%pCff,
+     &                                      list_exp(ilist_s))
 C              If (list_bas(1,ilist_s).ne.NrBas) Then
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas,'*'
-C                 Call RecPrt('Exponents',' ',Work(ip_Exp),1,
+C                 Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,
 C    &                        list_exp(1,ilist_s))
-C                 Call RecPrt('Cff',' ',Work(ip_Cff),NrExp,NrBas)
+C                 Call RecPrt('Cff',' ',Shells(iShll)%pCff,NrExp,NrBas)
 C              Else
 C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas
 C              End If
@@ -375,7 +378,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
             iShell=list_s(1,ilist_s)
             iSym  =list_s(2,ilist_s)
             mdci  =iSD(10,iShell)
-            iNQ = Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ = Maps2p(iShell,NrOpr(iSym))
             Do iCar=0,2
                If ((iSD(16+iCar,iShell).ne.0 .or.
      &              iSD(12,iShell).eq.1) .and.
@@ -399,9 +402,9 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                   Xref=Work(ip_Coor(kNQ)+iCar)
                   X   =Work(ip_Coor(iNQ)+iCar)
                   If (X.eq.Xref) Then
-                     iTab(4,nGrad_Eff)=nStab(mdci)
+                     iTab(4,nGrad_Eff)=dc(mdci)%nStab
                   Else
-                     iTab(4,nGrad_Eff)=-nStab(mdci)
+                     iTab(4,nGrad_Eff)=-dc(mdci)%nStab
                   End If
 *
 *---------------- Find all other shells which contibute to the same
@@ -430,7 +433,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        List_G(1+iCar,ilist_s)=nGrad_Eff
                        iTab(1,nGrad_Eff)=iCar+1
                        iTab(3,nGrad_Eff)=iNQ
-                       iTab(4,nGrad_Eff)=nStab(mdci)
+                       iTab(4,nGrad_Eff)=dc(mdci)%nStab
 *
 *--------------------- Find all other shells which contibute to the same
 *                      gradient.
@@ -438,7 +441,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        Do jlist_s = ilist_s+1, nlist_s
                           jShell=list_s(1,jlist_s)
                           jSym  =list_s(2,jlist_s)
-                          jNQ = Maps2p(jShell,NrOpr(jSym,iOper,nSym))
+                          jNQ = Maps2p(jShell,NrOpr(jSym))
                           If (iNQ.eq.jNQ) Then
                              List_G(1+iCar,jlist_s)=nGrad_Eff
                           End If

@@ -33,12 +33,10 @@
 #include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "status.fh"
 #include "ndarray.fh"
 *
@@ -105,14 +103,7 @@
 *
       If (Indexation) Then
          Indexation_Status=Active
-         Call GetMem('nShBF','ALLO','Inte',ipShBF,nSkal*nIrrep)
-         Call GetMem('ShLwC','ALLO','Inte',ipShLC,nSkal*nIrrep)
-         Call GetMem('ShPSh','ALLO','Inte',ipShSh,nSkal*nIrrep)
-         Call GetMem('SOShl','ALLO','Inte',ipSOSh,nSOs)
-         Call GetMem('ICNTR','ALLO','Inte',ipicntr,nSkal)
-         Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
-     &               iWork(ipSOSh),iWork(ipicntr),nSkal,nIrrep,nSOs,
-     &               nShIrp,nShBFmx)
+         Call SOFSh1(nSkal,nIrrep,nSOs)
       End If
 *                                                                      *
 ************************************************************************

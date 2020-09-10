@@ -15,12 +15,13 @@
       call izero(ix,(n+1)*(nel+1))
       ix(0,0)=1
       do 1200 iel=1,nel
-      do 1200 ik=nkmin(iel),nkmax(iel)
+      do 1201 ik=nkmin(iel),nkmax(iel)
       if(ik.ne.0)then
         ix(iel,ik)=ix(iel-1,ik) + ix(iel-1,ik-1)
       else
         ix(iel,ik)=ix(iel-1,ik)
       endif
+1201  continue
 1200  continue
       return
       end

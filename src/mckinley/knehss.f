@@ -36,6 +36,7 @@
 *     Author: Anders Bernhardsson, 1995                                *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -136,7 +137,7 @@ c     End If
       Call CmbnT2(Array(ipRnxyz),nZeta,la,lb,Zeta,
      &            rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,
-     &            IfHss,IndHss,indgrd,nStab(mdc),nStab(ndc),nOp)
+     &            IfHss,IndHss,indgrd,dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 
 *
 c     Call GetMem(' Exit kneHss','CHECK','REAL',iDum,iDum)

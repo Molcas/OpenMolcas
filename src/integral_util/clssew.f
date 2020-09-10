@@ -26,6 +26,10 @@
       use Her_RW
       use Real_Spherical
       use EFP_module
+      use External_Centers
+      use Basis_Info
+      use Center_Info
+      Use SOAO_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -43,14 +47,11 @@
       Call Term_Ints(.False.,.True.)
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
-*
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
-      If (Info_Status.eq.Active) Then
-         Call GetMem('Info','Free','Real',LctInf,nInfo)
-         Info_Status=InActive
-      End If
-*
+      Call Sphere_Free()
+      Call SOAO_Info_Free()
+      Call Basis_Info_Free()
+      Call Center_Info_Free()
+      Call External_Centers_Free()
       Call Free_iSD()
       Call Freek2()
       Call CloseR()
@@ -65,7 +66,6 @@
       Seward_Status=InActive
       Return
       End
-*
 c
 c This code originally was included into ClsSew
 c occasionally it should be separated

@@ -117,7 +117,7 @@ C -For the moment: Orbital energies just zero
 *                                                                      *
 *     Call the generic MOLDEN interface
 *
-      Call Molden_Interface(iUHF,'TMPORB',filename,.False.)
+      Call Molden_Interface(iUHF,'TMPORB',filename)
 *                                                                      *
 ************************************************************************
 *                                                                      *

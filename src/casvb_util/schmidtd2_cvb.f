@@ -15,7 +15,9 @@
       dimension c1(n,nvec1),sxc1(n,nvec1),c2(n,nvec2)
 
       do 100 i=1,nvec2
-      do 100 j=1,nvec1
-100   call daxpy_(n,-ddot_(n,c2(1,i),1,sxc1(1,j),1),c1(1,j),1,c2(1,i),1)
+      do 101 j=1,nvec1
+      call daxpy_(n,-ddot_(n,c2(1,i),1,sxc1(1,j),1),c1(1,j),1,c2(1,i),1)
+101   continue
+100   continue
       return
       end

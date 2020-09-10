@@ -151,9 +151,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do i = 1, 80
-         BLine(i:i) = ' '
-      End Do
       iPrint=5
 *                                                                      *
 ************************************************************************
@@ -164,7 +161,7 @@
       KWord = Key
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord.eq.'')       Go To 998
       If (KWord(1:4).eq.'REAC') Go To 900
       If (KWord(1:4).eq.'PRIN') Go To 910
       If (KWord(1:4).eq.'LANG') Go To 911
@@ -460,7 +457,7 @@ C%      Go To 998
       Kword=Get_Ln(LuSpool)
       Call UpCase(KWord)
       If (KWord(1:1).eq.'*')    Go To 938
-      If (KWord.eq.BLine)       Go To 938
+      If (KWord.eq.'')       Go To 938
       If (KWord(1:3).eq.'END')  Go To 998
       Read(KWord,*,err=988) ii,val
       CovRadT_(ii)=val

@@ -743,6 +743,19 @@ Advanced keywords:
               </HELP>
               </KEYWORD>
 
+:kword:`CSPF`
+  Turn on the use of Condon--Shortley phase factors.
+  Note that this changes the sign of basis functions, and orbital files will not be compatible
+  with runs without this keyword, and orbital visualizations may be wrong!
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="CSPF" APPEAR="Condon-Shortley phase factor" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CSPF <advanced>
+              <HELP>
+              Turn on the use of Condon-Shortley phase factors.
+              Warning: Causes incompatibilities.
+              </HELP>
+              </KEYWORD>
+
 :kword:`MOVE`
   allow to translate and rotate molecule in order to find highest possible symmetry.
   (this is a default for all groups, except of :math:`C_1`)
@@ -813,7 +826,7 @@ Advanced keywords:
 :kword:`SHAKe`
   Randomly modifies the initial coordinates of the atoms, maintaining the input (or computed)
   symmetry. This can be useful to avoid a geometry optimization converging to a higher-symmetry
-  saddle point. The maximum displacement in the axes :math:`x`, :math:`y` and :math:`z` is read from the following
+  saddle point. The maximum displacement per atom is read from the following
   real number. This number can be followed by :kword:`Bohr` or :kword:`Angstrom`, which indicates
   the unit in which the displacement is specified, the default is :kword:`Bohr`.
 
@@ -945,7 +958,7 @@ provides auxiliary basis sets for any wave function model and valence basis set.
 If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, acCD RI (:kword:`RICD`)
 will be enabled by default, it can be disabled with :kword:`NOCD`.
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" KIND="BOX" NAME="AUX" APPEAR="RI/DF options (optional)" LEVEL="BASIC">
+.. xmldoc:: <GROUP MODULE="GATEWAY" KIND="BOX" NAME="RIDFOPTIONS" APPEAR="RI/DF options (optional)" LEVEL="BASIC">
             <HELP>
             Options of RI/DF definition of auxiliary basis sets.
             Set various thresholds and parameters for atomic CD auxiliary basis sets.
@@ -2106,9 +2119,11 @@ not make that input section redundant and should always be included.
               <HELP>
               Relative weights of each atom to use for the alignment and for the calculation of the
               "distance" between structures. The possibilities are:
-              MASS: This is the default. Each atom is given a weight proportional to its mass. Equivalent to mass-weighted coordinates.
-              EQUAL: All atoms have an equal weight.
-              HEAVY: Only heavy atoms are considered, with equal weights. Hydrogens are given zero weight.
+
+              MASS  -- This is the default. Each atom is given a weight proportional to its mass. Equivalent to mass-weighted coordinates.
+              EQUAL -- All atoms have an equal weight.
+              HEAVY -- Only heavy atoms are considered, with equal weights. Hydrogens are given zero weight.
+
               A list of N numbers can also be provided, and they will be used as weights for the N symmetry-unique atoms.
               </HELP>
               </KEYWORD>

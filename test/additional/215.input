@@ -51,7 +51,7 @@ Ras2
 1 2 0 0
 CiRoot
 1 1
-1 
+1
 Iter
 100,20
 LumOrb
@@ -72,7 +72,7 @@ Ras2
 0 2 1 0
 CiRoot
 1 1
-1 
+1
 Iter
 100,20
 JOBIPH
@@ -93,7 +93,7 @@ Ras2
 0 2 1 0
 CiRoot
 1 1
-1 
+1
 Iter
 100,20
 JOBIPH
@@ -101,7 +101,7 @@ JOBIPH
 *CIRestart
 End of input
 
- SCF                               -112.35364956  
+ SCF                               -112.35364956
  Average CI energy GS              -112.40517806
  Average CI energy NonEq. excit.   -112.24347596
  Average CI energy Eq. excit.      -112.24384767

@@ -330,13 +330,13 @@ The following keywords are known to the
               of a perturbation operator and is given as a real number. For a list
               of the available one-electron integral labels refer to the program
               description of SEWARD.
-              ||
-              ||example:
-              ||&FFPT
-              ||GLBL
-              ||'Well   1' 1 1.000
-              ||'Well   2' 1 1.000
-              ||'Well   3' 1 1.000
+
+              example:
+                &FFPT
+                GLBL
+                'Well   1' 1 1.000
+                'Well   2' 1 1.000
+                'Well   3' 1 1.000
               </KEYWORD>
 
   .. xmldoc:: </GROUP>

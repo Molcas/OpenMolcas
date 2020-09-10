@@ -73,7 +73,8 @@ c     .......... for i=n step -1 until 1 do -- ..........
          if (l .lt. 1) go to 130
 c     .......... scale row (algol tol then not needed) ..........
          do 120 k = 1, l
-  120    scale = scale + abs(d(k))
+         scale = scale + abs(d(k))
+  120    continue
 c
          if (scale .ne. 0.0d0) go to 140
 c
@@ -101,7 +102,8 @@ c
          if (l .eq. 1) go to 285
 c     .......... form a*u ..........
          do 170 j = 1, l
-  170    e(j) = 0.0d0
+         e(j) = 0.0d0
+  170    continue
 c
          do 240 j = 1, l
             f = d(j)
@@ -127,14 +129,16 @@ c
          h = f / (h + h)
 c     .......... form q ..........
          do 250 j = 1, l
-  250    e(j) = e(j) - h * d(j)
+         e(j) = e(j) - h * d(j)
+  250    continue
 c     .......... form reduced a ..........
          do 280 j = 1, l
             f = d(j)
             g = e(j)
 c
             do 260 k = j, l
-  260       a(k,j) = a(k,j) - f * e(k) - g * d(k)
+            a(k,j) = a(k,j) - f * e(k) - g * d(k)
+  260       continue
 c
   280    continue
 c

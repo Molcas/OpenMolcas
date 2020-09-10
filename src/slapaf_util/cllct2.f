@@ -12,8 +12,7 @@
 ************************************************************************
       SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,Coor,
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
-     &                  nSym,lWrite,iOper,jStab,nStab,mxdc,Deg,Smmtrc,
-     &                  Hess,lIter)
+     &                  lWrite,jStab,nStab,mxdc,Deg,Smmtrc,Hess,lIter)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -31,6 +30,7 @@
 *             Modified to be used in optimizations with constraints,   *
 *             June '97 (R. Lindh)                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -46,7 +46,7 @@
      &       Axis(3),
      &       Perp_Axis(3,2),rMss(nAtom), qMss(nCntr+mCntr),
      &       Hess(3,nCntr+mCntr,3,nCntr+mCntr)
-      Integer   Ind(nCntr+mCntr,2), iOper(0:nSym-1), nStab(mxdc),
+      Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
      &          jStab(0:7,mxdc), iDCR(MxAtom)
 
       Logical lWrite, ldB, lWarn, PSPrint, Smmtrc(3,nAtom)
@@ -98,7 +98,7 @@
 *---------- Check if operator belongs to the current point group
 *
             i = 0
-            Do j = 1, nSym-1
+            Do j = 1, nIrrep-1
                If (iPhase.eq.iOper(j)) i = j
             End Do
             iDCR(ixyz)=iOper(i)
@@ -171,7 +171,7 @@
          Grad(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
          call dcopy_(3,[Zero],0,Grad,1)
@@ -179,7 +179,7 @@
          Grad(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
          call dcopy_(3,[Zero],0,Grad,1)
@@ -187,29 +187,29 @@
          Grad(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'STRTCH') Then
          Call Strtch(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
-         Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
          Call LBend(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
      &              Axis,Perp_Axis(1,1),.False.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
          Call LBend(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
      &              Axis,Perp_Axis(1,2),.True.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'BEND  ')Then
          Call Bend(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'TRSN  ')Then
          Call Trsn(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'OUTOFP')Then
          Call OutOfP(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type(1:3).eq.'NAC')Then
          Call NACInt(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
      &               lIter)
@@ -219,7 +219,8 @@
      &               lIter)
          Deg=One
       Else If (Type(1:6).eq.'SPHERE')Then
-         Call SphInt(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+         Call SphInt(xyz,nCntr,ip_Dummy,Value,Grad,lWrite,lWarn,Lbl,
+     &               Hess,ldB)
          Deg=One
       Else If (Type(1:6).eq.'TRANSV')Then
          Call Transverse(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)

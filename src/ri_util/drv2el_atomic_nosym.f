@@ -42,6 +42,7 @@
       use iSD_data
       use Wrj12
       use k2_arrays, only: Sew_Scr
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
@@ -51,7 +52,6 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #define _no_nShs_
@@ -77,7 +77,7 @@
       iWROpt_Save=iWROpt
       iWROpt=1
 *
-      Do_RI_Basis = AuxCnttp(iCnttp)
+      Do_RI_Basis = dbsc(iCnttp)%Aux
 *
       Call Set_Basis_Mode_Atomic(iCnttp,jCnttp)
       Call Setup_iSD()

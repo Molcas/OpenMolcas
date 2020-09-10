@@ -12,6 +12,7 @@
 C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
+      use index_arrays, only: iSO2Sh
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -19,7 +20,6 @@ C
 #include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
-#include "shinf.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')
@@ -29,7 +29,6 @@ c     EXTERNAL CHO_ISAO
 c     INTEGER  CHO_ISAOSH
 c     EXTERNAL CHO_ISAOSH
 
-      iSO2SH(i)=IWORK(IPSOSH-1+i)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
 C     Check that the number of shells is within limits.

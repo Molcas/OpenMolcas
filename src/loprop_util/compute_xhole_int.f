@@ -69,7 +69,7 @@
       Call Seward_Init             !-- Initialize a lot of shit.
       nDiff=0                      !-- like above
       DSCF=.false.                 !-- like above
-      Call GetInf(Info,nInfo,DSCF,nDiff,1)!-- like above
+      Call GetInf(DSCF,nDiff)      !-- like above
       Call SetUp_iSD               !-- like above
       Call Get_iScalar('nSym',mIrrep)    !-- Stupid number in nq_info
                                          !   needed to fool do_mo
@@ -177,7 +177,6 @@
       Call GetMem('OrbDipsY','Free','Real',ip_OrbDip(2),nOrb*(nOrb+1)/2)
       Call GetMem('OrbDipsZ','Free','Real',ip_OrbDip(3),nOrb*(nOrb+1)/2)
       Call Free_HerRW()
-      Call GetMem(' SewXInfo ','Free','Real',Info,nInfo)
 
       Return
       End

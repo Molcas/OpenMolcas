@@ -49,19 +49,19 @@
       Else
          Write (Lu,'(A)')  ' Convergence test a la Schlegel.'
       End If
-      Write (Lu,'(A,E8.1)')' Convergence criterion on gradient/para.<=:'
-     &      ,ThrGrd
-      Write (Lu,'(A,E8.1)')' Convergence criterion on step/parameter<=:'
-     &      ,ThrGrd
-      Write (Lu,'(A,E8.1)')' Convergence criterion on energy change <=:'
-     &      ,ThrEne
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on gradient/para.<=:',ThrGrd
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on step/parameter<=:',ThrGrd
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on energy change <=:',ThrEne
       Write (Lu,'(A)')
      &    ' Parameters for step-restricted optimization'
       If (.NOT.Kriging) Then
-      Write (Lu,'(A,E9.2)')
+      Write (Lu,'(A,ES9.2)')
      &    ' Max step length (initial seed):          ',Beta
       Else
-      Write (Lu,'(A,E9.2)')
+      Write (Lu,'(A,ES9.2)')
      &    ' Max step length (micro iterations):      ',Beta
       End If
       Write (Lu,*)
@@ -105,7 +105,6 @@
        write (6,'(A,F10.5,A)')
      &       '   Maximum dispersion accepted:     ',Beta_disp,
      &       ' * abs(g.max.comp)'
-       Write (Lu,*)
       Else
        Write (Lu,*) '-RFO activated with parameters:'
        Write (Lu,'(A,I6)')

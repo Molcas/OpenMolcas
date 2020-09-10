@@ -52,8 +52,9 @@ C     KLL = KFLREE
 *.Expand U to full matrix
       CALL SETVEC(T,0.0D0,NORB ** 2 )
       DO 10 I = 1,NORB
-      DO 10 J = I,NORB
+      DO 11 J = I,NORB
         T(I,J) = WORK(KLU-1+J*(J-1)/2+I)
+   11 CONTINUE
    10 CONTINUE
       IF ( NTEST .GE. 100 ) THEN
         WRITE(6,*) ' MATRIX TO BE INVERTED '
@@ -67,8 +68,9 @@ C     KLL = KFLREE
       END IF
 *.Subtract L
       DO 20 I = 1, NORB
-      DO 20 J = 1,I-1
+      DO 21 J = 1,I-1
        T(I,J)= - WORK(KLL-1+I*(I-1)/2+J)
+   21 CONTINUE
    20 CONTINUE
 *
       IF( NTEST .GE. 2 ) THEN

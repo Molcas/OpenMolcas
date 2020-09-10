@@ -59,21 +59,22 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
 *           Call Triprt(' ','(6F12.6)',Ssym(iSymbk(iBlk)),nPrim(iLqn))
 *--- Copy S and D into square form ---*
             Do 111 i=1,nB
-            Do 111 j=1,nB
+            Do 1110 j=1,nB
                indT=min(i,j)+max(i,j)*(max(i,j)-1)/2
                indS=i+nB*(j-1)
                TmpDens(indS)=tDsym(iSymbk(iBlk)-1+indT)
                TmpOvlp(indS)=Ssym(iSymbk(iBlk)-1+indT)
 *              Write(*,'(1x,4i5,2f12.6)') i,j,IndT,IndS,
 *    &            TmpDens(indS),TmpOvlp(indS)
+1110        Continue
 111         Continue
 *--- Project ---*
             Do 112 iO=1,nO
                eval=0.0d0
                Do 113 iB=1,nB
-               Do 113 jB=1,nB
-               Do 113 kB=1,nB
-               Do 113 lB=1,nB
+               Do 1130 jB=1,nB
+               Do 1131 kB=1,nB
+               Do 1132 lB=1,nB
                   ij=iB+nB*(jB-1)
                   jk=jB+nB*(kB-1)
                   kl=kB+nB*(lB-1)
@@ -82,30 +83,36 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
                   t=t*TmpDens(jk)
                   t=t*TmpOvlp(kl)
                   eval=eval+t
+1132           Continue
+1131           Continue
+1130           Continue
 113            Continue
                cnorm=0.0d0
                Do 114 iB=1,nB
-               Do 114 jB=1,nB
+               Do 1140 jB=1,nB
                   ij=iB+nB*(jB-1)
                   t=ProjOrb(iB+nB*(iO-1))*ProjOrb(jB+nB*(iO-1))
                   t=t*TmpOvlp(ij)
                   cnorm=cnorm+t
+1140           Continue
 114            Continue
 *              Write(*,'(a,f12.6)') ' Eigenvalue ',eval
 *              Write(*,'(a,f12.6)') ' Norm       ',cnorm
                eval=eval/cnorm/cnorm
                Do 115 iB=1,nB
-               Do 115 jB=1,nB
+               Do 1150 jB=1,nB
                   t=ProjOrb(iB+nB*(iO-1))*ProjOrb(jB+nB*(iO-1))
                   TmpDens(iB+nB*(jB-1))=TmpDens(iB+nB*(jB-1))-eval*t
+1150           Continue
 115            Continue
 112         Continue
 *--- Copy back D ---*
             Do 118 i=1,nB
-            Do 118 j=1,nB
+            Do 1180 j=1,nB
                indT=min(i,j)+max(i,j)*(max(i,j)-1)/2
                indS=i+nB*(j-1)
                tDsym(iSymbk(iBlk)-1+indT)=TmpDens(indS)
+1180        Continue
 118         Continue
 *           Write(*,'(a,2i5)') ' Density matrix block',iLqn,iShell
 *           Call Triprt(' ','(6F12.6)',tDsym(iSymbk(iBlk)),nPrim(iLqn))

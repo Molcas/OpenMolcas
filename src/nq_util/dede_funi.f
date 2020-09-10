@@ -14,7 +14,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Real*8 Dens(nDens,nr_of_Densities)
@@ -35,7 +34,7 @@
       DFT_Storage=.True.
       Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
      &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &             Work,1,DeDe,nDeDe_DFT)
+     &             DeDe,nDeDe_DFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

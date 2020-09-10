@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine OutOfPlane_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
@@ -23,6 +23,7 @@
 *     This is a quick and possibly dirty implementation of the out-    *
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -31,8 +32,8 @@
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB),
      &       Grad_ref(9), RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+      Integer   nStab(nAtoms), iANr(nAtoms),
+     &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
@@ -49,8 +50,6 @@
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_outofp.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 #include "constants.fh"
@@ -148,7 +147,7 @@
 *
 *---------- Form double coset representatives for (iAtom,jAtom)
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
@@ -165,15 +164,9 @@
             End If
 #endif
 *
-            A(1,1)   = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iIter)
-            A(2,1)   = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iIter)
-            A(3,1)   = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iIter)
-            Ref(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iRef)
-            Ref(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iRef)
-            Ref(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iRef)
-            Prv(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iPrv)
-            Prv(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iPrv)
-            Prv(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iPrv)
+            Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,1))
 *
 *---------- Form stabilizer for (iAtom,jAtom)
 *
@@ -294,7 +287,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *---------------- Form double coset representatives for (kAtom,lAtom)
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     jStab(0,kAtom),nStab(kAtom),
      &                     jStab(0,lAtom),nStab(lAtom),
      &                     iDCRS,nDCRS)
@@ -312,18 +305,10 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  Ref(1,2) =                        Cx(1,kAtom,iRef)
-                  Ref(2,2) =                        Cx(2,kAtom,iRef)
-                  Ref(3,2) =                        Cx(3,kAtom,iRef)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iRef)
-                  Prv(1,2) =                        Cx(1,kAtom,iPrv)
-                  Prv(2,2) =                        Cx(2,kAtom,iPrv)
-                  Prv(3,2) =                        Cx(3,kAtom,iPrv)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iPrv)
+                  Ref(1:3,2) =  Cx(1:3,kAtom,iRef)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,3))
+                  Prv(1:3,2) =  Cx(1:3,kAtom,iPrv)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,3))
 *
 *---------------- Form stabilizer for (kAtom,lAtom)
 *
@@ -341,7 +326,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *---------------- Form double coset representatives for
 *                 ((iAtom,jAtom),(kAtom,lAtom))
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     iSTabM,nStabM,
      &                     iStabN,nStabN,
      &                     iDCRT,nDCRT)
@@ -375,24 +360,12 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  A(1,2)   = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iIter)
-                  A(2,2)   = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iIter)
-                  A(3,2)   = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iIter)
-                  Ref(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iRef)
-                  Ref(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iRef)
-                  Ref(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iRef)
-                  Prv(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iPrv)
-                  Prv(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iPrv)
-                  Prv(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iPrv)
-                  A(1,3)   = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iIter)
-                  A(2,3)   = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iIter)
-                  A(3,3)   = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iIter)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iRef)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iPrv)
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,2))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iIter),  A(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iRef ),Ref(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iPrv ),Prv(1:3,3))
 *
 *---------------- Form the stabilizer for the out-of-plane
 *
@@ -422,7 +395,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *-----------------Compute the degeneracy of the torsion
 *
-                  iDeg=nSym/nStabO
+                  iDeg=nIrrep/nStabO
                   Deg=Sqrt(DBLE(iDeg))
 *
 *-----------------Test if coordinate should be included

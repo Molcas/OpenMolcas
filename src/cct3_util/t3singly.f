@@ -1107,31 +1107,37 @@ c
        abc=0
        do 100 a=3,dima
        s=s1(a)
-       do 100 b=2,a-1
+       do 101 b=2,a-1
        bc0=nshf(b)
-       do 100 c=1,b-1
+       do 102 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)+d1(bc0+c)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        abc=0
        do 110 a=3,dima
        ac0=nshf(a)
-       do 110 b=2,a-1
+       do 111 b=2,a-1
        s=s1(b)
-       do 110 c=1,b-1
+       do 112 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)-d1(ac0+c)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        abc=0
        do 120 a=3,dima
        ab0=nshf(a)
-       do 120 b=2,a-1
+       do 121 b=2,a-1
        s=d1(ab0+b)
-       do 120 c=1,b-1
+       do 122 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)+s1(c)*s
+ 122    continue
+ 121    continue
  120    continue
 c
        else
@@ -1140,31 +1146,37 @@ c
        abc=0
        do 200 a=3,dima
        s=s1(a)
-       do 200 b=2,a-1
+       do 201 b=2,a-1
        bc0=nshf(b)
-       do 200 c=1,b-1
+       do 202 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)-d1(bc0+c)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        abc=0
        do 210 a=3,dima
        ac0=nshf(a)
-       do 210 b=2,a-1
+       do 211 b=2,a-1
        s=s1(b)
-       do 210 c=1,b-1
+       do 212 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)+d1(ac0+c)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        abc=0
        do 220 a=3,dima
        ab0=nshf(a)
-       do 220 b=2,a-1
+       do 221 b=2,a-1
        s=d1(ab0+b)
-       do 220 c=1,b-1
+       do 222 c=1,b-1
        abc=abc+1
        w(abc)=w(abc)-s1(c)*s
+ 222    continue
+ 221    continue
  220    continue
 c
        end if
@@ -1205,20 +1217,24 @@ c     phase +1
 c
        do 100 c=1,dimc
        ab=0
-       do 100 a=2,dima
+       do 101 a=2,dima
        s=s1(a)
-       do 100 b=1,a-1
+       do 102 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)+d1(b,c)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        do 110 c=1,dimc
        ab=0
-       do 110 a=2,dima
+       do 111 a=2,dima
        s=d1(a,c)
-       do 110 b=1,a-1
+       do 112 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)-s1(b)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
@@ -1226,20 +1242,24 @@ c     phase -1
 c
        do 200 c=1,dimc
        ab=0
-       do 200 a=2,dima
+       do 201 a=2,dima
        s=s1(a)
-       do 200 b=1,a-1
+       do 202 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)-d1(b,c)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        do 210 c=1,dimc
        ab=0
-       do 210 a=2,dima
+       do 211 a=2,dima
        s=d1(a,c)
-       do 210 b=1,a-1
+       do 212 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)+s1(b)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -1279,8 +1299,9 @@ c     phase +1
 c
        do 120 c=1,dimc
        s=s3(c)
-       do 120 ab=1,dimab
+       do 121 ab=1,dimab
        w(ab,c)=w(ab,c)+d3(ab)*s
+ 121    continue
  120    continue
 c
        else
@@ -1288,8 +1309,9 @@ c     phase -1
 c
        do 220 c=1,dimc
        s=s3(c)
-       do 220 ab=1,dimab
+       do 221 ab=1,dimab
        w(ab,c)=w(ab,c)-d3(ab)*s
+ 221    continue
  220    continue
 c
        end if
@@ -1331,8 +1353,9 @@ c     phase +1
 c
        do 100 bc=1,dimbc
        s=d1(bc)
-       do 100 a=1,dima
+       do 101 a=1,dima
        w(a,bc)=w(a,bc)+s1(a)*s
+ 101    continue
  100    continue
 c
        else
@@ -1340,8 +1363,9 @@ c     phase -1
 c
        do 200 bc=1,dimbc
        s=d1(bc)
-       do 200 a=1,dima
+       do 201 a=1,dima
        w(a,bc)=w(a,bc)-s1(a)*s
+ 201    continue
  200    continue
 c
        end if
@@ -1385,19 +1409,23 @@ c
        bc=0
        do 110 b=2,dimb
        s=s2(b)
-       do 110 c=1,b-1
+       do 111 c=1,b-1
        bc=bc+1
-       do 110 a=1,dima
+       do 112 a=1,dima
        w(a,bc)=w(a,bc)-d2(a,c)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        bc=0
        do 120 b=2,dimb
-       do 120 c=1,b-1
+       do 121 c=1,b-1
        s=s2(c)
        bc=bc+1
-       do 120 a=1,dima
+       do 122 a=1,dima
        w(a,bc)=w(a,bc)+d2(a,b)*s
+ 122    continue
+ 121    continue
  120    continue
 c
        else
@@ -1406,19 +1434,23 @@ c
        bc=0
        do 210 b=2,dimb
        s=s2(b)
-       do 210 c=1,b-1
+       do 211 c=1,b-1
        bc=bc+1
-       do 210 a=1,dima
+       do 212 a=1,dima
        w(a,bc)=w(a,bc)+d2(a,c)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        bc=0
        do 220 b=2,dimb
-       do 220 c=1,b-1
+       do 221 c=1,b-1
        s=s2(c)
        bc=bc+1
-       do 220 a=1,dima
+       do 222 a=1,dima
        w(a,bc)=w(a,bc)-d2(a,b)*s
+ 222    continue
+ 221    continue
  220    continue
 c
        end if
@@ -1457,20 +1489,24 @@ c
 c     phase +1
 c
        do 100 c=1,dimc
-       do 100 b=1,dimb
+       do 101 b=1,dimb
        s=d1(b,c)
-       do 100 a=1,dima
+       do 102 a=1,dima
        w(a,b,c)=w(a,b,c)+s1(a)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        else
 c     phase = -1
 c
        do 200 c=1,dimc
-       do 200 b=1,dimb
+       do 201 b=1,dimb
        s=d1(b,c)
-       do 200 a=1,dima
+       do 202 a=1,dima
        w(a,b,c)=w(a,b,c)-s1(a)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        end if
@@ -1509,20 +1545,24 @@ c
 c     phase +1
 c
        do 110 c=1,dimc
-       do 110 b=1,dimb
+       do 111 b=1,dimb
        s=s2(b)
-       do 110 a=1,dima
+       do 112 a=1,dima
        w(a,b,c)=w(a,b,c)-d2(a,c)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
 c     phase = -1
 c
        do 210 c=1,dimc
-       do 210 b=1,dimb
+       do 211 b=1,dimb
        s=s2(b)
-       do 210 a=1,dima
+       do 212 a=1,dima
        w(a,b,c)=w(a,b,c)+d2(a,c)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -1562,9 +1602,11 @@ c     phase +1
 c
        do 120 c=1,dimc
        s=s3(c)
-       do 120 b=1,dimb
-       do 120 a=1,dima
+       do 121 b=1,dimb
+       do 122 a=1,dima
        w(a,b,c)=w(a,b,c)+d3(a,b)*s
+ 122    continue
+ 121    continue
  120    continue
 c
        else
@@ -1572,9 +1614,11 @@ c     phase = -1
 c
        do 220 c=1,dimc
        s=s3(c)
-       do 220 b=1,dimb
-       do 220 a=1,dima
+       do 221 b=1,dimb
+       do 222 a=1,dima
        w(a,b,c)=w(a,b,c)-d3(a,b)*s
+ 222    continue
+ 221    continue
  220    continue
 c
        end if
@@ -1615,20 +1659,24 @@ c     phase + 1
 c
        do 100 c=1,dimc
        ab=0
-       do 100 a=2,dima
+       do 101 a=2,dima
        s=s1(a)
-       do 100 b=1,a-1
+       do 102 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)+d1(b,c)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        do 110 c=1,dimc
        ab=0
-       do 110 a=2,dima
+       do 111 a=2,dima
        s=d1(a,c)
-       do 110 b=1,a-1
+       do 112 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)-s1(b)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
@@ -1636,20 +1684,24 @@ c     phase - 1
 c
        do 200 c=1,dimc
        ab=0
-       do 200 a=2,dima
+       do 201 a=2,dima
        s=s1(a)
-       do 200 b=1,a-1
+       do 202 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)-d1(b,c)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        do 210 c=1,dimc
        ab=0
-       do 210 a=2,dima
+       do 211 a=2,dima
        s=d1(a,c)
-       do 210 b=1,a-1
+       do 212 b=1,a-1
        ab=ab+1
        w(ab,c)=w(ab,c)+s1(b)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -1689,8 +1741,9 @@ c     phase + 1
 c
        do 100 c=1,dimc
        s=s1(c)
-       do 100 ab=1,dimab
+       do 101 ab=1,dimab
        w(ab,c)=w(ab,c)+d1(ab)*s
+ 101    continue
  100    continue
 c
        else
@@ -1698,8 +1751,9 @@ c     phase - 1
 c
        do 200 c=1,dimc
        s=s1(c)
-       do 200 ab=1,dimab
+       do 201 ab=1,dimab
        w(ab,c)=w(ab,c)-d1(ab)*s
+ 201    continue
  200    continue
 c
        end if
@@ -1740,20 +1794,24 @@ c
 c     phase + 1
 c
        do 100 c=1,dimc
-       do 100 b=1,dimb
+       do 101 b=1,dimb
        s=d1(b,c)
-       do 100 a=1,dima
+       do 102 a=1,dima
        w(a,b,c)=w(a,b,c)+s1(a)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        else
 c     phase - 1
 c
        do 200 c=1,dimc
-       do 200 b=1,dimb
+       do 201 b=1,dimb
        s=d1(b,c)
-       do 200 a=1,dima
+       do 202 a=1,dima
        w(a,b,c)=w(a,b,c)-s1(a)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        end if
@@ -1792,20 +1850,24 @@ c
 c     phase + 1
 c
        do 110 c=1,dimc
-       do 110 b=1,dimb
+       do 111 b=1,dimb
        s=s2(b)
-       do 110 a=1,dima
+       do 112 a=1,dima
        w(a,b,c)=w(a,b,c)-d2(a,c)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
 c     phase - 1
 c
        do 210 c=1,dimc
-       do 210 b=1,dimb
+       do 211 b=1,dimb
        s=s2(b)
-       do 210 a=1,dima
+       do 212 a=1,dima
        w(a,b,c)=w(a,b,c)+d2(a,c)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -1845,9 +1907,11 @@ c     phase + 1
 c
        do 100 c=1,dimc
        s=s1(c)
-       do 100 b=1,dimb
-       do 100 a=1,dima
+       do 101 b=1,dimb
+       do 102 a=1,dima
        w(a,b,c)=w(a,b,c)+d1(a,b)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -1855,9 +1919,11 @@ c     phase - 1
 c
        do 200 c=1,dimc
        s=s1(c)
-       do 200 b=1,dimb
-       do 200 a=1,dima
+       do 201 b=1,dimb
+       do 202 a=1,dima
        w(a,b,c)=w(a,b,c)-d1(a,b)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        end if
@@ -1901,19 +1967,23 @@ c
        bc=0
        do 100 b=2,dimb
        s=s1(b)
-       do 100 c=1,b-1
+       do 101 c=1,b-1
        bc=bc+1
-       do 100 a=1,dima
+       do 102 a=1,dima
        w(a,bc)=w(a,bc)+d1(a,c)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        bc=0
        do 110 b=2,dimb
-       do 110 c=1,b-1
+       do 111 c=1,b-1
        bc=bc+1
        s=s1(c)
-       do 110 a=1,dima
+       do 112 a=1,dima
        w(a,bc)=w(a,bc)-d1(a,b)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
@@ -1922,19 +1992,23 @@ c
        bc=0
        do 200 b=2,dimb
        s=s1(b)
-       do 200 c=1,b-1
+       do 201 c=1,b-1
        bc=bc+1
-       do 200 a=1,dima
+       do 202 a=1,dima
        w(a,bc)=w(a,bc)-d1(a,c)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        bc=0
        do 210 b=2,dimb
-       do 210 c=1,b-1
+       do 211 c=1,b-1
        bc=bc+1
        s=s1(c)
-       do 210 a=1,dima
+       do 212 a=1,dima
        w(a,bc)=w(a,bc)+d1(a,b)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -1974,8 +2048,9 @@ c     phase +1
 c
        do 100 bc=1,dimbc
        s=d1(bc)
-       do 100 a=1,dima
+       do 101 a=1,dima
        w(a,bc)=w(a,bc)+s1(a)*s
+ 101    continue
  100    continue
 c
        else
@@ -1983,8 +2058,9 @@ c     phase - 1
 c
        do 200 bc=1,dimbc
        s=d1(bc)
-       do 200 a=1,dima
+       do 201 a=1,dima
        w(a,bc)=w(a,bc)-s1(a)*s
+ 201    continue
  200    continue
 c
        end if
@@ -2025,20 +2101,24 @@ c
 c     phase +1
 c
        do 100 c=1,dimc
-       do 100 b=1,dimb
+       do 101 b=1,dimb
        s=s1(b)
-       do 100 a=1,dima
+       do 102 a=1,dima
        w(a,b,c)=w(a,b,c)+d1(a,c)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        else
 c     phase -1
 c
        do 200 c=1,dimc
-       do 200 b=1,dimb
+       do 201 b=1,dimb
        s=s1(b)
-       do 200 a=1,dima
+       do 202 a=1,dima
        w(a,b,c)=w(a,b,c)-d1(a,c)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        end if
@@ -2078,9 +2158,11 @@ c     phase +1
 c
        do 110 c=1,dimc
        s=s2(c)
-       do 110 b=1,dimb
-       do 110 a=1,dima
+       do 111 b=1,dimb
+       do 112 a=1,dima
        w(a,b,c)=w(a,b,c)-d2(a,b)*s
+ 112    continue
+ 111    continue
  110    continue
 c
        else
@@ -2088,9 +2170,11 @@ c     phase -1
 c
        do 210 c=1,dimc
        s=s2(c)
-       do 210 b=1,dimb
-       do 210 a=1,dima
+       do 211 b=1,dimb
+       do 212 a=1,dima
        w(a,b,c)=w(a,b,c)+d2(a,b)*s
+ 212    continue
+ 211    continue
  210    continue
 c
        end if
@@ -2129,20 +2213,24 @@ c
 c     phase +1
 c
        do 100 c=1,dimc
-       do 100 b=1,dimb
+       do 101 b=1,dimb
        s=d1(b,c)
-       do 100 a=1,dima
+       do 102 a=1,dima
        w(a,b,c)=w(a,b,c)+s1(a)*s
+ 102    continue
+ 101    continue
  100    continue
 c
        else
 c     phase -1
 c
        do 200 c=1,dimc
-       do 200 b=1,dimb
+       do 201 b=1,dimb
        s=d1(b,c)
-       do 200 a=1,dima
+       do 202 a=1,dima
        w(a,b,c)=w(a,b,c)-s1(a)*s
+ 202    continue
+ 201    continue
  200    continue
 c
        end if

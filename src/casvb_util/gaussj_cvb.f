@@ -46,7 +46,8 @@ c  *********************************************************************
       nullify(gjorb)
       call imove_cvb(igjorb(1+ioff),iw(k2),norb)
       do 100 i=1,norb
-100   igjorb(iw(i+k2-1)+ioff)=i
+      igjorb(iw(i+k2-1)+ioff)=i
+100   continue
       call mfreer_cvb(k1)
       return
       end subroutine igaussj_cvb_internal

@@ -46,6 +46,7 @@
 *          '95                                                         *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 *
 #include "real.fh"
@@ -60,13 +61,14 @@
 cpcm_solvent
 #include "rctfld.fh"
 cpcm_solvent end
-c      Parameter (nLines=17)
+c      Parameter (nLines=12)
       Character*120 Lines
       Logical DoRys, Run_MCLR
 #include "warnings.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Call McKinley_banner()
       Call CWTime(TCpu1,TWall1)
       Call qEnter('McKinley')
       iRout=1
@@ -95,12 +97,7 @@ c      Lines(9)='Dept. of Theoretical Chemistry, '//
 c     &          'Chemical Centre, Lund (Sweden)'
 c      Lines(10)=' '
 c      Lines(11)=' '
-c      Lines(12)='(C) Copyright, all rights reseved.'
-c      Lines(13)='Permission is hereby granted to use but not to '
-c      Lines(14)='reproduce or distribute any part of this program.'
-c      Lines(15)='The use is restricted to research purposes only.'
-c      Lines(16)=' '
-c      Lines(17)='Compiled at '//
+c      Lines(12)='Compiled at '//
 c     &           _BUILD_DATE_
 c      lLine=Len(Lines(1))
 C     Call Banner(Lines,nLines,lLine)
@@ -127,7 +124,7 @@ C     Call Banner(Lines,nLines,lLine)
 *
       nDiff=2
       DoRys=.True.
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 cpcm_solvent
 c check if there is a reaction field
 c     write(6,*)'In mckinley PCM',pcm
@@ -139,7 +136,7 @@ C        Call Abend()
 C     End If
       nsAtom=0
       Do  iCnttp = 1, nCnttp
-            nsAtom=nsAtom+nCntr(iCnttp)
+            nsAtom=nsAtom+dbsc(iCnttp)%nCntr
       End Do
       Call Inputh(Run_MCLR)
       iPrint=nPrint(iRout)

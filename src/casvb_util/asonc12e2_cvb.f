@@ -70,7 +70,8 @@ c  (CIVB set in O12EA :)
       call fzero(vec_all,nprorb)
       call onedens_cvb(civb,civbs,vec_all,.false.,0)
       call all2free_cvb(vec_all,sxc(ic1,ivec),1)
-100   if(.not.strucopt)sxc(1,ivec)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+      if(.not.strucopt)sxc(1,ivec)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+100   continue
 
       return
       entry asonc12einit_cvb(ippinp)

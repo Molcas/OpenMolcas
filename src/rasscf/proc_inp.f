@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
       use stdalloc, only : mma_allocate, mma_deallocate
       use fortran_strings, only : to_upper, operator(.in.)
@@ -871,6 +871,15 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If (DBG) Write(6,*) ' ROtSTate keyword was used.'
        iRotPsi=1
        Call SetPos(LUInput,'ROST',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process XMSI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if XMSI case.'
+      If (KeyXMSI) Then
+       If (DBG) Write(6,*) ' XMSI keyword was used.'
+       iRotPsi=1
+       IXMSP=1
+       Call SetPos(LUInput,'XMSI',Line,iRc)
        Call ChkIfKey()
       End If
 *---  Process RFPE command ----- (new!) -------------------------------*
@@ -3144,7 +3153,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 
       ! Setup part for DMRG calculations

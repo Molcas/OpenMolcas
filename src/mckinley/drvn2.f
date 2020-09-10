@@ -24,11 +24,15 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             October '91                                              *
+*             October 1991                                             *
 *             Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
 *             University of Lund, SWEDEN                               *
-*             September '95                                            *
+*             September 1995                                           *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
+      use PCM_arrays
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
 #include "real.fh"
@@ -50,9 +54,8 @@ c#include "print.fh"
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************
@@ -74,27 +77,21 @@ c     Call qEnter('DrvN2')
       mdc = 0
 *-----Loop over centers with the same change
       Do iCnttp = 1, nCnttp
-       If (Charge(iCnttp).eq.Zero) Go To 101
-       ZA = Charge(iCnttp)
-       ixyz = ipCntr(iCnttp)
+       ZA = dbsc(iCnttp)%Charge
+       If (ZA.eq.Zero) Go To 101
 *--------Loop over all unique centers of this group
-       Do 110 iCnt = 1, nCntr(iCnttp)
-         A(1) = Work(ixyz  )
-         A(2) = Work(ixyz+1)
-         A(3) = Work(ixyz+2)
+       Do 110 iCnt = 1, dbsc(iCnttp)%nCntr
+        A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          ndc = 0
          Do jCnttp = 1, iCnttp
-           ZB=Charge(jCnttp)
+           ZB=dbsc(jCnttp)%Charge
            If (ZB.eq.Zero) Go To 201
            ZAZB = ZA * ZB
-           jxyz = ipCntr(jCnttp)
-           jCntMx = nCntr(jCnttp)
+           jCntMx = dbsc(jCnttp)%nCntr
            If (iCnttp.eq.jCnttp) jCntMx = iCnt
            Do jCnt = 1, jCntMx
-             B(1) = Work(jxyz  )
-             B(2) = Work(jxyz+1)
-             B(3) = Work(jxyz+2)
+             B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
              Fact = One
 *                 Factor due to resticted summation
@@ -102,18 +99,15 @@ c     Call qEnter('DrvN2')
 *
 *                 Find the DCR for the two centers
 *
-             Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                     iDCRR,nDCRR)
+             Call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                      dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                      iDCRR,nDCRR)
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
              Do iR = 0, nDCRR-1
-               RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-               RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-               RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-               nOp(1) = NrOpr(0,iOper,nIrrep)
-               nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+               Call OA(iDCRR(iR),B,RB)
+               nOp(1) = NrOpr(0)
+               nOp(2) = NrOpr(iDCRR(iR))
                kop(1)=0
                kop(2)=iDCRR(iR)
                If (EQ(A,RB)) Go To 301
@@ -129,14 +123,14 @@ c     Call qEnter('DrvN2')
                dfab=Zero
                ddfab=Zero
 *
-               If (ECP(iCnttp)) Then
+               If (dbsc(iCnttp)%ECP) Then
 *-----------------Add contibution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
-                  Do iM1xp = 0, nM1(iCnttp)-1
-                     Gamma =Work(ipM1xp(iCnttp)+iM1xp)
-                     CffM1 =Work(ipM1cf(iCnttp)+iM1xp)
+                  Do iM1xp = 1, dbsc(iCnttp)%nM1
+                     Gamma =dbsc(iCnttp)%M1xp(iM1xp)
+                     CffM1 =dbsc(iCnttp)%M1cf(iM1xp)
                      Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                      Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                      Cnt2M1=Cnt2M1+Gamma**2*(CffM1*Exp(-Gamma*r12**2))
@@ -148,9 +142,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
-                  Do iM2xp = 0, nM2(iCnttp)-1
-                     Gamma =Work(ipM2xp(iCnttp)+iM2xp)
-                     CffM2 =Work(ipM2cf(iCnttp)+iM2xp)
+                  Do iM2xp = 1, dbsc(iCnttp)%nM2
+                     Gamma =dbsc(iCnttp)%M2xp(iM2xp)
+                     CffM2 =dbsc(iCnttp)%M2cf(iM2xp)
                      Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                      Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                      Cnt2M2=Cnt2M2+Gamma**2*(CffM2*Exp(-Gamma*r12**2))
@@ -159,14 +153,14 @@ c     Call qEnter('DrvN2')
                   dfab=dfab+Cnt0M2-Two*r12**2*Cnt1M2
                   ddfab=ddfab-Six**r12*Cnt1M2+Four*r12*Three*Cnt2M2
                End If
-               If (ECP(jCnttp)) Then
+               If (dbsc(jCnttp)%ECP) Then
 *-----------------Add contibution from M1 operator
                   Cnt0M1=Zero
                   Cnt1M1=Zero
                   Cnt2M1=Zero
-                  Do iM1xp = 0, nM1(jCnttp)-1
-                     Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                     CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                  Do iM1xp = 1, dbsc(jCnttp)%nM1
+                     Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                     CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                      Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                      Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                      Cnt2M1=Cnt2M1+Gamma**2*(CffM1*Exp(-Gamma*r12**2))
@@ -178,9 +172,9 @@ c     Call qEnter('DrvN2')
                   Cnt0M2=Zero
                   Cnt1M2=Zero
                   Cnt2M2=Zero
-                  Do iM2xp = 0, nM2(jCnttp)-1
-                     Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                     CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                  Do iM2xp = 1, dbsc(jCnttp)%nM2
+                     Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                     CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                      Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                      Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                      Cnt2M2=Cnt2M2+Gamma**2*(CffM2*Exp(-Gamma*r12**2))
@@ -252,8 +246,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
            Do iIrrep=0,nnIrrep-1
              Do iCent=1,2
@@ -302,15 +296,13 @@ c     Call qEnter('DrvN2')
  301       Continue
            End Do
 *
-                  jxyz = jxyz + 3
                End Do
  201           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
-            ixyz = ixyz + 3
  110     Continue
  101     Continue
-         mdc = mdc + nCntr(iCnttp)
+         mdc = mdc + dbsc(iCnttp)%nCntr
       End Do
 *                                                                      *
 ************************************************************************
@@ -334,13 +326,11 @@ c     Call qEnter('DrvN2')
 *
 *
       Do iTs = 1, nTs
-         ZA   = Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         ZA   = PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          NoLoop = ZA.eq.Zero
          If (NoLoop) Go To 112
          ZA = ZA / DBLE(nIrrep)
-         A(1) = Work((iTs-1)*4+ip_Tess  )
-         A(2) = Work((iTs-1)*4+ip_Tess+1)
-         A(3) = Work((iTs-1)*4+ip_Tess+2)
+         A(1:3) = PCMTess(1:3,iTs)
 *
 *------- Tile only stabilized by the unit operator
 *
@@ -349,31 +339,25 @@ c     Call qEnter('DrvN2')
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 212
-            If (pChrg(jCnttp)) Go To 212
-            If (FragCnttp(jCnttp)) Go To 212
+            If (dbsc(jCnttp)%pChrg) Go To 212
+            If (dbsc(jCnttp)%Frag) Go To 212
             ZAZB = ZA * ZB
-            jxyz = ipCntr(jCnttp)
-            Do jCnt = 1, nCntr(jCnttp)
-               B(1) = Work(jxyz+(jCnt-1)*3  )
-               B(2) = Work(jxyz+(jCnt-1)*3+1)
-               B(3) = Work(jxyz+(jCnt-1)*3+2)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
+               B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                  nOp(1) = NrOpr(0,iOper,nIrrep)
-                  nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  Call OA(iDCRR(iR),B,RB)
+                  nOp(1) = NrOpr(0)
+                  nOp(2) = NrOpr(iDCRR(iR))
                   r12 = Sqrt((A(1)-RB(1))**2 +
      &                       (A(2)-RB(2))**2 +
      &                       (A(3)-RB(3))**2 )
@@ -385,14 +369,14 @@ c     Call qEnter('DrvN2')
                   fab  =One
                   dfab =Zero
                   ddfab=Zero
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
                      Cnt2M1=Zero
-                     Do iM1xp = 0, nM1(jCnttp)-1
-                        Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(jCnttp)%nM1
+                        Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12**2))
                         Cnt1M1=Cnt1M1+Gamma*(CffM1*Exp(-Gamma*r12**2))
                         Cnt2M1=Cnt2M1
@@ -405,9 +389,9 @@ c     Call qEnter('DrvN2')
                      Cnt0M2=Zero
                      Cnt1M2=Zero
                      Cnt2M2=Zero
-                     Do iM2xp = 0, nM2(jCnttp)-1
-                        Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(jCnttp)%nM2
+                        Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12**2))
                         Cnt1M2=Cnt1M2+Gamma*(CffM2*Exp(-Gamma*r12**2))
                         Cnt2M2=Cnt2M2
@@ -425,7 +409,7 @@ c     Call qEnter('DrvN2')
                Call ICopy(nirrep*36,[0],0,Indhss,1)
                Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
-*          Determine which displacement in all IR's, each center is *
+*          Determine which displacement in all IRs, each center is *
 *          associated with
 *
                nnIrrep=nIrrep
@@ -444,7 +428,7 @@ c     Call qEnter('DrvN2')
                  End Do ! iCar
                End Do   ! iIrrep
 *
-*          Determine index for each 2'nd derivative
+*          Determine index for each 2nd derivative
 *
 *          Note that each term is only associated with one basis
 *          set center.
@@ -472,7 +456,7 @@ c     Call qEnter('DrvN2')
              End Do     ! iCar
            End Do         ! iIrrep
 *
-           ii(1)=nStab(ndc+jcnt)
+           ii(1)=dc(ndc+jcnt)%nStab
 *
            iCent=1
            jCent=1
@@ -513,7 +497,7 @@ c     Call qEnter('DrvN2')
 *
             End Do         ! End over centers, jCnt
  212        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! End over basis set types, jCnttp
  112     Continue
       End Do               ! End of tiles
@@ -525,9 +509,7 @@ c     Call qEnter('DrvN2')
 *        Sum(i,j) V_i,n^x Q_ij V_j,n^y
 *
       Do iTs = 1, nTs
-         A(1) = Work((iTs-1)*4+ip_Tess  )
-         A(2) = Work((iTs-1)*4+ip_Tess+1)
-         A(3) = Work((iTs-1)*4+ip_Tess+2)
+         A(1:3) = PCMTess(1:3,iTs)
 *
 *------- Tile only stabilized by the unit operator
 *
@@ -537,12 +519,10 @@ c     Call qEnter('DrvN2')
       Do jTs = 1, iTs
          Fact=Two
          If (jTs.eq.iTs) Fact=One
-         Q_ij = DMElm(nTs,iTs,jTs,Work(ip_DM))
+         Q_ij = DMElm(nTs,iTs,jTs,PCMDM)
          NoLoop = Q_ij.eq.Zero
          If (NoLoop) Go To 122
-         C(1) = Work((jTs-1)*4+ip_Tess  )
-         C(2) = Work((jTs-1)*4+ip_Tess+1)
-         C(3) = Work((jTs-1)*4+ip_Tess+2)
+         C(1:3) = PCMTess(1:3,jTs)
 *
          mStb=1
          jStb(0)=0
@@ -551,42 +531,36 @@ c     Call qEnter('DrvN2')
 *
          mdc = 0
          Do iCnttp = 1, nCnttp
-            ZA = Charge(iCnttp)
+            ZA = dbsc(iCnttp)%Charge
             If (ZA.eq.Zero) Go To 222
-            If (pChrg(iCnttp)) Go To 222
-            If (FragCnttp(iCnttp)) Go To 222
+            If (dbsc(iCnttp)%pChrg) Go To 222
+            If (dbsc(iCnttp)%Frag) Go To 222
 *
-            ixyz = ipCntr(iCnttp)
-            Do iCnt = 1, nCntr(iCnttp)
-               B(1) = Work(ixyz+(iCnt-1)*3  )
-               B(2) = Work(ixyz+(iCnt-1)*3+1)
-               B(3) = Work(ixyz+(iCnt-1)*3+2)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
+               B(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                  nOp(1) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  Call OA(iDCRR(iR),B,RB)
+                  nOp(1) = NrOpr(iDCRR(iR))
                   r12_AB = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
      &                          (A(3)-RB(3))**2 )
                   fab  =One
                   dfab =Zero
-                  If (ECP(iCnttp)) Then
+                  If (dbsc(iCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
-                     Do iM1xp = 0, nM1(iCnttp)-1
-                        Gamma =Work(ipM1xp(iCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(iCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(iCnttp)%nM1
+                        Gamma =dbsc(iCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(iCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12_AB**2))
                         Cnt1M1=Cnt1M1
      &                        +Gamma*(CffM1*Exp(-Gamma*r12_AB**2))
@@ -596,9 +570,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
-                     Do iM2xp = 0, nM2(iCnttp)-1
-                        Gamma =Work(ipM2xp(iCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(iCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(iCnttp)%nM2
+                        Gamma =dbsc(iCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(iCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12_AB**2))
                         Cnt1M2=Cnt1M2
      &                        +Gamma*(CffM2*Exp(-Gamma*r12_AB**2))
@@ -610,43 +584,37 @@ c     Call qEnter('DrvN2')
 *
          ndc = 0
          Do jCnttp = 1, nCnttp
-            ZB = Charge(jCnttp)
+            ZB = dbsc(jCnttp)%Charge
             If (ZB.eq.Zero) Go To 232
-            If (pChrg(jCnttp)) Go To 232
-            If (FragCnttp(jCnttp)) Go To 232
+            If (dbsc(jCnttp)%pChrg) Go To 232
+            If (dbsc(jCnttp)%Frag) Go To 232
 *
-            jxyz = ipCntr(jCnttp)
-            Do jCnt = 1, nCntr(jCnttp)
-               D(1) = Work(jxyz+(jCnt-1)*3  )
-               D(2) = Work(jxyz+(jCnt-1)*3+1)
-               D(3) = Work(jxyz+(jCnt-1)*3+2)
+            Do jCnt = 1, dbsc(jCnttp)%nCntr
+               D(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdS,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                  iDCRS,nDCRS)
+               Call DCR(LmbdS,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRS,nDCRS)
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
                Do iS = 0, nDCRS-1
-                  SD(1) = DBLE(iPhase(1,iDCRS(iS)))*D(1)
-                  SD(2) = DBLE(iPhase(2,iDCRS(iS)))*D(2)
-                  SD(3) = DBLE(iPhase(3,iDCRS(iS)))*D(3)
-                  nOp(2) = NrOpr(iDCRS(iS),iOper,nIrrep)
+                  Call OA(iDCRS(iS),D,SD)
+                  nOp(2) = NrOpr(iDCRS(iS))
                   r12_CD = Sqrt((C(1)-SD(1))**2 +
      &                          (C(2)-SD(2))**2 +
      &                          (C(3)-SD(3))**2 )
 *
                   fcd  =One
                   dfcd =Zero
-                  If (ECP(jCnttp)) Then
+                  If (dbsc(jCnttp)%ECP) Then
 *--------------------Add contibution from M1 operator
                      Cnt0M1=Zero
                      Cnt1M1=Zero
-                     Do iM1xp = 0, nM1(jCnttp)-1
-                        Gamma =Work(ipM1xp(jCnttp)+iM1xp)
-                        CffM1 =Work(ipM1cf(jCnttp)+iM1xp)
+                     Do iM1xp = 1, dbsc(jCnttp)%nM1
+                        Gamma =dbsc(jCnttp)%M1xp(iM1xp)
+                        CffM1 =dbsc(jCnttp)%M1cf(iM1xp)
                         Cnt0M1=Cnt0M1+(CffM1*Exp(-Gamma*r12_CD**2))
                         Cnt1M1=Cnt1M1
      &                        +Gamma*(CffM1*Exp(-Gamma*r12_CD**2))
@@ -656,9 +624,9 @@ c     Call qEnter('DrvN2')
 *--------------------Add contibution from M2 operator
                      Cnt0M2=Zero
                      Cnt1M2=Zero
-                     Do iM2xp = 0, nM2(jCnttp)-1
-                        Gamma =Work(ipM2xp(jCnttp)+iM2xp)
-                        CffM2 =Work(ipM2cf(jCnttp)+iM2xp)
+                     Do iM2xp = 1, dbsc(jCnttp)%nM2
+                        Gamma =dbsc(jCnttp)%M2xp(iM2xp)
+                        CffM2 =dbsc(jCnttp)%M2cf(iM2xp)
                         Cnt0M2=Cnt0M2+(CffM2*Exp(-Gamma*r12_CD**2))
                         Cnt1M2=Cnt1M2
      &                        +Gamma*(CffM2*Exp(-Gamma*r12_CD**2))
@@ -727,8 +695,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
 *          Note that we have two different cases here, depending on if
 *          iTs=jTs or not!
@@ -786,14 +754,14 @@ c     Call qEnter('DrvN2')
 *
             End Do         ! jCnt
  232        Continue
-            ndc = ndc + nCntr(jCnttp)
+            ndc = ndc + dbsc(jCnttp)%nCntr
          End Do            ! jCnttp
 *
                End Do      ! iR
 *
             End Do         ! iCnt
  222        Continue
-            mdc = mdc + nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
          End Do            ! jCnttp
  122     Continue
       End Do               ! jTs
@@ -809,11 +777,10 @@ c     Call qEnter('DrvN2')
         Call GetMem('Der1','Allo','Real',ip_Der1,nTs)
         Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
         Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
-        Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,Work(ip_Sph),
-     &   iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),Work(ip_Q),
-     &   Work(ip_DM),Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
-     &   Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr),
-     &   Work(ip_pcmhss),nPCMHss)
+        Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
+     &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
+     &               PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
+     &               dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
         Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
         Call GetMem('Der1','Free','Real',ip_Der1,nTs)
         Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)

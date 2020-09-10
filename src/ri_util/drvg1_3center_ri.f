@@ -53,6 +53,7 @@
       use iSD_data
       use pso_stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
 #include "real.fh"
@@ -77,7 +78,7 @@
       External Cho_irange
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
-      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
+      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4), IndShlV(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
       Integer ipXmi(5)
@@ -572,9 +573,8 @@ cVV: ifort 11 can't handle the code without this dummy print.
       End If
       If(.not. Do_RI) iOpt=0
 *
-      If (iOpt.eq.0) Then
-         ip_LB=ip_iDummy
-      Else If (iOpt.eq.1) Then
+      ip_LB=ip_iDummy
+      If (iOpt.eq.1) Then
          Call qpg_iArray('LBList',Found,nSkal2_)
          If (Found) Then
             Call Allocate_iWork(ip_LB,nSkal2_)
@@ -713,7 +713,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
          Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
          If (No_batch) Go To 140
 *
-         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs,IndShlV)
 *
 *                                                                      *
 ************************************************************************
@@ -746,7 +746,6 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -761,8 +760,6 @@ cVV: ifort 11 can't handle the code without this dummy print.
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -809,7 +806,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,IndShlV,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -830,16 +827,16 @@ cVV: ifort 11 can't handle the code without this dummy print.
            Call CWTIME(TwoelCPU1,TwoelWall1)
 #endif
            Call TwoEl_g(Coor,
-     &          iAnga,iCmpa,iShela,iShlla,iAOV,
+     &          iAnga,iCmpa,iShela,iShlla,IndShlV,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
      &          Data_k2(k2ij),nab,nHmab,nDCRR,
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
      &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),

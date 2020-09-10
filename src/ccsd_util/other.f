@@ -529,9 +529,10 @@ c     help variables
 c
        ef=0
        do 100 pe=eadd+2,eadd+noe
-       do 100 qf=eadd+1,pe-1
+       do 101 qf=eadd+1,pe-1
        ef=ef+1
        b(ef)=a(pe,qf)-a(qf,pe)
+ 101    continue
  100    continue
 c
        return
@@ -555,8 +556,9 @@ c     help variables
 c
        do 100 qf=fadd+1,fadd+nof
        f=qf-fadd
-       do 100 pe=eadd+1,eadd+noe
+       do 101 pe=eadd+1,eadd+noe
        b(pe-eadd,f)=ap(pe,qf)-am(qf,pe)
+ 101    continue
  100    continue
 c
        return
@@ -578,8 +580,9 @@ c     help variables
 c
        do 100 qf=fadd+1,fadd+nof
        f=qf-fadd
-       do 100 pe=eadd+1,eadd+noe
+       do 101 pe=eadd+1,eadd+noe
        b(pe-eadd,f)=a(pe,qf)
+ 101    continue
  100    continue
 c
        return
@@ -601,8 +604,9 @@ c     help variables
 c
        do 100 pf=fadd+1,fadd+nof
        f=pf-fadd
-       do 100 qe=eadd+1,eadd+noe
+       do 101 qe=eadd+1,eadd+noe
        b(qe-eadd,f)=a(pf,qe)
+ 101    continue
  100    continue
 c
        return
@@ -624,8 +628,9 @@ c     help variables
 c
        do 100 qe=eadd+1,eadd+noe
        e=qe-eadd
-       do 100 pj=jadd+1,jadd+noj
+       do 101 pj=jadd+1,jadd+noj
        b(pj-jadd,e)=a(pj,qe)-a(qe,pj)
+ 101    continue
  100    continue
 c
        return
@@ -647,8 +652,9 @@ c     help variables
 c
        do 100 qf=fadd+1,fadd+nof
        f=qf-fadd
-       do 100 pe=eadd+1,eadd+noe
+       do 101 pe=eadd+1,eadd+noe
        b(pe-eadd,f)=-a(pe,qf)
+ 101    continue
  100    continue
 c
        return
@@ -670,8 +676,9 @@ c     help variables
 c
        do 100 pf=fadd+1,fadd+nof
        f=pf-fadd
-       do 100 qe=eadd+1,eadd+noe
+       do 101 qe=eadd+1,eadd+noe
        b(qe-eadd,f)=-a(pf,qe)
+ 101    continue
  100    continue
 c
        return
@@ -1001,9 +1008,10 @@ c     help variables
 c
        ef=0
        do 100 pe=eadd+2,eadd+noe
-       do 100 qf=eadd+1,pe-1
+       do 101 qf=eadd+1,pe-1
        ef=ef+1
        b(ef,bb)=a(pe,qf)-a(qf,pe)
+ 101    continue
  100    continue
 c
        return
@@ -1027,8 +1035,9 @@ c     help variables
 c
        do 100 qf=fadd+1,fadd+nof
        f=qf-fadd
-       do 100 pe=eadd+1,eadd+noe
+       do 101 pe=eadd+1,eadd+noe
        b(pe-eadd,f,bb)=ap(pe,qf)-am(qf,pe)
+ 101    continue
  100    continue
 c
        return
@@ -1051,8 +1060,9 @@ c     help variables
 c
        do 100 qf=fadd+1,fadd+nof
        f=qf-fadd
-       do 100 pe=eadd+1,eadd+noe
+       do 101 pe=eadd+1,eadd+noe
        b(pe-eadd,f,bb)=a(pe,qf)
+ 101    continue
  100    continue
 c
        return
@@ -1075,8 +1085,9 @@ c     help variables
 c
        do 100 pf=fadd+1,fadd+nof
        f=pf-fadd
-       do 100 qe=eadd+1,eadd+noe
+       do 101 qe=eadd+1,eadd+noe
        b(qe-eadd,f,bb)=a(pf,qe)
+ 101    continue
  100    continue
 c
        return

@@ -31,6 +31,7 @@
 *             Modified for trans. prob.   calculations Oct '97         *
 *             by Anders Bernhardsson                                   *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -59,12 +60,12 @@
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -249,7 +250,9 @@
                   End Do
                End Do
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
       nDAO = nZeta * (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
@@ -261,12 +264,12 @@
               iGrad = Abs(IndGrd(icnt,iCar,jcar,iirrep))
                If (iCnt.eq.1) Then
                   i1 = iCar
-                  ps=rChTbl(iIrrep,nOp(1))
+                  ps=DBLE(iChTbl(iIrrep,nOp(1)))
                   ps=ps*DBLE(iPrmt( nOp(1),iChBas(1+iCar)))
                   Fct = DBLE(iStb)/DBLE(nIrrep)
                Else
                   i1 = iCar + 3
-                  ps=rChTbl(iIrrep,nOp(2))
+                  ps=DBLE(iChTbl(iIrrep,nOp(2)))
                   ps = ps*DBLE( iPrmt( nOp(2), iChBas(1+iCar) ) )
                   Fct = ps * DBLE(jStb)/DBLE(nIrrep)
               End If

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Output1_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Output1_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to write the output of seward            .               *
@@ -24,10 +24,13 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Period
       use GeoList
       use MpmC
       use EFP_Module
+      use External_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -41,7 +44,6 @@
 #include "gateway.fh"
 #include "localdf.fh"
       Logical l_aCD_Thr, lOPTO
-      Real*8 DInf(nDInf)
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -197,7 +199,7 @@
                      Write(LuWr,'(17X,A)')
      &               '   - Partial local approximation:'
                      Write(LuWr,'(17X,A,10(A4))')
-     &          '     - Centers: ', (LblCnt(iCtrLD(i)),i=1,nCtrLD)
+     &          '     - Centers: ', (dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
                      Write(LuWr,'(17X,A,F6.2,A)')
      &          '     - Cutoff radius: ', radiLD, ' Bohr'
                  End If
@@ -269,16 +271,16 @@
      &                           nDMS, ' points'
       If (lOAM) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital angular momentum around (',
-     &   (DInf(ipOAM+i),i=0,2),')'
+     &   (OAM_Center(i),i=1,3),')'
       If (lOMQ) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital magnetic quadrupole around (',
-     &   (DInf(ipOMQ+i),i=0,2),')'
+     &   (OMQ_Center(i),i=1,3),')'
       If (Vlct.and.(nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Velocity quadrupole around (',
      &   (Coor_MPM(i,3),i=1,3),')'
       If (lAMP) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      & '   Products of Orbital angular momentum operators around (',
-     &   (DInf(ipAMP+i),i=0,2),')'
+     &   (AMP_Center(i),i=1,3),')'
       If (nWel.ne.0) Write (LuWr,'(15X,A,I4,A)')
      &             '   Spherical well for', nWel,
      &             ' exponent(s) added to the'
@@ -382,7 +384,7 @@
      &                 '  - CD Threshold: ',Thrshld_CD
                l_aCD_Thr=.False.
                Do iCnttp = 1, nCnttp
-                  l_aCD_Thr=l_aCD_Thr .or. aCD_Thr(iCnttp).ne.One
+                  l_aCD_Thr=l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr.ne.One
                End Do
                If (l_aCD_Thr) Then
                   Write (LuWr,'(17X,A)')
@@ -514,16 +516,16 @@
 *     Write out basis set information
 *
       If (Run_Mode.eq.GS_Mode) Then
-         Call Print_Basis(lOPTO,DInf,nDInf)
+         Call Print_Basis(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write out coordinates, bond, angles and torsional angles
 *
          If (lOPTO) then
-            Call Print_Geometry(1,DInf,nDInf)
+            Call Print_Geometry(1)
          else
-            Call Print_Geometry(0,DInf,nDInf)
+            Call Print_Geometry(0)
          EndIf
          Call Print_Isotopes()
 *                                                                      *
@@ -535,16 +537,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_Basis2(DInf,nDInf)
+         Call Print_Basis2()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_OpInfo(DInf,nDInf)
+         Call Print_OpInfo()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call QExit('Output1_Seward')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

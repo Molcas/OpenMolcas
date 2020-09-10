@@ -55,7 +55,7 @@
      &                  ' SO Integrals of type ', Label,' Component ',
      &                     iComp
                End If
-               Line=Bline
+               Line=''
                If (iIrrep.eq.jIrrep) Then
                   Write (Line,'(1X,A,I1)')
      &            ' Diagonal Symmetry Block ', iIrrep+1

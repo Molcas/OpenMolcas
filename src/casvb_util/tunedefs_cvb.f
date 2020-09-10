@@ -50,9 +50,11 @@ c  First set values that disable tests :
       sign(j)=huge
       zzmax(j)=huge
       zzmin(j)=-huge
-      do 100 i=1,3
+      do 101 i=1,3
       dx(i,j)=huge
-100   grd(i,j)=huge
+      grd(i,j)=huge
+101   continue
+100   continue
 c  << TRST_CVB common block : >>
       scalesmall(1)=.false.
       nopth1(1)=1

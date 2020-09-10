@@ -41,23 +41,27 @@ c  Main loop over configurations :
       do 100 iconf=1,nconf1
       ion=0
       do 200 iorb=1,norb
-200   if(iconfs(iorb,iconf).eq.2)ion=ion+1
+      if(iconfs(iorb,iconf).eq.2)ion=ion+1
+200   continue
       if(ion.lt.mnion1)mnion1=ion
       if(ion.gt.mxion1)mxion1=ion
       nconfion(ion)=nconfion(ion)+1
       do 300 iS=1,nS
       call icomb_cvb(nel1-2*ion,(nel1-i2s(iS))/2-ion,iretval1)
       call icomb_cvb(nel1-2*ion,(nel1-i2s(iS))/2-ion-1,iretval2)
-300   nvbr1=nvbr1+iretval1-iretval2
+      nvbr1=nvbr1+iretval1-iretval2
+300   continue
       do 400 iMs=1,nMs
       call icomb_cvb(nel1-2*ion,nalf1(iMs)-ion,iretval)
       ndetvb1=ndetvb1+iretval
-400   ndetvb21=ndetvb21+(iretval+1)/2
+      ndetvb21=ndetvb21+(iretval+1)/2
+400   continue
 100   continue
       if(norb.eq.nel1.and.nconf1.eq.1)then
         ifsc1=1
         do 500 i=1,nel1
-500     if(iconfs(i,nconf1).ne.1)ifsc1=0
+        if(iconfs(i,nconf1).ne.1)ifsc1=0
+500     continue
       else
         ifsc1=0
       endif

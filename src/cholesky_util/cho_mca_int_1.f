@@ -23,7 +23,6 @@ C
       LOGICAL  LOCPRT
 #include "itmax.fh"
 #include "cholesky.fh"
-#include "shinf.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
 

@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El(DInf,nDInf,Info)
+      SubRoutine Drv1El()
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -27,9 +27,13 @@
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *
 ************************************************************************
+      Use AMFI_Info
+      Use Basis_Info
       Use GeoList
       Use MpmC
       Use PrpPnt
+      Use External_Centers
+      Use SW_file
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -47,7 +51,10 @@
      &         KneMem_GIAO,
      &          NAMem_GIAO,
      &          dTdmu_Mem
-      Real*8 DInf(nDInf)
+      External PAM2Int, FragPint,
+     &         PAM2Mem, FragPMem
+      External P_Int, EPEInt,
+     &         P_Mem, EPEMem
 #ifdef _FDE_
       ! Embedding
       External embPotMem, embPotKernel
@@ -63,10 +70,6 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc, KnE_Int, NA_Int,
      &                                     FragP, OneHam, PtEl,
      &                                     PtNuc, SumEl, SumNuc
-      Real*8, Dimension(:,:), Allocatable :: PAMexp
-      External PAM2Int, FragPint, PAM2Mem, FragPMem
-      External P_Int, EPEInt,
-     &         P_Mem, EPEMem
       logical lECPnp,lPAM2np
 #include "itmax.fh"
 #include "info.fh"
@@ -295,22 +298,23 @@
          iPAMcount=1
         Do 348 kCnttpPAM = 1, nCnttp
 
-           iAddr=ipPAM2xp(kCnttpPAM)
-           nPAMltpl=nPAM2(kCnttpPAM)
+           nPAMltpl=dbsc(kCnttpPAM)%nPAM2
 
            If(nPAMltpl.lt.0) Go To 348
+*
+           iAddr=1
            Do 347 iPAMltpl=0,nPAMltpl
               nOrdOp= iPAMltpl
               nComp =(iPAMltpl+1)*(iPAMltpl+2)/2
-              iPAMPrim=Int(Work(iAddr))
-              iPAMBas =Int(Work(iAddr+1))
+              iPAMPrim=Int(dbsc(kCnttpPAM)%PAM2(iAddr))
+              iPAMBas =Int(dbsc(kCnttpPAM)%PAM2(iAddr+1))
 
               if(iPAMBas.eq.0.or.iPAMPrim.eq.0) go to 3471
-              Call dcopy_(3,[Zero],0,Ccoor,1)
+              Ccoor(:)=Zero
               Call Allocate_Auxiliary()
               Do iComp=0,nComp-1
-                 Call dcopy_(3,Work(ipCntr(kCnttpPAM)),
-     &                      1,CoorO(1+3*iComp),1)
+                 Call dcopy_(3,dbsc(kCnttpPAM)%Coor,1,
+     &                       CoorO(1+3*iComp),1)
               End Do
 *
 *****    Define symmetry properties of the operator:
@@ -354,9 +358,11 @@
 *****    Loop over basis finction
 *
          Call mma_allocate(PAMexp,iPAMPrim,2,label='PAMexp')
-         Call dcopy_(iPAMPrim,Work(iAddr+2),1,PAMexp(1,1),1)
+         Call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2),1,
+     &               PAMexp(1,1),1)
          Do iPAMf=1,iPAMBas
-            Call dcopy_(iPAMPrim,Work(iAddr+2+iPAMPrim*iPAMf),1,
+            Call dcopy_(iPAMPrim,
+     &                  dbsc(kCnttpPAM)%PAM2(iAddr+2+iPAMPrim*iPAMf),1,
      &                  PAMexp(1,2),1)
             Write (Label,'(A,I2.2,I1.1,I2.2)')
      &             'PAM', kCnttpPAM,iPAMltpl,iPAMf
@@ -377,7 +383,7 @@ c           iPAMcount=iPAMcount+1
  3471    iAddr=iAddr+2+iPAMPrim*(iPAMBas+1)
  347     Continue
  348    Continue
-      close(28)
+        close(28)
       End If
 ************************************************************************
 ************************************************************************
@@ -649,7 +655,7 @@ c           iPAMcount=iPAMcount+1
 *        Note that this parsing is a bit different here!
 *
          Write (Label,'(A,I1,I5)') 'EF',nOrdOp,iEF
-         Call dcopy_(3,Work(ipEF+(iEF-1)*3),1,Ccoor,1)
+         Ccoor(:)=EF_Centers(:,iEF)
 *
          iSymR(0) = 1
          If (Ccoor(1).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymX)
@@ -780,10 +786,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 3
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1  ),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+3),1)
-         Call dcopy_(3,Work(ipOAM),1,CoorO(1+6),1)
-         Call dcopy_(3,Work(ipOAM),1,Ccoor,1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1  ),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+3),1)
+         Call dcopy_(3,OAM_Center,1,CoorO(1+6),1)
+         Call dcopy_(3,OAM_Center,1,Ccoor,1)
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
          ixyz=2
@@ -902,10 +908,10 @@ c           iPAMcount=iPAMcount+1
          nOrdOp = 3
          Call Allocate_Auxiliary()
 *
-         Call dcopy_(nComp,[Work(ipOMQ  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipOMQ+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipOMQ+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipOMQ),1,Ccoor,1)
+         Call dcopy_(nComp,[OMQ_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[OMQ_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[OMQ_Center(3)],0,CoorO(1+2),3)
+         Ccoor(:)=OMQ_Center(:)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)
@@ -1066,7 +1072,7 @@ c           iPAMcount=iPAMcount+1
          Write (Label,'(A,I2,I2)') 'DMS ',1,iDMS
          nComp = 9
          nOrdOp=2
-         Call dcopy_(3,Work(ipDMS+(iDMS-1)*3),1,Ccoor,1)
+         CCoor(:)=DMS_Centers(:,iDMS)
          Call Allocate_Auxiliary()
          iSymC = 1
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
@@ -1084,7 +1090,7 @@ c           iPAMcount=iPAMcount+1
          iComp = 0
          iC = 0
          Do 1510 ix = 1, 0, -1
-         Do 1510 iy = 1-ix, 0, -1
+         Do 1511 iy = 1-ix, 0, -1
             iz=1-ix-iy
             iC = iC + 1
             iChO1 = iChBas(iC+1)
@@ -1095,8 +1101,8 @@ c           iPAMcount=iPAMcount+1
             iSym = 2**IrrFnc(ixyz)
             If (Ccoor(iC).ne.Zero) iSym = iOr(iSym,1)
             iD = 0
-            Do 1511 jx = 1, 0, -1
-            Do 1511 jy = 1-jx, 0, -1
+            Do 1512 jx = 1, 0, -1
+            Do 1513 jy = 1-jx, 0, -1
                jz=1-jx-jy
                iD = iD + 1
                iChO2 = iChBas(iD+1)
@@ -1120,7 +1126,9 @@ c           iPAMcount=iPAMcount+1
                OperC(1+iComp) = iChO
                Call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
                iComp = iComp + 1
- 1511       Continue
+ 1513       Continue
+ 1512       Continue
+ 1511    Continue
  1510    Continue
          Call dcopy_(3,Dxyz,1,CoorO(1+3),1)
 *
@@ -1161,8 +1169,8 @@ c           iPAMcount=iPAMcount+1
          OperI(1) = 1
          OperC(1) = iChBas(1)
          Do 1600 iWel = 1, nWel
-            r0   = Work(ipWel+(iWel-1)*3  )
-            ExpB = Work(ipWel+(iWel-1)*3+1)
+            r0   = Wel_Info(1,iWel)
+            ExpB = Wel_Info(2,iWel)
             Write (Label,'(A,I4)') 'Well',iWel
             Call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,
      &                 CoorO,iWel,[Zero],rHrmt,OperC,
@@ -1188,6 +1196,7 @@ c           iPAMcount=iPAMcount+1
      &                                 label='Emb_Int')
 #endif
          iOpt = 0
+         lOper = 0
          iRC = -1
          Label='Kinetic '
          Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
@@ -1198,6 +1207,7 @@ c           iPAMcount=iPAMcount+1
             Call Quit(_RC_IO_ERROR_READ_)
          End If
          Label='Attract '
+         lOper = 0
          iRC = -1
          Call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
          If (iRC.ne.0) then
@@ -1224,6 +1234,7 @@ c           iPAMcount=iPAMcount+1
            close(iunit)
           else
            Label='embpot  '
+           lOper = 0
            iRC=-1
            Call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
            If (iRC.ne.0) then
@@ -1241,6 +1252,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lECPnp) Then
             Label='PrjInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1251,6 +1263,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='M1Int   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1261,6 +1274,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='M2Int   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1271,6 +1285,7 @@ c           iPAMcount=iPAMcount+1
             End If
             Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
             Label='SROInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1286,6 +1301,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lPP) Then
             Label='PPInt   '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1301,6 +1317,7 @@ c           iPAMcount=iPAMcount+1
 *
          If (lXF) Then
             Label='XFdInt  '
+            lOper = 0
             iRC = -1
             Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
             If (iRC.ne.0) then
@@ -1316,8 +1333,9 @@ c           iPAMcount=iPAMcount+1
 *
          If (nWel.ne.0) Then
             Do iWel = 1, nWel
-               Fact=Work(ipWel-1+(iWel-1)*3+3)
+               Fact=Wel_Info(3,iWel)
                Write (Label,'(A,I4)') 'Well',iWel
+               lOper = 0
                iRC = -1
                Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
                If (iRC.ne.0) then
@@ -1392,10 +1410,10 @@ c           iPAMcount=iPAMcount+1
          nComp = 6
          nOrdOp = 2
          Call Allocate_Auxiliary()
-         Call dcopy_(nComp,[Work(ipAMP  )],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[Work(ipAMP+1)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[Work(ipAMP+2)],0,CoorO(1+2),3)
-         Call dcopy_(3,Work(ipAMP),1,Ccoor,1)
+         Call dcopy_(nComp,[AMP_Center(1)],0,CoorO(1  ),3)
+         Call dcopy_(nComp,[AMP_Center(2)],0,CoorO(1+1),3)
+         Call dcopy_(nComp,[AMP_Center(3)],0,CoorO(1+2),3)
+         CCoor(:)=AMP_Center(:)
 C Symmetry labels iSymX  for operator d/dx, etc.
 C Symmetry labels iSymLx for operator Lx, etc.
 C Characters iChOx for operator Lx, etc.
@@ -1481,7 +1499,7 @@ C decomposition of the totally symmetric irrep of Gsub.
       nOrdOp = 1
       Do iCnt = 1, mCnt
          Write (Label,'(A,I5)') 'Cnt',iCnt
-         Call dcopy_(3,Work(ipEF+(iCnt-1)*3),1,Ccoor,1)
+         CCoor(:)=EF_Centers(:,iCnt)
          Call Allocate_Auxiliary()
 *
          iSymR(0) = 1
@@ -1701,29 +1719,25 @@ C     mMltpl=-1 ! Do only overlap.
 
 * BP - Turn off AMFI integrals for certain atom types
 *      as requested by the PAMF keyword
-c         write(6,*) "nPAMFI:", nPAMFI
-c         write(6,*) "iPAMFI:", iPAMFI(1:nPAMFI)
 
-         Do iAtm=1,nCnttp
-           iAtmNr2(iAtm) = iAtmNr(iAtm)
-           Charge2(iAtm) = Charge(iAtm)
+         Do i=1,nCnttp
+            iAtmNr2(i) = dbsc(i)%AtmNr
+            Charge2(i) = dbsc(i)%Charge
 
-c           write(6,*) "iAtmNr2(iAtm)",iAtm, iAtmNr2(iAtm)
-c           write(6,*) "Charge(iAtm)", iAtm, Charge(iAtm)
+c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
+c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
-           do iPAM=1,nPAMFI
-             if(iAtmNr(iAtm).EQ.iPAMFI(iPAM)) then
-               write(6,*) "Disabling AMFI for atom type ",iAtmNr(iAtm)
-               iAtmNr2(iAtm) = 0
-               Charge2(iAtm) = 0.0d0
-             end if
-           end do
+            iAtom_Number= dbsc(i)%AtmNr
+            If (No_AMFI(iAtom_Number)) then
+               write(6,*) "Disabling AMFI for atom type ",
+     &                 dbsc(i)%AtmNr
+               iAtmNr2(i) = 0
+               Charge2(i) = 0.0d0
+            End if
          End do
 
-         Call Gen_RelPointers(-(Info-1))
-         Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,
-     &                 OperC, iAtmNr2, Charge2,DInf,nDInf)
-         Call Gen_RelPointers(Info-1)
+         Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,
+     &                 Charge2)
 
          Call Deallocate_Auxiliary()
       End If
@@ -1869,10 +1883,10 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *
          iEF = 0
          Do  iCnttp = 1, nCnttp
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                iEF=iEF+1
                Write (Label,'(A,I2)') 'dT/dmu',iEF
-               Call dcopy_(3,Work(ipCntr(iCnttp)+(iCnt-1)*3),1,Ccoor,1)
+               CCoor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
                Call Allocate_Auxiliary()
                iSymC = 1
                If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
@@ -1925,7 +1939,6 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      Call Gen_RelPointers(-(Info-1))
       PLabel=' '
       rHrmt=One
       nComp=1
@@ -1940,11 +1953,10 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
          Call Drv_Fck(Label,ipList,OperI,nComp,
      &                CoorO,nOrdOp,[Zero],rHrmt,OperC,
      &                dum,1,dum,idum,0,0,
-     &                dum,1,0,DInf,nDInf)
+     &                dum,1,0)
 *
          Call Deallocate_Auxiliary()
       End If
-      Call Gen_RelPointers(Info-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2037,6 +2049,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
         Call Deallocate_Auxiliary()
 * add the results to the one-electron hamiltonian
         iOpt = 0
+        lOper = 0
         iRC = -1
         Call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
         Call RdOne(iRC,iOpt,Label,1,FragP,lOper)
@@ -2047,6 +2060,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
            Call Quit(_RC_IO_ERROR_READ_)
         End If
         Label = 'OneHam  '
+        lOper = 0
         iRC = -1
         Call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
         Call RdOne(iRC,iOpt,Label,1,OneHam,lOper)

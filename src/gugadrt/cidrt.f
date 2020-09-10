@@ -1597,7 +1597,7 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
       do 20 l=norb_inn-1,norb_dz,-1
         jps=no(l-1)+1
         jpe=no(l)
-        do 20 jde=jps,jpe
+        do 21 jde=jps,jpe
           j1=idjj(1,jde)
           j2=idjj(2,jde)
           j3=idjj(3,jde)
@@ -1610,14 +1610,14 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
             if(idjj(3,jp0).eq.jde) idjj(3,jp0)=0
             if(idjj(4,jp0).eq.jde) idjj(4,jp0)=0
           enddo
-          goto 20
+          goto 21
 304       if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
           iwy(2,jde)=iwy(1,j1)
 31        if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
           iwy(3,jde)=iwy(1,j1)+iwy(1,j2)
 32        if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
           iwy(4,jde)=iwy(1,jde)-iwy(1,j4)
-303       if(jde.eq.1) goto 20
+303       if(jde.eq.1) goto 21
           do 302 jp=jps,jde-1
             if(iwy(1,jp).ne.iwy(1,jde)) goto 302
             jq1=idjj(1,jp)
@@ -1633,8 +1633,9 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
               if(idjj(3,jp0).eq.jde) idjj(3,jp0)=jp
               if(idjj(4,jp0).eq.jde) idjj(4,jp0)=jp
             enddo
-            goto 20
-302     continue
+            goto 21
+302       continue
+21      continue
 20    continue
 
       it=mxnode
@@ -1778,15 +1779,15 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       mdj=0
       do 500 nes=ne_s,ne_act,2
         do 100 l1=0,lhsm(1)
-          do 100 l2=0,lhsm(2)
-            do 100 l3=0,lhsm(3)
-              do 100 l4=0,lhsm(4)
-                do 100 l5=0,lhsm(5)
-                  do 100 l6=0,lhsm(6)
-                    do 100 l7=0,lhsm(7)
-                      do 100 l8=0,lhsm(8)
+          do 101 l2=0,lhsm(2)
+            do 102 l3=0,lhsm(3)
+              do 103 l4=0,lhsm(4)
+                do 104 l5=0,lhsm(5)
+                  do 105 l6=0,lhsm(6)
+                    do 106 l7=0,lhsm(7)
+                      do 107 l8=0,lhsm(8)
                         lpsum=l1+l2+l3+l4+l5+l6+l7+l8
-                    if(lpsum.ne.nes) goto 100
+                        if(lpsum.ne.nes) goto 107
                         mys=1
                         if(mod(l1,2).eq.1)mys=mul_tab(mys,1)
                         if(mod(l2,2).eq.1)mys=mul_tab(mys,2)
@@ -1796,8 +1797,8 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                         if(mod(l6,2).eq.1)mys=mul_tab(mys,6)
                         if(mod(l7,2).eq.1)mys=mul_tab(mys,7)
                         if(mod(l8,2).eq.1)mys=mul_tab(mys,8)
-                        if(mys.ne.nm) goto 100
-                    mdj=mdj+1
+                        if(mys.ne.nm) goto 107
+                        mdj=mdj+1
                         lscu(0,mdj)=lpsum
                         lscu(1,mdj)=l1
                         lscu(2,mdj)=l2
@@ -1807,19 +1808,26 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                         lscu(6,mdj)=l6
                         lscu(7,mdj)=l7
                         lscu(8,mdj)=l8
+107                   continue
+106                 continue
+105               continue
+104             continue
+103           continue
+102         continue
+101       continue
 100     continue
 500   continue
       ndj=0
       do 300 m=1,mdj
         npair=(ne_act-lscu(0,m))/2
         do 200 l1=0,lhsm(1)-lscu(1,m)
-          do 200 l2=0,lhsm(2)-lscu(2,m)
-            do 200 l3=0,lhsm(3)-lscu(3,m)
-              do 200 l4=0,lhsm(4)-lscu(4,m)
-                do 200 l5=0,lhsm(5)-lscu(5,m)
-                  do 200 l6=0,lhsm(6)-lscu(6,m)
-                    do 200 l7=0,lhsm(7)-lscu(7,m)
-                      do 200 l8=0,lhsm(8)-lscu(8,m)
+          do 201 l2=0,lhsm(2)-lscu(2,m)
+            do 202 l3=0,lhsm(3)-lscu(3,m)
+              do 203 l4=0,lhsm(4)-lscu(4,m)
+                do 204 l5=0,lhsm(5)-lscu(5,m)
+                  do 205 l6=0,lhsm(6)-lscu(6,m)
+                    do 206 l7=0,lhsm(7)-lscu(7,m)
+                      do 207 l8=0,lhsm(8)-lscu(8,m)
                         lpsum=l1+l2+l3+l4+l5+l6+l7+l8
                         if(lpsum.eq.npair) then
                           m1=l1*2+lscu(1,m)
@@ -1830,7 +1838,7 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                           m6=l6*2+lscu(6,m)
                           m7=l7*2+lscu(7,m)
                           m8=l8*2+lscu(8,m)
-                     do 600 ldj=1,ndj
+                          do 600 ldj=1,ndj
                             if(m1.ne.locu(1,ldj)) goto 600
                             if(m2.ne.locu(2,ldj)) goto 600
                             if(m3.ne.locu(3,ldj)) goto 600
@@ -1839,9 +1847,9 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                             if(m6.ne.locu(6,ldj)) goto 600
                             if(m7.ne.locu(7,ldj)) goto 600
                             if(m8.ne.locu(8,ldj)) goto 600
-                            goto 200
+                            goto 207
 600                       continue
-                     ndj=ndj+1
+                          ndj=ndj+1
                           locu(1,ndj)=m1
                           locu(2,ndj)=m2
                           locu(3,ndj)=m3
@@ -1851,6 +1859,13 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                           locu(7,ndj)=m7
                           locu(8,ndj)=m8
                         endif
+207                   continue
+206                 continue
+205               continue
+204             continue
+203           continue
+202         continue
+201       continue
 200     continue
 300   continue
 
@@ -1863,11 +1878,15 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       subroutine gugadrt_rcas(id,indd)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
+#include "stdalloc.fh"
       common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
      :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
      :    ,jv,jd(8),jt(8),js(8)
-      dimension ind(8,max_node),locu(8,max_ref),jc(max_node)
-      dimension noh(max_innorb),itm(0:max_node),iwy(4,0:max_node)
+      dimension locu(8,max_ref),jc(max_node)
+      dimension noh(max_innorb),itm(0:max_node)
+      allocatable :: ind(:,:),iwy(:,:)
+      call mma_allocate(ind,8,max_node,label='ind')
+      call mma_allocate(iwy,[1,4],[0,max_node],label='iwy')
       write(6,*)' '
       write(6,*) 'now generate distinct row tableau'
       noh=0
@@ -2143,8 +2162,9 @@ c                                         ************
          if(jc(jk).ne.jc(ii)) goto 118
          if(jm(jk).ne.jm(ii)) goto 118
          if(kk(j).eq.norb_inn-1) goto 605
-           do 606 i=1,8
-606        if(ind(i,jk).ne.ind(i,ii)) goto 118
+         do 606 i=1,8
+           if(ind(i,jk).ne.ind(i,ii)) goto 118
+606      continue
 605      jk=jk-1
          jj(4,j)=ii
          go to 88
@@ -2209,11 +2229,12 @@ c  ************** external space  *************
       enddo
 
       do 21 i=1,4
-21    iwy(i,0)=0
+      iwy(i,0)=0
+21    continue
       do 20 l=norb_inn-1,norb_dz,-1
          jps=no(l-1)+1
          jpe=no(l)
-      do 20 jde=jps,jpe
+      do 19 jde=jps,jpe
          j1=jj(1,jde)
          j2=jj(2,jde)
          j3=jj(3,jde)
@@ -2231,14 +2252,14 @@ c  ************** external space  *************
              if(jj(3,jp0).eq.jde) jj(3,jp0)=0
              if(jj(4,jp0).eq.jde) jj(4,jp0)=0
            enddo
-         goto 20
+         goto 19
 304      if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
          iwy(2,jde)=iwy(1,j1)
 31       if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
          iwy(3,jde)=iwy(1,j1)+iwy(1,j2)
 32       if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
          iwy(4,jde)=iwy(1,jde)-iwy(1,j4)
-303      if(jde.eq.1) goto 20
+303      if(jde.eq.1) goto 19
          do 302 jp=jps,jde-1
            if(iwy(1,jp).ne.iwy(1,jde)) goto 302
            jq1=jj(1,jp)
@@ -2253,8 +2274,9 @@ c  ************** external space  *************
              if(jj(3,jp0).eq.jde) jj(3,jp0)=jp
              if(jj(4,jp0).eq.jde) jj(4,jp0)=jp
            enddo
-           goto 20
+           goto 19
 302      continue
+19     continue
 20    continue
         it=mxnode
       itm(1)=1
@@ -2357,6 +2379,8 @@ c      write(21) jv,jd(1:8),jt(1:8),js(1:8)
 c      close(21)
 
       call writedrt(id)
+      call mma_deallocate(ind)
+      call mma_deallocate(iwy)
 507   format(3x,2i5,1x,3i3,1x,4i5,1x,4i10,1x,8i2)
       end
 
@@ -2497,8 +2521,9 @@ c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
       iin(jpad:jpe)=0
       iin(jp)=1
       do 10 jpn=no(lr-1),jpad,-1
-10    iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
+      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
      :        +iin(jj_sub(4,jpn))
+10    continue
       in=iin(jpad)
 
       do 30 l=1,in

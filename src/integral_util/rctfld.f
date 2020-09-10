@@ -16,6 +16,7 @@
 *     Driver for RctFld_                                               *
 *                                                                      *
 ************************************************************************
+      use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -31,7 +32,7 @@
       Call GetMem('QV','Allo','Real',ipQV,nComp*2)
 *
       Call RctFld_(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &             Work(ipMM),nComp,Work(ipVs),Work(ipQV))
+     &             MM,nComp,Work(ipVs),Work(ipQV))
 *
       Call GetMem('QV','Free','Real',ipQV,nComp*2)
       Call GetMem('Vs','Free','Real',ipVs,nComp*2)

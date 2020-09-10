@@ -338,11 +338,11 @@ div.sidebar {
   border-width: 0 2px 2px 0;
 }
 
-div.sidebar a, div.header a {
+div.sidebar a, div.header a, div.footer .left a {
   text-decoration: none;
 }
 
-div.sidebar a:hover, div.header a:hover {
+div.sidebar a:hover, div.header a:hover, div.footer .left a:hover {
   text-decoration: underline;
 }
 
@@ -767,6 +767,19 @@ a.footnote-reference {
 /* Code blocks */
 div.document div.highlight {
   overflow: auto;
+}
+
+div.highlight-none:before {
+  content: attr(click-label);
+  display: block;
+  height: 0;
+  position: relative;
+  bottom: 0.5ex;
+  text-align: right;
+  padding-right: 3em;
+  opacity: 0.5;
+  font-size: 75%;
+  font-weight: bold;
 }
 
 /* Tables */

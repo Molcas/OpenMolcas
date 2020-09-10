@@ -437,6 +437,8 @@ latex_elements['preamble'] += r'''
 \renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
 \let\oldtheequation\theequation%
 \renewcommand{\theequation}{\thepart.\oldtheequation}%
+% Missing unicode character(s)?
+\DeclareUnicodeCharacter{03A6}{$\Phi$}
 '''
 
 latex_additional_files = [ '_latex/molcas.sty' ]

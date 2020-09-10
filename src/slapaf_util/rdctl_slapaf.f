@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -51,6 +52,7 @@
 *
 *-----Initiate some parameters
 *
+      Call Symmetry_Info_Get()
       Call Init_Slapaf(iRow)
       iPrint=nPrint(iRout)
       iSetAll=2**30 - 1
@@ -141,6 +143,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'MAXD') Go To 916
       If (Char(1:4).eq.'MEP-'.or. Char(1:4).eq.'MEP ') Go To 964
       If (Char(1:4).eq.'MEPA'.or. Char(1:4).eq.'IRCA') Go To 322
+      If (Char(1:4).eq.'MEPC'.or. Char(1:4).eq.'IRCC') Go To 323
       If (Char(1:4).eq.'MEPS'.or. Char(1:4).eq.'IRCS') Go To 9971
       If (Char(1:4).eq.'MEPT'.or. Char(1:4).eq.'IRCT') Go To 321
       If (Char(1:4).eq.'MODE') Go To 942
@@ -864,6 +867,13 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       End If
       Go To 999
 *                                                                      *
+****** MEPC/IRCC *******************************************************
+*                                                                      *
+ 323  Char=Get_Ln(LuRd)
+      Call Get_F1(1,ThrMEP)
+      ThrMEP=Max(Zero,ThrMEP)
+      Go To 999
+*                                                                      *
 ****** REFE ************************************************************
 *                                                                      *
  966  Call GetMem('RefGeom','Allo','Real',ipRef,3*nsAtom)
@@ -1093,7 +1103,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Write(Lu_UDCTMP,*) 'END'
          Close (Lu_UDCTMP)
          Call Merge_Constraints('UDC','UDCTMP','UDC',nLambda,iRow_c)
-         Beta=Abs(dMEPStep)
+         Beta=Min(Beta,Abs(Valu))
          MEPnum=nLambda
       End If
 *

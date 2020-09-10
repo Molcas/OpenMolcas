@@ -14,7 +14,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Integer nDens, mDens
@@ -47,7 +46,7 @@
       DFT_Storage=.False.
       Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
      &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &             Work,1,DeDe,nDeDe)
+     &             DeDe,nDeDe)
 *                                                                      *
 ************************************************************************
 *                                                                      *

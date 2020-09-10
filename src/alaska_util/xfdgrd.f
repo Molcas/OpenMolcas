@@ -30,8 +30,10 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, May '95                                 *
+*             of Lund, Sweden, May 1995                                *
 ************************************************************************
+      use external_centers
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -51,7 +53,7 @@
 *
 *-----Local arrys
 *
-      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3)
+      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3), TZFd(3)
       Logical NoLoop, JfGrad(3,4)
 CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       Integer iAnga(4), iStb(0:7),
@@ -86,13 +88,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
          Write(6,*)'higher XF than dipoles or for polarisabilities'
          Call Quit_OnUserError()
       EndIf
-      Inc = 3
-      Do iOrdOp = 0, nOrd_XF
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      If (iXPolType.gt.0) Inc = Inc + 6
-
-
+*
       Do iOrdOp = 0, nOrd_XF
 *
       nip = 1
@@ -123,8 +119,8 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -144,45 +140,30 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
 *     Loop over centers of the external field.
 *
-      ip=ipXF-1
       iDum=0
       Do iFd = 1, nXF
          If (iOrdOp.eq.0) Then
-            ZFd(1)=Work(ip+(iFd-1)*Inc+4)
+            ZFd(1)=XF(4,iFd)
             NoLoop = ZFd(1).eq.Zero
          Else
-            ZFd(1)=Work(ip+(iFd-1)*Inc+5)
-            ZFd(2)=Work(ip+(iFd-1)*Inc+6)
-            ZFd(3)=Work(ip+(iFd-1)*Inc+7)
+            ZFd(1:3)=XF(5:7,iFd)
             NoLoop = ZFd(1).eq.Zero .and. ZFd(2).eq.Zero .and.
      &               ZFd(3).eq.Zero
          End If
          If (NoLoop) Go To 111
 *------- Pick up the center coordinates
-         C(1)=Work(ip+(iFd-1)*Inc+1)
-         C(2)=Work(ip+(iFd-1)*Inc+2)
-         C(3)=Work(ip+(iFd-1)*Inc+3)
+         C(1:3)=XF(1:3,iFd)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *------- Generate stabilizor of C
 *
-         If (nIrrep.eq.8) Then
-             nOper=3
-         Else If (nIrrep.eq.4) Then
-             nOper=2
-         Else If (nIrrep.eq.2) Then
-             nOper=1
-         Else
-             nOper=0
-         End If
-         iChxyz=iChAtm(C,iOper,nOper,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         iChxyz=iChAtm(C,iChBas(2))
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -231,11 +212,9 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -243,14 +222,15 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
             If (iOrdOp.eq.0) Then
                Call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)
             Else
+               Call OA(iDCRT(lDCRT),ZFd,TZFd)
                jpDAO = ipDAO
-               ZFdx=DBLE(iPhase(1,iDCRT(lDCRT)))*ZFd(1)
+               ZFdx=TZFd(1)
                Call DYaX(nZeta*nDAO,Fact*ZFdx,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdy=DBLE(iPhase(2,iDCRT(lDCRT)))*ZFd(2)
+               ZFdy=TZFd(2)
                Call DYaX(nZeta*nDAO,Fact*ZFdy,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdz=DBLE(iPhase(3,iDCRT(lDCRT)))*ZFd(3)
+               ZFdz=TZFd(3)
                Call DYaX(nZeta*nDAO,Fact*ZFdz,DAO,1,Array(jpDAO),1)
             End If
 *

@@ -18,22 +18,21 @@
       Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
 *
       If (nPrim*nCntrc.eq.0) Return
-*     Call qEnter('Nrmlz')
 *
       nScrt1=nPrim**2
       nScrt2=nPrim*nCntrc
       Call mma_allocate(Scrt1,nScrt1)
       Call mma_allocate(Scrt2,nScrt2)
-      Call Nrmlz_(Exp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
+      Call Nrmlz_Internal(Exp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,
+     &                                           Scrt2,nScrt2,iAng)
       Call mma_deallocate(Scrt2)
       Call mma_deallocate(Scrt1)
 *
-*     Call qExit('Nrmlz')
 *
       Return
       End
-      SubRoutine Nrmlz_(Exp,nPrim,Coeff,nCntrc,
-     &                 Scrt1,nScrt1,Scrt2,nScrt2,iAng)
+      SubRoutine Nrmlz_Internal(Exp,nPrim,Coeff,nCntrc,
+     &                          Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 ************************************************************************
 *                                                                      *
 * Object: normalize the contraction coefficients with respect to the   *
@@ -53,7 +52,7 @@
      &       Scrt2(nScrt2)
 #include "real.fh"
 *
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
       Write (6,*) ' In Nrmlz: iAng=',iAng
       Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)

@@ -40,6 +40,8 @@
 *             Modified to PCM gradients September 2001, Lund, by       *
 *             R. Lindh.                                                *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ, PCMTess
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "itmax.fh"
@@ -114,8 +116,8 @@
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -136,14 +138,14 @@
 *     Loop over the tiles
 *
       Do iTs = 1, nTs
-         Q=Work((iTs-1)+ip_Q)
+         Q=PCM_SQ(1,iTs)
          NoLoop = Q.eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the tile coordinates
-         C(1) = Work((iTs-1)*4+ip_Tess  )
-         C(2) = Work((iTs-1)*4+ip_Tess+1)
-         C(3) = Work((iTs-1)*4+ip_Tess+2)
-         kat  = nint(Work((iTs-1)*4+ip_Tess+3))
+         C(1) = PCMTess(1,iTs)
+         C(2) = PCMTess(2,iTs)
+         C(3) = PCMTess(3,iTs)
+         kat = nint(PCMTess(4,iTs))
          If (iPrint.ge.99) Call RecPrt('C',' ',C,3,1)
 *
 *------- Generate stabilizor of C
@@ -153,8 +155,7 @@
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -223,11 +224,9 @@ c             skip 2 center
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Integer Function iDeg(Coor,iOper,nIrrep)
+      Integer Function iDeg(Coor)
 ************************************************************************
 *                                                                      *
 * Object: to compute the degeneracy of a coordinate.                   *
@@ -24,19 +24,14 @@
 *             University of Lund, SWEDEN                               *
 *             March '91                                                *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "real.fh"
       Real*8 Coor(3), Cx(3,8), r(3)
-      Integer   iOper(0:nIrrep-1)
       Logical New
 *
-      iRout = 5
-      iPrint = nPrint(iRout)
-*     Call qEnter('iDeg')
-*
       iDeg = 1
-      call dcopy_(3,Coor,1,Cx,1)
+      Cx(:,1) = Coor(:)
       Do i = 1, nIrrep-1
          r(1)=One
          If (iAnd(iOper(i),1).ne.0) r(1)=-One
@@ -61,6 +56,5 @@
          End If
       End Do
 *
-*     Call qExit('iDeg')
       Return
       End

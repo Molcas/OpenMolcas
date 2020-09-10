@@ -104,6 +104,7 @@
        end if
       end if
 #endif
+!#define _DEBUG_
 #ifdef _DEBUG_
       ist1Hm=1
       Write (6,*)

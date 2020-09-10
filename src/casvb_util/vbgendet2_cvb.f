@@ -41,7 +41,8 @@ c  space we sort in A/B strings to get increasing order :
       call sortindxi_cvb(ndetvb,idetbvb,idetvb)
       do 100 i=1,ndetvb
       iwrk1(i)=idetbvb(idetvb(i))
-100   ibpr(i)=idetavb(idetvb(i))
+      ibpr(i)=idetavb(idetvb(i))
+100   continue
       ixbpr(1)=1
       do 200 i=1,ndb
       do 300 j=ixbpr(i),ndetvb
@@ -53,8 +54,10 @@ c  space we sort in A/B strings to get increasing order :
       do 500 i=1,ndb
       call sortindxi_cvb(ixbpr(i+1)-ixbpr(i),ibpr(ixbpr(i)),iwrk2)
       do 600 j=1,ixbpr(i+1)-ixbpr(i)
-600   iwrk1(j)=ibpr(iwrk2(j)+ixbpr(i)-1)
-500   call imove_cvb(iwrk1,ibpr(ixbpr(i)),ixbpr(i+1)-ixbpr(i))
+      iwrk1(j)=ibpr(iwrk2(j)+ixbpr(i)-1)
+600   continue
+      call imove_cvb(iwrk1,ibpr(ixbpr(i)),ixbpr(i+1)-ixbpr(i))
+500   continue
       if(debug)then
         write(6,*)' ixbpr='
         write(6,'(10i6)')ixbpr
@@ -65,22 +68,27 @@ c  space we sort in A/B strings to get increasing order :
       call sortindxi_cvb(ndetvb,idetavb,idetvb)
       do 700 i=1,ndetvb
       iwrk1(i)=idetavb(idetvb(i))
-700   iapr(i)=idetbvb(idetvb(i))
+      iapr(i)=idetbvb(idetvb(i))
+700   continue
       ixapr(1)=1
       do 800 i=1,nda
       do 900 j=ixapr(i),ndetvb
-900   if(iwrk1(j).ne.i)goto 1000
+      if(iwrk1(j).ne.i)goto 1000
+900   continue
       j=ndetvb+1
 1000  ixapr(i+1)=j
 800   continue
       do 1100 i=1,nda
       call sortindxi_cvb(ixapr(i+1)-ixapr(i),iapr(ixapr(i)),iwrk2)
       do 1200 j=1,ixapr(i+1)-ixapr(i)
-1200  iwrk1(j)=iapr(iwrk2(j)+ixapr(i)-1)
+      iwrk1(j)=iapr(iwrk2(j)+ixapr(i)-1)
+1200  continue
       call imove_cvb(iwrk1,iapr(ixapr(i)),ixapr(i+1)-ixapr(i))
       do 1300 j=1,ixapr(i+1)-ixapr(i)
-1300  iwrk1(j)=idetvb(iwrk2(j)+ixapr(i)-1)
-1100  call imove_cvb(iwrk1,idetvb(ixapr(i)),ixapr(i+1)-ixapr(i))
+      iwrk1(j)=idetvb(iwrk2(j)+ixapr(i)-1)
+1300  continue
+      call imove_cvb(iwrk1,idetvb(ixapr(i)),ixapr(i+1)-ixapr(i))
+1100  continue
       if(debug)then
         write(6,*)' ixapr='
         write(6,'(10i6)')ixapr
@@ -88,7 +96,8 @@ c  space we sort in A/B strings to get increasing order :
         write(6,'(10i6)')iapr
       endif
       do 1400 i=1,ndetvb
-1400  idetavb(idetvb(i))=i
+      idetavb(idetvb(i))=i
+1400  continue
       call imove_cvb(idetavb,idetvb,ndetvb)
       if(debug)then
         write(6,*)' idetvb='

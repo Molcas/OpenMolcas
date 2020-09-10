@@ -51,6 +51,7 @@ Contributors:
 - JCavallo (Jean Cavallo) names dict shouldn't be modified
 - Birne94 (Daniel Birnstiel) for fixing leaking generators.
 - patricksurry (Patrick Surry) or should return last value, even if falsy.
+- shughes-uk (Samantha Hughes) python w/o 'site' should not fail to import.
 
 -------------------------------------
 Basic Usage:
@@ -93,6 +94,7 @@ well:
 import ast
 import operator as op
 import sys
+import warnings
 from random import random
 
 PYTHON3 = sys.version_info[0] == 3
@@ -112,8 +114,15 @@ DISALLOW_METHODS = ['format', 'format_map', 'mro']
 # people not be stupid.  Allowing these functions opens up all sorts of holes - if any of
 # their functionality is required, then please wrap them up in a safe container.  And think
 # very hard about it first.  And don't say I didn't warn you.
+# builtins is a dict in python >3.6 but a module before
+DISALLOW_FUNCTIONS = {
+        type, isinstance, eval, getattr, setattr, repr, compile, open
+        }
+if hasattr(__builtins__, 'help') or \
+        (hasattr(__builtins__, '__contains__') and 'help' in __builtins__):
+    # PyInstaller environment doesn't include this module.
+    DISALLOW_FUNCTIONS.add(help)
 
-DISALLOW_FUNCTIONS = {type, isinstance, eval, getattr, setattr, help, repr, compile, open}
 
 if PYTHON3:
     exec('DISALLOW_FUNCTIONS.add(exec)') # exec is not a function in Python2...
@@ -184,6 +193,8 @@ class IterableTooLong(InvalidExpression):
 
     pass
 
+class AssignmentAttempted(UserWarning):
+    pass
 
 ########################################
 # Default simple functions to include:
@@ -280,6 +291,10 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
         self.names = names
 
         self.nodes = {
+            ast.Expr: self._eval_expr,
+            ast.Assign: self._eval_assign,
+            ast.AugAssign: self._eval_aug_assign,
+            ast.Import: self._eval_import,
             ast.Num: self._eval_num,
             ast.Str: self._eval_str,
             ast.Name: self._eval_name,
@@ -312,7 +327,7 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
         # Defaults:
 
         self.ATTR_INDEX_FALLBACK = ATTR_INDEX_FALLBACK
-        
+
         # Check for forbidden functions:
 
         for f in self.functions.values():
@@ -329,7 +344,7 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
         self.expr = expr
 
         # and evaluate:
-        return self._eval(ast.parse(expr.strip()).body[0].value)
+        return self._eval(ast.parse(expr.strip()).body[0])
 
     def _eval(self, node):
         """ The internal evaluator used on each node in the parsed tree. """
@@ -341,6 +356,21 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
                                       "evaluator".format(type(node).__name__))
 
         return handler(node)
+
+    def _eval_expr(self, node):
+        return self._eval(node.value)
+
+    def _eval_assign(self, node):
+        warnings.warn("Assignment ({}) attempted, but this is ignored".format(self.expr), AssignmentAttempted)
+        return self._eval(node.value)
+
+    def _eval_aug_assign(self, node):
+        warnings.warn("Assignment ({}) attempted, but this is ignored".format(self.expr), AssignmentAttempted)
+        return self._eval(node.value)
+
+    def _eval_import(self, node):
+        raise FeatureNotAvailable("Sorry, 'import' is not allowed.")
+        return self._eval(node.value)
 
     @staticmethod
     def _eval_num(node):

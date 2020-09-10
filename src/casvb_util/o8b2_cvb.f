@@ -31,7 +31,8 @@
       eigvec(iprm+1,1)=grad(iprm)
       eigvec(1,iprm+1)=grad(iprm)
       eigvec(iprm+1,iprm+1)=one
-100   call hess_cvb(eigvec(2,iprm+1))
+      call hess_cvb(eigvec(2,iprm+1))
+100   continue
       write(6,*)' Augmented Hessian matrix :'
       call mxprint_cvb(eigvec,nparm+1,nparm+1,0)
       call mxdiag_cvb(eigvec,eigval,nparm+1)

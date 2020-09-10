@@ -35,7 +35,8 @@ c Determinant (to) weight array:
       indto=minind_cvb(ioccto,nalfto,nel,xdetto)
       call daxpy_(nvec,1d0,bikfrom(indfrom,1),ndetfrom,
      >  bikto(indto,1),ndetto)
-200   if(iexc.lt.nalffrom)ioccto(iexc)=ioccfrom(iexc)
+      if(iexc.lt.nalffrom)ioccto(iexc)=ioccfrom(iexc)
+200   continue
       call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)
       if(indfrom.ne.1)goto 100
       return

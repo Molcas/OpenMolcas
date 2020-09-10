@@ -43,11 +43,11 @@
         endif
         jlp=lopi(3,nlp)
         jrp=lopi(4,nlp)
-        do 114 idlr=1,4
+        do 115 idlr=1,4
           ml=jjl_sub(idlr,jlp)
           mr=jj_sub(idlr,jrp)
           !write(6,*) "ml,mr",ml,mr
-          if(ml.eq.0.or.mr.eq.0) goto 114
+          if(ml.eq.0.or.mr.eq.0) goto 115
           jwlp=lopi(1,nlp)
           jwrp=lopi(2,nlp)
           if(idlr.ne.1)jwlp=jwlp+iyl(idlr,jlp)
@@ -57,6 +57,7 @@
           lopj(2,lpj)=jwrp
           lopj(3,lpj)=ml
           lopj(4,lpj)=mr
+115     continue
 114   continue
       if(lpj.eq.0) goto 200
       lpi=lpj

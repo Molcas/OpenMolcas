@@ -32,9 +32,11 @@
 *                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
-*             October '91                                              *
+*             October 1991                                             *
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -123,27 +125,26 @@ c     End If
       nb=nZeta*nElem(la)*nElem(lb)
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (Charge(kCnttp).eq.Zero) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         If (dbsc(kCnttp)%Charge.eq.Zero) Go To 111
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
-*           Fact = -Charge(kCnttp)*DBLE(nStabM*nIrrep) /
-*    &             DBLE(LmbdT*nStab(kdc+kCnt))
-            Fact = -Charge(kCnttp)*DBLE(nStabM) /
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+*           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
+*    &             DBLE(LmbdT*dc(kdc+kCnt)%nStab)
+            Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 c           If (iPrint.ge.99) Then
-c              Write (*,*) ' Charge=',Charge(kCnttp)
+c              Write (*,*) ' Charge=',dbsc(kCnttp)%Charge
 c              write(*,*)   'NZeta=',nzeta
 c              Write(*,*)    'NrOp=',nrop
 c              Write (*,*) ' Fact=',Fact
 c           End If
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call LCopy(12,[.false.],0,JFgrd,1)
             Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
@@ -173,11 +174,9 @@ c           End If
             Do 102 lDCRT = 0, nDCRT-1
                Call lCopy(12,JfGrd,1,kfGrd,1)
                Call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
-               mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               mOp(3) = NrOpr(iDCRT(lDCRT))
                mOp(4) = mOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
@@ -238,7 +237,7 @@ c              IF (iPrint.gt.23)
 c    &            Call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
       Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *

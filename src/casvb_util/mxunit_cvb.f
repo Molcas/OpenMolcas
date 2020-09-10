@@ -18,7 +18,8 @@
 
       call fzero(a,n*n)
       do 100 i=1,n
-100   a(i,i)=one
+      a(i,i)=one
+100   continue
       return
       end
       logical function mxorth_cvb(a,n)
@@ -33,13 +34,15 @@ c  Returns .TRUE. if A is orthogonal.
       i2 = mstackr_cvb(n*n)
 c  W(I1) <= A transpose
       do 100 i=1,n
-      do 100 j=1,n
-100   w(i+(j-1)*n+i1-1)=a(j,i)
+      do 101 j=1,n
+      w(i+(j-1)*n+i1-1)=a(j,i)
+101   continue
+100   continue
       call mxatb_cvb(w(i1),a,n,n,n,w(i2))
 c  W(I2) identity ??
       mxorth_cvb=.true.
       do 200 j=1,n
-      do 200 i=1,n
+      do 201 i=1,n
       if(i.ne.j)then
         tst=abs(w(i+(j-1)*n+i2-1))
         if(tst.gt.thresh)mxorth_cvb=.false.
@@ -47,6 +50,7 @@ c  W(I2) identity ??
         tst=abs(w(i+(j-1)*n+i2-1)-one)
         if(tst.gt.thresh)mxorth_cvb=.false.
       endif
+201   continue
 200   continue
       return
       end

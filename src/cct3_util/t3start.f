@@ -1040,8 +1040,9 @@ c
 c
 c1    distribute Fok to Faa
        do 200 b=1,dimfa
-       do 200 a=1,dimfa
+       do 201 a=1,dimfa
        faa(a,b)=fok(shift+a,shift+b)
+ 201    continue
  200    continue
 c
        return
@@ -1069,8 +1070,9 @@ c
 c
 c1    distribute Fok to Fai
        do 300 i=1,dimfi
-       do 300 a=1,dimfa
+       do 301 a=1,dimfa
        fai(a,i)=fok(dimfi+a,i)
+ 301    continue
  300    continue
 c
        return
@@ -1097,8 +1099,9 @@ c
 c
 c1    distribute Fok to Fii
        do 400 j=1,dimfi
-       do 400 i=1,dimfi
+       do 401 i=1,dimfi
        fii(i,j)=fok(i,j)
+ 401    continue
  400    continue
 c
        return
@@ -1418,7 +1421,8 @@ c
         integer lun
 c
         lun=1
-        open (unit=lun,file='T3tEne')
+        Call Molcas_Open(lun,'T3tEne')
+*       open (unit=lun,file='T3tEne')
 c
         write (lun,97) symimin,imin,symjmin,jmin
         write (lun,98) symi,symj
@@ -1454,7 +1458,8 @@ c
         integer lun,bullshit
 c
         lun=1
-        open (unit=lun,file='T3tEne')
+        Call Molcas_Open(Lun,'T3tEne')
+*       open (unit=lun,file='T3tEne')
 c
 c       read blank, since there is Symimin,imin,Symjmin,jmin
 c       on first line

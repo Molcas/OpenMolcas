@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine Seward_Init
@@ -17,11 +17,14 @@
 *     Object: to set data which is stored in common blocks             *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
-*             January '90                                              *
+*             January 1990                                             *
 ************************************************************************
       use EFP_Module
       use k2_arrays
+      use Basis_Info
       implicit real*8 (a-h,o-z)
+      External Reduce_Prt
+      Logical Reduce_Prt
 #include "itmax.fh"
 #include "info.fh"
 #include "pstat.fh"
@@ -37,10 +40,8 @@
 #include "FMM.fh"
 #include "nac.fh"
 #include "srint.fh"
-      Logical lGENINT,Reduce_Prt
-      Character*180 Env
-      External Reduce_Prt
-      Parameter(MxAO8=MxAO*8, MxAng1=MxAng+1, MxMx=Mxdbsc*MxAng1)
+      Logical lGENINT
+      Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,121 +61,46 @@ C
 *
 *-----Info
 *
-c     data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Seward_Status=InActive
-      do 10 j=0,4
-      do 10 i=1,3
-10    iPhase(i,j)=1
-      iPhase(1,1)=-1
-      iPhase(2,2)=-1
-      iPhase(1,3)=-1
-      iPhase(2,3)=-1
-      iPhase(3,4)=-1
-      do 20 j=5,7
-      do 20 i=1,3
-20    iPhase(i,j)=-1
-      iPhase(2,5)=1
-      iPhase(1,6)=1
 *
 *     Info
 *
       MemHid=1
       nMltpl=2
-      nCnttp=0
-      iCnttp_Dymmy=0
       m2Max=0
       iAngMx=-1
       nWel=0
-      ipWel=ip_Dummy
       iRI_type=0
       jMax = 5
       nTtl=0
       Max_Center=15
-      Call IZero(iChCar,3)
-      KVector(1)=Zero
-      KVector(2)=Zero
-      KVector(3)=Zero
-      do 30 i=1,Mxdbsc
-30    lOffAO(i)=0
-      do 40 i=1,Mxdbsc
-      do 40 j=0,MxAng
-40    kOffAO(i,j)=0
-      do 50 i=1,MxAO
-      do 50 j=0,7
-50    iAOtSO(i,j)=-999999999
-      do 60 i=0,MxAng
-      MaxBas(i)=0
-60    MaxPrm(i)=0
-      do 70 i=1,MxUnq
-70    IrrCmp(i)=0
-      do 80 i=-20,9
-80    NrInt(i)=0
-      nEF=0
-      ipEF=ip_Dummy
+
+      iChCar(:)=0
+      KVector(:)=Zero
+      iAOtSO(1:MxAO,0:7)=-999999999
+      MaxBas(0:MxAng)=0
+      MaxPrm(0:MxAng)=0
+      IrrCmp(1:MxUnq)=0
+      NrInt(-20:9)=0
+      iSkip(0:7)=0
+
       nOrdEF=-1
       nDMS=0
-      ipDMS=ip_Dummy
-      ipRP1=ip_Dummy
       nRP=0
-      Do i=0,7
-         iSkip(i)=0
-      End Do
       iPack=0
       iSquar=0
       iWRopt=0
       iPAMcount=1
-      Do i=1, Mxdbsc
-         ipCntr(i)=ip_Dummy
-         ipM1xp(i)=ip_Dummy
-         ipM1cf(i)=ip_Dummy
-         ipM2xp(i)=ip_Dummy
-         ipM2cf(i)=ip_Dummy
-         ipPAM2xp(i)=ip_Dummy
-         ipPAM2cf(i)=ip_Dummy
-         nPAM2(i)=-1
-         ECP(i)=.false.
-         AuxCnttp(i)=.false.
-         nM1(i)=0
-         nFragType(i)=0
-         IsMM(i)=0
-         ipFragType(i)=ip_Dummy
-         ipFragCoor(i)=ip_Dummy
-         ipFragEner(i)=ip_Dummy
-         ipFragCoef(i)=ip_Dummy
-         FragCnttp(i)=.false.
-         FockOp(i) = .False.
-         nM2(i)=0
-         ExpNuc(i)=-One
-         w_mGauss(i)=One
-         aCD_Thr(i)=One
-         fmass(i)=One
-      End Do
+
       inttot=0
       nOrd_XF = 1
       iOrdFm=0
       iXPolType=0
       IsChi=0
+      MolWgh=2
 *
 *-----LInfo
 *
-      Do i=1,MxShll
-         Prjct(i)=.True.
-         Transf(i)=.True.
-         AuxShell(i)=.False.
-         nExp(i)=0
-         nBasis(i)=0
-         nBasis_Cntrct(i)=0
-         ipExp(i)=ip_Dummy
-         ipCff(i)=ip_Dummy
-         ipCff_Cntrct(i)=ip_Dummy
-         ipCff_Prim(i)=ip_Dummy
-         FragShell(i)=.False.
-         ipFockOp(i) = ip_Dummy
-         mdciCnttp(i)=0
-      End Do
-*
-      MolWgh=2
       NEMO=.False.
       Do_RI=.False.
       Primitive_Pass=.True.
@@ -193,12 +119,12 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Test=.False.
       Vlct=.True.
       lOAM=.False.
+      lOAMc=.False.
       lUPONLY=.False.
       lDOWNONLY=.False.
       lOMQ=.False.
       lDMS=.False.
       lRel=.False.
-      SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
 *--sdong, Apr. 2018--*
@@ -213,7 +139,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.
-      Nuclear_Model=Point_Charge
       force_part_c=.False.
       force_part_p=.False.
       GIAO=.False.
@@ -221,11 +146,13 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lFAIEMP=.False.
       Do_FckInt=.True.
       Do_GuessOrb=.True.
+*
       Do_acCD_Basis=.True.
       Do_nacCD_Basis=.False.
       Skip_High_AC = .False.
       LDF=.False.
       LocalDF=.False.
+*
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
@@ -281,13 +208,8 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
 *-----CInfo
 *
-      Bline=' '
       Do i = 1, 10
          Title(i)=' '
-      End Do
-      Do i = 1, Mxdbsc
-         Bsl    (i) = ' '
-         Bsl_Old(i) = ' '
       End Do
 *
 *-----PStat
@@ -337,7 +259,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       PP_Status=InActive
       k2_Status=InActive
       RctFld_Status=InActive
-      Info_Status=InActive
       ERI_Status=InActive
       Indexation_Status=Inactive
       XMem_Status=Inactive

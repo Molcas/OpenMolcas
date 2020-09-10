@@ -1,6 +1,7 @@
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
 # - options: enable several options
+# - linalg: use a link-time linalg library and ninja
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
@@ -16,7 +17,6 @@
   variables:
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -32,7 +32,6 @@
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
@@ -45,6 +44,22 @@
     submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
+  tags:
+    - docker
+
+.linalg:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
+  variables:
+    CMAKE_GENERATOR: "Ninja"
+    make: "ninja"
+    cache_file: |
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "MKL" CACHE STRING "use MKL library")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
   tags:
     - docker
 
@@ -79,13 +94,12 @@
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     pre_make_script: |
-      make only_objs
+      $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
@@ -102,17 +116,15 @@
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
     pre_make_script: |
-      make only_objs
-      # notruncated_source to work around intel13 bug, which includes full path of #include'd files and then reports truncated lines
-      cmake -D EXTRA_FFLAGS="-warn notruncated_source" .
+      $${make} only_objs
+      cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
@@ -150,7 +162,6 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -171,6 +182,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - docker
 
@@ -181,7 +193,6 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

@@ -11,11 +11,11 @@
       Subroutine Convrg(iter,kIter, nInter, qInt, Shift, Grad,
      &                  Lbl,GNrm,Energy,Stat,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
-     &                  Baker, Cx,Gx,nAtom,mTtAtm,iOper,nSym,ed,iNeg,
+     &                  Baker, Cx,Gx,nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
      &                  Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
-     &                  TSReg)
+     &                  TSReg,ThrMEP)
       Use Chkpnt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -32,11 +32,13 @@
       Character*1 Step_Trunc
       Character*16 StdIn
       Character*80 Point_Desc
-      Integer   iOper(0:nSym-1), iNeg(2)
+      Character*16 MEP_Text
+      Integer   iNeg(2)
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
-     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint
+     &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
+     &        TurnBack
       Character*8 Temp
 *
       Lu=6
@@ -79,8 +81,8 @@
 *
       Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
       Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
-      Call AtmLst(Cx(1,iter  ),nAtom,Work(ipx),iOper,nSym,mTtAtm)
-      Call AtmLst(Cx(1,iter+1),nAtom,Work(ipy),iOper,nSym,mTtAtm)
+      Call AtmLst(Cx(1,iter  ),nAtom,Work(ipx),mTtAtm)
+      Call AtmLst(Cx(1,iter+1),nAtom,Work(ipy),mTtAtm)
       Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
       Call GetMem('y','Free','Real',ipy,3*mTtAtm)
       Call GetMem('x','Free','Real',ipx,3*mTtAtm)
@@ -106,6 +108,7 @@
          End If
       End If
 *
+      eDiffMEP=Zero
       If (MEP.or.rMEP) Then
          Saddle=.False.
          iMEP=0
@@ -686,7 +689,9 @@ C              Write (6,*) 'SubProject=.Prod'
          IRC=0
       End If
 *
-      If (Conv1.and.(MEP.or.rMEP)) Then
+      TurnBack=.False.
+      If (MEP.or.rMEP) Then
+       If (Conv1) Then
 *
 *        Is this the first iteration or not?
 *
@@ -725,95 +730,49 @@ C              Write (6,*) 'SubProject=.Prod'
          Call Intergeo('MD_MEP',Work(ipE),Work(ipC),Work(ipG),nAtom,
      &                 iMEP+1)
 *
-*        Should we terminate or not? Not done on the first iteration.
+*        Compute energy difference and RMS between last two structures
 *
-         If (iMEP.gt.0) Then
-*
-*           Test if the energy increase (optionally disabled).
-            If (eMEPTest) Then
-               eTest= Work(ipE+(iMEP  )).gt.Work(ipE+(iMEP-1))
-            Else
-               eTest=.FALSE.
-            End If
-            If ( MEP .and. eTest) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  If (IRC.eq.0) Then
-                     Write (6,'(A)')
-     &                     ' MEP-search terminated'//
-     &                     ' due to energy increase!'
-                  Else If (IRC.eq.1) Then
-                     Write (6,'(A)')
-     &                     ' IRC(forward)-search terminated'//
-     &                     ' due to energy increase!'
-                  Else
-                     Write (6,'(A)')
-     &                     ' IRC(backward)-search terminated'//
-     &                     ' due to energy increase!'
-                  End If
-                  Write (6,*)
-               End If
-            End If
-*
-*           Test if the energy decrease (optionally disabled).
-            If (eMEPTest) Then
-               eTest= Work(ipE+(iMEP  )).lt.Work(ipE+(iMEP-1))
-            Else
-               eTest=.FALSE.
-            End If
-            If (rMEP .and. eTest) Then
-               Terminate=.True.
-               If (iPrint.ge.5) Then
-                  Write (6,*)
-                  Write (6,'(A)')
-     &                  ' rMEP-search terminated'//
-     &                  ' due to energy decrease!'
-                  Write (6,*)
-               End If
-            End If
-         End If
-*
-*        Test on max number of points.
-         If ((iMEP.ge.nMEP).and.(.not.Terminate)) Then
-            Terminate=.True.
-            If (iPrint.ge.5) Then
-               Write (6,*)
-               If (MEP) Then
-                  If (IRC.eq.0) Then
-                     Write (6,'(A)') ' MEP-search '//
-     &                   'terminated due to max number of path points!'
-                  Else If (IRC.eq.1) Then
-                     Write (6,'(A)') ' IRC(forward)-search '//
-     &                   'terminated due to max number of path points!'
-                  Else
-                     Write (6,'(A)') ' IRC(backward)-search '//
-     &                   'terminated due to max number of path points!'
-                  End If
-               Else If (rMEP) Then
-                  Write (6,'(A)') ' rMEP-search '//
-     &                'terminated due to max number of path points!'
-               End If
-               Write (6,*)
-            End If
-         End If
-*
-*        If IRC reset for backward IRC search.
-*
-         If (Terminate) Then
-            If (IRC.ne.0) Then
-               If (IRC.eq.1) Then
-                  IRCRestart=.True.
-               End If
-            End If
-         End If
-*
-         Call Chkpnt_update_MEP(IRCRestart)
+         eDiffMEP=Work(ipE+(iMEP))-Work(ipE+(iMEP-1))
+         Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
+         Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
+         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Work(ipx),mTtAtm)
+         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Work(ipy),mTtAtm)
+         Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
+         Call GetMem('x','Free','Real',ipx,3*mTtAtm)
+         Call GetMem('y','Free','Real',ipy,3*mTtAtm)
 *
          Call Free_Work(ipE)
          Call Free_Work(ipG)
          Call Free_Work(ipC)
 *
+       Else
+*
+*        Test for "turn back", i.e. when the trial structure
+*        is getting too close to the previous converged structure,
+*        this may be an indication of an ill-behaved constraint
+         If (iMEP.ge.1) Then
+            Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
+            Call Allocate_Work(ipTmp,3*nAtom)
+            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
+            ipPrev=ipC+iMEP*3*nAtom
+*           Using hypersphere measure, even with "transverse" MEPs,
+*           this should not be a problem
+            Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Work(ipTmp),
+     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+            Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Work(ipTmp),
+     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+            If (prevDist.lt.Half*refDist) Then
+               TurnBack=.True.
+               Conv1=.True.
+               Stop=.True.
+               iStop=0
+               Terminate=.True.
+            End If
+            Call Free_Work(ipC)
+            Call Free_Work(ipTmp)
+         End If
+*
+       End If
       End If
 *                                                                      *
 ************************************************************************
@@ -839,34 +798,114 @@ C              Write (6,*) 'SubProject=.Prod'
             Call CollapseOutput(1,'IRC/Minimum Energy Path Information')
          End If
 *
-         BadConstraint=.False.
-         Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
-     &                BadConstraint)
-         Call Put_iScalar('iOff_Iter',iter)
-*
-*        Test on constraint misbehavior
-         If (BadConstraint.and.(.not.Terminate)) Then
-            Terminate=.True.
-            If (iPrint.ge.5) Then
-               Write (6,*)
-               If (MEP) Then
-                  If (IRC.eq.0) Then
-                     Write (6,'(A)') ' MEP-search '//
-     &                   'terminated due to problematic constraint!'
-                  Else If (IRC.eq.1) Then
-                     Write (6,'(A)') ' IRC(forward)-search '//
-     &                   'terminated due to problematic constraint!'
-                  Else
-                     Write (6,'(A)') ' IRC(backward)-search '//
-     &                   'terminated due to problematic constraint!'
-                  End If
-               Else If (rMEP) Then
-                  Write (6,'(A)') ' rMEP-search '//
-     &                'terminated due to problematic constraint!'
-               End If
-               Write (6,*)
-            End If
+         ResGrad=Huge(ResGrad)
+         If (.Not.Terminate) Then
+            BadConstraint=.False.
+            Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
+     &                   ResGrad,BadConstraint)
+            Call dCopy_(3*nAtom,Cx(1,iter+1),1,Work(ipCoor),1)
+            Call Put_iScalar('iOff_Iter',iter)
          End If
+*
+         If (MEP) Then
+            If (IRC.eq.0) Then
+               MEP_Text='MEP'
+            Else If (IRC.eq.1) Then
+               MEP_Text='IRC(forward)'
+            Else
+               MEP_Text='IRC(backward)'
+            End If
+         Else If (rMEP) Then
+            MEP_Text='rMEP'
+         Else
+            MEP_Text=''
+         End If
+*
+*        Should we terminate or not? Not done on the first iteration.
+*
+         If (iMEP.gt.0) Then
+*
+*           Test for energy increase (optionally disabled).
+            eTest=eMEPTest.and.(eDiffMEP.gt.Zero)
+            If ((MEP.and.eTest).and.(.not.Terminate)) Then
+               Terminate=.True.
+               If (iPrint.ge.5) Then
+                  Write (6,*)
+                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to energy increase!'
+                  Write (6,*)
+               End If
+            End If
+*
+*           Test for energy decrease (optionally disabled).
+            eTest=eMEPTest.and.(eDiffMEP.lt.Zero)
+            If ((rMEP.and.eTest).and.(.not.Terminate)) Then
+               Terminate=.True.
+               If (iPrint.ge.5) Then
+                  Write (6,*)
+                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to energy decrease!'
+                  Write (6,*)
+               End If
+            End If
+*
+*           Test for small gradient.
+            If ((iMEP.gt.1).or.(IRC.eq.0)) Then
+              If ((ResGrad.lt.ThrMEP).and.(.not.Terminate)) Then
+                 Terminate=.True.
+                 If (iPrint.ge.5) Then
+                    Write (6,*)
+                    Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to small gradient!'
+                    Write (6,*)
+                 End If
+              End If
+            End If
+*
+*           Test for small step.
+            If ((RMS.lt.ThrGrd*4.D0).and.(.not.Terminate)) Then
+               Terminate=.True.
+               If (iPrint.ge.5) Then
+                  Write (6,*)
+                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to small geometry change!'
+                  Write (6,*)
+               End If
+            End If
+*
+*           Test for max number of points.
+            If ((iMEP.ge.nMEP).and.(.not.Terminate)) Then
+               Terminate=.True.
+               If (iPrint.ge.5) Then
+                  Write (6,*)
+                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to max number of path points!'
+                  Write (6,*)
+               End If
+            End If
+*
+*           Test for constraint misbehavior.
+            If ((BadConstraint.and.(.not.Terminate)).or.TurnBack) Then
+               Terminate=.True.
+               If (iPrint.ge.5) Then
+                  Write (6,*)
+                  Write (6,'(A)') ' '//Trim(MEP_Text)//'-search'//
+     &               ' terminated due to problematic constraint!'
+                  Write (6,*)
+               End If
+            End If
+*
+*           If IRC reset for backward IRC search.
+*
+            If (Terminate) Then
+               If (IRC.eq.1) Then
+                  IRCRestart=.True.
+               End If
+            End If
+*
+         End If
+*
+         If (Conv1) Call Chkpnt_update_MEP(IRCRestart)
 *
          If (Conv1.and.Terminate) Then
             If (IRC.ne.0) Then

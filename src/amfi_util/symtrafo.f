@@ -35,8 +35,8 @@ CBS   namelist /SYMTRA/ none
       dimension ncent(maxorbs), Lval(maxorbs),mval(maxorbs),
      *          nadpt(maxorbs),nphase(8,maxorbs),idummy(8),
      *          Lhighcent(maxcent),Lcent(MxCart),Mcent(MxCart),
-     *          ncontcent(0:Lmax),
-     *          numballcart(maxcent),ifirstLM(0:Lmax,-Lmax:Lmax,maxcent)
+     *          ncontcent(0:Lmax),numballcart(maxcent)
+      allocatable ifirstLM(:,:,:)
       Integer ip(nComp), nBas(0:nIrrep-1), lOper(nComp), ipC(MxAtom)
       Character Label*8
 c#######################################################################
@@ -55,6 +55,8 @@ c#######################################################################
       xa(4)='X1SPNORB'
       ya(4)='Y1SPNORB'
       ZA(4)='Z1SPNORB'
+      call mma_allocate(ifirstLM,[0,Lmax],[-Lmax,Lmax],[1,maxcent],
+     &                  label='ifirstLM')
 c
 c     read information from SYMINFO
       isymunit=isfreeunit(58)
@@ -348,6 +350,7 @@ cDebugDebug
       Call PrMtrx(Label,lOper,nComp,ip,SOInt)
 #endif
 *
+      Call mma_deallocate(ifirstLM)
       Call mma_deallocate(iSO_info)
       Call mma_deallocate(Scr)
       Call mma_deallocate(AMFI_Int)

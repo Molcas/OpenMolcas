@@ -160,13 +160,14 @@ c            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
 *
       End Do          ! iGrid
 *
-
+#ifdef _DEBUG_
       Write(6,*)'Esimple             =',Esimple
       Write(6,*)'EnucRctfld          =',RepNuc-tmp_RepNuc
       Write(6,*)'Eself               =',Eself
       Write(6,*)'Ag term             =',agsum
       Write(6,*)'Electrostatic energy=',Eint
       Write(6,*)'EnucDip (half)      =',Half*Enucdip
+#endif
 
       RepNuc = RepNuc + Eself + agsum + Eint + Half*Enucdip
 *
@@ -300,7 +301,9 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *
       End Do    ! iGrid
       RepNuc=RepNuc+RepHlp
+#ifdef _DEBUG_
       Write(6,*)'RepHlp              =',RepHlp
+#endif
 
 *
       PrPrt=Save_tmp

@@ -34,6 +34,7 @@
 ************************************************************************
       use aces_stuff, only: Gamma_On
       use pso_stuff
+      use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -462,6 +463,8 @@
 * Output: Updated with fragment densities at their proper positions.   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -482,13 +485,14 @@
 *
       iPrint=0
 *
-* Each fragment needs it's (symmetrized) density matrix added along the diagonal
+* Each fragment needs it''s (symmetrized) density matrix added along the diagonal
 * This density matrix first has to be constructed from the MO coefficients
 * so allocate space for the largest possible density matrix
       maxDens = 0
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDens = Max(maxDens,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If (dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,
+     &                        dbsc(iCnttp)%nFragDens
+     &                      *(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
       Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
 c     If(nIrrep.ne.1) Then
@@ -503,32 +507,34 @@ c     End If
         iDpos = iDpos + nBasC*(nBasC+1)/2
         mdc = 0
         Do 1000 iCnttp = 1, nCnttp
-          If(nFragType(iCnttp).le.0) Then
-            mdc = mdc + nCntr(iCnttp)
+          If(dbsc(iCnttp)%nFragType.le.0) Then
+            mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
 
 * construct the density matrix
           EnergyWeight = .false.
-          Call MakeDens(nFragDens(iCnttp),nFragEner(iCnttp),
-     &                  Work(ipFragCoef(iCnttp)),rDummy,EnergyWeight,
-     &                  Work(ipFragDensAO))
+          Call MakeDens(dbsc(iCnttp)%nFragDens,
+     &                  dbsc(iCnttp)%nFragEner,
+     &                  dbsc(iCnttp)%FragCoef,
+     &                  rDummy,
+     &                  EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
 C         If(nIrrep.ne.1) Call SymmDens(Work(ipFragDensAO),
 C    &      Work(ipFragDensSO))
           If(iPrint.ge.99) Call TriPrt('Fragment density',' ',
-     &      Work(ipFragDensSO),nFragDens(iCnttp))
-          Do iCnt = 1, nCntr(iCnttp)
+     &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
+          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly
 *    but appears to be working
-            If(iAnd(iChCnt(mdc),iIrrep).eq.iOper(iIrrep)) Then
+            If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
 * add it at the correct location in the large custom density matrix
               iFpos = 1
 c              ! position in fragment density matrix
-              Do i = 1, nFragDens(iCnttp)
+              Do i = 1, dbsc(iCnttp)%nFragDens
                 iDpos = iDpos + nBasC
                 Do j = 0, i-1
                   Array(iDpos + j) = Work(ipFragDensSO + iFpos + j - 1)
@@ -536,7 +542,7 @@ c              ! position in fragment density matrix
                 iDpos = iDpos + i
                 iFpos = iFpos + i
               End Do
-              nBasC = nBasC + nFragDens(iCnttp)
+              nBasC = nBasC + dbsc(iCnttp)%nFragDens
             End If
           End Do
  1000   Continue

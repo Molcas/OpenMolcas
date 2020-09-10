@@ -125,6 +125,8 @@ cvv      Character*(*) Data(nData)
          RecLab( 21)='Frag_Type       ' ! EFP fragment labels
          RecLab( 22)='ABC             ' ! EFP atom labels
          RecLab( 23)='Un_cen Names    '
+         RecLab( 24)='cDmp            '
+         RecLab( 25)='dc: cDmp        '
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)
@@ -168,7 +170,7 @@ cvv      Character*(*) Data(nData)
             Write(6,*) '*** Warning, writing temporary cArray field'
             Write(6,*) '***   Field: ',myLabel
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If
