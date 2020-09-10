@@ -441,7 +441,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *
                   Call TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,IndShlV,
+     &                            iAngV,iCmpV,iShelV,iShllV,
      &                            iAOV,iAOst,NoInts,
      &                            iStabs(1),iStabs(2),
      &                            iStabs(3),iStabs(4),
@@ -474,7 +474,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 
                   Call TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &                            Coor,
-     &                            iAngV,iCmpV,iShelV,iShllV,IndShlV,
+     &                            iAngV,iCmpV,iShelV,iShllV,
      &                            iAOV,iAOst,NoInts,
      &                            iStabs(1),iStabs(2),
      &                            iStabs(3),iStabs(4),
