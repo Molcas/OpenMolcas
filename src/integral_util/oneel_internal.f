@@ -231,7 +231,7 @@ C     Logical Addpot
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
 *

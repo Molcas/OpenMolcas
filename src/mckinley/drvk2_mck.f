@@ -242,7 +242,7 @@
      &                + (iBas*jBas+1)*iCmp*jCmp
             End If
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.gt.0) mDeDe = mDeDe + iDeSiz*nDCRR
 
             jpk2 = 1 + nk2

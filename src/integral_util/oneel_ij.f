@@ -61,17 +61,19 @@
       If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      iAO    = iSD( 7,iS)
       IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      jAO    = iSD( 7,jS)
       JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       B(:)=Zero
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -84,7 +86,6 @@
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
       iPrim  = iSD( 5,iS)
-      iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
@@ -94,7 +95,6 @@
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
       jPrim  = iSD( 5,jS)
-      jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
       jCnt   = iSD(14,jS)
@@ -172,7 +172,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -201,16 +201,18 @@
 *
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
+      iAO    = iSD( 7,iS)
       IndShl = iSD( 8,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
+      jAO    = iSD( 7,jS)
       JndShl = iSD( 8,jS)
       jShell = iSD(11,jS)
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -226,8 +228,6 @@
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
       iPrim  = iSD( 5,iS)
-      iAO    = iSD( 7,iS)
-      IndShl = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
@@ -238,8 +238,6 @@
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
       jPrim  = iSD( 5,jS)
-      jAO    = iSD( 7,jS)
-      JndShl = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
       jCnt   = iSD(14,jS)
@@ -555,7 +553,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)

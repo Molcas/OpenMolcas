@@ -214,7 +214,7 @@ c----------------------------------------------------------------------
             B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
             If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
