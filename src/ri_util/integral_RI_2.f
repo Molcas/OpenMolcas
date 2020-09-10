@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_RI_2(iCmp,iShell,MapOrg,IndShlV,
+      SubRoutine Integral_RI_2(iCmp,iShell,MapOrg,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
@@ -26,8 +26,8 @@
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
-     &        iAOst(4), kOp(4), iSOSym(2,nSOs),
+      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4),
+    &         iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
@@ -46,7 +46,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(IndShlV)
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)

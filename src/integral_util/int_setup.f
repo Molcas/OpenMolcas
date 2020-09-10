@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
-     &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs,
-     &                     IndShlV)
+     &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
       Use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
@@ -24,7 +23,7 @@
 *
       Real*8  Coor(3,4)
       Integer iAngV(4),iCmpV(4),iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        jQuad(4), IndShlV(4)
+     &        jQuad(4)
       Logical Shijij
 *
       iCnttp=iSD(13,iS)
@@ -66,7 +65,6 @@
          iStabs(iQuad) = iSD(10,iSkal)
          iShelV(iQuad) = iSD(11,iSkal)
          iShllV(iQuad) = iSD( 0,iSkal)
-         IndShlV(iQuad)= iSD( 8,iSkal)
       End Do
 CMAW start
 *

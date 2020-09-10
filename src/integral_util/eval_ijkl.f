@@ -81,7 +81,7 @@
 *     subroutine parameters
       Real*8  Coor(3,4),Thize, Disc_Mx,Disc, TInt(nTInt), Tmax
       Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        ipMem1,MemMax, kOp(4) ,Map4(4), IndShlV(4)
+     &        ipMem1,MemMax, kOp(4) ,Map4(4)
       Logical Shijij, W2Disc,PreSch,NoInts, DoIntegrals,DoFock
 *
 #include "ndarray.fh"
@@ -200,7 +200,7 @@ C     Write (*,*) 'Eval_ints: MemMax=',MemMax
 ************************************************************************
 *                                                                      *
       Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
-     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs,IndShlV)
+     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -522,7 +522,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        abs(Sew_Scr(ip+
      &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,IndShlV,
+                        Call Integ_Proc(iCmpV,iShelV,Map4,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Sew_Scr(ipMem2),

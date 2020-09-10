@@ -96,7 +96,7 @@
       Integer lDens
       Real*8  Coor(3,4),Thize,Fock(lDens,nDens),Dens(lDens,nDens),
      &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt), Tmax
-      Integer iAngV(4),iCmpV(4), IndShlV(4),
+      Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
      &        iTOffs(8,8,8),Map4(4), Ind(nInd,nInd,2),kOp(4)
@@ -205,7 +205,7 @@
 ************************************************************************
 *                                                                      *
       Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
-     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs,IndShlV)
+     &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -526,7 +526,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                        abs(Sew_Scr(ip+
      &                            iDAMax_(n,Sew_Scr(ip),1)-1)))
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,Map4,IndShlV,
+                        Call Integ_Proc(iCmpV,iShelV,Map4,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
      &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
      &                                  Sew_Scr(ipMem2),
