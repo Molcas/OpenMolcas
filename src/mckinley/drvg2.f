@@ -766,8 +766,7 @@ C              Do lS = 1, kS
 *
 *----------------------------------------------------------------------*
                   nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,
-     &                           IndShlV(1),IndShlV(2),
-     &                           IndShlV(3),IndShlV(4))
+     &                           iAOV(1),iAOV(2),iAOV(3),iAOV(4))
                   ldot2=ldot
                   If (nSO.eq.0) ldot2=.false.
 *
@@ -793,7 +792,7 @@ C              Do lS = 1, kS
 *                 available memory and the requested memory.
 *
                   Call PSOAO2(nSO,MemPrm, MemMax,
-     &                        iAngV, iCmpV, IndShlV,iFnc,
+     &                        iAngV, iCmpV, iAOV,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,

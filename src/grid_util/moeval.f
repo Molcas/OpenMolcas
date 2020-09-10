@@ -205,7 +205,7 @@
 *------------- Distribute contributions to the MOs
 *
                Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
-     &                     MOValue,IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                     MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 *
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
