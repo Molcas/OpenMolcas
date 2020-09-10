@@ -37,7 +37,7 @@
      &                iBas,jBas,kBas,lBas,kOp,TInt,nTInt,
      &                SO2Ind,iOffA,nSOs)
       Else
-        Call IndSft_RI_2(iCmp,iShell,IndShlV,
+        Call IndSft_RI_2(iCmp,iShell,
      &                   iBas,jBas,kBas,lBas,Shijij,
      &                   iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                   TInt,nTInt,iTOffs,SO2Ind,iOffA)
@@ -46,6 +46,7 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer_array(IndShlV)
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)

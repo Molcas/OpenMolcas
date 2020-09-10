@@ -11,7 +11,7 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine IndSft_RI_3(iCmp,iShell,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                       Shijij, iAO, iAOst, ijkl,SOint,nSOint,
      &                       iSOSym,nSOs,
      &                       TInt,nTInt,iOff,iShlSO,nBasSh,
@@ -40,7 +40,7 @@
       Real*8 SOint(ijkl,nSOint), TInt(nTInt)
       Integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nSym-1,nShell),
      &        iSSOff(0:nIrrep-1,0:nIrrep-1)
-      Integer iCmp(4), iShell(4), iAO(4), IndShl(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), iSOSym(2,nSOs), jOffSO(0:7)
       Logical Shijij, Shkl, qkl
 *     local array
@@ -81,7 +81,9 @@
       j1=0
       Do i2 = 1, iCmp(2)
          Do 201 j = 0, nIrrep-1
-            jSym(j) = iand(IrrCmp(IndShl(2)+i2),2**j)
+            ix = 0
+            If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+            jSym(j) = ix
 201      Continue
          If (iShell(2).gt.iShell(1)) then
             i12 = iCmp(2)*(i1-1) + i2
@@ -90,13 +92,17 @@
          End If
          Do i3 = 1, iCmp(3)
             Do 301 j = 0, nIrrep-1
-               kSym(j) = iand(IrrCmp(IndShl(3)+i3),2**j)
+               ix = 0
+               If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+               kSym(j) = ix
 301         Continue
             lCmpMx = iCmp(4)
             If (Shkl) lCmpMx = i3
             Do 400 i4 = 1, lCmpMx
                Do 401 j = 0, nIrrep-1
-                  lSym(j) = iand(IrrCmp(IndShl(4)+i4),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                  lSym(j) = ix
 401            Continue
                qkl = i3.eq.i4
                If (iShell(4).gt.iShell(3)) then

@@ -53,7 +53,7 @@
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
-C          Call IndSft_RI_3(iCmp,iShell,IndShlV,
+C          Call IndSft_RI_3(iCmp,iShell,
 C    &                      iBas,jBas,kBas,lBas,Shijij,
 C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
@@ -77,7 +77,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                   iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
      &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
       Else
-           Call IndSft_RI_3(iCmp,iShell,IndShlV,
+           Call IndSft_RI_3(iCmp,iShell,
      &                      iBas,jBas,kBas,lBas,Shijij,
      &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                      TInt,nTInt,iTOffs,
@@ -95,6 +95,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer_array(IndShlV)
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)

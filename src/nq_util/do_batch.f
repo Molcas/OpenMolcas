@@ -223,7 +223,6 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             iPrim = iSD( 5,iSh)
             iPrim_Eff=List_Exp(ilist_s)
             iAO   = iSD( 7,iSh)
-            IndShl= iSD( 7,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
             iShll = iSD(0,iSh)
@@ -400,7 +399,6 @@ c            write(6,*) 'iOff =', iOff
             iBas_Eff = List_Bas(1,ilist_s)
             iPrim = iSD( 5,iSh)
             iAO   = iSD( 7,iSh)
-            IndShl= iSD( 8,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
 *
@@ -421,19 +419,19 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,IndShl)
+     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
 *
             Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
             Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
      &                   iCmp,nDeg,TabSO,
-     &                   IndShl,nMOs,iAO,Work(ipTmpCMO),
+     &                   nMOs,iAO,Work(ipTmpCMO),
      &                   nCMO,iWork(ipTDoIt))
             Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
 *
             Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                  IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                  nMOs,iAO,CMOs,nCMO,DoIt)
 *
          End Do
       End If
