@@ -11,7 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       SubRoutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,
-     &                iaoi,iaoj,naco,ishell,IndShl,
+     &                iaoi,iaoj,naco,ishell,
      &                temp1,temp2,temp3,temp4,temp5,temp6)
 *
       use pso_stuff
@@ -34,7 +34,7 @@
       Real*8 Temp4(ibas,icmp,nACO)
       Real*8 Temp5(jbas,jcmp,nACO)
       Real*8 Temp3(jbas,jcmp,*),Temp6(*)
-      integer ishell(4),IndShl(4),na(0:7),ipp(0:7)
+      integer ishell(4),na(0:7),ipp(0:7)
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
       call dcopy_(Naco**4,[0.0d0],0,Temp2,1)
@@ -58,7 +58,7 @@
 
       ipj=ipi+naco*ibas*icmp
 
-      Call PckMo2(temp6(ipi),nAcO,IndShl,icmp,iBas,jcmp,jBas,iaoi,iaoj)
+      Call PckMo2(temp6(ipi),nAcO,icmp,iBas,jcmp,jBas,iaoi,iaoj)
       id=0
       Do mIrr=0,nIrrep-1
        iiii=0

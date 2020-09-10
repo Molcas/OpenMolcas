@@ -975,9 +975,7 @@ C              Do lS = 1, kS
                     nijkl = iBasn*jBasn*kBasn*lBasn
                     Call Timing(dum,Time,Dum,Dum)
                     If (n8)
-     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
-     &                          nAcO,
-     &                          IndShlV,iCmpV,
+     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,CmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
@@ -1052,7 +1050,7 @@ C           End Do ! kS
                ip6=ip5+jcmp*jbas*naco
                Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
-     &                   naco,ishelV,IndShlV,
+     &                   naco,ishelV,
      &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
      &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If
