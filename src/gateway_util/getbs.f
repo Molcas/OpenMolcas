@@ -11,9 +11,8 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
-     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
-     &                 ExtBasDir)
+      SubRoutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,
+     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -52,7 +51,7 @@
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,
      &        UnNorm, isEorb,isFock
-      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
+      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx)
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir
@@ -242,9 +241,9 @@
          Write (6,*) 'lAng, Charge=',lAng, dbsc(nCnttp)%Charge
          Write (6,*) ' Start reading valence basis'
       End If
-      If (lAng.gt.MxAng) Then
-         Write (6,*) 'GetBS: lAng.gt.MxAng'
-         Write (6,*) 'lAng,MxAng=',lAng,MxAng
+      If (lAng.gt.iTabMx) Then
+         Write (6,*) 'GetBS: lAng.gt.iTabMx'
+         Write (6,*) 'lAng,iTabMx=',lAng,iTabMx
          Call Abend()
       End If
 *     Loop over each shell type (s,p,d,etc....)
@@ -845,7 +844,7 @@
          Call Get_I1(1,nPrim)
          Call Get_I1(2,nCntrc)
          Call Get_I1(3,mDel)
-         nDel(iAng)=mDel
+         dbsc(nCnttp)%kDel(iAng)=mDel
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')

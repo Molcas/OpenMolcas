@@ -52,7 +52,7 @@
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
       Character*180, Allocatable :: STDINP(:) ! CGGn
-      Integer BasisTypes(4), nDel(MxAng)
+      Integer BasisTypes(4)
       Integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
       Logical Try_Again
       Real*8 A(4)
@@ -469,7 +469,7 @@
 *
          iShll = Mx_Shll-1
          jShll = iShll
-         Call GetBS(Fname,Bsl_,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+         Call GetBS(Fname,Bsl_,iShll,Ref,UnNorm,LuRd,
      &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then

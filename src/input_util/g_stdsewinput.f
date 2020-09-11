@@ -48,11 +48,10 @@ c
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Character Key*180, KWord*180,            BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, dbas*4
-      Integer StayAlone, nDel(MxAng), BasisTypes(4)
+      Integer StayAlone,  BasisTypes(4)
 *
       Character*180 Line, STDINP(mxAtom*2) ! CGGn
       Character*256 Basis_lib ! CGGd , INT2CHAR, CHAR4
@@ -146,8 +145,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,
-     &           nDel,LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,
+     &           LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
@@ -165,11 +164,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       If (itype.eq.1) ifnr=1
       If (itype.eq.2) ifnr=0
 *
-      If (dbsc(nCnttp)%nSOC.gt.-1) Then
-         Do l = 1, MxAng
-            kDel(l,nCnttp)=nDel(l)
-         End Do
-      End If
       If (Show.and.nPrint(2).ge.6 .and.
      &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'

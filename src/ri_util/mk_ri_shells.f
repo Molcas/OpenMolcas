@@ -45,7 +45,7 @@
       common /getlnQOE/ Quit_On_Error
       Character*180 Get_Ln_Quit
 
-      Integer BasisTypes(4), nDel(MxAng)
+      Integer BasisTypes(4)
       Data DefNm/'basis_library'/
 *                                                                      *
 ************************************************************************
@@ -162,7 +162,7 @@
 *
          jShll = iShll
          dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
-         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,nDel,
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,
      &              LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          dbsc(nCnttp)%Aux=.True.

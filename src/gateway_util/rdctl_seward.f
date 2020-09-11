@@ -49,7 +49,6 @@
 #include "relae.fh"
 #include "periodic_table.fh"
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
@@ -66,8 +65,7 @@
      &        CholeskyWasSet, GWInput, NoAMFI, lOPTO, Do_OneEl
       Logical do1CCD
       Logical APThr_UsrDef, Write_BasLib
-      Integer Cho_MolWgh, StayAlone, nDel(MxAng),
-     &        BasisTypes(4), BasisTypes_Save(4),
+      Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
      &        iGeoInfo(2), iOpt_XYZ, RC
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
@@ -1169,9 +1167,8 @@ c Simplistic validity check for value
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,
-     &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
-     &           ExtBasDir)
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,
+     &           BasisTypes,STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
      &            dbsc(nCnttp)%AtmNr.le.96
@@ -1213,11 +1210,6 @@ c Simplistic validity check for value
          BasisTypes(4)=ign
       End If
 *
-      If (dbsc(nCnttp)%nSOC.gt.-1) Then
-         Do l = 1, MxAng
-            kDel(l,nCnttp)=nDel(l)
-         End Do
-      End If
       If (Show.and.nPrint(2).ge.6 .and.
      &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'

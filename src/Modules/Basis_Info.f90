@@ -21,6 +21,7 @@ Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Ce
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
+#include "itmax.fh"
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !    D E C L A R E   D E R I V E D   T Y P E S
@@ -80,6 +81,7 @@ Type Distinct_Basis_set_centers
     Integer:: iPrj=0, nPrj=0
     Integer:: iSRO=0, nSRO=0
     Integer:: iSOC=0, nSOC=0
+    Integer:: kDel(0:iTabMx)
     Integer:: iPP =0, nPP =0
     Integer:: nShells =0
     Integer:: AtmNr=0
@@ -149,7 +151,7 @@ Integer, Parameter :: Gaussian_type = 1
 Integer, Parameter :: mGaussian_Type= 2
 
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =33, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =33+(1+iTabMx), mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
@@ -312,6 +314,9 @@ Do i = 1, nCnttp
    If (dbsc(i)%Fixed )iDmp(32,i)=1
    iDmp(33,i) = 0
    If (dbsc(i)%lPAM2 )iDmp(33,i)=1
+   Do j = 0, iTabMx
+      iDmp(34+j,i) = dbsc(i)%kDel(j)
+   End Do
    If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
       nAtoms=nAtoms+dbsc(i)%nCntr
    End If
@@ -595,6 +600,9 @@ Do i = 1, nCnttp
    dbsc(i)%pChrg        = iDmp(31,i).eq.1
    dbsc(i)%Fixed        = iDmp(32,i).eq.1
    dbsc(i)%lPAM2        = iDmp(33,i).eq.1
+   Do j = 0, iTabMx
+      dbsc(i)%kDel(j)   = iDmp(34+j,i)
+   End Do
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
