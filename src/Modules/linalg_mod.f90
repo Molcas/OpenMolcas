@@ -17,10 +17,7 @@ module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
     use definitions, only: wp, r8
     use sorting, only: sort, argsort
-#ifndef INTERNAL_PROC_ARG
-    use sorting, only: compare_int_t
-#endif
-    use sorting_funcs, only : integer_leq => le_i, ge_r
+    use sorting_funcs, only : integer_leq => leq_i, leq_r, geq_r
     implicit none
     private
     public :: mult, diagonalize, isclose, operator(.isclose.), &
@@ -91,6 +88,10 @@ module linalg_mod
     interface operator(.isclose.)
         module procedure isclose_for_operator
     end interface
+
+#ifndef INTERNAL_PROC_ARG
+        integer, pointer :: ptr_idx(:)
+#endif
 
 contains
 
@@ -296,29 +297,11 @@ contains
         real(wp), intent(inout) :: V(:, :), lambda(:)
         integer :: i
         integer, allocatable :: idx(:)
-#ifndef INTERNAL_PROC_ARG
-        procedure(compare_int_t), pointer :: ptr_compare
-#endif
         call mma_allocate(idx, size(lambda))
-        do i = 1, size(idx)
-            idx(i) = i
-        end do
-
-#ifdef INTERNAL_PROC_ARG
-        call sort(idx, leq)
-#else
-        ptr_compare => leq
-        call sort(idx, ptr_compare)
-#endif
-
+        idx(:) = argsort(lambda, leq_r)
         V(:, :) = V(:, idx)
         lambda(:) = lambda(idx)
         call mma_deallocate(idx)
-    contains
-        logical pure function leq(i, j)
-            integer, intent(in) :: i, j
-            leq = lambda(i) <= lambda(j)
-        end function
     end subroutine
 
 !> @brief
@@ -639,7 +622,7 @@ contains
         call diagonalize(S_transf, U, s_diag)
         call canonicalize(U, s_diag)
 
-        idx(:) = argsort(s_diag, ge_r)
+        idx(:) = argsort(s_diag, geq_r)
         U(:, :) = U(:, idx)
         s_diag(:) = s_diag(idx)
 
