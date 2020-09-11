@@ -24,7 +24,7 @@
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       use Her_RW
-      use Real_Spherical
+      use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers
       use Basis_Info

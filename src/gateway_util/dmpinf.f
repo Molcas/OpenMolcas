@@ -31,7 +31,6 @@
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
-      use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
       use Center_Info, only: Center_Info_Dmp
@@ -109,7 +108,6 @@
       Call Basis_Info_Dmp()
       Call Center_Info_Dmp()
       Call Symmetry_Info_Dmp()
-      Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

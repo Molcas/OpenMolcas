@@ -17,9 +17,7 @@
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
      &          Sphere_Dmp, iSphCr
-#include "itmax.fh"
-      Integer, Parameter :: MxFnc=(iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6
-      Integer :: iSphCr(MxFnc)
+      Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
@@ -34,6 +32,7 @@
       SubRoutine Sphere_Free()
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      If (Allocated(iSphCr)) Call mma_deallocate(iSphCr)
       lmax_internal=-1
       End SubRoutine Sphere_Free
 *
@@ -56,7 +55,7 @@
 * Calling    : Real_Sphere                                             *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
+*             March 1990                                               *
 ************************************************************************
 *               Credits.                                               *
 *               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
@@ -65,6 +64,7 @@
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 *     find iTabMx, limiting the highest ang mom, in itmax.fh
+#include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "status.fh"
@@ -76,7 +76,7 @@
          Call Abend()
       End If
 *
-!     Write (*,*) lmax, lmax_internal
+*     Write (*,*) 'Sphere:',lmax, lmax_internal
       If (lmax.lt.0) Then
          Write (6,*) 'Sphere: lmax<0'
          Call Abend()
@@ -87,6 +87,11 @@
       Else
          Return
       End If
+*
+      nSphCr=(lmax+1)*(lmax+2)*(lmax+3)/6
+      Call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
+      iSphCr(:)=0
+
 !     Write (*,*) 'C&S',Condon_Shortley_phase_factor
 *
 *     Make the labels
@@ -442,18 +447,6 @@
  20   Continue
       Return
       End Function DblFac
-      Subroutine Sphere_Dmp()
-      Implicit None
-*
-***********************************************************************
-*
-*     Dump the transformation matrices
-*
-      Call Put_dArray('SewTInfo',RSph,SIZE(RSph))
-*
-***********************************************************************
-*
-      End Subroutine Sphere_Dmp
 *
 ***********************************************************************
 *
