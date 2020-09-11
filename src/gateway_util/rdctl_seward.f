@@ -17,7 +17,7 @@
       use Period
       use MpmC
       use EFP_Module
-      use Real_Spherical, only: Condon_Shortley_phase_factor, Sphere
+      use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
 #ifndef _HAVE_EXTRA_
@@ -64,6 +64,7 @@
      &        Exist,CutInt_UsrDef, ThrInt_UsrDef, MolWgh_UsrDef,
      &        CholeskyWasSet, GWInput, NoAMFI, lOPTO, Do_OneEl
       Logical do1CCD
+      Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
       Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
      &        iGeoInfo(2), iOpt_XYZ, RC
@@ -1581,7 +1582,7 @@ c     Go To 998
 *                                                                      *
 *     Turn on the use of Condon-Shortley phase factors
 *
- 9110 Condon_Shortley_phase_factor=.True.
+ 9110 CSPF=.True.
       GWInput = Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
@@ -3879,6 +3880,10 @@ c      endif
 #endif
          End If
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Put_lScalar('CSPF',CSPF)
 *                                                                      *
 ************************************************************************
 *                                                                      *

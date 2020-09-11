@@ -68,6 +68,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "status.fh"
+      Logical CSPF
 *     iAngMx is the largest ang mom in the current basis
       iAngMx=Max(iAngMx,lMax)
 *     check if required ang mom is greater than hard-coded limit
@@ -87,12 +88,14 @@
       Else
          Return
       End If
+      Call Get_lScalar('CSPF',CSPF)
+      Condon_Shortley_phase_factor=CSPF
 *
       nSphCr=(lmax+1)*(lmax+2)*(lmax+3)/6
       Call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
       iSphCr(:)=0
 
-!     Write (*,*) 'C&S',Condon_Shortley_phase_factor
+*     Write (*,*) 'C&S',Condon_Shortley_phase_factor
 *
 *     Make the labels
 *     Gives info on basis function angular momenta
