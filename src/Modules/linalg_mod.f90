@@ -469,7 +469,7 @@ contains
 
     elemental function isclose(a, b, atol, rtol) result(res)
         real(wp), intent(in) :: a, b
-        real(wp), intent(in), optional :: atol, rtol
+        real(wp), intent(in) :: atol, rtol
         logical :: res
         res = abs(a - b) <= (atol + rtol * abs(b))
     end function
@@ -480,7 +480,8 @@ contains
         logical :: res
 
         ! TODO(@Oskar, @Ignacio): decide on good constants
-        res = isclose(a, b, atol=epsilon(a) * 10._wp, rtol=1e-8_wp)
+        ! For real64, the epsilon is 2.3d-16
+        res = isclose(a, b, atol=epsilon(a) * 10**3._wp, rtol=1e-8_wp)
     end function
 
 
