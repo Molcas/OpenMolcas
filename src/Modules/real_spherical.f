@@ -16,7 +16,10 @@
 #include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
-     &          Sphere_Dmp
+     &          Sphere_Dmp, iSphCr
+#include "itmax.fh"
+      Integer, Parameter :: MxFnc=(iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6
+      Integer :: iSphCr(MxFnc)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
@@ -62,7 +65,6 @@
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 *     find iTabMx, limiting the highest ang mom, in itmax.fh
-#include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "status.fh"

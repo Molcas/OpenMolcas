@@ -14,6 +14,7 @@
       use Symmetry_Info, only: iChTbl
       use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO,
      &                     iOffSO
+      use real_spherical, only: iSphCr
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"

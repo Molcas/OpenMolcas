@@ -30,6 +30,7 @@
 *             June '90                                                 *
 ************************************************************************
       use Basis_Info
+      use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

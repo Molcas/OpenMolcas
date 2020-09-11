@@ -34,9 +34,6 @@
 *             momentum                                                 *
 *     MaxBas: Dito contracted functions                                *
 *     iChBas: the symmetry character of the i''th angular function     *
-*     iSphCr: index of a cartesian angular function which will have the*
-*             same symmetry property (D2h) as the i''th spherical      *
-*             harmonic                                                 *
 *     NrInt : array for integral statistics                            *
 *     nPrm  : number of primitive functions in each irrep              *
 *     MolWgh: integer flag to indicate the normalization of the        *
@@ -156,7 +153,7 @@
      &          nShlls
       Integer   iSkip(0:7),iAngMx,iChCar(3),iOper(0:7),nBas(0:7)
       Integer   MaxPrm(0:iTabMx),MaxBas(0:iTabMx),iChBas(MxFnc),
-     &          iSphCr(MxFnc),nBas_Aux(0:7),NrInt(-20:9),Max_Center,
+     &          nBas_Aux(0:7),NrInt(-20:9),Max_Center,
      &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
      &          lwSyB,lwSqN,lwIntL,NotZer,nTtl, kCentr, iRelae_Info
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
@@ -166,7 +163,7 @@
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType, nBas_Aux,
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
-     &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,
+     &              iChBas, nOrdEF, mCentr, nPrm,   m2Max,
      &              m2Tot,  IntTot, NrInt,   MemHid, nTtl, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt, lwSyB,  lwSqN,

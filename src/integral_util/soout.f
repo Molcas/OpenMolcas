@@ -29,6 +29,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl
+      use Real_Spherical, only: iSphCr
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
