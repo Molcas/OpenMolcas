@@ -5,95 +5,93 @@ module test_linalg_mod
         diagonalize, canonicalize, norm
     implicit none
     private
-    public :: test_mult, test_diagonalization
+    public :: test_mult_N_N, test_mult_T_N, test_mult_N_T, test_mult_T_T, test_diagonalization
     real(wp), parameter :: tolerance = 10._wp**2 * epsilon(1._wp)
 
 contains
 
-    subroutine test_mult()
-        block
-            real(wp), target :: A(20, 10), B(10, 20), C(size(A, 1), size(B, 2))
-            real(wp) :: expected(size(C, 1), size(C, 2))
-            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+    subroutine test_mult_N_N()
+        real(wp), target :: A(20, 10), B(10, 20), C(size(A, 1), size(B, 2))
+        real(wp) :: expected(size(C, 1), size(C, 2))
+        real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
 
-            call random_number(A)
-            call random_number(B)
+        call random_number(A)
+        call random_number(B)
 
-            expected = matmul(A, B)
+        expected = matmul(A, B)
 
-            call mult(A, B, C)
-            call assert_true(all(C .isclose. expected))
+        call mult(A, B, C)
+        call assert_true(all(C .isclose. expected))
 
-            raw_A(1 : size(A)) => A(:, :)
-            raw_B(1 : size(B)) => B(:, :)
-            raw_C(1 : size(C)) => C(:, :)
+        raw_A(1 : size(A)) => A(:, :)
+        raw_B(1 : size(B)) => B(:, :)
+        raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, shape(A), raw_B, shape(B), raw_C)
-            call assert_true(all(C .isclose. expected))
-        end block
+        call mult(raw_A, shape(A), raw_B, shape(B), raw_C)
+        call assert_true(all(C .isclose. expected))
+    end subroutine
 
-        block
-            real(wp), target :: A(20, 10), B(20, 10), C(size(A, 2), size(B, 2))
-            real(wp) :: expected(size(C, 1), size(C, 2))
-            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+    subroutine test_mult_T_N()
+        real(wp), target :: A(20, 10), B(20, 10), C(size(A, 2), size(B, 2))
+        real(wp) :: expected(size(C, 1), size(C, 2))
+        real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
 
-            call random_number(A)
-            call random_number(B)
+        call random_number(A)
+        call random_number(B)
 
-            expected = matmul(transpose(A), B)
+        expected = matmul(transpose(A), B)
 
-            call mult(A, B, C, transpA=.true.)
-            call assert_true(all(C .isclose. expected))
+        call mult(A, B, C, transpA=.true.)
+        call assert_true(all(C .isclose. expected))
 
-            raw_A(1 : size(A)) => A(:, :)
-            raw_B(1 : size(B)) => B(:, :)
-            raw_C(1 : size(C)) => C(:, :)
+        raw_A(1 : size(A)) => A(:, :)
+        raw_B(1 : size(B)) => B(:, :)
+        raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true.)
-            call assert_true(all(C .isclose. expected))
-        end block
+        call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true.)
+        call assert_true(all(C .isclose. expected))
+    end subroutine
 
-        block
-            real(wp), target :: A(20, 10), B(20, 10), C(size(A, 1), size(B, 1))
-            real(wp) :: expected(size(C, 1), size(C, 2))
-            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+    subroutine test_mult_N_T()
+        real(wp), target :: A(20, 10), B(20, 10), C(size(A, 1), size(B, 1))
+        real(wp) :: expected(size(C, 1), size(C, 2))
+        real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
 
-            call random_number(A)
-            call random_number(B)
+        call random_number(A)
+        call random_number(B)
 
-            expected = matmul(A, transpose(B))
+        expected = matmul(A, transpose(B))
 
-            call mult(A, B, C, transpB=.true.)
-            call assert_true(all(C .isclose. expected))
+        call mult(A, B, C, transpB=.true.)
+        call assert_true(all(C .isclose. expected))
 
-            raw_A(1 : size(A)) => A(:, :)
-            raw_B(1 : size(B)) => B(:, :)
-            raw_C(1 : size(C)) => C(:, :)
+        raw_A(1 : size(A)) => A(:, :)
+        raw_B(1 : size(B)) => B(:, :)
+        raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpB=.true.)
-            call assert_true(all(C .isclose. expected))
-        end block
+        call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpB=.true.)
+        call assert_true(all(C .isclose. expected))
+    end subroutine
 
-        block
-            real(wp), target :: A(20, 10), B(10, 20), C(size(A, 2), size(B, 1))
-            real(wp) :: expected(size(C, 1), size(C, 2))
-            real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
+    subroutine test_mult_T_T()
+        real(wp), target :: A(20, 10), B(10, 20), C(size(A, 2), size(B, 1))
+        real(wp) :: expected(size(C, 1), size(C, 2))
+        real(wp), pointer :: raw_A(:), raw_B(:), raw_C(:)
 
-            call random_number(A)
-            call random_number(B)
+        call random_number(A)
+        call random_number(B)
 
-            expected = matmul(transpose(A), transpose(B))
+        expected = matmul(transpose(A), transpose(B))
 
-            call mult(A, B, C, transpA=.true., transpB=.true.)
-            call assert_true(all(C .isclose. expected))
+        call mult(A, B, C, transpA=.true., transpB=.true.)
+        call assert_true(all(C .isclose. expected))
 
-            raw_A(1 : size(A)) => A(:, :)
-            raw_B(1 : size(B)) => B(:, :)
-            raw_C(1 : size(C)) => C(:, :)
+        raw_A(1 : size(A)) => A(:, :)
+        raw_B(1 : size(B)) => B(:, :)
+        raw_C(1 : size(C)) => C(:, :)
 
-            call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true., transpB=.true.)
-            call assert_true(all(C .isclose. expected))
-        end block
+        call mult(raw_A, shape(A), raw_B, shape(B), raw_C, transpA=.true., transpB=.true.)
+        call assert_true(all(C .isclose. expected))
     end subroutine
 
     subroutine test_diagonalization()
@@ -105,61 +103,56 @@ contains
         real(wp) :: V(size(M, 1), size(M, 2))
         real(wp) :: U(size(M, 1), size(M, 2))
         real(wp) :: test_V(size(M, 1), size(M, 2))
+        real(wp) :: ref(size(V, 1), size(V, 2))
 
         integer :: i, i_test
         integer :: offset
 
-        create_test_matrix : block
-            offset = 1
-            do i = 1, size(dimension_E)
-                lambdas(offset : offset + dimension_E(i) - 1) = real(i, kind=wp)
-                offset = offset + dimension_E(i)
-            end do
+        ! create_test_matrix
+        offset = 1
+        do i = 1, size(dimension_E)
+            lambdas(offset : offset + dimension_E(i) - 1) = real(i, kind=wp)
+            offset = offset + dimension_E(i)
+        end do
 
-            M = 0._wp
-            do i = 1, size(M, 1)
-                M(i, i) = lambdas(i)
-            end do
+        M = 0._wp
+        do i = 1, size(M, 1)
+            M(i, i) = lambdas(i)
+        end do
 
-            call get_rand_orthogonal(U)
-            M = matmul(matmul(transpose(U), M), U)
-            call assert_true(symmetric(M))
-        end block create_test_matrix
+        call get_rand_orthogonal(U)
+        M = matmul(matmul(transpose(U), M), U)
+        call assert_true(symmetric(M))
 
         call diagonalize(M, V, lambdas)
 
-        test_canonical_basis : block
+        ! test in canonical basis
 
-            call canonicalize(V, lambdas)
+        call canonicalize(V, lambdas)
 
-            do i_test = 1, test_size
-                call create_test_V(V, dimension_E, test_V)
-                call canonicalize(test_V, lambdas)
-                call assert_true(all(test_V .isclose. V))
-            end do
-        end block test_canonical_basis
+        do i_test = 1, test_size
+            call create_test_V(V, dimension_E, test_V)
+            call canonicalize(test_V, lambdas)
+            call assert_true(all(test_V .isclose. V))
+        end do
 
-        ! Use Roland's contraints
-        test_general_basis : block
-            real(wp) :: ref(size(V, 1), size(V, 2))
+        ! test with Roland's constraints
+        call assert_true(size(V, 1) == size(V, 2))
 
-            call assert_true(size(V, 1) == size(V, 2))
+        ref(:, :) = 0._wp
 
-            ref(:, :) = 0._wp
+        do i = 1, size(V, 2)
+            ref(i, i) = 1._wp
+            ref(mod(i + 1, size(V, 1)), i) = -1._wp
+        end do
 
-            do i = 1, size(V, 2)
-                ref(i, i) = 1._wp
-                ref(mod(i + 1, size(V, 1)), i) = -1._wp
-            end do
+        call canonicalize(V, lambdas, ref)
 
-            call canonicalize(V, lambdas, ref)
-
-            do i_test = 1, test_size
-                call create_test_V(V, dimension_E, test_V)
-                call canonicalize(test_V, lambdas, ref)
-                call assert_true(all(test_V .isclose. V))
-            end do
-        end block test_general_basis
+        do i_test = 1, test_size
+            call create_test_V(V, dimension_E, test_V)
+            call canonicalize(test_V, lambdas, ref)
+            call assert_true(all(test_V .isclose. V))
+        end do
 
     end subroutine
 
@@ -178,14 +171,13 @@ contains
         integer, intent(in) :: dimension_E(:)
         real(wp), intent(out) :: test_V(:, :)
 
-        integer :: offset, i
+        real(wp), allocatable :: U(:, :)
+        integer :: i, j, k, offset
 
         offset = 1
         test_V = 0._wp
         do i = 1, size(dimension_E)
-        block
-            real(wp) :: U(dimension_E(i), dimension_E(i))
-            integer :: j, k
+            allocate(U(dimension_E(i), dimension_E(i)))
             call get_rand_orthogonal(U)
 
             do j = 1, dimension_E(i)
@@ -194,7 +186,7 @@ contains
                 end do
             end do
             offset = offset + dimension_E(i)
-        end block
+            deallocate(U)
         end do
     end subroutine
 
@@ -217,32 +209,33 @@ end module test_linalg_mod
 program test_linalg
 
     use fruit
-    use test_linalg_mod, only: test_mult, test_diagonalization
+    use test_linalg_mod
 
     implicit none
     integer :: failed_count
     integer, parameter :: seed(20) = &
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-    block
 
-        call init_fruit()
-        call random_seed(put=seed)
-        call inimem()
+    call init_fruit()
+    call random_seed(put=seed)
+    call inimem()
 
-        call test_linalg_driver()
+    call test_linalg_driver()
 
-        call fruit_summary()
-        call fruit_finalize()
-        call get_failed_count(failed_count)
+    call fruit_summary()
+    call fruit_finalize()
+    call get_failed_count(failed_count)
 
-        if (failed_count /= 0)  error stop
-    end block
+    if (failed_count /= 0) error stop
 
 contains
 
     subroutine test_linalg_driver()
-        call run_test_case(test_mult, "test_mult")
+        call run_test_case(test_mult_N_N, "test_mult_N_N")
+        call run_test_case(test_mult_T_N, "test_mult_T_N")
+        call run_test_case(test_mult_N_T, "test_mult_N_T")
+        call run_test_case(test_mult_T_T, "test_mult_T_T")
         call run_test_case(test_diagonalization, "test_diagonalization")
     end subroutine
 end program test_linalg
