@@ -186,10 +186,6 @@ C      Real*8,DIMENSION(NPairs)::thetanew
        CALL
      & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
       END DO
-C      write(6,*)'Angles'
-C      CALL PrintMat(' ',' ',theta,1,NPairs,0,0,'N')
-C      write(6,*)'Rotation Matrix'
-C      CALL PrintMat(' ',' ',FRot,lRoots,lRoots,0,0,'N')
       RETURN
       END SUBROUTINE
 ***********************************************************************
