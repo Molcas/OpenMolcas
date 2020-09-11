@@ -21,6 +21,7 @@
 *                                                                  *
 ********************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
 #include "itmax.fh"
@@ -32,9 +33,8 @@
      &       DCntr(nS,MxAto,3,3), Q(2,nTs)
       Integer iSph(nTs)
       Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       iIrrep=0
 *
@@ -68,7 +68,7 @@
                   End Do
                End If
             End Do
-            iCen = iCen + nIrrep/nStab(mdc)
+            iCen = iCen + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *

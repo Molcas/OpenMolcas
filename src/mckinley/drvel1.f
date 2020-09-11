@@ -10,14 +10,14 @@
 ************************************************************************
       SubRoutine Drvel1(Grad)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
       Logical TF,tstfnc
       Real*8 Grad(*)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       idisp=0
       do jIrrep=0,nirrep-1
        Do Jcar=1,3

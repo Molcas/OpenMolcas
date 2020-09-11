@@ -58,7 +58,7 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
       RR_R12 = Zero
       TWeight = Zero
       Do iCent = 1, nCent
-         Fact = Dble(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact = Dble(iDeg(xyz(1,iCent)))
          xWeight = Fact*Work(ipWeights+iCent-1)
          TWeight = TWeight+xWeight
          Do i = 1, 3
@@ -75,7 +75,7 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
 *
       f=Zero
       Do iCent = 1, nCent
-         Fact = Dble(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact = Dble(iDeg(xyz(1,iCent)))
          xWeight = Fact*Work(ipWeights+iCent-1)
          Do i = 1, 3
             f = f + xWeight*(xyz(i,iCent)-xyz0(i,iCent))*r12(i,iCent)
@@ -110,7 +110,7 @@ c     Write (6,*) 'f, RR_R12=',f,RR_R12
 *        (with weighting and scaling accounted for)
 *
          Do iCent = 1, nCent
-            Fact = Dble(iDeg(xyz(1,iCent),iOper,nSym))
+            Fact = Dble(iDeg(xyz(1,iCent)))
             xWeight = Fact*Work(ipWeights+iCent-1)
             Do i = 1, 3
                Bf(i,iCent) = xWeight*r12(i,iCent)/RR_R12*SqInvTWeight

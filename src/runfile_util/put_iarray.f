@@ -126,8 +126,8 @@
          RecLab( 21)='SewIInfo        '
          RecLab( 22)='SewLInfo        '
          RecLab( 23)='SCFInfoI_ab     '
-         RecLab( 24)='                ' !Free slot
-         RecLab( 25)='                ' !Free Slot
+         RecLab( 24)='icDmp           '
+         RecLab( 25)='Symmetry Info   '
          RecLab( 26)='                ' !Free slot
          RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
@@ -137,7 +137,7 @@
          RecLab( 32)='                ' !Free Slot
          RecLab( 33)='                ' !Free slot
          RecLab( 34)='                ' !Free slot
-         RecLab( 35)='iCoSet          '
+         RecLab( 35)='                ' !Free slot
          RecLab( 36)='LP_A            '
          RecLab( 37)='NumCho          ' ! Number of Cholesky vectors.
          RecLab( 38)='nFroPT          ' ! Number of Frozen for PT
@@ -159,7 +159,7 @@
          RecLab( 54)='SCF nOcc        '
          RecLab( 55)='SCF nOcc_ab     '
          RecLab( 56)='                ' !Free slot
-         RecLab( 57)='IrrCmp          '
+         RecLab( 57)='                ' !Free slot
          RecLab( 58)='iAOtSO          '
          RecLab( 59)='iSOInf          '
          RecLab( 60)='                ' !Free Slot

@@ -14,6 +14,7 @@
      &                      MxAtQ,MxPrCon,MxBasQ,MxAngqNr,ipAcc,
      &                      nACCSize)
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
@@ -161,7 +162,7 @@ C     Endif
         M=iCnttp-1
         Do 212, iCnt=1,dbsc(iCnttp)%nCntr
           ndc=ndc+1
-          iTemp=iTemp+nStab(ndc)
+          iTemp=iTemp+dc(ndc)%nStab
 212     Continue
         NaTyp(iCnttp)=iTemp
         Do 213, iAng=0,nVarv-1  !And in this loop we get hold of the
@@ -169,8 +170,10 @@ C     Endif
           iCount=iAng+iAngSav
           iPrim=Shells(iCount)%nExp
           iBas=Shells(iCount)%nBasis
-c         Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
+#ifdef _DEBUG_
+          Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
           Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)
+#endif
           nfSh(iCnttp,iAng+1)=iBas
           Do 214, i=1,iBas
             Call dCopy_(iPrim,Shells(iCount)%Exp,1,

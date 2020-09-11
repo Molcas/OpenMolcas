@@ -11,6 +11,7 @@
       SubRoutine SmAdNa(ArrIn,nb,ArrOut,nop,
      &                  lOper,IndGrd,
      &                  iuv,IfGrd,Index,iDCar,rf,IFG,tr)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

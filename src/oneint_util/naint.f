@@ -37,6 +37,7 @@
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -133,17 +134,17 @@ C     Call qEnter('NAInt')
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             If (iPrint.ge.99) Then
                Write (6,*) ' m      =',nStabM
                Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &               ii = 0, nStabM-1)
-               Write (6,*) ' s      =',nStab(kdc+kCnt)
-               Write (6,'(9A)') '(S)=',(ChOper(jStab(ii,kdc+kCnt)),
-     &               ii = 0, nStab(kdc+kCnt)-1)
+               Write (6,*) ' s      =',dc(kdc+kCnt)%nStab
+               Write (6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),
+     &               ii = 0, dc(kdc+kCnt)%nStab-1)
                Write (6,*) ' LambdaT=',LmbdT
                Write (6,*) ' t      =',nDCRT
                Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
@@ -152,9 +153,7 @@ C     Call qEnter('NAInt')
 
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *              switch (only two center NA matrix...)
                If (No3Cnt .AND. .NOT.(EQ(A,TC).OR.EQ(RB,TC))) Go To 102
 *              switch
@@ -270,7 +269,7 @@ C     Call qEnter('NAInt')
 *
 *--------------Accumulate contributions to the symmetry adapted operator
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp         ,lOper,iChO,-Fact*Q_Nuc)
                If (iPrint.ge.99) Then

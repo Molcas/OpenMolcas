@@ -27,6 +27,8 @@
 ************************************************************************
       use external_centers
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -35,11 +37,6 @@
       Real*8 A(3), B(3), RB(3)
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)
       Logical EQ, NoLoop
-*
-*     Statement function for Cartesian index
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-C     nElem(ixyz) = 2*ixyz+1
 *
 
       iRout = 33
@@ -82,9 +79,9 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp = Zero
@@ -175,16 +172,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       If (lXF.and.(nOrd_XF.ge.0)) Then
 *
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
-*
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
@@ -242,8 +229,8 @@ C     nElem(ixyz) = 2*ixyz+1
             End If
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            iChxyz=iChAtm(A,iChBas(2))
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
@@ -257,9 +244,8 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,iStb,nStb,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero
@@ -402,8 +388,8 @@ C     nElem(ixyz) = 2*ixyz+1
 
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            iChxyz=iChAtm(A,iChBas(2))
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
                If (nOrd_XF.eq.0) Then
@@ -443,8 +429,8 @@ C     nElem(ixyz) = 2*ixyz+1
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
-               iChxyz=iChAtm(B,iOper,nOper,iChBas(2))
-               Call Stblz(iChxyz,iOper,nIrrep,mStb,jStb,iDum,jCoSet)
+               iChxyz=iChAtm(B,iChBas(2))
+               Call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.
                Fact = One
@@ -452,8 +438,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *              Find the DCR for the two centers
 *
-               Call DCR(LmbdR,iOper,nIrrep,iStb,nStb,jStb,mStb,
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,jStb,mStb,iDCRR,nDCRR)
 *
                temp = Zero
                Do iR = 0, nDCRR-1

@@ -469,7 +469,7 @@
 *
          iShll = Mx_Shll-1
          jShll = iShll
-         Call GetBS(Fname,Bsl_,iShll,MxAng,BLine,Ref,UnNorm,nDel,LuRd,
+         Call GetBS(Fname,Bsl_,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
      &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then

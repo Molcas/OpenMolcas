@@ -34,6 +34,9 @@
       use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
+      use Center_Info, only: Center_Info_Dmp
+      use Symmetry_Info, only: Symmetry_Info_Dmp
+      use SOAO_Info, only: SOAO_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,7 +49,6 @@
 #include "RelLight.fh"
       Integer  iix(2)
       Real*8   rix(2)
-      Integer, Dimension(:,:), Allocatable :: jAOtSO
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
@@ -77,18 +79,7 @@
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Put_iArray('SewIInfo',p_ix,Len)
 *
-      Call Put_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      Call Put_iArray('iSOInf',iSOInf,3*4*MxAO)
-      Call Put_iArray('IrrCmp',IrrCmp,Mx_Unq)
-*
-*     Finally some on iAOtSO
-*
-      Call mma_allocate(jAOtSO,8,Mx_AO)
-      Do i = 1, Mx_AO
-         Call ICopy(8,iAOtSO(i,0),MxAO,jAOtSO(1,i),1)
-      End Do
-      Call Put_iArray('iAOtSO',jAOtSO,8*Mx_AO)
-      Call mma_deallocate(jAOtSO)
+      Call SOAO_Info_Dmp()
 *
 *     Save the common LINFO
 *
@@ -116,6 +107,8 @@
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
+      Call Center_Info_Dmp()
+      Call Symmetry_Info_Dmp()
       Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************

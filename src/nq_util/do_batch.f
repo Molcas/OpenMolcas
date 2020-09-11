@@ -45,6 +45,8 @@
       use iSD_data
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -221,7 +223,6 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             iPrim = iSD( 5,iSh)
             iPrim_Eff=List_Exp(ilist_s)
             iAO   = iSD( 7,iSh)
-            IndShl= iSD( 7,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
             iShll = iSD(0,iSh)
@@ -253,7 +254,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(1) = px*A(1)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'mAO=',mAO
             If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
@@ -398,7 +399,6 @@ c            write(6,*) 'iOff =', iOff
             iBas_Eff = List_Bas(1,ilist_s)
             iPrim = iSD( 5,iSh)
             iAO   = iSD( 7,iSh)
-            IndShl= iSD( 8,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
 *
@@ -406,32 +406,32 @@ c            write(6,*) 'iOff =', iOff
 *
 cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
             Call FZero(Work(ipSOs),nSO)
 *
             iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 *
 *---------- Distribute contributions of AOs if this particular shell
 *           on to the SOs of this shell. The SOs are only stored
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,IndShl)
+     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
 *
             Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
             Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
      &                   iCmp,nDeg,TabSO,
-     &                   IndShl,nMOs,iAO,Work(ipTmpCMO),
+     &                   nMOs,iAO,Work(ipTmpCMO),
      &                   nCMO,iWork(ipTDoIt))
             Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
 *
             Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                  IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                  nMOs,iAO,CMOs,nCMO,DoIt)
 *
          End Do
       End If

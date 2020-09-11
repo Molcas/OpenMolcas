@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut_LDF_Diag(
-     &                           iCmp,iShell,MapOrg,IndShlV,
+     &                           iCmp,iShell,MapOrg,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
@@ -26,7 +26,7 @@
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -45,7 +45,6 @@
          iDummy_1  = Ind(1,1,1)
          iDummy_2  = itOffs(0,0,0)
          iDummy_3  = MapOrg(1)
-         iDymmy_4  = IndShlV(1)
       End If
 *
 * call sorting routine

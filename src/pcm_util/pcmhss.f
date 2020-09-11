@@ -39,6 +39,7 @@
 *             R. Lindh.                                                *
 ************************************************************************
       use PCM_arrays, only: PCM_SQ, PCMTess
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -116,8 +117,8 @@
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
 *
@@ -159,8 +160,7 @@
          C(1:3)=PCMTess(1:3,iTs)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -q_i*DBLE(nStabM) / DBLE(LmbdT)
 *
          Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
@@ -169,11 +169,9 @@
          iuvwx(4) = nStb
 *
          Do lDCRT = 0, nDCRT-1
-            mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            mOp(3) = NrOpr(iDCRT(lDCRT))
             mOp(4) = mOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)

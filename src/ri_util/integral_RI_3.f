@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_RI_3(iCmp,iShell,MapOrg,IndShlV,
+      SubRoutine Integral_RI_3(iCmp,iShell,MapOrg,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
@@ -27,7 +27,7 @@
 #include "WrkSpc.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -53,7 +53,7 @@
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
-C          Call IndSft_RI_3(iCmp,iShell,IndShlV,
+C          Call IndSft_RI_3(iCmp,iShell,
 C    &                      iBas,jBas,kBas,lBas,Shijij,
 C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
@@ -77,7 +77,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                   iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
      &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
       Else
-           Call IndSft_RI_3(iCmp,iShell,IndShlV,
+           Call IndSft_RI_3(iCmp,iShell,
      &                      iBas,jBas,kBas,lBas,Shijij,
      &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                      TInt,nTInt,iTOffs,

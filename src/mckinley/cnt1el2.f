@@ -12,8 +12,8 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine Cnt1El2(Kernel,KrnlMm,Label,
-     &                 iDCnt,iDCar,loper,rHrmt,DiffOp,
-     &                  Lab_Dsk,iadd,isym,kcar,nordop)
+     &                   iDCnt,iDCar,loper,rHrmt,DiffOp,
+     &                   Lab_Dsk,iadd,isym,kcar,nordop)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -65,6 +65,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -89,9 +90,8 @@ c#include "print.fh"
 *
 *     Statement functions
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *-----Compute the number of blocks from each component of the operator
@@ -109,8 +109,7 @@ c#include "print.fh"
       nnIrrep=nIrrep
       If (sIrrep) nnIrrep=1
       Do iIrrep=0,nnIrrep-1
-         jIrrep=nropr(ieor(ioper(iIrrep), ioper(isym)),
-     &          ioper,nirrep)
+         jIrrep=nropr(ieor(ioper(iIrrep), ioper(isym)))
          nDisp = IndDsp(iDcnt,iIrrep)
          Do iCar=1,3
             iComp = 2**(iCar-1)
@@ -157,7 +156,6 @@ c#include "print.fh"
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -171,7 +169,6 @@ c#include "print.fh"
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -247,8 +244,7 @@ c#include "print.fh"
             Do iIrrep=0,nIrrep-1
                 If (iAnd(loper,2**iIrrep).ne.0) Then
                  iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                          IndShl,JndShl)
+                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                End If
             End Do
 c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
@@ -258,22 +254,20 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,
-     &               jStab(0,mdci),nStab(mdci),
-     &               jStab(0,mdcj),nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             Fact = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
             If (MolWgh.eq.1) Then
                Fact = Fact * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -283,13 +277,11 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
-             RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-             RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-             RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             Call OA(iDCRR(lDCRR),B,RB)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (Label.ne.'CONNECTI'
      &           .and.EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *
@@ -309,8 +301,8 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
      &                   Work(ipFnl),iPrim*jPrim,
      &                   iAng,jAng,A,RB,nOrder,Work(iKern),
      &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
-     &                   nStab(mdci),
-     &                   nStab(mdcj),nic,idcar,idcnt,
+     &                   dc(mdci)%nStab,
+     &                   dc(mdcj)%nStab,nic,idcar,idcnt,
      &                   iStabM,nStabM,trans,kcar,isym)
 *
 *
@@ -380,14 +372,14 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                 If (mSO.eq.0) Then
                    Do jIrrep = 0, nIrrep-1
                       If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
+     &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
@@ -409,15 +401,12 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                If (iAnd(lOper,2**iIrrep).ne.0) Then
                  iSmlbl=2**iIrrep
                  iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                      IndShl,JndShl)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iirrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
-     &                    Work(ip(iIC)),
-     &                    nFck(iIrrep),iSmLbl,
+     &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
-     &                    IndShl,JndShl,iAO,jAO,
-     &                    nIC,Label,2**iIrrep,rHrmt)
+     &                    iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
              End Do

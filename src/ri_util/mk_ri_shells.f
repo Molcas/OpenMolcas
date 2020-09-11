@@ -162,18 +162,17 @@
 *
          jShll = iShll
          dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
-         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
-     &              nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,
-     &              ' ')
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,nDel,
+     &              LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          dbsc(nCnttp)%Aux=.True.
          dbsc(nCnttp)%Charge=Zero
 *
          If (Show.and.iPrint.ge.6 .and.
-     &      Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &      Ref(1).ne.'' .and. Ref(2).ne.'') Then
             Write (6,'(1x,a)')  'Basis Set Reference(s):'
-            If (Ref(1).ne.BLine) Write (6,'(5x,a)') Ref(1)
-            If (Ref(2).ne.BLine) Write (6,'(5x,a)') Ref(2)
+            If (Ref(1).ne.'') Write (6,'(5x,a)') Ref(1)
+            If (Ref(2).ne.'') Write (6,'(5x,a)') Ref(2)
             Write (6,*)
             Write (6,*)
          End If

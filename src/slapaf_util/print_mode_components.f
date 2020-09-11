@@ -28,6 +28,7 @@
 *> @param[in] lDisp Number of displacements per irrep
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
+      use Symmetry_Info, only: nIrrep
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -37,7 +38,7 @@
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
       Integer :: LuInput, iRow, iInt, nFix, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
-     &           iB, lDisp(nSym), nModes, lModes, LuIC, ii, im, nK,
+     &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
      &           iErr, PLback
       Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,
      &                                       NMod
@@ -56,7 +57,6 @@
 *---- Ugly hack: backup all "global" slapaf variables in case this is
 *                called from inside slapaf
 *
-      Bk_iOper(0:7)=iOper(0:7)
       Bk_iSym(:)=iSym(:)
       Bk_iCoSet(0:7,:)=iCoSet(0:7,:)
       Bk_nStab(:)=nStab(:)
@@ -118,7 +118,6 @@
       Bk_ipCoor=ipCoor
       Bk_mTtAtm=mTtAtm
       Bk_nsAtom=nsAtom
-      Bk_nSym=nSym
       Bk_MEPnum=MEPnum
       Bk_RootMap(:)=RootMap(:)
       Bk_Smmtrc(:)=Smmtrc(:)
@@ -261,7 +260,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,iOper,
+     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -416,7 +415,6 @@
       If (iErr.ne.0) Call Abend()
       If (AixRm('RUNBCK2').ne.0) Call Abend
 *
-      iOper(0:7)=Bk_iOper(0:7)
       iSym(:)=Bk_iSym(:)
       iCoSet(0:7,:)=Bk_iCoSet(0:7,:)
       nStab(:)=Bk_nStab(:)
@@ -478,7 +476,6 @@
       ipCoor=Bk_ipCoor
       mTtAtm=Bk_mTtAtm
       nsAtom=Bk_nsAtom
-      nSym=Bk_nSym
       MEPnum=Bk_MEPnum
       RootMap(:)=Bk_RootMap(:)
       Smmtrc(:)=Bk_Smmtrc(:)

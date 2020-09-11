@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine SymAdd2(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                   iShll,jShll,IndShl,JndShl,
+     &                   iShll,jShll,iAO,jAO,
      &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,nIC,iIC,
      &                   SOInt,nSOInt,nOp,iSkal,jSkal)
@@ -30,6 +30,8 @@
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -65,22 +67,21 @@
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
       Do 100 j1 = 0, nIrrep-1
-         xa = rChTbl(j1,nOp(1))
+         xa = DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) Go To 200
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
             Do 300 j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
 *
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                kIC = jIC(j12)
-               xb = rChTbl(j2,nOp(2))
+               xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(JndShl+i2),iTwoj(j2)).eq.0)
-     &               Go To 400
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
 *
                   Do iB_Eff = 1, iBas_Eff

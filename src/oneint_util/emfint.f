@@ -193,14 +193,13 @@ c Avoid unused argument warnings
          llOper = iOr(llOper,lOper(iComp))
       End Do
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do lDCRT = 0, nDCRT-1
 *
 *--------Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *

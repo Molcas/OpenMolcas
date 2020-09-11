@@ -25,8 +25,8 @@ C     &                   Work(iKappa),Work(iPCoor),
 C     &                   Work(ipFnl),iPrim*jPrim,
 C     &                   iAng,jAng,A,RB,nOrder,Work(iKern),
 C     &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
-C     &                   loper,nStab(mdc+iCnt),
-C     &                   nStab(ndc+jCnt),nic,idcar,idcnt,
+C     &                   loper,dc(mdc+iCnt)%nStab,
+C     &                   dc(ndc+jCnt)%nStab,nic,idcar,idcnt,
 C     &                   iStabM,nStabM,trans)
       SUBROUTINE NONA2(ALPHA,NALPHA,BETA, NBETA,ZETA,ZINV,RKAPPA,
      &               PCENT,FINAL,NZETA,LA,LB,ACENT,BCENT,NHER,
@@ -55,6 +55,7 @@ C     &                   iStabM,nStabM,trans)
 *
 ************************************************************************
       use Her_RW
+      use Center_Info
 C conform to that of all 'KERNEL' routines.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real.fh"

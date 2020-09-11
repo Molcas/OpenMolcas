@@ -24,6 +24,7 @@
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -33,7 +34,6 @@
 *
       iRout = 225
       iPrint = nPrint(iRout)
-*     Call qEnter('SOS')
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' In SOS'
@@ -57,6 +57,5 @@
          iStabO(nStabO) = iOper(iS)
  10   Continue
 *
-*     Call qExit('SOS')
       Return
       End

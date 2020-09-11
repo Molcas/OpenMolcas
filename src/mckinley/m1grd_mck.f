@@ -36,6 +36,7 @@
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -127,10 +128,10 @@ c     End If
             DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
 *           Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM*nIrrep) /
-*    &             DBLE(LmbdT*nStab(kdc+kCnt))
+*    &             DBLE(LmbdT*dc(kdc+kCnt)%nStab)
             Fact = -dbsc(kCnttp)%Charge*DBLE(nStabM) /
      &             DBLE(LmbdT)
 c           If (iPrint.ge.99) Then
@@ -139,8 +140,8 @@ c              write(*,*)   'NZeta=',nzeta
 c              Write(*,*)    'NrOp=',nrop
 c              Write (*,*) ' Fact=',Fact
 c           End If
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call LCopy(12,[.false.],0,JFgrd,1)
             Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
@@ -170,11 +171,9 @@ c           End If
             Do 102 lDCRT = 0, nDCRT-1
                Call lCopy(12,JfGrd,1,kfGrd,1)
                Call iCopy(12*nIrrep,JndGrd,1,kndgrd,1)
-               mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               mOp(3) = NrOpr(iDCRT(lDCRT))
                mOp(4) = mOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
                call dcopy_(3,TC,1,Coori(1,3),1)
                call dcopy_(3,TC,1,Coori(1,4),1)

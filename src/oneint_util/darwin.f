@@ -27,6 +27,7 @@
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -61,14 +62,12 @@
          Do 501 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 502 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
 *--------------Compute the value of the angular components associated
 *              to the basis functions centered on the first center.

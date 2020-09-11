@@ -14,7 +14,7 @@
      &                     Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
+     &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -46,8 +46,6 @@
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      nSym           : number of irreps                               *
-*      iOper          : integer representations of symmetry operators  *
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
@@ -88,8 +86,7 @@
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), MF(3*nsAtom),
      &       Cx(3*nsAtom,MaxItr+1)
-      Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
-     &        iNeg(2)
+      Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
@@ -141,8 +138,8 @@
          Call Update_sl_(iter_,iInt,nFix,nInter,t_qInt,
      &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
-     &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,nSym,
-     &                   iOper,mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
+     &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
+     &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                   rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,MF,
@@ -173,7 +170,7 @@
          Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,Cx,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
       use Basis_Info
+      use Center_Info
       use external_centers
       Implicit Real*8 (a-h,o-z)
 *
@@ -21,11 +22,6 @@
       Character*180 Line,Get_Ln
       External Get_Ln
 *
-*     Statement function for Cartesian index
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-      Call qEnter('no_espf')
       iPL = iPL_espf()
       NoLoop = .True.
 *
@@ -64,16 +60,6 @@
          nDiff=0
          Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
-*
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
 *
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
@@ -132,8 +118,8 @@
             End If
             If (NoLoop) Go To 102
             A(1:3)=XF(1:3,iFd)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            iChxyz=iChAtm(A,iChBas(2))
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
@@ -147,18 +133,15 @@
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,iStb,nStb,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero
                   temp1= Zero
                   temp2= Zero
                   Do iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                     Call OA(iDCRR(iR),B,RB)
 *                    The index A=RB is illegal.
                      If (.Not.EQ(A,RB)) Then
                         ABx=A(1)-RB(1)
@@ -219,7 +202,6 @@
 *
 *     Update the 1-e integrals
 *
-      Call qExit('no_espf')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(natom)

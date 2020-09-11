@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      Logical FullMlk,lSave,Do_ESPF,AddFragments
+      Logical FullMlk,lSave,Do_ESPF
 #ifdef _MOLCAS_MPP_
       LOGICAL Is_Real_Par
 #endif
@@ -165,9 +165,8 @@ C Write natural orbitals as standard orbital file on LUMORB.
 
       CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,
      &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,Note)
-      AddFragments=.True.
       iUHF=0
-      Call Molden_Interface(iUHF,FILENAME,MDNAME,AddFragments)
+      Call Molden_Interface(iUHF,FILENAME,MDNAME)
 
 C Write natural orbitals to standard output.
       IF ( IPRGLB.GE.VERBOSE) THEN

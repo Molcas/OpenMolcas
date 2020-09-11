@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_Aces(iCmp,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,
      &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
@@ -38,6 +38,7 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -52,7 +53,7 @@
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -92,8 +93,7 @@
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(1)+i1),
-     &          iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(1)+i1,j)>0) Then
                iSym(niSym) = j
                niSym = niSym + 1
             End if
@@ -101,8 +101,7 @@
          Do 200 i2 = 1, iCmp(2)
             njSym = 0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(2)+i2),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(2)+i2,j)>0) Then
                   jSym(njSym) = j
                   njSym = njSym + 1
                End If
@@ -110,8 +109,7 @@
             Do 300 i3 = 1, iCmp(3)
                nkSym = 0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndShl(3)+i3),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(3)+i3,j)>0) Then
                      kSym(nkSym) = j
                      nkSym = nkSym + 1
                   End If
@@ -119,8 +117,7 @@
                Do 400 i4 = 1, iCmp(4)
                   nlSym = 0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndShl(4)+i4),
-     &                   iTwoj(j)).ne.0) Then
+                     If (iAOtSO(iAO(4)+i4,j)>0) Then
                         lSym(nlSym) = j
                         nlSym = nlSym + 1
                      End If

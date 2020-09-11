@@ -59,6 +59,7 @@
 *      nordop: order of the operator                                   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
       implicit real*8 (a-h,o-z)
 #include "real.fh"
@@ -82,8 +83,8 @@
        nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *
-      iuvwx(1) = nstab(mdc)
-      iuvwx(2) = nstab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kop(1) = ioper(nop(1))
       kop(2) = ioper(nop(2))
@@ -98,12 +99,12 @@
          do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
-     &               jstab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            call dcr(lmbdt,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *
-            iuvwx(3) = nstab(kdc+kCnt)
-            iuvwx(4) = nstab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 *
          do 1967 ldcrt = 0, ndcRT-1
@@ -111,13 +112,11 @@
 
             kop(3) = idcrt(ldcrT)
             kop(4) = kop(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
 
-            tc(1) = DBLE(iphase(1,idCRT(lDCRT)))*C(1)
-            tc(2) = DBLE(iphase(2,idCRT(lDCRT)))*C(2)
-            tc(3) = DBLE(iphase(3,idCRT(lDCRT)))*C(3)
-            call dcopy_(3,tc,1,coor(1,3),1)
+            Call OA(iDCRT(lDCRT),C,TC)
+            call dcopy_(3,TC,1,Coor(1,3),1)
 
             if (eq(a,rb).and.eq(A,TC)) Go To 1967
             call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,

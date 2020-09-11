@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1992, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,IndShl,iAO,
+      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,
      &                   iStb,jStb,kStb,lStb,nRys,
      &                   Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,
      &                   Pren,Prem,
@@ -57,6 +57,8 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
 #include "ndarray.fh"
@@ -77,7 +79,7 @@
      &       PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2),
      &       Aux(nAux)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
-     &        iStabM(0:7), IndGrd(3,4), iAO(4), IndShl(4),
+     &        iStabM(0:7), IndGrd(3,4), iAO(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -115,10 +117,10 @@
       IncEta=nGamma*lPrInc
       LmbdT=0
       nijkl = iBasi*jBasj*kBask*lBasl
-      iuvwx(1) = nStab(iStb)
-      iuvwx(2) = nStab(jStb)
-      iuvwx(3) = nStab(kStb)
-      iuvwx(4) = nStab(lStb)
+      iuvwx(1) = dc(iStb)%nStab
+      iuvwx(2) = dc(jStb)%nStab
+      iuvwx(3) = dc(kStb)%nStab
+      iuvwx(4) = dc(lStb)%nStab
       mab = nElem(la)*nElem(lb)
       mcd = nElem(lc)*nElem(ld)
       iW4 = 1
@@ -151,16 +153,15 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                                jStab(0,jStb),nStab(jStb),
-     &                                iDCRR,nDCRR)
+         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                  dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       End If
 #ifdef _DEBUG_
       If (iPrint.ge.99) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 *
 *-----Find stabilizer for center A and B
 *
@@ -168,8 +169,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(jStab(0,iStb),nStab(iStb),
-     &              jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -185,16 +186,16 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                               jStab(0,lStb),nStab(lStb),
+         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                  dc(lStb)%iStab,dc(lStb)%nStab,
      &                               iDCRS,nDCRS)
       End If
 #ifdef _DEBUG_
       If (iPrint.ge.99) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 *
 *-----Find stabilizer for center C and D
 *
@@ -202,8 +203,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(jStab(0,kStb),nStab(kStb),
-     &              jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************
@@ -217,8 +218,7 @@
          iDCRT(0)=0
          LmbdT=1
       Else
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,
-     &                               iStabN,lStabN,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
       End If
 *                                                                      *
 ************************************************************************
@@ -238,21 +238,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
+      nOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         nOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
          MxDCRS = nDCRS-1
          Do 200 lDCRS = 0, MxDCRS
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
             Do 300 lDCRT = nDCRT-1, 0, -1
@@ -263,19 +259,12 @@
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               nOp(4) = NrOpr(iDCRTS)
 *
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *
 #ifdef _DEBUG_
                If (iPrint.ge.59)
@@ -434,7 +423,7 @@
 *--------------(faA fbR(B) | fcT(C) fdTS(D))ijkl
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
+     &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
      &                     Aux,nAux,Wrk2(iW2),PSO,nPSO)
 *
                If (Fact.ne.One) Call DScal_(nijkl*
@@ -485,8 +474,8 @@
                   call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
                End If
 *
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix1 = 1
                iy1 = 1
                iz1 = 1

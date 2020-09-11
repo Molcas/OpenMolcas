@@ -62,6 +62,7 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -144,14 +145,12 @@
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab, dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-               TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-               TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                   Call GetMem(' Scr','ALLO','REAL',ipScr,
      &                       nZeta*nElem(la)*nElem(lb)*nComp)
@@ -263,7 +262,7 @@ c                  write(6,*) ' Cff',PAMexp(iM2xp,2)
 *
 *-----------------Accumulate contributions
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Work(ipScr),nZeta,la,lb,nComp,Final,
      &                 nIC,nOp,lOper,iChO,One)
             Call GetMem(' Scr','FREE','REAL',ipScr,
