@@ -39,7 +39,6 @@
 *             harmonic                                                 *
 *     NrInt : array for integral statistics                            *
 *     nPrm  : number of primitive functions in each irrep              *
-*     iOffSO: number of SO basis functions presiding the i''th irrep   *
 *     MolWgh: integer flag to indicate the normalization of the        *
 *             symmetry transformation                                  *
 *             0: double coset represetative normalization              *
@@ -159,7 +158,7 @@
       Integer   iSkip(0:7),iAngMx,iChCar(3),iOper(0:7),nBas(0:7)
       Integer   MaxPrm(0:iTabMx),MaxBas(0:iTabMx),iChBas(MxFnc),
      &          iSphCr(MxFnc),nBas_Aux(0:7),NrInt(-20:9),Max_Center,
-     &          nPrm(0:7),iOffSO(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
+     &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
      &          lwSyB,lwSqN,lwIntL,NotZer,nTtl, kCentr, iRelae_Info
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
@@ -169,8 +168,7 @@
      &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
      &              iChBas, iSphCr,  nOrdEF, mCentr, nPrm,   m2Max,
-     &              m2Tot,  IntTot,
-     &              NrInt,   MemHid, iOffSO, nTtl, Max_Cnt,
+     &              m2Tot,  IntTot, NrInt,   MemHid, nTtl, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
      &              iSquar,  iWRopt, iSkip,  lwInt, lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,

@@ -15,10 +15,12 @@
 Module SOAO_Info
 Implicit None
 Private
-Public :: iSOInf, iAOtSO, nSOInf, SOAO_Info_Init, SOAO_Info_Dmp, SOAO_Info_Get, SOAO_Info_Free
+Public :: iSOInf, iAOtSO, nSOInf, SOAO_Info_Init, SOAO_Info_Dmp, SOAO_Info_Get, SOAO_Info_Free, iOffSO
 #include "stdalloc.fh"
+#include "itmax.fh"
 Integer, Allocatable:: iSOInf(:,:)
 Integer, Allocatable:: iAOtSO(:,:)
+Integer :: iOffSO(0:7)=[0,0,0,0,0,0,0,0]
 Integer :: nSOInf=0
 Integer :: nIrrep=0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -79,6 +81,8 @@ End Subroutine SOAO_Info_Init
 
 Subroutine SOAO_Info_Dmp()
 Implicit None
+Integer, Allocatable:: iDmp(:)
+Integer i, j
 #ifdef _DEBUG_
 Write (6,*)
 Write (6,*) 'Enter SOAO_Info_Dmp'
@@ -92,7 +96,15 @@ Do i = 0, nIrrep-1
 End Do
 End Block
 #endif
-Call Put_iArray('iSOInf',iSOInf,3*nSOInf)
+Call mma_allocate(iDmp,3*nSOInf+8,Label='iDmp')
+j=0
+Do i = 1, nSOInf
+   iDmp(j+1:j+3)=iSOInf(1:3,i)
+   j=j+3
+End Do
+iDmp(j+1:j+8)=iOffSO(0:7)
+Call Put_iArray('iSOInf',iDmp,3*nSOInf+8)
+Call mma_deallocate(iDmp)
 Call Put_iArray('iAOtSO',iAOtSO,nSOInf*nIrrep)
 End Subroutine SOAO_Info_Dmp
 
@@ -100,6 +112,8 @@ End Subroutine SOAO_Info_Dmp
 
 Subroutine SOAO_Info_Get()
 Implicit None
+Integer, Allocatable:: iDmp(:)
+Integer i, j
 Logical Found
 #ifdef _DEBUG_
 Write (6,*)
@@ -112,9 +126,17 @@ If (.NOT.Found) Then
    Write (6,*) 'SOAO_Info_Get: iSOInf not found.'
    Call Abend()
 End If
-nSOInf=nSOInf/3
+nSOInf=(nSOInf-8)/3
 Call mma_allocate(iSOInf,3,nSOInf,Label='iSOInf')
-Call Get_iArray('iSOInf',iSOInf,3*nSOInf)
+Call mma_allocate(iDmp,3*nSOInf+8,Label='iDmp')
+Call Get_iArray('iSOInf',iDmp,3*nSOInf+8)
+j=0
+Do i = 1, nSOInf
+   iSOInf(1:3,i)=iDmp(j+1:j+3)
+   j=j+3
+End Do
+iOffSO(0:7)=iDmp(j+1:j+8)
+Call mma_deallocate(iDmp)
 !
 Call Qpg_iArray('iAOtSO',Found,nIrrep)
 If (.NOT.Found) Then

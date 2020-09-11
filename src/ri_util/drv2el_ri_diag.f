@@ -36,6 +36,7 @@
 *             Modified driver. Jan. '98                                *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iOffSO
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"

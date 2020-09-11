@@ -32,7 +32,7 @@
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
