@@ -32,9 +32,9 @@ module fruit_util
   integer, parameter :: qp = selected_real_kind(33,4931)
   integer, parameter, public :: int32 = selected_int_kind(8)
   integer, parameter, public :: int64 = selected_int_kind(15)
-  
+
   public :: equals, to_s, strip, sp, dp
-  
+
   interface equals
      module procedure equalEpsilon
      module procedure floatEqual
@@ -172,24 +172,24 @@ contains
   !------------------------
   ! test if 2 values are close
   !------------------------
-  !logical function equals (number1, number2) 
+  !logical function equals (number1, number2)
   !  real(sp),  intent (in) :: number1, number2
-  !  
+  !
   !  return equalEpsilon (number1, number2, epsilon(number1))
   !
   !end function equals
 
 
   function equalEpsilon (number1, number2, epsilon ) result (resultValue)
-    real(sp), intent (in) :: number1, number2, epsilon 
-    logical :: resultValue 
+    real(sp), intent (in) :: number1, number2, epsilon
+    logical :: resultValue
 
     resultValue = .false.
 
     ! test very small number1
     if ( abs(number1) < epsilon .and.  abs(number1 - number2) < epsilon ) then
        resultValue = .true.
-    else 
+    else
        if ((abs(( number1 - number2)) / number1) < epsilon ) then
           resultValue = .true.
        else
@@ -201,8 +201,8 @@ contains
 
   function floatEqual (number1, number2 ) result (resultValue)
     real(sp), intent (in) :: number1, number2
-    real :: epsilon 
-    logical :: resultValue 
+    real :: epsilon
+    logical :: resultValue
 
     resultValue = .false.
     epsilon = 1E-6
@@ -210,7 +210,7 @@ contains
     ! test very small number1
     if ( abs(number1) < epsilon .and.  abs(number1 - number2) < epsilon ) then
        resultValue = .true.
-    else 
+    else
        if ((abs(( number1 - number2)) / number1) < epsilon ) then
           resultValue = .true.
        else
@@ -221,8 +221,8 @@ contains
 
   function doublePrecisionEqual (number1, number2 ) result (resultValue)
     real(dp) , intent (in) :: number1, number2
-    real :: epsilon 
-    logical :: resultValue 
+    real :: epsilon
+    logical :: resultValue
 
     resultValue = .false.
     epsilon = 1E-6
@@ -231,7 +231,7 @@ contains
     ! test very small number1
     if ( abs(number1) < epsilon .and.  abs(number1 - number2) < epsilon ) then
        resultValue = .true.
-    else 
+    else
        if ((abs(( number1 - number2)) / number1) < epsilon ) then
           resultValue = .true.
        else
@@ -242,61 +242,61 @@ contains
 
   function integer32Equal (number1, number2 ) result (resultValue)
     integer(int32) , intent (in) :: number1, number2
-    logical :: resultValue 
+    logical :: resultValue
 
     resultValue = .false.
 
     if ( number1 .eq. number2 ) then
        resultValue = .true.
-    else 
+    else
        resultValue = .false.
     end if
   end function integer32Equal
 
   function integer64Equal (number1, number2 ) result (resultValue)
     integer(int64) , intent (in) :: number1, number2
-    logical :: resultValue 
+    logical :: resultValue
 
     resultValue = .false.
 
     if ( number1 .eq. number2 ) then
        resultValue = .true.
-    else 
+    else
        resultValue = .false.
     end if
   end function integer64Equal
 
-  function integer32_64_equal(number1, number2) result(resultValue) 
-      integer(int32), intent(in) :: number1 
-      integer(int64), intent(in) :: number2 
-      logical :: resultValue 
+  function integer32_64_equal(number1, number2) result(resultValue)
+      integer(int32), intent(in) :: number1
+      integer(int64), intent(in) :: number2
+      logical :: resultValue
 
-      resultValue = .false. 
+      resultValue = .false.
 
-      if (number1 .eq. int(number2, int32)) then 
-          resultValue = .true. 
-      else 
-          resultValue = .false. 
+      if (number1 .eq. int(number2, int32)) then
+          resultValue = .true.
+      else
+          resultValue = .false.
       end if
   end function integer32_64_equal
 
-  function integer64_32_equal(number1, number2) result(resultValue) 
-      integer(int64), intent(in) :: number1 
-      integer(int32), intent(in) :: number2 
-      logical :: resultValue 
+  function integer64_32_equal(number1, number2) result(resultValue)
+      integer(int64), intent(in) :: number1
+      integer(int32), intent(in) :: number2
+      logical :: resultValue
 
-      resultValue = .false. 
+      resultValue = .false.
 
-      if (number1 .eq. int(number2, int64)) then 
-          resultValue = .true. 
+      if (number1 .eq. int(number2, int64)) then
+          resultValue = .true.
       else
-          resultValue = .false. 
+          resultValue = .false.
       end if
   end function integer64_32_equal
 
   function stringEqual (str1, str2 ) result (resultValue)
     character(*) , intent (in) :: str1, str2
-    logical :: resultValue 
+    logical :: resultValue
 
     resultValue = .false.
 
@@ -307,7 +307,7 @@ contains
 
   function logicalEqual (l1, l2 ) result (resultValue)
     logical, intent (in) :: l1, l2
-    logical              :: resultValue 
+    logical              :: resultValue
 
     resultValue = .false.
 
@@ -579,7 +579,7 @@ module fruit
      module procedure add_fail_
      module procedure add_fail_unit_
   end interface
- 
+
   public ::           addFail
   interface           addFail
      module procedure add_fail_
@@ -718,12 +718,12 @@ module fruit
   interface           fruit_if_case_failed
     module procedure  fruit_if_case_failed_
   end interface
- 
+
   public ::           fruit_hide_dots
   interface           fruit_hide_dots
     module procedure  fruit_hide_dots_
   end interface
- 
+
   public ::           fruit_show_dots
   interface           fruit_show_dots
     module procedure  fruit_show_dots_
@@ -783,16 +783,16 @@ contains
         write(XML_OPEN, '(      "failures=""1"" " )', advance = "no")
         write(XML_OPEN, '(      "name=""", a, """ ")', advance = "no") "name of test suite"
         write(XML_OPEN, '(      "id=""1"">")')
-  
+
         write(XML_OPEN, &
         &  '("    <testcase name=""", a, """ classname=""", a, """ time=""", a, """>")') &
         &  "dummy_testcase", "dummy_classname", "0"
-  
+
         write(XML_OPEN, '(a)', advance = "no") "      <failure type=""failure"" message="""
         write(XML_OPEN, '(a)', advance = "no") "FRUIT did not generate regular content of result.xml."
         write(XML_OPEN, '(a)')                 """/>"
         write(XML_OPEN, '("    </testcase>")')
-  
+
         write(XML_OPEN, '("  </testsuite>")')
         write(XML_OPEN, '("</testsuites>")')
       close(XML_OPEN)
@@ -814,7 +814,7 @@ contains
         delta_t = delta_t + real(time_max) / real(time_rate)
       endif
     else
-      delta_t = 0
+      delta_t = 0.
     endif
 
     write(case_delta_t, '(g12.4)') delta_t
@@ -1255,7 +1255,7 @@ contains
     logical,      intent(in)           :: if_is
     character(*), intent(in), optional :: message
 
-    msg = '[' // trim(strip(case_name)) // ']: ' 
+    msg = '[' // trim(strip(case_name)) // ']: '
     if (if_is) then
       msg = trim(msg) //     'Expected'
     else
@@ -1446,7 +1446,7 @@ contains
   subroutine assert_eq_logical_(var1, var2, message)
 
     logical, intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (var1 .neqv. var2) then
@@ -1464,7 +1464,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     logical, intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if (var1(i) .neqv. var2(i)) then
@@ -1482,7 +1482,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     logical, intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -1501,7 +1501,7 @@ contains
   subroutine assert_eq_string_(var1, var2, message)
 
     character (len = *), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (trim(strip(var1)) /= trim(strip(var2))) then
@@ -1519,7 +1519,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     character (len = *), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if (trim(strip(var1(i))) /= trim(strip(var2(i)))) then
@@ -1537,7 +1537,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     character (len = *), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -1556,7 +1556,7 @@ contains
   subroutine assert_eq_int32_(var1, var2, message)
 
     integer(int32), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (var1 /= var2) then
@@ -1573,7 +1573,7 @@ contains
   subroutine assert_eq_int64_(var1, var2, message)
 
     integer(int64), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (var1 /= var2) then
@@ -1589,9 +1589,9 @@ contains
   !------ 0d_int_32_to_64 ------
   subroutine assert_eq_int32_to_int64_(var1, var2, message)
 
-    integer(int32), intent (in) :: var1 
+    integer(int32), intent (in) :: var1
     integer(int64), intent (in) :: var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (var1 /= var2) then
@@ -1607,9 +1607,9 @@ contains
   !------ 0d_int64_to_int32------
   subroutine assert_eq_int64_to_int32_(var1, var2, message)
 
-    integer(int64), intent (in) :: var1 
+    integer(int64), intent (in) :: var1
     integer(int32), intent (in) :: var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if (var1 /= var2) then
@@ -1621,13 +1621,13 @@ contains
 
     call add_success
   end subroutine assert_eq_int64_to_int32_
-  
+
   !------ 1d_int ------
   subroutine assert_eq_1d_int_(var1, var2, n, message)
     integer, intent (in) :: n
     integer              :: i
     integer, intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if (var1(i) /= var2(i)) then
@@ -1645,7 +1645,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     integer, intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -1664,7 +1664,7 @@ contains
   subroutine assert_eq_real_(var1, var2, message)
 
     real(sp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if ((var1 < var2) .or. (var1 > var2)) then
@@ -1700,7 +1700,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     real(sp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if ((var1(i) < var2(i)) .or. (var1(i) > var2(i))) then
@@ -1736,7 +1736,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     real(sp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -1775,7 +1775,7 @@ contains
   subroutine assert_eq_double_(var1, var2, message)
 
     real(dp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if ((var1 < var2) .or. (var1 > var2)) then
@@ -1828,7 +1828,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     real(dp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if ((var1(i) < var2(i)) .or. (var1(i) > var2(i))) then
@@ -1864,7 +1864,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     real(dp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -1903,7 +1903,7 @@ contains
   subroutine assert_eq_complex_(var1, var2, message)
 
     complex(dp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
 
         if ((real (var1) < real (var2)) .or. &
@@ -1941,7 +1941,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     complex(dp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     do i = 1, n
         if ((real (var1(i)) < real (var2(i))) .or. &
@@ -1980,7 +1980,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     complex(dp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     do j = 1, m
       do i = 1, n
@@ -2022,7 +2022,7 @@ contains
   subroutine assert_not_equals_logical_(var1, var2, message)
 
     logical, intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2046,7 +2046,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     logical, intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2070,7 +2070,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     logical, intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2095,7 +2095,7 @@ contains
   subroutine assert_not_equals_string_(var1, var2, message)
 
     character (len = *), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2119,7 +2119,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     character (len = *), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2143,7 +2143,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     character (len = *), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2168,7 +2168,7 @@ contains
   subroutine assert_not_equals_int_(var1, var2, message)
 
     integer, intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2192,7 +2192,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     integer, intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2216,7 +2216,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     integer, intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2241,7 +2241,7 @@ contains
   subroutine assert_not_equals_real_(var1, var2, message)
 
     real(sp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2288,7 +2288,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     real(sp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2336,7 +2336,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     real(sp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2387,7 +2387,7 @@ contains
   subroutine assert_not_equals_double_(var1, var2, message)
 
     real(dp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2434,7 +2434,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     real(dp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2482,7 +2482,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     real(dp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2533,7 +2533,7 @@ contains
   subroutine assert_not_equals_complex_(var1, var2, message)
 
     complex(dp), intent (in) :: var1, var2
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2583,7 +2583,7 @@ contains
     integer, intent (in) :: n
     integer              :: i
     complex(dp), intent (in) :: var1(n), var2(n)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
@@ -2634,7 +2634,7 @@ contains
     integer, intent (in) :: n, m
     integer              :: i, j
     complex(dp), intent (in) :: var1(n, m), var2(n, m)
-    
+
     character(len = *), intent (in), optional :: message
     logical :: same_so_far
 
