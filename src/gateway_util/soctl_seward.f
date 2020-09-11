@@ -58,9 +58,9 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     LVAL end MVAL dimensioned for L = MxAng
-      dimension LVAL((MxAng+1)*(MxAng+1))
-      dimension MVAL((MxAng+1)*(MxAng+1))
+*     LVAL end MVAL dimensioned for L = iTabMx
+      dimension LVAL((iTabMx+1)*(iTabMx+1))
+      dimension MVAL((iTabMx+1)*(iTabMx+1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -92,14 +92,14 @@ cvv LP_NAMES was used later without initialization.
 *     (note: this is wrong for Cartesian shells)
 *
       k=0
-      do i=0,MxAng
+      do i=0,iTabMx
          do j=-i,i
             k=k+1
             lval(k)=i
             mval(k)=j
          enddo
       enddo
-C     write(6,*) ' lval',k,(MxAng+1)**2
+C     write(6,*) ' lval',k,(iTabMx+1)**2
 *     correct mval order for p-functions
       mval(2)=1
       mval(3)=-1

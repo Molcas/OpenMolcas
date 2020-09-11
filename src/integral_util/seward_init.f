@@ -77,8 +77,8 @@ C
 
       iChCar(:)=0
       KVector(:)=Zero
-      MaxBas(0:MxAng)=0
-      MaxPrm(0:MxAng)=0
+      MaxBas(0:iTabMx)=0
+      MaxPrm(0:iTabMx)=0
       NrInt(-20:9)=0
       iSkip(0:7)=0
 

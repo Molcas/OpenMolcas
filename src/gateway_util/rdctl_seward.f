@@ -52,7 +52,7 @@
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
-     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:MxAng)*1,
+     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:iTabMx)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
      &          Previous_Command*12, BSLbl_Dummy*80, CtrLDK(10)*(LENIN),
      &          Directory*256, BasLib*256,ExtBasDir*256
@@ -148,7 +148,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do i=0,MxAng
+      Do i=0,iTabMx
          AngTyp(i)=Angtp(i)
          Call UpCase(AngTyp(i))
       End Do
@@ -3976,7 +3976,7 @@ c      endif
      &     ' There is an error somewhere in the input!;iAngMx.lt.0')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.gt.MxAng) Then
+      If (iAngMx.gt.iTabMx) Then
          Call WarningMessage(2,' Too High angular momentum !!!')
          Call Quit_OnUserError()
       End If

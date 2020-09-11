@@ -43,7 +43,7 @@
 *         to spherical gaussians. By having these matricies being      *
 *         defined dynamical we ensure that any extension of the        *
 *         program to higher angular momentum is simply done by chang-  *
-*         ing MxAng to the appropiate value.                           *
+*         ing iTabMx to the appropiate value.                          *
 *         In addition, this will also allow us to have any order of    *
 *         vectors in the matrix, i.e. we can have our own format or    *
 *         any other odd order (MOLECULE).                              *
@@ -61,7 +61,7 @@
 *                     N. F. Chilton at OpenMolcas2020                  *
 ************************************************************************
       Implicit real*8 (a-h,o-z)
-*     find MxAng, limiting the highest ang mom, in itmax.fh
+*     find iTabMx, limiting the highest ang mom, in itmax.fh
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
@@ -69,8 +69,8 @@
 *     iAngMx is the largest ang mom in the current basis
       iAngMx=Max(iAngMx,lMax)
 *     check if required ang mom is greater than hard-coded limit
-      If (iAngMx.gt.MxAng) Then
-         Call WarningMessage(2,' Sphere: Increase MxAng!')
+      If (iAngMx.gt.iTabMx) Then
+         Call WarningMessage(2,' Sphere: Increase iTabMx!')
          Call Abend()
       End If
 *

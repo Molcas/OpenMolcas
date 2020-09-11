@@ -142,7 +142,6 @@
 *                                                                      *
 #include "Molcas.fh"
 *
-      Integer, Parameter :: MxAng=iTabMx
       Integer, Parameter :: MxFnc=(iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6
 *                                                                      *
 ************************************************************************
