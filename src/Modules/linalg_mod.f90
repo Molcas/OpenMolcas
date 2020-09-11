@@ -11,10 +11,15 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
+#include "compiler_features.h"
+
 module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
     use definitions, only: wp, r8
     use sorting, only: sort, argsort
+#ifndef INTERNAL_PROC_ARG
+    use sorting, only: compare_int_t
+#endif
     use sorting_funcs, only : integer_leq => le_i, ge_r
     implicit none
     private
@@ -291,11 +296,21 @@ contains
         real(wp), intent(inout) :: V(:, :), lambda(:)
         integer :: i
         integer, allocatable :: idx(:)
+#ifndef INTERNAL_PROC_ARG
+        procedure(compare_int_t), pointer :: ptr_compare
+#endif
         call mma_allocate(idx, size(lambda))
         do i = 1, size(idx)
             idx(i) = i
         end do
+
+#ifdef INTERNAL_PROC_ARG
         call sort(idx, leq)
+#else
+        ptr_compare => leq
+        call sort(idx, ptr_compare)
+#endif
+
         V(:, :) = V(:, idx)
         lambda(:) = lambda(idx)
         call mma_deallocate(idx)
