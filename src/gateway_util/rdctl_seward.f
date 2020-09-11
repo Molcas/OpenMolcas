@@ -4511,7 +4511,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
-      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
 *                                                                      *
 ************************************************************************
 *                                                                      *
