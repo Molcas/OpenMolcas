@@ -372,7 +372,7 @@ contains
         character(*), parameter :: this_routine = 'canonicalize_factory'
 
 
-        integer :: low, i, j, d
+        integer :: low, i, j, d, n_new
         integer, allocatable :: idx(:), dimensions(:)
         real(wp), allocatable :: projections(:, :), ONB(:, :)
 
@@ -406,12 +406,9 @@ contains
             end do
 
             ! reorthogonalize
-            block
-                integer :: n_new
-                call Gram_Schmidt(V(:, low : low + d - 1), d, ONB(:, : d), n_new)
-                call assert_(d == n_new, 'Unexpected linear dependency')
-                V(:, low : low + d - 1) = ONB(:, : d)
-            end block
+            call Gram_Schmidt(V(:, low : low + d - 1), d, ONB(:, : d), n_new)
+            call assert_(d == n_new, 'Unexpected linear dependency')
+            V(:, low : low + d - 1) = ONB(:, : d)
 
             low = low + d
         end do
