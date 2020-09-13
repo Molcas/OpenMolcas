@@ -61,6 +61,7 @@
       use Basis_Info
       use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       implicit real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"

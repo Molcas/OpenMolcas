@@ -32,6 +32,7 @@
       use k2_arrays, only: pDq, pFq
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
       External No_Routine
 #include "itmax.fh"

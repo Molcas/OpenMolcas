@@ -36,6 +36,7 @@
 *             August 1999                                              *
 ************************************************************************
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"

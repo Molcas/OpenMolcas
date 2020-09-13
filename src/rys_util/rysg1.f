@@ -43,6 +43,7 @@
 *             Modified to 1st order derivatives October '91            *
 ************************************************************************
       use vRys_RW
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2

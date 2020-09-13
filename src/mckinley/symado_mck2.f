@@ -11,7 +11,7 @@
       SubRoutine SymAdO_mck2(ArrIn,nB,ArrOut,nrOp,nop,
      &                  IndGrd,ksym,
      &                  iu,iv,ifgrd,idCar,trans)
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

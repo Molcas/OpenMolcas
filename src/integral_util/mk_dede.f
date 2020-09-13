@@ -57,6 +57,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -177,7 +178,7 @@ C     Call QEnter('DeDe')
 *
 *-----------Find the DCR for A and B
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
             LmbdR=1
             If (iPrint.ge.49) Write (6,'(10A)')

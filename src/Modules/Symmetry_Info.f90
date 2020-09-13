@@ -14,7 +14,7 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get
+Public :: nIrrep, iOper, iChTbl, Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_W, Symmetry_Info_Back
 
 #include "stdalloc.fh"
 Integer:: nIrrep=0
@@ -59,13 +59,33 @@ Contains
 !***********************************************************************
 !***********************************************************************
 !
+Subroutine Symmetry_Info_Back(mIrrep,jOper)
+Integer:: mIrrep
+Integer:: jOper(0:7)
+mIrrep=nIrrep
+jOper(:)=iOper(0:nIrrep-1)
+End Subroutine Symmetry_Info_Back
+!
+!***********************************************************************
+!***********************************************************************
+!
 Subroutine Symmetry_Info_Set(mIrrep,jOper,jChTab)
 Integer:: mIrrep
 Integer:: jOper(0:7)
 Integer:: jChTab(0:7,0:7)
+Integer:: iIrrep, jIrrep
 nIrrep=mIrrep
 iOper(:)=jOper(:)
 iChTbl(:,:)=jChTab(:,:)
+Do iIrrep=0,nIrrep-2
+   Do jIrrep=iIrrep+1,nIrrep-1
+      If (iOper(iIrrep).eq.iOper(jIrrep)) Then
+         Call WarningMessage(2,   &
+              ' The generators of the point group are over defined, correct input!;' //' Abend: correct symmetry specifications!')
+               Call Quit_OnUserError()
+      End If
+   End Do
+End Do
 End Subroutine Symmetry_Info_Set
 !
 !***********************************************************************
@@ -125,7 +145,18 @@ iChTbl(:,6)=iDmp(i+1:i+8)
 i=i+8
 iChTbl(:,7)=iDmp(i+1:i+8)
 i=i+8
+#ifdef _DEBUG_
+Write (6,*)
+Write (6,*) 'Symmetry_Info_Get'
+Write (6,*)
+Write (6,*)
+Write (6,*) 'iOper:'
+Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+#endif
 End Subroutine Symmetry_Info_Get
+Subroutine Symmetry_Info_W()
+Write (6,*) 'W',iOper(0:nIrrep-1)
+End Subroutine Symmetry_Info_W
 !
 !***********************************************************************
 !***********************************************************************

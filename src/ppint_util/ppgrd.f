@@ -25,6 +25,7 @@
 ************************************************************************
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

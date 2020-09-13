@@ -48,6 +48,7 @@
       use k2_arrays
       use pso_stuff
       use Basis_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"

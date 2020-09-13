@@ -29,13 +29,17 @@
       nCoSet=nIrrep/nStab
       iAcc(0:nCoSet-1)=0
 *
-*#define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
+      Write (6,*) 'TstFnc'
+      Write (6,*)
+      Write (6,*) 'Coset:'
       Do i = 0, nCoSet-1
-         Write (6,*) (iCoSet(i,j),j=0,nStab-1)
+         Write (6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
       End Do
       Write (6,*)
-      Write (6,*) (iOper(i),i=0,nIrrep-1)
+      Write (6,*) 'iOper:'
+      Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
 #endif
 *
 *     Loop over operators

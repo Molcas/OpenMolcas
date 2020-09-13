@@ -13,6 +13,7 @@
 #include "angtp.fh"
       Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
       Character Sgn*3
+#define _DEBUG_
 *
 *---- Generate cartesian labels
 *
@@ -37,7 +38,7 @@
 *
 *     Do the same for the spherical gaussians.
 *
-      i = 1
+      i = 0
       Do n = 0, iAngMx
          Do l = n, 0, -2
             Do m = -l, l
@@ -48,12 +49,27 @@
                Else
                   Sgn='   '
                End If
+               i=i+1
                Write (LblSbs(i),'(I2.2,A,I2.2,A)')
      &            n+1,AngTp(l),Abs(m),Sgn
-               i=i+1
+               Write (6,'(A)')LblSBs(i)
             End Do
          End Do
       End Do
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*) 'iAngMx,MxFnc=',iAngMx,MxFnc
+      Write (6,*)
+      Write (6,*) 'LblCBs:'
+      Do ixyz = 1, lxyz
+         Write (6,'(A)')LblCBs(ixyz)
+      End Do
+      Write (6,*) 'LblSBs:'
+      Do ixyz = 1, i
+         Write (6,'(A)')LblCBs(ixyz)
+      End Do
+      Write (6,*)
+#endif
 *
       Return
       End

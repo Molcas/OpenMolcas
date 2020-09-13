@@ -69,6 +69,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
 #include "real.fh"
 #include "itmax.fh"

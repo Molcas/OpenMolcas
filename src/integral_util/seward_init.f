@@ -302,8 +302,6 @@ C
 *
       Call CovRadT_Init()
 *
-      Call iPrmt_Init()
-*
 *     nac.fh
 *
       isNAC = .False.

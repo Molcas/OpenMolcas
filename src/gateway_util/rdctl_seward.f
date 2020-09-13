@@ -20,6 +20,7 @@
       use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
+      use Symmetry_Info, only: Symmetry_Info_Back
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -67,7 +68,7 @@
       Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
       Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
-     &        iGeoInfo(2), iOpt_XYZ, RC
+     &        iGeoInfo(2), iOpt_XYZ, RC, iOper(0:7)
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
@@ -4183,46 +4184,53 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 #endif
 *                                                                      *
 ************************************************************************
+************************************************************************
+************************************************************************
 *                                                                      *
-      If (Run_Mode.eq.S_Mode) Go To 888
-      nIrrep = 2 ** nOper
-      iOper(0) = 0
-      Do i = 1, nOper
-         iOper(i) = 0
-         Do j = 1, 3
-          If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
-          If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
-          If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
+*     Temporary fix, retrieve iOper and nIrrep from Symmetry_Info
+      If (Run_Mode.eq.S_Mode) Then
+        Call Symmetry_Info_Back(nIrrep,iOper)
+      Else
+         nIrrep = 2 ** nOper
+         iOper(0) = 0
+         Do i = 1, nOper
+            iOper(i) = 0
+            Do j = 1, 3
+             If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
+             If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
+             If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
+            End Do
+            If (iOper(i).eq.0) Then
+               Call WarningMessage(2,
+     &                  'RdCtl: Illegal symmetry operator!')
+               Write (LuWr,*) 'Oper=',Oper(i)
+               Write (LuWr,*)
+               Call Abend()
+            End If
          End Do
-         If (iOper(i).eq.0) Then
-            Call WarningMessage(2,
-     &               'RdCtl: Illegal symmetry operator!')
-            Write (LuWr,*) 'Oper=',Oper(i)
-            Write (LuWr,*)
-            Call Abend()
-         End If
-      End Do
-
-      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
-         Call WarningMessage(2,
-     &                'Polarizabilities are not compatible'
-     &              //' with symmetry.')
-         Call Quit_OnUserError()
-      EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Generate all operations of the group
+*        Generate all operations of the group
 *
-      If (nOper.ge.2) Then
-         iOper(4) = iOper(3)
-         iOper(3) = iEor(iOper(1),iOper(2))
+         If (nOper.ge.2) Then
+            iOper(4) = iOper(3)
+            iOper(3) = iEor(iOper(1),iOper(2))
+         End If
+         If (nOper.eq.3) Then
+            iOper(5) = iEor(iOper(1),iOper(4))
+            iOper(6) = iEor(iOper(2),iOper(4))
+            iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
+         End If
+*
+         Call Put_iScalar('NSYM',nIrrep)
+         Call Put_iArray('Symmetry operations',iOper,nIrrep)
       End If
-      If (nOper.eq.3) Then
-         iOper(5) = iEor(iOper(1),iOper(4))
-         iOper(6) = iEor(iOper(2),iOper(4))
-         iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
-      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
       If (lSkip) then
          Call Put_Ln(ChSkip)
          Call Get_I(1,iSkip,nIrrep)
@@ -4232,28 +4240,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Petite=.True.
          lSOInt  =.True.
       End If
-      Do iIrrep=0,nIrrep-2
-         Do jIrrep=iIrrep+1,nIrrep-1
-            If (iOper(iIrrep).eq.iOper(jIrrep)) Then
-              Call WarningMessage(2,
-     &                     ' The generators of the point group are'
-     &                   //' over defined, correct input!;'
-     &                   //' Abend: correct symmetry specifications!')
-               Call Quit_OnUserError()
-            End If
-         End Do
-      End Do
-*
-*     Put nIrrep and iOper on the run file to set up iPrmt
-*
-      Call Put_iScalar('NSYM',nIrrep)
-      Call Put_iArray('Symmetry operations',iOper,nIrrep)
-*
-*     Make a dummy call to iPrmt to initiate and avoid I/O recursion if
-*     the function woul be called the first time in an I/O statement.
-*
- 888  Continue
-      iDummy=iPrmt(0,0)
 *                                                                      *
 *                                                                      *
 ************************************************************************
@@ -4299,6 +4285,15 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*---- Generate labels for Cartesian and spherical basis sets.
+*     Generate the transformation matrix for cartesian to sphericals
+*     and contaminants. This has to be done after adding auxiliary or
+*     fragment basis sets.
+*
+      Call Sphere(iAngMx)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Post processing for Well integrals
 *
       Do iWel = 1, nWel
@@ -4317,11 +4312,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Generate labels for cartesian and spherical basis sets.
-*     Generate the transformation matrix for cartesian to sphericals
-*     and contaminants.
-*
-      Call Sphere(iAngMx)
+      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
+         Call WarningMessage(2,
+     &                'Polarizabilities are not compatible'
+     &              //' with symmetry.')
+         Call Quit_OnUserError()
+      EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4424,9 +4420,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Fix the fock matrix fields in Info while the memory has not
 *     been fixed in size.
 *
-      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(LuRd)
-      End If
+      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Call Fix_FockOp(LuRd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4441,27 +4435,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       Call Setup_OffAO()
 *                                                                      *
 ************************************************************************
-*                                                                      *
-      If (nTtl.ne.0.and.Run_Mode.eq.G_Mode) Then
-         If (iPrint.ge.6) Then
-            Write (LuWr,*)
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
-            End Do
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-         Else
-            Write (LuWr,*)
-            Write (LuWr,'(A)') ' Title:'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(8X,A)') Title(iTtl)
-            End Do
-            Write (LuWr,*)
-         End If
-      End If
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     Generate the Character table for all Irreps
@@ -4511,6 +4484,29 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End Do
          End Do
       End Do
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      If (nTtl.ne.0.and.Run_Mode.eq.G_Mode) Then
+         If (iPrint.ge.6) Then
+            Write (LuWr,*)
+            Write (LuWr,'(15X,88A)') ('*',i=1,88)
+            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
+            Do iTtl = 1, nTtl
+               Write (LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
+            End Do
+            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
+            Write (LuWr,'(15X,88A)') ('*',i=1,88)
+         Else
+            Write (LuWr,*)
+            Write (LuWr,'(A)') ' Title:'
+            Do iTtl = 1, nTtl
+               Write (LuWr,'(8X,A)') Title(iTtl)
+            End Do
+            Write (LuWr,*)
+         End If
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4616,7 +4612,7 @@ C     Mx_mdc=mdc
 *     Process the weights used for alignment and distance measurement
 *
       Call Process_Weights(iPrint)
-*                                                                      *
+*
 ************************************************************************
 *                                                                      *
 *     Set structures for TS optimization according to the Saddle

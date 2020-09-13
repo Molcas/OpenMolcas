@@ -16,6 +16,7 @@
 *
       use pso_stuff
       use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

@@ -27,7 +27,6 @@
 * -> Integer   <-                                                      *
 *     iSkip : flag to indicate that certain irreps are ignored         *
 *     iAngMx: higest angular momentum specified in the input           *
-*     iOper : the symmetry operators                                   *
 *     nBas  : number of basis functions in each irrep                  *
 *     nBas_Aux: number of auxiliary basis functions in each irrep      *
 *     MaxPrm: max number of primitives in a shell for a given angular  *
@@ -151,7 +150,7 @@
      &          m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
      &          nShlls
-      Integer   iSkip(0:7),iAngMx,iChCar(3),iOper(0:7),nBas(0:7)
+      Integer   iSkip(0:7),iAngMx,iChCar(3),nBas(0:7)
       Integer   MaxPrm(0:iTabMx),MaxBas(0:iTabMx),iChBas(MxFnc),
      &          nBas_Aux(0:7),NrInt(-20:9),Max_Center,
      &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
@@ -161,7 +160,7 @@
 *
       Common /Info/ ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType, nBas_Aux,
-     &              iAngMx,  nIrrep, iOper,   nBas,   n2Tot,
+     &              iAngMx,  nIrrep, nBas,   n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
      &              iChBas, nOrdEF, mCentr, nPrm,   m2Max,
      &              m2Tot,  IntTot, NrInt,   MemHid, nTtl, Max_Cnt,
