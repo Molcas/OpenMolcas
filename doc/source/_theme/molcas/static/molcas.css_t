@@ -575,7 +575,11 @@ div.document p.compound-middle {
 dd p.first,
 li p.first,
 dd .first p.compound-first,
-li .first p.compound-first {
+li .first p.compound-first,
+dd p:first-child,
+li p:first-child,
+dd :first-child p.compound-first,
+li :first-child p.compound-first {
   text-indent: 0;
 }
 
