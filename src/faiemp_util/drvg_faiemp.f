@@ -10,11 +10,7 @@
 *                                                                      *
 * Copyright (C) Ben Swerts                                             *
 ************************************************************************
-CStart Molcas
       SubRoutine Drvg_FAIEMP(Grad,Temp,nGrad)
-celse
-c;      SubRoutine Drvg_FAIEMP(Grad,Temp,nGrad,fock,fock1,d1ao,d1ao1)
-cend
 ************************************************************************
 *                                                                      *
 *  Object: driver for the derivatives of central-fragment              *
@@ -265,7 +261,7 @@ cend
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)

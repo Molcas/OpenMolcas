@@ -72,7 +72,7 @@
 *
 * call sorting routine
 *
-      If (Petite) Then
+      If (nIrrep==1) Then
          nS_Val=LDF_nShell()
          If (SHA.le.nS_Val .and.
      &       SHB.le.nS_Val .and.

@@ -49,7 +49,7 @@
 *
 * call sorting routine
 *
-      If (Petite) Then
+      If (nIrrep==1) Then
         Call PLF_LDF_Diag(TInt,nTInt,
      &           AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,

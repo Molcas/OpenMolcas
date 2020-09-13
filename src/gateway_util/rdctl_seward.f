@@ -511,7 +511,6 @@ cperiod
       If (KWord(1:4).eq.'OVER') Go To 41
       If (KWord(1:4).eq.'PAMF') Go To 8060
       If (KWord(1:4).eq.'PART') Go To 9763
-      If (KWord(1:4).eq.'PETI') Go To 961
       If (KWord(1:4).eq.'PKTH') Go To 9940
       If (KWord(1:4).eq.'PSOI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
@@ -1628,13 +1627,6 @@ c     Go To 998
 *
  960  MolWgh=1
       MolWgh_UsrDef=.true.
-      Go To 998
-*                                                                      *
-****** PETI ************************************************************
-*                                                                      *
-*     Compute integrals in SO format or petite list
-*
- 961  Petite=.True.
       Go To 998
 *                                                                      *
 ****** RELI ************************************************************
@@ -4230,10 +4222,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Call Put_Ln(ChSkip)
          Call Get_I(1,iSkip,nIrrep)
          Do_GuessOrb=.FALSE.
-      End If
-*
-      If (nIrrep.eq.1) Then
-         Petite=.True.
       End If
 *                                                                      *
 ************************************************************************

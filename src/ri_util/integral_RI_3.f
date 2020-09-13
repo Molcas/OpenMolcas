@@ -42,7 +42,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (Petite) Then
+         If (nIrrep==1) Then
            Call PLF_LDF_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,
@@ -68,7 +68,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (Petite) Then
+         If (nIrrep==1) Then
            Call PLF_RI_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,

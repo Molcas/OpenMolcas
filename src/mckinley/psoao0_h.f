@@ -109,7 +109,7 @@
       kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
       Mem1 = iFact*kSOInt
       If (Mem1.eq.0) Mem1 = 1
-      If (Petite) Mem1 = 1 + (iFact-1) *
+      If (nIrrep==1) Mem1 = 1 + (iFact-1) *
      &                   iCmp*  jCmp*  kCmp*  lCmp*
      &                   iBsInc*jBsInc*kBsInc*lBsInc
       If (Mem1+1.gt.Mem0) Then
@@ -266,7 +266,7 @@
 *     ipMem3=ipMem2+Mem2
 *     ipMend=ipMem3+Mem3
       If (iWropt.eq.0) Then
-         If (Petite) Then
+         If (nIrrep==1) Then
             lPack = iCmp*  jCmp*  kCmp*  lCmp*
      &              iBsInc*jBsInc*kBsInc*lBsInc
             lwInt = ipMem1

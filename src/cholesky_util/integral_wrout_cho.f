@@ -54,7 +54,7 @@
 * call sorting routine
 *
       If (IfcSew .eq. 1) Then
-         If (Petite) Then
+         If (nIrrep.eq.1) Then
            Call PLF_Cho(TInt,nTInt,
      &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
@@ -65,7 +65,7 @@
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
       Else If (IfcSew .eq. 2) Then
-         If (Petite) Then
+         If (nIrrep.eq.1) Then
            Call PLF_Cho_2(TInt,nTInt,
      &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
@@ -76,7 +76,7 @@
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
       Else If (IfcSew .eq. 3) Then
-         If (Petite) Then
+         If (nIrrep.eq.1) Then
            Call PLF_Cho_3(TInt,nTInt,
      &              AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,

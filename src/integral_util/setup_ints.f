@@ -111,7 +111,7 @@
 *     Allocate auxiliary array for symmetry transformation
 *
       nAux = nIrrep**3
-      If (Petite) nAux = 1
+      If (nIrrep.eq.1) nAux = 1
       Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************

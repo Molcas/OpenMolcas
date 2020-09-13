@@ -110,7 +110,6 @@ C
       DirInt=.False.
       Expert=.False.
       EMFR  =.False.
-      Petite=.False.
       UnNorm=.False.
       lSchw=.True.
       Test=.False.

@@ -57,7 +57,7 @@
 *
 * call sorting routine
 *
-      If (Petite) Then
+      If (nIrrep==1) Then
          nS_Val=LDF_nShell()
          nS_Aux=LDF_nAuxShell()
          iS_Dum=nS_Val+nS_Aux+1

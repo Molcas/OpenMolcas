@@ -515,7 +515,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   nijkl=iBasn*jBasn*kBasn*lBasn
                   If (DoIntegrals.and..Not.NoInts) Then
 *                    Get max AO/SO integrals
-                     If (Petite) Then
+                     If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
                         ip=ipMem2
                      Else

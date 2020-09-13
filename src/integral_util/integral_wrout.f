@@ -30,7 +30,7 @@
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
-      If (Petite) Then
+      If (nIrrep.eq.1) Then
         Call PLF(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)

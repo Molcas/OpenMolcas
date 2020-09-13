@@ -166,7 +166,7 @@ C     Show=Show.and..Not.Primitive_Pass
          Call CollapseOutput(1,'   SO/AO info:')
          Write (6,'(3X,A)')    '   -----------'
       End If
-      If (Petite) Go To 199
+      If (nIrrep.eq.1) Go To 199
 *                                                                      *
 ************************************************************************
 *                                                                      *

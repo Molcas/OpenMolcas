@@ -52,8 +52,6 @@
 * -> Logical <-                                                        *
 *     Onenly: logical flag to indicate that only the 1-electron        *
 *             integrals are computed                                   *
-*     Petite: logical flag to indicate that petite list integrals are  *
-*             generated (not fully supported any more)                 *
 *     Test  : logical flag to indicate that the input will only be     *
 *             processed                                                *
 *     Vlct  : logical flag to indicate that the velocity integrals will*
@@ -180,7 +178,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical   DirInt, Onenly, Petite, Test, Vlct, lOAM, lOAMc,
+      Logical   DirInt, Onenly, Test, Vlct, lOAM, lOAMc,
      &          lOMQ, lAMP, lAux, Prprt, Short, ifallorb, lDMS, lRel,
      &          Do_RI, UnNorm, lSchw, Dist, lAMFI, force_part_p,
      &          lECP, lNOpair, force_part_c, Expert, lXF, BSS,
@@ -196,7 +194,7 @@
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass, lAux,  NEMO,
-     &               lPP, LDF, Do_RI, lAMFI,  Onenly, Petite,
+     &               lPP, LDF, Do_RI, lAMFI,  Onenly,
      &               Do_GuessOrb, Test, Vlct, lOAM, lOAMc, lOMQ, lAMP,
      &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
      &               lSchw, Dist, lECP, lXF, lNOpair, force_part_c,

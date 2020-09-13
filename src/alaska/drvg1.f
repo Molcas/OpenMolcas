@@ -255,7 +255,7 @@
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
