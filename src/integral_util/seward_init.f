@@ -111,7 +111,6 @@ C
       Expert=.False.
       EMFR  =.False.
       Petite=.False.
-      lSOInt=.True.
       UnNorm=.False.
       lSchw=.True.
       Test=.False.

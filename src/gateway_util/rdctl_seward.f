@@ -1635,7 +1635,6 @@ c     Go To 998
 *     Compute integrals in SO format or petite list
 *
  961  Petite=.True.
-      lSOInt=.False.
       Go To 998
 *                                                                      *
 ****** RELI ************************************************************
@@ -4226,22 +4225,19 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Call Put_iScalar('NSYM',nIrrep)
          Call Put_iArray('Symmetry operations',iOper,nIrrep)
       End If
-*                                                                      *
-************************************************************************
-************************************************************************
-************************************************************************
-*                                                                      *
+*
       If (lSkip) then
          Call Put_Ln(ChSkip)
          Call Get_I(1,iSkip,nIrrep)
          Do_GuessOrb=.FALSE.
       End If
+*
       If (nIrrep.eq.1) Then
          Petite=.True.
-         lSOInt  =.True.
       End If
 *                                                                      *
-*                                                                      *
+************************************************************************
+************************************************************************
 ************************************************************************
 *                                                                      *
       If (Prprt) Then
@@ -4249,6 +4245,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Vlct   = .False.
       End If
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *     Post processing for FAIEMP fragment data
@@ -4284,14 +4281,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*---- Generate labels for Cartesian and spherical basis sets.
-*     Generate the transformation matrix for cartesian to sphericals
-*     and contaminants. This has to be done after adding auxiliary or
-*     fragment basis sets.
-*
-      Call Sphere(iAngMx)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     Post processing for Well integrals
@@ -4309,15 +4298,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Wel_Info(1,iWel)=rds+Abs(Wel_Info(1,iWel))
          End If
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
-         Call WarningMessage(2,
-     &                'Polarizabilities are not compatible'
-     &              //' with symmetry.')
-         Call Quit_OnUserError()
-      EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4417,13 +4397,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Fix the fock matrix fields in Info while the memory has not
-*     been fixed in size.
-*
-      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Call Fix_FockOp(LuRd)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
       If (DKroll.or.NEMO) Call Fill_rInfo1()
@@ -4433,6 +4406,15 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Compute kOffAO and lOffAO
 *
       Call Setup_OffAO()
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---- Generate labels for Cartesian and spherical basis sets.
+*     Generate the transformation matrix for cartesian to sphericals
+*     and contaminants. This has to be done after adding auxiliary or
+*     fragment basis sets.
+*
+      Call Sphere(iAngMx)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -4486,28 +4468,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End Do
 *                                                                      *
 ************************************************************************
-************************************************************************
-*                                                                      *
-      If (nTtl.ne.0.and.Run_Mode.eq.G_Mode) Then
-         If (iPrint.ge.6) Then
-            Write (LuWr,*)
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
-            End Do
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-         Else
-            Write (LuWr,*)
-            Write (LuWr,'(A)') ' Title:'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(8X,A)') Title(iTtl)
-            End Do
-            Write (LuWr,*)
-         End If
-      End If
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     Generate list of Stabilizers , Stabilizer Index
@@ -4605,7 +4565,41 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Write (6,*) 'Recompile MOLCAS and try again!'
          Call Abend()
       End If
-C     Mx_mdc=mdc
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Call Fix_FockOp(LuRd)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
+         Call WarningMessage(2,
+     &                'Polarizabilities are not compatible'
+     &              //' with symmetry.')
+         Call Quit_OnUserError()
+      EndIf
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (nTtl.ne.0.and.Run_Mode.eq.G_Mode) Then
+         If (iPrint.ge.6) Then
+            Write (LuWr,*)
+            Write (LuWr,'(15X,88A)') ('*',i=1,88)
+            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
+            Do iTtl = 1, nTtl
+               Write (LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
+            End Do
+            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
+            Write (LuWr,'(15X,88A)') ('*',i=1,88)
+         Else
+            Write (LuWr,*)
+            Write (LuWr,'(A)') ' Title:'
+            Do iTtl = 1, nTtl
+               Write (LuWr,'(8X,A)') Title(iTtl)
+            End Do
+            Write (LuWr,*)
+         End If
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
