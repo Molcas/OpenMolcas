@@ -17,7 +17,7 @@ module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
     use definitions, only: wp, r8
     use sorting, only: sort, argsort
-    use sorting_funcs, only : integer_leq => leq_i, leq_r, geq_r
+    use sorting_funcs, only : leq_i, leq_r, geq_r
     implicit none
     private
     public :: mult, diagonalize, isclose, operator(.isclose.), &
@@ -295,7 +295,6 @@ contains
 !>  Order Eigenvectors by ascending eigenvalues.
     subroutine order_eigenvectors(V, lambda)
         real(wp), intent(inout) :: V(:, :), lambda(:)
-        integer :: i
         integer, allocatable :: idx(:)
         call mma_allocate(idx, size(lambda))
         idx(:) = argsort(lambda, leq_r)
@@ -381,7 +380,7 @@ contains
                 idx(i) = i
             end do
             call sort(idx, geq)
-            call sort(idx( : d), integer_leq)
+            call sort(idx( : d), leq_i)
 
             ! Get the first d projections with the largest overlap.
             do i = 1, d
