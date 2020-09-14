@@ -47,7 +47,6 @@
       External Integral_WrOut
 #include "itmax.fh"
 #include "info.fh"
-#include "lundio.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "print.fh"

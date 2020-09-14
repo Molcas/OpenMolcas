@@ -37,7 +37,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)

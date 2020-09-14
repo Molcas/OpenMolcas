@@ -20,7 +20,6 @@
 #include "disp.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nac.fh"
       Character Label*8

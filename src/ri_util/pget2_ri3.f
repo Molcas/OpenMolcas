@@ -42,7 +42,6 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),

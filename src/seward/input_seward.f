@@ -47,7 +47,6 @@
 #include "info.fh"
 #include "real.fh"
 #include "SysDef.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "stdalloc.fh"
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)

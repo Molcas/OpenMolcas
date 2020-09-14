@@ -12,7 +12,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "lundio.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
       Character ChOper(0:7)*3
