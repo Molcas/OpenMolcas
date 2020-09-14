@@ -4175,58 +4175,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 #endif
 *                                                                      *
 ************************************************************************
-************************************************************************
-************************************************************************
-*                                                                      *
-*     Temporary fix, retrieve iOper and nIrrep from Symmetry_Info
-      If (Run_Mode.eq.S_Mode) Then
-        Call Symmetry_Info_Back(nIrrep,iOper)
-      Else
-         nIrrep = 2 ** nOper
-         iOper(0) = 0
-         Do i = 1, nOper
-            iOper(i) = 0
-            Do j = 1, 3
-             If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
-             If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
-             If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
-            End Do
-            If (iOper(i).eq.0) Then
-               Call WarningMessage(2,
-     &                  'RdCtl: Illegal symmetry operator!')
-               Write (LuWr,*) 'Oper=',Oper(i)
-               Write (LuWr,*)
-               Call Abend()
-            End If
-         End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Generate all operations of the group
-*
-         If (nOper.ge.2) Then
-            iOper(4) = iOper(3)
-            iOper(3) = iEor(iOper(1),iOper(2))
-         End If
-         If (nOper.eq.3) Then
-            iOper(5) = iEor(iOper(1),iOper(4))
-            iOper(6) = iEor(iOper(2),iOper(4))
-            iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
-         End If
-*
-         Call Put_iScalar('NSYM',nIrrep)
-         Call Put_iArray('Symmetry operations',iOper,nIrrep)
-      End If
-*
-      If (lSkip) then
-         Call Put_Ln(ChSkip)
-         Call Get_I(1,iSkip,nIrrep)
-         Do_GuessOrb=.FALSE.
-      End If
-*                                                                      *
-************************************************************************
-************************************************************************
-************************************************************************
 *                                                                      *
       If (Prprt) Then
          Onenly = .True.
@@ -4406,6 +4354,57 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 ************************************************************************
+************************************************************************
+*                                                                      *
+*     Temporary fix, retrieve iOper and nIrrep from Symmetry_Info
+      If (Run_Mode.eq.S_Mode) Then
+        Call Symmetry_Info_Back(nIrrep,iOper)
+      Else
+         nIrrep = 2 ** nOper
+         iOper(0) = 0
+         Do i = 1, nOper
+            iOper(i) = 0
+            Do j = 1, 3
+             If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
+             If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
+             If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
+            End Do
+            If (iOper(i).eq.0) Then
+               Call WarningMessage(2,
+     &                  'RdCtl: Illegal symmetry operator!')
+               Write (LuWr,*) 'Oper=',Oper(i)
+               Write (LuWr,*)
+               Call Abend()
+            End If
+         End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        Generate all operations of the group
+*
+         If (nOper.ge.2) Then
+            iOper(4) = iOper(3)
+            iOper(3) = iEor(iOper(1),iOper(2))
+         End If
+         If (nOper.eq.3) Then
+            iOper(5) = iEor(iOper(1),iOper(4))
+            iOper(6) = iEor(iOper(2),iOper(4))
+            iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
+         End If
+*
+         Call Put_iScalar('NSYM',nIrrep)
+         Call Put_iArray('Symmetry operations',iOper,nIrrep)
+      End If
+*
+      If (lSkip) then
+         Call Put_Ln(ChSkip)
+         Call Get_I(1,iSkip,nIrrep)
+         Do_GuessOrb=.FALSE.
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
 *                                                                      *
 *     Generate the Character table for all Irreps
 *
@@ -4436,9 +4435,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          If (iAnd(iOper(i),2).ne.0) iSymY = 2
          If (iAnd(iOper(i),4).ne.0) iSymZ = 4
       End Do
-      iChCar(1) = iSymX
-      iChCar(2) = iSymY
-      iChCar(3) = iSymZ
+
       lxyz = 0
       Do ixyz = 0, Max(iAngMx,1)
          Do ix = ixyz, 0, -1
@@ -4502,7 +4499,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *              the cartesian component is affected by any symmetry
 *              operation.
 *
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),iChCar)
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt))
             End If
             dc(mdc)%iChCnt = iChxyz
             Call Stblz(iChxyz,dc(mdc)%nStab,dc(mdc)%iStab,

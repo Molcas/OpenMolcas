@@ -14,10 +14,11 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_W, Symmetry_Info_Back
+Public :: nIrrep, iOper, iChTbl, iChCar, &
+          Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back
 
 #include "stdalloc.fh"
-Integer:: nIrrep=0
+Integer:: nIrrep=1
 Integer:: iOper(0:7)=[0,0,0,0,0,0,0,0]
 Integer:: iChTbl(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
@@ -27,6 +28,7 @@ Integer:: iChTbl(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0],[8,8])
+Integer:: iChCar(3)=[0,0,0]
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -74,9 +76,29 @@ Integer:: mIrrep
 Integer:: jOper(0:7)
 Integer:: jChTab(0:7,0:7)
 Integer:: iIrrep, jIrrep
+Integer:: iSymX,iSymY,iSymZ, i
+
 nIrrep=mIrrep
 iOper(:)=jOper(:)
 iChTbl(:,:)=jChTab(:,:)
+
+! Setup characteristics for cartesian basis functions.
+! Observe that this is affected by the defined generators.
+! In the array we will set the bit corresponding to a symop
+! if that symop will alter the sign of the basis function.
+
+iSymX = 0
+iSymY = 0
+iSymZ = 0
+Do i = 0, nIrrep-1
+   If (iAnd(iOper(i),1).ne.0) iSymX = 1
+   If (iAnd(iOper(i),2).ne.0) iSymY = 2
+   If (iAnd(iOper(i),4).ne.0) iSymZ = 4
+End Do
+iChCar(1) = iSymX
+iChCar(2) = iSymY
+iChCar(3) = iSymZ
+
 Do iIrrep=0,nIrrep-2
    Do jIrrep=iIrrep+1,nIrrep-1
       If (iOper(iIrrep).eq.iOper(jIrrep)) Then
@@ -92,7 +114,7 @@ End Subroutine Symmetry_Info_Set
 !***********************************************************************
 !
 Subroutine Symmetry_Info_Dmp()
-Integer i, iDmp(1+8+8*8)
+Integer i, iDmp(1+8+8*8+3)
 i=0
 iDmp(i+1)=nIrrep
 i=i+1
@@ -114,6 +136,8 @@ iDmp(i+1:i+8)=iChTbl(:,6)
 i=i+8
 iDmp(i+1:i+8)=iChTbl(:,7)
 i=i+8
+iDmp(i+1:i+3)=iChCar(1:3)
+i=i+3
 Call Put_iArray('Symmetry Info',iDmp,i)
 End Subroutine Symmetry_Info_Dmp
 !
@@ -121,8 +145,8 @@ End Subroutine Symmetry_Info_Dmp
 !***********************************************************************
 !
 Subroutine Symmetry_Info_Get()
-Integer i, iDmp(1+8+8*8)
-i=1+8+8*8
+Integer i, iDmp(1+8+8*8+3)
+i=1+8+8*8+3
 Call Get_iArray('Symmetry Info',iDmp,i)
 i=0
 nIrrep     =iDmp(i+1)
@@ -145,6 +169,8 @@ iChTbl(:,6)=iDmp(i+1:i+8)
 i=i+8
 iChTbl(:,7)=iDmp(i+1:i+8)
 i=i+8
+iChCar(1:3)=iDmp(i+1:i+3)
+i=i+3
 #ifdef _DEBUG_
 Write (6,*)
 Write (6,*) 'Symmetry_Info_Get'
@@ -154,9 +180,6 @@ Write (6,*) 'iOper:'
 Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
 #endif
 End Subroutine Symmetry_Info_Get
-Subroutine Symmetry_Info_W()
-Write (6,*) 'W',iOper(0:nIrrep-1)
-End Subroutine Symmetry_Info_W
 !
 !***********************************************************************
 !***********************************************************************

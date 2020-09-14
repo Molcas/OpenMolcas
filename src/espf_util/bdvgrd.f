@@ -146,7 +146,7 @@
 *
 *------- Generate stabilizor of C
 *
-         iChxyz=iChAtm(C,iChBas(2))
+         iChxyz=iChAtm(C)
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S

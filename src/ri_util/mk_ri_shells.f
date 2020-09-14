@@ -58,6 +58,8 @@
       iRout = 2
       iPrint = nPrint(iRout)
 *
+*     Temporary setup of symmetry information
+*
       Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       IfTest=.False.
 *     IfTest=.True.

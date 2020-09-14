@@ -13,7 +13,7 @@
 #include "angtp.fh"
       Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
       Character Sgn*3
-#define _DEBUG_
+!#define _DEBUG_
 *
 *---- Generate cartesian labels
 *
@@ -52,7 +52,6 @@
                i=i+1
                Write (LblSbs(i),'(I2.2,A,I2.2,A)')
      &            n+1,AngTp(l),Abs(m),Sgn
-               Write (6,'(A)')LblSBs(i)
             End Do
          End Do
       End Do

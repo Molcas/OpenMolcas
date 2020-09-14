@@ -250,7 +250,7 @@
      &            .and. DA(3).eq.Zero
          If (NoLoop) Go To 102
          A(1:3)=XF(1:3,iFd)
-         iChxyz=iChAtm(A,iChBas(2))
+         iChxyz=iChAtm(A)
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
          ndc = 0

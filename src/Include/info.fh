@@ -147,7 +147,7 @@
      &          m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
      &          nShlls
-      Integer   iSkip(0:7),iAngMx,iChCar(3),nBas(0:7)
+      Integer   iSkip(0:7),iAngMx,nBas(0:7)
       Integer   MaxPrm(0:iTabMx),MaxBas(0:iTabMx),iChBas(MxFnc),
      &          nBas_Aux(0:7),NrInt(-20:9),Max_Center,
      &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
@@ -165,7 +165,7 @@
      &              iSquar,  iWRopt, iSkip,  lwInt, lwSyB,  lwSqN,
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              LenInf,  LenSph, MolWgh,iShll_RF, iOrdFm, iRI_Type,
-     &              nBas_Frag,kCentr, Max_Center, iChCar, Mx_AO,
+     &              nBas_Frag,kCentr, Max_Center, Mx_AO,
      &              nCtrLD,iCtrLD,iSigma, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

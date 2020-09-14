@@ -178,7 +178,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *------------- Generate Stabilazor of C
 *
-               iChxyz=iChAtm(A,iChBas(2))
+               iChxyz=iChAtm(A)
                iDum=0
                Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *

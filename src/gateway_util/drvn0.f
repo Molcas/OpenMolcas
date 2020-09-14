@@ -225,7 +225,7 @@
             End If
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iChBas(2))
+            iChxyz=iChAtm(A)
             Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
@@ -384,7 +384,7 @@
 
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iChBas(2))
+            iChxyz=iChAtm(A)
             Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
@@ -425,7 +425,7 @@
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
-               iChxyz=iChAtm(B,iChBas(2))
+               iChxyz=iChAtm(B)
                Call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.
