@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_WrOut(iCmp,iShell,MapOrg,IndShlV,
+      SubRoutine Integral_WrOut(iCmp,iShell,MapOrg,
      &                          iBas,jBas,kBas,lBas,kOp,
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
@@ -25,7 +25,7 @@
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -35,7 +35,7 @@
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)
       Else
-        Call IndSft(iCmp,iShell,IndShlV,
+        Call IndSft(iCmp,iShell,
      &              iBas,jBas,kBas,lBas,Shijij,
      &              iAO,iAOst,ijkl,SOInt,nSOint)
       End If

@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1992, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,IndShl,iAO,
+      SubRoutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,
      &                   iStb,jStb,kStb,lStb,nRys,
      &                   Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,
      &                   Pren,Prem,
@@ -79,7 +79,7 @@
      &       PSO(iBasi*jBasj*kBask*lBasl,nPSO), Wrk2(nWrk2),
      &       Aux(nAux)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
-     &        iStabM(0:7), IndGrd(3,4), iAO(4), IndShl(4),
+     &        iStabM(0:7), IndGrd(3,4), iAO(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -423,7 +423,7 @@
 *--------------(faA fbR(B) | fcT(C) fdTS(D))ijkl
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,IndShl,kOp,nijkl,
+     &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
      &                     Aux,nAux,Wrk2(iW2),PSO,nPSO)
 *
                If (Fact.ne.One) Call DScal_(nijkl*

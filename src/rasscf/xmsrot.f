@@ -15,6 +15,7 @@
 * history:                                                       *
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
+      use stdalloc, only : mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -27,15 +28,20 @@
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
       Real*8,Dimension(NTOT2)::CMO
-
 ******Auxillary quantities
-      Real*8,DIMENSION(NAC,NAC)::FckO
+      Real*8,DIMENSION(:,:),Allocatable::FckO
 ******FckO:  Fock matrix for MO
-      Real*8,DIMENSION(lRoots,lRoots)::FckS,EigVec
+      Real*8,DIMENSION(:,:),Allocatable::FckS,EigVec
 ******FckS:  Fock matrix for states
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(:,:,:),Allocatable::GDMat
 ******GDMat: density matrix or transition density matrix
 
+C     Allocating Memory
+      CALL mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
+      CALL mma_allocate(FckO,NAC,NAC)
+      CALL mma_allocate(FckS,lRoots,lRoots)
+      CALL mma_allocate(EigVec,lRoots,lRoots)
+C
       CALL CalcFckO(CMO,FI,FA,FckO)
 
       CALL GetGDMat(GDMAt)
@@ -44,7 +50,12 @@ C
 C
       CALL CalcEigVec(FckS,lRoots,EigVec)
 C
-      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'T')
+      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
+C     Deallocating Memory
+      CALL mma_deallocate(GDMat)
+      CALL mma_deallocate(FckO)
+      CALL mma_deallocate(FckS)
+      CALL mma_deallocate(EigVec)
 
       RETURN
       End Subroutine
@@ -343,7 +354,7 @@ C       END DO
       ELSE
       LU=6
       END IF
-      IF(Trans.eq.'T') THEN
+      IF(Trans.eq.'N') THEN
        DO IRow=1,NRow
         write(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
@@ -360,6 +371,42 @@ C       END DO
       End Subroutine
 ******************************************************
 
+******************************************************
+      Subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,
+     &LenName,LenInfo,Trans)
+
+      INTEGER NRow,NCol,LenName
+      CHARACTER(Len=LenName)::FileName
+      CHARACTER(Len=LenInfo)::MatInfo
+      CHARACTER(Len=1)::Trans
+      Real*8,DIMENSION(NRow,NCol)::Matrix
+
+      INTEGER LU,IsFreeUnit,IRow,ICol
+      External IsFreeUnit
+
+      IF(LenName.gt.0) THEN
+      LU=100
+      LU=IsFreeUnit(LU)
+      CALL Molcas_Open(LU,FileName)
+      ELSE
+      LU=6
+      END IF
+      IF(Trans.eq.'N') THEN
+       DO IRow=1,NRow
+        Read(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
+       END DO
+      ELSE
+       DO ICol=1,NCol
+        Read(LU,*) (Matrix(IRow,ICol),IRow=1,NRow)
+       END DO
+      END IF
+      Read(LU,*)MatInfo
+      IF(LenName.gt.0) THEN
+       Close(LU)
+      END IF
+      RETURN
+      End Subroutine
+******************************************************
 
 
 ******************************************************

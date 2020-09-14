@@ -15,8 +15,7 @@
       Subroutine PLF_LDF_2Indx_11(TInt,nTInt,
      &                            AOint,ijkl,
      &                            iCmp,jCmp,kCmp,lCmp,
-     &                            iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                            iAOtSO,nAOtSO)
+     &                            iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
 *                                                                      *
 *  object: to sift and index the petite list format integrals.         *
@@ -31,6 +30,7 @@
 *          Modified for Local DF, Thomas Bondo Pedersen, Oct. 2010     *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit None
       Integer nTInt
       Real*8  TInt(nTInt)
@@ -39,8 +39,6 @@
       Integer iAO(4), iAOst(4)
       Integer iBas, jBas, kBas, lBas
       Integer kOp(4)
-      Integer nAOtSO
-      Integer iAOtSO(nAOtSO,0:7)
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 #include "WrkSpc.fh"

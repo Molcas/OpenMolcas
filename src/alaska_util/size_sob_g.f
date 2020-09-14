@@ -14,7 +14,7 @@
       Logical No_batch, Petite
 *
       nSO = MemSO2_P(iSD4( 2,1),iSD4( 2,2),iSD4( 2,3),iSD4( 2,4),
-     &               iSD4( 8,1),iSD4( 8,2),iSD4( 8,3),iSD4( 8,4))
+     &               iSD4( 7,1),iSD4( 7,2),iSD4( 7,3),iSD4( 7,4))
       No_batch=nSO.eq.0
 *
       Return

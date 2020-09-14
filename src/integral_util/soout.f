@@ -56,7 +56,6 @@
 *
          mdc = 0
          mc  = 1
-         IndShl = 0
          Do 201 iCnttp = 1, nCnttp
             kECP = dbsc(iCnttp)%ECP
             If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
@@ -92,8 +91,6 @@
 *
                      If (.Not.TstFnc(dc(mdc)%iCoSet,
      &                          iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
-                     IrrCmp(IndShl+iComp) =
-     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
 *
                      Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
@@ -114,7 +111,6 @@
  205                 Continue
 *
  204              Continue
-                  IndShl = IndShl + jComp
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue

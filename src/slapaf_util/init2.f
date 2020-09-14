@@ -270,15 +270,26 @@ c     Work(ipEner+iter-1)=Energy
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
             Call Allocate_Work(ipDMs,3*nRoots)
-            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
-            Call DCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
+            Call FZero(Work(ipDMs),3*nRoots)
+            Call Qpg_dArray('Last Dipole Moments',Found,nDip)
+            If (Found.and.(nDip.eq.3*nRoots)) Then
+               Call Get_dArray('Last Dipole Moments',
+     &                         Work(ipDMs),3*nRoots)
+            End If
+            Call dCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
      &                    Work(ipDipM+(iter-1)*3),1)
-*           Call RecPrt('Dipole Moment',' ',
-*    &                    Work(ipDipM+(iter-1)*3),1,3)
             Call Free_Work(ipDMs)
          Else
-            Call Get_DArray('Dipole moment',Work(ipDipM+(iter-1)*3),3)
+            Call Qpg_dArray('Dipole moment',Found,nDip)
+            If (Found.and.(nDip.eq.3)) Then
+               Call Get_dArray('Dipole moment',
+     &                         Work(ipDipM+(iter-1)*3),3)
+            Else
+               Call dCopy_(3,[Zero],0,Work(ipDipM+(iter-1)*3),1)
+            End If
          End If
+*        Call RecPrt('Dipole Moment',' ',
+*    &               Work(ipDipM+(iter-1)*3),1,3)
       End If
 *                                                                      *
 ************************************************************************

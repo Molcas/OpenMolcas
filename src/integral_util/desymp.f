@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,
-     &                  iShell, IndShl, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
+     &                  iShell, iAO, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
 ************************************************************************
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
 *          orbitals , SO. This is done by accumulating the AO inte-    *
@@ -47,6 +47,7 @@
 ************************************************************************
       use Basis_Info
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -54,7 +55,7 @@
 #include "real.fh"
       Real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)
       Logical Shij, Shkl, Shijij
-      Integer iAng(4), iShell(4), kOp(4), iShll(4), IndShl(4)
+      Integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Integer iTwoj(0:7)
@@ -107,8 +108,7 @@
          pa = xPrmt(iOper(kOp(1)),iChBs)
          niSym=0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(1)+i1),
-     &          iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(1)+i1,j)>0) Then
                iSym(niSym)=j
                niSym=niSym+1
             End If
@@ -119,8 +119,7 @@
             pb = xPrmt(iOper(kOp(2)),jChBs)
             njSym=0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(2)+i2),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(2)+i2,j)>0) Then
                   jSym(njSym) = j
                   njSym=njSym+1
                End If
@@ -132,8 +131,7 @@
                pc = xPrmt(iOper(kOp(3)),kChBs)
                nkSym=0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndShl(3)+i3),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(3)+i3,j)>0) Then
                      kSym(nkSym) = j
                      nkSym=nkSym+1
                    End If
@@ -147,8 +145,7 @@
                   FactNs = pa*pb*pc * xPrmt(iOper(kOp(4)),lChBs)
                   nlSym=0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndShl(4)+i4),
-     &                   iTwoj(j)).ne.0) Then
+                     If (iAOtSO(iAO(4)+i4,j)>0) Then
                         lSym(nlSym)=j
                         nlSym=nlSym+1
                      End If

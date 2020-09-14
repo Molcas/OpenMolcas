@@ -68,7 +68,7 @@
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),
      &        iAOV(4), iAOst(4), JndGrd(3,4,0:7), iFnc(4),
-     &        JndHss(4,3,4,3,0:7), IndShlV(4)
+     &        JndHss(4,3,4,3,0:7)
       Logical Shik, Shjl, Shijij, JfGrd(3,4),lpick,
      &        JfHss(4,3,4,3), JfG(4),ltri,ldot, Rsv_Tsk,
      &        l_Hss,l_Grd,lGrad,n8,ldot2,new_fock,
@@ -441,7 +441,6 @@ C     Do iS = 1, nSkal
          iCmpV(1) = iCmp
          iShelV(1) = iShell
          iAOV(1) = iAO
-         IndShlV(1)=iSD( 8,iS)
 *
 C        Do jS = 1, iS
             jShll  = iSD( 0,jS)
@@ -461,7 +460,6 @@ C        Do jS = 1, iS
             iCmpV(2) = jCmp
             iShelV(2) = jShell
             iAOV(2) = jAO
-            IndShlV(2)=iSD( 8,jS)
 *
             ijAng = iAng + jAng
 *
@@ -530,7 +528,6 @@ C           Do kS = 1, nSkal
                iCmpV(3) = kCmp
                iShelV(3) = kShell
                iAOV(3) = kAO
-               IndShlV(3)=iSD( 8,kS)
 *
                Shik = iShell.eq.kShell
 *
@@ -552,7 +549,6 @@ C              Do lS = 1, kS
                   iCmpV(4) = lCmp
                   iShelV(4) = lShell
                   iAOV(4) = lAO
-                  IndShlV(4)=iSD( 8,lS)
 *
 *
                   klAng = kAng + lAng
@@ -766,8 +762,7 @@ C              Do lS = 1, kS
 *
 *----------------------------------------------------------------------*
                   nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,
-     &                           IndShlV(1),IndShlV(2),
-     &                           IndShlV(3),IndShlV(4))
+     &                           iAOV(1),iAOV(2),iAOV(3),iAOV(4))
                   ldot2=ldot
                   If (nSO.eq.0) ldot2=.false.
 *
@@ -793,7 +788,7 @@ C              Do lS = 1, kS
 *                 available memory and the requested memory.
 *
                   Call PSOAO2(nSO,MemPrm, MemMax,
-     &                        iAngV, iCmpV, IndShlV,iFnc,
+     &                        iAngV, iCmpV, iAOV,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,
@@ -976,13 +971,11 @@ C              Do lS = 1, kS
                     nijkl = iBasn*jBasn*kBasn*lBasn
                     Call Timing(dum,Time,Dum,Dum)
                     If (n8)
-     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,
-     &                          nAcO,
-     &                          IndShlV,iCmpV,
+     &              Call PickMO(Sew_Scr(ipMOC),MemCMO,nAcO,iCmpV,
      &                          iBasAO,iBasn,jBasAO,jBasn,
      &                          kBasAO,kBasn,lBasAO,lBasn,iAOV)
                     If (ldot2)
-     &               Call PGet0(iCmpV,IndShlV,
+     &               Call PGet0(iCmpV,
      &                         iBasn,jBasn,kBasn,lBasn,Shijij,
      &                         iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,
      &                         iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -995,8 +988,7 @@ C              Do lS = 1, kS
 *-------------------Compute gradients of shell quadruplet
 *
                     ipD0=ip_of_Work(D0(1,1))
-                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,
-     &                             IndShlV,iAOV,
+                    Call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,
      &                   iAOst,mdci,mdcj,mdck,mdcl,nRys,
      &                   Data_k2(k2ij),nab,nDCRR,
      &                   Data_k2(k2kl),ncd,nDCRS,Pren,Prem,
@@ -1054,7 +1046,7 @@ C           End Do ! kS
                ip6=ip5+jcmp*jbas*naco
                Call CLR2(Sew_Scr(ipBuffer),Work(ipInt),
      &                   ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),
-     &                   naco,ishelV,IndShlV,
+     &                   naco,ishelV,
      &                   Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3),
      &                   Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
             End If

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Int_LDF_JK_2P(iCmp,iShell,MapOrg,IndShlV,
+      SubRoutine Int_LDF_JK_2P(iCmp,iShell,MapOrg,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
@@ -25,7 +25,7 @@
 #include "localdf_int2.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -61,8 +61,7 @@
             ! type (J|L)
             Call PLF_LDF_JK_2P_1(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.eq.iS_Dum .and.
      &            SHB.gt.nS_Val .and. SHB.lt.iS_Dum .and.
      &            SHC.le.nS_Val .and.
@@ -70,8 +69,7 @@
             ! type (J|uv)
             Call PLF_LDF_JK_2P_2(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.eq.iS_Dum .and.
@@ -79,8 +77,7 @@
             ! type (uv|J)
             Call PLF_LDF_JK_2P_3(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.le.nS_Val .and.
@@ -88,8 +85,7 @@
             ! type (uv|kl)
             Call PLF_LDF_JK_2P_4(TInt,nTInt,MapOrg,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &             'Shell combination not implemented in Int_LDF_JK_2P')
@@ -113,6 +109,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(IndShlV)
       End If
       End

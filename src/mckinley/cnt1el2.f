@@ -12,8 +12,8 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine Cnt1El2(Kernel,KrnlMm,Label,
-     &                 iDCnt,iDCar,loper,rHrmt,DiffOp,
-     &                  Lab_Dsk,iadd,isym,kcar,nordop)
+     &                   iDCnt,iDCar,loper,rHrmt,DiffOp,
+     &                   Lab_Dsk,iadd,isym,kcar,nordop)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -156,7 +156,6 @@ c#include "print.fh"
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -170,7 +169,6 @@ c#include "print.fh"
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -246,8 +244,7 @@ c#include "print.fh"
             Do iIrrep=0,nIrrep-1
                 If (iAnd(loper,2**iIrrep).ne.0) Then
                  iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                          IndShl,JndShl)
+                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                End If
             End Do
 c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
@@ -375,14 +372,14 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                 If (mSO.eq.0) Then
                    Do jIrrep = 0, nIrrep-1
                       If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
+     &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
@@ -404,15 +401,12 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                If (iAnd(lOper,2**iIrrep).ne.0) Then
                  iSmlbl=2**iIrrep
                  iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                      IndShl,JndShl)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iirrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
-     &                    Work(ip(iIC)),
-     &                    nFck(iIrrep),iSmLbl,
+     &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
-     &                    IndShl,JndShl,iAO,jAO,
-     &                    nIC,Label,2**iIrrep,rHrmt)
+     &                    iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
              End Do
