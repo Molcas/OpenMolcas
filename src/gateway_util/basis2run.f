@@ -89,7 +89,7 @@
                   primitive_ids(2,iPrim) = iAng
                   primitive_ids(3,iPrim) = iBasis
                   primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
-                  primitives(2,iPrim) = Shells(jSh)%pCff(kExp,iBasis)
+                  primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
                 End Do
               End Do
               jSh = jSh + 1
