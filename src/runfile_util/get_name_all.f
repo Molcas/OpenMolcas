@@ -13,26 +13,26 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Character*2 Element(*), Element_Uniqe(MxAtom)
+      Character*2 Element(*), Element_Unique(MxAtom)
 
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Allocate_Work(ipCoord,3*nAtoms)
       Call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
-      Call Get_Name(Element_Uniqe)
+      Call Get_Name(Element_Unique)
       Call Get_Name_All_(Work(ipCoord),nAtoms,nAtoms_all,
-     &                   Element_Uniqe,Element)
+     &                   Element_Unique,Element)
       Call Free_Work(ipCoord)
 *
       Return
       End
       Subroutine Get_Name_All_(Coord_Unique_Atoms,nUnique_Atoms,
-     &                           nAll_Atoms,Element_Uniqe,Element)
+     &                           nAll_Atoms,Element_Unique,Element)
       use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Integer iGen(3), iCoSet(0:7)
       Real*8  Coord_Unique_Atoms(3,nUnique_Atoms)
-      Character*(*) Element(*), Element_Uniqe(nUnique_Atoms)
+      Character*(*) Element(*), Element_Unique(nUnique_Atoms)
       Integer, Save:: Active=0
 *                                                                      *
 ************************************************************************
@@ -64,7 +64,7 @@
 *
          Do i = 1, nCoSet
             iAll_Atom = iAll_Atom + 1
-            Element(iAll_Atom)=Element_Uniqe(iUnique_Atom)
+            Element(iAll_Atom)=Element_Unique(iUnique_Atom)
          End Do
 *
       End Do

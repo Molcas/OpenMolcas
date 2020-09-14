@@ -46,14 +46,9 @@
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7)
       Logical EQ, TstFnc, NoLoop
       Character Lab*80
-*
-*     Statement function for Cartesian index
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-
       iRout = 33
       iPrint = nPrint(iRout)
 *     iPrint=15
-*     Call qEnter('DrvN1')
 *
       iIrrep = 0
 *
@@ -614,6 +609,5 @@
 *
       End If
 *
-*     Call qExit('DrvN1')
       Return
       End

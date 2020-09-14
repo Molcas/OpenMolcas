@@ -12,7 +12,7 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine TwoEl_mck(Coor,
-     &     iAngV,iCmp,iShell,iShll,IndShl,iAO,iAOst,
+     &     iAngV,iCmp,iShell,iShll,iAO,iAOst,
      &     iStb,jStb,kStb,lStb,nRys,
      &     Data1,nab,nData1,Data2,ncd,nData2,Pren,Prem,
      &     Alpha,nAlpha,iPrInc, Beta, nBeta,jPrInc,
@@ -154,9 +154,8 @@
 *
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &     iStabM(0:7),  IndGrd(3,4,0:7), iAO(4),
-     &     iCmp(4), iShell(4), iShll(4), IndShl(4),
-     &     nOp(4), iAngV(4), iAOst(4),
-     &     JndGrd(3,4,0:7),icmpi(4),
+     &     iCmp(4), iShell(4), iShll(4),
+     &     nOp(4), iAngV(4), iAOst(4),JndGrd(3,4,0:7),icmpi(4),
      &     IndZet(nAlpha*nBeta),Indeta(nGamma*nDelta), iuvwx(4),
      &     IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7),
      &     Index(3,4), moip(0:7)
@@ -389,7 +388,7 @@
                Call Timing(dum1,Time,dum2,dum3)
                If (ldot2)
      &              Call TwoDns(iAngV,iCmp,shijij,ishll,ishell,
-     &                   IndShl,nOp,iBasi,jBasj,kBask,lBasl,
+     &                   iAO,nOp,iBasi,jBasj,kBask,lBasl,
      &                   Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
      &                   nWork4,PSO,nPSO,Fact)
 *
@@ -676,7 +675,7 @@
      &              kStb,
      &              lStb,
      &              Shijij,iAngV,iCmpi,iCmp,
-     &              iShll,iShell,iShell,IndShl,
+     &              iShll,iShell,iShell,
      &              iBasi,jBasj,kBask,lBasl,
      &              Dij1,Dij2,mDij,nDij,
      &              Dkl1,Dkl2,mDkl,nDkl,

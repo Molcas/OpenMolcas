@@ -189,7 +189,6 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -203,7 +202,6 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -285,8 +283,7 @@ C differentiation wrt center iCnt
             Do iIrrep=0,nIrrep-1
                 If (iAnd(loper,2**iIrrep).ne.0) Then
                  iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                          IndShl,JndShl)
+                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                End If
             End Do
 #ifdef _DEBUG_
@@ -419,14 +416,14 @@ C differentiation wrt center iCnt
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                 If (mSO.eq.0) Then
                    Do jIrrep = 0, nIrrep-1
                       If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,IndShl,JndShl,
+     &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
@@ -449,13 +446,12 @@ C differentiation wrt center iCnt
                If (iAnd(lOper,2**iIrrep).ne.0) Then
                  iSmlbl=2**iIrrep
                  iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                      IndShl,JndShl)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iIrrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
      &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
-     &                    IndShl,JndShl,iAO,jAO,
+     &                    iAO,jAO,
      &                    nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

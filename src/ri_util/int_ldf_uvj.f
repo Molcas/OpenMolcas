@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Int_LDF_uvJ(
-     &                       iCmp,iShell,MapOrg,IndShlV,
+     &                       iCmp,iShell,MapOrg,
      &                       iBas,jBas,kBas,lBas,kOp,
      &                       Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                       AOInt,SOInt,nSOint,
@@ -28,7 +28,7 @@
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
-     &        iAOst(4), kOp(4), iSOSym(2,nSOs), IndShlV(4),
+     &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
       Real*8 Dens(lDens,nDens), Fock(lDens,nDens), ExFac(nDens)
@@ -80,8 +80,7 @@
             ! type (J|uv)
             Call PLF_LDF_uvJ_1(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.le.nS_Val .and.
@@ -89,8 +88,7 @@
             ! type (kl|uv) [kl being 2-center aux functions]
             Call PLF_LDF_uvJ_2(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO,MapOrg)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,MapOrg)
          Else
             Call WarningMessage(2,
      &      'Shell combination not implemented in Int_LDF_uvJ')
@@ -114,6 +112,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(IndShlV)
       End If
       End

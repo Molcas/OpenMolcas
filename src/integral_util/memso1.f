@@ -11,8 +11,7 @@
 * Copyright (C) 1990,1991, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      Integer Function MemSO1(lOper,iCmp,jCmp,iShell,jShell,
-     &                        IndShl,JndShl)
+      Integer Function MemSO1(lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
 ************************************************************************
 *  Object: to compile the number of SO block which will be generated   *
 *          by the current shell doublet.                               *
@@ -29,26 +28,27 @@
 *             of Lund, Sweden.                                         *
 *             Modified to general non-symmetric operators January '91  *
 ************************************************************************
+      Use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 *
       MemSO1 = 0
-      Do 100 j1 = 0, nIrrep-1
-         Do 110 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndShl+i1),2**j1).eq.0) Go To 110
-            Do 200 j2 = 0, nIrrep-1
+      Do j1 = 0, nIrrep-1
+         Do i1 = 1, iCmp
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
+            Do j2 = 0, nIrrep-1
                j12=iEor(j1,j2)
-               If (iAnd(lOper,2**j12).eq.0) Go To 200
+               If (iAnd(lOper,2**j12).eq.0) Cycle
                jCmpMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jCmpMx = i1
                Do i2 = 1, jCmpMx
-                  If (iAnd(IrrCmp(JndShl+i2),2**j2).eq.0) Cycle
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   MemSO1 = MemSO1 + 1
                End Do
- 200        Continue
- 110     Continue
- 100  Continue
+            End Do
+         End Do
+      End Do
 *
       Return
       End
