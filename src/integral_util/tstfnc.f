@@ -21,9 +21,10 @@
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
 ************************************************************************
-      use Symmetry_Info
+      use Symmetry_Info, only: nIrrep, iOper, iChTbl
       Implicit Real*8 (A-H,O-Z)
       Integer iCoSet(0:7,0:7), iAcc(0:7)
+      Integer iBsFnc
 *
       TstFnc = .True.
       nCoSet=nIrrep/nStab
@@ -37,9 +38,15 @@
       Do i = 0, nCoSet-1
          Write (6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
       End Do
+
       Write (6,*)
       Write (6,*) 'iOper:'
       Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+      Write (6,*)
+      Write (6,*) 'iBsFnc=',iBsFnc
+      Write (6,*)
+      Write (6,*) 'iChTbl:'
+      Write (6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
 #endif
 *
 *     Loop over operators

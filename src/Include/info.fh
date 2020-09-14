@@ -121,9 +121,6 @@
 *     radiLD: cutoff radius for LDKH procedure                         *
 *     KVector: the k-vector of the EMFR                                *
 *                                                                      *
-* -> Character <-                                                      *
-*     lBsFnc: label of the basis functions of the i''th irrep          *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 #include "Molcas.fh"
@@ -227,14 +224,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Character lBsFnc(0:7)*80
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
       Character Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               LblCBs, LblSBs, Title, lBsFnc, Align_Weights,
+     &               LblCBs, LblSBs, Title, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************

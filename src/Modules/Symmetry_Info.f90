@@ -14,7 +14,7 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, &
+Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, &
           Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free
 
 #include "stdalloc.fh"
@@ -32,6 +32,7 @@ Integer:: iChCar(3)=[0,0,0]
 Integer:: MxFnc
 Integer, Allocatable:: iChBas(:)
 Character(LEN=3) :: lIrrep(0:7)=['','','','','','','','']
+Character(LEN=80) :: lBsFnc(0:7)=['','','','','','','','']
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -69,6 +70,11 @@ Integer:: mIrrep
 Integer:: jOper(0:7)
 mIrrep=nIrrep
 jOper(:)=iOper(0:nIrrep-1)
+#ifdef _DEBUG_
+Write (6,*) 'Call Symmetry_Info_Back'
+Write (6,'(A,I4)') 'nIrrep=',nIrrep
+Write (6,'(A,8I4)') 'iOper:=',iOper(0:nIrrep-1)
+#endif
 End Subroutine Symmetry_Info_Back
 !
 !***********************************************************************
@@ -133,9 +139,14 @@ Do iIrrep=0,nIrrep-2
    End Do
 End Do
 #ifdef _DEBUG_
-Write (6,*) 'Symmetry_Info_Set'
+Write (6,*) 'Symmetry_Info_Set:'
 Write (6,*) 'MxFnc=',MxFnc
 Write (6,*) 'nIrrep=',nIrrep
+Write (6,'(A,8I4)') 'iOper:',iOper(0:nIrrep-1)
+Write (6,*) 'iChTbl:'
+Do i = 0, nIrrep-1
+   Write (6,'(8I4)') iChTbl(0:nIrrep-1,i)
+End Do
 #endif
 End Subroutine Symmetry_Info_Set
 !
@@ -143,7 +154,7 @@ End Subroutine Symmetry_Info_Set
 !***********************************************************************
 !
 Subroutine Symmetry_Info_Dmp()
-Integer i, j, k, liDmp
+Integer i, j, k, liDmp, lcDmp
 Integer, Allocatable:: iDmp(:)
 Character(LEN=1), Allocatable:: cDmp(:)
 
@@ -190,12 +201,17 @@ Write (6,*) 'lIrrep:'
 Do i = 0, nIrrep-1
    Write (6,'(A)') lIrrep(i)
 End Do
+Write (6,*) 'lBsFnc:'
+Do i = 0, nIrrep-1
+   Write (6,'(A)') lBsFnc(i)
+End Do
 #endif
 
 Call Put_iArray('Symmetry Info',iDmp,liDmp)
 Call mma_deallocate(iDmp)
 
-Call mma_allocate(cDmp,3*8,Label='cDmp')
+lcDmp = 3*8 + 80*8
+Call mma_allocate(cDmp,lcDmp,Label='cDmp')
 k = 0
 Do i = 0, 7
    Do j = 1, 3
@@ -203,7 +219,13 @@ Do i = 0, 7
    End Do
    k=k+3
 End Do
-Call put_cArray('SymmetryCInfo',cDmp,3*8)
+Do i = 0, 7
+   Do j = 1, 80
+      cDmp(j+k)=lBsFnc(i)(j:j)
+   End Do
+   k=k+80
+End Do
+Call put_cArray('SymmetryCInfo',cDmp,lcDmp)
 Call mma_deallocate(cDmp)
 
 End Subroutine Symmetry_Info_Dmp
@@ -212,7 +234,7 @@ End Subroutine Symmetry_Info_Dmp
 !***********************************************************************
 !
 Subroutine Symmetry_Info_Get()
-Integer i, j, k, liDmp
+Integer i, j, k, liDmp, lcDmp
 Integer, Allocatable:: iDmp(:)
 Logical Found
 Character(LEN=1), Allocatable:: cDmp(:)
@@ -252,14 +274,21 @@ iChBas(1:MxFnc) = iDmp(i+1:i+MxFnc)
 i=i+MxFnc
 Call mma_deallocate(iDmp)
 
-Call mma_allocate(cDmp,3*8,Label='cDmp')
-Call get_carray('SymmetryCInfo',cDmp,3*8)
+lcDmp = 3*8 + 80*8
+Call mma_allocate(cDmp,lcDmp,Label='cDmp')
+Call get_carray('SymmetryCInfo',cDmp,lcDmp)
 k = 0
 Do i = 0, 7
    Do j = 1, 3
       lIrrep(i)(j:j)=cDmp(j+k)
    End Do
    k=k+3
+End Do
+Do i = 0, 7
+   Do j = 1, 80
+      lBsFnc(i)(j:j)=cDmp(j+k)
+   End Do
+   k=k+80
 End Do
 Call mma_deallocate(cDmp)
 #ifdef _DEBUG_
@@ -274,6 +303,9 @@ Write (6,*)
 Write (6,*) 'lIrrep:'
 Do i = 0, nIrrep-1
    Write (6,'(A)') lIrrep(i)
+End Do
+Do i = 0, nIrrep-1
+   Write (6,'(A)') lBsFnc(i)
 End Do
 #endif
 End Subroutine Symmetry_Info_Get

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ChTab(iOper,nIrrep,lBsFnc,iAng)
+      SubRoutine ChTab(iOper,nIrrep,iAng)
 ************************************************************************
 *                                                                      *
 * Object: to generate the character table of a point group within      *
@@ -25,13 +25,13 @@
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
 ************************************************************************
-      use Symmetry_Info, only: Symmetry_Info_Set, lIrrep
+      use Symmetry_Info, only: Symmetry_Info_Set, lIrrep, lBsFnc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Integer iOper(nIrrep), iChTbl(1:8,1:8)
       Integer iTest(8)
       Integer :: iSigma=1
-      Character*80 lBsFnc(8), Tmp
+      Character*80 Tmp
       Character*6 xyz(0:7), SymLab*3
       Common /SymLab/SymLab
       Logical Inv, Rot
@@ -40,10 +40,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do 1 i = 1, 8
-         lIrrep(i-1) = ''
-         lBsFnc(i) = ''
- 1    Continue
       If (nIrrep.eq.1) Then
          SymLab='C1 '
          iSigma=1
@@ -99,6 +95,7 @@
 *
 *-----Loop over basis functions (a' la Malmqvist)
 *
+      lBsFnc(0:nIrrep-1)='' ! For this to work we need a clean slate.
       Do 10 iFnc = 0, 7
          Tmp=xyz(iFnc)
 *
@@ -135,15 +132,15 @@
             Write (6,*) 'nIrrep=',nIrrep
             Call Abend()
          End If
-         If (lBsFnc(jIrrep)(1:1).eq.' ') Then
-            lBsFnc(jIrrep) = Tmp
+         If (lBsFnc(jIrrep-1)(1:1).eq.' ') Then
+            lBsFnc(jIrrep-1) = Tmp
             Call ICopy(nIrrep,iTest,1,iChTbl(jIrrep,1),8)
          Else
-            LenlBs=Len(lBsFnc(jIrrep))
+            LenlBs=Len(lBsFnc(jIrrep-1))
             LenTmp=Len(Tmp)
-            i1 = iCLast(lBsFnc(jIrrep),LenlBs)
+            i1 = iCLast(lBsFnc(jIrrep-1),LenlBs)
             i2 = iCLast(Tmp,LenTmp)
-            lBsFnc(jIrrep) = lBsFnc(jIrrep)(1:i1)//', '//Tmp(1:i2)
+            lBsFnc(jIrrep-1) = lBsFnc(jIrrep-1)(1:i1)//', '//Tmp(1:i2)
          End If
  10   Continue
 *
@@ -152,12 +149,10 @@
       Do 100 iIrrep = 1, nIrrep
          lIrrep(iIrrep-1)='a'
          Do 110 i = 1, nIrrep
-*           Write (*,*) ' iIrrep,i=',iIrrep,i
 *
 *           If the character of an rotation in an irreps is -1 then
 *           the irreps is assigned the character B, otherwise A.
 *
-*           Write (*,*) iOper(i),iChTbl(iIrrep,i)
             If ((iOper(i).eq.3 .or. iOper(i).eq.5 .or.
      &           iOper(i).eq.6) .and. iChTbl(iIrrep,i).eq.-1)
      &          lIrrep(iIrrep-1)='b'
