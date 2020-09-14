@@ -1,4 +1,4 @@
-************************************************************************
+/***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -7,9 +7,9 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-      Logical do_rotate
-      CHARACTER(LEN=8)::MSPDFTMethod
-      COMMON /MSPDFT/ Do_Rotate,MSPDFTMethod
-*
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/false.exe                  executable
+ (file)  FALSEINP "$WorkDir/$Project."False.Input roi
+ (file)  INPUT    "$WorkDir/$Project."false.in    rw
+ (file)  OUTPUT   "$WorkDir/$Project."false.out   ro
+ (file)  GRADS    "$WorkDir/$Project."Grads       rw

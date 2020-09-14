@@ -48,16 +48,19 @@
       CHARACTER(Len=18)::MatInfo
       INTEGER ReadStat
       write(LF,*)
-      write(LF,*) ('=',i=1,61)
+      write(LF,*) ('=',i=1,71)
       write(LF,*)
-      write(LF,'(6X,A)')'Do_Rotate.txt is found in scratch directory.'
+      write(LF,'(11X,A)')'Do_Rotate.txt is found in scratch directory.'
       IF(IXMSP.eq.1) THEN
-       write(LF,'(6X,A)')
+       write(LF,'(11X,A)')
      & 'Following properties are for XMS intermediate states.'
+      ELSE IF(ICMSP.eq.1) THEN
+       write(LF,'(11X,A)')
+     & 'Following properties are for CMS intermediate states.'
       ELSE
-       write(LF,'(6X,A)')
+       write(LF,'(11X,A)')
      & 'Following properties are for intermediate states'
-       write(LF,'(6X,A)')
+       write(LF,'(11X,A)')
      & ' obtained from the user-supplied rotation matrix'
       ENDIF
 
@@ -152,7 +155,7 @@ C     updating final energies as those for rotated states
       CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
 
       write(LF,*)
-      write(LF,*) ('=',i=1,61)
+      write(LF,*) ('=',i=1,71)
 
       Return
       End Subroutine

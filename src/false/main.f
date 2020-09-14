@@ -8,8 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*
-      Logical do_rotate
-      CHARACTER(LEN=8)::MSPDFTMethod
-      COMMON /MSPDFT/ Do_Rotate,MSPDFTMethod
-*
+      program main
+#ifdef _FPE_TRAP_
+      Use, Intrinsic :: IEEE_Exceptions
+#endif
+      implicit real*8 (a-h,o-z)
+#ifdef _FPE_TRAP_
+      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
+
+      Call Start('false')
+      Call False_Program(ireturn)
+      Call Finish(ireturn)
+      end

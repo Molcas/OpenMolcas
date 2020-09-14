@@ -7,9 +7,14 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*
-      Logical do_rotate
-      CHARACTER(LEN=8)::MSPDFTMethod
-      COMMON /MSPDFT/ Do_Rotate,MSPDFTMethod
-*
+
+      module False_Global
+      implicit none
+      private
+      character(len=180) :: Run_Command
+      logical :: Will_Print
+      public :: Run_Command, Will_Print
+      end module False_Global

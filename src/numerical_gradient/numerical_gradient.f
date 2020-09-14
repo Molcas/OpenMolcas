@@ -233,7 +233,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:5) .eq. 'CCSDT'  .OR.
      &    Method(1:4) .eq. 'CHCC'   .OR.
      &    Method(1:6) .eq. 'MCPDFT' .OR.
-     &    Method(1:4) .eq. 'CHT3') Then
+     &    Method(1:4) .eq. 'CHT3'   .OR.
+     &    Method(1:8) .eq. 'EXTERNAL') Then
          If (iPL_Save.ge.3) Then
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
@@ -635,6 +636,19 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             If (iReturn .ne. 0) Then
                Write(LuWr,*) 'Numerical_Gradient failed ...'
                Write(LuWr,*) 'RASSCF returned with return code, rc = ',
+     &                     iReturn
+               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+               Call Abend()
+            End If
+         Else If (Method(1:8) .eq. 'EXTERNAL') Then
+            Call StartLight('false')
+            Call init_run_use()
+            Call Disable_Spool()
+            Call False_program(ireturn)
+            Call ReClose()
+            If (iReturn .ne. 0) Then
+               Write(LuWr,*) 'Numerical_Gradient failed ...'
+               Write(LuWr,*) 'FALSE returned with return code, rc = ',
      &                     iReturn
                Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
                Call Abend()

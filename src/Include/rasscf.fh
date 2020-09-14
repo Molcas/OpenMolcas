@@ -110,8 +110,11 @@
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT
 *
-      INTEGER         IRotPsi,IMSPDFT,IXMSP
-      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP
+      INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,
+     &                ICMSIterMin
+      Real*8          CMSThreshold
+      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,
+     &                ICMSIterMin,CMSThreshold
 *
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S
