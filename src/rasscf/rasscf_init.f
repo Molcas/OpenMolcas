@@ -377,5 +377,9 @@ CSVC: lucia timers
 C state rotation
       iRotPsi=0
       iXMSP=0
+      iCMSP=0
+      ICMSIterMax=100
+      ICMSIterMin=5
+      CMSThreshold=1.0d-6
       RETURN
       END
