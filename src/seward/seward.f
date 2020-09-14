@@ -77,7 +77,6 @@
 C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Do_OneEl
-      Integer IsGvMode
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -206,8 +205,6 @@ C     Call Seward_Banner()
          Call Center_Info_Free()
          Call Center_Info_Get()
       End If
-      Call GvMode(IsGvMode)
-      if(IsGvMode.gt.0) Onenly=.true.
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -538,9 +535,6 @@ C     Call Seward_Banner()
 *     Automatic run of GuessOrb
 *
       If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
-      If(IsGvMode.gt.0) then
-        Call DoGvMode(IsGvMode)
-      EndIf
       If (.not.Prprt.and.Do_OneEl) Call Put_NucAttr()
 *                                                                      *
 ************************************************************************
@@ -558,9 +552,6 @@ C     Call Seward_Banner()
       ireturn=_RC_ALL_IS_WELL_
       If (Test)  Then
          ireturn=_RC_EXIT_EXPECTED_
-      Else
-         If (isGvMode.gt.0.or.lRP_Post)
-     &       ireturn=_RC_INVOKED_OTHER_MODULE_
       End If
       Return
       End
