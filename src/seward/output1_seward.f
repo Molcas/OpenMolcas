@@ -44,6 +44,7 @@
 #include "gateway.fh"
 #include "localdf.fh"
       Logical l_aCD_Thr, lOPTO
+      Logical lNoPair, lPam2, lECP, lPP
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -52,6 +53,22 @@
       iPrint=nPrint(iRout)
       Call QEnter('Output1_Seward')
       LuWr=6
+*                                                                      *
+************************************************************************
+*                                                                      *
+      lNoPair = .False.
+      lPam2   = .False.
+      lECP    = .False.
+      lPP     = .False.
+      Do i = 1, nCnttp
+         lNoPair = lNoPair .or. dbsc(i)%NoPair
+         lPam2   = lPam2   .or. dbsc(i)%lPam2
+         lECP    = lECP    .or. dbsc(i)%ECP
+         lPP     = lPP     .or. dbsc(i)%nPP.ne.0
+         lECP    = lECP    .or. dbsc(i)%ECP
+         lPP     = lECP    .or. dbsc(i)%ECP
+      End Do
+
 *                                                                      *
 ************************************************************************
 *                                                                      *

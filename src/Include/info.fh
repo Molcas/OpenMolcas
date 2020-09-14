@@ -74,16 +74,12 @@
 *             functions should not be normalized                       *
 *     lSchw : logical flag to indicate that the Cauchy-Schwartz        *
 *             inequality should be used in the prescreening            *
-*     lECP  : Signifies that ECP''s are present                        *
-*     lNOpar: Signifies that no-pair operators are used                *
 *     lXF   : logical flag to indicate presence of an external field   *
-*     lPP   : logical flag to indicate presence of a pseudo potential  *
 *     lAMFI : logical flag for Atomic Mean Field Integrals             *
 *     force_part_c: logical flag to force partitioning on contracted   *
 *     force_part_p: logical flag to force partitioning on primitive    *
 *     GIAO: integrals for first derivative with respect to B           *
 *     Cholesky: logical flag for Cholesky decomposition.               *
-*     lAux: logical flag that there is an auxiliary basis              *
 *     Do_RI: logical flag for RI apporach                              *
 *     lFAIEMP: logical flag for Fragment AIEMP                         *
 *     Do_FckInt: logical flag for FckInt                               *
@@ -168,32 +164,30 @@
 ************************************************************************
 *                                                                      *
       Logical   DirInt, Onenly, Test, Vlct, lOAM, lOAMc,
-     &          lOMQ, lAMP, lAux, Prprt, Short, ifallorb, lDMS, lRel,
+     &          lOMQ, lAMP, Prprt, Short, ifallorb, lDMS, lRel,
      &          Do_RI, UnNorm, lSchw, lAMFI, force_part_p,
-     &          lECP, lNOpair, force_part_c, Expert, lXF, BSS,
-     &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
+     &          force_part_c, Expert, lXF, BSS,
+     &          DKroll, LDKroll, Primitive_Pass,NEMO, GIAO,
      &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
      &          Do_Numerical_Gradients, VarT, VarR, EMFR,
-     &          lUPONLY, lDOWNONLY, FNMC
-      Logical lPAM2
-      Logical lPSOI
+     &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, DKroll, BSS, Primitive_Pass, lAux,  NEMO,
-     &               lPP, LDF, Do_RI, lAMFI,  Onenly,
+     &               DirInt, DKroll, BSS, Primitive_Pass,  NEMO,
+     &               LDF, Do_RI, lAMFI,  Onenly,
      &               Do_GuessOrb, Test, Vlct, lOAM, lOAMc, lOMQ, lAMP,
      &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
-     &               lSchw, lECP, lXF, lNOpair, force_part_c,
+     &               lSchw, lXF, force_part_c,
      &               force_part_p, Expert, GIAO, Do_FckInt, Cholesky,
      &               lFAIEMP, Force_Out_of_Core,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
      &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,
      &               Do_Align, Do_Numerical_Gradients, VarR, VarT,
-     &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPAM2,lPSOI,
+     &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
 *                                                                      *
 ************************************************************************

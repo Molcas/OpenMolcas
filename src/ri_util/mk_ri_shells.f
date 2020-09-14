@@ -178,16 +178,12 @@
             Write (6,*)
             Write (6,*)
          End If
-         lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
          dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                   + dbsc(nCnttp)%nSRO
      &                   + dbsc(nCnttp)%nSOC
      &                   + dbsc(nCnttp)%nPP
      &                   + dbsc(nCnttp)%nM1
      &                   + dbsc(nCnttp)%nM2) .NE. 0
-         lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-         lECP = lECP .or. dbsc(nCnttp)%ECP
-         lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
          lAng=Max(dbsc(nCnttp)%nVal,
      &            dbsc(nCnttp)%nSRO,
@@ -207,7 +203,6 @@
      &                        + dbsc(nCnttp)%nSOC
      &                        + dbsc(nCnttp)%nPP
 
-         lAux = lAux .or. dbsc(nCnttp)%Aux
          Do iSh = jShll+1, iShll
             Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
             Call mma_deallocate(Shells(iShll)%pCff)
@@ -442,16 +437,11 @@
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            lPAM2 = lPAM2 .or.dbsc(nCnttp)%lPAM2
-            lECP = lECP .or. dbsc(nCnttp)%ECP
-            lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-            lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
             iAngMx=Max(iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
             dbsc(nCnttp)%nVal = lAng+1
             dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
-            lAux = lAux .or. dbsc(nCnttp)%Aux
 *
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt

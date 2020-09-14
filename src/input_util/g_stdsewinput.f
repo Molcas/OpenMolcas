@@ -172,16 +172,12 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                + dbsc(nCnttp)%nSRO
      &                + dbsc(nCnttp)%nSOC
      &                + dbsc(nCnttp)%nPP
      &                + dbsc(nCnttp)%nM1
      &                + dbsc(nCnttp)%nM2) .NE.0
-      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-      lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                     + dbsc(nCnttp)%nPrj
      &                     + dbsc(nCnttp)%nSRO
@@ -198,7 +194,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
       nCnt = 0
-      lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.

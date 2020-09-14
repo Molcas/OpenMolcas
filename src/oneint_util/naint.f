@@ -56,7 +56,7 @@
       Integer iStabM(0:nStabM-1), lOper(nComp)
 *-----Local arrys
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-      Logical EQ, NoSpecial, No3Cnt
+      Logical EQ, NoSpecial, No3Cnt, lECP
       Integer iAnga(4), iDCRT(0:7), iChO(nComp)
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
@@ -72,6 +72,10 @@ C     Call qEnter('NAInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       lc=0
       ld=0
       iAnga(1) = la

@@ -403,7 +403,6 @@
             dbsc(nCnttp)%Parent_iCnttp=iCnttp
             dbsc(nCnttp)%iVal = iShll+1
             dbsc(nCnttp)%Aux =.True.
-            lAux =.True.
             dbsc(nCnttp)%aCD_Thr=dbsc(iCnttp)%aCD_Thr
             dbsc(nCnttp)%fMass=dbsc(iCnttp)%fMass
 *                                                                      *

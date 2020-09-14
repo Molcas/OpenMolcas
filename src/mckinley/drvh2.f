@@ -34,6 +34,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
       External NaHss,OvrHss, KneHss,PrjHss,SROHss,M1Hss,PCMHss
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH
@@ -44,7 +45,7 @@
 #include "rctfld.fh"
       Character Label*80
       Real*8    Hess(nHess), Temp(nHess)
-      Logical DiffOp,show
+      Logical DiffOp,show, lECP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -138,6 +139,10 @@
 *                                                                      *
 ************************************************************************
 *
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       If (lECP) Then
         DiffOp = .True.
         Label = ' The Projection (ECP) Contribution'

@@ -54,7 +54,7 @@
       Character*180, Allocatable :: STDINP(:) ! CGGn
       Integer BasisTypes(4)
       Integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
-      Logical Try_Again
+      Logical Try_Again, lPP
       Real*8 A(4)
       Data DefNm/'basis_library'/
 *                                                                      *
@@ -75,6 +75,13 @@
       nPrint(114)=99
       nPrint(116)=99
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      lPP = .False.
+      Do i = 1, nCnttp
+         lPP = lPP .or. dbsc(i)%nPP.ne.0
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

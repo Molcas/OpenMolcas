@@ -109,7 +109,7 @@
       Real*8 HypParam(3), RandVect(3)
       Logical Vlct_, nmwarn
 *
-      Logical DoEMPC, Basis_test
+      Logical DoEMPC, Basis_test, lECP, lPP
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -1218,16 +1218,12 @@ c Simplistic validity check for value
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
      &                 +dbsc(nCnttp)%nPrj
      &                 +dbsc(nCnttp)%nSRO
      &                 +dbsc(nCnttp)%nSOC
      &                 +dbsc(nCnttp)%nM1
      &                 +dbsc(nCnttp)%nM2) .NE. 0
-      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-      lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
       lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
@@ -1244,7 +1240,6 @@ c Simplistic validity check for value
      &                     + dbsc(nCnttp)%nSOC
      &                     + dbsc(nCnttp)%nPP
       nCnt = 0
-      lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.
@@ -4007,6 +4002,12 @@ c      endif
          Call Abend()
       End If
 *
+      lECP = .False.
+      lPP  = .False.
+      Do i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+      End Do
       If ((lECP.or.lPP).and.DKroll.and..Not.Expert) Then
          Call WarningMessage(2,
      &               ' ECP option not compatible with Douglas-Kroll!')

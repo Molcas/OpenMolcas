@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Drvh1_EMB(Grad,Temp,nGrad)
-
+      Use Basis_Info, only: dbsc, nCnttp
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
@@ -31,7 +31,7 @@ CAOM<
       common /finfld/force
       External MltGrd,MltMmG
 CAOM>
-      Logical DiffOp
+      Logical DiffOp, lECP, lPP
       Character*16 NamRfil
 *
 *-----Statement function
@@ -47,6 +47,13 @@ CAOM>
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
+*
+      lECP=.False.
+      lPP =.False.
+      Do i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+      End Do
 *
 *---- Allocate memory for density matrices
 *

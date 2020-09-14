@@ -122,11 +122,7 @@ C
       Prprt=.False.
       Short=.True.
       ifallorb=.False.
-      lECP=.False.
-      lAux=.False.
-      lPAM2=.False.
       lXF=.False.
-      lPP=.False.
       lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.

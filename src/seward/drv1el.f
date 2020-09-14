@@ -71,7 +71,9 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc, KnE_Int, NA_Int,
      &                                     FragP, OneHam, PtEl,
      &                                     PtNuc, SumEl, SumNuc
-      logical lECPnp,lPAM2np
+      logical lECPnp,lECP
+      logical lPAM2np,lPAM2
+      logical lPP
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -105,7 +107,15 @@
 #ifdef _FDE_
       if (embPot) call EmbPotRdRun
 #endif
-
+*
+      lPAM2 = .False.
+      lECP  = .False.
+      lPP   = .False.
+      Do i = 1, nCnttp
+         lPam2 = lPam2 .or. dbsc(i)%lPam2
+         lECP  = lECP  .or. dbsc(i)%ECP
+         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+      End Do
 *
 *     set center selector in OneSwi to all centers (default)
 *

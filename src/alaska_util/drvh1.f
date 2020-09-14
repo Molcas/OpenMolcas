@@ -39,6 +39,7 @@
 ************************************************************************
       use PCM_arrays, only: PCM_SQ
       use External_Centers
+      use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
@@ -63,7 +64,7 @@
       Real*8, Allocatable:: Coor(:,:)
       Integer, Allocatable:: lOper(:), lOperf(:)
 CAOM>
-      Logical DiffOp
+      Logical DiffOp, lECP, lPP
 *
 *-----Statement function
 *
@@ -83,6 +84,12 @@ CAOM>
       Do iIrrep = 0, nIrrep - 1
          nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      End Do
+      lECP=.False.
+      lPP =.False.
+      Do i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
       End Do
 *
 *
