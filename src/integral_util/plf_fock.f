@@ -25,6 +25,7 @@
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          May '90                                                     *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -124,6 +125,7 @@ c Avoid unused argument warnings
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          May '90                                                     *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

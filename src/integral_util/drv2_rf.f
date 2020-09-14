@@ -120,7 +120,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -132,7 +131,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -140,7 +138,7 @@
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
 *
@@ -352,13 +350,13 @@
 *
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             nIC=1
             iIC=1
             If (mSO.ne.0)
      &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     IndShl,JndShl,Scr1,
+     &                     iAO,jAO,Scr1,
      &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 *
  140        Continue
@@ -379,8 +377,7 @@
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
             Call SOAdd(SO_Int,iBas,jBas,mSO,h0,
      &                 n2Tri(iSmLbl),iSmLbl,
-     &                 iCmp,jCmp,iShell,jShell,IndShl,JndShl,
-     &                 AeqB,iAO,jAO)
+     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 *
             Call mma_deallocate(SO_Int)
             Call mma_deallocate(Scr2)

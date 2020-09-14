@@ -261,7 +261,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -274,7 +273,6 @@ c        Write(6,*) ' oneel *',Label,'*'
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -289,8 +287,7 @@ c        Write(6,*) ' oneel *',Label,'*'
             nSO=0
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                        IndShl,JndShl)
+               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             End Do
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
@@ -421,7 +418,7 @@ c        Write(6,*) ' oneel *',Label,'*'
              iIC = 1
              Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
-              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
               If (mSO.eq.0) Then
                  Do iIrrep = 0, nIrrep-1
                     If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -430,7 +427,7 @@ c        Write(6,*) ' oneel *',Label,'*'
               Else
                  Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                       iShell,jShell,iShll,jShll,
-     &                       IndShl,JndShl,Fnl,
+     &                       iAO,jAO,Fnl,
      &                       iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
               End If
@@ -458,16 +455,14 @@ c        Write(6,*) ' oneel *',Label,'*'
             Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
               If (n2Tri(iSmLbl).ne.0) Then
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,
-     &                      IndShl,JndShl)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
               Else
                  mSO=0
               End If
               If (mSO.ne.0) Then
                  Call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Int1El(ip(iComp)),
      &                       n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,
-     &                       jShell,IndShl,JndShl,
-     &                       iAO,jAO,nComp,Label,lOper,rHrmt)
+     &                       jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
               End If
             End Do

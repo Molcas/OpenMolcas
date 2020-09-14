@@ -217,6 +217,7 @@ C     Thomas Bondo Pedersen, February 2011.
 C
 C     Purpose: extract block of overlap matrix.
 C
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (a-h,o-z)
       Integer iBas, jBas
       Real*8  SOInt(iBas*jBas,*)

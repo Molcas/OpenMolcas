@@ -20,6 +20,8 @@
 *     Author: Roland Lindh, Dept. of Chemistry - Angstrom              *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Init,
+     &                                     SOAO_Info_Free
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
@@ -180,6 +182,19 @@
       Indx=Index(Label,' ')
       BSLbl=' '
       BSLbl(1:Indx-1)=Label(1:Indx-1)
+*
+*     Make a temporary setup of the SOAO_Info arrays for the
+*     atomic auxiliary basis set.
+*     Note that the auxiliary basis set will carry an angular value
+*     which at most is twice that of valence basis set.
+*
+      mSOInf = 0
+
+      Do iAng = 0, 2*nTest
+         nCmp = (iAng+1)*(iAng+2)/2
+         mSOInf = mSOInf + nCmp
+      End Do
+      Call SOAO_Info_Init(mSOInf,1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -203,17 +218,18 @@
          nCmp = (iAng+1)*(iAng+2)/2
          If (Shells(iShll_)%Prjct ) nCmp = 2*iAng+1
          iSO = 0
-         If (Shells(iShll_)%nBasis_C.ne.0 .and.
-     &       Shells(iShll_)%nExp.ne.0) Then
-            Do iCmp = 1, nCmp
-               iAO = iAO + 1
-               iAOtSO(iAO,0) = iSO + 1
-               nCont = Shells(iShll_)%nBasis
-               Do iCont = 1, nCont
-                   iSO = iSO + 1
-               End Do
-            End Do
-         End If
+         If (Shells(iShll_)%nBasis_C*Shells(iShll_)%nExp==0) Cycle
+         Do iCmp = 1, nCmp
+            iAO = iAO + 1
+            If (iAO>nSOInf) Then
+               Write (6,*) 'mk_acd_accd_shells: iAO>nSOInf (1)'
+               Write (6,*) 'iAO=',iAO
+               Write (6,*) 'nSOInf=',nSOInf
+               Call Abend()
+            End If
+            iAOtSO(iAO,0) = iSO + 1
+            iSO = iSO + Shells(iShll_)%nBasis
+         End Do
          nSO=nSO+iSO
       End Do
 *
@@ -334,11 +350,12 @@
             iSO = 0
             Do iCmp = 1, nCmp
                iAO = iAO + 1
+               If (iAO>nSOInf) Then
+                  Write (6,*) 'mk_acd_accd_shells: iAO>nSOInf (2)'
+                  Call Abend()
+               End If
                iAOtSO(iAO,0) = iSO + 1
-               nCont = Shells(iShll_)%nExp
-               Do iCont = 1, nCont
-                   iSO = iSO + 1
-               End Do
+               iSO = iSO + Shells(iShll_)%nExp
             End Do
             nSO_p=nSO_p+iSO
          End Do
@@ -1417,6 +1434,8 @@ C                          Thrs= 1.0D-12
          End Do
          Close(Lu_lib)
       End If
+*
+      Call SOAO_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

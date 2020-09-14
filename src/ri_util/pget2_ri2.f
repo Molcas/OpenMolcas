@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI2(iCmp,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI2(iCmp,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,
      &                  nZ_p_k)
@@ -35,6 +35,7 @@
 *             Modified to RI-DFT, March 2007                           *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -46,7 +47,7 @@
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
-      Integer iCmp(4), iAO(4), iAOst(4), IndShl(4)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
@@ -111,8 +112,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -121,8 +121,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(4)+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -184,8 +183,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -194,8 +192,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(4)+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -304,8 +301,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -314,8 +310,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(4)+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -428,8 +423,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -438,8 +432,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(4)+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -545,8 +538,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl(2)+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -555,8 +547,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndShl(4)+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If

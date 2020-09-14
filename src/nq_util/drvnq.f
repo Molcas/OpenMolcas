@@ -121,14 +121,14 @@ C     Call QEnter('DrvNQ')
       Do iSkal = 1, nShell
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
-         IndShl= iSD( 8,iSkal)
+         iAO   = iSD( 7,iSkal)
          iShell= iSD(11,iSkal)
          Do jSkal = 1, iSkal
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
-            JndShl= iSD( 8,jSkal)
+            jAO   = iSD( 7,jSkal)
             jShell= iSD(11,jSkal)
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
          End Do
       End Do

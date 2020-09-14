@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine PSOAO1(nSO,MemPrm,MemMax,
-     &                            iAnga, iCmpa,  IndShl,  iFnc,
+     &                            iAnga, iCmpa,  iAO,     iFnc,
      &                            iBas,  iBsInc, jBas,  jBsInc,
      &                            kBas,  kBsInc, lBas,  lBsInc,
      &                            iPrim, iPrInc, jPrim, jPrInc,
@@ -50,6 +50,7 @@
 ************************************************************************
       use aces_stuff, only: nGamma, Gamma_On
       use PSO_Stuff
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -58,7 +59,7 @@
 #include "lCache.fh"
 #include "pstat.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
-     &          iFnc(4), IndShl(4)
+     &          iFnc(4), iAO(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
       Integer   iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -136,8 +137,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(jPam)+i1,j)>0) Then
                       nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                       nTmp1= nTmp1+ iiBas(jPam)
                       iTmp1= iTmp1+ 1
@@ -209,8 +209,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndShl(jPam)+i1),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(jPam)+i1,j)>0) Then
                       nTmp1= nTmp1+ iiBas(jPam)
                   End If
                End Do

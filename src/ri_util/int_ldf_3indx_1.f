@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Int_LDF_3Indx_1(
-     &                           iCmp,iShell,MapOrg, IndShlV,
+     &                           iCmp,iShell,MapOrg,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
@@ -30,7 +30,7 @@
       Parameter (SecNam='Int_LDF_3Indx_1')
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -84,8 +84,7 @@
             Call PLF_LDF_3Indx_1(TInt,nTInt,
      &                           AOInt,ijkl,
      &                           iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                           iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                           iAOtSO,MxAO)
+     &                           iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &                  'Shell combination not implemented in '//SecNam)
@@ -108,6 +107,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(IndShlV)
       End If
       End

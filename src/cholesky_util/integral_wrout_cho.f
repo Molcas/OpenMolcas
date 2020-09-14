@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut_Cho(
-     &                           iCmp,iShell,MapOrg,IndShlV,
+     &                           iCmp,iShell,MapOrg,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
@@ -30,7 +30,7 @@
       Parameter (SecNam = 'Integral_WrOut_Cho')
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:mSym-1,0:mSym-1,0:mSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -60,7 +60,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho(TInt,nTInt,IndShlV,
+           Call IndSft_Cho(TInt,nTInt,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
@@ -71,7 +71,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_2(TInt,nTInt,IndShlV,
+           Call IndSft_Cho_2(TInt,nTInt,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
@@ -82,7 +82,7 @@
      &              iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &              iBas,jBas,kBas,lBas,kOp)
          Else
-           Call IndSft_Cho_3(TInt,nTInt,IndShlV,
+           Call IndSft_Cho_3(TInt,nTInt,
      &                  iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &                  iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
          End If
