@@ -106,7 +106,7 @@
      &             Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,
      &             Label)
       Call PrGrad_mck(' TEST '
-     &   //'(PCM) contribution',Temp,nGrad,lIrrep,ChDisp,5)
+     &   //'(PCM) contribution',Temp,nGrad,ChDisp,5)
 *                                                                      *
 ************************************************************************
 *                                                                      *

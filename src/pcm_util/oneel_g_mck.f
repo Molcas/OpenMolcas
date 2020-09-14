@@ -353,7 +353,7 @@ c VV: gcc bug: one has to use this if!
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM)
                If (iPrint.ge.49) Call PrGrad_mck(' In Oneel',
-     &             Grad,nGrad,lIrrep,ChDisp,5)
+     &             Grad,nGrad,ChDisp,5)
 *
  140        Continue
           endif
@@ -375,7 +375,7 @@ C     End Do
       Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
       Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
 *
-      If (iPrint.ge.15)Call PrGrad_mck(Label,Grad,nGrad,lIrrep,ChDisp,5)
+      If (iPrint.ge.15)Call PrGrad_mck(Label,Grad,nGrad,ChDisp,5)
 *
       Return
       End

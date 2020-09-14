@@ -44,7 +44,6 @@
 *     iRI_Type: type of RI auxiliary basis set                         *
 *     nCtrLD: number of centers in the LDKH procedure                  *
 *     iCtrLD: ith center for the LDKH procedure                        *
-*     iSigma: rotational symmetry number                               *
 *                                                                      *
 * -> Logical <-                                                        *
 *     Onenly: logical flag to indicate that only the 1-electron        *
@@ -123,7 +122,6 @@
 *     KVector: the k-vector of the EMFR                                *
 *                                                                      *
 * -> Character <-                                                      *
-*     lIrrep: label of the i''th irrep                                 *
 *     lBsFnc: label of the basis functions of the i''th irrep          *
 *                                                                      *
 ************************************************************************
@@ -138,7 +136,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Integer   iLbls,IntTot,iSigma,ixStrt,ixEnd,
+      Integer   iLbls,IntTot,ixStrt,ixEnd,
      &          m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
      &          nShlls
@@ -160,7 +158,7 @@
      &              lwIntL,  NotZer, iRelae_info, jMax,
      &              MolWgh, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, Mx_AO,
-     &              nCtrLD,iCtrLD,iSigma, nPSOI,
+     &              nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *
       Integer          kCnttpPAM, iPAMPrim, iPAMCount
@@ -229,15 +227,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Character lIrrep(0:7)*3, lBsFnc(0:7)*80
+      Character lBsFnc(0:7)*80
       Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
       Character Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               LblCBs, LblSBs, Title, lIrrep, lBsFnc,
-     &               Align_Weights,
+     &               LblCBs, LblSBs, Title, lBsFnc, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************

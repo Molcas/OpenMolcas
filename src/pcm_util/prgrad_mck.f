@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PrGrad_mck(Label,Grad,nGrad,lIrrep,Names,iPrint)
+      SubRoutine PrGrad_mck(Label,Grad,nGrad,Names,iPrint)
 ************************************************************************
 *                                                                      *
 * Object: to print set gradient with respect to the symmetrical dis-   *
@@ -25,6 +25,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: lIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -32,7 +33,7 @@
       Real*8 CGrad(3,MxAtom)
       Character CNames(MxAtom)*(LENIN5)
       Character Label*(*), Names(nGrad)*(LENIN6)
-      Character lIrrep(0:7)*3, Namei*(LENIN5)
+      Character Namei*(LENIN5)
 *
 *     Call qEnter('PrGrad')
 *

@@ -218,7 +218,7 @@
             Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,5)
+*    &               Grad,lDisp(0),ChDisp,5)
          call dcopy_(nGrad,[Zero],0,Temp,1)
       End If
 *                                                                      *
@@ -397,8 +397,7 @@
            Twoel_Wall = Twoel_Wall + TwoelWall2-TwoelWall1
 #endif
             If (iPrint.ge.15)
-     &         Call PrGrad(' In Drvg1: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,5)
+     &         Call PrGrad(' In Drvg1: Grad',Temp,nGrad,ChDisp,5)
 *
  430     Continue
  420     Continue

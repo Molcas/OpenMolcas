@@ -215,7 +215,7 @@
       iOpt=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
       If (iPrint.ge.15) Call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',
-     &                              Grad,nGrad,lIrrep,ChDisp,iprint)
+     &                              Grad,nGrad,ChDisp,iprint)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -385,7 +385,7 @@
 *
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg_FAIEMP: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue
@@ -453,7 +453,7 @@
 * Accumulate the final results
       Call DScal_(nGrad,Half,Temp,1)
       If(iPrint.ge.15) Call PrGrad('The FAIEMP 2-electron Contribution',
-     &                             Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                             Temp,nGrad,ChDisp,iPrint)
       call daxpy_(nGrad,One,Temp,1,Grad,1)
 *
       Call Free_iSD()

@@ -53,6 +53,7 @@
       use MpmC
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: lIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide

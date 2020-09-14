@@ -27,7 +27,6 @@
       use MpmC
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -173,10 +172,6 @@ C     Call Gateway_banner()
 *
       Call Put_cArray('Seward Title',Header(1),144)
 *
-      Call Put_iScalar('NSYM',nIrrep)
-      Call Put_iArray('Symmetry operations',iOper,nIrrep)
-      Call Put_iScalar('Rotational Symmetry Number',iSigma)
-      Call Put_cArray('Irreps',lIrrep(0),24)
       Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run()

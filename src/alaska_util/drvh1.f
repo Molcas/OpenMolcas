@@ -367,7 +367,7 @@ CAOM>
      &                   Label)
             If (iPrint.ge.15) Then
                Label=' Reaction Field (COSMO) Contribution'
-               Call PrGrad(Label,Temp,nGrad,lIrrep,ChDisp,5)
+               Call PrGrad(Label,Temp,nGrad,ChDisp,5)
             End If
          Else
             Label = ' The Electronic Reaction Field Contribution (PCM)'
@@ -376,7 +376,7 @@ CAOM>
      &                   Label)
             If (iPrint.ge.15) Then
                Label=' Reaction Field (PCM) Contribution'
-               Call PrGrad(Label,Temp,nGrad,lIrrep,ChDisp,5)
+               Call PrGrad(Label,Temp,nGrad,ChDisp,5)
             End If
          End If
 

@@ -82,7 +82,7 @@
       End If
       Label='DFT-OFE('//OFE_KSDFT(1:iEnd)//') contribution'
       jPrint=nPrint(112)
-      If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,lIrrep,ChDisp,5)
+      If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,ChDisp,5)
       If (king()) Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       If (iPrint.lt.6) Go To 777
       Write (LuWr,*)

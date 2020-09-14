@@ -851,7 +851,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_3Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue

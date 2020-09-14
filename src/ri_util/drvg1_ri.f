@@ -382,7 +382,7 @@
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
-     &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
+     &    Work(ipTemp),nGrad,ChDisp,iPrint)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1) ! Move any 1-el contr.
       call dcopy_(nGrad,Work(ipTemp),1,Temp,1)
       Call DScal_(nGrad,-One,Temp,1)
@@ -397,7 +397,7 @@
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',
-     &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
+     &    Work(ipTemp),nGrad,ChDisp,iPrint)
       Call DaXpY_(nGrad,Two,Work(ipTemp),1,Temp,1)
       Case_3C=.False.
       If(Allocated(Txy))  Call mma_deallocate(Txy)
@@ -441,7 +441,7 @@
       Call Free_Work(ipTemp)
       If (iPrint.ge.15)  Call PrGrad(
      &    ' RI-Two-electron contribution - Temp',
-     &    Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &    Temp,nGrad,ChDisp,iPrint)
 *                                                                      *
 ************************************************************************
 *                                                                      *

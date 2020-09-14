@@ -4382,9 +4382,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             iOper(6) = iEor(iOper(2),iOper(4))
             iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
          End If
-*
-         Call Put_iScalar('NSYM',nIrrep)
-         Call Put_iArray('Symmetry operations',iOper,nIrrep)
       End If
 *
       If (lSkip) then
@@ -4407,7 +4404,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma,Max(iAngMx,1))
+      Call ChTab(iOper,nIrrep,lBsFnc,Max(iAngMx,1))
 *                                                                      *
 ************************************************************************
 ************************************************************************

@@ -38,7 +38,7 @@
          Call Quit_OnUserError()
       End If
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, entering ESPF',
-     &                          Work(ipGrad),lDisp(0),lIrrep,ChDisp,4)
+     &                          Work(ipGrad),lDisp(0),ChDisp,4)
 *
 *     Recover MM gradient and hessian, if any, in QMMM file
 *
@@ -147,7 +147,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       If (((Exist.and.DoTinker).or.DoGromacs) .and. .not.isNAC) Then
          Call Put_iScalar('No of Internal coordinates',3*natom)
          If (iPL.ge.3) Call PrGrad(' Molecular gradients, after MM',
-     &                          Work(ipGrad),lDisp(0),lIrrep,ChDisp,4)
+     &                          Work(ipGrad),lDisp(0),ChDisp,4)
       End If
 *
 *     External field acting on nuclear charges
@@ -167,7 +167,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
          EndDo
          Call GetMem('XCharge','Free','Real',ipXC,natom)
          If (iPL.ge.3) Call PrGrad(' Molecular grad, after nuc ESPF',
-     &                          Work(ipGrad),lDisp(0),lIrrep,ChDisp,4)
+     &                          Work(ipGrad),lDisp(0),ChDisp,4)
       End If
 *
 *     Here I need the integral derivatives, weighted by B and contracted
@@ -194,7 +194,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       Call Drvespf(Work(ipGrad),Work(ipTemp),3*natom,Work(ipGrdI))
       Call GetMem('GridInfo','Free','Real',ipGrdI,4*nGrdPt)
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, after P*B*dV',
-     &                          Work(ipGrad),lDisp(0),lIrrep,ChDisp,4)
+     &                          Work(ipGrad),lDisp(0),ChDisp,4)
       Call GetMem('Temp','Free','Real',ipTemp,3*natom)
 *
 *     Here I need the integrals contracted with the density matrix and weighted
@@ -240,7 +240,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       Call Put_Grad(Work(ipGrad),3*natom)
       Call GetMem('dESPF2','Free','Real',ipD2,nGrdPt)
       If (iPL.ge.2) Call PrGrad(' Molecular gradients, after ESPF',
-     &                          Work(ipGrad),lDisp(0),lIrrep,ChDisp,4)
+     &                          Work(ipGrad),lDisp(0),ChDisp,4)
       Call Add_Info('Grad',Work(ipGrad),3*natom,6)
       Call GetMem('Grad','Free','Real',ipGrad,3*natom)
 *

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma,iAng)
+      SubRoutine ChTab(iOper,nIrrep,lBsFnc,iAng)
 ************************************************************************
 *                                                                      *
 * Object: to generate the character table of a point group within      *
@@ -25,12 +25,13 @@
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
 ************************************************************************
-      use Symmetry_Info, only: Symmetry_Info_Set
+      use Symmetry_Info, only: Symmetry_Info_Set, lIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Integer iOper(nIrrep), iChTbl(1:8,1:8)
       Integer iTest(8)
-      Character*80 lIrrep(8)*3, lBsFnc(8), Tmp
+      Integer :: iSigma=1
+      Character*80 lBsFnc(8), Tmp
       Character*6 xyz(0:7), SymLab*3
       Common /SymLab/SymLab
       Logical Inv, Rot
@@ -40,8 +41,8 @@
 ************************************************************************
 *                                                                      *
       Do 1 i = 1, 8
-         lIrrep(i) = ' '
-         lBsFnc(i) = ' '
+         lIrrep(i-1) = ''
+         lBsFnc(i) = ''
  1    Continue
       If (nIrrep.eq.1) Then
          SymLab='C1 '
@@ -149,7 +150,7 @@
 *     Set up some Mulliken symbols for the irreps
 *
       Do 100 iIrrep = 1, nIrrep
-         lIrrep(iIrrep)='a'
+         lIrrep(iIrrep-1)='a'
          Do 110 i = 1, nIrrep
 *           Write (*,*) ' iIrrep,i=',iIrrep,i
 *
@@ -159,7 +160,7 @@
 *           Write (*,*) iOper(i),iChTbl(iIrrep,i)
             If ((iOper(i).eq.3 .or. iOper(i).eq.5 .or.
      &           iOper(i).eq.6) .and. iChTbl(iIrrep,i).eq.-1)
-     &          lIrrep(iIrrep)='b'
+     &          lIrrep(iIrrep-1)='b'
 *
  110     Continue
  100  Continue
@@ -181,8 +182,8 @@
          ia = 0
          ib = 0
          Do 310 i = 1, nIrrep
-            If (lIrrep(i)(1:1).eq.'a') ia = ia + 1
-            If (lIrrep(i)(1:1).eq.'b') ib = ib + 1
+            If (lIrrep(i-1)(1:1).eq.'a') ia = ia + 1
+            If (lIrrep(i-1)(1:1).eq.'b') ib = ib + 1
  310     Continue
          If (nIrrep.eq.8) Then
             ia = ia/2
@@ -202,14 +203,14 @@
                Write (Tmp,'(I1)') iRot
                If (ia.gt.1) Then
                   Do 321 j = 1, nIrrep
-                     If (lIrrep(j)(1:1).eq.'a'.and.iChTbl(j,i).eq.1)
-     &                  lIrrep(j)=lIrrep(j)(1:1)//Tmp(1:1)
+                     If (lIrrep(j-1)(1:1).eq.'a'.and.iChTbl(j,i).eq.1)
+     &                  lIrrep(j-1)=lIrrep(j-1)(1:1)//Tmp(1:1)
  321              Continue
                End If
                If (ib.gt.1) Then
                   Do 322 j = 1, nIrrep
-                     If (lIrrep(j)(1:1).eq.'b'.and.iChTbl(j,i).eq.1)
-     &                  lIrrep(j)=lIrrep(j)(1:1)//Tmp(1:1)
+                     If (lIrrep(j-1)(1:1).eq.'b'.and.iChTbl(j,i).eq.1)
+     &                  lIrrep(j-1)=lIrrep(j-1)(1:1)//Tmp(1:1)
  322              Continue
                End If
             End If
@@ -238,7 +239,7 @@
                j = 2
             End If
             Write (Tmp,'(I1)') j
-            lIrrep(i)=lIrrep(i)(1:1)//Tmp(1:1)
+            lIrrep(i-1)=lIrrep(i-1)(1:1)//Tmp(1:1)
  352     Continue
       End If
 *
@@ -254,17 +255,17 @@
 *------- Loop over each Irrep
 *
          Do 210 iIrrep = 1, nIrrep
-            LenlIrr=Len(lIrrep(iIrrep))
-            i1 = 1 + iCLast(lIrrep(iIrrep),LenlIrr)
+            LenlIrr=Len(lIrrep(iIrrep-1))
+            i1 = 1 + iCLast(lIrrep(iIrrep-1),LenlIrr)
 *
 *---------- Loop over operators
 *
             Do 211 i = 1, nIrrep
                If (iOper(i).eq.7) Then
                   If (iChTbl(iIrrep,i).eq.1) Then
-                     lIrrep(iIrrep)(i1:i1)='g'
+                     lIrrep(iIrrep-1)(i1:i1)='g'
                   Else If (iChTbl(iIrrep,i).eq.-1) Then
-                      lIrrep(iIrrep)(i1:i1)='u'
+                      lIrrep(iIrrep-1)(i1:i1)='u'
                   End If
                End If
  211        Continue
@@ -274,9 +275,16 @@
 *     Fix labels for Cs
 *
       If (SymLab(1:2).eq.'Cs') Then
-         lIrrep(1) = 'a'''
-         lIrrep(2) = 'a"'
+         lIrrep(0) = 'a'''
+         lIrrep(1) = 'a"'
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Put_iScalar('NSYM',nIrrep)
+      Call Put_iArray('Symmetry operations',iOper,nIrrep)
+      Call Put_iScalar('Rotational Symmetry Number',iSigma)
+      Call Put_cArray('Irreps',lIrrep(0),24)
 *
       Call Symmetry_Info_Set(nIrrep,iOper,iChTbl,iAng)
 *                                                                      *

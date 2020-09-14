@@ -36,7 +36,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: iChTbl, iOper, lIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

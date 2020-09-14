@@ -27,7 +27,6 @@
       use Period
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -60,11 +59,6 @@
      &            Vrsn,', ',KWord(1:24)
 *
       Call Put_cArray('Seward Title',Header(1),144)
-*
-      Call Put_iScalar('NSYM',nIrrep)
-      Call Put_iArray('Symmetry operations',iOper,nIrrep)
-      Call Put_iScalar('Rotational Symmetry Number',iSigma)
-      Call Put_cArray('Irreps',lIrrep(0),24)
 *
       Call ICopy(8,[0],0,nDel,1)
       Call Put_iArray('nFro',nDel,nIrrep) ! put to 0

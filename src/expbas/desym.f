@@ -40,6 +40,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: lIrrep
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
