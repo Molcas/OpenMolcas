@@ -174,13 +174,6 @@
                          Do 420 iAOi = 0, iBas-1
                             nij = nij + 1
                             nijkl = (nkl-1)*iBas*jBas + nij
-                            If (Dist) Then
-                            iLog10=INT(
-     &                       Log10(Two*Max( Abs( SOInt(nijkl,MeMSO2) ),
-     &                              1.D-72 ) ) )
-                            iNrInt=Max(-20,Min(9,iLog10))
-                            NrInt(iNrInt) = NrInt(iNrInt) + 1
-                            End If
                             If (Abs(SOInt(nijkl,MemSO2)).gt.ThrInt) Then
                                iSOi = iSO + iAOi
                                If (iSOi.lt.jSOj .and. iQij) Go To 420

@@ -464,22 +464,6 @@ C     Call Seward_Banner()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Dist) Then
-         Write (6,*)
-         Write (6,*)
-     & ' Distribution of the Absolute Values of the Integrals'
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-20,-11)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-20,-11)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-10,-1)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-10,-1)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=0,9)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=0,9)
-         Write (6,*)
-      End If
-*
       Call mma_deallocate(MemHide)
 *                                                                      *
 ************************************************************************
@@ -488,8 +472,8 @@ C     Call Seward_Banner()
 *     corruption of the memory.
 *
 
- 9999 Call DumpSagit
-      Call ClsSew
+ 9999 Call DumpSagit()
+      Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)

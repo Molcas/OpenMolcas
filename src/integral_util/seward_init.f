@@ -78,7 +78,6 @@ C
       KVector(:)=Zero
       MaxBas(0:iTabMx)=0
       MaxPrm(0:iTabMx)=0
-      NrInt(-20:9)=0
       iSkip(0:7)=0
 
       nOrdEF=-1
@@ -122,13 +121,10 @@ C
       lRel=.False.
       Prprt=.False.
       Short=.True.
-*--sdong, Apr. 2018--*
       ifallorb=.False.
-*--sdong end---------*
       lECP=.False.
       lAux=.False.
       lPAM2=.False.
-      Dist=.False.
       lXF=.False.
       lPP=.False.
       lAMP=.False.

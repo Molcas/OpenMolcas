@@ -426,7 +426,6 @@ cperiod
       If (KWord(1:4).eq.'DCRN') Go To 958
       If (KWord(1:4).eq.'DIAG') Go To 9087
       If (KWord(1:4).eq.'DIRE') Go To 9770
-      If (KWord(1:4).eq.'DIST') Go To 954
       If (KWord(1:4).eq.'DK1H') Go To 9001
       If (KWord(1:4).eq.'DK2H') Go To 9002
       If (KWord(1:4).eq.'DK3F') Go To 9004
@@ -1594,13 +1593,6 @@ c     Go To 998
       GWInput = Run_Mode.eq.G_Mode
       Call WarningMessage(1,
      &   ' EXPERT option is ON!')
-      Go To 998
-*                                                                      *
-****** DIST ************************************************************
-*                                                                      *
-*     Enable computation of integral distribution
-*
- 954  Dist = .True.
       Go To 998
 *                                                                      *
 ****** MOLC or DCRN ****************************************************
@@ -4141,7 +4133,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   MolWgh = Cho_MolWgh
                End If
             End If
-            If (Dist) Dist =.False.
             If (iWrOpt .eq. 2) Then
                Write(LuWr,*)
      &         'Acess II format not allowed with Cholesky!!'

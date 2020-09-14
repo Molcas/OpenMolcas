@@ -105,13 +105,6 @@
                          jSOj = jSO + jAOj
                          Do 420 iAOi = 0, iBas-1
                             nijkl = nijkl + 1
-                            If (Dist) Then
-                            iLog10=Int(Log10(Two*
-     &                             Max(Abs(AOInt(nijkl,i1,i2,i3,i4)),
-     &                             1.D-72 ) ) )
-                            iNrInt=Max(-20,Min(9,iLog10))
-                            NrInt(iNrInt) = NrInt(iNrInt) + 1
-                            End If
                             iSOi = iSO + iAOi
                             If (iSOi.lt.jSOj .and. iQij) Go To 420
                             If (iSOi.lt.jSOj) Then
