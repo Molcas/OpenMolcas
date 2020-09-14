@@ -340,7 +340,7 @@
 *     Distribute the contributions to the molecular gradient
 *
       Call Distg1(Temp,mVec,Grad,nGrad,JfGrad,JndGrd,
-     &            iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &            iuvwx,lOp,nIrrep)
 *-----Drop ipAC
 *     ip = ip - nT*nPAO * 9
 #ifdef _CHECK_

@@ -205,7 +205,7 @@
      &            nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),
      &            Array(ipBeta),Grad,nGrad,DAO,
      &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
-     &            kOp,iChBas,MxFnc)
+     &            kOp)
 
 *
       ip = ip - 5*nZeta

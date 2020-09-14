@@ -145,8 +145,7 @@ c     End If
 
       Call CmbnT1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,
      &            Array(ipSc),Array(ipTxyz),
-     &            Array(ipA),Array(ipB),IfGrad,
-     &            iChBas,MxFnc)
+     &            Array(ipA),Array(ipB),IfGrad)
 *
 *?
       call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,Final,1)

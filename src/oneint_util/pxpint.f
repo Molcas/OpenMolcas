@@ -34,6 +34,7 @@
 *             Chemie, University of Bonn, Germany, April 1993          *
 *             R. Lindh, modified to molcas 4.1 form, Oct 1999          *
 ************************************************************************
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

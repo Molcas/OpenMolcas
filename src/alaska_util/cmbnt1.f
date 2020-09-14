@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine CmbnT1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Txyz,
      &                  Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
-     &                  jStab,nIrrep,kOp,iChBas,MxFnc)
+     &                  jStab,nIrrep,kOp)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -27,6 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -36,7 +37,7 @@
      &       Txyz(nZeta,3,0:la+1,0:lb+1),
      &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
 *
 *     Statement function for Cartesian index
 *

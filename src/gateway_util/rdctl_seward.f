@@ -4403,8 +4403,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *                                                                      *
 ************************************************************************
-************************************************************************
-************************************************************************
 *                                                                      *
 *     Generate the Character table for all Irreps
 *
@@ -4418,40 +4416,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
+      Call ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma,Max(iAngMx,1))
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*     Setup characteristics for cartesian basis functions.
-*     Observe that this is affected by the defined generators.
-*     In the array we will set the bit corresponding to a symop
-*     if that symop will alter the sign of the basis function.
-*
-      iSymX = 0
-      iSymY = 0
-      iSymZ = 0
-      Do i = 0, nIrrep-1
-         If (iAnd(iOper(i),1).ne.0) iSymX = 1
-         If (iAnd(iOper(i),2).ne.0) iSymY = 2
-         If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-      End Do
-
-      lxyz = 0
-      Do ixyz = 0, Max(iAngMx,1)
-         Do ix = ixyz, 0, -1
-            jx = Mod(ix,2)
-            iyMax=ixyz-ix
-            Do iy = iyMax, 0 , -1
-               jy = Mod(iy,2)
-               lxyz=lxyz+1
-               iz=ixyz-ix-iy
-               jz = Mod(iz,2)
-               jxyz = jx * iSymX + jy * iSymY + jz * iSymZ
-               iChBas(lxyz) = jxyz
-            End Do
-         End Do
-      End Do
-*                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *

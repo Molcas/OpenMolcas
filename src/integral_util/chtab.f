@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma)
+      SubRoutine ChTab(iOper,nIrrep,lIrrep,lBsFnc,iSigma,iAng)
 ************************************************************************
 *                                                                      *
 * Object: to generate the character table of a point group within      *
@@ -39,8 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('ChTab')
-*
       Do 1 i = 1, 8
          lIrrep(i) = ' '
          lBsFnc(i) = ' '
@@ -280,10 +278,9 @@
          lIrrep(2) = 'a"'
       End If
 *
-      Call Symmetry_Info_Set(nIrrep,iOper,iChTbl)
+      Call Symmetry_Info_Set(nIrrep,iOper,iChTbl,iAng)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('ChTab')
       Return
       End

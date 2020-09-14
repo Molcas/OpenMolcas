@@ -30,7 +30,7 @@
 *             January '91                                              *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)

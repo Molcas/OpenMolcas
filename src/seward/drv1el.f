@@ -34,6 +34,7 @@
       Use PrpPnt
       Use External_Centers
       Use SW_file
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,

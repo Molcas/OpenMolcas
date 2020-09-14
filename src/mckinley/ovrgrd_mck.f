@@ -144,9 +144,7 @@ c     End If
  21   Continue
       Call CmbnS1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,
      &            rKappa,Array(ipScrt),
-     &            Array(ipAlph),Array(ipBeta),
-     &            IfGrad,
-     &            nOp,iChBas,MxFnc)
+     &            Array(ipAlph),Array(ipBeta),IfGrad,nOp)
 *
       If (iPrint.ge.49)
      &    Call RecPrt(' Primitive Integrals',' ',

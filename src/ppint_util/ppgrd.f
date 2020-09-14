@@ -321,7 +321,7 @@ CAOM>
 *              Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,
-     &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                     JfGrad,JndGrd,iuvwx,lOp,nIrrep)
 *
             End Do        ! lDCRT
 *                                                                      *

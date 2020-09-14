@@ -147,7 +147,7 @@
      &             nComp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
      &             IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
-     &             kOp,iChBas,MxFnc,MM(1,2))
+     &             kOp,MM(1,2))
 *
       Call qExit('RFGrd')
       Return

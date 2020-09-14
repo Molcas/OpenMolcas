@@ -303,8 +303,7 @@
 *-----------------Distribute the gradient contributions
 *
                   Call DistG1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                         JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,
-     &                         nIrrep)
+     &                         JfGrad,JndGrd,iuvwx,lOp,nIrrep)
 *
  1011          Continue
 *

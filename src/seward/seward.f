@@ -233,9 +233,7 @@ C     Call Seward_Banner()
 *                                                                      *
 *     Compute the Nuclear potential energy
 *
-      If (.Not.Primitive_Pass) Then
-         Call DrvN0()
-      End If
+      If (.Not.Primitive_Pass) Call DrvN0()
 *                                                                      *
 ************************************************************************
 *                                                                      *

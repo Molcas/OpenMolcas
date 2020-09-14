@@ -28,6 +28,7 @@
 *              March 2000                                              *
 ************************************************************************
       use external_centers
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
 #include "itmax.fh"
@@ -35,7 +36,6 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
      &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),

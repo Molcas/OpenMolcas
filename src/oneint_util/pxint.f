@@ -24,6 +24,7 @@
 * Author: Roland Lindh, Dept. Chem. Phys., Lund University,            *
 *         June 2006                                                    *
 ************************************************************************
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
       External NAInt, MltInt, EFInt, CntInt
 #include "itmax.fh"

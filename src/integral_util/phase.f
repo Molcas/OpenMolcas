@@ -31,6 +31,7 @@
 ************************************************************************
       use Basis_Info
       use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
