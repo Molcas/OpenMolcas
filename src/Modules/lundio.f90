@@ -10,6 +10,12 @@
 !***********************************************************************
 Module LundIO
       Integer, Parameter:: nBuf=14336
-      Integer :: iBuf(nBuf-1), nUt, iDisk, lBuf, ip_Buf, Lu_28
-      Real*8 Buf(nBuf)
+      Type Buffer
+        Sequence
+        Real*8 Buf(nBuf)
+        Integer :: iBuf(nBuf-1)
+        Integer :: nUt
+      End Type Buffer
+      Type (Buffer) :: Buf
+      Integer :: iDisk, lBuf, Lu_28
 End Module LundIO

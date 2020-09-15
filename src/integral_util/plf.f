@@ -134,13 +134,13 @@
                                IntTot = IntTot + 1
 *
                                nUt=nUt + 1
-                               Buf(nUt) = AOInt(nijkl,i1,i2,i3,i4)
-                               iBuf(nUt) = llSOll + kkSOkk*2**8 +
+                               Buf%Buf(nUt) = AOInt(nijkl,i1,i2,i3,i4)
+                               Buf%iBuf(nUt) = llSOll + kkSOkk*2**8 +
      &                                     jjSOjj*2**16
-                               iBuf(nUt)=iOr(iShft(iiSOii,24),iBuf(nUt))
+                               Buf%iBuf(nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(nUt) )
                                If (nUt.eq.nBuf-1) Then
-                                  Call iDafile(Lu_28,1,iWork(ip_Buf),
-     &                                         lBuf,iDisk)
+                                  Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
                                   nUt=0
                                End If
 *                              XInt=AOInt(nijkl,i1,i2,i3,i4)

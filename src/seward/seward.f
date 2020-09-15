@@ -446,10 +446,9 @@ C     Call Seward_Banner()
 *
          Call Drv2El(Integral_WrOut,Zero)
 *
-         ip_Buf=ip_of_iWork_d(Buf(1))
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
+         Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
          nUt=-1
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
+         Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
          Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
