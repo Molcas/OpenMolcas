@@ -54,6 +54,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: lIrrep
+      use LundIO
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
@@ -66,7 +67,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "gateway.fh"
 #ifdef _FDE_

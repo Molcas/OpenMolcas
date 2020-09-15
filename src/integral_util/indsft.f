@@ -30,11 +30,11 @@
 *             April '90                                                *
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
+      use LundIO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)

@@ -27,6 +27,7 @@
       use vRys_RW
       use iSD_data
       use k2_arrays
+      use LundIO
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -34,7 +35,6 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
 #include "status.fh"
