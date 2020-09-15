@@ -35,7 +35,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
@@ -159,6 +158,5 @@
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit PLF','CHECK','REAL',iDum,iDum)
       Return
       End

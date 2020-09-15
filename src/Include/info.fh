@@ -135,8 +135,8 @@
      &          nShlls
       Integer   iSkip(0:7),iAngMx,nBas(0:7),MaxPrm(0:iTabMx),
      &          MaxBas(0:iTabMx),nBas_Aux(0:7),Max_Center,
-     &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,lwInt,
-     &          lwSyB,lwSqN,lwIntL,NotZer,nTtl, kCentr, iRelae_Info
+     &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,
+     &          NotZer,nTtl, kCentr, iRelae_Info
       Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
@@ -147,8 +147,7 @@
      &              nOrdEF, mCentr, nPrm,   m2Max,
      &              m2Tot,  IntTot, MemHid, nTtl, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
-     &              iSquar,  iWRopt, iSkip,  lwInt, lwSyB,  lwSqN,
-     &              lwIntL,  NotZer, iRelae_info, jMax,
+     &              iSquar,  iWRopt, iSkip, NotZer, iRelae_info, jMax,
      &              MolWgh, iOrdFm, iRI_Type,
      &              nBas_Frag,kCentr, Max_Center, Mx_AO,
      &              nCtrLD,iCtrLD, nPSOI,
