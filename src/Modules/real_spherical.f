@@ -16,12 +16,13 @@
 #include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
-     &          Sphere_Dmp, iSphCr
+     &          Sphere_Dmp, iSphCr, LblCBs, LblSBs
       Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
       Logical :: Condon_Shortley_phase_factor=.False.
+      Character(LEN=8), Allocatable :: LblCBs(:), LblSBs(:)
 *
 ***********************************************************************
 *
@@ -33,6 +34,8 @@
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       If (Allocated(iSphCr)) Call mma_deallocate(iSphCr)
+      If (Allocated(LblCBs)) Call mma_deallocate(LblCBs)
+      If (Allocated(LblSBs)) Call mma_deallocate(LblSBs)
       lmax_internal=-1
       End SubRoutine Sphere_Free
 *
@@ -67,10 +70,9 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "status.fh"
       Logical CSPF
 *     iAngMx is the largest ang mom in the current basis
-      iAngMx=Max(iAngMx,lMax)
+      iAngMx=Max(iAngMx,lMax,1)
 *     check if required ang mom is greater than hard-coded limit
       If (iAngMx.gt.iTabMx) Then
          Call WarningMessage(2,' Sphere: Increase iTabMx!')
@@ -101,6 +103,9 @@
 *     Gives info on basis function angular momenta
 *     n, l, ml or assigns it as a diffuse/polarising function with '*'
 *
+      MxFnc=(iAngMx+1)*(iAngMx+2)*(iAngMx+3)/6
+      Call mma_allocate(LblCBs,MxFnc,Label='LblCBs')
+      Call mma_allocate(LblSBs,MxFnc,Label='LblSBs')
       Call Make_Labels(LblCbs,LblSbs,MxFnc,iAngMx)
 *
 *     Allocate memory for transformation matrices
@@ -122,7 +127,6 @@
       Call Real_Sphere(ipSph,lMax,RSph,nSphr)
 *
 *     Set up the symmetry properties of the spherical gaussians
-*     We are not sure if this Condon and Shortley phase....
       iii = 0
       jjj = 0
       Do 50 n = 0, lMax

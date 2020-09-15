@@ -2885,12 +2885,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 *     Local Douglas-Kroll-Hess/X2C/BSS
 *
- 658  If (SymmSet.or.nIrrep.gt.1) Then
-         Call WarningMessage(2,
-     &      'Local approach is not yet implemented with SYMMETRY')
-         Call Quit_OnUserError()
-      End If
-      LDKroll=.True.
+ 658  LDKroll=.True.
 *     GWInput=.True.
       nCtrLD=0
       radiLD=5.5d0
@@ -4363,9 +4358,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
 ************************************************************************
 ************************************************************************
 *                                                                      *
@@ -4375,10 +4367,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       mCentr=0
       mCentr_Aux=0
       mCentr_Frag=0
-      nOper=0
-      If (nIrrep.eq.8) nOper=3
-      If (nIrrep.eq.4) nOper=2
-      If (nIrrep.eq.2) nOper=1
       MaxDCR = nIrrep
       Do iCnttp = 1, nCnttp
          nCnt = dbsc(iCnttp)%nCntr
@@ -4463,6 +4451,14 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Write (6,*) 'Set MxAtom to the value of mCentr.'
          Write (6,*) 'Recompile MOLCAS and try again!'
          Call Abend()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((SymmSet.or.nIrrep.gt.1).and.LDKroll) Then
+         Call WarningMessage(2,
+     &      'Local DKH approach is not yet implemented with SYMMETRY')
+         Call Quit_OnUserError()
       End If
 *                                                                      *
 ************************************************************************

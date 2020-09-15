@@ -120,8 +120,6 @@
 ************************************************************************
 *                                                                      *
 #include "Molcas.fh"
-*
-      Integer, Parameter :: MxFnc=(iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -217,13 +215,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80
       Character Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               LblCBs, LblSBs, Title, Align_Weights,
+     &               Title, Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************

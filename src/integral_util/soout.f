@@ -14,31 +14,24 @@
 #include "info.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
-      Call SOCtl_mod(ChOper,Label,Maxbfn+MaxBfn_Aux,0,0,Cnt_ico,
-     &               Phase_ico)
+      Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
 *
       Return
       End
 *
-      Subroutine SOCtl_mod(ChOper,Mamn,nMamn,nDkroll,nCall,Cnt_ico,
-     &                     Phase_ico)
+      Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl, iChBas
-      use Real_Spherical, only: iSphCr
+      use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
 #include "info.fh"
-
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "print.fh"
 *
-      Character ChOper(0:7)*3, ChTemp*8, Mamn(nMamn)*(LENIN8)
+      Character ChTemp*8, Mamn(nMamn)*(LENIN8)
       Logical kECP, TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
 *
@@ -121,10 +114,4 @@
  200  Continue
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_character(ChOper)
-         Call Unused_integer(nDkroll)
-         Call Unused_integer(nCall)
-      End If
       End
