@@ -193,12 +193,6 @@ C
 *
       Thrs=1.d-6
 *
-*-----CInfo
-*
-      Do i = 1, 10
-         Title(i)=' '
-      End Do
-*
 *-----PStat
 *
       r1=0.d0

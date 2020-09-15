@@ -43,8 +43,9 @@
 #include "print.fh"
 #include "gateway.fh"
 #include "localdf.fh"
-      Logical l_aCD_Thr, lOPTO
+      Logical l_aCD_Thr, lOPTO, Found
       Logical lNoPair, lPam2, lECP, lPP
+      Character(LEN=80) Title(10)
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -461,7 +462,10 @@
 *                                                                      *
  99   Continue
 *
-      If (nTtl.ne.0) Then
+      Call Qpg_cArray('SewardXTitle',Found,nTtl)
+      If (Found) Then
+         nTtl=nTtl/80
+         Call Get_cArray('SewardXTitle',Title(1),nTtl*80)
          If (iPrint.ge.6) Then
             Write (LuWr,*)
             Write (LuWr,'(15X,88A)') ('*',i=1,88)

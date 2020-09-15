@@ -128,6 +128,7 @@ cvv      Character*(*) Data(nData)
          RecLab( 24)='cDmp            '
          RecLab( 25)='dc: cDmp        '
          RecLab( 26)='SymmetryCInfo   '
+         RecLab( 27)='SewardXTitle    '
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)

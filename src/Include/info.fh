@@ -215,12 +215,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Character Title(10)*80
       Character Align_Weights*512
       Integer cxStrt,cxEnd
 *
       Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               Title, Align_Weights,
+     &               Align_Weights,
      &               cxEnd    !  Put never ever anything after cxEnd!!!
 *                                                                      *
 ************************************************************************
