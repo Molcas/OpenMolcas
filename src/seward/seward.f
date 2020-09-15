@@ -441,7 +441,7 @@ C     Call Seward_Banner()
          Lu_28=isfreeunit(Lu_28)
          Call DaName_MF(Lu_28,'BASINT')
          iDisk=0
-         lBuf=iiLoc(nUt)-idLoc(Buf)
+         lBuf=iiLoc(Buf%nUt)-idLoc(Buf%Buf(1))
          lBuf=(lBuf+nByte)/nByte
 *
          Call Drv2El(Integral_WrOut,Zero)
