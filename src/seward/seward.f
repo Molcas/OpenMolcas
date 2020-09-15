@@ -73,6 +73,7 @@
 #include "embpotdata.fh"
 #endif
       Integer iix(2), nChoV(8)
+      Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
 C-SVC: identify runfile with a fingerprint
@@ -85,6 +86,7 @@ C-SVC: identify runfile with a fingerprint
 C     Call Seward_Banner()
       lOPTO = .False.
       nByte = iiLoc(iix(2)) - iiLoc(iix(1))
+      nByte_r = idloc(rrx(2))-idloc(rrx(1))
       Call CWTime(TCpu1,TWall1)
 *
 *     Prologue
@@ -441,14 +443,14 @@ C     Call Seward_Banner()
          Lu_28=isfreeunit(Lu_28)
          Call DaName_MF(Lu_28,'BASINT')
          iDisk=0
-         lBuf=iiLoc(Buf%nUt)-idLoc(Buf%Buf(1))
-         lBuf=(lBuf+nByte)/nByte
+         lBuf=idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
+         lBuf=(lBuf+nByte_r)/nByte_r - 1
 *
          Call Drv2El(Integral_WrOut,Zero)
 *
-         Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
-         nUt=-1
-         Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+         Buf%nUt=-1
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
          Write (6,'(I10,A)') IntTot,' Integrals written on Disk'

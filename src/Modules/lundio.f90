@@ -15,7 +15,8 @@ Module LundIO
         Real*8 Buf(nBuf)
         Integer :: iBuf(nBuf-1)
         Integer :: nUt
+        Real*8  :: r_End
       End Type Buffer
-      Type (Buffer) :: Buf
+      Type (Buffer):: Buf
       Integer :: iDisk, lBuf, Lu_28
 End Module LundIO

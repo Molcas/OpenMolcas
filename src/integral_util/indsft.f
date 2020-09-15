@@ -207,7 +207,8 @@
                                Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
      &                                            Buf%iBuf(Buf%nUt) )
                                If (Buf%nUt.eq.nBuf-1) Then
-                                  Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
+                                  Call dDafile(Lu_28,1,Buf%Buf,lBuf,
+     &                                         iDisk)
                                   Buf%nUt=0
                                End If
 *                              Sum = Sum + SOInt(nijkl,MemSO2)
