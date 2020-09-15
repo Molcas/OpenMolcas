@@ -208,16 +208,3 @@
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               E1, E2, radiLD, SadStep, Shake, KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Definitions and common for CHARACTER                             *
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Integer cxStrt,cxEnd
-*
-      Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
-     &               cxEnd    !  Put never ever anything after cxEnd!!!
-*                                                                      *
-************************************************************************

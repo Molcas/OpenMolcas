@@ -41,16 +41,16 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Return
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Use Iso_C_Binding
-      Integer, Target :: cxStrt,ixStrt,lxStrt
+      Integer, Target :: ixStrt,lxStrt
       Real*8, Target :: rxStrt
-      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
+      Integer, Pointer :: p_ix(:),p_lx(:)
       Real*8, Pointer :: p_rx(:)
 *
 *     Load the common INFO
@@ -77,14 +77,7 @@
       Call Get_dArray('SewRInfo',p_rx,Len)
       CLightAU=CLight_Info
 *
-*     Load the common CINFO
-*
-      Len = icLoc(cxEnd)-icLoc(cxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
-      Call Get_iArray('SewCInfo',p_cx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx,p_cx)
+      Nullify(p_ix,p_lx,p_rx)
 *
       Call Symmetry_Info_Get()
 *
