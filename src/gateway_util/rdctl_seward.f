@@ -60,6 +60,7 @@
       Character(LEN=72):: Header(2)=['','']
       Character(LEN=80):: Title(10)=['','','','','','','','','','']
       Character(LEN=14):: Vrsn='Gateway/Seward'
+      Character(LEN=512):: Align_Weights='MASS'
       Character*180 Line
       common/cgetlc/ Line
       Character*180 Get_Ln
@@ -110,7 +111,7 @@
       Logical EFgiven
       Logical Invert
       Real*8 HypParam(3), RandVect(3)
-      Logical Vlct_, nmwarn
+      Logical Vlct_, nmwarn, FOUND
 *
       Logical DoEMPC, Basis_test, lECP, lPP
       Common /EmbPCharg/ DoEMPC
@@ -171,6 +172,11 @@
          BasLib=DefNm
       End If
       Write_BasLib=.False.
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Qpg_cArray('Align_Weights',Found,lAW)
+      If (Found) Call Get_cArray('Align_Weights',Align_Weights,512)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -3861,6 +3867,7 @@ c      endif
 ************************************************************************
 *                                                                      *
       Call Put_lScalar('CSPF',CSPF)
+      Call Put_cArray('Align_Weights',Align_Weights,512)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -143,7 +143,6 @@ C
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
-      Align_Weights='MASS'
       Do_Numerical_Gradients=.False.
       VarT=.False.
       VarR=.False.
