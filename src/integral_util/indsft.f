@@ -200,15 +200,15 @@
                                   llSOll = lSOll
                                End If
                                IntTot = IntTot + 1
-                               nUt=nUt + 1
-                               Buf%Buf(nUt) = SOInt(nijkl,MemSO2)
-                               Buf%iBuf(nUt) = llSOll + kkSOkk*2**8 +
-     &                                     jjSOjj*2**16
-                               Buf%iBuf(nUt)=iOr( iShft(iiSOii,24),
-     &                                            Buf%iBuf(nUt) )
+                               Buf%nUt=Buf%nUt + 1
+                               Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
+                               Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8
+     &                                           +  jjSOjj*2**16
+                               Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(Buf%nUt) )
                                If (nUt.eq.nBuf-1) Then
                                   Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
-                                  nUt=0
+                                  Buf%nUt=0
                                End If
 *                              Sum = Sum + SOInt(nijkl,MemSO2)
 *                              SumAbs = SumAbs+Abs(SOInt(nijkl,MemSO2))

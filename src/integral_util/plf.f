@@ -133,15 +133,16 @@
                                End If
                                IntTot = IntTot + 1
 *
-                               nUt=nUt + 1
-                               Buf%Buf(nUt) = AOInt(nijkl,i1,i2,i3,i4)
-                               Buf%iBuf(nUt) = llSOll + kkSOkk*2**8 +
-     &                                     jjSOjj*2**16
-                               Buf%iBuf(nUt)=iOr( iShft(iiSOii,24),
-     &                                            Buf%iBuf(nUt) )
+                               Buf%nUt=Buf%nUt + 1
+                               Buf%Buf(Buf%nUt) =
+     &                             AOInt(nijkl,i1,i2,i3,i4)
+                               Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8
+     &                                           + jjSOjj*2**16
+                               Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(Buf%nUt) )
                                If (nUt.eq.nBuf-1) Then
                                   Call iDafile(Lu_28,1,Buf,lBuf,iDisk)
-                                  nUt=0
+                                  Buf%nUt=0
                                End If
 *                              XInt=AOInt(nijkl,i1,i2,i3,i4)
 *                              Sum = Sum + XInt
