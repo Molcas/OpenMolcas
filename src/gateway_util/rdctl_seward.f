@@ -68,7 +68,7 @@
       Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
       Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
-     &        iGeoInfo(2), iOpt_XYZ, RC, iOper(0:7)
+     &        iGeoInfo(2), iOpt_XYZ, RC
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
@@ -4348,44 +4348,14 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*     Temporary fix, retrieve iOper and nIrrep from Symmetry_Info
+*     Set up Symmetry_Info
 *
-      If (Run_Mode.eq.S_Mode) Then
-        Call Symmetry_Info_Back(nIrrep,iOper)
-      Else
-         nIrrep = 2 ** nOper
-         iOper(0) = 0
-         Do i = 1, nOper
-            iOper(i) = 0
-            Do j = 1, 3
-             If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
-             If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
-             If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
-            End Do
-            If (iOper(i).eq.0) Then
-               Call WarningMessage(2,
-     &                  'RdCtl: Illegal symmetry operator!')
-               Write (LuWr,*) 'Oper=',Oper(i)
-               Write (LuWr,*)
-               Call Abend()
-            End If
-         End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Generate all operations of the group
-*
-         If (nOper.ge.2) Then
-            iOper(4) = iOper(3)
-            iOper(3) = iEor(iOper(1),iOper(2))
-         End If
-         If (nOper.eq.3) Then
-            iOper(5) = iEor(iOper(1),iOper(4))
-            iOper(6) = iEor(iOper(2),iOper(4))
-            iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
-         End If
-      End If
-*
+      Call Symmetry_Info_Setup(nOper,Oper,Max(iAngMx,3))
+
+* temporary back port while nIrrep is still available in info.fh
+
+      Call Symmetry_Info_Back(nIrrep)
+
       If (lSkip) then
          Call Put_Ln(ChSkip)
          Call Get_I(1,iSkip,nIrrep)
@@ -4394,9 +4364,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Set up Symmetry_Info
-*
-      Call Symmetry_Info_Setup(nIrrep,iOper,Max(iAngMx,3))
 *                                                                      *
 ************************************************************************
 ************************************************************************

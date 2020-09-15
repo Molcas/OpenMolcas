@@ -66,15 +66,13 @@ Contains
 !***********************************************************************
 !***********************************************************************
 !
-Subroutine Symmetry_Info_Back(mIrrep,jOper)
+! temporary routine!
+Subroutine Symmetry_Info_Back(mIrrep)
 Integer:: mIrrep
-Integer:: jOper(0:7)
 mIrrep=nIrrep
-jOper(:)=iOper(0:nIrrep-1)
 #ifdef _DEBUG_
 Write (6,*) 'Call Symmetry_Info_Back'
 Write (6,'(A,I4)') 'nIrrep=',nIrrep
-Write (6,'(A,8I4)') 'iOper:=',iOper(0:nIrrep-1)
 #endif
 End Subroutine Symmetry_Info_Back
 !
@@ -250,13 +248,46 @@ End Subroutine Symmetry_Info_Free
 !***********************************************************************
 !***********************************************************************
 !
-Subroutine Symmetry_Info_Setup(mIrrep,jOper,iAng)
+Subroutine Symmetry_Info_Setup(nOper,Oper,iAng)
 Implicit None
-Integer :: mIrrep, jOper(0:nIrrep-1), iAng
+Integer :: nOper, iAng, i, j
+Character(LEN=3) :: Oper(3)
 
-nIrrep=mIrrep
+If (Allocated(iChBas)) Return   ! Return if already initiated.
+
+nIrrep = 2 ** nOper
 Call Put_iScalar('NSYM',nIrrep)
-iOper(0:nIrrep-1)=jOper(0:nIrrep-1)
+
+iOper(0) = 0
+Do i = 1, nOper
+   iOper(i) = 0
+   Do j = 1, 3
+    If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
+    If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
+    If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
+   End Do
+   If (iOper(i).eq.0) Then
+      Call WarningMessage(2,'RdCtl: Illegal symmetry operator!')
+      Write (6,*) 'Oper=',Oper(i)
+      Write (6,*)
+      Call Abend()
+   End If
+End Do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!  Generate all operations of the group
+!
+If (nOper.ge.2) Then
+   iOper(4) = iOper(3)
+   iOper(3) = iEor(iOper(1),iOper(2))
+End If
+If (nOper.eq.3) Then
+   iOper(5) = iEor(iOper(1),iOper(4))
+   iOper(6) = iEor(iOper(2),iOper(4))
+   iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
+End If
+
 Call Put_iArray('Symmetry operations',iOper,nIrrep)
 
 !     Generate the Character table for all Irreps, iChTbl
