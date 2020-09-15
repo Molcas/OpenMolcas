@@ -4405,7 +4405,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and only one operation. Hence, the operations themselves can
 *     be used to present the character of the Irreps.
 *
-      Call ChTab(iOper,nIrrep,Max(iAngMx,1))
+      Call ChTab(iOper,nIrrep,Max(iAngMx+1,1))
 *                                                                      *
 ************************************************************************
 ************************************************************************
