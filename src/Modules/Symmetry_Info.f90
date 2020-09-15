@@ -225,7 +225,7 @@ Do i = 0, 7
    End Do
    k=k+80
 End Do
-Call put_cArray('SymmetryCInfo',cDmp,lcDmp)
+Call put_cArray('SymmetryCInfo',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
 End Subroutine Symmetry_Info_Dmp
@@ -276,7 +276,7 @@ Call mma_deallocate(iDmp)
 
 lcDmp = 3*8 + 80*8
 Call mma_allocate(cDmp,lcDmp,Label='cDmp')
-Call get_carray('SymmetryCInfo',cDmp,lcDmp)
+Call get_carray('SymmetryCInfo',cDmp(1),lcDmp)
 k = 0
 Do i = 0, 7
    Do j = 1, 3
