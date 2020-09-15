@@ -14,7 +14,7 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, &
+Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, SymLab, &
           Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free, &
           Symmetry_Info_Setup
 
@@ -34,6 +34,7 @@ Integer:: MxFnc
 Integer, Allocatable:: iChBas(:)
 Character(LEN=3) :: lIrrep(0:7)=['','','','','','','','']
 Character(LEN=80) :: lBsFnc(0:7)=['','','','','','','','']
+Character(LEN=3) SymLab
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -131,12 +132,13 @@ Write (6,*) 'lBsFnc:'
 Do i = 0, nIrrep-1
    Write (6,'(A)') lBsFnc(i)
 End Do
+Write (6,'(2A)') 'SymLab:',SymLab
 #endif
 
 Call Put_iArray('Symmetry Info',iDmp,liDmp)
 Call mma_deallocate(iDmp)
 
-lcDmp = 3*8 + 80*8
+lcDmp = 3*8 + 80*8 + 3
 Call mma_allocate(cDmp,lcDmp,Label='cDmp')
 k = 0
 Do i = 0, 7
@@ -151,6 +153,10 @@ Do i = 0, 7
    End Do
    k=k+80
 End Do
+Do i = 1, 3
+   cDmp(i+k)=SymLab(i:i)
+End Do
+k=k+3
 Call put_cArray('SymmetryCInfo',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
@@ -200,7 +206,7 @@ iChBas(1:MxFnc) = iDmp(i+1:i+MxFnc)
 i=i+MxFnc
 Call mma_deallocate(iDmp)
 
-lcDmp = 3*8 + 80*8
+lcDmp = 3*8 + 80*8 + 3
 Call mma_allocate(cDmp,lcDmp,Label='cDmp')
 Call get_carray('SymmetryCInfo',cDmp(1),lcDmp)
 k = 0
@@ -216,6 +222,9 @@ Do i = 0, 7
    End Do
    k=k+80
 End Do
+Do i = 1, 3
+   SymLab(i:i)=cDmp(i+k)
+End Do
 Call mma_deallocate(cDmp)
 #ifdef _DEBUG_
 Write (6,*) 'Symmetry_Info_Get'
@@ -223,6 +232,7 @@ Write (6,*) 'liDmp=',liDmp
 Write (6,*) 'MxFnc=',MxFnc
 Write (6,*) 'nIrrep=',nIrrep
 Write (6,*)
+Write (6,'(2A)') 'SymLab:',SymLab
 Write (6,*) 'iOper:'
 Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
 Write (6,*)
@@ -400,8 +410,6 @@ Integer iOper(nIrrep), iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
 Integer iTest(8)
 Integer :: iSigma=1
 Character(Len=80) Tmp
-Character(LEN=3) SymLab*3
-Common /SymLab/SymLab
 Logical Inv, Rot
 Character(LEN=6):: xyz(0:7)=['      ','x     ','y     ','xy, Rz', 'z     ','xz, Ry','yz, Rx','I     ']
 Integer i, i1, i2, ia, ib, iCh, iFnc, iIrrep, iRot, iSub, iSymX, iSymY, iSymZ, ix, iy, iz, jIrrep

@@ -24,7 +24,7 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc
+      use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc, SymLab
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -32,8 +32,6 @@
 #include "print.fh"
 #include "gateway.fh"
       Character SymOpr(0:7)*29, Format*80,  ChSymO(0:7)*5
-      Character SymLab*3
-      Common /SymLab/SymLab
       Data SymOpr/' Unit operation              ',
      &            ' Reflection in the yz-plane  ',
      &            ' Reflection in the xz-plane  ',
