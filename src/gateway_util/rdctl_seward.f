@@ -20,7 +20,7 @@
       use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
-      use Symmetry_Info, only: Symmetry_Info_Back
+      use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -4349,6 +4349,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 *                                                                      *
 *     Temporary fix, retrieve iOper and nIrrep from Symmetry_Info
+*
       If (Run_Mode.eq.S_Mode) Then
         Call Symmetry_Info_Back(nIrrep,iOper)
       Else
@@ -4393,19 +4394,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Generate the Character table for all Irreps
+*     Set up Symmetry_Info
 *
-*     All Irreps are one dimensional, i.e. the Character for the
-*     unit operator is 1 in all irreps.
-*     The totally symmetric representation will have the character
-*     of 1 for any given operation
-*     Now, the Irreps are due to classes of operations and will
-*     present the character of this class. In case of Abelian groups
-*     or other one dimensional groups the classes will have one
-*     and only one operation. Hence, the operations themselves can
-*     be used to present the character of the Irreps.
-*
-      Call ChTab(iOper,nIrrep,Max(iAngMx+1,1))
+      Call Symmetry_Info_Setup(nIrrep,iOper,Max(iAngMx,3))
 *                                                                      *
 ************************************************************************
 ************************************************************************

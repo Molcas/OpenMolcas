@@ -15,7 +15,8 @@ Module Symmetry_Info
 Implicit None
 Private
 Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, &
-          Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free
+          Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free, &
+          Symmetry_Info_Setup
 
 #include "stdalloc.fh"
 Integer:: nIrrep=1
@@ -76,79 +77,6 @@ Write (6,'(A,I4)') 'nIrrep=',nIrrep
 Write (6,'(A,8I4)') 'iOper:=',iOper(0:nIrrep-1)
 #endif
 End Subroutine Symmetry_Info_Back
-!
-!***********************************************************************
-!***********************************************************************
-!
-Subroutine Symmetry_Info_Set(mIrrep,jOper,jChTab,iAng)
-Integer:: mIrrep
-Integer:: jOper(0:7)
-Integer:: jChTab(0:7,0:7)
-Integer:: iIrrep, jIrrep
-Integer:: iSymX,iSymY,iSymZ, i
-Integer:: iAng, lxyz, ixyz, ix, jx, iyMax, iy, jy, iz, jz, jxyz
-
-If (allocated(iChBas)) Return
-nIrrep=mIrrep
-iOper(:)=jOper(:)
-iChTbl(:,:)=jChTab(:,:)
-
-! Setup characteristics for cartesian basis functions.
-! Observe that this is affected by the defined generators.
-! In the array we will set the bit corresponding to a symop
-! if that symop will alter the sign of the basis function.
-
-iSymX = 0
-iSymY = 0
-iSymZ = 0
-Do i = 0, nIrrep-1
-   If (iAnd(iOper(i),1).ne.0) iSymX = 1
-   If (iAnd(iOper(i),2).ne.0) iSymY = 2
-   If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-End Do
-iChCar(1) = iSymX
-iChCar(2) = iSymY
-iChCar(3) = iSymZ
-
-MxFnc=(iAng+1)*(iAng+2)*(iAng+3)/6
-Call mma_allocate(iChBas,MxFnc,Label='iChBas')
-
-lxyz = 0
-Do ixyz = 0, iAng
-   Do ix = ixyz, 0, -1
-      jx = Mod(ix,2)
-      iyMax=ixyz-ix
-      Do iy = iyMax, 0 , -1
-         jy = Mod(iy,2)
-         lxyz=lxyz+1
-         iz=ixyz-ix-iy
-         jz = Mod(iz,2)
-         jxyz = jx * iSymX + jy * iSymY + jz * iSymZ
-         iChBas(lxyz) = jxyz
-      End Do
-   End Do
-End Do
-
-Do iIrrep=0,nIrrep-2
-   Do jIrrep=iIrrep+1,nIrrep-1
-      If (iOper(iIrrep).eq.iOper(jIrrep)) Then
-         Call WarningMessage(2,   &
-              ' The generators of the point group are over defined, correct input!;' //' Abend: correct symmetry specifications!')
-               Call Quit_OnUserError()
-      End If
-   End Do
-End Do
-#ifdef _DEBUG_
-Write (6,*) 'Symmetry_Info_Set:'
-Write (6,*) 'MxFnc=',MxFnc
-Write (6,*) 'nIrrep=',nIrrep
-Write (6,'(A,8I4)') 'iOper:',iOper(0:nIrrep-1)
-Write (6,*) 'iChTbl:'
-Do i = 0, nIrrep-1
-   Write (6,'(8I4)') iChTbl(0:nIrrep-1,i)
-End Do
-#endif
-End Subroutine Symmetry_Info_Set
 !
 !***********************************************************************
 !***********************************************************************
@@ -318,6 +246,373 @@ If (.not.Allocated(iChBas)) Return
 Call mma_deallocate(iChBas)
 MxFnc=0
 End Subroutine Symmetry_Info_Free
+!
+!***********************************************************************
+!***********************************************************************
+!
+Subroutine Symmetry_Info_Setup(mIrrep,jOper,iAng)
+Implicit None
+Integer :: mIrrep, jOper(0:nIrrep-1), iAng
+
+nIrrep=mIrrep
+Call Put_iScalar('NSYM',nIrrep)
+iOper(0:nIrrep-1)=jOper(0:nIrrep-1)
+Call Put_iArray('Symmetry operations',iOper,nIrrep)
+
+!     Generate the Character table for all Irreps, iChTbl
+
+!     All Irreps are one dimensional, i.e. the Character for the
+!     unit operator is 1 in all irreps.
+!     The totally symmetric representation will have the character
+!     of 1 for any given operation
+!     Now, the Irreps are due to classes of operations and will
+!     present the character of this class. In case of Abelian groups
+!     or other one dimensional groups the classes will have one
+!     and only one operation. Hence, the operations themselves can
+!     be used to present the character of the Irreps.
+
+! Generate iChTbl, lIrrep, lBsFnc (iSigma)
+Call ChTab(iOper,nIrrep,iChTbl)
+
+! Generate iChCar, iChBas, MxFnc
+Call Symmetry_Info_Set(iAng)
+
+End Subroutine Symmetry_Info_Setup
+!
+!***********************************************************************
+!***********************************************************************
+!
+Subroutine Symmetry_Info_Set(iAng)
+Integer:: iIrrep, jIrrep
+Integer:: iSymX,iSymY,iSymZ, i
+Integer:: iAng, lxyz, ixyz, ix, jx, iyMax, iy, jy, iz, jz, jxyz
+
+If (allocated(iChBas)) Return
+
+! Setup characteristics for cartesian basis functions.
+! Observe that this is affected by the defined generators.
+! In the array we will set the bit corresponding to a symop
+! if that symop will alter the sign of the basis function.
+
+iSymX = 0
+iSymY = 0
+iSymZ = 0
+Do i = 0, nIrrep-1
+   If (iAnd(iOper(i),1).ne.0) iSymX = 1
+   If (iAnd(iOper(i),2).ne.0) iSymY = 2
+   If (iAnd(iOper(i),4).ne.0) iSymZ = 4
+End Do
+iChCar(1) = iSymX
+iChCar(2) = iSymY
+iChCar(3) = iSymZ
+
+MxFnc=(iAng+1)*(iAng+2)*(iAng+3)/6
+Call mma_allocate(iChBas,MxFnc,Label='iChBas')
+#ifdef _DEBUG_
+Write (6,*) 'Symmetry_Info_Set:'
+Write (6,*) 'iAng,MxFnc=',iAng,MxFnc
+#endif
+
+lxyz = 0
+Do ixyz = 0, iAng
+   Do ix = ixyz, 0, -1
+      jx = Mod(ix,2)
+      iyMax=ixyz-ix
+      Do iy = iyMax, 0 , -1
+         jy = Mod(iy,2)
+         lxyz=lxyz+1
+         iz=ixyz-ix-iy
+         jz = Mod(iz,2)
+         jxyz = jx * iSymX + jy * iSymY + jz * iSymZ
+         iChBas(lxyz) = jxyz
+      End Do
+   End Do
+End Do
+
+Do iIrrep=0,nIrrep-2
+   Do jIrrep=iIrrep+1,nIrrep-1
+      If (iOper(iIrrep).eq.iOper(jIrrep)) Then
+         Call WarningMessage(2,   &
+              ' The generators of the point group are over defined, correct input!;' //' Abend: correct symmetry specifications!')
+               Call Quit_OnUserError()
+      End If
+   End Do
+End Do
+#ifdef _DEBUG_
+Write (6,*) 'Symmetry_Info_Set:'
+Write (6,*) 'MxFnc=',MxFnc
+Write (6,*) 'nIrrep=',nIrrep
+Write (6,'(A,8I4)') 'iOper:',iOper(0:nIrrep-1)
+Write (6,*) 'iChTbl:'
+Do i = 0, nIrrep-1
+   Write (6,'(8I4)') iChTbl(0:nIrrep-1,i)
+End Do
+#endif
+End Subroutine Symmetry_Info_Set
+!
+!***********************************************************************
+!***********************************************************************
+!
+SubRoutine ChTab(iOper,nIrrep,iChTbl)
+!***********************************************************************
+!                                                                      *
+! Object: to generate the character table of a point group within      *
+!         D2h.                                                         *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             September '91                                            *
+!***********************************************************************
+Implicit None
+Integer nIrrep
+Integer iOper(nIrrep), iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
+Integer iTest(8)
+Integer :: iSigma=1
+Character(Len=80) Tmp
+Character(LEN=3) SymLab*3
+Common /SymLab/SymLab
+Logical Inv, Rot
+Character(LEN=6):: xyz(0:7)=['      ','x     ','y     ','xy, Rz', 'z     ','xz, Ry','yz, Rx','I     ']
+Integer i, i1, i2, ia, ib, iCh, iFnc, iIrrep, iRot, iSub, iSymX, iSymY, iSymZ, ix, iy, iz, jIrrep
+Integer j, jx, jy, jz, Lenlbs, LenlIrr, LenTmp
+Integer iclast
+External iclast
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+If (nIrrep.eq.1) Then
+   SymLab='C1 '
+   iSigma=1
+Else If (nIrrep.eq.2) Then
+   If (iOper(2).eq.7) Then
+      SymLab='Ci '
+      iSigma=1
+   Else If (iOper(2).eq.1.or.iOper(2).eq.2.or.iOper(2).eq.4) Then
+      SymLab='Cs'
+      iSigma=1
+   Else
+      SymLab='C2'
+      iSigma=2
+   End If
+Else If (nIrrep.eq.4) Then
+   If (iOper(2).eq.7.or.iOper(3).eq.7.or.iOper(4).eq.7) Then
+      SymLab='C2h'
+      iSigma=2
+   Else
+      Rot = .True.
+      Do i = 1, nIrrep
+         If (iOper(i).eq.1.or.iOper(i).eq.2.or.iOper(i).eq.4) Rot = .False.
+      End Do
+      If (Rot) Then
+         SymLab='D2 '
+         iSigma=2
+      Else
+         SymLab='C2v'
+         iSigma=2
+      End If
+   End If
+Else If (nIrrep.eq.8) Then
+   SymLab='D2h'
+   iSigma=2
+Else
+   Call WarningMessage(2,'ChTab: Illegal value of nIrrep')
+   Write (6,*) 'nIrrep=',nIrrep
+   Call Abend()
+End If
+ichTbl(:,:)=0
+!
+!     Go through the functions x, y, and z, and the dyadic functions.
+!
+iSymX = 0
+iSymY = 0
+iSymZ = 0
+Do i = 1, nIrrep
+   If (iAnd(iOper(i),1).ne.0) iSymX = 1
+   If (iAnd(iOper(i),2).ne.0) iSymY = 2
+   If (iAnd(iOper(i),4).ne.0) iSymZ = 4
+End Do
+!
+!-----Loop over basis functions (a' la Malmqvist)
+!
+lBsFnc(0:nIrrep-1)='' ! For this to work we need a clean slate.
+Do iFnc = 0, 7
+   Tmp=xyz(iFnc)
+
+!  Generate a row in the character table of this function
+
+   ix = iAnd(iFnc,iSymX)
+   iy = iAnd(iFnc,iSymY)/2
+   iz = iAnd(iFnc,iSymZ)/4
+!--Loop over all operators
+   Do i = 1, nIrrep
+      jx = iAnd(iOper(i),iSymX)
+      jy = iAnd(iOper(i),iSymY)/2
+      jz = iAnd(iOper(i),iSymZ)/4
+      iCh = 1
+      If (ix.ne.0 .and. jx.ne.0) iCh = -iCh
+      If (iy.ne.0 .and. jy.ne.0) iCh = -iCh
+      If (iz.ne.0 .and. jz.ne.0) iCh = -iCh
+      iTest(i) = iCh
+   End Do
+!
+!--------Compute place of Irrep
+!
+   If (nIrrep.eq.1) Then
+      jIrrep=1
+   Else If (nIrrep.eq.2) Then
+      jIrrep=1+(1-iTest(2))/2
+   Else If (nIrrep.eq.4) Then
+      jIrrep=1+( (1-iTest(2))+2*(1-iTest(3)) )/2
+   Else If (nIrrep.eq.8) Then
+      jIrrep=1+( (1-iTest(2))+2*(1-iTest(3))+4*(1-iTest(5)) )/2
+   Else
+      jIrrep=-1
+      Call WarningMessage(2,'ChTab: Illegal nIrrep value!')
+      Write (6,*) 'nIrrep=',nIrrep
+      Call Abend()
+   End If
+   If (lBsFnc(jIrrep-1)(1:1).eq.' ') Then
+      lBsFnc(jIrrep-1) = Tmp
+      Call ICopy(nIrrep,iTest,1,iChTbl(jIrrep,1),8)
+   Else
+      LenlBs=Len(lBsFnc(jIrrep-1))
+      LenTmp=Len(Tmp)
+      i1 = iCLast(lBsFnc(jIrrep-1),LenlBs)
+      i2 = iCLast(Tmp,LenTmp)
+      lBsFnc(jIrrep-1) = lBsFnc(jIrrep-1)(1:i1)//', '//Tmp(1:i2)
+   End If
+End Do
+!
+!     Set up some Mulliken symbols for the irreps
+!
+Do iIrrep = 1, nIrrep
+   lIrrep(iIrrep-1)='a'
+   Do i = 1, nIrrep
+
+!     If the character of an rotation in an irreps is -1 then
+!     the irreps is assigned the character B, otherwise A.
+
+      If ((iOper(i).eq.3 .or. iOper(i).eq.5 .or. iOper(i).eq.6) .and. iChTbl(iIrrep,i).eq.-1) lIrrep(iIrrep-1)='b'
+
+   End Do
+End Do
+iSub = 0
+
+!  Subscript according to C2 operations
+
+Rot = .False.
+Do i = 1, nIrrep
+   If (iOper(i).eq.3 .or. iOper(i).eq.5 .or. iOper(i).eq.6) Rot = .True.
+End Do
+If (Rot.and.SymLab.ne.'C2v') Then
+   iSub = iSub + 1
+
+!  Find the number of A's and B's
+
+   ia = 0
+   ib = 0
+   Do i = 1, nIrrep
+      If (lIrrep(i-1)(1:1).eq.'a') ia = ia + 1
+      If (lIrrep(i-1)(1:1).eq.'b') ib = ib + 1
+   End Do
+   If (nIrrep.eq.8) Then
+      ia = ia/2
+      ib = ib/2
+   End If
+   If (SymLab.eq.'C2h') Then
+      ia = ia/2
+      ib = ib/2
+   End If
+
+!  Find the rotations
+
+   iRot = 0
+   Do i = 1, nIrrep
+      If ( iOper(i).eq.3.or.iOper(i).eq.5.or.iOper(i).eq.6) Then
+         iRot = iRot + 1
+         Write (Tmp,'(I1)') iRot
+         If (ia.gt.1) Then
+            Do j = 1, nIrrep
+               If (lIrrep(j-1)(1:1).eq.'a'.and.iChTbl(j,i).eq.1) lIrrep(j-1)=lIrrep(j-1)(1:1)//Tmp(1:1)
+            End Do
+         End If
+         If (ib.gt.1) Then
+            Do j = 1, nIrrep
+               If (lIrrep(j-1)(1:1).eq.'b'.and.iChTbl(j,i).eq.1) lIrrep(j-1)=lIrrep(j-1)(1:1)//Tmp(1:1)
+            End Do
+         End If
+      End If
+   End Do
+Else If (Rot.and.SymLab.eq.'C2v') Then
+
+!  Find the Rotation
+
+   iRot = -1
+   Do i = 1, nIrrep
+      If (iOper(i).eq.3.or.iOper(i).eq.5.or.iOper(i).eq.6) iRot = iOper(i)
+   End Do
+
+!  Find the first vertical mirror plane to this axis
+
+   Do i = 1, nIrrep
+      If (iOper(i).ne.3.and.iOper(i).ne.5.and.iOper(i).ne.6 .and.iOper(i).ne.7.and.iAnd(iOper(i),iRot).ne.1) iRot = i
+   End Do
+   Do i = 1, nIrrep
+      If (iChTbl(i,iRot).eq.1) Then
+         j = 1
+      Else
+         j = 2
+      End If
+      Write (Tmp,'(I1)') j
+      lIrrep(i-1)=lIrrep(i-1)(1:1)//Tmp(1:1)
+   End Do
+End If
+
+!  Subscript according to inversion if present
+
+Inv=.False.
+Do i = 1, nIrrep
+   Inv = iOper(i).eq.7 .or. Inv
+End Do
+If (Inv) Then
+   iSub = iSub + 1
+
+!- Loop over each Irrep
+
+   Do iIrrep = 1, nIrrep
+      LenlIrr=Len(lIrrep(iIrrep-1))
+      i1 = 1 + iCLast(lIrrep(iIrrep-1),LenlIrr)
+
+!---- Loop over operators
+
+      Do i = 1, nIrrep
+         If (iOper(i).eq.7) Then
+            If (iChTbl(iIrrep,i).eq.1) Then
+               lIrrep(iIrrep-1)(i1:i1)='g'
+            Else If (iChTbl(iIrrep,i).eq.-1) Then
+                lIrrep(iIrrep-1)(i1:i1)='u'
+            End If
+         End If
+      End Do
+   End Do
+End If
+
+!  Fix labels for Cs
+
+If (SymLab(1:2).eq.'Cs') Then
+   lIrrep(0) = 'a'''
+   lIrrep(1) = 'a"'
+End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Call Put_iScalar('Rotational Symmetry Number',iSigma)
+Call Put_cArray('Irreps',lIrrep(0),24)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Return
+End Subroutine ChTab
 !
 !***********************************************************************
 !***********************************************************************
