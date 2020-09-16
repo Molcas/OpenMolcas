@@ -20,7 +20,7 @@
       Logical IfHss(0:1,0:2,0:1,0:2)
       Integer IndHss(0:1,0:2,0:1,0:2,0:nSym-1)
       Integer nSym
-      Logical Ifgrd(3,2)
+      Logical Ifgrd(0:2,0:1)
       Integer indgrd(0:2,0:1,0:nSym-1)
       Real*8 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
       Integer mdc, ndc, nOp(2), lOper(nComp)
