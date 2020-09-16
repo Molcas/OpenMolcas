@@ -156,7 +156,7 @@ C Symmetry adaption:
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

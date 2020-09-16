@@ -38,6 +38,7 @@
       Real*8 A(3), RB(3)
       Real*8 Array(nZeta*nArr)
       Integer nArr
+      Integer nCOmp
       Real*8 Ccoor(3,nComp)
       Integer nOrdOp
       Integer lOper(nComp), iChO(nComp)

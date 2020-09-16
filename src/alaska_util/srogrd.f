@@ -102,7 +102,7 @@
          Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
       End If
 *
-      nRys=mHer
+      nRys=nHer
 *
       nDAO= nElem(la)*nElem(lb)
       iIrrep = 0
@@ -573,7 +573,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
-         Call Unused_integer(nRys)
          Call Unused_integer_array(lOper)
       End If
       End
