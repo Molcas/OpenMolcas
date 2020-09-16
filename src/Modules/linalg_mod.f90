@@ -351,6 +351,8 @@ contains
     subroutine canonicalize_factory(V, lambda, get_projections)
         real(wp), intent(inout) :: V(:, :), lambda(:)
         procedure(get_projections_t) :: get_projections
+        !> The norms of the projections
+        real(wp), allocatable :: norms_projections(:)
         character(*), parameter :: this_routine = 'canonicalize_factory'
 
 
@@ -360,6 +362,7 @@ contains
 
         call assert_(size(V, 1) == size(V, 2), 'non square matrix')
         call mma_allocate(projections, size(V, 1), size(V, 2))
+        call mma_allocate(norms_projections, size(projections, 2))
         call mma_allocate(idx, size(V, 1))
 
         call order_eigenvectors(V, lambda)
@@ -376,15 +379,15 @@ contains
             d = dimensions(j)
             call get_projections(V(:, low : low + d - 1), projections)
 
-            do i = 1, size(idx)
-                idx(i) = i
+            do i = 1, size(norms_projections)
+                norms_projections(i) = norm(projections(:, i))
             end do
-            call sort(idx, geq)
+            idx(:) = argsort(norms_projections, geq_r)
             call sort(idx( : d), leq_i)
 
             ! Get the first d projections with the largest overlap.
             do i = 1, d
-                V(:, low + i - 1) = projections(:, idx(i)) / norm(projections(:, idx(i)))
+                V(:, low + i - 1) = projections(:, idx(i)) / norms_projections(idx(i))
             end do
 
             ! reorthogonalize
@@ -395,16 +398,11 @@ contains
             low = low + d
         end do
 
+        call mma_deallocate(norms_projections)
         call mma_deallocate(idx)
         call mma_deallocate(ONB)
         call mma_deallocate(projections)
         call mma_deallocate(dimensions)
-    contains
-
-        logical pure function geq(i, j)
-            integer, intent(in) :: i, j
-            geq = norm(projections(:, i)) >= norm(projections(:, j))
-        end function
     end subroutine
 
     subroutine canonicalize_canonical_basis(V, lambda)
@@ -475,7 +473,7 @@ contains
 
         ! TODO(@Oskar, @Ignacio): decide on good constants
         ! For real64, the epsilon is 2.3d-16
-        res = isclose(a, b, atol=epsilon(a) * 10**3._wp, rtol=1e-8_wp)
+        res = isclose(a, b, atol=epsilon(a) * 10._wp**3, rtol=1e-8_wp)
     end function
 
 
