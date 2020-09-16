@@ -145,10 +145,6 @@
      &                                         iDisk)
                                   Buf%nUt=0
                                End If
-*                              XInt=AOInt(nijkl,i1,i2,i3,i4)
-*                              Sum = Sum + XInt
-*                              SumAbs = SumAbs+Abs(XInt)
-*                              SumSq= SumSq + XInt**2
                             End If
  420                     Continue
  320                  Continue

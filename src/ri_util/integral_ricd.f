@@ -27,7 +27,7 @@
      &        iTOffs(0:7,0:7,0:7), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
-      If (nIrrep==1) Then
+      If (nSym==1) Then
         Call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                iBas,jBas,kBas,lBas,kOp,TInt,

@@ -211,9 +211,6 @@
      &                                         iDisk)
                                   Buf%nUt=0
                                End If
-*                              Sum = Sum + SOInt(nijkl,MemSO2)
-*                              SumAbs = SumAbs+Abs(SOInt(nijkl,MemSO2))
-*                              SumSq= SumSq + SOInt(nijkl,MemSO2)**2
                             End If
  420                     Continue
  320                  Continue

@@ -34,7 +34,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nIrrep2=nIrrep**2
+      nIrrep2=nSym**2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -42,13 +42,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (nIrrep==1) Then
+         If (nSym==1) Then
            Call PLF_LDF_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,
      &                   TInt,nTInt,iTOffs,
      &                   iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
+     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
      &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
          Else
            Call WarningMessage(2,'Not implemented yet!')
@@ -58,7 +58,7 @@ C    &                      iBas,jBas,kBas,lBas,Shijij,
 C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
 C    &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
-C    &                      iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
+C    &                      iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
 C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
          End If
 *                                                                      *
@@ -68,13 +68,13 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (nIrrep==1) Then
+         If (nSym==1) Then
            Call PLF_RI_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                   iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                   iBas,jBas,kBas,lBas,kOp,
      &                   TInt,nTInt,iTOffs,
      &                   iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
+     &                   iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
      &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
       Else
            Call IndSft_RI_3(iCmp,iShell,
@@ -82,7 +82,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
      &                      TInt,nTInt,iTOffs,
      &                      iWork(ip_ShlSO),iWork(ip_nBasSh),
-     &                      iWork(ip_SOShl),nSO,nSkal_Valence,nIrrep,
+     &                      iWork(ip_SOShl),nSO,nSkal_Valence,nSym,
      &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
          End If
 *                                                                      *

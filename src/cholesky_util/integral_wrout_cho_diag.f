@@ -49,7 +49,7 @@
 *
 * call sorting routine
 *
-      If (nIrrep.eq.1) Then
+      If (nSym.eq.1) Then
         Call PLF_Cho_Diag(TInt,nTInt,
      &           AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,

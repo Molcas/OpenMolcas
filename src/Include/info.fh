@@ -96,9 +96,6 @@
 *     AccMch: approximative relative accuracy of real*8 representation *
 *     ThrInt: threshold for writing intgerals to disc                  *
 *     PotNuc: the nuclear repulsion energy                             *
-*     Sum   : array used for debug purposes                            *
-*     SumSq : array used for debug purposes                            *
-*     SumAbs: array used for debug purposes                            *
 *     CutInt: threshold for ignoring the computation of integrals      *
 *     TMass : the total mass of the molecule                           *
 *     CoM   : cartesian coordinates of the center of mass              *
@@ -193,16 +190,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Real*8         AccMch, ThrInt,PotNuc, Sum, Rtrnc,
-     &               SumSq,  SumAbs, CutInt, TMass,  CoM(3), rMI(6),
+      Real*8         AccMch, ThrInt,PotNuc, Rtrnc,
+     &               CutInt, TMass,  CoM(3), rMI(6),
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , cdMax, EtMax,
      &               E1, E2, Thrshld_CD, RPQMin,SadStep, Delta_RICD,
      &               CLight_Info, radiLD, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               AccMch, ThrInt, PotNuc, Sum,
-     &               SumSq, SumAbs, CutInt, TMass, CoM, rMI,
+     &               AccMch, ThrInt, PotNuc,
+     &               CutInt, TMass, CoM, rMI,
      &               Prin, PAx, CoC, qNuc, PkAcc, Thrs,
      &               Dxyz, RadMax, cdMax, EtMax, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,

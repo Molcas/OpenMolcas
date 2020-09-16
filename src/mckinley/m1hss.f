@@ -134,8 +134,8 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
             Call DCR(LmbdT,iStabM,nStabM,
      &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Do 102 lDCRT = 0, nDCRT-1
-               Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
-               Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
+               Call ICopy(nSym*16*9,[0],0,JndHss,1)
+               Call iCopy(nSym*4*3,[0],0,JndGrd,1)
                Call LCopy(144,[.False.],0,jfHss,1)
                Call LCopy(4,[.False.],0,Tr,1)
                Call LCopy(12,[.False.],0,jfGrd,1)
@@ -154,7 +154,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                 Do  iAtom = 0, 1
                   Do iCar  = 0, 2
                     JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
-                    Do iIrrep=0,nIrrep-1
+                    Do iIrrep=0,nSym-1
                       JndGrd(iCar,iAtom,iIrrep)=
      &                   IndGrd(iCar,iAtom,iIrrep)
                     End Do
@@ -162,7 +162,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                       Do  jCar = 0, 2
                         JfHss(iAtom,iCar,jAtom,jCar) =
      &                    IfHss(iAtom,iCar,jAtom,jCar)
-                        Do iIrrep=0,nIrrep-1
+                        Do iIrrep=0,nSym-1
                           JndHss(iAtom,iCar,jAtom,jCar,iIrrep) =
      &                     IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
                         End Do
@@ -181,7 +181,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *-----------Derivatives with respect to the operator is computed via the
 *           translational invariance.
 *
-                nnIrrep=nIrrep
+                nnIrrep=nSym
                 If (sIrrep) nnIrrep=1
                 Do 230 iIrrep=0,nnIrrep-1
                  nDisp = IndDsp(kdc+kCnt,iIrrep)
@@ -220,7 +220,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                   iStop=2
                 End If
                 Do jCar=0,iStop
-                 Do iIrrep=0,nIrrep-1
+                 Do iIrrep=0,nSym-1
                   If ((JndGrd(iCar,2,iIrrep).ne.0).and.
      &                (JndGrd(jCar,jAtom,iIrrep).ne.0)) Then
                    JndHss(2,iCar,jAtom,jCar,iIrrep)=
@@ -263,13 +263,13 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                     Do KCent=0,3
                      jfHss(iCent,iCar,kCent,kCar)=.false.
                      jfHss(kCent,kCar,iCent,iCar)=.false.
-                     Do iIrrep=0,nIrrep-1
+                     Do iIrrep=0,nSym-1
                       jndHss(iCent,iCar,kCent,kCar,iIrrep)=0
                       jndHss(kCent,kCar,iCent,iCar,iIrrep)=0
                      End Do
                     End Do
                    End Do
-                   Do iIrrep=0,nIrrep-1
+                   Do iIrrep=0,nSym-1
                       jndGrd(iCar,iCent,iIrrep)=0
                    End Do
                  End Do

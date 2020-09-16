@@ -163,9 +163,6 @@ C
 *
 *-----RInfo
 *
-      Sum=0.00d+00
-      Sumsq=0.00d+00
-      SumAbs=0.00d+00
       RadMax=0.00d+00
       AccMch=1.d-15
 *
