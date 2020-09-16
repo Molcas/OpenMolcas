@@ -23,12 +23,14 @@
 *                                                                      *
 *                R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden *
 ************************************************************************
+      Use Basis_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
-      Integer nHer, MemFrag, la, lb, lr,
+      Integer nHer, MemFrag, la, lb, lr, nExpi, nExpj,
      &        i, nElem, maxDensSize, iCnttp, jCnttp, iAng, jAng,
-     &        iShll, jShll, ip, nac, ncb, MemMlt, nH
+     &        iShll, jShll, ip, nac, ncb, MemMlt, nH,
+     &        nBasisi, nBasisj
 * statement function
       nElem(i) = (i+1)*(i+2)/2
 *
@@ -36,54 +38,59 @@
       maxDensSize = 0
 c        largest possible fragment energy weighted density matrix
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDensSize = Max(maxDensSize,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If(dbsc(iCnttp)%nFragType.gt.0) maxDensSize = Max(maxDensSize,
+     &                        dbsc(iCnttp)%nFragDens
+     &                      *(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
 c
       Do iCnttp = 1, nCnttp
-      If (.Not.FragCnttp(iCnttp)) cycle ! Go To 1960
+      If (.Not.dbsc(iCnttp)%Frag) cycle
 c
-         Do iAng = 0, nVal_Shells(iCnttp)-1
-         iShll = ipVal(iCnttp) + iAng
-         If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) cycle !Go To 1966
+         Do iAng = 0, dbsc(iCnttp)%nVal-1
+         iShll = dbsc(iCnttp)%iVal + iAng
+         nExpi=Shells(iShll)%nExp
+         nBasisi=Shells(iShll)%nBasis
+         If (nExpi.eq.0 .or. nBasisi.eq.0) cycle
 *
             Do jCnttp = iCnttp, nCnttp
 * still figure out how to loop only over the centers belonging to the
 * same fragment (keep track of mdc?) ! still to be done !!!
-            If (.Not.FragCnttp(jCnttp)) cycle !Go To 1970
+            If (.Not.dbsc(jCnttp)%Frag) cycle
 c
-               Do jAng = 0, nVal_Shells(jCnttp)-1
-               jShll = ipVal(jCnttp) + jAng
-               If (nExp(jShll).eq.0 .or. nBasis(jShll).eq.0) cycle
+               Do jAng = 0, dbsc(jCnttp)%nVal-1
+               jShll = dbsc(jCnttp)%iVal + jAng
+               nExpj=Shells(jShll)%nExp
+               nBasisj=Shells(jShll)%nBasis
+               If (nExpj.eq.0 .or. nBasisj.eq.0) cycle
 !              Go To 1976
 *
                ip = 2 * maxDensSize
               nac = nElem(la)*nElem(iAng)
-               ip = ip + nExp(iShll)*nac
-               ip = ip + 3 * nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
-               ip = ip + nExp(iShll)
+               ip = ip + nExpi*nac
+               ip = ip + 3 * nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
+               ip = ip + nExpi
 *
               Call MltMmP(nH,MemMlt,la,iAng,lr)
              nHer = Max(nH,nHer)
-          MemFrag = Max(MemFrag,ip+nExp(iShll)*MemMlt)
-               ip = ip - 6 * nExp(iShll)
+          MemFrag = Max(MemFrag,ip+nExpi*MemMlt)
+               ip = ip - 6 * nExpi
 *
               ncb = nElem(jAng)*nElem(lb)
-               ip = ip + nExp(jShll)*ncb
-               ip = ip + 3 * nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
-               ip = ip + nExp(jShll)
+               ip = ip + nExpj*ncb
+               ip = ip + 3 * nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
+               ip = ip + nExpj
 *
               Call MltMmP(nH,MemMlt,jAng,lb,lr)
              nHer = Max(nH,nHer)
-          MemFrag = Max(MemFrag,ip+nExp(jShll)*MemMlt)
-               ip = ip - 6 * nExp(jShll)
+          MemFrag = Max(MemFrag,ip+nExpj*MemMlt)
+               ip = ip - 6 * nExpj
 *
-               ip = ip + Max( nac * Max(nExp(iShll),nBasis(jShll)),
-     &                        ncb * nBasis(jShll) )
+               ip = ip + Max( nac * Max(nExpi,nBasisj),
+     &                        ncb * nBasisj )
           MemFrag = Max(MemFrag,ip)
 *
 c 1976          Continue

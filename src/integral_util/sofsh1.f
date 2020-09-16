@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
 ************************************************************************
+      SubRoutine SOFSh1(nSkal,nSym,nSOs)
 ************************************************************************
 * This Module contains subroutines which are used to compute info on   *
 * the size of the SO integral symmetry blocks for direct integral      *
@@ -28,7 +29,8 @@
 *     M. Schuetz                                                       *
 *     University of Lund, Sweden, 1995                                 *
 ************************************************************************
-      SubRoutine SOFSh1(nSkal,nSym,nSOs)
+*#define _CHECK_
+      use SOAO_Info, only: iAOtSO
       use iSD_data
       use Index_arrays
       Implicit Real*8 (A-H,O-Z)
@@ -55,7 +57,6 @@
       nShOff(:)=1
 *
       Do iSkal = 1, nSkal
-         iShell      = iSD(11,iSkal)
          iAO         = iSD( 7,iSkal)
          iCmp        = iSD( 2,iSkal)
          icntr(iSkal)= iSD(10,iSkal)
@@ -65,9 +66,8 @@
          Do i=1, iCmp
 *           loop over irreps...
             Do irp=0, nSym-1
-               If (iAnd(IrrCmp(IndS(iShell)+i),2**irp).ne.0) Then
+               If (iAOtSO(iAO+i,irp)>0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
-*#define _CHECK_
 #ifdef _CHECK_
                   If (Basis_Mode.eq.Auxiliary_Mode) Then
                      iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),

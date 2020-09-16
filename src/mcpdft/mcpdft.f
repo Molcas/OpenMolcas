@@ -50,6 +50,7 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
+      use stdalloc, only : mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -94,6 +95,9 @@
       Logical DoQmat,DoActive
       Logical IfOpened
       Logical Found
+      Character(len=8),DIMENSION(:),Allocatable::VecStat
+      CHARACTER(Len=8)::StatVec
+      CHARACTER(Len=30)::mspdftfmt
       Logical Gradient
 
 * --------- Cholesky stuff:
@@ -225,7 +229,7 @@
 
 
 * Process the input:
-      Call Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Call Proc_InpX(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -495,12 +499,17 @@ CGG03 Aug 03
      &                 ,kroot=1,lroots)
         End Do
         Read(LUMS,'(A18)') MatInfo
+        MSPDFTMethod=' MS-PDFT'
         IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
          write(6,'(6X,A,A)')'The MS-PDFT calculation is ',
      & 'based on a user-supplied rotation matrix.'
         ELSE
          write(6,'(6X,A,A,A)')'The MS-PDFT method is ',
      &   trim(adjustl(MatInfo)),'.'
+        If(trim(adjustl(MatInfo)).eq.'XMS-PDFT') MSPDFTMethod='XMS-PDFT'
+        If(trim(adjustl(MatInfo)).eq.'CMS-PDFT') MSPDFTMethod='CMS-PDFT'
+        If(trim(adjustl(MatInfo)).eq.'VMS-PDFT') MSPDFTMethod='VMS-PDFT'
+        If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
         ENDIF
         write(6,*)
         write(6,'(6X,80A)') ('=',i=1,80)
@@ -705,12 +714,12 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          End DO
          Write(6,'(6X,80a)') ('*',i=1,80)
          Write(6,*)
-         Write(6,'(35X,a)')'MS-PDFT FINAL RESULTS'
+         Write(6,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
          Write(6,*)
          Write(6,'(6X,80a)') ('*',i=1,80)
          Write(6,*)
-         write(6,'(6X,A)')
-     &   'MS-PDFT Effective Hamiltonian'
+         write(6,'(6X,2A)')
+     &   MSPDFTMethod,' Effective Hamiltonian'
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
          write (6,*)
 *XMC-PDFT    To diagonalize the final MS-PDFT effective H matrix.
@@ -725,13 +734,29 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
-         write(6,'(6X,A)')'MS-PDFT energies:'
+         write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
          Do Jroot=1,lroots
-           write(6,'(6X,A19,1X,I2,5X,A13,F18.8)') '::     MS-PDFT Root',
+           write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
+     &'::    ',MSPDFTMethod,' Root',
      &     Jroot,'Total energy:',Work(LRState+Jroot-1)
          End Do
          Write(6,*)
-         write(6,'(6X,A)')'MS-PDFT eigenvectors:'
+         CALL mma_allocate(VecStat,lRoots)
+         Do Jroot=1,lRoots
+          write(StatVec,'(A6,I2)')'Root ',JRoot
+          VecStat(JRoot)=StatVec
+         End Do
+         write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
+         if(lroots.lt.10) then
+          write(mspdftfmt,'(A5,I1,A9)')
+     &     '(13X,',lRoots,'(A8,16X))'
+          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+         else
+          write(mspdftfmt,'(A5,I2,A9)')
+     &     '(13X,',lRoots,'(A8,16X))'
+          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+         end if
+         CALL mma_deallocate(VecStat)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
          Write(6,*)
          Write(6,'(6X,80a)') ('*',i=1,80)

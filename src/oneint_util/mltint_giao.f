@@ -125,8 +125,7 @@
 *
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       If (iPrint.ge.99) Then
          Write (6,*) ' m      =',nStabM
          Write (6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii = 0, nStabM-1)
@@ -138,9 +137,7 @@
       End If
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1) = iPhase(1,iDCRT(lDCRT))*CCoor(1)
-         TC(2) = iPhase(2,iDCRT(lDCRT))*CCoor(2)
-         TC(3) = iPhase(3,iDCRT(lDCRT))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
 *        Compute the contribution from the multipole moment operator
 *
@@ -168,7 +165,7 @@
 *
 *        Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *

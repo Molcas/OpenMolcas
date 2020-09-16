@@ -64,6 +64,8 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -90,9 +92,8 @@
 *                                                                      *
 *     Statement functions
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *                                                                      *
 ************************************************************************
@@ -186,26 +187,26 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *-------Call kernel routine to get memory requirement. Observe, however
 *       that kernels which will use the HRR will allocate that
@@ -247,13 +248,12 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *         This is now computed in the ij or ji order.
 *
           Call ZXia(Work(iZeta),Work(ipZI),
-     &              iPrim,jPrim,Work(iExp),Work(jExp))
+     &              iPrim,jPrim,Shells(iShll)%Exp,
+     &                          Shells(jShll)%Exp)
 *
-           call dcopy_(3,Work(ixyz),1,A,1)
 *
             DiffCnt=((mdci.eq.iDCnt).or.(mdcj.eq.iDCnt))
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
-            call dcopy_(3,Work(jxyz),1,B,1)
             AeqB = iS.eq.jS
             Call lCopy(6,[.false.],0,IfGrd,1)
 C Logical trans(2)
@@ -283,7 +283,7 @@ C differentiation wrt center iCnt
             Do iIrrep=0,nIrrep-1
                 If (iAnd(loper,2**iIrrep).ne.0) Then
                  iSmLbl=2**iIrrep
-                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                End If
             End Do
 #ifdef _DEBUG_
@@ -295,22 +295,20 @@ C differentiation wrt center iCnt
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,
-     &              jStab(0,mdci),nStab(mdci),
-     &              jStab(0,mdcj),nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             Fact = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
             If (MolWgh.eq.1) Then
                Fact = Fact * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -320,33 +318,33 @@ C differentiation wrt center iCnt
 *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
-             RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-             RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-             RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             Call OA(iDCRR(lDCRR),B,RB)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (Label.ne.'CONNECTI'
      &           .and.EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *
 *            Compute kappa and P.
 *
-             Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *            Compute AO integrals.
 *            for easy implementation of NA integrals.
 *
              call dcopy_(lFinal,[0.0d0],0,Work(ipFnl),1)
-             Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
+             Call Kernel(Shells(iShll)%Exp,iPrim,
+     &                   Shells(jShll)%Exp,jPrim,
      &                   Work(iZeta),Work(ipZI),
      &                   Work(iKappa),Work(iPCoor),
      &                   Work(ipFnl),iPrim*jPrim,
      &                   iAng,jAng,A,RB,nOrder,Work(iKern),
      &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
-     &                   loper,nStab(mdci),
-     &                   nStab(mdcj),nic,idcar,idcnt,
+     &                   loper,dc(mdci)%nStab,
+     &                   dc(mdcj)%nStab,nic,idcar,idcnt,
      &                   iStabM,nStabM,trans)
 *
 *
@@ -361,7 +359,7 @@ C differentiation wrt center iCnt
              Call DGEMM_('T','N',
      &                   jPrim*kk,iBas,iPrim,
      &                   1.0d0,Work(ipFnl),iPrim,
-     &                   Work(iCff),iPrim,
+     &                         Shells(iShll)%pCff,iPrim,
      &                   0.0d0,Work(iKern),jPrim*kk)
 *
 *            Transform j,abxI to abxI,J
@@ -369,24 +367,26 @@ C differentiation wrt center iCnt
              Call DGEMM_('T','N',
      &                   kk*iBas,jBas,jPrim,
      &                   1.0d0,Work(iKern),jPrim,
-     &                   Work(jCff),jPrim,
+     &                         Shells(jShll)%pCff,jPrim,
      &                   0.0d0,Work(ipFnl),kk*iBas)
 *
 *            Transform to spherical gaussians if needed.
 *
                  kk=nElem(iAng)*nElem(jAng)
 *
-                 If (Transf(iShll).or.Transf(jShll)) Then
+                 If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 *
 *             Result comes back as IJAB or IJAb
 *
                    Call CarSph(Work(ipFnl),kk,iBas*jBas*nIC,
      &                    Work(iKern),nScr1,
      &                    RSph(ipSph(iAng)),iAng,
-     &                    Transf(iShll),Prjct(iShll),
-     &                    RSph(ipSph(jAng)),
-     &                    jAng,Transf(jShll),
-     &                    Prjct(jShll),Work(iScrt1),iCmp*jCmp)
+     &                    Shells(iShll)%Transf,
+     &                    Shells(iShll)%Prjct,
+     &                    RSph(ipSph(jAng)),jAng,
+     &                    Shells(jShll)%Transf,
+     &                    Shells(jShll)%Prjct,
+     &                    Work(iScrt1),iCmp*jCmp)
 *
                   Call DGeTmO(Work(iScrt1),nIC,nIC,
      &                    iBas*jBas*iCmp*jCmp,
@@ -416,14 +416,14 @@ C differentiation wrt center iCnt
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
-                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                 If (mSO.eq.0) Then
                    Do jIrrep = 0, nIrrep-1
                       If (iAnd(iSmLbl,iTwoj(jIrrep)).ne.0) iIC = iIC + 1
                    End Do
                 Else
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,
+     &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Work(iKern),iBas,jBas,nIC,iIC,
      &                         Work(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
@@ -446,11 +446,12 @@ C differentiation wrt center iCnt
                If (iAnd(lOper,2**iIrrep).ne.0) Then
                  iSmlbl=2**iIrrep
                  iiC=iiC+1
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iIrrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
      &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
-     &                    iCmp,jCmp,iShell,jShell,iAO,jAO,
+     &                    iCmp,jCmp,iShell,jShell,
+     &                    iAO,jAO,
      &                    nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

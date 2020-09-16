@@ -110,8 +110,7 @@
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            jStab_ ,nStab_,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
          Fact = One / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -128,9 +127,7 @@
 
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -153,7 +150,7 @@
 *
 *-----------Accumulate contributions to the symmetry adapted operator
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
             If (iPrint.ge.99) Then

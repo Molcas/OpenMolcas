@@ -10,11 +10,12 @@
 *                                                                      *
 * Copyright (C) 1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine TwoDns(ianga,iCmp,shijij,ishll,ishell,
+      SubRoutine TwoDns(ianga,iCmp,shijij,ishll,ishell,iAO,
      &           nop,iBasi,jBasj,kBask,lBasl,
      &           Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
      &           nWork4,PSO,nPSO,Fact)
 *
+      use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -25,7 +26,7 @@ c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Logical Shijij
-      Integer nOp(4),iAnga(4),iCmp(4),iShell(4),iShll(4)
+      Integer nOp(4),iAnga(4),iCmp(4),iShell(4),iShll(4),iAO(4)
       Real*8  PSO(nPSO),Aux(nAux),Work2(nWork2),Work3(nWork3),
      &        Work4(nWork4)
 *
@@ -64,7 +65,7 @@ c     Call qEnter('TwoDens')
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),
      &                     iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,nOp,nijkl,
+     &                     Shijij,iShll,iShell,iAO,nOp,nijkl,
      &                     Aux,nAux,Work2,PSO,nPSO)
 *
 *
@@ -80,17 +81,21 @@ c     Call qEnter('TwoDens')
                Call SphCr1(Work2,ijklab,
      &                     Work3,nWork3,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Transf(kShllc),Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,
+     &                     Shells(kShllc)%Prjct,
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Transf(lShlld),Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,
+     &                     Shells(lShlld)%Prjct,
      &                     Work2,mcd)
 *  Work2->Work4  (Work3:Scratch)
                Call SphCr2(Work2,nijkl,mcd,
      &                     Work3,nWork3,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Transf(iShlla),Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,
+     &                     Shells(iShlla)%Prjct,
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Transf(jShllb),Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,
+     &                     Shells(jShllb)%Prjct,
      &                     Work4,mab)
 *
 *----------------------------------------------------------------*

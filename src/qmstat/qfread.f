@@ -74,6 +74,7 @@
       Character Line*120,BlLine*120,Title*100,OrbName*100,WhatGet*10
       Character StLine*120
       Dimension iDummy(1)
+      Integer ipACC
 
 *-----------------------------------------------------------------------*
 * Enter                                                                 *

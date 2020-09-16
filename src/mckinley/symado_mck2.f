@@ -11,6 +11,7 @@
       SubRoutine SymAdO_mck2(ArrIn,nB,ArrOut,nrOp,nop,
      &                  IndGrd,ksym,
      &                  iu,iv,ifgrd,idCar,trans)
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -23,8 +24,7 @@
 *
       n=0
       Do  jIrrep=0,nIrrep-1
-       iirrep=nropr(ieor(ioper(jirrep),ioper(ksym)),
-     &              ioper,nirrep)
+       iirrep=nropr(ieor(ioper(jirrep),ioper(ksym)))
        If (Indgrd(jIrrep).ne.0) Then
         n=n+1
         Do iCn=1,2

@@ -640,7 +640,7 @@ C--------------------------------------------
       ENDIF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'QIPR')THEN
-! Printing threshold for quadrupole intensities. Current default 1.0D-8
+! Printing threshold for quadrupole intensities. Current default 1.0D-5
         QIPR=.TRUE.
         Read(LuIn,*,ERR=997) OSTHR_QIPR
         LINENR=LINENR+1

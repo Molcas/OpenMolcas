@@ -82,16 +82,11 @@
          llOper = iOr(llOper,lOper(iComp))
  90   Continue
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1,1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1,1)
-         TC(2,1) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2,1)
-         TC(3,1) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3,1)
-         TC(1,2) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1,2)
-         TC(2,2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2,2)
-         TC(3,2) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3,2)
+         Call OA(iDCRT(lDCRT),Ccoor(1:3,1),TC(1:3,1))
+         Call OA(iDCRT(lDCRT),Ccoor(1:3,2),TC(1:3,2))
 *
 *-------Compute contribution from a,b+1
 *
@@ -111,7 +106,7 @@
          Call Util4(nZeta,Array(ipRes),la,lb,
      &              Array(ipS1),Array(ipS2),RB,TC(1,2))
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp,lOper,iChO,One)
 *

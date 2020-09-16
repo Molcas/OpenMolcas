@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine SymAdp(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, kOp, ijkl,
+     &                  iShll, iShell, iAO, kOp, ijkl,
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
 ************************************************************************
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
@@ -42,6 +42,9 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
+      use Basis_Info
+      use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -49,12 +52,10 @@
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp),
      &       SOInt(ijkl,nSOInt), Aux(nAux)
       Logical Shij, Shkl, Shijij, Qij, Qkl, Qijij, Done
-      Integer iAng(4), iShell(4), iShll(4), kOp(4)
+      Integer iAng(4), iShell(4), iShll(4), kOp(4), iAO(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
       Real*8 Prmt(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
 *     Statement Function
@@ -64,7 +65,6 @@
 *
       iRout = 38
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAdp')
       Done=.False.
       k12=0
       k34=0
@@ -87,19 +87,23 @@
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs) * pEa
             Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
@@ -109,20 +113,26 @@
             End If
             Do 300 i3 = 1, kCmp
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs) * pRb
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= xPrmt(iOper(kOp(4)),lChBs) * pTc
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
@@ -139,12 +149,12 @@
        iAux = 0
        Do 110 j1 = 0, nIrrep-1
           If (iSym(j1).eq.0) Go To 110
-          Xa = rChTbl(j1,kOp(1)) * pTSd
+          Xa = DBLE(iChTbl(j1,kOp(1))) * pTSd
           j2Max = nIrrep-1
           If (Shij .and. Qij) j2Max = j1
           Do 210 j2 = 0, j2Max
              If (jSym(j2).eq.0) Go To 210
-             Xb = rChTbl(j2,kOp(2)) * Xa
+             Xb = DBLE(iChTbl(j2,kOp(2))) * Xa
              j12 = iEor(j1,j2)
              If (Qijij) Then
                 If (Shij .and. Qij) Then
@@ -174,9 +184,9 @@
                    End If
                    If (Qijij .and. k34.gt.k12) Go To 310
                 End If
-                Xg = rChTbl(j3,kOp(3)) * Xb
+                Xg = DBLE(iChTbl(j3,kOp(3))) * Xb
                 iAux = iAux + 1
-                Aux(iAux) = rChTbl(j4,kOp(4)) * Xg
+                Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg
 *
  310         Continue
  210      Continue
@@ -200,7 +210,5 @@
  100  Continue
 *
 *     Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
-*     Call GetMem('Exit SymAdp','CHECK','REAL',iDum,iDum)
-*     Call qExit('SymAdp')
       Return
       End

@@ -86,7 +86,7 @@ C     Call QEnter('DFT_IntX')
          mdci  = iSD(10,iSkal)
          iShell= iSD(11,iSkal)
 *
-         nOp(1) = NrOpr(kDCRE,iOper,nIrrep)
+         nOp(1) = NrOpr(kDCRE)
 *
          Do jlist_s=ilist_s,nlist_s
             jSkal = list_s(1,jlist_s)
@@ -102,9 +102,9 @@ C     Call QEnter('DFT_IntX')
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
 *
-            nOp(2) = NrOpr(kDCRR,iOper,nIrrep)
+            nOp(2) = NrOpr(kDCRR)
 *
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 *
             ij = (mdcj-1)*ndc + mdci
 *                                                                      *
@@ -143,7 +143,8 @@ C     Call QEnter('DFT_IntX')
                   iIC = 1
                   Call FZero(SOTemp(1,iD),iBas*jBas*nSO)
                   Call SymAdd2(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,AOInt(1,iD),
+     &                         iShell,jShell,iShll,jShll,
+     &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
      &                         nIC,iIC,SOTemp(1,iD),nSO,nOp,
      &                         iSkal,jSkal)

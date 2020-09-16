@@ -42,6 +42,7 @@
 ************************************************************************
       use Her_RW
       use PCM_arrays, only: MM
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -145,7 +146,7 @@
       Call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &             nComp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &             IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
+     &             IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
      &             kOp,iChBas,MxFnc,MM(1,2))
 *
       Call qExit('RFGrd')

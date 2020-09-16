@@ -8,26 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iBSLbl,
-     &                 lAng,ipExp,ipCff,ipCff_Cntrct,ipCff_Prim,
-     &                 ipFockOp,
-     &                 nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
-     &                 MxAng, Charge,iAtmNr,BLine,Ref,
-     &                 PAM2,ipPAM2xp,ipPAM2cf,nPAM2,FockOp,
-     &                 ECP,NoPairL,SODK,ipM1xp,ipM1cf,nM1,ipM2xp,
-     &                 ipM2cf,nM2,
-     &                 ipBk,CrRep,nProj,nAIMP,ipAkl,ip_Occ,iOpt,
-     &                 UnNorm,nDel,
-     &                  nVal,  nPrj,  nSRO,  nSOC, nPP,
-     &                 ipVal_,ipPrj_,ipSRO_,ipSOC_,ipPP_,LuRd,
-     &                 BasisTypes,AuxCnttp,
-     &                 nFragType,nFragCoor,nFragEner,nFragDens,
-     &                 ipFragType,ipFragCoor,ipFragEner,ipFragCoef,IsMM,
-     &                 STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir,
-     &                 DInf,nDInf)
+      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+     &                 ExtBasDir)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -45,15 +31,15 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 ************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"
-#include "print.fh"
 #include "real.fh"
-      Real*8 DInf(nDInf)
-      Character*80 BSLbl, BLine, Ref(2), MPLbl*20,
+#include "stdalloc.fh"
+      Character(LEN=80) BSLbl, Ref(2), MPLbl*20,
      &             Filenm, Atom, Type
-      Character*256 DirName
+      Character(LEN=256) DirName
 *
       Character Basis_Lib*256, Filename*263, DefNm*13
       Integer StrnLn
@@ -64,18 +50,13 @@
       External Get_Ln
       Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
-      Logical ECP, inLn1, inLn2, inLn3, Hit, IfTest,NoPairL,
-     &        UnNorm, PAM2, SODK, AuxCnttp, FockOp,
-     &        isEorb,isFock
-      Integer ipExp(MxShll), ipCff(MxShll), ipCff_Cntrct(MxShll),
-     &        ipCff_Prim(MxShll), ipBk(MxShll), ipFockOp(MxShll),
-     &        nExp(MxShll), nBasis(MxShll),
-     &        nCGTO(0:iTabMx), ipAkl(MxShll),
-     &        mCGTO(0:iTabMx), ip_Occ(MxShll), nDel(0:MxAng),
-     &        nBasis_Cntrct(MxShll)
+      Logical inLn1, inLn2, inLn3, Hit, IfTest,
+     &        UnNorm, isEorb,isFock
+      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
       Integer BasisTypes(4)
       Logical Expert, Found
       Character *(*) ExtBasDir
+      Real*8, Allocatable:: ExpMerged(:),Temp(:,:)
       Data DefNm/'basis_library'/
 *
 #include "relmp.fh"
@@ -88,43 +69,40 @@
 *     IRELMP =21 .... ZORA
 *     IRELMP =22 .... ZORA-FP
 *     IRELMP =23 .... IORA
-*
-      iRout=6
-      iPrint = nPrint(iRout)
-      IfTest=.False.
-*define _DEBUG_
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+         SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
+         Integer lUnit
+         Integer iShll
+         Integer nProj
+         Logical UnNorm
+         End SubRoutine GetECP
+         Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
+         Character*(*) Title
+         Character*(*) FmtIn
+         Integer nRow,nCol
+         Real*8 A(nRow,nCol)
+         End Subroutine RecPrt
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+!#define _DEBUG_
 #ifdef _DEBUG_
-      Call QEnter('GetBS')
       IfTest=.True.
+      iPrint=99
+#else
+      IfTest=.False.
+      iPrint=5
 #endif
       If (IfTest) iPrint=99
       ip_Dummy=-1
-      PAM2 = .False.
-      ECP = .False.
-      FockOp = .True.
-      NoPairL = .False.
-      nVal=0
-      nPrj=0
-      nSRO=0
-      nSOC=0
-      nPP=0
+      dbsc(nCnttp)%FOp = .True.
       nM1=0
       nM2=0
-      ipVal_=-1
-      ipPrj_=-1
-      ipSRO_=-1
-      ipSOC_=-1
-      ipPP_=-1
-      nFragType=0
-      nFragCoor=0
-      nFragEner=0
-      nFragDens=0
-      ipFragType=-1
-      ipFragCoor=-1
-      ipFragEner=-1
-      ipFragCoef=-1
-      IsMM = 0
-      iOpt = 0
+      lAng=0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
       Line=DDName
@@ -148,7 +126,7 @@
          inLn2 = .true.
          inLn3 = .true.
       Else If (Index(Filenm,'MM').ne.0) Then
-         IsMM = 1
+         dbsc(nCnttp)%IsMM = 1
          inLn1 = .True.
          inLn2 = .false.
          inLn3 = .false.
@@ -180,7 +158,7 @@
 *        Find and decode basis set label
 *
          Call Rdbsl(DirName,BSLbl,Type,nCGTO,mCGTO,lAng,Itabmx,lUnit,
-     &              iAtmNr,BasisTypes,ExtBasDir)
+     &              dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
          Line=Get_Ln(lUnit)
          Ref(1)=Line(1:80)
          Line=Get_Ln(lUnit)
@@ -188,10 +166,10 @@
       Else
          Hit=.True.
          Call Decode(BSLbl,atom,1,Hit)
-         iAtmNr=Lbl2Nr(atom)
+         dbsc(nCnttp)%AtmNr=Lbl2Nr(atom)
          lUnit=LuRd
-         Ref(1) = BLine
-         Ref(2) = BLine
+         Ref(1) = ''
+         Ref(2) = ''
          Hit=.True.
          Call Decode(BSLBl(1:80),type,2,Hit)
          Basis_Lib=' '
@@ -203,18 +181,15 @@
       End If
       Line(1:3)=Type(1:3)
       Call UpCase(Line(1:3))
-      If (Line(1:3).eq.'AUX') AuxCnttp=.True.
+      If (Line(1:3).eq.'AUX') dbsc(nCnttp)%Aux=.True.
       If (IfTest) Then
          Write (6,'(A,A)') 'Ref(1):',Ref(1)
          Write (6,'(A,A)') 'Ref(2):',Ref(2)
       End If
       Uncontracted = BasisTypes(1).eq.6
-      If (IsMM .eq. 1) Then
+      If (dbsc(nCnttp)%IsMM .eq. 1) Then
          lAng = 0
-         Charge = Zero
-#ifdef _DEBUG_
-         Call QExit('GetBS')
-#endif
+         dbsc(nCnttp)%Charge = Zero
          Return
       End If
 *
@@ -228,21 +203,26 @@
         Line = Get_Ln(lUnit)
       EndIf                        ! CGGn
       If(Line.eq.'Options') Then
-107      Continue
+         Do
          Line=Get_Ln(lUnit)
          If(Line.ne.'EndOptions') Then
             If(Line.eq.'OrbitalEnergies') Then
-C              Write(6,*) 'Orbital energies are included'
+               If (IfTest)
+     &         Write(6,*) 'Orbital energies are included'
                isEorb=.true.
             Else If(Line.eq.'FockOperator') Then
-C              Write(6,*) 'Fock operator is included'
+               If (IfTest)
+     &         Write(6,*) 'Fock operator is included'
                isEorb=.true.
                isFock=.true.
             Else
                Write(6,*) 'Illegal option: ',Line
+               Call Abend()
             End If
-            Go To 107
+         Else
+            Exit
          End If
+         End Do
          Line=Get_Ln(lUnit)
       End If
 *--- end parsing options
@@ -250,16 +230,16 @@ C              Write(6,*) 'Fock operator is included'
       If (L_STDINP.AND.inLn1) then              ! CGGn
         Call Pick_Words(Line,2,Nwords,Words)    ! CGGn
         If (Nwords.NE.2) Call Abend()           ! CGGn
-        Call Get_dNumber(Words(1),Charge,iErr)  ! CGGn
+        Call Get_dNumber(Words(1),dbsc(nCnttp)%Charge,iErr)  ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
         Call Get_iNumber(Words(2),lAng,iErr)    ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
       else                                      ! CGGn
-        call get_f1(1,Charge)
+        call get_f1(1,dbsc(nCnttp)%Charge)
         if (inLn1) call get_i1(2,lAng)
       EndIf                                     ! CGGn
       If (iPrint.ge.99) Then
-         Write (6,*) 'lAng, Charge=',lAng, Charge
+         Write (6,*) 'lAng, Charge=',lAng, dbsc(nCnttp)%Charge
          Write (6,*) ' Start reading valence basis'
       End If
       If (lAng.gt.MxAng) Then
@@ -269,10 +249,9 @@ C              Write(6,*) 'Fock operator is included'
       End If
 *     Loop over each shell type (s,p,d,etc....)
       iValSh=iShll
-      iStrt1=ipExp(iShll+1)
-      nVal=lAng+1
+      dbsc(nCnttp)%nVal=lAng+1
       mVal=0
-      ipVal_=iShll+1
+      dbsc(nCnttp)%iVal=iShll+1
       Do 10 iAng = 0, lAng
          If (IfTest) Write (6,*) 'iAng=',iAng
          iShll = iShll + 1
@@ -280,6 +259,10 @@ C              Write(6,*) 'Fock operator is included'
             Write (6,*) 'GetBS: iShll.gt.MxShll'
             Write (6,*) 'iShll,MxShll=',iShll,MxShll
             Call Abend()
+         End If
+         If (IfTest) Then
+            Write (6,'(A,A)') 'Line=',Line
+            Write (6,*) L_STDINP,inLn1
          End If
          If (L_STDINP.AND.inLn1) then                   ! CGGn
            iSTDINP = iSTDINP + 1                        ! CGGn
@@ -294,6 +277,7 @@ C              Write(6,*) 'Fock operator is included'
            mCGTO(iAng)=0                                ! CGGn
          else                                           ! CGGn
            Line = Get_Ln(lUnit)
+           If (IfTest) Write (6,'(A,A)') 'Line=',Line
            Call Get_i1(1,nPrim)
            If (inLn1) then
               Call Get_i1(2,nCntrc)
@@ -303,20 +287,15 @@ C              Write(6,*) 'Fock operator is included'
               nCntrc=nCGTO(iAng)
            Endif
          EndIf                                          ! CGGn
-         nDntrc=nCntrc
          If (IfTest) Write(6,*) ' nPrim, nCntrc=',nPrim, nCntrc
 *
-         iStrt=ipExp(iShll)
-         nExp(iShll) = nPrim
-         nBasis_Cntrct(iShll) = nCntrc
-         ipBk(iShll) = ip_Dummy
-         ip_Occ(iShll) = ip_Dummy
-         ipAkl(iShll) = ip_Dummy
-         iEnd = iStrt + nPrim - 1
+         Shells(iShll)%nExp=nPrim
+         Shells(iShll)%nBasis_c = nCntrc
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
 *        Read gaussian exponents
          If (nPrim.gt.0) then
             If (IfTest) Write(6,*) 'Read gaussian exponents'
-            Call Read_v(lUnit,DInf,iStrt,iEnd,1,Ierr)
+            Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
             If (Ierr.ne.0) Then
                Call WarningMessage(2,
      &                     'GetBS: Error while reading the exponents')
@@ -325,20 +304,18 @@ C              Write(6,*) 'Fock operator is included'
             If (IfTest) Write(6,*) 'Done with exponents'
          End If
          If (iPrint.ge.99)
-     &      Call RecPrt(' Exponents',' ',DInf(iStrt),nPrim,1)
-         iStrt = iEnd + 1
+     &      Call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
 *
 *        Storage of coefficients for both contracted and uncontracted case.
 *
-         ipCff_c = iStrt
-         ipCff_Cntrct(iShll)=iStrt
-         iEnds= iEnd + 2*nPrim*nCntrc
-         ipCff_Prim(iShll)= iEnds + 1
-         ipCff_p = ipCff_Prim(iShll)
-         iEnds= iEnds+ 2*nPrim**2
-culf
-         iEndc = iStrt + nPrim*nDntrc - 1
-         iEnd  = iStrt + nPrim*nCntrc - 1
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Shells(iShll)%Cff_c(:,:,1)=Zero
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Shells(iShll)%nBasis=nCntrc
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and
 *        nCntrc columns
@@ -350,16 +327,18 @@ culf
          End If
          If (IfTest) Write (6,*) ' Read/Process coefficients'
 *
-         If ((inLn1 .or. mCGTO(iAng).eq.nCntrc).or.
-     &       nCntrc.eq.0) Then
+         If ((inLn1 .or. mCGTO(iAng).eq.nCntrc).or. nCntrc.eq.0) Then
 *           Read in coeffs. in GC format, as the standard case
             If (IfTest) Write (6,*) ' Standard case'
-            Call FZero(DInf(iStrt),nPrim*nDntrc)
+            Shells(iShll)%Cff_c(:,:,:)=Zero
             If (UnContracted) Then
-               Call DCopy_(nPrim,[One],0,DInf(iStrt),nPrim+1)
+               Do i=1,nPrim
+                  Shells(iShll)%Cff_c(i,i,1)=One
+               End Do
             Else
-               Do iPrim = 0, nPrim-1
-                  Call Read_v(lUnit,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
+               Do iPrim = 1, nPrim
+                  Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                        iPrim,nCntrc*nPrim,nPrim,Ierr)
                   If (Ierr.ne.0) Then
                      Call WarningMessage(2,
      &                      'GetBS: Error reading coeffs in GC format')
@@ -392,10 +371,13 @@ culf
      &             //' of primitive: correct the basis set label!')
                Call Quit_OnUserError()
             End If
+            Call mma_allocate(Temp,nPrim,Max(nCntrc,mCGTO(iAng)),
+     &                        Label='Temp')
+            Temp(:,:)=Zero
 *           read the block in the library as it is
-            iEndNow = iStrt + nPrim*mCGTO(iAng) - 1
-            Do iPrim = 0, nPrim-1
-               Call Read_v(lUnit,DInf,iStrt+iPrim,iEndNow,nPrim,Ierr)
+            Do iPrim = 1, nPrim
+               Call Read_v(lUnit,Temp,
+     &                     iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                        'GetBS: Error reading the block')
@@ -405,27 +387,30 @@ culf
 *
 *           Order the exponents
 *
-            Call OrdExp1(nPrim,DInf(ipExp(iShll)),
-     &                   mCGTO(iAng),DInf(ipCff_c))
+            Call OrdExp1(nPrim,Shells(iShll)%Exp,mCGTO(iAng),Temp)
 *
 *           identify the presence of added polarization and diffusse
 *           functions;
             iAdded = 0
-            Do 212 jNow = mCGTO(iAng), 1, -1
+*           Examine all the contracted functions starting with the last
+      Outer:Do jNow = mCGTO(iAng), 1, -1
                iFlgOne = 0
+               ! Examine the primitives
                Do iNow = 1, nPrim
-                  i = iStrt - 1 + nPrim*(jNow-1)+iNow
-                  If (DInf(i).ne.Zero.and.DInf(i).ne.One) go to 2129
-                  If (DInf(i).eq.One) Then
-                     If (iFlgOne.eq.1)  go to 212
+                  Coeff=Temp(iNow,jNow)
+                  ! Stop if it is obvious that this is not a diffuse
+                  ! or polarization function.
+                  If (Coeff.ne.Zero.and.Coeff.ne.One) Exit Outer
+                  If (Coeff.eq.One) Then
+                     If (iFlgOne.eq.1)  Cycle Outer
                      iFlgOne = 1
                   End If
                End Do
                iAdded = iAdded + 1
                If (IfTest) Write (6,*)
      &                          'function',jNow,' is an added one'
-212         Continue
-2129        Continue
+            End Do Outer
+*
             nAdded = iAdded
             If (nAdded.eq.mCGTO(iAng)) nAdded=0
             If (IfTest) Write (6,*) ' nAdded=',nAdded
@@ -433,52 +418,48 @@ culf
 *              shift the added polarization and diffuse functions to
 *              the right
                Do jNow = 1, nAdded
+                  j1= nCntrc     -jNow+1
+                  j2= mCGTO(iAng)-jNow+1
                   Do iNow = 1, nPrim
-                     j = nCntrc     -jNow+1
-                     iNew = iStrt - 1 + nPrim*(j-1)+iNow
-                     j = mCGTO(iAng)-jNow+1
-                     iOld = iStrt - 1 + nPrim*(j-1)+iNow
-                     DInf(iNew) = DInf(iOld)
+                     Temp(iNow,j1)=Temp(iNow,j2)
                   End Do
                End Do
             End If
 *           insert/append the outermost primitives (in GC format)
             Do jNow = mCGTO(iAng) + 1 - nAdded, nCntrc - nAdded
                If (IfTest) write (6,*) 'jNow=',jNow
-               iPrevNow = iStrt - 1 + nPrim*(jNow-1)
-*              write (*,*) '0:',nPrim*(jNow-1)+1,nPrim*(jNow-1)+nPrim
-               Do i = iPrevNow + 1, iPrevNow + nPrim
-                  DInf(i) = Zero
-               End Do
+               Temp(:,jNow)=Zero
                j = jNow - (mCGTO(iAng)-nAdded)
                iPrevNow = nPrim - nAdded - (nCntrc - mCGTO(iAng))
                iNow = iPrevNow + j
-               i = iStrt - 1 + nPrim*(jNow-1)+iNow
-*              write (*,*) 'j=',j,'i=',nPrim*(jNow-1)+iNow
-               DInf(i) = One
+               Temp(iNow,jNow) = One
             End Do
+            Shells(iShll)%Cff_c(:,:,1)=Temp(:,1:nCntrc)
+            Call mma_deallocate(Temp)
          End If
 *
-         If (IfTest) Write (6,*) ' Done!'
+         If (IfTest) Write (6,*) ' Done! Now Process.'
 *
 *        Order the exponents
 *
-         Call OrdExp(nPrim,DInf(ipExp(iShll)),nCntrc,DInf(ipCff_c))
+         Call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,
+     &                     Shells(iShll)%Cff_c(1,1,1))
          If (nPrim*nCntrc.ne.0) mVal = mVal + 1
 *
 *        Decontract if integrals required in the primitive basis
 *
          If (nPrim.eq.0) Go To 777
-         Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
-         Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
+         Shells(iShll)%Cff_p(:,:,1)=Zero
+         Do i=1,nPrim
+            Shells(iShll)%Cff_p(i,i,1)=One
+         End Do
 *
 *------- Save the contraction coefficients once more after the coefficients.
 *        The second set will not be normalized!
 *
-         iOff = nPrim*nCntrc
-         Call DCopy_(nPrim*nCntrc,DInf(ipCff_c),1,DInf(ipCff_c+iOff),1)
-         iOff = nPrim*nPrim
-         Call DCopy_(nPrim*nPrim, DInf(ipCff_p),1,DInf(ipCff_p+iOff),1)
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
 *
 *        The normalization coefficients are assumed to be for
 *        normalized Gaussians. In Nrmlz the contraction coefficients are
@@ -487,67 +468,71 @@ culf
 *        the radial overlap.
 *
          If (.Not.UnNorm) Then
-            Call Nrmlz(DInf(ipExp(iShll)),nPrim,
-     &                 DInf(ipCff_c),nCntrc,iAng)
-            Call Nrmlz(DInf(ipExp(iShll)),nPrim,
-     &                 DInf(ipCff_p),nPrim,iAng)
+            Call Nrmlz(Shells(iShll)%Exp,nPrim,
+     &                 Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
+            Call Nrmlz(Shells(iShll)%Exp,nPrim,
+     &                 Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
          End If
 *
          If (iPrint.ge.99) Then
-            ipCff_x = ipCff_Cntrct(iShll)
-            nPrim = nExp(iShll)
-            nCntrc= nBasis_Cntrct(iShll)
+            nPrim = Shells(iShll)%nExp
+            nCntrc= Shells(iShll)%nBasis_C
             Call RecPrt(' Coefficients (normalized)',' ',
-     &                  DInf(ipCff_x),nPrim,nCntrc)
+     &                  Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
             Call RecPrt(' Coefficients (unnormalized)',' ',
-     &                  DInf(ipCff_x+nPrim*nCntrc),nPrim,nCntrc)
+     &                  Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
          End If
  777     Continue
-         iEnd = iEnds
          If (nPrim.eq.0) Go To 778
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        Begin read orbital energies
 *
-         iEorb = iEnd + 1
-         ipFockOp(iShll) = iEorb
-         Call FZero(DInf(iEorb),nCntrc**2)
+         Call mma_allocate(Shells(iShll)%FockOp,nCntrc,nCntrc,
+     &                     Label='FockOp')
+         Shells(iShll)%nFockOp=nCntrc
+         Shells(iShll)%FockOp(:,:)=Zero
+
          If (isFock) Then
-            FockOp=FockOp .and. .True.
+            dbsc(nCnttp)%FOp=dbsc(nCnttp)%FOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
+            Call mma_allocate(Temp,nEorb,nEorb,Label='Temp')
             Do i=1,nEorb
                Line=Get_Ln(lUnit)
-               Call Get_F(1,DInf(iEorb+(i-1)*nCntrc),nEorb)
+               Call Get_F(1,Temp(1,i),nEOrb)
             End Do
+            Shells(iShll)%FockOp(1:Min(nEorb,nCntrc),
+     &                           1:Min(nEorb,nCntrc))
+     &                = Temp(1:Min(nEorb,nCntrc),
+     &                       1:Min(nEorb,nCntrc))
+            Call mma_deallocate(Temp)
 #ifdef _DEBUG_
-            Call RecPrt('Fock',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else If(isEorb) Then
-            FockOp=FockOp .and. .True.
+            dbsc(nCnttp)%FOp=dbsc(nCnttp)%FOp .and. .True.
             Line=Get_Ln(lUnit)
             Call Get_i1(1,nEorb)
+            Call mma_allocate(Temp,nEorb,1,Label='Temp')
             If(nEorb.gt.0) Then
                Line=Get_Ln(lUnit)
-               Call Get_F(1,DInf(iEorb),nEorb)
+               Call Get_F(1,Temp(1,1),nEorb)
             End If
-            Do i=2,nCntrc
-               iFrom=iEorb-1+i
-               iTo=iEorb-1+(nCntrc+1)*i-nCntrc
-               DInf(iTo)=DInf(iFrom)
-               DInf(iFrom)=0.0d0
+            Do i=1,Min(nEOrb,nCntrc)
+               Shells(iShll)%FockOp(i,i)=Temp(i,1)
             End Do
+            Call mma_deallocate(Temp)
 #ifdef _DEBUG_
-            Call RecPrt('Eorb',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else
-            FockOp=.False.
+            dbsc(nCnttp)%FOp=.False.
 #ifdef _DEBUG_
-            Call RecPrt('Empty',' ',DInf(iEorb),nCntrc,nCntrc)
+            Call RecPrt('Empty',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          End If
-         iEnd = iEnd + nCntrc**2
 *
 *        End read orbital energies
 *                                                                      *
@@ -555,9 +540,8 @@ culf
 *                                                                      *
 *
  778     Continue
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
  10   Continue
-      If (mVal.eq.0) nVal=0
+      If (mVal.eq.0) dbsc(nCnttp)%nVal=0
 ***************************************************************************
 *-----If PAM basis set read the potentials and coefficient!
 *
@@ -569,11 +553,9 @@ culf
       End If
       If ( Index(BSLBl,'.PAM.').ne.0) then
          If (IfTest) Write (6,*) ' Process PAM'
-         PAM2 = .True.
-         If (iPrint.ge.99)
-     &      Write (6,*) ' Start reading PAMs'
-         Call GetPAM(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipPAM2xp,ipPAM2cf,nPAM2,DInf,nDInf)
+         dbsc(nCnttp)%lPAM2 = .True.
+         If (iPrint.ge.99) Write (6,*) ' Start reading PAMs'
+         Call GetPAM(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -595,9 +577,7 @@ culf
          If (IfTest) Write (6,*) ' Process FRAGMENT'
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading fragment data'
-         Call GetFragment(lUnit,ipExp,MxShll,iShll,nFragType,
-     &                    nFragCoor,nFragEner,nFragDens,ipFragType,
-     &                    ipFragCoor,ipFragEner,ipFragCoef,DInf,nDInf)
+         Call GetFragment(lUnit,nCnttp)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -621,15 +601,13 @@ culf
       If ( Index(BSLBl,'.ECP.').ne.0  .or.
      &     Index(BSLBl,'.REL.').ne.0 ) then
          If (IfTest) Write (6,*) ' Process ECPs/RELs'
-         ECP = .True.
+         dbsc(nCnttp)%ECP = .True.
          iPrSh=iShll
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading ECPs/RELs'
-         ipPrj_=iShll+1
-         Call GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipM1xp,ipM1cf,nM1,ipM2xp,ipM2cf,nM2,ipBk,CrRep,
-     &               nProj,ipAkl,ip_Occ,ipPP_,nPP,UnNorm,DInf,nDinf)
-         nPrj=nProj+1
+         dbsc(nCnttp)%iPrj=iShll+1
+         Call GetECP(lUnit,iShll,nProj,UnNorm)
+         dbsc(nCnttp)%nPrj=nProj+1
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -684,28 +662,22 @@ culf
             Call Quit_OnUserError()
          End If
          nAIMP = lAng
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          jValSh=iValSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
                Call Abend()
             End If
             jValSh = jValSh + 1
-            ipExp(iShll) = ipExp(jValSh)
-            nExp(iShll)  = nExp(jValSh)
-            nBasis(iShll)  = 0
-            ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
-            iEnd = iStrt + 2*nExp(iShll)**2 -1
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.D+00],0,DInf(iStrt),1)
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+            Call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,
+     &                        Label='Exp')
+            Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
+            Shells(iShll)%nExp = Shells(jValSh)%nExp
+            Shells(iShll)%nBasis  = 0
          End Do
          Go To 9988
 *
@@ -718,28 +690,22 @@ culf
             Call Quit_OnUserError()
          End If
          nAIMP = nProj
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          jPrSh = iPrSh
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
                Call Abend()
             End If
             jPrSh = jPrSh + 1
-            ipExp(iShll) = ipExp(jPrSh)
-            nExp(iShll)  = nExp(jPrSh)
-            nBasis(iShll)  = 0
-            ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
-            iEnd = iStrt + 2*nExp(iShll)**2 -1
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+            Call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,
+     &                        Label='Exp')
+            Shells(iShll)%Exp(:)=Shells(jPrSh)%Exp(:)
+            Shells(iShll)%nExp=Shells(jPrSh)%nExp
+            Shells(iShll)%nBasis  = 0
          End Do
          Go To 9988
 *
@@ -754,11 +720,10 @@ culf
 *        Line = GetLn(lUnit)
          Line = Get_Ln(lUnit)
          Call Get_i1(1,nAIMP)
-         nSRO=nAIMP+1
-         ipSRO_=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
          Do iAIMP = 0, nAIMP
             iShll = iShll + 1
-            iStrt= ipExp(iShll)
             If (iShll.gt.MxShll) Then
                Write (6,*) 'GetBS: iShll.gt.MxShll'
                Write (6,*) 'iShll,MxShll=',iShll,MxShll
@@ -766,27 +731,19 @@ culf
             End If
             Line = Get_Ln(lUnit)
             Call Get_i1(1,nPrim)
-            iStrt = ipExp(iShll)
-            nExp(iShll) = nPrim
-            nBasis(iShll) = 0
-            ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
-            iEnd = iStrt + nPrim - 1
+            Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+            Shells(iShll)%nExp=nPrim
+            Shells(iShll)%nBasis=0
 *
             If (nPrim.gt.0) then
-               Call read_v(lUnit,DInf,iStrt,iEnd,1,Ierr)
+               Call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                        'GetBS: Error reading SRO exponents')
                   Call Quit_OnUserError()
                End If
             End If
-            iStrt = iEnd + 1
-            iEnd = iStrt + 2*nExp(iShll)**2
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+*
          End Do
          Go To 9988
 *---------- Mixed basis set (valence + core), with dominance of the
@@ -810,8 +767,8 @@ culf
          Call Get_F1(1,RatioThres)
 *
          nAIMP  = lAng
-         ipSRO_=iShll+1
-         nSRO=nAIMP+1
+         dbsc(nCnttp)%iSRO=iShll+1
+         dbsc(nCnttp)%nSRO=nAIMP+1
          jValSh = iValSh
          jPrSh  = iPrSh
 *
@@ -824,38 +781,38 @@ culf
             End If
 *
             jValSh = jValSh + 1
-            nCntrc   = nBasis(jValSh)
+            nCntrc   = Shells(jValSh)%nBasis
 *
-            iStrt = ipExp(iShll)
 *
             If (iAIMP.le.nProj) Then
                jPrSh = jPrSh + 1
 *
                iDominantSet = 2
-               Call MergeBS (DInf(ipExp(jPrSh)),nExp(jPrSh),
-     &                       DInf(ipExp(jValSh)),nExp(jValSh),
-     &                       DInf(iStrt),nExp(iShll), RatioThres,
+               Call mma_allocate(ExpMerged,
+     &                           Shells(jPrSh)%nExp
+     &                          +Shells(jValSh)%nExp,
+     &                           Label='ExpMerged')
+               Call MergeBS (Shells(jPrSh)%Exp,Shells(jPrSh)%nExp,
+     &                       Shells(jValSh)%Exp,Shells(jValSh)%nExp,
+     &                       ExpMerged,Shells(iShll)%nExp, RatioThres,
      &                       iDominantSet)
+               Call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,
+     &                           Label='Exp')
+               Shells(iShll)%Exp(:)=ExpMerged(1:Shells(iShll)%nExp)
+               Call mma_deallocate(ExpMerged)
+
 *
             Else
 *
-               nExp(iShll) = nExp(jValSh)
-               Call DCopy_(nExp(iShll),DInf(ipExp(jValSh)),1,
-     &                                DInf(iStrt),1)
+               Shells(iShll)%nExp=Shells(jValSh)%nExp
+               Call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,
+     &                           Label='Exp')
+               Shells(iShll)%Exp(:)=Shells(jValSh)%Exp(:)
 *
             End If
 *
-            iEnd = iStrt + nExp(iShll) - 1
-            nBasis(iShll) = 0
-            ipCff(iShll)   = ip_Dummy
-            ipBk(iShll) = ip_Dummy
+            Shells(iShll)%nBasis=0
 *
-            iStrt = iEnd + 1
-            iEnd  = iStrt + 2*nExp(iShll)**2
-            ipAkl(iShll) = iStrt
-*---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
-            If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
 *
@@ -869,11 +826,12 @@ culf
             Call Quit_OnUserError()
          End If
 *
-      ipSoc_=iShll+1
+      dbsc(nCnttp)%iSOC=iShll+1
       Line = Get_Ln(lUnit)
       Call Get_I1(1,mSOC)
-      nSOC=mSOC+1
-      IF (IfTest) Write(6,'(A,I4)') 'nSOC =',nSOC
+      dbsc(nCnttp)%nSOC=mSOC+1
+      IF (IfTest) Write(6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',
+     &                               dbsc(nCnttp)%nSOC
       If (mSOC.lt.0) Go To 990
       Do 12 iAng = 0, mSOC
          If (IfTest) Write (6,'(A,I4)') ' iAng=',iAng
@@ -890,25 +848,36 @@ culf
          nDel(iAng)=mDel
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
-         iStrt = ipExp(iShll)
-         nExp(iShll) = nPrim
-         nBasis(iShll) = nCntrc
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+         Shells(iShll)%nExp=nPrim
+         Shells(iShll)%nBasis = nCntrc
          If (IfTest) Write (6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
          If (IfTest) Write (6,'(A)') ' Reading Exponents'
-         iEnd = iStrt + nPrim - 1
-         If (nPrim.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-         If (IfTest) Call RecPrt('Exponents',' ',DInf(iStrt),1,nPrim)
-         iStrt = iEnd + 1
-         ipCff(iShll) = iStrt
-         iEnd = iStrt + nPrim*nCntrc - 1
+         If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
+     &                               ierr)
+         If (IfTest)
+     &      Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Shells(iShll)%nBasis=nCntrc
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
+         Shells(iShll)%Cff_p(:,:,:)=Zero
          If (IfTest) Write (6,'(A)') ' Reading coefficients'
-         Do 20 iPrim = 0, nPrim-1
-            Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPrim,ierr)
+         Do 20 iPrim = 1, nPrim
+            Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                  iPrim,nPrim*nCntrc,nPrim,ierr)
  20      Continue
-         If (IfTest) Call RecPrt('Exponents',' ',DInf(ipCff(iShll)),
-     &                           nPrim,nCntrc)
-         iStrt = iEnd + 1
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+*
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+         Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
+*
+         If (IfTest)
+     &      Call RecPrt('Coefficients',' ',Shells(iShll)%Cff_c(1,1,1),
+     &                  nPrim,nCntrc)
 *
  12   Continue
  990     Continue
@@ -917,20 +886,20 @@ culf
 *------  Use DKSO on request
 *
  1015    Continue
-         SODK=.True.
+         dbsc(nCnttp)%SODK=.True.
          Go To 9988
 *
 *--------Exchange operator
 *
  1002    Continue
-         iOpt = iOr(iOpt,2**0)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**0)
          Go To 9988
 *
 *--------1st order relativistic correction
 *
  1003    Continue
-         iOpt = iOr(iOpt,2**1)
-         iOpt = iOr(iOpt,2**2)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**1)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**2)
          Line=Get_Ln(lUnit)
          MPLbl=Line(1:20)
          Go To 9988
@@ -939,84 +908,85 @@ culf
 *        one-centre no-pair operators
 *
  1005    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=0
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK1)
 *
  1006    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=1
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK2)
 *
  1007    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=2
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK3)
 *
  1008    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=3
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre no-pair operators (DK3)
 *
  1010    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=4
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre RESC operators
 *
  1009    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=11
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre ZORA operators
 *
  9001    Continue
-         NoPairL=.True.
+         dbsc(nCnttp)%NoPair=.True.
          IRELMP=21
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre ZORA-FP operators
 *
  9002    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=22
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
 *        one-centre IORA operators
 *
  9003    Continue
-         NoPairL=.True.
-         SODK=.True.
+         dbsc(nCnttp)%NoPair=.True.
+         dbsc(nCnttp)%SODK=.True.
          IRELMP=23
-         iOpt = iOr(iOpt,2**3)
+         dbsc(nCnttp)%nOpt = iOr(dbsc(nCnttp)%nOpt,2**3)
          Go To 9988
 *
  999     Continue
-         If (iAnd(iOpt,2**1).ne.0 .and. iAnd(iOpt,2**3).ne.0) Then
+         If (iAnd(dbsc(nCnttp)%nOpt,2**1).ne.0 .and.
+     &       iAnd(dbsc(nCnttp)%nOpt,2**3).ne.0) Then
             Call WarningMessage(2,
      &                  ' 1st order relativistic correction and '
      &                //' no-pair approximation can not be used'
@@ -1035,20 +1005,19 @@ culf
             LUQRP=33
             call molcas_open(LUQRP,Filename)
 c            Open(LUQRP,file='QRPLIB',form='formatted')
-            Call CalcAMt(iOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,ipAkl,ip_Occ,
-     &                   nProj,iPrSh+1,
-     &                   ipExp,ipCff,nExp,nBasis,MxShll,DBLE(iAtmNr),
-     &                   DInf,nDInf)
+            Call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,
+     &                   nProj,iPrSh+1,DBLE(dbsc(nCnttp)%AtmNr))
             Close (LUQRP)
          End If
       End If
 *
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
-#ifdef _DEBUG_
-      Call QExit('GetBS')
-#endif
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iBSLbl)
       End
+      Subroutine Check_Info()
+#include "itmax.fh"
+#include "info.fh"
+      Call Free_Work(LctInf)
+      Call Abend()
+      End Subroutine Check_Info

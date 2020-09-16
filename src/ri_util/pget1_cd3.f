@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_k,
      &                 U_k,mV_k)
@@ -36,7 +36,7 @@
 *             R. Lindh                                                 *
 *                                                                      *
 ************************************************************************
-*     use pso_stuff
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,7 +47,7 @@
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij, skip
 *                                                                      *
 ************************************************************************
@@ -345,7 +345,6 @@ C     Fac = One / Four
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_real_array(DSSO)
       End If

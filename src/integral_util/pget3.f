@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DAO,nDAO,
      &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
@@ -33,6 +33,7 @@
 *             January '92.                                             *
 *             Modified from PGet1, June '92                            *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -42,8 +43,7 @@
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer iShell(4), iAO(4), kOp(4),
-     &          iAOst(4), nPam(4), iiBas(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), nPam(4), iiBas(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *
@@ -153,7 +153,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

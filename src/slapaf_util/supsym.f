@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SupSym(FrcCrt,nsAtom,cMass,Coor,nSupSy,Idntcl,
-     &                  iAtom,iOper,nIrrep)
+      Subroutine SupSym(FrcCrt,nsAtom,cMass,Coor,nSupSy,Idntcl,iAtom)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -21,7 +20,7 @@
 *           --- global arrays ---
 *
       Real*8 FrcCrt(3,nsAtom), cMass(3), Coor(3,nsAtom)
-      Integer   Idntcl(nSupSy), iAtom(nsAtom), iOper(0:nIrrep-1)
+      Integer   Idntcl(nSupSy), iAtom(nsAtom)
 *
 *         --- local arrays ---
 *
@@ -62,8 +61,8 @@
             PROJ = DDot_(3,E,1,FrcCrt(1,ICEN),1)
 *
 *           Sum forces which should be equal
-            FORCE = FORCE + PROJ * DBLE(iDeg(Coor(1,iCen),iOper,nIrrep))
-            IDIV = IDIV + iDeg(Coor(1,iCen),iOper,nIrrep)
+            FORCE = FORCE + PROJ * DBLE(iDeg(Coor(1,iCen)))
+            IDIV = IDIV + iDeg(Coor(1,iCen))
 *
 *           Save the unit vector of the new force of this center
 *

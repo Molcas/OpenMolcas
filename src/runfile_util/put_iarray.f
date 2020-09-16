@@ -126,18 +126,18 @@
          RecLab( 21)='SewIInfo        '
          RecLab( 22)='SewLInfo        '
          RecLab( 23)='SCFInfoI_ab     '
-         RecLab( 24)='nExp            '
-         RecLab( 25)='nBasis          '
-         RecLab( 26)='ipCff           '
-         RecLab( 27)='ipExp           '
+         RecLab( 24)='icDmp           '
+         RecLab( 25)='Symmetry Info   '
+         RecLab( 26)='                ' !Free slot
+         RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
-         RecLab( 29)='ip_Occ          '
-         RecLab( 30)='ipAkl           '
-         RecLab( 31)='ipBk            '
-         RecLab( 32)='nOpt            '
-         RecLab( 33)='Prjct           '
-         RecLab( 34)='Transf          '
-         RecLab( 35)='iCoSet          '
+         RecLab( 29)='                ' !Free slot
+         RecLab( 30)='                ' !Free slot
+         RecLab( 31)='                ' !Free slot
+         RecLab( 32)='                ' !Free Slot
+         RecLab( 33)='                ' !Free slot
+         RecLab( 34)='                ' !Free slot
+         RecLab( 35)='                ' !Free slot
          RecLab( 36)='LP_A            '
          RecLab( 37)='NumCho          ' ! Number of Cholesky vectors.
          RecLab( 38)='nFroPT          ' ! Number of Frozen for PT
@@ -153,16 +153,16 @@
          RecLab( 48)='nBas_Prim       '
          RecLab( 49)='IsMM            '
          RecLab( 50)='Atom -> Basis   '
-         RecLab( 51)='nBasis_Cntrct   '
-         RecLab( 52)='ipCff_Cntrct    '
-         RecLab( 53)='ipCff_Prim      '
+         RecLab( 51)='                ' !Free slot
+         RecLab( 52)='                ' !Free slot
+         RecLab( 53)='                ' !Free slot
          RecLab( 54)='SCF nOcc        '
          RecLab( 55)='SCF nOcc_ab     '
-         RecLab( 56)='ipFockOp        '
-         RecLab( 57)='IrrCmp          '
+         RecLab( 56)='                ' !Free slot
+         RecLab( 57)='                ' !Free slot
          RecLab( 58)='iAOtSO          '
          RecLab( 59)='iSOInf          '
-         RecLab( 60)='FragShell       '
+         RecLab( 60)='                ' !Free Slot
          RecLab( 61)='AuxShell        '
          RecLab( 62)='nVec_RI         '
          RecLab( 63)='MkNemo.hDisp    '
@@ -195,6 +195,8 @@
          RecLab( 91)='NewSph          '
          RecLab( 92)='XMolnr          '
          RecLab( 93)='XEle            '
+         RecLab( 94)='iDmp            '
+         RecLab( 95)='iDmp:S          '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include

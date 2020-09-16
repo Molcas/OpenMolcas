@@ -64,6 +64,8 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -115,20 +117,19 @@
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
 
-         If (.Not.ECP(kCnttp)) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
-         Do 1965 kCnt = 1,nCntr(kCnttp)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
 
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
 
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
             Call LCopy(12,[.false.],0,JFgrad,1)
             Call LCopy(4,[.false.],0,tr,1)
@@ -163,26 +164,25 @@
 *
          Do 1967 lDCRT = 0, nDCRT-1
 
-            mOp(3) = nropr(iDCRT(lDCRT),ioper,nirrep)
+            mOp(3) = nropr(iDCRT(lDCRT))
             mOp(4) = mOp(3)
 
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
-            Do 1966 iAng = 0, nSRO_Shells(kCnttp)-1
-               iShll = ipSRO(kCnttp) + iAng
-
+            Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
+               iShll = dbsc(kCnttp)%iSRO + iAng
+               nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
-                  Write (6,*) 'nExp(iShll)=',nExp(iShll)
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nExpi=',nExpi
+                  Write (6,*) 'nBasis(iShll)=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExp(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0) Go To 1966
 *
                ip = 1
 
@@ -190,14 +190,14 @@
                ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
                ipTmp = ip
-               ip = ip + MAX(nBeta,nAlpha)*nExp(iShll)
+               ip = ip + MAX(nBeta,nAlpha)*nExpi
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*2
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*2
                ipFA2 = ip ! Not in use for 1st derivative
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*2
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*2
 
                ipFB2 = ip ! Not in use for 1st derivatives
 
@@ -211,7 +211,7 @@
 
 
 
-               call dcopy_(nBeta*nExp(iShll)*nElem(lb)*nElem(iAng)*2,
+               call dcopy_(nBeta*nExpi*nElem(lb)*nElem(iAng)*2,
      &                    [Zero],0,Array(ipFB1),1)
                Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
      &                    narr-ip+1,Beta,nbeta,Array(ipFB1),
@@ -222,8 +222,8 @@
 
 *
                call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
-     &                  Fact,nAlpha,nBeta,Work(ipAkl(iShll)),
-     &                  nexp(ishll),la,lb,iang,jfgrad,Array(ipTmp),
+     &                  Fact,nAlpha,nBeta,Shells(iShll)%Akl,
+     &                  nExpi,la,lb,iang,jfgrad,Array(ipTmp),
      &                  .true.,index,mvec,idcar)
 
 *
@@ -236,7 +236,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
       Return

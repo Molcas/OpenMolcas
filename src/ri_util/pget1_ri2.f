@@ -11,7 +11,7 @@
 * Copyright (C) 1992,2007, Roland Lindh                                *
 *               2009, Francesco Aquilante                              *
 ************************************************************************
-      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iShell,iAO,iAOst,
+      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,
      &                     Shijij,iBas,jBas,kBas,lBas,kOp,ExFac,
      &                     CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
 ************************************************************************
@@ -39,6 +39,7 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -50,7 +51,7 @@
 #include "chomp2g_alaska.fh"
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer ip_CikJ_(2)
       Logical Shijij,Found
 *                                                                      *
@@ -458,7 +459,9 @@
                      temp=CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+
      &                             V_K(lSOl,2)*V_K(jSOj,1)+
      &                             V_K(lSOl,3)*V_K(jSOj,4)+
-     &                             V_K(lSOl,4)*V_K(jSOj,3))
+     &                             V_K(lSOl,4)*V_K(jSOj,3)+
+     &                             V_K(lSOl,1)*V_K(jSOj,5)+
+     &                             V_K(lSOl,5)*V_K(jSOj,1))
                      temp = temp - ExFac*Work(ip_A+nijkl-1)
 *
 *----- Active space contribution
@@ -593,7 +596,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)

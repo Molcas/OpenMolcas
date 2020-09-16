@@ -12,7 +12,7 @@
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
       SubRoutine Def_CtoF(lNew,dMass,
-     &                    nAtom,Name,Coor,nSym,iOper,jStab,nStab)
+     &                    nAtom,Name,Coor,jStab,nStab)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -31,9 +31,7 @@
       Character Labels*8, Type*6, Temp*120,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical lWrite, lNew
-      Integer  iOper(0:7), nStab(nAtom), jStab(0:7,nAtom)
-*
-      Call qEnter('Def_CtoF')
+      Integer nStab(nAtom), jStab(0:7,nAtom)
 *
       lWrite = .True.
       Lu=6
@@ -186,7 +184,7 @@ c      iBVct = 0
       Call CllCtoF(Line(nGo:nTemp),Name,nAtom,Coor,nCntr,mCntr,
      &           Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
      &           dMass,Work(ipMass),
-     &           Labels,nSym,iOper,jStab,nStab,nAtom)
+     &           Labels,jStab,nStab,nAtom)
 *
       Call GetMem('Mass','Free','Real',ipMass,2*msAtom)
       Call GetMem('Ind ','Free','Inte',ipInd ,2*msAtom)
@@ -194,6 +192,5 @@ c      iBVct = 0
       Call GetMem('xyz ','Free','Real',ipxyz ,3*msAtom)
 *
       Close(Lu_UDIC)
-      Call qExit('Def_CtoF')
       Return
       End

@@ -55,6 +55,7 @@
 *
       Subroutine ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -66,7 +67,7 @@
      &       xyz(3,4), C(3,4), Dum(1),
      &       ril(3), rik(3)
       Integer   iANr(nAtoms), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms), iOper(0:7)
+     &          iTabAtoms(2,0:nMax,nAtoms)
       Logical Schlegel, MinBas, Help, TransVar, RotVar, Torsion_Check,
      &        Invariant(3)
 *
@@ -131,8 +132,6 @@
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar  =iAnd(iSBS,2**8).eq. 2**8
 *
-      Call Get_iScalar('NSYM',nSym)
-      Call Get_iArray('Symmetry operations',iOper,nSym)
       Call Allocate_Work(ip_xMass,nAtoms)
       Call Get_Mass_All(Work(ip_xMass),nAtoms-nHidden)
       Do iAtom=nAtoms-nHidden+1,nAtoms
@@ -148,7 +147,7 @@
       Do ixyz = 1, 3
          Invariant(ixyz)=.False.
          iTest=2**(ixyz-1)
-         Do iSym = 0, nSym-1
+         Do iSym = 0, nIrrep-1
             If (iOper(iSym).eq.iTest) Invariant(ixyz)=.True.
          End Do
       End Do
@@ -211,7 +210,7 @@
          Else
             iTest=3
          End If
-         Do iSym = 0, nSym-1
+         Do iSym = 0, nIrrep-1
             If (iOper(iSym).eq.iTest) Invariant(ixyz)=.True.
          End Do
       End Do

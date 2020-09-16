@@ -36,6 +36,8 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
+      Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -120,30 +122,29 @@ C     Call qEnter('NAInt')
 *        is used for the DKH transformation (see dkh_util/dkrelint.f)!
 *
          If (DKroll.and.Primitive_Pass.and.lECP) Then
-            Q_Nuc=DBLE(iAtmNr(kCnttp))
+            Q_Nuc=DBLE(dbsc(kCnttp)%AtmNr)
          Else
-            Q_Nuc=Charge(kCnttp)
+            Q_Nuc=dbsc(kCnttp)%Charge
          End If
 
          If (Q_Nuc.eq.Zero) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
             If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             If (iPrint.ge.99) Then
                Write (6,*) ' m      =',nStabM
                Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &               ii = 0, nStabM-1)
-               Write (6,*) ' s      =',nStab(kdc+kCnt)
-               Write (6,'(9A)') '(S)=',(ChOper(jStab(ii,kdc+kCnt)),
-     &               ii = 0, nStab(kdc+kCnt)-1)
+               Write (6,*) ' s      =',dc(kdc+kCnt)%nStab
+               Write (6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),
+     &               ii = 0, dc(kdc+kCnt)%nStab-1)
                Write (6,*) ' LambdaT=',LmbdT
                Write (6,*) ' t      =',nDCRT
                Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
@@ -152,9 +153,7 @@ C     Call qEnter('NAInt')
 
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *              switch (only two center NA matrix...)
                If (No3Cnt .AND. .NOT.(EQ(A,TC).OR.EQ(RB,TC))) Go To 102
 *              switch
@@ -179,7 +178,7 @@ C     Call qEnter('NAInt')
 *                 Gaussian nuclear charge distribution
 *
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
@@ -201,12 +200,12 @@ C     Call qEnter('NAInt')
 *                 Modified Gaussian nuclear charge distribution
 *
                   NoSpecial=.False.
-                  Eta=ExpNuc(kCnttp)
+                  Eta=dbsc(kCnttp)%ExpNuc
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
                   rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
-     &                   /(One+Three*w_mGauss(kCnttp)/(Two*Eta))
+     &                   /(One+Three*dbsc(kCnttp)%w_mGauss/(Two*Eta))
 *                 s type function
                   mcdMin=0
                   mcdMax=0
@@ -218,8 +217,8 @@ C     Call qEnter('NAInt')
      &                     TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 *
 *                 d type function w*(x**2+y**2+z**2)
-                  If (w_mGauss(kCnttp).gt.0.0D0) Then
-                     rKappcd = rKappcd*w_mGauss(kCnttp)
+                  If (dbsc(kCnttp)%w_mGauss.gt.0.0D0) Then
+                     rKappcd = rKappcd*dbsc(kCnttp)%w_mGauss
                      iAnga(3)=2
                      mcdMin=nabSz(2+ld-1)+1
                      mcdMax = nabSz(2+ld)
@@ -270,7 +269,7 @@ C     Call qEnter('NAInt')
 *
 *--------------Accumulate contributions to the symmetry adapted operator
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp         ,lOper,iChO,-Fact*Q_Nuc)
                If (iPrint.ge.99) Then
@@ -283,7 +282,7 @@ C     Call qEnter('NAInt')
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
       If (Nuclear_Model.eq.Gaussian_Type .or.

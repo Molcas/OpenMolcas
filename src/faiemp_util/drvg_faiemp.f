@@ -45,6 +45,7 @@ cend
       use k2_setup
       use iSD_data
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
 
       Implicit None
       External King, Rsv_GTList, MPP
@@ -77,12 +78,12 @@ cend
 *
       Integer  iRout,iPrint,nBT,nBVT,idum,idum1,i,j,iAng,iBasi,iBasn
       Integer  iS,jS,iBasAO,iBsInc,iCar,ijklA,ijS,Indij,iOpt,ijMax
-      Integer  ip_ij,ipEI,ipEta,ipiEta,ipCffi,ipMem1,ipMem2,ipP,ipQ
+      Integer  ip_ij,ipEI,ipEta,ipiEta,ipMem1,ipMem2,ipP,ipQ
       Integer  iPrem,iPren,ipxA,ipxB,ipxG,ipxD,ipZi,Mem1,Mem2,iPrimi
-      Integer  iPrInc,ipTMax,jAng,iSh,jBasAO,jBasj,jBasn,jBsInc,jpCffj
+      Integer  iPrInc,ipTMax,jAng,iSh,jBasAO,jBasj,jBasn,jBsInc
       Integer  jPrInc,k2ij,k2kl,jPrimj,kBasAO,kBasn,kBask,kBsInc
-      Integer  kBtch,klS,kpCffk,kPrimk,kPrInc,kS,lBasAO,lBasl,lBasn
-      Integer  lBsInc,lpCffl,lPriml,lPrInc,mBtch,lS,mdci,mdcj,mdck,mdcl
+      Integer  kBtch,klS,kPrimk,kPrInc,kS,lBasAO,lBasl,lBasn
+      Integer  lBsInc,lPriml,lPrInc,mBtch,lS,mdci,mdcj,mdck,mdcl
       Integer  MemPSO,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
       Integer  nij,nijkl,nPairs,nQuad,nRys,nSkal,nSkal_Fragments
       Integer  nSkal_Valence,nSO,nZeta,nBtch
@@ -303,7 +304,6 @@ cend
 
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -318,8 +318,6 @@ cend
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -360,7 +358,7 @@ cend
 *----------Get the 2nd order density matrix in SO basis.
 *
            nijkl = iBasn*jBasn*kBasn*lBasn
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -377,10 +375,10 @@ cend
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &          Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,
      &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),

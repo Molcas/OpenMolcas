@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_InpX(DSCF,lOPTO,iRc)
 
 ! module dependencies
 #ifdef module_DMRG
@@ -2786,7 +2786,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data

@@ -98,7 +98,7 @@ C------- Absolute value ----------
 C     Call RecPrt('Grad1',' ',Work(ipGrad1),3,nCent)
 C     Call RecPrt('Grad0',' ',Work(ipGrad0),3,nCent)
       Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact=DBLE(iDeg(xyz(1,iCent)))
 C        Write (6,*) 'Fact=',Fact
          Do iCar = 1, 3
             Bf(iCar,iCent)=Zero

@@ -31,6 +31,9 @@
 *                Added ability to calculate 2nd derivative as well     *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -48,13 +51,9 @@
 *     Statement functions
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      IndSOff(iCnttp,iCnt)=(iCnttp-1)*Max_Cnt+iCnt
 *
       iRout = 112
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
-      Call qEnter('MOEval ')
-#endif
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' In MOEval'
@@ -64,7 +63,6 @@
 *     Loop over shells.
 *
       iSkal=0
-c      print *,' iAngMx', iAngMx
       Thr=0.0D0
 
       Do iAng = iAngMx , 0, -1
@@ -89,34 +87,54 @@ c      print *,' iAngMx', iAngMx
          mdc = 0
          Do iCnttp = 1, nCnttp
 
-            nTest = nVal_Shells(iCnttp)
+            nTest = dbsc(iCnttp)%nVal
             If (iAng+1.gt.nTest)  Go To 101
-            If (AuxCnttp(iCnttp)) Go To 101
-            If (FragCnttp(iCnttp)) Go To 101
-*           Write (*,*) ' iCnttp=',iCnttp
-            nCnt = nCntr(iCnttp)
-            iShll = ipVal(iCnttp) + iAng
-            iExp=ipExp(iShll)
-            iCff=ipCff(iShll)
-            iPrim = nExp(iShll)
+            If (dbsc(iCnttp)%Aux) Go To 101
+            If (dbsc(iCnttp)%Frag) Go To 101
+            nCnt = dbsc(iCnttp)%nCntr
+            iShll = dbsc(iCnttp)%iVal + iAng
+            iPrim = Shells(iShll)%nExp
             If (iPrim.eq.0) Go To 101
-            iBas  = nBasis(iShll)
+            iBas  = Shells(iShll)%nBasis
             If (iBas.eq.0) Go To 101
-            iCmp  = nElem(iAng)
-            If (Prjct(iShll)) iCmp = 2*iAng+1
-            Call OrdExpD2C(iPrim,Work(iExp),iBas,Work(iCff))
+            If (Shells(iShll)%Prjct ) Then
+               iCmp = 2*iAng+1
+            Else
+               iCmp  = nElem(iAng)
+            End If
+
+            Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+     &                           Shells(iShll)%pCff)
+            kSh=dbsc(iCnttp)%iVal+iAng
+*
+*           Compute the total number of function for this
+*           basis set, summed over all shells.
+*
+            Do jAng = 0, nTest-1
+               jShll = dbsc(iCnttp)%iVal + jAng
+               If (Shells(jShll)%Prjct ) Then
+                  jCmp = 2*jAng+1
+               Else
+                  jCmp  = nElem(jAng)
+               End If
+            End Do
 *
 *           Loop over unique centers of basis set "iCnttp"
 *
-            IncAO=lOffAO(iCnttp)
-
             Do iCnt = 1, nCnt
 
-               ixyz = ipCntr(iCnttp) + (iCnt-1)*3
-               iAO = iAOttp + (iCnt-1)*IncAO + kOffAO(iCnttp,iAng)
-               iShell = Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
+               iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
+     &             + Shells(kSh)%kOffAO
+               A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 
-               call dcopy_(3,Work(ixyz),1,A,1)
+               Do jAng = 0, iAng-1
+                  jShll = dbsc(iCnttp)%iVal + jAng
+                  If (Shells(jShll)%Prjct ) Then
+                     jCmp = 2*jAng+1
+                  Else
+                     jCmp  = nElem(jAng)
+                  End If
+               End Do
 *
 *--------------Allocate memory for SO and AO values
 *
@@ -130,8 +148,8 @@ c      print *,' iAngMx', iAngMx
 
 
                nAO=(iCmp*iBas*nCoor)*(mAO)
-               nSO=nAO*nIrrep/nStab(mdc+iCnt)
-               nDeg=nIrrep/nStab(mdc+iCnt)
+               nSO=nAO*nIrrep/dc(mdc+iCnt)%nStab
+               nDeg=nIrrep/dc(mdc+iCnt)%nStab
                Call GetMem('AOs','Allo','Real',ipAOs,nAO)
                Call GetMem('SOs','Allo','Real',ipSOs,nSO)
                call dcopy_(nSO,[Zero],0,Work(ipSOs),1)
@@ -148,43 +166,41 @@ c      print *,' iAngMx', iAngMx
 *------------- Loops over symmetry operations operating on the basis
 *              set center.
 *
-               Do iG = 0, nIrrep/nStab(mdc+iCnt) - 1
+               Do iG = 0, nIrrep/dc(mdc+iCnt)%nStab - 1
                   iSkal=iSkal+1
-*                 Write (*,*) 'iSkal=',iSkal
-                  ipx=iPhase(1,iCoSet(iG,0,mdc+iCnt))
-                  ipy=iPhase(2,iCoSet(iG,0,mdc+iCnt))
-                  ipz=iPhase(3,iCoSet(iG,0,mdc+iCnt))
-                  px=DBLE(iPhase(1,iCoSet(iG,0,mdc+iCnt)))
-                  py=DBLE(iPhase(2,iCoSet(iG,0,mdc+iCnt)))
-                  pz=DBLE(iPhase(3,iCoSet(iG,0,mdc+iCnt)))
-                  RA(1)  = px*A(1)
-                  RA(2)  = py*A(2)
-                  RA(3)  = pz*A(3)
-                  nOp = NrOpr(iCoSet(iG,0,mdc+iCnt),iOper,nIrrep)
+                  Call OA(dc(mdc+iCnt)%iCoSet(iG,0),A,RA)
+                  ipx=iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipy=iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipz=iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0))
+                  px=DBLE(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  py=DBLE(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  pz=DBLE(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0))
 *
 *---------------- Evaluate AOs at RA
 *
                   call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
                   mTmp=1
                   Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,
-     &                        Transf(iShll),
+     &                        Shells(iShll)%Transf,
      &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                        iWork(ipAng),nTerm,nForm,Thr,mRad,
-     &                        iPrim,iPrim,Work(iExp),
-     &                        Work(ipRadial),iBas,Work(iCff),
+     &                        iPrim,iPrim,Shells(iShll)%Exp,
+     &                        Work(ipRadial),iBas,
+     &                        Shells(iShll)%pCff,
      &                        Work(ipAOs),mAO,px,py,pz,ipx,ipy,ipz)
 *
 *---------------- Distribute contributions to the SOs
 *
                   Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
-     &                        Work(ipSOs),nDeg,iShell)
+     &                        Work(ipSOs),nDeg,iAO)
 *
-               End Do
+               End Do ! iG
 *
 *------------- Distribute contributions to the MOs
 *
                Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
-     &                     MOValue,iShell,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                     MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 *
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
@@ -193,20 +209,16 @@ c      print *,' iAngMx', iAngMx
                Call GetMem('AOs','Free','Real',ipAOs,nAO)
                Call GetMem('SOs','Free','Real',ipSOs,nSO)
 *
-            End Do
+            End Do ! iCnt
  101        Continue
-            mdc = mdc + nCntr(iCnttp)
-            iAOttp = iAOttp + lOffAO(iCnttp)*nCntr(iCnttp)
+            mdc = mdc + dbsc(iCnttp)%nCntr
+            iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
          End Do
          Call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
          Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
  100     continue
       End Do
 *
-*     Call GetMem('MOEval_E ','CHEC','REAL',iDum,iDum)
-#ifdef _DEBUG_
-      Call qExit('MOEval ')
-#endif
       Return
 c Avoid unused argument warnings
       If (.False.) Then

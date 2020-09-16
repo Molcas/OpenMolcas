@@ -45,6 +45,7 @@
 ************************************************************************
       use iSD_data
       use Wrj12
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"
@@ -222,8 +223,8 @@
 *     the RI vectors.
 *
       Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,iSOInf,
-     &               MxAO,Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
+     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
+     &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
       Call GetMem('iRv','Allo','Inte',ip_iRv,nSkal2)
@@ -398,7 +399,7 @@ C                    Write (6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
          End If
 *
          Aint_kl = TMax_Valence(kS,lS)
-         If (fmass(kCnttp).ne.fmass(lCnttp)) Aint_kl=0.0D0
+         If (dbsc(kCnttp)%fMass.ne.dbsc(lCnttp)%fMass) Aint_kl=0.0D0
 *
          nRv = nSize_Rv(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_Rv,
      &                  nChV)

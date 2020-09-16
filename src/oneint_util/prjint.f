@@ -63,73 +63,82 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
       Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
      &          iChO(nComp), iTwoj(0:7)
+!#define _DEBUG_
+#ifdef _DEBUG_
       Character*80 Label
+#endif
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-*     Call qEnter('PrjInt')
-      iRout = 193
-      iPrint = nPrint(iRout)
+#ifdef _DEBUG_
+      Call RecPrt(' In PrjInt: Zeta',' ',Zeta,1,nZeta)
+      Call RecPrt(' In PrjInt: A',' ',A,1,3)
+      Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
+      Call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In PrjInt: P',' ',P,nZeta,3)
+      Write (6,*) ' In PrjInt: la,lb=',' ',la,lb
+#endif
 *
-      If (iPrint.ge.49) Then
-         Call RecPrt(' In PrjInt: A',' ',A,1,3)
-         Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
-         Call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
-         Call RecPrt(' In PrjInt: P',' ',P,nZeta,3)
-         Write (6,*) ' In PrjInt: la,lb=',' ',la,lb
-      End If
-*
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+*     call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+      Final(:,:,:,:)=Zero
 *
       llOper = lOper(1)
       iComp = 1
       mdc = 0
-      Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1961
-         Do 1964 iCnt = 1,nCntr(iCnttp)
-            ixyz = ipCntr(iCnttp) + (iCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+      Do iCnttp = 1, nCnttp
+         If (.Not.dbsc(iCnttp)%ECP) Then
+            mdc = mdc + dbsc(iCnttp)%nCntr
+            Cycle
+         End If
+         Do iCnt = 1,dbsc(iCnttp)%nCntr
+            C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-         Do 1965 lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-            Do 1966 iAng = 0, nPrj_Shells(iCnttp)-1
-               iShll = ipPrj(iCnttp) + iAng
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+         Do lDCRT = 0, nDCRT-1
+            Call OA(iDCRT(lDCRT),C,TC)
+            Do iAng = 0, dbsc(iCnttp)%nPrj-1
+               iShll = dbsc(iCnttp)%iPrj + iAng
+               nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle
 *
+#ifdef _DEBUG_
+               Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExpi,
+     &                     nBasisi)
+#endif
                ip = 1
                ipF1 = ip
                nac = nElem(la)*nElem(iAng)
-               ip = ip + nAlpha*nExp(iShll)*nac
+               ip = ip + nAlpha*nExpi*nac
                ipP1 = ip
-               ip = ip + 3 * nAlpha*nExp(iShll)
+               ip = ip + 3 * nAlpha*nExpi
                ipZ1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipK1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                ipZI1 = ip
-               ip = ip + nAlpha*nExp(iShll)
+               ip = ip + nAlpha*nExpi
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(1)')
                   Call Abend()
@@ -138,33 +147,33 @@
 *
 *--------------Calculate Effective center and exponent for <A|core>
 *
-               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExp(iShll),
-     &                   Alpha,Work(ipExp(iShll)))
-               Call SetUp1(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+               Call ZXia(Array(ipZ1),Array(ipZI1),nAlpha,nExpi,
+     &                   Alpha,Shells(iShll)%Exp)
+               Call SetUp1(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,
      &                     A,TC,Array(ipK1),Array(ipP1),Array(ipZI1))
 *
 *--------------Calculate Overlap <A|core>
 *
                nHer = (la+iAng+2)/2
-               Call MltPrm(Alpha,nAlpha,Work(ipExp(iShll)),nExp(iShll),
+               Call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,
      &                   Array(ipZ1),Array(ipZI1),
      &                   Array(ipK1),Array(ipP1),
-     &                   Array(ipF1),nAlpha*nExp(iShll),iComp,
+     &                   Array(ipF1),nAlpha*nExpi,iComp,
      &                   la,iAng,A,TC,nHer,Array(ip),
      &                   mArr,CCoor,nOrdOp)
-               ip = ip - 6 * nAlpha*nExp(iShll)
+               ip = ip - 6 * nAlpha*nExpi
 *
                ipF2 = ip
                ncb = nElem(iAng)*nElem(lb)
-               ip = ip + nExp(iShll)*nBeta*ncb
+               ip = ip + nExpi*nBeta*ncb
                ipP2 = ip
-               ip = ip + 3 * nExp(iShll)*nBeta
+               ip = ip + 3 * nExpi*nBeta
                ipZ2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipK2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                ipZI2 = ip
-               ip = ip + nExp(iShll)*nBeta
+               ip = ip + nExpi*nBeta
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(2)')
                   Call Abend()
@@ -173,24 +182,24 @@
 *
 *--------------Calculate Effective center and exponent for <core|B>
 *
-               Call ZXia(Array(ipZ2),Array(ipZI2),nExp(iShll),nBeta,
-     &                   Work(ipExp(iShll)),Beta)
-               Call SetUp1(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+               Call ZXia(Array(ipZ2),Array(ipZI2),nExpi,nBeta,
+     &                   Shells(iShll)%Exp,Beta)
+               Call SetUp1(Shells(iShll)%Exp,nExpi,Beta,nBeta,
      &                    TC,RB,Array(ipK2),Array(ipP2),Array(ipZI2))
 *
 *--------------Calculate Overlap <core|B>
 *
                nHer = (iAng+lb+2)/2
-               Call MltPrm(Work(ipExp(iShll)),nExp(iShll),Beta,nBeta,
+               Call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,
      &                   Array(ipZ2),Array(ipZI2),
      &                   Array(ipK2),Array(ipP2),
-     &                   Array(ipF2),nExp(iShll)*nBeta,iComp,
+     &                   Array(ipF2),nExpi*nBeta,iComp,
      &                   iAng,lb,TC,RB,nHer,Array(ip),
      &                   mArr,CCoor,nOrdOp)
-               ip = ip - 6 * nExp(iShll)*nBeta
+               ip = ip - 6 * nExpi*nBeta
                ipTmp = ip
-               ip = ip + Max(nAlpha*nExp(iShll)*nac,
-     &                       nBeta*ncb*nBasis(iShll))
+               ip = ip + Max(nAlpha*nExpi*nac,
+     &                       nBeta*ncb*nBasisi)
                If (ip-1.gt.nArr*nZeta) Then
                   Call WarningMessage(2,'PrjInt: ip-1.gt.nArr*nZeta(3)')
                   Call Abend()
@@ -209,72 +218,72 @@
 *              1) i,kac -> k,aci
 *
                Call DgeTMo(Array(ipF1),nAlpha,nAlpha,
-     &                     nExp(iShll)*nac,Array(ipTmp),nExp(iShll)*nac)
+     &                     nExpi*nac,Array(ipTmp),nExpi*nac)
 *
 *--------------2) aciK =  k,aci * k,K
 *
                Call DGEMM_('T','N',
-     &                     nAlpha*nac,nBasis(iShll),nExp(iShll),
-     &                     1.0d0,Array(ipTmp),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     nAlpha*nac,nBasisi,nExpi,
+     &                     1.0d0,Array(ipTmp),nExpi,
+     &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipF1),nAlpha*nac)
 *
 *--------------3) Mult by shiftoperators aci,K -> Bk(K) * aci,K
 *
-               Do 1955 iBk = 0, nBasis(iShll)-1
-                  Bk = Work(ipBk(iShll)+iBk)
+               Do iBk = 1, nBasisi
+                  Bk = Shells(ishll)%Bk(iBk)
                   Call DScal_(nAlpha*nac,Bk,
-     &                       Array(iBk*nAlpha*nac+ipF1),1)
- 1955          Continue
+     &                       Array(ipF1+(iBk-1)*nAlpha*nac),1)
+               End Do ! iBk
 *
 *--------------4) a,ciK -> ciKa
 *
                Call DgeTMo(Array(ipF1),nElem(la),nElem(la),
-     &                     nElem(iAng)*nAlpha*nBasis(iShll),
+     &                     nElem(iAng)*nAlpha*nBasisi,
      &                     Array(ipTmp),
-     &                     nElem(iAng)*nAlpha*nBasis(iShll))
+     &                     nElem(iAng)*nAlpha*nBasisi)
 *
 *--------------5) iKa,C = c,iKa * c,C
 *
                Call DGEMM_('T','N',
-     &                     nAlpha*nBasis(iShll)*nElem(la),
+     &                     nAlpha*nBasisi*nElem(la),
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipTmp),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipF1),
-     &                     nAlpha*nBasis(iShll)*nElem(la))
+     &                     nAlpha*nBasisi*nElem(la))
 *
 *--------------And (almost) the same thing for the righthand side, form
 *              KjCb from kjcb
 *              1) jcb,K = k,jcb * k,K
 *
                Call DGEMM_('T','N',
-     &                     nBeta*ncb,nBasis(iShll),nExp(iShll),
-     &                     1.0d0,Array(ipF2),nExp(iShll),
-     &                     Work(ipCff(iShll)),nExp(iShll),
+     &                     nBeta*ncb,nBasisi,nExpi,
+     &                     1.0d0,Array(ipF2),nExpi,
+     &                     Shells(iShll)%pCff,nExpi,
      &                     0.0d0,Array(ipTmp),nBeta*ncb)
 *
 *--------------2)  j,cbK -> cbK,j
 *
                Call DgeTMo(Array(ipTmp),nBeta,nBeta,
-     &                     nBasis(iShll)*ncb,Array(ipF2),
-     &                     nBasis(iShll)*ncb)
+     &                     nBasisi*ncb,Array(ipF2),
+     &                     nBasisi*ncb)
 *
 *--------------3) bKj,C = c,bKj * c,C
 *
                Call DGEMM_('T','N',
-     &                     nElem(lb)*nBasis(iShll)*nBeta,
+     &                     nElem(lb)*nBasisi*nBeta,
      &                     (2*iAng+1),nElem(iAng),
      &                     1.0d0,Array(ipF2),nElem(iAng),
      &                     RSph(ipSph(iAng)),nElem(iAng),
      &                     0.0d0,Array(ipTmp),
-     &                     nElem(lb)*nBasis(iShll)*nBeta)
+     &                     nElem(lb)*nBasisi*nBeta)
 *
 *--------------4) b,KjC -> KjC,b
 *
                Call DgeTMo(Array(ipTmp),nElem(lb),nElem(lb),
-     &                     nBasis(iShll)*nBeta*(2*iAng+1),Array(ipF2),
-     &                     nBasis(iShll)*nBeta*(2*iAng+1))
+     &                     nBasisi*nBeta*(2*iAng+1),Array(ipF2),
+     &                     nBasisi*nBeta*(2*iAng+1))
 *
 *--------------Next Contract (iKaC)*(KjCb) over K and C, producing ijab,
 *              by the following procedure:
@@ -285,42 +294,40 @@
 *                End loop C
 *              End Loop b and a
 *
-               Do 1030 ib = 1, nElem(lb)
-                  Do 1031 ia = 1, nElem(la)
+               Do ib = 1, nElem(lb)
+                  Do ia = 1, nElem(la)
 *
-                     Do 1032 iC = 1, (2*iAng+1)
+                     Do iC = 1, (2*iAng+1)
                         iaC = (iC-1)*nElem(la) + ia
-                        ipaC = (iaC-1)*nAlpha*nBasis(iShll) + ipF1
+                        ipaC = (iaC-1)*nAlpha*nBasisi + ipF1
                         iCb = (ib-1)*(2*iAng+1) + iC
-                        ipCb = (iCb-1)*nBasis(iShll)*nBeta  + ipF2
+                        ipCb = (iCb-1)*nBasisi*nBeta  + ipF2
 *
                         iIC = 0
-                        Do 1400 iIrrep = 0, nIrrep-1
-                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0)
-     &                        Go To  1400
+                        Do iIrrep = 0, nIrrep-1
+                           If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            iIC = iIC + 1
-                           nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                           Xg=rChTbl(iIrrep,nOp         )
+                           nOp = NrOpr(iDCRT(lDCRT))
+                           Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',
-     &                                nAlpha,nBeta,nBasis(iShll),
+     &                                nAlpha,nBeta,nBasisi,
      &                                Factor,Array(ipaC),nAlpha,
-     &                                    Array(ipCb),nBasis(iShll),
+     &                                    Array(ipCb),nBasisi,
      &                                One,Final(1,ia,ib,iIC),nAlpha)
- 1400                   Continue
+                        End Do ! iIrrep
 *
- 1032                Continue
- 1031             Continue
- 1030          Continue
+                     End Do ! iC
+                  End Do    ! ia
+               End Do       ! ib
+            End Do ! iAng
 *
- 1966       Continue
- 1965    Continue
- 1964    Continue
- 1961    Continue
-         mdc = mdc + nCntr(iCnttp)
- 1960 Continue
+         End Do ! lDCRT
+         End Do ! iCnt
+         mdc = mdc + dbsc(iCnttp)%nCntr
+      End Do ! iCnttp
 *
-      If (iPrint.ge.99) Then
+#ifdef _DEBUG_
          Write (6,*) ' Result in PrjInt'
          Do 100 ia = 1, (la+1)*(la+2)/2
             Do 200 ib = 1, (lb+1)*(lb+2)/2
@@ -329,13 +336,13 @@
                Call RecPrt(Label,' ',Final(1,ia,ib,1),nAlpha,nBeta)
  200        Continue
  100     Continue
-      End If
+#endif
 *
-*     Call GetMem(' Exit PrjInt','Check','REAL',iDum,iDum)
 *     Call QExit('PrjInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_real_array(P)
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)

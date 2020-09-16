@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,dMass,nSym,iOper,Smmtrc,
+      Subroutine Reset_ThrGrd(nAtom,nDim,dMass,Smmtrc,
      &                 Degen,nIter,Cx,mTtAtm,iAnr,DDV_Schlegel,iOptC,
      &                 rHidden,ThrGrd)
       Implicit Real*8 (a-h,o-z)
@@ -16,7 +16,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 dMass(nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
-      Integer iOper(0:nSym-1), iANr(nAtom)
+      Integer iANr(nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
 *                                                                      *
 ************************************************************************
@@ -33,8 +33,8 @@
       Call Allocate_Work(ipTR,18*nAtom)
       Call FZero(Work(ipTR),18*nAtom)
 *
-      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,nSym,iOper,Smmtrc,mTR,
-     &            dMass,.False.,Work(ipTR))
+      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,Smmtrc,mTR,dMass,.False.,
+     &            Work(ipTR))
 *
 *     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
 *                                                                      *
@@ -47,7 +47,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),iOper,nSym,
+      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),
      &            mTtAtm,Work(ipVec),Smmtrc,nDim,iAnr,iWork(ipAN),
      &            iWork(ip_TabAI),Degen)
 *

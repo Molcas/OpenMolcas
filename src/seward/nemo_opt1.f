@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NEMO_Opt1()
+      use Basis_Info
       Implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -49,10 +50,10 @@
 *   If that routine is generalized, then remove this check.
 *
         lSh=0
-        kShStr = ipVal(iCnttp)
-        kShEnd = ipVal(iCnttp)+nVal_Shells(iCnttp)-1
+        kShStr = dbsc(iCnttp)%iVal
+        kShEnd = dbsc(iCnttp)%iVal+dbsc(iCnttp)%nVal-1
         Do kSh = kShStr, kShEnd
-          If(.not.Transf(kSh).and.lSh.ge.2) then
+          If(.not.Shells(kSh)%Transf.and.lSh.ge.2) then
             Call WarningMessage(2,'   NEMO Error')
             Write(6,*)
             Write(6,*)
@@ -68,7 +69,7 @@
 *
 *-- End check.
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
 c           Do iAngr=0,nAngr(icnt)
            Do iAngr=0,nAngr(kC)

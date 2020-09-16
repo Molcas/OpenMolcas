@@ -14,8 +14,6 @@
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
      &                          TInt,nTInt,FacInt,itOffs,nSym,
-     &                          nShi,nShj,nShk,nShl,
-     &                          nShOffi,nShOffj,nShOffk,nShOffl,
      &                          Dens,Fock,LDens,ExFac,NDens,
      &                          ind,nind,FckNoClmb,FckNoExch)
 *     calls the proper routines IndSft/PLF
@@ -29,9 +27,7 @@
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7)
+     &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
       If (Petite) Then
@@ -39,7 +35,8 @@
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)
       Else
-        Call IndSft(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
+        Call IndSft(iCmp,iShell,
+     &              iBas,jBas,kBas,lBas,Shijij,
      &              iAO,iAOst,ijkl,SOInt,nSOint)
       End If
       Return
@@ -51,14 +48,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(TInt)
          Call Unused_real(FacInt)
          Call Unused_integer_array(itOffs)
-         Call Unused_integer_array(nShi)
-         Call Unused_integer_array(nShj)
-         Call Unused_integer_array(nShk)
-         Call Unused_integer_array(nShl)
-         Call Unused_integer_array(nShOffi)
-         Call Unused_integer_array(nShOffj)
-         Call Unused_integer_array(nShOffk)
-         Call Unused_integer_array(nShOffl)
          Call Unused_real(Dens)
          Call Unused_real(Fock)
          Call Unused_integer(LDens)

@@ -237,7 +237,7 @@
 
 * Process the input:
       Call StatusLine('RASSCF:',' Processing input')
-      Call Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Call Proc_Inp(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -1926,7 +1926,7 @@ c  i_root>0 gives natural spin orbitals for that root
       Call OrbFiles(JOBIPH,IPRLEV)
 *
 ************************************************************************
-************ Priniting final RDMs in NECI format       *****************
+************ Printing final RDMs in NECI format        *****************
 ************************************************************************
       If ( IPRLEV.ge.DEBUG ) then
        Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)

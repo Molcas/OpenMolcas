@@ -65,7 +65,7 @@ cgh - stuff for short range integrals
       iTri(i,j) = (Max(i,j)*(Max(i,j)-1))/2 + Min(i,j)
 *
 
-*define _DEBUG_
+!#define _DEBUG_
 #ifdef _DEBUG_
          Write (6,*) 'NoSpecial=',NoSpecial
          Call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)

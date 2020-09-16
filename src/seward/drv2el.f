@@ -34,6 +34,7 @@
 *             Modified driver. Jan. '98                                *
 ************************************************************************
       use iSD_data
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
 #include "itmax.fh"
@@ -44,9 +45,7 @@
 #include "stdalloc.fh"
       Parameter(nTInt=1,mDens=1)
       Real*8 Dens(mDens), Fock(mDens), TInt(nTInt)
-      Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8),
-     &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
+      Integer iTOffs(8,8,8)
       Logical Verbose, Indexation, FreeK2,
      &        W2Disc, PreSch, DoIntegrals, DoFock, DoGrad,
      &        FckNoClmb, FckNoExch, Rsv_GTList, Triangular
@@ -171,10 +170,10 @@
 *
       iCnttp=iSD(13,iS)
       jCnttp=iSD(13,jS)
-      If (fmass(iCnttp).ne.fmass(jCnttp)) Go To 14
+      If (dbsc(iCnttp)%fMass.ne.dbsc(jCnttp)%fMass) Go To 14
       kCnttp=iSD(13,kS)
       lCnttp=iSD(13,lS)
-      If (fmass(kCnttp).ne.fmass(lCnttp)) Go To 14
+      If (dbsc(kCnttp)%fMass.ne.dbsc(lCnttp)%fMass) Go To 14
 *
       S_Eff=DBLE(ijS)
       T_Eff=DBLE(klS)
@@ -189,11 +188,9 @@
 *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
-         Call Eval_Ints_New_
+         Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,nShi,nShj,nShk,nShl,
-     &                   nShOffi,nShOffj,nShOffk,nShOffl,
-     &                   Integral_WrOut,
+     &                   iTOffs,Integral_WrOut,
 * the following are dummy arguments
      &                   Dens,Fock,mDens,ExFac,Nr_Dens,
      &                   Ind,nInd,FckNoClmb,FckNoExch,

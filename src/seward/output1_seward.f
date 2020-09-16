@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Output1_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Output1_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to write the output of seward            .               *
@@ -24,6 +24,8 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Period
       use GeoList
       use MpmC
@@ -42,7 +44,6 @@
 #include "gateway.fh"
 #include "localdf.fh"
       Logical l_aCD_Thr, lOPTO
-      Real*8 DInf(nDInf)
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -198,7 +199,7 @@
                      Write(LuWr,'(17X,A)')
      &               '   - Partial local approximation:'
                      Write(LuWr,'(17X,A,10(A4))')
-     &          '     - Centers: ', (LblCnt(iCtrLD(i)),i=1,nCtrLD)
+     &          '     - Centers: ', (dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
                      Write(LuWr,'(17X,A,F6.2,A)')
      &          '     - Cutoff radius: ', radiLD, ' Bohr'
                  End If
@@ -383,7 +384,7 @@
      &                 '  - CD Threshold: ',Thrshld_CD
                l_aCD_Thr=.False.
                Do iCnttp = 1, nCnttp
-                  l_aCD_Thr=l_aCD_Thr .or. aCD_Thr(iCnttp).ne.One
+                  l_aCD_Thr=l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr.ne.One
                End Do
                If (l_aCD_Thr) Then
                   Write (LuWr,'(17X,A)')
@@ -515,16 +516,16 @@
 *     Write out basis set information
 *
       If (Run_Mode.eq.GS_Mode) Then
-         Call Print_Basis(lOPTO,DInf,nDInf)
+         Call Print_Basis(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write out coordinates, bond, angles and torsional angles
 *
          If (lOPTO) then
-            Call Print_Geometry(1,DInf,nDInf)
+            Call Print_Geometry(1)
          else
-            Call Print_Geometry(0,DInf,nDInf)
+            Call Print_Geometry(0)
          EndIf
          Call Print_Isotopes()
 *                                                                      *
@@ -536,7 +537,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_Basis2(DInf,nDInf)
+         Call Print_Basis2()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -547,5 +548,4 @@
 *                                                                      *
       Call QExit('Output1_Seward')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

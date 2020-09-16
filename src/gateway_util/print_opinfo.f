@@ -27,29 +27,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Statement Function
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*                                                                      *
-************************************************************************
-*                                                                      *
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
       Call qEnter('Print_OpInfo')
       LuWr=6
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (nIrrep.eq.8) Then
-         nOper=3
-      Else If (nIrrep.eq.4) Then
-         nOper=2
-      Else If (nIrrep.eq.2) Then
-         nOper=1
-      Else
-         nOper=0
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -151,9 +133,9 @@
          Do iXF = 1, nXF
             A(1:3)=XF(1:3,iXF)
             Charge_iXF=XF(4,iXF)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+            iChxyz=iChAtm(A,iChBas(2))
             iDum=0
-            Call Stblz(iChxyz,iOper,nIrrep,nStab_iXF,iStb,iDum,jCoSet)
+            Call Stblz(iChxyz,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)
      &         Write(LuWr,Format_XF) (XF(i,iXF),i=1,nData_XF)
             XnetCharg=XnetCharg+DBLE(nIrrep/nStab_iXF)*Charge_iXF

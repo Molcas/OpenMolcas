@@ -11,7 +11,8 @@
 * Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 *               1990, IBM                                              *
 ************************************************************************
-      Subroutine OneEl_(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+      Subroutine OneEl_Internal
+     &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &                  nOrdOp,rHrmt,iChO,
      &                  opmol,opnuc,ipad,iopadr,idirect,isyop,
      &                  iStabO,nStabO,nIC,
@@ -70,6 +71,7 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info, only: dbsc
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm, Rsv_Tsk
 #include "itmax.fh"
@@ -211,20 +213,23 @@ C     Logical Addpot
       If (.Not.Rsv_Tsk(id_Tsk,ijSh)) Go To 11
       iS = Ind_ij(1,ijSh)
       jS = Ind_ij(2,ijSh)
-      iCmp=iSD(2,iS)
-      iBas=iSD(3,iS)
-      iAO=iSD(7,iS)
+
+      iCmp  =iSD(2,iS)
+      iBas  =iSD(3,iS)
+      iAO   =iSD(7,iS)
       iShell=iSD(11,iS)
       iCnttp=iSD(13,iS)
-      jCmp=iSD(2,jS)
-      jBas=iSD(3,jS)
-      jAO=iSD(7,jS)
+
+      jCmp  =iSD(2,jS)
+      jBas  =iSD(3,jS)
+      jAO   =iSD(7,jS)
       jShell=iSD(11,jS)
       jCnttp=iSD(13,jS)
+
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
 *
@@ -232,12 +237,12 @@ C     Logical Addpot
 *     muonic basis sets are mixed.
 *
       If (nSO.gt.0 .AND.
-     &   fmass(iCnttp).eq.fmass(jCnttp)
+     &   dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass
      &   ) Then
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')
+         SOInt(:)=Zero
          ipSO=1
-         Call dCopy_(l_SOInt,[Zero],0,SOInt,1)
          Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,
      &                 Zeta,ZI,Kappa,PCoor,
      &                 Kernel,KrnlMm,Label,lOper,nComp,CCoor,
@@ -250,7 +255,7 @@ C     Logical Addpot
          Do iComp = 1, nComp
             iSmLbl=lOper(iComp)
             If (n2Tri(iSmLbl).ne.0) Then
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             Else
                mSO=0
             End If

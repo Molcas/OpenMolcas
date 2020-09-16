@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
-      Subroutine Mk_RI_Shells(Info,nInfo,LuRd,DInf,nDInf)
+      Subroutine Mk_RI_Shells(LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the auxiliary functions         *
@@ -22,14 +22,14 @@
 *     Author: Roland Lindh                                             *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
-#include "stdalloc.fh"
-      Real*8 DInf(nDInf)
       Logical Hit, IfTest
       Character*13 DefNm
       Character*80 Ref(2), BSLbl, BSLB*180
@@ -47,8 +47,13 @@
 
       Integer BasisTypes(4), nDel(MxAng)
       Data DefNm/'basis_library'/
-
-*     Call Gen_RelPointers(-(Info-1))
+*                                                                      *
+************************************************************************
+*                                                                      *
+#include "getbs_interface.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call qEnter('Mk_RI_Shells')
       iRout = 2
       iPrint = nPrint(iRout)
@@ -72,10 +77,9 @@
 *
       If (iRI_Type.eq.5) Go To 1000
 
-*     Call Gen_RelPointers(-(Info-1))
       Do iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
-         mdc = mdciCnttp(iCnttp)
+         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) cycle
+         mdc = dbsc(iCnttp)%mdci
          nCnttp=nCnttp+1
 *
          If (nCnttp.gt.Mxdbsc) Then
@@ -87,34 +91,34 @@
 *        Resolve the name of the valence basis and find the name of
 *        the appropriate auxiliary basis set.
 *
-         Bsl(nCnttp)=Bsl_Old(iCnttp)
+         dbsc(nCnttp)%Bsl=dbsc(iCnttp)%Bsl_old
 *
          Hit=.True.
-         Call Decode(Bsl(nCnttp),atom,1,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,atom,1,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),type,2,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,type,2,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),author,3,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,author,3,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),basis,4,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,basis,4,Hit)
          Hit=.True.
-         Call Decode(Bsl(nCnttp),CGTO,5,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,CGTO,5,Hit)
          Hit=.False.
-         Call Decode(Bsl(nCnttp),Aux,6,Hit)
+         Call Decode(dbsc(nCnttp)%Bsl,Aux,6,Hit)
          If (.Not.Hit) Aux = ' '
 *
          n=Index(Atom,' ')-1
-         Bsl(nCnttp)(1:n+1)=atom(1:n)//'.'
+         dbsc(nCnttp)%Bsl(1:n+1)=atom(1:n)//'.'
          nn = n + 1
 *
          n=Index(Type,' ')-1
-         Bsl(nCnttp)(nn+1:nn+n+5)=Type(1:n)//'.....'
+         dbsc(nCnttp)%Bsl(nn+1:nn+n+5)=Type(1:n)//'.....'
 *
 *        Modify basis set library correctly
 *
-         Indx=Index(Bsl(nCnttp),' ')
+         Indx=Index(dbsc(nCnttp)%Bsl,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl(nCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(nCnttp)%Bsl(1:Indx-1)
          Call WhichMolcas(Basis_lib)
          If (Basis_lib(1:1).ne.' ') Then
             ib=index(Basis_lib,' ')-1
@@ -157,90 +161,72 @@
          End if
 *
          jShll = iShll
-         SODK(nCnttp)=.False.
-         Bsl_Old(nCnttp)=Bsl(nCnttp)
-         Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &              ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
-     &              nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
-     &              MxAng,Charge(nCnttp),
-     &              iAtmNr(nCnttp),BLine,Ref,PAM2(nCnttp),
-     &              ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
-     &              FockOp(nCnttp),
-     &              ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &              ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &              ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
-     &              CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
-     &              UnNorm,nDel,
-     &               nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &              ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &              LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &        nFragType(nCnttp),nFragCoor(nCnttp),nFragEner(nCnttp),
-     &        nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
-     &              ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
-     &              STDINP,lSTDINP,.False.,.true.,' ',
-     &              DInf,nDInf)
-         AuxCnttp(nCnttp)=.True.
+         dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,nDel,
+     &              LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
-         Charge(nCnttp)=Zero
+         dbsc(nCnttp)%Aux=.True.
+         dbsc(nCnttp)%Charge=Zero
 *
          If (Show.and.iPrint.ge.6 .and.
-     &      Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &      Ref(1).ne.'' .and. Ref(2).ne.'') Then
             Write (6,'(1x,a)')  'Basis Set Reference(s):'
-            If (Ref(1).ne.BLine) Write (6,'(5x,a)') Ref(1)
-            If (Ref(2).ne.BLine) Write (6,'(5x,a)') Ref(2)
+            If (Ref(1).ne.'') Write (6,'(5x,a)') Ref(1)
+            If (Ref(2).ne.'') Write (6,'(5x,a)') Ref(2)
             Write (6,*)
             Write (6,*)
          End If
-         lPAM2 = lPAM2 .or. PAM2(nCnttp)
-         ECP(nCnttp)=(nPrj+nSRO+nSOC+nM1(nCnttp)+nM2(nCnttp)).ne.0
-         lPP=lPP .or. nPP.ne.0
-         lECP = lECP .or. ECP(nCnttp)
-         lNoPair = lNoPair .or. NoPairL(nCnttp)
+         lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
+         dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
+     &                   + dbsc(nCnttp)%nSRO
+     &                   + dbsc(nCnttp)%nSOC
+     &                   + dbsc(nCnttp)%nPP
+     &                   + dbsc(nCnttp)%nM1
+     &                   + dbsc(nCnttp)%nM2) .NE. 0
+         lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
+         lECP = lECP .or. dbsc(nCnttp)%ECP
+         lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
+         lAng=Max(dbsc(nCnttp)%nVal,
+     &            dbsc(nCnttp)%nSRO,
+     &            dbsc(nCnttp)%nPrj)-1
          iAngMx=Max(iAngMx,lAng)
 *        No transformation needed for s and p shells
-         Transf(jShll+1)=.False.
-         Prjct(jShll+1)=.False.
-         Transf(jShll+2)=.False.
-         Prjct(jShll+2)=.False.
-         pChrg(nCnttp)=pChrg(iCnttp)
-         Fixed(nCnttp)=Fixed(iCnttp)
-C        pChrg(nCnttp)=.False.
-C        Fixed(nCnttp)=.False.
-         nOpt(nCnttp) = iOptn
-         ipVal(nCnttp) = ipVal_
-         ipPrj(nCnttp) = ipPrj_
-         ipSRO(nCnttp) = ipSRO_
-         ipSOC(nCnttp) = ipSOC_
-         ipPP(nCnttp)  = ipPP_
-         nVal_Shells(nCnttp) = nVal
-         nPrj_Shells(nCnttp) = nPrj
-         nSRO_Shells(nCnttp) = nSRO
-         nSOC_Shells(nCnttp) = nSOC
-         nPP_Shells(nCnttp)  = nPP
-         nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-         lAux = lAux .or. AuxCnttp(nCnttp)
+         Shells(jShll+1)%Transf=.False.
+         Shells(jShll+1)%Prjct =.False.
+         Shells(jShll+2)%Transf=.False.
+         Shells(jShll+2)%Prjct =.False.
+         dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
+         dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
+         dbsc(nCnttp)%Parent_iCnttp=iCnttp
+         dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                        + dbsc(nCnttp)%nPrj
+     &                        + dbsc(nCnttp)%nSRO
+     &                        + dbsc(nCnttp)%nSOC
+     &                        + dbsc(nCnttp)%nPP
+
+         lAux = lAux .or. dbsc(nCnttp)%Aux
          Do iSh = jShll+1, iShll
-            nBasis(iSh)=nBasis_Cntrct(iSh)
-            ipCff (iSh)=ipCff_Cntrct(iSh)
-            AuxShell(iSh)=.True.
+            Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
+            Call mma_deallocate(Shells(iShll)%pCff)
+            Call mma_allocate(Shells(iShll)%pCff,
+     &                        Shells(iSh)%nExp,Shells(iSh)%nBasis,
+     &                        Label='pCff')
+            Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+            Shells(iSh)%Aux=.True.
          End Do
 *
-         nCnt = nCntr(iCnttp)
-         nCntr(nCnttp)=nCnt
-         mdciCnttp(nCnttp)=mdc
-         ipCntr(nCnttp)=ipCntr(iCnttp)
+         nCnt = dbsc(iCnttp)%nCntr
+         dbsc(nCnttp)%nCntr=nCnt
+         dbsc(nCnttp)%mdci =mdc
+*        Create a pointer to the actual coordinates of the parent dbsc
+         dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-         nCntr(nCnttp) = nCnt
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-*        nInfo = ipExp(iShll+1) - Info
-         nInfo = ipExp(iShll+1) - 1
          Mx_Shll=iShll+1
+         Max_Shells=Mx_Shll
          Mx_mdc=mdc
 *
       End Do
-*     Call Gen_RelPointers(Info-1)
       Go To 1100
 *                                                                      *
 ************************************************************************
@@ -256,25 +242,24 @@ C        Fixed(nCnttp)=.False.
       call molcas_open(Lu_lib,'RICDLIB')
 *
       Do iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) cycle
-*        Call Gen_RelPointers(-(Info-1))
-         mdc = mdciCnttp(iCnttp)
+         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) cycle
+         mdc = dbsc(iCnttp)%mdci
 *
          Hit=.True.
-         Call Decode(Bsl_Old(iCnttp),atom,1,Hit)
+         Call Decode(dbsc(iCnttp)%Bsl_old,atom,1,Hit)
          Type=' '
          Author=' '
          basis=' '
          CGTO=' '
          Aux=' '
          If (IfTest) Then
-            Write (6,*) 'Bsl_Old=',Bsl_Old(iCnttp)
+            Write (6,*) 'Bsl_Old=',dbsc(iCnttp)%Bsl_old
             Write (6,*) 'Atom=',Atom
          End If
 *
-         Indx=Index(Bsl_Old(iCnttp),' ')
+         Indx=Index(dbsc(iCnttp)%Bsl_old,' ')
          BSLbl=' '
-         BSLbl(1:Indx-1)=Bsl_Old(iCnttp)(1:Indx-1)
+         BSLbl(1:Indx-1)=dbsc(iCnttp)%Bsl_old(1:Indx-1)
 *
 *        Find the basis set
 *
@@ -309,9 +294,7 @@ C        Fixed(nCnttp)=.False.
 *
          nSet=-1
 
-*        Call Gen_RelPointers(Info-1)
          Do While (nSet.ne.0)
-*           Call Gen_RelPointers(-(Info-1))
             Line=Get_Ln(Lu_lib)
             If (IfTest) Then
                Write(6,*) 'nSet=',nSet
@@ -338,16 +321,13 @@ C        Fixed(nCnttp)=.False.
                Write(6,'(1X,A)') 'Basis set is read from the workdir.'
             End if
 *
-            SODK(nCnttp)=.False.
-            Bsl(nCnttp)=BSLB(2:80)
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
+            dbsc(nCnttp)%Bsl=BSLB(2:80)
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
 *
 *           Loop over the angular shells
 *
             jShll = iShll
-*           Call Gen_RelPointers(Info-1)
             Do iAng = 0, lAng
-*              Call Gen_RelPointers(-(Info-1))
                iShll=iShll+1
                Line=Get_Ln(Lu_lib)
                Call Get_I1(1,nPrim)
@@ -362,13 +342,13 @@ C        Fixed(nCnttp)=.False.
 *
 *              Read Gaussian exponents
 *
-               iStrt=ipExp(iShll)
-               nExp(iShll) = nPrim
-               nBasis_Cntrct(iShll) = nCntrc
-               iEnd = iStrt + nPrim - 1
+               Call mma_Allocate(Shells(iShll)%Exp,nPrim,Label='ExpRI')
+               Shells(iShll)%nExp=nPrim
+               Shells(iShll)%nBasis_C = nCntrc
+               iEnd = iStrt - 1
                If (nPrim.gt.0) then
                   If (IfTest) Write(6,*) ' Read gaussian exponents'
-                  Call Read_v(Lu_lib,DInf,iStrt,iEnd,1,Ierr)
+                  Call Read_v(Lu_lib,Shells(iShll)%Exp,1,nPrim,1,Ierr)
                   If (Ierr.ne.0) Then
                      Call WarningMessage(2,
      &                     'GetBS: Error while reading the exponents')
@@ -376,21 +356,24 @@ C        Fixed(nCnttp)=.False.
                   End If
                   If (IfTest) Write(6,*) ' Done with exponents'
                If (iPrint.ge.99.or.IfTest)
-     &            Call RecPrt(' Exponents',' ',DInf(iStrt),nPrim,1)
+     &           Call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
                End If
                iStrt = iEnd + 1
 *
 *              Read contraction coefficients. Storage of coefficients
 *              for both contracted and uncontracted case.
 *
-               ipCff_c = iStrt
-               ipCff_Cntrct(iShll)=iStrt
-               iEnds= iEnd + 2*nPrim*nCntrc
-               ipCff_Prim(iShll)= iEnds + 1
-               ipCff_p = ipCff_Prim(iShll)
-               iEnds= iEnds+ 2*nPrim**2
-               iEndc = iStrt + nPrim*nCntrc - 1
-               iEnd  = iStrt + nPrim*nCntrc - 1
+               Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                           Label='Cff_c')
+               Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                           Label='pCff')
+               Shells(iShll)%nBasis=nCntrc
+               Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                           Label='Cff_p')
+               iEnds= iEnd
+               iEnds= iEnds
+               iEndc = iStrt - 1
+               iEnd  = iStrt - 1
 *              Read contraction coefficients
 *              Observe that the matrix will have nPrim rows and
 *              nCntrc columns
@@ -400,122 +383,87 @@ C        Fixed(nCnttp)=.False.
 *
                If (IfTest) Write (6,*) ' Standard case'
                If (nPrim*nCntrc.gt.0) Then
-                  Call FZero(DInf(iStrt),2*nPrim*nCntrc)
+                  Shells(iShll)%Cff_c(:,:,:)=Zero
 *
-*              Do iPrim = 0, nPrim-1
-*                 Call Read_v(Lu_lib,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
-*                 If (Ierr.ne.0) Then
-*                    Call WarningMessage(2,
-*    &                      'GetBS: Error reading coeffs in GC format')
-*                    Call Quit_OnUserError()
-*                 End If
-*              End Do
-*              Call Read_v(Lu_lib,DInf(iEnd+1),1,nPrim*nCntrc,1,Ierr)
-               Read (Lu_lib,*) (DInf(iEnd+i),i=1,nPrim*nCntrc)
+*              Note that we now change the order!!!
+               Read (Lu_lib,*) ((Shells(iShll)%Cff_c(i,j,2),
+     &                           j=1,nCntrc),i=1,nPrim)
                If (Ierr.ne.0) Then
                   Call WarningMessage(2,
      &                   'GetBS: Error reading coeffs in GC format')
                   Call Quit_OnUserError()
                End If
-               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iEnd+1),
-     &                                 nCntrc*nPrim,1)
-               Call Trnsps(nCntrc,nPrim,DInf(iEnd+1),DInf(iStrt))
-               If (IfTest) Call RecPrt(' Coeffs',' ',DInf(iStrt),nPrim,
-     &                                 nCntrc)
+               If (IfTest)
+     &            Call RecPrt(' Coeffs',' ',Shells(iShll)%Cff_c(1,1,2),
+     &                        nPrim,nCntrc)
+               Shells(iShll)%Cff_c(:,:,1) = Shells(iShll)%Cff_c(:,:,2)
+               If (IfTest)
+     &            Call RecPrt(' Coeffs',' ',Shells(iShll)%Cff_c(1,1,1),
+     &                        nPrim,nCntrc)
 *
 *              Put in unit matrix of uncontracted set
 *
-               Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
-               Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
+               Shells(iShll)%Cff_p(:,:,1)=Zero
+               Do i=1,nPrim
+                  Shells(iShll)%Cff_p(i,i,1)=One
+               End Do
 *
-               iOff = nPrim*nPrim
-               Call DCopy_(nPrim*nPrim ,DInf(ipCff_p),1,
-     &                                  DInf(ipCff_p+iOff),1)
-               Call Nrmlz(DInf(ipExp(iShll)),nPrim,
-     &                    DInf(ipCff_p),nPrim ,iAng)
+               Shells(iShll)%Cff_p(:,:,2)=Shells(iShll)%Cff_p(:,:,1)
+               Call Nrmlz(Shells(iShll)%Exp,nPrim,
+     &                    Shells(iShll)%Cff_p(1,1,1),nPrim ,iAng)
 
-               iOff = nPrim*nCntrc
-               Call DCopy_(nPrim*nCntrc,DInf(ipCff_c),1,
-     &                                  DInf(ipCff_c+iOff),1)
-               Call Fix_Coeff(nPrim,nCntrc,DInf(ipCff_c+iOff),
-     &                        DInf(ipCff_p),'F')
+               Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
+               Call Fix_Coeff(nPrim,nCntrc,Shells(iShll)%Cff_c(1,1,2),
+     &                                     Shells(iShll)%Cff_p(1,1,1),
+     &                                     'F')
+               Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
                End If
 *
                iEnd =iEnds
                If (iSph.eq.0) Then
-                  Prjct(iShll)=.False.
-                  Transf(iShll)=.False.
+                  Shells(iShll)%Transf=.False.
+                  Shells(iShll)%Prjct =.False.
                Else If (iSph.eq.1) Then
-                  Prjct(iShll)=.True.
-                  Transf(iShll)=.False.
+                  Shells(iShll)%Transf=.False.
+                  Shells(iShll)%Prjct =.True.
                Else If (iSph.eq.2) Then
-                  Prjct(iShll)=.False.
-                  Transf(iShll)=.True.
+                  Shells(iShll)%Transf=.True.
+                  Shells(iShll)%Prjct =.False.
                Else
-                  Prjct(iShll)=.True.
-                  Transf(iShll)=.True.
+                  Shells(iShll)%Transf=.True.
+                  Shells(iShll)%Prjct =.True.
                End If
 
-               nBasis(iShll)=nBasis_Cntrct(iShll)
-               ipCff (iShll)=ipCff_Cntrct(iShll)
-               AuxShell(iShll)=.True.
-               ipBk(iShll)=ip_Dummy
-               ip_Occ(iShll)=ip_Dummy
-               ipAkl(iShll)=ip_Dummy
-               ipExp(iShll+1)=iEnd+1
+               Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
+               Shells(iShll)%Aux=.True.
 *
-*              Call Gen_RelPointers(Info-1)
             End Do ! iAng
 *
-*           Call Gen_RelPointers(-(Info-1))
-            AuxCnttp(nCnttp)=.True.
-            Charge(nCnttp)=Zero
-            PAM2(nCnttp)=.False.
-            lPAM2 = lPAM2 .or. PAM2(nCnttp)
-            nVal=lAng+1
-            nPrj=0
-            nSRO=0
-            nSOC=0
-            nPP=0
-            nM1(nCnttp)=0
-            nM2(nCnttp)=0
-            ECP(nCnttp)=.False.
-            lECP = lECP .or. ECP(nCnttp)
-            lPP=lPP .or. nPP.ne.0
-            NoPairL(nCnttp)=.False.
-            lNoPair = lNoPair .or. NoPairL(nCnttp)
+            dbsc(nCnttp)%Aux=.True.
+            lPAM2 = lPAM2 .or.dbsc(nCnttp)%lPAM2
+            lECP = lECP .or. dbsc(nCnttp)%ECP
+            lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
+            lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
             iAngMx=Max(iAngMx,lAng)
 *
-            nOpt(nCnttp) = 0
-            ipVal(nCnttp) = jShll + 1
-            ipPrj(nCnttp) = -1
-            ipSRO(nCnttp) = -1
-            ipSOC(nCnttp) = -1
-            ipPP(nCnttp)  = -1
+            dbsc(nCnttp)%iVal = jShll + 1
+            dbsc(nCnttp)%nVal = lAng+1
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+            lAux = lAux .or. dbsc(nCnttp)%Aux
 *
-            nVal_Shells(nCnttp) = nVal
-            nPrj_Shells(nCnttp) = nPrj
-            nSRO_Shells(nCnttp) = nSRO
-            nSOC_Shells(nCnttp) = nSOC
-            nPP_Shells(nCnttp)  = nPP
-            nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-            lAux = lAux .or. AuxCnttp(nCnttp)
+            nCnt = dbsc(iCnttp)%nCntr
+            dbsc(nCnttp)%nCntr=nCnt
+            dbsc(nCnttp)%mdci =mdc
+            dbsc(nCnttp)%Parent_iCnttp=iCnttp
+*           Create a pointer to the actual coordinates.
+            dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-            nCnt = nCntr(iCnttp)
-            nCntr(nCnttp)=nCnt
-            mdciCnttp(nCnttp)=mdc
-            ipCntr(nCnttp)=ipCntr(iCnttp)
-*
-            nCntr(nCnttp) = nCnt
-*           Compute the number of elements stored in the dynamic memory
-*           so far.
-            nInfo = ipExp(iShll+1) - 1
             Mx_Shll=iShll+1
+            Max_Shells=Mx_Shll
             Mx_mdc=mdc
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)
-*           Call Gen_RelPointers(Info-1)
          End Do ! Do While (nSet.ne.0)
 *
       End Do ! iCnttp
@@ -527,9 +475,7 @@ C        Fixed(nCnttp)=.False.
 *     Add the final DUMMY SHELL!
 *
  1100 Continue
-*     Call Gen_RelPointers(-(Info-1))
-      Call Mk_Dummy_Shell(Info,nInfo,DInf,nDInf)
-*     Call Gen_RelPointers(Info-1)
+      Call Mk_Dummy_Shell()
       Call mma_deallocate(STDINP)
 *                                                                      *
 ************************************************************************

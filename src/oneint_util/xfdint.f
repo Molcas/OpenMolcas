@@ -35,6 +35,7 @@
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
       use external_centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
@@ -132,22 +133,12 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *------- Generate stabilizor of C
 *
-         If (nIrrep.eq.8) Then
-             nOper=3
-         Else If (nIrrep.eq.4) Then
-             nOper=2
-         Else If (nIrrep.eq.2) Then
-             nOper=1
-         Else
-             nOper=0
-         End If
-         iChxyz=iChAtm(C,iOper,nOper,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         iChxyz=iChAtm(C,iChBas(2))
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -165,9 +156,7 @@ C     nElem(ixyz) = 2*ixyz+1
 
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 *
             jElem=0
             Do ix = iOrdOp, 0, -1
@@ -232,7 +221,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *-----------Accumulate contributions to the symmetry adapted operator
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             ipI=ip1
 *
             Do i = 1, nElem(iOrdOp)

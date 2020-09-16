@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
       use stdalloc, only : mma_allocate, mma_deallocate
       use fortran_strings, only : to_upper, operator(.in.)
@@ -880,6 +880,54 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        iRotPsi=1
        IXMSP=1
        Call SetPos(LUInput,'XMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CMSI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if CMSI case.'
+      If (KeyCMSI) Then
+       If (DBG) Write(6,*) ' CMSI keyword was used.'
+       iRotPsi=1
+       ICMSP=1
+       Call SetPos(LUInput,'CMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CMMA command --------------------------------------------*
+      If (KeyCMMA) Then
+       If (DBG) Write(6,*) ' CMS Max Cylces keyword was given.'
+       Call SetPos(LUInput,'CMMA',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMMA keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ICMSIterMax
+       ReadStatus=' O.K. reading data following CMMA keyword.'
+       If (DBG) Then
+        Write(6,*) ' Max nr of CMS cycles',ICMSIterMax
+       End If
+       Call ChkIfKey()
+      End If
+*---  Process CMMI command --------------------------------------------*
+      If (KeyCMMI) Then
+       If (DBG) Write(6,*) ' CMS Min Cylces keyword was given.'
+       Call SetPos(LUInput,'CMMI',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMMI keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ICMSIterMin
+       ReadStatus=' O.K. reading data following CMMI keyword.'
+       If (DBG) Then
+        Write(6,*) ' Min nr of CMS cycles',ICMSIterMin
+       End If
+       Call ChkIfKey()
+      End If
+*---  Process CMTH command --------------------------------------------*
+      If (KeyCMTH) Then
+       If (DBG) Write(6,*) ' CMS Threshold keyword was given.'
+       Call SetPos(LUInput,'CMTH',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMTH keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CMSThreshold
+       ReadStatus=' O.K. reading data following CMTH keyword.'
+       If (DBG) Then
+        Write(6,*) ' CMS threshold',CMSThreshold
+       End If
        Call ChkIfKey()
       End If
 *---  Process RFPE command ----- (new!) -------------------------------*
@@ -3153,7 +3201,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 
       ! Setup part for DMRG calculations

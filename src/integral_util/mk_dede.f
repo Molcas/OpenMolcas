@@ -13,7 +13,7 @@
 ************************************************************************
       SubRoutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,
      &                   mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &                   DInf,nDInf,DeDe,nDeDe)
+     &                   DeDe,nDeDe)
 ************************************************************************
 *                                                                      *
 * Object: to decontract, desymmetrize the 1st order density matrix.    *
@@ -55,6 +55,8 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -64,7 +66,7 @@
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 DInf(*), DeDe(nDeDe)
+      Real*8 DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)
       Character ChOper(0:7)*3
@@ -131,7 +133,6 @@ C     Call QEnter('DeDe')
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
          mdci   = iSD(10,iS)
@@ -142,7 +143,6 @@ C     Call QEnter('DeDe')
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
@@ -150,7 +150,7 @@ C     Call QEnter('DeDe')
             ijShll = iTri(iShell,jShell)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
 *                                                                      *
 ************************************************************************
@@ -186,7 +186,7 @@ C     Call QEnter('DeDe')
 *-----------Compute normalization factor due the DCR symmetrization
 *           of the two basis functions and the operator.
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             FactNd = DBLE(iuv)/DBLE(nIrrep * LmbdR)
             If (MolWgh.eq.1) Then
                FactNd = FactNd * DBLE(nIrrep)/DBLE(iuv)
@@ -215,8 +215,6 @@ C     Call QEnter('DeDe')
               jBasj = jBas
               iPrimi= iPrim
               jPrimj= jPrim
-              iCffi = iCff
-              jCffj = jCff
               iAngi = iAng
               jAngj = jAng
               iCmpi = iCmp
@@ -232,8 +230,6 @@ C     Call QEnter('DeDe')
               jBasj = iBas
               iPrimi= jPrim
               jPrimj= iPrim
-              iCffi = jCff
-              jCffj = iCff
               iAngi = jAng
               jAngj = iAng
               iCmpi = jCmp
@@ -261,7 +257,8 @@ C     Call QEnter('DeDe')
 *
             Call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmpi,jCmpj,iSh,jSh,AeqB,iAOi,jAOj)
+     &                  iCmpi,jCmpj,iSh,jSh,
+     &                  AeqB,iAOi,jAOj)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -270,22 +267,22 @@ C     Call QEnter('DeDe')
 *
             If (iPrint.ge.99) Then
                Call RecPrt(' Left side contraction',' ',
-     &                     DInf(iCffi),iPrimi,iBasi)
+     &                     Shells(iShll)%pCff,iPrimi,iBasi)
                Call RecPrt(' Right side contraction',' ',
-     &                     DInf(jCffj),jPrimj,jBasj)
+     &                     Shells(jShll)%pCff,jPrimj,jBasj)
             End If
 *
 *-----------Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBasj*nSO,iPrimi,iBasi,
      &                  1.0d0,DSOc,iBasi,
-     &                  DInf(iCffi),iPrimi,
+     &                        Shells(iShll)%pCff,iPrimi,
      &                  0.0d0,DSOp,jBasj*nSO)
 *-----------Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrimi,jPrimj,jBasj,
      &                  1.0d0,DSOp,jBasj,
-     &                  DInf(jCffj),jPrimj,
+     &                        Shells(jShll)%pCff,jPrimj,
      &                  0.0d0,DSO,nSO*iPrimi)
 *-----------Transpose to ij,AB
             Call DGeTmO(DSO,nSO,nSO,iPrimi*jPrimj,DSOp,
@@ -299,7 +296,7 @@ C     Call QEnter('DeDe')
 *                                                                      *
 *-----------Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             If (iFD.eq.1) Then
 *
 *------------- Store away pointer to the block of density info
@@ -319,21 +316,21 @@ C     Call QEnter('DeDe')
 *
                ipOffD(4,ijShll) = jOffD + ipDeDe
             End If
-            mIndij = mIndij + (nIrrep/nStab(mdci))*
-     &                        (nIrrep/nStab(mdcj))
+            mIndij = mIndij + (nIrrep/dc(mdci)%nStab)*
+     &                        (nIrrep/dc(mdcj)%nStab)
             If (iPrint.ge.99) Then
                Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',
      &                       ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
             End If
             Do lDCRR = 0, nDCRR-1
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *--------------Desymmetrize the 1st order density matrix(contracted).
 *
                Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,
+     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,
      &                     DAO,iBasi,jBasj,
      &                     DSOc,nSO,nOp,FactNd,Scrt)
 *
@@ -386,7 +383,7 @@ C     Call QEnter('DeDe')
 *--------------Desymmetrize the 1st order density matrix(primitive).
 *
                Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,
+     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,
      &                     DAO,iPrimi,jPrimj,
      &                     DSOp,nSO,nOp,FactNd,Scrt)
 *

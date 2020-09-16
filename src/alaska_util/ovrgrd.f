@@ -40,6 +40,7 @@
 *             '91.                                                     *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -129,7 +130,7 @@
  21   Continue
       Call CmbnS1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
      &            kOp,iChBas,MxFnc)
 *
 *     Call qExit('OvrGrd')

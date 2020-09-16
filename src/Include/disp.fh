@@ -9,22 +9,22 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Logical        lDStrt,
-     &               TRSymm, lEq, Direct(Mxdc*3), l2DI, HF_Force,
+     &               TRSymm, lEq, Direct(MxAtom*3), l2DI, HF_Force,
      &               lDEnd
       Common /lDisp/ lDStrt,
      &               TRSymm, lEq, Direct,         l2DI, HF_Force,
      &               lDEnd
 
-      Character*(LENIN6) ChDisp(Mxdc*3)
+      Character*(LENIN6) ChDisp(MxAtom*3)
       Integer cDStrt, cDEnd
       Common /CDisp/ cDStrt,
      &               ChDisp,
      &               cDEnd
 
       Integer        iDStrt,
-     &               IndDsp(mxdc,0:7), iSkal(MxBas), InxDsp(mxdc,3),
-     &               lDisp(0:7), IndxEq(mxdc*3), ipAM, nTR,
-     &               mult_Disp(mxdc*3),
+     &               IndDsp(MxAtom,0:7), iSkal(MxBas), InxDsp(MxAtom,3),
+     &               lDisp(0:7), IndxEq(MxAtom*3), ipAM, nTR,
+     &               mult_Disp(MxAtom*3),
      &               iDEnd
       Common /iDisp/ iDStrt,
      &               IndDsp,           iSkal,        InxDsp,
@@ -33,7 +33,7 @@
      &               iDEnd
 
       Real*8         rDStrt,
-     &               CutGrd, Disp_Fac(3,0:7,mxdc),
+     &               CutGrd, Disp_Fac(3,0:7,MxAtom),
      &               rDEnd
       Common /rDisp/ rDStrt,
      &               CutGrd, Disp_Fac,

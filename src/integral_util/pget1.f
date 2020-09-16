@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet1(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 ************************************************************************
@@ -31,6 +31,7 @@
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -39,7 +40,7 @@
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
 *
       iRout = 39
@@ -150,7 +151,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

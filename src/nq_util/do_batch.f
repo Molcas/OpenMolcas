@@ -44,6 +44,9 @@
 ************************************************************************
       use iSD_data
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -212,21 +215,20 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
 
+            iShll = iSD( 0,iSh)
             iAng  = iSD( 1,iSh)
             iCmp  = iSD( 2,iSh)
             iBas  = iSD( 3,iSh)
             iBas_Eff = List_Bas(1,ilist_s)
             iPrim = iSD( 5,iSh)
             iPrim_Eff=List_Exp(ilist_s)
-            iCff  = iSD( 4,iSh)
-            iCff_Eff=iCff+iPrim*(iBas-iBas_Eff)
-            iExp  = iSD( 6,iSh)
             iAO   = iSD( 7,iSh)
-            ixyz  = iSD( 8,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
             iShll = iSD(0,iSh)
-            call dcopy_(3,Work(ixyz),1,A,1)
+            iCnttp= iSD(13,iSh)
+            iCnt  = iSD(14,iSh)
+            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
             nDrv     = mRad - 1
             nForm    = 0
@@ -252,7 +254,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(1) = px*A(1)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'mAO=',mAO
             If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
@@ -273,11 +275,14 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
 *                                                                      *
 c            write(6,*) 'iOff =', iOff
             Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
-     &                  Transf(iShll),
+     &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                  iWork(ipAng),nTerm,nForm,T_X,mRad,
-     &                  iPrim,iPrim_Eff,Work(iExp),Work(ipRadial),
-     &                  iBas_Eff,Work(iCff_Eff),TabAO(iOff),
+     &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
+     &                  Work(ipRadial),
+     &                  iBas_Eff,
+     &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
+     &                  TabAO(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
 #ifdef _DEBUG_
@@ -401,32 +406,32 @@ c            write(6,*) 'iOff =', iOff
 *
 cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
             Call FZero(Work(ipSOs),nSO)
 *
             iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 *
 *---------- Distribute contributions of AOs if this particular shell
 *           on to the SOs of this shell. The SOs are only stored
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iShell)
+     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
 *
             Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
             Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
      &                   iCmp,nDeg,TabSO,
-     &                   iShell,nMOs,iAO,Work(ipTmpCMO),
+     &                   nMOs,iAO,Work(ipTmpCMO),
      &                   nCMO,iWork(ipTDoIt))
             Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
 *
             Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                  iShell,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                  nMOs,iAO,CMOs,nCMO,DoIt)
 *
          End Do
       End If

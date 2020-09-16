@@ -25,6 +25,7 @@
 *             Gradients                                                *
 *             October  97                                              *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External ElGrd,elgrddot
       External ElMem
@@ -81,11 +82,11 @@
       Call GetMem('TEMP','FREE','Real',ipTemp,3*ngrad)
 * needed in RASSI
       Do iCar=1,3
-      isym=irrfnc(2**(icar-1))! nropr(ichbas(1+iCar),ioper,nirrep)
+      isym=irrfnc(2**(icar-1))! nropr(ichbas(1+iCar))
       Write(Lbl,'(a,i2)') 'ELEC ',iCar
       idcnt=0
       Do iCnttp=1,nCnttp
-        Do iCnt=1,nCntr(iCnttp)
+        Do iCnt=1,dbsc(iCnttp)%nCntr
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El2(ELGRD,ELMEM,Lbl,idcnt,idcar,loper,

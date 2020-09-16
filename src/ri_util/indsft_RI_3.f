@@ -27,6 +27,7 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -80,7 +81,9 @@
       j1=0
       Do i2 = 1, iCmp(2)
          Do 201 j = 0, nIrrep-1
-            jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+            ix = 0
+            If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+            jSym(j) = ix
 201      Continue
          If (iShell(2).gt.iShell(1)) then
             i12 = iCmp(2)*(i1-1) + i2
@@ -89,13 +92,17 @@
          End If
          Do i3 = 1, iCmp(3)
             Do 301 j = 0, nIrrep-1
-               kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+               ix = 0
+               If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+               kSym(j) = ix
 301         Continue
             lCmpMx = iCmp(4)
             If (Shkl) lCmpMx = i3
             Do 400 i4 = 1, lCmpMx
                Do 401 j = 0, nIrrep-1
-                  lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                  lSym(j) = ix
 401            Continue
                qkl = i3.eq.i4
                If (iShell(4).gt.iShell(3)) then

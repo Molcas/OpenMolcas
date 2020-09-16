@@ -1278,13 +1278,27 @@ if (LINALG STREQUAL "MKL")
   if (NOT MKLROOT STREQUAL MKLROOT_LAST)
     # reset MKL paths
     set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH "location of MKL include files." FORCE)
-    if (ADDRMODE EQUAL 64)
-      set (libpath "${MKLROOT}/lib/intel64")
-    elseif (ADDRMODE EQUAL 32)
-      set (libpath "${MKLROOT}/lib/ia32")
+
+    if (PLATFORM STREQUAL "MacOS")
+      if (ADDRMODE EQUAL 64)
+        set (libpath "${MKLROOT}/lib")
+      elseif (ADDRMODE EQUAL 32)
+        message (FATAL_ERROR
+                 "PLATFORM=MacOS, but you use ADDRMODE=32. This is "
+                 "either a VERY old, unsupported platform, or "
+                 "there is a configuration error.")
+      endif ()
+    else ()
+      if (ADDRMODE EQUAL 64)
+        set (libpath "${MKLROOT}/lib/intel64")
+      elseif (ADDRMODE EQUAL 32)
+        set (libpath "${MKLROOT}/lib/ia32")
+      endif ()
     endif ()
     set (MKL_LIBRARY_PATH ${libpath} CACHE PATH "location of MKL libraries." FORCE)
     # uncache variables
+    unset (LIBMKL_BLAS CACHE)
+    unset (LIBMKL_LAPACK CACHE)
     unset (LIBMKL_CORE CACHE)
     unset (LIBMKL_INTERFACE CACHE)
     unset (LIBMKL_SEQUENTIAL CACHE)
@@ -1298,12 +1312,26 @@ if (LINALG STREQUAL "MKL")
   message ("-- MKL_LIBRARY_PATH = ${MKL_LIBRARY_PATH}")
 
   # core library
-  find_library (LIBMKL_CORE NAMES "mkl_core"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  if (PLATFORM STREQUAL "MacOS")
+    find_library (LIBMKL_CORE NAMES "libmkl_core.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  else ()
+    find_library (LIBMKL_CORE NAMES "mkl_core"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  endif ()
   # compiler-specific library interface
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    if (PLATFORM STREQUAL "MacOS")
+      find_library (LIBMKL_BLAS NAMES "libmkl_blas95_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+      find_library (LIBMKL_LAPACK NAMES "libmkl_lapack95_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+      find_library (LIBMKL_INTERFACE NAMES "libmkl_intel_ilp64.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    else ()
     find_library (LIBMKL_INTERFACE NAMES "mkl_gf_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    endif ()
   elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
     find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
@@ -1312,8 +1340,13 @@ if (LINALG STREQUAL "MKL")
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
   # sequential/compiler-specific threading interface
-  find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  if (PLATFORM STREQUAL "MacOS")
+    find_library (LIBMKL_SEQUENTIAL NAMES "libmkl_sequential.a"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  else ()
+    find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  endif ()
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_GNU_OPENMP}")
     find_library (LIBMKL_THREADING NAMES "mkl_gnu_thread"
@@ -1341,6 +1374,10 @@ if (LINALG STREQUAL "MKL")
   if (MPI)
     add_definitions (-DSCALAPACK)
     list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
+  endif ()
+  if (PLATFORM STREQUAL "MacOS")
+    list (APPEND MKL_LIBRARIES ${LIBMKL_BLAS})
+    list (APPEND MKL_LIBRARIES ${LIBMKL_LAPACK})
   endif ()
   list (APPEND MKL_LIBRARIES ${LIBMKL_INTERFACE})
   list (APPEND MKL_LIBRARIES ${LIBMKL_CORE})
@@ -2535,6 +2572,7 @@ set (numerical_gradient_deps
   $<TARGET_OBJECTS:chcc>
   $<TARGET_OBJECTS:cht3>
   $<TARGET_OBJECTS:mcpdft>
+  $<TARGET_OBJECTS:false>
 )
 set (last_energy_deps
   $<TARGET_OBJECTS:seward>
@@ -2547,6 +2585,7 @@ set (last_energy_deps
   $<TARGET_OBJECTS:chcc>
   $<TARGET_OBJECTS:cht3>
   $<TARGET_OBJECTS:mcpdft>
+  $<TARGET_OBJECTS:false>
 )
 if (BLOCK OR DMRG)
 list (APPEND last_energy_deps

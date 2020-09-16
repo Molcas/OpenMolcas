@@ -14,8 +14,6 @@
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,FacInt,iTOffs,nSym,
-     &                         nShi,nShj,nShk,nShl,
-     &                         nShOffi,nShOffj,nShOffk,nShOffl,
      &                         Dens,Fock,LDens,ExFac,NDens,
      &                         ind,nind,FckNoClmb,FckNoExch)
       Implicit Real*8 (A-H,O-Z)
@@ -26,9 +24,7 @@
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
-     &        iTOffs(0:7,0:7,0:7), MapOrg(4),
-     &        nShi(0:7), nShj(0:7), nShk(0:7), nShl(0:7),
-     &        nShOffi(0:7), nShOffj(0:7), nShOffk(0:7), nShOffl(0:7)
+     &        iTOffs(0:7,0:7,0:7), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
       If (Petite) Then
@@ -52,14 +48,6 @@ c Avoid unused argument warnings
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)
          Call Unused_integer(nSym)
-         Call Unused_integer_array(nShi)
-         Call Unused_integer_array(nShj)
-         Call Unused_integer_array(nShk)
-         Call Unused_integer_array(nShl)
-         Call Unused_integer_array(nShOffi)
-         Call Unused_integer_array(nShOffj)
-         Call Unused_integer_array(nShOffk)
-         Call Unused_integer_array(nShOffl)
          Call Unused_real(Dens)
          Call Unused_real(Fock)
          Call Unused_integer(LDens)
