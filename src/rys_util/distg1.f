@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Distg1(Temp,mVec,Grad,nGrad,IfGrad,IndGrd,
-     &                  iStab,kOp,nIrrep)
+     &                  iStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: trace the gradient of the ERI's with the second order        *
@@ -28,7 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

@@ -556,7 +556,7 @@
 *--------------Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                      JfGrad,JndGrd,iuvwx,lOp,nIrrep)
+     &                      JfGrad,JndGrd,iuvwx,lOp)
 *
  1966       Continue
  1967    Continue
