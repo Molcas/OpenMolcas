@@ -57,6 +57,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
+#include "int_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Kamal Sharkas  01/29/2015
       If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       iCmp   = iSD( 2,iS)

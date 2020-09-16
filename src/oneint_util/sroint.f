@@ -11,11 +11,10 @@
 * Copyright (C) 1994, Roland Lindh                                     *
 *               1994, Luis Seijo                                       *
 ************************************************************************
-      SubRoutine SROInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine SROInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of MP integrals.          *
@@ -73,12 +72,12 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
-     &          iChO(nComp), iTwoj(0:7)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iTwoj(0:7)
       Character*80 Label
       Logical EQ
       Data iTwoj/1,2,4,8,16,32,64,128/

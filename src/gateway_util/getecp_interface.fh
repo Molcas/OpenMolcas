@@ -10,29 +10,21 @@
 *                                                                      *
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,
-     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
-     &                 ExtBasDir)
+      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
 #ifdef _ACTUAL_
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
-#endif
-#include "Molcas.fh"
-#ifdef _ACTUAL_
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #endif
-      Character*(*) DDname
-      Character(LEN=80)  BSLbl
-      Integer       iShll
-      Character(LEN=80)  Ref(2)
-      Logical       UnNorm
-      Integer       LuRd, BasisTypes(4)
-      Character(LEN=180) STDINP(MxAtom*2)
-      Logical L_STDINP, Expert
-      Character *(*) ExtBasDir
+      Integer lUnit
+      Integer iShll
+      Integer nProj
+      Logical UnNorm
 #ifndef _ACTUAL_
-      End SubRoutine GetBS
+      End SubRoutine GetECP
 #endif
 #undef _ACTUAL_
+

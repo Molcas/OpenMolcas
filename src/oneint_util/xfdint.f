@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine XFdInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine XFdInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -42,17 +41,14 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp)
-*-----Local arrys
+
+#include "int_interface.fh"
+
+*-----Local variables
       Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2),
      &       ZFd((iTabMx+1)*(iTabMx+2)/2), ZRFd((iTabMx+1)*(iTabMx+2)/2)
       Logical EQ, NoLoop, NoSpecial
-      Integer iAnga(4), iDCRT(0:7), iChO(nComp), iStb(0:7),
-     &          jCoSet(8,8)
+      Integer iAnga(4), iDCRT(0:7), iStb(0:7), jCoSet(8,8)
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
@@ -254,7 +250,7 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_real_array(CCoor)
          Call Unused_real(PtChrg)
          Call Unused_integer(nGrid)

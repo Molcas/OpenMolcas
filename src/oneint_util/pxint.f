@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PXInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine PXInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of  pX integrals          *
@@ -31,13 +30,27 @@
 #include "info.fh"
 #include "print.fh"
 #include "property_label.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
       Parameter (mComp=200)
       Integer kOper(mComp), kChO(mComp)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine PVINT(
+#define _CALLING_
+#include "int_interface.fh"
+     &                , Kernel)
+#include "int_interface.fh"
+      External Kernel
+      End Subroutine PVINT
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       Call QEnter('PXInt')
 *                                                                      *

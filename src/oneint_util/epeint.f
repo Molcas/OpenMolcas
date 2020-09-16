@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine EPEInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine EPEInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -41,13 +40,12 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3),
-     &       Array(nZeta*nArr), Ccoor(3)
-      Real*8 Coori(3,4), Coora(3,4), CoorAC(3,2)
-      Integer iAnga(4), iStabM(0:nStabM-1), iDCRT(0:7),
-     &          iStabO(0:7), iChO(nComp), lOper(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3), Coori(3,4), Coora(3,4), CoorAC(3,2)
+      Integer iAnga(4), iDCRT(0:7), iStabO(0:7)
       Logical EQ, NoSpecial
 *
 *     Statement function for Cartesian index
@@ -126,7 +124,7 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_integer(nOrdOp)
          Call Unused_real(PtChrg)
          Call Unused_integer(nGrid)

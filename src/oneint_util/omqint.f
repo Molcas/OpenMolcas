@@ -11,11 +11,10 @@
 * Copyright (C) 2015, Lasse Kragh Soerensen                            *
 *               2015, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine OMQInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine OMQInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of orbital magnetic       *
@@ -40,12 +39,12 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3),
-     &       Array(nZeta*nArr), Ccoor(3)
-      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7),
-     &          lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3)
+      Integer iStabO(0:7), iDCRT(0:7)
 *
 *     Statement function for Cartesian index
 *

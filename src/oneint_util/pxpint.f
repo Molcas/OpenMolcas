@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Bernd Artur Hess                                 *
 *               1999, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine pXpInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine pXpInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the comutation of pXp integrals           *
@@ -40,11 +39,10 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
       Parameter (mComp=200)
       Integer kOper(mComp), kChO(mComp)
 *
@@ -187,5 +185,5 @@ C              Write (6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       Call qExit('pXpInt')
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nRys)
+      If (.False.) Call Unused_integer(nHer)
       End

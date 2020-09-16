@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 2015, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine EMFInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine EMFInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the electromagnetic field radiation integrals     *
@@ -38,13 +37,12 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), CCoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
       Logical ABeq(3)
-      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp),
-     &        iStabO(0:7), iDCRT(0:7)
+      Integer iStabO(0:7), iDCRT(0:7)
 *
       Call EMFInt_Internal(Array)
       Return
