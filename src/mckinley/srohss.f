@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine SroHss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                 IfHss,IndHss,ifgrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                 lOper,nComp,iStabM,nStabM)
+      SubRoutine SroHss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
@@ -70,27 +69,26 @@
 #include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      real*8 zeta(nzeta), zinv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rkappa(nzeta), p(nZeta,3), A(3), RB(3),
-     &       array(narr), Ccoor(3), C(3), TC(3),Coor(3,4),
-     &       dao(nzeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2),Hess(nHess),
-     &       g2(78)
-      integer istabm(0:nstabm-1), iDCRT(0:7), lOper(nComp),
-     &          iuvwx(4), nop(2), kOp(4),mop(4),
-     &          indgrd(3,2,0:7), JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7),
-     &          indhss(2,3,2,3,0:7)
-      logical  ifgrd(3,2),jfgrd(3,4),  EQ,
-     & jfhss(4,3,4,3),ifhss(2,3,2,3) ,ifg(4),tr(4)
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), Coor(3,4),  g2(78)
+      Integer iDCRT(0:7), iuvwx(4), kOp(4),mop(4),
+     &        JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7)
+      logical jfgrd(3,4),  EQ, jfhss(4,3,4,3), ifg(4),tr(4)
+*
        nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
+      nRys=nHer
 *
       iuvwx(1) = dc(mdc)%nStab
       iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kop(1) = ioper(nop(1))
       kop(2) = ioper(nop(2))
-      call dcopy_(3,a,1,coor(1,1),1)
-      call dcopy_(3,rb,1,coor(1,2),1)
+      call dcopy_(3,A,1,coor(1,1),1)
+      call dcopy_(3,RB,1,coor(1,2),1)
 
 *
       kdc = 0

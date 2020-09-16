@@ -80,6 +80,20 @@ c     Character ChOper(0:7)*3
       Logical AeqB, EQ, TstFnc, DiffOp, IfHss(0:1,0:2,0:1,0:2),
      &        TF,Chck,ifgrd(0:2,0:1)
 c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
+#include "hss_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Statement functions
 *
@@ -476,7 +490,7 @@ CBS            write(6,*) 'Call the  Kernel'
      &                     nOrdOp,Hess,nHess,
      &                     IfHss,IndHss,ifgrd,indgrd,Work(ipDAO),
      &                     mdci,mdcj,nOp,lOper,nComp,
-     &                     iStabM,nStabM)
+     &                     iStabM,nStabM,nIrrep)
 
 #ifdef _DEBUG_
                write(6,*)  'Hess after Kernel call in dot1el '

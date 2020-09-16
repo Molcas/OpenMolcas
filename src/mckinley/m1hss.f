@@ -11,11 +11,10 @@
 * Copyright (C) 1991, Anders Bernhardsson                              *
 *               1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine M1Hss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                 IfHss,IndHss,ifgrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                 lOper,nComp,iStabM,nStabM)
+      SubRoutine M1Hss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
@@ -43,20 +42,13 @@
 c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      Integer IndGrd(0:2,0:1,0:(nIrrep-1)),
-     &          IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1)),
-     &          nOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3), TC(3),
-     &       Array(nArr), Ccoor(3), Hess(nHess),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-       Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1), TstFnc, TF,
-     &         EQ,IfG(0:3),Tr(0:3)
-*
-*     Local arrrays
-*
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
+      Real*8 C(3), TC(3)
+      Logical TstFnc, TF, EQ, IfG(0:3),Tr(0:3)
       Real*8 Coora(3,4), Coori(3,4), CoorAC(3,2)
       Integer iAnga(4), JndGrd(0:2,0:3,0:7),
      &           JndHss(0:3,0:2,0:3,0:2,0:7),
@@ -75,6 +67,8 @@ c     Call qEnter('M1Hss')
 c     If (iPrint.ge.99) Then
 c        Write (6,*) ' In M1Hss: nArr=',nArr
 c     End If
+*
+      nRys=nHer
 *
       nip = 1
       ipA = nip
