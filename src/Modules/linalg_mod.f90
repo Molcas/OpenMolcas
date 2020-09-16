@@ -27,13 +27,31 @@ module linalg_mod
     ! TODO Move to different module
     public :: assert_, abort_, assume_
 
+    type, abstract :: ParentCanonicalize_t
+    contains
+        procedure :: canonicalize => base_canonicalize
+        procedure(get_projections_t), deferred :: get_projections
+    end type
+
     abstract interface
-        subroutine get_projections_t(M, P)
-            import :: wp
+        subroutine get_projections_t(self, M, P)
+            import :: wp, ParentCanonicalize_t
+            class(ParentCanonicalize_t), intent(in) :: self
             real(wp), intent(in) :: M(:, :)
             real(wp), intent(out) :: P(:, :)
         end subroutine
     end interface
+
+    type, extends(ParentCanonicalize_t) :: CanonicalBasisCanonicalize_t
+    contains
+        procedure :: get_projections => project_canonical_unit_vectors
+    end type
+
+    type, extends(ParentCanonicalize_t) :: GeneralBasisCanonicalize_t
+        real(wp), pointer :: ref(:, :) => null()
+    contains
+        procedure :: get_projections => project_general_unit_vectors
+    end type
 
 
 !>  @brief
@@ -348,9 +366,9 @@ contains
     end subroutine
 
 
-    subroutine canonicalize_factory(V, lambda, get_projections)
+    subroutine base_canonicalize(self, V, lambda)
+        class(ParentCanonicalize_t), intent(in) :: self
         real(wp), intent(inout) :: V(:, :), lambda(:)
-        procedure(get_projections_t) :: get_projections
         !> The norms of the projections
         real(wp), allocatable :: norms_projections(:)
         character(*), parameter :: this_routine = 'canonicalize_factory'
@@ -377,7 +395,9 @@ contains
         low = 1
         do j = 1, size(dimensions)
             d = dimensions(j)
-            call get_projections(V(:, low : low + d - 1), projections)
+            ! `self` "knows" which vectors are to be projected
+            !  into V(:, low : low + d - 1)
+            call self%get_projections(V(:, low : low + d - 1), projections)
 
             do i = 1, size(norms_projections)
                 norms_projections(i) = norm(projections(:, i))
@@ -405,57 +425,59 @@ contains
         call mma_deallocate(dimensions)
     end subroutine
 
+
+    subroutine project_canonical_unit_vectors(self, M, P)
+        class(CanonicalBasisCanonicalize_t), intent(in) :: self
+        real(wp), intent(in) :: M(:, :)
+        real(wp), intent(out) :: P(:, :)
+        integer :: i, j
+
+        ! avoid unused dummy warning
+        associate(tmp => self); end associate
+
+        P(:, :) = 0._wp
+        ! calculate projections of basis b_j into eigenvectors v_i:
+        ! p_j = sum_i < b_j | v_i > v_i
+        ! if b_j are canonical unit vectors, the dot product is the j-th
+        ! component of v_i
+        do j = 1, size(P, 2)
+            do i = 1, size(M, 2)
+                P(:, j) = P(:, j) + M(j, i) * M(:, i)
+            end do
+        end do
+    end subroutine
+
+
+    subroutine project_general_unit_vectors(self, M, P)
+        class(GeneralBasisCanonicalize_t), intent(in) :: self
+        real(wp), intent(in) :: M(:, :)
+        real(wp), intent(out) :: P(:, :)
+        integer :: i, j
+
+        P(:, :) = 0._wp
+        ! calculate projections of basis b_j into eigenvectors v_i:
+        ! p_j = sum_i < b_j | M_i > M_i
+        do j = 1, size(P, 2)
+            do i = 1, size(M, 2)
+                P(:, j) = P(:, j) + dot_product_(self%ref(:, j), M(:, i)) * M(:, i)
+            end do
+        end do
+    end subroutine
+
     subroutine canonicalize_canonical_basis(V, lambda)
         real(wp), intent(inout) :: V(:, :), lambda(:)
+        type(CanonicalBasisCanonicalize_t) :: canonicalizer
 
-        call canonicalize_factory(V, lambda, get_projections)
-
-        contains
-
-        ! Calculate the projections p_j of the e_j canonical unit vectors
-        ! into the subspace spanned by M.
-        subroutine get_projections(M, P)
-            real(wp), intent(in) :: M(:, :)
-            real(wp), intent(out) :: P(:, :)
-            integer :: i, j
-
-            P(:, :) = 0._wp
-            ! calculate projections of basis b_j into eigenvectors v_i:
-            ! p_j = sum_i < b_j | v_i > v_i
-            ! if b_j are canonical unit vectors, the dot product is the j-th
-            ! component of v_i
-            do j = 1, size(P, 2)
-                do i = 1, size(M, 2)
-                    P(:, j) = P(:, j) + M(j, i) * M(:, i)
-                end do
-            end do
-        end subroutine
+        call canonicalizer%canonicalize(V, lambda)
     end subroutine
 
     subroutine canonicalize_general(V, lambda, ref)
         real(wp), intent(inout) :: V(:, :), lambda(:)
-        real(wp), intent(in) :: ref(:, :)
+        real(wp), intent(in), target :: ref(:, :)
+        type(GeneralBasisCanonicalize_t) :: canonicalizer
 
-        call canonicalize_factory(V, lambda, get_projections)
-
-        contains
-
-        ! Calculate the projections P(:, j) of the ref(:, j) reference vectors
-        ! into the subspace spanned by M.
-        subroutine get_projections(M, P)
-            real(wp), intent(in) :: M(:, :)
-            real(wp), intent(out) :: P(:, :)
-            integer :: i, j
-
-            P(:, :) = 0._wp
-            ! calculate projections of basis b_j into eigenvectors v_i:
-            ! p_j = sum_i < b_j | M_i > M_i
-            do j = 1, size(P, 2)
-                do i = 1, size(M, 2)
-                    P(:, j) = P(:, j) + dot_product_(ref(:, j), M(:, i)) * M(:, i)
-                end do
-            end do
-        end subroutine
+        canonicalizer%ref => ref
+        call canonicalizer%canonicalize(V, lambda)
     end subroutine
 
 
