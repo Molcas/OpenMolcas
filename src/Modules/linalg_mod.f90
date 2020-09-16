@@ -433,7 +433,8 @@ contains
         integer :: i, j
 
         ! avoid unused dummy warning
-        associate(tmp => self); end associate
+        select type(self)
+        end select
 
         P(:, :) = 0._wp
         ! calculate projections of basis b_j into eigenvectors v_i:
