@@ -127,8 +127,7 @@
  21   Continue
       Call CmbnS1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
-     &            kOp)
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 *
 *     Call qExit('OvrGrd')
       Return

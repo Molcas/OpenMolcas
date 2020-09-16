@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                   Fact,Temp,Alpha,Beta,Grad,nGrad,DAO,IfGrad,
-     &                   IndGrd,iStab,jStab,nIrrep,kOp,EF)
+     &                   IndGrd,iStab,jStab,kOp,EF)
 ************************************************************************
 *                                                                      *
 * Object: to compute gradient integrals for SC Reaction Fields         *
@@ -27,7 +27,7 @@
 *             Modified for reaction field calculations July '92        *
 *             Modified for gradient calculations May '95               *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

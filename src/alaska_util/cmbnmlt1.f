@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine CmbnMlt1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Alpha,
      &                    Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
-     &                    jStab,nIrrep,kOp,nOrdOp,Force)
+     &                    jStab,kOp,nOrdOp,Force)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the multipole operator matrix.       *
@@ -27,7 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

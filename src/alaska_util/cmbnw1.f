@@ -12,8 +12,7 @@
 ************************************************************************
       SubRoutine CmbnW1(Welp0,Welm0,Wel0p,Wel0m,
      &                  nZeta,la,lb,Zeta,rKappa,Final,Alpha,Beta,
-     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,nIrrep,
-     &                  kOp)
+     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the Spherical Well integrals         *
@@ -28,7 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             May '95.                                                 *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep,iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

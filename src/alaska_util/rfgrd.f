@@ -143,7 +143,7 @@
       Call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &             nComp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &             IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
+     &             IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,
      &             kOp,MM(1,2))
 *
       Call qExit('RFGrd')

@@ -199,8 +199,7 @@
       Call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),
      &            nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),
      &            Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,
-     &            kOp)
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 
 *
       ip = ip - 5*nZeta

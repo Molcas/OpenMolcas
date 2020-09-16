@@ -144,7 +144,7 @@
       Call CmbnT1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipTxyz),Array(ipA),Array(ipB),
      &            Grad,nGrad,DAO,IfGrad,IndGrd,
-     &            dc(mdc)%nStab,dc(ndc)%nStab,nIrrep,kOp)
+     &            dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 *
 *     Call qExit('KnEGrd')
       Return
