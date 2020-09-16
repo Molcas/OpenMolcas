@@ -12,12 +12,10 @@
 *               1990, IBM                                              *
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine OvrGrd_mck(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,
-     &                rKappa,P,
-     &               Final,nZeta,la,lb,A,B,nHer,
-     &               Array,nArr,Ccoor,nOrdOp,IfGrad,
-     &               IndGrd,nop,
-     &               loper,iu,iv,nrOp,iDcar,iDCnt,iStabM,nStabM,trans)
+      SubRoutine OvrGrd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                     )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
@@ -51,12 +49,11 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 c#include "print.fh"
-      Integer IndGrd(nIrrep), nOp(2)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrOp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),cCoor(3),
-     &       Array(nArr)
-      Logical ABeq(3), IfGrad(3,2),trans(2)
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
 *
 *     Statement function for Cartesian index
 *
@@ -65,12 +62,11 @@ c#include "print.fh"
 c     iRout = 122
       iprint=0
 c     iPrint = nPrint(iRout)
-c     Call qEnter('OvrGrd')
 *     Write (*,*) ' IfGrad=',IfGrad
 *     Write (*,*) ' IndGrd=',IndGrd
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
 
       nip = 1
@@ -99,7 +95,7 @@ c     Call qEnter('OvrGrd')
 *
 c     If (iPrint.ge.49) Then
 c        Call RecPrt(' In OvrGrd: A',' ',A,1,3)
-c        Call RecPrt(' In OvrGrd: B',' ',B,1,3)
+c        Call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
 c        Call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
 c        Call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
 c        Write (*,*) ' In OvrGrd: la,lb=',la,lb
@@ -109,7 +105,7 @@ c     End If
 *
       Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
      &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,B,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
@@ -163,8 +159,6 @@ c     End If
      &                Final,nZeta,
      &                nElem(la)*nElem(lb)*nrOp)
 
-c     Call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
-c     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
