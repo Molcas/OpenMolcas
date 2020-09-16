@@ -81,6 +81,20 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       Real*8, Allocatable:: Krnl(:), Final(:), Scr1(:), Scr2(:)
       Real*8, Allocatable:: DAO(:), DSOpr(:), DSO(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
+#include "grd_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

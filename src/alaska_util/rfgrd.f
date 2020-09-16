@@ -11,11 +11,10 @@
 * Copyright (C) 1990,1992,1995, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine RFGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,B,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine RFGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the multipole moments integrals with the          *
@@ -50,21 +49,19 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "rctfld.fh"
-      Integer IndGrd(3,2), kOp(2), iStabM(0:nStabM-1),lOper(nComp)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+1)/2,(lb+1)*(lb+2)/2)
-      Logical ABeq(3), IfGrad(3,2)
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
 *
       iRout = 122
       iPrint = nPrint(iRout)
 *     iPrint = 99
       Call qEnter('RFGrd')
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
       nip = 1
       ipAxyz = nip
@@ -94,7 +91,7 @@
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In RFGrd: A',' ',A,1,3)
-         Call RecPrt(' In RFGrd: B',' ',B,1,3)
+         Call RecPrt(' In RFGrd: RB',' ',RB,1,3)
          Call RecPrt(' In RFGrd: CCoor',' ',CCoor,1,3)
          Call RecPrt(' In RFGrd: P',' ',P,nZeta,3)
          Write (6,*) ' In RFGrd: la,lb=',la,lb
@@ -109,7 +106,7 @@
 *
       Call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),
      &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),
+      Call vCrtCmp(Array(ipTemp1),P,nZeta,RB,Array(ipBxyz),
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
