@@ -72,7 +72,6 @@ C
       nWel=0
       iRI_type=0
       jMax = 5
-      nTtl=0
       Max_Center=15
 
       KVector(:)=Zero

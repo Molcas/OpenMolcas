@@ -14,8 +14,11 @@
 * Object: driver for computation of TMOM integrals                     *
 *                                                                      *
 ************************************************************************
-      use Basis_Info, only: nBas
       Use MpmC
+!#define _DEBUG_
+#ifdef _DEBUG_
+      use Basis_Info, only: nBas
+#endif
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem
 *     ipList: list of pointers to the integrals of each component
@@ -27,7 +30,6 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
-!#define _DEBUG_
 #ifdef _DEBUG_
 #include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)

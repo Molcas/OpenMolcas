@@ -113,7 +113,7 @@
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
      &          nShlls, iSkip(0:7),iAngMx,MaxPrm(0:iTabMx),
      &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
-     &          NotZer,nTtl, kCentr, iRelae_Info,iOrdFm, nOrd_XF,
+     &          NotZer, kCentr, iRelae_Info,iOrdFm, nOrd_XF,
      &          iXPolType,iRI_Type, nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
       Common /Info/ ixStrt,
@@ -121,7 +121,7 @@
      &              iAngMx,  nIrrep, n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
      &              nOrdEF, mCentr, m2Max,
-     &              m2Tot,  IntTot, MemHid, nTtl, Max_Cnt,
+     &              m2Tot,  IntTot, MemHid, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
      &              iSquar,  iWRopt, iSkip, NotZer, iRelae_info, jMax,
      &              MolWgh, iOrdFm, iRI_Type,
