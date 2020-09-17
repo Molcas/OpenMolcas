@@ -197,7 +197,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
          Call Unused_real_array(P)
-         Call Unused_real(Final)
+         Call Unused_real_array(Final)
          Call Unused_integer(nRys)
          Call Unused_real_array(Ccoor)
          Call Unused_integer_array(lOper)
