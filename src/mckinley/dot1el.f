@@ -60,7 +60,8 @@
       use Center_Info
       use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
@@ -83,14 +84,14 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Interface
-*      Subroutine Kernel(
-*#define _CALLING_
-*#include "hss_interface.fh"
-*     &                 )
-*#include "hss_interface.fh"
-*      End Subroutine Kernel
-*      End Interface
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
+#include "hss_interface.fh"
+      End Subroutine Kernel
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

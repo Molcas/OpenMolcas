@@ -30,7 +30,8 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (a-h,o-z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"

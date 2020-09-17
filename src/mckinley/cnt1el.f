@@ -67,7 +67,8 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -90,14 +91,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Interface
-*      Subroutine Kernel(
-*#define _CALLING_
-*#include "grd_mck_interface.fh"
-*     &                 )
-*#include "grd_mck_interface.fh"
-*      End Subroutine Kernel
-*      End Interface
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                 )
+#include "grd_mck_interface.fh"
+      End Subroutine Kernel
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
