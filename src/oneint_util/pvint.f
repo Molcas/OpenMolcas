@@ -46,14 +46,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine Kernel(
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
-#include "int_interface.fh"
-      End Subroutine Kernel
-      End Interface
+*      Interface
+*      Subroutine Kernel(
+*#define _CALLING_
+*#include "int_interface.fh"
+*     &                 )
+*#include "int_interface.fh"
+*      End Subroutine Kernel
+*      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

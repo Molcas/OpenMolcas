@@ -164,7 +164,7 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(ZInv)
          Call Unused_integer(iDCnt)
-         Call Unused_integer(iStabM)
+         Call Unused_integer_array(iStabM)
          Call Unused_integer(nStabM)
       End If
       End

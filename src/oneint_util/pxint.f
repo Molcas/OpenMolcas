@@ -39,15 +39,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine PVINT(
-#define _CALLING_
-#include "int_interface.fh"
-     &                , Kernel)
-#include "int_interface.fh"
-      External Kernel
-      End Subroutine PVINT
-      End Interface
+*      Interface
+*      Subroutine PVINT(
+*#define _CALLING_
+*#include "int_interface.fh"
+*     &                , Kernel)
+*#include "int_interface.fh"
+*      External Kernel
+*      End Subroutine PVINT
+*      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -74,6 +74,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nRys = nHer
       kIC=nIC/3
       kComp=nComp/3
       kOrdOp = nOrdOp-1

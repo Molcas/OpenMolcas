@@ -242,6 +242,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(rKappa)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
-         Call Unused_integer(Trans)
+         Call Unused_logical_array(Trans)
       End If
       End
