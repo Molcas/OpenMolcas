@@ -13,8 +13,7 @@
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
-     &                         TInt,nTInt,FacInt,iTOffs,nSym,
-     &                         FckNoClmb,FckNoExch)
+     &                         TInt,nTInt,iTOffs,nSym)
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -24,7 +23,7 @@
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        iTOffs(0:7,0:7,0:7), MapOrg(4)
-      Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
+      Logical Shijij,IJeqKL
 *
       If (nSym==1) Then
         Call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
@@ -45,9 +44,6 @@ c Avoid unused argument warnings
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_real(FacInt)
          Call Unused_integer(nSym)
-         Call Unused_logical(FckNoClmb)
-         Call Unused_logical(FckNoExch)
       End If
       End

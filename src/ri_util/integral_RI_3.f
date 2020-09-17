@@ -13,8 +13,7 @@
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
-     &                         TInt,nTInt,FacInt,itOffs,nSym,
-     &                         FckNoClmb,FckNoExch)
+     &                         TInt,nTInt,itOffs,nSym)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -29,7 +28,7 @@
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
-      Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
+      Logical Shijij,IJeqKL
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,8 +95,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(MapOrg)
          Call Unused_integer(nSkal)
-         Call Unused_real(FacInt)
-         Call Unused_logical(FckNoClmb)
-         Call Unused_logical(FckNoExch)
       End If
       End

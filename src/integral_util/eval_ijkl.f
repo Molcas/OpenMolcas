@@ -520,9 +520,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  Sew_Scr(ipMem2),
      &                                  Sew_Scr(ipMem1),nSO,
      &                                  iSOSym,mSkal,nSOs,
-     &                                  TInt,nTInt,FacInt,
-     &                                  iTOffs,nIrrep,
-     &                                  FckNoClmb,FckNoExch)
+     &                                  TInt,nTInt,iTOffs,nIrrep)
                      Else
                         Tmax=Zero
                      End If
