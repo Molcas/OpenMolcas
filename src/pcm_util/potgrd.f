@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PotGrd(Temp,nGrad)
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       External PCMGrd1,PCMMmg
 #include "itmax.fh"

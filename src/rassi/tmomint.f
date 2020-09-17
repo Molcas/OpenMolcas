@@ -14,6 +14,7 @@
 * Object: driver for computation of TMOM integrals                     *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       Use MpmC
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem

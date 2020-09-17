@@ -137,7 +137,6 @@ C     Show=Show.and..Not.Primitive_Pass
       n2Tot = 0
       n2Max = 0
       nDim = 0
-      m2Tot = 0
       iAO=0
       lSkip=.False.
 *
@@ -209,7 +208,6 @@ C     Show=Show.and..Not.Primitive_Pass
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -352,7 +350,6 @@ C     Show=Show.and..Not.Primitive_Pass
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
@@ -538,7 +535,6 @@ culf
          nDim = nDim + nBas(iIrrep)
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
  200  Continue ! iIrrep
 *     If (lSkip) nDim = iBas
       If (iBas.ne.iSO .and.
@@ -600,7 +596,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -701,7 +696,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
@@ -842,7 +836,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nDim = nDim + nBas(iIrrep)
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
  300  Continue
 *
 CSVC: basis IDs of non-symmetric case

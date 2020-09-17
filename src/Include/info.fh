@@ -10,18 +10,6 @@
 ************************************************************************
 *************** Variable description ***********************************
 *                                                                      *
-* Shell is the name of the group of functions which has the same       *
-* angular momentum and belong to a given basis sets specification. This*
-* shell may reside on a number of different centers.                   *
-*                                                                      *
-* Observe that this notation sometimes will refer to the list of shells*
-* of the basis set and other times to the list of shells of the unique *
-* centers.                                                             *
-*                                                                      *
-* Basis set is a group of shells which has been specified together as  *
-* having the same set of unique centers. However, there is nothing     *
-* which prevents two or more basis sets to have common centers.        *
-*                                                                      *
 * Variables:                                                           *
 *                                                                      *
 * -> Integer   <-                                                      *
@@ -30,7 +18,6 @@
 *     MaxPrm: max number of primitives in a shell for a given angular  *
 *             momentum                                                 *
 *     MaxBas: Dito contracted functions                                *
-*     nPrm  : number of primitive functions in each irrep              *
 *     MolWgh: integer flag to indicate the normalization of the        *
 *             symmetry transformation                                  *
 *             0: double coset represetative normalization              *
@@ -124,19 +111,16 @@
       Integer   iLbls,IntTot,ixStrt,ixEnd,
      &          m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
-     &          nShlls
-      Integer   iSkip(0:7),iAngMx,MaxPrm(0:iTabMx),
-     &          MaxBas(0:iTabMx),Max_Center,
-     &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,
-     &          NotZer,nTtl, kCentr, iRelae_Info
-      Integer   iOrdFm, nOrd_XF,iXPolType,iRI_Type,
-     &          nCtrLD,iCtrLD(10), nPSOI, IsChi
+     &          nShlls, iSkip(0:7),iAngMx,MaxPrm(0:iTabMx),
+     &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
+     &          NotZer,nTtl, kCentr, iRelae_Info,iOrdFm, nOrd_XF,
+     &          iXPolType,iRI_Type, nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
       Common /Info/ ixStrt,
      &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
      &              iAngMx,  nIrrep, n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
-     &              nOrdEF, mCentr, nPrm,   m2Max,
+     &              nOrdEF, mCentr, m2Max,
      &              m2Tot,  IntTot, MemHid, nTtl, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
      &              iSquar,  iWRopt, iSkip, NotZer, iRelae_info, jMax,
@@ -195,8 +179,7 @@
      &               CLight_Info, radiLD, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               AccMch, ThrInt, PotNuc,
-     &               CutInt, TMass, CoM, rMI,
+     &               AccMch, ThrInt, PotNuc, CutInt, TMass, CoM, rMI,
      &               Prin, PAx, CoC, qNuc, PkAcc, Thrs,
      &               Dxyz, RadMax, cdMax, EtMax, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
