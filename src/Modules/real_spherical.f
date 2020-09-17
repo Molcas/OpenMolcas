@@ -71,15 +71,12 @@
 #include "info.fh"
 #include "real.fh"
       Logical CSPF
-*     iAngMx is the largest ang mom in the current basis
-      iAngMx=Max(iAngMx,lMax,1)
 *     check if required ang mom is greater than hard-coded limit
-      If (iAngMx.gt.iTabMx) Then
+      If (lMax.gt.iTabMx) Then
          Call WarningMessage(2,' Sphere: Increase iTabMx!')
          Call Abend()
       End If
 *
-*     Write (*,*) 'Sphere:',lmax, lmax_internal
       If (lmax.lt.0) Then
          Write (6,*) 'Sphere: lmax<0'
          Call Abend()
@@ -103,10 +100,11 @@
 *     Gives info on basis function angular momenta
 *     n, l, ml or assigns it as a diffuse/polarising function with '*'
 *
-      MxFnc=(iAngMx+1)*(iAngMx+2)*(iAngMx+3)/6
+      MxFnc=(lMax+1)*(lMax+2)*(lMax+3)/6
       Call mma_allocate(LblCBs,MxFnc,Label='LblCBs')
       Call mma_allocate(LblSBs,MxFnc,Label='LblSBs')
-      Call Make_Labels(LblCbs,LblSbs,MxFnc,iAngMx)
+*
+      Call Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
 *
 *     Allocate memory for transformation matrices
 *     Here, ipSph are the pointers to memory locations in RSph, for the
