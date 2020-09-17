@@ -117,7 +117,7 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
          CALL Unused_real_array(ZINV)
          CALL Unused_integer(IDCNT)
-         CALL Unused_integer(ISTABM)
+         CALL Unused_integer_array(ISTABM)
          CALL Unused_integer(NSTABM)
       END IF
       END

@@ -90,14 +90,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine Kernel(
-#define _CALLING_
-#include "grd_mck_interface.fh"
-     &                 )
-#include "grd_mck_interface.fh"
-      End Subroutine Kernel
-      End Interface
+*      Interface
+*      Subroutine Kernel(
+*#define _CALLING_
+*#include "grd_mck_interface.fh"
+*     &                 )
+*#include "grd_mck_interface.fh"
+*      End Subroutine Kernel
+*      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

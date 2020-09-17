@@ -142,5 +142,6 @@ c Avoid unused argument warnings
          Call Unused_integer_array(lOper)
          Call Unused_logical_array(ifgrd)
          Call Unused_integer_array(iStabM)
+         Call Unused_integer(nStabM)
       End If
       End

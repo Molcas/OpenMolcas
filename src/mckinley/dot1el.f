@@ -83,14 +83,14 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine Kernel(
-#define _CALLING_
-#include "hss_interface.fh"
-     &                 )
-#include "hss_interface.fh"
-      End Subroutine Kernel
-      End Interface
+*      Interface
+*      Subroutine Kernel(
+*#define _CALLING_
+*#include "hss_interface.fh"
+*     &                 )
+*#include "hss_interface.fh"
+*      End Subroutine Kernel
+*      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
