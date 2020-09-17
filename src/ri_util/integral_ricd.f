@@ -14,8 +14,7 @@
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
      &                         TInt,nTInt,FacInt,iTOffs,nSym,
-     &                         Dens,Fock,LDens,ExFac,NDens,
-     &                         ind,nind,FckNoClmb,FckNoExch)
+     &                         FckNoClmb,FckNoExch)
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
@@ -48,13 +47,6 @@ c Avoid unused argument warnings
          Call Unused_integer(nSkal)
          Call Unused_real(FacInt)
          Call Unused_integer(nSym)
-         Call Unused_real(Dens)
-         Call Unused_real(Fock)
-         Call Unused_integer(LDens)
-         Call Unused_real(ExFac)
-         Call Unused_integer(NDens)
-         Call Unused_integer(ind)
-         Call Unused_integer(nind)
          Call Unused_logical(FckNoClmb)
          Call Unused_logical(FckNoExch)
       End If

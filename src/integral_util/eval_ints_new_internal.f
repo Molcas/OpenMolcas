@@ -15,7 +15,7 @@
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
      &                          Dens,Fock,lDens,ExFac,nDens,
-     &                          Ind,nInd,FckNoClmb,FckNoExch,
+     &                          FckNoClmb,FckNoExch,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl,DoIntegrals,DoFock)
 ************************************************************************
@@ -99,7 +99,7 @@
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
-     &        iTOffs(8,8,8),Map4(4), Ind(nInd,nInd,2),kOp(4)
+     &        iTOffs(8,8,8),Map4(4), kOp(4)
       Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb(nDens),
      &        FckNoExch(nDens), DoIntegrals,DoFock
 *
@@ -528,8 +528,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
-     &                                  Dens,Fock,lDens,ExFac,nDens,
-     &                                  Ind,nInd,FckNoClmb,FckNoExch)
+     &                                  FckNoClmb,FckNoExch)
                      Else
                         Tmax=Zero
                      End If

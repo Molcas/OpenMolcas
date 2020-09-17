@@ -72,10 +72,9 @@
 *
 *     Dummy definitions
 *
-      Parameter (lDens=1,nDens=1,nInd=1)
-      Real*8  Fock(lDens,nDens),Dens(lDens,nDens), ExFac(nDens)
+      Parameter (nDens=1)
+      Real*8 ExFac(nDens)
       Logical FckNoClmb(nDens), FckNoExch(nDens)
-      Integer Ind(nInd,nInd,2)
 #include "iTOffs.fh"
 *
 *     subroutine parameters
@@ -158,7 +157,6 @@
       Quad_ijkl=0.0D0
       DoIntegrals=.True.
       DoFock=.False.
-      ExFac(1)=1.0D0
       FckNoClmb(1)=.False.
       FckNoExch(1)=.False.
 *                                                                      *
@@ -524,8 +522,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  iSOSym,mSkal,nSOs,
      &                                  TInt,nTInt,FacInt,
      &                                  iTOffs,nIrrep,
-     &                                  Dens,Fock,lDens,ExFac,nDens,
-     &                                  Ind,nInd,FckNoClmb,FckNoExch)
+     &                                  FckNoClmb,FckNoExch)
                      Else
                         Tmax=Zero
                      End If

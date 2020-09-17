@@ -14,8 +14,7 @@
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
      &                          TInt,nTInt,FacInt,itOffs,nSym,
-     &                          Dens,Fock,LDens,ExFac,NDens,
-     &                          ind,nind,FckNoClmb,FckNoExch)
+     &                          FckNoClmb,FckNoExch)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -48,13 +47,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(TInt)
          Call Unused_real(FacInt)
          Call Unused_integer_array(itOffs)
-         Call Unused_real(Dens)
-         Call Unused_real(Fock)
-         Call Unused_integer(LDens)
-         Call Unused_real(ExFac)
-         Call Unused_integer(NDens)
-         Call Unused_integer(ind)
-         Call Unused_integer(nind)
          Call Unused_logical(FckNoClmb)
          Call Unused_logical(FckNoExch)
       End If

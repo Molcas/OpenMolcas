@@ -51,7 +51,7 @@
       Character*72 SLine
       Real*8, Dimension(:,:), Allocatable :: TMax
       Integer, Dimension(:,:), Allocatable :: Pair_Index
-      Dimension ExFac(1),Ind(1,1,2),FckNoClmb(1),FckNoExch(1)
+      Dimension ExFac(1),FckNoClmb(1),FckNoExch(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,7 +63,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nInd=1
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.True.
@@ -192,7 +191,7 @@
      &                   iTOffs,Integral_WrOut,
 * the following are dummy arguments
      &                   Dens,Fock,mDens,ExFac,Nr_Dens,
-     &                   Ind,nInd,FckNoClmb,FckNoExch,
+     &                   FckNoClmb,FckNoExch,
      &                   Thize,W2Disc,PreSch,Dix_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
  14      Continue
