@@ -72,8 +72,8 @@
 *
 *     Dummy definitions
 *
-      Parameter (nDens=1)
-      Real*8 ExFac(nDens)
+      Parameter (nDens=1, lDens=1)
+      Real*8 Fock(lDens), Dens(lDens), ExFac(nDens)
       Logical FckNoClmb(nDens), FckNoExch(nDens)
 #include "iTOffs.fh"
 *

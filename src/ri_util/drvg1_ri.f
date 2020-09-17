@@ -21,6 +21,7 @@
 *             January '07                                              *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas, nBas_Aux
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"

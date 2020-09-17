@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine PickMO(COUT,nOut,nAcO,icmp,iBasi,iBasn,jBasj,jBasn,
      &                  kBask,kBasn,lBasl,lBasn,iaoii)
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (a-h,o-z)

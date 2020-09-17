@@ -39,6 +39,7 @@
 *             Modified driver. Jan. '98                                *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use iSD_data
       use Wrj12
       use k2_arrays, only: Sew_Scr

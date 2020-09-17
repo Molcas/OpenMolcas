@@ -340,6 +340,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 ************************************************************************
       use iSD_data
       use Center_Info
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "itmax.fh"

@@ -27,6 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             August 2002                                              *
 ************************************************************************
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

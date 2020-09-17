@@ -12,6 +12,7 @@
      &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
      &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
      &                   EpsInf)
+      use Basis_Info, only: nBas
       use PCM_arrays
       use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)

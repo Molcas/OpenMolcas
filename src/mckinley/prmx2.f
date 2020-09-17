@@ -28,6 +28,7 @@
 *                                                                      *
 *     Modified by AB 950620                                            *
 ************************************************************************
+      use Basis_Info, only: nBas
       use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"

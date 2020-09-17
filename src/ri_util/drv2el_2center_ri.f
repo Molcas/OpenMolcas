@@ -38,6 +38,7 @@
 *             Modified to 2-center ERIs for RI June '05                *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas_Aux
       use iSD_data
       use Wrj12
       use Index_arrays, only: iSO2Sh, nShBF

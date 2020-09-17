@@ -15,6 +15,7 @@
      &                  Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
       use Symmetry_Info, only: iChTbl, iOper
       use SOAO_Info, only: iAOtSO, nSOInf
+      use Basis_Info, only: nBas
       Implicit Real*8 (a-h,o-z)
       integer jirr(0:7)
 *

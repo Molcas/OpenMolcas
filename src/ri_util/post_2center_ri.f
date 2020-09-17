@@ -37,6 +37,7 @@
 *             Modified to 2-center ERIs for RI June '05                *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas_Aux
       use Wrj12
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"

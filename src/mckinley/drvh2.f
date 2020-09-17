@@ -34,7 +34,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
-      use Basis_Info, only: nCnttp, dbsc
+      use Basis_Info, only: nCnttp, dbsc, nBas
       Implicit Real*8 (A-H,O-Z)
       External NaHss,OvrHss, KneHss,PrjHss,SROHss,M1Hss,PCMHss
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH

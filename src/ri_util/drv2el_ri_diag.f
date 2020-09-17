@@ -37,6 +37,7 @@
 *                                                                      *
 ************************************************************************
       use SOAO_Info, only: iOffSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"

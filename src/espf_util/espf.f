@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine espf (ireturn,StandAlone)
       use Real_Spherical
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 *
 * ESPF Module

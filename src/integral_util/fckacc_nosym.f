@@ -54,6 +54,7 @@
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max, Min
 #include "itmax.fh"

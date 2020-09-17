@@ -28,6 +28,7 @@
       use iSD_data
       use k2_arrays
       use LundIO
+      use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -161,6 +162,7 @@
 ************************************************************************
 *                                                                      *
       Function iPD(iSO_,jSO_,iSOSym,nSOs)
+      use Basis_Info, only: nBas
 #include "itmax.fh"
 #include "info.fh"
       Integer iPD

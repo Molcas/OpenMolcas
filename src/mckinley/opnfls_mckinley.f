@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine OpnFls_McKinley()
+      use Basis_Info, only: nBas
       use Symmetry_Info, only: lIrrep
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"

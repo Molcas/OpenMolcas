@@ -27,8 +27,6 @@
 * -> Integer   <-                                                      *
 *     iSkip : flag to indicate that certain irreps are ignored         *
 *     iAngMx: higest angular momentum specified in the input           *
-*     nBas  : number of basis functions in each irrep                  *
-*     nBas_Aux: number of auxiliary basis functions in each irrep      *
 *     MaxPrm: max number of primitives in a shell for a given angular  *
 *             momentum                                                 *
 *     MaxBas: Dito contracted functions                                *
@@ -40,7 +38,6 @@
 *             2: as in MOLPRO                                          *
 *     Mx_Shll: max number of shells defined.                           *
 *     nOrdEF: order of electric field operator                         *
-*     nBas_Frag:  number of fragment basis functions in each irrep     *
 *     iRI_Type: type of RI auxiliary basis set                         *
 *     nCtrLD: number of centers in the LDKH procedure                  *
 *     iCtrLD: ith center for the LDKH procedure                        *
@@ -128,23 +125,23 @@
      &          m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,nOrdEF,
      &          nShlls
-      Integer   iSkip(0:7),iAngMx,nBas(0:7),MaxPrm(0:iTabMx),
-     &          MaxBas(0:iTabMx),nBas_Aux(0:7),Max_Center,
+      Integer   iSkip(0:7),iAngMx,MaxPrm(0:iTabMx),
+     &          MaxBas(0:iTabMx),Max_Center,
      &          nPrm(0:7),jMax,iSquar,iPack,iWRopt,
      &          NotZer,nTtl, kCentr, iRelae_Info
-      Integer   nBas_Frag(0:7), iOrdFm, nOrd_XF,iXPolType,iRI_Type,
+      Integer   iOrdFm, nOrd_XF,iXPolType,iRI_Type,
      &          nCtrLD,iCtrLD(10), nPSOI, IsChi
 *
       Common /Info/ ixStrt,
-     &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType, nBas_Aux,
-     &              iAngMx,  nIrrep, nBas,   n2Tot,
+     &              Mx_mdc, Mx_Shll,nOrd_XF,iXPolType,
+     &              iAngMx,  nIrrep, n2Tot,
      &              n2Max,   MaxDCR, MaxPrm, MaxBas, nDim,
      &              nOrdEF, mCentr, nPrm,   m2Max,
      &              m2Tot,  IntTot, MemHid, nTtl, Max_Cnt,
      &              nMltpl,  IsChi,  iLbls, nShlls, iPack,
      &              iSquar,  iWRopt, iSkip, NotZer, iRelae_info, jMax,
      &              MolWgh, iOrdFm, iRI_Type,
-     &              nBas_Frag,kCentr, Max_Center, Mx_AO,
+     &              kCentr, Max_Center, Mx_AO,
      &              nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

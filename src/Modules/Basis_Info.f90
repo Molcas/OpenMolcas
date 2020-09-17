@@ -17,7 +17,7 @@ Implicit None
 Private
 Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
           PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
-          Nuclear_Model, Basis_Info_Init
+          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -156,6 +156,9 @@ Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
 Integer :: Nuclear_Model=Point_Charge
+Integer :: nBas(0:7)     =[0,0,0,0,0,0,0,0]
+Integer :: nBas_Aux(0:7) =[0,0,0,0,0,0,0,0]
+Integer :: nBas_Frag(0:7)=[0,0,0,0,0,0,0,0]
 
 Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
@@ -345,6 +348,9 @@ iDmp(2,nCnttp+1)=nCnttp
 iDmp(3,nCnttp+1)=iCnttp_Dummy
 iDmp(4,nCnttp+1)=Max_Shells
 iDmp(5,nCnttp+1)=Nuclear_Model
+iDmp(6:13,nCnttp+1)=nBas(0:7)
+iDmp(14:21,nCnttp+1)=nBas_Aux(0:7)
+iDmp(22:29,nCnttp+1)=nBas_Frag(0:7)
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -560,6 +566,9 @@ nCnttp         =iDmp(2,Len2)
 iCnttp_Dummy   =iDmp(3,Len2)
 Max_Shells     =iDmp(4,Len2)
 Nuclear_Model  =iDmp(5,Len2)
+nBas(0:7)      =iDmp(6:13,Len2)
+nBas_Aux(0:7)  =iDmp(14:21,Len2)
+nBas_Frag(0:7) =iDmp(22:29,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells

@@ -11,6 +11,7 @@
       SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,
      &                          D_tot,nDens,Property,Sig)
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"

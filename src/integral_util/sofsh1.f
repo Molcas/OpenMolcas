@@ -33,6 +33,7 @@
       use SOAO_Info, only: iAOtSO
       use iSD_data
       use Index_arrays
+      use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
