@@ -40,7 +40,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
+    submodules: "External/lapack External/libmsym External/libwfa"
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
   tags:
