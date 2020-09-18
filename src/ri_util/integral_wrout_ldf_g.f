@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut_LDF_G(
-     &                           iCmp,iShell,MapOrg,IndShlV,
+     &                           iCmp,iShell,MapOrg,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
@@ -27,7 +27,7 @@
 #include "localdf_int.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
@@ -85,8 +85,7 @@
             ! type (J|L)
             Call PLF_LDF_G_1(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.eq.iS_Dum .and.
      &            SHB.gt.nS_Val .and. SHB.lt.iS_Dum .and.
      &            SHC.le.nS_Val .and.
@@ -94,8 +93,7 @@
             ! type (J|uv)
             Call PLF_LDF_G_2(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else If (SHA.le.nS_Val .and.
      &            SHB.le.nS_Val .and.
      &            SHC.le.nS_Val .and.
@@ -103,8 +101,7 @@
             ! type (uv|kl)
             Call PLF_LDF_G_3(TInt,nTInt,
      &                       AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,MxAO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
          Else
             Call WarningMessage(2,
      &      'Shell combination not implemented in Integral_WrOut_LDF_G')
@@ -128,6 +125,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(IndShlV)
       End If
       End

@@ -38,11 +38,6 @@
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)
       Logical EQ, NoLoop
 *
-*     Statement function for Cartesian index
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-C     nElem(ixyz) = 2*ixyz+1
-*
 
       iRout = 33
       iPrint = nPrint(iRout)

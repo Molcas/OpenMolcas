@@ -1926,7 +1926,7 @@ c  i_root>0 gives natural spin orbitals for that root
       Call OrbFiles(JOBIPH,IPRLEV)
 *
 ************************************************************************
-************ Priniting final RDMs in NECI format       *****************
+************ Printing final RDMs in NECI format        *****************
 ************************************************************************
       If ( IPRLEV.ge.DEBUG ) then
        Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)

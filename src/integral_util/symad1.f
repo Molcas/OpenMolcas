@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,IndShl,JndShl,
+     &                  iShll,jShll,iAO,jAO,
      &                  AOInt,iBas,jBas,nIC,iIC,
      &                  SOInt,nSOInt,nOp)
 ************************************************************************
@@ -31,6 +31,7 @@
 ************************************************************************
       use Basis_Info
       use Symmetry_Info, only: iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -49,7 +50,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAd1')
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Write (6,*) ' nSOInt=',nSOInt
@@ -60,7 +60,7 @@
       End If
       Do 10 iIrrep = 0, nIrrep-1
          jIC(iIrrep) = -999999999
-         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Go To 10
+         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Cycle
          jIC(iIrrep) = iIC
          iIC = iIC + 1
  10   Continue
@@ -72,24 +72,22 @@
       Do 100 j1 = 0, nIrrep-1
          xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndShl+i1),iTwoj(j1)).eq.0) Go To 200
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
             iChBs = iChBas(ii+i1)
             If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
             pae = xPrmt(iOper(nOp(1)),iChBs)
 *
-*old        Do 300 j2 = 0, j1
             Do 300 j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
 *
-               If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
+               If (iAnd(lOper,iTwoj(j12)).eq.0) Cycle
                kIC = jIC(j12)
                xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(JndShl+i2),iTwoj(j2)).eq.0)
-     &               Go To 400
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
                   jChBs = iChBas(jj+i2)
                   If (Shells(jShll)%Transf)
@@ -114,6 +112,5 @@
       End If
       If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
      &                              iDum,iDum)
-*     Call qExit('SymAd1')
       Return
       End

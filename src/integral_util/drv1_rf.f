@@ -108,7 +108,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -121,7 +120,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -129,7 +127,7 @@
             B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
             If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -196,7 +194,7 @@
 *
             Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  iCmp,jCmp,iShell,jShell,
      &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
@@ -292,7 +290,7 @@
 *
                      Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                           iShell,jShell,iShll,jShll,
-     &                           IndShl,JndShl,DAO,iPrim,jPrim,
+     &                           iAO,jAO,DAO,iPrim,jPrim,
      &                           DSOpr,nSO,nOp,FactNd)
 *
 *--------------------Project the spherical harmonic space onto the

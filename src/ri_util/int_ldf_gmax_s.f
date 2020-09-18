@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Int_LDF_Gmax_S(
-     &                          iCmp,iShell,MapOrg,IndShlV,
+     &                          iCmp,iShell,MapOrg,
      &                          iBas,jBas,kBas,lBas,kOp,
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
@@ -31,7 +31,7 @@
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
-     &        iAOst(4), kOp(4), iSOSym(2,nSOs), IndShlV(4),
+     &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
       Real*8 Dens(lDens,nDens), Fock(lDens,nDens), ExFac(nDens)
@@ -111,6 +111,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer_array(IndShlV)
       End If
       End

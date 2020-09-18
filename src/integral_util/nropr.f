@@ -18,8 +18,8 @@
 ************************************************************************
       Use Symmetry_Info, only: nIrrep, iOper
       NrOpr=-1
-      Do 10 iIrrep = 0, nIrrep - 1
+      Do iIrrep = 0, nIrrep - 1
          If (iOp.eq.iOper(iIrrep)) NrOpr=iIrrep
- 10   Continue
+      End Do
       Return
       End

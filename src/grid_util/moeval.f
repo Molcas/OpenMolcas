@@ -85,7 +85,6 @@
 *
          iAOttp=0
          mdc = 0
-         IndShl_iCnttp=0
          Do iCnttp = 1, nCnttp
 
             nTest = dbsc(iCnttp)%nVal
@@ -111,7 +110,6 @@
 *           Compute the total number of function for this
 *           basis set, summed over all shells.
 *
-            IndShl_Shell=0
             Do jAng = 0, nTest-1
                jShll = dbsc(iCnttp)%iVal + jAng
                If (Shells(jShll)%Prjct ) Then
@@ -119,7 +117,6 @@
                Else
                   jCmp  = nElem(jAng)
                End If
-               IndShl_Shell=IndShl_Shell+jCmp
             End Do
 *
 *           Loop over unique centers of basis set "iCnttp"
@@ -130,7 +127,6 @@
      &             + Shells(kSh)%kOffAO
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 
-               IndShl = IndShl_iCnttp + (iCnt-1)*IndShl_Shell
                Do jAng = 0, iAng-1
                   jShll = dbsc(iCnttp)%iVal + jAng
                   If (Shells(jShll)%Prjct ) Then
@@ -138,7 +134,6 @@
                   Else
                      jCmp  = nElem(jAng)
                   End If
-                  IndShl=IndShl+jCmp
                End Do
 *
 *--------------Allocate memory for SO and AO values
@@ -198,14 +193,14 @@
 *---------------- Distribute contributions to the SOs
 *
                   Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
-     &                        Work(ipSOs),nDeg,IndShl)
+     &                        Work(ipSOs),nDeg,iAO)
 *
                End Do ! iG
 *
 *------------- Distribute contributions to the MOs
 *
                Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
-     &                     MOValue,IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                     MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 *
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
@@ -215,7 +210,6 @@
                Call GetMem('SOs','Free','Real',ipSOs,nSO)
 *
             End Do ! iCnt
-            IndShl_iCnttp = IndShl_iCnttp + nCnt*IndShl_Shell
  101        Continue
             mdc = mdc + dbsc(iCnttp)%nCntr
             iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr

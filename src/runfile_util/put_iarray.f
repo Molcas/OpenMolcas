@@ -159,7 +159,7 @@
          RecLab( 54)='SCF nOcc        '
          RecLab( 55)='SCF nOcc_ab     '
          RecLab( 56)='                ' !Free slot
-         RecLab( 57)='IrrCmp          '
+         RecLab( 57)='                ' !Free slot
          RecLab( 58)='iAOtSO          '
          RecLab( 59)='iSOInf          '
          RecLab( 60)='                ' !Free Slot
