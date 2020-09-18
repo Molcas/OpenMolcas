@@ -90,5 +90,5 @@ incomplete.
 #if ( __SUNPRO_F90)
 #undef POINTER_BOUNDS_REMAPPING
 #else
-#undef POINTER_BOUNDS_REMAPPING
+#define POINTER_BOUNDS_REMAPPING
 #endif
