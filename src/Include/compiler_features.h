@@ -85,3 +85,10 @@ incomplete.
 #else
 #define INTERNAL_PROC_ARG
 #endif
+
+/* Pointer bounds remapping */
+#if ( __SUNPRO_F90)
+#undef POINTER_BOUNDS_REMAPPING
+#else
+#undef POINTER_BOUNDS_REMAPPING
+#endif
