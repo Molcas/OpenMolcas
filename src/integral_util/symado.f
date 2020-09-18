@@ -10,7 +10,7 @@
 ************************************************************************
       SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,
      &                  lOper,iChO,Factor)
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

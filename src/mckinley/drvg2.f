@@ -48,6 +48,7 @@
       use k2_arrays
       use pso_stuff
       use Basis_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -180,7 +181,7 @@
 *-----Allocate auxiliary array for symmetry transformation
 *
       nAux = nIrrep**3
-      If (Petite) nAux = 1
+      If (nIrrep==1) nAux = 1
       Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************

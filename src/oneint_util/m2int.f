@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M2Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine M2Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of M2 integrals used in   *
@@ -70,14 +69,14 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables.
+      Real*8 TC(3), C(3)
       Character*80 Label
       Logical ABeq(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp)
+      Integer iDCRT(0:7)
 *
 *-----Statement function for Cartesian index
 *
@@ -269,7 +268,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

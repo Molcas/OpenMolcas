@@ -11,11 +11,10 @@
 * Copyright (C) 1991, Anders Bernhardsson                              *
 *               1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NAHss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                 IfHss,IndHss,ifgrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                 lOper,nComp,iStabM,nStabM)
+      SubRoutine NAHss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
@@ -44,17 +43,12 @@
 c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      Integer IndGrd(0:2,0:1,0:(nIrrep-1)),
-     &          IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1)),
-     &          nOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7),Index(3,4)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nArr), Ccoor(3), Hess(nHess),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-       Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1), TstFnc, TF,
-     &         EQ,IfG(0:3),Tr(0:3)
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7), Index(3,4)
+      Logical TstFnc, TF, EQ,IfG(0:3),Tr(0:3)
 #ifdef _PATHSCALE_
       Save Fact
 #endif
@@ -79,6 +73,8 @@ c     Call qEnter('NAHSS')
 c     If (iPrint.ge.99) Then
 c        Write (6,*) ' In NAHss: nArr=',nArr
 c     End If
+*
+      nRys=nHer
 *
       nip = 1
       ipA = nip
@@ -166,9 +162,9 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *              Initialize JfGrd, JndGrd, JfHss, and JndHss.
 *
                Call LCopy(12,[.False.],0,JfGrd,1)
-               Call ICopy(nIrrep*4*3,[0],0,JndGrd,1)
+               Call ICopy(nSym*4*3,[0],0,JndGrd,1)
                Call LCopy(144,[.False.],0,JfHss,1)
-               Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
+               Call ICopy(nSym*16*9,[0],0,JndHss,1)
 *
 *              Overwrite with information in IfGrd, IndGrd, IfHss,
 *              and IndHss.
@@ -176,7 +172,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                Do iAtom = 0, 1
                   Do iCar  = 0, 2
                      JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
-                     Do iIrrep=0,nIrrep-1
+                     Do iIrrep=0,nSym-1
                         JndGrd(iCar,iAtom,iIrrep)=
      &                     IndGrd(iCar,iAtom,iIrrep)
                      End Do
@@ -184,7 +180,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                         Do jCar = 0, 2
                            JfHss(iAtom,iCar,jAtom,jCar) =
      &                       IfHss(iAtom,iCar,jAtom,jCar)
-                           Do iIrrep=0,nIrrep-1
+                           Do iIrrep=0,nSym-1
                               JndHss(iAtom,iCar,jAtom,jCar,iIrrep) =
      &                          IndHss(iAtom,iCar,jAtom,jCar,iIrrep)
                            End Do
@@ -196,7 +192,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *--------------Derivatives with respect to the operator is computed via
 *              the translational invariance.
 *
-               nnIrrep=nIrrep
+               nnIrrep=nSym
                If (sIrrep) nnIrrep=1
                Do iIrrep=0,nnIrrep-1
                   nDisp = IndDsp(kdc+kCnt,iIrrep)
@@ -235,7 +231,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                         iStop=2
                      End If
                      Do jCar=0,iStop
-                        Do iIrrep=0,nIrrep-1
+                        Do iIrrep=0,nSym-1
                            If ((JndGrd(iCar,2,iIrrep).ne.0) .and.
      &                         (JndGrd(jCar,jAtom,iIrrep).ne.0)) Then
                               JndHss(2,iCar,jAtom,jCar,iIrrep)=
@@ -276,13 +272,13 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                            Do KCent=0,3
                               jfHss(iCent,iCar,kCent,kCar)=.False.
                               jfHss(kCent,kCar,iCent,iCar)=.False.
-                              Do iIrrep=0,nIrrep-1
+                              Do iIrrep=0,nSym-1
                                  jndHss(iCent,iCar,kCent,kCar,iIrrep)=0
                                  jndHss(kCent,kCar,iCent,iCar,iIrrep)=0
                               End Do
                            End Do
                         End Do
-                        Do iIrrep=0,nIrrep-1
+                        Do iIrrep=0,nSym-1
                            jndGrd(iCar,iCent,iIrrep)=0
                         End Do
                      End Do

@@ -47,7 +47,7 @@
 *
 ! IFG: "A" was undefined, is this the right point?
          A(1:3)=XF(1:3,i)
-         iChxyz=iChAtm(A,iChBas(2))
+         iChxyz=iChAtm(A)
          iDum=0
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1

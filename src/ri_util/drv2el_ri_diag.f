@@ -36,12 +36,13 @@
 *             Modified driver. Jan. '98                                *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iOffSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"
 #include "info.fh"
 #include "j12.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

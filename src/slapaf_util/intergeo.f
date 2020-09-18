@@ -13,17 +13,17 @@
 * Add geometry optimization info  *
 *   to the Molden inputfile       *
 *---------------------------------*
-      use Symmetry_Info, only: nIrrep, iOper
+      use Symmetry_Info, only: nIrrep
+      use Phase_Info
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
 #include "stdalloc.fh"
-      Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),
-     &       Enrg(nIter), Grd(3,nAtm,nIter)
-      Integer iPhase(3,0:7),nStab2(Mxdc),
-     &        iChCar(3)
+      Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),Enrg(nIter),
+     &       Grd(3,nAtm,nIter)
+      Integer nStab2(Mxdc)
       Integer, Allocatable :: icoset2(:,:,:)
       Character*(*) FileName
 *
@@ -138,36 +138,6 @@
 *                                                                      *
 *     Set up the desymmetrization of the coordinates
 *
-      Do 10 j=0,4
-         Do 11 i=1,3
-            iPhase(i,j)=1
-11       Continue
-10    Continue
-      iPhase(1,1)=-1
-      iPhase(2,2)=-1
-      iPhase(1,3)=-1
-      iPhase(2,3)=-1
-      iPhase(3,4)=-1
-      Do 20 j=5,7
-         Do 21 i=1,3
-            iPhase(i,j)=-1
-21       Continue
-20    Continue
-      iPhase(2,5)=1
-      iPhase(1,6)=1
-*
-      iSymX = 0
-      iSymY = 0
-      iSymZ = 0
-      Do i = 0, nIrrep-1
-         If (iAnd(iOper(i),1).ne.0) iSymX = 1
-         If (iAnd(iOper(i),2).ne.0) iSymY = 2
-         If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-      End Do
-      iChCar(1) = iSymX
-      iChCar(2) = iSymY
-      iChCar(3) = iSymZ
-*
       ixyz   = ipCx
       ixyz_p = ipCx_p
       MaxDCR=0
@@ -175,10 +145,10 @@
      &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
-            iChxyz=iChAtm(Work(ixyz  ),iChCar)
+            iChxyz=iChAtm(Work(ixyz  ))
             ixyz   = ixyz   + 3
          Else
-            iChxyz=iChAtm(Work(ixyz_p),iChCar)
+            iChxyz=iChAtm(Work(ixyz_p))
             ixyz_p = ixyz_p + 3
          End If
          Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),

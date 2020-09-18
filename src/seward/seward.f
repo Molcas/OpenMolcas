@@ -53,6 +53,8 @@
       use MpmC
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: lIrrep
+      use LundIO
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
@@ -65,13 +67,13 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "gateway.fh"
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
       Integer iix(2), nChoV(8)
+      Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
 C-SVC: identify runfile with a fingerprint
@@ -84,6 +86,7 @@ C-SVC: identify runfile with a fingerprint
 C     Call Seward_Banner()
       lOPTO = .False.
       nByte = iiLoc(iix(2)) - iiLoc(iix(1))
+      nByte_r = idloc(rrx(2))-idloc(rrx(1))
       Call CWTime(TCpu1,TWall1)
 *
 *     Prologue
@@ -233,9 +236,7 @@ C     Call Seward_Banner()
 *                                                                      *
 *     Compute the Nuclear potential energy
 *
-      If (.Not.Primitive_Pass) Then
-         Call DrvN0()
-      End If
+      If (.Not.Primitive_Pass) Call DrvN0()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -442,15 +443,14 @@ C     Call Seward_Banner()
          Lu_28=isfreeunit(Lu_28)
          Call DaName_MF(Lu_28,'BASINT')
          iDisk=0
-         lBuf=iiLoc(nUt)-idLoc(Buf)
-         lBuf=(lBuf+nByte)/nByte
+         lBuf=idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
+         lBuf=(lBuf+nByte_r)/nByte_r - 1
 *
          Call Drv2El(Integral_WrOut,Zero)
 *
-         ip_Buf=ip_of_iWork_d(Buf(1))
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
-         nUt=-1
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+         Buf%nUt=-1
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
          Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
@@ -466,22 +466,6 @@ C     Call Seward_Banner()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Dist) Then
-         Write (6,*)
-         Write (6,*)
-     & ' Distribution of the Absolute Values of the Integrals'
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-20,-11)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-20,-11)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-10,-1)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-10,-1)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=0,9)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=0,9)
-         Write (6,*)
-      End If
-*
       Call mma_deallocate(MemHide)
 *                                                                      *
 ************************************************************************
@@ -490,8 +474,8 @@ C     Call Seward_Banner()
 *     corruption of the memory.
 *
 
- 9999 Call DumpSagit
-      Call ClsSew
+ 9999 Call DumpSagit()
+      Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)

@@ -11,8 +11,10 @@
       Subroutine SOCtl_Seward(Mamn,nMamn)
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl
-      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO
+      use Symmetry_Info, only: iChTbl, iOper, iChBas, lIrrep, lBsFnc
+      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO,
+     &                     iOffSO
+      use real_spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -57,9 +59,9 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     LVAL end MVAL dimensioned for L = MxAng
-      dimension LVAL((MxAng+1)*(MxAng+1))
-      dimension MVAL((MxAng+1)*(MxAng+1))
+*     LVAL end MVAL dimensioned for L = iTabMx
+      dimension LVAL((iTabMx+1)*(iTabMx+1))
+      dimension MVAL((iTabMx+1)*(iTabMx+1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -91,14 +93,14 @@ cvv LP_NAMES was used later without initialization.
 *     (note: this is wrong for Cartesian shells)
 *
       k=0
-      do i=0,MxAng
+      do i=0,iTabMx
          do j=-i,i
             k=k+1
             lval(k)=i
             mval(k)=j
          enddo
       enddo
-C     write(6,*) ' lval',k,(MxAng+1)**2
+C     write(6,*) ' lval',k,(iTabMx+1)**2
 *     correct mval order for p-functions
       mval(2)=1
       mval(3)=-1
@@ -135,7 +137,6 @@ C     Show=Show.and..Not.Primitive_Pass
       n2Tot = 0
       n2Max = 0
       nDim = 0
-      m2Tot = 0
       iAO=0
       lSkip=.False.
 *
@@ -164,7 +165,7 @@ C     Show=Show.and..Not.Primitive_Pass
          Call CollapseOutput(1,'   SO/AO info:')
          Write (6,'(3X,A)')    '   -----------'
       End If
-      If (Petite) Go To 199
+      If (nIrrep.eq.1) Go To 199
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -207,7 +208,6 @@ C     Show=Show.and..Not.Primitive_Pass
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -350,7 +350,6 @@ C     Show=Show.and..Not.Primitive_Pass
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
@@ -536,7 +535,6 @@ culf
          nDim = nDim + nBas(iIrrep)
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
  200  Continue ! iIrrep
 *     If (lSkip) nDim = iBas
       If (iBas.ne.iSO .and.
@@ -598,7 +596,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -699,7 +696,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                      End If
 *
                      If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
                      m2Max = Max(m2Max,nExpi**2)
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
@@ -840,7 +836,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nDim = nDim + nBas(iIrrep)
          n2Tot = n2Tot + nBas(iIrrep)**2
          n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
  300  Continue
 *
 CSVC: basis IDs of non-symmetric case

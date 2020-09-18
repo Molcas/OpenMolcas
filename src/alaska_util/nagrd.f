@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NAGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine NAGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
@@ -44,20 +43,15 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2), TstFnc, TF
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
+      Logical TstFnc, TF
 #ifdef _PATHSCALE_
       Save Fact
 #endif
-*
-*     Local arrrays
-*
       Real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
       Integer iAnga(4), JndGrd(3,4), lOp(4), iuvwx(4)
       Logical JfGrad(3,4)
@@ -78,6 +72,8 @@
          Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
       End If
 #endif
+*
+      nRys=nHer
 *
       nip = 1
       ipA = nip

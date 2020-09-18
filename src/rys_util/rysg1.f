@@ -43,6 +43,7 @@
 *             Modified to 1st order derivatives October '91            *
 ************************************************************************
       use vRys_RW
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
@@ -339,7 +340,7 @@
 *     Distribute the contributions to the molecular gradient
 *
       Call Distg1(Temp,mVec,Grad,nGrad,JfGrad,JndGrd,
-     &            iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &            iuvwx,lOp)
 *-----Drop ipAC
 *     ip = ip - nT*nPAO * 9
 #ifdef _CHECK_

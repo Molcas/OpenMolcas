@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine XFdGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine XFdGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -42,20 +41,13 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
-*
-*-----Local arrys
-*
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
       Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3), TZFd(3)
       Logical NoLoop, JfGrad(3,4)
-CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       Integer iAnga(4), iStb(0:7),
      &          jCoSet(8,8), JndGrd(3,4), lOp(4), iuvwx(4)
       Character ChOper(0:7)*3
@@ -68,6 +60,8 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       iRout = 151
       iPrint = nPrint(iRout)
       Call qEnter('XFdGrd')
+*
+      nRys=nHer
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -158,7 +152,7 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
 *------- Generate stabilizor of C
 *
-         iChxyz=iChAtm(C,iChBas(2))
+         iChxyz=iChAtm(C)
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S

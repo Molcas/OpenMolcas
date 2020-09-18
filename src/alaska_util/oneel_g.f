@@ -58,13 +58,13 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -82,6 +82,20 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       Real*8, Allocatable:: Krnl(:), Final(:), Scr1(:), Scr2(:)
       Real*8, Allocatable:: DAO(:), DSOpr(:), DSO(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
+#include "grd_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -370,7 +384,7 @@ c VV: gcc bug: one has to use this if!
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM)
                If (iPrint.ge.49) Call PrGrad(' In Oneel',
-     &             Grad,nGrad,lIrrep,ChDisp,5)
+     &             Grad,nGrad,ChDisp,5)
 *
  140        Continue
           endif
@@ -391,7 +405,7 @@ C     End Do
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      If (iPrint.ge.15) Call PrGrad(Label,Grad,nGrad,lIrrep,ChDisp,5)
+      If (iPrint.ge.15) Call PrGrad(Label,Grad,nGrad,ChDisp,5)
 *
       Return
       End

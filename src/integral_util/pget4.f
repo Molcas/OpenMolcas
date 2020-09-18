@@ -32,13 +32,12 @@
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),

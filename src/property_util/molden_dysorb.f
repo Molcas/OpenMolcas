@@ -28,6 +28,7 @@
       use Real_Spherical
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: lIrrep
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

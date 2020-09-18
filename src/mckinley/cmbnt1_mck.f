@@ -12,8 +12,7 @@
 *               1991, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CmbnT1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,
-     &                  Final,Txyz,
-     &                  Alpha,Beta,IfGrad,iChBas,MxFnc)
+     &                  Final,Txyz,Alpha,Beta,IfGrad)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -39,7 +38,6 @@ c#include "print.fh"
      &       Rnxyz(nZeta,3,0:la+2,0:lb+2),
      &       Txyz(nZeta,3,0:la+1,0:lb+1)
       Logical IfGrad(3,2)
-      Integer iChBas(MxFnc)
 *
 *     Statement function for Cartesian index
 *
@@ -288,6 +286,4 @@ c     Call QEnter('CmbnT1')
 *
 c     Call QExit('CmbnT1')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(iChBas)
       End

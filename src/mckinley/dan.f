@@ -12,6 +12,7 @@
 ************************************************************************
       SubRoutine DAN(Dens)
 *
+      use Basis_Info, only: nBas
       use pso_stuff
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"

@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Alpha,Beta,
-     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,nIrrep,
-     &                  kOp,iChBas,MxFnc)
+     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
@@ -27,6 +26,7 @@
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *
 ************************************************************************
+      use Symmetry_Info, only: iChBas, nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -36,7 +36,7 @@
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta), Grad(nGrad),
      &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
 *
 *     Statement function for Cartesian index
 *

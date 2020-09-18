@@ -35,7 +35,11 @@
 *             University of Lund, Sweden                               *
 *             August 1999                                              *
 ************************************************************************
+#ifdef _DEBUG_
+      use Basis_Info, only: nBas
+#endif
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"

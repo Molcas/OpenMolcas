@@ -11,11 +11,10 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine MltInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine MltInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the multipole moments integrals with the          *
@@ -50,14 +49,14 @@
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), Origin(3)
-      Character*80 Label, ChOper(0:7)*3
-      Integer lOper(nComp), iStabM(0:nStabM-1), iStabO(0:7),
-     &          iDCRT(0:7), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variable
+      Real*8 TC(3), Origin(3)
+      Integer iStabO(0:7), iDCRT(0:7)
       Logical ABeq(3), EQ
+      Character*80 Label, ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Data Origin/0.0D0,0.0D0,0.0D0/
 *
@@ -262,7 +261,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

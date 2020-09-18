@@ -44,7 +44,6 @@
       Logical DoRys
       Integer iix(2)
       Real*8 rix(2)
-      Logical Found
 #include "SysDef.fh"
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -61,10 +60,6 @@
       Real*8, Target :: rRFStrt,rQStrt
       Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rRF(:),p_rQ(:)
-*
-*     Prologue
-*
-*     Call qEnter('GetInf')
 *
 *     Load the dynamic input area.
 *
@@ -125,29 +120,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Load the transformation matrices
+*     Generate the transformation matrices
 *
       If (iAngMx-1.ge.lMax) Then
-         Call qpg_dArray('SewTInfo',Found,Len2)
-         If(.not.Found .or.  Len2.eq.0) Then
-            Call SysAbendMsg('getinf','Did not find:','SewTInfo')
-         End If
-         Len=Len2
-*        mod by M.Schuetz: LenSph used to broadcast transformation
-*        matrices to servers (parallel distributed SCF)
-*        LenSph is a member of IInfo common block
-         LenSph=Len
-         If (Allocated(RSph)) Then
-             Call WarningMessage(2,'RSph already allocated!')
-             Call Quit_OnUserError()
-         End If
-         Call mma_allocate(RSph,LenSph,label='RSph')
-         Call mma_allocate( ipSph,[0,iAngMx],label='ipSph')
-         ipSph(0)=1
-         Do 2 iAng = 0, iAngMx-1
-            ipSph(iAng+1)= ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
- 2       Continue
-         Call Get_dArray('SewTInfo',RSph(ipSph(0)),Len)
+         Call Sphere(iAngMx)
          lmax_internal=iAngMx
       Else
          Call Sphere(lMax)
@@ -179,10 +155,7 @@
       Call Get_EFP()
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*     Epilogue, end
 *
-*     Call qExit('GetInf')
       Return
       End SubRoutine GetInf_Internal
 *

@@ -39,6 +39,7 @@
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
       Implicit Real*8 (A-H,O-Z)

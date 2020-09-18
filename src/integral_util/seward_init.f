@@ -72,14 +72,11 @@ C
       nWel=0
       iRI_type=0
       jMax = 5
-      nTtl=0
       Max_Center=15
 
-      iChCar(:)=0
       KVector(:)=Zero
-      MaxBas(0:MxAng)=0
-      MaxPrm(0:MxAng)=0
-      NrInt(-20:9)=0
+      MaxBas(0:iTabMx)=0
+      MaxPrm(0:iTabMx)=0
       iSkip(0:7)=0
 
       nOrdEF=-1
@@ -110,8 +107,6 @@ C
       DirInt=.False.
       Expert=.False.
       EMFR  =.False.
-      Petite=.False.
-      lSOInt=.True.
       UnNorm=.False.
       lSchw=.True.
       Test=.False.
@@ -125,15 +120,8 @@ C
       lRel=.False.
       Prprt=.False.
       Short=.True.
-*--sdong, Apr. 2018--*
       ifallorb=.False.
-*--sdong end---------*
-      lECP=.False.
-      lAux=.False.
-      lPAM2=.False.
-      Dist=.False.
       lXF=.False.
-      lPP=.False.
       lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.
@@ -154,7 +142,6 @@ C
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
-      Align_Weights='MASS'
       Do_Numerical_Gradients=.False.
       VarT=.False.
       VarR=.False.
@@ -175,9 +162,6 @@ C
 *
 *-----RInfo
 *
-      Sum=0.00d+00
-      Sumsq=0.00d+00
-      SumAbs=0.00d+00
       RadMax=0.00d+00
       AccMch=1.d-15
 *
@@ -203,12 +187,6 @@ C
       RPQMIN = 0.4d0
 *
       Thrs=1.d-6
-*
-*-----CInfo
-*
-      Do i = 1, 10
-         Title(i)=' '
-      End Do
 *
 *-----PStat
 *
@@ -301,8 +279,6 @@ C
       Call Mk_TriInd()
 *
       Call CovRadT_Init()
-*
-      Call iPrmt_Init()
 *
 *     nac.fh
 *

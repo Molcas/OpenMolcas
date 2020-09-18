@@ -31,7 +31,6 @@
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
-      use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
       use Center_Info, only: Center_Info_Dmp
@@ -52,18 +51,18 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      Call DmpInf_Internal(ixStrt,lxStrt,rxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      SubRoutine DmpInf_Internal(ixStrt,lxStrt,rxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
-      Integer, Target :: cxStrt,ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
+      Integer, Target :: ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
       Real*8, Target :: rxStrt,rRFStrt,rQStrt
-      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
+      Integer, Pointer :: p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
 *
@@ -95,21 +94,13 @@
       Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
       Call Put_dArray('SewRInfo',p_rx,Len)
 *
-*     Save the common CINFO
-*
-      Len = icLoc(cxEnd)-icLoc(cxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
-      Call Put_iArray('SewCInfo',p_cx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx,p_cx)
+      Nullify(p_ix,p_lx,p_rx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Dmp()
       Call Center_Info_Dmp()
       Call Symmetry_Info_Dmp()
-      Call Sphere_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

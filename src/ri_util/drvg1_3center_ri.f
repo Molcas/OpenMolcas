@@ -710,7 +710,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -851,7 +851,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_3Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue

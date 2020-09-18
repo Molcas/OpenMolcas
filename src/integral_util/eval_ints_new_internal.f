@@ -15,7 +15,7 @@
      &                         (iiS,jjS,kkS,llS,TInt,nTInt,
      &                          iTOffs,Integ_Proc,
      &                          Dens,Fock,lDens,ExFac,nDens,
-     &                          Ind,nInd,FckNoClmb,FckNoExch,
+     &                          FckNoClmb,FckNoExch,
      &                          Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                          Quad_ijkl,DoIntegrals,DoFock)
 ************************************************************************
@@ -99,7 +99,7 @@
       Integer iAngV(4),iCmpV(4),
      &        iShelV(4),iShllV(4),iAOV(4),iStabs(4),
      &        ipMem1,MemMax,
-     &        iTOffs(8,8,8),Map4(4), Ind(nInd,nInd,2),kOp(4)
+     &        iTOffs(8,8,8),Map4(4), kOp(4)
       Logical Shijij, W2Disc,PreSch,NoInts,FckNoClmb(nDens),
      &        FckNoExch(nDens), DoIntegrals,DoFock
 *
@@ -385,8 +385,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
-     &                     mDCRij,ipDij,ipDDij,mDij,nIrrep,
-     &                     DeDe,nDeDe)
+     &                     mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
             End If
 *
             Do kBasAO = 1, kBask, kBsInc
@@ -397,16 +396,14 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
-     &                        mDCRik,ipDik,ipDDik,mDik,nIrrep,
-     &                        DeDe,nDeDe)
+     &                        mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe)
                End If
 *
                If (DoFock) Then
                   Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
-     &                        mDCRjk,ipDjk,ipDDjk,mDjk,nIrrep,
-     &                        DeDe,nDeDe)
+     &                        mDCRjk,ipDjk,ipDDjk,mDjk,DeDe,nDeDe)
                End If
 *
                 Do lBasAO = 1, lBasl, lBsInc
@@ -417,24 +414,21 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                       Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
-     &                            mDCRkl,ipDkl,ipDDkl,mDkl,nIrrep,
-     &                            DeDe,nDeDe)
+     &                            mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
-     &                            mDCRil,ipDil,ipDDil,mDil,nIrrep,
-     &                            DeDe,nDeDe)
+     &                            mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe)
                    End If
 *
                    If (DoFock) Then
                       Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
      &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
-     &                            mDCRjl,ipDjl,ipDDjl,mDjl,nIrrep,
-     &                            DeDe,nDeDe)
+     &                            mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe)
                    End If
 *                                                                      *
 ************************************************************************
@@ -515,7 +509,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                   nijkl=iBasn*jBasn*kBasn*lBasn
                   If (DoIntegrals.and..Not.NoInts) Then
 *                    Get max AO/SO integrals
-                     If (Petite) Then
+                     If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
                         ip=ipMem2
                      Else
@@ -532,10 +526,7 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &                                  Sew_Scr(ipMem2),
      &                                  Sew_Scr(ipMem1),nSO,
      &                                  iSOSym,mSkal,nSOs,
-     &                                  TInt,nTInt,FacInt,
-     &                                  iTOffs,nIrrep,
-     &                                  Dens,Fock,lDens,ExFac,nDens,
-     &                                  Ind,nInd,FckNoClmb,FckNoExch)
+     &                                  TInt,nTInt,iTOffs,nIrrep)
                      Else
                         Tmax=Zero
                      End If

@@ -16,11 +16,13 @@
 #include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
-     &          Sphere_Dmp
+     &          Sphere_Dmp, iSphCr, LblCBs, LblSBs
+      Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
       Logical :: Condon_Shortley_phase_factor=.False.
+      Character(LEN=8), Allocatable :: LblCBs(:), LblSBs(:)
 *
 ***********************************************************************
 *
@@ -31,6 +33,9 @@
       SubRoutine Sphere_Free()
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      If (Allocated(iSphCr)) Call mma_deallocate(iSphCr)
+      If (Allocated(LblCBs)) Call mma_deallocate(LblCBs)
+      If (Allocated(LblSBs)) Call mma_deallocate(LblSBs)
       lmax_internal=-1
       End SubRoutine Sphere_Free
 *
@@ -43,7 +48,7 @@
 *         to spherical gaussians. By having these matricies being      *
 *         defined dynamical we ensure that any extension of the        *
 *         program to higher angular momentum is simply done by chang-  *
-*         ing MxAng to the appropiate value.                           *
+*         ing iTabMx to the appropiate value.                          *
 *         In addition, this will also allow us to have any order of    *
 *         vectors in the matrix, i.e. we can have our own format or    *
 *         any other odd order (MOLECULE).                              *
@@ -53,7 +58,7 @@
 * Calling    : Real_Sphere                                             *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
+*             March 1990                                               *
 ************************************************************************
 *               Credits.                                               *
 *               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
@@ -61,20 +66,17 @@
 *                     N. F. Chilton at OpenMolcas2020                  *
 ************************************************************************
       Implicit real*8 (a-h,o-z)
-*     find MxAng, limiting the highest ang mom, in itmax.fh
+*     find iTabMx, limiting the highest ang mom, in itmax.fh
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "status.fh"
-*     iAngMx is the largest ang mom in the current basis
-      iAngMx=Max(iAngMx,lMax)
+      Logical CSPF
 *     check if required ang mom is greater than hard-coded limit
-      If (iAngMx.gt.MxAng) Then
-         Call WarningMessage(2,' Sphere: Increase MxAng!')
+      If (lMax.gt.iTabMx) Then
+         Call WarningMessage(2,' Sphere: Increase iTabMx!')
          Call Abend()
       End If
 *
-!     Write (*,*) lmax, lmax_internal
       If (lmax.lt.0) Then
          Write (6,*) 'Sphere: lmax<0'
          Call Abend()
@@ -85,13 +87,24 @@
       Else
          Return
       End If
-!     Write (*,*) 'C&S',Condon_Shortley_phase_factor
+      Call Get_lScalar('CSPF',CSPF)
+      Condon_Shortley_phase_factor=CSPF
+*
+      nSphCr=(lmax+1)*(lmax+2)*(lmax+3)/6
+      Call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
+      iSphCr(:)=0
+
+*     Write (*,*) 'C&S',Condon_Shortley_phase_factor
 *
 *     Make the labels
 *     Gives info on basis function angular momenta
 *     n, l, ml or assigns it as a diffuse/polarising function with '*'
 *
-      Call Make_Labels(LblCbs,LblSbs,MxFnc,iAngMx)
+      MxFnc=(lMax+1)*(lMax+2)*(lMax+3)/6
+      Call mma_allocate(LblCBs,MxFnc,Label='LblCBs')
+      Call mma_allocate(LblSBs,MxFnc,Label='LblSBs')
+*
+      Call Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
 *
 *     Allocate memory for transformation matrices
 *     Here, ipSph are the pointers to memory locations in RSph, for the
@@ -112,7 +125,6 @@
       Call Real_Sphere(ipSph,lMax,RSph,nSphr)
 *
 *     Set up the symmetry properties of the spherical gaussians
-*     We are not sure if this Condon and Shortley phase....
       iii = 0
       jjj = 0
       Do 50 n = 0, lMax
@@ -440,18 +452,6 @@
  20   Continue
       Return
       End Function DblFac
-      Subroutine Sphere_Dmp()
-      Implicit None
-*
-***********************************************************************
-*
-*     Dump the transformation matrices
-*
-      Call Put_dArray('SewTInfo',RSph,SIZE(RSph))
-*
-***********************************************************************
-*
-      End Subroutine Sphere_Dmp
 *
 ***********************************************************************
 *

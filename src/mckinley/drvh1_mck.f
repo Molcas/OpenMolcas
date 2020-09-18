@@ -41,7 +41,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
       Character*8 Label
-      Logical Nona
+      Logical Nona, lECP
 *
 c     iRout = 131
 c     iPrint = nPrint(iRout)
@@ -184,6 +184,10 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       If (lecp) Then
       idcnt=0
       Do iCnttp=1,nCnttp

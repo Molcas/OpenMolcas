@@ -58,13 +58,13 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "lundio.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"

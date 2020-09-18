@@ -296,7 +296,7 @@
          Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,iPrint)
+*    &               Grad,lDisp(0),ChDisp,iPrint)
          call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
@@ -348,7 +348,7 @@ C        End If
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -486,7 +486,7 @@ C        End If
 #endif
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_2Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue

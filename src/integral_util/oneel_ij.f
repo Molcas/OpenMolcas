@@ -30,7 +30,8 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (a-h,o-z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
@@ -54,6 +55,17 @@
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
+#include "int_interface.fh"
+      End Subroutine Kernel
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

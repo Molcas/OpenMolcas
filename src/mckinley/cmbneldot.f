@@ -31,7 +31,7 @@
 *             Modified for trans. prob.   calculations Oct '97         *
 *             by Anders Bernhardsson                                   *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

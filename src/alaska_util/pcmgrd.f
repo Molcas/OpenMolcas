@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1995,2001, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PCMgrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine PCMgrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -46,17 +45,11 @@
 #include "print.fh"
 #include "disp.fh"
 #include "rctfld.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
-*
-*-----Local arrys
-*
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
       Real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
       Logical NoLoop, JfGrad(3,4)
       Integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
@@ -70,6 +63,8 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       iRout = 151
       iPrint = nPrint(iRout)
       Call qEnter('PCMgrd')
+*
+      nRys = nHer
 *
       nip = 1
       ipA = nip

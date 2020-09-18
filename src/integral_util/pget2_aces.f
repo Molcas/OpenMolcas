@@ -38,13 +38,13 @@
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 ************ columbus interface ****************************************

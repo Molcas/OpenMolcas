@@ -581,7 +581,7 @@ c                 Write (*,*) 'Prem=',Prem
 *
 #ifdef _DEBUG_
                If (iPrint.ge.19) Call PrGrad(' In TwoEl',
-     &                     Grad,nGrad,lIrrep,ChDisp,5)
+     &                     Grad,nGrad,ChDisp,5)
 #endif
 *
  301          Continue

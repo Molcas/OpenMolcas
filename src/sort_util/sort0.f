@@ -81,6 +81,7 @@
 *                                                                      *
 ************************************************************************
 *
+      use Basis_Info, only: nBas
       use srt2
       Implicit Integer (A-Z)
 *
