@@ -102,10 +102,10 @@ contains
         real(wp) :: M(size(lambdas), size(lambdas))
         real(wp) :: V(size(M, 1), size(M, 2))
         real(wp) :: U(size(M, 1), size(M, 2))
-        real(wp) :: test_V(size(M, 1), size(M, 2))
+        real(wp) :: test_V(size(M, 1), size(M, 2)), tmp(size(M, 2))
         real(wp) :: ref(size(V, 1), size(V, 2))
 
-        integer :: i, i_test
+        integer :: i, j, i_test
         integer :: offset
 
         ! create_test_matrix
@@ -133,10 +133,20 @@ contains
         do i_test = 1, test_size
             call create_test_V(V, dimension_E, test_V)
             call canonicalize(test_V, lambdas)
+
+            ! Test that the canonicalized Eigenvectors are indeed Eigenvectors.
+            do j = 1, size(lambdas)
+                call mult(M, test_V(:, j), tmp)
+                call assert_true(all(lambdas(j) * test_V(:, j) .isclose. tmp))
+            end do
+
+            ! Test that canonicalized eigenvectors are always the same
+            ! even if there are degenerate Eigenspaces.
             call assert_true(all(test_V .isclose. V))
         end do
 
         ! test with Roland's constraints
+
         call assert_true(size(V, 1) == size(V, 2))
 
         ref(:, :) = 0._wp
@@ -151,6 +161,15 @@ contains
         do i_test = 1, test_size
             call create_test_V(V, dimension_E, test_V)
             call canonicalize(test_V, lambdas, ref)
+
+            ! Test that the canonicalized Eigenvectors are indeed Eigenvectors.
+            do j = 1, size(lambdas)
+                call mult(M, test_V(:, j), tmp)
+                call assert_true(all(lambdas(j) * test_V(:, j) .isclose. tmp))
+            end do
+
+            ! Test that canonicalized eigenvectors are always the same
+            ! even if there are degenerate Eigenspaces.
             call assert_true(all(test_V .isclose. V))
         end do
 
