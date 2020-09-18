@@ -542,15 +542,19 @@ contains
 !>  tested.
 !>  If S is ommited, it defaults to the unit matrix,
 !>  i.e. the Euclidean dot-product.
-      pure function dot_product_(v1, v2, S) result(dot)
+    function dot_product_(v1, v2, S) result(dot)
         real(wp), intent(in) :: v1(:), v2(:)
         real(wp), intent(in), optional :: S(:, :)
+        real(wp), allocatable :: tmp(:)
         real(wp) :: dot
 
         if (present(S)) then
-          dot = dot_product(matmul(S, v1), v2)
+            call mma_allocate(tmp, size(v2))
+            call mult(S, v2, tmp)
+            dot = dot_product(v1, tmp)
+            call mma_deallocate(tmp)
         else
-          dot = dot_product(v1, v2)
+            dot = dot_product(v1, v2)
         end if
       end function
 
@@ -562,7 +566,7 @@ contains
 !>
 !>  @author
 !>    Oskar Weser
-    pure function norm(v, S) result(L)
+    function norm(v, S) result(L)
         real(wp), intent(in) :: v(:)
         real(wp), intent(in), optional :: S(:, :)
         real(wp) :: L
