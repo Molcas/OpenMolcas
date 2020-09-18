@@ -17,8 +17,8 @@
         use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
-        use linalg_mod, only: mult, diagonalize, norm, dot_product_,
-     &      assert_, canonicalize, Gram_Schmidt, Lowdin, Canonical
+        use linalg_mod, only: mult, norm, dot_product_,
+     &      assert_, Gram_Schmidt, Lowdin, Canonical
 
         implicit none
         save
