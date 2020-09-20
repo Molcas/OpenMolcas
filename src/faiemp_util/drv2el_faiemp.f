@@ -31,6 +31,8 @@
 ************************************************************************
       use k2_arrays, only: pDq, pFq
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
       External No_Routine
 #include "itmax.fh"
@@ -51,13 +53,12 @@
       Character*8  Label
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
-     &             Ind, iOpt, ip_ij, ipDMax,
+     &             iOpt, ip_ij, ipDMax,
      &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
-     &             nInd, nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
+     &             nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
      &             nSkal_Valence
-      Dimension    Ind(1,1,2)
 
       Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
@@ -83,7 +84,6 @@
       iPrint = nPrint(iRout)
       Call QEnter('Drv2ElFrag')
       call xFlush(6)
-      nInd=1
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.False.
@@ -156,7 +156,7 @@ c     W2Disc=.False.
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly
 *    but appears to be working
-            If(iAnd(iChCnt(mdc),iIrrep).eq.iOper(iIrrep)) Then
+            If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
 * add it at the correct location in the large custom density matrix
               iFpos = 1
 c              ! position in fragment density matrix
@@ -302,7 +302,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
      &                    (iS,jS,kS,lS,TInt,nTInt,
      &                     iTOffs,No_Routine,
      &                     pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                     Ind,nInd,[NoCoul],[NoExch],
+     &                     [NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
 #ifdef _DEBUG_

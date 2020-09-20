@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NAInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine NAInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -37,6 +36,7 @@
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -48,15 +48,13 @@
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp)
+
+#include "int_interface.fh"
+
 *-----Local arrys
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-      Logical EQ, NoSpecial, No3Cnt
-      Integer iAnga(4), iDCRT(0:7), iChO(nComp)
+      Logical EQ, NoSpecial, No3Cnt, lECP
+      Integer iAnga(4), iDCRT(0:7)
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
@@ -71,6 +69,10 @@ C     Call qEnter('NAInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       lc=0
       ld=0
       iAnga(1) = la
@@ -133,17 +135,17 @@ C     Call qEnter('NAInt')
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             If (iPrint.ge.99) Then
                Write (6,*) ' m      =',nStabM
                Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &               ii = 0, nStabM-1)
-               Write (6,*) ' s      =',nStab(kdc+kCnt)
-               Write (6,'(9A)') '(S)=',(ChOper(jStab(ii,kdc+kCnt)),
-     &               ii = 0, nStab(kdc+kCnt)-1)
+               Write (6,*) ' s      =',dc(kdc+kCnt)%nStab
+               Write (6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),
+     &               ii = 0, dc(kdc+kCnt)%nStab-1)
                Write (6,*) ' LambdaT=',LmbdT
                Write (6,*) ' t      =',nDCRT
                Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
@@ -152,9 +154,7 @@ C     Call qEnter('NAInt')
 
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *              switch (only two center NA matrix...)
                If (No3Cnt .AND. .NOT.(EQ(A,TC).OR.EQ(RB,TC))) Go To 102
 *              switch
@@ -270,7 +270,7 @@ C     Call qEnter('NAInt')
 *
 *--------------Accumulate contributions to the symmetry adapted operator
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp         ,lOper,iChO,-Fact*Q_Nuc)
                If (iPrint.ge.99) Then
@@ -300,10 +300,10 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_real_array(CCoor)
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

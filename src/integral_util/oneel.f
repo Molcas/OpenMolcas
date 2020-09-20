@@ -15,6 +15,7 @@
      &                 nOrdOp,rNuc,rHrmt,iChO,
      &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                 PtChrg,nGrid,iAddPot)
+      use Basis_Info, only: nBas
       use PrpPnt
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm

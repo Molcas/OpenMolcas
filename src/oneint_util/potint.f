@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PotInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,PtChrg,nGrid,iAddPot)
+      SubRoutine PotInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of potential integrals    *
@@ -33,6 +33,7 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 ************************************************************************
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
@@ -41,15 +42,13 @@
 #include "real.fh"
 #include "oneswi.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,*),
-     &       Array(nZeta*nArr),ptchrg(nGrid)
-      Integer lOper(nComp), iStabM(0:nStabM-1), iStabO(0:7), iPh(3)
-*-----Local arrys
+
+#include "int_interface.fh"
+
+*-----Local variables
+      Integer iStabO(0:7), iPh(3), iAnga(4), iDCRT(0:7)
       Real*8 TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
-      Integer iAnga(4), iDCRT(0:7), iChO(nComp)
 *
 *     Statement function for Cartesian index
 *
@@ -89,8 +88,7 @@
 *-----------Find the DCR for M and S
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 c     Fact = DBLE(nStabM) / DBLE(LmbdT)
       FACT=1.D0
 
@@ -103,7 +101,7 @@ c     Fact = DBLE(nStabM) / DBLE(LmbdT)
          Do i = 1, 3
             iph(i) = iPhase(i,iDCRT(lDCRT))
          End Do
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
 
          Do 100 iGrid = 1, nGrid
             If (iAddPot.ne.0) Chrg=ptchrg(iGrid)
@@ -142,12 +140,13 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_integer(nOrdOp)
       End If
       End
       SubRoutine Pot_nuc(CCoor,pot,nGrid)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -174,14 +173,12 @@ chjw is this always correct?
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
 *
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                Do iGrid=1,nGrid
                  r12=sqrt((TC(1)-CCoor(1,iGrid))**2

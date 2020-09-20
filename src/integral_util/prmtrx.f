@@ -25,6 +25,7 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 ************************************************************************
+      Use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -55,7 +56,7 @@
      &                  ' SO Integrals of type ', Label,' Component ',
      &                     iComp
                End If
-               Line=Bline
+               Line=''
                If (iIrrep.eq.jIrrep) Then
                   Write (Line,'(1X,A,I1)')
      &            ' Diagonal Symmetry Block ', iIrrep+1

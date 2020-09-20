@@ -11,10 +11,13 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       SubRoutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,
-     &                iaoi,iaoj,naco,ishell,IndShl,
+     &                iaoi,iaoj,naco,ishell,
      &                temp1,temp2,temp3,temp4,temp5,temp6)
 *
       use pso_stuff
+      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: iOper
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -33,7 +36,7 @@
       Real*8 Temp4(ibas,icmp,nACO)
       Real*8 Temp5(jbas,jcmp,nACO)
       Real*8 Temp3(jbas,jcmp,*),Temp6(*)
-      integer ishell(4),IndShl(4),na(0:7),ipp(0:7)
+      integer ishell(4),na(0:7),ipp(0:7)
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
       call dcopy_(Naco**4,[0.0d0],0,Temp2,1)
@@ -57,12 +60,12 @@
 
       ipj=ipi+naco*ibas*icmp
 
-      Call PckMo2(temp6(ipi),nAcO,IndShl,icmp,iBas,jcmp,jBas,iaoi,iaoj)
+      Call PckMo2(temp6(ipi),nAcO,icmp,iBas,jcmp,jBas,iaoi,iaoj)
       id=0
       Do mIrr=0,nIrrep-1
        iiii=0
        Do iS=0,nIrrep-1
-        js=nrOpr(ieor(ioper(is),iOper(mIrr)),ioper,nirrep)
+        js=nrOpr(ieor(ioper(is),iOper(mIrr)))
         ipp(is)=iiii
         iiii=nbas(is)*nash(js)+iiii
        End Do
@@ -78,8 +81,7 @@
            l=0
            Do lIrr=0,kIrr
             kls=iEOR(iOper(kIrr),iOper(lIrr))
-            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls),
-     &                 ioper,nirrep)
+            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls))
             ja=1
             Do j=0,jirr-1
              ja=ja+nAsh(j)
@@ -87,10 +89,8 @@
 *
 *           Symmetry of Q matrix
 *
-            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
-            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
+            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)))
+            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
 *
             lMax=nAsh(lIrr)
             If (lIrr.eq.kirr) lmax=kash

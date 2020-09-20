@@ -12,31 +12,26 @@
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "lundio.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
-      Call SOCtl_mod(ChOper,Label,Maxbfn+MaxBfn_Aux,0,0,Cnt_ico,
-     &               Phase_ico)
+      Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
 *
       Return
       End
 *
-      Subroutine SOCtl_mod(ChOper,Mamn,nMamn,nDkroll,nCall,Cnt_ico,
-     &                     Phase_ico)
+      Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChTbl, iChBas
+      use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
 #include "info.fh"
-
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "print.fh"
 *
-      Character ChOper(0:7)*3, ChTemp*8, Mamn(nMamn)*(LENIN8)
+      Character ChTemp*8, Mamn(nMamn)*(LENIN8)
       Logical kECP, TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
 *
@@ -54,7 +49,6 @@
 *
          mdc = 0
          mc  = 1
-         IndShl = 0
          Do 201 iCnttp = 1, nCnttp
             kECP = dbsc(iCnttp)%ECP
             If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
@@ -88,11 +82,8 @@
 *
 *                    Skip if function not a basis of irreps.
 *
-                     If (.Not.TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                   nIrrep/nStab(mdc),iChTbl,iIrrep,iChBs,
-     &                   nStab(mdc))) Go To 204
-                     IrrCmp(IndShl+iComp) =
-     &                    iOr(IrrCmp(IndShl+iComp),2**iIrrep)
+                     If (.Not.TstFnc(dc(mdc)%iCoSet,
+     &                          iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
 *
                      Do 205 iCntrc = 1, nBasisi
                         iSO = iSO + 1
@@ -102,33 +93,25 @@
                         End If
                         ChTemp=LblCBs(lComp)
                         If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
-                        Do ico=0,nIrrep/nStab(mdc)-1
+                        Do ico=0,nIrrep/dc(mdc)%nStab-1
                         Cnt_ico(ico,iso)=mc+ico
                         Phase_ico(ico,iso)=
-     &                        iPrmt(NrOpr(iCoSet(iCo,0,mdc),
-     &                        iOper,nIrrep),iChbs)*
-     &                        iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
-     &                        iOper,nIrrep))
+     &                        iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
+     &                        iChTbl(iIrrep,
+     &                              NrOpr(dc(mdc)%iCoSet(iCo,0)))
                         End Do
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
+                        Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
  205                 Continue
 *
  204              Continue
-                  IndShl = IndShl + jComp
  2033             continue
                   kComp = kComp + (iAng+1)*(iAng+2)/2
  203           Continue
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
  202        Continue
 *
  201     Continue
  200  Continue
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_character(ChOper)
-         Call Unused_integer(nDkroll)
-         Call Unused_integer(nCall)
-      End If
       End

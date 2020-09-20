@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine espf (ireturn,StandAlone)
       use Real_Spherical
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 *
 * ESPF Module
@@ -20,7 +21,6 @@
 #include "disp.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nac.fh"
       Character Label*8

@@ -23,6 +23,7 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -132,14 +133,13 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+iCntr) ,nStab(kdc+iCntr),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,
+     &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -170,7 +170,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *                                                                      *
 *              Symmetry Adapt
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp,lOper,iChO,Fact)
             End Do        ! lDCRT

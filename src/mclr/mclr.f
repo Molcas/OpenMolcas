@@ -37,6 +37,8 @@
 *                                                                      *
 ************************************************************************
       Use Basis_Info, only: Basis_Info_Free
+      Use Center_Info, only: Center_Info_Free
+      use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -243,6 +245,8 @@ c      idp=rtoi
 ************************************************************************
 *                                                                      *
       Call Basis_Info_Free()
+      Call Center_Info_Free()
+      Call Symmetry_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

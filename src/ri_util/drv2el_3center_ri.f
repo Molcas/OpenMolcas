@@ -45,13 +45,12 @@
 ************************************************************************
       use iSD_data
       use Wrj12
-      use Basis_Info, only: dbsc
+      use Basis_Info, only: dbsc, nBas, nBas_Aux
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"
 #include "info.fh"
 #include "j12.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -223,8 +222,8 @@
 *     the RI vectors.
 *
       Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,iSOInf,
-     &               MxAO,Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
+     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
+     &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
       Call GetMem('iRv','Allo','Inte',ip_iRv,nSkal2)

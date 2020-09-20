@@ -27,6 +27,8 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: lIrrep
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -35,16 +37,15 @@
 #include "stdalloc.fh"
 *
 *
-c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
       Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,mxdc),Znuc(mxdc)
+      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
       Character shelllabel(7)
-      Character*(LENIN) AtomLabel(mxdc)
+      Character*(LENIN) AtomLabel(MxAtom)
       Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
-      Integer ibas_lab(mxdc), nOrb(8)
+      Integer ibas_lab(MxAtom), nOrb(8)
       Character*(LENIN8+1) gtolabel(maxbfn)
       Real*8 r_Norm(maxbfn)
       Character*(*) Filename
@@ -304,7 +305,7 @@ c      End If
 *
         Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom

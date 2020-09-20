@@ -11,6 +11,7 @@
       SubRoutine SetUp_iSD()
       use iSD_data
       use k2_arrays, only: MxDij, MxFT
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
 #include "setup.fh"
@@ -30,7 +31,6 @@
 *                                                                      *
 *.... Compute the size of and allocate auxiliary memory
 *
-      Call Get_iScalar('nSym',nIrrep)
       MxPrm = 0
       MxFT = 0
       MxDij = 0

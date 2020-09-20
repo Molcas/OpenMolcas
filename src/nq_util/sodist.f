@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,
-     &                  nDeg,MOValue,IndShl,
+     &                  nDeg,MOValue,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
+      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -54,10 +56,9 @@
       Do i1 = 1, nCmp
          iDeg=0
          Do iIrrep = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndShl+i1),iTwoj(iIrrep)).eq.0)
-     &         goto 100
-            iDeg=iDeg+1
             iSO=iAOtSO(iAO+i1,iIrrep)
+            If (iSO<0) Cycle
+            iDeg=iDeg+1
             iOff=(i1-1)*nDeg+iDeg
 
 *
@@ -65,13 +66,11 @@
 *
             iMO=iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
-c          write(*,*) '> iCMO ',iCMO
             Call MyDGeMM(DoIt(iMO),
      &                 mAO*nCoor,nBas(iIrrep),mBas,
      &                 SOValue(1,1,iOff),mAO*nCoor,
      &                 CMOs(iCMO),nBas(iIrrep),
      &                 MOValue(1,iMO),mAO*nCoor)
- 100     continue
           End Do
       End Do
 *
@@ -126,42 +125,9 @@ c          write(*,*) '> iCMO ',iCMO
       RETURN
       END
 *
-c      Subroutine SODist1(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-c     &                  IndShl,nSOs,iAO,nCMO)
-c      Implicit Real*8 (A-H,O-Z)
-c#include "itmax.fh"
-c#include "info.fh"
-c*
-c      Real*8  SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-c     &        SO(mAO*nCoor,nSOs),
-c     &        TmpCMOs(nCMO)
-c      Integer TmpDoIt(nSOs)
-c*
-c      Do k=1,nSOs
-c         TmpDoIt(k) = 1
-c      End Do
-c*
-c      call dcopy_(nCMO,0.0d0,0,TmpCMOs,1)
-c*
-c      iOff=0
-c      Do i=0,nIrrep-1
-c         iBas=nBas(i)
-c         Do j=1,iBas
-c            ii = iOff+(j-1)*iBas + j
-c            TmpCMOs(ii) = 1.0d0
-c         End Do
-c         iOff=iOff+nBas(i)**2
-c      End Do
-c*
-c      Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-c     &            IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
-c*
-c      Return
-c      End
-c
-*
       Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &                  IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+     &                  nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -188,7 +154,8 @@ c
       End Do
 *
       Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &            IndShl,nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+     &            nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
 *
       Return
       End
+

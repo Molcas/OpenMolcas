@@ -28,6 +28,8 @@
 *                                                                      *
 *     Modified by AB 950620                                            *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -56,7 +58,7 @@
      &      ' SO Integral gradients of the ', Label,' Component ',
      &                     iComp
                End If
-               Line=Bline
+               Line=''
                If (iIrrep.eq.jIrrep) Then
                   Write (Line,'(1X,A,I1)')
      &            ' Diagonal Symmetry Block ', iIrrep+1

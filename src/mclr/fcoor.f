@@ -20,11 +20,11 @@
 *                                                                  *
 ********************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
-#include "WrkSpc.fh"
-      Real*8 A(3),COOR(3,*)
+      Real*8 A(3),COOR(3,*), B(3)
       Character*(LENIN) Lab
       mdc=0
       iIrrep=0
@@ -35,16 +35,14 @@
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             call dcopy_(3,Coor(1,mdc),1,A,1)
-            Do iCo=0,nIrrep/nStab(mdc)-1
-               kop=iCoSet(iCo,0,mdc)
-               A1=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),1))*A(1)
-               A2=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),2))*A(2)
-               A3=DBLE(iPrmt(NrOpr(kop,iOper,nIrrep),4))*A(3)
+            Do iCo=0,nIrrep/dc(mdc)%nStab-1
+               kop=dc(mdc)%iCoSet(iCo,0)
+               Call OA(kOp,A,B)
                ii=nint(dbsc(icnttp)%Charge)
-               Lab=LblCnt(mdc)(1:LENIN)
+               Lab=dc(mdc)%LblCnt(1:LENIN)
                call setLab(Lab,ico)
                write (LUT,'(1X,A,1X,3F20.10,1X,I3)')
-     &                  Lab,A1,A2,A3,ii
+     &                  Lab,B(1:3),ii
              End Do
          End Do
       End Do

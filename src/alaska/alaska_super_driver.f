@@ -132,7 +132,8 @@
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
      &    Method .eq. 'CASPT2'   .OR.
      &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
-     &    Method .eq. 'CCSDT'    ) Then
+     &    Method .eq. 'CCSDT'    .OR.
+     &    Method .eq. 'EXTERNAL' ) Then
          If (isNAC) Then
            Call Store_Not_Grad(0,NACstates(1),NACstates(2))
            Call WarningMessage(2,'Numerical nonadiabatic coupling not'

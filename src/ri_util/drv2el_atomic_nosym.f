@@ -39,6 +39,7 @@
 *             Modified driver. Jan. '98                                *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use iSD_data
       use Wrj12
       use k2_arrays, only: Sew_Scr
@@ -47,7 +48,6 @@
       External Integral_WrOut
 #include "itmax.fh"
 #include "info.fh"
-#include "lundio.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "print.fh"
@@ -73,7 +73,6 @@
 *
       nIrrep_Save=nIrrep
       nIrrep=1
-      Petite=.True.
       iWROpt_Save=iWROpt
       iWROpt=1
 *
@@ -378,7 +377,6 @@ C    &               TInt,nTInt,nTInt)
 *                                                                      *
       Call Free_iSD()
       nIrrep=nIrrep_Save
-      Petite = nIrrep.eq.1
       iWROpt=iWROpt_Save
 *                                                                      *
 ************************************************************************

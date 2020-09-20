@@ -28,8 +28,10 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
@@ -56,21 +58,32 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
+#include "int_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Kamal Sharkas  01/29/2015
       If (Label(1:4).eq.'PSOI') Then !  PSO Integrals
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
-      IndShl = iSD( 8,iS)
+      iAO    = iSD( 7,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
-      JndShl = iSD( 8,jS)
+      jAO    = iSD( 7,jS)
       jShell = iSD(11,jS)
       nSO=0
       B(:)=Zero
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -83,17 +96,15 @@
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
       iPrim  = iSD( 5,iS)
-      iAO    = iSD( 7,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
       A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-      dbas= LblCnt(mdci)(1:LENIN)
+      dbas= dc(mdci)%LblCnt(1:LENIN)
       Call UpCase(dbas)
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
       jPrim  = iSD( 5,jS)
-      jAO    = iSD( 7,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
       jCnt   = iSD(14,jS)
@@ -109,23 +120,21 @@
          Call Abend()
       End If
       Call dCopy_(lFinal,[Zero],0,Final,1)
-      Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &         nStab(mdci),jStab(0,mdcj),
-     &         nStab(mdcj),iDCRR,nDCRR)
-      Call Inter(jStab(0,mdci),nStab(mdci),
-     &           jStab(0,mdcj),nStab(mdcj),
+      Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &               dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
+      Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &           dc(mdcj)%iStab,dc(mdcj)%nStab,
      &           iStabM,nStabM)
-      Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       If (iPrint.ge.19) Then
          Write (6,*)
          Write (6,*) ' g      =',nIrrep
-         Write (6,*) ' u      =',nStab(mdci)
-         Write (6,'(9A)') '(U)=',(ChOper(jStab(ii,mdci)),
-     &         ii = 0, nStab(mdci)-1)
-         Write (6,*) ' v      =',nStab(mdcj)
-         Write (6,'(9A)') '(V)=',(ChOper(jStab(ii,mdcj)),
-     &         ii = 0, nStab(mdcj)-1)
+         Write (6,*) ' u      =',dc(mdci)%nStab
+         Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+     &         ii = 0, dc(mdci)%nStab-1)
+         Write (6,*) ' v      =',dc(mdcj)%nStab
+         Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+     &         ii = 0, dc(mdcj)%nStab-1)
          Write (6,*) ' LambdaR=**',LmbdR
          Write (6,*) ' r      =',nDCRR
          Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
@@ -134,13 +143,11 @@
          Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &         ii = 0, nStabM-1)
       End If
-       nOp(1) = NrOpr(0,iOper,nIrrep)
+       nOp(1) = NrOpr(0)
       If (nDCRR.ge.1) Then
          Do lDCRR = 0, nDCRR-1
-            RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-            RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-            RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-            nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+            Call OA(iDCRR(lDCRR),B,RB)
+            nOp(2) = NrOpr(iDCRR(lDCRR))
                If (iPrint.ge.49) Then
                Write (6,'(A,3F6.2,2X,3F6.2)') '*',
      &                                        (A(i),i=1,3),(RB(i),i=1,3)
@@ -175,7 +182,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -185,7 +192,7 @@
                  !write(6,*) "Symmetry adapt component"
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                        iShell,jShell,iShll,jShll,
-     &                        IndShl,JndShl,Final,
+     &                        iAO,jAO,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
@@ -204,16 +211,16 @@
 *
       iCmp   = iSD( 2,iS)
       iBas   = iSD( 3,iS)
-      IndShl = iSD( 8,iS)
+      iAO    = iSD( 7,iS)
       iShell = iSD(11,iS)
       jCmp   = iSD( 2,jS)
       jBas   = iSD( 3,jS)
-      JndShl = iSD( 8,jS)
+      jAO    = iSD( 7,jS)
       jShell = iSD(11,jS)
       nSO=0
       Do iComp = 1, nComp
          iSmLbl=lOper(iComp)
-         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+         nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
       If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
       If (nSO.lt.1) Return
@@ -229,20 +236,16 @@
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
       iPrim  = iSD( 5,iS)
-      iAO    = iSD( 7,iS)
-      IndShl = iSD( 8,iS)
       mdci   = iSD(10,iS)
       iCnttp = iSD(13,iS)
       iCnt   = iSD(14,iS)
       A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-      dbas= LblCnt(mdci)(1:LENIN)
+      dbas= dc(mdci)%LblCnt(1:LENIN)
       Call UpCase(dbas)
 
       jShll  = iSD( 0,jS)
       jAng   = iSD( 1,jS)
       jPrim  = iSD( 5,jS)
-      jAO    = iSD( 7,jS)
-      JndShl = iSD( 8,jS)
       mdcj   = iSD(10,jS)
       jCnttp = iSD(13,jS)
       jCnt   = iSD(14,jS)
@@ -354,29 +357,27 @@
 *                                                                      *
 *     Find the DCR for A and B
 *
-      Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &         nStab(mdci),jStab(0,mdcj),
-     &         nStab(mdcj),iDCRR,nDCRR)
+      Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &               dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *     Find the stabilizer for A and B
 *
-      Call Inter(jStab(0,mdci),nStab(mdci),
-     &           jStab(0,mdcj),nStab(mdcj),
+      Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &           dc(mdcj)%iStab,dc(mdcj)%nStab,
      &           iStabM,nStabM)
 *
-      Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 #ifdef _DEBUG_
       If (iPrint.ge.19) Then
          Write (6,*)
          Write (6,*) ' g      =',nIrrep
-         Write (6,*) ' u      =',nStab(mdci)
-         Write (6,'(9A)') '(U)=',(ChOper(jStab(ii,mdci)),
-     &         ii = 0, nStab(mdci)-1)
-         Write (6,*) ' v      =',nStab(mdcj)
-         Write (6,'(9A)') '(V)=',(ChOper(jStab(ii,mdcj)),
-     &         ii = 0, nStab(mdcj)-1)
+         Write (6,*) ' u      =',dc(mdci)%nStab
+         Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+     &         ii = 0, dc(mdci)%nStab-1)
+         Write (6,*) ' v      =',dc(mdcj)%nStab
+         Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+     &         ii = 0, dc(mdcj)%nStab-1)
          Write (6,*) ' LambdaR=**',LmbdR
          Write (6,*) ' r      =',nDCRR
          Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
@@ -391,7 +392,7 @@
 *                                                                      *
 *     Compute normalization factor
 *
-      iuv = nStab(mdci)*nStab(mdcj)
+      iuv = dc(mdci)%nStab*dc(mdcj)%nStab
       If (MolWgh.eq.1) Then
          Fact = DBLE(nStabO) / DBLE(LambdT)
       Else If (MolWgh.eq.0) Then
@@ -405,13 +406,11 @@
 *                                                                      *
 *     Loops over symmetry operations acting on the basis.
 *
-       nOp(1) = NrOpr(0,iOper,nIrrep)
+       nOp(1) = NrOpr(0)
       If (nDCRR.ge.1) Then
          Do lDCRR = 0, nDCRR-1
-            RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-            RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-            RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-            nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+            Call OA(iDCRR(lDCRR),B,RB)
+            nOp(2) = NrOpr(iDCRR(lDCRR))
              If (iPrint.ge.49) Then
                Write (6,'(A,3F6.2,2X,3F6.2)') '*',
      &                                        (A(i),i=1,3),(RB(i),i=1,3)
@@ -562,7 +561,7 @@
             iIC = 1
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+               mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                If (mSO.eq.0) Then
                   Do iIrrep = 0, nIrrep-1
                      If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -571,7 +570,7 @@
                Else
                   Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                        iShell,jShell,iShll,jShll,
-     &                        IndShl,JndShl,Final,
+     &                        iAO,jAO,Final,
      &                        iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
                   iSOBlk = iSOBlk + mSO*iBas*jBas
                End If

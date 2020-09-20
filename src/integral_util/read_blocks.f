@@ -8,17 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,iOff,Buf,nBuf,
+      Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,
      &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,
      &                       iSO2cI,CutInt)
       use aces_stuff, only: LuGamma
       use pso_stuff
+      use SOAO_Info, only: iOffSO
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
 #include "real.fh"
 #include "mp2alaska.fh"
       Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
-     &        iOff(0:nIrrep-1), iSO2Shell(nSOs), iSO2cI(2,nSOs)
+     &        iSO2Shell(nSOs), iSO2cI(2,nSOs)
       Real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
       Logical Triangular
 *                                                                      *
@@ -105,8 +106,8 @@ C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
             iBuf=0
             Do iAB = iAB_s, iAB_e
 *
-               iSO_A_a=iOff(iIrrep_A)+iSO_A_r
-               iSO_B_a=iOff(iIrrep_B)+iSO_B_r
+               iSO_A_a=iOffSO(iIrrep_A)+iSO_A_r
+               iSO_B_a=iOffSO(iIrrep_B)+iSO_B_r
                iShell_A=iSO2Shell(iSO_A_a)
                iShell_B=iSO2Shell(iSO_B_a)
                iShell_AB=iTri(iShell_A,iShell_B)
@@ -137,8 +138,8 @@ C           Call GetLst(Buf,iAB_s,nAB_dist,2,iType,IND)
                   If(.not. Case_mp2) Then
                      If (Abs(ABCD).lt.CutInt) Go To 888
                   End If
-                  iSO_C_a=iOff(iIrrep_C)+iSO_C_r
-                  iSO_D_a=iOff(iIrrep_D)+iSO_D_r
+                  iSO_C_a=iOffSO(iIrrep_C)+iSO_C_r
+                  iSO_D_a=iOffSO(iIrrep_D)+iSO_D_r
                   iShell_C=iSO2Shell(iSO_C_a)
                   iShell_D=iSO2Shell(iSO_D_a)
                   iShell_CD=iTri(iShell_C,iShell_D)

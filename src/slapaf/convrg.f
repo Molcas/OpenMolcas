@@ -11,7 +11,7 @@
       Subroutine Convrg(iter,kIter, nInter, qInt, Shift, Grad,
      &                  Lbl,GNrm,Energy,Stat,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
-     &                  Baker, Cx,Gx,nAtom,mTtAtm,iOper,nSym,ed,iNeg,
+     &                  Baker, Cx,Gx,nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
      &                  Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
@@ -33,7 +33,7 @@
       Character*16 StdIn
       Character*80 Point_Desc
       Character*16 MEP_Text
-      Integer   iOper(0:nSym-1), iNeg(2)
+      Integer   iNeg(2)
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
@@ -81,8 +81,8 @@
 *
       Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
       Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
-      Call AtmLst(Cx(1,iter  ),nAtom,Work(ipx),iOper,nSym,mTtAtm)
-      Call AtmLst(Cx(1,iter+1),nAtom,Work(ipy),iOper,nSym,mTtAtm)
+      Call AtmLst(Cx(1,iter  ),nAtom,Work(ipx),mTtAtm)
+      Call AtmLst(Cx(1,iter+1),nAtom,Work(ipy),mTtAtm)
       Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
       Call GetMem('y','Free','Real',ipy,3*mTtAtm)
       Call GetMem('x','Free','Real',ipx,3*mTtAtm)
@@ -735,10 +735,8 @@ C              Write (6,*) 'SubProject=.Prod'
          eDiffMEP=Work(ipE+(iMEP))-Work(ipE+(iMEP-1))
          Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
          Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
-         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Work(ipx),
-     &               iOper,nSym,mTtAtm)
-         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Work(ipy),
-     &               iOper,nSym,mTtAtm)
+         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Work(ipx),mTtAtm)
+         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Work(ipy),mTtAtm)
          Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
          Call GetMem('x','Free','Real',ipx,3*mTtAtm)
          Call GetMem('y','Free','Real',ipy,3*mTtAtm)

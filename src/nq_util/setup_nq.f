@@ -37,6 +37,8 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -196,9 +198,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          iCnt  =iSD(14,iShell)
          C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do iIrrep = 0, nIrrep-1
-            Coor(1) = C(1)*DBLE(iPhase(1,iOper(iIrrep)))
-            Coor(2) = C(2)*DBLE(iPhase(2,iOper(iIrrep)))
-            Coor(3) = C(3)*DBLE(iPhase(3,iOper(iIrrep)))
+            Call OA(iOper(iIrrep),C,Coor)
          Do iNQ=1,nNQ
             jNQ=ip_Coor(iNQ)
 *
@@ -267,8 +267,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
                C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
                If ( EQ(Work(jNQ),C) ) Then
                   mdci=iSD(10,iS)
-                  Write (6,*) 'LblCnt(mdci)=',LblCnt(mdci)
-                  If (LblCnt(mdci).eq.MBC) Then
+                  If (dc(mdci)%LblCnt.eq.MBC) Then
                      nR_tmp=nR
                      nR=INT(DBLE(nR)*2.0D0)
                      Threshold_tmp=Threshold
@@ -711,7 +710,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          If (On_Top) Then
             mdci  = iSD(10,iSh)
             kAO=iCmp*iBas*nGridMax
-            nSO=kAO*nSym/nStab(mdci)*mAO
+            nSO=kAO*nSym/dc(mdci)%nStab*mAO
          End If
 c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
          nMem=Max(nMem,nxyz+nAngular+nRad+nRadial,2*nSO)
@@ -780,15 +779,14 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
       ndc2 = ndc**2
       Call GetMem('Fact','Allo','Real',ip_Fact,ndc2)
       Do mdci = 1, ndc
-         nDegi=nIrrep/nStab(mdci)
+         nDegi=nIrrep/dc(mdci)%nStab
          Do mdcj = 1, ndc
-            nDegj=nIrrep/nStab(mdcj)
+            nDegj=nIrrep/dc(mdcj)%nStab
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
-     &               nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nIrrep) / DBLE(LmbdR)
             Else If (MolWgh.eq.0) Then

@@ -13,7 +13,7 @@
       Subroutine DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,iSpin,
      &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
      &                    Rho,nRho,IndGrd,Weights,iTab,Temp,F_xc,
-     &                    dW_dR,iChBas,nChBas,iNQ)
+     &                    dW_dR,iNQ)
 ************************************************************************
 *                                                                      *
 *     Object: to trace the correct parts to get the contributions to   *
@@ -38,7 +38,7 @@
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
      &       Rho(nRho,mGrid), R_Grid(3),
      &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
-      Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff), iChBas(0:nChBas-1)
+      Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -594,5 +594,4 @@
 *                                                                      *
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(iChBas)
       End

@@ -29,7 +29,6 @@
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Integer iAtmNr2(mxdbsc)
       Real*8 Charge2(mxdbsc)
-      Common /delete/ kDel(0:MxAng,MxDc)
       Data IfTest/.False./
 *
 !#define _DEBUG_
@@ -205,7 +204,7 @@
                       iShl  = dbsc(iCnttp)%iSOC+l
                       jShll  = dbsc(iCnttp)%iPrj+l
 *                     nCore=nCore+Shells(jShll)%nBasis
-                      nCore=nCore+kDel(l+1,iCnttp)
+                      nCore=nCore+dbsc(iCnttp)%kDel(l)
                    End If
                End If
             End Do
@@ -227,7 +226,7 @@
                          iShll  = dbsc(iCnttp)%iSOC+l
                          jShll  = dbsc(iCnttp)%iPrj+l
 *                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
-                         iDel(1+l)=kDel(l+1,iCnttp)
+                         iDel(1+l)=dbsc(iCnttp)%kDel(l)
                       End If
                   End If
                End Do

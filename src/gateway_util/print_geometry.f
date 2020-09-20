@@ -25,6 +25,7 @@
 *             September 2006                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Period
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -32,8 +33,9 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Character help_c*1
-      Character FMT*16
+      Character(LEN=1) help_c*1
+      Character(LEN=16) FMT
+      Character(LEN=LENIN), Allocatable:: Lblxxx(:)
       Real*8, Dimension (:,:), Allocatable :: Centr
 #include "angstr.fh"
 *                                                                      *
@@ -42,12 +44,12 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_Geometry')
       LuWr=6
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Centr,3,mCentr)
+      Call mma_allocate(Centr,3,mCentr,Label='Centr')
+      Call mma_allocate(Lblxxx,mCentr,Label='Lblxxx')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,10 +97,9 @@
             x1 = dbsc(jCnttp)%Coor(1,jCnt)
             y1 = dbsc(jCnttp)%Coor(2,jCnt)
             z1 = dbsc(jCnttp)%Coor(3,jCnt)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               Facx=DBLE(iPhase(1,iCoset(i,0,ndc)))
-               Facy=DBLE(iPhase(2,iCoset(i,0,ndc)))
-               Facz=DBLE(iPhase(3,iCoset(i,0,ndc)))
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Centr(1:3,nc))
                If (Show) Then
                   help_c = ' '
                   If(Cell_l) Then
@@ -109,29 +110,22 @@
                   if(iOpt.eq.0) then
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6,7X,3F15.6)')
-     &                    nc, help_c, LblCnt(ndc),
-     &                    x1*Facx, y1*Facy, z1*Facz,
-     &                    x1*Facx*angstr,
-     &                    y1*Facy*angstr,
-     &                    z1*Facz*angstr
+     &                    nc, help_c, dc(ndc)%LblCnt,
+     &                    Centr(1:3,nc),
+     &                    Centr(1:3,nc)*angstr
                   else
                      Write (LuWr,
      &                   '(6X,I3,A1,5X,A,3F15.6)')
-     &                    nc, help_c, LblCnt(ndc),
-     &                    x1*Facx*angstr,
-     &                    y1*Facy*angstr,
-     &                    z1*Facz*angstr
+     &                    nc, help_c, dc(ndc)%LblCnt,
+     &                    Centr(1:3,nc)*angstr
                   endif
                End If
-               Centr(1,nc) = x1*Facx
-               Centr(2,nc) = y1*Facy
-               Centr(3,nc) = z1*Facz
                nchr=dbsc(jCnttp)%AtmNr
-               if (nc.gt.8*mxdc) Then
+               if (nc.gt.8*MxAtom) Then
                   Call WarningMessage(2,'lblxxx too small')
                   Call Abend()
                End If
-               lblxxx(nc)=lblcnt(ndc)(1:LENIN)
+               lblxxx(nc)=dc(ndc)%LblCnt(1:LENIN)
                nc = nc + 1
             End Do
          End Do
@@ -144,8 +138,7 @@
 *     Compute distances
 *
       If (mCentr.le.2) Go To 55
-      Call Dstncs(lblxxx,Centr,nc,
-     &            angstr,Max_Center,6)
+      Call Dstncs(lblxxx,Centr,nc,angstr,Max_Center,6)
       If (.Not.Expert) Call DstChk(Centr,lblxxx,nc)
 *
 *     Compute valence bond angels
@@ -157,16 +150,17 @@
 *
       If (iPrint.lt.5.or.mCentr.lt.4) Go To 55
       Call Dihedr(lblxxx,Centr,nc,rtrnc,Max_Center)
- 55   Continue
 *                                                                      *
 ************************************************************************
 *                                                                      *
+ 55   Continue
+*
+      Call mma_deallocate(Lblxxx)
       Call mma_deallocate(Centr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call CollapseOutput(0,'   Molecular structure info:')
       Write (LuWr,*)
-      Call qExit('Print_Geometry')
       Return
       End

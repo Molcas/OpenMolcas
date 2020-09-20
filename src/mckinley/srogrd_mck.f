@@ -10,13 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine SroGrd_mck(Alpha,nAlpha,Beta, nBeta,
-     &                  Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,
-     &                  IfGrad,IndGrd,nop,
-     &                  loper,iu,iv,nrop,idcar,idcnt,
-     &                  iStabM,nStabM,ldum)
+      SubRoutine SroGrd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                     )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
@@ -65,6 +62,7 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -73,15 +71,13 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrop),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper,
-     &          iuvwx(4), nOp(2), mOp(4),index(3,4),
-     &          indgrd(0:7), JndGrd(3,4,0:7)
-      Logical IfGrad(3,2), JfGrad(3,4), EQ,
-     &        DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iuvwx(4), mOp(4),index(3,4), JndGrd(3,4,0:7)
+      Logical JfGrad(3,4), EQ, DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -124,11 +120,11 @@
 
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
             Call LCopy(12,[.false.],0,JFgrad,1)
             Call LCopy(4,[.false.],0,tr,1)
@@ -163,12 +159,10 @@
 *
          Do 1967 lDCRT = 0, nDCRT-1
 
-            mOp(3) = nropr(iDCRT(lDCRT),ioper,nirrep)
+            mOp(3) = nropr(iDCRT(lDCRT))
             mOp(4) = mOp(3)
 
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
@@ -248,6 +242,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(rKappa)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
-         Call Unused_integer(ldum)
+         Call Unused_logical_array(Trans)
       End If
       End

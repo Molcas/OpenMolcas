@@ -25,6 +25,8 @@
 *             November '90                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -72,10 +74,8 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
                Do iCnt = 1, dbsc(iCnttp)%nCntr
                   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
-                  Do i = 0, nIrrep/nStab(mdc) - 1
-                     RA(1)=A(1)*DBLE(iPhase(1,iCoset(i,0,mdc)))
-                     RA(2)=A(2)*DBLE(iPhase(2,iCoset(i,0,mdc)))
-                     RA(3)=A(3)*DBLE(iPhase(3,iCoset(i,0,mdc)))
+                  Do i = 0, nIrrep/dc(mdc)%nStab - 1
+                     Call OA(dc(mdc)%iCoSet(i,0),A,RA)
 C                    Call RecPrt(' RA',' ',RA,1,3)
 C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 #ifdef NAGFOR
@@ -178,24 +178,13 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *------------- Generate Stabilazor of C
 *
-               If (nIrrep.eq.8) Then
-                  nOper=3
-               Else If (nIrrep.eq.4) Then
-                  nOper=2
-               Else If (nIrrep.eq.2) Then
-                  nOper=1
-               Else
-                  nOper=0
-               End If
-               iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+               iChxyz=iChAtm(A)
                iDum=0
-               Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+               Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *              Write (*,*) ' nStb=',nStb
                Do i = 0, nIrrep/nStb - 1
-                  RA(1)=A(1)*DBLE(iPhase(1,jCoSet(i,0)))
-                  RA(2)=A(2)*DBLE(iPhase(2,jCoSet(i,0)))
-                  RA(3)=A(3)*DBLE(iPhase(3,jCoSet(i,0)))
+                  Call OA(jCoSet(i,0),A,RA)
                   rRMy(1)=DAx*DBLE(iPhase(1,jCoSet(i,0)))
                   rRMy(2)=DAy*DBLE(iPhase(2,jCoSet(i,0)))
                   rRMy(3)=DAz*DBLE(iPhase(3,jCoSet(i,0)))

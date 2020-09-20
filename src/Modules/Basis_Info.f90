@@ -17,10 +17,11 @@ Implicit None
 Private
 Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
           PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
-          Nuclear_Model, Basis_Info_Init
+          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
+#include "itmax.fh"
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !    D E C L A R E   D E R I V E D   T Y P E S
@@ -80,6 +81,7 @@ Type Distinct_Basis_set_centers
     Integer:: iPrj=0, nPrj=0
     Integer:: iSRO=0, nSRO=0
     Integer:: iSOC=0, nSOC=0
+    Integer:: kDel(0:iTabMx)
     Integer:: iPP =0, nPP =0
     Integer:: nShells =0
     Integer:: AtmNr=0
@@ -149,11 +151,14 @@ Integer, Parameter :: Gaussian_type = 1
 Integer, Parameter :: mGaussian_Type= 2
 
 Real*8, Allocatable:: PAMexp(:,:)
-Integer :: nFrag_LineWords = 0, nFields =33, mFields = 11
+Integer :: nFrag_LineWords = 0, nFields =33+(1+iTabMx), mFields = 11
 Integer :: nCnttp = 0, iCnttp_Dummy = 0
 Integer :: Max_Shells = 0
 Logical :: Initiated = .FALSE.
 Integer :: Nuclear_Model=Point_Charge
+Integer :: nBas(0:7)     =[0,0,0,0,0,0,0,0]
+Integer :: nBas_Aux(0:7) =[0,0,0,0,0,0,0,0]
+Integer :: nBas_Frag(0:7)=[0,0,0,0,0,0,0,0]
 
 Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
@@ -209,7 +214,16 @@ Contains
 !     run file.
 !
 Subroutine Basis_Info_Init()
-If (Initiated) Return
+#ifdef _DEBUG_
+Write (6,*)
+Write (6,*) 'Enter Basis_Info_Init'
+Write (6,*)
+#endif
+If (Initiated) Then
+   Write (6,*) ' Basis_Info already initiated!'
+   Write (6,*) ' Maybe there is missing a Basis_Info_Free call.'
+   Call Abend()
+End If
 If (nCnttp.eq.0) Then
    Allocate(dbsc(1:Mxdbsc))
    dbsc(1:Mxdbsc)%Bsl=""        ! I could not get this to work at the point of declaring the member.
@@ -225,6 +239,11 @@ Else
    Allocate(Shells(1:Max_Shells))
 End If
 Initiated=.True.
+#ifdef _DEBUG_
+Write (6,*)
+Write (6,*) 'Exit Basis_Info_Init'
+Write (6,*)
+#endif
 Return
 End Subroutine Basis_Info_Init
 !
@@ -239,7 +258,10 @@ Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
 Character(LEN=160), Allocatable:: cDmp(:)
 #ifdef _DEBUG_
-Write (6,*) 'Basis_Info_Dmp'
+Write (6,*)
+Write (6,*) 'Enter Basis_Info_Dmp'
+Write (6,*)
+Write (6,*) 'Coordinates:'
 Do i = 1, nCnttp
    Do j = 1, dbsc(i)%nCntr
       Write (6,*) dbsc(i)%Coor(:,j)
@@ -295,6 +317,9 @@ Do i = 1, nCnttp
    If (dbsc(i)%Fixed )iDmp(32,i)=1
    iDmp(33,i) = 0
    If (dbsc(i)%lPAM2 )iDmp(33,i)=1
+   Do j = 0, iTabMx
+      iDmp(34+j,i) = dbsc(i)%kDel(j)
+   End Do
    If (.NOT.dbsc(i)%Aux.or.i.eq.iCnttp_Dummy) Then
       nAtoms=nAtoms+dbsc(i)%nCntr
    End If
@@ -305,11 +330,12 @@ Do i = 1, nCnttp
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
 #ifdef _DEBUG_
-   Write (6,'(A,7I4)') 'iCnttp=',i,                     &
+   Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
                           dbsc(i)%nFragEner,    &
-                          dbsc(i)%nFragDens, nAux
+                          dbsc(i)%nFragDens, nAux, &
+                          dbsc(i)%iVal
 #endif
 !
    If (dbsc(i)%nPAM2.ne.-1) Then
@@ -322,6 +348,9 @@ iDmp(2,nCnttp+1)=nCnttp
 iDmp(3,nCnttp+1)=iCnttp_Dummy
 iDmp(4,nCnttp+1)=Max_Shells
 iDmp(5,nCnttp+1)=Nuclear_Model
+iDmp(6:13,nCnttp+1)=nBas(0:7)
+iDmp(14:21,nCnttp+1)=nBas_Aux(0:7)
+iDmp(22:29,nCnttp+1)=nBas_Frag(0:7)
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -352,7 +381,7 @@ Do i = 1, Max_Shells-1
                Shells(i)%nBK,                          &
                Shells(i)%nAkl,                         &
                Shells(i)%nFockOp,                      &
-               Shells(i)%nExp                          &
+               Shells(i)%nExp,                         &
                Shells(i)%nBasis
 #endif
 
@@ -498,6 +527,11 @@ lcDmp=160*nCnttp
 Call Put_cArray('cDmp',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
+#ifdef _DEBUG_
+Write (6,*)
+Write (6,*) 'Exit Basis_Info_Dmp'
+Write (6,*)
+#endif
 Return
 End Subroutine Basis_Info_Dmp
 !
@@ -514,6 +548,9 @@ Logical Found
 Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
 #ifdef _DEBUG_
+Write (6,*)
+Write (6,*) 'Enter Basis_Info_Get'
+Write (6,*)
 #endif
 Call qpg_iArray('iDmp',Found,Len)
 Len2=Len/nFields
@@ -529,6 +566,9 @@ nCnttp         =iDmp(2,Len2)
 iCnttp_Dummy   =iDmp(3,Len2)
 Max_Shells     =iDmp(4,Len2)
 Nuclear_Model  =iDmp(5,Len2)
+nBas(0:7)      =iDmp(6:13,Len2)
+nBas_Aux(0:7)  =iDmp(14:21,Len2)
+nBas_Frag(0:7) =iDmp(22:29,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells
@@ -569,6 +609,9 @@ Do i = 1, nCnttp
    dbsc(i)%pChrg        = iDmp(31,i).eq.1
    dbsc(i)%Fixed        = iDmp(32,i).eq.1
    dbsc(i)%lPAM2        = iDmp(33,i).eq.1
+   Do j = 0, iTabMx
+      dbsc(i)%kDel(j)   = iDmp(34+j,i)
+   End Do
    nFragCoor=Max(0,dbsc(i)%nFragCoor)
    nAux = nAux + 2*dbsc(i)%nM1 + 2*dbsc(i)%nM2  &
          +nFrag_LineWords*dbsc(i)%nFragType     &
@@ -576,11 +619,12 @@ Do i = 1, nCnttp
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
 #ifdef _DEBUG_
-   Write (6,'(A,7I4)') 'iCnttp=',i,                     &
+   Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
                           dbsc(i)%nFragEner,    &
-                          dbsc(i)%nFragDens, nAux
+                          dbsc(i)%nFragDens, nAux, &
+                          dbsc(i)%iVal
 #endif
 End Do
 Call mma_deallocate(iDmp)
@@ -792,12 +836,16 @@ Do i = 1, nCnttp
 End Do
 Call mma_deallocate(cDmp)
 #ifdef _DEBUG_
-Write (6,*) 'Basis_Info_Get'
+Write (6,*)
+Write (6,*) 'Coordinates:'
 Do i = 1, nCnttp
    Do j = 1, dbsc(i)%nCntr
       Write (6,*) dbsc(i)%Coor(:,j)
    End Do
 End Do
+Write (6,*)
+Write (6,*) 'Exit Basis_Info_Get'
+Write (6,*)
 #endif
 Return
 End Subroutine Basis_Info_Get

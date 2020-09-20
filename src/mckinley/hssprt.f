@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine HssPrt(Hess,nHess)
+      use Symmetry_Info, only: lIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "WrkSpc.fh"

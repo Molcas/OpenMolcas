@@ -30,7 +30,9 @@
 *             September 1995                                           *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use PCM_arrays
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"
 #include "real.fh"
@@ -52,9 +54,8 @@ c#include "print.fh"
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************
@@ -98,18 +99,15 @@ c     Call qEnter('DrvN2')
 *
 *                 Find the DCR for the two centers
 *
-             Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                     iDCRR,nDCRR)
+             Call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                      dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                      iDCRR,nDCRR)
 *
              PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
              Do iR = 0, nDCRR-1
-               RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-               RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-               RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-               nOp(1) = NrOpr(0,iOper,nIrrep)
-               nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+               Call OA(iDCRR(iR),B,RB)
+               nOp(1) = NrOpr(0)
+               nOp(2) = NrOpr(iDCRR(iR))
                kop(1)=0
                kop(2)=iDCRR(iR)
                If (EQ(A,RB)) Go To 301
@@ -248,8 +246,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
            Do iIrrep=0,nnIrrep-1
              Do iCent=1,2
@@ -351,18 +349,15 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct = ZAZB * DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                  nOp(1) = NrOpr(0,iOper,nIrrep)
-                  nOp(2) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  Call OA(iDCRR(iR),B,RB)
+                  nOp(1) = NrOpr(0)
+                  nOp(2) = NrOpr(iDCRR(iR))
                   r12 = Sqrt((A(1)-RB(1))**2 +
      &                       (A(2)-RB(2))**2 +
      &                       (A(3)-RB(3))**2 )
@@ -461,7 +456,7 @@ c     Call qEnter('DrvN2')
              End Do     ! iCar
            End Do         ! iIrrep
 *
-           ii(1)=nStab(ndc+jcnt)
+           ii(1)=dc(ndc+jcnt)%nStab
 *
            iCent=1
            jCent=1
@@ -546,17 +541,14 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdR,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                  iDCRR,nDCRR)
+               Call DCR(LmbdR,iStb,nStb,
+     &                        dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                        iDCRR,nDCRR)
 *
                PreFct_AB = DBLE(nIrrep)/DBLE(LmbdR)
                Do iR = 0, nDCRR-1
-                  RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                  RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                  RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                  nOp(1) = NrOpr(iDCRR(iR),iOper,nIrrep)
+                  Call OA(iDCRR(iR),B,RB)
+                  nOp(1) = NrOpr(iDCRR(iR))
                   r12_AB = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
      &                          (A(3)-RB(3))**2 )
@@ -602,17 +594,14 @@ c     Call qEnter('DrvN2')
 *
 *              Find the DCR for the two centers (
 *
-               Call DCR(LmbdS,iOper,nIrrep,
-     &                  iStb,nStb,
-     &                  jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                  iDCRS,nDCRS)
+               Call DCR(LmbdS,iStb,nStb,
+     &                        dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                        iDCRS,nDCRS)
 *
                PreFct_CD = DBLE(nIrrep)/DBLE(LmbdS)
                Do iS = 0, nDCRS-1
-                  SD(1) = DBLE(iPhase(1,iDCRS(iS)))*D(1)
-                  SD(2) = DBLE(iPhase(2,iDCRS(iS)))*D(2)
-                  SD(3) = DBLE(iPhase(3,iDCRS(iS)))*D(3)
-                  nOp(2) = NrOpr(iDCRS(iS),iOper,nIrrep)
+                  Call OA(iDCRS(iS),D,SD)
+                  nOp(2) = NrOpr(iDCRS(iS))
                   r12_CD = Sqrt((C(1)-SD(1))**2 +
      &                          (C(2)-SD(2))**2 +
      &                          (C(3)-SD(3))**2 )
@@ -706,8 +695,8 @@ c     Call qEnter('DrvN2')
              End Do       ! iAtom
            End Do         ! iIrrep
 *
-           ii(1)=nStab(mdc+icnt)
-           ii(2)=nStab(ndc+jcnt)
+           ii(1)=dc(mdc+icnt)%nStab
+           ii(2)=dc(ndc+jcnt)%nStab
 *
 *          Note that we have two different cases here, depending on if
 *          iTs=jTs or not!

@@ -27,6 +27,7 @@
 *             January 2000                                             *
 ************************************************************************
       use PrpPnt
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

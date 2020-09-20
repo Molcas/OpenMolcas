@@ -38,7 +38,7 @@ C     Call RecPrt('Ref: xyz0',' ',Work(ipRef_),3,nCent)
       RR0=Zero
       TWeight=Zero
       Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact=DBLE(iDeg(xyz(1,iCent)))
          xWeight=Fact*Work(ipWeights+iCent-1)
          TWeight=TWeight+xWeight
 C        Write (*,*) 'xWeight=',xWeight
@@ -68,7 +68,7 @@ C           Write (*,*)xyz(ixyz,iCent),xyz0(ixyz,iCent)
 *
 *FIXME: revise the symmetry
       Do iCent = 1, nCent
-         Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+         Fact=DBLE(iDeg(xyz(1,iCent)))
          xWeight=Fact*Work(ipWeights+iCent-1)
          Do iCar = 1, 3
             temp=xyz(iCar,iCent)-xyz0(iCar,iCent)
@@ -96,12 +96,12 @@ c     Call RecPrt('Bf',' ',Bf,3,nCent)
          Call FZero(dBf,(3*nCent)**2)
          If (RR0.eq.Zero) Go To 99
          Do iCent = 1, nCent
-            Fact=DBLE(iDeg(xyz(1,iCent),iOper,nSym))
+            Fact=DBLE(iDeg(xyz(1,iCent)))
             xWeight=Fact*Work(ipWeights+iCent-1)
             Do ixyz = 1, 3
                tempi=xyz(ixyz,iCent)-xyz0(ixyz,iCent)
                Do jCent = 1, nCent
-                  Fact=DBLE(iDeg(xyz(1,jCent),iOper,nSym))
+                  Fact=DBLE(iDeg(xyz(1,jCent)))
                   yWeight=Fact*Work(ipWeights+jCent-1)
                   Do jxyz = 1, 3
                      tempj=xyz(jxyz,jCent)-xyz0(jxyz,jCent)

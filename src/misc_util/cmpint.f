@@ -37,10 +37,6 @@
       Real*8 XInt(nInt+4)
       Integer nBas(0:nIrrep-1)
 *
-*     Call QEnter('CmpInt',1)
-*
-*     Write (*,*) ' Label=',Label
-*     Write (*,*) ' nbas=', nbas
       iCmp = 1
       iExp = 1
       Do 10 iIrrep = 0, nIrrep-1
@@ -65,6 +61,5 @@
  40   continue
       nInt = iCmp-1
 *
-*     Call QExit('CmpInt',1)
       Return
       End

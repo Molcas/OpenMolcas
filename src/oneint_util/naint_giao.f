@@ -41,6 +41,7 @@
 * Modified for GIAOs, R. Lindh, June 2002, Tokyo, Japan.               *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D
@@ -148,15 +149,13 @@
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab, dc(kdc+kCnt)%nStab,
      &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-               TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-               TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,TC,1,CoorAC(1,2),1)
                call dcopy_(3,TC,1, Coori(1,3),1)
                call dcopy_(3,TC,1, Coori(1,4),1)
@@ -264,7 +263,7 @@
 *                                                                      *
 *------- Accumulate contributions
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipEFInt),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp,lOper,iChO,-Fact*dbsc(kCnttp)%Charge)
 *

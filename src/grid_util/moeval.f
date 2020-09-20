@@ -32,6 +32,8 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -83,7 +85,6 @@
 *
          iAOttp=0
          mdc = 0
-         IndShl_iCnttp=0
          Do iCnttp = 1, nCnttp
 
             nTest = dbsc(iCnttp)%nVal
@@ -109,7 +110,6 @@
 *           Compute the total number of function for this
 *           basis set, summed over all shells.
 *
-            IndShl_Shell=0
             Do jAng = 0, nTest-1
                jShll = dbsc(iCnttp)%iVal + jAng
                If (Shells(jShll)%Prjct ) Then
@@ -117,7 +117,6 @@
                Else
                   jCmp  = nElem(jAng)
                End If
-               IndShl_Shell=IndShl_Shell+jCmp
             End Do
 *
 *           Loop over unique centers of basis set "iCnttp"
@@ -128,7 +127,6 @@
      &             + Shells(kSh)%kOffAO
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
 
-               IndShl = IndShl_iCnttp + (iCnt-1)*IndShl_Shell
                Do jAng = 0, iAng-1
                   jShll = dbsc(iCnttp)%iVal + jAng
                   If (Shells(jShll)%Prjct ) Then
@@ -136,7 +134,6 @@
                   Else
                      jCmp  = nElem(jAng)
                   End If
-                  IndShl=IndShl+jCmp
                End Do
 *
 *--------------Allocate memory for SO and AO values
@@ -151,8 +148,8 @@
 
 
                nAO=(iCmp*iBas*nCoor)*(mAO)
-               nSO=nAO*nIrrep/nStab(mdc+iCnt)
-               nDeg=nIrrep/nStab(mdc+iCnt)
+               nSO=nAO*nIrrep/dc(mdc+iCnt)%nStab
+               nDeg=nIrrep/dc(mdc+iCnt)%nStab
                Call GetMem('AOs','Allo','Real',ipAOs,nAO)
                Call GetMem('SOs','Allo','Real',ipSOs,nSO)
                call dcopy_(nSO,[Zero],0,Work(ipSOs),1)
@@ -169,19 +166,16 @@
 *------------- Loops over symmetry operations operating on the basis
 *              set center.
 *
-               Do iG = 0, nIrrep/nStab(mdc+iCnt) - 1
+               Do iG = 0, nIrrep/dc(mdc+iCnt)%nStab - 1
                   iSkal=iSkal+1
-*                 Write (*,*) 'iSkal=',iSkal
-                  ipx=iPhase(1,iCoSet(iG,0,mdc+iCnt))
-                  ipy=iPhase(2,iCoSet(iG,0,mdc+iCnt))
-                  ipz=iPhase(3,iCoSet(iG,0,mdc+iCnt))
-                  px=DBLE(iPhase(1,iCoSet(iG,0,mdc+iCnt)))
-                  py=DBLE(iPhase(2,iCoSet(iG,0,mdc+iCnt)))
-                  pz=DBLE(iPhase(3,iCoSet(iG,0,mdc+iCnt)))
-                  RA(1)  = px*A(1)
-                  RA(2)  = py*A(2)
-                  RA(3)  = pz*A(3)
-                  nOp = NrOpr(iCoSet(iG,0,mdc+iCnt),iOper,nIrrep)
+                  Call OA(dc(mdc+iCnt)%iCoSet(iG,0),A,RA)
+                  ipx=iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipy=iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0))
+                  ipz=iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0))
+                  px=DBLE(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  py=DBLE(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  pz=DBLE(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
+                  nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0))
 *
 *---------------- Evaluate AOs at RA
 *
@@ -199,14 +193,14 @@
 *---------------- Distribute contributions to the SOs
 *
                   Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
-     &                        Work(ipSOs),nDeg,IndShl)
+     &                        Work(ipSOs),nDeg,iAO)
 *
                End Do ! iG
 *
 *------------- Distribute contributions to the MOs
 *
                Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
-     &                     MOValue,IndShl,nMOs,iAO,CMOs,nCMO,DoIt)
+     &                     MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 *
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
@@ -216,7 +210,6 @@
                Call GetMem('SOs','Free','Real',ipSOs,nSO)
 *
             End Do ! iCnt
-            IndShl_iCnttp = IndShl_iCnttp + nCnt*IndShl_Shell
  101        Continue
             mdc = mdc + dbsc(iCnttp)%nCntr
             iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr

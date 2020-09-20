@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine basis2run()
       use Basis_Info
+      use Center_Info
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -31,16 +32,17 @@
       nPrim=0
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
-        if (iCnttp.eq.iCnttp_Dummy) cycle
+        If (iCnttp.eq.iCnttp_Dummy) cycle
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
-*     Loop over distinct centers
+*       Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
-*     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
-*     Loop over shells associated with this center
-*     Start with s type shells
+*         Loop over symmetry-related centers
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
+*           Loop over shells associated with this center
+*           Start with s type shells
             jSh = iShSrt
             if (Shells(jSh)%Aux.or.
      &          Shells(jSh)%Frag) cycle
@@ -63,13 +65,14 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
 *     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt
@@ -86,7 +89,7 @@
                   primitive_ids(2,iPrim) = iAng
                   primitive_ids(3,iPrim) = iBasis
                   primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
-                  primitives(2,iPrim) = Shells(jSh)%pCff(kExp,iBasis)
+                  primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
                 End Do
               End Do
               jSh = jSh + 1

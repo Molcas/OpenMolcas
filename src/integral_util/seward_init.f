@@ -41,7 +41,7 @@
 #include "nac.fh"
 #include "srint.fh"
       Logical lGENINT
-      Character*180 Env
+      Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,26 +61,7 @@ C
 *
 *-----Info
 *
-c     data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Seward_Status=InActive
-      do 10 j=0,4
-      do 11 i=1,3
-      iPhase(i,j)=1
-11    continue
-10    continue
-      iPhase(1,1)=-1
-      iPhase(2,2)=-1
-      iPhase(1,3)=-1
-      iPhase(2,3)=-1
-      iPhase(3,4)=-1
-      do 20 j=5,7
-      do 21 i=1,3
-      iPhase(i,j)=-1
-21    continue
-20    continue
-      iPhase(2,5)=1
-      iPhase(1,6)=1
 *
 *     Info
 *
@@ -91,16 +72,11 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       nWel=0
       iRI_type=0
       jMax = 5
-      nTtl=0
       Max_Center=15
 
-      iChCar(:)=0
       KVector(:)=Zero
-      iAOtSO(1:MxAO,0:7)=-999999999
-      MaxBas(0:MxAng)=0
-      MaxPrm(0:MxAng)=0
-      IrrCmp(1:MxUnq)=0
-      NrInt(-20:9)=0
+      MaxBas(0:iTabMx)=0
+      MaxPrm(0:iTabMx)=0
       iSkip(0:7)=0
 
       nOrdEF=-1
@@ -131,8 +107,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       DirInt=.False.
       Expert=.False.
       EMFR  =.False.
-      Petite=.False.
-      lSOInt=.True.
       UnNorm=.False.
       lSchw=.True.
       Test=.False.
@@ -144,18 +118,10 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lOMQ=.False.
       lDMS=.False.
       lRel=.False.
-      SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
-*--sdong, Apr. 2018--*
       ifallorb=.False.
-*--sdong end---------*
-      lECP=.False.
-      lAux=.False.
-      lPAM2=.False.
-      Dist=.False.
       lXF=.False.
-      lPP=.False.
       lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.
@@ -176,7 +142,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
-      Align_Weights='MASS'
       Do_Numerical_Gradients=.False.
       VarT=.False.
       VarR=.False.
@@ -197,9 +162,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
 *-----RInfo
 *
-      Sum=0.00d+00
-      Sumsq=0.00d+00
-      SumAbs=0.00d+00
       RadMax=0.00d+00
       AccMch=1.d-15
 *
@@ -225,13 +187,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       RPQMIN = 0.4d0
 *
       Thrs=1.d-6
-*
-*-----CInfo
-*
-      Bline=' '
-      Do i = 1, 10
-         Title(i)=' '
-      End Do
 *
 *-----PStat
 *
@@ -324,8 +279,6 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Call Mk_TriInd()
 *
       Call CovRadT_Init()
-*
-      Call iPrmt_Init()
 *
 *     nac.fh
 *

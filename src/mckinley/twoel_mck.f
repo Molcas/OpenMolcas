@@ -12,7 +12,7 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine TwoEl_mck(Coor,
-     &     iAngV,iCmp,iShell,iShll,IndShl,iAO,iAOst,
+     &     iAngV,iCmp,iShell,iShll,iAO,iAOst,
      &     iStb,jStb,kStb,lStb,nRys,
      &     Data1,nab,nData1,Data2,ncd,nData2,Pren,Prem,
      &     Alpha,nAlpha,iPrInc, Beta, nBeta,jPrInc,
@@ -118,6 +118,8 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
 #include "ndarray.fh"
@@ -152,9 +154,8 @@
 *
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &     iStabM(0:7),  IndGrd(3,4,0:7), iAO(4),
-     &     iCmp(4), iShell(4), iShll(4), IndShl(4),
-     &     nOp(4), iAngV(4), iAOst(4),
-     &     JndGrd(3,4,0:7),icmpi(4),
+     &     iCmp(4), iShell(4), iShll(4),
+     &     nOp(4), iAngV(4), iAOst(4),JndGrd(3,4,0:7),icmpi(4),
      &     IndZet(nAlpha*nBeta),Indeta(nGamma*nDelta), iuvwx(4),
      &     IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7),
      &     Index(3,4), moip(0:7)
@@ -225,10 +226,10 @@
          Call Abend()
       End If
 *
-      iuvwx(1) = nStab(iStb)
-      iuvwx(2) = nStab(jStb)
-      iuvwx(3) = nStab(kStb)
-      iuvwx(4) = nStab(lStb)
+      iuvwx(1) = dc(iStb)%nStab
+      iuvwx(2) = dc(jStb)%nStab
+      iuvwx(3) = dc(kStb)%nStab
+      iuvwx(4) = dc(lStb)%nStab
 *
       iffab = 9
       iffcd = 9
@@ -246,12 +247,12 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                               jStab(0,jStb),nStab(jStb),
-     &                               iDCRR,nDCRR)
+         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                  dc(jStb)%iStab,dc(jStb)%nStab,
+     &                  iDCRR,nDCRR)
       End If
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 *
 *--------Find stabilizer for center A and B
 *
@@ -259,8 +260,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(jStab(0,iStb),nStab(iStb),
-     &              jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -272,12 +273,12 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                               jStab(0,lStb),nStab(lStb),
-     &                               iDCRS,nDCRS)
+         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                  dc(lStb)%iStab,dc(lStb)%nStab,
+     &                  iDCRS,nDCRS)
       End If
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 *
 *-----------Find stabilizer for center C and D
 *
@@ -285,8 +286,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(jStab(0,kStb),nStab(kStb),
-     &              jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************
@@ -300,8 +301,7 @@
          iDCRT(0)=0
          LmbdT=1
       Else
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,
-     &                               iStabN,lStabN,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
       End If
 *                                                                      *
 ************************************************************************
@@ -319,7 +319,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
+      nOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
 *                                                                      *
 ************************************************************************
@@ -329,10 +329,8 @@
 ************************************************************************
 *                                                                      *
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         nOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *                                                                      *
 ************************************************************************
@@ -343,9 +341,7 @@
 *                                                                      *
          Do 200 lDCRS = 0, nDCRS-1
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *                                                                      *
 ************************************************************************
@@ -356,19 +352,12 @@
 *                                                                      *
             Do 300 lDCRT = nDCRT-1, 0, -1
 
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &              iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
+               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &              iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &              iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &              iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *
                AeqC = EQ(CoorM(1,1),CoorM(1,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
@@ -399,7 +388,7 @@
                Call Timing(dum1,Time,dum2,dum3)
                If (ldot2)
      &              Call TwoDns(iAngV,iCmp,shijij,ishll,ishell,
-     &                   IndShl,nOp,iBasi,jBasj,kBask,lBasl,
+     &                   iAO,nOp,iBasi,jBasj,kBask,lBasl,
      &                   Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
      &                   nWork4,PSO,nPSO,Fact)
 *
@@ -411,8 +400,8 @@
 *     Loops to partion the primitives
 *
 *----------------------------------------------------------------*
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix2 = iPhase(1,iDCRT(lDCRT))
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
@@ -686,7 +675,7 @@
      &              kStb,
      &              lStb,
      &              Shijij,iAngV,iCmpi,iCmp,
-     &              iShll,iShell,iShell,IndShl,
+     &              iShll,iShell,iShell,
      &              iBasi,jBasj,kBask,lBasl,
      &              Dij1,Dij2,mDij,nDij,
      &              Dkl1,Dkl2,mDkl,nDkl,

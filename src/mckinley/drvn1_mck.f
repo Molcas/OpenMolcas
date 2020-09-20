@@ -26,6 +26,8 @@
 *             October 1991                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -66,17 +68,14 @@
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
-     &                     iDCRR,nDCRR)
+                  Call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                           dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
+     &                           iDCRR,nDCRR)
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do 300 iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                     nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
+                     Call OA(iDCRR(iR),B,RB)
+                     nOp = NrOpr(iDCRR(iR))
                      If (EQ(A,RB)) Go To 300
                      r12 = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
@@ -87,13 +86,12 @@
 *                    will have the same value.
 *
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
-                     igu=nIrrep/nStab(mdc+iCnt)
+                     igu=nIrrep/dc(mdc+iCnt)%nStab
                      Do 400 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,
-     &                     iCoSet(0,0,mdc+iCnt),
-     &                     nIrrep/nStab(mdc+iCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(mdc+iCnt)) ) Then
+                        If ( TstFnc(dc(mdc+iCnt)%iCoSet,
+     &                            iIrrep,iComp,dc(mdc+iCnt)%nStab)
+     &                     ) Then
                            nDisp = nDisp + 1
                            If (.true.) Grad(nDisp) =
      &                        Grad(nDisp) - One/DBLE(igu) *
@@ -102,13 +100,12 @@
  400                 Continue
 *
                      nDisp = IndDsp(ndc+jCnt,iIrrep)
-                     igv=nIrrep/nStab(ndc+jCnt)
+                     igv=nIrrep/dc(ndc+jCnt)%nStab
                      Do 450 iCar = 0, 2
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,
-     &                     iCoSet(0,0,ndc+jCnt),
-     &                     nIrrep/nStab(ndc+jCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(ndc+jCnt)) ) Then
+                        If ( TstFnc(dc(ndc+jCnt)%iCoSet,
+     &                            iIrrep,iComp,dc(ndc+jCnt)%nStab)
+     &                     ) Then
                            nDisp = nDisp + 1
                            If (.true.) Then
                               ps = DBLE(iPrmt(nOp,iChBas(2+iCar)))

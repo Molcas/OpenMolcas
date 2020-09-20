@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PrjHss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                 IfHss,IndHss,ifgrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                 lOper,nComp,iStabM,nStabM)
+      SubRoutine PrjHss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
@@ -62,7 +61,9 @@
 *             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -71,24 +72,23 @@
 #include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      Real*8 Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nArr), Ccoor(3), C(3), TC(3),Coor(3,4),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2),Hess(nHess),
-     &       g2(78)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iuvwx(4), nOp(2), kOp(4),mop(4),
-     &          IndGrd(3,2,0:7), JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7),
-     &          indhss(2,3,2,3,0:7)
-      Logical  ifgrd(3,2),JfGrd(3,4),  EQ,
-     &         jfhss(4,3,4,3),ifhss(2,3,2,3) ,ifg(4),tr(4)
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), Coor(3,4), g2(78)
+      Integer iDCRT(0:7), iuvwx(4), kOp(4), mOp(4),
+     &        JndGrd(3,4,0:7), jndhss(4,3,4,3,0:7)
+      Logical JfGrd(3,4),  EQ, jfhss(4,3,4,3),ifg(4),tr(4)
       Dimension Dum(1)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 *
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      nRys=nHer
+*
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kOp(1) = iOper(nOp(1))
       kOp(2) = iOper(nOp(2))
@@ -103,23 +103,21 @@
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 
 *
          Do 1967 lDCRT = 0, nDCRT-1
             kOp(3) = iDCRT(lDCRT)
             kOp(4) = kOp(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,Coor(1,3),1)
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
@@ -199,7 +197,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
          Call Unused_real_array(P)
-         Call Unused_real(Final)
+         Call Unused_real_array(Final)
          Call Unused_integer(nRys)
          Call Unused_real_array(Ccoor)
          Call Unused_integer_array(lOper)

@@ -39,6 +39,8 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: lIrrep
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,19 +49,19 @@
 #include "info_expbas.fh"
 #include "stdalloc.fh"
       Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,mxdc),Znuc(mxdc)
-      Character*(LENIN) AtomLabel(mxdc)
+      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
+      Character*(LENIN) AtomLabel(MxAtom)
       Character*512 FilesOrb
       Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
-      Integer ibas_lab(mxdc), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
+      Integer ibas_lab(MxAtom), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
       Character*(LENIN8+1) gtolabel(maxbfn)
 *      Character*8 Filename
       Character*50 VTitle
       character*128 SymOrbName
-      Logical Exist,y_cart,AddFragments, Found, Reduce_Prt
+      Logical Exist,y_cart,Found, Reduce_Prt
       External Reduce_Prt
 
       data number /'1','2','3','4','5','6','7','8','9','0',
@@ -101,13 +103,7 @@
 *     This call will also fill info.fh and the dynamic storage in
 *     Work(ipInf)
 *
-      AddFragments=.true.
-
-      If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      Else
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      End If
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)
@@ -174,7 +170,7 @@
 *         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
         Do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
 *            write(6,*)'nDeg', nDeg
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1

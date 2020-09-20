@@ -9,14 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Integral_WrOut_LDF_Diag(
-     &                           iCmp,iShell,MapOrg,IndShlV,
+     &                           iCmp,iShell,MapOrg,
      &                           iBas,jBas,kBas,lBas,kOp,
      &                           Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                           AOInt,SOInt,nSOint,
      &                           iSOSym,nSkal,nSOs,
-     &                           TInt,nTInt,FacInt,itOffs,nSym,
-     &                           Dens,Fock,LDens,ExFac,NDens,
-     &                           ind,nind,FckNoClmb,FckNoExch)
+     &                           TInt,nTInt,itOffs,nSym)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
@@ -26,31 +24,22 @@
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
-      Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
-      Real*8 Dens(lDens,nDens), Fock(lDens,nDens), ExFac(nDens)
-      Integer Ind(nInd,nInd,2)
+      Logical Shijij,IJeqKL
 *
 * some dummy assignments to avoid compiler warnings about unused
 * variables.
 *
-      If (lDens.gt.0.and.nDens.gt.0.and.FckNoClmb.and.FckNoExch.and.
-     &    nInd.gt.0.and.nSym.gt.0.and.nSkal.gt.0) Then
-         xDummy_1  = Dens(1,1)
-         xDummy_2  = Fock(1,1)
-         xDummy_3  = FacInt
-         xDummy_4  = ExFac(1)
-         iDummy_1  = Ind(1,1,1)
+      If (nSym.gt.0.and.nSkal.gt.0) Then
          iDummy_2  = itOffs(0,0,0)
          iDummy_3  = MapOrg(1)
-         iDymmy_4  = IndShlV(1)
       End If
 *
 * call sorting routine
 *
-      If (Petite) Then
+      If (nSym==1) Then
         Call PLF_LDF_Diag(TInt,nTInt,
      &           AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,

@@ -22,22 +22,22 @@
 *
 *--------------Dij
                iR = iDCRR
-               jOp(1) = NrOpr(iR,iOper,nIrrep) + 1
+               jOp(1) = NrOpr(iR) + 1
 *--------------Dkl
                iS = iDCRS
-               jOp(2) = NrOpr(iS,iOper,nIrrep) + 1
+               jOp(2) = NrOpr(iS) + 1
 *--------------Dik
                iT  = iDCRT
-               jOp(3) = NrOpr(iT,iOper,nIrrep) + 1
+               jOp(3) = NrOpr(iT) + 1
 *--------------Dil
                iTS = iEor(iT,iS)
-               jOp(4) = NrOpr(iTS,iOper,nIrrep) + 1
+               jOp(4) = NrOpr(iTS) + 1
 *--------------Djk
                iRT = iEor(iR,iT)
-               jOp(5) = NrOpr(iRT,iOper,nIrrep) + 1
+               jOp(5) = NrOpr(iRT) + 1
 *--------------Djl
                iRTS= iEor(iRT,iS)
-               jOp(6) = NrOpr(iRTS,iOper,nIrrep) + 1
+               jOp(6) = NrOpr(iRTS) + 1
 *
       Return
       End

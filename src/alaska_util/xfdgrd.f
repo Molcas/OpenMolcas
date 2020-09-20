@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine XFdGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine XFdGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
@@ -30,9 +29,10 @@
 *              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, Sweden, May '95                                 *
+*             of Lund, Sweden, May 1995                                *
 ************************************************************************
       use external_centers
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
@@ -41,20 +41,13 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
-*
-*-----Local arrys
-*
-      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3)
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
+      Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3), TZFd(3)
       Logical NoLoop, JfGrad(3,4)
-CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       Integer iAnga(4), iStb(0:7),
      &          jCoSet(8,8), JndGrd(3,4), lOp(4), iuvwx(4)
       Character ChOper(0:7)*3
@@ -67,6 +60,8 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       iRout = 151
       iPrint = nPrint(iRout)
       Call qEnter('XFdGrd')
+*
+      nRys=nHer
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -118,8 +113,8 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -157,22 +152,12 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *
 *------- Generate stabilizor of C
 *
-         If (nIrrep.eq.8) Then
-             nOper=3
-         Else If (nIrrep.eq.4) Then
-             nOper=2
-         Else If (nIrrep.eq.2) Then
-             nOper=1
-         Else
-             nOper=0
-         End If
-         iChxyz=iChAtm(C,iOper,nOper,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         iChxyz=iChAtm(C)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -221,11 +206,9 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -233,14 +216,15 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
             If (iOrdOp.eq.0) Then
                Call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)
             Else
+               Call OA(iDCRT(lDCRT),ZFd,TZFd)
                jpDAO = ipDAO
-               ZFdx=DBLE(iPhase(1,iDCRT(lDCRT)))*ZFd(1)
+               ZFdx=TZFd(1)
                Call DYaX(nZeta*nDAO,Fact*ZFdx,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdy=DBLE(iPhase(2,iDCRT(lDCRT)))*ZFd(2)
+               ZFdy=TZFd(2)
                Call DYaX(nZeta*nDAO,Fact*ZFdy,DAO,1,Array(jpDAO),1)
                jpDAO = jpDAO + nZeta*nDAO
-               ZFdz=DBLE(iPhase(3,iDCRT(lDCRT)))*ZFd(3)
+               ZFdz=TZFd(3)
                Call DYaX(nZeta*nDAO,Fact*ZFdz,DAO,1,Array(jpDAO),1)
             End If
 *

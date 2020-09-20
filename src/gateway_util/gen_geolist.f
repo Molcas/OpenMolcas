@@ -11,6 +11,8 @@
       Subroutine Gen_GeoList()
       use GeoList
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChCar
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -35,25 +37,18 @@
 *
 *        Do not include Auxiliary basis sets, or fragment basis sets
 *
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1212
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
 *
 *        Do not include ECP basis sets which does not have any valence
 *        basis set.
 *
-         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Go To 1212
+         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Cycle
 *
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Centr(1,nc) = x1*DBLE(iFacx)
-               Centr(2,nc) = y1*DBLE(iFacy)
-               Centr(3,nc) = z1*DBLE(iFacz)
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Centr(1:3,nc))
                nchr=dbsc(jCnttp)%AtmNr
                If (nchr.ge.0) Then
                   Mass(nc) = dbsc(jCnttp)%CntMass
@@ -66,16 +61,10 @@
                Else
                   Chrg(nc) = Zero
                End If
-               if (nc.gt.8*mxdc) Then
-                  Call WarningMessage(2,'lblxxx too small')
-                  Call Abend()
-               End If
-               lblxxx(nc)=lblcnt(ndc)(1:LENIN)
                nc = nc + 1
             End Do
-            kCentr = kCentr + nIrrep/nStab(ndc)
+            kCentr = kCentr + nIrrep/dc(ndc)%nStab
          End Do
- 1212    Continue
       End Do
 *                                                                      *
 ************************************************************************
@@ -95,16 +84,15 @@
       Do jCnttp = 1, nCnttp
          Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Go To 1213
+         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
-            Do i = 0, nIrrep/nStab(ndc) - 1
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                nchr=dbsc(jCnttp)%AtmNr
                Chrg(nc) = Z
                nc = nc + 1
             End Do
          End Do
- 1213    Continue
       End Do
 *                                                                      *
 ************************************************************************

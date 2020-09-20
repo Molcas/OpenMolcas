@@ -11,13 +11,12 @@
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
       Integer Function IrrFnc(iFnc)
-#include "itmax.fh"
-#include "info.fh"
+      use Symmetry_Info
       Integer iTest(8)
       ix = iAnd(iFnc,1)
       iy = iAnd(iFnc,2)/2
       iz = iAnd(iFnc,4)/4
-      Do 20 i = 1, nIrrep
+      Do i = 1, nIrrep
          jx = iAnd(iOper(i-1),1)
          jy = iAnd(iOper(i-1),2)/2
          jz = iAnd(iOper(i-1),4)/4
@@ -26,7 +25,7 @@
          If (iy.ne.0 .and. jy.ne.0) iCh = -iCh
          If (iz.ne.0 .and. jz.ne.0) iCh = -iCh
          iTest(i)=iCh
- 20   Continue
-      IrrFnc=iNew(iTest,nIrrep,iChTbl,nIrrep)-1
+      End Do
+      IrrFnc=iNew(iTest,nIrrep)-1
       Return
       End

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -48,9 +49,9 @@
          Do iCnt = 1, dbsc(iCnttp)%nCntr
             kdc = kdc + 1
             mdc = iCnt + dbsc(iCnttp)%mdci
-            if(Max(mdc,kdc).gt.mxdc) then
-               Call WarningMessage(2,'mxdc too small:')
-               write(LuWr,*) 'mxdc=',mxdc
+            if(Max(mdc,kdc).gt.MxAtom) then
+               Call WarningMessage(2,'MxAtom too small:')
+               write(LuWr,*) 'MxAtom=',MxAtom
                write(LuWr,*) 'Increase mxAtom in Molcas.fh and',
      &                       ' recompile the code!'
                Call Abend()
@@ -79,18 +80,18 @@
                If (Shells(jSh)%nBasis.ne.0 ) Then
                   If (Shells(jSh)%Aux) Then
                      iBas_Aux  = iBas_Aux  + Shells(jSh)%nBasis * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else If (Shells(jSh)%Frag) Then
                      iBas_Frag = iBas_Frag  + Shells(jSh)%nBasis * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else
                      iBas  = iBas  + Shells(jSh)%nBasis * kCmp
-     &                     * nIrrep/nStab(mdc)
+     &                     * nIrrep/dc(mdc)%nStab
                   End If
                End If
                jSh = jSh + 1
             End Do
-            mc = mc + nIrrep/nStab(mdc)
+            mc = mc + nIrrep/dc(mdc)%nStab
          End Do
          nShlls = iShell
 *

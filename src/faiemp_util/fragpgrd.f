@@ -68,6 +68,8 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -153,8 +155,8 @@
 *
       nDAO = nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
@@ -232,8 +234,8 @@ c     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
 c        write(*,*) '  iPrim,iBas =',iPrim,iBas
 *
 * extra derivative stuff
-            iuvwx(3) = nStab(mdci)
-            iuvwx(4) = nStab(mdci)
+            iuvwx(3) = dc(mdci)%nStab
+            iuvwx(4) = dc(mdci)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -311,8 +313,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 *                                                                      *
 * DCR stuff (iS and jS have always the same symmetry character)
 *
-          Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             jStab(0,mdci),nStab(mdci),iDCRT,nDCRT)
+          Call DCR(LmbdT,iStabM,nStabM,
+     &                   dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************
@@ -322,12 +324,8 @@ c    &           jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
           Do 1967 lDCRT = 0, nDCRT-1
             lOp(3) = iDCRT(lDCRT)
             lOp(4) = lOp(3)
-            TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-            TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-            TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
-            TB(1) = iPhase(1,iDCRT(lDCRT))*B(1)
-            TB(2) = iPhase(2,iDCRT(lDCRT))*B(2)
-            TB(3) = iPhase(3,iDCRT(lDCRT))*B(3)
+            Call OA(iDCRT(lDCRT),C,TC)
+            Call OA(iDCRT(lDCRT),B,TB)
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 *                                                                      *
 ************************************************************************
@@ -707,7 +705,7 @@ c     &                        Array(ipIJ), Final(1,1,1,mVec), Fact*Half)
 *-----------Distribute contributions to the gradient
 *
             Call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                   JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                   JfGrad,JndGrd,iuvwx,lOp)
 *
  1967     Continue !lDCRT
           jSbasis = jSbasis + jBas * jSize

@@ -31,6 +31,7 @@
 *             Modified for trans. prob.   calculations Oct '97         *
 *             by Anders Bernhardsson                                   *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -263,12 +264,12 @@
               iGrad = Abs(IndGrd(icnt,iCar,jcar,iirrep))
                If (iCnt.eq.1) Then
                   i1 = iCar
-                  ps=rChTbl(iIrrep,nOp(1))
+                  ps=DBLE(iChTbl(iIrrep,nOp(1)))
                   ps=ps*DBLE(iPrmt( nOp(1),iChBas(1+iCar)))
                   Fct = DBLE(iStb)/DBLE(nIrrep)
                Else
                   i1 = iCar + 3
-                  ps=rChTbl(iIrrep,nOp(2))
+                  ps=DBLE(iChTbl(iIrrep,nOp(2)))
                   ps = ps*DBLE( iPrmt( nOp(2), iChBas(1+iCar) ) )
                   Fct = ps * DBLE(jStb)/DBLE(nIrrep)
               End If
