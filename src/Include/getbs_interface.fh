@@ -10,19 +10,29 @@
 *                                                                      *
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Interface
-      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+      SubRoutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,
      &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
      &                 ExtBasDir)
+#ifdef _ACTUAL_
+      Use Basis_Info
+      Implicit Real*8 (A-H,O-Z)
+#endif
 #include "Molcas.fh"
+#ifdef _ACTUAL_
+#include "itmax.fh"
+#include "real.fh"
+#include "stdalloc.fh"
+#endif
       Character*(*) DDname
       Character(LEN=80)  BSLbl
-      Integer       iShll, MxAng
+      Integer       iShll
       Character(LEN=80)  Ref(2)
       Logical       UnNorm
-      Integer       nDel(0:MxAng), LuRd, BasisTypes(4)
+      Integer       LuRd, BasisTypes(4)
       Character(LEN=180) STDINP(MxAtom*2)
       Logical L_STDINP, Expert
       Character *(*) ExtBasDir
+#ifndef _ACTUAL_
       End SubRoutine GetBS
-      End Interface
+#endif
+#undef _ACTUAL_

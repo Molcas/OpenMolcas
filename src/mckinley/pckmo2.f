@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (a-h,o-z)

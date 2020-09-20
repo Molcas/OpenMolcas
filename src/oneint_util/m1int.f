@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M1Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine M1Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of the M1 integrals used  *
@@ -71,14 +70,13 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), CoorAC(3,2),
-     &       Coori(3,4), Coora(3,4)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
       Character*80 Label
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp),  iAnga(4)
+      Integer iDCRT(0:7), iAnga(4)
       Logical EQ, NoSpecial
 *
 *     Statement function for Cartesian index
@@ -256,11 +254,11 @@ c Avoid unused argument warnings
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

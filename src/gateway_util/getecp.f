@@ -12,7 +12,6 @@
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -29,17 +28,13 @@
 *                                                                      *
 *     Modified: Per Boussard -93.                                      *
 ************************************************************************
-      Use Basis_Info
-      Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
+#define _ACTUAL_
+#include "getecp_interface.fh"
+*     Local variables
       Character(LEN=180) Line, Get_Ln
 *     External Get_Ln
-      Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
       Integer mPP(2)
-      Logical UnNorm
+      Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
 *                                                                      *
 ************************************************************************
 *                                                                      *

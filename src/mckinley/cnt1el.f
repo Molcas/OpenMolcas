@@ -67,7 +67,8 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -87,6 +88,17 @@
       Integer iTwoj(0:7)
       Character*8 Lab_dsk
       Data iTwoj/1,2,4,8,16,32,64,128/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                 )
+#include "grd_mck_interface.fh"
+      End Subroutine Kernel
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -345,7 +357,7 @@ C differentiation wrt center iCnt
      &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
      &                   loper,dc(mdci)%nStab,
      &                   dc(mdcj)%nStab,nic,idcar,idcnt,
-     &                   iStabM,nStabM,trans)
+     &                   iStabM,nStabM,trans,nIrrep)
 *
 *
 *        Transform from primitive to contracted basis functions.

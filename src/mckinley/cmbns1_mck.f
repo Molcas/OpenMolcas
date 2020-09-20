@@ -12,8 +12,7 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CmbnS1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,
-     &                  Final,Alpha,Beta,
-     &                  IfGrad,nOp,iChBas,MxFnc)
+     &                  Final,Alpha,Beta,IfGrad,nOp)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
@@ -40,7 +39,7 @@ c#include "print.fh"
      &       Zeta(nZeta), rKappa(nZeta), Beta(nZeta),
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta)
       Logical IfGrad(3,2)
-      Integer  nOp(2), iChBas(MxFnc)
+      Integer  nOp(2)
 *
 *     Statement function for Cartesian index
 *
@@ -218,6 +217,5 @@ c     Call qExit('CmbnS1_mck')
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(nOp)
-         Call Unused_integer_array(iChBas)
       End If
       End

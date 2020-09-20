@@ -10,12 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Bernd Artur Hess                                 *
 ************************************************************************
-      SubRoutine PVInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot,
-     &                 Kernel)
+      SubRoutine PVInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                , Kernel)
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of  pX integrals          *
@@ -39,16 +37,26 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
+*      Interface
+*      Subroutine Kernel(
+*#define _CALLING_
+*#include "int_interface.fh"
+*     &                 )
+*#include "int_interface.fh"
+*      End Subroutine Kernel
+*      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       iRout = 221
       iPrint = nPrint(iRout)
       Call qEnter('pvint')
@@ -132,5 +140,5 @@
       Call qExit('pvint')
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nRys)
+      If (.False.) Call Unused_integer(nHer)
       End

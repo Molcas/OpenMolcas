@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc)
       use pso_stuff
+      use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
 #include "itmax.fh"

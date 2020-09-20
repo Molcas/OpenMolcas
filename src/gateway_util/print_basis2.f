@@ -16,6 +16,7 @@
 #include "info.fh"
 #include "print.fh"
       Logical output
+      Logical lAux, lPam2, lECP, lPP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -23,6 +24,16 @@
       iPrint=nPrint(iRout)
 *
       LuWr=6
+      lAux =.False.
+      lPam2=.False.
+      lECP =.False.
+      lPP  =.False.
+      Do i = 1, nCnttp
+         lAux  = lAux  .or. dbsc(i)%Aux
+         lPAM2 = lPAM2 .or. dbsc(i)%lPAM2
+         lECP  = lECP  .or. dbsc(i)%ECP
+         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

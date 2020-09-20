@@ -214,7 +214,7 @@
       End Do
       If (iPrint.ge.15) Then
          Lab=' OFE Nuclear Repulsion Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call GetMem('B-Charges','Free','Real',ip_ChargeB,nCnttp)

@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 2002, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine dTdmu_int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine dTdmu_int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                    )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of diamagnetic shielding  *
@@ -38,12 +37,12 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3,2), TC(3,2)
-      Integer lOper(nComp), iStabM(0:nStabM-1), iDCRT(0:7),
-     &          iStabO(0:7), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3,2)
+      Integer iDCRT(0:7), iStabO(0:7)
 *
 *     Statement function for Cartesian index
 *
@@ -52,6 +51,8 @@
       iRout = 230
       iPrint = nPrint(iRout)
       Call qEnter('dTdmu_int')
+*
+      nRys=nHer
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
@@ -125,7 +126,7 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

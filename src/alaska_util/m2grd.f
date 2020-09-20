@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M2Grd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine M2Grd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of M2 integrals used in   *
@@ -74,15 +73,13 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iuvwx(4), kOp(2), lOp(4),
-     &          IndGrd(3,2), JndGrd(3,4)
-      Logical ABeq(3), IfGrad(3,2), JfGrad(3,4), TstFnc, TF, EQ
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 TC(3), C(3)
+      Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
+      Logical ABeq(3), JfGrad(3,4), TstFnc, TF, EQ
 *
 *-----Statement function for Cartesian index
 *
@@ -303,8 +300,7 @@
 *-----------------Distribute the gradient contributions
 *
                   Call DistG1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                         JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,
-     &                         nIrrep)
+     &                         JfGrad,JndGrd,iuvwx,lOp)
 *
  1011          Continue
 *

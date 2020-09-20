@@ -11,11 +11,10 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine P_Int (Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine P_Int (
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the multipole moments integrals with the          *
@@ -46,12 +45,11 @@
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
       Character*80 Label
-      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp)
 *
 *     Statement function for Cartesian index
 *
@@ -98,7 +96,7 @@ c Avoid unused argument warnings
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
          Call Unused_integer_array(iStabM)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

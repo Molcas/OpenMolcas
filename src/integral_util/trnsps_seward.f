@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,
-     &           jShll, kOp, ijkl, ij, AOInt, Scrtch)
+     &                         jShll, kOp, ijkl, ij, AOInt, Scrtch)
 ************************************************************************
 *  Object: to transpose the integrals in order to resolve the          *
 *          redundancy (faA,fbB)=(fcC,fdD). In this case both sides will*
@@ -44,6 +44,8 @@
 *             May '90                                                  *
 ************************************************************************
       use Basis_Info
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

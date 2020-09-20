@@ -14,6 +14,7 @@
 *     This is a hack of the alaska/drvh1 subroutine with a little
 *     piece of (extinct) integral_util/drvprop subroutine
 *
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "espf.fh"
 *

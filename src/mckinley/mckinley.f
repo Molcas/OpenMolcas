@@ -130,10 +130,6 @@ c check if there is a reaction field
 c     write(6,*)'In mckinley PCM',pcm
       Call Init_RctFld(.False.,iCharge_ref)
 cpcm_solvent end
-C     If (lECP) Then
-C        Write (6,*) ' ECP not implemented in this version'
-C        Call Abend()
-C     End If
       nsAtom=0
       Do  iCnttp = 1, nCnttp
             nsAtom=nsAtom+dbsc(iCnttp)%nCntr

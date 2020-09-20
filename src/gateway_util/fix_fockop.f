@@ -52,15 +52,17 @@
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
       Character*180, Allocatable :: STDINP(:) ! CGGn
-      Integer BasisTypes(4), nDel(MxAng)
+      Integer BasisTypes(4)
       Integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
-      Logical Try_Again
+      Logical Try_Again, lPP
       Real*8 A(4)
       Data DefNm/'basis_library'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
 #include "getbs_interface.fh"
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -75,6 +77,13 @@
       nPrint(114)=99
       nPrint(116)=99
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      lPP = .False.
+      Do i = 1, nCnttp
+         lPP = lPP .or. dbsc(i)%nPP.ne.0
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -469,7 +478,7 @@
 *
          iShll = Mx_Shll-1
          jShll = iShll
-         Call GetBS(Fname,Bsl_,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+         Call GetBS(Fname,Bsl_,iShll,Ref,UnNorm,LuRd,
      &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then

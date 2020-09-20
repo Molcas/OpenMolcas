@@ -27,6 +27,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

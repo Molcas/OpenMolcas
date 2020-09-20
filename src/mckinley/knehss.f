@@ -11,11 +11,10 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine Knehss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,B,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                  IfHss,IndHss,ifgrd,indgrd,DAO,mdc,ndc,nOp,
-     &                  lOper,nComp,iStabM,nStabM)
+      SubRoutine Knehss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
@@ -43,24 +42,20 @@
 #include "info.fh"
 #include "WrkSpc.fh"
 c#include "print.fh"
-      Integer IndHss(0:1,0:2,0:1,0:2,nIrrep),
-     &       nOp(2), iStabM(0:nStabM-1), lOper(nComp),
-     &       indgrd(0:2,0:1,0:nIrrep-1)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
-     &       Array(nArr), Ccoor(3), Hess(nHess),
-     &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-      Logical ABeq(3), IfHss(0:1,0:2,0:1,0:2),ifgrd(3,2)
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
 *
 c     iRout = 122
 c     iPrint = nPrint(iRout)
 c     Call qEnter('KneHss')
 *     Write (*,*) ' IfHss=',IfHss
 *     Write (*,*) ' IndHss=',IndHss
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
       nip = 1
       ipAxyz = nip
@@ -86,7 +81,7 @@ c     Call qEnter('KneHss')
 *
 c     If (iPrint.ge.49) Then
 c        Call RecPrt(' In KneHss: A',' ',A,1,3)
-c        Call RecPrt(' In KneHss: B',' ',B,1,3)
+c        Call RecPrt(' In KneHss: RB',' ',RB,1,3)
 c        Call RecPrt(' In KneHss: Ccoor',' ',Ccoor,1,3)
 c        Call RecPrt(' In KneHss: P',' ',P,nZeta,3)
 c     End If
@@ -95,7 +90,7 @@ c     End If
 *
       Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
      &               la+2,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,B,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
      &               lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
@@ -133,14 +128,12 @@ c     End If
          ip = ip + 1
  21   Continue
 *
-*
       Call CmbnT2(Array(ipRnxyz),nZeta,la,lb,Zeta,
      &            rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,
      &            IfHss,IndHss,indgrd,dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 
 *
-c     Call GetMem(' Exit kneHss','CHECK','REAL',iDum,iDum)
 c     Call qExit('KneHss')
       Return
 c Avoid unused argument warnings
@@ -149,5 +142,6 @@ c Avoid unused argument warnings
          Call Unused_integer_array(lOper)
          Call Unused_logical_array(ifgrd)
          Call Unused_integer_array(iStabM)
+         Call Unused_integer(nStabM)
       End If
       End

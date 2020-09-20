@@ -1278,7 +1278,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          If (Pkl)   iPer = iPer*2
          If (Pijkl) iPer = iPer*2
          q4 = DBLE(8)/DBLE(iPer)
-         If (lSOInt) q4 = One
+         If (nIrrep.eq.1) q4 = One
          If (q4.ne.One) Call DScal_(nijkl*iCmp(1)*iCmp(2)
      &                            *iCmp(3)*iCmp(4),q4,Wrk(iW2),1)
       End If

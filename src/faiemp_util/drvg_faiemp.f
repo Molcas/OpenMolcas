@@ -10,11 +10,7 @@
 *                                                                      *
 * Copyright (C) Ben Swerts                                             *
 ************************************************************************
-CStart Molcas
       SubRoutine Drvg_FAIEMP(Grad,Temp,nGrad)
-celse
-c;      SubRoutine Drvg_FAIEMP(Grad,Temp,nGrad,fock,fock1,d1ao,d1ao1)
-cend
 ************************************************************************
 *                                                                      *
 *  Object: driver for the derivatives of central-fragment              *
@@ -219,7 +215,7 @@ cend
       iOpt=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
       If (iPrint.ge.15) Call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',
-     &                              Grad,nGrad,lIrrep,ChDisp,iprint)
+     &                              Grad,nGrad,ChDisp,iprint)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -265,7 +261,7 @@ cend
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -389,7 +385,7 @@ cend
 *
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg_FAIEMP: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue
@@ -457,7 +453,7 @@ cend
 * Accumulate the final results
       Call DScal_(nGrad,Half,Temp,1)
       If(iPrint.ge.15) Call PrGrad('The FAIEMP 2-electron Contribution',
-     &                             Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                             Temp,nGrad,ChDisp,iPrint)
       call daxpy_(nGrad,One,Temp,1,Grad,1)
 *
       Call Free_iSD()

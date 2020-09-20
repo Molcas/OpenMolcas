@@ -2066,7 +2066,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 *
          Call DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,nD,Grid,mGrid,
      &                 dRho_dR,ndRho_dR,nGrad_Eff,Rho,nRho,IndGrd,
-     &                 Weights,iTab,Temp,F_xc,dW_dR,iChBas,MxFnc,iNQ)
+     &                 Weights,iTab,Temp,F_xc,dW_dR,iNQ)
 *
       End If
 *                                                                      *

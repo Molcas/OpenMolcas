@@ -10,44 +10,14 @@
 *                                                                      *
 * Copyright (C) 2000, Per Ake Malmqvist                                *
 ************************************************************************
-C The call from DRVH1_MCK is:
-C            Call Cnt1El(NONA2,NA2Mem,Label,idcnt,idcar,loper,
-C     &               One,.false.,Work(ipFock),
-C     &               'NONA2   ',0)
-C It is received by DRVH1_MCK as:
-C      SubRoutine Cnt1El(Kernel,KrnlMm,Label,
-C     &                 iDCnt,iDCar,rHrmt,DiffOp,dens,
-C     &                 Lab_Dsk,iadd)
-C The call is then transferred to NONA2 as:
-C             Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
-C     &                   Work(iZeta),Work(ipZI),
-C     &                   Work(iKappa),Work(iPCoor),
-C     &                   Work(ipFnl),iPrim*jPrim,
-C     &                   iAng,jAng,A,RB,nOrder,Work(iKern),
-C     &                   MemKrn,Ccoor,nOrdOp,IfGrd,IndGrd,nop,
-C     &                   loper,dc(mdc+iCnt)%nStab,
-C     &                   dc(ndc+jCnt)%nStab,nic,idcar,idcnt,
-C     &                   iStabM,nStabM,trans)
-      SUBROUTINE NONA2(ALPHA,NALPHA,BETA, NBETA,ZETA,ZINV,RKAPPA,
-     &               PCENT,FINAL,NZETA,LA,LB,ACENT,BCENT,NHER,
-     &               ARRAY,NARR,CCOOR,NORDOP,IFGRAD,
-     &               INDGRD,nOP,
-     &               LOPER,IU,IV,NROP,IDCAR,IDCNT,ISTABM,NSTABM,TRANS)
+      SUBROUTINE NONA2(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &               )
 ************************************************************************
 * OBJECT: TO COMPUTE THE 2ND DERIVATIVE NONADIABATIC COUPLING
 * INTEGRALS, OF TYPE
 *     < D/DX CHI_1 | D/DX CHI_2 >
-*
-* CALLED FROM: ONEEL
-*
-* CALLING    : QENTER
-*              RECPRT
-*              CRTCMP
-*              ASSMBL
-*              GETMEM
-*              DCOPY   (ESSL)
-*              CMBN2DC
-*              QEXIT
 *
 *     AUTHOR: PER AKE MALMQVIST, MAX PLANCK INSTITUT F ASTROPHYSIK
 *             GARCHING, MUENCHEN NOV 2000
@@ -56,26 +26,25 @@ C     &                   iStabM,nStabM,trans)
 ************************************************************************
       use Her_RW
       use Center_Info
-C conform to that of all 'KERNEL' routines.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-      INTEGER INDGRD(NIRREP), nOP(2)
-      REAL*8 FINAL(NZETA,(LA+1)*(LA+2)/2,(LB+1)*(LB+2)/2,NROP),
-     &       ZETA(NZETA), ZINV(NZETA), ALPHA(NALPHA), BETA(NBETA),
-     &       RKAPPA(NZETA),PCENT(NZETA,3), ACENT(3), BCENT(3),CCOOR(3),
-     &       ARRAY(NARR)
-      LOGICAL ABEQ(3), IFGRAD(3,2),TRANS(2)
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+
+      LOGICAL ABEQ(3)
 C The following call parameters are not used:
 C IDCNT,ISTABM,NSTABM,ZINV
 C They must still be present, because the call parameter list must
 
       NELEM(LA)=(LA+2)*(LA+1)/2
-      ABEQ(1) = ACENT(1).EQ.BCENT(1)
-      ABEQ(2) = ACENT(2).EQ.BCENT(2)
-      ABEQ(3) = ACENT(3).EQ.BCENT(3)
+      ABEQ(1) = A(1).EQ.RB(1)
+      ABEQ(2) = A(2).EQ.RB(2)
+      ABEQ(3) = A(3).EQ.RB(3)
 
       NIP = 1
       IPAXYZ = NIP
@@ -102,9 +71,9 @@ C They must still be present, because the call parameter list must
       END IF
 
 * COMPUTE THE CARTESIAN VALUES OF THE BASIS FUNCTIONS ANGULAR PART
-      CALL CRTCMP(ZETA,PCENT,NZETA,ACENT,ARRAY(IPAXYZ),
+      CALL CRTCMP(ZETA,P,NZETA,A,ARRAY(IPAXYZ),
      &               LA+1,HerR(iHerR(NHER)),NHER,ABEQ)
-      CALL CRTCMP(ZETA,PCENT,NZETA,BCENT,ARRAY(IPBXYZ),
+      CALL CRTCMP(ZETA,P,NZETA,RB,ARRAY(IPBXYZ),
      &               LB+1,HerR(iHerR(NHER)),NHER,ABEQ)
 
 CPAM: WILL WE NEED THIS??
@@ -112,7 +81,7 @@ CPAM: WILL WE NEED THIS??
       ABEQ(1) = .FALSE.
       ABEQ(2) = .FALSE.
       ABEQ(3) = .FALSE.
-      CALL CRTCMP(ZETA,PCENT,NZETA,CCOOR,ARRAY(IPRXYZ),
+      CALL CRTCMP(ZETA,P,NZETA,CCOOR,ARRAY(IPRXYZ),
      &            NORDOP,HerR(iHerR(NHER)),NHER,ABEQ)
 
 * COMPUTE THE PRIMITIVE 1-DIMENSIONAL OVERLAP INTEGRALS.
@@ -148,7 +117,7 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
          CALL Unused_real_array(ZINV)
          CALL Unused_integer(IDCNT)
-         CALL Unused_integer(ISTABM)
+         CALL Unused_integer_array(ISTABM)
          CALL Unused_integer(NSTABM)
       END IF
       END

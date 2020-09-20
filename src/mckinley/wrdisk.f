@@ -15,7 +15,9 @@
 *      and MO for RASSCF, this will hopefully be changed, but if you
 *      see this mess before that I apologize
 *
+      use Basis_Info, only: nBas
       use pso_stuff
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

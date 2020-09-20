@@ -86,6 +86,7 @@
 *   @parameter lgrad true if 1st derivatives should be calculated
 *   @parameter tr  true for all centers on which should be calculated via translation invarians
       use vRys_RW
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2

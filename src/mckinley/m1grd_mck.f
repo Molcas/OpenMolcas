@@ -11,12 +11,10 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine m1Grd_mck(Alpha,nAlpha,Beta, nBeta,
-     &                 Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,
-     &                 IfGrd,IndGrd,nOp,
-     &                 lOper,iu,iv,nrOp,iDCar,iDCnt,iStabM,nStabM,ldum)
+      SubRoutine m1Grd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                    )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
@@ -45,21 +43,17 @@
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      Integer IndGrd(0:nIrrep-1), nOp(2),
-     &          iDCRT(0:7),inddum(144*8)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrOp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3), TC(3),
-     &       Array(nArr),cCoor(3)
-      Logical IfGrd(3,2), DiffCnt,EQ,ldum(2),Tr(4),ifdum(144)
-*
-*     Local arrrays
-*
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7),inddum(144*8)
+      Real*8 C(3), TC(3)
+      Logical DiffCnt, EQ, Tr(4), ifdum(144)
       Real*8 Coori(3,4), CoorAC(3,2)
-      Integer iAng(4), JndGrd(3,4,0:7),
-     &          mOp(4), iuvwx(4),
-     &          kndgrd(3,4,0:7),iStabM(0:7)
-      Logical JfGrd(3,4),kfgrd(3,4),jfg(4)
+      Integer iAng(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4),
+     &        kndgrd(3,4,0:7)
+      Logical JfGrd(3,4), kfgrd(3,4), jfg(4)
       Dimension Dum(1)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -72,6 +66,8 @@ c     End If
       Call GetMem('Grad','Allo','REAL',ipGrad,nGrad)
       call icopy(144*nirrep,[0],0,inddum,1)
       call lcopy(144,[.false.],0,ifdum,1)
+*
+      nRys=nHer
 *
       nip = 1
       ipA = nip
@@ -125,7 +121,7 @@ c     End If
 
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
-            DiffCnt=(IfGrd(iDCar,1).or.IfGrd(iDCar,2))
+            DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 101
 *
             Call DCR(LmbdT,iStabM,nStabM,
@@ -145,10 +141,10 @@ c           End If
             Call LCopy(12,[.false.],0,JFgrd,1)
             Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
-                  JfGrd(iDCar,iCnt) = IfGrd(iDCar,iCnt)
+              JfGrd(iDCar,iCnt) = IfGrad(iDCar,iCnt)
             End Do
             Do ICnt=1,2
-               If (ifgrd(idcar,iCnt)) Then
+              If (IfGrad(idcar,iCnt)) Then
                  Do iIrrep=0,nIrrep-1
                    jndGrd(iDCar,iCnt,iIrrep)=IndGrd(iIrrep)
                  End Do
@@ -205,8 +201,6 @@ c           End If
                JFG(4)=.false.
 
 
-
-
                call M1Kernel(Final,Dum,0,Dum,0,
      &                   iAng,nRys,nZeta,
      &                   Array(ipA),Array(ipB),Zeta,ZInv,
@@ -227,6 +221,6 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Ccoor)
          Call Unused_integer(nOrdOp)
-         Call Unused_logical_array(ldum)
+         Call Unused_logical_array(Trans)
       End If
       End

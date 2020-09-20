@@ -27,6 +27,8 @@
       use vRys_RW
       use iSD_data
       use k2_arrays
+      use LundIO
+      use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"
@@ -34,7 +36,6 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
 #include "status.fh"
@@ -111,7 +112,7 @@
 *     Allocate auxiliary array for symmetry transformation
 *
       nAux = nIrrep**3
-      If (Petite) nAux = 1
+      If (nIrrep.eq.1) nAux = 1
       Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************
@@ -149,7 +150,7 @@
 ************************************************************************
 *                                                                      *
       Call StatP(0)
-      nUt=0
+      Buf%nUt=0
       iDisk=0
 *                                                                      *
 ************************************************************************
@@ -161,6 +162,7 @@
 ************************************************************************
 *                                                                      *
       Function iPD(iSO_,jSO_,iSOSym,nSOs)
+      use Basis_Info, only: nBas
 #include "itmax.fh"
 #include "info.fh"
       Integer iPD

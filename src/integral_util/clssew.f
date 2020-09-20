@@ -24,12 +24,13 @@
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       use Her_RW
-      use Real_Spherical
+      use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers
       use Basis_Info
       use Center_Info
       Use SOAO_Info
+      use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -50,6 +51,7 @@
       Call Sphere_Free()
       Call SOAO_Info_Free()
       Call Basis_Info_Free()
+      Call SYmmetry_Info_Free()
       Call Center_Info_Free()
       Call External_Centers_Free()
       Call Free_iSD()

@@ -35,7 +35,7 @@
       integer     storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
       Real*8      eqBasis(LineWords)
-      Integer     BasisTypes(4), nDel(MxAng),
+      Integer     BasisTypes(4),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            ii, Indx, iSh, iShll, jShll,
      &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc,
@@ -60,7 +60,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
 #include "getbs_interface.fh"
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -170,8 +172,8 @@
 *
             jShll = iShll
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,Ref,
-     &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,lSTDINP,
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,Ref,
+     &                 UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,
      &                 .False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,

@@ -15,7 +15,7 @@
 #include "info.fh"
 #include "rinfo.fh"
 #include "WrkSpc.fh"
-      integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,MxAng),numb(MxAO)
+      integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,iTabMx),numb(MxAO)
       integer mcaddr(MxAO)
       real*8 bint(*),sint(*)
       logical New_Center,New_l,New_m, Old_Center, Old_l
