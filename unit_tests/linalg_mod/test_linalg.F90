@@ -11,7 +11,10 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
+#define shitty_compiler (( __INTEL_COMPILER && __INTEL_COMPILER < 1300 ) ||  __SUNPRO_F90 ||  __PGI)
+
 module test_linalg_mod
+#if ! shitty_compiler
     use fruit
     use definitions, only: wp
     use linalg_mod, only: mult, operator(.isclose.), Gram_Schmidt, symmetric, &
@@ -235,10 +238,11 @@ contains
             linear_independent = n_new == size(basis, 2)
         end do
     end subroutine
-
+#endif
 end module test_linalg_mod
 
 program test_linalg
+#if ! shitty_compiler
 
     use fruit
     use test_linalg_mod
@@ -270,4 +274,7 @@ contains
         call run_test_case(test_mult_T_T, "test_mult_T_T")
         call run_test_case(test_diagonalization, "test_diagonalization")
     end subroutine
+#else
+    write(*, *) 'Unit test skipped because of unsupported compiler.'
+#endif
 end program test_linalg
