@@ -13,4 +13,8 @@
 
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
-add_unit_test(test_linalg test_linalg.F90)
+set(not_supported ";SunPro;PGI;")
+
+if (NOT ((CMAKE_Fortran_COMPILER_ID IN_LIST not_supported) OR (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")))
+    add_unit_test(test_linalg test_linalg.F90)
+endif()
