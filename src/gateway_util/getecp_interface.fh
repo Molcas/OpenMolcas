@@ -7,7 +7,24 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Parameter (nBuf=14336)
-      Common/Buffer/ Buf(nBuf), iBuf(nBuf-1), nUt, iDisk, lBuf,
-     &               ip_Buf, Lu_28
+      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
+#ifdef _ACTUAL_
+      Use Basis_Info
+      Implicit Real*8 (A-H,O-Z)
+#include "itmax.fh"
+#include "Molcas.fh"
+#include "real.fh"
+#include "stdalloc.fh"
+#endif
+      Integer lUnit
+      Integer iShll
+      Integer nProj
+      Logical UnNorm
+#ifndef _ACTUAL_
+      End SubRoutine GetECP
+#endif
+#undef _ACTUAL_
+

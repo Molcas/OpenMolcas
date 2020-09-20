@@ -9,16 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &                     nShell,nShell_Aux,nSO,ip_iSSOff,iSOInf,
-     &                     MaxAO,TMax,CutOff,ip_iShij,nij_Shell,
+     &                     nShell,nShell_Aux,nSO,ip_iSSOff,
+     &                     TMax,CutOff,ip_iShij,nij_Shell,
      &                     nBas_Aux,nChV,iTOffs)
       use iSD_data
+      use SOAO_Info, only: iSOInf
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "setup.fh"
 #include "nsd.fh"
-      Integer nBas(0:nIrrep-1), iSOInf(3,4*MaxAO), nBas_Aux(0:nIrrep-1),
+      Integer nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1),
      &        nChV(0:nIrrep-1), iTOffs(3,0:nIrrep-1)
       Real*8  TMax(nShell,nShell)
 *                                                                      *

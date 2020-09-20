@@ -17,7 +17,7 @@
       Implicit Real*8 (a-h,o-z)
 *
       Integer iSD4(0:nSD,4), iAnga(4), iCmpa(4),
-     &        iFnc(4), IndShl(4)
+     &        iFnc(4), iAO(4)
 *
       iPrimi   = Shells(iSD4( 0,1))%nExp
       jPrimj   = Shells(iSD4( 0,2))%nExp
@@ -30,11 +30,11 @@
       Do iQuad = 1, 4
          iAnga(iQuad)  = iSD4( 1,iQuad)
          iCmpa(iQuad)  = iSD4( 2,iQuad)
-         IndShl(iQuad) = iSD4( 8,iQuad)
+         iAO(iQuad)    = iSD4( 7,iQuad)
       End Do
 *
                   Call PSOAO1(nSO,MemPrm, MemMax,
-     &                        iAnga, iCmpa, IndShl,iFnc,
+     &                        iAnga, iCmpa, iAO  ,iFnc,
      &                        iBasi,iBsInc, jBasj,jBsInc,
      &                        kBask,kBsInc, lBasl,lBsInc,
      &                        iPrimi,iPrInc,jPrimj,jPrInc,

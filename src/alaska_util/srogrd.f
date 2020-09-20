@@ -11,11 +11,10 @@
 * Copyright (C) 1994,1995, Roland Lindh                                *
 *               1994, Luis Seijo                                       *
 ************************************************************************
-      SubRoutine SROGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine SROGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of MP integrals.          *
@@ -65,8 +64,10 @@
 *             Modified to gradients April '95. R. Lindh                *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -74,23 +75,20 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), Grad(nGrad),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
-     &          iuvwx(4), kOp(2), lOp(4),
-     &          IndGrd(3,2), JndGrd(3,4)
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
       Character*80 Label
-      Logical IfGrad(3,2), JfGrad(3,4), TstFnc, TF, ABeq(3), EQ
+      Logical JfGrad(3,4), TstFnc, TF, ABeq(3), EQ
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 *     Call qEnter('SROGrd')
       iRout = 191
@@ -104,10 +102,12 @@
          Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
       End If
 *
+      nRys=nHer
+*
       nDAO= nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
@@ -119,12 +119,12 @@
          Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -167,9 +167,7 @@
          Do 1967 lDCRT = 0, nDCRT-1
             lOp(3) = iDCRT(lDCRT)
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
             Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
                iShll = dbsc(kCnttp)%iSRO + iAng
@@ -184,8 +182,7 @@
      &            ' ', Shells(iShll)%Akl(1,1,1),nExpi,nExpi)
                call dcopy_(nExpi**2,Shells(iShll)%Akl(1,1,1),1,
      &                     Array(ipC),1)
-               If (EQ(A,RB).and.EQ(A,TC).and.
-     &            lNoPair.and.dbsc(kCnttp)%NoPair) Then
+               If (EQ(A,RB).and.EQ(A,TC).and.dbsc(kCnttp)%NoPair) Then
                   Call DaXpY_(nExpi**2,One,
      &                        Shells(iShll)%Akl(1,1,2),1,Array(ipC),1)
                   If (iPrint.ge.49) Call RecPrt(' The Adl matrix',' ',
@@ -560,7 +557,7 @@
 *--------------Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                     JfGrad,JndGrd,iuvwx,lOp)
 *
  1966       Continue
  1967    Continue
@@ -576,7 +573,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
-         Call Unused_integer(nRys)
          Call Unused_integer_array(lOper)
       End If
       End

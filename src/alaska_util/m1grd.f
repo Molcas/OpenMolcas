@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M1Grd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine M1Grd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of the M1 integrals used  *
@@ -62,6 +61,7 @@
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "real.fh"
@@ -70,27 +70,25 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), CoorAC(3,2),
-     &       Coori(3,4), Coora(3,4), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &        iAnga(4), iuvwx(4), kOp(2), lOp(4),
-     &        IndGrd(3,2), JndGrd(3,4)
-      Logical EQ, IfGrad(3,2), JfGrad(3,4), TstFnc, TF
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
+      Integer iDCRT(0:7), iAnga(4), iuvwx(4), lOp(4), JndGrd(3,4)
+      Logical EQ, JfGrad(3,4), TstFnc, TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 *     Call qEnter('M1Grd')
       iRout = 193
       iPrint = nPrint(iRout)
+*
+      nRys = nHer
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In M1Grd: A',' ',A,1,3)
@@ -142,8 +140,8 @@
       Else
          call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -168,17 +166,15 @@
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 *
             Do 102 lDCRT = 0, nDCRT-1
-               lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               lOp(3) = NrOpr(iDCRT(lDCRT))
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *--------------Branch out if one-center integral
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102
                If (iPrint.ge.99) Call RecPrt(' In M1Grd: TC',' ',TC,1,3)

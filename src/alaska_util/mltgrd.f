@@ -11,11 +11,10 @@
 * Copyright (C) 1990,1991, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine MltGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,B,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine MltGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradients of the Multipole operator           *
@@ -40,6 +39,7 @@
 *             '91.                                                     *
 ************************************************************************
       use Her_RW
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -47,13 +47,11 @@
 #ifdef _DEBUG_
 #include "print.fh"
 #endif
-      Integer IndGrd(3,2), kOp(2), iStabM(0:nStabM-1), lOper(nComp)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-      Logical ABeq(3), IfGrad(3,2)
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
       parameter (lforce=20)
       real*8 Force(lforce)
       common /finfld/Force
@@ -64,9 +62,9 @@
       iRout = 122
       iPrint = nPrint(iRout)
 #endif
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
       nip = 1
       ipAxyz = nip
@@ -92,7 +90,7 @@
       If (iPrint.ge.49) Then
          Call RecPrt(' In MltGrd: RKappa',' ',rKappa,1,nZeta)
          Call RecPrt(' In MltGrd: A',' ',A,1,3)
-         Call RecPrt(' In MltGrd: B',' ',B,1,3)
+         Call RecPrt(' In MltGrd: RB',' ',RB,1,3)
          Call RecPrt(' In MltGrd: Ccoor',' ',Ccoor,1,3)
          Call RecPrt(' In MltGrd: P',' ',P,nZeta,3)
          Write (6,*) ' In MltGrd: la,lb=',la,lb
@@ -103,7 +101,7 @@
 *
       Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
      &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,B,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
@@ -138,8 +136,8 @@
  21   Continue
       Call CmbnMlt1(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,Final,
      &            Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),
-     &            nIrrep,kOp,iChBas,MxFnc,nOrdOp,Force)
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,
+     &            kOp,nOrdOp,Force)
 *
       Return
 c Avoid unused argument warnings

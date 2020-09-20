@@ -27,6 +27,7 @@
 *             University of Lund, SWEDEN                               *
 *             August 2002                                              *
 ************************************************************************
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -120,7 +121,7 @@
          jPrint=nPrint(112)
 !AMS
 !        jprint=15
-         If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,lIrrep,ChDisp,5)
+         If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,ChDisp,5)
          If (king()) Call DaXpY_(nGrad,One,Temp,1,Grad,1)
          If (iPrint.lt.6) Go To 777
          Write (LuWr,*)

@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,Name,Coor,
-     &                   lWrite,nSym,iOper,jStab,nStab,mxdc,
+     &                   lWrite,jStab,nStab,mxdc,
      &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
@@ -58,7 +58,7 @@
       Integer Flip, NoFlip, StrnLn
       External StrnLn
       Parameter (Flip=1,NoFlip=0)
-      Integer iOper(0:7), nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
+      Integer nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
       Character*100 Get_SuperName
       External Get_SuperName
 #include "angstr.fh"
@@ -292,7 +292,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
      &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,Coor,
      &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
      &               Type,dMass,Work(ipMass),
-     &               Labels(iBVct),nSym,lWrite,iOper,jStab,
+     &               Labels(iBVct),lWrite,jStab,
      &               nStab,mxdc,rMult(iBVct,iBVct),Smmtrc,
      &               Work(ipHess),lIter)
 *

@@ -11,7 +11,7 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine IndSft2(iCmp,iShell,IndShl,iBas,jBas,kBas,lBas,
+      SubRoutine IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,
      &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,
      &                   iSOSym,nSOs)
 ************************************************************************
@@ -25,6 +25,8 @@
 *          april '90                                                   *
 ************************************************************************
       use k2_arrays, only: Sew_Scr
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use lw_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -34,8 +36,7 @@
 #include "srt1.fh"
 *
       Real*8 SOint(ijkl,nSOint)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs),
-     &        IndShl(4)
+      Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
       Logical Shijij, Shij, Shkl, qijij, qij, qkl
 *     local array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
@@ -74,18 +75,19 @@
 *
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
-C     Write (*,*) 'iShell=',iShell
-C     Write (*,*) 'Shijij=',Shijij
-C     Write (*,*) 'iAO=',iAO
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iand(IrrCmp(IndShl(1)+i1),2**j)
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iand(IrrCmp(IndShl(2)+i2),2**j)
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) then
@@ -95,13 +97,17 @@ C     Write (*,*) 'iAO=',iAO
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iand(IrrCmp(IndShl(3)+i3),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iand(IrrCmp(IndShl(4)+i4),2**j)
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) then

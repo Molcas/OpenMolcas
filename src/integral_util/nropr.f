@@ -10,16 +10,16 @@
 *                                                                      *
 * Copyright (C) 1990, IBM                                              *
 ************************************************************************
-      Integer Function NrOpr(iOp,iOper,nIrrep)
+      Integer Function NrOpr(iOp)
 ************************************************************************
 *                                                                      *
 * Object: to return the order index of a symmetry operator.            *
 *                                                                      *
 ************************************************************************
-      Integer iOper(0:nIrrep-1)
+      Use Symmetry_Info, only: nIrrep, iOper
       NrOpr=-1
-      Do 10 iIrrep = 0, nIrrep - 1
+      Do iIrrep = 0, nIrrep - 1
          If (iOp.eq.iOper(iIrrep)) NrOpr=iIrrep
- 10   Continue
+      End Do
       Return
       End

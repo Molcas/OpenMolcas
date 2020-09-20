@@ -10,8 +10,10 @@
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
       Use Basis_Info
+      use Center_Info
       Use Langevin_arrays
       use External_Centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "itmax.fh"
@@ -43,7 +45,7 @@
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = mdc + 1
-            MaxAto = MaxAto + nIrrep/nStab(mdc)
+            MaxAto = MaxAto + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *
@@ -64,16 +66,10 @@
          End If
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = dbsc(jCnttp)%Coor(1,jCnt)
-            y1 = dbsc(jCnttp)%Coor(2,jCnt)
-            z1 = dbsc(jCnttp)%Coor(3,jCnt)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Work(ipCord+(nc-1)*3) =   x1*DBLE(iFacx)
-               Work(ipCord+(nc-1)*3+1) = y1*DBLE(iFacy)
-               Work(ipCord+(nc-1)*3+2) = z1*DBLE(iFacz)
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Work(ipCord+(nc-1)*3  :
+     &                      ipCord+(nc-1)*3+2))
                Work(ipAtod+(nc-1)) = Atod
                Work(ipChrg+(nc-1)) = Z
 *              Write (*,*) 'Z=',Z

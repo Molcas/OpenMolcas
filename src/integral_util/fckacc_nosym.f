@@ -53,6 +53,8 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max, Min
 #include "itmax.fh"
@@ -336,6 +338,7 @@ c Avoid unused argument warnings
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

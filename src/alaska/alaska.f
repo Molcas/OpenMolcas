@@ -153,7 +153,7 @@
          Call DrvN1(Work(ipGrad),Work(ipTemp),lDisp(0))
          If (iPrint.ge.15) Then
             Lab=' Total Nuclear Contribution'
-            Call PrGrad(Lab,Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+            Call PrGrad(Lab,Work(ipGrad),lDisp(0),ChDisp,iPrint)
          End If
        End If
       End If
@@ -185,7 +185,7 @@
          Call Drvh1_EMB(Work(ipGrad),Work(ipTemp),lDisp(0))
       EndIf
 !         Lab='Nuc + One-electron Contribution'
-!         Call PrGrad(Lab,Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+!         Call PrGrad(Lab,Work(ipGrad),lDisp(0),ChDisp,iPrint)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -227,7 +227,7 @@
       Call DScal_(lDisp(0),Half,Work(ipTemp),1)
       If (iPrint.ge.15) Then
          Lab=' Two-electron Contribution'
-         Call PrGrad(Lab,Work(ipTemp),lDisp(0),lIrrep,ChDisp,iPrint)
+         Call PrGrad(Lab,Work(ipTemp),lDisp(0),ChDisp,iPrint)
       End If
 *
 *-----Accumulate contribution to the gradient
@@ -257,7 +257,7 @@
          If (iPrint.ge.99) Then
             Call PrGrad(
      &       ' Molecular gradients (no TR) ',
-     &           Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+     &           Work(ipGrad),lDisp(0),ChDisp,iPrint)
             Call RecPrt(' The A matrix',' ',Work(ipAm),
      &                  lDisp(0),lDisp(0))
          End If
@@ -304,14 +304,14 @@
 *
       If (isNAC) Then
         Call PrGrad('CI derivative coupling ',
-     &                 Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+     &                 Work(ipGrad),lDisp(0),ChDisp,iPrint)
         EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
         EDiff_f = EDiff*EDiff_s
         If (DoCSF) Then
           Call Allocate_Work(ipCSFG,lDisp(0))
           Call CSFGrad(Work(ipCSFG),lDisp(0))
           Call PrGrad('CSF derivative coupling ',
-     &                   Work(ipCSFG),lDisp(0),lIrrep,ChDisp,iPrint)
+     &                   Work(ipCSFG),lDisp(0),ChDisp,iPrint)
           Call daxpy_(lDisp(0),EDiff_f,Work(ipCSFG),1,Work(ipGrad),1)
           Call Free_Work(ipCSFG)
         End If
@@ -324,16 +324,16 @@
         call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
         call dscal_(lDisp(0),One/EDiff_f,Work(ipTmp),1)
         Call PrGrad(Trim(Label),
-     &              Work(ipTmp),lDisp(0),lIrrep,ChDisp,iPrint)
+     &              Work(ipTmp),lDisp(0),ChDisp,iPrint)
         write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Work(ipTmp),1)
         Call Free_Work(ipTmp)
       ElseIf (iPrint.ge.4) then
          If (HF_Force) Then
             Call PrGrad('Hellmann-Feynman Forces ',
-     &                 Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+     &                 Work(ipGrad),lDisp(0),ChDisp,iPrint)
          Else
             Call PrGrad(' Molecular gradients',
-     &                    Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+     &                    Work(ipGrad),lDisp(0),ChDisp,iPrint)
          End If
       End If
       If (isNAC) Then

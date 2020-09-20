@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine h1_espf (h1,RepNuc,nh1,First,Do_DFT)
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 *
 * Driver for computing the ESPF one-electron modification

@@ -12,7 +12,7 @@
 *               1999, Anders Bernhardsson                              *
 *               1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Molden_Interface(iUHF,FName,filename,AddFragments)
+      Subroutine Molden_Interface(iUHF,FName,filename)
 ************************************************************************
 *                                                                      *
 *     Object: to generate MOLDEN input file                            *
@@ -23,6 +23,8 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: lIrrep
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -33,19 +35,19 @@
 *
 c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
       Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,mxdc),Znuc(mxdc)
+      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
       Character shelllabel(7)
-      Character*(LENIN) AtomLabel(mxdc)
+      Character*(LENIN) AtomLabel(MxAtom)
       Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
-      Integer ibas_lab(mxdc), nOrb(8)
+      Integer ibas_lab(MxAtom), nOrb(8)
       Character*(LENIN8+1) gtolabel(maxbfn)
       Real*8 r_Norm(maxbfn)
       Character*(*) Filename, FName
       Character VTitle*40, Env*8
-      Logical Exist,y_cart,y_sphere, AddFragments, Found, Reduce_Prt
+      Logical Exist,y_cart,y_sphere, Found, Reduce_Prt
       External Reduce_Prt
       Character*100 Supername,Get_SuperName
       External Get_SuperName
@@ -147,12 +149,7 @@ c      End If
 *     NOTICE!!!
 *     This call will also fill info.fh and the Basis_Info.
 *
-      If (AddFragments) Then
-        Call Inter1_FAIEMP(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      Else
-c      write(6,*) 'we here 0?'
-        Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      End If
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)
@@ -301,7 +298,7 @@ c      write(6,*) 'we here 0?'
             Do iCntr=1,dbsc(iCnttp)%nCntr
                iData=iData+1
                mdc = iCntr + dbsc(iCnttp)%mdci
-               nDeg=nIrrep/nStab(mdc)
+               nDeg=nIrrep/dc(mdc)%nStab
                Do iDeg = 1, nDeg
                   jData=jData+1
                   Write (MF,*) Work(ipMull+iData-1)
@@ -347,7 +344,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *
         Do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom

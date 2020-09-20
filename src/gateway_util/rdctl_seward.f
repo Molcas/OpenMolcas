@@ -9,15 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use SW_File
       use AMFI_Info
       use Basis_Info
+      use Center_Info
       use Her_RW
       use Period
       use MpmC
       use EFP_Module
-      use Real_Spherical, only: Condon_Shortley_phase_factor, Sphere
+      use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
+      use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -47,14 +50,17 @@
 #include "relae.fh"
 #include "periodic_table.fh"
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxDc)
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
-     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:MxAng)*1,
+     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:iTabMx)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
      &          Previous_Command*12, BSLbl_Dummy*80, CtrLDK(10)*(LENIN),
      &          Directory*256, BasLib*256,ExtBasDir*256
+      Character(LEN=72):: Header(2)=['','']
+      Character(LEN=80):: Title(10)=['','','','','','','','','','']
+      Character(LEN=14):: Vrsn='Gateway/Seward'
+      Character(LEN=512):: Align_Weights='MASS'
       Character*180 Line
       common/cgetlc/ Line
       Character*180 Get_Ln
@@ -63,9 +69,9 @@
      &        Exist,CutInt_UsrDef, ThrInt_UsrDef, MolWgh_UsrDef,
      &        CholeskyWasSet, GWInput, NoAMFI, lOPTO, Do_OneEl
       Logical do1CCD
+      Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
-      Integer Cho_MolWgh, StayAlone, nDel(MxAng),
-     &        BasisTypes(4), BasisTypes_Save(4),
+      Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
      &        iGeoInfo(2), iOpt_XYZ, RC
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
@@ -105,9 +111,9 @@
       Logical EFgiven
       Logical Invert
       Real*8 HypParam(3), RandVect(3)
-      Logical Vlct_, nmwarn
+      Logical Vlct_, nmwarn, FOUND
 *
-      Logical DoEMPC, Basis_test
+      Logical DoEMPC, Basis_test, lECP, lPP
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -131,7 +137,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
 #include "getbs_interface.fh"
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,7 +156,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do i=0,MxAng
+      Do i=0,iTabMx
          AngTyp(i)=Angtp(i)
          Call UpCase(AngTyp(i))
       End Do
@@ -166,6 +174,11 @@
          BasLib=DefNm
       End If
       Write_BasLib=.False.
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Qpg_cArray('Align_Weights',Found,lAW)
+      If (Found) Call Get_cArray('Align_Weights',Align_Weights,512)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -385,7 +398,7 @@ cperiod
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
       If (KWord(1:1).eq.'*') Go To 998
-      If (KWord.eq.BLine)    Go To 998
+      If (KWord.eq.'')    Go To 998
       If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
@@ -424,7 +437,6 @@ cperiod
       If (KWord(1:4).eq.'DCRN') Go To 958
       If (KWord(1:4).eq.'DIAG') Go To 9087
       If (KWord(1:4).eq.'DIRE') Go To 9770
-      If (KWord(1:4).eq.'DIST') Go To 954
       If (KWord(1:4).eq.'DK1H') Go To 9001
       If (KWord(1:4).eq.'DK2H') Go To 9002
       If (KWord(1:4).eq.'DK3F') Go To 9004
@@ -509,7 +521,6 @@ cperiod
       If (KWord(1:4).eq.'OVER') Go To 41
       If (KWord(1:4).eq.'PAMF') Go To 8060
       If (KWord(1:4).eq.'PART') Go To 9763
-      If (KWord(1:4).eq.'PETI') Go To 961
       If (KWord(1:4).eq.'PKTH') Go To 9940
       If (KWord(1:4).eq.'PSOI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
@@ -811,7 +822,8 @@ c     Call Quit_OnUserError()
       nc = 80-(i2-i1+1)
       nc2=nc/2
       nc3=(nc+1)/2
-      Title(nTtl)=BLine(1:nc2)//Key(i1:i2)//BLine(1:nc3)
+      Title(nTtl)=''
+      Title(nTtl)(nc2+1:nc2+i2-i1+1)=Key(i1:i2)
       Go To 9988
 *                                                                      *
 ****** ECPS **** or ****** AUXS ****************************************
@@ -1166,9 +1178,8 @@ c Simplistic validity check for value
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,BLine,Ref,UnNorm,
-     &           nDel,LuRd,BasisTypes,STDINP,lSTDINP,.False.,Expert,
-     &           ExtBasDir)
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,
+     &           BasisTypes,STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
      &            dbsc(nCnttp)%AtmNr.le.96
@@ -1210,29 +1221,20 @@ c Simplistic validity check for value
          BasisTypes(4)=ign
       End If
 *
-      If (dbsc(nCnttp)%nSOC.gt.-1) Then
-         Do l = 1, MxAng
-            kDel(l,nCnttp)=nDel(l)
-         End Do
-      End If
       If (Show.and.nPrint(2).ge.6 .and.
-     &   Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.BLine) Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.BLine) Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
      &                 +dbsc(nCnttp)%nPrj
      &                 +dbsc(nCnttp)%nSRO
      &                 +dbsc(nCnttp)%nSOC
      &                 +dbsc(nCnttp)%nM1
      &                 +dbsc(nCnttp)%nM2) .NE. 0
-      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-      lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
       lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
@@ -1249,7 +1251,6 @@ c Simplistic validity check for value
      &                     + dbsc(nCnttp)%nSOC
      &                     + dbsc(nCnttp)%nPP
       nCnt = 0
-      lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.
@@ -1415,9 +1416,10 @@ c Simplistic validity check for value
 *     Read Coordinates
 *
       nCnt = nCnt + 1
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,' RdCtl: Increase Mxdc')
-         Write (LuWr,*) '        Mxdc=',Mxdc
+      n_dc=max(mdc+nCnt,n_dc)
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,' RdCtl: Increase MxAtom')
+         Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
       iend=Index(KWord,' ')
@@ -1425,14 +1427,14 @@ c Simplistic validity check for value
          Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
       End If
-      LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))
-      dbas=LblCnt(mdc+nCnt)(1:LENIN)
+      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))
+      dbas=dc(mdc+nCnt)%LblCnt(1:LENIN)
       Call Upcase(dbas)
       If (dbas.eq.'DBAS') Then
          RMat_On=.True.
       End If
       If (mdc+nCnt.gt.1) then
-        Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+        Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       endif
       iOff=1+(nCnt-1)*3
       Call Get_F(2,Buffer(iOff),3)
@@ -1468,9 +1470,10 @@ c Simplistic validity check for value
 
                   nCnt = nCnt + 1
 
-                  If (mdc+nCnt.gt.Mxdc) Then
-                     Call WarningMessage(2,' RdCtl: Increase Mxdc')
-                     Write (LuWr,*) '        Mxdc=',Mxdc
+                  n_dc=max(mdc+nCnt,n_dc)
+                  If (mdc+nCnt.gt.MxAtom) Then
+                     Call WarningMessage(2,' RdCtl: Increase MxAtom')
+                     Write (LuWr,*) '        MxAtom=',MxAtom
                      Call Quit_OnUserError()
                   End If
 
@@ -1479,10 +1482,10 @@ c Simplistic validity check for value
                      Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
                   End If
-                  LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))//
+                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))//
      &              CHAR4
 
-                  Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+                  Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
 
                   iOff=1+(nCnt-1)*3
 
@@ -1584,7 +1587,7 @@ c     Go To 998
 *                                                                      *
 *     Turn on the use of Condon-Shortley phase factors
 *
- 9110 Condon_Shortley_phase_factor=.True.
+ 9110 CSPF=.True.
       GWInput = Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
@@ -1596,13 +1599,6 @@ c     Go To 998
       GWInput = Run_Mode.eq.G_Mode
       Call WarningMessage(1,
      &   ' EXPERT option is ON!')
-      Go To 998
-*                                                                      *
-****** DIST ************************************************************
-*                                                                      *
-*     Enable computation of integral distribution
-*
- 954  Dist = .True.
       Go To 998
 *                                                                      *
 ****** MOLC or DCRN ****************************************************
@@ -1629,14 +1625,6 @@ c     Go To 998
 *
  960  MolWgh=1
       MolWgh_UsrDef=.true.
-      Go To 998
-*                                                                      *
-****** PETI ************************************************************
-*                                                                      *
-*     Compute integrals in SO format or petite list
-*
- 961  Petite=.True.
-      lSOInt=.False.
       Go To 998
 *                                                                      *
 ****** RELI ************************************************************
@@ -2180,7 +2168,7 @@ c     Go To 998
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
                Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
-                  If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
+                  If (Key(1:iEnd) .Eq. dc(iCnt)%LblCnt(1:iEnd)) Then
                      iFound_Label = 1
                      EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
@@ -2908,12 +2896,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 *     Local Douglas-Kroll-Hess/X2C/BSS
 *
- 658  If (SymmSet.or.nIrrep.gt.1) Then
-         Call WarningMessage(2,
-     &      'Local approach is not yet implemented with SYMMETRY')
-         Call Quit_OnUserError()
-      End If
-      LDKroll=.True.
+ 658  LDKroll=.True.
 *     GWInput=.True.
       nCtrLD=0
       radiLD=5.5d0
@@ -2944,7 +2927,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       k=0
       Do i=1,nAtom
         Do j=1,nCtrLD
-          if (CtrLDK(j).eq.LblCnt(i)(1:LENIN)) Then
+          if (CtrLDK(j).eq.dc(i)%LblCnt(1:LENIN)) Then
              iCtrLD(j)=i
              k=k+1
           End If
@@ -3885,6 +3868,11 @@ c      endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Put_lScalar('CSPF',CSPF)
+      Call Put_cArray('Align_Weights',Align_Weights,512)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Isotopic specifications
 *
       If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
@@ -3979,7 +3967,7 @@ c      endif
      &     ' There is an error somewhere in the input!;iAngMx.lt.0')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.gt.MxAng) Then
+      If (iAngMx.gt.iTabMx) Then
          Call WarningMessage(2,' Too High angular momentum !!!')
          Call Quit_OnUserError()
       End If
@@ -4021,6 +4009,12 @@ c      endif
          Call Abend()
       End If
 *
+      lECP = .False.
+      lPP  = .False.
+      Do i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+      End Do
       If ((lECP.or.lPP).and.DKroll.and..Not.Expert) Then
          Call WarningMessage(2,
      &               ' ECP option not compatible with Douglas-Kroll!')
@@ -4147,7 +4141,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   MolWgh = Cho_MolWgh
                End If
             End If
-            If (Dist) Dist =.False.
             If (iWrOpt .eq. 2) Then
                Write(LuWr,*)
      &         'Acess II format not allowed with Cholesky!!'
@@ -4169,98 +4162,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _NO_F90_COMPILER_
-      If (DoFMM) Then
-         Call WarningMessage(2,
-           'ERROR: your MOLCAS version does not have the'
-     &   //' F90 code which does the FMM part.;'
-     &   //' Run the calculations without the FMM option'
-     &   //' or install MOLCAS with a F90 compiler!; ')
-         Call Quit_OnUserError()
-      End If
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Run_Mode.eq.S_Mode) Go To 888
-      nIrrep = 2 ** nOper
-      iOper(0) = 0
-      Do i = 1, nOper
-         iOper(i) = 0
-         Do j = 1, 3
-          If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
-          If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
-          If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
-         End Do
-         If (iOper(i).eq.0) Then
-            Call WarningMessage(2,
-     &               'RdCtl: Illegal symmetry operator!')
-            Write (LuWr,*) 'Oper=',Oper(i)
-            Write (LuWr,*)
-            Call Abend()
-         End If
-      End Do
-
-      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
-         Call WarningMessage(2,
-     &                'Polarizabilities are not compatible'
-     &              //' with symmetry.')
-         Call Quit_OnUserError()
-      EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate all operations of the group
-*
-      If (nOper.ge.2) Then
-         iOper(4) = iOper(3)
-         iOper(3) = iEor(iOper(1),iOper(2))
-      End If
-      If (nOper.eq.3) Then
-         iOper(5) = iEor(iOper(1),iOper(4))
-         iOper(6) = iEor(iOper(2),iOper(4))
-         iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
-      End If
-      If (lSkip) then
-         Call Put_Ln(ChSkip)
-         Call Get_I(1,iSkip,nIrrep)
-         Do_GuessOrb=.FALSE.
-      End If
-      If (nIrrep.eq.1) Then
-         Petite=.True.
-         lSOInt  =.True.
-      End If
-      Do iIrrep=0,nIrrep-2
-         Do jIrrep=iIrrep+1,nIrrep-1
-            If (iOper(iIrrep).eq.iOper(jIrrep)) Then
-              Call WarningMessage(2,
-     &                     ' The generators of the point group are'
-     &                   //' over defined, correct input!;'
-     &                   //' Abend: correct symmetry specifications!')
-               Call Quit_OnUserError()
-            End If
-         End Do
-      End Do
-*
-*     Put nIrrep and iOper on the run file to set up iPrmt
-*
-      Call Put_iScalar('NSYM',nIrrep)
-      Call Put_iArray('Symmetry operations',iOper,nIrrep)
-*
-*     Make a dummy call to iPrmt to initiate and avoid I/O recursion if
-*     the function woul be called the first time in an I/O statement.
-*
- 888  Continue
-      iDummy=iPrmt(0,0)
-*                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (Prprt) Then
          Onenly = .True.
          Vlct   = .False.
       End If
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *     Post processing for FAIEMP fragment data
@@ -4296,6 +4203,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
 *     Post processing for Well integrals
 *
@@ -4312,14 +4220,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Wel_Info(1,iWel)=rds+Abs(Wel_Info(1,iWel))
          End If
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Generate labels for cartesian and spherical basis sets.
-*     Generate the transformation matrix for cartesian to sphericals
-*     and contaminants.
-*
-      Call Sphere(iAngMx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4419,15 +4319,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Fix the fock matrix fields in Info while the memory has not
-*     been fixed in size.
-*
-      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(LuRd)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
       If (DKroll.or.NEMO) Call Fill_rInfo1()
@@ -4437,6 +4328,150 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Compute kOffAO and lOffAO
 *
       Call Setup_OffAO()
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---- Generate labels for Cartesian and spherical basis sets.
+*     Generate the transformation matrix for cartesian to sphericals
+*     and contaminants. This has to be done after adding auxiliary or
+*     fragment basis sets.
+*
+      Call Sphere(iAngMx)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*     Set up Symmetry_Info
+*
+      Call Symmetry_Info_Setup(nOper,Oper,Max(iAngMx,3))
+
+* temporary back port while nIrrep is still available in info.fh
+
+      Call Symmetry_Info_Back(nIrrep)
+
+      If (lSkip) then
+         Call Put_Ln(ChSkip)
+         Call Get_I(1,iSkip,nIrrep)
+         Do_GuessOrb=.FALSE.
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*     Generate list of Stabilizers , Stabilizer Index
+*     and distinct cosets
+*
+      mCentr=0
+      mCentr_Aux=0
+      mCentr_Frag=0
+      MaxDCR = nIrrep
+      Do iCnttp = 1, nCnttp
+         nCnt = dbsc(iCnttp)%nCntr
+         Do iCnt = 1, nCnt
+            mdc = iCnt + dbsc(iCnttp)%mdci
+            Mx_mdc = Max(Mx_mdc,mdc)
+            n_dc=max(mdc,n_dc)
+            If (mdc.gt.MxAtom) Then
+               Call WarningMessage(2,' mdc.gt.MxAtom!;'
+     &                      //' Increase MxAtom in info.fh.')
+               Write (LuWr,*) ' MxAtom=',MxAtom
+               Call Abend()
+            End If
+*
+*           The symmetry operators of the fragment's atoms should
+*           always be identical to that of the fragment's
+*           pseudocenter/placeholder
+*
+            If (dbsc(iCnttp)%Frag) Then
+*              Check the FragExpand routine!
+               If (Abs(dbsc(iCnttp)%nFragCoor)>mdc) Then
+                  Write (6,*) 'rdctl_seward: incorrect mdc index'
+                  Call Abend()
+               End If
+               iChxyz = dc(Abs(dbsc(iCnttp)%nFragCoor))%iChCnt
+            Else
+*
+*------------- To assign the character of a center we need to find
+*              the cartesian components that are permutable. We
+*              will only need to loop over the generators of the
+*              group. We will use the three first bits to indicate if
+*              the cartesian component is affected by any symmetry
+*              operation.
+*
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt))
+            End If
+            dc(mdc)%iChCnt = iChxyz
+            Call Stblz(iChxyz,dc(mdc)%nStab,dc(mdc)%iStab,
+     &                 MaxDCR,dc(mdc)%iCoSet)
+*
+*           Perturb the initial geometry if the SHAKE keyword was given,
+*           but maintain the symmetry
+*
+            If ((Shake.gt.Zero).And.
+     &          .Not.(dbsc(iCnttp)%pChrg.Or.
+     &                dbsc(iCnttp)%Frag.Or.
+     &                dbsc(iCnttp)%Aux)) Then
+               jTmp=0
+               Do j=1,dc(mdc)%nStab-1
+                  jTmp=iOr(jTmp,dc(mdc)%iStab(j))
+               End Do
+               nDim=0
+               Do j=0,2
+                  If (iAnd(jTmp,2**j).eq.0) nDim=nDim+1
+               End Do
+               If (nDim.gt.0) Then
+                  Call Random_Vector(nDim,RandVect(1:nDim),.False.)
+                  jDim=0
+                  Do j=0,2
+                     If (iAnd(jTmp,2**j).eq.0) Then
+                        jDim=jDim+1
+                        dbsc(iCnttp)%Coor(j+1,iCnt)=
+     &                      dbsc(iCnttp)%Coor(j+1,iCnt)
+     &                     +Shake*RandVect(jDim)
+                  End If
+                  End Do
+               End If
+            End If
+            If (dbsc(iCnttp)%Frag) Then
+               mCentr_Frag = mCentr_Frag + nIrrep/dc(mdc)%nStab
+            Else If (dbsc(iCnttp)%Aux) Then
+               mCentr_Aux = mCentr_Aux + nIrrep/dc(mdc)%nStab
+            Else
+               mCentr = mCentr + nIrrep/dc(mdc)%nStab
+            End If
+         End Do
+      End Do
+      If (mCentr.gt.MxAtom) Then
+         Call WarningMessage(2,'RdCtl: mCentr.gt.MxAtom')
+         Write (6,*) 'mCentr=',mCentr
+         Write (6,*) 'Edit src/Include/Molcas.fh'
+         Write (6,*) 'Set MxAtom to the value of mCentr.'
+         Write (6,*) 'Recompile MOLCAS and try again!'
+         Call Abend()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((SymmSet.or.nIrrep.gt.1).and.LDKroll) Then
+         Call WarningMessage(2,
+     &      'Local DKH approach is not yet implemented with SYMMETRY')
+         Call Quit_OnUserError()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Call Fix_FockOp(LuRd)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
+         Call WarningMessage(2,
+     &                'Polarizabilities are not compatible'
+     &              //' with symmetry.')
+         Call Quit_OnUserError()
+      EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4462,156 +4497,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Generate the Character table for all Irreps
-*
-*     All Irreps are one dimensional, i.e. the Character for the
-*     unit operator is 1 in all irreps.
-*     The totally symmetric representation will have the character
-*     of 1 for any given operation
-*     Now, the Irreps are due to classes of operations and will
-*     present the character of this class. In case of Abelian groups
-*     or other one dimensional groups the classes will have one
-*     and only one operation. Hence, the operations themselves can
-*     be used to present the character of the Irreps.
-*
-      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Setup characteristics for cartesian basis functions.
-*     Observe that this is affected by the defined generators.
-*     In the array we will set the bit corresponding to a symop
-*     if that symop will alter the sign of the basis function.
-*
-      iSymX = 0
-      iSymY = 0
-      iSymZ = 0
-      Do i = 0, nIrrep-1
-         If (iAnd(iOper(i),1).ne.0) iSymX = 1
-         If (iAnd(iOper(i),2).ne.0) iSymY = 2
-         If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-      End Do
-      iChCar(1) = iSymX
-      iChCar(2) = iSymY
-      iChCar(3) = iSymZ
-      lxyz = 0
-      Do ixyz = 0, Max(iAngMx,1)
-         Do ix = ixyz, 0, -1
-            jx = Mod(ix,2)
-            iyMax=ixyz-ix
-            Do iy = iyMax, 0 , -1
-               jy = Mod(iy,2)
-               lxyz=lxyz+1
-               iz=ixyz-ix-iy
-               jz = Mod(iz,2)
-               jxyz = jx * iSymX + jy * iSymY + jz * iSymZ
-               iChBas(lxyz) = jxyz
-            End Do
-         End Do
-      End Do
-      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate list of Stabilizers , Stabilizer Index
-*     and distinct cosets
-*
-      mCentr=0
-      mCentr_Aux=0
-      mCentr_Frag=0
-      nOper=0
-      If (nIrrep.eq.8) nOper=3
-      If (nIrrep.eq.4) nOper=2
-      If (nIrrep.eq.2) nOper=1
-      MaxDCR = nIrrep
-      Do iCnttp = 1, nCnttp
-         nCnt = dbsc(iCnttp)%nCntr
-         Do iCnt = 1, nCnt
-            mdc = iCnt + dbsc(iCnttp)%mdci
-            Mx_mdc = Max(Mx_mdc,mdc)
-            If (mdc.gt.Mxdc) Then
-               Call WarningMessage(2,' mdc.gt.Mxdc!;'
-     &                      //' Increase Mxdc in info.fh.')
-               Write (LuWr,*) ' Mxdc=',Mxdc
-               Call Abend()
-            End If
-*
-*           The symmetry operators of the fragment's atoms should
-*           always be identical to that of the fragment's
-*           pseudocenter/placeholder
-*
-            If (dbsc(iCnttp)%Frag) Then
-*              Check the FragExpand routine!
-               iChxyz = iChCnt(dbsc(mdc)%nFragCoor)
-            Else
-*
-*------------- To assign the character of a center we need to find
-*              the cartesian components that are permutable. We
-*              will only need to loop over the generators of the
-*              group. We will use the three first bits to indicate if
-*              the cartesian component is affected by any symmetry
-*              operation.
-*
-               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt),
-     &                       iOper,nOper,iChCar)
-            End If
-            iChCnt(mdc) = iChxyz
-            Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
-     &                 MaxDCR,iCoSet(0,0,mdc))
-*
-*           Perturb the initial geometry if the SHAKE keyword was given,
-*           but maintain the symmetry
-*
-            If ((Shake.gt.Zero).And.
-     &          .Not.(dbsc(iCnttp)%pChrg.Or.
-     &                dbsc(iCnttp)%Frag.Or.
-     &                dbsc(iCnttp)%Aux)) Then
-               jTmp=0
-               Do j=1,nStab(mdc)-1
-                  jTmp=iOr(jTmp,jStab(j,mdc))
-               End Do
-               nDim=0
-               Do j=0,2
-                  If (iAnd(jTmp,2**j).eq.0) nDim=nDim+1
-               End Do
-               If (nDim.gt.0) Then
-                  Call Random_Vector(nDim,RandVect(1:nDim),.False.)
-                  jDim=0
-                  Do j=0,2
-                     If (iAnd(jTmp,2**j).eq.0) Then
-                        jDim=jDim+1
-                        dbsc(iCnttp)%Coor(j+1,iCnt)=
-     &                      dbsc(iCnttp)%Coor(j+1,iCnt)
-     &                     +Shake*RandVect(jDim)
-                  End If
-                  End Do
-               End If
-            End If
-            If (dbsc(iCnttp)%Frag) Then
-               mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
-            Else If (dbsc(iCnttp)%Aux) Then
-               mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)
-            Else
-               mCentr = mCentr + nIrrep/nStab(mdc)
-            End If
-         End Do
-      End Do
-      If (mCentr.gt.MxAtom) Then
-         Call WarningMessage(2,'RdCtl: mCentr.gt.MxAtom')
-         Write (6,*) 'mCentr=',mCentr
-         Write (6,*) 'Edit src/Include/Molcas.fh'
-         Write (6,*) 'Set MxAtom to the value of mCentr.'
-         Write (6,*) 'Recompile MOLCAS and try again!'
-         Call Abend()
-      End If
-C     Mx_mdc=mdc
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Process the weights used for alignment and distance measurement
 *
       Call Process_Weights(iPrint)
-*                                                                      *
+*
 ************************************************************************
 *                                                                      *
 *     Set structures for TS optimization according to the Saddle
@@ -4700,6 +4589,16 @@ C     Mx_mdc=mdc
 ************************************************************************
 *                                                                      *
       Call mma_deallocate(Buffer)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Datimx(KWord)
+      Header(1)=Title(1)(5:76)
+      Write (Header(2),'(4A)')
+     &          ' Integrals generated by ',
+     &            Vrsn,', ',KWord(1:24)
+      Call Put_cArray('Seward Title',Header(1),144)
+      If (nTtl>0) Call Put_cArray('SewardXTitle',Title(1),nTtl*80)
 *                                                                      *
 ************************************************************************
 *                                                                      *

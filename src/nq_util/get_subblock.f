@@ -41,6 +41,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
 ************************************************************************
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -197,15 +198,15 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          iShll =iSD( 0,iShell)
          NrBas =iSD( 3,iShell)
          mdci  =iSD(10,iShell)
-         nDegi=nSym/nStab(mdci)
+         nDegi=nSym/dc(mdci)%nStab
 *
          Do jSym = 0, nDegi-1
-            iSym=iCoSet(jSym,0,mdci)
+            iSym=dc(mdci)%iCoSet(jSym,0)
 #ifdef _DEBUG_
             If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif
 *
-            iNQ=Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ=Maps2p(iShell,NrOpr(iSym))
             RMax_NQ = Work(ip_R_Max(iNQ))
 #ifdef _DEBUG_
             If (debug) Then
@@ -377,7 +378,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
             iShell=list_s(1,ilist_s)
             iSym  =list_s(2,ilist_s)
             mdci  =iSD(10,iShell)
-            iNQ = Maps2p(iShell,NrOpr(iSym,iOper,nSym))
+            iNQ = Maps2p(iShell,NrOpr(iSym))
             Do iCar=0,2
                If ((iSD(16+iCar,iShell).ne.0 .or.
      &              iSD(12,iShell).eq.1) .and.
@@ -401,9 +402,9 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                   Xref=Work(ip_Coor(kNQ)+iCar)
                   X   =Work(ip_Coor(iNQ)+iCar)
                   If (X.eq.Xref) Then
-                     iTab(4,nGrad_Eff)=nStab(mdci)
+                     iTab(4,nGrad_Eff)=dc(mdci)%nStab
                   Else
-                     iTab(4,nGrad_Eff)=-nStab(mdci)
+                     iTab(4,nGrad_Eff)=-dc(mdci)%nStab
                   End If
 *
 *---------------- Find all other shells which contibute to the same
@@ -432,7 +433,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        List_G(1+iCar,ilist_s)=nGrad_Eff
                        iTab(1,nGrad_Eff)=iCar+1
                        iTab(3,nGrad_Eff)=iNQ
-                       iTab(4,nGrad_Eff)=nStab(mdci)
+                       iTab(4,nGrad_Eff)=dc(mdci)%nStab
 *
 *--------------------- Find all other shells which contibute to the same
 *                      gradient.
@@ -440,7 +441,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        Do jlist_s = ilist_s+1, nlist_s
                           jShell=list_s(1,jlist_s)
                           jSym  =list_s(2,jlist_s)
-                          jNQ = Maps2p(jShell,NrOpr(jSym,iOper,nSym))
+                          jNQ = Maps2p(jShell,NrOpr(jSym))
                           If (iNQ.eq.jNQ) Then
                              List_G(1+iCar,jlist_s)=nGrad_Eff
                           End If

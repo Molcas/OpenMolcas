@@ -75,7 +75,6 @@
       Integer iTOffs(8,8,8)
       Logical Debug
       Character*72 SLine
-      Dimension Ind(1,1,2)
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
 *
@@ -103,7 +102,6 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nInd=1
       Nr_Dens=1
       DoIntegrals=.False.
       NoExch=ExFac.eq.Zero
@@ -270,7 +268,7 @@ c       iPrint=200
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                   Ind,nInd,[NoCoul],[NoExch],
+     &                   [NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 

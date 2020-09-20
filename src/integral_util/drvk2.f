@@ -42,6 +42,7 @@
       use iSD_data
       use k2_arrays
       use Basis_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
@@ -49,7 +50,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -278,7 +278,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
 *
 *           Find the Double Coset Representatives for center A and B.
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
 *
 *           Compute all pair entities (zeta, kappa, P, and [nm|nm],

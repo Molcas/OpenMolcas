@@ -11,7 +11,7 @@
 * Copyright (C) 1993,1998, Roland Lindh                                *
 ************************************************************************
       Subroutine FckAcc(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, IndShl, kOp, nijkl,
+     &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  Dij,ij1,ij2,ij3,ij4,
@@ -59,6 +59,9 @@
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
       use Basis_Info
+      use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: iOper, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -85,7 +88,7 @@
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4), iCmpa(4), IndShl(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
 *     Local Arrays
       Integer iSym(4)
       Real*8 Prmt(0:7)
@@ -192,14 +195,22 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndShl(1)+i1)
+         ix = 0
+         Do j = 0, nIrrep-1
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = iEor(ix,2**j)
+         End Do
+         iSym(1)=ix
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndShl(2)+i2)
+            ix = 0
+            Do j = 0, nIrrep-1
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = iEor(ix,2**j)
+            End Do
+            iSym(2)=ix
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
@@ -209,7 +220,11 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndShl(3)+i3)
+               ix = 0
+               Do j = 0, nIrrep-1
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = iEor(ix,2**j)
+               End Do
+               iSym(3)=ix
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
@@ -217,7 +232,11 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndShl(4)+i4)
+                  ix = 0
+                  Do j = 0, nIrrep-1
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = iEor(ix,2**j)
+                  End Do
+                  iSym(4)=ix
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))
@@ -538,40 +557,40 @@ C                 Write (*,*) 'iOpt=',iOpt
       If (lFij)
      &Call FckDst(TwoHam,nDens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),
      &            kOp2(1),kOp2(2),iIrrep,
-     &            IndShl(1),IndShl(2),iShij,
+     &            iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
      &            Fact)
 *
       If (lFkl)
      &Call FckDst(TwoHam,nDens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),
      &            kOp2(3),kOp2(4),iIrrep,
-     &            IndShl(3),IndShl(4),iShkl,
+     &            iShkl,
      &            iAO(3),iAO(4),iAOst(3),iAOst(4),
      &            Fact)
 *
       If (lFik)
      &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
-     &            IndShl(1),IndShl(3),iShik,
+     &            iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
      &            Fact)
 *
       If (lFjl)
      &Call FckDst(TwoHam,nDens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),
      &            kOp2(2),kOp2(4),iIrrep,
-     &            IndShl(2),IndShl(4),iShjl,
+     &            iShjl,
      &            iAO(2),iAO(4),iAOst(2),iAOst(4),
      &            Fact)
       If (lFil)
      &Call FckDst(TwoHam,nDens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),
      &            kOp2(1),kOp2(4),iIrrep,
-     &            IndShl(1),IndShl(4),iShil,
+     &            iShil,
      &            iAO(1),iAO(4),iAOst(1),iAOst(4),
      &            Fact)
       If (lFjk)
      &Call FckDst(TwoHam,nDens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),
      &            kOp2(2),kOp2(3),iIrrep,
-     &            IndShl(2),IndShl(3),iShjk,
+     &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 *

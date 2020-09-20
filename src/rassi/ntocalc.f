@@ -632,7 +632,7 @@ C Recording Printed NTO (PCMO)
      & 'MD_NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
-      CALL Molden_interface(0,trim(FILENAME),trim(molden_name),.false.)
+      CALL Molden_interface(0,trim(FILENAME),trim(molden_name))
 
       deallocate(PCMO)
       RETURN

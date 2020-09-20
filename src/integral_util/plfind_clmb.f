@@ -31,6 +31,7 @@
 *          august '95                                                  *
 ************************************************************************
       use index_arrays, only: iShOff, nShBF
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"

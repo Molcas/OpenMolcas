@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Set_Fake_ERIs
-
+      use Basis_Info, only: nBas
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

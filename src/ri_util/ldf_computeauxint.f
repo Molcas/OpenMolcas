@@ -276,6 +276,7 @@ C     Purpose: sort the integrals of auxiliary functions.
 C
 C     NOTE: symmetry not implemented!
 C
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (a-h,o-z)
       Integer jBas
       Integer jCmp
@@ -526,6 +527,7 @@ C     Purpose: sort the integrals of 2C auxiliary functions.
 C
 C     NOTE: symmetry not implemented!
 C
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (a-h,o-z)
       Integer iBas, jBas
       Real*8  SOInt(iBas*jBas,*)

@@ -42,6 +42,7 @@
       use k2_arrays
       use iSD_data
       use Basis_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -115,7 +116,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -133,7 +133,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -206,7 +205,7 @@
 *-----------Find the Double Coset Representatives
 *           for center A and B.
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
 *
 *---------- Compute all pair entities (zeta, kappa, Px, Py,
@@ -242,7 +241,7 @@
      &                + (iBas*jBas+1)*iCmp*jCmp
             End If
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.gt.0) mDeDe = mDeDe + iDeSiz*nDCRR
 
             jpk2 = 1 + nk2

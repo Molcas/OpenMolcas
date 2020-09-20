@@ -68,7 +68,7 @@
 #endif
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
-      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4), IndShlV(4),
+      Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
       Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD,
@@ -296,7 +296,7 @@
          Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,iPrint)
+*    &               Grad,lDisp(0),ChDisp,iPrint)
          call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
@@ -348,10 +348,10 @@ C        End If
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
-         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs,IndShlV)
+         Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
 *
 *                                                                      *
 ************************************************************************
@@ -444,7 +444,7 @@ C        End If
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,IndShlV,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -463,7 +463,7 @@ C        End If
            Call CWTIME(TwoelCPU1,TwoelWall1)
 #endif
            Call TwoEl_g(Coor,
-     &          iAnga,iCmpa,iShela,iShlla,IndShlV,iAOV,
+     &          iAnga,iCmpa,iShela,iShlla,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
      &          Data_k2(k2ij),nab,nHmab,nDCRR,
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
@@ -486,7 +486,7 @@ C        End If
 #endif
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_2Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue

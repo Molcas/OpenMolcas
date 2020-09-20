@@ -57,13 +57,13 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -121,7 +121,6 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -135,7 +134,6 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -143,14 +141,13 @@ C        Do jS = 1, iS
             B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),nStab(mdci),
-     &                                  jStab(0,mdcj),nStab(mdcj),
-     &                                                iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
@@ -204,8 +201,8 @@ C        Do jS = 1, iS
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                             iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order
@@ -219,7 +216,7 @@ C        Do jS = 1, iS
 *
             Call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  iCmp,jCmp,iShell,jShell,
      &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
@@ -255,14 +252,12 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 c VV: gcc bug: one has to use this if!
           if(nDCRR.ge.1) then
             Do 140 lDCRR = 0, nDCRR-1
-               RB(1)  = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-               RB(2)  = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-               RB(3)  = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               Call OA(iDCRR(lDCRR),B,RB)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
                If (EQ(A,RB).and. .Not.DiffOp) Go To 140
                If (.Not.DiffOp) Then
 *--------------Use the translational invariance to reduce the set of
@@ -285,13 +280,12 @@ c VV: gcc bug: one has to use this if!
                   llOper = iOr(llOper,lOper(iComp))
                End Do
                Call SOS(iStabO,nStabO,llOper)
-               Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &                  iDCRT,nDCRT)
+               Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                   FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -311,7 +305,7 @@ c VV: gcc bug: one has to use this if!
 *
                Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     IndShl,JndShl,Work(ipDAO),iPrim,jPrim,
+     &                     iAO,jAO,Work(ipDAO),iPrim,jPrim,
      &                     Work(ipDSOp),nSO,nOp,FactNd)
 *
 *--------------Project the spherical harmonic space onto the
@@ -358,7 +352,7 @@ c VV: gcc bug: one has to use this if!
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM)
                If (iPrint.ge.49) Call PrGrad_mck(' In Oneel',
-     &             Grad,nGrad,lIrrep,ChDisp,5)
+     &             Grad,nGrad,ChDisp,5)
 *
  140        Continue
           endif
@@ -380,7 +374,7 @@ C     End Do
       Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
       Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
 *
-      If (iPrint.ge.15)Call PrGrad_mck(Label,Grad,nGrad,lIrrep,ChDisp,5)
+      If (iPrint.ge.15)Call PrGrad_mck(Label,Grad,nGrad,ChDisp,5)
 *
       Return
       End

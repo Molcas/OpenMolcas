@@ -29,6 +29,7 @@
 *     Author: Anders Bernhardsson Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use Symmetry_Info, only: iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -214,8 +215,8 @@ c                      iMax=Max(iCar,jCar)
 *              Sign due to which symmetry group the translation is in
 *
 *----------------------------------------------------------------------*
-               iCh1=ichbas(iCar+1)
-               iCh2=ichbas(jCar+1)
+               iCh1=iChBas(iCar+1)
+               iCh2=iChBas(jCar+1)
                ps = ps*xPrmt(kOp(iCn),iCh1)*xPrmt(kOp(jCn),iCh2)
 *----------------------------------------------------------------------*
 *

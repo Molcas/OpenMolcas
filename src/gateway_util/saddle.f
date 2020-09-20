@@ -27,6 +27,7 @@
 *             January 2009                                             *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use external_centers
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -129,7 +130,11 @@
                   If (.Not.
      &                (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &               ) Then
-                     iStab(iAt)=jStab(1,nsc)
+                     jTmp=0
+                     Do j = 1, dc(nsc)%nStab-1
+                        jTmp=iOr(jTmp,dc(nsc)%iStab(j))
+                     End Do
+                     iStab(iAt)=jTmp
                      iAt=iAt+1
                   End If
                End Do
@@ -167,10 +172,8 @@
             Call mma_Allocate(XYZ,3*nAt*8,2,label='XYZ')
             iReac=1
             iProd=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iReac),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iProd),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iReac),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iProd),mAt)
             Call Qpg_dArray('Weights',Found,nData)
             If (Found.And.(nData.ge.mAt)) Then
               Call mma_allocate(W,nData,label='W')
@@ -209,7 +212,7 @@
      &                          dbsc(iCnttp)%Aux)) Then
                         iAt=iAt+1
                         Elm(iAt)=PTab(dbsc(iCnttp)%AtmNr)
-                        Do i=1,nIrrep/nStab(ndc)-1
+                        Do i=1,nIrrep/dc(ndc)%nStab-1
                           iAtSym=iAtSym+1
                           Elm(iAtSym)=Elm(iAt)
                         End Do
@@ -270,7 +273,11 @@
                If (.Not.
      &             (dbsc(i)%pChrg.Or.dbsc(i)%Frag.Or.dbsc(i)%Aux)
      &            ) Then
-                  iStab(iAt)=jStab(1,nsc)
+                  jTmp=0
+                  Do j = 1, dc(nsc)%nStab-1
+                     jTmp=iOr(jTmp,dc(nsc)%iStab(j))
+                  End Do
+                  iStab(iAt)=jTmp
                   iAt=iAt+1
                End If
             End Do
@@ -279,10 +286,8 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRA1=1
          iRA2=2
-         Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,nIrrep,
-     &                    iOper)
-         Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,nIrrep,
-     &                    iOper)
+         Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+         Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
          Call Qpg_dArray('Weights',Found,nData)
          If (Found.And.(nData.ge.mAt)) Then
            Call mma_allocate(W,nData,label='W')
@@ -389,14 +394,12 @@
                   iXA1=2
                   iXA2=3
                   iXA3=4
-                  Call Expand_Coor(MEP(1,iX0),nAt,XYZ(1,iXA0),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(MEP(1,iX1),nAt,XYZ(1,iXA1),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(RP_Centers(1,1,ipX2),nAt,XYZ(1,iXA2),
-     &                             mAt,nIrrep,iOper)
-                  Call Expand_Coor(RP_Centers(1,1,ipX3),nAt,XYZ(1,iXA3),
-     &                             mAt,nIrrep,iOper)
+                  Call Expand_Coor(MEP(1,iX0),nAt,XYZ(1,iXA0),mAt)
+                  Call Expand_Coor(MEP(1,iX1),nAt,XYZ(1,iXA1),mAt)
+                  Call Expand_Coor(RP_Centers(1,1,ipX2),nAt,
+     &                             XYZ(1,iXA2),mAt)
+                  Call Expand_Coor(RP_Centers(1,1,ipX3),nAt,
+     &                             XYZ(1,iXA3),mAt)
                   If (Invar) Then
                     Call Superpose_w(XYZ(1,iXA0),XYZ(1,iXA2),W,
      &                               mAt,RMSD,RMax)
@@ -574,10 +577,9 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRefAlign=1
          iOptExp  =2
-         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,XYZ(1,iRefAlign),
-     &                    mAt,nIrrep,iOper)
-         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),
-     &                    mAt,nIrrep,iOper)
+         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,
+     &                    XYZ(1,iRefAlign),mAt)
+         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),mAt)
          If (Invar) Then
            Call Superpose_w(XYZ(1,iRefAlign),XYZ(1,iOptExp),W,
      &                      mAt,RMSD,RMax)
@@ -655,10 +657,8 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
             If (Mode.eq.'R') Then
               If (Invar) Then
                 Call Superpose_w(XYZ(1,iRA2),XYZ(1,iRA1),W,mAt,
@@ -701,10 +701,8 @@
             Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
             iRA1=1
             iRA2=2
-            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt,
-     &                       nIrrep,iOper)
-            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt,
-     &                       nIrrep,iOper)
+            Call Expand_Coor(RP_Centers(1,1,1),nAt,XYZ(1,iRA1),mAt)
+            Call Expand_Coor(RP_Centers(1,1,2),nAt,XYZ(1,iRA2),mAt)
             If (Invar) Then
               If (Mode.eq.'R') Then
                 Call Superpose_w(XYZ(1,iRA2),XYZ(1,iRA1),W,mAt,
@@ -794,7 +792,7 @@
      &       .Not.dbsc(iCnttp)%Aux) Then
              Do iCnt = 1, dbsc(iCnttp)%nCntr
                 iAt = iAt + 1
-                Fact=DBLE(iDeg(A(1,iAt),iOper,nIrrep))
+                Fact=DBLE(iDeg(A(1,iAt)))
                 xMass=Fact*W(iAt)
                 TMass=TMass+xMass
                 Do i = 1, 3
@@ -812,6 +810,7 @@
 ************************************************************************
       subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
@@ -844,7 +843,11 @@
             If (.Not.(dbsc(i)%pChrg.Or.
      &                dbsc(i)%Frag .Or.
      &                dbsc(i)%Aux)) Then
-               iStab(iAt)=jStab(1,nsc)
+               jTmp=0
+               Do j = 1, dc(nsc)%nStab-1
+                  jTmp=iOr(jTmp,dc(nsc)%iStab(j))
+               End Do
+               iStab(iAt)=jTmp
                iAt=iAt+1
             End If
          End Do
@@ -855,8 +858,8 @@
       Call mma_allocate(XYZ,3*nAt*8,2)
       iReacA=1
       iProdA=2
-      Call Expand_Coor(Reac,nAt,XYZ(1,iReacA),mAt,nIrrep,iOper)
-      Call Expand_Coor(Prod,nAt,XYZ(1,iProdA),mAt,nIrrep,iOper)
+      Call Expand_Coor(Reac,nAt,XYZ(1,iReacA),mAt)
+      Call Expand_Coor(Prod,nAt,XYZ(1,iProdA),mAt)
       Call Qpg_dArray('Weights',Found,nData)
       If (Found.And.(nData.ge.mAt)) Then
         Call mma_allocate(W,nData,label='W')

@@ -10,11 +10,13 @@
 ************************************************************************
       Subroutine Print_Basis2()
       use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
 #include "print.fh"
       Logical output
+      Logical lAux, lPam2, lECP, lPP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -22,6 +24,16 @@
       iPrint=nPrint(iRout)
 *
       LuWr=6
+      lAux =.False.
+      lPam2=.False.
+      lECP =.False.
+      lPP  =.False.
+      Do i = 1, nCnttp
+         lAux  = lAux  .or. dbsc(i)%Aux
+         lPAM2 = lPAM2 .or. dbsc(i)%lPAM2
+         lECP  = lECP  .or. dbsc(i)%ECP
+         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -70,10 +82,10 @@
 *        Loop over distinct centers
          Do icnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            if (mdc.gt.mxdc) then
-               Call WarningMessage(2,'mxdc too small')
-               write(LuWr,*) 'mxdc=',mxdc
-               write(LuWr,*) 'Increase mxdc in info.fh and',
+            if (mdc.gt.MxAtom) then
+               Call WarningMessage(2,'MxAtom too small')
+               write(LuWr,*) 'MxAtom=',MxAtom
+               write(LuWr,*) 'Increase MxAtom in info.fh and',
      &                       ' recompile the code!'
                Call Abend()
             end if
@@ -117,19 +129,19 @@
                If (nBasisj.ne.0 ) Then
                   If (Shells(jSh)%Aux) Then
                      iPrim_Aux = iPrim_Aux + nExpj   * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                      iBas_Aux  = iBas_Aux  + nBasisj * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else If (Shells(jSh)%Frag) Then
                      iPrim_Frag = iPrim_Frag + nExpj   * kCmp
-     &                          * nIrrep/nStab(mdc)
+     &                          * nIrrep/dc(mdc)%nStab
                      iBas_Frag = iBas_Frag  + nBasisj * kCmp
-     &                         * nIrrep/nStab(mdc)
+     &                         * nIrrep/dc(mdc)%nStab
                   Else
                      iPrim = iPrim + nExpj   * kCmp
-     &                      * nIrrep/nStab(mdc)
+     &                      * nIrrep/dc(mdc)%nStab
                      iBas  = iBas  + nBasisj * kCmp
-     &                     * nIrrep/nStab(mdc)
+     &                     * nIrrep/dc(mdc)%nStab
                   End If
                End If
                jSh = jSh + 1

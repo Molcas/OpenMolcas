@@ -95,14 +95,6 @@
          DECO  =.true.
          DensityCheck=.false.
          timings=.false.
-
-*                                                                      *
-************************************************************************
-*     Define Blank lines                                               *
-*
-      Do i = 1, 80
-         BLine(i:i) = ' '
-      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -123,7 +115,7 @@
 *-------------------------------------------------------------------*
 
       If (KWord(1:1).eq.'*')    Go To 1000
-      If (KWord.eq.BLine)       Go To 1000
+      If (KWord.eq.'')       Go To 1000
       If (KWord(1:4).eq.'ALGO') Go To 900
       If (KWord(1:4).eq.'IALG') Go To 950
       If (KWord(1:4).eq.'REOR') Go To 800

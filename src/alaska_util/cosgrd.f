@@ -11,11 +11,10 @@
 * Copyright (C) 1995,2001, Roland Lindh                                *
 *               2003, Michael Diedenhofen                              *
 ************************************************************************
-      SubRoutine COSGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine COSGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of electronic COSMO cont. *
@@ -41,6 +40,7 @@
 *             R. Lindh.                                                *
 ************************************************************************
       use PCM_arrays, only: PCM_SQ, PCMTess
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "itmax.fh"
@@ -51,17 +51,10 @@
 #include "disp.fh"
 #include "rctfld.fh"
 
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
-*
-*-----Local arrys
-*
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
       Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
       Logical NoLoop, JfGrad(3,4)
       Integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
@@ -75,6 +68,8 @@
       iRout = 151
       iPrint = nPrint(iRout)
       Call qEnter('COSgrd')
+*
+      nRys=nHer
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -115,8 +110,8 @@
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -154,8 +149,7 @@
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -224,11 +218,9 @@ c             skip 2 center
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)

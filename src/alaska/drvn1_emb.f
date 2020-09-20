@@ -21,6 +21,7 @@
 * Author : F. Aquilante, Geneva, Nov 2010                              *
 ************************************************************************
       Use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "print.fh"
@@ -114,17 +115,15 @@
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     jStab(0,mdc+iCnt),nStab(mdc+iCnt),
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,
+     &                     dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
-                     nOp = NrOpr(iDCRR(iR),iOper,nIrrep)
+                     Call OA(iDCRR(iR),B,RB)
+                     nOp = NrOpr(iDCRR(iR))
                      If (EQ(A,RB)) Go To 301
                      r12 = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
@@ -188,14 +187,12 @@
 *
                      If (.Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = IndDsp(mdc+iCnt,iIrrep)
-                     igu=nIrrep/nStab(mdc+iCnt)
+                     igu=nIrrep/dc(mdc+iCnt)%nStab
                      Do iCar = 0, 2
                         dr_dA=(A(iCar+1)-RB(iCar+1))/r12
                         iComp = 2**iCar
-                        If ( TstFnc(iOper,nIrrep,
-     &                     iCoSet(0,0,mdc+iCnt),
-     &                     nIrrep/nStab(mdc+iCnt),iChTbl,iIrrep,
-     &                     iComp,nStab(mdc+iCnt)) ) Then
+                        If ( TstFnc(dc(mdc+iCnt)%iCoSet,
+     &                     iIrrep,iComp,dc(mdc+iCnt)%nStab) ) Then
                            nDisp = nDisp + 1
                            If (Direct(nDisp)) Then
                               Temp(nDisp) = Temp(nDisp) +
@@ -217,7 +214,7 @@
       End Do
       If (iPrint.ge.15) Then
          Lab=' OFE Nuclear Repulsion Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call GetMem('B-Charges','Free','Real',ip_ChargeB,nCnttp)

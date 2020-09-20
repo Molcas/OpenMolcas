@@ -35,11 +35,6 @@
       dmpK_default = dmpK
       nScreen = 10
 *
-*     Define Blank lines
-*
-      Do i = 1, 80
-         BLine(i:i) = ' '
-      End Do
       iPrint=5
 
 *     Process the input
@@ -48,7 +43,7 @@
       Kword=Key
       Call UpCase(Kword)
       If(KWord(1:1).eq.'*')    Go To 1000
-      If(KWord(1:4).eq.Bline)  Go To 1000
+      If(KWord(1:4).eq.'')  Go To 1000
       If(KWord(1:4).eq.'DMPK') Go To 100
       If(KWord(1:4).eq.'SCRN') Go To 110
       If(KWord(1:4).eq.'TIMI') Go To 120

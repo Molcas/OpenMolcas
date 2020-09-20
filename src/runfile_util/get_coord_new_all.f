@@ -24,7 +24,6 @@
 ************************************************************************
       Subroutine Get_Coord_New_All(Coord_All,nAtoms_All)
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coord_All(3,nAtoms_All)
       Real*8, Dimension (:,:), Allocatable :: CU

@@ -34,6 +34,7 @@
       use aces_stuff
       use pso_stuff
       use index_arrays, only: iSO2Sh
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

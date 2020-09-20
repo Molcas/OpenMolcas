@@ -390,8 +390,7 @@ C           Call Free_Work(ip_EVec)
 
       Call Free_Work(iScratch_New)
       Call Free_Work(iScratch_Org)
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *
 *------ Print warning if non-ANO basis sets have been used
 *

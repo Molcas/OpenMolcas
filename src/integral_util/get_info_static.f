@@ -28,6 +28,7 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
+      use Symmetry_Info, only: Symmetry_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -36,26 +37,21 @@
 #include "RelLight.fh"
       Integer iix(2)
       Real*8 rix(2)
-      Integer, Allocatable:: AS(:,:)
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Return
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Use Iso_C_Binding
-      Integer, Target :: cxStrt,ixStrt,lxStrt
+      Integer, Target :: ixStrt,lxStrt
       Real*8, Target :: rxStrt
-      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
+      Integer, Pointer :: p_ix(:),p_lx(:)
       Real*8, Pointer :: p_rx(:)
-*
-*     Prologue
-*
-*     Call qEnter('GetInfo')
 *
 *     Load the common INFO
 *
@@ -63,20 +59,6 @@
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
-
-      Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
-      Call ICopy(MxUnq,[1],0,IrrCmp,1)
-      Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
-*
-*     And some in iAOtSO
-*
-      Call mma_allocate(AS,8,Mx_AO,Label='AS')
-      Call Get_iArray('iAOtSO',AS,8*Mx_AO)
-      Do i = 1, Mx_AO
-         Call ICopy(8,AS(1,i),1,iAOtSO(i,0),MxAO)
-      End Do
-      Call mma_deallocate(AS)
 *
       iRELAE=iRELAE_Info
 *
@@ -95,18 +77,10 @@
       Call Get_dArray('SewRInfo',p_rx,Len)
       CLightAU=CLight_Info
 *
-*     Load the common CINFO
+      Nullify(p_ix,p_lx,p_rx)
 *
-      Len = icLoc(cxEnd)-icLoc(cxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
-      Call Get_iArray('SewCInfo',p_cx,Len)
+      Call Symmetry_Info_Get()
 *
-      Nullify(p_ix,p_lx,p_rx,p_cx)
-*
-*     Epilogue, end
-*
-*     Call qExit('GetInfo')
       Return
       End SubRoutine Get_Info_Static_Internal
 *

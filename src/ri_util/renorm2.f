@@ -36,6 +36,7 @@
 *             Songjiang District, Shanghai, China, 23-27 Sept. 2008.   *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, nSOInf
       use Real_Spherical
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
@@ -110,17 +111,18 @@
             nCmp = (iAng+1)*(iAng+2)/2
             If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
-            nExpi=Shells(iShll_)%nExp
-            If (Shells(iShll_)%nBasis_C.ne.0 .and.
-     &          nExpi.ne.0) Then
-               Do iCmp = 1, nCmp
-                  iAO = iAO + 1
-                  iAOtSO(iAO,0) = iSO + 1
-                  Do iCont = 1, Shells(iShll_)%nBasis
-                     iSO = iSO + 1
-                  End Do
-               End Do
-            End If
+            If (Shells(iShll_)%nBasis_C*Shells(iShll_)%nExp==0) Cycle
+            Do iCmp = 1, nCmp
+               iAO = iAO + 1
+               If (iAO>nSOInf) Then
+                  Write (6,*) 'renorm2_internal: iAO>nSOInf'
+                  Write (6,*) 'iAO=',iAO
+                  Write (6,*) 'nSOInf=',nSOInf
+                  Call Abend()
+               End If
+               iAOtSO(iAO,0) = iSO + 1
+               iSO = iSO + Shells(iShll_)%nBasis
+            End Do
             nSO=nSO+iSO
          End Do
 *

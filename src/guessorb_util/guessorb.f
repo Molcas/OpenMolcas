@@ -65,7 +65,7 @@
 *----------------------------------------------------------------------*
       iUHF=0
       If (iRC.eq.0) then
-        Call Molden_Interface(iUHF,'GSSORB','MD_GSS',.False.)
+        Call Molden_Interface(iUHF,'GSSORB','MD_GSS')
 c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
       End If
 *----------------------------------------------------------------------*

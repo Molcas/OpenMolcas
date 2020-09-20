@@ -57,13 +57,14 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "lundio.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -78,9 +79,8 @@
 *     Statement functions
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *
@@ -117,7 +117,6 @@ C     Do iS = 1, nSkal
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         IndShl = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
@@ -131,7 +130,6 @@ C        Do jS = 1, iS
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            JndShl = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
@@ -172,15 +170,14 @@ C        Do jS = 1, iS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,
-     &               jStab(0,mdci),nStab(mdci),
-     &               jStab(0,mdcj),nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (.Not.DiffOp .and. nDCRR.eq.1 .and. EQ(A,B)) Go To 131
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet
@@ -218,7 +215,7 @@ C        Do jS = 1, iS
 *           pair.
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,IndShl,JndShl)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
             Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
             Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
@@ -229,7 +226,7 @@ C        Do jS = 1, iS
 *
             Call SOGthr(Work(ipDSO),iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,IndShl,JndShl,
+     &                  iCmp,jCmp,iShell,jShell,
      &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
@@ -256,25 +253,22 @@ C        Do jS = 1, iS
 *
 *           Loops over symmetry operations.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
             if(jBas.lt.-999999) write(6,*) 'gcc overoptimization',nDCRR
             Do 140 lDCRR = 0, nDCRR-1
-               RB(1)  = iPhase(1,iDCRR(lDCRR))*B(1)
-               RB(2)  = iPhase(2,iDCRR(lDCRR))*B(2)
-               RB(3)  = iPhase(3,iDCRR(lDCRR))*B(3)
-               nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+               Call OA(iDCRR(lDCRR),B,RB)
+               nOp(2) = NrOpr(iDCRR(lDCRR))
                If (EQ(A,RB).and. (.Not.DiffOp)) Go To 140
 *
 *
                lloper=1
                Call SOS(iStabO,nStabO,llOper)
-               Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &                  iDCRT,nDCRT)
+               Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
 *--------------Compute normalization factor due the DCR symmetrization
 *              of the two basis functions and the operator.
 *
-               iuv = nStab(mdci)*nStab(mdcj)
+               iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2 * LmbdT)
                If (MolWgh.eq.1) Then
                   FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -288,7 +282,7 @@ C        Do jS = 1, iS
 *
                Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                     iShell,jShell,iShll,jShll,
-     &                     IndShl,JndShl,Work(ipDAO),iPrim,jPrim,
+     &                     iAO,jAO,Work(ipDAO),iPrim,jPrim,
      &                     Work(ipDSOp),nSO,nOp,FactNd)
 *
 *--------------Project the spherical harmonic space onto the

@@ -13,7 +13,7 @@
       SubRoutine ClrBuf(idcrr,idcrs,idcrt,ngr,
      &                  istb,jstb,kstb,lstb,
      &                  Shijij,iAnga,iCmp,iCmpa,
-     &                  iShll,iShell,jShell,IndShl,
+     &                  iShll,iShell,jShell,
      &                  iBasi,jBasj,kBask,lBasl,
      &                  Dij1,Dij2,mDij,nDij,
      &                  Dkl1,Dkl2,mDkl,nDkl,
@@ -53,7 +53,7 @@
 #include "cputime.fh"
 *
       Integer iAnga(4), iShll(4),iShell(4),jShell(4),
-     &        jOp(6), iCmp(4),icmpa(4),IndShl(4),
+     &        jOp(6), iCmp(4),icmpa(4),
      &        nop(4),Index(3,4),iuvwx(4),
      &        moip(0:nIrrep-1),
      &        IndGrd(3,4,0:nIrrep-1),iAO(4),iAOst(4)
@@ -176,7 +176,7 @@
             If (.not.new_fock) Then
             Call MkFck(iAnga,iCmpa,iCmp,
      &                 Shijij,
-     &                 iShll,iShell,IndShl,
+     &                 iShll,iShell,
      &                 iBasi,jBasj,kBask,lBasl,
      &                 iAO,iAOst,nop,jop,
      &                 Dij1,mDij,nDij,ij1,ij2,ij3,ij4,
@@ -194,7 +194,7 @@
             If (nMethod.eq.RASSCF)
      &      Call MkFck(iAnga,iCmpa,iCmp,
      &                 Shijij,
-     &                 iShll,iShell,IndShl,
+     &                 iShll,iShell,
      &                 iBasi,jBasj,kBask,lBasl,
      &                 iAO,iAOst,nop,jop,
      &                 Dij2,mDij,nDij,ij1,ij2,ij3,ij4,
@@ -242,7 +242,7 @@
            if (.not.new_fock) Then
            Call MkFck(iAnga,iCmpa,iCmp,
      &                Shijij,
-     &                iShll,iShell,IndShl,
+     &                iShll,iShell,
      &                iBasi,jBasj,kBask,lBasl,
      &                iAO,iAOst,nop,jop,
      &                Dij1,mDij,nDij,ij1,ij2,ij3,ij4,
@@ -260,7 +260,7 @@
            If (nMethod.eq.RASSCF)
      &     Call MkFck(iAnga,iCmpa,iCmp,
      &                Shijij,
-     &                iShll,iShell,IndShl,
+     &                iShll,iShell,
      &                iBasi,jBasj,kBask,lBasl,
      &                iAO,iAOst,nop,jop,
      &                Dij2,mDij,nDij,ij1,ij2,ij3,ij4,

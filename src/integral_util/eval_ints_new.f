@@ -13,7 +13,7 @@
       Subroutine Eval_Ints_New(iiS,jjS,kkS,llS,TInt,nTInt,
      &                         iTOffs,Integ_Proc,
      &                         Dens,Fock,lDens,ExFac,nDens,
-     &                         Ind,nInd,FckNoClmb,FckNoExch)
+     &                         FckNoClmb,FckNoExch)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals, parallel region          *
@@ -27,6 +27,7 @@
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
 *          Dens                : 1-particle density matrix             *
+*          Fock                : the Fock matrix                       *
 *          lDens               : length of density/Fock matrices       *
 *          nDens               : # of density/Fock matrices            *
 *          ExFac               : another scaling factor passed to      *
@@ -74,10 +75,9 @@
       External Integ_Proc
 #include "real.fh"
 *     subroutine parameters
-      Integer lDens
-      Real*8  Thize,Fock(lDens,nDens),Dens(lDens,nDens),
-     &        ExFac(nDens), Disc_Mx,Disc, TInt(nTInt)
-      Integer iTOffs(8,8,8), Ind(nInd,nInd,2)
+      Real*8  Dens(lDens,nDens), Fock(lDens,nDens)
+      Real*8  Thize,Disc_Mx,Disc, TInt(nTInt),ExFac(nDens)
+      Integer iTOffs(8,8,8)
       Logical W2Disc,PreSch,FckNoClmb(nDens),FckNoExch(nDens),
      &        DoIntegrals,DoFock
 *                                                                      *
@@ -110,7 +110,7 @@
      &               (iiS,jjS,kkS,llS,TInt,nTInt,
      &                iTOffs,Integ_Proc,
      &                Dens,Fock,lDens,ExFac,nDens,
-     &                Ind,nInd,FckNoClmb,FckNoExch,
+     &                FckNoClmb,FckNoExch,
      &                Thize,W2Disc,PreSch,Disc_Mx,Disc, ! New arguments
      &                Quad_ijkl,DoIntegrals,DoFock)     ! New arguments
 *                                                                      *

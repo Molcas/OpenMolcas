@@ -11,11 +11,10 @@
 * Copyright (C) Ben Swerts                                             *
 *               2016, Liviu Ungur                                      *
 ************************************************************************
-      SubRoutine FragPInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                    Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                    Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                    iStabM,nStabM,
-     &                    PtChrg,nGrid,iAddPot)
+      SubRoutine FragPInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                    )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of Fragment AIEMP         *
@@ -79,6 +78,8 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iChTbl
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -88,14 +89,12 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "para_info.fh"
-      Integer nZeta,la,lb,nIC,nArr,nComp,nAlpha,nBeta,nRys,nOrdOp,
-     &        nStabM
-      Real*8  Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &        Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &        rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &        Array(nZeta*nArr), Ccoor(3), C(3), TC(3), B(3), TB(3)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),iTwoj(0:7),
-     &        iChO(nComp),iAddPot
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8  C(3), TC(3), B(3), TB(3)
+      Integer iDCRT(0:7),iTwoj(0:7)
       Logical EnergyWeight
 !#define _DEBUG_
 #ifdef _DEBUG_
@@ -111,9 +110,9 @@
      &        ipZI1,ipZI2,iS,iSbasis,iSend,iShell,iShll,iSize,iSlocal,
      &        iSstart,iStemp,jAng,jAO,jBas,jCmp,jCnttp,jPrim,
      &        jS,jShell,jShll,jSize,jSlocal,lDCRT,llOper,LmbdT,
-     &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nHer,nOp,nSkal,
+     &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nOp,nSkal,
      &        jSbasis,iCnt,jCnt
-      Real*8  Fact,Factor,PtChrg,Xg
+      Real*8  Fact,Factor,Xg
 * external functions:
       Integer NrOpr
       Real*8  DNRM2_
@@ -379,8 +378,8 @@ c some printouts:
 *                                                                      *
 * DCR stuff (iS and jS have always the same symmetry character)
 *
-          Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &             jStab(0,mdci),nStab(mdci),iDCRT,nDCRT)
+          Call DCR(LmbdT,iStabM,nStabM,
+     &                   dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
           Fact = DBLE(nStabM) / DBLE(LmbdT)
 *                                                                      *
 ************************************************************************
@@ -388,12 +387,8 @@ c some printouts:
 * Loop over symmetry operations acting on the basis.
 *
           Do lDCRT = 0, nDCRT-1
-            TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-            TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-            TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
-            TB(1) = iPhase(1,iDCRT(lDCRT))*B(1)
-            TB(2) = iPhase(2,iDCRT(lDCRT))*B(2)
-            TB(3) = iPhase(3,iDCRT(lDCRT))*B(3)
+            Call OA(iDCRT(lDCRT),C,TC)
+            Call OA(iDCRT(lDCRT),B,TB)
 
 *                                                                      *
 ************************************************************************
@@ -663,8 +658,8 @@ c some printouts:
             Do iIrrep = 0, nIrrep - 1
               If (iAnd(llOper,iTwoj(iIrrep)).ne.0) Then
                 iIC = iIC + 1
-                nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                Xg=rChTbl(iIrrep,nOp)
+                nOp = NrOpr(iDCRT(lDCRT))
+                Xg=DBLE(iChTbl(iIrrep,nOp))
 * Half is needed because we do a complete loop over iS,jS
                 Factor=Xg*Fact*Half
                 ! write(6,'(A,i24)') 'FragPInt:  ipIJ=', ipIJ
@@ -740,9 +735,9 @@ c Avoid unused argument warnings
         Call Unused_real_array(ZInv)
         Call Unused_real_array(rKappa)
         Call Unused_real_array(P)
-        Call Unused_integer(nRys)
+        Call Unused_integer(nHer)
         Call Unused_integer_array(iCho)
-        Call Unused_real(PtChrg)
+        Call Unused_real_array(PtChrg)
         Call Unused_integer(nGrid)
         Call Unused_integer(iAddPot)
       End If

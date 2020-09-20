@@ -8,26 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Integral_RICD(iCmp,iShell,MapOrg,IndShlV,
+      SubRoutine Integral_RICD(iCmp,iShell,MapOrg,
      &                         iBas,jBas,kBas,lBas,kOp,
      &                         Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                         AOInt,SOInt,nSOint,
      &                         iSOSym,nSkal,nSOs,
-     &                         TInt,nTInt,FacInt,iTOffs,nSym,
-     &                         Dens,Fock,LDens,ExFac,NDens,
-     &                         ind,nind,FckNoClmb,FckNoExch)
+     &                         TInt,nTInt,iTOffs,nSym)
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"
 #include "info.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
-      Integer iCmp(4), iShell(4), iAO(4), IndShlV(4),
+      Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        iTOffs(0:7,0:7,0:7), MapOrg(4)
-      Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
+      Logical Shijij,IJeqKL
 *
-      If (Petite) Then
+      If (nSym==1) Then
         Call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &                iBas,jBas,kBas,lBas,kOp,TInt,
@@ -44,19 +42,8 @@ c Avoid unused argument warnings
          Call Unused_integer_array(MapOrg)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
-         Call Unused_integer_array(IndShlV)
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
-         Call Unused_real(FacInt)
          Call Unused_integer(nSym)
-         Call Unused_real(Dens)
-         Call Unused_real(Fock)
-         Call Unused_integer(LDens)
-         Call Unused_real(ExFac)
-         Call Unused_integer(NDens)
-         Call Unused_integer(ind)
-         Call Unused_integer(nind)
-         Call Unused_logical(FckNoClmb)
-         Call Unused_logical(FckNoExch)
       End If
       End

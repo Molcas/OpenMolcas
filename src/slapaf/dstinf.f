@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -23,7 +24,7 @@
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
      &        Found, Numerical
-      Character*(LENIN) LblTMP(mxdc*nSym)
+      Character*(LENIN) LblTMP(mxdc*nIrrep)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -118,7 +119,8 @@
          ipCx_p=ip_Dummy
       End If
 *
-      Call GetMem('Carcor','Allo','Real',ipCC,3*nSym*(nsAtom+nsAtom_p))
+      Call GetMem('Carcor','Allo','Real',ipCC,
+     &            3*nIrrep*(nsAtom+nsAtom_p))
       nTemp = 0
       Do isAtom = 1, nsAtom + nsAtom_p
          If (isAtom.le.nsAtom) Then
@@ -130,7 +132,7 @@
             y1 = Work(ipCx_p-1+(isAtom-1-nsAtom)*3+2)
             z1 = Work(ipCx_p-1+(isAtom-1-nsAtom)*3+3)
          End If
-         Do 6001 iIrrep = 0, nSym-1
+         Do 6001 iIrrep = 0, nIrrep-1
             x2 = x1
             If (iAnd(1,iOper(iIrrep)).ne.0) x2 = - x2
             y2 = y1
@@ -144,9 +146,9 @@
                If (r.eq.Zero) Go To 6001
             End Do
             nTemp = nTemp + 1
-            If (nTemp.gt.nSym*(nsAtom+nsAtom_p)) Then
+            If (nTemp.gt.nIrrep*(nsAtom+nsAtom_p)) Then
                Call WarningMessage(2,'Error in DstInf')
-               Write (6,*) 'nTemp.gt.nSym*nsAtom'
+               Write (6,*) 'nTemp.gt.nIrrep*nsAtom'
                Call Abend()
             End If
             Work(ipCC-1+(nTemp-1)*3+1) = x2
@@ -214,7 +216,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Carcor','Free','Real',ipCC,3*nSym*nsAtom)
+      Call GetMem('Carcor','Free','Real',ipCC,3*nIrrep*nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

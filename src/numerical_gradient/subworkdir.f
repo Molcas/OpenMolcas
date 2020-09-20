@@ -13,7 +13,7 @@
       use filesystem, only : getcwd_, chdir_, mkdir_
       Implicit None
       Integer :: i,Length,iErr
-      Integer, Parameter :: nFiles=21
+      Integer, Parameter :: nFiles=22
       Character(Len=1024) :: Names(nFiles),
      &                       OldFile(nFiles),NewFile(nFiles)
       Logical :: Found
@@ -32,15 +32,16 @@
       Names(10)='CHCCINP'
       Names(11)='CHT3INP'
       Names(12)='ESPFINP'
-      Names(13)='JOBIPH'
-      Names(14)='ESPF.SAV'
-      Names(15)='TINKER.XYZ'
-      Names(16)='TINKER.KEY'
-      Names(17)='MCPDFINP'
-      Names(18)='CHEMNATFIE'
-      Names(19)='CHEMCANFIE'
-      Names(20)='CHEMNATMPS0'
-      Names(21)='CHEMCANMPS0'
+      Names(13)='FALSEINP'
+      Names(14)='JOBIPH'
+      Names(15)='ESPF.SAV'
+      Names(16)='TINKER.XYZ'
+      Names(17)='TINKER.KEY'
+      Names(18)='MCPDFINP'
+      Names(19)='CHEMNATFIE'
+      Names(20)='CHEMCANFIE'
+      Names(21)='CHEMNATMPS0'
+      Names(22)='CHEMCANMPS0'
 
 *     Get real filenames to copy
       Do i=1,nFiles

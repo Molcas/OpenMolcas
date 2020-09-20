@@ -80,7 +80,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,iOper,
+     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -233,7 +233,7 @@
      &               Work(ipCoor),ipB,Work(ipCM),
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iOper,nSym,iSym,Smmtrc,
+     &               AtomLbl,iSym,Smmtrc,
      &               Degen,Work(ipGx),Work(ipCx),mTtAtm,
      &               iWork(ipANr),iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,

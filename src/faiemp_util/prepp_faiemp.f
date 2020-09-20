@@ -464,6 +464,8 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
 #include "real.fh"
 #include "itmax.fh"
@@ -529,7 +531,7 @@ C    &      Work(ipFragDensSO))
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly
 *    but appears to be working
-            If(iAnd(iChCnt(mdc),iIrrep).eq.iOper(iIrrep)) Then
+            If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
 * add it at the correct location in the large custom density matrix
               iFpos = 1
 c              ! position in fragment density matrix

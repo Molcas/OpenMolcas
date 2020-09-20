@@ -2570,6 +2570,7 @@ set (numerical_gradient_deps
   $<TARGET_OBJECTS:chcc>
   $<TARGET_OBJECTS:cht3>
   $<TARGET_OBJECTS:mcpdft>
+  $<TARGET_OBJECTS:false>
 )
 set (last_energy_deps
   $<TARGET_OBJECTS:seward>
@@ -2582,6 +2583,7 @@ set (last_energy_deps
   $<TARGET_OBJECTS:chcc>
   $<TARGET_OBJECTS:cht3>
   $<TARGET_OBJECTS:mcpdft>
+  $<TARGET_OBJECTS:false>
 )
 if (BLOCK OR DMRG)
 list (APPEND last_energy_deps

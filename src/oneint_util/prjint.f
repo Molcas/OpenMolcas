@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine PrjInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine PrjInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
@@ -64,18 +63,20 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
-     &          iChO(nComp), iTwoj(0:7)
+
+#include "int_interface.fh"
+
+*     Local varables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iTwoj(0:7)
 !#define _DEBUG_
 #ifdef _DEBUG_
       Character*80 Label
@@ -109,14 +110,12 @@
          Do iCnt = 1,dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,mdc+iCnt),nStab(mdc+iCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             Do iAng = 0, dbsc(iCnttp)%nPrj-1
                iShll = dbsc(iCnttp)%iPrj + iAng
                nExpi=Shells(iShll)%nExp
@@ -307,8 +306,8 @@
                         Do iIrrep = 0, nIrrep-1
                            If (iAnd(llOper,iTwoj(iIrrep)).eq.0) Cycle
                            iIC = iIC + 1
-                           nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                           Xg=rChTbl(iIrrep,nOp         )
+                           nOp = NrOpr(iDCRT(lDCRT))
+                           Xg=DBLE(iChTbl(iIrrep,nOp         ))
                            Factor=Xg*Fact
                            Call DGEMM_('N','N',
      &                                nAlpha,nBeta,nBasisi,
@@ -348,7 +347,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(rKappa)
          Call Unused_integer(nRys)
          Call Unused_integer_array(iChO)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

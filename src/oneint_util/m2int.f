@@ -11,11 +11,10 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M2Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine M2Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of M2 integrals used in   *
@@ -63,20 +62,21 @@
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
       use Basis_Info
+      use Center_Info
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables.
+      Real*8 TC(3), C(3)
       Character*80 Label
       Logical ABeq(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp)
+      Integer iDCRT(0:7)
 *
 *-----Statement function for Cartesian index
 *
@@ -137,14 +137,12 @@
          Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab, dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                Do 1011 iM2xp = 1, dbsc(kCnttp)%nM2
                   Gamma = dbsc(kCnttp)%M2xp(iM2xp)
@@ -270,7 +268,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
-         Call Unused_real(PtChrg)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If

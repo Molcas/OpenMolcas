@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Distg1X(g1,PAO,nT,mPAO,mVec,Grad,nGrad,IfGrad,IndGrd,
-     &                   iStab,kOp,iChBas,MxFnc,nIrrep)
+     &                   iStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: trace the gradient of the ERI's with the second order        *
@@ -28,13 +28,14 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
       Real*8 g1(nT,mPAO,mVec), PAO(nT,mPAO), Grad(nGrad),
      &       Temp(9), PAOg1(12), Prmt(0:7)
       Logical IfGrad(3,4)
-      Integer   IndGrd(3,4), kOp(4), iStab(4), iChBas(MxFnc)
+      Integer   IndGrd(3,4), kOp(4), iStab(4)
 #ifdef _DEBUG_
       Character*80 Label
 #endif

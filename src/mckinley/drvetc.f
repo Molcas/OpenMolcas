@@ -82,7 +82,7 @@
       Call GetMem('TEMP','FREE','Real',ipTemp,3*ngrad)
 * needed in RASSI
       Do iCar=1,3
-      isym=irrfnc(2**(icar-1))! nropr(ichbas(1+iCar),ioper,nirrep)
+      isym=irrfnc(2**(icar-1))! nropr(ichbas(1+iCar))
       Write(Lbl,'(a,i2)') 'ELEC ',iCar
       idcnt=0
       Do iCnttp=1,nCnttp

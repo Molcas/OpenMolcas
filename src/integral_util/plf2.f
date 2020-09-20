@@ -25,7 +25,9 @@
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          May '90                                                     *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       use k2_arrays, only: Sew_Scr
+      use lw_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
