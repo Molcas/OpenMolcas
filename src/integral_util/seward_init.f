@@ -91,7 +91,6 @@ C
       IRFLAG1=0
       BSS   =.False.
       DirInt=.False.
-      Expert=.False.
       EMFR  =.False.
       UnNorm=.False.
       lSchw=.True.

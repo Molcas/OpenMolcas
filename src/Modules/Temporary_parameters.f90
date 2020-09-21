@@ -20,4 +20,5 @@ Module Temporary_Parameters
       Logical :: force_part_p = .False.
       Logical :: force_out_of_core = .False.
       Logical :: Primitive_Pass=.True.
+      Logical :: Expert=.True.
 End Module Temporary_Parameters

@@ -29,6 +29,7 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Temporary_Parameters, only: Expert
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
