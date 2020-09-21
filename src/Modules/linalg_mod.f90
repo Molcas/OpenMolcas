@@ -333,7 +333,7 @@ contains
                 call abort_('Error in diagonalize')
             end if
         end if
-    end subroutine diagonalize
+    end subroutine sym_diagonalize
 
 !>  @brief
 !>  Order Eigenvectors by ascending eigenvalues.
@@ -668,7 +668,7 @@ contains
             call mult(basis, basis, S_transf, transpA=.true.)
         end if
 
-        call diagonalize(S_transf, U, s_diag)
+        call sym_diagonalize(S_transf, U, s_diag)
         call canonicalize(U, s_diag)
 
         call assert_(all(s_diag > 1.0d-10), &
