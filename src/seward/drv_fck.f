@@ -387,9 +387,9 @@ c        Write(6,*) ' oneel *',Label,'*'
                      ijC=(iC-1)*iCmp+iC
                      iTo= + (ijC-1)*iBas**2+ijB
 #ifdef _DEBUG_
-                     Write (6,*) 'ijB,ijC=',ijB,ijC
-                     Write (6,*) 'Fnl(iTo),Shell(iShll)%FockOp(iB,jB)=',
-     &                            Fnl(iTo),Shell(iShll)%FockOp(iB,jB)
+                     Write (6,*)'ijB,ijC=',ijB,ijC
+                     Write (6,*)'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',
+     &                           Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
 #endif
                      Fnl(iTo)=Shells(iShll)%FockOp(iB,jB)
                   End Do
