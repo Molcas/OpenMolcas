@@ -75,7 +75,7 @@
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
-     &          Expert, BSS, DKroll, LDKroll, Primitive_Pass,NEMO,
+     &          Expert, BSS, DKroll, LDKroll, NEMO,
      &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
@@ -84,7 +84,7 @@
      &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, DKroll, BSS, Primitive_Pass,  NEMO,
+     &               DirInt, DKroll, BSS, NEMO,
      &               LDF, Do_RI, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,
      &               lSchw, Expert, GIAO, Do_FckInt, Cholesky,
      &               lFAIEMP,

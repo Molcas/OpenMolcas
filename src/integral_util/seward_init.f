@@ -89,7 +89,6 @@ C
 *
       NEMO=.False.
       Do_RI=.False.
-      Primitive_Pass=.True.
       DKroll=.False.
       LDKroll=.False.
       IRFLAG1=0

@@ -28,6 +28,7 @@
       use Basis_Info
       use Center_Info
       use external_centers, only: iXPolType, XF
+      use Temporary_parameters, only: Primitive_Pass
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm

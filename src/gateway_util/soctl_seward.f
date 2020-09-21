@@ -16,6 +16,7 @@
       use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO,
      &                     iOffSO
       use real_spherical, only: iSphCr, LblCBs, LblSBs
+      use Temporary_Parameters, only: Primitive_Pass
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"

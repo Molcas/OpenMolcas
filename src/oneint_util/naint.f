@@ -37,6 +37,7 @@
 ************************************************************************
       Use Basis_Info
       use Center_Info
+      use Temporary_Parameters, only: Primitive_Pass
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
