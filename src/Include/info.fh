@@ -21,18 +21,13 @@
 *     MaxPrm: max number of primitives in a shell for a given angular  *
 *             momentum                                                 *
 *     MaxBas: Dito contracted functions                                *
-*     MolWgh: integer flag to indicate the normalization of the        *
-*             symmetry transformation                                  *
-*             0: double coset represetative normalization              *
-*             1: as in MOLECULE                                        *
-*             2: as in MOLPRO                                          *
 *     Mx_Shll: max number of shells defined.                           *
 *     iRI_Type: type of RI auxiliary basis set                         *
 *     nCtrLD: number of centers in the LDKH procedure                  *
 *     iCtrLD: ith center for the LDKH procedure                        *
 ************************************************************************
       Integer   ixStrt,ixEnd,
-     &          m2Max,MaxDCR,mCentr,MolWgh,Mx_AO,Mx_mdc,Mx_Shll,n2Max,
+     &          m2Max,MaxDCR,mCentr,Mx_AO,Mx_mdc,Mx_Shll,n2Max,
      &          n2Tot,nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
      &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
      &          kCentr, iRelae_Info,iRI_Type, nCtrLD,iCtrLD(10), nPSOI,
@@ -43,7 +38,7 @@
      &              iAngMx,  nIrrep, n2Tot, n2Max,   MaxDCR, MaxPrm,
      &              MaxBas, nDim, mCentr, m2Max,  nMltpl,
      &              IsChi,  nShlls, iPack, iSquar,  iWRopt,
-     &              iRelae_info, jMax, MolWgh, iRI_Type,
+     &              iRelae_info, jMax, iRI_Type,
      &              kCentr, Max_Center, Mx_AO, nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

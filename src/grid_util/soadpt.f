@@ -12,6 +12,7 @@
      &                  nCmp,nOp,SOValue,nDeg,iAO)
       use Symmetry_Info, only: iChTbl
       use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

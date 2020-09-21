@@ -84,7 +84,6 @@ C
       iPAMcount=1
 
       IsChi=0
-      MolWgh=2
 *
 *-----LInfo
 *
