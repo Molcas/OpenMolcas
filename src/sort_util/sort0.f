@@ -83,6 +83,7 @@
 *
       use Basis_Info, only: nBas
       use srt2
+      use Symmetry_Info, only: iSkip
       Implicit Integer (A-Z)
 *
 #include "itmax.fh"

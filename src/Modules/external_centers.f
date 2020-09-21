@@ -51,7 +51,7 @@
       If (Allocated(EF_Centers)) Then
          Call Put_dArray('EF_Centers',EF_Centers,3*nEF)
       End If
-      If (Allocated(OAM_Center).And.lOAMc) Then
+      If (Allocated(OAM_Center)) Then
          Call Put_dArray('OAM_Center',OAM_Center,3)
       End If
       If (Allocated(OMQ_Center)) Then

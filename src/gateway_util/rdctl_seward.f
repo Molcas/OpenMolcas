@@ -20,7 +20,9 @@
       use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
-      use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup
+      use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup,
+     &                         iSkip
+      use Temporary_Parameters
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -114,6 +116,7 @@
       Logical Vlct_, nmwarn, FOUND
 *
       Logical DoEMPC, Basis_test, lECP, lPP
+      Logical :: lDMS=.FALSE., lOAM=.FALSE.
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -2189,7 +2192,6 @@ c Simplistic validity check for value
 *     Orbital angular momentum
 *
  995  lOAM = .True.
-      lOAMc = .True.
       GWInput=.True.
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
@@ -4532,7 +4534,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,OAMt,1,OAM_Center,1)
       Else If (.NOT.allocated(OAM_Center)) Then
-         lOAM=.True.
          Call mma_allocate(OAM_Center,3,Label='OAM_Center')
          call dcopy_(3,CoM,1,OAM_Center,1)
       End If

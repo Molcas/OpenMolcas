@@ -31,6 +31,7 @@
       use MpmC
       use EFP_Module
       use External_centers
+      use Temporary_Parameters
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -284,10 +285,10 @@
       If (nEF.gt.0 .and. nOrdEF.ge.2) Write (LuWr,'(15X,A,I6,A)')
      &            '   Contact term integrals for',
      &                           nEF, ' points'
-      If (lDMS) Write (LuWr,'(15X,A,I6,A)')
+      If (Allocated(DMS_Centers)) Write (LuWr,'(15X,A,I6,A)')
      &            '   Diamagnetic shielding integrals for',
      &                           nDMS, ' points'
-      If (lOAM) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+      If (Allocated(OAM_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital angular momentum around (',
      &   (OAM_Center(i),i=1,3),')'
       If (lOMQ) Write (LuWr,'(15X,A,3(F7.4,1X),A)')

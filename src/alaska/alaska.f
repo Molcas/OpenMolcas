@@ -42,6 +42,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Temporary_Parameters
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "real.fh"

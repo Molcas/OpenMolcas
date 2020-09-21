@@ -76,7 +76,6 @@ C
       KVector(:)=Zero
       MaxBas(0:iTabMx)=0
       MaxPrm(0:iTabMx)=0
-      iSkip(0:7)=0
 
       nRP=0
       iPack=0
@@ -96,20 +95,15 @@ C
       LDKroll=.False.
       IRFLAG1=0
       BSS   =.False.
-      Onenly=.False.
       DirInt=.False.
       Expert=.False.
       EMFR  =.False.
       UnNorm=.False.
       lSchw=.True.
-      Test=.False.
       Vlct=.True.
-      lOAM=.False.
-      lOAMc=.False.
       lUPONLY=.False.
       lDOWNONLY=.False.
       lOMQ=.False.
-      lDMS=.False.
       lRel=.False.
       Prprt=.False.
       Short=.True.

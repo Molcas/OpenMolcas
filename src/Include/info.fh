@@ -13,7 +13,6 @@
 * Variables:                                                           *
 *                                                                      *
 * -> Integer   <-                                                      *
-*     iSkip : flag to indicate that certain irreps are ignored         *
 *     iAngMx: higest angular momentum specified in the input           *
 *     MaxPrm: max number of primitives in a shell for a given angular  *
 *             momentum                                                 *
@@ -29,16 +28,8 @@
 *     iCtrLD: ith center for the LDKH procedure                        *
 *                                                                      *
 * -> Logical <-                                                        *
-*     Onenly: logical flag to indicate that only the 1-electron        *
-*             integrals are computed                                   *
-*     Test  : logical flag to indicate that the input will only be     *
-*             processed                                                *
 *     Vlct  : logical flag to indicate that the velocity integrals will*
 *             be computed                                              *
-*     lOAM  : logical flag to indicate that the orbital angular        *
-*             momentum integrals will be computed                      *
-*     lOAMc : logical flag to indicate that the orbital angular        *
-*             momentum center has been explicitly given                *
 *     lOMQ  : logical flag to indicate that the orbital magnetic       *
 *             quadrupole integrals will be computed                    *
 *     lAMP  : logical flag to indicate that the angular momentum       *
@@ -49,8 +40,6 @@
 *             output of the property calculation                       *
 *     ifallorb : logical flag that properties of all orbitals are      *
 *               printed if short=false                                 *
-*     lDMS  : logical flag to indicate that the diamagnetic shielding  *
-*             integrals should be computed                             *
 *     lRel  : logical flag to indicate that the 1-electron Darwin and  *
 *             mass-velocity integrals should be computed               *
 *     UnNorm: logical flag to indicate that the primitive basis        *
@@ -110,7 +99,7 @@
       Integer   ixStrt,ixEnd,
      &          m2Max,MaxDCR,mCentr,MolWgh,Mx_AO,
      &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,
-     &          nShlls, iSkip(0:7),iAngMx,MaxPrm(0:iTabMx),
+     &          nShlls, iAngMx,MaxPrm(0:iTabMx),
      &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
      &          kCentr, iRelae_Info,
      &          iRI_Type, nCtrLD,iCtrLD(10), nPSOI, IsChi
@@ -119,7 +108,7 @@
      &              Mx_mdc, Mx_Shll,
      &              iAngMx,  nIrrep, n2Tot, n2Max,   MaxDCR, MaxPrm,
      &              MaxBas, nDim, mCentr, m2Max,  nMltpl,
-     &              IsChi,  nShlls, iPack, iSquar,  iWRopt, iSkip,
+     &              IsChi,  nShlls, iPack, iSquar,  iWRopt,
      &              iRelae_info, jMax, MolWgh, iRI_Type,
      &              kCentr, Max_Center, Mx_AO, nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
@@ -133,8 +122,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical   DirInt, Onenly, Test, Vlct, lOAM, lOAMc,
-     &          lOMQ, lAMP, Prprt, Short, ifallorb, lDMS, lRel,
+      Logical   DirInt, Vlct,
+     &          lOMQ, lAMP, Prprt, Short, ifallorb, lRel,
      &          Do_RI, UnNorm, lSchw, lAMFI, force_part_p,
      &          force_part_c, Expert, lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO, GIAO,
@@ -147,9 +136,9 @@
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,  NEMO,
-     &               LDF, Do_RI, lAMFI,  Onenly,
-     &               Do_GuessOrb, Test, Vlct, lOAM, lOAMc, lOMQ, lAMP,
-     &               Prprt, Short, ifallorb, lDMS, lRel, UnNorm,
+     &               LDF, Do_RI, lAMFI,
+     &               Do_GuessOrb, Vlct, lOMQ, lAMP,
+     &               Prprt, Short, ifallorb, lRel, UnNorm,
      &               lSchw, lXF, force_part_c,
      &               force_part_p, Expert, GIAO, Do_FckInt, Cholesky,
      &               lFAIEMP, Force_Out_of_Core,

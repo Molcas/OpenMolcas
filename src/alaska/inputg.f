@@ -36,6 +36,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc
+      use Temporary_Parameters
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -73,7 +74,6 @@
       DoCSF  = .True.
       isCSF  = .False.
       Auto   = .False.
-      Onenly = .False.
       Test   = .False.
       T_Only = .False.
       TRSymm = .False.
@@ -117,11 +117,6 @@
 *     Second CutInt should now locally for Alaska be reset to the value
 *     of CutInt/100!
       CutInt=CutGrd*1.0D-2
-c..   debug
-c      onenly=.true.
-c      nprint(112)=99
-c      nprint(133)=99
-c      nprint(26)=99
       Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue

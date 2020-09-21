@@ -55,6 +55,7 @@
       use Center_Info
       use Symmetry_Info, only: lIrrep
       use LundIO
+      use Temporary_Parameters
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"

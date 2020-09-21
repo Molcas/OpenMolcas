@@ -792,7 +792,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (lOAM.and..Not.Primitive_Pass) Then
+      If (Allocated(OAM_Center).and..Not.Primitive_Pass) Then
          Label='AngMom  '
          nComp = 3
          nOrdOp = 2
