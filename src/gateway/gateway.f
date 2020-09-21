@@ -253,9 +253,6 @@ C     Call Gateway_banner()
       Call Put_iScalar('System BitSwitch',iOption)
       iter_S=0
       Call Put_iScalar('Saddle Iter',iter_S)
-      iDNG = 0
-      If (Do_Numerical_Gradients) iDNG=1
-      Call Put_iScalar('DNG',iDNG)
 *                                                                      *
 ************************************************************************
 *                                                                      *

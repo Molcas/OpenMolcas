@@ -123,10 +123,6 @@
          iter_S=0
          Call Put_iScalar('Saddle Iter',iter_S)
       End If
-*
-      iDNG=0
-      If (Do_Numerical_Gradients) iDNG=1
-      Call Put_iScalar('DNG',iDNG)
 *                                                                      *
 ************************************************************************
 *                                                                      *

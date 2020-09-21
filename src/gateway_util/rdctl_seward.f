@@ -301,6 +301,7 @@
          CLightAU = CONST_C_IN_AU_
       End If
 *
+      iDNG=0
       nDKfull = 0
       iAMFn = 0   ! usual AMFI
       BasisTypes(:)=0
@@ -3481,7 +3482,7 @@ c
 ******* NUME ***********************************************************
 *                                                                      *
  8031 GWinput = .True.
-      Do_Numerical_Gradients=.True.
+      iDNG=1
       Go To 998
 *                                                                      *
 ******* VART ***********************************************************
@@ -4568,6 +4569,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &            Vrsn,', ',KWord(1:24)
       Call Put_cArray('Seward Title',Header(1),144)
       If (nTtl>0) Call Put_cArray('SewardXTitle',Title(1),nTtl*80)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Put_iScalar('DNG',iDNG)
 *                                                                      *
 ************************************************************************
 *                                                                      *

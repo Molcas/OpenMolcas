@@ -65,7 +65,6 @@
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
 *     LDKroll : logical for the local Douglas-Kroll-Hess               *
-*     Do_Numerical_Gradients: force numerical gradients                *
 *     VART: Forced variant to translations                             *
 *     VARR: Forced variant to rotations                                *
 *     EMFR: Electromagnetic field radiation                            *
@@ -74,20 +73,18 @@
       Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
      &          Expert, BSS, DKroll, LDKroll, NEMO,
      &          Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
-     &          Do_acCD_Basis, Skip_High_AC,
-     &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
-     &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
-     &          Do_Numerical_Gradients, VarT, VarR, EMFR, GIAO,
+     &          Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
+     &          DiagCheck, lRP, lRP_Post, Fake_ERIs, LocalDF,
+     &          Do_nacCD_Basis, Do_Align, VarT, VarR, EMFR, GIAO,
      &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, DKroll, BSS, NEMO,
-     &               LDF, Do_RI, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,
-     &               lSchw, Expert, GIAO, Do_FckInt, Cholesky,
-     &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
-     &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
-     &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,
-     &               Do_Align, Do_Numerical_Gradients, VarR, VarT,
+     &               DirInt, DKroll, BSS, NEMO, LDF, Do_RI, lAMFI,
+     &               Do_GuessOrb, Vlct, lRel, UnNorm, lSchw, Expert,
+     &               GIAO, Do_FckInt, Cholesky, Do_acCD_Basis,
+     &               Skip_High_AC, lRP, lRP_Post, DoFMM, Cho_OneCenter,
+     &               DiagCheck, LDKroll, Align_Only, Fake_ERIs, LocalDF,
+     &               Do_nacCD_Basis, Do_Align, VarR, VarT,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
 *                                                                      *

@@ -115,7 +115,6 @@ C
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
-      Do_Numerical_Gradients=.False.
       VarT=.False.
       VarR=.False.
       FNMC=.False.
