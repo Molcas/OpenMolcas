@@ -35,6 +35,7 @@
       use aces_stuff, only: Gamma_On
       use pso_stuff
       use Basis_Info
+      use Sizes, only: S
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -73,8 +74,8 @@
 *
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)

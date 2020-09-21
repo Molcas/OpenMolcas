@@ -69,7 +69,6 @@ C
       iAngMx=-1
       nWel=0
       iRI_type=0
-      jMax = 5
       Max_Center=15
 
       KVector(:)=Zero

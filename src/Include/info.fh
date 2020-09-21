@@ -27,16 +27,14 @@
 *     iCtrLD: ith center for the LDKH procedure                        *
 ************************************************************************
       Integer   ixStrt,ixEnd,
-     &          n2Max,
-     &          n2Tot,nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
-     &          MaxBas(0:iTabMx),Max_Center,jMax,
+     &          nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
+     &          MaxBas(0:iTabMx),Max_Center,
      &          kCentr, iRelae_Info,iRI_Type, nCtrLD,iCtrLD(10), nPSOI,
      &          IsChi
 *
       Common /Info/ ixStrt,
-     &              iAngMx,  nIrrep, n2Tot, n2Max,
-     &              MaxPrm, MaxBas, nDim,
-     &              nMltpl, IsChi,  nShlls, iRelae_info, jMax, iRI_Type,
+     &              iAngMx,  nIrrep, MaxPrm, MaxBas, nDim,
+     &              nMltpl, IsChi,  nShlls, iRelae_info, iRI_Type,
      &              kCentr, Max_Center, nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

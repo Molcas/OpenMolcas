@@ -28,6 +28,7 @@
 ************************************************************************
       use PrpPnt
       use Basis_Info, only: nBas
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -43,7 +44,7 @@
       Dimension Dummy(1),iDummy(1)
 *
       nDen=n2Tri(1)
-      nVec=n2Tot
+      nVec=S%n2Tot
       nOcc=nDim
       If (Density) Call mma_allocate(Den,nDen,label='Den')
       iadDen=1

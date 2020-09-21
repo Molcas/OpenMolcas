@@ -23,6 +23,8 @@ Type Sizes_of_Stuff
      Integer :: mCentr_Frag =0
      Integer :: Mx_mdc      =0
      Integer :: Mx_Shll     =0
+     Integer :: n2Tot       =0
+     Integer :: jMax        =5
      Integer :: High_Anchor
 End Type Sizes_of_Stuff
 !

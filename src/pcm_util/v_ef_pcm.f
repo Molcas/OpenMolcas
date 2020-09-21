@@ -465,10 +465,10 @@ cpcm_solvent end
          End Do
       End Do
 *
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
+      Call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
+      Call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
+      Call GetMem('Zeta','FREE','REAL',ipZI ,S%m2Max)
+      Call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
 *
 c     Call GetMem('drv_ef_PCM','CHEC','REAL',iDum,iDum)
 *

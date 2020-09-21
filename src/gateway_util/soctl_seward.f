@@ -138,8 +138,7 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
       iSO_Aux=iBas+iBas_Frag
       iSO_Frag=iBas
       iSO_Tot=0
-      n2Tot = 0
-      n2Max = 0
+      S%n2Tot = 0
       nDim = 0
       iAO=0
       lSkip=.False.
@@ -538,8 +537,7 @@ culf
          nrBas(iIrrep+1)=nBas(iIrrep)
 *        write(6,*) ' nBas(iIrrep)', iIrrep, nBas(iIrrep)
          nDim = nDim + nBas(iIrrep)
-         n2Tot = n2Tot + nBas(iIrrep)**2
-         n2Max = Max(n2Max,nBas(iIrrep)**2)
+         S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  200  Continue ! iIrrep
 *     If (lSkip) nDim = iBas
       If (iBas.ne.iSO .and.
@@ -839,8 +837,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nrSym=nIrrep
          nrBas(iIrrep+1)=nBas(iIrrep)
          nDim = nDim + nBas(iIrrep)
-         n2Tot = n2Tot + nBas(iIrrep)**2
-         n2Max = Max(n2Max,nBas(iIrrep)**2)
+         S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  300  Continue
 *
 CSVC: basis IDs of non-symmetric case

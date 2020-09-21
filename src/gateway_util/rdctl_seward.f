@@ -1637,7 +1637,7 @@ c Simplistic validity check for value
 *     Change max j quantum number for the rigid rotor analysis
 *
  971  KWord = Get_Ln(LuRd)
-      Call Get_I1(1,jMax)
+      Call Get_I1(1,S%jMax)
       Go To 998
 *                                                                      *
 ****** MULT ************************************************************
