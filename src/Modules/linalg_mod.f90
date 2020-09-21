@@ -868,15 +868,15 @@ contains
     end subroutine
 
     !> @brief
-    !>    Runtime check, that is switched off in Debug mode
+    !>    Runtime check, that should be switched off in Debug mode.
+    !>    (Not implemented yet).
     subroutine assert_(test_expression, message)
         logical, intent(in) :: test_expression
         character(*), intent(in) :: message
-#ifdef _DEBUG_
+        ! TODO(@Oskar): Create actual Debug flag (that is not a DEBUGPRINT flag)
         if (.not. test_expression) then
             call abort_(message)
         end if
-#endif
     end subroutine
 
     !> @brief
