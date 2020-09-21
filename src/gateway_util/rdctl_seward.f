@@ -117,7 +117,7 @@
 *
       Logical DoEMPC, Basis_test, lECP, lPP
       Logical :: lDMS=.FALSE., lOAM=.FALSE., lOMQ=.False.,
-     &           lAMP=.False., lXF=.False.
+     &           lAMP=.False., lXF=.False., lFAIEMP=.False.
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_

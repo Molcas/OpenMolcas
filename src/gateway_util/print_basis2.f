@@ -16,7 +16,7 @@
 #include "info.fh"
 #include "print.fh"
       Logical output
-      Logical lAux, lPam2, lECP, lPP
+      Logical lAux, lPam2, lECP, lPP, lFAIEMP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -28,11 +28,13 @@
       lPam2=.False.
       lECP =.False.
       lPP  =.False.
+      lFAIEMP  =.False.
       Do i = 1, nCnttp
          lAux  = lAux  .or. dbsc(i)%Aux
          lPAM2 = lPAM2 .or. dbsc(i)%lPAM2
          lECP  = lECP  .or. dbsc(i)%ECP
          lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+         lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
       End Do
 *                                                                      *
 ************************************************************************

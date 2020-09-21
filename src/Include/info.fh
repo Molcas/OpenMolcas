@@ -63,7 +63,6 @@
 *     GIAO: integrals for first derivative with respect to B           *
 *     Cholesky: logical flag for Cholesky decomposition.               *
 *     Do_RI: logical flag for RI apporach                              *
-*     lFAIEMP: logical flag for Fragment AIEMP                         *
 *     Do_FckInt: logical flag for FckInt                               *
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
@@ -76,7 +75,7 @@
 ************************************************************************
       Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
      &          Expert, BSS, DKroll, LDKroll, NEMO,
-     &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
+     &          Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
      &          Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
@@ -87,7 +86,6 @@
      &               DirInt, DKroll, BSS, NEMO,
      &               LDF, Do_RI, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,
      &               lSchw, Expert, GIAO, Do_FckInt, Cholesky,
-     &               lFAIEMP,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
      &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,

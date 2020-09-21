@@ -106,7 +106,6 @@ C
       lGENINT=.False.
       GIAO=.False.
       Cholesky=.False.
-      lFAIEMP=.False.
       Do_FckInt=.True.
       Do_GuessOrb=.True.
 *

@@ -31,7 +31,7 @@ CAOM<
       common /finfld/force
       External MltGrd,MltMmG
 CAOM>
-      Logical DiffOp, lECP, lPP
+      Logical DiffOp, lECP, lPP, lFAIEMP
       Character*16 NamRfil
 *
 *-----Statement function
@@ -50,9 +50,11 @@ CAOM>
 *
       lECP=.False.
       lPP =.False.
+      lFAIEMP=.False.
       Do i = 1, nCnttp
          lECP = lECP .or. dbsc(i)%ECP
          lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+         lFAIEMP = LFAIEMP .or. dbsc(i)%Frag
       End Do
 *
 *---- Allocate memory for density matrices

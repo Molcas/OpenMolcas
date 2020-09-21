@@ -26,6 +26,7 @@
 #include "print.fh"
 #include "stdalloc.fh"
 *
+      Logical lFAIEMP
       Character ChOper(0:7)*3,ChTemp*8,Mamn(nMamn)*(LENIN8)
       Character LP_Names(MxAtom)*(LENIN4)
       Character*60 Fmt
@@ -78,7 +79,10 @@ cvv LP_NAMES was used later without initialization.
        LP_NAMES(i)(1:LENIN)='crap'
        LP_NAMES(i)(LENIN1:LENIN4)='crap'
       enddo
-
+      lFAIEMP = .False.
+      Do i = 1, nCnttp
+         lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

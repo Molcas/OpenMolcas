@@ -74,7 +74,7 @@
      &                                     PtNuc, SumEl, SumNuc
       logical lECPnp,lECP
       logical lPAM2np,lPAM2
-      logical lPP
+      logical lPP, lFAIEMP
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -112,10 +112,12 @@
       lPAM2 = .False.
       lECP  = .False.
       lPP   = .False.
+      lFAIEMP = .False.
       Do i = 1, nCnttp
          lPam2 = lPam2 .or. dbsc(i)%lPam2
          lECP  = lECP  .or. dbsc(i)%ECP
          lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+         lFAIEMP  = lFAIEMP  .or. dbsc(i)%Frag
       End Do
 *
 *     set center selector in OneSwi to all centers (default)
