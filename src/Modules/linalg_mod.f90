@@ -382,7 +382,7 @@ contains
         do i = 1, size(lambda)
             d_buffer(n_spaces) = d_buffer(n_spaces) + 1
             if (i + 1 <= size(lambda)) then
-                if (.not. (lambda(i) .isclose. lambda(i + 1))) then
+                if (.not. isclose(lambda(i), lambda(i + 1), epsilon(lambda) * 1e3_wp, 1e-8_wp)) then
                     n_spaces = n_spaces + 1
                     lambda(low : i) = mean(lambda(low : i))
                     low = i + 1
@@ -524,8 +524,7 @@ contains
 !>  Check for floating point equality.
 !>
 !>  @details
-!>  Checks if \f[ |a - b| \leq (atol + rtol \cdot |b|) \f].
-!>  Note that this function is not commutative in a and by anymore.
+!>  Checks if \f[ | a - b | \leq max(rtol * max(|a|, |b|), atol)  \f].
 !>
 !>  @param[in] a A real number.
 !>  @param[in] b A real number.
@@ -538,7 +537,7 @@ contains
         real(wp), intent(in) :: a, b
         real(wp), intent(in) :: atol, rtol
         logical :: res
-        res = abs(a - b) <= (atol + rtol * abs(b))
+        res = abs(a - b) <= max(rtol * max(abs(a), abs(b)), atol)
     end function
 
 ! Operator functions may only have two arguments.
@@ -546,9 +545,8 @@ contains
         real(wp), intent(in) :: a, b
         logical :: res
 
-        ! TODO(@Oskar, @Ignacio): decide on good constants
-        ! For real64, the epsilon is 2.3d-16
-        res = isclose(a, b, atol=epsilon(a) * 10._wp**3, rtol=1e-8_wp)
+        ! For real64, the epsilon is 2.3e-16 so that atol becomes roughly 2.3e-14 which is very tight.
+        res = isclose(a, b, atol=epsilon(a) * 1e2_wp, rtol=1e-9_wp)
     end function
 
 
