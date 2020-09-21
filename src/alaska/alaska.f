@@ -207,11 +207,6 @@
 *                                                                      *
 *-----Compute contribution due to 2-electron integrals.
 *
-      Call GetMem('MemHid','ALLO','REAL',idum,MemHid)
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (Cholesky.or.Do_RI) Then
          If (Cholesky) Then
             If (iPrint.ge.6) Write (6,*) 'Cholesky-ERI gradients!'
@@ -239,8 +234,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
-      Call GetMem('MemHid','Free','REAL',idum,MemHid)
  998  Continue
 *                                                                      *
 ************************************************************************

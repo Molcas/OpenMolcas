@@ -65,7 +65,6 @@ C
 *
 *     Info
 *
-      MemHid=1
       nMltpl=2
       m2Max=0
       iAngMx=-1
@@ -79,18 +78,12 @@ C
       MaxPrm(0:iTabMx)=0
       iSkip(0:7)=0
 
-      nOrdEF=-1
-      nDMS=0
       nRP=0
       iPack=0
       iSquar=0
       iWRopt=0
       iPAMcount=1
 
-      inttot=0
-      nOrd_XF = 1
-      iOrdFm=0
-      iXPolType=0
       IsChi=0
       MolWgh=2
 *

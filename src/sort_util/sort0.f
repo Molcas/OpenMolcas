@@ -143,7 +143,7 @@
 *     determined by the maximum number of bins (mxBin)                 *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT1(IntTot)
+      Call MKSRT1()
 *
 *----------------------------------------------------------------------*
 *     allocate the space required in phase1 of the bin sort algoritm   *

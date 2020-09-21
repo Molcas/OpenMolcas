@@ -199,7 +199,6 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
                                Buf%nUt=Buf%nUt + 1
                                Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
                                Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8

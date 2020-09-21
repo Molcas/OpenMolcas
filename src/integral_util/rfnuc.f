@@ -26,6 +26,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use External_Centers, only: nOrd_XF
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

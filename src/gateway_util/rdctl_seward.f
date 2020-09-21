@@ -1559,15 +1559,6 @@ c Simplistic validity check for value
       GWInput=.True.
       Go To 998
 *                                                                      *
-****** MEMO ************************************************************
-*                                                                      *
-*     Screen off memory
-*
-c951  KWord = Get_Ln(LuRd)
-c     Call Get_I1(1,memhid)
-c     If (MemHid.le.0) MemHid = 1
-c     Go To 998
-*                                                                      *
 ****** DIRE ************************************************************
 *                                                                      *
 *     Force direct calculations & disable two-electron integrals
@@ -4283,17 +4274,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 *                                                                      *
 *
-      If (Run_Mode.ne.S_Mode) Then
-         Max_Cnt=0
-         Do iCnttp = 1, nCnttp
-*           Skip dbsc if it is a cardholder for fragment information.
-            If (dbsc(iCnttp)%nFragType.gt.0) Cycle
-            Max_Cnt=Max(Max_Cnt,dbsc(iCnttp)%nCntr)
-         End Do
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     If no multipole moment integrals are requested turn also of the
 *     computation of the velocity integrals.
 *

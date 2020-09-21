@@ -42,7 +42,6 @@
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-C     Call qEnter('PLF2')
       irout = 109
       iprint = nprint(irout)
       If (iPrint.ge.49) Then
@@ -145,10 +144,8 @@ C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 *
       Call R8PREP(nUt+1,Sew_Scr(lwInt))
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
-      NotZer=NotZer+nUt+1
       nUt=0
 *
-C     Call qExit('PLF2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

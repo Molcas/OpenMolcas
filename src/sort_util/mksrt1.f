@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Markus P. Fuelscher                              *
 *               1991, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine MkSrt1(nInts)
+      Subroutine MkSrt1()
 ************************************************************************
 *                                                                      *
 *     Purpose: Determine the splitting of the integrals into           *
@@ -134,7 +134,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
 #endif
                If( kSymk.eq.lSyml ) kbl=kb*(kb+1)/2
                iSyBlk=kSybll+mxSyP*(iSyblj-1)
-                nInts=nInts+ibj*kbl
                 nij = 0
                 Do ij = 1,ibj
 #ifdef _I8_

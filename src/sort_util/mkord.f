@@ -68,7 +68,7 @@ C     Call qEnter('MkOrd')
 *
       TocTwo(isId)=IDtwo
       TocTwo(isVer)=VNtwo
-      TocTwo(isForm)=iOrdFm
+      TocTwo(isForm)=0
 *
 *---------------------------------------------------------------------*
 *     Write ordring mode                                              *

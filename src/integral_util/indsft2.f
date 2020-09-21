@@ -43,7 +43,6 @@
       Logical dupli
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
-*     Call qEnter('IndSft2')
       irout = 39
       iprint = nprint(irout)
 *     iPrint=99
@@ -326,8 +325,6 @@ C    &                                   iStBin(jSyBlk)
 *
       Call R8PREP(nUt+1,Sew_Scr(lwInt))
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
-      NotZer=NotZer+nUt+1
       nUt=0
-*     Call qExit('IndSft2')
       Return
       End

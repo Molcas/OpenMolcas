@@ -147,7 +147,6 @@ c      nprint(26)=99
       If (KWord(1:4).eq.'EQUI') Go To 935
       If (KWord(1:4).eq.'CUTO') Go To 942
       If (KWord(1:4).eq.'HF-F') Go To 993
-      If (KWord(1:4).eq.'MEMO') Go To 951
       If (KWord(1:4).eq.'NOIN') Go To 953
       If (KWord(1:4).eq.'SELE') Go To 960
       If (KWord(1:4).eq.'2DOP') Go To 965
@@ -245,18 +244,6 @@ c      nprint(26)=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Screen off memory
-*
- 951  Read(LuSpool,'(A)',Err=988) KWord
-      If (KWord(1:1).eq.'*') Go To 951
-      If (KWord.eq.'')    Go To 951
-      Read(KWord,*,Err=988) MemHid
-      If (MemHid.le.0) MemHid = 1
-      Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
 *     Disable the utilization of translational and
 *     rotational invariance of the energy in the
 *     computation of the molecular gradient.

@@ -33,6 +33,7 @@
 *                                                                      *
 *             Unified version August '96, RL.                          *
 ************************************************************************
+      use External_Centers, only: iXPolType
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

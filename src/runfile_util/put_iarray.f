@@ -122,7 +122,7 @@
          RecLab( 17)='RFiInfo         '
          RecLab( 18)='RFlInfo         '
          RecLab( 19)='SCFInfoI        '
-         RecLab( 20)='                '
+         RecLab( 20)='Misc            '
          RecLab( 21)='SewIInfo        '
          RecLab( 22)='SewLInfo        '
          RecLab( 23)='SCFInfoI_ab     '

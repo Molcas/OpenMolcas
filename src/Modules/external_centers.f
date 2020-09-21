@@ -18,10 +18,11 @@
      &          OAM_Center, OMQ_Center, nDMS, DMS_Centers,
      &          nWel, Wel_Info, AMP_Center, nRP, RP_Centers,
      &          nData_XF, nXF, nXMolnr, XF, XEle, XMolnr,
+     &          nOrdEF, nOrd_XF, iXPolType,
      &          External_Centers_Dmp,
      &          External_Centers_Free,
      &          External_Centers_Get
-      Integer :: nEF=0
+      Integer :: nEF=0, nOrdEF=-1
       Real*8, Allocatable:: EF_Centers(:,:)
       Real*8, Allocatable:: OAM_Center(:)
       Real*8, Allocatable:: OMQ_Center(:)
@@ -32,7 +33,7 @@
       Real*8, Allocatable:: AMP_Center(:)
       Integer :: nRP=0
       Real*8, Target, Allocatable:: RP_Centers(:,:,:)
-      Integer :: nData_XF=0, nXF=0, nXMolnr=0
+      Integer :: nData_XF=0, nXF=0, nXMolnr=0, nOrd_XF=1, iXPolType=0
       Real*8, Allocatable:: XF(:,:)
       Integer, Allocatable:: XEle(:), XMolnr(:,:)
 *                                                                      *
@@ -46,6 +47,7 @@
 #include "angtp.fh"
 #include "info.fh"
       Real*8, Allocatable:: RP_Temp(:,:,:)
+      Integer, Allocatable:: iDmp(:)
       If (Allocated(EF_Centers)) Then
          Call Put_dArray('EF_Centers',EF_Centers,3*nEF)
       End If
@@ -80,6 +82,12 @@
       If (Allocated(XEle)) Then
          Call Put_iArray('XEle',XEle,nXF)
       End If
+      Call mma_Allocate(iDmp,3,Label='iDmp')
+      iDmp(1)=nOrdEF
+      iDmp(2)=nOrd_XF
+      iDmp(3)=iXPolType
+      Call Put_iArray('Misc',iDmp,3)
+      Call mma_deallocate(iDmp)
       Return
       End Subroutine External_Centers_Dmp
 *                                                                      *
@@ -112,6 +120,9 @@
          nData_XF=0
          nXF=0
          nXMolnr=0
+         nOrdEF=-1
+         nOrd_XF=1
+         iXPolType=0
       End If
       Return
       End Subroutine External_Centers_Free
@@ -119,6 +130,7 @@
 ************************************************************************
 *                                                                      *
       Subroutine External_Centers_Get()
+      Integer, Allocatable:: iDmp(:)
       Logical Found
       Integer Len2
       Call qpg_dArray('EF_Centers',Found,Len2)
@@ -223,6 +235,12 @@
          End If
          Call Get_dArray('XF',XF,nData_XF*nXF)
       End If
+      Call mma_Allocate(iDmp,3,Label='iDmp')
+      Call Get_iArray('Misc',iDmp,3)
+      nOrdEF    = iDmp(1)
+      nOrd_XF   = iDmp(2)
+      iXPolType = iDmp(3)
+      Call mma_deallocate(iDmp)
       End Subroutine External_Centers_Get
 *                                                                      *
 ************************************************************************

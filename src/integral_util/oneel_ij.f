@@ -156,7 +156,6 @@
         Call Get_nAtoms_All(nAtoms)
         l_Coord=3*nAtoms
         Call Get_dArray('Bfn Coordinates',Coord,l_Coord)
-        ! write(6,*) "nPSOI", nPSOI
          NATEST=.false.
         if (nAtoms.eq.2) then
          nAtoms=nAtoms+1

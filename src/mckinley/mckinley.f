@@ -213,8 +213,6 @@ cpcm_solvent end
       End If
       Call Drvh1_mck(nGrad,Nona)
 *
-      Call GetMem('MemHid','ALLO','REAL',idum,MemHid)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *      Calculate two electron integrals. First order is contracted     *
@@ -277,10 +275,6 @@ cpcm_solvent end
           End If
 *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call GetMem('MemHid','Free','REAL',idum,MemHid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

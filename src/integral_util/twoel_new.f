@@ -1203,7 +1203,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
 *--------Write integrals to current position on disc.
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call PkR8(iOpt,nInts,nByte,Wrk(iW2),Wrk(iW3))
          mInts=(nByte+RtoB-1)/RtoB
 *
@@ -1251,7 +1251,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             Call Abend()
          End If
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(iW2))
       End If
 *
