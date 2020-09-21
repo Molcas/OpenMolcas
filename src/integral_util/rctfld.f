@@ -84,6 +84,7 @@
 *             Modified for nonequilibrum calculations January 2002 (RL)*
 ************************************************************************
       use Basis_Info, only: nBas
+      use External_Centers, only: XF
       use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
@@ -137,7 +138,7 @@
             Call RFNuc(Origin,Q_solute(ip,1),iMax)
          End Do
 
-         if(lXF) Then
+         if(Allocated(XF)) Then
 *
 *------- Add contribution from XFIELD multipoles
 *

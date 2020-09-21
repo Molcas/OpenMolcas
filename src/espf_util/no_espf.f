@@ -53,7 +53,7 @@
 1000     Format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
       End If
 *
-      If (lXF.and.(nOrd_XF.ge.0)) Then
+      If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
          write(6,*) 'Here we are!!'
 *
          DoRys=.True.

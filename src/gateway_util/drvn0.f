@@ -166,7 +166,7 @@
          Write (6,*)
       End If
 *
-      If (lXF.and.(nOrd_XF.ge.0)) Then
+      If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
 *
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole

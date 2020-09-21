@@ -224,7 +224,7 @@ CAOM>
      &           Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       If (HF_Force) Then
-         If (lECP.or.nWel.ne.0.or.lXF.or.lRF) Then
+         If (lECP.or.nWel.ne.0.or.Allocated(XF).or.lRF) Then
             Call WarningMessage(2,'Error in Drvh1')
             Write (6,*) 'HF forces not implemented yet for this case!'
             Call Quit_OnUserError()
@@ -290,7 +290,7 @@ CAOM>
 *     gradient of the external field integrals.                        *
 *                                                                      *
 ************************************************************************
-      If (lXF) Then
+      If (Allocated(XF)) Then
          DiffOp = .True.
          Label = ' The External Field Contribution'
          Call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,

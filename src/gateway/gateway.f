@@ -27,7 +27,7 @@
       use MpmC
       use Basis_Info
       use Center_Info
-      use external_centers, only: iXPolType
+      use external_centers, only: iXPolType, XF
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -235,7 +235,7 @@ C     Call Gateway_banner()
          Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
      &                         dbsc(iCnttp)%Fixed)
       End Do
-      If (lXF.or.Pseudo) Then
+      If (Allocated(XF).or.Pseudo) Then
          iOption=iOr(iOption,2**7)
          iOption=iOr(iOption,2**8)
       End If

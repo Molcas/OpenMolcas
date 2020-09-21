@@ -39,7 +39,7 @@
       PrintOperators=PrintOperators.or.(nEF.ne.0)
       PrintOperators=PrintOperators.or.(nDMS.ne.0)
       PrintOperators=PrintOperators.or.(nWel.ne.0)
-      PrintOperators=PrintOperators.or.lXF
+      PrintOperators=PrintOperators.or.Allocated(XF)
       PrintOperators=PrintOperators.or.RMat_On
       If (PrintOperators) Then
         Write (LuWr,*)
@@ -93,7 +93,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lXF) Then
+      If (Allocated(XF)) Then
 *
          If (nPrint(2).lt.6) Go To 666
          If (iXPolType.gt.0) Then

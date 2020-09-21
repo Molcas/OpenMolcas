@@ -8,10 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*************** Variable description ***********************************
 *                                                                      *
-* Variables:                                                           *
+#include "Molcas.fh"
 *                                                                      *
+************************************************************************
+*                                                                      *
+*     Definitions and common for INTEGER                               *
+*                                                                      *
+************************************************************************
 * -> Integer   <-                                                      *
 *     iAngMx: higest angular momentum specified in the input           *
 *     MaxPrm: max number of primitives in a shell for a given angular  *
@@ -26,64 +30,7 @@
 *     iRI_Type: type of RI auxiliary basis set                         *
 *     nCtrLD: number of centers in the LDKH procedure                  *
 *     iCtrLD: ith center for the LDKH procedure                        *
-*                                                                      *
-* -> Logical <-                                                        *
-*     Vlct  : logical flag to indicate that the velocity integrals will*
-*             be computed                                              *
-*     lRel  : logical flag to indicate that the 1-electron Darwin and  *
-*             mass-velocity integrals should be computed               *
-*     UnNorm: logical flag to indicate that the primitive basis        *
-*             functions should not be normalized                       *
-*     lSchw : logical flag to indicate that the Cauchy-Schwartz        *
-*             inequality should be used in the prescreening            *
-*     lXF   : logical flag to indicate presence of an external field   *
-*     lAMFI : logical flag for Atomic Mean Field Integrals             *
-*     GIAO: integrals for first derivative with respect to B           *
-*     Cholesky: logical flag for Cholesky decomposition.               *
-*     Do_RI: logical flag for RI apporach                              *
-*     lFAIEMP: logical flag for Fragment AIEMP                         *
-*     Do_FckInt: logical flag for FckInt                               *
-*     Do_GuessOrb: logical flag for GuessOrb                           *
-*     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
-*     LDKroll : logical for the local Douglas-Kroll-Hess               *
-*     Do_Numerical_Gradients: force numerical gradients                *
-*     VART: Forced variant to translations                             *
-*     VARR: Forced variant to rotations                                *
-*     EMFR: Electromagnetic field radiation                            *
-*     FNMC: finite nuclear mass correction                             *
-*                                                                      *
-* -> Real*8 <-                                                         *
-*     AccMch: approximative relative accuracy of real*8 representation *
-*     ThrInt: threshold for writing intgerals to disc                  *
-*     PotNuc: the nuclear repulsion energy                             *
-*     CutInt: threshold for ignoring the computation of integrals      *
-*     TMass : the total mass of the molecule                           *
-*     CoM   : cartesian coordinates of the center of mass              *
-*     rMI   : lower triangular form for the moment of inertia tensor   *
-*     Prin  : moment of inertia of the principle axis                  *
-*     PAx   : vector of the principle axis                             *
-*     CoC   : center of charge of the nuclear charges                  *
-*     qNuc  : total nuclear charge                                     *
-*     PkAcc : packing accuracy                                         *
-*     Thrs  : threshold of occupation number of an orbital for which   *
-*             orbital contribution to a property will be lised in a    *
-*             propert calculation                                      *
-*     Dxyz  : coordinates of the gauge origin in the calculation of the*
-*             magnetic shielding integrals                             *
-*     RadMax: the largest of a contraction coefficient and prefactor   *
-*     radiLD: cutoff radius for LDKH procedure                         *
-*     KVector: the k-vector of the EMFR                                *
-*                                                                      *
 ************************************************************************
-*                                                                      *
-#include "Molcas.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Definitions and common for INTEGER                               *
-*                                                                      *
-************************************************************************
-*                                                                      *
       Integer   ixStrt,ixEnd,
      &          m2Max,MaxDCR,mCentr,MolWgh,Mx_AO,Mx_mdc,Mx_Shll,n2Max,
      &          n2Tot,nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
@@ -108,9 +55,32 @@
 *     Definitions and common for LOGICAL                               *
 *                                                                      *
 ************************************************************************
-*                                                                      *
+* -> Logical <-                                                        *
+*     Vlct  : logical flag to indicate that the velocity integrals will*
+*             be computed                                              *
+*     lRel  : logical flag to indicate that the 1-electron Darwin and  *
+*             mass-velocity integrals should be computed               *
+*     UnNorm: logical flag to indicate that the primitive basis        *
+*             functions should not be normalized                       *
+*     lSchw : logical flag to indicate that the Cauchy-Schwartz        *
+*             inequality should be used in the prescreening            *
+*     lAMFI : logical flag for Atomic Mean Field Integrals             *
+*     GIAO: integrals for first derivative with respect to B           *
+*     Cholesky: logical flag for Cholesky decomposition.               *
+*     Do_RI: logical flag for RI apporach                              *
+*     lFAIEMP: logical flag for Fragment AIEMP                         *
+*     Do_FckInt: logical flag for FckInt                               *
+*     Do_GuessOrb: logical flag for GuessOrb                           *
+*     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
+*     LDKroll : logical for the local Douglas-Kroll-Hess               *
+*     Do_Numerical_Gradients: force numerical gradients                *
+*     VART: Forced variant to translations                             *
+*     VARR: Forced variant to rotations                                *
+*     EMFR: Electromagnetic field radiation                            *
+*     FNMC: finite nuclear mass correction                             *
+************************************************************************
       Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
-     &          Expert, lXF, BSS, DKroll, LDKroll, Primitive_Pass,NEMO,
+     &          Expert, BSS, DKroll, LDKroll, Primitive_Pass,NEMO,
      &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
      &          Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
@@ -121,7 +91,7 @@
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,  NEMO,
      &               LDF, Do_RI, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,
-     &               lSchw, lXF, Expert, GIAO, Do_FckInt, Cholesky,
+     &               lSchw, Expert, GIAO, Do_FckInt, Cholesky,
      &               lFAIEMP,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
@@ -135,7 +105,28 @@
 *     Definitions and common for REAL*8                                *
 *                                                                      *
 ************************************************************************
-*                                                                      *
+* -> Real*8 <-                                                         *
+*     AccMch: approximative relative accuracy of real*8 representation *
+*     ThrInt: threshold for writing intgerals to disc                  *
+*     PotNuc: the nuclear repulsion energy                             *
+*     CutInt: threshold for ignoring the computation of integrals      *
+*     TMass : the total mass of the molecule                           *
+*     CoM   : cartesian coordinates of the center of mass              *
+*     rMI   : lower triangular form for the moment of inertia tensor   *
+*     Prin  : moment of inertia of the principle axis                  *
+*     PAx   : vector of the principle axis                             *
+*     CoC   : center of charge of the nuclear charges                  *
+*     qNuc  : total nuclear charge                                     *
+*     PkAcc : packing accuracy                                         *
+*     Thrs  : threshold of occupation number of an orbital for which   *
+*             orbital contribution to a property will be lised in a    *
+*             propert calculation                                      *
+*     Dxyz  : coordinates of the gauge origin in the calculation of the*
+*             magnetic shielding integrals                             *
+*     RadMax: the largest of a contraction coefficient and prefactor   *
+*     radiLD: cutoff radius for LDKH procedure                         *
+*     KVector: the k-vector of the EMFR                                *
+************************************************************************
       Real*8         AccMch, ThrInt,PotNuc, Rtrnc,
      &               CutInt, TMass,  CoM(3), rMI(6),
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,

@@ -33,7 +33,7 @@
 *                                                                      *
 *             Unified version August '96, RL.                          *
 ************************************************************************
-      use External_Centers, only: iXPolType
+      use External_Centers, only: iXPolType, XF
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -59,7 +59,7 @@
 *     2) for external field and nuclear attraction
 *
       mRys =(iAng2+2+nDiff)/2
-      If (lXF.or.(nOrdEF.eq.1).or.GIAO)
+      If (Allocated(XF).or.(nOrdEF.eq.1).or.GIAO)
      &   mRys=Max(mRys,(2*iAngMx+1+2+nDiff)/2)
       If (nOrdEF.eq.2) mRys=Max(mRys,(2*iAngMx+2+2+nDiff)/2)
       If (DoRys) Call SetUpR(mRys)

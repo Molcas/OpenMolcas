@@ -146,7 +146,7 @@
      &                              ' ',Cavxyz,1,nCavxyz_)
 
 
-      If(lXF) Then
+      If(Allocated(XF)) Then
          Call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
       EndIf
 

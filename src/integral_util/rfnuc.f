@@ -26,7 +26,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use External_Centers, only: nOrd_XF
+      use External_Centers, only: nOrd_XF, XF
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -121,7 +121,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 
 
 
-      If ((.Not.lXF).or.(nOrd_XF.lt.0)) Go To 99
+      If ((.Not.Allocated(XF)).or.(nOrd_XF.lt.0)) Go To 99
 *
 *     Contributions due to the charges and dipoles of the
 *     static external electric field.

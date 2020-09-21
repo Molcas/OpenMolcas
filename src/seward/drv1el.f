@@ -482,7 +482,7 @@ c           iPAMcount=iPAMcount+1
      &                 dum,1,dum,idum,0,0,
      &                 dum,1,0)
          End If
-         If (lXF.and..Not.Primitive_Pass) Then
+         If (Allocated(XF).and..Not.Primitive_Pass) Then
             mOrdOp=nOrd_XF
             Label='XFdInt  '
             Call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,
@@ -1327,7 +1327,7 @@ c           iPAMcount=iPAMcount+1
 *
 *--------Add contributions from the external field
 *
-         If (lXF) Then
+         If (Allocated(XF)) Then
             Label='XFdInt  '
             lOper = 0
             iRC = -1

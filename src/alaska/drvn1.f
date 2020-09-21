@@ -228,7 +228,7 @@
 ************************************************************************
 *
 
-      If (.Not.lXF) Go To 666
+      If (.Not.Allocated(XF)) Go To 666
 *
       If((nOrd_XF.gt.1).or.(iXPolType.gt.0)) Then
          Call WarningMessage(2,'Error in DrvN1')

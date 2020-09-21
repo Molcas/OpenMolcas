@@ -269,7 +269,7 @@
          If (lPP)Write (LuWr,'(15X,A)')
      &                '   Pseudo Potential integrals'
       End If
-      If (lXF) Write (LuWr,'(15X,A,I6,A)')
+      If (Allocated(XF)) Write (LuWr,'(15X,A,I6,A)')
      &                       '   External field from',
      &                           nXF, ' point(s) added to the'
      &                           //' one-electron Hamiltonian'

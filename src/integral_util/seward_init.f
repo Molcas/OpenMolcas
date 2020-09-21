@@ -104,7 +104,6 @@ C
       lUPONLY=.False.
       lDOWNONLY=.False.
       lRel=.False.
-      lXF=.False.
       lAMFI=.False.
       lGENINT=.False.
       GIAO=.False.
