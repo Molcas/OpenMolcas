@@ -23,6 +23,7 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -72,7 +73,7 @@
       BasisTypes(2)=0
       BasisTypes(3)=0
       BasisTypes(4)=0
-      iShll = Mx_Shll - 1
+      iShll = S%Mx_Shll - 1
       lSTDINP=0
       mCnttp=nCnttp
 *
@@ -221,9 +222,9 @@
 *        Create a pointer to the actual coordinates of the parent dbsc
          dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-         Mx_Shll=iShll+1
-         Max_Shells=Mx_Shll
-         Mx_mdc=mdc
+         S%Mx_Shll=iShll+1
+         Max_Shells=S%Mx_Shll
+         S%Mx_mdc=mdc
 *
       End Do
       Go To 1100
@@ -452,9 +453,9 @@
 *           Create a pointer to the actual coordinates.
             dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-            Mx_Shll=iShll+1
-            Max_Shells=Mx_Shll
-            Mx_mdc=mdc
+            S%Mx_Shll=iShll+1
+            Max_Shells=S%Mx_Shll
+            S%Mx_mdc=mdc
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)

@@ -967,8 +967,6 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_AO=iAO
-*
 #ifdef _DEBUG_
       Write (6,*) ' *** iAOtSO ***'
       Do 555 jAO = 1, iAO

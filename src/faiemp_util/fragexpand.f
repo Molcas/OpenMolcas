@@ -26,6 +26,7 @@
 ************************************************************************
       Use Basis_Info
       Use Center_Info
+      use Sizes, only: S
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -71,7 +72,7 @@
       LenLbl=0
       mdc = dbsc(nCnttp)%mdci+dbsc(nCnttp)%nCntr
       BasisTypes(:)=0
-      iShll = Mx_Shll-1
+      iShll = S%Mx_Shll-1
       lSTDINP=0
       mCnttp = nCnttp
 #ifdef _DEBUG_
@@ -294,8 +295,8 @@ c LENIN possible BUG
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
-      Max_Shells=Mx_Shll
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *

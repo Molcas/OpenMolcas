@@ -288,8 +288,8 @@
 *     Selective initialization
 *
       If (Run_Mode.eq.S_Mode) Then
-         iShll = Mx_Shll
-         mdc = Mx_mdc
+         iShll = S%Mx_Shll
+         mdc = S%Mx_mdc
       Else
          iShll = 0
          mdc = 0
@@ -3934,8 +3934,8 @@ c      endif
 *
       iPrint = nPrint(iRout)
 *
-      Mx_Shll = iShll + 1
-      Max_Shells=Mx_Shll
+      S%Mx_Shll = iShll + 1
+      Max_Shells=S%Mx_Shll
 *
       If (nCnttp.eq.0) then
          Call WarningMessage(2,'Input does not contain any basis sets')
@@ -4342,7 +4342,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = iCnt + dbsc(iCnttp)%mdci
-            Mx_mdc = Max(Mx_mdc,mdc)
+            S%Mx_mdc = Max(S%Mx_mdc,mdc)
             n_dc=max(mdc,n_dc)
             If (mdc.gt.MxAtom) Then
                Call WarningMessage(2,' mdc.gt.MxAtom!;'

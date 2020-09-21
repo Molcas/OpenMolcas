@@ -19,6 +19,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
 #include "itmax.fh"
@@ -29,7 +30,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iShll = Mx_Shll - 1
+      iShll = S%Mx_Shll - 1
       mdc = dbsc(nCnttp)%mdci + dbsc(nCnttp)%nCntr
       nCnttp = nCnttp + 1
       If (nCnttp.gt.Mxdbsc) Then
@@ -88,9 +89,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
-      Max_Shells=Mx_Shll
-      Mx_mdc=mdc
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
+      S%Mx_mdc=mdc
 *
       If (iCnttp_Dummy.ne.0) Then
          Write (6,*) 'Mk_dummy_shell: iCnttp_Dummy'

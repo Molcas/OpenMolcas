@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !
-!     This module contains seward parameters which are not supposed to be carried between programs.
 Module Sizes
 Use Iso_C_Binding
 Implicit None
@@ -22,6 +21,8 @@ Type Sizes_of_Stuff
      Integer :: mCentr      =0
      Integer :: mCentr_Aux  =0
      Integer :: mCentr_Frag =0
+     Integer :: Mx_mdc      =0
+     Integer :: Mx_Shll     =0
      Integer :: High_Anchor
 End Type Sizes_of_Stuff
 !

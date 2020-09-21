@@ -31,6 +31,7 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -79,7 +80,7 @@ C      iPrint=99
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *
-      iShll=Mx_Shll - 1
+      iShll=S%Mx_Shll - 1
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************
