@@ -48,6 +48,7 @@
 *             Modified for unified Work2 and Work3 block. Febr. 2015   *
 ************************************************************************
       use lw_Info
+      use Temporary_parameters, only: force_part_c, force_part_p
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"

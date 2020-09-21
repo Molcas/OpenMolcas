@@ -43,7 +43,7 @@
 *             October '93 split up to RdCtl and SoCtl.                 *
 ************************************************************************
       use Basis_Info, only: nBas
-      use Temporary_Parameters, only: Test
+      use Temporary_Parameters, only: Test, PrPrt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

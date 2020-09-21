@@ -103,17 +103,10 @@ C
       Vlct=.True.
       lUPONLY=.False.
       lDOWNONLY=.False.
-      lOMQ=.False.
       lRel=.False.
-      Prprt=.False.
-      Short=.True.
-      ifallorb=.False.
       lXF=.False.
-      lAMP=.False.
       lAMFI=.False.
       lGENINT=.False.
-      force_part_c=.False.
-      force_part_p=.False.
       GIAO=.False.
       Cholesky=.False.
       lFAIEMP=.False.

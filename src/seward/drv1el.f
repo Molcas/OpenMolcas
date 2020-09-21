@@ -35,6 +35,7 @@
       Use External_Centers
       Use SW_file
       use Symmetry_Info, only: iChBas
+      use Temporary_Parameters, only: PrPrt, Short
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -913,7 +914,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (lOMQ.and..Not.Primitive_Pass) Then
+      If (Allocated(OMQ_Center).and..Not.Primitive_Pass) Then
          Label='OMQ     '
          nComp = 9
          nOrdOp = 3
@@ -1416,7 +1417,7 @@ c           iPAMcount=iPAMcount+1
 * Coded P-A Malmqvist, Garching, Nov 1996
       PLabel=' '
       rHrmt=-One
-      If (lAMP.and..Not.Primitive_Pass) Then
+      If (Allocated(AMP_Center).and..Not.Primitive_Pass) Then
          Label='AMProd  '
          nComp = 6
          nOrdOp = 2

@@ -30,16 +30,6 @@
 * -> Logical <-                                                        *
 *     Vlct  : logical flag to indicate that the velocity integrals will*
 *             be computed                                              *
-*     lOMQ  : logical flag to indicate that the orbital magnetic       *
-*             quadrupole integrals will be computed                    *
-*     lAMP  : logical flag to indicate that the angular momentum       *
-*             product integrals will be computed                       *
-*     PrPrt : logical flag to indicate that it is a property           *
-*             calculation                                              *
-*     Short : logical flag that the short list should be used in the   *
-*             output of the property calculation                       *
-*     ifallorb : logical flag that properties of all orbitals are      *
-*               printed if short=false                                 *
 *     lRel  : logical flag to indicate that the 1-electron Darwin and  *
 *             mass-velocity integrals should be computed               *
 *     UnNorm: logical flag to indicate that the primitive basis        *
@@ -48,8 +38,6 @@
 *             inequality should be used in the prescreening            *
 *     lXF   : logical flag to indicate presence of an external field   *
 *     lAMFI : logical flag for Atomic Mean Field Integrals             *
-*     force_part_c: logical flag to force partitioning on contracted   *
-*     force_part_p: logical flag to force partitioning on primitive    *
 *     GIAO: integrals for first derivative with respect to B           *
 *     Cholesky: logical flag for Cholesky decomposition.               *
 *     Do_RI: logical flag for RI apporach                              *
@@ -97,12 +85,11 @@
 ************************************************************************
 *                                                                      *
       Integer   ixStrt,ixEnd,
-     &          m2Max,MaxDCR,mCentr,MolWgh,Mx_AO,
-     &          Mx_mdc,Mx_Shll,n2Max,n2Tot,nDim,nIrrep,nMltpl,
-     &          nShlls, iAngMx,MaxPrm(0:iTabMx),
+     &          m2Max,MaxDCR,mCentr,MolWgh,Mx_AO,Mx_mdc,Mx_Shll,n2Max,
+     &          n2Tot,nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
      &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
-     &          kCentr, iRelae_Info,
-     &          iRI_Type, nCtrLD,iCtrLD(10), nPSOI, IsChi
+     &          kCentr, iRelae_Info,iRI_Type, nCtrLD,iCtrLD(10), nPSOI,
+     &          IsChi
 *
       Common /Info/ ixStrt,
      &              Mx_mdc, Mx_Shll,
@@ -122,26 +109,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Logical   DirInt, Vlct,
-     &          lOMQ, lAMP, Prprt, Short, ifallorb, lRel,
-     &          Do_RI, UnNorm, lSchw, lAMFI, force_part_p,
-     &          force_part_c, Expert, lXF, BSS,
-     &          DKroll, LDKroll, Primitive_Pass,NEMO, GIAO,
+      Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
+     &          Expert, lXF, BSS, DKroll, LDKroll, Primitive_Pass,NEMO,
      &          Do_GuessOrb, lFAIEMP,Cholesky, Do_FckInt, Align_Only,
-     &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
+     &          Do_acCD_Basis, Skip_High_AC,
      &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
      &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
-     &          Do_Numerical_Gradients, VarT, VarR, EMFR,
+     &          Do_Numerical_Gradients, VarT, VarR, EMFR, GIAO,
      &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               DirInt, DKroll, BSS, Primitive_Pass,  NEMO,
-     &               LDF, Do_RI, lAMFI,
-     &               Do_GuessOrb, Vlct, lOMQ, lAMP,
-     &               Prprt, Short, ifallorb, lRel, UnNorm,
-     &               lSchw, lXF, force_part_c,
-     &               force_part_p, Expert, GIAO, Do_FckInt, Cholesky,
-     &               lFAIEMP, Force_Out_of_Core,
+     &               LDF, Do_RI, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,
+     &               lSchw, lXF, Expert, GIAO, Do_FckInt, Cholesky,
+     &               lFAIEMP,
      &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
      &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
      &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,

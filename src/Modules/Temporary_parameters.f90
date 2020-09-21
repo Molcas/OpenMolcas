@@ -13,4 +13,10 @@
 Module Temporary_Parameters
       Logical :: Onenly=.False.
       Logical :: Test  =.False.
+      Logical :: PrPrt =.False.
+      Logical :: Short =.True.
+      Logical :: IfAllOrb =.False.
+      Logical :: force_part_c = .False.
+      Logical :: force_part_p = .False.
+      Logical :: force_out_of_core = .False.
 End Module Temporary_Parameters

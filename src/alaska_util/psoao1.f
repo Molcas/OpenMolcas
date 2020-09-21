@@ -51,6 +51,7 @@
       use aces_stuff, only: nGamma, Gamma_On
       use PSO_Stuff
       use SOAO_Info, only: iAOtSO
+      use Temporary_parameters, only: force_part_c, force_part_p
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

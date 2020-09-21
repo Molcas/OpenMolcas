@@ -13,6 +13,7 @@
 ************************************************************************
       Subroutine DKRelint
       use Basis_Info
+      use Temporary_Parameters, only: force_out_of_core
 c
 c     modified by A. Wolf and M. Reiher, Uni Bonn, Feb. and March 2005
 c       (extended for use of generalized arbitrary-order DKH)

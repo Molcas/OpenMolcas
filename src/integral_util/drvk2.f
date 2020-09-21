@@ -43,6 +43,7 @@
       use k2_arrays
       use Basis_Info
       use Symmetry_Info, only: iOper
+      use Temporary_parameters, only: force_part_c
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct

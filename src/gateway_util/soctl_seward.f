@@ -121,9 +121,6 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
       write(isymunit,'(A)') 'Symmetry information from seward'
       write(isymunit,'(A)')
      &'#of funct, unique centre, L, M , # of sym.ad.functions , Phases'
-C     write(6,*) 'Symmetry info to file SYMINFO '
-C     Show=.Not.Prprt
-C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *

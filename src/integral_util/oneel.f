@@ -17,6 +17,7 @@
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
       use PrpPnt
+      use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"

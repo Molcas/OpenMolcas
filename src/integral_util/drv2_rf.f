@@ -60,6 +60,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Temporary_parameters, only: PrPrt
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"

@@ -40,6 +40,7 @@
 ************************************************************************
       use Basis_Info, only: nBas_Aux
       use Wrj12
+      use Temporary_Parameters, only: force_out_of_core
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

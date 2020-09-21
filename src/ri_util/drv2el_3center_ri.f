@@ -46,6 +46,7 @@
       use iSD_data
       use Wrj12
       use Basis_Info, only: dbsc, nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "itmax.fh"

@@ -116,7 +116,7 @@
       Logical Vlct_, nmwarn, FOUND
 *
       Logical DoEMPC, Basis_test, lECP, lPP
-      Logical :: lDMS=.FALSE., lOAM=.FALSE.
+      Logical :: lDMS=.FALSE., lOAM=.FALSE., lOMQ=.False., lAMP=.False.
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -220,7 +220,6 @@
       lTtl = .False.
       RF_read=.False.
       lSkip=.False.
-      Force_Out_of_Core=.False.
       NoDKroll=.false.
       SymmSet=.false.
       BasisSet=.false.

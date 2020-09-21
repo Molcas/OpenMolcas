@@ -30,6 +30,7 @@
       use external_centers
       use Symmetry_Info, only: iChBas
       use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
 #include "itmax.fh"
