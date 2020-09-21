@@ -20,7 +20,7 @@ module linalg_mod
     use sorting_funcs, only : leq_i, leq_r, geq_r
     implicit none
     private
-    public :: mult, diagonalize, isclose, operator(.isclose.), &
+    public :: mult, sym_diagonalize, isclose, operator(.isclose.), &
         dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
         symmetric
 
@@ -97,7 +97,7 @@ module linalg_mod
 !>      Otherwise it can be 2D orthogonal matrix that represents the reference basis for
 !>      the canonicalization or a function pointer of type `get_matrix_t`
 !>      that returns matrix elements (trading speed for memory).
-!>  @param[in] info Error code. If calling code does not check the error
+!>  @param[out] info Optional error code. If calling code does not check the error
 !>      code, then this routine crashes upon errors.
     interface canonicalize
         module procedure canonicalize_canonical_basis, canonicalize_general
@@ -106,10 +106,6 @@ module linalg_mod
     interface operator(.isclose.)
         module procedure isclose_for_operator
     end interface
-
-#ifndef INTERNAL_PROC_ARG
-        integer, pointer :: ptr_idx(:)
-#endif
 
 contains
 
@@ -289,19 +285,19 @@ contains
     end subroutine
 
 !>  @brief
-!>  Diagonalize A
+!>  Diagonalize symmetric A.
 !>
 !>  @details
 !>  Diagonalize A to fullfill `A V(:, j) = lambda(j) V(:, j)`.
 !>  Wrapper around BLAS DSYEV.
 !>
-!>  @param[in] A 2D matrix to be diagonalized.
+!>  @param[in] A Symmetric 2D matrix to be diagonalized.
 !>  @param[out] V 2D matrix which contains the Eigenvectors.
 !>      The j-th column corresponds to the j-th Eigenvalue.
 !>  @param[out] lambda 1D vector of Eigenvalues.
 !>  @param[in] info Error code. If calling code does not check the error
 !>      code, then this routine crashes upon errors.
-    subroutine diagonalize(A, V, lambda, info)
+    subroutine sym_diagonalize(A, V, lambda, info)
         real(wp), intent(in) :: A(:, :)
         real(wp), intent(out) :: V(:, :), lambda(:)
         integer, optional, intent(out) :: info
@@ -351,10 +347,22 @@ contains
         call mma_deallocate(idx)
     end subroutine
 
-!> @brief
-!> Determine the Eigenspaces.
+!>  @brief
+!>  Determine the Eigenspaces.
 !>
 !>  @details
+!>  Sort the eigenvalues and collect "equal" eigenvalues together.
+!>  Equality of eigenvalues considers floating point error and is determined
+!>  by `operator(.isclose.)`.
+!>  For this reason all Eigenvalues of the same Eigenspace are replaced
+!>  with their mean.
+!>
+!>  @param[inout] lambda Eigenvalues are sorted ascendingly and
+!>      Eigenvalues of the same Eigenspace (up to floating point error)
+!>      are replaced with their mean.
+!>  @param[out] dimensions The dimension of each Eigenspace.
+!>      size(dimensions) is the number of Eigenspaces, i.e. the number
+!>      of distinct Eigenvalues and sum(dimensions) is the number of Eigenvalues.
     subroutine determine_eigenspaces(lambda, dimensions)
         real(wp), intent(inout) :: lambda(:)
         integer, allocatable, intent(out) :: dimensions(:)
@@ -512,6 +520,20 @@ contains
     end subroutine
 
 
+!>  @brief
+!>  Check for floating point equality.
+!>
+!>  @details
+!>  Checks if \f[ |a - b| \leq (atol + rtol \cdot |b|) \f].
+!>  Note that this function is not commutative in a and by anymore.
+!>
+!>  @param[in] a A real number.
+!>  @param[in] b A real number.
+!>  @param[in] atol Absolute tolerance.
+!>  @param[in] rtol Relative tolerance.
+!>
+!>  @author
+!>    Oskar Weser
     elemental function isclose(a, b, atol, rtol) result(res)
         real(wp), intent(in) :: a, b
         real(wp), intent(in) :: atol, rtol
@@ -533,15 +555,20 @@ contains
 !>  @brief
 !>    Calculates v1^T S v2.
 !>
-!>  @author
-!>    Oskar Weser
-!>
 !>  @details
 !>  Calculates \f[ v1^T S v2 \f]
 !>  S has to be a symmetric positive definite matrix, which is not
 !>  tested.
 !>  If S is ommited, it defaults to the unit matrix,
 !>  i.e. the Euclidean dot-product.
+!>
+!>  @param[in] v1 A vector.
+!>  @param[in] v2 A vector.
+!>  @param[in] S Optional positive definite overlap matrix. If ommited
+!>      it is assumed to be the unit matrix.
+!>
+!>  @author
+!>    Oskar Weser
     function dot_product_(v1, v2, S) result(dot)
         real(wp), intent(in) :: v1(:), v2(:)
         real(wp), intent(in), optional :: S(:, :)
@@ -564,6 +591,10 @@ contains
 !>  @details
 !>    It is assumed, that S is symmetric and positive definite.
 !>
+!>  @param[in] v A vector.
+!>  @param[in] S Optional positive definite overlap matrix. If ommited
+!>      it is assumed to be the unit matrix.
+!>
 !>  @author
 !>    Oskar Weser
     function norm(v, S) result(L)
@@ -578,6 +609,11 @@ contains
         end if
     end function
 
+
+!>  @brief
+!>  Check if matrix is symmetric.
+!>
+!>  @param[in] M A matrix.
     logical pure function symmetric(M)
         real(wp), intent(in) :: M(:, :)
         integer :: i, j
@@ -593,6 +629,20 @@ contains
         end do
     end function
 
+!>  @brief
+!>  Loewdin-orthonormalize basis to get ONB using the overlap matrix S.
+!>
+!>  @details
+!>  If the given basis is linear dependent, then this routine will abort.
+!>    For a detailed explanation see \cite szabo_ostlund (p. 143).
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @param[in] basis A matrix of full rank.
+!>  @param[out] ONB The orthonormalized version of basis.
+!>  @param[in] S Optional positive definite overlap matrix. If ommited
+!>      it is assumed to be the unit matrix.
     subroutine Lowdin(basis, ONB, S)
         real(wp), intent(in) :: basis(:, :)
         real(wp), intent(out) :: ONB(:, :)
@@ -623,8 +673,8 @@ contains
 
         call assert_(all(s_diag > 1.0d-10), &
            "Linear dependency detected. "// &
-           "Lowdin can't cure it. Please use other ORTH keyword "// &
-           "from {Gram_Schmidt, Canonical}.")
+           "Lowdin can't cure it. Please use  "// &
+           "Gram_Schmidt or Canonical orthonormalization.")
 
 ! X = U s_diag^{-1/2} U^T
         do i = 1, size(tmp, 2)
@@ -644,6 +694,26 @@ contains
         call mma_deallocate(S_transf)
     end subroutine Lowdin
 
+!>  @brief
+!>  Canonical-orthonormalize basis to get ONB using the overlap matrix S.
+!>
+!>  @details
+!>  If the given basis is linear dependent, then this routine will still
+!>  work. The out parameter `n_new` returns the number of valid
+!>  column vectors. A valid orthonormalized basis is given by ONB(:, : n_new).
+!>
+!>  For a detailed explanation see \cite szabo_ostlund (p. 143).
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @param[in] basis A matrix of full rank.
+!>  @param[in] n_to_ON Number of columns that should be orthonormalized.
+!>  @param[out] ONB The orthonormalized version of basis.
+!>  @param[out] n_new The number of columns that could be orthonormalized.
+!>     Note that `n_new <= n_to_ON`.
+!>  @param[in] S Optional positive definite overlap matrix. If ommited
+!>      it is assumed to be the unit matrix.
     subroutine Canonical(basis, n_to_ON, ONB, n_new, S)
         real(wp), intent(in) :: basis(:, :)
         integer, intent(in) :: n_to_ON
@@ -710,6 +780,26 @@ contains
         call mma_deallocate(S_transf)
     end subroutine Canonical
 
+!>  @brief
+!>  Gram-Schmidt-orthonormalize basis to get ONB using the overlap matrix S.
+!>
+!>  @details
+!>  If the given basis is linear dependent, then this routine will still
+!>  work. The out parameter `n_new` returns the number of valid
+!>  column vectors. A valid orthonormalized basis is given by ONB(:, : n_new).
+!>
+!>  For a detailed explanation see \cite szabo_ostlund (p. 143).
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @param[in] basis A matrix of full rank.
+!>  @param[in] n_to_ON Number of columns that should be orthonormalized.
+!>  @param[out] ONB The orthonormalized version of basis.
+!>  @param[out] n_new The number of columns that could be orthonormalized.
+!>     Note that `n_new <= n_to_ON`.
+!>  @param[in] S Optional positive definite overlap matrix. If ommited
+!>      it is assumed to be the unit matrix.
     subroutine Gram_Schmidt(basis, n_to_ON, ONB, n_new, S)
         real(wp), intent(in) :: basis(:, :)
         integer, intent(in) :: n_to_ON
@@ -768,7 +858,8 @@ contains
     end subroutine Gram_Schmidt
 
 
-
+    !> @brief
+    !>    Print error message, print stacktrace, and abort.
     subroutine abort_(message)
         character(*), intent(in) :: message
         call WarningMessage(2, message)
@@ -781,12 +872,11 @@ contains
     subroutine assert_(test_expression, message)
         logical, intent(in) :: test_expression
         character(*), intent(in) :: message
-! TODO(Oskar): uncomment
-! #ifdef _DEBUG_
+#ifdef _DEBUG_
         if (.not. test_expression) then
             call abort_(message)
         end if
-! #endif
+#endif
     end subroutine
 
     !> @brief
