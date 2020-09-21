@@ -49,6 +49,7 @@
 ************************************************************************
       use lw_Info
       use Temporary_parameters, only: force_part_c, force_part_p
+      use Integral_Parameters, only: iWROpt
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"

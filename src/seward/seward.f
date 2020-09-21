@@ -56,6 +56,7 @@
       use Symmetry_Info, only: lIrrep
       use LundIO
       use Temporary_Parameters
+      use Integral_parameters, only: iPack, iWROpt
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
@@ -410,14 +411,9 @@ C     Call Seward_Banner()
                   Write (6,'(A,I10)')
      &             ' Highest disk address written',MaxDax
                End If
-               If ( iSquar.eq.0 ) Then
-                  Write (6,'(A,A)') ' Diagonal and subdiagonal, '
-     &              //'symmetry allowed 2-el',
-     &              ' integral blocks are stored on Disk'
-               Else
-                  Write (6,'(A,A)') ' All symmetry allowed 2-el '
-     &              //'integral blocks are', ' stored on Disk'
-               End If
+               Write (6,'(A,A)') ' Diagonal and subdiagonal, '
+     &           //'symmetry allowed 2-el',
+     &           ' integral blocks are stored on Disk'
             End If
             iWrOpt=iWrOpt_Save
          End If

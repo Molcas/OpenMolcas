@@ -23,6 +23,7 @@
       use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup,
      &                         iSkip
       use Temporary_Parameters
+      use Integral_Parameters
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -573,7 +574,6 @@ c    &       KWord(4:4).eq.'C') ) Go To 657
       If (KWord(1:4).eq.'SLIM') Go To 8005
       If (KWord(1:4).eq.'SPAN') Go To 890
       If (KWord(1:4).eq.'SPRE') Go To 889
-      If (KWord(1:4).eq.'SQUA') Go To 9920
       If (KWord(1:4).eq.'STDO') Go To 9930
       If (KWord(1:4).eq.'SYMM') Go To 900
       If (KWord(1:4).eq.'SYMT') Go To 6060
@@ -2270,18 +2270,6 @@ c Simplistic validity check for value
 *     iPack=1   : do not pack 2el integrals
 *
  9910 iPack=1
-      Go To 998
-*                                                                      *
-****** SQUA ************************************************************
-*                                                                      *
-*     Set integral ordering flag
-*     Note      : this flag is only active if iWRopt=0
-*     iSquar=0  : diagonal and sub diagonal symmetry blocks of
-*                 2el integrals are stored, only (= Default)
-*     iSquar=1  : All symmetry blocks of 2el integrals with
-*                 iSym.ge.jSym and kSym.ge.lSym are stored
-*
- 9920 Write (LuWr,*) 'The SQUARE option is obsolete and is ignored!'
       Go To 998
 *                                                                      *
 ****** STDO ************************************************************

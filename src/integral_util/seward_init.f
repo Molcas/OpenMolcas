@@ -78,9 +78,6 @@ C
       MaxPrm(0:iTabMx)=0
 
       nRP=0
-      iPack=0
-      iSquar=0
-      iWRopt=0
       iPAMcount=1
 
       IsChi=0

@@ -29,16 +29,14 @@
       Integer   ixStrt,ixEnd,
      &          m2Max,MaxDCR,mCentr,Mx_AO,Mx_mdc,Mx_Shll,n2Max,
      &          n2Tot,nDim,nIrrep,nMltpl,nShlls,iAngMx,MaxPrm(0:iTabMx),
-     &          MaxBas(0:iTabMx),Max_Center,jMax,iSquar,iPack,iWRopt,
+     &          MaxBas(0:iTabMx),Max_Center,jMax,
      &          kCentr, iRelae_Info,iRI_Type, nCtrLD,iCtrLD(10), nPSOI,
      &          IsChi
 *
       Common /Info/ ixStrt,
-     &              Mx_mdc, Mx_Shll,
-     &              iAngMx,  nIrrep, n2Tot, n2Max,   MaxDCR, MaxPrm,
-     &              MaxBas, nDim, mCentr, m2Max,  nMltpl,
-     &              IsChi,  nShlls, iPack, iSquar,  iWRopt,
-     &              iRelae_info, jMax, iRI_Type,
+     &              Mx_mdc, Mx_Shll, iAngMx,  nIrrep, n2Tot, n2Max,
+     &              MaxDCR, MaxPrm, MaxBas, nDim, mCentr, m2Max,
+     &              nMltpl, IsChi,  nShlls, iRelae_info, jMax, iRI_Type,
      &              kCentr, Max_Center, Mx_AO, nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *

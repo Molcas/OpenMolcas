@@ -90,7 +90,8 @@
 *|      |               |       |integrals      |               |          |
 *---------------------------------------------------------------------------
 *
-      use Temporary_parameters, only: force_part_c, force_part_p
+c     use Temporary_parameters, only: force_part_c, force_part_p
+      use Temporary_parameters, only: force_part_p
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)

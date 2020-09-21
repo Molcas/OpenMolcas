@@ -84,6 +84,7 @@
       use Basis_Info, only: nBas
       use srt2
       use Symmetry_Info, only: iSkip
+      use Integral_parameters, only: iPack
       Implicit Integer (A-Z)
 *
 #include "itmax.fh"
@@ -135,7 +136,7 @@
 *     (Get total no. of irred. representations, basis dimensions ect.) *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT0(iSquar,nIrrep,nBas,iSkip)
+      Call MKSRT0(0,nIrrep,nBas,iSkip)
 *
 *----------------------------------------------------------------------*
 *     Initialize the common /SRT1/, i.e.,                              *

@@ -42,6 +42,7 @@
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
       use srt2
+      use Integral_Parameters, only: iPack
       Implicit Integer (A-Z)
 *
 
@@ -74,7 +75,7 @@ C     Call qEnter('MkOrd')
 *     Write ordring mode                                              *
 *---------------------------------------------------------------------*
 *
-      TocTwo(isOrd)=iSquar
+      TocTwo(isOrd)=0
 *
 *---------------------------------------------------------------------*
 *     Write symmetry and basis set information                        *
