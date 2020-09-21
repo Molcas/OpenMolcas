@@ -24,6 +24,7 @@
      &                         iSkip
       use Temporary_Parameters
       use Integral_Parameters
+      use Sizes, Only: S
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -4334,10 +4335,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Generate list of Stabilizers , Stabilizer Index
 *     and distinct cosets
 *
-      mCentr=0
-      mCentr_Aux=0
-      mCentr_Frag=0
-      MaxDCR = nIrrep
+      S%mCentr=0
+      S%mCentr_Aux=0
+      S%mCentr_Frag=0
       Do iCnttp = 1, nCnttp
          nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
@@ -4375,7 +4375,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             End If
             dc(mdc)%iChCnt = iChxyz
             Call Stblz(iChxyz,dc(mdc)%nStab,dc(mdc)%iStab,
-     &                 MaxDCR,dc(mdc)%iCoSet)
+     &                 nIrrep,dc(mdc)%iCoSet)
 *
 *           Perturb the initial geometry if the SHAKE keyword was given,
 *           but maintain the symmetry
@@ -4406,19 +4406,19 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                End If
             End If
             If (dbsc(iCnttp)%Frag) Then
-               mCentr_Frag = mCentr_Frag + nIrrep/dc(mdc)%nStab
+               S%mCentr_Frag = S%mCentr_Frag + nIrrep/dc(mdc)%nStab
             Else If (dbsc(iCnttp)%Aux) Then
-               mCentr_Aux = mCentr_Aux + nIrrep/dc(mdc)%nStab
+               S%mCentr_Aux = S%mCentr_Aux + nIrrep/dc(mdc)%nStab
             Else
-               mCentr = mCentr + nIrrep/dc(mdc)%nStab
+               S%mCentr = S%mCentr + nIrrep/dc(mdc)%nStab
             End If
          End Do
       End Do
-      If (mCentr.gt.MxAtom) Then
-         Call WarningMessage(2,'RdCtl: mCentr.gt.MxAtom')
-         Write (6,*) 'mCentr=',mCentr
+      If (S%mCentr.gt.MxAtom) Then
+         Call WarningMessage(2,'RdCtl: S%mCentr.gt.MxAtom')
+         Write (6,*) 'S%mCentr=',S%mCentr
          Write (6,*) 'Edit src/Include/Molcas.fh'
-         Write (6,*) 'Set MxAtom to the value of mCentr.'
+         Write (6,*) 'Set MxAtom to the value of S%mCentr.'
          Write (6,*) 'Recompile MOLCAS and try again!'
          Call Abend()
       End If

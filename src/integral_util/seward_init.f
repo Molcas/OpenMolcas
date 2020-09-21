@@ -66,7 +66,6 @@ C
 *     Info
 *
       nMltpl=2
-      m2Max=0
       iAngMx=-1
       nWel=0
       iRI_type=0

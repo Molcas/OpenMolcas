@@ -128,7 +128,7 @@
          RecLab( 23)='SCFInfoI_ab     '
          RecLab( 24)='icDmp           '
          RecLab( 25)='Symmetry Info   '
-         RecLab( 26)='                ' !Free slot
+         RecLab( 26)='Sizes           '
          RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
          RecLab( 29)='                ' !Free slot

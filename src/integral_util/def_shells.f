@@ -11,6 +11,7 @@
       Subroutine Def_Shells(iSD,nSD,mSkal)
       use Basis_Info
       use Center_Info
+      use Sizes, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -45,7 +46,7 @@
       iIrrep=0
       nSkal=0
       iAOttp=0 ! Number of AO functions proceeding a particular shell
-      m2Max=0
+      S%m2Max=0
 *
       If (Atomic) Go To 300
 *                                                                      *
@@ -153,7 +154,7 @@
                End Do
                iSD(15,nSkal) = iTmp
 *
-               m2Max=Max(m2Max,nExpi**2)
+               S%m2Max=Max(S%m2Max,nExpi**2)
  200           Continue
 *                                                                      *
 ************************************************************************
@@ -238,7 +239,7 @@
          iSD(17,nSkal) = 0
          iSD(18,nSkal) = 0
 *
-         m2Max=Max(m2Max,nExpi**2)
+         S%m2Max=Max(S%m2Max,nExpi**2)
 *
          If (Shells(iShll)%Prjct ) Then
             nFunctions = nFunctions + nBasisi*(2*iAng+1)

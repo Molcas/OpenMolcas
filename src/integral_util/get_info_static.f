@@ -29,6 +29,7 @@
 *             January 1992                                             *
 ************************************************************************
       use Symmetry_Info, only: Symmetry_Info_Get
+      use Sizes, only: Size_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -80,6 +81,7 @@
       Nullify(p_ix,p_lx,p_rx)
 *
       Call Symmetry_Info_Get()
+      Call Size_Get()
 *
       Return
       End SubRoutine Get_Info_Static_Internal

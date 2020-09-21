@@ -43,6 +43,7 @@
       use iSD_data
       use Basis_Info
       use Symmetry_Info, only: iOper
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -86,7 +87,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Con','Allo','Real',ipCon,m2Max)
+      Call GetMem('Con','Allo','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,10 +98,10 @@
       Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
       Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
       Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*m2Max)
+      Call GetMem('Knew ','Allo','Real',ipKnew,S%m2Max  )
+      Call GetMem('Lnew ','Allo','Real',ipLnew,S%m2Max  )
+      Call GetMem('Pnew ','Allo','Real',ipPnew,3*S%m2Max)
+      Call GetMem('Qnew ','Allo','Real',ipQnew,3*S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -252,14 +253,14 @@
 ************************************************************************
 *                                                                      *
       Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, m2Max  )
+      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*S%m2Max)
+      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*S%m2Max)
+      Call GetMem(' Lnew',  'Free','Real',ipLnew, S%m2Max  )
+      Call GetMem(' Knew',  'Free','Real',ipKnew, S%m2Max  )
       Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
       Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
       Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('Con','Free','Real',ipCon,m2Max)
+      Call GetMem('Con','Free','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *

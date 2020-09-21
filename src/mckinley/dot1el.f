@@ -59,6 +59,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iOper
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 *     External Kernel, KrnlMm
       External KrnlMm
@@ -107,10 +108,10 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
+      Call GetMem('Zeta','ALLO','REAL',ipZI ,S%m2Max)
+      Call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
+      Call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,7 +169,7 @@ C        write(6,*) (iSD(i,jS),i=0,11)
 *
         nOrdOp = 0  ! not used in this implementation
         Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-        MemKrn=MemKer*m2Max
+        MemKrn=MemKer*S%m2Max
         Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
 *
 *       Allocate memory for the final integrals, all in the

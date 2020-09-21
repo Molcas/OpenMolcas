@@ -61,6 +61,7 @@
       use Basis_Info
       use Center_Info
       use Temporary_parameters, only: PrPrt
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -99,10 +100,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,Label='Zeta')
-      Call mma_allocate(ZI,m2Max,Label='ZI')
-      Call mma_allocate(Kappa,m2Max,Label='Kappa')
-      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -151,7 +152,7 @@
 *
             Call RFMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write(*,*)nOrder,MemKer,iAng,jAng,nOrdOp
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call mma_allocate(Kern,MemKrn,Label='Kern')
 *
 *           Allocate memory for the final integrals all in the

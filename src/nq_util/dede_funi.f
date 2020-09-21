@@ -24,7 +24,7 @@
 *
 *
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
-      Call mma_allocate(DeDe,nDeDe_DFT+MaxDe*MaxDCR,Label='DeDe')
+      Call mma_allocate(DeDe,nDeDe_DFT+MaxDe*nIrrep,Label='DeDe')
       ipDeDe= 1
       ipD00 = ipDeDe + nDeDe_DFT
       ipDijs = -1  ! Dummy value

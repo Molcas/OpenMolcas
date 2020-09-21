@@ -13,6 +13,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChCar
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -21,9 +22,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Centr,3,mCentr,label='Centr')
-      Call mma_allocate(Mass,mCentr,label='Mass')
-      Call mma_allocate(Chrg,mCentr,label='Chrg')
+      Call mma_allocate(Centr,3,S%mCentr,label='Centr')
+      Call mma_allocate(Mass,S%mCentr,label='Mass')
+      Call mma_allocate(Chrg,S%mCentr,label='Chrg')
 *                                                                      *
 ************************************************************************
 *                                                                      *

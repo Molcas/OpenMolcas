@@ -105,10 +105,6 @@ C     Call QEnter('DeDe')
          End Do
       End If
 *
-*     ipD00:
-*     MaxDCR: max number of possible pairs
-*     MaxDe:
-*
       mIndij = 0
       iIrrep = 0
       jOffD = 0
@@ -116,7 +112,7 @@ C     Call QEnter('DeDe')
       If (mFD.eq.2) Inc=4
       Call ICopy(nOffD,[ipD00],0,ipOffD(1,1),Inc)
       If (mFD.eq.2) Call ICopy(nOffD,[ipD00],0,ipOffD(4,1),Inc)
-      Call ICopy(nOffD,[MaxDCR],0,ipOffD(2,1),Inc)
+      Call ICopy(nOffD,[nIrrep],0,ipOffD(2,1),Inc)
       Call ICopy(nOffD,[MaxDe],0,ipOffD(3,1),Inc)
 *                                                                      *
 ************************************************************************

@@ -54,6 +54,7 @@ C     Purpose: set up info for calculating multipole integrals.
 C
       use MpmC
       use Symmetry_Info, only: iChBas
+      use Sizes, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -92,13 +93,13 @@ C
       Call GetMem('kOper','Allo','Inte',ip_kOper,l_kOper)
       l_CCoor=3*nComp
       Call GetMem('CCoor','Allo','Real',ip_CCoor,l_CCoor)
-      l_xZeta=m2Max
+      l_xZeta=S%m2Max
       Call GetMem('Zeta','Allo','Real',ip_xZeta,l_xZeta)
-      l_xZI=m2Max
+      l_xZI=S%m2Max
       Call GetMem('ZI','Allo','Real',ip_xZI,l_xZI)
-      l_xKappa=m2Max
+      l_xKappa=S%m2Max
       Call GetMem('Kappa','Allo','Real',ip_xKappa,l_xKappa)
-      l_xPCoor=3*m2Max
+      l_xPCoor=3*S%m2Max
       Call GetMem('PCoor','Allo','Real',ip_xPCoor,l_xPCoor)
       iComp=0
       Do ix=iMltpl,0,-1

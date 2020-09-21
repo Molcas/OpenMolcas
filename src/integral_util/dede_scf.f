@@ -36,11 +36,11 @@
 *     ipDijS is an auxilliary memory if not the whole set of a
 *      desymmetrized density could be used.
 *
-      nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
+      nDeDe_tot = nDeDe + MaxDe*nIrrep + MxDij
       Call mma_allocate(DeDe,nDeDe_tot,Label='DeDe')
       ipDeDe = 1
       ipD00 = ipDeDe + nDeDe
-      ipDijS= ipD00  + MaxDe*MaxDCR
+      ipDijS= ipD00  + MaxDe*nIrrep
       DeDe(:)=Zero
 *
       Special_NoSym=.True.

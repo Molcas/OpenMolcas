@@ -57,6 +57,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 *     External Kernel, KrnlMm
       External KrnlMm
@@ -108,10 +109,10 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
 *
 *     Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,Label='Zeta')
-      Call mma_allocate(ZI,m2Max,Label='ZI')
-      Call mma_allocate(Kappa,m2Max,Label='Kappa')
-      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -189,7 +190,7 @@ C        Do jS = 1, iS
 *           Call kernel routine to get memory requirement.
 *
             Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call mma_allocate(Krnl,MemKrn,Label='Krnl')
 *
 *           Allocate memory for the final integrals, all in the

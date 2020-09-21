@@ -212,6 +212,7 @@ c        Write(6,*) ' oneel *',Label,'*'
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -242,8 +243,8 @@ c        Write(6,*) ' oneel *',Label,'*'
 *
 *-----Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max)
-      Call mma_allocate(ZI,m2Max)
+      Call mma_allocate(Zeta,S%m2Max)
+      Call mma_allocate(ZI,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
