@@ -18,6 +18,7 @@
       use Basis_Info, only: nBas
       use PrpPnt
       use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -143,7 +144,7 @@
                If (short) Then
                   mDim = 1
                Else
-                  mDim = nDim
+                  mDim = S%nDim
                End If
                call mma_allocate(Out,mDim*nComp,label='Out')
                ipOut=1

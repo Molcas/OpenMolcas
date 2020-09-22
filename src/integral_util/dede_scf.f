@@ -11,6 +11,7 @@
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
       use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -26,7 +27,7 @@
 #endif
       nr_of_Densities=1  ! Hardwired option
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nField=2+nr_of_Densities
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
 *

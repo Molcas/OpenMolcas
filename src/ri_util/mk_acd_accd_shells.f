@@ -145,7 +145,7 @@
 *     Define some parameters to facilitate the atomic calculation
 *
       iShell = dbsc(iCnttp)%nVal
-      nShlls=iShell
+      S%nShlls=iShell
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -170,7 +170,7 @@
       lpick=lgrad.and.(.not.New_Fock)
       Pren = Zero
       Prem = Zero
-      nIndK2 = nShlls*(nShlls+1)/2
+      nIndK2 = S%nShlls*(S%nShlls+1)/2
       Call mma_allocate(IndK2,2,nIndk2)
       Call Drvk2_mck(ndede,new_Fock)
 *
@@ -223,7 +223,7 @@
 *-----Calculate the size of memory needed for storing fock matrixes and
 *     MO integrals and allocate it.
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nInt=0
       jDisp=0
       Do iIrrep=0,nIrrep-1

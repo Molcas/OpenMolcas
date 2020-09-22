@@ -45,7 +45,7 @@
 *
       nDen=n2Tri(1)
       nVec=S%n2Tot
-      nOcc=nDim
+      nOcc=S%nDim
       If (Density) Call mma_allocate(Den,nDen,label='Den')
       iadDen=1
       Call mma_allocate(Vec,nVec,label='Vec')

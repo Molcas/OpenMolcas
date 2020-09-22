@@ -4388,12 +4388,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                Do j=1,dc(mdc)%nStab-1
                   jTmp=iOr(jTmp,dc(mdc)%iStab(j))
                End Do
-               nDim=0
+               S%nDim=0
                Do j=0,2
-                  If (iAnd(jTmp,2**j).eq.0) nDim=nDim+1
+                  If (iAnd(jTmp,2**j).eq.0) S%nDim=S%nDim+1
                End Do
-               If (nDim.gt.0) Then
-                  Call Random_Vector(nDim,RandVect(1:nDim),.False.)
+               If (S%nDim.gt.0) Then
+                  Call Random_Vector(S%nDim,RandVect(1:S%nDim),.False.)
                   jDim=0
                   Do j=0,2
                      If (iAnd(jTmp,2**j).eq.0) Then

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine DeDe_Funi(Dens,nDens,nr_of_Densities)
       use k2_arrays
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -19,7 +20,7 @@
       Real*8 Dens(nDens,nr_of_Densities)
       Logical Special_NoSym, DFT_Storage
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nField=2+nr_of_Densities
 *
 *

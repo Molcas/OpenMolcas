@@ -39,6 +39,7 @@
       use SOAO_Info, only: iAOtSO, nSOInf
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"
@@ -98,7 +99,7 @@
 *                                                                      *
 *        Define some parameters to facilitate the atomic calculation
 *
-         nShlls= dbsc(iCnttp)%nVal
+         S%nShlls= dbsc(iCnttp)%nVal
          nTest = dbsc(iCnttp)%nVal-1
 *
 *        Define AOtSO

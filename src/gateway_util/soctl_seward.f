@@ -89,7 +89,7 @@ cvv LP_NAMES was used later without initialization.
 *                                                                      *
 *     Compute iBas, iBas_Aux, and iBas_Frag used for double checking
 *     in SOCtl.
-*     Compute cdMax, EtMax, and nShlls.
+*     Compute cdMax, EtMax, and S%nShlls.
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       Call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux,nIrrep)
@@ -139,7 +139,7 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
       iSO_Frag=iBas
       iSO_Tot=0
       S%n2Tot = 0
-      nDim = 0
+      S%nDim = 0
       iAO=0
       lSkip=.False.
 *
@@ -536,10 +536,10 @@ culf
          nrSym=nIrrep
          nrBas(iIrrep+1)=nBas(iIrrep)
 *        write(6,*) ' nBas(iIrrep)', iIrrep, nBas(iIrrep)
-         nDim = nDim + nBas(iIrrep)
+         S%nDim = S%nDim + nBas(iIrrep)
          S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  200  Continue ! iIrrep
-*     If (lSkip) nDim = iBas
+*     If (lSkip) S%nDim = iBas
       If (iBas.ne.iSO .and.
      &    iBas_Aux.ne.iSO_Aux-iSO .and.
      &    .Not.lSkip) Then
@@ -836,7 +836,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  301     Continue
          nrSym=nIrrep
          nrBas(iIrrep+1)=nBas(iIrrep)
-         nDim = nDim + nBas(iIrrep)
+         S%nDim = S%nDim + nBas(iIrrep)
          S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  300  Continue
 *

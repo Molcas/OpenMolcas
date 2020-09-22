@@ -29,6 +29,7 @@
       use Center_Info
       use external_centers, only: iXPolType, XF
       use Temporary_parameters, only: Primitive_Pass, Expert
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
@@ -165,7 +166,7 @@ C     Call Gateway_banner()
 *
       Call Drvn0()
 *
-      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run()
       Call mma_deallocate(Mamn)

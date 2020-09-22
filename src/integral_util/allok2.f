@@ -33,6 +33,7 @@
       use iSD_data
       use IOBUF
       use Basis_Info
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -126,7 +127,7 @@
 *     now ... allocate memory
       Call mma_allocate(Data_k2,nk2,Label='Data_k2')
       Data_k2(:)=Zero
-      nIndk2=nShlls*(nShlls+1)/2
+      nIndk2=S%nShlls*(S%nShlls+1)/2
       call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return

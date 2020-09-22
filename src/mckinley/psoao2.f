@@ -94,6 +94,7 @@ c     use Temporary_parameters, only: force_part_c, force_part_p
       use Temporary_parameters, only: force_part_p
       use SOAO_Info, only: iAOtSO
       use pso_stuff
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
@@ -241,7 +242,7 @@ c     Call qEnter('PSOAO2')
          nFac = 0
          nTmp2 = 0
       End If
-      MemAux = MemPSO + MemScr + nFac*nDim + nTmp2 + 4
+      MemAux = MemPSO + MemScr + nFac*S%nDim + nTmp2 + 4
       MemB_AUX=MemAux
       If (Mem1+1+MemAux.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1+MemAux-Mem0)
