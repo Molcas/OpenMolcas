@@ -30,6 +30,7 @@
       use Center_Info
       use Phase_Info
       use Temporary_Parameters, only: Expert
+      use Real_Info, only: PotNuc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
